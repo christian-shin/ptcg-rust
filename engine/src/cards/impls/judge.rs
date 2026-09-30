@@ -1,9 +1,9 @@
-//! Judge (FST): each player shuffles their hand into their deck and draws 4
+//! Judge (FST, SVI as POR): each player shuffles their hand into their deck and draws 4
 //! cards (the player first; the opponent's sequence starts after the
 //! player's draw, as Twinleaf's `afterDraw` callback).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Judge@FST", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Judge@FST|POR", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let p = match trainer_played(g, e, me) {
