@@ -42,7 +42,7 @@ def canon_url(u):
         if u.endswith(s):
             return local_of[s]
     return None
-snaps = sorted(f for d in cov_dir.split(',') for f in glob.glob(os.path.join(d, 'coverage-*.json')))
+snaps = sorted(f for d in cov_dir.split(',') for f in glob.glob(os.path.join(d, '*coverage-*.json')))
 per_url_bounds = collections.defaultdict(set)
 games_ranges = []
 for f in snaps:

@@ -122,6 +122,12 @@ python3 tools/check_cards.py "Full Name A" "Full Name B"            # parity loo
 python3 tools/check_cards.py "Full Name A" "Full Name B" --coverage  # once, at the end
 ```
 
+More games, faster: add `--remote 8` (up to 20) to run the oracle games on
+GitHub Actions runners instead of locally (`.github/workflows/oracle.yml`,
+driven by `tools/remote_oracle.py`; needs `gh` logged in). Traces and coverage
+come back into the same corpus directory; the Rust diff still runs locally.
+Expect ~1-2 minutes of queue/setup overhead, so use it for runs of 32+ games.
+
 New worktree? Copy a warm build cache first so the first build isn't from scratch:
 `cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
 
