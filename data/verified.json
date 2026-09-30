@@ -375,5 +375,48 @@
  },
  "Strange Timepiece MEG": {
   "status": "verified"
+ },
+ "Brute Bonnet TWM": {
+  "status": "verified"
+ },
+ "Carvanha M2": {
+  "status": "verified"
+ },
+ "Dark Bell M5": {
+  "status": "verified"
+ },
+ "Froslass TWM": {
+  "status": "partial",
+  "note": "ability-blocked return unreached"
+ },
+ "Marnie's Grimmsnarl ex DRI": {
+  "status": "partial",
+  "note": "empty-deck and ability-blocked returns unreached"
+ },
+ "Marnie's Impidimp DRI": {
+  "status": "verified"
+ },
+ "Mega Absol ex M1L": {
+  "status": "verified"
+ },
+ "Mega Sharpedo ex M2": {
+  "status": "partial",
+  "note": "Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0)"
+ },
+ "Spikemuth Gym DRI": {
+  "status": "partial",
+  "note": "empty-deck throw unreached"
+ },
+ "Team Rocket's Transceiver DRI": {
+  "status": "verified"
+ },
+ "Toxel M2": {
+  "status": "verified"
+ },
+ "Toxtricity M2": {
+  "status": "verified"
+ },
+ "Yveltal M1L": {
+  "status": "verified"
  }
 }

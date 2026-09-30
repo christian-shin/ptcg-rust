@@ -352,7 +352,7 @@ impl Effect {
             PlayLock { .. } => 67,
             MoveDamageCounters { .. } => 68,
             PreventRetreat { .. } => 69,
-            AddSpecialConditionsPower { .. } => 117,
+            AddSpecialConditionsPower { .. } => 70,
         };
         k
     }
@@ -430,7 +430,7 @@ pub mod k {
     pub const PLAY_LOCK: u32 = 67;
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
     pub const PREVENT_RETREAT: u32 = 69;
-    pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 117;
+    pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].
