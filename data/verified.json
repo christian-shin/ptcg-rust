@@ -987,5 +987,76 @@
  },
  "Zweilous SSP": {
   "status": "verified"
+ },
+ "Crustle BCR": {
+  "status": "verified"
+ },
+ "Diancie SCR": {
+  "status": "verified"
+ },
+ "Drilbur TEF": {
+  "status": "verified"
+ },
+ "Frogadier TWM": {
+  "status": "verified"
+ },
+ "Gastrodon SSP": {
+  "status": "verified"
+ },
+ "Great Tusk TEF": {
+  "status": "verified"
+ },
+ "Greninja ex TWM": {
+  "status": "partial",
+  "note": "Tera bench-damage prevent 3 games"
+ },
+ "Hisuian Arcanine TWM": {
+  "status": "verified"
+ },
+ "Hisuian Growlithe TWM": {
+  "status": "verified"
+ },
+ "Koraidon SSP": {
+  "status": "verified"
+ },
+ "Lucario 30C": {
+  "status": "verified"
+ },
+ "Mamoswine ex JTG": {
+  "status": "verified"
+ },
+ "Mega Hawlucha ex M2a": {
+  "status": "verified"
+ },
+ "Okidogi TWM": {
+  "status": "verified"
+ },
+ "Onix M1L": {
+  "status": "verified"
+ },
+ "Relicanth TEF": {
+  "status": "verified"
+ },
+ "Riolu PRE": {
+  "status": "verified"
+ },
+ "Riolu VIV": {
+  "status": "verified"
+ },
+ "Sandy Shocks TEF": {
+  "status": "verified"
+ },
+ "Slither Wing SFA": {
+  "status": "verified"
+ },
+ "Stunfisk ex ASC": {
+  "status": "verified"
+ },
+ "Swinub JTG": {
+  "status": "verified"
+ },
+ "Annihilape SSP": {
+  "status": "blocked",
+  "note": "Primeape/Mankey not in card DB; Destined Fight needs KnockOutPlayerEffect"
  }
 }
