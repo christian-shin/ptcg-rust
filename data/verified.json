@@ -534,5 +534,64 @@
  },
  "Tapu Bulu SFA": {
   "status": "verified"
+ },
+ "Ignition Energy SV11W": {
+  "status": "verified"
+ },
+ "Lucky Helmet TWM": {
+  "status": "verified"
+ },
+ "Maximum Belt TEF": {
+  "status": "partial",
+  "note": "tool-blocked catch 0"
+ },
+ "Miraculous Intercom SSP": {
+  "status": "verified"
+ },
+ "Roto-Stick PRE": {
+  "status": "verified"
+ },
+ "Team Rocket's Archer DRI": {
+  "status": "partial",
+  "note": "KO outside opponent's turn branch 0 games"
+ },
+ "Team Rocket's Ariana DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Articuno DRI": {
+  "status": "partial",
+  "note": "Dark Frost bonus unreachable (Twinleaf name mismatch)"
+ },
+ "Team Rocket's Energy DRI": {
+  "status": "partial",
+  "note": "non-TR discard branch 1 game"
+ },
+ "Team Rocket's Giovanni DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Honchkrow M2a": {
+  "status": "verified"
+ },
+ "Team Rocket's Mewtwo ex DRI": {
+  "status": "partial",
+  "note": "ability-blocked / no-bench returns 0"
+ },
+ "Team Rocket's Murkrow DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Porygon DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Porygon2 DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Proton DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Spidops DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Tarountula DRI": {
+  "status": "verified"
  }
 }
