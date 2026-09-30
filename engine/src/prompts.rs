@@ -996,6 +996,16 @@ impl Game {
             Some(a) => a,
             None => return None,
         };
+        // Answers longer than the result capacity are rejected, not a panic
+        // (only reachable from agents; no oracle answer comes close).
+        let cap = match pr.kind {
+            PromptKind::MoveEnergy { .. } => 48,
+            PromptKind::OrderCards { .. } => 120,
+            _ => 16,
+        };
+        if arr.len() > cap {
+            return Some(Err(invalid));
+        }
         let r = (|| -> Result<Res, GameError> {
             match pr.kind {
                 PromptKind::AttachEnergy { cards, o, .. } => {

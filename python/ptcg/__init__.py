@@ -65,6 +65,10 @@ class VecEnv:
             np.frombuffer(c, dtype=np.int32),
         )
 
+    @property
+    def invalid_answers(self):
+        return self._v.invalid_answers
+
     def step(self, actions):
         r, d = self._v.step([int(a) for a in actions])
         return np.frombuffer(r, dtype=np.float32), np.frombuffer(d, dtype=np.uint8).astype(bool)

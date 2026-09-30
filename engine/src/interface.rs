@@ -132,6 +132,14 @@ pub struct SelectData {
     source: Source,
 }
 
+impl SelectData {
+    /// True when the same option may be picked more than once (each pick is
+    /// one damage counter: Put / Move / Remove damage prompts).
+    pub fn allows_repeats(&self) -> bool {
+        self.context == SelectContext::DamageCounter
+    }
+}
+
 #[derive(Clone, Debug)]
 enum Source {
     Turn(Vec<TurnOption>),
