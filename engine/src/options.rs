@@ -101,8 +101,8 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
         }
     }
     if g.kinds_present & (1u128 << crate::effects::k::CHECK_POKEMON_ATTACKS) != 0 || g.st.slot(p, pl.active).tools.len() > 0 {
-        let mut sim = *g;
-        if let Ok((Effect::CheckPokemonAttacks { attacks, .. }, _)) = sim.run_fx(check_attacks_effect(&sim, p)) {
+        let mut sim = g.fork();
+        if let Ok((Effect::CheckPokemonAttacks { attacks, .. }, _)) = { let e = check_attacks_effect(&sim, p); sim.run_fx(e) } {
             for a in attacks.iter() {
                 add(g.st.cdef(a.card).attacks[a.idx()].name, &mut names);
             }
@@ -123,7 +123,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
                 }
             }
             if g.kinds_present & (1u128 << crate::effects::k::CHECK_POKEMON_POWERS) != 0 {
-                let mut sim = *g;
+                let mut sim = g.fork();
                 let mut powers = SVec::new();
                 for i in 0..g.st.cdef(c).powers.len() {
                     powers.push(PowerRef { card: c, index: i as u8 });
@@ -174,16 +174,17 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
 
 /// Legality for a single action without building descriptors (fast path).
 pub fn is_legal(g: &Game, a: Action) -> bool {
-    let mut trial = *g;
+    let mut trial = g.fork();
+    trial.rng = crate::rng::Rng::zero();
     if trial.act_trial(a).is_err() {
         return false;
     }
     // Resolve info prompts (an ability's animation wait) so checks that run
     // after them count toward legality; stop at chance prompts and decisions.
-    // Like Twinleaf, a coin is drawn when its CoinFlipEffect resolves and the
-    // callback runs after the "Coin flip animation" wait, so a callback that
-    // throws makes legality depend on the trial's draw (Rust: a copy of the
-    // game RNG; oracle: its separate simulation stream).
+    // Chance inside the trial draws fixed outcomes (`Rng::zero`, the oracle's
+    // `Chance.trial`): a coin callback that throws after its "Coin flip
+    // animation" wait would otherwise make legality depend on a draw, and the
+    // real stream must not leak into the legal set.
     for _ in 0..100 {
         if trial.st.phase == crate::types::GamePhase::Finished {
             break;

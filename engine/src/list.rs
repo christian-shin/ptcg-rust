@@ -148,6 +148,17 @@ impl<T: Copy + PartialEq, const N: usize> PartialEq for SVec<T, N> {
 }
 
 impl<T: Copy, const N: usize> SVec<T, N> {
+    /// Write a copy of `self` to `dst`, copying only the live items.
+    ///
+    /// # Safety
+    /// `dst` must be valid for writes and properly aligned.
+    #[inline]
+    pub unsafe fn copy_live_to(&self, dst: *mut Self) {
+        std::ptr::addr_of_mut!((*dst).len).write(self.len);
+        let items = std::ptr::addr_of_mut!((*dst).items) as *mut std::mem::MaybeUninit<T>;
+        std::ptr::copy_nonoverlapping(self.items.as_ptr(), items, self.len as usize);
+    }
+
     pub fn new() -> Self {
         Self::default()
     }

@@ -600,10 +600,10 @@ impl Game {
                 let raw = raw_answer(sel, chosen)?;
                 let pr = self.prompts.as_slice()[*i];
                 let res = self.decode_answer(&pr, &raw)?;
-                let backup = *self;
+                let backup = self.fork();
                 let r = self.resolve(*i, res);
                 if r.is_err() {
-                    *self = backup;
+                    self.copy_from(&backup);
                 }
                 r
             }
@@ -718,7 +718,7 @@ impl Game {
         if !self.is_valid_answer(sel, chosen) {
             return false;
         }
-        let mut trial = *self;
+        let mut trial = self.fork();
         trial.answer(sel, chosen).is_ok()
     }
 
@@ -770,7 +770,7 @@ impl Game {
             return false;
         }
         if buf.len() >= sel.min_count && self.is_valid_answer(sel, buf) {
-            let mut trial = *self;
+            let mut trial = self.fork();
             if trial.answer(sel, buf).is_ok() {
                 return true;
             }

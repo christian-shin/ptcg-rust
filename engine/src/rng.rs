@@ -21,6 +21,14 @@ impl Rng {
         Rng { s }
     }
 
+    /// Fixed outcomes (the all-zero state, which seeding never produces):
+    /// every coin is tails, every index 0, every shuffle the identity.
+    /// Legality trials use it in both engines (the oracle's `Chance.trial` /
+    /// `FixedSource`), so whether an option is legal never depends on chance.
+    pub const fn zero() -> Rng {
+        Rng { s: [0; 4] }
+    }
+
     pub fn next_u32(&mut self) -> u32 {
         let s = &mut self.s;
         let result = s[1].wrapping_mul(5).rotate_left(7).wrapping_mul(9);
@@ -47,7 +55,15 @@ impl Rng {
         (v % n as u64) as u32
     }
 
+    #[inline]
+    fn is_fixed(&self) -> bool {
+        self.s == [0; 4]
+    }
+
     pub fn coin(&mut self) -> bool {
+        if self.is_fixed() {
+            return false;
+        }
         self.below(2) == 0
     }
 
@@ -55,6 +71,9 @@ impl Rng {
     pub fn shuffle(&mut self, n: usize, out: &mut [u8]) {
         for (i, o) in out.iter_mut().enumerate().take(n) {
             *o = i as u8;
+        }
+        if self.is_fixed() {
+            return;
         }
         let mut i = n;
         while i > 1 {

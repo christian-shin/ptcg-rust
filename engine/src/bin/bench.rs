@@ -79,6 +79,20 @@ fn main() {
     }
     let clone_ns = t.elapsed().as_nanos() as f64 / n as f64;
     println!("clone: {:.1} ns ({})", clone_ns, acc % 2);
+    let t = Instant::now();
+    let mut scratch = Box::new(g);
+    for _ in 0..n {
+        scratch.copy_from(std::hint::black_box(&g));
+        acc += std::hint::black_box(&scratch).st.turn as u64;
+    }
+    let fork_ns = t.elapsed().as_nanos() as f64 / n as f64;
+    println!("copy_from: {:.1} ns ({})", fork_ns, acc % 2);
+    let t = Instant::now();
+    for _ in 0..n {
+        *scratch = *std::hint::black_box(&g);
+        acc += std::hint::black_box(&scratch).st.turn as u64;
+    }
+    println!("assign: {:.1} ns ({})", t.elapsed().as_nanos() as f64 / n as f64, acc % 2);
 
     let mut rng = Rng::new(12345);
     let t = Instant::now();

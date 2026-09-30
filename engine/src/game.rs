@@ -102,7 +102,7 @@ pub struct EffSlot {
 
 pub const MAX_FX: usize = 48;
 /// Scratch CardLists alive at once (duplicated cards can run one handler several times per effect).
-pub const MAX_TEMPS: usize = 32;
+pub const MAX_TEMPS: usize = 16;
 
 /// Player actions (`game-actions.ts`, `play-card-action.ts`).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -131,13 +131,43 @@ pub enum Pending {
     Stuck,
 }
 
+thread_local! {
+    static FORK_POOL: std::cell::RefCell<Vec<Box<Game>>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// A pooled scratch `Game` from [`Game::fork`]; returned to the pool on drop.
+pub struct Fork(Option<Box<Game>>);
+
+impl std::ops::Deref for Fork {
+    type Target = Game;
+    #[inline]
+    fn deref(&self) -> &Game {
+        self.0.as_deref().unwrap()
+    }
+}
+
+impl std::ops::DerefMut for Fork {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Game {
+        self.0.as_deref_mut().unwrap()
+    }
+}
+
+impl Drop for Fork {
+    fn drop(&mut self) {
+        if let Some(b) = self.0.take() {
+            let _ = FORK_POOL.try_with(|p| p.borrow_mut().push(b));
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub struct Game {
     pub st: State,
     pub rng: Rng,
-    pub prompts: SVec<PromptRec, 32>,
+    pub prompts: SVec<PromptRec, 16>,
     pub last_prompt_id: u32,
-    pub items: SVec<PromptItem, 32>,
+    pub items: SVec<PromptItem, 16>,
     pub waits: SVec<Cont, 16>,
     pub fx: SVec<EffSlot, MAX_FX>,
     pub temps: [List<120>; MAX_TEMPS],
@@ -163,6 +193,56 @@ pub struct EffectLog;
 
 thread_local! {
     pub static EFFECT_TRACE: std::cell::RefCell<Vec<&'static str>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+impl Game {
+    /// A scratch copy of the game for trials: a pooled heap `Game` refilled
+    /// with `copy_from` (no allocation or full-size memcpy after warm-up).
+    #[inline]
+    pub fn fork(&self) -> Fork {
+        let b = FORK_POOL.with(|p| p.borrow_mut().pop());
+        let b = match b {
+            Some(mut b) => {
+                b.copy_from(self);
+                b
+            }
+            None => Box::new(*self),
+        };
+        Fork(Some(b))
+    }
+
+    /// Overwrite `self` with `src`, copying only the live part of the
+    /// prompt / item / wait / effect stacks. Same value as `*self = *src`,
+    /// but most of `size_of::<Game>()` is unused capacity.
+    #[inline]
+    pub fn copy_from(&mut self, src: &Game) {
+        let d: *mut Game = self;
+        // SAFETY: `d` is a valid, exclusive Game; SVec tails are MaybeUninit.
+        unsafe {
+            use std::ptr::addr_of_mut as f;
+            let Game {
+                st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
+                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg,
+            } = src;
+            f!((*d).st).write(*st);
+            f!((*d).rng).write(*rng);
+            prompts.copy_live_to(f!((*d).prompts));
+            f!((*d).last_prompt_id).write(*last_prompt_id);
+            items.copy_live_to(f!((*d).items));
+            waits.copy_live_to(f!((*d).waits));
+            fx.copy_live_to(f!((*d).fx));
+            f!((*d).temps).write(*temps);
+            f!((*d).temp_used).write(*temp_used);
+            coin_callbacks.copy_live_to(f!((*d).coin_callbacks));
+            f!((*d).resolving_trainer).write(*resolving_trainer);
+            f!((*d).probing_stadium).write(*probing_stadium);
+            f!((*d).kinds_present).write(*kinds_present);
+            f!((*d).trace_effects).write(*trace_effects);
+            copy_sessions.copy_live_to(f!((*d).copy_sessions));
+            f!((*d).copy_serial).write(*copy_serial);
+            f!((*d).deleg).write(*deleg);
+        }
+    }
 }
 
 impl Game {
