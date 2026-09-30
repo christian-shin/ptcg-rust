@@ -593,5 +593,61 @@
  },
  "Team Rocket's Tarountula DRI": {
   "status": "verified"
+ },
+ "Cynthia's Gabite DRI": {
+  "status": "verified"
+ },
+ "Cynthia's Garchomp ex DRI": {
+  "status": "verified"
+ },
+ "Cynthia's Gible DRI": {
+  "status": "verified"
+ },
+ "Cynthia's Power Weight DRI": {
+  "status": "verified"
+ },
+ "Cynthia's Roserade DRI": {
+  "status": "verified"
+ },
+ "Cynthia's Spiritomb DRI": {
+  "status": "verified"
+ },
+ "Energy Search SVI": {
+  "status": "verified"
+ },
+ "Energy Search Pro SSP": {
+  "status": "partial",
+  "note": "empty-deck throw 2 games"
+ },
+ "Enhanced Hammer TWM": {
+  "status": "verified"
+ },
+ "Hyper Aroma TWM": {
+  "status": "verified"
+ },
+ "Love Ball TWM": {
+  "status": "verified"
+ },
+ "Master Ball TEF": {
+  "status": "partial",
+  "note": "empty-deck throw 3 games"
+ },
+ "Max Rod PRE": {
+  "status": "verified"
+ },
+ "Neo Upper Energy TEF": {
+  "status": "verified"
+ },
+ "Potion BS": {
+  "status": "verified"
+ },
+ "Rock Fighting Energy M3": {
+  "status": "verified"
+ },
+ "Super Potion BS": {
+  "status": "verified"
+ },
+ "Tera Orb SSP": {
+  "status": "verified"
  }
 }
