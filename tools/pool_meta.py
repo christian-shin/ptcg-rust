@@ -121,6 +121,8 @@ for r in rows:
                    twinleaf_number=str(c['setNumber']), fullName=c['fullName'], cls=c['$class'], methods=c['$methods'],
                    reduce_lines=n, effect_fns=fn_fields, tier='data' if not has_logic else ('short' if n <= 15 else 'custom'))
         rec['prev_fullName'] = prev   # None: the row was unmapped
+        if beh:
+            rec['behavior_file'] = beh   # file holding the logic (reprint classes only extend it)
     rec['print_match'] = m['match'] if m else None
     rec['print_note'] = print_note(m, rec, prev, remapped)
     out.append(rec)

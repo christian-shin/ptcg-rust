@@ -6,19 +6,27 @@ usage: coverage.py <cov_dir[,cov_dir...]> <twinleaf_file.ts> [...] [--min N]
 NODE_V8_COVERAGE, one per game. `v8.takeCoverage()` resets counts at each
 snapshot, and ranges coalesce differently per snapshot, so the file is cut at
 the union of all range boundaries and each segment's innermost-range count is
-read per game. Lists segments that ran in fewer than N games (default 10).
+read per game. Lists segments that ran in fewer than N games (default 3).
+
+Segments that can never count per game are excluded automatically: module
+setup, class declarations and constructors (they run once per process), and
+`|| []` / `?? []` fallbacks on prompt results (listed as exempt, since those
+prompts can't be cancelled). Use --all to list everything.
 """
 import collections, glob, json, os, sys
 
 ORACLE = os.environ.get('PTCG_ORACLE', '/Users/christianshin/Documents/pkmntcg/twinleaf/ptcg-server')
 cov_dir = sys.argv[1]
 args = sys.argv[2:]
-mn = 10
+mn = 3
+show_all = False
 files = []
 i = 0
 while i < len(args):
     if args[i] == '--min':
         mn = int(args[i + 1]); i += 2; continue
+    if args[i] == '--all':
+        show_all = True; i += 1; continue
     if args[i].startswith('--min='):
         mn = int(args[i][6:]); i += 1; continue
     files.append(args[i]); i += 1
@@ -39,6 +47,20 @@ for f in snaps:
                     per_url_bounds[s['url']].add(r['endOffset'])
             g[s['url']] = rs
     games_ranges.append(g)
+
+
+import re
+PROCESS_LEVEL = re.compile(r'^("use strict"|Object\.defineProperty\(exports|class \w+|constructor\(|\}\s*exports\.|exports\.|var |const \w+ = require)')
+FALLBACK = re.compile(r'^(\|\||\?\?)\s*\[\s*\]')
+
+
+def kind_of(text):
+    t = ' '.join(text.split())
+    if PROCESS_LEVEL.match(t):
+        return 'process'
+    if FALLBACK.match(t):
+        return 'fallback'
+    return 'branch'
 
 
 def count_at(rs, off):
@@ -71,7 +93,9 @@ for url, name in urls.items():
                 hits += 1
         if seen and hits < mn:
             low.append((s, e, hits))
-    print('%s: %d segments, %d below %d games' % (name, len(segs), len(low), mn))
-    for (s, e, h) in low:
+    real = [x for x in low if show_all or kind_of(src[x[0]:x[1]]) == 'branch']
+    exempt = [x for x in low if kind_of(src[x[0]:x[1]]) == 'fallback']
+    print('%s: %d segments, %d below %d games (%d fallback exempt)' % (name, len(segs), len(real), mn, len(exempt)))
+    for (s, e, h) in real:
         line = src.count('\n', 0, s) + 1
         print('  %3d games  L%d  %s' % (h, line, ' '.join(src[s:e].split())[:120]))

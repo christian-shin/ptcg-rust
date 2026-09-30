@@ -2,6 +2,12 @@
 
 usage: check_cards.py "Full Name A" ["Full Name B" ...] [--games N] [--jobs J]
                       [--out DIR] [--no-gen] [--seed S] [--tag TAG]
+                      [--coverage] [--min-games M] [--scout N]
+
+Iterate on parity without --coverage (1.6x faster oracle, no 11 MB/game
+coverage files); run once with --coverage at the end. --scout N plays N
+candidate games in Rust and replays only the most varied target-heavy ones
+in the oracle (use it to hunt branches still under --min-games).
 
 1. Builds decks that contain every target card (4 copies, or 1 for ACE SPEC),
    filled with printed-data Pokémon and ported cards, plus basic energy that
@@ -16,7 +22,14 @@ import argparse, collections, json, os, random, re, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORACLE = os.environ.get('PTCG_ORACLE') or (os.path.join(ROOT, 'twinleaf/ptcg-server') if os.path.isdir(os.path.join(ROOT, 'twinleaf/ptcg-server/output')) else '/Users/christianshin/Documents/pkmntcg/twinleaf/ptcg-server')
-DIFF = os.path.join(ROOT, 'engine/target/release/diff')
+def _newest(*paths):
+    have = [p for p in paths if os.path.exists(p)]
+    return max(have, key=os.path.getmtime) if have else paths[0]
+
+
+# The `iter` profile rebuilds in seconds; use whichever build is newest.
+DIFF = os.environ.get('PTCG_DIFF') or _newest(os.path.join(ROOT, 'engine/target/release/diff'), os.path.join(ROOT, 'engine/target/iter/diff'))
+SCOUT = _newest(os.path.join(ROOT, 'engine/target/release/scout'), os.path.join(ROOT, 'engine/target/iter/scout'))
 
 cards = {c['fullName']: c for c in json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))}
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
@@ -105,14 +118,15 @@ def build_deck(targets, support, rng):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('targets', nargs='+')
-    ap.add_argument('--games', type=int, default=24)
-    ap.add_argument('--jobs', type=int, default=4)
+    ap.add_argument('--games', type=int, default=16)
+    ap.add_argument('--jobs', type=int, default=int(os.environ.get('PTCG_JOBS', max(1, (os.cpu_count() or 4) // 2))))
     ap.add_argument('--seed', type=int, default=1)
     ap.add_argument('--out')
     ap.add_argument('--tag')
     ap.add_argument('--no-gen', action='store_true')
     ap.add_argument('--coverage', action='store_true', help='record V8 block coverage per game and report per card')
-    ap.add_argument('--min-games', type=int, default=10)
+    ap.add_argument('--min-games', type=int, default=3)
+    ap.add_argument('--scout', type=int, default=0, help='Rust-scout N candidate games; replay the best --games of them')
     args = ap.parse_args()
     for t in args.targets:
         if t not in cards:
@@ -135,7 +149,9 @@ def main():
         for k in range(6):
             decks.append({'name': '%s-%d' % (tag, k), 'cards': build_deck(args.targets, support, rng)})
         # Opponents: half target decks, half plain support decks.
-        spec = {'decks': decks, 'policies': ['bot', 'mix:0.3', 'mix:0.6', 'random']}
+        # heur: board-developing random play (bot speed without look-ahead);
+        # one light bot mix keeps some realistic lines.
+        spec = {'decks': decks, 'policies': ['heur', 'random', 'heur', 'mix:0.3']}
         spec_path = os.path.join(out, 'spec.json.txt')
         json.dump(spec, open(spec_path, 'w'))
         per = (args.games + args.jobs - 1) // args.jobs
@@ -145,7 +161,15 @@ def main():
             os.makedirs(cov_dir, exist_ok=True)
             env['NODE_V8_COVERAGE'] = cov_dir
         procs = []
-        for j in range(args.jobs):
+        if args.scout:
+            scouted = os.path.join(out, 'scouted.json.txt')
+            r = subprocess.run([SCOUT, spec_path, scouted, '--targets', '|'.join(args.targets), '--candidates', str(args.scout),
+                                '--keep', str(args.games), '--seed', str(args.seed)], capture_output=True, text=True)
+            print(r.stderr.strip()[-1500:])
+            for j in range(args.jobs):
+                procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'replay', scouted, out, str(j * per), str(per)],
+                                              cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
+        for j in range(0 if args.scout else args.jobs):
             start = args.seed * 100000 + j * per
             procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'corpus', spec_path, out, str(start), str(per)],
                                           cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
@@ -156,7 +180,7 @@ def main():
     r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
     print(r.stdout[-6000:])
     if args.coverage:
-        files = sorted({row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
+        files = sorted({row.get('behavior_file') or row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
         subprocess.run([sys.executable, os.path.join(ROOT, 'tools/coverage.py'), os.path.join(out, 'cov'), *files, '--min', str(args.min_games)])
     sys.exit(r.returncode)
 

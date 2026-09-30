@@ -4,7 +4,7 @@ The Rust engine must behave **exactly** like Twinleaf (commit `41382b8`, oracle
 branch) on every card: same option sets at every decision, same canonical state
 after every step. Twinleaf bugs are part of the spec; port them faithfully.
 A card is done when `tools/check_cards.py` reports zero divergences over traces
-that actually exercise every branch of its code.
+that exercise every reachable branch of its code in at least 3 games.
 
 ## Where things are
 
@@ -117,13 +117,19 @@ in parallel on other branches.
 ## Verify
 
 ```
-cd engine && cargo build --release          # also run `cargo test --release`
-python3 tools/check_cards.py "Full Name A" "Full Name B" --games 32 --jobs 2
+cd engine && cargo build --profile iter --bins     # seconds per rebuild; `cargo test --release` before committing
+python3 tools/check_cards.py "Full Name A" "Full Name B"            # parity loop: 16 games, no coverage
+python3 tools/check_cards.py "Full Name A" "Full Name B" --coverage  # once, at the end
 ```
 
-It builds decks around the targets (Stage 1/2 targets need their pre-evolution
-in the target list or already ported), generates oracle traces, and replays them
-through Rust. On a divergence:
+New worktree? Copy a warm build cache first so the first build isn't from scratch:
+`cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
+
+`check_cards.py` builds decks around the targets (Stage 1/2 targets need their
+pre-evolution in the target list or already ported), generates oracle traces
+(policies `heur` and `random`, plus one light bot mix), and replays them through
+Rust with the newest `diff` build (`iter` or `release`). Jobs default to half
+the cores (`PTCG_JOBS` overrides). On a divergence:
 
 * `DIVERGED <trace> at step N: hash|options|prompt|error` — the Rust state at
   that step is in `corpus/cards/<tag>/dump/`.
@@ -132,18 +138,21 @@ through Rust. On a divergence:
   (step `-1` = start). It also prints the effect types (`e`) of that step.
 * `python3 tools/statediff.py /tmp/o.json <dump>.rust.json` lists differing paths.
 * Also re-run the previous corpora to catch regressions:
-  `engine/target/release/diff corpus/t1 corpus/cards --quiet`.
+  `engine/target/iter/diff corpus/t1 corpus/cards --quiet`.
 
-Coverage: a pass means nothing unless the card's branches ran. Add
-`--coverage` to `check_cards.py`: it records V8 block coverage per game and
-lists every block of your card's compiled Twinleaf code that ran in fewer than
-10 games (`--min-games`), with a source excerpt. Blocks that can't run (e.g.
-`|| []` on a prompt that can't be cancelled, defensive throws) go in your
-report as exemption candidates; everything else needs more games. Also check the
-traces (answers `a` with `"a":"play"` / `"attack"` / `"ability"` for your card,
-the prompt messages in `d`) and add games or seeds until every branch of the
-TS code has been hit, including failure paths (card played with an invalid
-board, cancelled prompts, empty deck/bench). Use `--seed` for new traces.
+Coverage: a pass means nothing unless the card's branches ran. `--coverage`
+records V8 block coverage per game (1.6x slower oracle, ~11 MB per game, so
+only for the final run) and lists every block of the card's Twinleaf code that
+ran in fewer than 3 games (`--min-games`). Module setup, class declarations and
+constructors (once per process) are excluded automatically, and `|| []` /
+`?? []` prompt-result fallbacks are counted as exempt. Whatever is still listed
+is a real gap: add seeds (`--seed`) or a custom spec, or hunt it with
+`--scout 2000` (plays 2000 candidate games in Rust and replays only the most
+varied target-heavy ones in the oracle). Defensive throws that truly can't run
+go in your report as exemption candidates.
+
+Name every corpus directory with your batch prefix (`--tag bNN-...`) so it can't
+collide with other batches.
 
 ## Rules
 
