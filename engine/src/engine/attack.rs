@@ -30,6 +30,8 @@ pub struct AttackFrame {
     pub atk: EffId,
     /// The effect that started this generator (UseAttack or Attack).
     pub origin: EffId,
+    /// `UseAttackEffect.delegateFrom`: the copy-attack source card.
+    pub delegate_from: Option<CardId>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -51,12 +53,12 @@ pub fn coin_cb(_g: &mut Game, _a: AttackCoinCb, _result: bool) -> R {
 }
 
 pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
-    &g.st.cdef(a.card).attacks[a.index as usize]
+    &g.st.cdef(a.card).attacks[a.idx()]
 }
 
 pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
-    let (p, attack, ignore_status) = match *g.e(id) {
-        Effect::UseAttack { p, attack, ignore_status_conditions, .. } => (p as usize, attack, ignore_status_conditions),
+    let (p, attack, ignore_status, delegate_from) = match *g.e(id) {
+        Effect::UseAttack { p, attack, ignore_status_conditions, delegate_from, .. } => (p as usize, attack, ignore_status_conditions, delegate_from),
         _ => return Ok(()),
     };
     let ad = attack_def(g, attack);
@@ -104,7 +106,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
         crate::bail!("NOT_ENOUGH_ENERGY");
     }
     g.retain_fx(id);
-    let f = AttackFrame { stage: AtkStage::AfterConfusion, p: p as u8, attack, attacking, atk: 0, origin: id };
+    let f = AttackFrame { stage: AtkStage::AfterConfusion, p: p as u8, attack, attacking, atk: 0, origin: id, delegate_from };
     if sp.contains(&(SpecialCondition::Confused as u8)) {
         let pid = g.player_id(p);
         g.prompt(pid, "FLIP_CONFUSION", PromptKind::CoinFlip, Cont::UseAttack(f));
@@ -129,6 +131,13 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
     });
     // whileActiveAttackDamageBonus: not modeled.
     f.atk = atk;
+    let copycat = g.st.slot_pokemon(p, f.attacking.s);
+    if let (Some(src), Some(copycat)) = (f.delegate_from, copycat) {
+        // runDelegatedCopiedAttackGenerator: the AttackEffect above is never
+        // reduced; the copied attack runs as a clone, then the animation.
+        f.stage = AtkStage::AfterAnimation;
+        return crate::copy_attack::run_delegated_from_use_attack(g, f, copycat, src);
+    }
     g.reduce_effect(atk)?;
     if g.has_prompts() {
         f.stage = AtkStage::AfterAttackEffect;
@@ -138,7 +147,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
     animation(g, f)
 }
 
-fn animation(g: &mut Game, mut f: AttackFrame) -> R {
+pub fn animation(g: &mut Game, mut f: AttackFrame) -> R {
     f.stage = AtkStage::AfterAnimation;
     let pid = g.player_id(f.p as usize);
     g.prompt(pid, "", PromptKind::Wait, Cont::UseAttack(f));
@@ -212,6 +221,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
             begin_attack(g, f)
         }
         AtkStage::AfterAttackEffect => animation(g, f),
+        // Delegated copies already dealt damage and ran AfterAttackEffect.
+        AtkStage::AfterAnimation if f.delegate_from.is_some() => finish_attack(g, f),
         AtkStage::AfterAnimation => deal_damage(g, f),
         AtkStage::AfterDealDamage => after_attack(g, f),
         AtkStage::AfterAfterAttack => finish_attack(g, f),

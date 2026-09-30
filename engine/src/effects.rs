@@ -94,7 +94,8 @@ pub enum Effect {
     // ---- game ----
     Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
     RetreatStart { p: u8 },
-    UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, barrage_used: bool },
+    /// `delegate_from`: `UseAttackEffect.delegateFrom` (copy-attack source card).
+    UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, barrage_used: bool, delegate_from: Option<CardId> },
     UseStadium { p: u8, stadium: CardId },
     UsePower { p: u8, power: PowerRef, card: CardId, target: CardTarget, bench_target: Option<SlotRef> },
     /// `probe`: the lock-check stand-in power ('test') carrying the real power's flags.

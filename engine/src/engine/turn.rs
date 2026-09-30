@@ -203,7 +203,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                 None => crate::bail!("UNKNOWN_ATTACK"),
             };
             let source = SlotRef::new(p, g.st.players[p].active);
-            g.run_fx(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false })?;
+            g.run_fx(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false, delegate_from: None })?;
             g.st.last_attack = Some(attack);
             if let Some(pc) = pokemon {
                 g.st.player_last_attack[p] = Some((attack, pc));
