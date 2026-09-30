@@ -68,16 +68,22 @@ fn table() -> &'static Vec<Option<&'static CardImpl>> {
                 if d.behavior.is_empty() {
                     None
                 } else {
-                    // `Class@Full Name` pins a port to one card when two
-                    // Twinleaf files declare classes with the same name.
-                    let pinned = registry::IMPLS.iter().copied().find(|i| {
-                        i.class.split_once('@').map(|(c, f)| c == d.behavior && f == d.full_name).unwrap_or(false)
-                    });
-                    pinned.or_else(|| registry::IMPLS.iter().copied().find(|i| i.class == d.behavior))
+                    registry::IMPLS.iter().copied().find(|i| class_matches(i.class, d))
                 }
             })
             .collect()
     })
+}
+
+/// `class` is the Twinleaf class name, optionally qualified as `Class@SET`
+/// when two Twinleaf files define classes with the same name (e.g.
+/// `Koraidonex` in both ASC and TEF).
+fn class_matches(class: &str, d: &crate::carddb::CardDef) -> bool {
+    match class.split_once('@') {
+        // `Class@SET` or `Class@Full Name` pins a port to one printing.
+        Some((c, q)) => c == d.behavior && (q == d.set || q == d.full_name),
+        None => class == d.behavior,
+    }
 }
 
 #[inline]

@@ -82,7 +82,10 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     if g.st.players[p].cannot_attack_turns_remaining > 0 {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
-    // cannotAttackMaxEnergy / cannotUseAttacksNextTurn / blocked attack names /
+    if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.name) {
+        crate::bail!("BLOCKED_BY_EFFECT");
+    }
+    // cannotAttackMaxEnergy / blocked attack names /
     // cannotUseAttackUntilLeavesPlay / cannotUseGXAttacks /
     // coinFlipCancelAttackNextTurn: not modeled.
 
@@ -372,6 +375,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 let me = b.player as usize;
                 crate::engine::phase::apply_play_locks(&mut g.st.players[me], locks, attacker_turns_remaining.unwrap_or(2));
             }
+            Ok(())
+        }
+        Effect::PreventRetreat { b } => {
+            // EffectOfAttackEffect.applyEffect(): the opponent's current Active.
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            g.st.players[o].slots[a as usize].cannot_retreat_next_turn = true;
             Ok(())
         }
         Effect::RemoveSpecialConditions { b, conditions } => {

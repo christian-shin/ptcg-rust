@@ -128,6 +128,8 @@ pub enum Effect {
     HealTarget { b: AtkBase, damage: i32 },
     /// `PlayLockEffect` (target = attacker's slot). `locks`: [`play_lock`] bits.
     PlayLock { b: AtkBase, locks: u16, turns_remaining: Option<i32>, both_players: bool, attacker_turns_remaining: Option<i32> },
+    /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
+    PreventRetreat { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -207,6 +209,7 @@ impl Effect {
             HealTarget { .. } => "HEAL_TARGET_EFFECT",
             PlayLock { .. } => "PLAY_LOCK_EFFECT",
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
+            PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -244,6 +247,7 @@ impl Effect {
             | RemoveSpecialConditions { b, .. }
             | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
+            | PreventRetreat { b } => Some(b),
             _ => None,
         }
     }
@@ -265,6 +269,7 @@ impl Effect {
             | RemoveSpecialConditions { b, .. }
             | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
+            | PreventRetreat { b } => Some(b),
             _ => None,
         }
     }
@@ -342,6 +347,7 @@ impl Effect {
             CoinFlipSequence { .. } => 66,
             PlayLock { .. } => 67,
             MoveDamageCounters { .. } => 68,
+            PreventRetreat { .. } => 69,
         };
         k
     }
@@ -418,6 +424,7 @@ pub mod k {
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
     pub const PLAY_LOCK: u32 = 67;
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
+    pub const PREVENT_RETREAT: u32 = 69;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

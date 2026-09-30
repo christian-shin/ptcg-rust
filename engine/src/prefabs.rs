@@ -579,3 +579,46 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb) -> R {
     Ok(())
 }
 
+/// `TERA_RULE(effect, state, source)`: prevent attack damage put on this
+/// Pokémon while it is on the Bench.
+pub fn tera_rule(g: &mut Game, e: EffId, me: CardId) {
+    if let Effect::PutDamage { b, .. } = *g.e(e) {
+        let t = b.target;
+        if g.st.slot(t.p as usize, t.s).cards.contains(me) && g.st.slot_pokemon(t.p as usize, t.s) == Some(me) {
+            let pl = b.player as usize;
+            let op = 1 - pl;
+            if (t.p as usize == pl && t.s == g.st.players[pl].active) || (t.p as usize == op && t.s == g.st.players[op].active) {
+                return;
+            }
+            g.set_prevent(e, true);
+        }
+    }
+}
+
+/// `BLOCK_RETREAT(store, state, effect, source)`: reduce a `PreventRetreatEffect`.
+pub fn block_retreat(g: &mut Game, atk: EffId) -> R {
+    let o = match *g.e(atk) {
+        Effect::Attack { opp, .. } => opp as usize,
+        _ => return Ok(()),
+    };
+    let target = SlotRef::new(o, g.st.players[o].active);
+    let b = atk_base_for(g, atk, target);
+    g.run_fx(Effect::PreventRetreat { b })?;
+    Ok(())
+}
+
+/// `new AddSpecialConditionsEffect(effect, conditions)` on the opponent's Active.
+pub fn add_special_conditions_to_opponent_active(g: &mut Game, atk: EffId, conditions: &[SpecialCondition]) -> R {
+    let o = match *g.e(atk) {
+        Effect::Attack { opp, .. } => opp as usize,
+        _ => return Ok(()),
+    };
+    let target = SlotRef::new(o, g.st.players[o].active);
+    let b = atk_base_for(g, atk, target);
+    let mut cs = SVec::new();
+    for c in conditions {
+        cs.push(*c as u8);
+    }
+    g.run_fx(Effect::AddSpecialConditions { b, conditions: cs, poison_damage: None, burn_damage: None, confusion_damage: None })?;
+    Ok(())
+}

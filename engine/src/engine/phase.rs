@@ -254,9 +254,16 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.cannot_attack_next_turn {
             slot.cannot_attack_next_turn = false;
         }
+        if !slot.cannot_use_attacks_next_turn.is_empty() {
+            slot.cannot_use_attacks_next_turn.clear();
+        }
         if slot.cannot_attack_next_turn_pending {
             slot.cannot_attack_next_turn = true;
             slot.cannot_attack_next_turn_pending = false;
+        }
+        if !slot.cannot_use_attacks_next_turn_pending.is_empty() {
+            slot.cannot_use_attacks_next_turn = slot.cannot_use_attacks_next_turn_pending;
+            slot.cannot_use_attacks_next_turn_pending.clear();
         }
         if slot.cannot_retreat_next_turn {
             slot.cannot_retreat_next_turn = false;

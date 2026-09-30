@@ -313,7 +313,7 @@ pub enum Res {
     /// DiscardEnergyPrompt: (from, card).
     CardsFrom(SVec<(CardTarget, CardId), 16>),
     /// MoveEnergyPrompt: (from, to, card).
-    Transfers(SVec<(CardTarget, CardTarget, CardId), 16>),
+    Transfers(SVec<(CardTarget, CardTarget, CardId), 48>),
     /// PutDamagePrompt: (target, damage).
     DamageMap(SVec<(CardTarget, i32), 8>),
     /// Move/RemoveDamagePrompt: (from, to).
@@ -1074,7 +1074,7 @@ impl Game {
                     Ok(Res::CardsFrom(out))
                 }
                 PromptKind::MoveEnergy { .. } => {
-                    let mut out: SVec<(CardTarget, CardTarget, CardId), 16> = SVec::new();
+                    let mut out: SVec<(CardTarget, CardTarget, CardId), 48> = SVec::new();
                     for v in arr {
                         let from = target_from(v, "from").ok_or(invalid)?;
                         let to = target_from(v, "to").ok_or(invalid)?;

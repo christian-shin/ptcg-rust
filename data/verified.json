@@ -60,24 +60,20 @@
   "status": "verified"
  },
  "Briar SCR": {
-  "status": "partial",
-  "note": "Tera +1 prize branch needs a Tera Pok\u00e9mon"
+  "status": "verified"
  },
  "Cyrano SSP": {
-  "status": "partial",
-  "note": "take-cards path needs a Pok\u00e9mon ex"
+  "status": "verified"
  },
  "Lillie's Pearl JTG": {
-  "status": "partial",
-  "note": "Lillie's -1 prize needs a Lillie's Pok\u00e9mon"
+  "status": "verified"
  },
  "Area Zero Underdepths SCR": {
-  "status": "partial",
-  "note": "8-slot bench / bench shrink need Tera"
+  "status": "verified"
  },
  "Dragapult ex TWM": {
   "status": "partial",
-  "note": "bench damage prevention never exercised"
+  "note": "bench damage block 6 games"
  },
  "Rosa's Encouragement M3": {
   "status": "partial",
@@ -154,5 +150,37 @@
  "Team Rocket's Watchtower DRI": {
   "status": "partial",
   "note": "needs a [C] Pok\u00e9mon with an Ability"
+ },
+ "Paldean Tauros SSP": {
+  "status": "verified"
+ },
+ "Chien-Pao SSP": {
+  "status": "verified"
+ },
+ "Koraidon ex ASC": {
+  "status": "verified"
+ },
+ "Lillie's Clefairy ex JTG": {
+  "status": "verified"
+ },
+ "Mega Kangaskhan ex M1S": {
+  "status": "verified"
+ },
+ "Pecharunt SVP": {
+  "status": "verified"
+ },
+ "Iron Leaves ex TEF": {
+  "status": "verified"
+ },
+ "Wellspring Mask Ogerpon ex TWM": {
+  "status": "verified"
+ },
+ "Latias ex SSP": {
+  "status": "partial",
+  "note": "retreat branch ~5 games"
+ },
+ "Teal Mask Ogerpon ex TWM": {
+  "status": "partial",
+  "note": "bench damage prevention 2 games"
  }
 }

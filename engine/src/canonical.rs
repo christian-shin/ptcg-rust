@@ -72,6 +72,12 @@ impl Game {
         nd!(cannot_retreat_next_turn, "cannotRetreatNextTurn");
         nd!(cannot_retreat_next_turn_pending, "cannotRetreatNextTurnPending");
         nd!(damage_reduction_next_turn, "damageReductionNextTurn");
+        if !s.cannot_use_attacks_next_turn.is_empty() {
+            o.insert("cannotUseAttacksNextTurn".into(), json!(s.cannot_use_attacks_next_turn.as_slice()));
+        }
+        if !s.cannot_use_attacks_next_turn_pending.is_empty() {
+            o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
+        }
         if !s.board_effect.is_empty() {
             o.insert("boardEffect".into(), json!(s.board_effect.as_slice()));
         }
@@ -154,6 +160,7 @@ impl Game {
         nd!(used_table_turner, "usedTableTurner");
         nd!(chains_of_control_used, "chainsOfControlUsed");
         nd!(pecharuntex_is_in_play, "pecharuntexIsInPlay");
+        nd!(used_run_errand, "usedRunErrand");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }
