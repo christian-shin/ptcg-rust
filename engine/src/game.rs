@@ -36,6 +36,8 @@ pub enum Cont {
     CheckState(check::CheckFrame),
     TakePrizes { p: u8, destination: ListRef },
     ChooseActive { p: u8 },
+    /// handleBenchSizeChange discard prompt: `empty` = bitmask of empty bench slot ids.
+    BenchShrink { p: u8, empty: u16 },
     BetweenTurnsWait { oc: OnComplete },
     BetweenTurnsCheck { oc: OnComplete },
     BurnFlip { p: u8, slot: SlotId },
@@ -352,6 +354,7 @@ impl Game {
             Cont::CheckState(f) => check::resume(self, f),
             Cont::TakePrizes { p, destination } => check::take_prizes_cont(self, p, destination, first),
             Cont::ChooseActive { p } => check::choose_active_cont(self, p, first),
+            Cont::BenchShrink { p, empty } => check::bench_shrink_cont(self, p, empty, first),
             Cont::BetweenTurnsWait { oc } => phase::run_between_turns_effects(self, oc),
             Cont::BetweenTurnsCheck { oc } => check::check_state(self, oc),
             Cont::BurnFlip { p, .. } => {
