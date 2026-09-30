@@ -104,7 +104,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
         let mut sim = *g;
         if let Ok((Effect::CheckPokemonAttacks { attacks, .. }, _)) = sim.run_fx(check_attacks_effect(&sim, p)) {
             for a in attacks.iter() {
-                add(g.st.cdef(a.card).attacks[a.index as usize].name, &mut names);
+                add(g.st.cdef(a.card).attacks[a.idx()].name, &mut names);
             }
         }
     }

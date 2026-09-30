@@ -527,7 +527,19 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
                         add.push(EnergyEntry { card: c, provides });
                     }
                 }
-                // Pokémon-as-energy in `energies` (provides set by the card): not modeled.
+                // `energies` entries missing from the map (Pokémon-as-energy, or
+                // energy attached without leaving its list, e.g. Metang's
+                // Metal Maker): `(c as any).provides || []`, skipped if empty.
+                for c in slot.energies.iter() {
+                    let d = g.st.cdef(c);
+                    if !d.provides.is_empty() && !energy_map.iter().any(|e| e.card == c) && !add.iter().any(|e| e.card == c) {
+                        let mut provides = SVec::new();
+                        for &t in d.provides {
+                            provides.push(t);
+                        }
+                        add.push(EnergyEntry { card: c, provides });
+                    }
+                }
             }
             if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(id) {
                 for e in add.iter() {

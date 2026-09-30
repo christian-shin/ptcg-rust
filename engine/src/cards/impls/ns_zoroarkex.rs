@@ -7,7 +7,7 @@
 //! clone of the source's attack, with the source card's handler delegated to
 //! this card, all before Night Joker's own attack animation and damage step.
 use crate::cards::prelude::*;
-use crate::copy_attack::{copy_attack_from_pokemon_list, CopyOpts};
+use crate::copy_attack::copy_attack_from_pokemon_list;
 use crate::marker;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -68,7 +68,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if ns.is_empty() {
             return Ok(());
         }
-        return copy_attack_from_pokemon_list(g, e, &ns, CopyOpts { allow_cancel: false, disallow_copycat_attack: true });
+        return copy_attack_from_pokemon_list(g, e, &ns, false);
     }
     Ok(())
 }

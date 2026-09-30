@@ -249,14 +249,14 @@ impl Game {
             o.insert("skipOpponentTurn".into(), json!(true));
         }
         if let Some(a) = st.last_attack {
-            o.insert("lastAttack".into(), json!(st.cdef(a.card).attacks[a.ai()].name));
+            o.insert("lastAttack".into(), json!(st.cdef(a.card).attacks[a.idx()].name));
         }
         let mut pla = Map::new();
         for p in 0..2 {
             if let Some((a, src)) = st.player_last_attack[p] {
                 pla.insert(
                     st.players[p].id.to_string(),
-                    json!({ "attack": st.cdef(a.card).attacks[a.ai()].name, "sourceCard": self.card_ref(src) }),
+                    json!({ "attack": st.cdef(a.card).attacks[a.idx()].name, "sourceCard": self.card_ref(src) }),
                 );
             }
         }
