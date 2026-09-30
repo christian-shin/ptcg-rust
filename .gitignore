@@ -10,3 +10,4 @@ corpus/cards/
 python/target/
 *.so
 .claude/
+PLAN.md
