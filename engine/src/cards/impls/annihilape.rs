@@ -5,7 +5,9 @@
 //!
 //! Twinleaf quirk kept: the coin's callback sets `surviveOnTenHPReason`
 //! after the flip's wait prompt, i.e. after the PutDamageEffect was already
-//! applied, so the flip happens but never saves the Pokémon.
+//! applied, so the flip happens but never saves the Pokémon. On heads the
+//! callback reads `this.powers[0].name`: when the code runs for a copycat
+//! (a copied Ghostly Blow's session) whose card has no powers, that throws.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -13,7 +15,7 @@ pub static IMPL: CardImpl = CardImpl {
     mask: mask(&[k::PUT_DAMAGE, k::ATTACK]),
     reduce,
     resume: Some(resume),
-    coin: None,
+    coin: Some(coin),
     can_play: None,
 };
 
@@ -27,7 +29,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
             let hp = crate::engine::check::check_hp(g, owner, t.s)?;
             if damage >= hp {
-                g.coin_flip(owner, CoinCb::None)?;
+                g.coin_flip(owner, CoinCb::Card { card: me, frame: CardFrame::at(2) })?;
                 return Ok(());
             }
         }
@@ -69,5 +71,13 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         None => return Ok(()),
     };
     g.run_fx(Effect::PlaceDamageCounters { p: p as u8, target: dest, damage: 50, source: me })?;
+    Ok(())
+}
+
+fn coin(g: &mut Game, me: CardId, _f: CardFrame, heads: bool) -> R {
+    // `effect.surviveOnTenHPReason = this.powers[0].name` (no rules effect).
+    if heads && g.st.cdef(me).powers.is_empty() {
+        bail!("Cannot read properties of undefined (reading 'name')");
+    }
     Ok(())
 }

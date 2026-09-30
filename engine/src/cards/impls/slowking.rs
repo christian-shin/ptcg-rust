@@ -45,8 +45,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !d.is_pokemon() || d.has_rule_box() {
         return Ok(());
     }
-    if !g.st.players[p].discard.iter().any(|c| c == topdeck) {
+    // `pokemonInQuestion`: every discard entry that is this card (a
+    // duplicated card instance appears once per entry).
+    let matches: Vec<CardId> = g.st.players[p].discard.iter().filter(|&c| c == topdeck).collect();
+    if matches.is_empty() {
         return Ok(());
     }
-    crate::copy_attack::copy_attack_from_pokemon_list(g, e, &[topdeck], true)
+    crate::copy_attack::copy_attack_from_pokemon_list(g, e, &matches, true)
 }

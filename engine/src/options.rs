@@ -180,6 +180,10 @@ pub fn is_legal(g: &Game, a: Action) -> bool {
     }
     // Resolve info prompts (an ability's animation wait) so checks that run
     // after them count toward legality; stop at chance prompts and decisions.
+    // Like Twinleaf, a coin is drawn when its CoinFlipEffect resolves and the
+    // callback runs after the "Coin flip animation" wait, so a callback that
+    // throws makes legality depend on the trial's draw (Rust: a copy of the
+    // game RNG; oracle: its separate simulation stream).
     for _ in 0..100 {
         if trial.st.phase == crate::types::GamePhase::Finished {
             break;
