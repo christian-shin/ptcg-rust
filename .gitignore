@@ -6,3 +6,7 @@ __pycache__/
 engine/target/
 *.log
 corpus/cards/
+.venv/
+python/target/
+*.so
+.claude/

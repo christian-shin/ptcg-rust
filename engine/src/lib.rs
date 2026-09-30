@@ -18,7 +18,9 @@ pub mod markers;
 pub mod options;
 pub mod prefabs;
 pub mod prompts;
+pub mod obs;
 pub mod rng;
+pub mod search;
 pub mod state;
 pub mod types;
 

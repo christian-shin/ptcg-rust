@@ -57,6 +57,8 @@ pub enum SelectContext {
     Mulligan = 42,
     Activate = 43,
     CoinHead = 46,
+    /// Extension: deck shuffle order (answer with `answer_shuffle`).
+    Shuffle = 49,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -130,6 +132,8 @@ pub struct SelectData {
 #[derive(Clone, Debug)]
 enum Source {
     Turn(Vec<TurnOption>),
+    /// Chance prompt index (manual chance).
+    Chance(usize),
     /// Prompt index plus the wire value per option.
     Prompt(usize, Vec<Value>, AnswerShape),
 }
@@ -176,12 +180,63 @@ impl Game {
     /// The current decision as a cabt-style select, or `None` when the game
     /// is over (chance and info prompts are settled internally first).
     pub fn select(&mut self) -> Result<Option<SelectData>, GameError> {
-        self.settle()?;
+        self.select_with(false)
+    }
+
+    /// Like [`select`], but with `manual_chance` coin flips and shuffles
+    /// requested by prompts are returned to the caller instead of drawn from
+    /// the internal RNG. (Coin flips resolved inline by effects still use the
+    /// RNG; control them with [`Game::rng`].)
+    pub fn select_with(&mut self, manual_chance: bool) -> Result<Option<SelectData>, GameError> {
+        if manual_chance {
+            loop {
+                match self.pending() {
+                    Pending::Info(i) => self.resolve(i, Res::True)?,
+                    Pending::Chance(i) => return Ok(Some(self.chance_select(i))),
+                    _ => break,
+                }
+            }
+        } else {
+            self.settle()?;
+        }
         match self.pending() {
             Pending::Finished | Pending::Stuck => Ok(None),
             Pending::Turn(p) => Ok(Some(self.turn_select(p))),
             Pending::Decision(i) => Ok(Some(self.prompt_select(i))),
             Pending::Chance(_) | Pending::Info(_) => unreachable!("settled"),
+        }
+    }
+
+    fn chance_select(&self, i: usize) -> SelectData {
+        let pr = self.prompts.as_slice()[i];
+        let player = self.st.player_index_by_id(pr.player_id) as u8;
+        match pr.kind {
+            PromptKind::CoinFlip => SelectData {
+                player,
+                select_type: SelectType::YesNo,
+                context: SelectContext::CoinHead,
+                min_count: 1,
+                max_count: 1,
+                options: vec![Opt { kind: OptionType::Yes as u8, ..Default::default() }, Opt { kind: OptionType::No as u8, ..Default::default() }],
+                source: Source::Chance(i),
+            },
+            _ => SelectData {
+                player,
+                select_type: SelectType::Count,
+                context: SelectContext::Shuffle,
+                min_count: 0,
+                max_count: 0,
+                options: vec![],
+                source: Source::Chance(i),
+            },
+        }
+    }
+
+    /// Answer a manual shuffle: `order` is a permutation of the deck indices.
+    pub fn answer_shuffle(&mut self, sel: &SelectData, order: &[u8]) -> R {
+        match sel.source {
+            Source::Chance(i) => self.resolve(i, Res::Order(crate::list::List::from_slice(order))),
+            _ => Err(GameError("NOT_A_SHUFFLE")),
         }
     }
 
@@ -364,6 +419,16 @@ impl Game {
     /// leave the game unchanged.
     pub fn answer(&mut self, sel: &SelectData, chosen: &[usize]) -> R {
         match &sel.source {
+            Source::Chance(i) => {
+                let k = *chosen.first().ok_or(GameError("EMPTY_ANSWER"))?;
+                match self.prompts.as_slice()[*i].kind {
+                    PromptKind::CoinFlip => self.resolve(*i, Res::Bool(k == 0)),
+                    _ => {
+                        let r = self.draw_chance(*i);
+                        self.resolve(*i, r)
+                    }
+                }
+            }
             Source::Turn(opts) => {
                 let k = *chosen.first().ok_or(GameError("EMPTY_ANSWER"))?;
                 let a = opts.get(k).ok_or(GameError("BAD_OPTION"))?.action;
