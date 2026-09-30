@@ -151,6 +151,8 @@ impl Game {
         nd!(cannot_attack_turns_remaining, "cannotAttackTurnsRemaining");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
         nd!(coin_flip_cancel_trainer_play_turns_remaining, "coinFlipCancelTrainerPlayTurnsRemaining");
+        nd!(chains_of_control_used, "chainsOfControlUsed");
+        nd!(pecharuntex_is_in_play, "pecharuntexIsInPlay");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }
@@ -239,14 +241,14 @@ impl Game {
             o.insert("skipOpponentTurn".into(), json!(true));
         }
         if let Some(a) = st.last_attack {
-            o.insert("lastAttack".into(), json!(st.cdef(a.card).attacks[a.index as usize].name));
+            o.insert("lastAttack".into(), json!(st.cdef(a.card).attacks[a.ai()].name));
         }
         let mut pla = Map::new();
         for p in 0..2 {
             if let Some((a, src)) = st.player_last_attack[p] {
                 pla.insert(
                     st.players[p].id.to_string(),
-                    json!({ "attack": st.cdef(a.card).attacks[a.index as usize].name, "sourceCard": self.card_ref(src) }),
+                    json!({ "attack": st.cdef(a.card).attacks[a.ai()].name, "sourceCard": self.card_ref(src) }),
                 );
             }
         }
@@ -259,7 +261,7 @@ impl Game {
         if st.bench_size_change_handled {
             o.insert("benchSizeChangeHandled".into(), json!(true));
         }
-        o.insert("players".into(), Value::Array(vec![self.player_json(0), self.player_json(1)]));
+        o.insert("players".into(), Value::Array((0..st.players_added as usize).map(|p| self.player_json(p)).collect()));
         let cards = self.card_mutations();
         if !cards.is_empty() {
             o.insert("cards".into(), Value::Object(cards));

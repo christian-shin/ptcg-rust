@@ -196,6 +196,10 @@ pub struct Player {
     pub cannot_attack_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
     pub coin_flip_cancel_trainer_play_turns_remaining: i32,
+    /// Pecharunt ex's `chainsOfControlUsed` (absent until first written).
+    pub chains_of_control_used: bool,
+    /// `pecharuntexIsInPlay` (set by Pecharunt ex, never cleared).
+    pub pecharuntex_is_in_play: bool,
 }
 
 impl Player {
@@ -249,6 +253,8 @@ impl Player {
             cannot_attack_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
             coin_flip_cancel_trainer_play_turns_remaining: 0,
+            chains_of_control_used: false,
+            pecharuntex_is_in_play: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;
@@ -317,7 +323,23 @@ impl Player {
 pub struct AttackRef {
     /// Card instance that owns the attack object.
     pub card: CardId,
+    /// Attack index in the card's printed list (low 4 bits). The high 4 bits
+    /// are a copy-attack clone generation (0 = the printed attack object);
+    /// see [`AttackRef::ai`].
     pub index: u8,
+}
+
+impl AttackRef {
+    /// Index into the printed attack list (clone generation stripped).
+    #[inline]
+    pub fn ai(self) -> usize {
+        (self.index & 0x0f) as usize
+    }
+    /// A copy-attack clone (`cloneAttack`) of this printed attack.
+    #[inline]
+    pub fn is_clone(self) -> bool {
+        self.index & 0xf0 != 0
+    }
 }
 
 /// Rules toggles (Twinleaf `Rules` defaults).
@@ -359,6 +381,9 @@ pub struct State {
     pub is_sudden_death: bool,
     pub bench_size_change_handled: bool,
     pub ability_lock_order_counter: i32,
+    /// Players whose AddPlayerAction succeeded (an invalid deck finishes the
+    /// game before it is added).
+    pub players_added: u8,
 }
 
 impl State {
@@ -378,6 +403,7 @@ impl State {
             is_sudden_death: false,
             bench_size_change_handled: false,
             ability_lock_order_counter: 0,
+            players_added: 2,
         }
     }
 

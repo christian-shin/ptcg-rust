@@ -51,6 +51,10 @@ pub enum Cont {
     ShuffleApply { p: u8 },
     Prefab(crate::prefabs::PrefabCont),
     Card { card: CardId, frame: CardFrame },
+    /// A card frame created by `imp`'s handler running for `card` (copy-attack delegation).
+    CardAs { imp: CardId, card: CardId, frame: CardFrame },
+    /// COPY_ATTACK_FROM_POKEMON_LIST / runDelegatedCopiedAttackGenerator.
+    CopyAttack(crate::copy_attack::CopyFrame),
 }
 
 /// `checkState(..., onComplete)` callbacks.
@@ -138,6 +142,12 @@ pub struct Game {
     pub kinds_present: crate::effects::KindMask,
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
     pub trace_effects: bool,
+    /// `copyAttackSessions` (copy-attack-delegation.ts module state).
+    pub copy_sessions: SVec<crate::copy_attack::CopySession, 8>,
+    pub copy_gen: u8,
+    pub copy_serial: u16,
+    /// Source handler currently running bound to a copycat.
+    pub delegating: Option<crate::copy_attack::Delegating>,
 }
 
 pub struct EffectLog;
@@ -163,6 +173,10 @@ impl Game {
             probing_stadium: false,
             kinds_present: 0,
             trace_effects: false,
+            copy_sessions: SVec::new(),
+            copy_gen: 0,
+            copy_serial: 0,
+            delegating: None,
         }
     }
 
@@ -255,6 +269,7 @@ impl Game {
 
     /// `store.prompt(state, prompt, then)`.
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
+        let cont = crate::copy_attack::route_cont(self, cont);
         let id = self.next_id();
         self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();
@@ -264,6 +279,7 @@ impl Game {
 
     /// `store.prompt(state, [prompts...], then)`.
     pub fn prompt_group(&mut self, prompts: &[(u8, &'static str, PromptKind)], cont: Cont) {
+        let cont = crate::copy_attack::route_cont(self, cont);
         let mut ids = SVec::new();
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
@@ -274,6 +290,7 @@ impl Game {
     }
 
     pub fn wait_prompt(&mut self, cont: Cont) {
+        let cont = crate::copy_attack::route_cont(self, cont);
         self.waits.push(cont);
     }
 
@@ -391,6 +408,8 @@ impl Game {
             }
             Cont::Prefab(c) => crate::prefabs::resume(self, c, results),
             Cont::Card { card, frame } => cards::resume(self, card, frame, results),
+            Cont::CardAs { imp, card, frame } => crate::copy_attack::resume_card_as(self, imp, card, frame, results),
+            Cont::CopyAttack(f) => crate::copy_attack::resume(self, f, results),
         }
     }
 
@@ -540,6 +559,7 @@ impl Game {
             }
             self.call_card(c, id, kind)?;
         }
+        crate::copy_attack::resolve_sessions(self, id)?;
 
         if self.prevented(id) {
             return Ok(());
@@ -626,6 +646,7 @@ impl Game {
                 }
             }
             if !setup::deck_is_valid(&self.st, deck) {
+                self.st.players_added = p as u8;
                 self.st.phase = GamePhase::Finished;
                 self.st.winner = WINNER_NONE;
                 return Ok(());

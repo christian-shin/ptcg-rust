@@ -118,8 +118,15 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
 // Effect predicates
 
 /// `WAS_ATTACK_USED(effect, index, this)`.
+///
+/// While a copy-attack session runs a source handler for the copycat, the
+/// copycat's attacks are the session's clones (`withTemporaryDelegatedAttacks`).
 pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
-    matches!(*g.e(e), Effect::Attack { attack, .. } if attack == AttackRef { card: me, index })
+    let want = match g.delegating {
+        Some(d) if d.copycat == me => crate::copy_attack::cloned(d.source, d.gen, index as usize),
+        _ => AttackRef { card: me, index },
+    };
+    matches!(*g.e(e), Effect::Attack { attack, .. } if attack == want)
 }
 
 /// `WAS_POWER_USED(effect, index, this)` (the lock probe never matches).
@@ -486,4 +493,20 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb) -> R {
     let k = (g.coin_callbacks.len() - 1) as u8;
     g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false })?;
     Ok(())
+}
+
+/// `player.forEachPokemon(playerType, handler)`: (slot, top Pokémon, target)
+/// for the Active then each Bench slot holding a Pokémon.
+pub fn for_each_pokemon(g: &Game, p: usize, pt: PlayerType) -> SVec<(SlotId, CardId, CardTarget), 9> {
+    let mut out = SVec::new();
+    let pl = &g.st.players[p];
+    if let Some(c) = g.st.slot_pokemon(p, pl.active) {
+        out.push((pl.active, c, CardTarget::new(pt, SlotType::Active, 0)));
+    }
+    for (i, &b) in pl.bench.iter().enumerate() {
+        if let Some(c) = g.st.slot_pokemon(p, b) {
+            out.push((b, c, CardTarget::new(pt, SlotType::Bench, i as u8)));
+        }
+    }
+    out
 }

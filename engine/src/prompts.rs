@@ -192,6 +192,9 @@ impl SelectValues {
     }
 }
 
+/// Blocked targets of a ChoosePokemonPrompt (both sides, bench up to 8).
+pub type TargetList = SVec<CardTarget, 18>;
+
 #[derive(Clone, Copy, Debug)]
 pub enum PromptKind {
     // chance
@@ -206,7 +209,7 @@ pub enum PromptKind {
     // decisions
     Confirm,
     ChooseCards { cards: ListRef, filter: Filter, opts: ChooseCardsOpts },
-    ChoosePokemon { player_type: PlayerType, slots: SVec<u8, 3>, min: u8, max: u8, allow_cancel: bool, blocked: SVec<CardTarget, 8> },
+    ChoosePokemon { player_type: PlayerType, slots: SVec<u8, 3>, min: u8, max: u8, allow_cancel: bool, blocked: TargetList },
     ChoosePrize { count: u8, blocked: SVec<u8, 6>, use_opponent_prizes: bool, allow_cancel: bool, is_secret: bool, destination: Option<ListRef> },
     Select { values: SelectValues, allow_cancel: bool, default_value: i32 },
     ChooseEnergy { energy: EnergyMap, cost: Cost, allow_cancel: bool },
@@ -218,7 +221,7 @@ pub enum PromptKind {
     RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 8>, o: MoveOpts, same_target: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
-    ChooseAttack { cards: SVec<CardId, 4>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 8> },
+    ChooseAttack { cards: SVec<CardId, 8>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 8> },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -227,7 +230,7 @@ pub struct AttachOpts {
     pub min: u8,
     pub max: u8,
     pub blocked: Blocked,
-    pub blocked_to: SVec<CardTarget, 8>,
+    pub blocked_to: SVec<CardTarget, 9>,
     pub different_types: bool,
     pub same_target: bool,
     pub different_targets: bool,
