@@ -255,6 +255,8 @@ struct VecEnv {
     invalid: u64,
     /// Games ended because a prompt had no valid answer.
     stuck: u64,
+    /// Games ended because the engine panicked (approved-divergence caps).
+    aborted: u64,
     invalid_ctx: std::collections::BTreeMap<u8, u64>,
 }
 
@@ -281,11 +283,48 @@ impl VecEnv {
             return v;
         }
         let v = match &self.envs[i].sel {
-            Some(sel) => view(&self.envs[i].game, sel, &self.picks[i]),
+            Some(sel) => std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| view(&self.envs[i].game, sel, &self.picks[i]))).unwrap_or_default(),
             None => Vec::new(),
         };
         self.views.lock().unwrap()[i] = Some(v.clone());
         v
+    }
+
+    fn step_one(&mut self, i: usize, a: usize) -> PyResult<(f32, bool)> {
+        if let Some(sel) = self.envs[i].sel.clone() {
+            let v = self.view_of(i);
+            self.views.lock().unwrap()[i] = None;
+            let submitted = if v.is_empty() {
+                // No pick keeps a valid answer reachable.
+                Some(self.submit(i)?)
+            } else {
+                match v[a.min(v.len() - 1)] {
+                    None => Some(self.submit(i)?),
+                    Some(j) => {
+                        self.picks[i].push(j);
+                        // Submit when nothing more can be picked.
+                        let done = sel.max_count <= 1 || {
+                            let nv = self.view_of(i);
+                            !nv.iter().any(|o| o.is_some())
+                        };
+                        if done {
+                            Some(self.submit(i)?)
+                        } else {
+                            None
+                        }
+                    }
+                }
+            };
+            if submitted == Some(false) {
+                self.reset_env(i)?;
+                return Ok((0.0, true));
+            }
+        }
+        if self.picks[i].is_empty() {
+            self.advance(i)
+        } else {
+            Ok((0.0, false))
+        }
     }
 
     fn reset_env(&mut self, i: usize) -> PyResult<()> {
@@ -369,7 +408,7 @@ impl VecEnv {
         for i in 0..n {
             envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false)?);
         }
-        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, stuck: 0, invalid_ctx: Default::default() };
+        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, stuck: 0, aborted: 0, invalid_ctx: Default::default() };
         for i in 0..n {
             v.advance(i)?;
         }
@@ -391,6 +430,12 @@ impl VecEnv {
     #[getter]
     fn stuck_games(&self) -> u64 {
         self.stuck
+    }
+
+    /// Games ended because the engine panicked (see divergences.toml).
+    #[getter]
+    fn aborted_games(&self) -> u64 {
+        self.aborted
     }
 
     #[classattr]
@@ -443,38 +488,17 @@ impl VecEnv {
         let mut rewards = Vec::with_capacity(self.envs.len());
         let mut dones = Vec::with_capacity(self.envs.len());
         for (i, a) in actions.into_iter().enumerate() {
-            if let Some(sel) = self.envs[i].sel.clone() {
-                let v = self.view_of(i);
-                self.views.lock().unwrap()[i] = None;
-                let submitted = if v.is_empty() {
-                    // No pick keeps a valid answer reachable.
-                    Some(self.submit(i)?)
-                } else {
-                    match v[a.min(v.len() - 1)] {
-                        None => Some(self.submit(i)?),
-                        Some(j) => {
-                            self.picks[i].push(j);
-                            // Submit when nothing more can be picked.
-                            let done = sel.max_count <= 1 || {
-                                let nv = self.view_of(i);
-                                !nv.iter().any(|o| o.is_some())
-                            };
-                            if done {
-                                Some(self.submit(i)?)
-                            } else {
-                                None
-                            }
-                        }
-                    }
-                };
-                if submitted == Some(false) {
+            // An engine panic (a capacity cap hit by an approved divergence,
+            // see divergences.toml) ends this env's game instead of training.
+            let (r, d) = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.step_one(i, a))) {
+                Ok(res) => res?,
+                Err(_) => {
+                    self.aborted += 1;
+                    self.picks[i].clear();
                     self.reset_env(i)?;
-                    rewards.push(0.0);
-                    dones.push(1u8);
-                    continue;
+                    (0.0, true)
                 }
-            }
-            let (r, d) = if self.picks[i].is_empty() { self.advance(i)? } else { (0.0, false) };
+            };
             rewards.push(r);
             dones.push(d as u8);
         }

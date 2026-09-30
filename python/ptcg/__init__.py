@@ -74,6 +74,11 @@ class VecEnv:
         """Games ended early (reward 0, done) because a prompt had no valid answer."""
         return self._v.stuck_games
 
+    @property
+    def aborted_games(self):
+        """Games ended early (reward 0, done) because the engine panicked."""
+        return self._v.aborted_games
+
     def step(self, actions):
         r, d = self._v.step([int(a) for a in actions])
         return np.frombuffer(r, dtype=np.float32), np.frombuffer(d, dtype=np.uint8).astype(bool)

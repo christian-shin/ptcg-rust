@@ -102,7 +102,7 @@ pub struct EffSlot {
 
 pub const MAX_FX: usize = 48;
 /// Scratch CardLists alive at once (duplicated cards can run one handler several times per effect).
-pub const MAX_TEMPS: usize = 16;
+pub const MAX_TEMPS: usize = 32;
 
 /// Player actions (`game-actions.ts`, `play-card-action.ts`).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -165,9 +165,9 @@ impl Drop for Fork {
 pub struct Game {
     pub st: State,
     pub rng: Rng,
-    pub prompts: SVec<PromptRec, 16>,
+    pub prompts: SVec<PromptRec, 32>,
     pub last_prompt_id: u32,
-    pub items: SVec<PromptItem, 16>,
+    pub items: SVec<PromptItem, 32>,
     pub waits: SVec<Cont, 16>,
     pub fx: SVec<EffSlot, MAX_FX>,
     pub temps: [List<120>; MAX_TEMPS],
@@ -360,6 +360,8 @@ impl Game {
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
         let cont = self.tag_cont(cont);
         let id = self.next_id();
+        // Only runaway Twinleaf card aliasing gets here (divergences.toml).
+        assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();
         ids.push(id);

@@ -1,2 +1,20 @@
 # Approved divergences from Twinleaf (PLAN.md 4.7).
-# Each entry: id, description, justification, matcher (applied by the diff tool).
+#
+# Each [[divergence]] has an id, a description, a justification and a matcher
+# the diff tool applies: a trace whose first divergence has kind `what`
+# (options / prompt / hash / panic / ...) and whose detail contains
+# `detail_contains` is reported as approved instead of diverged.
+
+[[divergence]]
+id = "dangle-tail-runaway-aliases"
+description = "Slowpoke SCR's Dangle Tail aliases one card instance into several zones (Twinleaf keeps duplicated instances as the same object); repeated uses compound, and every alias runs the card's handlers, so one attack can queue 50+ prompts and scratch lists. Rust caps prompts/items at 32 and scratch lists at 32 and stops the replay there."
+justification = "Only reachable after the Twinleaf duplication bug has compounded several times (1 trace in ~13.4k). Raising the caps to follow it makes every Game larger and every full copy slower for all other states."
+what = "panic"
+detail_contains = "temp lists exhausted"
+
+[[divergence]]
+id = "dangle-tail-runaway-prompts"
+description = "Same runaway Dangle Tail aliasing as above, overflowing the 32-entry prompt/item stack instead of the scratch lists."
+justification = "As above."
+what = "panic"
+detail_contains = "prompt stack exhausted"

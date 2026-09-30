@@ -153,8 +153,43 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     Outcome::Pass { steps: steps.len() }
 }
 
+/// An approved divergence from `divergences.toml` (PLAN.md 4.7): a trace
+/// whose first divergence has kind `what` and a detail containing
+/// `detail_contains` counts as approved, not diverged.
+struct Approved {
+    id: String,
+    what: String,
+    detail_contains: String,
+}
+
+/// Minimal reader for the `[[divergence]]` tables of `divergences.toml`
+/// (string values only).
+fn load_approved() -> Vec<Approved> {
+    let path = std::env::var("PTCG_DIVERGENCES").unwrap_or_else(|_| concat!(env!("CARGO_MANIFEST_DIR"), "/../divergences.toml").to_string());
+    let text = std::fs::read_to_string(path).unwrap_or_default();
+    let mut out: Vec<Approved> = Vec::new();
+    for line in text.lines() {
+        let line = line.trim();
+        if line == "[[divergence]]" {
+            out.push(Approved { id: String::new(), what: String::new(), detail_contains: String::new() });
+            continue;
+        }
+        let (Some(cur), Some((k, v))) = (out.last_mut(), line.split_once('=')) else { continue };
+        let v = v.trim().trim_matches('"').to_string();
+        match k.trim() {
+            "id" => cur.id = v,
+            "what" => cur.what = v,
+            "detail_contains" => cur.detail_contains = v,
+            _ => {}
+        }
+    }
+    out.retain(|a| !a.what.is_empty() && !a.detail_contains.is_empty());
+    out
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    let approved = load_approved();
     let mut files: Vec<PathBuf> = Vec::new();
     let mut dump: Option<PathBuf> = None;
     let mut quiet = false;
@@ -187,7 +222,7 @@ fn main() {
     if let Some(d) = &dump {
         std::fs::create_dir_all(d).unwrap();
     }
-    let (mut pass, mut fail, mut unsup, mut steps) = (0, 0, 0, 0usize);
+    let (mut pass, mut fail, mut unsup, mut steps, mut appr) = (0, 0, 0, 0usize, 0usize);
     let mut firsts: std::collections::BTreeMap<String, usize> = Default::default();
     for f in &files {
         let text = std::fs::read_to_string(f).unwrap();
@@ -211,6 +246,13 @@ fn main() {
                     println!("PASS {} ({} steps)", name, s);
                 }
             }
+            Outcome::Diverged { step, what, detail } if approved.iter().any(|a| a.what == *what && detail.contains(&a.detail_contains)) => {
+                appr += 1;
+                let id = approved.iter().find(|a| a.what == *what && detail.contains(&a.detail_contains)).map(|a| a.id.as_str()).unwrap_or("");
+                if !quiet {
+                    println!("APPROVED {} at step {}: {} ({})", name, step, what, id);
+                }
+            }
             Outcome::Diverged { step, what, detail } => {
                 fail += 1;
                 *firsts.entry(what.clone()).or_default() += 1;
@@ -224,7 +266,7 @@ fn main() {
             }
         }
     }
-    println!("\n{} traces: {} pass ({} steps), {} diverged, {} unsupported", files.len(), pass, steps, fail, unsup);
+    println!("\n{} traces: {} pass ({} steps), {} diverged, {} unsupported, {} approved", files.len(), pass, steps, fail, unsup, appr);
     for (k, v) in firsts {
         println!("  first divergence {}: {}", k, v);
     }

@@ -163,6 +163,10 @@ impl<T: Copy, const N: usize> SVec<T, N> {
         Self::default()
     }
     #[inline]
+    pub const fn capacity(&self) -> usize {
+        N
+    }
+    #[inline]
     pub fn as_slice(&self) -> &[T] {
         // SAFETY: the first `len` items are initialized.
         unsafe { std::slice::from_raw_parts(self.items.as_ptr() as *const T, self.len as usize) }
