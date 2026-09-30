@@ -1,1 +1,86 @@
-{}
+{
+ "Energy Switch SVI": {
+  "status": "verified"
+ },
+ "N's Plot SV11B": {
+  "status": "verified"
+ },
+ "Prime Catcher TEF": {
+  "status": "verified"
+ },
+ "Special Red Card M4": {
+  "status": "verified"
+ },
+ "Ciphermaniac's Codebreaking TEF": {
+  "status": "verified"
+ },
+ "Bug Catching Set TWM": {
+  "status": "verified"
+ },
+ "Prism Energy NXD": {
+  "status": "verified"
+ },
+ "Drakloak TWM": {
+  "status": "verified"
+ },
+ "Ultra Ball SVI": {
+  "status": "verified"
+ },
+ "Buddy-Buddy Poffin TEF": {
+  "status": "verified"
+ },
+ "Pok\u00e9 Pad MC": {
+  "status": "verified"
+ },
+ "Crushing Hammer SVI": {
+  "status": "verified"
+ },
+ "Crispin SCR": {
+  "status": "verified"
+ },
+ "Judge FST": {
+  "status": "verified"
+ },
+ "Unfair Stamp TWM": {
+  "status": "verified"
+ },
+ "Risky Ruins MEG": {
+  "status": "verified"
+ },
+ "Switch BS": {
+  "status": "verified"
+ },
+ "Night Stretcher SFA": {
+  "status": "verified"
+ },
+ "Lillie's Determination M1L": {
+  "status": "verified"
+ },
+ "Boss's Orders PAL": {
+  "status": "verified"
+ },
+ "Briar SCR": {
+  "status": "partial",
+  "note": "Tera +1 prize branch needs a Tera Pok\u00e9mon"
+ },
+ "Cyrano SSP": {
+  "status": "partial",
+  "note": "take-cards path needs a Pok\u00e9mon ex"
+ },
+ "Lillie's Pearl JTG": {
+  "status": "partial",
+  "note": "Lillie's -1 prize needs a Lillie's Pok\u00e9mon"
+ },
+ "Area Zero Underdepths SCR": {
+  "status": "partial",
+  "note": "8-slot bench / bench shrink need Tera"
+ },
+ "Dragapult ex TWM": {
+  "status": "partial",
+  "note": "bench damage prevention never exercised"
+ },
+ "Rosa's Encouragement M3": {
+  "status": "partial",
+  "note": "attach loop unreachable (Twinleaf filter quirk)"
+ }
+}
