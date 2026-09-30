@@ -17,5 +17,13 @@ debug = 1
 lto = "thin"
 codegen-units = 4
 
+# Fast rebuilds for the edit / diff loop (cargo build --profile iter --bin diff).
+[profile.iter]
+inherits = "release"
+lto = false
+codegen-units = 256
+incremental = true
+debug = 0
+
 [profile.dev]
 opt-level = 1

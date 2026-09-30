@@ -133,6 +133,12 @@ pub struct SelectData {
 }
 
 impl SelectData {
+    /// The oracle wire answer for option indices `chosen` (the `a` field of a
+    /// trace step), for prompt selects.
+    pub fn wire_answer(&self, chosen: &[usize]) -> Result<Value, GameError> {
+        raw_answer(self, chosen)
+    }
+
     /// True when the same option may be picked more than once (each pick is
     /// one damage counter: Put / Move / Remove damage prompts).
     /// The prompt message this select answers (empty for turn / chance selects).
