@@ -8,6 +8,10 @@ pub struct Rng {
 }
 
 impl Rng {
+    pub const fn zero() -> Rng {
+        Rng { s: [0; 4] }
+    }
+
     pub fn new(seed: u32) -> Rng {
         let mut s = [0u32; 4];
         let mut x = seed;
