@@ -4,7 +4,7 @@ use crate::cards::prelude::*;
 use crate::engine::turn::switch_pokemon;
 
 pub static IMPL: CardImpl = CardImpl {
-    class: "PokemonCatcher",
+    class: "PokemonCatcher@SSH",
     mask: mask(&[k::TRAINER]),
     reduce,
     resume: Some(resume),

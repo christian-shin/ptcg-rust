@@ -183,6 +183,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -262,6 +263,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -341,6 +343,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -363,6 +366,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -456,6 +460,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -538,6 +543,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -618,6 +624,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -640,6 +647,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -662,6 +670,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": "Bolty [L] Energy M5",
    "current_class": null,
    "twinleaf": {
     "cls": "VoltaicLightningEnergy",
@@ -705,6 +714,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": "Grow [G] Energy M3",
    "current_class": null,
    "twinleaf": {
     "cls": "GrowGrassEnergy",
@@ -748,6 +758,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -770,6 +781,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -792,6 +804,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -814,6 +827,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -836,6 +850,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -913,6 +928,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -944,6 +960,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -966,6 +983,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -988,6 +1006,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": "Togepi ASC",
    "current_class": null,
    "twinleaf": {
     "cls": "TogepiASC",
@@ -1033,6 +1052,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": "Team Rocket's Mimikyu ASC",
    "current_class": null,
    "twinleaf": {
     "cls": "TeamRocketsMimikyuASC",
@@ -1078,6 +1098,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1124,6 +1145,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1218,6 +1240,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": "Amoongus SV11B",
    "current_class": null,
    "twinleaf": {
     "cls": "Amoongus",
@@ -1261,6 +1284,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1328,6 +1352,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1407,6 +1432,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1474,6 +1500,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1519,6 +1546,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1549,6 +1577,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1614,6 +1643,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1693,6 +1723,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1801,6 +1832,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1842,6 +1874,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -1968,6 +2001,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2036,6 +2070,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2110,6 +2145,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2154,6 +2190,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": {
     "cls": "PaldeanTauros",
@@ -2225,6 +2262,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2312,6 +2350,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2378,6 +2417,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2488,6 +2528,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2576,6 +2617,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2643,6 +2685,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2708,6 +2751,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2740,6 +2784,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2798,6 +2843,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2828,6 +2874,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -2950,6 +2997,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -3057,6 +3105,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -3158,6 +3207,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -3251,6 +3301,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -3309,6 +3360,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -3560,6 +3612,7 @@
     "number": null,
     "cls": null
    },
+   "pool_fullName": null,
    "current_class": null,
    "twinleaf": null,
    "changes": false,
@@ -3639,6 +3692,7 @@
     "number": "57",
     "cls": "Mewex"
    },
+   "pool_fullName": "Mew ex 30C",
    "current_class": {
     "cls": "Mewex",
     "fullName": "Mew ex 30C",
@@ -3729,6 +3783,7 @@
     "number": "198",
     "cls": "PokePad"
    },
+   "pool_fullName": "Poké Pad 30C",
    "current_class": {
     "cls": "PokePad",
     "fullName": "Poké Pad MC",
@@ -3799,6 +3854,7 @@
     "number": "95",
     "cls": "Switch"
    },
+   "pool_fullName": "Switch 30C",
    "current_class": {
     "cls": "Switch",
     "fullName": "Switch BS",
@@ -3870,6 +3926,7 @@
     "number": "196",
     "cls": "UltraBall"
    },
+   "pool_fullName": "Ultra Ball 30C",
    "current_class": {
     "cls": "UltraBall",
     "fullName": "Ultra Ball SVI",
@@ -3941,6 +3998,7 @@
     "number": "4",
     "cls": "Budew"
    },
+   "pool_fullName": "Budew ASC",
    "current_class": {
     "cls": "Budew",
     "fullName": "Budew PRE",
@@ -4011,6 +4069,7 @@
     "number": "19",
     "cls": "TeamRocketsTarountula"
    },
+   "pool_fullName": "Team Rocket's Tarountula ASC",
    "current_class": {
     "cls": "TeamRocketsTarountula",
     "fullName": "Team Rocket's Tarountula DRI",
@@ -4081,6 +4140,7 @@
     "number": "20",
     "cls": "TeamRocketsSpidops"
    },
+   "pool_fullName": "Team Rocket's Spidops ASC",
    "current_class": {
     "cls": "TeamRocketsSpidops",
     "fullName": "Team Rocket's Spidops DRI",
@@ -4151,6 +4211,7 @@
     "number": "35",
     "cls": "EthansSlugma"
    },
+   "pool_fullName": "Ethan's Slugma ASC",
    "current_class": {
     "cls": "EthansSlugma",
     "fullName": "Ethan's Slugma DRI",
@@ -4211,6 +4272,7 @@
     "number": "36",
     "cls": "EthansMagcargo"
    },
+   "pool_fullName": "Ethan's Magcargo ASC",
    "current_class": {
     "cls": "EthansMagcargo",
     "fullName": "Ethan's Magcargo DRI",
@@ -4271,6 +4333,7 @@
     "number": "39",
     "cls": "EthansHoOhex"
    },
+   "pool_fullName": "Ethan's Ho-Oh ex ASC",
    "current_class": {
     "cls": "EthansHoOhex",
     "fullName": "Ethan's Ho-Oh ex DRI",
@@ -4331,6 +4394,7 @@
     "number": "26",
     "cls": "NsDarumaka"
    },
+   "pool_fullName": "N's Darumaka ASC",
    "current_class": {
     "cls": "NsDarumaka",
     "fullName": "N's Darumaka JTG",
@@ -4391,6 +4455,7 @@
     "number": "7",
     "cls": "Psyduck"
    },
+   "pool_fullName": "Psyduck ASC",
    "current_class": {
     "cls": "Psyduck",
     "fullName": "Psyduck SVP",
@@ -4451,6 +4516,7 @@
     "number": "8",
     "cls": "Golduck"
    },
+   "pool_fullName": "Golduck ASC",
    "current_class": {
     "cls": "Golduck",
     "fullName": "Golduck MEP",
@@ -4511,6 +4577,7 @@
     "number": "30",
     "cls": "Tynamo"
    },
+   "pool_fullName": "Tynamo ASC",
    "current_class": {
     "cls": "Tynamo",
     "fullName": "Tynamo SV11B",
@@ -4571,6 +4638,7 @@
     "number": "31",
     "cls": "Eelektrik"
    },
+   "pool_fullName": "Eelektrik SV11B",
    "current_class": {
     "cls": "Eelektrik",
     "fullName": "Eelektrik SV11B",
@@ -4631,6 +4699,7 @@
     "number": "54",
     "cls": "IonosWattrel"
    },
+   "pool_fullName": "Iono's Wattrel ASC",
    "current_class": {
     "cls": "IonosWattrel",
     "fullName": "Iono's Wattrel JTG",
@@ -4691,6 +4760,7 @@
     "number": "55",
     "cls": "IonosKilowattrel"
    },
+   "pool_fullName": "Iono's Kilowattrel ASC",
    "current_class": {
     "cls": "IonosKilowattrel",
     "fullName": "Iono's Kilowattrel JTG",
@@ -4751,6 +4821,7 @@
     "number": "79",
     "cls": "Clefable"
    },
+   "pool_fullName": "Clefable ASC",
    "current_class": {
     "cls": "Clefable",
     "fullName": "Clefable TWM",
@@ -4811,6 +4882,7 @@
     "number": "56",
     "cls": "LilliesClefairyex"
    },
+   "pool_fullName": "Lillie's Clefairy ex ASC",
    "current_class": {
     "cls": "LilliesClefairyex",
     "fullName": "Lillie's Clefairy ex JTG",
@@ -4881,6 +4953,7 @@
     "number": "81",
     "cls": "TeamRocketsMewtwoex"
    },
+   "pool_fullName": "Team Rocket's Mewtwo ex ASC",
    "current_class": {
     "cls": "TeamRocketsMewtwoex",
     "fullName": "Team Rocket's Mewtwo ex DRI",
@@ -4951,6 +5024,7 @@
     "number": "71",
     "cls": "Togetic"
    },
+   "pool_fullName": "Togetic ASC",
    "current_class": {
     "cls": "Togetic",
     "fullName": "Togetic SSP",
@@ -5011,6 +5085,7 @@
     "number": "72",
     "cls": "Togekiss"
    },
+   "pool_fullName": "Togekiss ASC",
    "current_class": {
     "cls": "Togekiss",
     "fullName": "Togekiss SSP",
@@ -5071,6 +5146,7 @@
     "number": "58",
     "cls": "Ralts"
    },
+   "pool_fullName": "Ralts ASC",
    "current_class": {
     "cls": "Ralts",
     "fullName": "Ralts M1S",
@@ -5131,6 +5207,7 @@
     "number": "59",
     "cls": "Kirlia"
    },
+   "pool_fullName": "Kirlia ASC",
    "current_class": {
     "cls": "Kirlia",
     "fullName": "Kirlia M1S",
@@ -5191,6 +5268,7 @@
     "number": "60",
     "cls": "MegaGardevoirex"
    },
+   "pool_fullName": "Mega Gardevoir ex ASC",
    "current_class": {
     "cls": "MegaGardevoirex",
     "fullName": "Mega Gardevoir ex M1S",
@@ -5251,6 +5329,7 @@
     "number": "95",
     "cls": "Munkidori"
    },
+   "pool_fullName": "Munkidori ASC",
    "current_class": {
     "cls": "Munkidori",
     "fullName": "Munkidori TWM",
@@ -5321,6 +5400,7 @@
     "number": "74",
     "cls": "Lunatone"
    },
+   "pool_fullName": "Lunatone ASC",
    "current_class": {
     "cls": "Lunatone",
     "fullName": "Lunatone M1L",
@@ -5391,6 +5471,7 @@
     "number": "64",
     "cls": "Solrock"
    },
+   "pool_fullName": "Solrock ASC",
    "current_class": {
     "cls": "Solrock",
     "fullName": "Solrock XY",
@@ -5433,17 +5514,12 @@
     "new_behavior": "Solrock (sets/11-mega-evolution/set-mega-evolution/solrock.ts)",
     "old_ports": [
      {
-      "key": "Solrock",
+      "key": "Solrock@XY",
       "file": "engine/src/cards/impls/solrock_xy.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "Solrock",
-      "file": "engine/src/cards/impls/solrock_xy.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class); WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class)"
    }
   },
   {
@@ -5461,6 +5537,7 @@
     "number": "102",
     "cls": "CynthiasGible"
    },
+   "pool_fullName": "Cynthia's Gible ASC",
    "current_class": {
     "cls": "CynthiasGible",
     "fullName": "Cynthia's Gible DRI",
@@ -5531,6 +5608,7 @@
     "number": "103",
     "cls": "CynthiasGabite"
    },
+   "pool_fullName": "Cynthia's Gabite ASC",
    "current_class": {
     "cls": "CynthiasGabite",
     "fullName": "Cynthia's Gabite DRI",
@@ -5601,6 +5679,7 @@
     "number": "104",
     "cls": "CynthiasGarchompex"
    },
+   "pool_fullName": "Cynthia's Garchomp ex ASC",
    "current_class": {
     "cls": "CynthiasGarchompex",
     "fullName": "Cynthia's Garchomp ex DRI",
@@ -5671,6 +5750,7 @@
     "number": "76",
     "cls": "Riolu"
    },
+   "pool_fullName": "Riolu ASC",
    "current_class": {
     "cls": "Riolu",
     "fullName": "Riolu M1L",
@@ -5713,12 +5793,17 @@
     "new_behavior": "Riolu (sets/11-mega-evolution/set-mega-evolution/riolu.ts)",
     "old_ports": [
      {
-      "key": "Riolu@Riolu M1L",
+      "key": "Riolu@Riolu M1L|Riolu ASC",
       "file": "engine/src/cards/impls/riolu_meg.rs"
      }
     ],
-    "new_ports": [],
-    "verdict": "rebind (same behavior class); port key is qualified to the old printing, requalify it"
+    "new_ports": [
+     {
+      "key": "Riolu@Riolu M1L|Riolu ASC",
+      "file": "engine/src/cards/impls/riolu_meg.rs"
+     }
+    ],
+    "verdict": "rebind (same behavior class)"
    }
   },
   {
@@ -5736,6 +5821,7 @@
     "number": "77",
     "cls": "MegaLucarioex"
    },
+   "pool_fullName": "Mega Lucario ex ASC",
    "current_class": {
     "cls": "MegaLucarioex",
     "fullName": "Mega Lucario ex M1L",
@@ -5806,6 +5892,7 @@
     "number": "47",
     "cls": "Gastly"
    },
+   "pool_fullName": "Gastly ASC",
    "current_class": {
     "cls": "Gastly",
     "fullName": "Gastly EVO",
@@ -5848,7 +5935,7 @@
     "new_behavior": null,
     "old_ports": [
      {
-      "key": "Gastly",
+      "key": "Gastly@EVO",
       "file": "engine/src/cards/impls/gastly.rs"
      }
     ],
@@ -5871,6 +5958,7 @@
     "number": "84",
     "cls": "Haunter"
    },
+   "pool_fullName": "Haunter ASC",
    "current_class": {
     "cls": "Haunter",
     "fullName": "Haunter SSH",
@@ -5913,7 +6001,7 @@
     "new_behavior": null,
     "old_ports": [
      {
-      "key": "Haunter",
+      "key": "Haunter@SSH",
       "file": "engine/src/cards/impls/haunter.rs"
      }
     ],
@@ -5936,6 +6024,7 @@
     "number": "56",
     "cls": "MegaGengarex"
    },
+   "pool_fullName": "Mega Gengar ex ASC",
    "current_class": {
     "cls": "MegaGengarex",
     "fullName": "Mega Gengar ex MBG",
@@ -6006,6 +6095,7 @@
     "number": "127",
     "cls": "TeamRocketsMurkrow"
    },
+   "pool_fullName": "Team Rocket's Murkrow ASC",
    "current_class": {
     "cls": "TeamRocketsMurkrow",
     "fullName": "Team Rocket's Murkrow DRI",
@@ -6076,6 +6166,7 @@
     "number": "129",
     "cls": "CynthiasSpiritomb"
    },
+   "pool_fullName": "Cynthia's Spiritomb ASC",
    "current_class": {
     "cls": "CynthiasSpiritomb",
     "fullName": "Cynthia's Spiritomb DRI",
@@ -6146,6 +6237,7 @@
     "number": "97",
     "cls": "NsZorua"
    },
+   "pool_fullName": "N's Zorua ASC",
    "current_class": {
     "cls": "NsZorua",
     "fullName": "N's Zorua JTG",
@@ -6206,6 +6298,7 @@
     "number": "98",
     "cls": "NsZoroarkex"
    },
+   "pool_fullName": "N's Zoroark ex ASC",
    "current_class": {
     "cls": "NsZoroarkex",
     "fullName": "N's Zoroark ex JTG",
@@ -6276,6 +6369,7 @@
     "number": "38",
     "cls": "Fezandipitiex"
    },
+   "pool_fullName": "Fezandipiti ex ASC",
    "current_class": {
     "cls": "Fezandipitiex",
     "fullName": "Fezandipiti ex SFA",
@@ -6346,6 +6440,7 @@
     "number": "116",
     "cls": "NsReshiram"
    },
+   "pool_fullName": "N's Reshiram ASC",
    "current_class": {
     "cls": "NsReshiram",
     "fullName": "N's Reshiram JTG",
@@ -6406,6 +6501,7 @@
     "number": "128",
     "cls": "Dreepy"
    },
+   "pool_fullName": "Dreepy ASC",
    "current_class": {
     "cls": "Dreepy",
     "fullName": "Dreepy TWM",
@@ -6466,6 +6562,7 @@
     "number": "129",
     "cls": "Drakloak"
    },
+   "pool_fullName": "Drakloak ASC",
    "current_class": {
     "cls": "Drakloak",
     "fullName": "Drakloak TWM",
@@ -6536,6 +6633,7 @@
     "number": "130",
     "cls": "Dragapultex"
    },
+   "pool_fullName": "Dragapult ex ASC",
    "current_class": {
     "cls": "Dragapultex",
     "fullName": "Dragapult ex TWM",
@@ -6606,6 +6704,7 @@
     "number": "118",
     "cls": "FanRotom"
    },
+   "pool_fullName": "Fan Rotom ASC",
    "current_class": {
     "cls": "FanRotom",
     "fullName": "Fan Rotom SCR",
@@ -6676,6 +6775,7 @@
     "number": "138",
     "cls": "HopsCramorant"
    },
+   "pool_fullName": "Hop's Cramorant ASC",
    "current_class": {
     "cls": "HopsCramorant",
     "fullName": "Hop's Cramorant JTG",
@@ -6746,6 +6846,7 @@
     "number": "128",
     "cls": "Terapagosex"
    },
+   "pool_fullName": "Terapagos ex ASC",
    "current_class": {
     "cls": "Terapagosex",
     "fullName": "Terapagos ex SCR",
@@ -6816,6 +6917,7 @@
     "number": "113",
     "cls": "AcerolasMischief"
    },
+   "pool_fullName": "Acerola's Mischief MEG",
    "current_class": {
     "cls": "AcerolasMischief",
     "fullName": "Acerola's Mischief MEG",
@@ -6863,6 +6965,7 @@
     "number": "156",
     "cls": "AirBalloon"
    },
+   "pool_fullName": "Air Balloon ASC",
    "current_class": {
     "cls": "AirBalloon",
     "fullName": "Air Balloon SSH",
@@ -6933,6 +7036,7 @@
     "number": "172",
     "cls": "BossOrders"
    },
+   "pool_fullName": "Boss's Orders ASC",
    "current_class": {
     "cls": "BossOrders",
     "fullName": "Boss's Orders PAL",
@@ -7003,6 +7107,7 @@
     "number": "144",
     "cls": "BuddyBuddyPoffin"
    },
+   "pool_fullName": "Buddy-Buddy Poffin ASC",
    "current_class": {
     "cls": "BuddyBuddyPoffin",
     "fullName": "Buddy-Buddy Poffin TEF",
@@ -7073,6 +7178,7 @@
     "number": "170",
     "cls": "CounterGain"
    },
+   "pool_fullName": "Counter Gain ASC",
    "current_class": {
     "cls": "CounterGain",
     "fullName": "Counter Gain LOT",
@@ -7133,6 +7239,7 @@
     "number": "116",
     "cls": "FightingGong"
    },
+   "pool_fullName": "Fighting Gong M1L",
    "current_class": {
     "cls": "FightingGong",
     "fullName": "Fighting Gong M1L",
@@ -7179,6 +7286,7 @@
     "number": "135",
     "cls": "GlassTrumpet"
    },
+   "pool_fullName": "Glass Trumpet ASC",
    "current_class": {
     "cls": "GlassTrumpet",
     "fullName": "Glass Trumpet SCR",
@@ -7249,6 +7357,7 @@
     "number": "149",
     "cls": "IrisFightingSpirit"
    },
+   "pool_fullName": "Iris's Fighting Spirit ASC",
    "current_class": {
     "cls": "IrisFightingSpirit",
     "fullName": "Iris's Fighting Spirit JTG",
@@ -7309,6 +7418,7 @@
     "number": "119",
     "cls": "LilliesDetermination"
    },
+   "pool_fullName": "Lillie's Determination ASC",
    "current_class": {
     "cls": "LilliesDetermination",
     "fullName": "Lillie's Determination M1L",
@@ -7379,6 +7489,7 @@
     "number": "121",
     "cls": "MegaSignal"
    },
+   "pool_fullName": "Mega Signal ASC",
    "current_class": {
     "cls": "MegaSignal",
     "fullName": "Mega Signal M1S",
@@ -7449,6 +7560,7 @@
     "number": "122",
     "cls": "MysteryGarden"
    },
+   "pool_fullName": "Mystery Garden ASC",
    "current_class": {
     "cls": "MysteryGarden",
     "fullName": "Mystery Garden M1S",
@@ -7509,6 +7621,7 @@
     "number": "153",
     "cls": "NsPPUp"
    },
+   "pool_fullName": "N's PP Up ASC",
    "current_class": {
     "cls": "NsPPUp",
     "fullName": "N's PP Up JTG",
@@ -7579,6 +7692,7 @@
     "number": "61",
     "cls": "NightlyStretcher"
    },
+   "pool_fullName": "Night Stretcher ASC",
    "current_class": {
     "cls": "NightlyStretcher",
     "fullName": "Night Stretcher SFA",
@@ -7649,6 +7763,7 @@
     "number": "124",
     "cls": "PowerProtein"
    },
+   "pool_fullName": "Premium Power Pro ASC",
    "current_class": {
     "cls": "PowerProtein",
     "fullName": "Power Protein M1L",
@@ -7719,6 +7834,7 @@
     "number": "187",
     "cls": "Surfer"
    },
+   "pool_fullName": "Surfer ASC",
    "current_class": {
     "cls": "Surfer",
     "fullName": "Surfer SSP",
@@ -7779,6 +7895,7 @@
     "number": "170",
     "cls": "TeamRocketsArcher"
    },
+   "pool_fullName": "Team Rocket's Archer ASC",
    "current_class": {
     "cls": "TeamRocketsArcher",
     "fullName": "Team Rocket's Archer DRI",
@@ -7849,6 +7966,7 @@
     "number": "171",
     "cls": "TeamRocketsAriana"
    },
+   "pool_fullName": "Team Rocket's Ariana ASC",
    "current_class": {
     "cls": "TeamRocketsAriana",
     "fullName": "Team Rocket's Ariana DRI",
@@ -7919,6 +8037,7 @@
     "number": "173",
     "cls": "TeamRocketsFactory"
    },
+   "pool_fullName": "Team Rocket's Factory ASC",
    "current_class": {
     "cls": "TeamRocketsFactory",
     "fullName": "Team Rocket's Factory DRI",
@@ -7989,6 +8108,7 @@
     "number": "174",
     "cls": "TeamRocketsGiovanni"
    },
+   "pool_fullName": "Team Rocket's Giovanni ASC",
    "current_class": {
     "cls": "TeamRocketsGiovanni",
     "fullName": "Team Rocket's Giovanni DRI",
@@ -8059,6 +8179,7 @@
     "number": "176",
     "cls": "TeamRocketsPetrel"
    },
+   "pool_fullName": "Team Rocket's Petrel ASC",
    "current_class": {
     "cls": "TeamRocketsPetrel",
     "fullName": "Team Rocket's Petrel DRI",
@@ -8129,6 +8250,7 @@
     "number": "177",
     "cls": "TeamRocketsProton"
    },
+   "pool_fullName": "Team Rocket's Proton ASC",
    "current_class": {
     "cls": "TeamRocketsProton",
     "fullName": "Team Rocket's Proton DRI",
@@ -8199,6 +8321,7 @@
     "number": "178",
     "cls": "TeamRocketsTransceiver"
    },
+   "pool_fullName": "Team Rocket's Transceiver ASC",
    "current_class": {
     "cls": "TeamRocketsTransceiver",
     "fullName": "Team Rocket's Transceiver DRI",
@@ -8269,6 +8392,7 @@
     "number": "180",
     "cls": "TeamRocketsWatchtower"
    },
+   "pool_fullName": "Team Rocket's Watchtower ASC",
    "current_class": {
     "cls": "TeamRocketsWatchtower",
     "fullName": "Team Rocket's Watchtower DRI",
@@ -8339,6 +8463,7 @@
     "number": "93",
     "cls": "PrismEnergy"
    },
+   "pool_fullName": "Prism Energy ASC",
    "current_class": {
     "cls": "PrismEnergy",
     "fullName": "Prism Energy NXD",
@@ -8409,6 +8534,7 @@
     "number": "182",
     "cls": "TeamRocketsEnergy"
    },
+   "pool_fullName": "Team Rocket's Energy ASC",
    "current_class": {
     "cls": "TeamRocketsEnergy",
     "fullName": "Team Rocket's Energy DRI",
@@ -8479,6 +8605,7 @@
     "number": "145",
     "cls": "BlackBeltsTrainingJTG"
    },
+   "pool_fullName": "Black Belt's Training ASC",
    "current_class": {
     "cls": "BlackBeltsTrainingJTG",
     "fullName": "Black Belt's Training JTG",
@@ -8551,6 +8678,7 @@
     "number": "91",
     "cls": "Cheren"
    },
+   "pool_fullName": "Cheren ASC",
    "current_class": {
     "cls": "Cheren",
     "fullName": "Cheren EPO",
@@ -8611,6 +8739,7 @@
     "number": "153",
     "cls": "JammingTower"
    },
+   "pool_fullName": "Jamming Tower ASC",
    "current_class": {
     "cls": "JammingTower",
     "fullName": "Jamming Tower TWM",
@@ -8671,6 +8800,7 @@
     "number": "41",
     "cls": "MegaDiancieex"
    },
+   "pool_fullName": "Mega Diancie ex ASC",
    "current_class": {
     "cls": "MegaDiancieex",
     "fullName": "Mega Diancie ex M2",
@@ -8731,6 +8861,7 @@
     "number": "136",
     "cls": "MarniesGrimmsnarlex"
    },
+   "pool_fullName": "Marnie's Grimmsnarl ex ASC",
    "current_class": {
     "cls": "MarniesGrimmsnarlex",
     "fullName": "Marnie's Grimmsnarl ex DRI",
@@ -8801,6 +8932,7 @@
     "number": "145",
     "cls": "StevensMetagrossex"
    },
+   "pool_fullName": "Steven's Metagross ex ASC",
    "current_class": {
     "cls": "StevensMetagrossex",
     "fullName": "Steven's Metagross ex DRI",
@@ -8861,6 +8993,7 @@
     "number": "85",
     "cls": "Crustle"
    },
+   "pool_fullName": "Crustle BCR",
    "current_class": {
     "cls": "Crustle",
     "fullName": "Crustle BCR",
@@ -8949,6 +9082,7 @@
     "number": "186",
     "cls": "Pokegear30"
    },
+   "pool_fullName": "Pokegear 3.0 SV11W",
    "current_class": {
     "cls": "Pokegear30",
     "fullName": "Pokegear SVI",
@@ -9019,6 +9153,7 @@
     "number": "81",
     "cls": "EnergyRetrieval"
    },
+   "pool_fullName": "Energy Retrieval FA CRI",
    "current_class": {
     "cls": "EnergyRetrieval",
     "fullName": "Energy Retrieval BS",
@@ -9061,17 +9196,12 @@
     "new_behavior": "EnergyRetrieval (sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-retrieval.ts)",
     "old_ports": [
      {
-      "key": "EnergyRetrieval",
+      "key": "EnergyRetrieval@BS",
       "file": "engine/src/cards/impls/energy_retrieval.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "EnergyRetrieval",
-      "file": "engine/src/cards/impls/energy_retrieval.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class); WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class)"
    }
   },
   {
@@ -9089,6 +9219,7 @@
     "number": "91",
     "cls": "JumboIce"
    },
+   "pool_fullName": "Jumbo Ice Cream FA CRI",
    "current_class": {
     "cls": "JumboIce",
     "fullName": "Jumbo Ice M2",
@@ -9159,6 +9290,7 @@
     "number": "129",
     "cls": "SurfingBeach"
    },
+   "pool_fullName": "Surfing Beach FA CRI",
    "current_class": {
     "cls": "SurfingBeach",
     "fullName": "Surfing Beach M1S",
@@ -9219,6 +9351,7 @@
     "number": "116",
     "cls": "ToolScrapper"
    },
+   "pool_fullName": "Tool Scrapper FA CRI",
    "current_class": {
     "cls": "ToolScrapper",
     "fullName": "Tool Scrapper DRX",
@@ -9289,6 +9422,7 @@
     "number": "13",
     "cls": "Rellor"
    },
+   "pool_fullName": "Rellor DRI",
    "current_class": {
     "cls": "Rellor",
     "fullName": "Rellor SSP",
@@ -9331,12 +9465,17 @@
     "new_behavior": "Rellor (sets/10-scarlet-and-violet/set-surging-sparks/rellor.ts)",
     "old_ports": [
      {
-      "key": "Rellor@SSP",
+      "key": "Rellor@SSP|Rellor DRI",
       "file": "engine/src/cards/impls/rellor_ssp.rs"
      }
     ],
-    "new_ports": [],
-    "verdict": "rebind (same behavior class); port key is qualified to the old printing, requalify it"
+    "new_ports": [
+     {
+      "key": "Rellor@SSP|Rellor DRI",
+      "file": "engine/src/cards/impls/rellor_ssp.rs"
+     }
+    ],
+    "verdict": "rebind (same behavior class)"
    }
   },
   {
@@ -9354,6 +9493,7 @@
     "number": "150",
     "cls": "Levincia"
    },
+   "pool_fullName": "Levincia DRI",
    "current_class": {
     "cls": "Levincia",
     "fullName": "Levincia JTG",
@@ -9414,6 +9554,7 @@
     "number": "145",
     "cls": "Minccino"
    },
+   "pool_fullName": "Minccino SSH",
    "current_class": {
     "cls": "Minccino",
     "fullName": "Minccino SSH",
@@ -9547,6 +9688,7 @@
     "number": "90",
     "cls": "SuperPotion"
    },
+   "pool_fullName": "Super Potion JTG",
    "current_class": {
     "cls": "SuperPotion",
     "fullName": "Super Potion BS",
@@ -9589,17 +9731,12 @@
     "new_behavior": "SuperPotion (sets/07-x-and-y/set-x-and-y/super-potion.ts)",
     "old_ports": [
      {
-      "key": "SuperPotion",
+      "key": "SuperPotion@BS",
       "file": "engine/src/cards/impls/super_potion.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "SuperPotion",
-      "file": "engine/src/cards/impls/super_potion.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class); WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class)"
    }
   },
   {
@@ -9617,6 +9754,7 @@
     "number": "93",
     "cls": "PokemonCenterLady"
    },
+   "pool_fullName": "Pokemon Center Lady MEG",
    "current_class": {
     "cls": "PokemonCenterLady",
     "fullName": "Pokémon Center Lady FLF",
@@ -9640,9 +9778,9 @@
     "number": "116",
     "name": "Pokémon Center Lady",
     "file": "sets/11-mega-evolution/set-mega-evolution/other-prints.ts",
-    "registered": false,
-    "in_dump": false,
-    "registered_static": false,
+    "registered": true,
+    "in_dump": true,
+    "registered_static": true,
     "extends": "PokemonCenterLady",
     "base_chain": [
      "PokemonCenterLady (sets/07-x-and-y/set-flashfire/pokemon-center-lady.ts)"
@@ -9664,7 +9802,7 @@
       "PokemonCenterLadyCPA | Pokémon Center Lady CPA | CPA #60 | sets/09-sword-and-shield/set-champions-path/other-prints.ts",
       "PokemonCenterLadySSH | Pokémon Center Lady SSH | SSH #176 | sets/09-sword-and-shield/set-sword-and-shield/other-prints.ts",
       "PokemonCenterLadyVIV | Pokémon Center Lady VIV | VIV #185 | sets/09-sword-and-shield/set-vivid-voltage/other-prints.ts",
-      "PokemonCenterLadyMEG | Pokemon Center Lady MEG | MEG #116 | sets/11-mega-evolution/set-mega-evolution/other-prints.ts | UNREGISTERED",
+      "PokemonCenterLadyMEG | Pokemon Center Lady MEG | MEG #116 | sets/11-mega-evolution/set-mega-evolution/other-prints.ts",
       "PokemonCenterLadyHIF | Pokémon Center Lady HIF | HIF #64 | sets/set-hidden-fates/other-prints.ts"
      ]
     }
@@ -9685,12 +9823,6 @@
      }
     ],
     "verdict": "rebind (same behavior class)"
-   },
-   "register": {
-    "index": "sets/11-mega-evolution/set-mega-evolution/index.ts",
-    "cls": "PokemonCenterLadyMEG",
-    "defined_in": "sets/11-mega-evolution/set-mega-evolution/other-prints.ts",
-    "exported": true
    }
   },
   {
@@ -9708,6 +9840,7 @@
     "number": "191",
     "cls": "RareCandy"
    },
+   "pool_fullName": "Rare Candy SVI",
    "current_class": {
     "cls": "RareCandy",
     "fullName": "Rare Candy SVI",
@@ -9778,6 +9911,7 @@
     "number": "130",
     "cls": "Repel"
    },
+   "pool_fullName": "Repel M1L",
    "current_class": {
     "cls": "Repel",
     "fullName": "Repel SUM",
@@ -9838,6 +9972,7 @@
     "number": "51",
     "cls": "Chikorita"
    },
+   "pool_fullName": "Chikorita MEP",
    "current_class": {
     "cls": "Chikorita",
     "fullName": "Chikorita UF",
@@ -9957,6 +10092,7 @@
     "number": "14",
     "cls": "Grookey"
    },
+   "pool_fullName": "Grookey TWM",
    "current_class": {
     "cls": "Grookey",
     "fullName": "Grookey TWM",
@@ -10025,6 +10161,7 @@
     "number": "80",
     "cls": "BraveBangle"
    },
+   "pool_fullName": "Brave Bangle FA PBL",
    "current_class": {
     "cls": "BraveBangle",
     "fullName": "Brave Bangle SV11W",
@@ -10095,6 +10232,7 @@
     "number": "168",
     "cls": "CrushingHammer"
    },
+   "pool_fullName": "Crushing Hammer FA PBL",
    "current_class": {
     "cls": "CrushingHammer",
     "fullName": "Crushing Hammer SVI",
@@ -10155,7 +10293,7 @@
    "number": "107",
    "name": "Energy Switch",
    "status": "reprint",
-   "match": "exact-unregistered",
+   "match": "exact",
    "confidence": "high",
    "note": "",
    "current": {
@@ -10165,6 +10303,7 @@
     "number": "173",
     "cls": "EnergySwitch"
    },
+   "pool_fullName": "Energy Switch FA PBL",
    "current_class": {
     "cls": "EnergySwitch",
     "fullName": "Energy Switch SVI",
@@ -10188,9 +10327,9 @@
     "number": "107",
     "name": "Energy Switch",
     "file": "sets/11-mega-evolution/set-pitch-black/other-prints.ts",
-    "registered": false,
-    "in_dump": false,
-    "registered_static": false,
+    "registered": true,
+    "in_dump": true,
+    "registered_static": true,
     "extends": "EnergySwitch",
     "base_chain": [
      "EnergySwitch (sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-switch.ts)"
@@ -10202,38 +10341,6 @@
    "changes": true,
    "text_differs": false,
    "review": null,
-   "candidates": [
-    {
-     "text": "text: Move a basic Energy from 1 of your Pokémon to another of your Pokémon.",
-     "same_as_current": false,
-     "classes": [
-      "EnergySwitchPK | Energy Switch PK | PK #75 | sets/03-ex-ruby-and-sapphire/set-ex-power-keepers/other-prints.ts",
-      "EnergySwitchRS | Energy Switch RS | RS #82 | sets/03-ex-ruby-and-sapphire/set-ex-ruby-and-sapphire/other-prints.ts",
-      "EnergySwitchPKDP | Energy Switch DP | DP #107 | sets/04-diamond-pearl-platinum/set-diamond-and-pearl/other-prints.ts",
-      "EnergySwitchPKSF | Energy Switch SF | SF #84 | sets/04-diamond-pearl-platinum/set-stormfront/other-prints.ts",
-      "EnergySwitchPKHS | Energy Switch HS | HS #91 | sets/05-heartgold-and-soulsilver/set-heartgold-and-soulsilver/other-prints.ts",
-      "EnergySwitchPKBLW | Energy Switch BLW | BLW #94 | sets/06-black-and-white/set-black-and-white/other-prints.ts",
-      "EnergySwitchPKFFI | Energy Switch FFI | FFI #89 | sets/07-x-and-y/set-furious-fists/other-prints.ts",
-      "EnergySwitchPKGEN | Energy Switch GEN | GEN #61 | sets/07-x-and-y/set-generations/other-prints.ts",
-      "EnergySwitchPKROS | Energy Switch ROS | ROS #109 | sets/07-x-and-y/set-roaring-skies/other-prints.ts",
-      "EnergySwitchPKCES | Energy Switch CES | CES #129 | sets/08-sun-and-moon/set-celestial-storm/other-prints.ts",
-      "EnergySwitchPKSUM | Energy Switch SUM | SUM #117 | sets/08-sun-and-moon/set-sun-and-moon/other-prints.ts",
-      "EnergySwitchPKCRZ | Energy Switch CRZ | CRZ #129 | sets/09-sword-and-shield/set-crown-zenith/other-prints.ts",
-      "EnergySwitchPKSIT | Energy Switch SIT | SIT #212 | sets/09-sword-and-shield/set-silver-tempest/other-prints.ts",
-      "EnergySwitchPKSSH | Energy Switch SSH | SSH #162 | sets/09-sword-and-shield/set-sword-and-shield/other-prints.ts",
-      "EnergySwitchPKMEG | Energy Switch MEG | MEG #115 | sets/11-mega-evolution/set-mega-evolution/other-prints.ts"
-     ]
-    },
-    {
-     "text": "text: Move a basic Energy from 1 of your Pokemon to another of your Pokemon.",
-     "same_as_current": true,
-     "classes": [
-      "EnergySwitchLTR | Energy Switch LTR | LTR #112 | sets/06-black-and-white/set-legendary-treasures/other-prints.ts",
-      "EnergySwitch | Energy Switch SVI | SVI #173 | sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-switch.ts",
-      "EnergySwitchFAPBL | Energy Switch FA PBL | PBL #107 | sets/11-mega-evolution/set-pitch-black/other-prints.ts | UNREGISTERED"
-     ]
-    }
-   ],
    "port": {
     "old_behavior": "EnergySwitch (sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-switch.ts)",
     "new_behavior": "EnergySwitch (sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-switch.ts)",
@@ -10250,12 +10357,6 @@
      }
     ],
     "verdict": "rebind (same behavior class)"
-   },
-   "register": {
-    "index": "sets/11-mega-evolution/set-pitch-black/index.ts",
-    "cls": "EnergySwitchFAPBL",
-    "defined_in": "sets/11-mega-evolution/set-pitch-black/other-prints.ts",
-    "exported": true
    }
   },
   {
@@ -10273,6 +10374,7 @@
     "number": "118",
     "cls": "IronDefender"
    },
+   "pool_fullName": "Iron Defender FA PBL",
    "current_class": {
     "cls": "IronDefender",
     "fullName": "Iron Defender M1L",
@@ -10343,6 +10445,7 @@
     "number": "86",
     "cls": "IgnitionEnergy"
    },
+   "pool_fullName": "Ignition Energy PFL",
    "current_class": {
     "cls": "IgnitionEnergy",
     "fullName": "Ignition Energy SV11W",
@@ -10413,6 +10516,7 @@
     "number": "172",
     "cls": "EnergySearch"
    },
+   "pool_fullName": "Energy Search POR",
    "current_class": {
     "cls": "EnergySearch",
     "fullName": "Energy Search SVI",
@@ -10483,6 +10587,7 @@
     "number": "235",
     "cls": "Judge"
    },
+   "pool_fullName": "Judge POR",
    "current_class": {
     "cls": "Judge",
     "fullName": "Judge FST",
@@ -10525,17 +10630,12 @@
     "new_behavior": "Judge (sets/10-scarlet-and-violet/set-scarlet-and-violet/judge.ts)",
     "old_ports": [
      {
-      "key": "Judge",
+      "key": "Judge@FST",
       "file": "engine/src/cards/impls/judge.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "Judge",
-      "file": "engine/src/cards/impls/judge.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class), printed text same: diff the two implementations, re-port only if behavior differs; WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class), printed text same: diff the two implementations, re-port only if behavior differs"
    }
   },
   {
@@ -10553,6 +10653,7 @@
     "number": "64",
     "cls": "PokeBall"
    },
+   "pool_fullName": "Poke Ball POR",
    "current_class": {
     "cls": "PokeBall",
     "fullName": "Poké Ball JU",
@@ -10623,6 +10724,7 @@
     "number": "175",
     "cls": "PokemonCatcher"
    },
+   "pool_fullName": "Pokemon Catcher POR",
    "current_class": {
     "cls": "PokemonCatcher",
     "fullName": "Pokemon Catcher SSH",
@@ -10665,17 +10767,12 @@
     "new_behavior": "PokemonCatcher (sets/10-scarlet-and-violet/set-scarlet-and-violet/pokemon-catcher.ts)",
     "old_ports": [
      {
-      "key": "PokemonCatcher",
+      "key": "PokemonCatcher@SSH",
       "file": "engine/src/cards/impls/pokemon_catcher.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "PokemonCatcher",
-      "file": "engine/src/cards/impls/pokemon_catcher.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class), printed text same: diff the two implementations, re-port only if behavior differs; WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class), printed text same: diff the two implementations, re-port only if behavior differs"
    }
   },
   {
@@ -10693,6 +10790,7 @@
     "number": "94",
     "cls": "Potion"
    },
+   "pool_fullName": "Potion POR",
    "current_class": {
     "cls": "Potion",
     "fullName": "Potion BS",
@@ -10735,17 +10833,12 @@
     "new_behavior": "Potion (sets/10-scarlet-and-violet/set-scarlet-and-violet/potion.ts)",
     "old_ports": [
      {
-      "key": "Potion",
+      "key": "Potion@BS",
       "file": "engine/src/cards/impls/potion.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "Potion",
-      "file": "engine/src/cards/impls/potion.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class); WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class)"
    }
   },
   {
@@ -10763,6 +10856,7 @@
     "number": "124",
     "cls": "EnergyRecycler"
    },
+   "pool_fullName": "Energy Recycler FA POR",
    "current_class": {
     "cls": "EnergyRecycler",
     "fullName": "Energy Recycler BST",
@@ -10833,6 +10927,7 @@
     "number": "117",
     "cls": "LushForest"
    },
+   "pool_fullName": "Forest of Vitality FA POR",
    "current_class": {
     "cls": "LushForest",
     "fullName": "Forest of Vitality MEG",
@@ -10903,6 +10998,7 @@
     "number": "96",
     "cls": "SacredAsh"
    },
+   "pool_fullName": "Sacred Ash FA POR",
    "current_class": {
     "cls": "SacredAsh",
     "fullName": "Sacred Ash FLF",
@@ -10945,17 +11041,12 @@
     "new_behavior": "SacredAsh (sets/10-scarlet-and-violet/set-destined-rivals/sacred-ash.ts)",
     "old_ports": [
      {
-      "key": "SacredAsh",
+      "key": "SacredAsh@FLF",
       "file": "engine/src/cards/impls/sacred_ash.rs"
      }
     ],
-    "new_ports": [
-     {
-      "key": "SacredAsh",
-      "file": "engine/src/cards/impls/sacred_ash.rs"
-     }
-    ],
-    "verdict": "re-port (different behavior class); WARNING existing port key would silently bind to the new class with old behavior"
+    "new_ports": [],
+    "verdict": "re-port (different behavior class)"
    }
   },
   {
@@ -10973,6 +11064,7 @@
     "number": "94",
     "cls": "WonderPatch"
    },
+   "pool_fullName": "Wondrous Patch FA POR",
    "current_class": {
     "cls": "WonderPatch",
     "fullName": "Wonder Patch MBD",
@@ -11043,6 +11135,7 @@
     "number": "12",
     "cls": "Applin"
    },
+   "pool_fullName": "Applin PRE",
    "current_class": {
     "cls": "Applin",
     "fullName": "Applin SCR",
@@ -11103,6 +11196,7 @@
     "number": "18",
     "cls": "Dipplin"
    },
+   "pool_fullName": "Dipplin PRE",
    "current_class": {
     "cls": "Dipplin",
     "fullName": "Dipplin TWM1",
@@ -11145,12 +11239,17 @@
     "new_behavior": "Dipplin (sets/10-scarlet-and-violet/set-twilight-masquerade/dipplin.ts)",
     "old_ports": [
      {
-      "key": "Dipplin@Dipplin TWM1",
+      "key": "Dipplin@Dipplin TWM1|Dipplin PRE",
       "file": "engine/src/cards/impls/dipplin_twm.rs"
      }
     ],
-    "new_ports": [],
-    "verdict": "rebind (same behavior class); port key is qualified to the old printing, requalify it"
+    "new_ports": [
+     {
+      "key": "Dipplin@Dipplin TWM1|Dipplin PRE",
+      "file": "engine/src/cards/impls/dipplin_twm.rs"
+     }
+    ],
+    "verdict": "rebind (same behavior class)"
    }
   },
   {
@@ -11168,6 +11267,7 @@
     "number": "14",
     "cls": "Hydrappleex"
    },
+   "pool_fullName": "Hydrapple ex PRE",
    "current_class": {
     "cls": "Hydrappleex",
     "fullName": "Hydrapple ex SCR",
@@ -11238,6 +11338,7 @@
     "number": "25",
     "cls": "TealMaskOgerponex"
    },
+   "pool_fullName": "Teal Mask Ogerpon ex PRE",
    "current_class": {
     "cls": "TealMaskOgerponex",
     "fullName": "Teal Mask Ogerpon ex TWM",
@@ -11308,6 +11409,7 @@
     "number": "23",
     "cls": "Pyroar"
    },
+   "pool_fullName": "Pyroar STS",
    "current_class": {
     "cls": "Pyroar",
     "fullName": "Pyroar STS",
@@ -11402,6 +11504,7 @@
     "number": "40",
     "cls": "HearthflameMaskOgerponex"
    },
+   "pool_fullName": "Hearthflame Mask Ogerpon ex PRE",
    "current_class": {
     "cls": "HearthflameMaskOgerponex",
     "fullName": "Hearthflame Mask Ogerpon ex TWM",
@@ -11462,6 +11565,7 @@
     "number": "44",
     "cls": "Goldeen"
    },
+   "pool_fullName": "Goldeen PRE",
    "current_class": {
     "cls": "Goldeen",
     "fullName": "Goldeen TWM",
@@ -11504,12 +11608,17 @@
     "new_behavior": "Goldeen (sets/10-scarlet-and-violet/set-twilight-masquerade/goldeen.ts)",
     "old_ports": [
      {
-      "key": "Goldeen@Goldeen TWM",
+      "key": "Goldeen@Goldeen TWM|Goldeen PRE",
       "file": "engine/src/cards/impls/goldeen.rs"
      }
     ],
-    "new_ports": [],
-    "verdict": "rebind (same behavior class); port key is qualified to the old printing, requalify it"
+    "new_ports": [
+     {
+      "key": "Goldeen@Goldeen TWM|Goldeen PRE",
+      "file": "engine/src/cards/impls/goldeen.rs"
+     }
+    ],
+    "verdict": "rebind (same behavior class)"
    }
   },
   {
@@ -11527,6 +11636,7 @@
     "number": "64",
     "cls": "WellspringMaskOgerponex"
    },
+   "pool_fullName": "Wellspring Mask Ogerpon ex PRE",
    "current_class": {
     "cls": "WellspringMaskOgerponex",
     "fullName": "Wellspring Mask Ogerpon ex TWM",
@@ -11597,6 +11707,7 @@
     "number": "77",
     "cls": "IronThornsex"
    },
+   "pool_fullName": "Iron Thorns ex PRE",
    "current_class": {
     "cls": "IronThornsex",
     "fullName": "Iron Thorns ex TWM",
@@ -11657,6 +11768,7 @@
     "number": "18",
     "cls": "Duskull"
    },
+   "pool_fullName": "Duskull PRE",
    "current_class": {
     "cls": "Duskull",
     "fullName": "Duskull SFA",
@@ -11727,6 +11839,7 @@
     "number": "19",
     "cls": "Dusclops"
    },
+   "pool_fullName": "Dusclops PRE",
    "current_class": {
     "cls": "Dusclops",
     "fullName": "Dusclops SFA",
@@ -11797,6 +11910,7 @@
     "number": "20",
     "cls": "Dusknoir"
    },
+   "pool_fullName": "Dusknoir PRE",
    "current_class": {
     "cls": "Dusknoir",
     "fullName": "Dusknoir SFA",
@@ -11867,6 +11981,7 @@
     "number": "86",
     "cls": "Sylveonex"
    },
+   "pool_fullName": "Sylveon exSAR PRE",
    "current_class": {
     "cls": "Sylveonex",
     "fullName": "Sylveon ex SSP",
@@ -11944,6 +12059,7 @@
     "number": "78",
     "cls": "FlutterMane"
    },
+   "pool_fullName": "Flutter Mane PRE",
    "current_class": {
     "cls": "FlutterMane",
     "fullName": "Flutter Mane TEF",
@@ -12004,6 +12120,7 @@
     "number": "96",
     "cls": "Fezandipiti"
    },
+   "pool_fullName": "Fezandipiti PRE",
    "current_class": {
     "cls": "Fezandipiti",
     "fullName": "Fezandipiti TWM",
@@ -12064,6 +12181,7 @@
     "number": "71",
     "cls": "IronBoulder"
    },
+   "pool_fullName": "Iron Boulder PRE",
    "current_class": {
     "cls": "IronBoulder",
     "fullName": "Iron Boulder SCR",
@@ -12124,6 +12242,7 @@
     "number": "25",
     "cls": "BloodmoonUrsaluna"
    },
+   "pool_fullName": "Bloodmoon Ursaluna PRE",
    "current_class": {
     "cls": "BloodmoonUrsaluna",
     "fullName": "Bloodmoon Ursaluna SFA",
@@ -12194,6 +12313,7 @@
     "number": "97",
     "cls": "GreatTusk"
    },
+   "pool_fullName": "Great Tusk PRE",
    "current_class": {
     "cls": "GreatTusk",
     "fullName": "Great Tusk TEF",
@@ -12264,6 +12384,7 @@
     "number": "111",
     "cls": "Okidogi"
    },
+   "pool_fullName": "Okidogi PRE",
    "current_class": {
     "cls": "Okidogi",
     "fullName": "Okidogi TWM",
@@ -12334,6 +12455,7 @@
     "number": "112",
     "cls": "CornerstoneMaskOgerponex"
    },
+   "pool_fullName": "Cornerstone Mask Ogerpon ex PRE",
    "current_class": {
     "cls": "CornerstoneMaskOgerponex",
     "fullName": "Cornerstone Mask Ogerpon ex TWM",
@@ -12404,6 +12526,7 @@
     "number": "109",
     "cls": "RoaringMoon"
    },
+   "pool_fullName": "Roaring Moon PRE",
    "current_class": {
     "cls": "RoaringMoon",
     "fullName": "Roaring Moon TEF",
@@ -12474,6 +12597,7 @@
     "number": "106",
     "cls": "Duraludon"
    },
+   "pool_fullName": "Duraludon PRE",
    "current_class": {
     "cls": "Duraludon",
     "fullName": "Duraludon SCR",
@@ -12534,6 +12658,7 @@
     "number": "107",
     "cls": "Archaludon"
    },
+   "pool_fullName": "Archaludon PRE",
    "current_class": {
     "cls": "Archaludon",
     "fullName": "Archaludon SCR",
@@ -12594,6 +12719,7 @@
     "number": "143",
     "cls": "Eevee"
    },
+   "pool_fullName": "Eevee PRE",
    "current_class": {
     "cls": "Eevee",
     "fullName": "Eevee SSP",
@@ -12636,12 +12762,17 @@
     "new_behavior": "Eevee (sets/10-scarlet-and-violet/set-surging-sparks/eevee.ts)",
     "old_ports": [
      {
-      "key": "Eevee@SSP",
+      "key": "Eevee@SSP|Eevee PRE",
       "file": "engine/src/cards/impls/eevee_ssp.rs"
      }
     ],
-    "new_ports": [],
-    "verdict": "rebind (same behavior class); port key is qualified to the old printing, requalify it"
+    "new_ports": [
+     {
+      "key": "Eevee@SSP|Eevee PRE",
+      "file": "engine/src/cards/impls/eevee_ssp.rs"
+     }
+    ],
+    "verdict": "rebind (same behavior class)"
    }
   },
   {
@@ -12659,6 +12790,7 @@
     "number": "115",
     "cls": "Noctowl"
    },
+   "pool_fullName": "Noctowl PRE",
    "current_class": {
     "cls": "Noctowl",
     "fullName": "Noctowl SCR",
@@ -12729,6 +12861,7 @@
     "number": "128",
     "cls": "Dunsparce"
    },
+   "pool_fullName": "Dunsparce PRE",
    "current_class": {
     "cls": "Dunsparce",
     "fullName": "Dunsparce TEF",
@@ -12771,12 +12904,17 @@
     "new_behavior": "Dunsparce (sets/10-scarlet-and-violet/set-temporal-forces/dunsparce.ts)",
     "old_ports": [
      {
-      "key": "Dunsparce@TEF",
+      "key": "Dunsparce@TEF|Dunsparce PRE",
       "file": "engine/src/cards/impls/dunsparce_tef.rs"
      }
     ],
-    "new_ports": [],
-    "verdict": "rebind (same behavior class); port key is qualified to the old printing, requalify it"
+    "new_ports": [
+     {
+      "key": "Dunsparce@TEF|Dunsparce PRE",
+      "file": "engine/src/cards/impls/dunsparce_tef.rs"
+     }
+    ],
+    "verdict": "rebind (same behavior class)"
    }
   },
   {
@@ -12794,6 +12932,7 @@
     "number": "129",
     "cls": "Dudunsparce"
    },
+   "pool_fullName": "Dudunsparce PRE",
    "current_class": {
     "cls": "Dudunsparce",
     "fullName": "Dudunsparce TEF",
@@ -12864,6 +13003,7 @@
     "number": "83",
     "cls": "Buneary"
    },
+   "pool_fullName": "Buneary M2",
    "current_class": {
     "cls": "Buneary",
     "fullName": "Buneary M2",
@@ -12958,6 +13098,7 @@
     "number": "132",
     "cls": "Noibat"
    },
+   "pool_fullName": "Noibat SIT 132",
    "current_class": {
     "cls": "Noibat",
     "fullName": "Noibat SIT 132",
@@ -13055,6 +13196,7 @@
     "number": "131",
     "cls": "AreaZeroUnderdepths"
    },
+   "pool_fullName": "Area Zero Underdepths PRE",
    "current_class": {
     "cls": "AreaZeroUnderdepths",
     "fullName": "Area Zero Underdepths SCR",
@@ -13125,6 +13267,7 @@
     "number": "55",
     "cls": "BindingMochi"
    },
+   "pool_fullName": "Binding Mochi PRE",
    "current_class": {
     "cls": "BindingMochi",
     "fullName": "Binding Mochi SFA",
@@ -13195,6 +13338,7 @@
     "number": "132",
     "cls": "Briar"
    },
+   "pool_fullName": "Briar PRE",
    "current_class": {
     "cls": "Briar",
     "fullName": "Briar SCR",
@@ -13265,6 +13409,7 @@
     "number": "143",
     "cls": "BugCatchingSet"
    },
+   "pool_fullName": "Bug Catching Set PRE",
    "current_class": {
     "cls": "BugCatchingSet",
     "fullName": "Bug Catching Set TWM",
@@ -13335,6 +13480,7 @@
     "number": "145",
     "cls": "Carmine"
    },
+   "pool_fullName": "Carmine PRE",
    "current_class": {
     "cls": "Carmine",
     "fullName": "Carmine TWM",
@@ -13395,6 +13541,7 @@
     "number": "145",
     "cls": "CiphermaniacsCodebreaking"
    },
+   "pool_fullName": "Ciphermaniac's Codebreaking PRE",
    "current_class": {
     "cls": "CiphermaniacsCodebreaking",
     "fullName": "Ciphermaniac's Codebreaking TEF",
@@ -13465,6 +13612,7 @@
     "number": "133",
     "cls": "Crispin"
    },
+   "pool_fullName": "Crispin PRE",
    "current_class": {
     "cls": "Crispin",
     "fullName": "Crispin SCR",
@@ -13535,6 +13683,7 @@
     "number": "147",
     "cls": "ExplorersGuidance"
    },
+   "pool_fullName": "Explorers Guidance PRE",
    "current_class": {
     "cls": "ExplorersGuidance",
     "fullName": "Explorer's Guidance TEF",
@@ -13595,6 +13744,7 @@
     "number": "149",
     "cls": "FestivalGrounds"
    },
+   "pool_fullName": "Festival Grounds PRE",
    "current_class": {
     "cls": "FestivalGrounds",
     "fullName": "Festival Grounds TWM",
@@ -13655,7 +13805,7 @@
    "number": "112",
    "name": "Janine's Secret Art",
    "status": "reprint",
-   "match": "exact-unregistered",
+   "match": "exact",
    "confidence": "high",
    "note": "",
    "current": {
@@ -13665,6 +13815,7 @@
     "number": "59",
     "cls": "JaninesSecretTechnique"
    },
+   "pool_fullName": "Janine's Secret Art PRE",
    "current_class": {
     "cls": "JaninesSecretTechnique",
     "fullName": "Janine's Secret Technique SFA",
@@ -13688,9 +13839,9 @@
     "number": "112",
     "name": "Janine's Secret Art",
     "file": "sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts",
-    "registered": false,
-    "in_dump": false,
-    "registered_static": false,
+    "registered": true,
+    "in_dump": true,
+    "registered_static": true,
     "extends": "JaninesSecretTechnique",
     "base_chain": [
      "JaninesSecretTechnique (sets/10-scarlet-and-violet/set-shrouded-fable/janines-secret-technique.ts)"
@@ -13702,30 +13853,12 @@
    "changes": true,
    "text_differs": false,
    "review": null,
-   "candidates": [
-    {
-     "text": "text: Choose up to 2 of your [D] Pokémon. For each of those Pokémon, search your deck for a Basic [D] Energy card and attach it to that Pokémon. Then, shuffle your deck. If you attached Energy to your Active Pokémon in this way, it is now Poisoned.",
-     "same_as_current": true,
-     "classes": [
-      "JaninesSecretArt | Janine's Secret Art PRE | PRE #112 | sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts | UNREGISTERED",
-      "JaninesSecretArtSAR | Janine's Secret ArtSAR PRE | PRE #173 | sets/10-scarlet-and-violet/set-prismatic-evolution/full-art.ts",
-      "JaninesSecretArtFA | Janine's Secret ArtFA SFA | SFA #88 | sets/10-scarlet-and-violet/set-shrouded-fable/full-art.ts",
-      "JaninesSecretTechnique | Janine's Secret Technique SFA | SFA #59 | sets/10-scarlet-and-violet/set-shrouded-fable/janines-secret-technique.ts"
-     ]
-    }
-   ],
    "port": {
     "old_behavior": "JaninesSecretTechnique (sets/10-scarlet-and-violet/set-shrouded-fable/janines-secret-technique.ts)",
     "new_behavior": "JaninesSecretTechnique (sets/10-scarlet-and-violet/set-shrouded-fable/janines-secret-technique.ts)",
     "old_ports": [],
     "new_ports": [],
     "verdict": "rebind (same behavior class); no port yet"
-   },
-   "register": {
-    "index": "sets/10-scarlet-and-violet/set-prismatic-evolution/index.ts",
-    "cls": "JaninesSecretArt",
-    "defined_in": "sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts",
-    "exported": true
    }
   },
   {
@@ -13743,6 +13876,7 @@
     "number": "154",
     "cls": "Kieran"
    },
+   "pool_fullName": "Kieran PRE",
    "current_class": {
     "cls": "Kieran",
     "fullName": "Kieran TWM",
@@ -13813,6 +13947,7 @@
     "number": "139",
     "cls": "Lacey"
    },
+   "pool_fullName": "LaceySAR PRE",
    "current_class": {
     "cls": "Lacey",
     "fullName": "Lacey SCR",
@@ -13885,6 +14020,7 @@
     "number": "154",
     "cls": "MaximumBelt"
    },
+   "pool_fullName": "Maximum Belt PRE",
    "current_class": {
     "cls": "MaximumBelt",
     "fullName": "Maximum Belt TEF",
@@ -13955,6 +14091,7 @@
     "number": "157",
     "cls": "PrimeCatcher"
    },
+   "pool_fullName": "Prime Catcher PRE",
    "current_class": {
     "cls": "PrimeCatcher",
     "fullName": "Prime Catcher TEF",
@@ -14025,6 +14162,7 @@
     "number": "159",
     "cls": "EmergencyBoard"
    },
+   "pool_fullName": "Rescue Board PRE",
    "current_class": {
     "cls": "EmergencyBoard",
     "fullName": "Rescue Board TEF",
@@ -14085,6 +14223,7 @@
     "number": "162",
     "cls": "ScoopUpCyclone"
    },
+   "pool_fullName": "Scoop Up Cyclone PRE",
    "current_class": {
     "cls": "ScoopUpCyclone",
     "fullName": "Scoop Up Cyclone TWM",
@@ -14145,6 +14284,7 @@
     "number": "142",
     "cls": "SparklingCrystal"
    },
+   "pool_fullName": "Sparkling Crystal PRE",
    "current_class": {
     "cls": "SparklingCrystal",
     "fullName": "Sparkling Crystal SCR",
@@ -14205,6 +14345,7 @@
     "number": "146",
     "cls": "Eri"
    },
+   "pool_fullName": "EriFA PRE",
    "current_class": {
     "cls": "Eri",
     "fullName": "Eri TEF",
@@ -14275,6 +14416,7 @@
     "number": "36",
     "cls": "Ceruledgeex"
    },
+   "pool_fullName": "Ceruledge exSAR PRE",
    "current_class": {
     "cls": "Ceruledgeex",
     "fullName": "Ceruledge ex SSP",
@@ -14335,6 +14477,7 @@
     "number": "61",
     "cls": "Palafinex"
    },
+   "pool_fullName": "Palafin exSAR PRE",
    "current_class": {
     "cls": "Palafinex",
     "fullName": "Palafin ex TWM",
@@ -14395,6 +14538,7 @@
     "number": "81",
     "cls": "IronCrownex"
    },
+   "pool_fullName": "Iron Crown exSAR PRE",
    "current_class": {
     "cls": "IronCrownex",
     "fullName": "Iron Crown ex TEF",
@@ -14455,6 +14599,7 @@
     "number": "39",
     "cls": "Pecharuntex"
    },
+   "pool_fullName": "Pecharunt exSAR PRE",
    "current_class": {
     "cls": "Pecharuntex",
     "fullName": "Pecharunt ex SFA",
@@ -14525,6 +14670,7 @@
     "number": "123",
     "cls": "RagingBoltex"
    },
+   "pool_fullName": "Raging Bolt exSAR PRE",
    "current_class": {
     "cls": "RagingBoltex",
     "fullName": "Raging Bolt ex TEF",
@@ -14595,6 +14741,7 @@
     "number": "141",
     "cls": "BloodmoonUrsalunaex"
    },
+   "pool_fullName": "Bloodmoon Ursaluna exSAR PRE",
    "current_class": {
     "cls": "BloodmoonUrsalunaex",
     "fullName": "Bloodmoon Ursaluna ex TWM",
@@ -14665,6 +14812,7 @@
     "number": "174",
     "cls": "Drayton"
    },
+   "pool_fullName": "DraytonSAR PRE",
    "current_class": {
     "cls": "Drayton",
     "fullName": "Drayton SSP",
@@ -14725,6 +14873,7 @@
     "number": "25",
     "cls": "IronLeavesex"
    },
+   "pool_fullName": "Iron Leaves exUR PRE",
    "current_class": {
     "cls": "IronLeavesex",
     "fullName": "Iron Leaves ex TEF",
@@ -14795,6 +14944,7 @@
     "number": "50",
     "cls": "WalkingWakeex"
    },
+   "pool_fullName": "Walking Wake exUR PRE",
    "current_class": {
     "cls": "WalkingWakeex",
     "fullName": "Walking Wake ex TEF",
@@ -14855,6 +15005,7 @@
     "number": "22",
     "cls": "Froakie"
    },
+   "pool_fullName": "Froakie FLI",
    "current_class": {
     "cls": "Froakie",
     "fullName": "Froakie FLI",
@@ -14959,6 +15110,7 @@
     "number": "90",
     "cls": "Riolu"
    },
+   "pool_fullName": "Riolu VIV",
    "current_class": {
     "cls": "Riolu",
     "fullName": "Riolu VIV",
@@ -15125,6 +15277,7 @@
     "number": "125",
     "cls": "Bronzor"
    },
+   "pool_fullName": "Bronzor LOR 125",
    "current_class": {
     "cls": "Bronzor",
     "fullName": "Bronzor LOR 125",
@@ -15276,6 +15429,7 @@
     "number": "129",
     "cls": "ScrambleSwitch"
    },
+   "pool_fullName": "Scramble Switch SSP",
    "current_class": {
     "cls": "ScrambleSwitch",
     "fullName": "Scramble Switch PLS",
@@ -15336,6 +15490,7 @@
     "number": "149",
     "cls": "Pecharunt"
    },
+   "pool_fullName": "PecharuntIR SVP",
    "current_class": {
     "cls": "Pecharunt",
     "fullName": "Pecharunt SVP",
@@ -15406,6 +15561,7 @@
     "number": "228",
     "cls": "Cook"
    },
+   "pool_fullName": "Cook TWM",
    "current_class": {
     "cls": "Cook",
     "fullName": "Cook FST",
@@ -15466,6 +15622,7 @@
     "number": "46",
     "cls": "Cofagrigus"
    },
+   "pool_fullName": "Cofagrigus NVI",
    "current_class": {
     "cls": "Cofagrigus",
     "fullName": "Cofagrigus NVI",
@@ -15553,6 +15710,7 @@
     "number": "119",
     "cls": "Vullaby"
    },
+   "pool_fullName": "Vullaby RCL",
    "current_class": {
     "cls": "Vullaby",
     "fullName": "Vullaby RCL",
@@ -15654,6 +15812,7 @@
     "number": "27",
     "cls": "NsDarmanitan"
    },
+   "pool_fullName": "N's Darmanitan ASC",
    "current_class": {
     "cls": "NsDarmanitan",
     "fullName": "N's Darmanitan JTG",
@@ -15714,6 +15873,7 @@
     "number": "57",
     "cls": "Pikachuex"
    },
+   "pool_fullName": "Pikachu ex ASC",
    "current_class": {
     "cls": "Pikachuex",
     "fullName": "Pikachu ex SSP",
@@ -15774,6 +15934,7 @@
     "number": "70",
     "cls": "Slowpoke"
    },
+   "pool_fullName": "Slowpoke MEP",
    "current_class": {
     "cls": "Slowpoke",
     "fullName": "Slowpoke MEP",
@@ -15930,6 +16091,7 @@
     "number": "1",
     "cls": "Exeggcute"
    },
+   "pool_fullName": "Exeggcute 30C",
    "current_class": {
     "cls": "Exeggcute",
     "fullName": "Exeggcute 30C",
@@ -15981,6 +16143,7 @@
     "number": "2",
     "cls": "AlolanExeggutor"
    },
+   "pool_fullName": "Alolan Exeggutor 30C",
    "current_class": {
     "cls": "AlolanExeggutor",
     "fullName": "Alolan Exeggutor 30C",
@@ -16032,6 +16195,7 @@
     "number": "72",
     "cls": "Unown"
    },
+   "pool_fullName": "Unown 30C",
    "current_class": {
     "cls": "Unown",
     "fullName": "Unown 30C",
@@ -16083,6 +16247,7 @@
     "number": "83",
     "cls": "Lucario"
    },
+   "pool_fullName": "Lucario 30C",
    "current_class": {
     "cls": "Lucario",
     "fullName": "Lucario 30C",
@@ -16134,6 +16299,7 @@
     "number": "84",
     "cls": "Seismitoad"
    },
+   "pool_fullName": "Seismitoad 30C",
    "current_class": {
     "cls": "Seismitoad",
     "fullName": "Seismitoad 30C",
@@ -16185,6 +16351,7 @@
     "number": "100",
     "cls": "Yveltal"
    },
+   "pool_fullName": "Yveltal 30C",
    "current_class": {
     "cls": "Yveltal",
     "fullName": "Yveltal 30C",
@@ -16236,6 +16403,7 @@
     "number": "102",
     "cls": "Jirachiex"
    },
+   "pool_fullName": "Jirachi ex 30C",
    "current_class": {
     "cls": "Jirachiex",
     "fullName": "Jirachi ex 30C",
@@ -16287,6 +16455,7 @@
     "number": "8",
     "cls": "Chikorita"
    },
+   "pool_fullName": "Chikorita MC",
    "current_class": {
     "cls": "Chikorita",
     "fullName": "Chikorita MC",
@@ -16338,6 +16507,7 @@
     "number": "9",
     "cls": "Bayleef"
    },
+   "pool_fullName": "Bayleef MC",
    "current_class": {
     "cls": "Bayleef",
     "fullName": "Bayleef MC",
@@ -16389,6 +16559,7 @@
     "number": "10",
     "cls": "MegaMeganiumex"
    },
+   "pool_fullName": "Mega Meganium ex MC",
    "current_class": {
     "cls": "MegaMeganiumex",
     "fullName": "Mega Meganium ex MC",
@@ -16440,6 +16611,7 @@
     "number": "22",
     "cls": "MegaCharizardYex"
    },
+   "pool_fullName": "Mega Charizard Y ex MC",
    "current_class": {
     "cls": "MegaCharizardYex",
     "fullName": "Mega Charizard Y ex MC",
@@ -16491,6 +16663,7 @@
     "number": "46",
     "cls": "Snorunt"
    },
+   "pool_fullName": "Snorunt M2a",
    "current_class": {
     "cls": "Snorunt",
     "fullName": "Snorunt M2a",
@@ -16542,6 +16715,7 @@
     "number": "47",
     "cls": "MegaFroslassex"
    },
+   "pool_fullName": "Mega Froslass ex M2a",
    "current_class": {
     "cls": "MegaFroslassex",
     "fullName": "Mega Froslass ex M2a",
@@ -16593,6 +16767,7 @@
     "number": "62",
     "cls": "Stunfisk"
    },
+   "pool_fullName": "Stunfisk M2a",
    "current_class": {
     "cls": "Stunfisk",
     "fullName": "Stunfisk M2a",
@@ -16644,6 +16819,7 @@
     "number": "83",
     "cls": "Marill"
    },
+   "pool_fullName": "Marill MC",
    "current_class": {
     "cls": "Marill",
     "fullName": "Marill MC",
@@ -16695,6 +16871,7 @@
     "number": "84",
     "cls": "Azumarillex"
    },
+   "pool_fullName": "Azumarill ex MC",
    "current_class": {
     "cls": "Azumarillex",
     "fullName": "Azumarill ex MC",
@@ -16746,6 +16923,7 @@
     "number": "98",
     "cls": "Spectrier"
    },
+   "pool_fullName": "Spectrier ASC",
    "current_class": {
     "cls": "Spectrier",
     "fullName": "Spectrier ASC",
@@ -16797,6 +16975,7 @@
     "number": "114",
     "cls": "Stunfiskex"
    },
+   "pool_fullName": "Stunfisk ex ASC",
    "current_class": {
     "cls": "Stunfiskex",
     "fullName": "Stunfisk ex ASC",
@@ -16848,6 +17027,7 @@
     "number": "116",
     "cls": "MegaHawluchaex"
    },
+   "pool_fullName": "Mega Hawlucha ex M2a",
    "current_class": {
     "cls": "MegaHawluchaex",
     "fullName": "Mega Hawlucha ex M2a",
@@ -16899,6 +17079,7 @@
     "number": "121",
     "cls": "Koraidonex"
    },
+   "pool_fullName": "Koraidon ex ASC",
    "current_class": {
     "cls": "Koraidonex",
     "fullName": "Koraidon ex ASC",
@@ -16950,6 +17131,7 @@
     "number": "127",
     "cls": "TeamRocketsHonchkrow"
    },
+   "pool_fullName": "Team Rocket's Honchkrow M2a",
    "current_class": {
     "cls": "TeamRocketsHonchkrow",
     "fullName": "Team Rocket's Honchkrow M2a",
@@ -17001,6 +17183,7 @@
     "number": "151",
     "cls": "Dragonair"
    },
+   "pool_fullName": "Dragonair M2a",
    "current_class": {
     "cls": "Dragonair",
     "fullName": "Dragonair M2a",
@@ -17052,6 +17235,7 @@
     "number": "152",
     "cls": "MegaDragoniteex"
    },
+   "pool_fullName": "Mega Dragonite ex M2a",
    "current_class": {
     "cls": "MegaDragoniteex",
     "fullName": "Mega Dragonite ex M2a",
@@ -17103,6 +17287,7 @@
     "number": "155",
     "cls": "NsZekrom"
    },
+   "pool_fullName": "N's Zekrom M2a",
    "current_class": {
     "cls": "NsZekrom",
     "fullName": "N's Zekrom M2a",
@@ -17154,6 +17339,7 @@
     "number": "162",
     "cls": "TeamRocketsKangaskhanex"
    },
+   "pool_fullName": "Team Rocket's Kangaskhan ex ASC",
    "current_class": {
     "cls": "TeamRocketsKangaskhanex",
     "fullName": "Team Rocket's Kangaskhan ex ASC",
@@ -17205,6 +17391,7 @@
     "number": "172",
     "cls": "MegaAudinoex"
    },
+   "pool_fullName": "Mega Audino ex MC",
    "current_class": {
     "cls": "MegaAudinoex",
     "fullName": "Mega Audino ex MC",
@@ -17256,6 +17443,7 @@
     "number": "185",
     "cls": "Canari"
    },
+   "pool_fullName": "Canari M2a",
    "current_class": {
     "cls": "Canari",
     "fullName": "Canari M2a",
@@ -17307,6 +17495,7 @@
     "number": "191",
     "cls": "LightBall"
    },
+   "pool_fullName": "Light Ball M2a",
    "current_class": {
     "cls": "LightBall",
     "fullName": "Light Ball M2a",
@@ -17358,6 +17547,7 @@
     "number": "197",
     "cls": "NightMine"
    },
+   "pool_fullName": "Night Mine M2a",
    "current_class": {
     "cls": "NightMine",
     "fullName": "Night Mine M2a",
@@ -17409,6 +17599,7 @@
     "number": "34",
     "cls": "Zekromex"
    },
+   "pool_fullName": "Zekrom ex SV11B",
    "current_class": {
     "cls": "Zekromex",
     "fullName": "Zekrom ex SV11B",
@@ -17460,6 +17651,7 @@
     "number": "40",
     "cls": "Elgyem"
    },
+   "pool_fullName": "Elgyem SV11B",
    "current_class": {
     "cls": "Elgyem",
     "fullName": "Elgyem SV11B",
@@ -17511,6 +17703,7 @@
     "number": "67",
     "cls": "Genesectex"
    },
+   "pool_fullName": "Genesect ex SV11B",
    "current_class": {
     "cls": "Genesectex",
     "fullName": "Genesect ex SV11B",
@@ -17562,6 +17755,7 @@
     "number": "82",
     "cls": "Fennel"
    },
+   "pool_fullName": "Fennel SV11B",
    "current_class": {
     "cls": "Fennel",
     "fullName": "Fennel SV11B",
@@ -17613,6 +17807,7 @@
     "number": "83",
     "cls": "NsPlan"
    },
+   "pool_fullName": "N's Plot SV11B",
    "current_class": {
     "cls": "NsPlan",
     "fullName": "N's Plot SV11B",
@@ -17664,6 +17859,7 @@
     "number": "1",
     "cls": "Weedle"
    },
+   "pool_fullName": "Weedle M4",
    "current_class": {
     "cls": "Weedle",
     "fullName": "Weedle M4",
@@ -17715,6 +17911,7 @@
     "number": "2",
     "cls": "Kakuna"
    },
+   "pool_fullName": "Kakuna M4",
    "current_class": {
     "cls": "Kakuna",
     "fullName": "Kakuna M4",
@@ -17766,6 +17963,7 @@
     "number": "3",
     "cls": "Beedrillex"
    },
+   "pool_fullName": "Beedrill ex M4",
    "current_class": {
     "cls": "Beedrillex",
     "fullName": "Beedrill ex M4",
@@ -17817,6 +18015,7 @@
     "number": "20",
     "cls": "Froakie"
    },
+   "pool_fullName": "Froakie M4",
    "current_class": {
     "cls": "Froakie",
     "fullName": "Froakie M4",
@@ -17868,6 +18067,7 @@
     "number": "21",
     "cls": "Frogadier"
    },
+   "pool_fullName": "Frogadier M4",
    "current_class": {
     "cls": "Frogadier",
     "fullName": "Frogadier M4",
@@ -17919,6 +18119,7 @@
     "number": "22",
     "cls": "MegaGreninjaex"
    },
+   "pool_fullName": "Mega Greninja ex M4",
    "current_class": {
     "cls": "MegaGreninjaex",
     "fullName": "Mega Greninja ex M4",
@@ -17970,6 +18171,7 @@
     "number": "32",
     "cls": "Deoxys2"
    },
+   "pool_fullName": "Deoxys M4 32",
    "current_class": {
     "cls": "Deoxys2",
     "fullName": "Deoxys M4 32",
@@ -18021,6 +18223,7 @@
     "number": "33",
     "cls": "Deoxys3"
    },
+   "pool_fullName": "Deoxys M4 33",
    "current_class": {
     "cls": "Deoxys3",
     "fullName": "Deoxys M4 33",
@@ -18072,6 +18275,7 @@
     "number": "56",
     "cls": "Trubbish"
    },
+   "pool_fullName": "Trubbish M4",
    "current_class": {
     "cls": "Trubbish",
     "fullName": "Trubbish M4",
@@ -18123,6 +18327,7 @@
     "number": "59",
     "cls": "Beldum"
    },
+   "pool_fullName": "Beldum M4",
    "current_class": {
     "cls": "Beldum",
     "fullName": "Beldum M4",
@@ -18174,6 +18379,7 @@
     "number": "61",
     "cls": "Metagross"
    },
+   "pool_fullName": "Metagross M4",
    "current_class": {
     "cls": "Metagross",
     "fullName": "Metagross M4",
@@ -18225,6 +18431,7 @@
     "number": "70",
     "cls": "Patrat"
    },
+   "pool_fullName": "Patrat M4",
    "current_class": {
     "cls": "Patrat",
     "fullName": "Patrat M4",
@@ -18276,6 +18483,7 @@
     "number": "76",
     "cls": "AzsTranquility"
    },
+   "pool_fullName": "AZ's Tranquility M4",
    "current_class": {
     "cls": "AzsTranquility",
     "fullName": "AZ's Tranquility M4",
@@ -18327,6 +18535,7 @@
     "number": "78",
     "cls": "GreatHaulNet"
    },
+   "pool_fullName": "Big Catch Net M4",
    "current_class": {
     "cls": "GreatHaulNet",
     "fullName": "Big Catch Net M4",
@@ -18378,6 +18587,7 @@
     "number": "79",
     "cls": "Philippe"
    },
+   "pool_fullName": "Philippe M4",
    "current_class": {
     "cls": "Philippe",
     "fullName": "Philippe M4",
@@ -18429,6 +18639,7 @@
     "number": "80",
     "cls": "PrismTower"
    },
+   "pool_fullName": "Prism Tower M4",
    "current_class": {
     "cls": "PrismTower",
     "fullName": "Prism Tower M4",
@@ -18480,6 +18691,7 @@
     "number": "82",
     "cls": "SpecialRedCard"
    },
+   "pool_fullName": "Special Red Card M4",
    "current_class": {
     "cls": "SpecialRedCard",
     "fullName": "Special Red Card M4",
@@ -18531,6 +18743,7 @@
     "number": "83",
     "cls": "TransformationTome"
    },
+   "pool_fullName": "Book of Transformation M4",
    "current_class": {
     "cls": "TransformationTome",
     "fullName": "Book of Transformation M4",
@@ -18582,6 +18795,7 @@
     "number": "84",
     "cls": "BubbleWaterEnergy"
    },
+   "pool_fullName": "Bubble Water Energy M4",
    "current_class": {
     "cls": "BubbleWaterEnergy",
     "fullName": "Bubble Water Energy M4",
@@ -18633,6 +18847,7 @@
     "number": "85",
     "cls": "MagnetMetalEnergy"
    },
+   "pool_fullName": "Magnet Metal Energy M4",
    "current_class": {
     "cls": "MagnetMetalEnergy",
     "fullName": "Magnet Metal Energy M4",
@@ -18684,6 +18899,7 @@
     "number": "2",
     "cls": "Yanma"
    },
+   "pool_fullName": "Yanma DRI",
    "current_class": {
     "cls": "Yanma",
     "fullName": "Yanma DRI",
@@ -18735,6 +18951,7 @@
     "number": "3",
     "cls": "Yanmegaex"
    },
+   "pool_fullName": "Yanmega ex DRI",
    "current_class": {
     "cls": "Yanmegaex",
     "fullName": "Yanmega ex DRI",
@@ -18786,6 +19003,7 @@
     "number": "7",
     "cls": "CynthiasRoselia"
    },
+   "pool_fullName": "Cynthia's Roselia DRI",
    "current_class": {
     "cls": "CynthiasRoselia",
     "fullName": "Cynthia's Roselia DRI",
@@ -18837,6 +19055,7 @@
     "number": "10",
     "cls": "Shaymin"
    },
+   "pool_fullName": "Shaymin DRI",
    "current_class": {
     "cls": "Shaymin",
     "fullName": "Shaymin DRI",
@@ -18888,6 +19107,7 @@
     "number": "11",
     "cls": "Dwebble"
    },
+   "pool_fullName": "Dwebble DRI",
    "current_class": {
     "cls": "Dwebble",
     "fullName": "Dwebble DRI",
@@ -18939,6 +19159,7 @@
     "number": "12",
     "cls": "Crustle"
    },
+   "pool_fullName": "Crustle DRI",
    "current_class": {
     "cls": "Crustle",
     "fullName": "Crustle DRI",
@@ -18990,6 +19211,7 @@
     "number": "16",
     "cls": "Applin"
    },
+   "pool_fullName": "Applin DRI",
    "current_class": {
     "cls": "Applin",
     "fullName": "Applin DRI",
@@ -19041,6 +19263,7 @@
     "number": "18",
     "cls": "Hydrapple"
    },
+   "pool_fullName": "Hydrapple DRI",
    "current_class": {
     "cls": "Hydrapple",
     "fullName": "Hydrapple DRI",
@@ -19092,6 +19315,7 @@
     "number": "21",
     "cls": "Smoliv"
    },
+   "pool_fullName": "Smoliv DRI",
    "current_class": {
     "cls": "Smoliv",
     "fullName": "Smoliv DRI",
@@ -19143,6 +19367,7 @@
     "number": "22",
     "cls": "Dolliv"
    },
+   "pool_fullName": "Dolliv DRI",
    "current_class": {
     "cls": "Dolliv",
     "fullName": "Dolliv DRI",
@@ -19194,6 +19419,7 @@
     "number": "23",
     "cls": "Arbolivaex"
    },
+   "pool_fullName": "Arboliva ex DRI",
    "current_class": {
     "cls": "Arbolivaex",
     "fullName": "Arboliva ex DRI",
@@ -19245,6 +19471,7 @@
     "number": "32",
     "cls": "EthansCyndaquil"
    },
+   "pool_fullName": "Ethan's Cyndaquil DRI",
    "current_class": {
     "cls": "EthansCyndaquil",
     "fullName": "Ethan's Cyndaquil DRI",
@@ -19296,6 +19523,7 @@
     "number": "34",
     "cls": "EthansTyphlosion"
    },
+   "pool_fullName": "Ethan's Typhlosion DRI",
    "current_class": {
     "cls": "EthansTyphlosion",
     "fullName": "Ethan's Typhlosion DRI",
@@ -19347,6 +19575,7 @@
     "number": "40",
     "cls": "Torchic"
    },
+   "pool_fullName": "Torchic DRI",
    "current_class": {
     "cls": "Torchic",
     "fullName": "Torchic DRI",
@@ -19398,6 +19627,7 @@
     "number": "41",
     "cls": "Combusken"
    },
+   "pool_fullName": "Combusken DRI",
    "current_class": {
     "cls": "Combusken",
     "fullName": "Combusken DRI",
@@ -19449,6 +19679,7 @@
     "number": "51",
     "cls": "TeamRocketsArticuno"
    },
+   "pool_fullName": "Team Rocket's Articuno DRI",
    "current_class": {
     "cls": "TeamRocketsArticuno",
     "fullName": "Team Rocket's Articuno DRI",
@@ -19500,6 +19731,7 @@
     "number": "70",
     "cls": "TeamRocketsZapdos"
    },
+   "pool_fullName": "Team Rocket's Zapdos DRI",
    "current_class": {
     "cls": "TeamRocketsZapdos",
     "fullName": "Team Rocket's Zapdos DRI",
@@ -19551,6 +19783,7 @@
     "number": "71",
     "cls": "EthansPichu"
    },
+   "pool_fullName": "Ethan's Pichu DRI",
    "current_class": {
     "cls": "EthansPichu",
     "fullName": "Ethan's Pichu DRI",
@@ -19602,6 +19835,7 @@
     "number": "78",
     "cls": "Zeraora"
    },
+   "pool_fullName": "Zeraora DRI",
    "current_class": {
     "cls": "Zeraora",
     "fullName": "Zeraora DRI",
@@ -19653,6 +19887,7 @@
     "number": "82",
     "cls": "TeamRocketsWobbuffet"
    },
+   "pool_fullName": "Team Rocket's Wobbuffet DRI",
    "current_class": {
     "cls": "TeamRocketsWobbuffet",
     "fullName": "Team Rocket's Wobbuffet DRI",
@@ -19704,6 +19939,7 @@
     "number": "83",
     "cls": "StevensBaltoy"
    },
+   "pool_fullName": "Steven's Baltoy DRI",
    "current_class": {
     "cls": "StevensBaltoy",
     "fullName": "Steven's Baltoy DRI",
@@ -19755,6 +19991,7 @@
     "number": "84",
     "cls": "StevensClaydol"
    },
+   "pool_fullName": "Steven's Claydol DRI",
    "current_class": {
     "cls": "StevensClaydol",
     "fullName": "Steven's Claydol DRI",
@@ -19806,6 +20043,7 @@
     "number": "134",
     "cls": "MarniesImpidimp"
    },
+   "pool_fullName": "Marnie's Impidimp DRI",
    "current_class": {
     "cls": "MarniesImpidimp",
     "fullName": "Marnie's Impidimp DRI",
@@ -19857,6 +20095,7 @@
     "number": "135",
     "cls": "MarniesMorgrem"
    },
+   "pool_fullName": "Marnie's Morgrem DRI",
    "current_class": {
     "cls": "MarniesMorgrem",
     "fullName": "Marnie's Morgrem DRI",
@@ -19908,6 +20147,7 @@
     "number": "137",
     "cls": "MarniesMorpeko"
    },
+   "pool_fullName": "Marnie's Morpeko DRI",
    "current_class": {
     "cls": "MarniesMorpeko",
     "fullName": "Marnie's Morpeko DRI",
@@ -19959,6 +20199,7 @@
     "number": "144",
     "cls": "StevensMetang"
    },
+   "pool_fullName": "Steven's Metang DRI",
    "current_class": {
     "cls": "StevensMetang",
     "fullName": "Steven's Metang DRI",
@@ -20010,6 +20251,7 @@
     "number": "153",
     "cls": "TeamRocketsPorygon"
    },
+   "pool_fullName": "Team Rocket's Porygon DRI",
    "current_class": {
     "cls": "TeamRocketsPorygon",
     "fullName": "Team Rocket's Porygon DRI",
@@ -20061,6 +20303,7 @@
     "number": "154",
     "cls": "TeamRocketsPorygon2"
    },
+   "pool_fullName": "Team Rocket's Porygon2 DRI",
    "current_class": {
     "cls": "TeamRocketsPorygon2",
     "fullName": "Team Rocket's Porygon2 DRI",
@@ -20112,6 +20355,7 @@
     "number": "155",
     "cls": "TeamRocketsPorygonZ"
    },
+   "pool_fullName": "Team Rocket's Porygon-Z DRI",
    "current_class": {
     "cls": "TeamRocketsPorygonZ",
     "fullName": "Team Rocket's Porygon-Z DRI",
@@ -20163,6 +20407,7 @@
     "number": "162",
     "cls": "CynthiasPowerWeight"
    },
+   "pool_fullName": "Cynthia's Power Weight DRI",
    "current_class": {
     "cls": "CynthiasPowerWeight",
     "fullName": "Cynthia's Power Weight DRI",
@@ -20214,6 +20459,7 @@
     "number": "165",
     "cls": "EthansAdventure"
    },
+   "pool_fullName": "Ethan's Adventure DRI",
    "current_class": {
     "cls": "EthansAdventure",
     "fullName": "Ethan's Adventure DRI",
@@ -20265,6 +20511,7 @@
     "number": "169",
     "cls": "SpikemuthGym"
    },
+   "pool_fullName": "Spikemuth Gym DRI",
    "current_class": {
     "cls": "SpikemuthGym",
     "fullName": "Spikemuth Gym DRI",
@@ -20316,6 +20563,7 @@
     "number": "179",
     "cls": "TeamRocketsVentureBomb"
    },
+   "pool_fullName": "Team Rocket's Venture Bomb DRI",
    "current_class": {
     "cls": "TeamRocketsVentureBomb",
     "fullName": "Team Rocket's Venture Bomb DRI",
@@ -20367,6 +20615,7 @@
     "number": "6",
     "cls": "Petilil"
    },
+   "pool_fullName": "Petilil JTG",
    "current_class": {
     "cls": "Petilil",
     "fullName": "Petilil JTG",
@@ -20418,6 +20667,7 @@
     "number": "7",
     "cls": "Lilligant"
    },
+   "pool_fullName": "Lilligant JTG",
    "current_class": {
     "cls": "Lilligant",
     "fullName": "Lilligant JTG",
@@ -20469,6 +20719,7 @@
     "number": "8",
     "cls": "Maractus"
    },
+   "pool_fullName": "Maractus JTG",
    "current_class": {
     "cls": "Maractus",
     "fullName": "Maractus JTG",
@@ -20520,6 +20771,7 @@
     "number": "21",
     "cls": "Magmortar"
    },
+   "pool_fullName": "Magmortar JTG",
    "current_class": {
     "cls": "Magmortar",
     "fullName": "Magmortar JTG",
@@ -20571,6 +20823,7 @@
     "number": "22",
     "cls": "Torchic"
    },
+   "pool_fullName": "Torchic JTG",
    "current_class": {
     "cls": "Torchic",
     "fullName": "Torchic JTG",
@@ -20622,6 +20875,7 @@
     "number": "23",
     "cls": "Combusken"
    },
+   "pool_fullName": "Combusken JTG",
    "current_class": {
     "cls": "Combusken",
     "fullName": "Combusken JTG",
@@ -20673,6 +20927,7 @@
     "number": "31",
     "cls": "Volcanionex"
    },
+   "pool_fullName": "Volcanion ex JTG",
    "current_class": {
     "cls": "Volcanionex",
     "fullName": "Volcanion ex JTG",
@@ -20724,6 +20979,7 @@
     "number": "64",
     "cls": "NsSigilyph"
    },
+   "pool_fullName": "N's Sigilyph JTG",
    "current_class": {
     "cls": "NsSigilyph",
     "fullName": "N's Sigilyph JTG",
@@ -20775,6 +21031,7 @@
     "number": "77",
     "cls": "Swinub"
    },
+   "pool_fullName": "Swinub JTG",
    "current_class": {
     "cls": "Swinub",
     "fullName": "Swinub JTG",
@@ -20826,6 +21083,7 @@
     "number": "79",
     "cls": "Mamoswineex"
    },
+   "pool_fullName": "Mamoswine ex JTG",
    "current_class": {
     "cls": "Mamoswineex",
     "fullName": "Mamoswine ex JTG",
@@ -20877,6 +21135,7 @@
     "number": "80",
     "cls": "Larvitar"
    },
+   "pool_fullName": "Larvitar JTG",
    "current_class": {
     "cls": "Larvitar",
     "fullName": "Larvitar JTG",
@@ -20928,6 +21187,7 @@
     "number": "88",
     "cls": "Toedscool"
    },
+   "pool_fullName": "Toedscool JTG",
    "current_class": {
     "cls": "Toedscool",
     "fullName": "Toedscool JTG",
@@ -20979,6 +21239,7 @@
     "number": "95",
     "cls": "Tyranitar"
    },
+   "pool_fullName": "Tyranitar JTG",
    "current_class": {
     "cls": "Tyranitar",
     "fullName": "Tyranitar JTG",
@@ -21030,6 +21291,7 @@
     "number": "111",
     "cls": "HopsZacianex"
    },
+   "pool_fullName": "Hop's Zacian ex JTG",
    "current_class": {
     "cls": "HopsZacianex",
     "fullName": "Hop's Zacian ex JTG",
@@ -21081,6 +21343,7 @@
     "number": "114",
     "cls": "Salamenceex"
    },
+   "pool_fullName": "Salamence ex JTG",
    "current_class": {
     "cls": "Salamenceex",
     "fullName": "Salamence ex JTG",
@@ -21132,6 +21395,7 @@
     "number": "117",
     "cls": "HopsSnorlax"
    },
+   "pool_fullName": "Hop's Snorlax JTG",
    "current_class": {
     "cls": "HopsSnorlax",
     "fullName": "Hop's Snorlax JTG",
@@ -21183,6 +21447,7 @@
     "number": "120",
     "cls": "Dunsparce"
    },
+   "pool_fullName": "Dunsparce JTG",
    "current_class": {
     "cls": "Dunsparce",
     "fullName": "Dunsparce JTG",
@@ -21234,6 +21499,7 @@
     "number": "121",
     "cls": "Dudunsparceex"
    },
+   "pool_fullName": "Dudunsparce ex JTG",
    "current_class": {
     "cls": "Dudunsparceex",
     "fullName": "Dudunsparce ex JTG",
@@ -21285,6 +21551,7 @@
     "number": "135",
     "cls": "HopsWooloo"
    },
+   "pool_fullName": "Hop's Wooloo JTG",
    "current_class": {
     "cls": "HopsWooloo",
     "fullName": "Hop's Wooloo JTG",
@@ -21336,6 +21603,7 @@
     "number": "136",
     "cls": "HopsDubwool"
    },
+   "pool_fullName": "Hop's Dubwool JTG",
    "current_class": {
     "cls": "HopsDubwool",
     "fullName": "Hop's Dubwool JTG",
@@ -21387,6 +21655,7 @@
     "number": "146",
     "cls": "BrocksScouting"
    },
+   "pool_fullName": "Brock's Scouting JTG",
    "current_class": {
     "cls": "BrocksScouting",
     "fullName": "Brock's Scouting JTG",
@@ -21438,6 +21707,7 @@
     "number": "147",
     "cls": "HopsBag"
    },
+   "pool_fullName": "Hop's Bag JTG",
    "current_class": {
     "cls": "HopsBag",
     "fullName": "Hop's Bag JTG",
@@ -21489,6 +21759,7 @@
     "number": "148",
     "cls": "HopsChoiceBand"
    },
+   "pool_fullName": "Hop's Choice Band JTG",
    "current_class": {
     "cls": "HopsChoiceBand",
     "fullName": "Hop's Choice Band JTG",
@@ -21540,6 +21811,7 @@
     "number": "151",
     "cls": "LilliesPearl"
    },
+   "pool_fullName": "Lillie's Pearl JTG",
    "current_class": {
     "cls": "LilliesPearl",
     "fullName": "Lillie's Pearl JTG",
@@ -21591,6 +21863,7 @@
     "number": "152",
     "cls": "NsCastle"
    },
+   "pool_fullName": "N's Castle JTG",
    "current_class": {
     "cls": "NsCastle",
     "fullName": "N's Castle JTG",
@@ -21642,6 +21915,7 @@
     "number": "154",
     "cls": "Postwick"
    },
+   "pool_fullName": "Postwick JTG",
    "current_class": {
     "cls": "Postwick",
     "fullName": "Postwick JTG",
@@ -21693,6 +21967,7 @@
     "number": "156",
     "cls": "RedeemableTicket"
    },
+   "pool_fullName": "Redeemable Ticket JTG",
    "current_class": {
     "cls": "RedeemableTicket",
     "fullName": "Redeemable Ticket JTG",
@@ -21744,6 +22019,7 @@
     "number": "157",
     "cls": "Ruffian"
    },
+   "pool_fullName": "Ruffian JTG",
    "current_class": {
     "cls": "Ruffian",
     "fullName": "Ruffian JTG",
@@ -21795,6 +22071,7 @@
     "number": "159",
     "cls": "SpikyEnergy"
    },
+   "pool_fullName": "Spiky Energy JTG",
    "current_class": {
     "cls": "SpikyEnergy",
     "fullName": "Spiky Energy JTG",
@@ -21846,6 +22123,7 @@
     "number": "1",
     "cls": "GrassEnergy"
    },
+   "pool_fullName": "Grass Energy MEE",
    "current_class": {
     "cls": "GrassEnergy",
     "fullName": "Grass Energy MEE",
@@ -21897,6 +22175,7 @@
     "number": "2",
     "cls": "FireEnergy"
    },
+   "pool_fullName": "Fire Energy MEE",
    "current_class": {
     "cls": "FireEnergy",
     "fullName": "Fire Energy MEE",
@@ -21948,6 +22227,7 @@
     "number": "3",
     "cls": "WaterEnergy"
    },
+   "pool_fullName": "Water Energy MEE",
    "current_class": {
     "cls": "WaterEnergy",
     "fullName": "Water Energy MEE",
@@ -21999,6 +22279,7 @@
     "number": "4",
     "cls": "LightningEnergy"
    },
+   "pool_fullName": "Lightning Energy MEE",
    "current_class": {
     "cls": "LightningEnergy",
     "fullName": "Lightning Energy MEE",
@@ -22050,6 +22331,7 @@
     "number": "5",
     "cls": "PsychicEnergy"
    },
+   "pool_fullName": "Psychic Energy MEE",
    "current_class": {
     "cls": "PsychicEnergy",
     "fullName": "Psychic Energy MEE",
@@ -22101,6 +22383,7 @@
     "number": "6",
     "cls": "FightingEnergy"
    },
+   "pool_fullName": "Fighting Energy MEE",
    "current_class": {
     "cls": "FightingEnergy",
     "fullName": "Fighting Energy MEE",
@@ -22152,6 +22435,7 @@
     "number": "7",
     "cls": "DarknessEnergy"
    },
+   "pool_fullName": "Darkness Energy MEE",
    "current_class": {
     "cls": "DarknessEnergy",
     "fullName": "Darkness Energy MEE",
@@ -22203,6 +22487,7 @@
     "number": "8",
     "cls": "MetalEnergy"
    },
+   "pool_fullName": "Metal Energy MEE",
    "current_class": {
     "cls": "MetalEnergy",
     "fullName": "Metal Energy MEE",
@@ -22254,6 +22539,7 @@
     "number": "1",
     "cls": "Bulbasaur"
    },
+   "pool_fullName": "Bulbasaur M1L",
    "current_class": {
     "cls": "Bulbasaur",
     "fullName": "Bulbasaur M1L",
@@ -22305,6 +22591,7 @@
     "number": "2",
     "cls": "Ivysaur"
    },
+   "pool_fullName": "Ivysaur M1L",
    "current_class": {
     "cls": "Ivysaur",
     "fullName": "Ivysaur M1L",
@@ -22356,6 +22643,7 @@
     "number": "3",
     "cls": "MegaVenusaurEx"
    },
+   "pool_fullName": "Mega Venusaur ex M1L",
    "current_class": {
     "cls": "MegaVenusaurEx",
     "fullName": "Mega Venusaur ex M1L",
@@ -22407,6 +22695,7 @@
     "number": "8",
     "cls": "Chikorita"
    },
+   "pool_fullName": "Chikorita M1S",
    "current_class": {
     "cls": "Chikorita",
     "fullName": "Chikorita M1S",
@@ -22458,6 +22747,7 @@
     "number": "9",
     "cls": "Bayleef"
    },
+   "pool_fullName": "Bayleef M1S",
    "current_class": {
     "cls": "Bayleef",
     "fullName": "Bayleef M1S",
@@ -22509,6 +22799,7 @@
     "number": "10",
     "cls": "Meganium"
    },
+   "pool_fullName": "Meganium M1S",
    "current_class": {
     "cls": "Meganium",
     "fullName": "Meganium M1S",
@@ -22560,6 +22851,7 @@
     "number": "11",
     "cls": "Shuckle"
    },
+   "pool_fullName": "Shuckle MEG",
    "current_class": {
     "cls": "Shuckle",
     "fullName": "Shuckle MEG",
@@ -22611,6 +22903,7 @@
     "number": "12",
     "cls": "Celebi"
    },
+   "pool_fullName": "Celebi MEG 12",
    "current_class": {
     "cls": "Celebi",
     "fullName": "Celebi MEG 12",
@@ -22662,6 +22955,7 @@
     "number": "45",
     "cls": "Magnemite"
    },
+   "pool_fullName": "Magnemite M1S",
    "current_class": {
     "cls": "Magnemite",
     "fullName": "Magnemite M1S",
@@ -22713,6 +23007,7 @@
     "number": "49",
     "cls": "Electrike"
    },
+   "pool_fullName": "Electrike M1S",
    "current_class": {
     "cls": "Electrike",
     "fullName": "Electrike M1S",
@@ -22764,6 +23059,7 @@
     "number": "50",
     "cls": "MegaManectricEx"
    },
+   "pool_fullName": "Mega Manectric ex M1S",
    "current_class": {
     "cls": "MegaManectricEx",
     "fullName": "Mega Manectric ex M1S",
@@ -22815,6 +23111,7 @@
     "number": "54",
     "cls": "Abra"
    },
+   "pool_fullName": "Abra M1S",
    "current_class": {
     "cls": "Abra",
     "fullName": "Abra M1S",
@@ -22866,6 +23163,7 @@
     "number": "55",
     "cls": "Kadabra"
    },
+   "pool_fullName": "Kadabra M1S",
    "current_class": {
     "cls": "Kadabra",
     "fullName": "Kadabra M1S",
@@ -22917,6 +23215,7 @@
     "number": "67",
     "cls": "Gimmighoul"
    },
+   "pool_fullName": "Gimmighoul M1L",
    "current_class": {
     "cls": "Gimmighoul",
     "fullName": "Gimmighoul M1L",
@@ -22968,6 +23267,7 @@
     "number": "70",
     "cls": "Onix"
    },
+   "pool_fullName": "Onix M1L",
    "current_class": {
     "cls": "Onix",
     "fullName": "Onix M1L",
@@ -23019,6 +23319,7 @@
     "number": "72",
     "cls": "Makuhita"
    },
+   "pool_fullName": "Makuhita M1L",
    "current_class": {
     "cls": "Makuhita",
     "fullName": "Makuhita M1L",
@@ -23070,6 +23371,7 @@
     "number": "73",
     "cls": "Hariyama"
    },
+   "pool_fullName": "Hariyama M1L",
    "current_class": {
     "cls": "Hariyama",
     "fullName": "Hariyama M1L",
@@ -23121,6 +23423,7 @@
     "number": "86",
     "cls": "MegaAbsolex"
    },
+   "pool_fullName": "Mega Absol ex M1L",
    "current_class": {
     "cls": "MegaAbsolex",
     "fullName": "Mega Absol ex M1L",
@@ -23172,6 +23475,7 @@
     "number": "88",
     "cls": "Yveltal"
    },
+   "pool_fullName": "Yveltal M1L",
    "current_class": {
     "cls": "Yveltal",
     "fullName": "Yveltal M1L",
@@ -23223,6 +23527,7 @@
     "number": "93",
     "cls": "Steelix"
    },
+   "pool_fullName": "Steelix M1L",
    "current_class": {
     "cls": "Steelix",
     "fullName": "Steelix M1L",
@@ -23274,6 +23579,7 @@
     "number": "94",
     "cls": "MegaMawileEx"
    },
+   "pool_fullName": "Mega Mawile ex M1L",
    "current_class": {
     "cls": "MegaMawileEx",
     "fullName": "Mega Mawile ex M1L",
@@ -23325,6 +23631,7 @@
     "number": "95",
     "cls": "Dialga"
    },
+   "pool_fullName": "Dialga MEG",
    "current_class": {
     "cls": "Dialga",
     "fullName": "Dialga MEG",
@@ -23376,6 +23683,7 @@
     "number": "96",
     "cls": "Tinkatink"
    },
+   "pool_fullName": "Tinkatink MEG",
    "current_class": {
     "cls": "Tinkatink",
     "fullName": "Tinkatink MEG",
@@ -23427,6 +23735,7 @@
     "number": "100",
     "cls": "MegaLatiasex"
    },
+   "pool_fullName": "Mega Latias ex M1S",
    "current_class": {
     "cls": "MegaLatiasex",
     "fullName": "Mega Latias ex M1S",
@@ -23478,6 +23787,7 @@
     "number": "104",
     "cls": "MegaKangaskhanex"
    },
+   "pool_fullName": "Mega Kangaskhan ex M1S",
    "current_class": {
     "cls": "MegaKangaskhanex",
     "fullName": "Mega Kangaskhan ex M1S",
@@ -23529,6 +23839,7 @@
     "number": "109",
     "cls": "Yungoos"
    },
+   "pool_fullName": "Yungoos M1L",
    "current_class": {
     "cls": "Yungoos",
     "fullName": "Yungoos M1L",
@@ -23580,6 +23891,7 @@
     "number": "127",
     "cls": "DangerousRuins"
    },
+   "pool_fullName": "Risky Ruins MEG",
    "current_class": {
     "cls": "DangerousRuins",
     "fullName": "Risky Ruins MEG",
@@ -23631,6 +23943,7 @@
     "number": "128",
     "cls": "StrangeTimepiece"
    },
+   "pool_fullName": "Strange Timepiece MEG",
    "current_class": {
     "cls": "StrangeTimepiece",
     "fullName": "Strange Timepiece MEG",
@@ -23682,6 +23995,7 @@
     "number": "132",
     "cls": "WallysCompassion"
    },
+   "pool_fullName": "Wally's Compassion M1S",
    "current_class": {
     "cls": "WallysCompassion",
     "fullName": "Wally's Compassion M1S",
@@ -23733,6 +24047,7 @@
     "number": "5",
     "cls": "Poltchageist"
    },
+   "pool_fullName": "Poltchageist M5",
    "current_class": {
     "cls": "Poltchageist",
     "fullName": "Poltchageist M5",
@@ -23784,6 +24099,7 @@
     "number": "6",
     "cls": "Sinistcha"
    },
+   "pool_fullName": "Sinistcha M5",
    "current_class": {
     "cls": "Sinistcha",
     "fullName": "Sinistcha M5",
@@ -23835,6 +24151,7 @@
     "number": "13",
     "cls": "Goldeen"
    },
+   "pool_fullName": "Goldeen M5",
    "current_class": {
     "cls": "Goldeen",
     "fullName": "Goldeen M5",
@@ -23886,6 +24203,7 @@
     "number": "24",
     "cls": "Manectric"
    },
+   "pool_fullName": "Manectric M5",
    "current_class": {
     "cls": "Manectric",
     "fullName": "Manectric M5",
@@ -23937,6 +24255,7 @@
     "number": "29",
     "cls": "Slowpoke"
    },
+   "pool_fullName": "Slowpoke M5",
    "current_class": {
     "cls": "Slowpoke",
     "fullName": "Slowpoke M5",
@@ -23988,6 +24307,7 @@
     "number": "31",
     "cls": "MegaSlowbroex"
    },
+   "pool_fullName": "Mega Slowbro ex MEP",
    "current_class": {
     "cls": "MegaSlowbroex",
     "fullName": "Mega Slowbro ex MEP",
@@ -24039,6 +24359,7 @@
     "number": "33",
     "cls": "Shuppet"
    },
+   "pool_fullName": "Shuppet M5",
    "current_class": {
     "cls": "Shuppet",
     "fullName": "Shuppet M5",
@@ -24090,6 +24411,7 @@
     "number": "34",
     "cls": "Banette"
    },
+   "pool_fullName": "Banette M5",
    "current_class": {
     "cls": "Banette",
     "fullName": "Banette M5",
@@ -24141,6 +24463,7 @@
     "number": "35",
     "cls": "Spiritomb"
    },
+   "pool_fullName": "Spiritomb M5",
    "current_class": {
     "cls": "Spiritomb",
     "fullName": "Spiritomb M5",
@@ -24192,6 +24515,7 @@
     "number": "36",
     "cls": "Litwick"
    },
+   "pool_fullName": "Litwick M5",
    "current_class": {
     "cls": "Litwick",
     "fullName": "Litwick M5",
@@ -24243,6 +24567,7 @@
     "number": "37",
     "cls": "Lampent"
    },
+   "pool_fullName": "Lampent M5",
    "current_class": {
     "cls": "Lampent",
     "fullName": "Lampent M5",
@@ -24294,6 +24619,7 @@
     "number": "38",
     "cls": "MegaChandelureex"
    },
+   "pool_fullName": "Mega Chandelure ex M5",
    "current_class": {
     "cls": "MegaChandelureex",
     "fullName": "Mega Chandelure ex M5",
@@ -24345,6 +24671,7 @@
     "number": "39",
     "cls": "Dhelmise"
    },
+   "pool_fullName": "Dhelmise M5",
    "current_class": {
     "cls": "Dhelmise",
     "fullName": "Dhelmise M5",
@@ -24396,6 +24723,7 @@
     "number": "41",
     "cls": "Annihilape"
    },
+   "pool_fullName": "Annihilape M5",
    "current_class": {
     "cls": "Annihilape",
     "fullName": "Annihilape M5",
@@ -24447,6 +24775,7 @@
     "number": "46",
     "cls": "Drilbur"
    },
+   "pool_fullName": "Drilbur M5",
    "current_class": {
     "cls": "Drilbur",
     "fullName": "Drilbur M5",
@@ -24498,6 +24827,7 @@
     "number": "48",
     "cls": "MegaDarkraiex"
    },
+   "pool_fullName": "Mega Darkrai ex M5",
    "current_class": {
     "cls": "MegaDarkraiex",
     "fullName": "Mega Darkrai ex M5",
@@ -24549,6 +24879,7 @@
     "number": "59",
     "cls": "ChiYu"
    },
+   "pool_fullName": "Chi-Yu M5",
    "current_class": {
     "cls": "ChiYu",
     "fullName": "Chi-Yu M5",
@@ -24600,6 +24931,7 @@
     "number": "65",
     "cls": "MegaExcadrillex"
    },
+   "pool_fullName": "Mega Excadrill ex M5",
    "current_class": {
     "cls": "MegaExcadrillex",
     "fullName": "Mega Excadrill ex M5",
@@ -24651,6 +24983,7 @@
     "number": "66",
     "cls": "Pikipek"
    },
+   "pool_fullName": "Pikipek M5",
    "current_class": {
     "cls": "Pikipek",
     "fullName": "Pikipek M5",
@@ -24702,6 +25035,7 @@
     "number": "67",
     "cls": "Trumbeak"
    },
+   "pool_fullName": "Trumbeak M5",
    "current_class": {
     "cls": "Trumbeak",
     "fullName": "Trumbeak M5",
@@ -24753,6 +25087,7 @@
     "number": "68",
     "cls": "Toucannon"
    },
+   "pool_fullName": "Toucannon M5",
    "current_class": {
     "cls": "Toucannon",
     "fullName": "Toucannon M5",
@@ -24804,6 +25139,7 @@
     "number": "74",
     "cls": "BacktrackBadge"
    },
+   "pool_fullName": "Retry Badge M5",
    "current_class": {
     "cls": "BacktrackBadge",
     "fullName": "Retry Badge M5",
@@ -24855,6 +25191,7 @@
     "number": "75",
     "cls": "DarkBell"
    },
+   "pool_fullName": "Dark Bell M5",
    "current_class": {
     "cls": "DarkBell",
     "fullName": "Dark Bell M5",
@@ -24906,6 +25243,7 @@
     "number": "77",
     "cls": "GladionsFinalBattle"
    },
+   "pool_fullName": "Gladion's Decisive Battle M5",
    "current_class": {
     "cls": "GladionsFinalBattle",
     "fullName": "Gladion's Decisive Battle M5",
@@ -24957,6 +25295,7 @@
     "number": "78",
     "cls": "Gwynn"
    },
+   "pool_fullName": "Gwynn M5",
    "current_class": {
     "cls": "Gwynn",
     "fullName": "Gwynn M5",
@@ -25008,6 +25347,7 @@
     "number": "81",
     "cls": "RustSyndicateGrunt"
    },
+   "pool_fullName": "Rust Syndicate Grunt M5",
    "current_class": {
     "cls": "RustSyndicateGrunt",
     "fullName": "Rust Syndicate Grunt M5",
@@ -25059,6 +25399,7 @@
     "number": "83",
     "cls": "ShadowyDarknessEnergy"
    },
+   "pool_fullName": "Shadow Darkness Energy M5",
    "current_class": {
     "cls": "ShadowyDarknessEnergy",
     "fullName": "Shadow Darkness Energy M5",
@@ -25110,6 +25451,7 @@
     "number": "4",
     "cls": "MegaHeracrossex"
    },
+   "pool_fullName": "Mega Heracross ex PFL",
    "current_class": {
     "cls": "MegaHeracrossex",
     "fullName": "Mega Heracross ex PFL",
@@ -25161,6 +25503,7 @@
     "number": "8",
     "cls": "Genesect"
    },
+   "pool_fullName": "Genesect M2",
    "current_class": {
     "cls": "Genesect",
     "fullName": "Genesect M2",
@@ -25212,6 +25555,7 @@
     "number": "12",
     "cls": "Charmeleon"
    },
+   "pool_fullName": "Charmeleon M2",
    "current_class": {
     "cls": "Charmeleon",
     "fullName": "Charmeleon M2",
@@ -25263,6 +25607,7 @@
     "number": "13",
     "cls": "MegaCharizardXex"
    },
+   "pool_fullName": "Mega Charizard X ex M2",
    "current_class": {
     "cls": "MegaCharizardXex",
     "fullName": "Mega Charizard X ex M2",
@@ -25314,6 +25659,7 @@
     "number": "14",
     "cls": "Moltres"
    },
+   "pool_fullName": "Moltres M2",
    "current_class": {
     "cls": "Moltres",
     "fullName": "Moltres M2",
@@ -25365,6 +25711,7 @@
     "number": "18",
     "cls": "Oricorioex"
    },
+   "pool_fullName": "Oricorio ex M2",
    "current_class": {
     "cls": "Oricorioex",
     "fullName": "Oricorio ex M2",
@@ -25416,6 +25763,7 @@
     "number": "27",
     "cls": "Piplup"
    },
+   "pool_fullName": "Piplup PFL",
    "current_class": {
     "cls": "Piplup",
     "fullName": "Piplup PFL",
@@ -25467,6 +25815,7 @@
     "number": "45",
     "cls": "Zacian"
    },
+   "pool_fullName": "Zacian M2",
    "current_class": {
     "cls": "Zacian",
     "fullName": "Zacian M2",
@@ -25518,6 +25867,7 @@
     "number": "61",
     "cls": "MegaSharpedoex"
    },
+   "pool_fullName": "Mega Sharpedo ex M2",
    "current_class": {
     "cls": "MegaSharpedoex",
     "fullName": "Mega Sharpedo ex M2",
@@ -25569,6 +25919,7 @@
     "number": "62",
     "cls": "Seviper"
    },
+   "pool_fullName": "Seviper M2",
    "current_class": {
     "cls": "Seviper",
     "fullName": "Seviper M2",
@@ -25620,6 +25971,7 @@
     "number": "70",
     "cls": "Empoleonex"
    },
+   "pool_fullName": "Empoleon ex PFL",
    "current_class": {
     "cls": "Empoleonex",
     "fullName": "Empoleon ex PFL",
@@ -25671,6 +26023,7 @@
     "number": "74",
     "cls": "Duraludon"
    },
+   "pool_fullName": "Duraludon PFL",
    "current_class": {
     "cls": "Duraludon",
     "fullName": "Duraludon PFL",
@@ -25722,6 +26075,7 @@
     "number": "75",
     "cls": "Archaludon"
    },
+   "pool_fullName": "Archaludon M2",
    "current_class": {
     "cls": "Archaludon",
     "fullName": "Archaludon M2",
@@ -25773,6 +26127,7 @@
     "number": "83",
     "cls": "Buneary"
    },
+   "pool_fullName": "Buneary M2",
    "current_class": {
     "cls": "Buneary",
     "fullName": "Buneary M2",
@@ -25824,6 +26179,7 @@
     "number": "84",
     "cls": "MegaLopunnyex"
    },
+   "pool_fullName": "Mega Lopunny ex M2",
    "current_class": {
     "cls": "MegaLopunnyex",
     "fullName": "Mega Lopunny ex M2",
@@ -25875,6 +26231,7 @@
     "number": "85",
     "cls": "BattleColosseum"
    },
+   "pool_fullName": "Battle Colosseum M2",
    "current_class": {
     "cls": "BattleColosseum",
     "fullName": "Battle Colosseum M2",
@@ -25926,6 +26283,7 @@
     "number": "86",
     "cls": "Blowtorch"
    },
+   "pool_fullName": "Blowtorch PFL",
    "current_class": {
     "cls": "Blowtorch",
     "fullName": "Blowtorch PFL",
@@ -25977,6 +26335,7 @@
     "number": "87",
     "cls": "Dawn"
    },
+   "pool_fullName": "Dawn M2",
    "current_class": {
     "cls": "Dawn",
     "fullName": "Dawn M2",
@@ -26028,6 +26387,7 @@
     "number": "89",
     "cls": "Firebreather"
    },
+   "pool_fullName": "Firebreather M2",
    "current_class": {
     "cls": "Firebreather",
     "fullName": "Firebreather M2",
@@ -26079,6 +26439,7 @@
     "number": "90",
     "cls": "GrimsleysGambit"
    },
+   "pool_fullName": "Grimsley's Gambit M2",
    "current_class": {
     "cls": "GrimsleysGambit",
     "fullName": "Grimsley's Gambit M2",
@@ -26130,6 +26491,7 @@
     "number": "92",
     "cls": "PunkHelmet"
    },
+   "pool_fullName": "Punk Helmet PFL",
    "current_class": {
     "cls": "PunkHelmet",
     "fullName": "Punk Helmet PFL",
@@ -26181,6 +26543,7 @@
     "number": "93",
     "cls": "SacredCharm"
    },
+   "pool_fullName": "Sacred Charm M2",
    "current_class": {
     "cls": "SacredCharm",
     "fullName": "Sacred Charm M2",
@@ -26232,6 +26595,7 @@
     "number": "7",
     "cls": "Scatterbug"
    },
+   "pool_fullName": "Scatterbug M3",
    "current_class": {
     "cls": "Scatterbug",
     "fullName": "Scatterbug M3",
@@ -26283,6 +26647,7 @@
     "number": "8",
     "cls": "Spewpa"
    },
+   "pool_fullName": "Spewpa M3",
    "current_class": {
     "cls": "Spewpa",
     "fullName": "Spewpa M3",
@@ -26334,6 +26699,7 @@
     "number": "9",
     "cls": "Vivillon"
    },
+   "pool_fullName": "Vivillon M3",
    "current_class": {
     "cls": "Vivillon",
     "fullName": "Vivillon M3",
@@ -26385,6 +26751,7 @@
     "number": "10",
     "cls": "Rowlet"
    },
+   "pool_fullName": "Rowlet M3",
    "current_class": {
     "cls": "Rowlet",
     "fullName": "Rowlet M3",
@@ -26436,6 +26803,7 @@
     "number": "11",
     "cls": "Dartrix"
    },
+   "pool_fullName": "Dartrix M3",
    "current_class": {
     "cls": "Dartrix",
     "fullName": "Dartrix M3",
@@ -26487,6 +26855,7 @@
     "number": "12",
     "cls": "Decidueyeex"
    },
+   "pool_fullName": "Decidueye ex M3",
    "current_class": {
     "cls": "Decidueyeex",
     "fullName": "Decidueye ex M3",
@@ -26538,6 +26907,7 @@
     "number": "20",
     "cls": "Staryu"
    },
+   "pool_fullName": "Staryu M3",
    "current_class": {
     "cls": "Staryu",
     "fullName": "Staryu M3",
@@ -26589,6 +26959,7 @@
     "number": "21",
     "cls": "MegaStarmieex"
    },
+   "pool_fullName": "Mega Starmie ex M3",
    "current_class": {
     "cls": "MegaStarmieex",
     "fullName": "Mega Starmie ex M3",
@@ -26640,6 +27011,7 @@
     "number": "30",
     "cls": "Clefairy"
    },
+   "pool_fullName": "Clefairy M3",
    "current_class": {
     "cls": "Clefairy",
     "fullName": "Clefairy M3",
@@ -26691,6 +27063,7 @@
     "number": "42",
     "cls": "Binacle"
    },
+   "pool_fullName": "Binacle M3",
    "current_class": {
     "cls": "Binacle",
     "fullName": "Binacle M3",
@@ -26742,6 +27115,7 @@
     "number": "43",
     "cls": "Barbaracle"
    },
+   "pool_fullName": "Barbaracle M3",
    "current_class": {
     "cls": "Barbaracle",
     "fullName": "Barbaracle M3",
@@ -26793,6 +27167,7 @@
     "number": "51",
     "cls": "Skorupi"
    },
+   "pool_fullName": "Skorupi M3",
    "current_class": {
     "cls": "Skorupi",
     "fullName": "Skorupi M3",
@@ -26844,6 +27219,7 @@
     "number": "52",
     "cls": "Drapion"
    },
+   "pool_fullName": "Drapion M3",
    "current_class": {
     "cls": "Drapion",
     "fullName": "Drapion M3",
@@ -26895,6 +27271,7 @@
     "number": "55",
     "cls": "MegaSkarmoryex"
    },
+   "pool_fullName": "Mega Skarmory ex M3",
    "current_class": {
     "cls": "MegaSkarmoryex",
     "fullName": "Mega Skarmory ex M3",
@@ -26946,6 +27323,7 @@
     "number": "62",
     "cls": "Meowthex"
    },
+   "pool_fullName": "Meowth ex M3",
    "current_class": {
     "cls": "Meowthex",
     "fullName": "Meowth ex M3",
@@ -26997,6 +27375,7 @@
     "number": "67",
     "cls": "Furfrou"
    },
+   "pool_fullName": "Furfrou M3",
    "current_class": {
     "cls": "Furfrou",
     "fullName": "Furfrou M3",
@@ -27048,6 +27427,7 @@
     "number": "73",
     "cls": "EnergySwatter"
    },
+   "pool_fullName": "Energy Swatter M3",
    "current_class": {
     "cls": "EnergySwatter",
     "fullName": "Energy Swatter M3",
@@ -27099,6 +27479,7 @@
     "number": "75",
     "cls": "Jacinthe"
    },
+   "pool_fullName": "Jacinthe M3",
    "current_class": {
     "cls": "Jacinthe",
     "fullName": "Jacinthe M3",
@@ -27150,6 +27531,7 @@
     "number": "77",
     "cls": "LumioiseCity"
    },
+   "pool_fullName": "Lumioise City M3",
    "current_class": {
     "cls": "LumioiseCity",
     "fullName": "Lumioise City M3",
@@ -27201,6 +27583,7 @@
     "number": "78",
     "cls": "LumioseGalette"
    },
+   "pool_fullName": "Lumiose Galette M3",
    "current_class": {
     "cls": "LumioseGalette",
     "fullName": "Lumiose Galette M3",
@@ -27252,6 +27635,7 @@
     "number": "79",
     "cls": "Naveen"
    },
+   "pool_fullName": "Naveen M3",
    "current_class": {
     "cls": "Naveen",
     "fullName": "Naveen M3",
@@ -27303,6 +27687,7 @@
     "number": "84",
     "cls": "RosasEncouragement"
    },
+   "pool_fullName": "Rosa's Encouragement M3",
    "current_class": {
     "cls": "RosasEncouragement",
     "fullName": "Rosa's Encouragement M3",
@@ -27354,6 +27739,7 @@
     "number": "85",
     "cls": "Tarragon"
    },
+   "pool_fullName": "Tarragon M3",
    "current_class": {
     "cls": "Tarragon",
     "fullName": "Tarragon M3",
@@ -27405,6 +27791,7 @@
     "number": "87",
     "cls": "RockFightingEnergy"
    },
+   "pool_fullName": "Rock Fighting Energy M3",
    "current_class": {
     "cls": "RockFightingEnergy",
     "fullName": "Rock Fighting Energy M3",
@@ -27456,6 +27843,7 @@
     "number": "88",
     "cls": "TelepathPsychicEnergy"
    },
+   "pool_fullName": "Telepath [P] Energy M3",
    "current_class": {
     "cls": "TelepathPsychicEnergy",
     "fullName": "Telepath [P] Energy M3",
@@ -27507,6 +27895,7 @@
     "number": "6",
     "cls": "Leafeonex"
    },
+   "pool_fullName": "Leafeon ex PRE",
    "current_class": {
     "cls": "Leafeonex",
     "fullName": "Leafeon ex PRE",
@@ -27558,6 +27947,7 @@
     "number": "14",
     "cls": "Flareonex"
    },
+   "pool_fullName": "Flareon ex PRE",
    "current_class": {
     "cls": "Flareonex",
     "fullName": "Flareon ex PRE",
@@ -27609,6 +27999,7 @@
     "number": "21",
     "cls": "Seaking"
    },
+   "pool_fullName": "Seaking PRE",
    "current_class": {
     "cls": "Seaking",
     "fullName": "Seaking PRE",
@@ -27660,6 +28051,7 @@
     "number": "30",
     "cls": "Jolteonex"
    },
+   "pool_fullName": "Jolteon ex PRE",
    "current_class": {
     "cls": "Jolteonex",
     "fullName": "Jolteon ex PRE",
@@ -27711,6 +28103,7 @@
     "number": "40",
     "cls": "Sylveon"
    },
+   "pool_fullName": "Sylveon PRE",
    "current_class": {
     "cls": "Sylveon",
     "fullName": "Sylveon PRE",
@@ -27762,6 +28155,7 @@
     "number": "48",
     "cls": "Pupitar"
    },
+   "pool_fullName": "Pupitar PRE",
    "current_class": {
     "cls": "Pupitar",
     "fullName": "Pupitar PRE",
@@ -27813,6 +28207,7 @@
     "number": "50",
     "cls": "Riolu"
    },
+   "pool_fullName": "Riolu PRE",
    "current_class": {
     "cls": "Riolu",
     "fullName": "Riolu PRE",
@@ -27864,6 +28259,7 @@
     "number": "60",
     "cls": "Umbreonex"
    },
+   "pool_fullName": "Umbreon ex PRE",
    "current_class": {
     "cls": "Umbreonex",
     "fullName": "Umbreon ex PRE",
@@ -27915,6 +28311,7 @@
     "number": "66",
     "cls": "Bronzor"
    },
+   "pool_fullName": "Bronzor PRE",
    "current_class": {
     "cls": "Bronzor",
     "fullName": "Bronzor PRE",
@@ -27966,6 +28363,7 @@
     "number": "75",
     "cls": "Eeveeex"
    },
+   "pool_fullName": "Eevee ex PRE",
    "current_class": {
     "cls": "Eeveeex",
     "fullName": "Eevee ex PRE",
@@ -28017,6 +28415,7 @@
     "number": "77",
     "cls": "Hoothoot"
    },
+   "pool_fullName": "Hoothoot PRE",
    "current_class": {
     "cls": "Hoothoot",
     "fullName": "Hoothoot PRE",
@@ -28068,6 +28467,7 @@
     "number": "86",
     "cls": "Regigigas"
    },
+   "pool_fullName": "Regigigas PRE",
    "current_class": {
     "cls": "Regigigas",
     "fullName": "Regigigas PRE",
@@ -28119,6 +28519,7 @@
     "number": "111",
     "cls": "HabanBerry"
    },
+   "pool_fullName": "Haban Berry PRE",
    "current_class": {
     "cls": "HabanBerry",
     "fullName": "Haban Berry PRE",
@@ -28170,6 +28571,7 @@
     "number": "115",
     "cls": "LarrysSkill"
    },
+   "pool_fullName": "Larry's Skill PRE",
    "current_class": {
     "cls": "LarrysSkill",
     "fullName": "Larry's Skill PRE",
@@ -28221,6 +28623,7 @@
     "number": "116",
     "cls": "MaxRod"
    },
+   "pool_fullName": "Max Rod PRE",
    "current_class": {
     "cls": "MaxRod",
     "fullName": "Max Rod PRE",
@@ -28272,6 +28675,7 @@
     "number": "127",
     "cls": "RotoStick"
    },
+   "pool_fullName": "Roto-Stick PRE",
    "current_class": {
     "cls": "RotoStick",
     "fullName": "Roto-Stick PRE",
@@ -28323,6 +28727,7 @@
     "number": "13",
     "cls": "Dipplin"
    },
+   "pool_fullName": "Dipplin SCR",
    "current_class": {
     "cls": "Dipplin",
     "fullName": "Dipplin SCR",
@@ -28374,6 +28779,7 @@
     "number": "17",
     "cls": "Toedscool"
    },
+   "pool_fullName": "Toedscool SCR",
    "current_class": {
     "cls": "Toedscool",
     "fullName": "Toedscool SCR",
@@ -28425,6 +28831,7 @@
     "number": "42",
     "cls": "Crabominable"
    },
+   "pool_fullName": "Crabominable SCR",
    "current_class": {
     "cls": "Crabominable",
     "fullName": "Crabominable SCR",
@@ -28476,6 +28883,7 @@
     "number": "50",
     "cls": "Joltik"
    },
+   "pool_fullName": "Joltik SCR",
    "current_class": {
     "cls": "Joltik",
     "fullName": "Joltik SCR",
@@ -28527,6 +28935,7 @@
     "number": "51",
     "cls": "Galvantulaex"
    },
+   "pool_fullName": "Galvantula ex SCR",
    "current_class": {
     "cls": "Galvantulaex",
     "fullName": "Galvantula ex SCR",
@@ -28578,6 +28987,7 @@
     "number": "55",
     "cls": "Zeraora"
    },
+   "pool_fullName": "Zeraora SCR",
    "current_class": {
     "cls": "Zeraora",
     "fullName": "Zeraora SCR",
@@ -28629,6 +29039,7 @@
     "number": "57",
     "cls": "Slowpoke"
    },
+   "pool_fullName": "Slowpoke SCR",
    "current_class": {
     "cls": "Slowpoke",
     "fullName": "Slowpoke SCR",
@@ -28680,6 +29091,7 @@
     "number": "58",
     "cls": "Slowking"
    },
+   "pool_fullName": "Slowking SCR",
    "current_class": {
     "cls": "Slowking",
     "fullName": "Slowking SCR",
@@ -28731,6 +29143,7 @@
     "number": "63",
     "cls": "Comfey"
    },
+   "pool_fullName": "Comfey SCR",
    "current_class": {
     "cls": "Comfey",
     "fullName": "Comfey SCR",
@@ -28782,6 +29195,7 @@
     "number": "86",
     "cls": "Diancie"
    },
+   "pool_fullName": "Diancie SCR",
    "current_class": {
     "cls": "Diancie",
     "fullName": "Diancie SCR",
@@ -28833,6 +29247,7 @@
     "number": "111",
     "cls": "RagingBolt"
    },
+   "pool_fullName": "Raging Bolt SCR",
    "current_class": {
     "cls": "RagingBolt",
     "fullName": "Raging Bolt SCR",
@@ -28884,6 +29299,7 @@
     "number": "113",
     "cls": "Eevee"
    },
+   "pool_fullName": "Eevee SCR",
    "current_class": {
     "cls": "Eevee",
     "fullName": "Eevee SCR",
@@ -28935,6 +29351,7 @@
     "number": "114",
     "cls": "Hoothoot"
    },
+   "pool_fullName": "Hoothoot SCR",
    "current_class": {
     "cls": "Hoothoot",
     "fullName": "Hoothoot SCR",
@@ -28986,6 +29403,7 @@
     "number": "119",
     "cls": "Bouffalant"
    },
+   "pool_fullName": "Bouffalant SCR",
    "current_class": {
     "cls": "Bouffalant",
     "fullName": "Bouffalant SCR",
@@ -29037,6 +29455,7 @@
     "number": "136",
     "cls": "GreatTree"
    },
+   "pool_fullName": "Great Tree SCR",
    "current_class": {
     "cls": "GreatTree",
     "fullName": "Great Tree SCR",
@@ -29088,6 +29507,7 @@
     "number": "137",
     "cls": "GravityGemstone"
    },
+   "pool_fullName": "Gravity Gemstone SCR",
    "current_class": {
     "cls": "GravityGemstone",
     "fullName": "Gravity Gemstone SCR",
@@ -29139,6 +29559,7 @@
     "number": "138",
     "cls": "Kofu"
    },
+   "pool_fullName": "Kofu SCR",
    "current_class": {
     "cls": "Kofu",
     "fullName": "Kofu SCR",
@@ -29190,6 +29611,7 @@
     "number": "2",
     "cls": "Galvantula"
    },
+   "pool_fullName": "Galvantula SFA",
    "current_class": {
     "cls": "Galvantula",
     "fullName": "Galvantula SFA",
@@ -29241,6 +29663,7 @@
     "number": "3",
     "cls": "Rowlet"
    },
+   "pool_fullName": "Rowlet SFA",
    "current_class": {
     "cls": "Rowlet",
     "fullName": "Rowlet SFA",
@@ -29292,6 +29715,7 @@
     "number": "4",
     "cls": "Dartrix"
    },
+   "pool_fullName": "Dartrix SFA",
    "current_class": {
     "cls": "Dartrix",
     "fullName": "Dartrix SFA",
@@ -29343,6 +29767,7 @@
     "number": "6",
     "cls": "TapuBulu"
    },
+   "pool_fullName": "Tapu Bulu SFA",
    "current_class": {
     "cls": "TapuBulu",
     "fullName": "Tapu Bulu SFA",
@@ -29394,6 +29819,7 @@
     "number": "21",
     "cls": "Cresselia"
    },
+   "pool_fullName": "Cresselia SFA",
    "current_class": {
     "cls": "Cresselia",
     "fullName": "Cresselia SFA",
@@ -29445,6 +29871,7 @@
     "number": "26",
     "cls": "SlitherWing"
    },
+   "pool_fullName": "Slither Wing SFA",
    "current_class": {
     "cls": "SlitherWing",
     "fullName": "Slither Wing SFA",
@@ -29496,6 +29923,7 @@
     "number": "31",
     "cls": "Zorua"
    },
+   "pool_fullName": "Zorua SFA",
    "current_class": {
     "cls": "Zorua",
     "fullName": "Zorua SFA",
@@ -29547,6 +29975,7 @@
     "number": "35",
     "cls": "Yveltal"
    },
+   "pool_fullName": "Yveltal SFA",
    "current_class": {
     "cls": "Yveltal",
     "fullName": "Yveltal SFA",
@@ -29598,6 +30027,7 @@
     "number": "36",
     "cls": "Okidogiex"
    },
+   "pool_fullName": "Okidogi ex SFA",
    "current_class": {
     "cls": "Okidogiex",
     "fullName": "Okidogi ex SFA",
@@ -29649,6 +30079,7 @@
     "number": "37",
     "cls": "Munkidoriex"
    },
+   "pool_fullName": "Munkidori ex SFA",
    "current_class": {
     "cls": "Munkidoriex",
     "fullName": "Munkidori ex SFA",
@@ -29700,6 +30131,7 @@
     "number": "40",
     "cls": "Genesect"
    },
+   "pool_fullName": "Genesect SFA",
    "current_class": {
     "cls": "Genesect",
     "fullName": "Genesect SFA",
@@ -29751,6 +30183,7 @@
     "number": "41",
     "cls": "Cufant"
    },
+   "pool_fullName": "Cufant SFA",
    "current_class": {
     "cls": "Cufant",
     "fullName": "Cufant SFA",
@@ -29802,6 +30235,7 @@
     "number": "43",
     "cls": "Varoom"
    },
+   "pool_fullName": "Varoom SFA",
    "current_class": {
     "cls": "Varoom",
     "fullName": "Varoom SFA",
@@ -29853,6 +30287,7 @@
     "number": "46",
     "cls": "Haxorus"
    },
+   "pool_fullName": "Haxorus SFA",
    "current_class": {
     "cls": "Haxorus",
     "fullName": "Haxorus SFA",
@@ -29904,6 +30339,7 @@
     "number": "47",
     "cls": "Kyurem"
    },
+   "pool_fullName": "Kyurem SFA",
    "current_class": {
     "cls": "Kyurem",
     "fullName": "Kyurem SFA",
@@ -29955,6 +30391,7 @@
     "number": "50",
     "cls": "Eevee"
    },
+   "pool_fullName": "Eevee SFA",
    "current_class": {
     "cls": "Eevee",
     "fullName": "Eevee SFA",
@@ -30006,6 +30443,7 @@
     "number": "54",
     "cls": "NightTimeAcademy"
    },
+   "pool_fullName": "Academy at Night SFA",
    "current_class": {
     "cls": "NightTimeAcademy",
     "fullName": "Academy at Night SFA",
@@ -30057,6 +30495,7 @@
     "number": "56",
     "cls": "Cassiopeia"
    },
+   "pool_fullName": "Cassiopeia SFA",
    "current_class": {
     "cls": "Cassiopeia",
     "fullName": "Cassiopeia SFA",
@@ -30108,6 +30547,7 @@
     "number": "57",
     "cls": "ColresssObsession"
    },
+   "pool_fullName": "Colress's Tenacity SFA",
    "current_class": {
     "cls": "ColresssObsession",
     "fullName": "Colress's Tenacity SFA",
@@ -30159,6 +30599,7 @@
     "number": "58",
     "cls": "DangerousLaser"
    },
+   "pool_fullName": "Dangerous Laser SFA",
    "current_class": {
     "cls": "DangerousLaser",
     "fullName": "Dangerous Laser SFA",
@@ -30210,6 +30651,7 @@
     "number": "60",
     "cls": "NeutralCenter"
    },
+   "pool_fullName": "Neutralization Zone SFA",
    "current_class": {
     "cls": "NeutralCenter",
     "fullName": "Neutralization Zone SFA",
@@ -30261,6 +30703,7 @@
     "number": "62",
     "cls": "PokeVitalA"
    },
+   "pool_fullName": "PokéVital A SFA",
    "current_class": {
     "cls": "PokeVitalA",
     "fullName": "PokéVital A SFA",
@@ -30312,6 +30755,7 @@
     "number": "63",
     "cls": "PowerHourglass"
    },
+   "pool_fullName": "Powerglass SFA",
    "current_class": {
     "cls": "PowerHourglass",
     "fullName": "Powerglass SFA",
@@ -30363,6 +30807,7 @@
     "number": "64",
     "cls": "XerosicsScheme"
    },
+   "pool_fullName": "Xerosic's Machinations SFA",
    "current_class": {
     "cls": "XerosicsScheme",
     "fullName": "Xerosic's Machinations SFA",
@@ -30414,6 +30859,7 @@
     "number": "1",
     "cls": "Exeggcute"
    },
+   "pool_fullName": "Exeggcute SSP",
    "current_class": {
     "cls": "Exeggcute",
     "fullName": "Exeggcute SSP",
@@ -30465,6 +30911,7 @@
     "number": "4",
     "cls": "Durantex"
    },
+   "pool_fullName": "Durant ex SSP",
    "current_class": {
     "cls": "Durantex",
     "fullName": "Durant ex SSP",
@@ -30516,6 +30963,7 @@
     "number": "11",
     "cls": "Zarude"
    },
+   "pool_fullName": "Zarude SSP",
    "current_class": {
     "cls": "Zarude",
     "fullName": "Zarude SSP",
@@ -30567,6 +31015,7 @@
     "number": "18",
     "cls": "PaldeanTauros"
    },
+   "pool_fullName": "Paldean Tauros SSP",
    "current_class": {
     "cls": "PaldeanTauros",
     "fullName": "Paldean Tauros SSP",
@@ -30618,6 +31067,7 @@
     "number": "19",
     "cls": "HoOh"
    },
+   "pool_fullName": "Ho-Oh SSP",
    "current_class": {
     "cls": "HoOh",
     "fullName": "Ho-Oh SSP",
@@ -30669,6 +31119,7 @@
     "number": "21",
     "cls": "Victini"
    },
+   "pool_fullName": "Victini SSP",
    "current_class": {
     "cls": "Victini",
     "fullName": "Victini SSP",
@@ -30720,6 +31171,7 @@
     "number": "27",
     "cls": "Sizzlipede"
    },
+   "pool_fullName": "Sizzlipede SSP",
    "current_class": {
     "cls": "Sizzlipede",
     "fullName": "Sizzlipede SSP",
@@ -30771,6 +31223,7 @@
     "number": "28",
     "cls": "Centiskorch"
    },
+   "pool_fullName": "Centiskorch SSP",
    "current_class": {
     "cls": "Centiskorch",
     "fullName": "Centiskorch SSP",
@@ -30822,6 +31275,7 @@
     "number": "29",
     "cls": "Fuecoco"
    },
+   "pool_fullName": "Fuecoco SSP",
    "current_class": {
     "cls": "Fuecoco",
     "fullName": "Fuecoco SSP",
@@ -30873,6 +31327,7 @@
     "number": "31",
     "cls": "Skeledirge"
    },
+   "pool_fullName": "Skeledirge SSP",
    "current_class": {
     "cls": "Skeledirge",
     "fullName": "Skeledirge SSP",
@@ -30924,6 +31379,7 @@
     "number": "32",
     "cls": "Charcadet"
    },
+   "pool_fullName": "Charcadet SSP",
    "current_class": {
     "cls": "Charcadet",
     "fullName": "Charcadet SSP",
@@ -30975,6 +31431,7 @@
     "number": "33",
     "cls": "Charcadet2"
    },
+   "pool_fullName": "Charcadet 2 SSP",
    "current_class": {
     "cls": "Charcadet2",
     "fullName": "Charcadet 2 SSP",
@@ -31026,6 +31483,7 @@
     "number": "34",
     "cls": "Armarouge"
    },
+   "pool_fullName": "Armarouge SSP",
    "current_class": {
     "cls": "Armarouge",
     "fullName": "Armarouge SSP",
@@ -31077,6 +31535,7 @@
     "number": "41",
     "cls": "Feebas"
    },
+   "pool_fullName": "Feebas SSP",
    "current_class": {
     "cls": "Feebas",
     "fullName": "Feebas SSP",
@@ -31128,6 +31587,7 @@
     "number": "42",
     "cls": "Miloticex"
    },
+   "pool_fullName": "Milotic ex SSP",
    "current_class": {
     "cls": "Miloticex",
     "fullName": "Milotic ex SSP",
@@ -31179,6 +31639,7 @@
     "number": "45",
     "cls": "Walrein"
    },
+   "pool_fullName": "Walrein SSP",
    "current_class": {
     "cls": "Walrein",
     "fullName": "Walrein SSP",
@@ -31230,6 +31691,7 @@
     "number": "46",
     "cls": "Shellos"
    },
+   "pool_fullName": "Shellos SSP",
    "current_class": {
     "cls": "Shellos",
     "fullName": "Shellos SSP",
@@ -31281,6 +31743,7 @@
     "number": "48",
     "cls": "BlackKyuremex"
    },
+   "pool_fullName": "Black Kyurem ex SSP",
    "current_class": {
     "cls": "BlackKyuremex",
     "fullName": "Black Kyurem ex SSP",
@@ -31332,6 +31795,7 @@
     "number": "56",
     "cls": "ChienPao"
    },
+   "pool_fullName": "Chien-Pao SSP",
    "current_class": {
     "cls": "ChienPao",
     "fullName": "Chien-Pao SSP",
@@ -31383,6 +31847,7 @@
     "number": "58",
     "cls": "Magnemite"
    },
+   "pool_fullName": "Magnemite SSP",
    "current_class": {
     "cls": "Magnemite",
     "fullName": "Magnemite SSP",
@@ -31434,6 +31899,7 @@
     "number": "59",
     "cls": "Magneton"
    },
+   "pool_fullName": "Magneton SSP",
    "current_class": {
     "cls": "Magneton",
     "fullName": "Magneton SSP",
@@ -31485,6 +31951,7 @@
     "number": "61",
     "cls": "Rotom"
    },
+   "pool_fullName": "Rotom SSP",
    "current_class": {
     "cls": "Rotom",
     "fullName": "Rotom SSP",
@@ -31536,6 +32003,7 @@
     "number": "74",
     "cls": "Azumarill"
    },
+   "pool_fullName": "Azumarill SSP",
    "current_class": {
     "cls": "Azumarill",
     "fullName": "Azumarill SSP",
@@ -31587,6 +32055,7 @@
     "number": "76",
     "cls": "Latiasex"
    },
+   "pool_fullName": "Latias ex SSP",
    "current_class": {
     "cls": "Latiasex",
     "fullName": "Latias ex SSP",
@@ -31638,6 +32107,7 @@
     "number": "83",
     "cls": "Cofagrigus"
    },
+   "pool_fullName": "Cofagrigus SSP",
    "current_class": {
     "cls": "Cofagrigus",
     "fullName": "Cofagrigus SSP",
@@ -31689,6 +32159,7 @@
     "number": "87",
     "cls": "Dedenne"
    },
+   "pool_fullName": "Dedenne SSP",
    "current_class": {
     "cls": "Dedenne",
     "fullName": "Dedenne SSP",
@@ -31740,6 +32211,7 @@
     "number": "94",
     "cls": "Flittle"
    },
+   "pool_fullName": "Flittle SSP",
    "current_class": {
     "cls": "Flittle",
     "fullName": "Flittle SSP",
@@ -31791,6 +32263,7 @@
     "number": "97",
     "cls": "Gimmighoul"
    },
+   "pool_fullName": "Gimmighoul SSP",
    "current_class": {
     "cls": "Gimmighoul",
     "fullName": "Gimmighoul SSP",
@@ -31842,6 +32315,7 @@
     "number": "100",
     "cls": "Annihilape"
    },
+   "pool_fullName": "Annihilape SSP",
    "current_class": {
     "cls": "Annihilape",
     "fullName": "Annihilape SSP",
@@ -31893,6 +32367,7 @@
     "number": "107",
     "cls": "Gastrodon"
    },
+   "pool_fullName": "Gastrodon SSP",
    "current_class": {
     "cls": "Gastrodon",
     "fullName": "Gastrodon SSP",
@@ -31944,6 +32419,7 @@
     "number": "116",
     "cls": "Koraidon"
    },
+   "pool_fullName": "Koraidon SSP",
    "current_class": {
     "cls": "Koraidon",
     "fullName": "Koraidon SSP",
@@ -31995,6 +32471,7 @@
     "number": "117",
     "cls": "Deino"
    },
+   "pool_fullName": "Deino SSP",
    "current_class": {
     "cls": "Deino",
     "fullName": "Deino SSP",
@@ -32046,6 +32523,7 @@
     "number": "118",
     "cls": "Zweilous"
    },
+   "pool_fullName": "Zweilous SSP",
    "current_class": {
     "cls": "Zweilous",
     "fullName": "Zweilous SSP",
@@ -32097,6 +32575,7 @@
     "number": "119",
     "cls": "Hydreigonex"
    },
+   "pool_fullName": "Hydreigon ex SSP",
    "current_class": {
     "cls": "Hydreigonex",
     "fullName": "Hydreigon ex SSP",
@@ -32148,6 +32627,7 @@
     "number": "120",
     "cls": "Shroodle"
    },
+   "pool_fullName": "Shroodle SSP",
    "current_class": {
     "cls": "Shroodle",
     "fullName": "Shroodle SSP",
@@ -32199,6 +32679,7 @@
     "number": "129",
     "cls": "Duraludon"
    },
+   "pool_fullName": "Duraludon SSP",
    "current_class": {
     "cls": "Duraludon",
     "fullName": "Duraludon SSP",
@@ -32250,6 +32731,7 @@
     "number": "130",
     "cls": "Archaludonex"
    },
+   "pool_fullName": "Archaludon ex SSP",
    "current_class": {
     "cls": "Archaludonex",
     "fullName": "Archaludon ex SSP",
@@ -32301,6 +32783,7 @@
     "number": "131",
     "cls": "Gholdengo"
    },
+   "pool_fullName": "Gholdengo SSP",
    "current_class": {
     "cls": "Gholdengo",
     "fullName": "Gholdengo SSP",
@@ -32352,6 +32835,7 @@
     "number": "133",
     "cls": "AlolanExeggutorex"
    },
+   "pool_fullName": "Alolan Exeggutor ex SSP",
    "current_class": {
     "cls": "AlolanExeggutorex",
     "fullName": "Alolan Exeggutor ex SSP",
@@ -32403,6 +32887,7 @@
     "number": "137",
     "cls": "Turtonator"
    },
+   "pool_fullName": "Turtonator SSP",
    "current_class": {
     "cls": "Turtonator",
     "fullName": "Turtonator SSP",
@@ -32454,6 +32939,7 @@
     "number": "141",
     "cls": "Eternatus"
    },
+   "pool_fullName": "Eternatus SSP",
    "current_class": {
     "cls": "Eternatus",
     "fullName": "Eternatus SSP",
@@ -32505,6 +32991,7 @@
     "number": "145",
     "cls": "Slakoth"
    },
+   "pool_fullName": "Slakoth SSP",
    "current_class": {
     "cls": "Slakoth",
     "fullName": "Slakoth SSP",
@@ -32556,6 +33043,7 @@
     "number": "147",
     "cls": "Slakingex"
    },
+   "pool_fullName": "Slaking ex SSP",
    "current_class": {
     "cls": "Slakingex",
     "fullName": "Slaking ex SSP",
@@ -32607,6 +33095,7 @@
     "number": "164",
     "cls": "BrilliantBlender"
    },
+   "pool_fullName": "Brilliant Blender SSP",
    "current_class": {
     "cls": "BrilliantBlender",
     "fullName": "Brilliant Blender SSP",
@@ -32658,6 +33147,7 @@
     "number": "165",
     "cls": "HelperBell"
    },
+   "pool_fullName": "Helper Bell SSP",
    "current_class": {
     "cls": "HelperBell",
     "fullName": "Helper Bell SSP",
@@ -32709,6 +33199,7 @@
     "number": "170",
     "cls": "Cyrano"
    },
+   "pool_fullName": "Cyrano SSP",
    "current_class": {
     "cls": "Cyrano",
     "fullName": "Cyrano SSP",
@@ -32760,6 +33251,7 @@
     "number": "175",
     "cls": "DuskBall"
    },
+   "pool_fullName": "Dusk Ball SSP",
    "current_class": {
     "cls": "DuskBall",
     "fullName": "Dusk Ball SSP",
@@ -32811,6 +33303,7 @@
     "number": "176",
     "cls": "EnergySearchPro"
    },
+   "pool_fullName": "Energy Search Pro SSP",
    "current_class": {
     "cls": "EnergySearchPro",
     "fullName": "Energy Search Pro SSP",
@@ -32862,6 +33355,7 @@
     "number": "177",
     "cls": "GravityMountain"
    },
+   "pool_fullName": "Gravity Mountain SSP",
    "current_class": {
     "cls": "GravityMountain",
     "fullName": "Gravity Mountain SSP",
@@ -32913,6 +33407,7 @@
     "number": "179",
     "cls": "LisiasAppeal"
    },
+   "pool_fullName": "Lisia's Appeal SSP",
    "current_class": {
     "cls": "LisiasAppeal",
     "fullName": "Lisia's Appeal SSP",
@@ -32964,6 +33459,7 @@
     "number": "180",
     "cls": "ExcitingStadium"
    },
+   "pool_fullName": "Exciting Stadium SSP",
    "current_class": {
     "cls": "ExcitingStadium",
     "fullName": "Exciting Stadium SSP",
@@ -33015,6 +33511,7 @@
     "number": "181",
     "cls": "MeddlingMemo"
    },
+   "pool_fullName": "Meddling Memo SSP",
    "current_class": {
     "cls": "MeddlingMemo",
     "fullName": "Meddling Memo SSP",
@@ -33066,6 +33563,7 @@
     "number": "182",
     "cls": "MegatonBlower"
    },
+   "pool_fullName": "Megaton Blower SSP",
    "current_class": {
     "cls": "MegatonBlower",
     "fullName": "Megaton Blower SSP",
@@ -33117,6 +33615,7 @@
     "number": "183",
     "cls": "MiraculousIntercom"
    },
+   "pool_fullName": "Miraculous Intercom SSP",
    "current_class": {
     "cls": "MiraculousIntercom",
     "fullName": "Miraculous Intercom SSP",
@@ -33168,6 +33667,7 @@
     "number": "185",
     "cls": "PreciousTrolley"
    },
+   "pool_fullName": "Precious Trolley SSP",
    "current_class": {
     "cls": "PreciousTrolley",
     "fullName": "Precious Trolley SSP",
@@ -33219,6 +33719,7 @@
     "number": "189",
     "cls": "TeraOrb"
    },
+   "pool_fullName": "Tera Orb SSP",
    "current_class": {
     "cls": "TeraOrb",
     "fullName": "Tera Orb SSP",
@@ -33270,6 +33771,7 @@
     "number": "191",
     "cls": "RichEnergy"
    },
+   "pool_fullName": "Rich Energy SSP",
    "current_class": {
     "cls": "RichEnergy",
     "fullName": "Rich Energy SSP",
@@ -33321,6 +33823,7 @@
     "number": "1",
     "cls": "Scyther"
    },
+   "pool_fullName": "Scyther TEF",
    "current_class": {
     "cls": "Scyther",
     "fullName": "Scyther TEF",
@@ -33372,6 +33875,7 @@
     "number": "23",
     "cls": "Rellor"
    },
+   "pool_fullName": "Rellor TEF",
    "current_class": {
     "cls": "Rellor",
     "fullName": "Rellor TEF",
@@ -33423,6 +33927,7 @@
     "number": "24",
     "cls": "Rabsca"
    },
+   "pool_fullName": "Rabsca TEF",
    "current_class": {
     "cls": "Rabsca",
     "fullName": "Rabsca TEF",
@@ -33474,6 +33979,7 @@
     "number": "32",
     "cls": "Litten"
    },
+   "pool_fullName": "Litten TEF",
    "current_class": {
     "cls": "Litten",
     "fullName": "Litten TEF",
@@ -33525,6 +34031,7 @@
     "number": "34",
     "cls": "Incineroarex"
    },
+   "pool_fullName": "Incineroar ex TEF",
    "current_class": {
     "cls": "Incineroarex",
     "fullName": "Incineroar ex TEF",
@@ -33576,6 +34083,7 @@
     "number": "36",
     "cls": "Sizzlipede"
    },
+   "pool_fullName": "Sizzlipede TEF",
    "current_class": {
     "cls": "Sizzlipede",
     "fullName": "Sizzlipede TEF",
@@ -33627,6 +34135,7 @@
     "number": "38",
     "cls": "GougingFireex"
    },
+   "pool_fullName": "Gouging Fire ex TEF",
    "current_class": {
     "cls": "GougingFireex",
     "fullName": "Gouging Fire ex TEF",
@@ -33678,6 +34187,7 @@
     "number": "39",
     "cls": "Totodile"
    },
+   "pool_fullName": "Totodile TEF",
    "current_class": {
     "cls": "Totodile",
     "fullName": "Totodile TEF",
@@ -33729,6 +34239,7 @@
     "number": "40",
     "cls": "Croconaw"
    },
+   "pool_fullName": "Croconaw TEF",
    "current_class": {
     "cls": "Croconaw",
     "fullName": "Croconaw TEF",
@@ -33780,6 +34291,7 @@
     "number": "41",
     "cls": "Feraligatr"
    },
+   "pool_fullName": "Feraligatr TEF",
    "current_class": {
     "cls": "Feraligatr",
     "fullName": "Feraligatr TEF",
@@ -33831,6 +34343,7 @@
     "number": "49",
     "cls": "Palafin"
    },
+   "pool_fullName": "Palafin TEF",
    "current_class": {
     "cls": "Palafin",
     "fullName": "Palafin TEF",
@@ -33882,6 +34395,7 @@
     "number": "63",
     "cls": "MrMime"
    },
+   "pool_fullName": "Mr. Mime TEF",
    "current_class": {
     "cls": "MrMime",
     "fullName": "Mr. Mime TEF",
@@ -33933,6 +34447,7 @@
     "number": "66",
     "cls": "Girafarig"
    },
+   "pool_fullName": "Girafarig TEF",
    "current_class": {
     "cls": "Girafarig",
     "fullName": "Girafarig TEF",
@@ -33984,6 +34499,7 @@
     "number": "68",
     "cls": "Bronzor"
    },
+   "pool_fullName": "Bronzor TEF",
    "current_class": {
     "cls": "Bronzor",
     "fullName": "Bronzor TEF",
@@ -34035,6 +34551,7 @@
     "number": "69",
     "cls": "Bronzong"
    },
+   "pool_fullName": "Bronzong TEF",
    "current_class": {
     "cls": "Bronzong",
     "fullName": "Bronzong TEF",
@@ -34086,6 +34603,7 @@
     "number": "84",
     "cls": "Relicanth"
    },
+   "pool_fullName": "Relicanth TEF",
    "current_class": {
     "cls": "Relicanth",
     "fullName": "Relicanth TEF",
@@ -34137,6 +34655,7 @@
     "number": "85",
     "cls": "Drilbur"
    },
+   "pool_fullName": "Drilbur TEF",
    "current_class": {
     "cls": "Drilbur",
     "fullName": "Drilbur TEF",
@@ -34188,6 +34707,7 @@
     "number": "98",
     "cls": "SandyShocks"
    },
+   "pool_fullName": "Sandy Shocks TEF",
    "current_class": {
     "cls": "SandyShocks",
     "fullName": "Sandy Shocks TEF",
@@ -34239,6 +34759,7 @@
     "number": "108",
     "cls": "Farigirafex"
    },
+   "pool_fullName": "Farigiraf ex TEF",
    "current_class": {
     "cls": "Farigirafex",
     "fullName": "Farigiraf ex TEF",
@@ -34290,6 +34811,7 @@
     "number": "111",
     "cls": "Scizorex"
    },
+   "pool_fullName": "Scizor ex TEF",
    "current_class": {
     "cls": "Scizorex",
     "fullName": "Scizor ex TEF",
@@ -34341,6 +34863,7 @@
     "number": "113",
     "cls": "Beldum"
    },
+   "pool_fullName": "Beldum TEF",
    "current_class": {
     "cls": "Beldum",
     "fullName": "Beldum TEF",
@@ -34392,6 +34915,7 @@
     "number": "114",
     "cls": "Metang"
    },
+   "pool_fullName": "Metang TEF",
    "current_class": {
     "cls": "Metang",
     "fullName": "Metang TEF",
@@ -34443,6 +34967,7 @@
     "number": "115",
     "cls": "Metagross"
    },
+   "pool_fullName": "Metagross TEF",
    "current_class": {
     "cls": "Metagross",
     "fullName": "Metagross TEF",
@@ -34494,6 +35019,7 @@
     "number": "119",
     "cls": "Koraidon"
    },
+   "pool_fullName": "Koraidon TEF",
    "current_class": {
     "cls": "Koraidon",
     "fullName": "Koraidon TEF",
@@ -34545,6 +35071,7 @@
     "number": "120",
     "cls": "Koraidonex"
    },
+   "pool_fullName": "Koraidon ex TEF",
    "current_class": {
     "cls": "Koraidonex",
     "fullName": "Koraidon ex TEF",
@@ -34596,6 +35123,7 @@
     "number": "121",
     "cls": "Miraidon"
    },
+   "pool_fullName": "Miraidon TEF",
    "current_class": {
     "cls": "Miraidon",
     "fullName": "Miraidon TEF",
@@ -34647,6 +35175,7 @@
     "number": "122",
     "cls": "Miraidonex"
    },
+   "pool_fullName": "Miraidon ex TEF",
    "current_class": {
     "cls": "Miraidonex",
     "fullName": "Miraidon ex TEF",
@@ -34698,6 +35227,7 @@
     "number": "126",
     "cls": "Hoothoot"
    },
+   "pool_fullName": "Hoothoot TEF",
    "current_class": {
     "cls": "Hoothoot",
     "fullName": "Hoothoot TEF",
@@ -34749,6 +35279,7 @@
     "number": "132",
     "cls": "Chatot"
    },
+   "pool_fullName": "Chatot TEF",
    "current_class": {
     "cls": "Chatot",
     "fullName": "Chatot TEF",
@@ -34800,6 +35331,7 @@
     "number": "136",
     "cls": "Minccino"
    },
+   "pool_fullName": "Minccino TEF",
    "current_class": {
     "cls": "Minccino",
     "fullName": "Minccino TEF",
@@ -34851,6 +35383,7 @@
     "number": "137",
     "cls": "Cinccino"
    },
+   "pool_fullName": "Cinccino TEF",
    "current_class": {
     "cls": "Cinccino",
     "fullName": "Cinccino TEF",
@@ -34902,6 +35435,7 @@
     "number": "141",
     "cls": "DrumsOfAwakening"
    },
+   "pool_fullName": "Awakening Drum TEF",
    "current_class": {
     "cls": "DrumsOfAwakening",
     "fullName": "Awakening Drum TEF",
@@ -34953,6 +35487,7 @@
     "number": "142",
     "cls": "BiancasDevotion"
    },
+   "pool_fullName": "Bianca's Devotion TEF",
    "current_class": {
     "cls": "BiancasDevotion",
     "fullName": "Bianca's Devotion TEF",
@@ -35004,6 +35539,7 @@
     "number": "143",
     "cls": "DeliveryBox"
    },
+   "pool_fullName": "Boxed Order TEF",
    "current_class": {
     "cls": "DeliveryBox",
     "fullName": "Boxed Order TEF",
@@ -35055,6 +35591,7 @@
     "number": "148",
     "cls": "FullMetalLab"
    },
+   "pool_fullName": "Full Metal Lab TEF",
    "current_class": {
     "cls": "FullMetalLab",
     "fullName": "Full Metal Lab TEF",
@@ -35106,6 +35643,7 @@
     "number": "150",
     "cls": "HandTrimmer"
    },
+   "pool_fullName": "Hand Trimmer TEF",
    "current_class": {
     "cls": "HandTrimmer",
     "fullName": "Hand Trimmer TEF",
@@ -35157,6 +35695,7 @@
     "number": "151",
     "cls": "HeavyBaton"
    },
+   "pool_fullName": "Heavy Baton PAR",
    "current_class": {
     "cls": "HeavyBaton",
     "fullName": "Heavy Baton PAR",
@@ -35208,6 +35747,7 @@
     "number": "152",
     "cls": "HerosCape"
    },
+   "pool_fullName": "Hero's Cape TEF",
    "current_class": {
     "cls": "HerosCape",
     "fullName": "Hero's Cape TEF",
@@ -35259,6 +35799,7 @@
     "number": "153",
     "cls": "MasterBall"
    },
+   "pool_fullName": "Master Ball TEF",
    "current_class": {
     "cls": "MasterBall",
     "fullName": "Master Ball TEF",
@@ -35310,6 +35851,7 @@
     "number": "155",
     "cls": "MortysConviction"
    },
+   "pool_fullName": "Morty's Conviction TEF",
    "current_class": {
     "cls": "MortysConviction",
     "fullName": "Morty's Conviction TEF",
@@ -35361,6 +35903,7 @@
     "number": "156",
     "cls": "PerilousJungle"
    },
+   "pool_fullName": "Perilous Jungle TEF",
    "current_class": {
     "cls": "PerilousJungle",
     "fullName": "Perilous Jungle TEF",
@@ -35412,6 +35955,7 @@
     "number": "158",
     "cls": "RebootPod"
    },
+   "pool_fullName": "Reboot Pod TEF",
    "current_class": {
     "cls": "RebootPod",
     "fullName": "Reboot Pod TEF",
@@ -35463,6 +36007,7 @@
     "number": "160",
     "cls": "Salvatore"
    },
+   "pool_fullName": "Salvatore TEF",
    "current_class": {
     "cls": "Salvatore",
     "fullName": "Salvatore TEF",
@@ -35514,6 +36059,7 @@
     "number": "161",
     "cls": "MistEnergy"
    },
+   "pool_fullName": "Mist Energy TEF",
    "current_class": {
     "cls": "MistEnergy",
     "fullName": "Mist Energy TEF",
@@ -35565,6 +36111,7 @@
     "number": "162",
     "cls": "NeoUpperEnergy"
    },
+   "pool_fullName": "Neo Upper Energy TEF",
    "current_class": {
     "cls": "NeoUpperEnergy",
     "fullName": "Neo Upper Energy TEF",
@@ -35616,6 +36163,7 @@
     "number": "10",
     "cls": "Illumise"
    },
+   "pool_fullName": "Illumise TWM",
    "current_class": {
     "cls": "Illumise",
     "fullName": "Illumise TWM",
@@ -35667,6 +36215,7 @@
     "number": "14",
     "cls": "Grookey"
    },
+   "pool_fullName": "Grookey TWM",
    "current_class": {
     "cls": "Grookey",
     "fullName": "Grookey TWM",
@@ -35718,6 +36267,7 @@
     "number": "15",
     "cls": "Thwackey"
    },
+   "pool_fullName": "Thwackey TWM",
    "current_class": {
     "cls": "Thwackey",
     "fullName": "Thwackey TWM",
@@ -35769,6 +36319,7 @@
     "number": "16",
     "cls": "Rillaboom"
    },
+   "pool_fullName": "Rillaboom TWM",
    "current_class": {
     "cls": "Rillaboom",
     "fullName": "Rillaboom TWM",
@@ -35820,6 +36371,7 @@
     "number": "17",
     "cls": "Applin2"
    },
+   "pool_fullName": "Applin TWM1",
    "current_class": {
     "cls": "Applin2",
     "fullName": "Applin TWM1",
@@ -35871,6 +36423,7 @@
     "number": "19",
     "cls": "IronLeaves"
    },
+   "pool_fullName": "Iron Leaves TWM",
    "current_class": {
     "cls": "IronLeaves",
     "fullName": "Iron Leaves TWM",
@@ -35922,6 +36475,7 @@
     "number": "39",
     "cls": "ChiYu"
    },
+   "pool_fullName": "Chi-Yu TWM",
    "current_class": {
     "cls": "ChiYu",
     "fullName": "Chi-Yu TWM",
@@ -35973,6 +36527,7 @@
     "number": "49",
     "cls": "Feebas"
    },
+   "pool_fullName": "Feebas TWM",
    "current_class": {
     "cls": "Feebas",
     "fullName": "Feebas TWM",
@@ -36024,6 +36579,7 @@
     "number": "51",
     "cls": "Snorunt"
    },
+   "pool_fullName": "Snorunt TWM",
    "current_class": {
     "cls": "Snorunt",
     "fullName": "Snorunt TWM",
@@ -36075,6 +36631,7 @@
     "number": "53",
     "cls": "Froslass"
    },
+   "pool_fullName": "Froslass TWM",
    "current_class": {
     "cls": "Froslass",
     "fullName": "Froslass TWM",
@@ -36126,6 +36683,7 @@
     "number": "56",
     "cls": "Froakie"
    },
+   "pool_fullName": "Froakie TWM",
    "current_class": {
     "cls": "Froakie",
     "fullName": "Froakie TWM",
@@ -36177,6 +36735,7 @@
     "number": "57",
     "cls": "Frogadier"
    },
+   "pool_fullName": "Frogadier TWM",
    "current_class": {
     "cls": "Frogadier",
     "fullName": "Frogadier TWM",
@@ -36228,6 +36787,7 @@
     "number": "59",
     "cls": "Finizen"
    },
+   "pool_fullName": "Finizen TWM",
    "current_class": {
     "cls": "Finizen",
     "fullName": "Finizen TWM",
@@ -36279,6 +36839,7 @@
     "number": "60",
     "cls": "Palafin"
    },
+   "pool_fullName": "Palafin TWM",
    "current_class": {
     "cls": "Palafin",
     "fullName": "Palafin TWM",
@@ -36330,6 +36891,7 @@
     "number": "63",
     "cls": "WalkingWake"
    },
+   "pool_fullName": "Walking Wake TWM",
    "current_class": {
     "cls": "WalkingWake",
     "fullName": "Walking Wake TWM",
@@ -36381,6 +36943,7 @@
     "number": "65",
     "cls": "Zapdos"
    },
+   "pool_fullName": "Zapdos TWM",
    "current_class": {
     "cls": "Zapdos",
     "fullName": "Zapdos TWM",
@@ -36432,6 +36995,7 @@
     "number": "68",
     "cls": "Luxrayex"
    },
+   "pool_fullName": "Luxray ex TWM",
    "current_class": {
     "cls": "Luxrayex",
     "fullName": "Luxray ex TWM",
@@ -36483,6 +37047,7 @@
     "number": "72",
     "cls": "Morpeko"
    },
+   "pool_fullName": "Morpeko TWM",
    "current_class": {
     "cls": "Morpeko",
     "fullName": "Morpeko TWM",
@@ -36534,6 +37099,7 @@
     "number": "80",
     "cls": "Abra"
    },
+   "pool_fullName": "Abra TWM",
    "current_class": {
     "cls": "Abra",
     "fullName": "Abra TWM",
@@ -36585,6 +37151,7 @@
     "number": "82",
     "cls": "Alakazam"
    },
+   "pool_fullName": "Alakazam TWM",
    "current_class": {
     "cls": "Alakazam",
     "fullName": "Alakazam TWM",
@@ -36636,6 +37203,7 @@
     "number": "83",
     "cls": "Girafarig"
    },
+   "pool_fullName": "Girafarig TWM",
    "current_class": {
     "cls": "Girafarig",
     "fullName": "Girafarig TWM",
@@ -36687,6 +37255,7 @@
     "number": "93",
     "cls": "Enamorus"
    },
+   "pool_fullName": "Enamorus TWM",
    "current_class": {
     "cls": "Enamorus",
     "fullName": "Enamorus TWM",
@@ -36738,6 +37307,7 @@
     "number": "94",
     "cls": "ScreamTailex"
    },
+   "pool_fullName": "Scream Tail ex TWM",
    "current_class": {
     "cls": "ScreamTailex",
     "fullName": "Scream Tail ex TWM",
@@ -36789,6 +37359,7 @@
     "number": "99",
     "cls": "HisuianGrowlithe"
    },
+   "pool_fullName": "Hisuian Growlithe TWM",
    "current_class": {
     "cls": "HisuianGrowlithe",
     "fullName": "Hisuian Growlithe TWM",
@@ -36840,6 +37411,7 @@
     "number": "100",
     "cls": "HisuianArcanine"
    },
+   "pool_fullName": "Hisuian Arcanine TWM",
    "current_class": {
     "cls": "HisuianArcanine",
     "fullName": "Hisuian Arcanine TWM",
@@ -36891,6 +37463,7 @@
     "number": "103",
     "cls": "Timburr"
    },
+   "pool_fullName": "Timburr TWM",
    "current_class": {
     "cls": "Timburr",
     "fullName": "Timburr TWM",
@@ -36942,6 +37515,7 @@
     "number": "104",
     "cls": "Gurdurr"
    },
+   "pool_fullName": "Gurdurr TWM",
    "current_class": {
     "cls": "Gurdurr",
     "fullName": "Gurdurr TWM",
@@ -36993,6 +37567,7 @@
     "number": "105",
     "cls": "Conkeldurr"
    },
+   "pool_fullName": "Conkeldurr TWM",
    "current_class": {
     "cls": "Conkeldurr",
     "fullName": "Conkeldurr TWM",
@@ -37044,6 +37619,7 @@
     "number": "106",
     "cls": "Greninjaex"
    },
+   "pool_fullName": "Greninja ex TWM",
    "current_class": {
     "cls": "Greninjaex",
     "fullName": "Greninja ex TWM",
@@ -37095,6 +37671,7 @@
     "number": "110",
     "cls": "TingLu"
    },
+   "pool_fullName": "Ting-Lu TWM",
    "current_class": {
     "cls": "TingLu",
     "fullName": "Ting-Lu TWM",
@@ -37146,6 +37723,7 @@
     "number": "118",
     "cls": "BruteBonnet"
    },
+   "pool_fullName": "Brute Bonnet TWM",
    "current_class": {
     "cls": "BruteBonnet",
     "fullName": "Brute Bonnet TWM",
@@ -37197,6 +37775,7 @@
     "number": "123",
     "cls": "Heatran"
    },
+   "pool_fullName": "Heatran TWM",
    "current_class": {
     "cls": "Heatran",
     "fullName": "Heatran TWM",
@@ -37248,6 +37827,7 @@
     "number": "126",
     "cls": "Applin"
    },
+   "pool_fullName": "Applin TWM2",
    "current_class": {
     "cls": "Applin",
     "fullName": "Applin TWM2",
@@ -37299,6 +37879,7 @@
     "number": "131",
     "cls": "Tatsugiri"
    },
+   "pool_fullName": "Tatsugiri TWM",
    "current_class": {
     "cls": "Tatsugiri",
     "fullName": "Tatsugiri TWM",
@@ -37350,6 +37931,7 @@
     "number": "132",
     "cls": "Farfetchd"
    },
+   "pool_fullName": "Farfetch'd TWM",
    "current_class": {
     "cls": "Farfetchd",
     "fullName": "Farfetch'd TWM",
@@ -37401,6 +37983,7 @@
     "number": "133",
     "cls": "Chansey"
    },
+   "pool_fullName": "Chansey TWM",
    "current_class": {
     "cls": "Chansey",
     "fullName": "Chansey TWM",
@@ -37452,6 +38035,7 @@
     "number": "134",
     "cls": "Blisseyex"
    },
+   "pool_fullName": "Blissey ex TWM",
    "current_class": {
     "cls": "Blisseyex",
     "fullName": "Blissey ex TWM",
@@ -37503,6 +38087,7 @@
     "number": "142",
     "cls": "PerformanceFlute"
    },
+   "pool_fullName": "Accompanying Flute TWM",
    "current_class": {
     "cls": "PerformanceFlute",
     "fullName": "Accompanying Flute TWM",
@@ -37554,6 +38139,7 @@
     "number": "146",
     "cls": "CommunityCenter"
    },
+   "pool_fullName": "Community Center TWM",
    "current_class": {
     "cls": "CommunityCenter",
     "fullName": "Community Center TWM",
@@ -37605,6 +38191,7 @@
     "number": "148",
     "cls": "EnhancedHammer"
    },
+   "pool_fullName": "Enhanced Hammer TWM",
    "current_class": {
     "cls": "EnhancedHammer",
     "fullName": "Enhanced Hammer TWM",
@@ -37656,6 +38243,7 @@
     "number": "150",
     "cls": "HandyFan"
    },
+   "pool_fullName": "Handheld Fan TWM",
    "current_class": {
     "cls": "HandyFan",
     "fullName": "Handheld Fan TWM",
@@ -37707,6 +38295,7 @@
     "number": "151",
     "cls": "Hassel"
    },
+   "pool_fullName": "Hassel TWM",
    "current_class": {
     "cls": "Hassel",
     "fullName": "Hassel TWM",
@@ -37758,6 +38347,7 @@
     "number": "152",
     "cls": "HyperAroma"
    },
+   "pool_fullName": "Hyper Aroma TWM",
    "current_class": {
     "cls": "HyperAroma",
     "fullName": "Hyper Aroma TWM",
@@ -37809,6 +38399,7 @@
     "number": "155",
     "cls": "LanasAssistance"
    },
+   "pool_fullName": "Lana's Aid TWM",
    "current_class": {
     "cls": "LanasAssistance",
     "fullName": "Lana's Aid TWM",
@@ -37860,6 +38451,7 @@
     "number": "156",
     "cls": "LoveBall"
    },
+   "pool_fullName": "Love Ball TWM",
    "current_class": {
     "cls": "LoveBall",
     "fullName": "Love Ball TWM",
@@ -37911,6 +38503,7 @@
     "number": "158",
     "cls": "LuckyHelmet"
    },
+   "pool_fullName": "Lucky Helmet TWM",
    "current_class": {
     "cls": "LuckyHelmet",
     "fullName": "Lucky Helmet TWM",
@@ -37962,6 +38555,7 @@
     "number": "163",
     "cls": "SecretBox"
    },
+   "pool_fullName": "Secret Box TWM",
    "current_class": {
     "cls": "SecretBox",
     "fullName": "Secret Box TWM",
@@ -38013,6 +38607,7 @@
     "number": "164",
     "cls": "SurvivalCast"
    },
+   "pool_fullName": "Survival Brace TWM",
    "current_class": {
     "cls": "SurvivalCast",
     "fullName": "Survival Brace TWM",
@@ -38064,6 +38659,7 @@
     "number": "165",
     "cls": "UnfairStamp"
    },
+   "pool_fullName": "Unfair Stamp TWM",
    "current_class": {
     "cls": "UnfairStamp",
     "fullName": "Unfair Stamp TWM",
@@ -38115,6 +38711,7 @@
     "number": "166",
     "cls": "BoomerangEnergy"
    },
+   "pool_fullName": "Boomerang Energy TWM",
    "current_class": {
     "cls": "BoomerangEnergy",
     "fullName": "Boomerang Energy TWM",
@@ -38166,6 +38763,7 @@
     "number": "167",
     "cls": "LegacyEnergy"
    },
+   "pool_fullName": "Legacy Energy TWM",
    "current_class": {
     "cls": "LegacyEnergy",
     "fullName": "Legacy Energy TWM",
@@ -38217,6 +38815,7 @@
     "number": "5",
     "cls": "Whimsicottex"
    },
+   "pool_fullName": "Whimsicott ex SV11W",
    "current_class": {
     "cls": "Whimsicottex",
     "fullName": "Whimsicott ex SV11W",
@@ -38268,6 +38867,7 @@
     "number": "20",
     "cls": "Reshiramex"
    },
+   "pool_fullName": "Reshiram ex SV11W",
    "current_class": {
     "cls": "Reshiramex",
     "fullName": "Reshiram ex SV11W",
@@ -38319,6 +38919,7 @@
     "number": "44",
     "cls": "Frillish"
    },
+   "pool_fullName": "Frillish SV11W",
    "current_class": {
     "cls": "Frillish",
     "fullName": "Frillish SV11W",
@@ -38370,6 +38971,7 @@
     "number": "45",
     "cls": "Jellicentex"
    },
+   "pool_fullName": "Jellicent ex SV11W",
    "current_class": {
     "cls": "Jellicentex",
     "fullName": "Jellicent ex SV11W",
@@ -38421,6 +39023,7 @@
     "number": "54",
     "cls": "Terrakion"
    },
+   "pool_fullName": "Terrakion SV11W",
    "current_class": {
     "cls": "Terrakion",
     "fullName": "Terrakion SV11W",
@@ -38472,6 +39075,7 @@
     "number": "55",
     "cls": "Purrloin"
    },
+   "pool_fullName": "Purrloin WHT",
    "current_class": {
     "cls": "Purrloin",
     "fullName": "Purrloin WHT",
@@ -38523,6 +39127,7 @@
     "number": "61",
     "cls": "Zorua"
    },
+   "pool_fullName": "Zorua SV11W",
    "current_class": {
     "cls": "Zorua",
     "fullName": "Zorua SV11W",
@@ -38574,6 +39179,7 @@
     "number": "62",
     "cls": "Zoroark"
    },
+   "pool_fullName": "Zoroark SV11W",
    "current_class": {
     "cls": "Zoroark",
     "fullName": "Zoroark SV11W",
@@ -38625,6 +39231,7 @@
     "number": "83",
     "cls": "Harlequin"
    },
+   "pool_fullName": "Harlequin WHT",
    "current_class": {
     "cls": "Harlequin",
     "fullName": "Harlequin WHT",
@@ -38676,6 +39283,7 @@
     "number": "84",
     "cls": "Hilda"
    },
+   "pool_fullName": "Hilda SV11W",
    "current_class": {
     "cls": "Hilda",
     "fullName": "Hilda SV11W",
@@ -38727,6 +39335,7 @@
     "number": "22",
     "cls": "Tirtouga"
    },
+   "pool_fullName": "Tirtouga SV11B",
    "current_class": {
     "cls": "Tirtouga",
     "fullName": "Tirtouga SV11B",
@@ -38778,6 +39387,7 @@
     "number": "44",
     "cls": "Meloettaex"
    },
+   "pool_fullName": "Meloetta ex SV11B",
    "current_class": {
     "cls": "Meloettaex",
     "fullName": "Meloetta ex SV11B",
@@ -38829,6 +39439,7 @@
     "number": "70",
     "cls": "Haxorus"
    },
+   "pool_fullName": "Haxorus SV11B",
    "current_class": {
     "cls": "Haxorus",
     "fullName": "Haxorus SV11B",
@@ -38880,6 +39491,7 @@
     "number": "1",
     "cls": "EthansPinsir"
    },
+   "pool_fullName": "Ethan's Pinsir DRI",
    "current_class": {
     "cls": "EthansPinsir",
     "fullName": "Ethan's Pinsir DRI",
@@ -38931,6 +39543,7 @@
     "number": "8",
     "cls": "CynthiasRoserade"
    },
+   "pool_fullName": "Cynthia's Roserade DRI",
    "current_class": {
     "cls": "CynthiasRoserade",
     "fullName": "Cynthia's Roserade DRI",
@@ -38982,6 +39595,7 @@
     "number": "33",
     "cls": "EthansQuilava"
    },
+   "pool_fullName": "Ethan's Quilava DRI",
    "current_class": {
     "cls": "EthansQuilava",
     "fullName": "Ethan's Quilava DRI",
@@ -39033,6 +39647,7 @@
     "number": "42",
     "cls": "Blaziken"
    },
+   "pool_fullName": "Blaziken DRI",
    "current_class": {
     "cls": "Blaziken",
     "fullName": "Blaziken DRI",
@@ -39084,6 +39699,7 @@
     "number": "85",
     "cls": "TeamRocketsChingling"
    },
+   "pool_fullName": "Team Rocket's Chingling DRI",
    "current_class": {
     "cls": "TeamRocketsChingling",
     "fullName": "Team Rocket's Chingling DRI",
@@ -39135,6 +39751,7 @@
     "number": "112",
     "cls": "TeamRocketsEkans"
    },
+   "pool_fullName": "Team Rocket's Ekans DRI",
    "current_class": {
     "cls": "TeamRocketsEkans",
     "fullName": "Team Rocket's Ekans DRI",
@@ -39186,6 +39803,7 @@
     "number": "113",
     "cls": "TeamRocketsArbok"
    },
+   "pool_fullName": "Team Rocket's Arbok DRI",
    "current_class": {
     "cls": "TeamRocketsArbok",
     "fullName": "Team Rocket's Arbok DRI",
@@ -39237,6 +39855,7 @@
     "number": "128",
     "cls": "TeamRocketsSneasel"
    },
+   "pool_fullName": "Team Rocket's Sneasel DRI",
    "current_class": {
     "cls": "TeamRocketsSneasel",
     "fullName": "Team Rocket's Sneasel DRI",
@@ -39288,6 +39907,7 @@
     "number": "143",
     "cls": "StevensBeldum"
    },
+   "pool_fullName": "Steven's Beldum DRI",
    "current_class": {
     "cls": "StevensBeldum",
     "fullName": "Steven's Beldum DRI",
@@ -39339,6 +39959,7 @@
     "number": "24",
     "cls": "Blazikenex"
    },
+   "pool_fullName": "Blaziken ex JTG",
    "current_class": {
     "cls": "Blazikenex",
     "fullName": "Blaziken ex JTG",
@@ -39390,6 +40011,7 @@
     "number": "51",
     "cls": "TapuKokoex"
    },
+   "pool_fullName": "Tapu Koko ex JTG",
    "current_class": {
     "cls": "TapuKokoex",
     "fullName": "Tapu Koko ex JTG",
@@ -39441,6 +40063,7 @@
     "number": "78",
     "cls": "Piloswine"
    },
+   "pool_fullName": "Piloswine JTG",
    "current_class": {
     "cls": "Piloswine",
     "fullName": "Piloswine JTG",
@@ -39492,6 +40115,7 @@
     "number": "96",
     "cls": "NsPurrloin"
    },
+   "pool_fullName": "N's Purrloin JTG",
    "current_class": {
     "cls": "NsPurrloin",
     "fullName": "N's Purrloin JTG",
@@ -39543,6 +40167,7 @@
     "number": "28",
     "cls": "Cinderace"
    },
+   "pool_fullName": "Cinderace M1L",
    "current_class": {
     "cls": "Cinderace",
     "fullName": "Cinderace M1L",
@@ -39594,6 +40219,7 @@
     "number": "56",
     "cls": "Alakazam"
    },
+   "pool_fullName": "Alakazam M1S",
    "current_class": {
     "cls": "Alakazam",
     "fullName": "Alakazam M1S",
@@ -39645,6 +40271,7 @@
     "number": "110",
     "cls": "Gumshoos"
    },
+   "pool_fullName": "Gumshoos M1L",
    "current_class": {
     "cls": "Gumshoos",
     "fullName": "Gumshoos M1L",
@@ -39696,6 +40323,7 @@
     "number": "11",
     "cls": "Charmander"
    },
+   "pool_fullName": "Charmander M2",
    "current_class": {
     "cls": "Charmander",
     "fullName": "Charmander M2",
@@ -39747,6 +40375,7 @@
     "number": "19",
     "cls": "Charcadet"
    },
+   "pool_fullName": "Charcadet M2",
    "current_class": {
     "cls": "Charcadet",
     "fullName": "Charcadet M2",
@@ -39798,6 +40427,7 @@
     "number": "20",
     "cls": "Ceruledge"
    },
+   "pool_fullName": "Ceruledge M2",
    "current_class": {
     "cls": "Ceruledge",
     "fullName": "Ceruledge M2",
@@ -39849,6 +40479,7 @@
     "number": "60",
     "cls": "Carvanha"
    },
+   "pool_fullName": "Carvanha M2",
    "current_class": {
     "cls": "Carvanha",
     "fullName": "Carvanha M2",
@@ -39900,6 +40531,7 @@
     "number": "67",
     "cls": "Toxel"
    },
+   "pool_fullName": "Toxel M2",
    "current_class": {
     "cls": "Toxel",
     "fullName": "Toxel M2",
@@ -39951,6 +40583,7 @@
     "number": "68",
     "cls": "Toxtricity"
    },
+   "pool_fullName": "Toxtricity M2",
    "current_class": {
     "cls": "Toxtricity",
     "fullName": "Toxtricity M2",
@@ -40002,6 +40635,7 @@
     "number": "34",
     "cls": "Espeonex"
    },
+   "pool_fullName": "Espeon ex PRE",
    "current_class": {
     "cls": "Espeonex",
     "fullName": "Espeon ex PRE",
@@ -40053,6 +40687,7 @@
     "number": "130",
     "cls": "AntiqueRootFossil"
    },
+   "pool_fullName": "Antique Root Fossil SCR",
    "current_class": {
     "cls": "AntiqueRootFossil",
     "fullName": "Antique Root Fossil SCR",
@@ -40104,6 +40739,7 @@
     "number": "35",
     "cls": "Ceruledge"
    },
+   "pool_fullName": "Ceruledge SSP",
    "current_class": {
     "cls": "Ceruledge",
     "fullName": "Ceruledge SSP",
@@ -40155,6 +40791,7 @@
     "number": "38",
     "cls": "GougingFire"
    },
+   "pool_fullName": "Gouging Fire SSP",
    "current_class": {
     "cls": "GougingFire",
     "fullName": "Gouging Fire SSP",
@@ -40206,6 +40843,7 @@
     "number": "75",
     "cls": "Smoochum"
    },
+   "pool_fullName": "Smoochum SSP",
    "current_class": {
     "cls": "Smoochum",
     "fullName": "Smoochum SSP",

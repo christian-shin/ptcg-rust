@@ -9,7 +9,7 @@
 //! AddSpecialConditionsPowerEffect.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Gastly", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Gastly@EVO", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {

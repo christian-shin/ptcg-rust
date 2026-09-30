@@ -1,7 +1,8 @@
 """Convert data/meta/archetypes.json lists to Twinleaf full names.
 
 Writes decks/meta-tl/<slug>.txt for every archetype whose cards all map to
-ported cards, plus decks/meta-tl/playable.corpus.json (corpus spec)."""
+ported cards, plus decks/meta-tl/playable.corpus.json (corpus spec), and removes
+the decks of archetypes that are no longer fully ported."""
 import json, os, re, subprocess, collections
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
@@ -30,5 +31,9 @@ for a in arch:
     slug = re.sub(r'[^a-z0-9]+', '-', a['name'].lower()).strip('-')
     open(os.path.join(ROOT, 'decks/meta-tl', slug + '.txt'), 'w').write(''.join('%d %s\n' % (q, n) for n, q in sorted(lines.items())))
     decks.append({'name': slug, 'cards': [n for n, q in sorted(lines.items()) for _ in range(q)]})
+# drop decks of archetypes that are no longer fully ported
+for f in os.listdir(os.path.join(ROOT, 'decks/meta-tl')):
+    if f.endswith('.txt') and f[:-4] not in {d['name'] for d in decks}:
+        os.remove(os.path.join(ROOT, 'decks/meta-tl', f))
 json.dump({'decks': decks, 'policies': ['bot', 'mix:0.2', 'mix:0.5']}, open(os.path.join(ROOT, 'decks/meta-tl/playable.corpus.json'), 'w'))
 print('playable:', [d['name'] for d in decks], [len(d['cards']) for d in decks])

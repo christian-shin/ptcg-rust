@@ -13,7 +13,7 @@
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
-    class: "Eevee@SSP",
+    class: "Eevee@SSP|Eevee PRE",
     mask: mask(&[k::ATTACK, k::END_TURN, k::PLAY_POKEMON, k::CHECK_TABLE_STATE]),
     reduce,
     resume: None,

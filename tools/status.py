@@ -4,7 +4,10 @@ usage: status.py [--md]
 
 Ported = the card has no Twinleaf logic or has a Rust port (engine `diff
 --list-ported`). Verified = listed in data/verified.json (card fullName ->
-{traces, note}) after passing check_cards.py with coverage.
+{status, note}) after passing check_cards.py with coverage (any status:
+verified / partial / blocked, as before); "needs-reverify" entries (the pool row was remapped to another
+printing by tools/map_prints.py) are counted separately. The print-match table
+counts pool.json `print_match` (exact Twinleaf printing found or not).
 """
 import json, os, subprocess, sys, collections
 
@@ -21,23 +24,34 @@ def main():
     tiers = collections.Counter()
     done = collections.Counter()
     ver = collections.Counter()
+    rev = collections.Counter()
+    pm = collections.Counter()
     for r in pool:
         t = r.get('tier', 'absent')
         tiers[t] += 1
         if r.get('fullName') in ported:
             done[t] += 1
-        if r.get('fullName') in verified:
+        st = (verified.get(r.get('fullName')) or {}).get('status')
+        if st == 'needs-reverify':
+            rev[t] += 1
+        elif st:
             ver[t] += 1
+        pm[r.get('print_match') or 'unknown'] += 1
     total = len(pool)
     print('## Card coverage\n' if md else 'Card coverage')
-    print('| tier | pool | ported | verified |' if md else '%-8s %5s %7s %9s' % ('tier', 'pool', 'ported', 'verified'))
+    print('| tier | pool | ported | verified | reverify |' if md else '%-8s %5s %7s %9s %9s' % ('tier', 'pool', 'ported', 'verified', 'reverify'))
     if md:
-        print('| --- | --- | --- | --- |')
+        print('| --- | --- | --- | --- | --- |')
     for t in ['data', 'short', 'custom', 'absent']:
-        row = (t, tiers[t], done[t], ver[t])
-        print('| %s | %d | %d | %d |' % row if md else '%-8s %5d %7d %9d' % row)
-    row = ('all', total, sum(done.values()), sum(ver.values()))
-    print('| **%s** | %d | %d | %d |' % row if md else '%-8s %5d %7d %9d' % row)
+        row = (t, tiers[t], done[t], ver[t], rev[t])
+        print('| %s | %d | %d | %d | %d |' % row if md else '%-8s %5d %7d %9d %9d' % row)
+    row = ('all', total, sum(done.values()), sum(ver.values()), sum(rev.values()))
+    print('| **%s** | %d | %d | %d | %d |' % row if md else '%-8s %5d %7d %9d %9d' % row)
+    print('\n## Print match\n' if md else '\nPrint match (pool.json print_match)')
+    if md:
+        print('| match | rows |\n| --- | --- |')
+    for k, n in pm.most_common():
+        print('| %s | %d |' % (k, n) if md else '%-18s %5d' % (k, n))
 
     arch = json.load(open(os.path.join(ROOT, 'data/meta/archetypes.json')))
     byk = {(r['set'], r['number']): r for r in pool}

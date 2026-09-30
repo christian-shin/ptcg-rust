@@ -7,7 +7,7 @@
 //! `preventEffectsOfAttacksNextTurnPending` = `{}` on the attacker's Active.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Dunsparce@TEF", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Dunsparce@TEF|Dunsparce PRE", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 1, me) {

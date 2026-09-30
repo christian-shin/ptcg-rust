@@ -1,6 +1,7 @@
 """Generate engine/src/gen/cards.rs from the Twinleaf card dump (tier 0).
 
-Every card in the frozen pool (plus basic energy) becomes a static CardDef
+Every card in the frozen pool (plus basic energy, plus each row's pre-remap
+`prev_fullName` printing) becomes a static CardDef
 with its printed fields copied verbatim from the Twinleaf class instance.
 `behavior` names the class in the prototype chain that carries the card's
 logic (reduceEffect / canPlay / ...), so reprints share one implementation.
@@ -15,6 +16,12 @@ TAGS = json.load(open(os.path.join(ROOT, 'data/tags.json'))) if os.path.exists(o
 names = []
 for r in pool:
     n = r.get('fullName')
+    if n and n not in names:
+        names.append(n)
+# Printings the pool used before tools/map_prints.py remapped it (pool_meta.py
+# `prev_fullName`): kept so existing decks and traces still load.
+for r in pool:
+    n = r.get('prev_fullName')
     if n and n not in names:
         names.append(n)
 extra = [a for a in sys.argv[1:]]

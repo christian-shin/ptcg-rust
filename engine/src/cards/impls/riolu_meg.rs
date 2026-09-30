@@ -4,7 +4,7 @@
 //! Twinleaf has several `Riolu` classes; this port is bound to M1L.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Riolu@Riolu M1L", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Riolu@Riolu M1L|Riolu ASC", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {

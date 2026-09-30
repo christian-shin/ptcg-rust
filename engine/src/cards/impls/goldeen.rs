@@ -8,7 +8,7 @@
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
-    class: "Goldeen@Goldeen TWM",
+    class: "Goldeen@Goldeen TWM|Goldeen PRE",
     mask: mask(&[k::ATTACK]),
     reduce,
     resume: Some(resume),

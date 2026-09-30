@@ -1,28 +1,28 @@
-3 Area Zero Underdepths SCR
-2 Boss's Orders PAL
-1 Briar SCR
-2 Bug Catching Set TWM
+3 Area Zero Underdepths PRE
+2 Boss's Orders ASC
+1 Briar PRE
+2 Bug Catching Set PRE
 1 Chien-Pao SSP
-1 Ciphermaniac's Codebreaking TEF
+1 Ciphermaniac's Codebreaking PRE
 1 Cyrano SSP
-4 Energy Switch SVI
-1 Fezandipiti ex SFA
+4 Energy Switch FA PBL
+1 Fezandipiti ex ASC
 10 Grass Energy MEE
-1 Iron Leaves ex TEF
+1 Iron Leaves exUR PRE
 1 Koraidon ex ASC
 2 Latias ex SSP
-2 Lillie's Clefairy ex JTG
-4 Lillie's Determination M1L
+2 Lillie's Clefairy ex ASC
+4 Lillie's Determination ASC
 1 Lillie's Pearl JTG
 2 Mega Kangaskhan ex M1S
 2 Meowth ex M3
 1 N's Plot SV11B
-1 Night Stretcher SFA
+1 Night Stretcher ASC
 1 Paldean Tauros SSP
-1 Pecharunt SVP
-1 Prime Catcher TEF
-4 Prism Energy NXD
+1 PecharuntIR SVP
+1 Prime Catcher PRE
+4 Prism Energy ASC
 1 Special Red Card M4
-4 Teal Mask Ogerpon ex TWM
-4 Ultra Ball SVI
-1 Wellspring Mask Ogerpon ex TWM
+4 Teal Mask Ogerpon ex PRE
+4 Ultra Ball 30C
+1 Wellspring Mask Ogerpon ex PRE
