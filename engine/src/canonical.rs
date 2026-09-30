@@ -79,6 +79,9 @@ impl Game {
         if !s.cannot_use_attacks_next_turn_pending.is_empty() {
             o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
         }
+        if let Some(n) = s.blocked_attack_name_next_turn {
+            o.insert("blockedAttackNameNextTurn".into(), json!(n));
+        }
         if !s.board_effect.is_empty() {
             o.insert("boardEffect".into(), json!(s.board_effect.as_slice()));
         }

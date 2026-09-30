@@ -278,6 +278,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.cannot_be_healed_next_turn {
             slot.cannot_be_healed_next_turn = false;
         }
+        slot.blocked_attack_name_next_turn = None;
     }
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];

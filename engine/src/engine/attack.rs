@@ -91,7 +91,10 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.name) {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
-    // cannotAttackMaxEnergy / blocked attack names /
+    if g.st.slot(p, attacking.s).blocked_attack_name_next_turn == Some(ad.name) {
+        crate::bail!("BLOCKED_BY_EFFECT");
+    }
+    // cannotAttackMaxEnergy / other blocked attack names /
     // cannotUseAttackUntilLeavesPlay / cannotUseGXAttacks /
     // coinFlipCancelAttackNextTurn: not modeled.
 
@@ -478,6 +481,12 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             if let Some(t) = bench_target {
                 crate::engine::turn::switch_pokemon(g, b.opponent as usize, t.s)?;
             }
+            Ok(())
+        }
+        Effect::OpponentPokemonCannotUseAttack { b, name } => {
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            g.st.players[o].slots[a as usize].blocked_attack_name_next_turn = Some(name);
             Ok(())
         }
         Effect::RemoveSpecialConditions { b, conditions } => {

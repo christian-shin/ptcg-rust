@@ -100,6 +100,8 @@ pub struct Slot {
     pub damage_reduction_next_turn: i32,
     /// `attackDamageReductionNextTurn` (this Pokémon's attacks do N less).
     pub attack_damage_reduction_next_turn: i32,
+    /// `blockedAttackNameNextTurn`.
+    pub blocked_attack_name_next_turn: Option<&'static str>,
     pub is_public: bool,
 }
 
@@ -132,6 +134,7 @@ impl Default for Slot {
             cannot_use_attacks_next_turn_pending: SVec::new(),
             damage_reduction_next_turn: 0,
             attack_damage_reduction_next_turn: 0,
+            blocked_attack_name_next_turn: None,
             is_public: false,
         }
     }
