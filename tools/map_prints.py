@@ -19,7 +19,10 @@ Match quality
   missing             no Twinleaf class with that name at all
 
 Usage: python3 tools/map_prints.py [--root PKMNTCG_ROOT] [--src TWINLEAF_SRC] [--out DIR]
-Read-only with respect to Twinleaf, data/pool.json and the engine.
+Read-only with respect to Twinleaf, data/pool.json and the engine. "current" is
+the name-based mapping (card-pool.tsv), also after tools/pool_meta.py has
+applied this map to pool.json (it keeps the old printing as `prev_fullName`);
+`pool_fullName` is the printing pool.json uses now.
 """
 import argparse, collections, csv, difflib, json, os, re, unicodedata
 
@@ -424,7 +427,7 @@ def ports_for(beh_cls, set_code, full):
     out = []
     for k, f in ports:
         c, _, q = k.partition('@')
-        if c == beh_cls and (not q or q == set_code or q == full):
+        if c == beh_cls and (not q or any(x in (set_code, full) for x in q.split('|'))):
             out.append(dict(key=k, file=f))
     return out
 
@@ -446,11 +449,13 @@ for r in cards:
 
 
 def old_class(p):
-    fl = p.get('fullName')
+    # `current` is the name-based mapping: card-pool.tsv's, i.e. pool.json's
+    # `prev_fullName` for rows pool_meta.py already remapped to this map.
+    fl = p['prev_fullName'] if 'prev_fullName' in p else p.get('fullName')
     if not fl:
         return None
     cands = full_index.get(fl, [])
-    tf = os.path.join(SRC, p['twinleaf_file']) if p.get('twinleaf_file') else None
+    tf = os.path.join(SRC, p['twinleaf_file']) if p.get('twinleaf_file') and 'prev_fullName' not in p else None
     return pick([c for c in cands if c['in_dump']] or [c for c in cands if c['file'] == tf] or cands)
 
 
@@ -515,7 +520,10 @@ for row, p in zip(pool_rows, pool):
     rec = dict(set=row['set'], number=row['number'], name=row['name'], status=row['status'], match=q, confidence=conf, note=note,
                current=dict(fullName=p.get('fullName'), file=p.get('twinleaf_file') or None,
                             set=p.get('twinleaf_set') or None, number=p.get('twinleaf_number') or None,
-                            cls=p.get('cls')),
+                            cls=p.get('cls')) if 'prev_fullName' not in p else
+                       dict(fullName=old['fullName'], file=rel(old['file']), set=old['set'], number=old['setNumber'], cls=old['cls'])
+                       if old else dict(fullName=None, file=None, set=None, number=None, cls=None),
+               pool_fullName=p.get('fullName'),
                current_class=cref(old), twinleaf=cref(new), changes=changed, text_differs=text_diff,
                review=REVIEW.get((row['set'], row['number'])))
     if q in ('name-only', 'missing', 'number-mismatch') or (new and not new['registered']):

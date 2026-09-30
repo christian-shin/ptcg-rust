@@ -80,8 +80,9 @@ fn table() -> &'static Vec<Option<&'static CardImpl>> {
 /// `Koraidonex` in both ASC and TEF).
 fn class_matches(class: &str, d: &crate::carddb::CardDef) -> bool {
     match class.split_once('@') {
-        // `Class@SET` or `Class@Full Name` pins a port to one printing.
-        Some((c, q)) => c == d.behavior && (q == d.set || q == d.full_name),
+        // `Class@SET` or `Class@Full Name` pins a port to one printing;
+        // `Class@A|B` to several (e.g. an old printing and its reprint).
+        Some((c, q)) => c == d.behavior && q.split('|').any(|q| q == d.set || q == d.full_name),
         None => class == d.behavior,
     }
 }

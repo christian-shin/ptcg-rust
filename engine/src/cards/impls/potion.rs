@@ -3,7 +3,7 @@
 //! Twinleaf: undamaged Pokémon are blocked; no cancel; HealEffect 20.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Potion", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Potion@BS", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let p = match trainer_played(g, e, me) {

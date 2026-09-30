@@ -8,7 +8,7 @@
 //! recomputed when the opponent's Active holds a Pokémon.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Dipplin@Dipplin TWM1", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Dipplin@Dipplin TWM1|Dipplin PRE", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 /// Festival Lead: `this.attacks[0].barrage = stadium is 'Festival Grounds'`
 /// unless the Ability is blocked. `pristine_has_key`: the printed attack

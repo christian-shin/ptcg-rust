@@ -64,5 +64,16 @@ fn card_db_matches_twinleaf_dump() {
         checked += 1;
     }
     assert!(checked >= 650, "checked {}", checked);
-    assert_eq!(cards().len(), 650);
+    // The DB holds every pool printing plus each remapped row's previous
+    // (name-based) printing, `prev_fullName` (tools/gen_carddb.py).
+    let mut names: std::collections::BTreeSet<&str> = Default::default();
+    for row in &pool {
+        for k in ["fullName", "prev_fullName"] {
+            if let Some(n) = row[k].as_str() {
+                names.insert(n);
+                assert!(def_by_full_name(n).is_some(), "{} in db", n);
+            }
+        }
+    }
+    assert_eq!(cards().len(), names.len());
 }

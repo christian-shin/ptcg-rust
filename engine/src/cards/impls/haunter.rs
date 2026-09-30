@@ -6,7 +6,7 @@
 //! not an attack effect).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Haunter", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Haunter@SSH", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !after_attack_used(g, e, 0, me) {

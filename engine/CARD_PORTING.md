@@ -27,7 +27,9 @@ that actually exercise every branch of its code.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
-    class: "NightlyStretcher",          // exact Twinleaf class name (CardDef::behavior)
+    class: "NightlyStretcher",          // exact Twinleaf class name (CardDef::behavior);
+                                        // `Class@SET` / `Class@Full Name` pins it to one printing,
+                                        // `Class@A|B` to several (same class name, different files)
     mask: mask(&[k::TRAINER]),          // every Effect kind the TS reduceEffect reacts to
     reduce,                             // TS reduceEffect
     resume: Some(resume),               // continuations (prompt callbacks, generator resumes)

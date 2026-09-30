@@ -1,24 +1,24 @@
 4 Academy at Night SFA
 1 Annihilape M5
 2 Boomerang Energy TWM
-4 Ciphermaniac's Codebreaking TEF
-1 Fezandipiti ex SFA
+4 Ciphermaniac's Codebreaking PRE
+1 Fezandipiti ex ASC
 2 Kyurem SFA
 2 Latias ex SSP
-1 Lillie's Clefairy ex JTG
-4 Lillie's Determination M1L
+1 Lillie's Clefairy ex ASC
+4 Lillie's Determination ASC
 3 Mega Kangaskhan ex M1S
 1 Meowth ex M3
 2 Metagross M4
 1 Mew ex 30C
-3 Night Stretcher SFA
-4 Poké Pad MC
+3 Night Stretcher ASC
+4 Poké Pad 30C
 4 Psychic Energy MEE
 1 Secret Box TWM
 3 Slowking SCR
 4 Slowpoke SCR
-1 Switch BS
+1 Switch 30C
 4 Telepath [P] Energy M3
-4 Ultra Ball SVI
-3 Wonder Patch MBD
+4 Ultra Ball 30C
+3 Wondrous Patch FA POR
 1 Zeraora DRI

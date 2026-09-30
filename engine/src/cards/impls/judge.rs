@@ -3,7 +3,7 @@
 //! player's draw, as Twinleaf's `afterDraw` callback).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Judge", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Judge@FST", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let p = match trainer_played(g, e, me) {

@@ -1,4 +1,4 @@
-//! Energy Retrieval (BS / CRI): trade 1 of the other cards in your hand for
+//! Energy Retrieval (BS): trade 1 of the other cards in your hand for
 //! up to 2 basic Energy cards from your discard pile.
 //!
 //! Twinleaf: throws with no Basic Energy in the discard; the hand card is
@@ -6,7 +6,7 @@
 //! prompt's max is min(2, Basic Energy counted before the discard), min 1.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "EnergyRetrieval", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "EnergyRetrieval@BS", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn basic_energy() -> Filter {
     Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() }

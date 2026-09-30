@@ -1,44 +1,8 @@
 {
- "Energy Switch SVI": {
-  "status": "verified"
- },
  "N's Plot SV11B": {
   "status": "verified"
  },
- "Prime Catcher TEF": {
-  "status": "verified"
- },
  "Special Red Card M4": {
-  "status": "verified"
- },
- "Ciphermaniac's Codebreaking TEF": {
-  "status": "verified"
- },
- "Bug Catching Set TWM": {
-  "status": "verified"
- },
- "Prism Energy NXD": {
-  "status": "verified"
- },
- "Drakloak TWM": {
-  "status": "verified"
- },
- "Ultra Ball SVI": {
-  "status": "verified"
- },
- "Buddy-Buddy Poffin TEF": {
-  "status": "verified"
- },
- "Poké Pad MC": {
-  "status": "verified"
- },
- "Crushing Hammer SVI": {
-  "status": "verified"
- },
- "Crispin SCR": {
-  "status": "verified"
- },
- "Judge FST": {
   "status": "verified"
  },
  "Unfair Stamp TWM": {
@@ -47,40 +11,15 @@
  "Risky Ruins MEG": {
   "status": "verified"
  },
- "Switch BS": {
-  "status": "verified"
- },
- "Night Stretcher SFA": {
-  "status": "verified"
- },
- "Lillie's Determination M1L": {
-  "status": "verified"
- },
- "Boss's Orders PAL": {
-  "status": "verified"
- },
- "Briar SCR": {
-  "status": "verified"
- },
  "Cyrano SSP": {
   "status": "verified"
  },
  "Lillie's Pearl JTG": {
   "status": "verified"
  },
- "Area Zero Underdepths SCR": {
-  "status": "verified"
- },
- "Dragapult ex TWM": {
-  "status": "partial",
-  "note": "bench damage block 6 games"
- },
  "Rosa's Encouragement M3": {
   "status": "partial",
   "note": "attach loop unreachable (Twinleaf filter quirk)"
- },
- "Budew PRE": {
-  "status": "verified"
  },
  "Moltres M2": {
   "status": "verified"
@@ -88,21 +27,7 @@
  "Dunsparce JTG": {
   "status": "verified"
  },
- "Dudunsparce TEF": {
-  "status": "verified"
- },
  "Meowth ex M3": {
-  "status": "verified"
- },
- "Fezandipiti ex SFA": {
-  "status": "partial",
-  "note": "empty-deck error and between-turns KO skip not hit"
- },
- "Munkidori TWM": {
-  "status": "partial",
-  "note": "move prompt in 18 traces; zero-damage transfer and prevented move not hit"
- },
- "N's Zoroark ex JTG": {
   "status": "verified"
  },
  "N's Zekrom M2a": {
@@ -111,28 +36,13 @@
  "N's Purrloin JTG": {
   "status": "verified"
  },
- "Pecharunt ex SFA": {
-  "status": "verified"
- },
  "Brock's Scouting JTG": {
   "status": "verified"
  },
  "Secret Box TWM": {
   "status": "verified"
  },
- "Tool Scrapper DRX": {
-  "status": "verified"
- },
- "N's PP Up JTG": {
-  "status": "verified"
- },
- "Air Balloon SSH": {
-  "status": "verified"
- },
  "N's Castle JTG": {
-  "status": "verified"
- },
- "Binding Mochi SFA": {
   "status": "verified"
  },
  "Tatsugiri TWM": {
@@ -143,14 +53,6 @@
   "status": "partial",
   "note": "played in 9 games; ex-prevention ~1"
  },
- "Black Belt's Training JTG": {
-  "status": "partial",
-  "note": "+40 frequency not measured"
- },
- "Team Rocket's Watchtower DRI": {
-  "status": "partial",
-  "note": "needs a [C] Pokémon with an Ability"
- },
  "Paldean Tauros SSP": {
   "status": "verified"
  },
@@ -160,28 +62,12 @@
  "Koraidon ex ASC": {
   "status": "verified"
  },
- "Lillie's Clefairy ex JTG": {
-  "status": "verified"
- },
  "Mega Kangaskhan ex M1S": {
-  "status": "verified"
- },
- "Pecharunt SVP": {
-  "status": "verified"
- },
- "Iron Leaves ex TEF": {
-  "status": "verified"
- },
- "Wellspring Mask Ogerpon ex TWM": {
   "status": "verified"
  },
  "Latias ex SSP": {
   "status": "partial",
   "note": "retreat branch ~5 games"
- },
- "Teal Mask Ogerpon ex TWM": {
-  "status": "partial",
-  "note": "bench damage prevention 2 games"
  },
  "Slowpoke SCR": {
   "status": "verified"
@@ -199,9 +85,6 @@
   "status": "verified"
  },
  "Mew ex 30C": {
-  "status": "verified"
- },
- "Wonder Patch MBD": {
   "status": "verified"
  },
  "Telepath [P] Energy M3": {
@@ -226,13 +109,7 @@
  "Applin TWM1": {
   "status": "verified"
  },
- "Dipplin TWM1": {
-  "status": "verified"
- },
  "Thwackey TWM": {
-  "status": "verified"
- },
- "Goldeen TWM": {
   "status": "verified"
  },
  "Seaking PRE": {
@@ -244,22 +121,7 @@
  "Rabsca TEF": {
   "status": "verified"
  },
- "Kieran TWM": {
-  "status": "verified"
- },
- "Pokemon Catcher SSH": {
-  "status": "verified"
- },
  "Lana's Aid TWM": {
-  "status": "verified"
- },
- "Brave Bangle SV11W": {
-  "status": "verified"
- },
- "Festival Grounds TWM": {
-  "status": "verified"
- },
- "Forest of Vitality MEG": {
   "status": "verified"
  },
  "Gladion's Decisive Battle M5": {
@@ -279,12 +141,6 @@
   "status": "partial",
   "note": "empty-deck branch unreachable"
  },
- "Energy Recycler BST": {
-  "status": "verified"
- },
- "Eri TEF": {
-  "status": "verified"
- },
  "Genesect ex SV11B": {
   "status": "verified"
  },
@@ -292,9 +148,6 @@
   "status": "verified"
  },
  "Hero's Cape TEF": {
-  "status": "verified"
- },
- "Jumbo Ice M2": {
   "status": "verified"
  },
  "Lumioise City M3": {
@@ -309,25 +162,11 @@
  "Mist Energy TEF": {
   "status": "verified"
  },
- "Pokegear SVI": {
-  "status": "partial",
-  "note": "empty-deck branch unreachable"
- },
- "Pokémon Center Lady FLF": {
-  "status": "verified"
- },
  "Prism Tower M4": {
   "status": "verified"
  },
  "Spiky Energy JTG": {
   "status": "verified"
- },
- "Team Rocket's Factory DRI": {
-  "status": "verified"
- },
- "Team Rocket's Petrel DRI": {
-  "status": "partial",
-  "note": "empty-deck branch unreachable"
  },
  "Xerosic's Machinations SFA": {
   "status": "verified"
@@ -345,15 +184,6 @@
  "Dawn M2": {
   "status": "verified"
  },
- "Dusclops SFA": {
-  "status": "verified"
- },
- "Dusknoir SFA": {
-  "status": "verified"
- },
- "Duskull SFA": {
-  "status": "verified"
- },
  "Gwynn M5": {
   "status": "verified"
  },
@@ -365,9 +195,6 @@
   "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)"
  },
  "Rare Candy SVI": {
-  "status": "verified"
- },
- "Sacred Ash FLF": {
   "status": "verified"
  },
  "Shaymin DRI": {
@@ -389,10 +216,6 @@
   "status": "partial",
   "note": "ability-blocked return unreached"
  },
- "Marnie's Grimmsnarl ex DRI": {
-  "status": "partial",
-  "note": "empty-deck and ability-blocked returns unreached"
- },
  "Marnie's Impidimp DRI": {
   "status": "verified"
  },
@@ -407,9 +230,6 @@
   "status": "partial",
   "note": "empty-deck throw unreached"
  },
- "Team Rocket's Transceiver DRI": {
-  "status": "verified"
- },
  "Toxel M2": {
   "status": "verified"
  },
@@ -420,9 +240,6 @@
   "status": "verified"
  },
  "Banette M5": {
-  "status": "verified"
- },
- "Bloodmoon Ursaluna ex TWM": {
   "status": "verified"
  },
  "Bronzong TEF": {
@@ -446,19 +263,10 @@
  "Dudunsparce ex JTG": {
   "status": "verified"
  },
- "Energy Retrieval BS": {
-  "status": "verified"
- },
- "Glass Trumpet SCR": {
-  "status": "verified"
- },
  "Mega Lopunny ex M2": {
   "status": "verified"
  },
  "Poltchageist M5": {
-  "status": "verified"
- },
- "Raging Bolt ex TEF": {
   "status": "verified"
  },
  "Rich Energy SSP": {
@@ -487,9 +295,6 @@
  "Celebi MEG 12": {
   "status": "verified"
  },
- "Chikorita UF": {
-  "status": "verified"
- },
  "Chikorita M1S": {
   "status": "verified"
  },
@@ -508,42 +313,14 @@
  "Hoothoot SCR": {
   "status": "verified"
  },
- "Hydrapple ex SCR": {
-  "status": "verified"
- },
- "Lunatone M1L": {
-  "status": "verified"
- },
- "Mega Lucario ex M1L": {
-  "status": "verified"
- },
  "Meganium M1S": {
-  "status": "verified"
- },
- "Noctowl SCR": {
-  "status": "verified"
- },
- "Power Protein M1L": {
-  "status": "verified"
- },
- "Riolu M1L": {
-  "status": "verified"
- },
- "Solrock XY": {
   "status": "verified"
  },
  "Tapu Bulu SFA": {
   "status": "verified"
  },
- "Ignition Energy SV11W": {
-  "status": "verified"
- },
  "Lucky Helmet TWM": {
   "status": "verified"
- },
- "Maximum Belt TEF": {
-  "status": "partial",
-  "note": "tool-blocked catch 0"
  },
  "Miraculous Intercom SSP": {
   "status": "verified"
@@ -551,32 +328,11 @@
  "Roto-Stick PRE": {
   "status": "verified"
  },
- "Team Rocket's Archer DRI": {
-  "status": "partial",
-  "note": "KO outside opponent's turn branch 0 games"
- },
- "Team Rocket's Ariana DRI": {
-  "status": "verified"
- },
  "Team Rocket's Articuno DRI": {
   "status": "partial",
   "note": "Dark Frost bonus unreachable (Twinleaf name mismatch)"
  },
- "Team Rocket's Energy DRI": {
-  "status": "partial",
-  "note": "non-TR discard branch 1 game"
- },
- "Team Rocket's Giovanni DRI": {
-  "status": "verified"
- },
  "Team Rocket's Honchkrow M2a": {
-  "status": "verified"
- },
- "Team Rocket's Mewtwo ex DRI": {
-  "status": "partial",
-  "note": "ability-blocked / no-bench returns 0"
- },
- "Team Rocket's Murkrow DRI": {
   "status": "verified"
  },
  "Team Rocket's Porygon DRI": {
@@ -585,34 +341,10 @@
  "Team Rocket's Porygon2 DRI": {
   "status": "verified"
  },
- "Team Rocket's Proton DRI": {
-  "status": "verified"
- },
- "Team Rocket's Spidops DRI": {
-  "status": "verified"
- },
- "Team Rocket's Tarountula DRI": {
-  "status": "verified"
- },
- "Cynthia's Gabite DRI": {
-  "status": "verified"
- },
- "Cynthia's Garchomp ex DRI": {
-  "status": "verified"
- },
- "Cynthia's Gible DRI": {
-  "status": "verified"
- },
  "Cynthia's Power Weight DRI": {
   "status": "verified"
  },
  "Cynthia's Roserade DRI": {
-  "status": "verified"
- },
- "Cynthia's Spiritomb DRI": {
-  "status": "verified"
- },
- "Energy Search SVI": {
   "status": "verified"
  },
  "Energy Search Pro SSP": {
@@ -638,13 +370,7 @@
  "Neo Upper Energy TEF": {
   "status": "verified"
  },
- "Potion BS": {
-  "status": "verified"
- },
  "Rock Fighting Energy M3": {
-  "status": "verified"
- },
- "Super Potion BS": {
   "status": "verified"
  },
  "Tera Orb SSP": {
@@ -690,9 +416,6 @@
   "status": "verified"
  },
  "Mega Heracross ex PFL": {
-  "status": "verified"
- },
- "Rellor SSP": {
   "status": "verified"
  },
  "Rowlet M3": {
@@ -755,25 +478,16 @@
  "Hop's Bag JTG": {
   "status": "verified"
  },
- "Iron Defender M1L": {
-  "status": "verified"
- },
  "Lumiose Galette M3": {
   "status": "verified"
  },
  "Meddling Memo SSP": {
   "status": "verified"
  },
- "Mega Signal M1S": {
-  "status": "verified"
- },
  "Megaton Blower SSP": {
   "status": "verified"
  },
  "Accompanying Flute TWM": {
-  "status": "verified"
- },
- "Poké Ball JU": {
   "status": "verified"
  },
  "Book of Transformation M4": {
@@ -795,25 +509,16 @@
  "Cinccino TEF": {
   "status": "verified"
  },
- "Dunsparce TEF": {
-  "status": "verified"
- },
  "Eevee SCR": {
   "status": "verified"
  },
  "Eevee SFA": {
   "status": "verified"
  },
- "Eevee SSP": {
-  "status": "verified"
- },
  "Eevee ex PRE": {
   "status": "verified"
  },
  "Exeggcute 30C": {
-  "status": "verified"
- },
- "Fan Rotom SCR": {
   "status": "verified"
  },
  "Farfetch'd TWM": {
@@ -826,9 +531,6 @@
   "status": "verified"
  },
  "Hoothoot TEF": {
-  "status": "verified"
- },
- "Hop's Cramorant JTG": {
   "status": "verified"
  },
  "Hop's Dubwool JTG": {
@@ -856,12 +558,6 @@
  "Binacle M3": {
   "status": "verified"
  },
- "Bloodmoon Ursaluna SFA": {
-  "status": "verified"
- },
- "Cornerstone Mask Ogerpon ex TWM": {
-  "status": "verified"
- },
  "Drapion M3": {
   "status": "verified"
  },
@@ -875,9 +571,6 @@
   "status": "verified"
  },
  "Purrloin WHT": {
-  "status": "verified"
- },
- "Roaring Moon TEF": {
   "status": "verified"
  },
  "Seviper M2": {
@@ -925,16 +618,10 @@
  "Farigiraf ex TEF": {
   "status": "verified"
  },
- "Gastly EVO": {
-  "status": "verified"
- },
  "Girafarig TEF": {
   "status": "verified"
  },
  "Gumshoos M1L": {
-  "status": "verified"
- },
- "Haunter SSH": {
   "status": "verified"
  },
  "Hydreigon ex SSP": {
@@ -944,9 +631,6 @@
   "status": "verified"
  },
  "Marnie's Morpeko DRI": {
-  "status": "verified"
- },
- "Mega Gengar ex MBG": {
   "status": "verified"
  },
  "Pikipek M5": {
@@ -965,9 +649,6 @@
   "status": "verified"
  },
  "Team Rocket's Porygon-Z DRI": {
-  "status": "verified"
- },
- "Terapagos ex SCR": {
   "status": "verified"
  },
  "Toucannon M5": {
@@ -1003,9 +684,6 @@
  "Gastrodon SSP": {
   "status": "verified"
  },
- "Great Tusk TEF": {
-  "status": "verified"
- },
  "Greninja ex TWM": {
   "status": "partial",
   "note": "Tera bench-damage prevent 3 games"
@@ -1026,9 +704,6 @@
   "status": "verified"
  },
  "Mega Hawlucha ex M2a": {
-  "status": "verified"
- },
- "Okidogi TWM": {
   "status": "verified"
  },
  "Onix M1L": {
@@ -1058,5 +733,421 @@
  "Annihilape SSP": {
   "status": "blocked",
   "note": "Primeape/Mankey not in card DB; Destined Fight needs KnockOutPlayerEffect"
+ },
+ "Poké Pad 30C": {
+  "status": "needs-reverify",
+  "note": "verified as Poké Pad MC; pool row 30C 126 now maps to the exact printing Poké Pad 30C"
+ },
+ "Switch 30C": {
+  "status": "needs-reverify",
+  "note": "verified as Switch BS; pool row 30C 127 now maps to the exact printing Switch 30C"
+ },
+ "Ultra Ball 30C": {
+  "status": "needs-reverify",
+  "note": "verified as Ultra Ball SVI; pool row 30C 128 now maps to the exact printing Ultra Ball 30C"
+ },
+ "Budew ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Budew PRE; pool row ASC 16 now maps to the exact printing Budew ASC"
+ },
+ "Team Rocket's Tarountula ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Tarountula DRI; pool row ASC 18 now maps to the exact printing Team Rocket's Tarountula ASC"
+ },
+ "Team Rocket's Spidops ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Spidops DRI; pool row ASC 19 now maps to the exact printing Team Rocket's Spidops ASC"
+ },
+ "Lillie's Clefairy ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Lillie's Clefairy ex JTG; pool row ASC 76 now maps to the exact printing Lillie's Clefairy ex ASC"
+ },
+ "Team Rocket's Mewtwo ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Mewtwo ex DRI; pool row ASC 79 now maps to the exact printing Team Rocket's Mewtwo ex ASC (old note: ability-blocked / no-bench returns 0)"
+ },
+ "Munkidori ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Munkidori TWM; pool row ASC 99 now maps to the exact printing Munkidori ASC (old note: move prompt in 18 traces; zero-damage transfer and prevented move not hit)"
+ },
+ "Lunatone ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Lunatone M1L; pool row ASC 105 now maps to the exact printing Lunatone ASC"
+ },
+ "Solrock ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Solrock XY; pool row ASC 106 now maps to the exact printing Solrock ASC"
+ },
+ "Cynthia's Gible ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Cynthia's Gible DRI; pool row ASC 109 now maps to the exact printing Cynthia's Gible ASC"
+ },
+ "Cynthia's Gabite ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Cynthia's Gabite DRI; pool row ASC 110 now maps to the exact printing Cynthia's Gabite ASC"
+ },
+ "Cynthia's Garchomp ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Cynthia's Garchomp ex DRI; pool row ASC 111 now maps to the exact printing Cynthia's Garchomp ex ASC"
+ },
+ "Riolu ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Riolu M1L; pool row ASC 112 now maps to the exact printing Riolu ASC"
+ },
+ "Mega Lucario ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Mega Lucario ex M1L; pool row ASC 113 now maps to the exact printing Mega Lucario ex ASC"
+ },
+ "Gastly ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Gastly EVO; pool row ASC 123 now maps to the exact printing Gastly ASC"
+ },
+ "Haunter ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC"
+ },
+ "Mega Gengar ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Mega Gengar ex MBG; pool row ASC 125 now maps to the exact printing Mega Gengar ex ASC"
+ },
+ "Team Rocket's Murkrow ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Murkrow DRI; pool row ASC 126 now maps to the exact printing Team Rocket's Murkrow ASC"
+ },
+ "Cynthia's Spiritomb ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Cynthia's Spiritomb DRI; pool row ASC 133 now maps to the exact printing Cynthia's Spiritomb ASC"
+ },
+ "N's Zoroark ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as N's Zoroark ex JTG; pool row ASC 137 now maps to the exact printing N's Zoroark ex ASC"
+ },
+ "Fezandipiti ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Fezandipiti ex SFA; pool row ASC 142 now maps to the exact printing Fezandipiti ex ASC (old note: empty-deck error and between-turns KO skip not hit)"
+ },
+ "Drakloak ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Drakloak TWM; pool row ASC 159 now maps to the exact printing Drakloak ASC"
+ },
+ "Dragapult ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Dragapult ex TWM; pool row ASC 160 now maps to the exact printing Dragapult ex ASC (old note: bench damage block 6 games)"
+ },
+ "Fan Rotom ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Fan Rotom SCR; pool row ASC 171 now maps to the exact printing Fan Rotom ASC"
+ },
+ "Hop's Cramorant ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Hop's Cramorant JTG; pool row ASC 177 now maps to the exact printing Hop's Cramorant ASC"
+ },
+ "Terapagos ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Terapagos ex SCR; pool row ASC 179 now maps to the exact printing Terapagos ex ASC"
+ },
+ "Air Balloon ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Air Balloon SSH; pool row ASC 181 now maps to the exact printing Air Balloon ASC"
+ },
+ "Boss's Orders ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Boss's Orders PAL; pool row ASC 183 now maps to the exact printing Boss's Orders ASC"
+ },
+ "Buddy-Buddy Poffin ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Buddy-Buddy Poffin TEF; pool row ASC 184 now maps to the exact printing Buddy-Buddy Poffin ASC"
+ },
+ "Glass Trumpet ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Glass Trumpet SCR; pool row ASC 189 now maps to the exact printing Glass Trumpet ASC"
+ },
+ "Lillie's Determination ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Lillie's Determination M1L; pool row ASC 192 now maps to the exact printing Lillie's Determination ASC"
+ },
+ "Mega Signal ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Mega Signal M1S; pool row ASC 193 now maps to the exact printing Mega Signal ASC"
+ },
+ "N's PP Up ASC": {
+  "status": "needs-reverify",
+  "note": "verified as N's PP Up JTG; pool row ASC 195 now maps to the exact printing N's PP Up ASC"
+ },
+ "Night Stretcher ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Night Stretcher SFA; pool row ASC 196 now maps to the exact printing Night Stretcher ASC"
+ },
+ "Premium Power Pro ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Power Protein M1L; pool row ASC 199 now maps to the exact printing Premium Power Pro ASC"
+ },
+ "Team Rocket's Archer ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Archer DRI; pool row ASC 201 now maps to the exact printing Team Rocket's Archer ASC (old note: KO outside opponent's turn branch 0 games)"
+ },
+ "Team Rocket's Ariana ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Ariana DRI; pool row ASC 202 now maps to the exact printing Team Rocket's Ariana ASC"
+ },
+ "Team Rocket's Factory ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Factory DRI; pool row ASC 203 now maps to the exact printing Team Rocket's Factory ASC"
+ },
+ "Team Rocket's Giovanni ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Giovanni DRI; pool row ASC 204 now maps to the exact printing Team Rocket's Giovanni ASC"
+ },
+ "Team Rocket's Petrel ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Petrel DRI; pool row ASC 207 now maps to the exact printing Team Rocket's Petrel ASC (old note: empty-deck branch unreachable)"
+ },
+ "Team Rocket's Proton ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Proton DRI; pool row ASC 208 now maps to the exact printing Team Rocket's Proton ASC"
+ },
+ "Team Rocket's Transceiver ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Transceiver DRI; pool row ASC 209 now maps to the exact printing Team Rocket's Transceiver ASC"
+ },
+ "Team Rocket's Watchtower ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Watchtower DRI; pool row ASC 210 now maps to the exact printing Team Rocket's Watchtower ASC (old note: needs a [C] Pokémon with an Ability)"
+ },
+ "Prism Energy ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Prism Energy NXD; pool row ASC 216 now maps to the exact printing Prism Energy ASC"
+ },
+ "Team Rocket's Energy ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Energy DRI; pool row ASC 217 now maps to the exact printing Team Rocket's Energy ASC (old note: non-TR discard branch 1 game)"
+ },
+ "Black Belt's Training ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Black Belt's Training JTG; pool row ASC 255 now maps to the exact printing Black Belt's Training ASC (old note: +40 frequency not measured)"
+ },
+ "Marnie's Grimmsnarl ex ASC": {
+  "status": "needs-reverify",
+  "note": "verified as Marnie's Grimmsnarl ex DRI; pool row ASC 287 now maps to the exact printing Marnie's Grimmsnarl ex ASC (old note: empty-deck and ability-blocked returns unreached)"
+ },
+ "Pokegear 3.0 SV11W": {
+  "status": "needs-reverify",
+  "note": "verified as Pokegear SVI; pool row BLK 84 now maps to the exact printing Pokegear 3.0 SV11W (old note: empty-deck branch unreachable)"
+ },
+ "Energy Retrieval FA CRI": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Retrieval BS; pool row CRI 108 now maps to the exact printing Energy Retrieval FA CRI"
+ },
+ "Jumbo Ice Cream FA CRI": {
+  "status": "needs-reverify",
+  "note": "verified as Jumbo Ice M2; pool row CRI 109 now maps to the exact printing Jumbo Ice Cream FA CRI"
+ },
+ "Tool Scrapper FA CRI": {
+  "status": "needs-reverify",
+  "note": "verified as Tool Scrapper DRX; pool row CRI 115 now maps to the exact printing Tool Scrapper FA CRI"
+ },
+ "Rellor DRI": {
+  "status": "needs-reverify",
+  "note": "verified as Rellor SSP; pool row DRI 24 now maps to the exact printing Rellor DRI"
+ },
+ "Super Potion JTG": {
+  "status": "needs-reverify",
+  "note": "verified as Super Potion BS; pool row JTG 158 now maps to the exact printing Super Potion JTG"
+ },
+ "Pokemon Center Lady MEG": {
+  "status": "needs-reverify",
+  "note": "verified as Pokémon Center Lady FLF; pool row MEG 123 now maps to the exact printing Pokemon Center Lady MEG"
+ },
+ "Chikorita MEP": {
+  "status": "needs-reverify",
+  "note": "verified as Chikorita UF; pool row MEP 46 now maps to the exact printing Chikorita MEP"
+ },
+ "Brave Bangle FA PBL": {
+  "status": "needs-reverify",
+  "note": "verified as Brave Bangle SV11W; pool row PBL 104 now maps to the exact printing Brave Bangle FA PBL"
+ },
+ "Crushing Hammer FA PBL": {
+  "status": "needs-reverify",
+  "note": "verified as Crushing Hammer SVI; pool row PBL 105 now maps to the exact printing Crushing Hammer FA PBL"
+ },
+ "Energy Switch FA PBL": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Switch SVI; pool row PBL 107 now maps to the exact printing Energy Switch FA PBL"
+ },
+ "Iron Defender FA PBL": {
+  "status": "needs-reverify",
+  "note": "verified as Iron Defender M1L; pool row PBL 110 now maps to the exact printing Iron Defender FA PBL"
+ },
+ "Ignition Energy PFL": {
+  "status": "needs-reverify",
+  "note": "verified as Ignition Energy SV11W; pool row PFL 124 now maps to the exact printing Ignition Energy PFL"
+ },
+ "Energy Search POR": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Search SVI; pool row POR 72 now maps to the exact printing Energy Search POR"
+ },
+ "Judge POR": {
+  "status": "needs-reverify",
+  "note": "verified as Judge FST; pool row POR 76 now maps to the exact printing Judge POR"
+ },
+ "Poke Ball POR": {
+  "status": "needs-reverify",
+  "note": "verified as Poké Ball JU; pool row POR 80 now maps to the exact printing Poke Ball POR"
+ },
+ "Pokemon Catcher POR": {
+  "status": "needs-reverify",
+  "note": "verified as Pokemon Catcher SSH; pool row POR 82 now maps to the exact printing Pokemon Catcher POR"
+ },
+ "Potion POR": {
+  "status": "needs-reverify",
+  "note": "verified as Potion BS; pool row POR 83 now maps to the exact printing Potion POR"
+ },
+ "Energy Recycler FA POR": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Recycler BST; pool row POR 108 now maps to the exact printing Energy Recycler FA POR"
+ },
+ "Forest of Vitality FA POR": {
+  "status": "needs-reverify",
+  "note": "verified as Forest of Vitality MEG; pool row POR 109 now maps to the exact printing Forest of Vitality FA POR"
+ },
+ "Sacred Ash FA POR": {
+  "status": "needs-reverify",
+  "note": "verified as Sacred Ash FLF; pool row POR 115 now maps to the exact printing Sacred Ash FA POR"
+ },
+ "Wondrous Patch FA POR": {
+  "status": "needs-reverify",
+  "note": "verified as Wonder Patch MBD; pool row POR 117 now maps to the exact printing Wondrous Patch FA POR"
+ },
+ "Dipplin PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Dipplin TWM1; pool row PRE 10 now maps to the exact printing Dipplin PRE"
+ },
+ "Hydrapple ex PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Hydrapple ex SCR; pool row PRE 11 now maps to the exact printing Hydrapple ex PRE"
+ },
+ "Teal Mask Ogerpon ex PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Teal Mask Ogerpon ex TWM; pool row PRE 12 now maps to the exact printing Teal Mask Ogerpon ex PRE (old note: bench damage prevention 2 games)"
+ },
+ "Goldeen PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Goldeen TWM; pool row PRE 20 now maps to the exact printing Goldeen PRE"
+ },
+ "Wellspring Mask Ogerpon ex PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Wellspring Mask Ogerpon ex TWM; pool row PRE 27 now maps to the exact printing Wellspring Mask Ogerpon ex PRE"
+ },
+ "Duskull PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Duskull SFA; pool row PRE 35 now maps to the exact printing Duskull PRE"
+ },
+ "Dusclops PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Dusclops SFA; pool row PRE 36 now maps to the exact printing Dusclops PRE"
+ },
+ "Dusknoir PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Dusknoir SFA; pool row PRE 37 now maps to the exact printing Dusknoir PRE"
+ },
+ "Bloodmoon Ursaluna PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Bloodmoon Ursaluna SFA; pool row PRE 54 now maps to the exact printing Bloodmoon Ursaluna PRE"
+ },
+ "Great Tusk PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Great Tusk TEF; pool row PRE 55 now maps to the exact printing Great Tusk PRE"
+ },
+ "Okidogi PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Okidogi TWM; pool row PRE 57 now maps to the exact printing Okidogi PRE"
+ },
+ "Cornerstone Mask Ogerpon ex PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Cornerstone Mask Ogerpon ex TWM; pool row PRE 58 now maps to the exact printing Cornerstone Mask Ogerpon ex PRE"
+ },
+ "Roaring Moon PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Roaring Moon TEF; pool row PRE 65 now maps to the exact printing Roaring Moon PRE"
+ },
+ "Eevee PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Eevee SSP; pool row PRE 74 now maps to the exact printing Eevee PRE"
+ },
+ "Noctowl PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Noctowl SCR; pool row PRE 78 now maps to the exact printing Noctowl PRE"
+ },
+ "Dunsparce PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Dunsparce TEF; pool row PRE 79 now maps to the exact printing Dunsparce PRE"
+ },
+ "Dudunsparce PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Dudunsparce TEF; pool row PRE 80 now maps to the exact printing Dudunsparce PRE"
+ },
+ "Area Zero Underdepths PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Area Zero Underdepths SCR; pool row PRE 94 now maps to the exact printing Area Zero Underdepths PRE"
+ },
+ "Binding Mochi PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Binding Mochi SFA; pool row PRE 95 now maps to the exact printing Binding Mochi PRE"
+ },
+ "Briar PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Briar SCR; pool row PRE 100 now maps to the exact printing Briar PRE"
+ },
+ "Bug Catching Set PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Bug Catching Set TWM; pool row PRE 102 now maps to the exact printing Bug Catching Set PRE"
+ },
+ "Ciphermaniac's Codebreaking PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE"
+ },
+ "Crispin PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Crispin SCR; pool row PRE 105 now maps to the exact printing Crispin PRE"
+ },
+ "Festival Grounds PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Festival Grounds TWM; pool row PRE 108 now maps to the exact printing Festival Grounds PRE"
+ },
+ "Kieran PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Kieran TWM; pool row PRE 113 now maps to the exact printing Kieran PRE"
+ },
+ "Maximum Belt PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0)"
+ },
+ "Prime Catcher PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Prime Catcher TEF; pool row PRE 119 now maps to the exact printing Prime Catcher PRE"
+ },
+ "EriFA PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Eri TEF; pool row PRE 136 now maps to the exact printing EriFA PRE"
+ },
+ "Pecharunt exSAR PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Pecharunt ex SFA; pool row PRE 163 now maps to the exact printing Pecharunt exSAR PRE"
+ },
+ "Raging Bolt exSAR PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Raging Bolt ex TEF; pool row PRE 166 now maps to the exact printing Raging Bolt exSAR PRE"
+ },
+ "Bloodmoon Ursaluna exSAR PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Bloodmoon Ursaluna ex TWM; pool row PRE 168 now maps to the exact printing Bloodmoon Ursaluna exSAR PRE"
+ },
+ "Iron Leaves exUR PRE": {
+  "status": "needs-reverify",
+  "note": "verified as Iron Leaves ex TEF; pool row PRE 176 now maps to the exact printing Iron Leaves exUR PRE"
+ },
+ "PecharuntIR SVP": {
+  "status": "needs-reverify",
+  "note": "verified as Pecharunt SVP; pool row SVP 129 now maps to the exact printing PecharuntIR SVP"
  }
 }
