@@ -335,7 +335,21 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
     if damage > 0 {
         g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
         g.st.cards[target_card as usize].damage_taken_last_turn += damage;
-        // surviveOnTenHP: not modeled.
+        // `surviveOnTenHPReason` set by a card (e.g. SURVIVE_ON_TEN_IF_FULL_HP):
+        // CheckHpEffect(effect.player, target); strictly over HP → HP - 10.
+        let survive = matches!(*g.e(id), Effect::PutDamage { survive_on_ten_hp: true, .. });
+        if survive {
+            let (tp, ts) = (t.p as usize, t.s);
+            let card = g.st.slot_pokemon(tp, ts);
+            if card.is_some() {
+                g.st.players[tp].slots[ts as usize].hp_bonus = 0;
+            }
+            g.run_fx(Effect::CheckHp { p: b.player, target: t, card })?;
+            let hp = crate::engine::check::hp_of(g, tp, ts, card);
+            if g.st.slot(tp, ts).damage > hp {
+                g.st.players[tp].slots[ts as usize].damage = hp - 10;
+            }
+        }
         let mut ab = b;
         ab.target = t;
         g.run_fx(Effect::AfterDamage { b: ab, damage })?;

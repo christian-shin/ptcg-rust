@@ -126,8 +126,8 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
 }
 
 /// Attacks available to the active player, as the AttackAction reducer builds them.
-pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<AttackRef, 16>> {
-    let mut out: SVec<AttackRef, 16> = SVec::new();
+pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<AttackRef, 64>> {
+    let mut out: SVec<AttackRef, 64> = SVec::new();
     if let Some(c) = g.st.active_pokemon(p) {
         for i in 0..g.st.cdef(c).attacks.len() {
             out.push(AttackRef { card: c, index: i as u8 });
