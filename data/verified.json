@@ -82,5 +82,28 @@
  "Rosa's Encouragement M3": {
   "status": "partial",
   "note": "attach loop unreachable (Twinleaf filter quirk)"
+ },
+ "Budew PRE": {
+  "status": "verified"
+ },
+ "Moltres M2": {
+  "status": "verified"
+ },
+ "Dunsparce JTG": {
+  "status": "verified"
+ },
+ "Dudunsparce TEF": {
+  "status": "verified"
+ },
+ "Meowth ex M3": {
+  "status": "verified"
+ },
+ "Fezandipiti ex SFA": {
+  "status": "partial",
+  "note": "empty-deck error and between-turns KO skip not hit"
+ },
+ "Munkidori TWM": {
+  "status": "partial",
+  "note": "move prompt in 18 traces; zero-damage transfer and prevented move not hit"
  }
 }

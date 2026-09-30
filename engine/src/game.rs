@@ -49,7 +49,11 @@ pub enum Cont {
     CoinFlipWait { cb: CoinCb, result: bool },
     TrainerCleanup { p: u8, card: CardId },
     ShuffleApply { p: u8 },
+    /// `order => player.deck.applyOrder(order)` with no follow-up wait.
+    ShuffleApplyNoWait { p: u8 },
     Prefab(crate::prefabs::PrefabCont),
+    /// Sudden death: first-player coin flip.
+    SuddenDeathCoin,
     Card { card: CardId, frame: CardFrame },
 }
 
@@ -126,7 +130,7 @@ pub struct Game {
     pub items: SVec<PromptItem, 10>,
     pub waits: SVec<Cont, 16>,
     pub fx: SVec<EffSlot, MAX_FX>,
-    pub temps: [List<60>; 3],
+    pub temps: [List<120>; 3],
     pub temp_used: [bool; 3],
     /// Callbacks referenced by pending `CoinFlipEffect`s.
     pub coin_callbacks: SVec<CoinCb, 16>,
@@ -380,6 +384,12 @@ impl Game {
                 play::trainer_cleanup(self, p as usize, card);
                 Ok(())
             }
+            Cont::ShuffleApplyNoWait { p } => {
+                if let Res::Order(o) = first {
+                    apply_order(&mut self.st.players[p as usize].deck, o.as_slice());
+                }
+                Ok(())
+            }
             Cont::ShuffleApply { p } => {
                 if let Res::Order(o) = first {
                     apply_order(&mut self.st.players[p as usize].deck, o.as_slice());
@@ -390,6 +400,7 @@ impl Game {
                 Ok(())
             }
             Cont::Prefab(c) => crate::prefabs::resume(self, c, results),
+            Cont::SuddenDeathCoin => check::setup_sudden_death_game(self, if first.as_bool() { 0 } else { 1 }),
             Cont::Card { card, frame } => cards::resume(self, card, frame, results),
         }
     }
@@ -734,7 +745,7 @@ impl Game {
             PromptKind::ShuffleDeck => {
                 let p = self.st.player_index_by_id(pr.perspective_id());
                 let n = self.st.players[p].deck.len();
-                let mut o = [0u8; 60];
+                let mut o = [0u8; 120];
                 self.rng.shuffle(n, &mut o);
                 Res::Order(List::from_slice(&o[..n]))
             }
@@ -769,14 +780,14 @@ pub fn apply_order<L: CardList + ?Sized>(list: &mut L, order: &[u8]) {
     if order.len() != n {
         return;
     }
-    let mut seen = [false; 64];
+    let mut seen = [false; 128];
     for &o in order {
         if o as usize >= n || seen[o as usize] {
             return;
         }
         seen[o as usize] = true;
     }
-    let copy: SVec<CardId, 60> = {
+    let copy: SVec<CardId, 120> = {
         let mut v = SVec::new();
         for &c in list.as_slice() {
             v.push(c);

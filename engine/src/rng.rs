@@ -79,7 +79,7 @@ mod tests {
         // the tier-1 trace (seed 1) starts 20,33,8,5,2,...
         let mut r = Rng::new(1);
         r.coin(); // setup: who begins
-        let mut out = [0u8; 60];
+        let mut out = [0u8; 120];
         r.shuffle(60, &mut out);
         assert_eq!(&out[..5], &[20, 33, 8, 5, 2]);
     }

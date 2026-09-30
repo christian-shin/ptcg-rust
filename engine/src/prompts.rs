@@ -298,13 +298,13 @@ pub enum Res {
     True,
     Bool(bool),
     Int(i32),
-    Cards(List<60>),
+    Cards(List<120>),
     Slots(SVec<SlotRef, 8>),
     /// Chosen energy entries, by card.
     Energy(SVec<CardId, 40>),
     /// Indices into the owning player's `prizes` array.
     Prizes(SVec<u8, 6>),
-    Order(List<60>),
+    Order(List<120>),
     /// AttachEnergyPrompt: (to, card).
     Attach(SVec<(CardTarget, CardId), 16>),
     /// DiscardEnergyPrompt: (from, card).
@@ -630,7 +630,7 @@ impl Game {
             PromptKind::Select { .. } => Ok(Res::Int(raw.as_i64().ok_or(invalid)? as i32)),
             PromptKind::ChooseCards { cards, filter, opts } => {
                 let list = self.prompt_list(cards);
-                let mut out: List<60> = List::new();
+                let mut out: List<120> = List::new();
                 for v in raw.as_array().ok_or(invalid)? {
                     let i = v.as_u64().ok_or(invalid)? as usize;
                     // `cards[index]` is undefined for out-of-range indices; validate rejects it.
@@ -703,7 +703,7 @@ impl Game {
                 }
             }
             PromptKind::ShuffleDeck => {
-                let mut l: List<60> = List::new();
+                let mut l: List<120> = List::new();
                 for v in raw.as_array().ok_or(invalid)? {
                     l.push(v.as_u64().ok_or(invalid)? as u8);
                 }

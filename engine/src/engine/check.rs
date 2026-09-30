@@ -390,8 +390,7 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
         }
     }
     if points[0] > 0 && points[1] > 0 {
-        // Sudden death is not ported yet; treated as a draw so traces flag it.
-        crate::bail!("SUDDEN_DEATH_NOT_PORTED");
+        return initiate_sudden_death(g);
     }
     if points[0] + points[1] == 0 {
         return on_complete(g, oc);
@@ -539,4 +538,44 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
         }
         _ => Ok(()),
     }
+}
+
+/// `initiateSuddenDeath`: every zone back to the deck (PokemonCardList.moveTo
+/// semantics, so attached energies are pushed twice and slot state such as
+/// damage is left on the empty slots), shuffle, then flip for the first player.
+fn initiate_sudden_death(g: &mut Game) -> R {
+    for p in 0..2u8 {
+        let pl = &g.st.players[p as usize];
+        let mut lists: Vec<ListRef> = vec![ListRef::Slot(p, pl.active)];
+        for b in pl.bench.iter() {
+            lists.push(ListRef::Slot(p, *b));
+        }
+        lists.push(ListRef::Discard(p));
+        for i in 0..pl.prize_count {
+            lists.push(ListRef::Prize(p, i));
+        }
+        lists.push(ListRef::Hand(p));
+        lists.push(ListRef::LostZone(p));
+        lists.push(ListRef::Stadium(p));
+        for l in lists {
+            g.move_to(l, ListRef::Deck(p), None);
+        }
+        let pl = &mut g.st.players[p as usize];
+        pl.used_gx = false;
+        pl.used_vstar = false;
+        let id = pl.id;
+        g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
+    }
+    let id = g.player_id(0);
+    g.prompt(id, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::SuddenDeathCoin);
+    Ok(())
+}
+
+/// `setupSuddenDeathGame`.
+pub fn setup_sudden_death_game(g: &mut Game, first: u8) -> R {
+    g.st.active_player = first;
+    g.st.turn = 0;
+    g.st.phase = GamePhase::Setup;
+    g.st.is_sudden_death = true;
+    crate::engine::setup::start(g)
 }

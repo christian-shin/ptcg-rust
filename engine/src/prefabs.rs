@@ -168,7 +168,7 @@ pub fn for_each_pokemon(g: &Game, p: usize, player_type: PlayerType) -> SVec<(Sl
 
 /// `MOVE_CARDS(store, state, source, destination, { cards })`.
 pub fn move_cards(g: &mut Game, src: ListRef, dst: ListRef, cards: &[CardId], source_card: CardId) -> R {
-    let cs: List<60> = List::from_slice(cards);
+    let cs: List<120> = List::from_slice(cards);
     g.run_fx(Effect::MoveCards {
         source: src,
         destination: dst,
@@ -239,7 +239,7 @@ pub fn shuffle_hand_into_deck_then_draw_ex(
 ) -> R {
     let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != exclude).collect();
     if !cards.is_empty() {
-        let cs: List<60> = List::from_slice(&cards);
+        let cs: List<120> = List::from_slice(&cards);
         let (_, prevented) = g.run_fx(Effect::MoveCards {
             source: ListRef::Hand(p as u8),
             destination: ListRef::Deck(p as u8),

@@ -14,7 +14,9 @@ pub const MAX_CARDS: usize = 120;
 pub const MAX_SLOTS: usize = 9;
 pub const MAX_BENCH: usize = 8;
 
-pub type Deck = List<60>;
+/// Zone lists hold up to 120: Twinleaf can duplicate cards (energies of a
+/// fully moved Pokémon slot are pushed twice), so zones may exceed 60.
+pub type Deck = List<120>;
 pub type SlotId = u8;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]

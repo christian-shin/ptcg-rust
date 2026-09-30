@@ -104,7 +104,7 @@ pub enum Effect {
     Heal { p: u8, target: SlotRef, damage: i32 },
     Evolve { p: u8, target: SlotRef, card: CardId },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },
-    MoveCards { source: ListRef, destination: ListRef, cards: Option<List<60>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
+    MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
     PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId },

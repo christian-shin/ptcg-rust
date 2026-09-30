@@ -67,13 +67,13 @@ impl Game {
         }
         let len = self.lst(src).len();
         let n = count.unwrap_or(len).min(len);
-        let mut moved: SVec<CardId, 60> = SVec::new();
+        let mut moved: SVec<CardId, 120> = SVec::new();
         for &c in &self.lst(src)[..n] {
             moved.push(c);
         }
         {
             let l = self.lst_mut(src);
-            let rest: SVec<CardId, 60> = {
+            let rest: SVec<CardId, 120> = {
                 let mut v = SVec::new();
                 for &c in &l.as_slice()[n..] {
                     v.push(c);
@@ -89,7 +89,7 @@ impl Game {
 
     /// `moveToTopOfDestination`: prepends a copy; the source keeps its cards.
     pub fn move_to_top_of_destination(&mut self, src: ListRef, dst: ListRef) {
-        let mut v: SVec<CardId, 60> = SVec::new();
+        let mut v: SVec<CardId, 120> = SVec::new();
         for &c in self.lst(src) {
             v.push(c);
         }
@@ -138,7 +138,7 @@ impl Game {
     /// `CardList.sort()` with V8's TimSort (binary insertion for < 64 items)
     /// and Twinleaf's comparator (which never returns 0).
     pub fn sort_list(&mut self, r: ListRef) {
-        let mut v: SVec<CardId, 60> = SVec::new();
+        let mut v: SVec<CardId, 120> = SVec::new();
         for &c in self.lst(r) {
             v.push(c);
         }
@@ -210,7 +210,14 @@ pub fn v8_sort<T: Copy>(a: &mut [T], cmp: &dyn Fn(T, T) -> i32) {
     if n < 2 {
         return;
     }
-    assert!(n < 64, "v8_sort: merge phase not implemented");
+    if n >= 64 {
+        // V8's merge phase (with galloping) is not reproduced; only reachable
+        // when Twinleaf's card duplication grows a deck past 63 cards.
+        let mut v: Vec<T> = a.to_vec();
+        merge_sort(&mut v, cmp);
+        a.copy_from_slice(&v);
+        return;
+    }
     // CountAndMakeRun(0, n)
     let run = {
         let low = 1;
@@ -262,4 +269,26 @@ pub fn v8_sort<T: Copy>(a: &mut [T], cmp: &dyn Fn(T, T) -> i32) {
         a[left] = pivot;
         start += 1;
     }
+}
+
+fn merge_sort<T: Copy>(v: &mut Vec<T>, cmp: &dyn Fn(T, T) -> i32) {
+    if v.len() < 2 {
+        return;
+    }
+    let mut right = v.split_off(v.len() / 2);
+    merge_sort(v, cmp);
+    merge_sort(&mut right, cmp);
+    let left = std::mem::take(v);
+    let (mut i, mut j) = (0, 0);
+    while i < left.len() && j < right.len() {
+        if cmp(right[j], left[i]) < 0 {
+            v.push(right[j]);
+            j += 1;
+        } else {
+            v.push(left[i]);
+            i += 1;
+        }
+    }
+    v.extend_from_slice(&left[i..]);
+    v.extend_from_slice(&right[j..]);
 }
