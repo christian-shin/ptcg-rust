@@ -9,6 +9,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -22,6 +23,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -35,6 +37,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -45,11 +48,18 @@
   "type": "R Basic",
   "reg": "I",
   "status": "missing",
-  "twinleaf_file": "",
-  "twinleaf_set": "",
-  "twinleaf_number": "",
-  "print_match": "missing",
-  "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-destined-rivals/pool-additions.ts",
+  "twinleaf_set": "DRI",
+  "twinleaf_number": "37",
+  "fullName": "Team Rocket's Houndour DRI",
+  "cls": "TeamRocketsHoundourDRIPool",
+  "methods": [],
+  "reduce_lines": 0,
+  "effect_fns": 0,
+  "tier": "data",
+  "prev_fullName": null,
+  "print_match": "exact",
+  "print_note": "remapped from unmapped to Team Rocket's Houndour DRI (DRI #37)"
  },
  {
   "set": "DRI",
@@ -61,6 +71,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -74,6 +85,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -87,6 +99,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -100,6 +113,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -159,6 +173,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -172,6 +187,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -185,6 +201,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -198,6 +215,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -211,6 +229,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -224,6 +243,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -237,6 +257,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -250,6 +271,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (no-twinleaf-card)",
   "print_match": "missing",
   "print_note": "no Twinleaf class with this name; kept name-based mapping (none); needs official card text"
  },
@@ -306,6 +328,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Galarian Obstagoon FST 161))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -319,6 +342,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Petilil NVI))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -352,11 +376,18 @@
   "type": "F Basic",
   "reg": "I",
   "status": "wrong-version-only",
-  "twinleaf_file": "",
-  "twinleaf_set": "",
-  "twinleaf_number": "",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/pool-additions.ts",
+  "twinleaf_set": "BLK",
+  "twinleaf_number": "47",
+  "fullName": "Timburr BLK",
+  "cls": "TimburrBLKPool",
+  "methods": [],
+  "reduce_lines": 0,
+  "effect_fns": 0,
+  "tier": "data",
+  "prev_fullName": null,
+  "print_match": "exact",
+  "print_note": "remapped from unmapped to Timburr BLK (BLK #47)"
  },
  {
   "set": "BLK",
@@ -368,6 +399,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Gurdurr BST))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -381,6 +413,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Dhelmise CES))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -394,6 +427,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Chi-Yu TWM))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -407,6 +441,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Shroodle SSP))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -420,6 +455,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Delibird LOT))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -433,6 +469,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Buneary UPR))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -446,6 +483,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Cottonee UNM))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -459,6 +497,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Pawmot SVP))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -469,11 +508,18 @@
   "type": "W Basic",
   "reg": "H",
   "status": "wrong-version-only",
-  "twinleaf_file": "",
-  "twinleaf_set": "",
-  "twinleaf_number": "",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/pool-additions.ts",
+  "twinleaf_set": "PRE",
+  "twinleaf_number": "18",
+  "fullName": "Slowpoke PRE",
+  "cls": "SlowpokePREPool",
+  "methods": [],
+  "reduce_lines": 0,
+  "effect_fns": 0,
+  "tier": "data",
+  "prev_fullName": null,
+  "print_match": "exact",
+  "print_note": "remapped from unmapped to Slowpoke PRE (PRE #18)"
  },
  {
   "set": "SCR",
@@ -482,11 +528,18 @@
   "type": "R Basic",
   "reg": "H",
   "status": "wrong-version-only",
-  "twinleaf_file": "",
-  "twinleaf_set": "",
-  "twinleaf_number": "",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-stellar-crown/pool-additions.ts",
+  "twinleaf_set": "SCR",
+  "twinleaf_number": "29",
+  "fullName": "Charcadet SCR",
+  "cls": "CharcadetSCRPool",
+  "methods": [],
+  "reduce_lines": 0,
+  "effect_fns": 0,
+  "tier": "data",
+  "prev_fullName": null,
+  "print_match": "exact",
+  "print_note": "remapped from unmapped to Charcadet SCR (SCR #29)"
  },
  {
   "set": "SCR",
@@ -495,11 +548,18 @@
   "type": "W Stage 1",
   "reg": "H",
   "status": "wrong-version-only",
-  "twinleaf_file": "",
-  "twinleaf_set": "",
-  "twinleaf_number": "",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-stellar-crown/pool-additions.ts",
+  "twinleaf_set": "SCR",
+  "twinleaf_number": "40",
+  "fullName": "Frogadier SCR",
+  "cls": "FrogadierSCRPool",
+  "methods": [],
+  "reduce_lines": 0,
+  "effect_fns": 0,
+  "tier": "data",
+  "prev_fullName": null,
+  "print_match": "exact",
+  "print_note": "remapped from unmapped to Frogadier SCR (SCR #40)"
  },
  {
   "set": "SCR",
@@ -508,11 +568,18 @@
   "type": "P Basic",
   "reg": "H",
   "status": "wrong-version-only",
-  "twinleaf_file": "",
-  "twinleaf_set": "",
-  "twinleaf_number": "",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-stellar-crown/pool-additions.ts",
+  "twinleaf_set": "SCR",
+  "twinleaf_number": "68",
+  "fullName": "Flittle SCR",
+  "cls": "FlittleSCRPool",
+  "methods": [],
+  "reduce_lines": 0,
+  "effect_fns": 0,
+  "tier": "data",
+  "prev_fullName": null,
+  "print_match": "exact",
+  "print_note": "remapped from unmapped to Flittle SCR (SCR #68)"
  },
  {
   "set": "SSP",
@@ -537,6 +604,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Mankey CIN))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -550,6 +618,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Passimian SMP))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -563,6 +632,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Swablu CIN))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -576,6 +646,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Bouffalant LOR))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -589,6 +660,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Dhelmise VIV))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -602,6 +674,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Beheeyem PAR))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -615,6 +688,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Scream Tail SVP))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -628,6 +702,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Volbeat CES))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -641,6 +716,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Teal Mask Ogerpon DRI))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -654,6 +730,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Litwick PLF))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -667,6 +744,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Lampent UNM))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -680,6 +758,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Chandelure STS))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -693,6 +772,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Milotic CIN))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -706,6 +786,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Glalie GRI))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -719,6 +800,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Eevee AQ))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -732,6 +814,7 @@
   "twinleaf_file": "",
   "twinleaf_set": "",
   "twinleaf_number": "",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Mandibuzz FCO))",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
@@ -1838,6 +1921,7 @@
   "reduce_lines": 33,
   "effect_fns": 0,
   "tier": "custom",
+  "official": "same text as Acerola's Mischief MEG",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping Acerola's Mischief MEG; needs official card text"
  },
@@ -1954,6 +2038,7 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "official": "same text as Fighting Gong M1L",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping Fighting Gong M1L; needs official card text"
  },
@@ -2557,16 +2642,10 @@
   "twinleaf_file": "sets/06-black-and-white/set-boundaries-crossed/crustle.ts",
   "twinleaf_set": "BCR",
   "twinleaf_number": "85",
-  "fullName": "Crustle BCR",
-  "cls": "Crustle",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 12,
-  "effect_fns": 0,
-  "tier": "short",
+  "prev_fullName": "Crustle BCR",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Crustle BCR))",
   "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Crustle BCR; needs official card text"
+  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
  {
   "set": "BLK",
@@ -2739,19 +2818,18 @@
   "type": "C Basic",
   "reg": "H",
   "status": "reprint",
-  "twinleaf_file": "sets/09-sword-and-shield/set-sword-and-shield/minccino.ts",
-  "twinleaf_set": "SSH",
-  "twinleaf_number": "145",
-  "fullName": "Minccino SSH",
-  "cls": "Minccino",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 33,
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-journey-together/pool-additions.ts",
+  "twinleaf_set": "JTG",
+  "twinleaf_number": "125",
+  "fullName": "Minccino JTG",
+  "cls": "MinccinoJTGPool",
+  "methods": [],
+  "reduce_lines": 0,
   "effect_fns": 0,
-  "tier": "custom",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Minccino SSH; needs official card text"
+  "tier": "data",
+  "prev_fullName": "Minccino SSH",
+  "print_match": "exact",
+  "print_note": "remapped from Minccino SSH to Minccino JTG (JTG #125); printed text differs from the old printing"
  },
  {
   "set": "JTG",
@@ -2871,17 +2949,18 @@
   "type": "G Basic",
   "reg": "J",
   "status": "reprint",
-  "twinleaf_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/grookey.ts",
-  "twinleaf_set": "TWM",
-  "twinleaf_number": "14",
-  "fullName": "Grookey TWM",
-  "cls": "Grookey",
+  "twinleaf_file": "sets/11-mega-evolution/set-mega-evolution-promos/pool-additions.ts",
+  "twinleaf_set": "MEP",
+  "twinleaf_number": "52",
+  "fullName": "Grookey MEP",
+  "cls": "GrookeyMEPPool",
   "methods": [],
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Grookey TWM; needs official card text"
+  "prev_fullName": "Grookey TWM",
+  "print_match": "exact",
+  "print_note": "remapped from Grookey TWM to Grookey MEP (MEP #52); printed text differs from the old printing"
  },
  {
   "set": "PBL",
@@ -3313,16 +3392,10 @@
   "twinleaf_file": "sets/07-x-and-y/set-steam-siege/pyroar.ts",
   "twinleaf_set": "STS",
   "twinleaf_number": "23",
-  "fullName": "Pyroar STS",
-  "cls": "Pyroar",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 38,
-  "effect_fns": 0,
-  "tier": "custom",
+  "prev_fullName": "Pyroar STS",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Pyroar STS))",
   "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Pyroar STS; needs official card text"
+  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
  {
   "set": "PRE",
@@ -3837,19 +3910,18 @@
   "type": "C Basic",
   "reg": "H",
   "status": "reprint",
-  "twinleaf_file": "sets/11-mega-evolution/set-phantasmal-flames/buneary.ts",
-  "twinleaf_set": "PFL",
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/pool-additions.ts",
+  "twinleaf_set": "PRE",
   "twinleaf_number": "83",
-  "fullName": "Buneary M2",
-  "cls": "Buneary",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 8,
+  "fullName": "Buneary PRE",
+  "cls": "BunearyPREPool",
+  "methods": [],
+  "reduce_lines": 0,
   "effect_fns": 0,
-  "tier": "short",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Buneary M2; needs official card text"
+  "tier": "data",
+  "prev_fullName": "Buneary M2",
+  "print_match": "exact",
+  "print_note": "remapped from Buneary M2 to Buneary PRE (PRE #83); printed text differs from the old printing"
  },
  {
   "set": "PRE",
@@ -3858,17 +3930,18 @@
   "type": "C Basic",
   "reg": "H",
   "status": "reprint",
-  "twinleaf_file": "sets/09-sword-and-shield/set-silver-tempest/noibat.ts",
-  "twinleaf_set": "SIT",
-  "twinleaf_number": "132",
-  "fullName": "Noibat SIT 132",
-  "cls": "Noibat",
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/pool-additions.ts",
+  "twinleaf_set": "PRE",
+  "twinleaf_number": "90",
+  "fullName": "Noibat PRE",
+  "cls": "NoibatPREPool",
   "methods": [],
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Noibat SIT 132; needs official card text"
+  "prev_fullName": "Noibat SIT 132",
+  "print_match": "exact",
+  "print_note": "remapped from Noibat SIT 132 to Noibat PRE (PRE #90); printed text differs from the old printing"
  },
  {
   "set": "PRE",
@@ -4511,17 +4584,18 @@
   "type": "W Basic",
   "reg": "H",
   "status": "reprint",
-  "twinleaf_file": "sets/08-sun-and-moon/set-forbidden-light/froakie.ts",
-  "twinleaf_set": "FLI",
-  "twinleaf_number": "22",
-  "fullName": "Froakie FLI",
-  "cls": "Froakie",
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-stellar-crown/pool-additions.ts",
+  "twinleaf_set": "SCR",
+  "twinleaf_number": "39",
+  "fullName": "Froakie SCR",
+  "cls": "FroakieSCRPool",
   "methods": [],
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Froakie FLI; needs official card text"
+  "prev_fullName": "Froakie FLI",
+  "print_match": "exact",
+  "print_note": "remapped from Froakie FLI to Froakie SCR (SCR #39); printed text differs from the old printing"
  },
  {
   "set": "SCR",
@@ -4530,19 +4604,18 @@
   "type": "F Basic",
   "reg": "H",
   "status": "reprint",
-  "twinleaf_file": "sets/09-sword-and-shield/set-vivid-voltage/riolu.ts",
-  "twinleaf_set": "VIV",
-  "twinleaf_number": "90",
-  "fullName": "Riolu VIV",
-  "cls": "Riolu",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 12,
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-stellar-crown/pool-additions.ts",
+  "twinleaf_set": "SCR",
+  "twinleaf_number": "81",
+  "fullName": "Riolu SCR",
+  "cls": "RioluSCRPool",
+  "methods": [],
+  "reduce_lines": 0,
   "effect_fns": 0,
-  "tier": "short",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Riolu VIV; needs official card text"
+  "tier": "data",
+  "prev_fullName": "Riolu VIV",
+  "print_match": "exact",
+  "print_note": "remapped from Riolu VIV to Riolu SCR (SCR #81); printed text differs from the old printing"
  },
  {
   "set": "SSP",
@@ -4554,14 +4627,10 @@
   "twinleaf_file": "sets/09-sword-and-shield/set-lost-origin/bronzor.ts",
   "twinleaf_set": "LOR",
   "twinleaf_number": "125",
-  "fullName": "Bronzor LOR 125",
-  "cls": "Bronzor",
-  "methods": [],
-  "reduce_lines": 0,
-  "effect_fns": 0,
-  "tier": "data",
+  "prev_fullName": "Bronzor LOR 125",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Bronzor ASR))",
   "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Bronzor LOR 125; needs official card text"
+  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
  {
   "set": "SSP",
@@ -4642,16 +4711,10 @@
   "twinleaf_file": "sets/06-black-and-white/set-noble-victories/cofagrigus.ts",
   "twinleaf_set": "NVI",
   "twinleaf_number": "46",
-  "fullName": "Cofagrigus NVI",
-  "cls": "Cofagrigus",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 66,
-  "effect_fns": 0,
-  "tier": "custom",
+  "prev_fullName": "Cofagrigus NVI",
+  "official": "Twinleaf has no class with this printing's text (needs-new-class (closest: Cofagrigus SSP))",
   "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Cofagrigus NVI; needs official card text"
+  "print_note": "no Twinleaf class in the pool set; kept name-based mapping (none); needs official card text"
  },
  {
   "set": "WHT",
@@ -4660,19 +4723,18 @@
   "type": "D Basic",
   "reg": "I",
   "status": "reprint",
-  "twinleaf_file": "sets/09-sword-and-shield/set-rebel-clash/vullaby.ts",
-  "twinleaf_set": "RCL",
-  "twinleaf_number": "119",
-  "fullName": "Vullaby RCL",
-  "cls": "Vullaby",
-  "methods": [
-   "reduceEffect"
-  ],
-  "reduce_lines": 15,
+  "twinleaf_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/pool-additions.ts",
+  "twinleaf_set": "WHT",
+  "twinleaf_number": "63",
+  "fullName": "Vullaby WHT",
+  "cls": "VullabyWHTPool",
+  "methods": [],
+  "reduce_lines": 0,
   "effect_fns": 0,
-  "tier": "short",
-  "print_match": "name-only",
-  "print_note": "no Twinleaf class in the pool set; kept name-based mapping Vullaby RCL; needs official card text"
+  "tier": "data",
+  "prev_fullName": "Vullaby RCL",
+  "print_match": "exact",
+  "print_note": "remapped from Vullaby RCL to Vullaby WHT (WHT #63); printed text differs from the old printing"
  },
  {
   "set": "ASC",

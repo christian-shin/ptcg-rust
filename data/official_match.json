@@ -272,21 +272,34 @@
   "name": "Timburr",
   "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Timburr BLW)",
+  "verdict": "use Timburr BLK",
   "best": {
-   "fullName": "Timburr BLW",
-   "class": "Timburr",
-   "exact": false,
-   "score": 2.0,
+   "fullName": "Timburr BLK",
+   "class": "TimburrBLKPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
-    "hp": false,
+    "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Timburr BLK",
+    "class": "TimburrBLKPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Timburr BLW",
     "class": "Timburr",
@@ -315,19 +328,6 @@
    },
    {
     "fullName": "Timburr PLS",
-    "class": "Timburr",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.0
-    }
-   },
-   {
-    "fullName": "Timburr XY",
     "class": "Timburr",
     "exact": false,
     "score": 2.0,
@@ -448,7 +448,7 @@
  },
  "BLK 52": {
   "name": "Crustle",
-  "current": "Crustle BCR",
+  "current": null,
   "print_match": "name-only",
   "verdict": "needs-new-class (closest: Crustle BCR)",
   "best": {
@@ -641,9 +641,35 @@
   "name": "Team Rocket's Houndour",
   "current": null,
   "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "verdict": "use Team Rocket's Houndour DRI",
+  "best": {
+   "fullName": "Team Rocket's Houndour DRI",
+   "class": "TeamRocketsHoundourDRIPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Team Rocket's Houndour DRI",
+    "class": "TeamRocketsHoundourDRIPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 70,
    "attacks": [
@@ -707,23 +733,36 @@
  },
  "JTG 125": {
   "name": "Minccino",
-  "current": "Minccino SSH",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Minccino FCO 87)",
+  "verdict": "use Minccino JTG",
   "best": {
-   "fullName": "Minccino FCO 87",
-   "class": "Minccino2",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Minccino JTG",
+   "class": "MinccinoJTGPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
-    "hp": false,
+    "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Minccino JTG",
+    "class": "MinccinoJTGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Minccino FCO 87",
     "class": "Minccino2",
@@ -761,19 +800,6 @@
      "ab": true,
      "hp": true,
      "text": 0.0
-    }
-   },
-   {
-    "fullName": "Minccino SSH 146",
-    "class": "Minccino2",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 1.0
     }
    }
   ],
@@ -1290,23 +1316,36 @@
  },
  "MEP 52": {
   "name": "Grookey",
-  "current": "Grookey TWM",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Grookey SSH 11)",
+  "verdict": "use Grookey MEP",
   "best": {
-   "fullName": "Grookey SSH 11",
-   "class": "Grookey2",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Grookey MEP",
+   "class": "GrookeyMEPPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Grookey MEP",
+    "class": "GrookeyMEPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Grookey SSH 11",
     "class": "Grookey2",
@@ -1336,19 +1375,6 @@
    {
     "fullName": "Grookey SSH",
     "class": "Grookey",
-    "exact": false,
-    "score": 1.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.0
-    }
-   },
-   {
-    "fullName": "Grookey SHF",
-    "class": "GrookeySHF",
     "exact": false,
     "score": 1.0,
     "why": {
@@ -1475,7 +1501,7 @@
  },
  "PRE 16": {
   "name": "Pyroar",
-  "current": "Pyroar STS",
+  "current": null,
   "print_match": "name-only",
   "verdict": "needs-new-class (closest: Pyroar STS)",
   "best": {
@@ -1566,21 +1592,34 @@
   "name": "Slowpoke",
   "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Slowpoke DEX)",
+  "verdict": "use Slowpoke PRE",
   "best": {
-   "fullName": "Slowpoke DEX",
-   "class": "Slowpoke",
-   "exact": false,
-   "score": 2.0,
+   "fullName": "Slowpoke PRE",
+   "class": "SlowpokePREPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.0
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Slowpoke PRE",
+    "class": "SlowpokePREPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Slowpoke DEX",
     "class": "Slowpoke",
@@ -1619,19 +1658,6 @@
      "hp": true,
      "text": 0.0
     }
-   },
-   {
-    "fullName": "Slowpoke LOT",
-    "class": "Slowpoke",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.0
-    }
    }
   ],
   "official": {
@@ -1653,23 +1679,36 @@
  },
  "PRE 83": {
   "name": "Buneary",
-  "current": "Buneary M2",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Buneary BCR)",
+  "verdict": "use Buneary PRE",
   "best": {
-   "fullName": "Buneary BCR",
-   "class": "Buneary",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Buneary PRE",
+   "class": "BunearyPREPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Buneary PRE",
+    "class": "BunearyPREPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Buneary BCR",
     "class": "Buneary",
@@ -1708,19 +1747,6 @@
      "hp": true,
      "text": 0.0
     }
-   },
-   {
-    "fullName": "Buneary FST 212",
-    "class": "Buneary",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": true,
-     "ab": true,
-     "hp": false,
-     "text": 0.0
-    }
    }
   ],
   "official": {
@@ -1738,23 +1764,36 @@
  },
  "PRE 90": {
   "name": "Noibat",
-  "current": "Noibat SIT 132",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Noibat FFI)",
+  "verdict": "use Noibat PRE",
   "best": {
-   "fullName": "Noibat FFI",
-   "class": "Noibat",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Noibat PRE",
+   "class": "NoibatPREPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Noibat PRE",
+    "class": "NoibatPREPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Noibat FFI",
     "class": "Noibat",
@@ -1784,19 +1823,6 @@
    {
     "fullName": "Noibat BKT 132",
     "class": "Noibat2",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.0
-    }
-   },
-   {
-    "fullName": "Noibat UNM",
-    "class": "Noibat",
     "exact": false,
     "score": 2.0,
     "why": {
@@ -1840,21 +1866,34 @@
   "name": "Charcadet",
   "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Charcadet SVI)",
+  "verdict": "use Charcadet SCR",
   "best": {
-   "fullName": "Charcadet SVI",
-   "class": "Charcadet",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Charcadet SCR",
+   "class": "CharcadetSCRPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Charcadet SCR",
+    "class": "CharcadetSCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Charcadet SVI",
     "class": "Charcadet",
@@ -1893,19 +1932,6 @@
      "hp": true,
      "text": 1.0
     }
-   },
-   {
-    "fullName": "Charcadet SSP",
-    "class": "Charcadet",
-    "exact": false,
-    "score": 3.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 1.0
-    }
    }
   ],
   "official": {
@@ -1923,23 +1949,36 @@
  },
  "SCR 39": {
   "name": "Froakie",
-  "current": "Froakie FLI",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Froakie2 XYP)",
+  "verdict": "use Froakie SCR",
   "best": {
-   "fullName": "Froakie2 XYP",
-   "class": "Froakie2XYP",
-   "exact": false,
-   "score": 2.0,
+   "fullName": "Froakie SCR",
+   "class": "FroakieSCRPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.0
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Froakie SCR",
+    "class": "FroakieSCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Froakie2 XYP",
     "class": "Froakie2XYP",
@@ -1978,19 +2017,6 @@
      "hp": false,
      "text": 1.0
     }
-   },
-   {
-    "fullName": "Froakie FLI",
-    "class": "Froakie",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 1.0
-    }
    }
   ],
   "official": {
@@ -2010,21 +2036,34 @@
   "name": "Frogadier",
   "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Frogadier BKT)",
+  "verdict": "use Frogadier SCR",
   "best": {
-   "fullName": "Frogadier BKT",
-   "class": "Frogadier",
-   "exact": false,
-   "score": 2.0,
+   "fullName": "Frogadier SCR",
+   "class": "FrogadierSCRPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
-    "hp": false,
+    "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Frogadier SCR",
+    "class": "FrogadierSCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Frogadier BKT",
     "class": "Frogadier",
@@ -2053,19 +2092,6 @@
    },
    {
     "fullName": "Frogadier XY",
-    "class": "Frogadier",
-    "exact": false,
-    "score": 1.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.0
-    }
-   },
-   {
-    "fullName": "Frogadier BKP",
     "class": "Frogadier",
     "exact": false,
     "score": 1.0,
@@ -2119,21 +2145,34 @@
   "name": "Flittle",
   "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Flittle SVI)",
+  "verdict": "use Flittle SCR",
   "best": {
-   "fullName": "Flittle SVI",
-   "class": "Flittle",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Flittle SCR",
+   "class": "FlittleSCRPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
-    "hp": false,
+    "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Flittle SCR",
+    "class": "FlittleSCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Flittle SVI",
     "class": "Flittle",
@@ -2189,23 +2228,36 @@
  },
  "SCR 81": {
   "name": "Riolu",
-  "current": "Riolu VIV",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Riolu BUS)",
+  "verdict": "use Riolu SCR",
   "best": {
-   "fullName": "Riolu BUS",
-   "class": "Riolu",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Riolu SCR",
+   "class": "RioluSCRPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Riolu SCR",
+    "class": "RioluSCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Riolu BUS",
     "class": "Riolu",
@@ -2242,19 +2294,6 @@
      "dmg": false,
      "ab": true,
      "hp": true,
-     "text": 1.0
-    }
-   },
-   {
-    "fullName": "Riolu FLO",
-    "class": "Riolu",
-    "exact": false,
-    "score": 3.0,
-    "why": {
-     "atk": false,
-     "dmg": true,
-     "ab": true,
-     "hp": false,
      "text": 1.0
     }
    }
@@ -2359,7 +2398,7 @@
  },
  "SSP 126": {
   "name": "Bronzor",
-  "current": "Bronzor LOR 125",
+  "current": null,
   "print_match": "name-only",
   "verdict": "needs-new-class (closest: Bronzor ASR)",
   "best": {
@@ -3722,7 +3761,7 @@
  },
  "WHT 40": {
   "name": "Cofagrigus",
-  "current": "Cofagrigus NVI",
+  "current": null,
   "print_match": "name-only",
   "verdict": "needs-new-class (closest: Cofagrigus SSP)",
   "best": {
@@ -3811,23 +3850,36 @@
  },
  "WHT 63": {
   "name": "Vullaby",
-  "current": "Vullaby RCL",
+  "current": null,
   "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Vullaby M5)",
+  "verdict": "use Vullaby WHT",
   "best": {
-   "fullName": "Vullaby M5",
-   "class": "Vullaby",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Vullaby WHT",
+   "class": "VullabyWHTPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
     "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Vullaby WHT",
+    "class": "VullabyWHTPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Vullaby M5",
     "class": "Vullaby",
@@ -3865,19 +3917,6 @@
      "ab": true,
      "hp": false,
      "text": 1.0
-    }
-   },
-   {
-    "fullName": "Vullaby RCL",
-    "class": "Vullaby",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": true,
-     "ab": true,
-     "hp": false,
-     "text": 0.0
     }
    }
   ],

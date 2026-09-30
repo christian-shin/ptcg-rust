@@ -45,6 +45,10 @@ if os.path.exists(PM_PATH):
     print_map = {(m['set'], m['number']): m for m in json.load(open(PM_PATH))['results']}
 
 
+OM_PATH = os.path.join(ROOT, 'data/official_match.json')
+official = json.load(open(OM_PATH)) if os.path.exists(OM_PATH) else {}
+
+
 def accept(m):
     """Remap this row to print_map's printing?"""
     if not m or not m.get('twinleaf') or m.get('review'):
@@ -123,6 +127,27 @@ for r in rows:
         rec['prev_fullName'] = prev   # None: the row was unmapped
         if beh:
             rec['behavior_file'] = beh   # file holding the logic (reprint classes only extend it)
+    # Official text (tools/compare_official.py) overrides name-based guesses:
+    # "use X" maps the row to that Twinleaf printing; otherwise Twinleaf has
+    # no class with this printing's text, so the row stays unmapped.
+    om = official.get('%s %s' % (r['set'], r['number']))
+    if om and not (m and m['match'] in ('exact', 'exact-unregistered')):
+        if om['verdict'].startswith('use '):
+            fn = om['verdict'][4:]
+            c = dump_by_full[fn]
+            if rec.get('fullName') != fn:
+                rec['prev_fullName'] = rec.get('fullName')
+            rec.pop('error', None)
+            rec.update(fullName=fn, cls=c['$class'], methods=c['$methods'], twinleaf_set=str(c['set']), twinleaf_number=str(c['setNumber']))
+            has_logic = 'reduceEffect' in c['$methods'] or any(x in c['$methods'] for x in ('canPlay', 'canUseFromHandToBench'))
+            rec.setdefault('tier', 'data' if not has_logic else 'custom')
+            rec['official'] = 'same text as ' + fn
+        else:
+            if rec.get('fullName'):
+                rec['prev_fullName'] = rec['fullName']
+            for k in ('fullName', 'cls', 'methods', 'reduce_lines', 'effect_fns', 'tier', 'behavior_file'):
+                rec.pop(k, None)
+            rec['official'] = 'Twinleaf has no class with this printing\'s text (%s)' % om['verdict']
     rec['print_match'] = m['match'] if m else None
     rec['print_note'] = print_note(m, rec, prev, remapped)
     out.append(rec)
