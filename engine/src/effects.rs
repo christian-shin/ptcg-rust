@@ -131,6 +131,9 @@ pub enum Effect {
     PlayLock { b: AtkBase, locks: u16, turns_remaining: Option<i32>, both_players: bool, attacker_turns_remaining: Option<i32> },
     /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
     PreventRetreat { b: AtkBase },
+    /// `OpponentPokemonCannotUseAttackEffect` (EffectOfAttackEffect):
+    /// `opponent.active.blockedAttackNameNextTurn = name`.
+    OpponentPokemonCannotUseAttack { b: AtkBase, name: &'static str },
     /// `AddSpecialConditionsPowerEffect` (check-effects; non-attack source).
     AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32 },
 
@@ -213,6 +216,7 @@ impl Effect {
             PlayLock { .. } => "PLAY_LOCK_EFFECT",
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
+            OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
@@ -252,6 +256,7 @@ impl Effect {
             | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
+            OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -274,6 +279,7 @@ impl Effect {
             | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
+            OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -353,6 +359,7 @@ impl Effect {
             MoveDamageCounters { .. } => 68,
             PreventRetreat { .. } => 69,
             AddSpecialConditionsPower { .. } => 70,
+            OpponentPokemonCannotUseAttack { .. } => 91,
         };
         k
     }
@@ -431,6 +438,7 @@ pub mod k {
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
     pub const PREVENT_RETREAT: u32 = 69;
     pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
+    pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

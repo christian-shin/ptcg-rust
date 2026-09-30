@@ -28,6 +28,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::HEAL_TARGET,
         k::PLAY_LOCK,
         k::PREVENT_RETREAT,
+        k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
     ]),
     reduce,
     resume: None,
