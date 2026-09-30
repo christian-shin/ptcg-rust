@@ -18,6 +18,10 @@ pub enum AtkStage {
     AfterAnimation,
     AfterDealDamage,
     AfterAfterAttack,
+    /// Barrage: after the first / second `checkState` wait, and the confirm.
+    AfterBarrageCheck1,
+    AfterBarrageCheck2,
+    AfterBarrageConfirm,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -200,12 +204,65 @@ fn after_attack(g: &mut Game, mut f: AttackFrame) -> R {
     finish_attack(g, f)
 }
 
+/// `attack.barrage`: the printed flag or a runtime write by the card
+/// (`this.attacks[i].barrage = ...`, e.g. Festival Lead).
+pub fn attack_barrage(g: &Game, a: AttackRef) -> bool {
+    attack_def(g, a).barrage || g.st.cards[a.card as usize].attack_barrage & (1u8 << a.idx()) != 0
+}
+
 fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
-    // Barrage: not modeled.
+    let barrage_used = match *g.e(f.origin) {
+        Effect::UseAttack { barrage_used, .. } | Effect::Attack { barrage_used, .. } => barrage_used,
+        _ => false,
+    };
+    // hasBarragePower (power.barrage): no pool card sets it.
+    if attack_barrage(g, f.attack) && !barrage_used {
+        return barrage_check(g, f, AtkStage::AfterBarrageCheck1);
+    }
     g.release_fx(f.atk);
     g.release_fx(f.origin);
     g.run_fx(Effect::EndTurn { p: f.p })?;
     Ok(())
+}
+
+/// `state = checkState(store, state); if (store.hasPrompts()) yield waitPrompt`
+/// (twice), then `ConfirmPrompt(WANT_TO_USE_ABILITY)`.
+fn barrage_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
+    crate::engine::check::check_state(g, crate::game::OnComplete::None)?;
+    if g.has_prompts() {
+        f.stage = stage;
+        g.wait_prompt(Cont::UseAttack(f));
+        return Ok(());
+    }
+    barrage_after_check(g, f, stage)
+}
+
+fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
+    if stage == AtkStage::AfterBarrageCheck1 {
+        return barrage_check(g, f, AtkStage::AfterBarrageCheck2);
+    }
+    f.stage = AtkStage::AfterBarrageConfirm;
+    let pid = g.player_id(f.p as usize);
+    g.prompt(pid, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::UseAttack(f));
+    Ok(())
+}
+
+/// Confirm answered: attack again with a `UseAttackEffect` marked
+/// `_barrageUsed`, run straight through `useAttack` (never reduced, so no
+/// card sees it), or end the turn.
+fn barrage_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
+    g.release_fx(f.atk);
+    g.release_fx(f.origin);
+    if !want {
+        g.run_fx(Effect::EndTurn { p: f.p })?;
+        return Ok(());
+    }
+    let p = f.p as usize;
+    let source = SlotRef::new(p, g.st.players[p].active);
+    let id = g.new_fx(Effect::UseAttack { p: f.p, attack: f.attack, source, ignore_status_conditions: false, barrage_used: true, delegate_from: None });
+    let r = start_use_attack(g, id);
+    g.release_fx(id);
+    r
 }
 
 pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
@@ -229,6 +286,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
         AtkStage::AfterAnimation => deal_damage(g, f),
         AtkStage::AfterDealDamage => after_attack(g, f),
         AtkStage::AfterAfterAttack => finish_attack(g, f),
+        AtkStage::AfterBarrageCheck1 | AtkStage::AfterBarrageCheck2 => barrage_after_check(g, f, f.stage),
+        AtkStage::AfterBarrageConfirm => barrage_confirm(g, f, res.as_bool()),
     }
 }
 

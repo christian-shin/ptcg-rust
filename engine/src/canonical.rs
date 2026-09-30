@@ -200,6 +200,29 @@ impl Game {
             if inst.extra_prizes {
                 diff.insert("extraPrizes".into(), json!(true));
             }
+            if inst.attack_barrage_shown != 0 {
+                // Runtime `this.attacks[i].barrage` writes: the whole attacks array.
+                let atks: Vec<Value> = d
+                    .attacks
+                    .iter()
+                    .enumerate()
+                    .map(|(i, a)| {
+                        let mut o = Map::new();
+                        o.insert("name".into(), json!(a.name));
+                        o.insert("cost".into(), json!(a.cost));
+                        o.insert("damage".into(), json!(a.damage));
+                        o.insert("text".into(), json!(a.text));
+                        if let Some(dc) = a.damage_calculation {
+                            o.insert("damageCalculation".into(), json!(dc));
+                        }
+                        if inst.attack_barrage_shown & (1 << i) != 0 {
+                            o.insert("barrage".into(), json!(inst.attack_barrage & (1 << i) != 0));
+                        }
+                        Value::Object(o)
+                    })
+                    .collect();
+                diff.insert("attacks".into(), Value::Array(atks));
+            }
             if !diff.is_empty() {
                 out.insert(self.card_ref(c), Value::Object(diff));
             }

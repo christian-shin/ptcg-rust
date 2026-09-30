@@ -144,11 +144,17 @@ pub struct CardInst {
     pub damage_taken_last_turn: i32,
     /// Briar's `extraPrizes` instance field.
     pub extra_prizes: bool,
+    /// `this.attacks[i].barrage` written at runtime (Festival Lead cards);
+    /// bit i = attack i. Card-object state: never reset, not canonical.
+    pub attack_barrage: u8,
+    /// Attacks whose serialized object now differs from the printed card
+    /// (canonical `cards[...].attacks`, with a `barrage` key).
+    pub attack_barrage_shown: u8,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0 }
     }
 }
 
