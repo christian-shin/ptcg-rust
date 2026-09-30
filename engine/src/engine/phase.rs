@@ -265,6 +265,9 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.cannot_use_attacks_next_turn = slot.cannot_use_attacks_next_turn_pending;
             slot.cannot_use_attacks_next_turn_pending.clear();
         }
+        if slot.attack_damage_reduction_next_turn > 0 {
+            slot.attack_damage_reduction_next_turn = 0;
+        }
         if slot.cannot_retreat_next_turn {
             slot.cannot_retreat_next_turn = false;
         }

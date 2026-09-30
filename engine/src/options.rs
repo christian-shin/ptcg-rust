@@ -175,6 +175,7 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
 /// Legality for a single action without building descriptors (fast path).
 pub fn is_legal(g: &Game, a: Action) -> bool {
     let mut trial = *g;
+    trial.rng = crate::rng::Rng::zero();
     if trial.act_trial(a).is_err() {
         return false;
     }

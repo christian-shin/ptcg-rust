@@ -350,6 +350,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             let opp = 1 - b.player as usize;
             let mut damage = damage;
+            // Defending Pokémon's attacks do N less (before W/R), direct PutDamage only.
+            let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
+            if !weakness_applied && src_red > 0 {
+                damage = (damage - src_red).max(0);
+            }
             if t.p as usize == opp && t.s == g.st.players[opp].active && !weakness_applied {
                 let (ig_w, ig_r) = match *g.e(b.attack_effect) {
                     Effect::Attack { ignore_weakness, ignore_resistance, .. } => (ignore_weakness, ignore_resistance),
@@ -374,6 +379,14 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             apply_put_damage(g, id)
         }
         Effect::DealDamage { b, damage } => {
+            let mut damage = damage;
+            let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
+            if src_red > 0 {
+                damage = (damage - src_red).max(0);
+                if let Effect::DealDamage { damage: d, .. } = g.e_mut(id) {
+                    *d = damage;
+                }
+            }
             let (ig_w, ig_r) = match *g.e(b.attack_effect) {
                 Effect::Attack { ignore_weakness, ignore_resistance, .. } => (ignore_weakness, ignore_resistance),
                 _ => (false, false),
@@ -452,6 +465,19 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let o = b.opponent as usize;
             let a = g.st.players[o].active;
             g.st.players[o].slots[a as usize].cannot_retreat_next_turn = true;
+            Ok(())
+        }
+        Effect::ReduceDamage { b, reduction } => {
+            // EffectOfAttackEffect.applyEffect(): the opponent's current Active.
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            g.st.players[o].slots[a as usize].attack_damage_reduction_next_turn = reduction.max(0);
+            Ok(())
+        }
+        Effect::SwitchOutOpponentsActive { b, bench_target } => {
+            if let Some(t) = bench_target {
+                crate::engine::turn::switch_pokemon(g, b.opponent as usize, t.s)?;
+            }
             Ok(())
         }
         Effect::RemoveSpecialConditions { b, conditions } => {

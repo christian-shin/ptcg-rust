@@ -98,6 +98,8 @@ pub struct Slot {
     pub cannot_use_attacks_next_turn: SVec<&'static str, 4>,
     pub cannot_use_attacks_next_turn_pending: SVec<&'static str, 4>,
     pub damage_reduction_next_turn: i32,
+    /// `attackDamageReductionNextTurn` (this Pokémon's attacks do N less).
+    pub attack_damage_reduction_next_turn: i32,
     pub is_public: bool,
 }
 
@@ -129,6 +131,7 @@ impl Default for Slot {
             cannot_use_attacks_next_turn: SVec::new(),
             cannot_use_attacks_next_turn_pending: SVec::new(),
             damage_reduction_next_turn: 0,
+            attack_damage_reduction_next_turn: 0,
             is_public: false,
         }
     }
@@ -217,6 +220,8 @@ pub struct Player {
     pub pecharuntex_is_in_play: bool,
     /// Mega Kangaskhan ex's `usedRunErrand` (absent until set).
     pub used_run_errand: bool,
+    /// `usedLunarCycle` (Lunatone M1L; absent on fresh players).
+    pub used_lunar_cycle: bool,
     /// `rocketSupporter` (Team Rocket's Petrel; cleared at its owner's end of turn).
     pub rocket_supporter: bool,
 }
@@ -276,6 +281,7 @@ impl Player {
             chains_of_control_used: false,
             pecharuntex_is_in_play: false,
             used_run_errand: false,
+            used_lunar_cycle: false,
             rocket_supporter: false,
         };
         p.slot_used[0] = true;
