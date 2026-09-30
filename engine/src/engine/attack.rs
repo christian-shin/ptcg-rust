@@ -343,8 +343,28 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
+/// `shouldPreventAttackEffects(state, effect)` (empty filter only).
+fn should_prevent_attack_effects(g: &Game, id: EffId) -> bool {
+    let b = match g.e(id).atk_base() {
+        Some(b) => *b,
+        None => return false,
+    };
+    if !g.st.slot(b.target.p as usize, b.target.s).prevent_effects_of_attacks_next_turn {
+        return false;
+    }
+    if b.source.p == b.target.p {
+        return false;
+    }
+    if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
+        return false;
+    }
+    !matches!(*g.e(id), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. })
+}
+
 pub fn reducer(g: &mut Game, id: EffId) -> R {
-    // shouldPreventAttackEffects (preventEffectsOfAttacksNextTurn): not modeled.
+    if should_prevent_attack_effects(g, id) {
+        return Ok(());
+    }
     match *g.e(id) {
         Effect::PutDamage { b, damage, weakness_applied, .. } => {
             let t = b.target;
@@ -371,7 +391,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
                 g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
             }
-            // shouldPreventAttackDamage (only the empty filter is modeled).
+            // shouldPreventAttackDamage (empty filter only).
             if g.st.phase == GamePhase::Attack
                 && g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
                 && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_some()
@@ -480,10 +500,16 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::PreventDamage { b } => {
-            // PreventDamageEffect.applyEffect(): the attacking player's current Active.
+            // EffectOfAttackEffect.applyEffect(): the attacker's current Active.
             let p = b.player as usize;
             let a = g.st.players[p].active;
             g.st.players[p].slots[a as usize].prevent_damage_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::PreventEffectsOfAttacks { b } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].prevent_effects_of_attacks_next_turn_pending = true;
             Ok(())
         }
         Effect::ReduceDamage { b, reduction } => {

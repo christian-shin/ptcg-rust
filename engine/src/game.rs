@@ -98,6 +98,16 @@ pub struct EffSlot {
     pub e: Effect,
     pub prevent_default: bool,
     pub refs: u8,
+    /// Per-object effect fields no core code reads ([`fx_flag`] bits).
+    pub flags: u8,
+}
+
+/// [`EffSlot::flags`] bits.
+pub mod fx_flag {
+    /// `DealDamageEffect.damageIncreased` (Hop's Snorlax).
+    pub const DAMAGE_INCREASED: u8 = 1 << 0;
+    /// `PutDamageEffect.nonstackingDamageReducers` contains 'Curly Wall' (Bouffalant SCR).
+    pub const CURLY_WALL: u8 = 1 << 1;
 }
 
 pub const MAX_FX: usize = 48;
@@ -272,7 +282,7 @@ impl Game {
     // Effect arena
 
     pub fn new_fx(&mut self, e: Effect) -> EffId {
-        self.fx.push(EffSlot { e, prevent_default: false, refs: 1 });
+        self.fx.push(EffSlot { e, prevent_default: false, refs: 1, flags: 0 });
         (self.fx.len() - 1) as EffId
     }
 
@@ -303,6 +313,12 @@ impl Game {
     #[inline]
     pub fn prevented(&self, id: EffId) -> bool {
         self.fx.as_slice()[id as usize].prevent_default
+    }
+    pub fn fx_flags(&self, id: EffId) -> u8 {
+        self.fx.as_slice()[id as usize].flags
+    }
+    pub fn set_fx_flag(&mut self, id: EffId, bit: u8) {
+        self.fx.as_mut_slice()[id as usize].flags |= bit;
     }
     pub fn set_prevent(&mut self, id: EffId, v: bool) {
         self.fx.as_mut_slice()[id as usize].prevent_default = v;
