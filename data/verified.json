@@ -219,5 +219,51 @@
  "Annihilape M5": {
   "status": "partial",
   "note": "no Mankey/Primeape in pool; only reachable via Slowking copy"
+ },
+ "Applin TWM2": {
+  "status": "verified"
+ },
+ "Applin TWM1": {
+  "status": "verified"
+ },
+ "Dipplin TWM1": {
+  "status": "verified"
+ },
+ "Thwackey TWM": {
+  "status": "verified"
+ },
+ "Goldeen TWM": {
+  "status": "verified"
+ },
+ "Seaking PRE": {
+  "status": "verified"
+ },
+ "Rellor TEF": {
+  "status": "verified"
+ },
+ "Rabsca TEF": {
+  "status": "verified"
+ },
+ "Kieran TWM": {
+  "status": "verified"
+ },
+ "Pokemon Catcher SSH": {
+  "status": "verified"
+ },
+ "Lana's Aid TWM": {
+  "status": "verified"
+ },
+ "Brave Bangle SV11W": {
+  "status": "verified"
+ },
+ "Festival Grounds TWM": {
+  "status": "verified"
+ },
+ "Forest of Vitality MEG": {
+  "status": "verified"
+ },
+ "Gladion's Decisive Battle M5": {
+  "status": "partial",
+  "note": "+80 branch 2 games"
  }
 }
