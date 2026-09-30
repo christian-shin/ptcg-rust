@@ -18,7 +18,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     let o = 1 - p;
     let mut has = false;
-    let mut blocked: SVec<CardTarget, 8> = SVec::new();
+    let mut blocked: SVec<CardTarget, 16> = SVec::new();
     // opponent.forEachPokemon(TOP_PLAYER, ...): slots holding a Pokémon.
     let mut all: Vec<(CardTarget, SlotId)> = vec![(CardTarget::new(PlayerType::TopPlayer, SlotType::Active, 0), g.st.players[o].active)];
     for (i, b) in g.st.players[o].bench.iter().enumerate() {

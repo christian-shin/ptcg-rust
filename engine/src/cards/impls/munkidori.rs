@@ -53,7 +53,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if !mine.iter().any(|(s, _, _)| g.st.slot(p, *s).damage > 0) {
             bail!("CANNOT_USE_POWER");
         }
-        let mut max_allowed: SVec<(CardTarget, i32), 8> = SVec::new();
+        let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
         for (s, _, t) in mine.iter().copied() {
             let hp = crate::engine::check::check_hp(g, p, s)?;
             max_allowed.push((t, hp));

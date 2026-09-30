@@ -216,9 +216,9 @@ pub enum PromptKind {
     AttachEnergy { cards: ListRef, player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: AttachOpts },
     DiscardEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: MoveOpts },
     MoveEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: MoveOpts },
-    PutDamage { player_type: PlayerType, slots: SVec<u8, 3>, damage: i32, max_allowed: SVec<(CardTarget, i32), 8>, allow_cancel: bool, blocked: SVec<CardTarget, 8>, allow_partial: bool, damage_multiple: i32 },
-    MoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 8>, o: MoveOpts, single_source: bool, single_destination: bool, damage_multiple: i32 },
-    RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 8>, o: MoveOpts, same_target: bool },
+    PutDamage { player_type: PlayerType, slots: SVec<u8, 3>, damage: i32, max_allowed: SVec<(CardTarget, i32), 16>, allow_cancel: bool, blocked: SVec<CardTarget, 16>, allow_partial: bool, damage_multiple: i32 },
+    MoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, single_source: bool, single_destination: bool, damage_multiple: i32 },
+    RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
     ChooseAttack { cards: SVec<CardId, 8>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 8> },
@@ -262,8 +262,8 @@ pub struct MoveOpts {
     pub allow_cancel: bool,
     pub min: u8,
     pub max: Option<u8>,
-    pub blocked_from: SVec<CardTarget, 8>,
-    pub blocked_to: SVec<CardTarget, 8>,
+    pub blocked_from: SVec<CardTarget, 16>,
+    pub blocked_to: SVec<CardTarget, 16>,
     /// (source, blocked card indices).
     pub blocked_map: SVec<(CardTarget, Blocked), 4>,
 }
@@ -315,7 +315,7 @@ pub enum Res {
     /// MoveEnergyPrompt: (from, to, card).
     Transfers(SVec<(CardTarget, CardTarget, CardId), 48>),
     /// PutDamagePrompt: (target, damage).
-    DamageMap(SVec<(CardTarget, i32), 8>),
+    DamageMap(SVec<(CardTarget, i32), 16>),
     /// Move/RemoveDamagePrompt: (from, to).
     DamageTransfers(SVec<(CardTarget, CardTarget), 16>),
     Attack(AttackRef),
@@ -1086,7 +1086,7 @@ impl Game {
                     Ok(Res::Transfers(out))
                 }
                 PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, .. } => {
-                    let mut out: SVec<(CardTarget, i32), 8> = SVec::new();
+                    let mut out: SVec<(CardTarget, i32), 16> = SVec::new();
                     let mut sum = 0;
                     for v in arr {
                         let t = target_from(v, "target").ok_or(invalid)?;

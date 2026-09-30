@@ -44,7 +44,7 @@ fn put_x_damage_counters_in_any_way_you_like(g: &mut Game, atk: EffId, x: i32, m
     if !has_benched {
         return;
     }
-    let mut max_allowed: SVec<(CardTarget, i32), 8> = SVec::new();
+    let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
     for t in slot_targets(&g.st, p, PlayerType::TopPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]) {
         max_allowed.push((t, 9999));
     }
@@ -81,7 +81,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
             Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
             _ => return Ok(()),
         };
-        let map: SVec<(CardTarget, i32), 8> = match results.first().copied().unwrap_or(Res::Null) {
+        let map: SVec<(CardTarget, i32), 16> = match results.first().copied().unwrap_or(Res::Null) {
             Res::DamageMap(m) => m,
             _ => SVec::new(),
         };
