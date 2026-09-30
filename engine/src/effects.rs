@@ -133,6 +133,11 @@ pub enum Effect {
     PreventRetreat { b: AtkBase },
     /// `AddSpecialConditionsPowerEffect` (check-effects; non-attack source).
     AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32 },
+    /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
+    /// `attackDamageReductionNextTurn = max(0, reduction)`.
+    ReduceDamage { b: AtkBase, reduction: i32 },
+    /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
+    SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -214,6 +219,8 @@ impl Effect {
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
+            ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
+            SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -252,6 +259,7 @@ impl Effect {
             | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
+            ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -274,6 +282,7 @@ impl Effect {
             | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
+            ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -353,6 +362,8 @@ impl Effect {
             MoveDamageCounters { .. } => 68,
             PreventRetreat { .. } => 69,
             AddSpecialConditionsPower { .. } => 70,
+            ReduceDamage { .. } => 110,
+            SwitchOutOpponentsActive { .. } => 111,
         };
         k
     }
@@ -431,6 +442,8 @@ pub mod k {
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
     pub const PREVENT_RETREAT: u32 = 69;
     pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
+    pub const REDUCE_DAMAGE: u32 = 110;
+    pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

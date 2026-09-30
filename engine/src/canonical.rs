@@ -72,6 +72,7 @@ impl Game {
         nd!(cannot_retreat_next_turn, "cannotRetreatNextTurn");
         nd!(cannot_retreat_next_turn_pending, "cannotRetreatNextTurnPending");
         nd!(damage_reduction_next_turn, "damageReductionNextTurn");
+        nd!(attack_damage_reduction_next_turn, "attackDamageReductionNextTurn");
         if !s.cannot_use_attacks_next_turn.is_empty() {
             o.insert("cannotUseAttacksNextTurn".into(), json!(s.cannot_use_attacks_next_turn.as_slice()));
         }
@@ -161,6 +162,7 @@ impl Game {
         nd!(chains_of_control_used, "chainsOfControlUsed");
         nd!(pecharuntex_is_in_play, "pecharuntexIsInPlay");
         nd!(used_run_errand, "usedRunErrand");
+        nd!(used_lunar_cycle, "usedLunarCycle");
         nd!(rocket_supporter, "rocketSupporter");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
