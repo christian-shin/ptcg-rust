@@ -1,15 +1,27 @@
-//! Copied attacks: `copy-attack-delegation.ts` and `copy-attack-prefabs.ts`.
+//! Copy-attack delegation: ports of `prefabs/copy-attack-delegation.ts` and
+//! `prefabs/copy-attack-prefabs.ts`.
 //!
-//! Twinleaf runs a copied attack as a fresh `AttackEffect` for a clone of the
-//! source card's attack, and keeps a "session" that re-runs the source card's
-//! `reduceEffect` bound to the copycat (`sourceCard.reduceEffect.call(copycat)`,
-//! with `copycat.attacks` temporarily set to the clones) after every effect of
-//! the copied attack's lifecycle.
+//! Twinleaf runs a copied attack as a fresh `AttackEffect` carrying a clone
+//! of the source card's attack (`cloneAttacks`). After the normal fan-out of
+//! every effect, `resolveCopyAttackSessions` runs the source card's
+//! `reduceEffect` with `this` = the copycat (and the copycat's `attacks`
+//! temporarily replaced by the clones) for the effects of the copied attack's
+//! lifecycle. The sessions are module state; they outlive the attack
+//! (EndTurn / BetweenTurns / BeginTurn / damage to the copycat keep being
+//! delegated) until 4 EndTurns passed or the copycat left play.
 //!
-//! Twinleaf keeps the sessions in a module-level array; here they live in
-//! [`Game`] so clones of a game stay independent. A cloned attack is an
-//! [`AttackRef`] on the source card whose index carries a clone generation in
-//! its high bits, so it never equals a printed attack (object identity in TS).
+//! Rust model:
+//! * A clone is an [`AttackRef`] on the *source* card with
+//!   [`AttackRef::CLONE`] set and the session serial in bits 4..6, so it is
+//!   distinct from the source's own attack and from the copycat's printed
+//!   attacks, and `attack_def` still resolves it.
+//! * Sessions live in [`Game::copy_sessions`] (so trial dispatch discards
+//!   them, unlike Twinleaf's module array).
+//! * Delegation calls the source port's `reduce` with `me` = copycat while
+//!   [`Game::deleg`] is set: `was_attack_used`/`my_attack` then compare with
+//!   the clones, and card continuations the source code creates are tagged
+//!   (`Cont::DelegCard`, `CoinCb::DelegCard`) so they resume in the source's
+//!   port. Card handlers reached through nested effects run undelegated.
 //!
 //! Oracle caveat: the oracle's trial-dispatch rollback (`legalTurnOptions`)
 //! does not snapshot the module-level session array, so every trial of a turn
@@ -17,80 +29,86 @@
 //! a session's end-turn budget and can drop sessions. Rust trials run on game
 //! copies and do not. The difference is only observable when a delegated
 //! source card reacts to effects outside the copied attack itself.
-
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
+use crate::engine::attack::{self, AttackFrame};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::prompts::*;
 use crate::state::*;
 use crate::types::*;
 
-/// `CopyAttackSession`.
+/// `DEFAULT_END_TURN_BUDGET`.
+pub const END_TURN_BUDGET: i8 = 4;
+
 #[derive(Clone, Copy, Debug)]
 pub struct CopySession {
-    /// Object identity of the session.
-    pub id: u16,
     pub copycat: CardId,
     pub source: CardId,
-    /// Clone generation of this session's `clonedAttacks`.
-    pub gen: u8,
-    pub player_id: u8,
-    pub end_turns_remaining: i8,
+    pub serial: u8,
+    /// Player index (Twinleaf stores the id).
+    pub player: u8,
+    pub end_turns: i8,
 }
 
-/// The copycat's `attacks` are the session's clones while this is set
-/// (`withTemporaryDelegatedAttacks`).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Delegating {
+/// Source code currently running as `.call(copycat)`.
+#[derive(Clone, Copy, Debug)]
+pub struct Deleg {
     pub copycat: CardId,
     pub source: CardId,
-    pub gen: u8,
+    pub serial: u8,
+    /// Inside `delegateToSource` (the copycat's `attacks` are the clones);
+    /// false inside callbacks created by it.
+    pub attacks: bool,
 }
 
-const DEFAULT_END_TURN_BUDGET: i8 = 4;
-
-/// The clone of `source`'s attack `ai` in generation `gen`.
-pub fn cloned(source: CardId, gen: u8, ai: usize) -> AttackRef {
-    AttackRef { card: source, index: (gen << 4) | ai as u8 }
+pub fn clone_ref(source: CardId, serial: u8, index: u8) -> AttackRef {
+    AttackRef { card: source, index: AttackRef::CLONE | ((serial & 7) << 4) | (index & 0x0F) }
 }
 
-fn is_cloned_attack(s: &CopySession, a: AttackRef) -> bool {
-    a.card == s.source && a.index >> 4 == s.gen
+fn is_session_clone(s: &CopySession, a: AttackRef) -> bool {
+    a.is_clone() && a.card == s.source && (a.index >> 4) & 7 == s.serial & 7
 }
 
-fn is_copycat_in_play(g: &Game, copycat: CardId) -> bool {
-    (0..2).any(|p| g.st.players[p].in_play().iter().any(|s| g.st.slot_pokemon(p, *s) == Some(copycat)))
+fn copycat_in_play(g: &Game, c: CardId) -> bool {
+    (0..2).any(|p| g.st.players[p].in_play().iter().any(|s| g.st.slot_pokemon(p, *s) == Some(c)))
 }
 
-fn target_includes_copycat(g: &Game, t: SlotRef, copycat: CardId) -> bool {
-    g.st.slot(t.p as usize, t.s).cards.contains(copycat)
+fn target_includes(g: &Game, t: SlotRef, c: CardId) -> bool {
+    g.st.slot(t.p as usize, t.s).cards.contains(c)
 }
 
 /// `shouldDelegateCopyAttackSession`.
-fn should_delegate(g: &Game, s: &CopySession, e: &Effect) -> bool {
-    match *e {
+fn should_delegate(g: &Game, s: &CopySession, id: EffId) -> bool {
+    match *g.e(id) {
         Effect::EndTurn { .. } | Effect::BetweenTurns { .. } | Effect::BeginTurn { .. } => true,
-        Effect::KnockOut { .. } => {
-            g.st.phase == GamePhase::Attack && g.st.players[g.st.active_player as usize].id == s.player_id
-        }
-        Effect::DealDamage { b, .. } => target_includes_copycat(g, b.target, s.copycat),
-        Effect::PutDamage { b, .. } | Effect::PutCounters { b, .. } => {
-            target_includes_copycat(g, b.target, s.copycat) || is_cloned_attack(s, b.attack)
-        }
-        Effect::AfterDamage { b, .. } => is_cloned_attack(s, b.attack),
-        Effect::Attack { attack, .. } | Effect::BeforeDoingDamage { attack, .. } | Effect::AfterAttack { attack, .. } => {
-            is_cloned_attack(s, attack)
-        }
+        Effect::KnockOut { .. } => g.st.phase == GamePhase::Attack && g.st.active_player == s.player,
+        Effect::DealDamage { b, .. } => target_includes(g, b.target, s.copycat),
+        Effect::PutDamage { b, .. } | Effect::PutCounters { b, .. } => target_includes(g, b.target, s.copycat) || is_session_clone(s, b.attack),
+        Effect::AfterDamage { b, .. } => is_session_clone(s, b.attack),
+        Effect::Attack { attack, .. } | Effect::BeforeDoingDamage { attack, .. } | Effect::AfterAttack { attack, .. } => is_session_clone(s, attack),
         _ => false,
     }
 }
 
-/// `resolveCopyAttackSessions`: run after every effect's propagation.
-pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
-    if g.copy_sessions.is_empty() {
+/// `delegateToSource`: the source's `reduceEffect.call(copycat, ...)`.
+fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
+    let imp = match cards::impl_for(g.st.cards[s.source as usize].def) {
+        Some(i) => i,
+        None => return Ok(()),
+    };
+    if imp.mask & (1u128 << g.e(id).kind()) == 0 {
         return Ok(());
     }
+    let saved = g.deleg;
+    g.deleg = Some(Deleg { copycat: s.copycat, source: s.source, serial: s.serial, attacks: true });
+    let r = (imp.reduce)(g, s.copycat, id);
+    g.deleg = saved;
+    r
+}
+
+/// `resolveCopyAttackSessions` (runs after every effect's fan-out).
+pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
     let mut i = g.copy_sessions.len();
     while i > 0 {
         i -= 1;
@@ -99,20 +117,21 @@ pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
             // `copyAttackSessions[i]` spliced away by a nested reduce.
             None => crate::bail!("TypeError: Cannot read properties of undefined (reading 'copycatCard')"),
         };
-        if !is_copycat_in_play(g, s.copycat) {
+        if !copycat_in_play(g, s.copycat) {
             g.copy_sessions.remove_at(i);
             continue;
         }
-        let e = *g.e(id);
-        if !should_delegate(g, &s, &e) {
+        if !should_delegate(g, &s, id) {
             continue;
         }
-        delegate_to_source(g, &s, id)?;
-        if matches!(e, Effect::EndTurn { .. }) {
-            let mut left = s.end_turns_remaining - 1;
-            if let Some(cur) = g.copy_sessions.as_mut_slice().iter_mut().find(|x| x.id == s.id) {
-                cur.end_turns_remaining -= 1;
-                left = cur.end_turns_remaining;
+        delegate(g, s, id)?;
+        if let Effect::EndTurn { .. } = *g.e(id) {
+            // `session.endTurnsRemaining -= 1` on the captured object, then
+            // `copyAttackSessions.splice(i, 1)` by index (a no-op past the end).
+            let mut left = s.end_turns - 1;
+            if let Some(x) = g.copy_sessions.as_mut_slice().iter_mut().find(|x| x.copycat == s.copycat && x.serial == s.serial) {
+                x.end_turns -= 1;
+                left = x.end_turns;
             }
             if left <= 0 && i < g.copy_sessions.len() {
                 g.copy_sessions.remove_at(i);
@@ -122,52 +141,52 @@ pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
-/// `delegateToSource`: the source card's handler with `this` = copycat.
-fn delegate_to_source(g: &mut Game, s: &CopySession, id: EffId) -> R {
-    let imp = match cards::impl_for(g.st.cards[s.source as usize].def) {
+/// `openCopyAttackSession`; returns the clone of `source`'s attack `index`.
+fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: u8) -> AttackRef {
+    g.copy_sessions.retain(|s| s.copycat != copycat);
+    g.copy_serial = g.copy_serial.wrapping_add(1);
+    let serial = g.copy_serial;
+    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, end_turns: END_TURN_BUDGET });
+    let clone = clone_ref(source, serial, index);
+    g.st.player_last_attack[p] = Some((clone, copycat));
+    clone
+}
+
+/// Resume a continuation created by delegated source code.
+pub fn resume_deleg(g: &mut Game, card: CardId, source: CardId, serial: u8, frame: CardFrame, results: &[Res], coin: Option<bool>) -> R {
+    let imp = match cards::impl_for(g.st.cards[source as usize].def) {
         Some(i) => i,
         None => return Ok(()),
     };
-    let kind = g.e(id).kind();
-    if imp.mask & (1u128 << kind) == 0 {
-        return Ok(());
-    }
-    let prev = g.delegating;
-    g.delegating = Some(Delegating { copycat: s.copycat, source: s.source, gen: s.gen });
-    let r = (imp.reduce)(g, s.copycat, id);
-    g.delegating = prev;
+    let saved = g.deleg;
+    g.deleg = Some(Deleg { copycat: card, source, serial, attacks: false });
+    let r = match coin {
+        Some(b) => match imp.coin {
+            Some(c) => c(g, card, frame, b),
+            None => Ok(()),
+        },
+        None => match imp.resume {
+            Some(rs) => rs(g, card, frame, results),
+            None => Ok(()),
+        },
+    };
+    g.deleg = saved;
     r
 }
 
-/// `openCopyAttackSession`: returns the clone generation.
-fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, ai: usize) -> u8 {
-    g.copy_sessions.retain(|s| s.copycat != copycat);
-    g.copy_gen = g.copy_gen % 15 + 1;
-    g.copy_serial = g.copy_serial.wrapping_add(1);
-    let gen = g.copy_gen;
-    g.copy_sessions.push(CopySession {
-        id: g.copy_serial,
-        copycat,
-        source,
-        gen,
-        player_id: g.player_id(p),
-        end_turns_remaining: DEFAULT_END_TURN_BUDGET,
-    });
-    g.st.player_last_attack[p] = Some((cloned(source, gen, ai), copycat));
-    gen
-}
-
 // ---------------------------------------------------------------------------
-// COPY_ATTACK_FROM_POKEMON_LIST
+// Generators
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CopyStage {
-    /// ChooseAttackPrompt answered.
-    Chosen,
-    AfterAttackEffect,
-    AfterBeforeDoingDamage,
-    AfterDealDamage,
-    AfterAfterAttack,
+    /// COPY_ATTACK_FROM_POKEMON_LIST: ChooseAttackPrompt answered.
+    ListChosen,
+    /// COPY_ATTACK_VIA_ABILITY: ChooseAttackPrompt answered.
+    AbilityChosen,
+    AfterAttackFx,
+    AfterBefore,
+    AfterDeal,
+    AfterAfter,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -175,181 +194,278 @@ pub struct CopyFrame {
     pub stage: CopyStage,
     pub p: u8,
     pub copycat: CardId,
-    /// `effect.source` of the copycat's AttackEffect.
-    pub source_slot: SlotRef,
-    pub cards: SVec<CardId, 8>,
-    pub disallow_copycat: bool,
-    /// The copied AttackEffect (after `Chosen`).
-    pub atk: EffId,
+    pub source: CardId,
+    /// The clone being run.
     pub attack: AttackRef,
+    /// The clone's `AttackEffect` (retained while the generator runs).
+    pub atk: EffId,
+    pub src_slot: SlotRef,
+    /// COPY_ATTACK_FROM_POKEMON_LIST's try/catch: errors end the copy silently.
+    pub catch: bool,
+    /// useAttack continuation (delegateFrom path): the animation follows.
+    pub then: Option<AttackFrame>,
+    /// ChooseAttackPrompt cards.
+    pub cards: SVec<CardId, 8>,
 }
 
-pub struct CopyOpts {
-    pub allow_cancel: bool,
-    pub disallow_copycat_attack: bool,
+impl CopyFrame {
+    fn new(stage: CopyStage, p: usize, copycat: CardId, src_slot: SlotRef) -> CopyFrame {
+        CopyFrame {
+            stage,
+            p: p as u8,
+            copycat,
+            source: NO_CARD,
+            attack: AttackRef { card: NO_CARD, index: 0 },
+            atk: 0,
+            src_slot,
+            catch: false,
+            then: None,
+            cards: SVec::new(),
+        }
+    }
 }
 
-/// `COPY_ATTACK_FROM_POKEMON_LIST(store, state, effect, pokemonCards, options)`
-/// with `maxRetries` 1, no `blocked`, default prompt player.
-pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, pokemon: &[CardId], o: CopyOpts) -> R {
+/// `findPokemonCardForAttack`.
+fn find_pokemon_for_attack(g: &Game, cards: &[CardId], a: AttackRef) -> Option<CardId> {
+    let name = attack::attack_def(g, a).name;
+    cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && (*c == a.card || g.st.cdef(*c).attacks.iter().any(|x| x.name == name)))
+}
+
+/// `findAttackIndex(source, attack)`.
+fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
+    if a.card == source && !a.is_clone() {
+        return Some(a.idx() as u8);
+    }
+    let name = attack::attack_def(g, a).name;
+    g.st.cdef(source).attacks.iter().position(|x| x.name == name).map(|i| i as u8)
+}
+
+/// `COPY_ATTACK_FROM_POKEMON_LIST(store, state, effect, pokemonCards, { allowCancel })`
+/// (disallowCopycatAttack, maxRetries 1, no extra blocked attacks).
+pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool) -> R {
     let (p, source) = match *g.e(atk) {
         Effect::Attack { p, source, .. } => (p as usize, source),
         _ => return Ok(()),
     };
-    if pokemon.is_empty() {
+    if cards.is_empty() {
         return Ok(());
     }
     let copycat = match g.st.slot_pokemon(source.p as usize, source.s) {
         Some(c) => c,
         None => return Ok(()),
     };
-    // blockCannotUseAttacksNextTurn: `cannotUseAttacksNextTurn` is not modeled
-    // (no ported card sets it), so nothing is blocked.
-    let mut cards: SVec<CardId, 8> = SVec::new();
-    for &c in pokemon {
-        cards.push(c);
+    // blockCannotUseAttacksNextTurn: cannotUseAttacksNextTurn is not modeled.
+    let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
+    f.catch = true;
+    let mut pc: SVec<CardId, 8> = SVec::new();
+    for &c in cards {
+        f.cards.push(c);
+        pc.push(c);
     }
-    let f = CopyFrame {
-        stage: CopyStage::Chosen,
-        p: p as u8,
-        copycat,
-        source_slot: source,
-        cards,
-        disallow_copycat: o.disallow_copycat_attack,
-        atk: 0,
-        attack: AttackRef { card: NO_CARD, index: 0 },
-    };
     let id = g.player_id(p);
     g.prompt(
         id,
         "CHOOSE_ATTACK_TO_COPY",
-        PromptKind::ChooseAttack { cards, allow_cancel: o.allow_cancel, blocked_message: "NOT_ENOUGH_ENERGY", blocked: SVec::new() },
+        PromptKind::ChooseAttack { cards: pc, allow_cancel, blocked_message: "NOT_ENOUGH_ENERGY", blocked: SVec::new() },
         Cont::CopyAttack(f),
     );
     Ok(())
 }
 
-/// `findPokemonCardForAttack`: first card whose attacks include one of that name.
-fn find_pokemon_card_for_attack(g: &Game, cards: &[CardId], name: &str) -> Option<CardId> {
-    cards.iter().copied().find(|c| {
-        let d = g.st.cdef(*c);
-        d.is_pokemon() && d.attacks.iter().any(|a| a.name == name)
-    })
-}
-
-pub fn resume(g: &mut Game, mut f: CopyFrame, results: &[Res]) -> R {
-    if f.stage == CopyStage::Chosen {
-        let chosen = match results.first().copied().unwrap_or(Res::Null) {
-            Res::Attack(a) => a,
-            _ => return Ok(()),
-        };
-        // isAttackLockedNextTurn: not modeled (see above).
-        let ad = &g.st.cdef(chosen.card).attacks[chosen.ai()];
-        if f.disallow_copycat && ad.copycat_attack {
-            return Ok(());
-        }
-        let name = ad.name;
-        let source = match find_pokemon_card_for_attack(g, f.cards.as_slice(), name) {
-            Some(c) => c,
-            None => return Ok(()),
-        };
-        // findAttackIndex: by reference, else by name.
-        let ai = if source == chosen.card {
-            chosen.ai()
-        } else {
-            match g.st.cdef(source).attacks.iter().position(|a| a.name == name) {
-                Some(i) => i,
-                None => return Ok(()),
-            }
-        };
-        let p = f.p as usize;
-        let gen = open_session(g, p, f.copycat, source, ai);
-        let attack = cloned(source, gen, ai);
-        let damage = g.st.cdef(source).attacks[ai].damage;
-        let atk = g.new_fx(Effect::Attack {
-            p: f.p,
-            opp: (1 - p) as u8,
-            attack,
-            damage,
-            ignore_weakness: false,
-            ignore_resistance: false,
-            source: f.source_slot,
-            barrage_used: false,
-        });
-        f.atk = atk;
-        f.attack = attack;
-        // `try { yield* runDelegatedCopiedAttackGenerator } catch { return }`.
-        if g.reduce_effect(atk).is_err() {
-            g.release_fx(atk);
-            return Ok(());
-        }
-        return step(g, f, CopyStage::AfterAttackEffect);
+/// `COPY_ATTACK_VIA_ABILITY(store, state, effect, { copycatCard, filter: cardList !== player.active })`
+/// (allowCancel, requireActiveCopycat, own in-play Pokémon only).
+pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
+    let active = g.st.players[p].active;
+    if g.st.slot_pokemon(p, active) != Some(copycat) {
+        crate::bail!("CANNOT_USE_POWER");
     }
-    let r = match f.stage {
-        CopyStage::AfterAttackEffect => before_doing_damage(g, f),
-        CopyStage::AfterBeforeDoingDamage => deal_damage(g, f),
-        CopyStage::AfterDealDamage => after_attack(g, f),
-        _ => {
-            g.release_fx(f.atk);
-            return Ok(());
-        }
+    // buildAttackListWithEnergyBlocking.
+    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, active), energy_map: SVec::new() })?;
+    let emap = match pe {
+        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
+        _ => SVec::new(),
     };
-    if r.is_err() {
-        g.release_fx(f.atk);
+    let mut cards: SVec<CardId, 8> = SVec::new();
+    let mut blocked: SVec<(u8, u8), 16> = SVec::new();
+    for (s, c, _) in crate::prefabs::for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        if s == active {
+            continue;
+        }
+        let n = g.st.cdef(c).attacks.len();
+        let mut affordable = [false; 8];
+        for i in 0..n {
+            let a = AttackRef { card: c, index: i as u8 };
+            let mut cost: Cost = SVec::new();
+            for &t in g.st.cdef(c).attacks[i].cost {
+                cost.push(t);
+            }
+            let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack: a, cost })?;
+            let cost = match ce {
+                Effect::CheckAttackCost { cost, .. } => cost,
+                _ => SVec::new(),
+            };
+            affordable[i] = crate::energy::check_enough_energy(emap.as_slice(), cost.as_slice());
+        }
+        let index = cards.len() as u8;
+        cards.push(c);
+        // cannotUseAttacksNextTurn locks: not modeled.
+        for i in 0..n {
+            if !affordable[i] {
+                blocked.push((index, i as u8));
+            }
+        }
     }
+    if cards.is_empty() {
+        crate::bail!("CANNOT_USE_POWER");
+    }
+    let mut f = CopyFrame::new(CopyStage::AbilityChosen, p, copycat, SlotRef::new(p, active));
+    for c in cards.iter() {
+        f.cards.push(*c);
+    }
+    let id = g.player_id(p);
+    g.prompt(
+        id,
+        "CHOOSE_ATTACK_TO_COPY",
+        PromptKind::ChooseAttack { cards, allow_cancel: true, blocked_message: "NOT_ENOUGH_ENERGY", blocked },
+        Cont::CopyAttack(f),
+    );
     Ok(())
 }
 
-/// `if (store.hasPrompts()) yield store.waitPrompt(...)`, else continue.
-fn step(g: &mut Game, mut f: CopyFrame, next: CopyStage) -> R {
-    if g.has_prompts() {
-        f.stage = next;
-        g.wait_prompt(Cont::CopyAttack(f));
-        return Ok(());
-    }
-    f.stage = next;
-    resume(g, f, &[])
-}
-
-fn before_doing_damage(g: &mut Game, f: CopyFrame) -> R {
-    let p = f.p;
-    g.run_fx(Effect::BeforeDoingDamage { attack_effect: f.atk, p, opp: 1 - p, attack: f.attack })?;
-    step(g, f, CopyStage::AfterBeforeDoingDamage)
-}
-
-fn deal_damage(g: &mut Game, f: CopyFrame) -> R {
-    let (damage, source) = match *g.e(f.atk) {
-        Effect::Attack { damage, source, .. } => (damage, source),
-        _ => (0, f.source_slot),
+/// useAttack's `delegateFrom` branch: `runDelegatedCopiedAttackGenerator`
+/// (skipLog), then the attack animation.
+pub fn run_delegated_from_use_attack(g: &mut Game, af: AttackFrame, copycat: CardId, source: CardId) -> R {
+    let index = match find_attack_index(g, source, af.attack) {
+        Some(i) => i,
+        None => return attack::animation(g, af),
     };
-    if damage > 0 {
-        let o = 1 - f.p as usize;
-        let target = SlotRef::new(o, g.st.players[o].active);
-        let b = AtkBase { attack_effect: f.atk, player: f.p, opponent: o as u8, attack: f.attack, source, target };
-        g.run_fx(Effect::DealDamage { b, damage })?;
-        return step(g, f, CopyStage::AfterDealDamage);
+    let mut f = CopyFrame::new(CopyStage::AfterAttackFx, af.p as usize, copycat, af.attacking);
+    f.then = Some(af);
+    start_delegated(g, f, source, index)
+}
+
+fn start_delegated(g: &mut Game, mut f: CopyFrame, source: CardId, index: u8) -> R {
+    let p = f.p as usize;
+    let clone = open_session(g, p, f.copycat, source, index);
+    f.source = source;
+    f.attack = clone;
+    let damage = attack::attack_def(g, clone).damage;
+    let atk = g.new_fx(Effect::Attack {
+        p: p as u8,
+        opp: (1 - p) as u8,
+        attack: clone,
+        damage,
+        ignore_weakness: false,
+        ignore_resistance: false,
+        source: f.src_slot,
+        barrage_used: false,
+    });
+    f.atk = atk;
+    f.stage = CopyStage::AfterAttackFx;
+    let r = g.reduce_effect(atk);
+    finish_step(g, f, r, wait_if_prompts)
+}
+
+/// Apply the generator's error policy to a stage result, then either
+/// suspend (`wait` returned true) or continue with the next stage.
+fn finish_step(g: &mut Game, mut f: CopyFrame, r: R, wait: impl FnOnce(&mut Game, &mut CopyFrame) -> R<bool>) -> R {
+    let r = r.and_then(|_| wait(g, &mut f));
+    match r {
+        Ok(true) => Ok(()),
+        Ok(false) => next_stage(g, f),
+        Err(e) => {
+            g.release_fx(f.atk);
+            if f.catch {
+                Ok(())
+            } else {
+                Err(e)
+            }
+        }
     }
-    after_attack(g, f)
 }
 
-fn after_attack(g: &mut Game, f: CopyFrame) -> R {
-    let p = f.p;
-    g.run_fx(Effect::AfterAttack { p, opp: 1 - p, attack: f.attack })?;
-    step(g, f, CopyStage::AfterAfterAttack)
-}
-
-/// Frames created while a source handler runs for the copycat resume that
-/// source's port (the TS closure captured the source method).
-pub fn route_cont(g: &Game, c: Cont) -> Cont {
-    match (g.delegating, c) {
-        (Some(d), Cont::Card { card, frame }) if card == d.copycat => Cont::CardAs { imp: d.source, card, frame },
-        _ => c,
+fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
+    let (p, opp) = (f.p, 1 - f.p);
+    match f.stage {
+        CopyStage::AfterAttackFx => {
+            f.stage = CopyStage::AfterBefore;
+            let r = g.run_fx(Effect::BeforeDoingDamage { attack_effect: f.atk, p, opp, attack: f.attack }).map(|_| ());
+            finish_step(g, f, r, wait_if_prompts)
+        }
+        CopyStage::AfterBefore => {
+            f.stage = CopyStage::AfterDeal;
+            let damage = match *g.e(f.atk) {
+                Effect::Attack { damage, .. } => damage,
+                _ => 0,
+            };
+            if damage > 0 {
+                let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
+                let b = AtkBase { attack_effect: f.atk, player: p, opponent: opp, attack: f.attack, source: f.src_slot, target };
+                let r = g.run_fx(Effect::DealDamage { b, damage }).map(|_| ());
+                return finish_step(g, f, r, wait_if_prompts);
+            }
+            next_stage(g, f)
+        }
+        CopyStage::AfterDeal => {
+            f.stage = CopyStage::AfterAfter;
+            let r = g.run_fx(Effect::AfterAttack { p, opp, attack: f.attack }).map(|_| ());
+            finish_step(g, f, r, wait_if_prompts)
+        }
+        CopyStage::AfterAfter => {
+            g.release_fx(f.atk);
+            match f.then {
+                Some(af) => attack::animation(g, af),
+                None => Ok(()),
+            }
+        }
+        CopyStage::ListChosen | CopyStage::AbilityChosen => Ok(()),
     }
 }
 
-pub fn resume_card_as(g: &mut Game, imp: CardId, card: CardId, f: CardFrame, results: &[Res]) -> R {
-    match cards::impl_for(g.st.cards[imp as usize].def).and_then(|i| i.resume) {
-        Some(r) => r(g, card, f, results),
-        None => Ok(()),
+fn wait_if_prompts(g: &mut Game, f: &mut CopyFrame) -> R<bool> {
+    if g.has_prompts() {
+        g.wait_prompt(Cont::CopyAttack(*f));
+        return Ok(true);
+    }
+    Ok(false)
+}
+
+pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
+    match f.stage {
+        CopyStage::ListChosen => {
+            let a = match res {
+                Res::Attack(a) => a,
+                _ => return Ok(()),
+            };
+            // isAttackLockedNextTurn: not modeled.
+            if attack::attack_def(g, a).copycat_attack {
+                return Ok(());
+            }
+            let source = match find_pokemon_for_attack(g, f.cards.as_slice(), a) {
+                Some(c) => c,
+                None => return Ok(()),
+            };
+            let index = match find_attack_index(g, source, a) {
+                Some(i) => i,
+                None => return Ok(()),
+            };
+            start_delegated(g, f, source, index)
+        }
+        CopyStage::AbilityChosen => {
+            let a = match res {
+                Res::Attack(a) => a,
+                _ => return Ok(()),
+            };
+            let source = match find_pokemon_for_attack(g, f.cards.as_slice(), a) {
+                Some(c) => c,
+                None => return Ok(()),
+            };
+            let p = f.p as usize;
+            let active = SlotRef::new(p, g.st.players[p].active);
+            g.run_fx(Effect::UseAttack { p: f.p, attack: a, source: active, ignore_status_conditions: false, barrage_used: false, delegate_from: Some(source) })?;
+            Ok(())
+        }
+        // A wait item fired: continue after the stage that suspended.
+        _ => next_stage(g, f),
     }
 }

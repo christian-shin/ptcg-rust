@@ -49,7 +49,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 m.remove(trump());
             }
         }
-        Effect::AfterAttack { p, attack, .. } if attack == (AttackRef { card: me, index: 0 }) => {
+        Effect::AfterAttack { p, attack, .. } if attack == my_attack(g, me, 0) => {
             let p = p as usize;
             let a = g.st.players[p].active;
             move_pokemon_off_board(g, SlotRef::new(p, a), ListRef::Hand(p as u8), me)?;

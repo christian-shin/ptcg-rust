@@ -129,16 +129,28 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
 // ---------------------------------------------------------------------------
 // Effect predicates
 
+/// `this.attacks[index]`: while a copy-attack source's code runs as
+/// `.call(copycat)`, the copycat's attacks are the session's clones.
+pub fn my_attack(g: &Game, me: CardId, index: u8) -> AttackRef {
+    match g.deleg {
+        Some(d) if d.attacks && d.copycat == me => crate::copy_attack::clone_ref(d.source, d.serial, index),
+        _ => AttackRef { card: me, index },
+    }
+}
+
 /// `WAS_ATTACK_USED(effect, index, this)`.
 ///
 /// While a copy-attack session runs a source handler for the copycat, the
 /// copycat's attacks are the session's clones (`withTemporaryDelegatedAttacks`).
 pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
-    let want = match g.delegating {
-        Some(d) if d.copycat == me => crate::copy_attack::cloned(d.source, d.gen, index as usize),
-        _ => AttackRef { card: me, index },
-    };
-    matches!(*g.e(e), Effect::Attack { attack, .. } if attack == want)
+    let mine = my_attack(g, me, index);
+    matches!(*g.e(e), Effect::Attack { attack, .. } if attack == mine)
+}
+
+/// `AFTER_ATTACK(effect, index, this)`.
+pub fn after_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
+    let mine = my_attack(g, me, index);
+    matches!(*g.e(e), Effect::AfterAttack { attack, .. } if attack == mine)
 }
 
 /// `WAS_POWER_USED(effect, index, this)` (the lock probe never matches).
@@ -573,6 +585,7 @@ pub fn search_deck_for_pokemon_to_bench(g: &mut Game, p: usize, mut filter: Filt
 /// `MULTIPLE_COIN_FLIPS_PROMPT` / `FLIP_UNTIL_TAILS` (`mode` 0 = until tails):
 /// the callback receives the results as a bitmask (bit i = flip i heads) and count.
 pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb) -> R {
+    let cb = g.tag_coin(cb);
     g.coin_callbacks.push(cb);
     let k = (g.coin_callbacks.len() - 1) as u8;
     g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false })?;

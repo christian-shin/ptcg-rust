@@ -336,22 +336,22 @@ impl Player {
 pub struct AttackRef {
     /// Card instance that owns the attack object.
     pub card: CardId,
-    /// Attack index in the card's printed list (low 4 bits). The high 4 bits
-    /// are a copy-attack clone generation (0 = the printed attack object);
-    /// see [`AttackRef::ai`].
+    /// Attack index; with [`AttackRef::CLONE`] set it is a copy-attack
+    /// clone (`cloneAttacks`, see `copy_attack.rs`): bits 4..6 hold the
+    /// session serial, bits 0..3 the index into `card`'s attacks.
     pub index: u8,
 }
 
 impl AttackRef {
-    /// Index into the printed attack list (clone generation stripped).
+    pub const CLONE: u8 = 0x80;
+    /// Index into the owning card's printed attacks.
     #[inline]
-    pub fn ai(self) -> usize {
-        (self.index & 0x0f) as usize
+    pub fn idx(self) -> usize {
+        (self.index & 0x0F) as usize
     }
-    /// A copy-attack clone (`cloneAttack`) of this printed attack.
     #[inline]
     pub fn is_clone(self) -> bool {
-        self.index & 0xf0 != 0
+        self.index & Self::CLONE != 0
     }
 }
 
@@ -393,10 +393,10 @@ pub struct State {
     pub player_last_attack: [Option<(AttackRef, CardId)>; 2],
     pub is_sudden_death: bool,
     pub bench_size_change_handled: bool,
-    pub ability_lock_order_counter: i32,
-    /// Players whose AddPlayerAction succeeded (an invalid deck finishes the
-    /// game before it is added).
+    /// Players Twinleaf actually added (an invalid deck finishes the game
+    /// before its AddPlayerAction adds the player).
     pub players_added: u8,
+    pub ability_lock_order_counter: i32,
 }
 
 impl State {
@@ -415,8 +415,8 @@ impl State {
             player_last_attack: [None, None],
             is_sudden_death: false,
             bench_size_change_handled: false,
-            ability_lock_order_counter: 0,
             players_added: 2,
+            ability_lock_order_counter: 0,
         }
     }
 

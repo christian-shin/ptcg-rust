@@ -55,10 +55,11 @@ pub enum Cont {
     /// Sudden death: first-player coin flip.
     SuddenDeathCoin,
     Card { card: CardId, frame: CardFrame },
-    /// A card frame created by `imp`'s handler running for `card` (copy-attack delegation).
-    CardAs { imp: CardId, card: CardId, frame: CardFrame },
-    /// COPY_ATTACK_FROM_POKEMON_LIST / runDelegatedCopiedAttackGenerator.
+    /// Copy-attack generators (`copy_attack.rs`).
     CopyAttack(crate::copy_attack::CopyFrame),
+    /// A card continuation created by a source card's code running as
+    /// `.call(copycat)` (copy-attack delegation): resumed with the source's port.
+    DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
 }
 
 /// `checkState(..., onComplete)` callbacks.
@@ -81,6 +82,9 @@ pub enum CoinCb {
     Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8 },
     /// Final callback of a sequence: card receives (bitmask, count) via `frame.a[2..]`.
     SequenceCard { card: CardId, frame: CardFrame },
+    /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).
+    DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
+    DelegSequenceCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -97,6 +101,8 @@ pub struct EffSlot {
 }
 
 pub const MAX_FX: usize = 24;
+/// Scratch CardLists alive at once (duplicated cards can run one handler several times per effect).
+pub const MAX_TEMPS: usize = 8;
 
 /// Player actions (`game-actions.ts`, `play-card-action.ts`).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -134,8 +140,8 @@ pub struct Game {
     pub items: SVec<PromptItem, 10>,
     pub waits: SVec<Cont, 16>,
     pub fx: SVec<EffSlot, MAX_FX>,
-    pub temps: [List<120>; 3],
-    pub temp_used: [bool; 3],
+    pub temps: [List<120>; MAX_TEMPS],
+    pub temp_used: [bool; MAX_TEMPS],
     /// Callbacks referenced by pending `CoinFlipEffect`s.
     pub coin_callbacks: SVec<CoinCb, 16>,
     /// Trainer whose effect is creating prompts (`Store.resolvingTrainer`).
@@ -146,12 +152,11 @@ pub struct Game {
     pub kinds_present: crate::effects::KindMask,
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
     pub trace_effects: bool,
-    /// `copyAttackSessions` (copy-attack-delegation.ts module state).
+    /// Copy-attack sessions (`copyAttackSessions`, module state in Twinleaf).
     pub copy_sessions: SVec<crate::copy_attack::CopySession, 8>,
-    pub copy_gen: u8,
-    pub copy_serial: u16,
-    /// Source handler currently running bound to a copycat.
-    pub delegating: Option<crate::copy_attack::Delegating>,
+    pub copy_serial: u8,
+    /// Source card code currently running as `.call(copycat)`.
+    pub deleg: Option<crate::copy_attack::Deleg>,
 }
 
 pub struct EffectLog;
@@ -170,17 +175,16 @@ impl Game {
             items: SVec::new(),
             waits: SVec::new(),
             fx: SVec::new(),
-            temps: [List::new(); 3],
-            temp_used: [false; 3],
+            temps: [List::new(); MAX_TEMPS],
+            temp_used: [false; MAX_TEMPS],
             coin_callbacks: SVec::new(),
             resolving_trainer: None,
             probing_stadium: false,
             kinds_present: 0,
             trace_effects: false,
             copy_sessions: SVec::new(),
-            copy_gen: 0,
             copy_serial: 0,
-            delegating: None,
+            deleg: None,
         }
     }
 
@@ -226,6 +230,7 @@ impl Game {
 
     /// `new CoinFlipEffect(player, callback)` reduced (COIN_FLIP_PROMPT).
     pub fn coin_flip(&mut self, p: usize, cb: CoinCb) -> R<Option<bool>> {
+        let cb = self.tag_coin(cb);
         self.coin_callbacks.push(cb);
         let k = (self.coin_callbacks.len() - 1) as u8;
         let (e, _) = self.run_fx(Effect::CoinFlip { p: p as u8, callback: Some(k), result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
@@ -273,7 +278,7 @@ impl Game {
 
     /// `store.prompt(state, prompt, then)`.
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
-        let cont = crate::copy_attack::route_cont(self, cont);
+        let cont = self.tag_cont(cont);
         let id = self.next_id();
         self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();
@@ -283,7 +288,7 @@ impl Game {
 
     /// `store.prompt(state, [prompts...], then)`.
     pub fn prompt_group(&mut self, prompts: &[(u8, &'static str, PromptKind)], cont: Cont) {
-        let cont = crate::copy_attack::route_cont(self, cont);
+        let cont = self.tag_cont(cont);
         let mut ids = SVec::new();
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
@@ -294,8 +299,27 @@ impl Game {
     }
 
     pub fn wait_prompt(&mut self, cont: Cont) {
-        let cont = crate::copy_attack::route_cont(self, cont);
+        let cont = self.tag_cont(cont);
         self.waits.push(cont);
+    }
+
+    /// Continuations created while delegated source code runs belong to the
+    /// source's port (Twinleaf closures capture the source's code).
+    pub fn tag_cont(&self, c: Cont) -> Cont {
+        match (self.deleg, c) {
+            (Some(d), Cont::Card { card, frame }) if card == d.copycat => Cont::DelegCard { card, source: d.source, serial: d.serial, frame },
+            _ => c,
+        }
+    }
+
+    pub fn tag_coin(&self, cb: CoinCb) -> CoinCb {
+        match (self.deleg, cb) {
+            (Some(d), CoinCb::Card { card, frame }) if card == d.copycat => CoinCb::DelegCard { card, source: d.source, serial: d.serial, frame },
+            (Some(d), CoinCb::SequenceCard { card, frame }) if card == d.copycat => {
+                CoinCb::DelegSequenceCard { card, source: d.source, serial: d.serial, frame }
+            }
+            _ => cb,
+        }
     }
 
     /// `WaitPrompt` with a continuation.
@@ -419,8 +443,8 @@ impl Game {
             Cont::Prefab(c) => crate::prefabs::resume(self, c, results),
             Cont::SuddenDeathCoin => check::setup_sudden_death_game(self, if first.as_bool() { 0 } else { 1 }),
             Cont::Card { card, frame } => cards::resume(self, card, frame, results),
-            Cont::CardAs { imp, card, frame } => crate::copy_attack::resume_card_as(self, imp, card, frame, results),
-            Cont::CopyAttack(f) => crate::copy_attack::resume(self, f, results),
+            Cont::CopyAttack(f) => crate::copy_attack::resume(self, f, first),
+            Cont::DelegCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, results, None),
         }
     }
 
@@ -428,6 +452,8 @@ impl Game {
         match cb {
             CoinCb::None => Ok(()),
             CoinCb::Card { card, frame } => cards::coin_result(self, card, frame, result),
+            CoinCb::DelegCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], Some(result)),
+            CoinCb::DelegSequenceCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
             CoinCb::Sequence { p, mode, results, n, callback } => {
                 let results = if result { results | (1 << n) } else { results };
@@ -447,6 +473,11 @@ impl Game {
                         frame.a[2] = results as i32;
                         frame.a[3] = n as i32;
                         cards::resume(self, card, frame, &[])
+                    }
+                    CoinCb::DelegSequenceCard { card, source, serial, mut frame } => {
+                        frame.a[2] = results as i32;
+                        frame.a[3] = n as i32;
+                        crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None)
                     }
                     other => self.run_coin_cb(other, result),
                 }
@@ -570,7 +601,9 @@ impl Game {
             }
             self.call_card(c, id, kind)?;
         }
-        crate::copy_attack::resolve_sessions(self, id)?;
+        if !self.copy_sessions.is_empty() {
+            crate::copy_attack::resolve_sessions(self, id)?;
+        }
 
         if self.prevented(id) {
             return Ok(());
@@ -590,6 +623,13 @@ impl Game {
 
     #[inline]
     fn call_card(&mut self, c: CardId, id: EffId, kind: u32) -> R {
+        if self.deleg.is_some() {
+            // A card's own handler never runs as a delegate.
+            let saved = self.deleg.take();
+            let r = self.call_card(c, id, kind);
+            self.deleg = saved;
+            return r;
+        }
         let d = self.st.cards[c as usize].def;
         if let Some(imp) = cards::impl_for(d) {
             if imp.mask & (1u128 << kind) != 0 {
@@ -681,7 +721,7 @@ impl Game {
     fn gc(&mut self) {
         if self.items.is_empty() && self.waits.is_empty() {
             self.fx.clear();
-            self.temp_used = [false; 3];
+            self.temp_used = [false; MAX_TEMPS];
             self.coin_callbacks.clear();
         }
     }

@@ -39,6 +39,8 @@ pub struct Filter {
     pub card_type: Option<CardType>,
     pub tags: Option<u32>,
     pub name: Option<&'static str>,
+    /// `cardType` was given as a one-element array (`cardType: [T]`).
+    pub card_type_list: bool,
 }
 
 impl Filter {
@@ -111,7 +113,11 @@ impl Filter {
             m.insert("energyType".into(), json!(v));
         }
         if let Some(v) = self.card_type {
-            m.insert("cardType".into(), json!(v));
+            if self.card_type_list {
+                m.insert("cardType".into(), json!([v]));
+            } else {
+                m.insert("cardType".into(), json!(v));
+            }
         }
         if let Some(v) = self.tags {
             m.insert("tags".into(), json!([TAG_NAMES[v as usize]]));
@@ -221,7 +227,7 @@ pub enum PromptKind {
     RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
-    ChooseAttack { cards: SVec<CardId, 8>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 8> },
+    ChooseAttack { cards: SVec<CardId, 8>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
 }
 
 #[derive(Clone, Copy, Debug)]
