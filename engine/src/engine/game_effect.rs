@@ -330,6 +330,17 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::Evolve { p, target, card } => evolve(g, p as usize, target, card),
+        Effect::AddSpecialConditionsPower { target, conditions, poison_damage, burn_damage, sleep_flips, confusion_damage, .. } => {
+            let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
+            for &c in conditions.iter() {
+                crate::engine::phase::add_condition(slot, SpecialCondition::from_u8(c));
+            }
+            slot.poison_damage = poison_damage;
+            slot.burn_damage = burn_damage;
+            slot.confusion_damage = confusion_damage;
+            slot.sleep_flips = sleep_flips;
+            Ok(())
+        }
         Effect::MoveCards { .. } => move_cards(g, id),
         Effect::CoinFlipSequence { p, mode, callback, .. } => {
             let cb = CoinCb::Sequence { p, mode, results: 0, n: 0, callback };

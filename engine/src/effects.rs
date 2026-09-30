@@ -131,6 +131,8 @@ pub enum Effect {
     PlayLock { b: AtkBase, locks: u16, turns_remaining: Option<i32>, both_players: bool, attacker_turns_remaining: Option<i32> },
     /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
     PreventRetreat { b: AtkBase },
+    /// `AddSpecialConditionsPowerEffect` (check-effects; non-attack source).
+    AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32 },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -211,6 +213,7 @@ impl Effect {
             PlayLock { .. } => "PLAY_LOCK_EFFECT",
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
+            AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -349,6 +352,7 @@ impl Effect {
             PlayLock { .. } => 67,
             MoveDamageCounters { .. } => 68,
             PreventRetreat { .. } => 69,
+            AddSpecialConditionsPower { .. } => 117,
         };
         k
     }
@@ -426,6 +430,7 @@ pub mod k {
     pub const PLAY_LOCK: u32 = 67;
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
     pub const PREVENT_RETREAT: u32 = 69;
+    pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 117;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].
