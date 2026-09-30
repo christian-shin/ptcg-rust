@@ -135,11 +135,13 @@ pub struct CardInst {
     pub owner: u8,
     pub moved_to_active_this_turn: bool,
     pub damage_taken_last_turn: i32,
+    /// Briar's `extraPrizes` instance field.
+    pub extra_prizes: bool,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0 }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false }
     }
 }
 

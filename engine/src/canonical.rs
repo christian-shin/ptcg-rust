@@ -187,6 +187,9 @@ impl Game {
                     diff.insert("damageTakenLastTurn".into(), json!(inst.damage_taken_last_turn));
                 }
             }
+            if inst.extra_prizes {
+                diff.insert("extraPrizes".into(), json!(true));
+            }
             if !diff.is_empty() {
                 out.insert(self.card_ref(c), Value::Object(diff));
             }

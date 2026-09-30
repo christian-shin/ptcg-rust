@@ -421,19 +421,84 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
         if g.st.players[p].bench.len() == size {
             continue;
         }
-        // Shrinking the bench (Area Zero leaving play) is not ported yet.
-        let pl = &mut g.st.players[p];
-        let mut i = pl.bench.len();
-        while i > 0 && pl.bench.len() > size {
-            i -= 1;
+        // Remove empty slots, starting from the right side.
+        let pl = &g.st.players[p];
+        let len = pl.bench.len();
+        let mut empty: SVec<SlotId, 8> = SVec::new();
+        for i in (0..len).rev() {
             let s = pl.bench.as_slice()[i];
-            if pl.slots[s as usize].cards.is_empty() {
-                pl.bench.remove_at(i);
-                pl.free_slot(s);
+            if len - empty.len() > size && pl.slots[s as usize].cards.is_empty() {
+                empty.push(s);
             }
         }
+        if len - empty.len() <= size {
+            let pl = &mut g.st.players[p];
+            for i in (0..pl.bench.len()).rev() {
+                let s = pl.bench.as_slice()[i];
+                if empty.contains(&s) {
+                    pl.bench.remove_at(i);
+                    pl.free_slot(s);
+                }
+            }
+            continue;
+        }
+        // More Pokémon than the new size: the player discards some.
+        let count = (len - empty.len() - size) as u8;
+        let mut mask = 0u16;
+        for s in empty.iter() {
+            mask |= 1 << *s;
+        }
+        let mut slots = SVec::new();
+        slots.push(SlotType::Bench as u8);
+        let id = g.player_id(p);
+        g.prompt(
+            id,
+            "CHOOSE_POKEMON_TO_DISCARD",
+            PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: count, max: count, allow_cancel: false, blocked: SVec::new() },
+            Cont::BenchShrink { p: p as u8, empty: mask },
+        );
     }
     g.st.bench_size_change_handled = true;
+}
+
+/// handleBenchSizeChange prompt callback: discard the chosen Benched Pokémon
+/// and drop them and the empty slots from the Bench.
+pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
+    let pu = p as usize;
+    let chosen: SVec<SlotRef, 8> = match res {
+        Res::Slots(s) => s,
+        _ => SVec::new(),
+    };
+    let discard = ListRef::Discard(p);
+    let mut i = g.st.players[pu].bench.len();
+    while i > 0 {
+        i -= 1;
+        let s = g.st.players[pu].bench.as_slice()[i];
+        let selected = empty & (1 << s) != 0 || chosen.iter().any(|t| t.p == p && t.s == s);
+        if !selected {
+            continue;
+        }
+        let pokemons = g.st.slot_pokemons(pu, s);
+        let slot = *g.st.slot(pu, s);
+        let others: Vec<CardId> =
+            slot.cards.iter().filter(|c| !g.st.cdef(*c).is_pokemon() && !pokemons.contains(c) && !slot.tools.contains(*c)).collect();
+        if !others.is_empty() {
+            crate::prefabs::move_cards(g, ListRef::Slot(p, s), discard, &others, NO_CARD)?;
+        }
+        let tools: Vec<CardId> = g.st.slot(pu, s).tools.iter().collect();
+        for t in tools {
+            g.move_card_to(ListRef::Slot(p, s), t, discard);
+        }
+        if !pokemons.is_empty() {
+            crate::prefabs::move_cards(g, ListRef::Slot(p, s), discard, pokemons.as_slice(), NO_CARD)?;
+        }
+        let pl = &mut g.st.players[pu];
+        if let Some(j) = pl.bench.position(&s) {
+            pl.bench.remove_at(j);
+        }
+        pl.free_slot(s);
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
