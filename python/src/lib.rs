@@ -299,7 +299,11 @@ impl VecEnv {
         let e = &mut self.envs[i];
         let sel = e.sel.clone().unwrap();
         let picks = std::mem::take(&mut self.picks[i]);
-        if e.game.answer(&sel, &picks).is_err() {
+        if let Err(err) = e.game.answer(&sel, &picks) {
+            if std::env::var_os("PTCG_DEBUG_REJECT").is_some() {
+                let msg = sel.prompt_message(&e.game);
+                eprintln!("reject {:?} ctx={:?} msg={} min={} max={} n={} picks={:?}: {:?}", sel.select_type, sel.context, msg, sel.min_count, sel.max_count, sel.options.len(), picks, err);
+            }
             self.invalid += 1;
             let key = sel.context as u8 + if picks.is_empty() { 100 } else { 0 };
             *self.invalid_ctx.entry(key).or_default() += 1;
