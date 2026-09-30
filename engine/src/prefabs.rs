@@ -635,3 +635,16 @@ pub fn add_special_conditions_to_opponent_active(g: &mut Game, atk: EffId, condi
     g.run_fx(Effect::AddSpecialConditions { b, conditions: cs, poison_damage: None, burn_damage: None, confusion_damage: None })?;
     Ok(())
 }
+
+/// `ADD_SPECIAL_CONDITIONS_TO_PLAYER_ACTIVE(store, state, player, source, conditions)`
+/// with the default poison/burn/sleep/confusion values: reduce an
+/// `AddSpecialConditionsPowerEffect` on `player.active`.
+pub fn add_special_conditions_to_player_active(g: &mut Game, p: usize, source: CardId, conditions: &[SpecialCondition]) -> R {
+    let target = SlotRef::new(p, g.st.players[p].active);
+    let mut cs = SVec::new();
+    for c in conditions {
+        cs.push(*c as u8);
+    }
+    g.run_fx(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30 })?;
+    Ok(())
+}
