@@ -241,7 +241,7 @@ pub enum PromptKind {
     RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
-    ChooseAttack { cards: SVec<CardId, 8>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
+    ChooseAttack { cards: SVec<CardId, 16>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
 }
 
 #[derive(Clone, Copy, Debug)]

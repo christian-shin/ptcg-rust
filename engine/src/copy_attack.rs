@@ -23,12 +23,13 @@
 //!   (`Cont::DelegCard`, `CoinCb::DelegCard`) so they resume in the source's
 //!   port. Card handlers reached through nested effects run undelegated.
 //!
-//! Oracle caveat: the oracle's trial-dispatch rollback (`legalTurnOptions`)
-//! does not snapshot the module-level session array, so every trial of a turn
-//! action that reaches `EndTurnEffect` (pass, attacks without prompts) spends
-//! a session's end-turn budget and can drop sessions. Rust trials run on game
-//! copies and do not. The difference is only observable when a delegated
-//! source card reacts to effects outside the copied attack itself.
+//! Oracle caveat: trial dispatch (`legalTurnOptions`) snapshots the session
+//! array, as Rust trials on game copies do. It also resolves info prompts,
+//! including Twinleaf's "Coin flip animation" wait, whose coin was drawn from
+//! the oracle's throwaway simulation stream; Rust stops at its coin chance
+//! prompt. A delegated coin callback that throws on one outcome (Annihilape's
+//! Durable Body run for a power-less copycat) therefore makes the oracle's
+//! legality depend on that stream.
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
 use crate::engine::attack::{self, AttackFrame};
@@ -205,7 +206,7 @@ pub struct CopyFrame {
     /// useAttack continuation (delegateFrom path): the animation follows.
     pub then: Option<AttackFrame>,
     /// ChooseAttackPrompt cards.
-    pub cards: SVec<CardId, 8>,
+    pub cards: SVec<CardId, 16>,
 }
 
 impl CopyFrame {
@@ -257,7 +258,7 @@ pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId],
     // blockCannotUseAttacksNextTurn: cannotUseAttacksNextTurn is not modeled.
     let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
     f.catch = true;
-    let mut pc: SVec<CardId, 8> = SVec::new();
+    let mut pc: SVec<CardId, 16> = SVec::new();
     for &c in cards {
         f.cards.push(c);
         pc.push(c);
@@ -285,7 +286,7 @@ pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
         Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
         _ => SVec::new(),
     };
-    let mut cards: SVec<CardId, 8> = SVec::new();
+    let mut cards: SVec<CardId, 16> = SVec::new();
     let mut blocked: SVec<(u8, u8), 16> = SVec::new();
     for (s, c, _) in crate::prefabs::for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
         if s == active {

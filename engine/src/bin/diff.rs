@@ -15,6 +15,11 @@ use ptcg::options::legal_turn_options;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 
+thread_local! {
+    /// Step being replayed, reported when a panic aborts the replay.
+    static PANIC_STEP: std::cell::Cell<isize> = const { std::cell::Cell::new(-1) };
+}
+
 #[derive(Debug)]
 enum Outcome {
     Pass { steps: usize },
@@ -67,6 +72,7 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     }
     let steps = trace["steps"].as_array().unwrap();
     for (i, st) in steps.iter().enumerate() {
+        PANIC_STEP.with(|c| c.set(i as isize));
         let d = &st["d"];
         let a = &st["a"];
         let r = match g.pending() {
@@ -189,11 +195,12 @@ fn main() {
         let name = f.file_stem().unwrap().to_string_lossy().to_string();
         // A panic (e.g. a fixed-capacity list overflowing on a Twinleaf state
         // with duplicated cards) fails this trace instead of the whole run.
+        PANIC_STEP.with(|c| c.set(-1));
         let out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| replay(&trace, dump.as_deref(), &name))) {
             Ok(o) => o,
             Err(e) => {
                 let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
-                Outcome::Diverged { step: -1, what: "panic".into(), detail: msg }
+                Outcome::Diverged { step: PANIC_STEP.with(|c| c.get()), what: "panic".into(), detail: msg }
             }
         };
         match &out {
