@@ -182,5 +182,42 @@
  "Teal Mask Ogerpon ex TWM": {
   "status": "partial",
   "note": "bench damage prevention 2 games"
+ },
+ "Slowpoke SCR": {
+  "status": "verified"
+ },
+ "Slowking SCR": {
+  "status": "verified"
+ },
+ "Metang TEF": {
+  "status": "verified"
+ },
+ "Kyurem SFA": {
+  "status": "verified"
+ },
+ "Zeraora DRI": {
+  "status": "verified"
+ },
+ "Mew ex 30C": {
+  "status": "verified"
+ },
+ "Wonder Patch MBD": {
+  "status": "verified"
+ },
+ "Telepath [P] Energy M3": {
+  "status": "verified"
+ },
+ "Boomerang Energy TWM": {
+  "status": "verified"
+ },
+ "Metagross M4": {
+  "status": "verified"
+ },
+ "Academy at Night SFA": {
+  "status": "verified"
+ },
+ "Annihilape M5": {
+  "status": "partial",
+  "note": "no Mankey/Primeape in pool; only reachable via Slowking copy"
  }
 }
