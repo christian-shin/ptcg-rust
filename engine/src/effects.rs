@@ -139,15 +139,9 @@ pub enum Effect {
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
     /// `attackDamageReductionNextTurn = max(0, reduction)`.
     ReduceDamage { b: AtkBase, reduction: i32 },
-    /// `PreventDamageEffect` (EffectOfAttackEffect, target = base.source):
-    /// `player.active.preventDamageNextTurnPending = {}`.
-    PreventDamage { b: AtkBase },
     /// `PreventDamageEffect` with non-empty `PreventDamageOptions` (same
     /// Twinleaf class/kind as [`Effect::PreventDamage`]).
     PreventDamageFiltered { b: AtkBase, filter: crate::state::PreventFilter },
-    /// `PreventEffectsOfAttacksEffect` (target = base.source):
-    /// `player.active.preventEffectsOfAttacksNextTurnPending = {}`.
-    PreventEffectsOfAttacks { b: AtkBase },
     /// `SelfPreventRetreatEffect` (target = opponent's Active, the default):
     /// `player.active.cannotRetreatNextTurnPending = true`.
     SelfPreventRetreat { b: AtkBase },
@@ -156,6 +150,12 @@ pub enum Effect {
     DiscardAttackerEnergyIfKnockedOut { b: AtkBase, source_card: CardId },
     /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
     SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
+    /// `PreventDamageEffect` (EffectOfAttackEffect, target = attacker):
+    /// `player.active.preventDamageNextTurnPending = {}` (empty filter only).
+    PreventDamage { b: AtkBase },
+    /// `PreventEffectsOfAttacksEffect` (EffectOfAttackEffect, target = attacker):
+    /// `player.active.preventEffectsOfAttacksNextTurnPending = {}` (empty filter only).
+    PreventEffectsOfAttacks { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -239,12 +239,12 @@ impl Effect {
             OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
-            PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
-            PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
             SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
             DiscardAttackerEnergyIfKnockedOut { .. } => "DISCARD_ATTACKER_ENERGY_IF_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
+            PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
+            PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -284,9 +284,9 @@ impl Effect {
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
-            PreventDamage { b } => Some(b),
-            PreventDamageFiltered { b, .. } | PreventEffectsOfAttacks { b } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
+            PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             _ => None,
         }
     }
@@ -310,9 +310,9 @@ impl Effect {
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
-            PreventDamage { b } => Some(b),
-            PreventDamageFiltered { b, .. } | PreventEffectsOfAttacks { b } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
+            PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             _ => None,
         }
     }
@@ -393,12 +393,12 @@ impl Effect {
             PreventRetreat { .. } => 69,
             AddSpecialConditionsPower { .. } => 70,
             ReduceDamage { .. } => 110,
-            PreventDamage { .. } => 84,
             PreventDamageFiltered { .. } => 84,
-            PreventEffectsOfAttacks { .. } => 104,
             SelfPreventRetreat { .. } => 105,
             DiscardAttackerEnergyIfKnockedOut { .. } => 106,
             SwitchOutOpponentsActive { .. } => 111,
+            PreventDamage { .. } => 84,
+            PreventEffectsOfAttacks { .. } => 77,
             OpponentPokemonCannotUseAttack { .. } => 91,
         };
         k
@@ -479,11 +479,11 @@ pub mod k {
     pub const PREVENT_RETREAT: u32 = 69;
     pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
     pub const REDUCE_DAMAGE: u32 = 110;
-    pub const PREVENT_DAMAGE: u32 = 84;
-    pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 104;
     pub const SELF_PREVENT_RETREAT: u32 = 105;
     pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
     pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
+    pub const PREVENT_DAMAGE: u32 = 84;
+    pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
 }
 
@@ -502,15 +502,45 @@ pub mod play_lock {
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.
 pub const fn mask(kinds: &[u32]) -> KindMask {
-    let mut m = 0u128;
+    let mut m = [0u64; 4];
     let mut i = 0;
     while i < kinds.len() {
-        m |= 1u128 << kinds[i];
+        let k = kinds[i];
+        m[(k >> 6) as usize] |= 1u64 << (k & 63);
         i += 1;
     }
-    m
+    KindMask(m)
 }
 
-/// Bitmask over [`Effect::kind`].
-pub type KindMask = u128;
-pub const ALL_KINDS: KindMask = u128::MAX;
+/// Bitmask over [`Effect::kind`] (256 kinds). Combine in const context with
+/// [`KindMask::or`]; `|` works at runtime.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct KindMask(pub [u64; 4]);
+
+impl KindMask {
+    pub const EMPTY: KindMask = KindMask([0; 4]);
+
+    #[inline]
+    pub const fn has(&self, kind: u32) -> bool {
+        (self.0[(kind >> 6) as usize] >> (kind & 63)) & 1 != 0
+    }
+
+    pub const fn or(self, o: KindMask) -> KindMask {
+        KindMask([self.0[0] | o.0[0], self.0[1] | o.0[1], self.0[2] | o.0[2], self.0[3] | o.0[3]])
+    }
+}
+
+impl std::ops::BitOr for KindMask {
+    type Output = KindMask;
+    fn bitor(self, o: KindMask) -> KindMask {
+        self.or(o)
+    }
+}
+
+impl std::ops::BitOrAssign for KindMask {
+    fn bitor_assign(&mut self, o: KindMask) {
+        *self = self.or(o);
+    }
+}
+
+pub const ALL_KINDS: KindMask = KindMask([u64::MAX; 4]);

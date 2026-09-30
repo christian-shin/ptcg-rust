@@ -199,6 +199,7 @@ impl Game {
         nd!(used_run_errand, "usedRunErrand");
         nd!(used_lunar_cycle, "usedLunarCycle");
         nd!(rocket_supporter, "rocketSupporter");
+        nd!(used_fan_call, "usedFanCall");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }
@@ -227,12 +228,22 @@ impl Game {
             let inst = &self.st.cards[c as usize];
             let d = self.st.cdef(c);
             let mut diff = Map::new();
+            // Fossils (Antique Root Fossil) declare `movedToActiveThisTurn`
+            // but not `damageTakenLastTurn`.
+            if d.fossil_doll && !d.is_pokemon() && inst.moved_to_active_this_turn {
+                diff.insert("movedToActiveThisTurn".into(), json!(true));
+            }
             if d.is_pokemon() {
                 if inst.moved_to_active_this_turn {
                     diff.insert("movedToActiveThisTurn".into(), json!(true));
                 }
                 if inst.damage_taken_last_turn != 0 {
                     diff.insert("damageTakenLastTurn".into(), json!(inst.damage_taken_last_turn));
+                }
+            }
+            if let Some(efb) = inst.evolves_from_base {
+                if efb != d.evolves_from_base {
+                    diff.insert("evolvesFromBase".into(), json!(efb));
                 }
             }
             if inst.extra_prizes {

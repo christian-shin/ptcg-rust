@@ -8,7 +8,7 @@ use super::shuppet::{reduce_hide_n_sneak, HIDE_N_SNEAK_KINDS};
 use crate::cards::prelude::*;
 use crate::effects::KindMask;
 
-const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS) | mask(&[k::AFTER_ATTACK]);
+const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::AFTER_ATTACK]));
 
 pub static IMPL: CardImpl = CardImpl { class: "Banette", mask: MASK, reduce, resume: Some(resume), coin: None, can_play: None };
 

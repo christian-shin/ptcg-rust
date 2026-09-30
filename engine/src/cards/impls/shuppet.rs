@@ -15,7 +15,6 @@
 use crate::cards::prelude::*;
 
 pub const HIDE_N_SNEAK_KINDS: [u32; 23] = [
-    k::PREVENT_EFFECTS_OF_ATTACKS,
     k::SELF_PREVENT_RETREAT,
     k::DISCARD_ATTACKER_ENERGY_IF_KO,
     k::APPLY_WEAKNESS,
@@ -35,9 +34,10 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 23] = [
     k::PREVENT_RETREAT,
     k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
     k::REDUCE_DAMAGE,
-        k::PREVENT_DAMAGE,
     k::SWITCH_OUT_OPPONENTS_ACTIVE,
     k::PLACE_DAMAGE_COUNTERS,
+    k::PREVENT_DAMAGE,
+    k::PREVENT_EFFECTS_OF_ATTACKS,
 ];
 
 pub static IMPL: CardImpl = CardImpl { class: "Shuppet", mask: mask(&HIDE_N_SNEAK_KINDS), reduce, resume: None, coin: None, can_play: None };

@@ -100,6 +100,16 @@ pub struct EffSlot {
     pub e: Effect,
     pub prevent_default: bool,
     pub refs: u8,
+    /// Per-object effect fields no core code reads ([`fx_flag`] bits).
+    pub flags: u8,
+}
+
+/// [`EffSlot::flags`] bits.
+pub mod fx_flag {
+    /// `DealDamageEffect.damageIncreased` (Hop's Snorlax).
+    pub const DAMAGE_INCREASED: u8 = 1 << 0;
+    /// `PutDamageEffect.nonstackingDamageReducers` contains 'Curly Wall' (Bouffalant SCR).
+    pub const CURLY_WALL: u8 = 1 << 1;
 }
 
 pub const MAX_FX: usize = 48;
@@ -262,7 +272,7 @@ impl Game {
             coin_callbacks: SVec::new(),
             resolving_trainer: None,
             probing_stadium: false,
-            kinds_present: 0,
+            kinds_present: crate::effects::KindMask::EMPTY,
             trace_effects: false,
             copy_sessions: SVec::new(),
             copy_serial: 0,
@@ -274,7 +284,7 @@ impl Game {
     // Effect arena
 
     pub fn new_fx(&mut self, e: Effect) -> EffId {
-        self.fx.push(EffSlot { e, prevent_default: false, refs: 1 });
+        self.fx.push(EffSlot { e, prevent_default: false, refs: 1, flags: 0 });
         (self.fx.len() - 1) as EffId
     }
 
@@ -305,6 +315,12 @@ impl Game {
     #[inline]
     pub fn prevented(&self, id: EffId) -> bool {
         self.fx.as_slice()[id as usize].prevent_default
+    }
+    pub fn fx_flags(&self, id: EffId) -> u8 {
+        self.fx.as_slice()[id as usize].flags
+    }
+    pub fn set_fx_flag(&mut self, id: EffId, bit: u8) {
+        self.fx.as_mut_slice()[id as usize].flags |= bit;
     }
     pub fn set_prevent(&mut self, id: EffId, v: bool) {
         self.fx.as_mut_slice()[id as usize].prevent_default = v;
@@ -578,10 +594,9 @@ impl Game {
     /// `propagateEffect` order (zone order, then stable sort by rank).
     fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
-        let bit = 1u128 << kind;
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
-                if imp.mask & bit != 0 {
+                if imp.mask.has(kind) {
                     cards.push(c);
                 }
             }
@@ -679,7 +694,7 @@ impl Game {
         for &c in first.iter() {
             self.call_card(c, id, kind)?;
         }
-        let order = if self.kinds_present & (1u128 << kind) != 0 { self.propagation_order(&e, kind) } else { SVec::new() };
+        let order = if self.kinds_present.has(kind) { self.propagation_order(&e, kind) } else { SVec::new() };
         for &c in order.iter() {
             if first.contains(&c) {
                 continue;
@@ -717,7 +732,7 @@ impl Game {
         }
         let d = self.st.cards[c as usize].def;
         if let Some(imp) = cards::impl_for(d) {
-            if imp.mask & (1u128 << kind) != 0 {
+            if imp.mask.has(kind) {
                 if let Effect::Trainer { p, card, .. } = *self.e(id) {
                     if card == c {
                         let prev = self.resolving_trainer;

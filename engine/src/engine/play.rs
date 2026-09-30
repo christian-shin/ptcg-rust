@@ -38,7 +38,10 @@ fn can_evolve_from(g: &Game, base: CardId, evo: CardId) -> bool {
     (b.stage < e.stage && b.name == e.evolves_from)
         || b.evolves_to.contains(&e.name)
         || b.evolves_to_stage.contains(&e.stage)
-        || (!b.evolves_from_base.is_empty() && b.evolves_from_base.contains(&e.evolves_from))
+        || {
+            let efb = g.st.cards[base as usize].evolves_from_base.unwrap_or(b.evolves_from_base);
+            !efb.is_empty() && efb.contains(&e.evolves_from)
+        }
 }
 
 /// `play-pokemon-from-deck-effect.ts` / `...-from-discard-effect.ts`.

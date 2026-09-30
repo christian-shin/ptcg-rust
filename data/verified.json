@@ -718,5 +718,202 @@
  },
  "Yanma DRI": {
   "status": "verified"
+ },
+ "Antique Root Fossil SCR": {
+  "status": "verified"
+ },
+ "Blowtorch PFL": {
+  "status": "verified"
+ },
+ "Brilliant Blender SSP": {
+  "status": "verified"
+ },
+ "Dangerous Laser SFA": {
+  "status": "verified"
+ },
+ "Boxed Order TEF": {
+  "status": "verified"
+ },
+ "Awakening Drum TEF": {
+  "status": "verified"
+ },
+ "Dusk Ball SSP": {
+  "status": "verified"
+ },
+ "Energy Swatter M3": {
+  "status": "verified"
+ },
+ "Big Catch Net M4": {
+  "status": "verified"
+ },
+ "Hand Trimmer TEF": {
+  "status": "verified"
+ },
+ "Helper Bell SSP": {
+  "status": "verified"
+ },
+ "Hop's Bag JTG": {
+  "status": "verified"
+ },
+ "Iron Defender M1L": {
+  "status": "verified"
+ },
+ "Lumiose Galette M3": {
+  "status": "verified"
+ },
+ "Meddling Memo SSP": {
+  "status": "verified"
+ },
+ "Mega Signal M1S": {
+  "status": "verified"
+ },
+ "Megaton Blower SSP": {
+  "status": "verified"
+ },
+ "Accompanying Flute TWM": {
+  "status": "verified"
+ },
+ "Poké Ball JU": {
+  "status": "verified"
+ },
+ "Book of Transformation M4": {
+  "status": "verified"
+ },
+ "Blissey ex TWM": {
+  "status": "partial",
+  "note": "deck runs out mid-draw 0 games"
+ },
+ "Bouffalant SCR": {
+  "status": "verified"
+ },
+ "Chansey TWM": {
+  "status": "verified"
+ },
+ "Chatot TEF": {
+  "status": "verified"
+ },
+ "Cinccino TEF": {
+  "status": "verified"
+ },
+ "Dunsparce TEF": {
+  "status": "verified"
+ },
+ "Eevee SCR": {
+  "status": "verified"
+ },
+ "Eevee SFA": {
+  "status": "verified"
+ },
+ "Eevee SSP": {
+  "status": "verified"
+ },
+ "Eevee ex PRE": {
+  "status": "verified"
+ },
+ "Exeggcute 30C": {
+  "status": "verified"
+ },
+ "Fan Rotom SCR": {
+  "status": "verified"
+ },
+ "Farfetch'd TWM": {
+  "status": "verified"
+ },
+ "Furfrou M3": {
+  "status": "verified"
+ },
+ "Hoothoot PRE": {
+  "status": "verified"
+ },
+ "Hoothoot TEF": {
+  "status": "verified"
+ },
+ "Hop's Cramorant JTG": {
+  "status": "verified"
+ },
+ "Hop's Dubwool JTG": {
+  "status": "verified"
+ },
+ "Hop's Snorlax JTG": {
+  "status": "verified"
+ },
+ "Mega Audino ex MC": {
+  "status": "verified"
+ },
+ "Minccino SSH": {
+  "status": "verified"
+ },
+ "Minccino TEF": {
+  "status": "partial",
+  "note": "cancelled choice 0 games; multi-tool prompt unreached"
+ },
+ "Patrat M4": {
+  "status": "verified"
+ },
+ "Barbaracle M3": {
+  "status": "verified"
+ },
+ "Binacle M3": {
+  "status": "verified"
+ },
+ "Bloodmoon Ursaluna SFA": {
+  "status": "verified"
+ },
+ "Cornerstone Mask Ogerpon ex TWM": {
+  "status": "verified"
+ },
+ "Drapion M3": {
+  "status": "verified"
+ },
+ "Mega Darkrai ex M5": {
+  "status": "verified"
+ },
+ "Munkidori ex SFA": {
+  "status": "verified"
+ },
+ "Okidogi ex SFA": {
+  "status": "verified"
+ },
+ "Purrloin WHT": {
+  "status": "verified"
+ },
+ "Roaring Moon TEF": {
+  "status": "verified"
+ },
+ "Seviper M2": {
+  "status": "verified"
+ },
+ "Skorupi M3": {
+  "status": "verified"
+ },
+ "Team Rocket's Arbok DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Ekans DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Sneasel DRI": {
+  "status": "verified"
+ },
+ "Trubbish M4": {
+  "status": "verified"
+ },
+ "Vullaby RCL": {
+  "status": "verified"
+ },
+ "Yveltal 30C": {
+  "status": "verified"
+ },
+ "Yveltal SFA": {
+  "status": "verified"
+ },
+ "Zoroark SV11W": {
+  "status": "verified"
+ },
+ "Zorua SFA": {
+  "status": "verified"
+ },
+ "Zorua SV11W": {
+  "status": "verified"
  }
 }

@@ -643,7 +643,8 @@ pub fn prevent_damage_filtered(g: &mut Game, atk: EffId, filter: crate::state::P
     Ok(())
 }
 
-/// `PREVENT_EFFECTS_OF_ATTACKS(store, state, effect, source)` (no options).
+/// `PREVENT_EFFECTS_OF_ATTACKS(store, state, effect, source)` (no options):
+/// reduce a `PreventEffectsOfAttacksEffect` whose target is the attack's source.
 pub fn prevent_effects_of_attacks(g: &mut Game, atk: EffId) -> R {
     let source = match *g.e(atk) {
         Effect::Attack { source, .. } => source,

@@ -341,6 +341,32 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32, List
     Ok(prompts)
 }
 
+/// `TAKE_X_PRIZES(store, state, player, count)` (default options).
+pub fn take_x_prizes(g: &mut Game, p: usize, count: i32) -> R {
+    let left = g.st.players[p].prize_left() as i32;
+    let take = count.min(left);
+    if take <= 0 {
+        return Ok(());
+    }
+    if count >= left {
+        let mut ix: SVec<u8, 6> = SVec::new();
+        for i in 0..g.st.players[p].prize_count {
+            if !g.st.players[p].prizes[i as usize].is_empty() && (ix.len() as i32) < take {
+                ix.push(i);
+            }
+        }
+        return take_specific_prizes(g, p, ix.as_slice(), ListRef::Hand(p as u8), false);
+    }
+    let id = g.player_id(p);
+    g.prompt(
+        id,
+        "CHOOSE_PRIZE_CARD",
+        PromptKind::ChoosePrize { count: take as u8, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None },
+        Cont::TakePrizes { p: p as u8, destination: ListRef::Hand(p as u8) },
+    );
+    Ok(())
+}
+
 /// `TAKE_SPECIFIC_PRIZES`.
 pub fn take_specific_prizes(g: &mut Game, p: usize, prizes: &[u8], destination: ListRef, skip_reduce: bool) -> R {
     let mut destination = destination;
