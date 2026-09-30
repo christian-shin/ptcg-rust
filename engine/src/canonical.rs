@@ -195,6 +195,11 @@ impl Game {
             let inst = &self.st.cards[c as usize];
             let d = self.st.cdef(c);
             let mut diff = Map::new();
+            // Fossils (Antique Root Fossil) declare `movedToActiveThisTurn`
+            // but not `damageTakenLastTurn`.
+            if d.fossil_doll && !d.is_pokemon() && inst.moved_to_active_this_turn {
+                diff.insert("movedToActiveThisTurn".into(), json!(true));
+            }
             if d.is_pokemon() {
                 if inst.moved_to_active_this_turn {
                     diff.insert("movedToActiveThisTurn".into(), json!(true));
