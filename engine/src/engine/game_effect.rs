@@ -5,7 +5,7 @@ use crate::engine::attack;
 use crate::game::{CoinCb, Cont, Game, R};
 use crate::list::*;
 use crate::markers::*;
-use crate::prompts::PromptKind;
+use crate::prompts::{Filter, MoveOpts, PromptKind};
 use crate::state::*;
 use crate::types::*;
 
@@ -81,6 +81,15 @@ pub fn clear_effects(slot: &mut Slot) {
     slot.damage_reduction_next_turn = 0;
     slot.prevent_damage_next_turn = false;
     slot.prevent_damage_next_turn_pending = false;
+    slot.prevent_damage_filter = Default::default();
+    slot.prevent_damage_filter_pending = Default::default();
+    slot.prevent_effects_of_attacks_next_turn = false;
+    slot.prevent_effects_of_attacks_next_turn_pending = false;
+    slot.discard_attacker_energy_if_ko_next_turn = false;
+    slot.discard_attacker_energy_if_ko_next_turn_pending = false;
+    slot.discard_attacker_energy_if_ko_attack = None;
+    slot.discard_attacker_energy_if_ko_source_card = None;
+    slot.discard_attacker_energy_if_ko_attacker = None;
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;
     slot.cannot_attack_next_turn = false;
@@ -107,6 +116,15 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.damage_reduction_next_turn = 0;
     slot.prevent_damage_next_turn = false;
     slot.prevent_damage_next_turn_pending = false;
+    slot.prevent_damage_filter = Default::default();
+    slot.prevent_damage_filter_pending = Default::default();
+    slot.prevent_effects_of_attacks_next_turn = false;
+    slot.prevent_effects_of_attacks_next_turn_pending = false;
+    slot.discard_attacker_energy_if_ko_next_turn = false;
+    slot.discard_attacker_energy_if_ko_next_turn_pending = false;
+    slot.discard_attacker_energy_if_ko_attack = None;
+    slot.discard_attacker_energy_if_ko_source_card = None;
+    slot.discard_attacker_energy_if_ko_attacker = None;
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;
 }
@@ -245,7 +263,39 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(id) {
         *prize_count += extra;
     }
-    // Prize denial / extra prizes / Little Grudge: not modeled.
+    // Prize denial / extra prizes: not modeled.
+    // Little Grudge: Mist-blockable DiscardCardsEffect attributed to the arming attack.
+    let (armed, pending, g_attack, g_source, g_owner) = {
+        let ts = g.st.slot(target.p as usize, target.s);
+        (
+            ts.discard_attacker_energy_if_ko_next_turn,
+            ts.discard_attacker_energy_if_ko_next_turn_pending,
+            ts.discard_attacker_energy_if_ko_attack,
+            ts.discard_attacker_energy_if_ko_source_card,
+            ts.discard_attacker_energy_if_ko_attacker,
+        )
+    };
+    if armed && !pending && g.st.players[p].marker.has(DAMAGE_DEALT_MARKER) {
+        if let (Some(attack), Some(source_card), Some(owner)) = (g_attack, g_source, g_owner) {
+            let prize_taker = 1 - p;
+            let a = g.st.players[prize_taker].active;
+            let energy: Vec<CardId> = g.st.slot(prize_taker, a).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
+            if energy.len() == 1 {
+                little_grudge_discard(g, owner as usize, prize_taker, attack, source_card, &energy)?;
+            } else if energy.len() > 1 {
+                let mut slots = SVec::new();
+                slots.push(SlotType::Active as u8);
+                let o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
+                let id = g.player_id(p);
+                g.prompt(
+                    id,
+                    "CHOOSE_ENERGIES_TO_DISCARD",
+                    PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+                    Cont::LittleGrudge { owner, prize_taker: prize_taker as u8, attack, source_card },
+                );
+            }
+        }
+    }
 
     let owner = p;
     let attacker = 1 - p;
@@ -422,4 +472,51 @@ pub fn stats_effect(g: &Game, s: SlotRef) -> Effect {
         }
     }
     Effect::CheckPokemonStats { target: s, weakness, resistance }
+}
+
+/// Little Grudge `discardSelected(cards)`: a DiscardCardsEffect from a fresh
+/// AttackEffect of the grudge owner (source = the slot holding the source
+/// card, else the owner's Active) on the prize taker's Active.
+pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, attack: AttackRef, source_card: CardId, cards: &[CardId]) -> R {
+    if cards.is_empty() {
+        return Ok(());
+    }
+    let mut source = SlotRef::new(owner, g.st.players[owner].active);
+    for s in g.st.players[owner].in_play().iter() {
+        if g.st.slot_pokemon(owner, *s) == Some(source_card) {
+            source = SlotRef::new(owner, *s);
+        }
+    }
+    let damage = g.st.cdef(attack.card).attacks[attack.idx()].damage;
+    let atk = g.new_fx(Effect::Attack {
+        p: owner as u8,
+        opp: prize_taker as u8,
+        attack,
+        damage,
+        ignore_weakness: false,
+        ignore_resistance: false,
+        source,
+        barrage_used: false,
+    });
+    let target = SlotRef::new(prize_taker, g.st.players[prize_taker].active);
+    let b = AtkBase { attack_effect: atk, player: owner as u8, opponent: prize_taker as u8, attack, source, target };
+    let mut cs = SVec::new();
+    for c in cards {
+        cs.push(*c);
+    }
+    let r = g.run_fx(Effect::DiscardCards { b, cards: cs });
+    g.release_fx(atk);
+    r.map(|_| ())
+}
+
+/// DiscardEnergyPrompt callback of Little Grudge.
+pub fn little_grudge_cont(g: &mut Game, owner: u8, prize_taker: u8, attack: AttackRef, source_card: CardId, res: crate::prompts::Res) -> R {
+    let cards: Vec<CardId> = match res {
+        crate::prompts::Res::CardsFrom(t) => t.iter().map(|x| x.1).collect(),
+        _ => Vec::new(),
+    };
+    if cards.is_empty() {
+        return Ok(());
+    }
+    little_grudge_discard(g, owner as usize, prize_taker as usize, attack, source_card, &cards)
 }

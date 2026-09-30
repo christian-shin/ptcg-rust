@@ -80,10 +80,36 @@ impl Game {
             o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
         }
         if s.prevent_damage_next_turn {
-            o.insert("preventDamageNextTurn".into(), json!({}));
+            o.insert("preventDamageNextTurn".into(), prevent_filter_json(&s.prevent_damage_filter));
         }
         if s.prevent_damage_next_turn_pending {
-            o.insert("preventDamageNextTurnPending".into(), json!({}));
+            o.insert("preventDamageNextTurnPending".into(), prevent_filter_json(&s.prevent_damage_filter_pending));
+        }
+        if s.prevent_effects_of_attacks_next_turn {
+            o.insert("preventEffectsOfAttacksNextTurn".into(), json!({}));
+        }
+        if s.prevent_effects_of_attacks_next_turn_pending {
+            o.insert("preventEffectsOfAttacksNextTurnPending".into(), json!({}));
+        }
+        nd!(discard_attacker_energy_if_ko_next_turn, "discardAttackerEnergyIfKnockedOutNextTurn");
+        nd!(discard_attacker_energy_if_ko_next_turn_pending, "discardAttackerEnergyIfKnockedOutNextTurnPending");
+        if let Some(a) = s.discard_attacker_energy_if_ko_attack {
+            let ad = &self.st.cdef(a.card).attacks[a.idx()];
+            let mut ao = Map::new();
+            ao.insert("name".into(), json!(ad.name));
+            ao.insert("cost".into(), json!(ad.cost));
+            ao.insert("damage".into(), json!(ad.damage));
+            ao.insert("text".into(), json!(ad.text));
+            if let Some(dc) = ad.damage_calculation {
+                ao.insert("damageCalculation".into(), json!(dc));
+            }
+            o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttack".into(), Value::Object(ao));
+        }
+        if let Some(c) = s.discard_attacker_energy_if_ko_source_card {
+            o.insert("discardAttackerEnergyIfKnockedOutNextTurnSourceCard".into(), json!(self.card_ref(c)));
+        }
+        if let Some(p) = s.discard_attacker_energy_if_ko_attacker {
+            o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
         }
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
@@ -332,4 +358,16 @@ pub fn fnv1a64(bytes: &[u8]) -> String {
 
 pub fn _phase_name(p: GamePhase) -> u8 {
     p as u8
+}
+
+/// `preventFilterFromOptions` output for the modeled keys.
+fn prevent_filter_json(f: &crate::state::PreventFilter) -> Value {
+    let mut o = Map::new();
+    if let Some(st) = f.source_stage {
+        o.insert("sourceStage".into(), json!(st));
+    }
+    if let Some(ts) = &f.source_card_types {
+        o.insert("sourceCardTypes".into(), json!(ts.as_slice()));
+    }
+    Value::Object(o)
 }

@@ -343,8 +343,28 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
+/// `shouldPreventAttackEffects(state, effect)` (only the `{}` filter is modeled).
+fn should_prevent_attack_effects(g: &Game, id: EffId) -> bool {
+    let b = match g.e(id).atk_base() {
+        Some(b) => *b,
+        None => return false,
+    };
+    if !g.st.slot(b.target.p as usize, b.target.s).prevent_effects_of_attacks_next_turn {
+        return false;
+    }
+    if b.source.p == b.target.p {
+        return false;
+    }
+    if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
+        return false;
+    }
+    !matches!(*g.e(id), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. })
+}
+
 pub fn reducer(g: &mut Game, id: EffId) -> R {
-    // shouldPreventAttackEffects (preventEffectsOfAttacksNextTurn): not modeled.
+    if should_prevent_attack_effects(g, id) {
+        return Ok(());
+    }
     match *g.e(id) {
         Effect::PutDamage { b, damage, weakness_applied, .. } => {
             let t = b.target;
@@ -371,11 +391,17 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
                 g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
             }
-            // shouldPreventAttackDamage (only the empty filter is modeled).
-            if g.st.phase == GamePhase::Attack
+            // shouldPreventAttackDamage (sourceStage / sourceCardTypes filters modeled).
+            let prevent = g.st.phase == GamePhase::Attack
                 && g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
-                && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_some()
-            {
+                && match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
+                    Some(sc) => {
+                        let d = g.st.cdef(sc);
+                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type)
+                    }
+                    None => false,
+                };
+            if prevent {
                 if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
                     *d = damage;
                 }
@@ -484,6 +510,37 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let p = b.player as usize;
             let a = g.st.players[p].active;
             g.st.players[p].slots[a as usize].prevent_damage_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::PreventDamageFiltered { b, filter } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            let slot = &mut g.st.players[p].slots[a as usize];
+            slot.prevent_damage_next_turn_pending = true;
+            slot.prevent_damage_filter_pending = filter;
+            Ok(())
+        }
+        Effect::PreventEffectsOfAttacks { b } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].prevent_effects_of_attacks_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::SelfPreventRetreat { b } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].cannot_retreat_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            let slot = &mut g.st.players[p].slots[a as usize];
+            slot.discard_attacker_energy_if_ko_next_turn = true;
+            slot.discard_attacker_energy_if_ko_next_turn_pending = true;
+            slot.discard_attacker_energy_if_ko_attack = Some(b.attack);
+            slot.discard_attacker_energy_if_ko_source_card = Some(source_card);
+            slot.discard_attacker_energy_if_ko_attacker = Some(b.player);
             Ok(())
         }
         Effect::ReduceDamage { b, reduction } => {

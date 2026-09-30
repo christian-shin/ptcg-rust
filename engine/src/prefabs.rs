@@ -632,6 +632,52 @@ pub fn prevent_damage(g: &mut Game, atk: EffId) -> R {
     Ok(())
 }
 
+/// `PREVENT_DAMAGE(store, state, effect, source, options)` with non-empty options.
+pub fn prevent_damage_filtered(g: &mut Game, atk: EffId, filter: crate::state::PreventFilter) -> R {
+    let source = match *g.e(atk) {
+        Effect::Attack { source, .. } => source,
+        _ => return Ok(()),
+    };
+    let b = atk_base_for(g, atk, source);
+    g.run_fx(Effect::PreventDamageFiltered { b, filter })?;
+    Ok(())
+}
+
+/// `PREVENT_EFFECTS_OF_ATTACKS(store, state, effect, source)` (no options).
+pub fn prevent_effects_of_attacks(g: &mut Game, atk: EffId) -> R {
+    let source = match *g.e(atk) {
+        Effect::Attack { source, .. } => source,
+        _ => return Ok(()),
+    };
+    let b = atk_base_for(g, atk, source);
+    g.run_fx(Effect::PreventEffectsOfAttacks { b })?;
+    Ok(())
+}
+
+/// `BLOCK_SELF_RETREAT(store, state, effect, source)`: a
+/// `SelfPreventRetreatEffect` (default target: the opponent's Active).
+pub fn block_self_retreat(g: &mut Game, atk: EffId) -> R {
+    let o = match *g.e(atk) {
+        Effect::Attack { opp, .. } => opp as usize,
+        _ => return Ok(()),
+    };
+    let target = SlotRef::new(o, g.st.players[o].active);
+    let b = atk_base_for(g, atk, target);
+    g.run_fx(Effect::SelfPreventRetreat { b })?;
+    Ok(())
+}
+
+/// `DISCARD_ATTACKER_ENERGY_IF_THIS_POKEMON_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN`.
+pub fn discard_attacker_energy_if_knocked_out(g: &mut Game, atk: EffId, source_card: CardId) -> R {
+    let source = match *g.e(atk) {
+        Effect::Attack { source, .. } => source,
+        _ => return Ok(()),
+    };
+    let b = atk_base_for(g, atk, source);
+    g.run_fx(Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card })?;
+    Ok(())
+}
+
 /// `new AddSpecialConditionsEffect(effect, conditions)` on the opponent's Active.
 pub fn add_special_conditions_to_opponent_active(g: &mut Game, atk: EffId, conditions: &[SpecialCondition]) -> R {
     let o = match *g.e(atk) {

@@ -14,7 +14,10 @@
 //! PutDamageCountersEffect branches: no ported card emits them yet.)
 use crate::cards::prelude::*;
 
-pub const HIDE_N_SNEAK_KINDS: [u32; 20] = [
+pub const HIDE_N_SNEAK_KINDS: [u32; 23] = [
+    k::PREVENT_EFFECTS_OF_ATTACKS,
+    k::SELF_PREVENT_RETREAT,
+    k::DISCARD_ATTACKER_ENERGY_IF_KO,
     k::APPLY_WEAKNESS,
     k::DEAL_DAMAGE,
     k::PUT_DAMAGE,

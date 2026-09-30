@@ -142,6 +142,18 @@ pub enum Effect {
     /// `PreventDamageEffect` (EffectOfAttackEffect, target = base.source):
     /// `player.active.preventDamageNextTurnPending = {}`.
     PreventDamage { b: AtkBase },
+    /// `PreventDamageEffect` with non-empty `PreventDamageOptions` (same
+    /// Twinleaf class/kind as [`Effect::PreventDamage`]).
+    PreventDamageFiltered { b: AtkBase, filter: crate::state::PreventFilter },
+    /// `PreventEffectsOfAttacksEffect` (target = base.source):
+    /// `player.active.preventEffectsOfAttacksNextTurnPending = {}`.
+    PreventEffectsOfAttacks { b: AtkBase },
+    /// `SelfPreventRetreatEffect` (target = opponent's Active, the default):
+    /// `player.active.cannotRetreatNextTurnPending = true`.
+    SelfPreventRetreat { b: AtkBase },
+    /// `DiscardAttackerEnergyIfKnockedOutDuringOpponentsNextTurnEffect`
+    /// (target = base.source; `markerSource` = `source_card`).
+    DiscardAttackerEnergyIfKnockedOut { b: AtkBase, source_card: CardId },
     /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
     SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
 
@@ -228,6 +240,10 @@ impl Effect {
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
+            PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
+            PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
+            SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
+            DiscardAttackerEnergyIfKnockedOut { .. } => "DISCARD_ATTACKER_ENERGY_IF_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
@@ -269,6 +285,7 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamage { b } => Some(b),
+            PreventDamageFiltered { b, .. } | PreventEffectsOfAttacks { b } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             _ => None,
         }
@@ -294,6 +311,7 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamage { b } => Some(b),
+            PreventDamageFiltered { b, .. } | PreventEffectsOfAttacks { b } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             _ => None,
         }
@@ -376,6 +394,10 @@ impl Effect {
             AddSpecialConditionsPower { .. } => 70,
             ReduceDamage { .. } => 110,
             PreventDamage { .. } => 84,
+            PreventDamageFiltered { .. } => 84,
+            PreventEffectsOfAttacks { .. } => 104,
+            SelfPreventRetreat { .. } => 105,
+            DiscardAttackerEnergyIfKnockedOut { .. } => 106,
             SwitchOutOpponentsActive { .. } => 111,
             OpponentPokemonCannotUseAttack { .. } => 91,
         };
@@ -458,6 +480,9 @@ pub mod k {
     pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
     pub const REDUCE_DAMAGE: u32 = 110;
     pub const PREVENT_DAMAGE: u32 = 84;
+    pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 104;
+    pub const SELF_PREVENT_RETREAT: u32 = 105;
+    pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
     pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
 }

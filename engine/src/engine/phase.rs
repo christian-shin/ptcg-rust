@@ -126,8 +126,20 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
 }
 
 /// `oc` for EndTurn's checkState, after KO resolution.
-pub fn after_end_turn(g: &mut Game, _p: usize) -> R {
-    // Expiring denyPrizes / discardAttackerEnergy fields: not modeled.
+pub fn after_end_turn(g: &mut Game, p: usize) -> R {
+    // Expire KO-time effects on the opponent (denyPrizes: not modeled).
+    let o = 1 - p;
+    for s in g.st.players[o].in_play().iter() {
+        if g.st.slot_pokemon(o, *s).is_none() {
+            continue;
+        }
+        let slot = &mut g.st.players[o].slots[*s as usize];
+        slot.discard_attacker_energy_if_ko_next_turn = false;
+        slot.discard_attacker_energy_if_ko_next_turn_pending = false;
+        slot.discard_attacker_energy_if_ko_attack = None;
+        slot.discard_attacker_energy_if_ko_source_card = None;
+        slot.discard_attacker_energy_if_ko_attacker = None;
+    }
     if g.st.phase == GamePhase::Finished {
         return Ok(());
     }
@@ -249,6 +261,10 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         slot.damage_reduction_next_turn = 0;
         slot.prevent_damage_next_turn = false;
         slot.prevent_damage_next_turn_pending = false;
+        slot.prevent_damage_filter = Default::default();
+        slot.prevent_damage_filter_pending = Default::default();
+        slot.prevent_effects_of_attacks_next_turn = false;
+        slot.prevent_effects_of_attacks_next_turn_pending = false;
         // other next-turn protections: not modeled.
     }
     for s in g.st.players[p].in_play().iter() {
@@ -256,6 +272,16 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.prevent_damage_next_turn_pending {
             slot.prevent_damage_next_turn = true;
             slot.prevent_damage_next_turn_pending = false;
+            slot.prevent_damage_filter = slot.prevent_damage_filter_pending;
+            slot.prevent_damage_filter_pending = Default::default();
+        }
+        if slot.prevent_effects_of_attacks_next_turn_pending {
+            slot.prevent_effects_of_attacks_next_turn = true;
+            slot.prevent_effects_of_attacks_next_turn_pending = false;
+        }
+        if slot.discard_attacker_energy_if_ko_next_turn_pending {
+            slot.discard_attacker_energy_if_ko_next_turn = true;
+            slot.discard_attacker_energy_if_ko_next_turn_pending = false;
         }
         if slot.cannot_attack_next_turn {
             slot.cannot_attack_next_turn = false;

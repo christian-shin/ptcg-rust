@@ -60,6 +60,8 @@ pub enum Cont {
     /// A card continuation created by a source card's code running as
     /// `.call(copycat)` (copy-attack delegation): resumed with the source's port.
     DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
+    /// Little Grudge DiscardEnergyPrompt (KnockOutEffect reducer).
+    LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId },
 }
 
 /// `checkState(..., onComplete)` callbacks.
@@ -483,6 +485,7 @@ impl Game {
             }
             Cont::CheckState(f) => check::resume(self, f),
             Cont::TakePrizes { p, destination } => check::take_prizes_cont(self, p, destination, first),
+            Cont::LittleGrudge { owner, prize_taker, attack, source_card } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, first),
             Cont::ChooseActive { p } => check::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => check::bench_shrink_cont(self, p, empty, first),
             Cont::BetweenTurnsWait { oc } => phase::run_between_turns_effects(self, oc),

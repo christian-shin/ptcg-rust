@@ -105,7 +105,44 @@ pub struct Slot {
     /// `preventDamageNextTurn` / `...Pending` (only the empty filter `{}` is modeled).
     pub prevent_damage_next_turn: bool,
     pub prevent_damage_next_turn_pending: bool,
+    /// The filters of `preventDamageNextTurn` / `...Pending` when the bools are set.
+    pub prevent_damage_filter: PreventFilter,
+    pub prevent_damage_filter_pending: PreventFilter,
+    /// `preventEffectsOfAttacksNextTurn` / `...Pending` (only `{}` is modeled).
+    pub prevent_effects_of_attacks_next_turn: bool,
+    pub prevent_effects_of_attacks_next_turn_pending: bool,
+    /// `discardAttackerEnergyIfKnockedOutNextTurn` (+ `Pending`, `Attack`,
+    /// `SourceCard`, `AttackerId` as a player index).
+    pub discard_attacker_energy_if_ko_next_turn: bool,
+    pub discard_attacker_energy_if_ko_next_turn_pending: bool,
+    pub discard_attacker_energy_if_ko_attack: Option<AttackRef>,
+    pub discard_attacker_energy_if_ko_source_card: Option<CardId>,
+    pub discard_attacker_energy_if_ko_attacker: Option<u8>,
     pub is_public: bool,
+}
+
+/// `PreventDamageFilter` (the modeled keys; `{}` = default).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct PreventFilter {
+    pub source_stage: Option<u8>,
+    pub source_card_types: Option<SVec<CardType, 12>>,
+}
+
+impl PreventFilter {
+    /// `sourceMatchesPreventFilter` for the modeled keys.
+    pub fn matches(&self, stage: u8, types: &[CardType]) -> bool {
+        if let Some(st) = self.source_stage {
+            if stage != st {
+                return false;
+            }
+        }
+        if let Some(ts) = &self.source_card_types {
+            if !types.iter().any(|t| ts.as_slice().contains(t)) {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 impl Default for Slot {
@@ -140,6 +177,15 @@ impl Default for Slot {
             blocked_attack_name_next_turn: None,
             prevent_damage_next_turn: false,
             prevent_damage_next_turn_pending: false,
+            prevent_damage_filter: PreventFilter::default(),
+            prevent_damage_filter_pending: PreventFilter::default(),
+            prevent_effects_of_attacks_next_turn: false,
+            prevent_effects_of_attacks_next_turn_pending: false,
+            discard_attacker_energy_if_ko_next_turn: false,
+            discard_attacker_energy_if_ko_next_turn_pending: false,
+            discard_attacker_energy_if_ko_attack: None,
+            discard_attacker_energy_if_ko_source_card: None,
+            discard_attacker_energy_if_ko_attacker: None,
             is_public: false,
         }
     }
