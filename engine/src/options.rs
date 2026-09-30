@@ -165,8 +165,7 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
             continue;
         }
         seen.push(key);
-        let mut trial = *g;
-        if trial.act_trial(c.action).is_ok() {
+        if is_legal(g, c.action) {
             out.push(c);
         }
     }
@@ -176,7 +175,25 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
 /// Legality for a single action without building descriptors (fast path).
 pub fn is_legal(g: &Game, a: Action) -> bool {
     let mut trial = *g;
-    trial.act_trial(a).is_ok()
+    if trial.act_trial(a).is_err() {
+        return false;
+    }
+    // Resolve info prompts (an ability's animation wait) so checks that run
+    // after them count toward legality; stop at chance prompts and decisions.
+    for _ in 0..100 {
+        if trial.st.phase == crate::types::GamePhase::Finished {
+            break;
+        }
+        match trial.pending() {
+            crate::game::Pending::Info(i) => {
+                if trial.resolve(i, crate::prompts::Res::True).is_err() {
+                    return false;
+                }
+            }
+            _ => break,
+        }
+    }
+    true
 }
 
 /// Legal actions without descriptors (fast path for the select interface).
