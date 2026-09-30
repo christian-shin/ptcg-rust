@@ -33,7 +33,8 @@ pub type CoinFn = fn(&mut Game, CardId, CardFrame, bool) -> R;
 pub type CanPlayFn = fn(&mut Game, CardId, usize) -> bool;
 
 pub struct CardImpl {
-    /// Twinleaf behavior class name.
+    /// Twinleaf behavior class name, or `Class@Full Name` to bind one card
+    /// only (for distinct Twinleaf classes that share a name).
     pub class: &'static str,
     /// Effect kinds the handler reacts to (bit = `Effect::kind()`).
     pub mask: KindMask,
@@ -67,7 +68,12 @@ fn table() -> &'static Vec<Option<&'static CardImpl>> {
                 if d.behavior.is_empty() {
                     None
                 } else {
-                    registry::IMPLS.iter().copied().find(|i| i.class == d.behavior)
+                    // `Class@Full Name` pins a port to one card when two
+                    // Twinleaf files declare classes with the same name.
+                    let pinned = registry::IMPLS.iter().copied().find(|i| {
+                        i.class.split_once('@').map(|(c, f)| c == d.behavior && f == d.full_name).unwrap_or(false)
+                    });
+                    pinned.or_else(|| registry::IMPLS.iter().copied().find(|i| i.class == d.behavior))
                 }
             })
             .collect()

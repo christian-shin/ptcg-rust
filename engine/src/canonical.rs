@@ -151,6 +151,7 @@ impl Game {
         nd!(cannot_attack_turns_remaining, "cannotAttackTurnsRemaining");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
         nd!(coin_flip_cancel_trainer_play_turns_remaining, "coinFlipCancelTrainerPlayTurnsRemaining");
+        nd!(used_table_turner, "usedTableTurner");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }

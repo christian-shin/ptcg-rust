@@ -365,6 +365,15 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
+        Effect::PlayLock { b, locks, turns_remaining, both_players, attacker_turns_remaining } => {
+            let opp = b.opponent as usize;
+            crate::engine::phase::apply_play_locks(&mut g.st.players[opp], locks, turns_remaining.unwrap_or(1));
+            if both_players {
+                let me = b.player as usize;
+                crate::engine::phase::apply_play_locks(&mut g.st.players[me], locks, attacker_turns_remaining.unwrap_or(2));
+            }
+            Ok(())
+        }
         Effect::RemoveSpecialConditions { b, conditions } => {
             let slot = &mut g.st.players[b.target.p as usize].slots[b.target.s as usize];
             for &c in conditions.iter() {
