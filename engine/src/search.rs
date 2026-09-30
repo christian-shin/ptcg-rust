@@ -8,7 +8,6 @@
 use crate::game::{Game, GameError, R};
 use crate::list::*;
 use crate::rng::Rng;
-use crate::state::*;
 
 /// Hidden cards of `owner` as seen by `viewer`, and their zones.
 fn hidden_zones(viewer: usize, owner: usize) -> (bool, bool) {

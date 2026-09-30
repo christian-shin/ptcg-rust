@@ -132,6 +132,8 @@ pub struct Game {
     pub resolving_trainer: Option<(u8, CardId)>,
     /// `probingStadiumEffect` (stadium-effect.ts module state).
     pub probing_stadium: bool,
+    /// Union of subscription masks of every card in the game (skip propagation otherwise).
+    pub kinds_present: crate::effects::KindMask,
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
     pub trace_effects: bool,
 }
@@ -157,6 +159,7 @@ impl Game {
             coin_callbacks: SVec::new(),
             resolving_trainer: None,
             probing_stadium: false,
+            kinds_present: 0,
             trace_effects: false,
         }
     }
@@ -527,7 +530,7 @@ impl Game {
         for &c in first.iter() {
             self.call_card(c, id, kind)?;
         }
-        let order = self.propagation_order(&e, kind);
+        let order = if self.kinds_present & (1u128 << kind) != 0 { self.propagation_order(&e, kind) } else { SVec::new() };
         for &c in order.iter() {
             if first.contains(&c) {
                 continue;
@@ -614,6 +617,11 @@ impl Game {
                 self.st.players[p].deck.push(c);
             }
             self.st.n_cards += deck.len() as u8;
+            for d in deck.iter() {
+                if let Some(imp) = cards::impl_for(*d) {
+                    self.kinds_present |= imp.mask;
+                }
+            }
             if !setup::deck_is_valid(&self.st, deck) {
                 self.st.phase = GamePhase::Finished;
                 self.st.winner = WINNER_NONE;
@@ -654,6 +662,17 @@ impl Game {
         }
         self.gc();
         r
+    }
+
+    /// A turn action on a scratch copy the caller discards on error (no backup).
+    pub fn act_trial(&mut self, action: Action) -> R {
+        if self.prompts.iter().any(|p| p.result.is_none()) {
+            bail!("ACTION_IN_PROGRESS");
+        }
+        self.items.clear();
+        turn::play_card_reducer(self, action)?;
+        turn::player_turn_reducer(self, action)?;
+        self.after_dispatch()
     }
 
     /// A turn action (`Store.reduce`): all-or-nothing.

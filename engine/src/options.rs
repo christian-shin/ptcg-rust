@@ -27,40 +27,61 @@ fn js_sort(v: &mut Vec<&'static str>) {
     });
 }
 
+/// Canonical descriptor of a turn action (oracle `TurnOption.desc`).
+pub fn describe_action(g: &Game, a: Action) -> Value {
+    let p = g.st.active_player as usize;
+    match a {
+        Action::PlayCard { hand_index, target } => {
+            let c = g.st.players[p].hand.as_slice()[hand_index as usize];
+            json!({ "a": "play", "card": g.card_ref(c), "target": target_json(target) })
+        }
+        Action::Attack { name } => json!({ "a": "attack", "name": name }),
+        Action::UseAbility { name, target } => json!({ "a": "ability", "name": name, "source": target_json(target) }),
+        Action::UseTrainerAbility { name, target } => json!({ "a": "trainerAbility", "name": name, "source": target_json(target) }),
+        Action::UseStadium => json!({ "a": "stadium" }),
+        Action::Retreat { bench_index } => json!({ "a": "retreat", "bench": bench_index }),
+        Action::Pass => json!({ "a": "pass" }),
+    }
+}
+
 pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
-    let mut out = Vec::new();
+    candidate_actions(g).into_iter().map(|a| TurnOption { desc: describe_action(g, a), action: a }).collect()
+}
+
+/// Structural candidates for the active player's turn, in oracle order.
+pub fn candidate_actions(g: &Game) -> Vec<Action> {
+    let mut out = Vec::with_capacity(32);
     let p = g.st.active_player as usize;
     let own = slot_targets(&g.st, p, PlayerType::BottomPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]);
     let pl = &g.st.players[p];
     let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards.is_empty());
     for (hi, c) in pl.hand.iter().enumerate() {
         let d = g.st.cdef(c);
-        let r = g.card_ref(c);
-        let mut play = |t: CardTarget| {
-            out.push(TurnOption {
-                desc: json!({ "a": "play", "card": r, "target": target_json(t) }),
-                action: Action::PlayCard { hand_index: hi as u8, target: t },
-            })
-        };
+        let hand_index = hi as u8;
         if d.is_energy() {
-            own.iter().for_each(|t| play(*t));
+            for t in &own {
+                out.push(Action::PlayCard { hand_index, target: *t });
+            }
         } else if d.is_pokemon() {
             if let Some(i) = first_empty {
-                play(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8));
+                out.push(Action::PlayCard { hand_index, target: CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8) });
             }
             if d.stage != Stage::Basic as u8 {
-                own.iter().for_each(|t| play(*t));
+                for t in &own {
+                    out.push(Action::PlayCard { hand_index, target: *t });
+                }
             }
         } else if d.is_trainer() {
             if d.trainer_type == TrainerType::Tool as u8 {
-                own.iter().for_each(|t| play(*t));
+                for t in &own {
+                    out.push(Action::PlayCard { hand_index, target: *t });
+                }
             } else {
-                play(BOARD);
+                out.push(Action::PlayCard { hand_index, target: BOARD });
             }
         }
     }
 
-    // Attack names: active, bench (useOnBench), CheckPokemonAttacks.
     let mut names: Vec<&'static str> = Vec::new();
     let add = |n: &'static str, names: &mut Vec<&'static str>| {
         if !names.contains(&n) {
@@ -79,7 +100,7 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
             }
         }
     }
-    {
+    if g.kinds_present & (1u128 << crate::effects::k::CHECK_POKEMON_ATTACKS) != 0 || g.st.slot(p, pl.active).tools.len() > 0 {
         let mut sim = *g;
         if let Ok((Effect::CheckPokemonAttacks { attacks, .. }, _)) = sim.run_fx(check_attacks_effect(&sim, p)) {
             for a in attacks.iter() {
@@ -89,10 +110,9 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
     }
     js_sort(&mut names);
     for n in names {
-        out.push(TurnOption { desc: json!({ "a": "attack", "name": n }), action: Action::Attack { name: n } });
+        out.push(Action::Attack { name: n });
     }
 
-    // Abilities on Pokémon in play.
     for t in &own {
         let slot = crate::prompts::get_target(&g.st, p, *t).unwrap();
         if let Some(c) = g.st.slot_pokemon(slot.p as usize, slot.s) {
@@ -102,39 +122,36 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
                     pn.push(pw.name);
                 }
             }
-            let mut sim = *g;
-            let mut powers = SVec::new();
-            for i in 0..g.st.cdef(c).powers.len() {
-                powers.push(PowerRef { card: c, index: i as u8 });
-            }
-            if let Ok((Effect::CheckPokemonPowers { powers, .. }, _)) = sim.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: c, powers }) {
-                for r in powers.iter() {
-                    let n = g.st.cdef(r.card).powers[r.index as usize].name;
-                    if !pn.contains(&n) {
-                        pn.push(n);
+            if g.kinds_present & (1u128 << crate::effects::k::CHECK_POKEMON_POWERS) != 0 {
+                let mut sim = *g;
+                let mut powers = SVec::new();
+                for i in 0..g.st.cdef(c).powers.len() {
+                    powers.push(PowerRef { card: c, index: i as u8 });
+                }
+                if let Ok((Effect::CheckPokemonPowers { powers, .. }, _)) = sim.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: c, powers }) {
+                    for r in powers.iter() {
+                        let n = g.st.cdef(r.card).powers[r.index as usize].name;
+                        if !pn.contains(&n) {
+                            pn.push(n);
+                        }
                     }
                 }
             }
             js_sort(&mut pn);
             for n in pn {
-                out.push(TurnOption {
-                    desc: json!({ "a": "ability", "name": n, "source": target_json(*t) }),
-                    action: Action::UseAbility { name: n, target: *t },
-                });
+                out.push(Action::UseAbility { name: n, target: *t });
             }
         }
     }
-    // Abilities from hand / discard: no pool card has useFromHand / useFromDiscard.
-
     if g.st.stadium_card().is_some() {
-        out.push(TurnOption { desc: json!({ "a": "stadium" }), action: Action::UseStadium });
+        out.push(Action::UseStadium);
     }
     for (i, b) in pl.bench.iter().enumerate() {
         if !pl.slots[*b as usize].cards.is_empty() {
-            out.push(TurnOption { desc: json!({ "a": "retreat", "bench": i }), action: Action::Retreat { bench_index: i as u8 } });
+            out.push(Action::Retreat { bench_index: i as u8 });
         }
     }
-    out.push(TurnOption { desc: json!({ "a": "pass" }), action: Action::Pass });
+    out.push(Action::Pass);
     out
 }
 
@@ -149,7 +166,7 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
         }
         seen.push(key);
         let mut trial = *g;
-        if trial.act(c.action).is_ok() {
+        if trial.act_trial(c.action).is_ok() {
             out.push(c);
         }
     }
@@ -159,5 +176,23 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
 /// Legality for a single action without building descriptors (fast path).
 pub fn is_legal(g: &Game, a: Action) -> bool {
     let mut trial = *g;
-    trial.act(a).is_ok()
+    trial.act_trial(a).is_ok()
+}
+
+/// Legal actions without descriptors (fast path for the select interface).
+pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
+    let mut out: Vec<TurnOption> = Vec::new();
+    for c in turn_candidates_fast(g) {
+        if out.iter().any(|o| o.action == c) {
+            continue;
+        }
+        if is_legal(g, c) {
+            out.push(TurnOption { desc: Value::Null, action: c });
+        }
+    }
+    out
+}
+
+fn turn_candidates_fast(g: &Game) -> Vec<Action> {
+    candidate_actions(g)
 }

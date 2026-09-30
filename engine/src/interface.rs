@@ -8,7 +8,7 @@
 //! anything the rules engine would reject.
 
 use crate::game::{Action, Game, GameError, Pending, R};
-use crate::options::{legal_turn_options, TurnOption};
+use crate::options::TurnOption;
 use crate::prompts::*;
 use crate::state::ListRef;
 use crate::types::*;
@@ -48,8 +48,11 @@ pub enum SelectContext {
     ToPrize = 11,
     NotMove = 12,
     DamageCounter = 13,
+    AttachTo = 22,
     Look = 24,
     EffectTarget = 25,
+    DiscardEnergyCard = 26,
+    SwitchEnergyCard = 28,
     DiscardEnergy = 30,
     Attack = 35,
     DrawCount = 38,
@@ -144,6 +147,9 @@ enum AnswerShape {
     Array,
     /// Answer is the single chosen value.
     Single,
+    /// PutDamage: picks may repeat; each pick places `multiple` damage on
+    /// that option's target (values are target objects).
+    Counters(i32),
 }
 
 fn context_for(message: &str) -> SelectContext {
@@ -241,7 +247,7 @@ impl Game {
     }
 
     fn turn_select(&self, p: u8) -> SelectData {
-        let opts = legal_turn_options(self);
+        let opts = crate::options::legal_actions(self);
         let options = opts
             .iter()
             .map(|o| {
@@ -410,6 +416,146 @@ impl Game {
                 let n = options.len();
                 mk(SelectType::Energy, ctx, 0, n, options, (0..n).map(|k| json!(k)).collect(), AnswerShape::Array)
             }
+            PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {
+                // One option per (energy card, target) pair; pick each energy at most once.
+                let list = self.prompt_list(cards);
+                let targets: Vec<CardTarget> = slot_targets(&self.st, persp, player_type, slots.as_slice())
+                    .into_iter()
+                    .filter(|t| !o.blocked_to.iter().any(|b| b.player == t.player && b.slot == t.slot && b.index == t.index))
+                    .collect();
+                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                for (k, &c) in list.iter().enumerate() {
+                    let d = self.st.cdef(c);
+                    if !(d.is_energy() && !o.blocked.contains(&(k as u8)) && filter.matches(d)) {
+                        continue;
+                    }
+                    for t in &targets {
+                        options.push(Opt {
+                            kind: OptionType::EnergyCard as u8,
+                            area: Some(area_of(cards).0),
+                            index: Some(k as u8),
+                            in_play_area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                            in_play_index: Some(t.index),
+                            player_index: Some(if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 }),
+                            card_id: Some(self.st.cards[c as usize].def),
+                            serial: Some(c),
+                            ..Default::default()
+                        });
+                        vals.push(json!({ "to": target_json(*t), "index": k }));
+                    }
+                }
+                mk(SelectType::AttachedCard, SelectContext::AttachTo, o.min as usize, o.max as usize, options, vals, AnswerShape::Array)
+            }
+            PromptKind::DiscardEnergy { player_type, slots, filter, o } | PromptKind::MoveEnergy { player_type, slots, filter, o } => {
+                let is_move = matches!(pr.kind, PromptKind::MoveEnergy { .. });
+                let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
+                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                for (from, idx) in self.energy_sources(persp, player_type, slots.as_slice(), &filter, &o) {
+                    let s = get_target(&self.st, persp, from).unwrap();
+                    for i in idx {
+                        let c = self.st.slot(s.p as usize, s.s).cards.as_slice()[i as usize];
+                        let mut base = Opt {
+                            kind: OptionType::EnergyCard as u8,
+                            area: Some(if from.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                            index: Some(from.index),
+                            player_index: Some(s.p),
+                            card_id: Some(self.st.cards[c as usize].def),
+                            serial: Some(c),
+                            ..Default::default()
+                        };
+                        if is_move {
+                            for to in all.iter().filter(|t| !(t.player == from.player && t.slot == from.slot && t.index == from.index)) {
+                                base.in_play_area = Some(if to.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
+                                base.in_play_index = Some(to.index);
+                                options.push(base.clone());
+                                vals.push(json!({ "from": target_json(from), "to": target_json(*to), "index": i }));
+                            }
+                        } else {
+                            options.push(base);
+                            vals.push(json!({ "from": target_json(from), "index": i }));
+                        }
+                    }
+                }
+                let max = o.max.map(|m| m as usize).unwrap_or(options.len());
+                let ctx = if is_move { SelectContext::SwitchEnergyCard } else { SelectContext::DiscardEnergyCard };
+                mk(SelectType::AttachedCard, ctx, o.min as usize, max, options, vals, AnswerShape::Array)
+            }
+            PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, damage_multiple, .. } => {
+                let bl: Vec<CardTarget> = blocked.iter().copied().collect();
+                let targets: Vec<CardTarget> = slot_targets(&self.st, persp, player_type, slots.as_slice())
+                    .into_iter()
+                    .filter(|t| !bl.iter().any(|b| get_target(&self.st, persp, *b).ok() == get_target(&self.st, persp, *t).ok()))
+                    .collect();
+                let options = targets
+                    .iter()
+                    .map(|t| Opt {
+                        kind: OptionType::Card as u8,
+                        area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                        index: Some(t.index),
+                        player_index: Some(if t.player == PlayerType::BottomPlayer { persp as u8 } else { 1 - persp as u8 }),
+                        ..Default::default()
+                    })
+                    .collect();
+                let n = (damage / damage_multiple.max(1)) as usize;
+                let vals = targets.iter().map(|t| target_json(*t)).collect();
+                mk(SelectType::Card, SelectContext::DamageCounter, if allow_partial { 0 } else { n }, n, options, vals, AnswerShape::Counters(damage_multiple))
+            }
+            PromptKind::MoveDamage { player_type, slots, o, .. } | PromptKind::RemoveDamage { player_type, slots, o, .. } => {
+                let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
+                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                for f in &all {
+                    for t in all.iter().filter(|t| !(t.player == f.player && t.slot == f.slot && t.index == f.index)) {
+                        options.push(Opt {
+                            kind: OptionType::Card as u8,
+                            area: Some(if f.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                            index: Some(f.index),
+                            in_play_area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                            in_play_index: Some(t.index),
+                            ..Default::default()
+                        });
+                        vals.push(json!({ "from": target_json(*f), "to": target_json(*t) }));
+                    }
+                }
+                let max = o.max.map(|m| m as usize).unwrap_or(12);
+                mk(SelectType::Card, SelectContext::DamageCounter, o.min as usize, max, options, vals, AnswerShape::Array)
+            }
+            PromptKind::OrderCards { cards, .. } => {
+                let list = self.prompt_list(cards);
+                let options = list
+                    .iter()
+                    .enumerate()
+                    .map(|(k, c)| Opt { kind: OptionType::Card as u8, index: Some(k as u8), card_id: Some(self.st.cards[*c as usize].def), serial: Some(*c), ..Default::default() })
+                    .collect::<Vec<_>>();
+                let n = options.len();
+                mk(SelectType::Card, SelectContext::ToDeck, n, n, options, (0..n).map(|k| json!(k)).collect(), AnswerShape::Array)
+            }
+            PromptKind::SelectOption { values, disabled, .. } => {
+                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                for k in 0..values.len() {
+                    if disabled.map(|d| d & (1 << k) != 0).unwrap_or(false) {
+                        continue;
+                    }
+                    options.push(Opt { kind: OptionType::Number as u8, number: Some(k as i32), ..Default::default() });
+                    vals.push(json!(k));
+                }
+                mk(SelectType::Count, ctx, 1, 1, options, vals, AnswerShape::Single)
+            }
+            PromptKind::ChooseAttack { cards, .. } => {
+                let (mut options, mut vals) = (Vec::new(), Vec::new());
+                for (i, c) in cards.iter().enumerate() {
+                    for (a, at) in self.st.cdef(*c).attacks.iter().enumerate() {
+                        options.push(Opt {
+                            kind: OptionType::Attack as u8,
+                            attack_id: Some(a as u8),
+                            card_id: Some(self.st.cards[*c as usize].def),
+                            serial: Some(*c),
+                            ..Default::default()
+                        });
+                        vals.push(json!({ "index": i, "attack": at.name }));
+                    }
+                }
+                mk(SelectType::Attack, SelectContext::Attack, 1, 1, options, vals, AnswerShape::Single)
+            }
             _ => mk(SelectType::YesNo, SelectContext::Look, 0, 0, vec![], vec![], AnswerShape::Single),
         }
     }
@@ -443,6 +589,19 @@ impl Game {
                             v.push(vals.get(k).cloned().ok_or(GameError("BAD_OPTION"))?);
                         }
                         Value::Array(v)
+                    }
+                    AnswerShape::Counters(mult) => {
+                        let mut agg: Vec<(usize, i32)> = Vec::new();
+                        for &k in chosen {
+                            if k >= vals.len() {
+                                return Err(GameError("BAD_OPTION"));
+                            }
+                            match agg.iter_mut().find(|x| x.0 == k) {
+                                Some(x) => x.1 += *mult,
+                                None => agg.push((k, *mult)),
+                            }
+                        }
+                        Value::Array(agg.into_iter().map(|(k, d)| json!({ "target": vals[k].clone(), "damage": d })).collect())
                     }
                 };
                 let pr = self.prompts.as_slice()[*i];
