@@ -127,6 +127,8 @@ def main():
     ap.add_argument('--coverage', action='store_true', help='record V8 block coverage per game and report per card')
     ap.add_argument('--min-games', type=int, default=3)
     ap.add_argument('--scout', type=int, default=0, help='Rust-scout N candidate games; replay the best --games of them')
+    ap.add_argument('--remote', type=int, default=0, metavar='SHARDS',
+                    help='play the oracle games on GitHub Actions across SHARDS runners (tools/remote_oracle.py)')
     args = ap.parse_args()
     for t in args.targets:
         if t not in cards:
@@ -160,8 +162,17 @@ def main():
         if args.coverage:
             os.makedirs(cov_dir, exist_ok=True)
             env['NODE_V8_COVERAGE'] = cov_dir
+        cov_files = sorted({row.get('behavior_file') or row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
         procs = []
-        if args.scout:
+        if args.remote:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import remote_oracle
+            status, n, log = remote_oracle.run(spec_path, out, start=args.seed * 100000, count=args.games, shards=args.remote,
+                                               cov_files=' '.join(cov_files) if args.coverage else '', tag=tag)
+            bad = [l for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
+            for l in bad[:10]:
+                print('ORACLE:', l)
+        elif args.scout:
             scouted = os.path.join(out, 'scouted.json.txt')
             r = subprocess.run([SCOUT, spec_path, scouted, '--targets', '|'.join(args.targets), '--candidates', str(args.scout),
                                 '--keep', str(args.games), '--seed', str(args.seed)], capture_output=True, text=True)
@@ -169,11 +180,12 @@ def main():
             for j in range(args.jobs):
                 procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'replay', scouted, out, str(j * per), str(per)],
                                               cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
-        for j in range(0 if args.scout else args.jobs):
+        for j in range(0 if (args.scout or args.remote) else args.jobs):
             start = args.seed * 100000 + j * per
             procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'corpus', spec_path, out, str(start), str(per)],
                                           cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
         logs = [p.communicate()[0] for p in procs]
+        logs = logs if procs else []
         bad = [l for log in logs for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
         for l in bad[:10]:
             print('ORACLE:', l)

@@ -36,24 +36,38 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.m.outputs.matrix }}
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
+      - id: sha
+        run: echo "sha=$(git ls-remote https://github.com/christian-shin/twinleafgg.git refs/heads/${{ inputs.twinleaf_ref }} | cut -f1)" >> "$GITHUB_OUTPUT"
+      # The compiled oracle depends only on the Twinleaf commit.
+      - id: cache
+        uses: actions/cache@v4
+        with:
+          path: oracle.tgz
+          key: oracle-build-${{ steps.sha.outputs.sha }}
       - uses: actions/checkout@v4
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           repository: christian-shin/twinleafgg
-          ref: ${{ inputs.twinleaf_ref }}
+          ref: ${{ steps.sha.outputs.sha }}
           path: twinleaf
       - uses: actions/setup-node@v4
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: twinleaf/ptcg-server/package-lock.json
       - name: Install
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: twinleaf/ptcg-server
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Build oracle
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: twinleaf/ptcg-server
         run: node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc
       - name: Package
+        if: steps.cache.outputs.cache-hit != 'true'
         run: tar -C twinleaf/ptcg-server -czf oracle.tgz output
       - uses: actions/upload-artifact@v4
         with:
@@ -77,7 +91,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: christian-shin/twinleafgg
-          ref: ${{ inputs.twinleaf_ref }}
+          ref: ${{ needs.build.outputs.sha }}
           path: twinleaf
           sparse-checkout: |
             ptcg-server/package.json
