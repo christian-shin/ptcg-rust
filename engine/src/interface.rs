@@ -1,0 +1,394 @@
+//! Engine-driven selection interface in the shape of the Kaggle cabt engine:
+//! every decision is a [`SelectData`] with `type`, `context`, `min_count`,
+//! `max_count` and an explicit `option` list; the agent answers with option
+//! indices.
+//!
+//! Answers are translated to Twinleaf wire answers and go through the same
+//! decode + validate path as oracle traces, so the interface cannot accept
+//! anything the rules engine would reject.
+
+use crate::game::{Action, Game, GameError, Pending, R};
+use crate::options::{legal_turn_options, TurnOption};
+use crate::prompts::*;
+use crate::state::ListRef;
+use crate::types::*;
+use crate::list::CardList;
+use serde_json::{json, Value};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum SelectType {
+    Main = 0,
+    Card = 1,
+    AttachedCard = 2,
+    CardOrAttachedCard = 3,
+    Energy = 4,
+    Skill = 5,
+    Attack = 6,
+    Evolve = 7,
+    Count = 8,
+    YesNo = 9,
+    SpecialCondition = 10,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum SelectContext {
+    Main = 0,
+    SetupActivePokemon = 1,
+    SetupBenchPokemon = 2,
+    Switch = 3,
+    ToActive = 4,
+    ToBench = 5,
+    ToField = 6,
+    ToHand = 7,
+    Discard = 8,
+    ToDeck = 9,
+    ToDeckBottom = 10,
+    ToPrize = 11,
+    NotMove = 12,
+    DamageCounter = 13,
+    Look = 24,
+    EffectTarget = 25,
+    DiscardEnergy = 30,
+    Attack = 35,
+    DrawCount = 38,
+    IsFirst = 41,
+    Mulligan = 42,
+    Activate = 43,
+    CoinHead = 46,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum OptionType {
+    Number = 0,
+    Yes = 1,
+    No = 2,
+    Card = 3,
+    ToolCard = 4,
+    EnergyCard = 5,
+    Energy = 6,
+    Play = 7,
+    Attach = 8,
+    Evolve = 9,
+    Ability = 10,
+    Discard = 11,
+    Retreat = 12,
+    Attack = 13,
+    End = 14,
+    Skill = 15,
+    SpecialCondition = 16,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum AreaType {
+    Deck = 1,
+    Hand = 2,
+    Discard = 3,
+    Active = 4,
+    Bench = 5,
+    Prize = 6,
+    Stadium = 7,
+    Energy = 8,
+    Tool = 9,
+    PreEvolution = 10,
+    Player = 11,
+    Looking = 12,
+}
+
+/// One option (cabt `Option`). `card_id` is the card-database index,
+/// `serial` the card instance.
+#[derive(Clone, Debug, Default)]
+pub struct Opt {
+    pub kind: u8,
+    pub number: Option<i32>,
+    pub area: Option<u8>,
+    pub index: Option<u8>,
+    pub player_index: Option<u8>,
+    pub in_play_area: Option<u8>,
+    pub in_play_index: Option<u8>,
+    pub attack_id: Option<u8>,
+    pub card_id: Option<u16>,
+    pub serial: Option<u8>,
+}
+
+#[derive(Clone, Debug)]
+pub struct SelectData {
+    /// Deciding player index.
+    pub player: u8,
+    pub select_type: SelectType,
+    pub context: SelectContext,
+    pub min_count: usize,
+    pub max_count: usize,
+    pub options: Vec<Opt>,
+    /// Internal: how option indices map back to answers.
+    source: Source,
+}
+
+#[derive(Clone, Debug)]
+enum Source {
+    Turn(Vec<TurnOption>),
+    /// Prompt index plus the wire value per option.
+    Prompt(usize, Vec<Value>, AnswerShape),
+}
+
+#[derive(Clone, Copy, Debug)]
+enum AnswerShape {
+    /// Answer is the JSON array of chosen option values.
+    Array,
+    /// Answer is the single chosen value.
+    Single,
+}
+
+fn context_for(message: &str) -> SelectContext {
+    match message {
+        "CHOOSE_STARTING_POKEMONS" => SelectContext::SetupActivePokemon,
+        "CHOOSE_NEW_ACTIVE_POKEMON" | "CHOOSE_POKEMON_TO_SWITCH" => SelectContext::Switch,
+        "CHOOSE_PRIZE_CARD" => SelectContext::ToHand,
+        "CHOOSE_PRIZE_CARD_TO_DISCARD" => SelectContext::Discard,
+        "CHOOSE_ENERGY_TO_PAY_RETREAT_COST" | "CHOOSE_ENERGIES_TO_DISCARD" => SelectContext::DiscardEnergy,
+        "WANT_TO_DRAW_CARDS" => SelectContext::DrawCount,
+        "GO_FIRST" => SelectContext::IsFirst,
+        "WANT_TO_USE_ABILITY" => SelectContext::Activate,
+        m if m.contains("DISCARD") => SelectContext::Discard,
+        m if m.contains("HAND") => SelectContext::ToHand,
+        m if m.contains("BENCH") => SelectContext::ToBench,
+        m if m.contains("DECK") => SelectContext::ToDeck,
+        _ => SelectContext::EffectTarget,
+    }
+}
+
+fn area_of(r: ListRef) -> (u8, u8) {
+    match r {
+        ListRef::Deck(p) => (AreaType::Deck as u8, p),
+        ListRef::Hand(p) => (AreaType::Hand as u8, p),
+        ListRef::Discard(p) => (AreaType::Discard as u8, p),
+        ListRef::Prize(p, _) => (AreaType::Prize as u8, p),
+        ListRef::Stadium(p) => (AreaType::Stadium as u8, p),
+        ListRef::Slot(p, _) | ListRef::SlotEnergies(p, _) => (AreaType::Bench as u8, p),
+        _ => (AreaType::Looking as u8, 0),
+    }
+}
+
+impl Game {
+    /// The current decision as a cabt-style select, or `None` when the game
+    /// is over (chance and info prompts are settled internally first).
+    pub fn select(&mut self) -> Result<Option<SelectData>, GameError> {
+        self.settle()?;
+        match self.pending() {
+            Pending::Finished | Pending::Stuck => Ok(None),
+            Pending::Turn(p) => Ok(Some(self.turn_select(p))),
+            Pending::Decision(i) => Ok(Some(self.prompt_select(i))),
+            Pending::Chance(_) | Pending::Info(_) => unreachable!("settled"),
+        }
+    }
+
+    fn turn_select(&self, p: u8) -> SelectData {
+        let opts = legal_turn_options(self);
+        let options = opts
+            .iter()
+            .map(|o| {
+                let mut r = Opt::default();
+                match o.action {
+                    Action::PlayCard { hand_index, target } => {
+                        let c = self.st.players[p as usize].hand.as_slice()[hand_index as usize];
+                        let d = self.st.cdef(c);
+                        r.kind = if d.is_energy() || (d.is_trainer() && d.trainer_type == TrainerType::Tool as u8) {
+                            OptionType::Attach as u8
+                        } else if d.is_pokemon() && target.slot != SlotType::Bench || (d.is_pokemon() && d.stage != Stage::Basic as u8) {
+                            OptionType::Evolve as u8
+                        } else {
+                            OptionType::Play as u8
+                        };
+                        r.area = Some(AreaType::Hand as u8);
+                        r.index = Some(hand_index);
+                        r.serial = Some(c);
+                        r.card_id = Some(self.st.cards[c as usize].def);
+                        if target.slot == SlotType::Active || target.slot == SlotType::Bench {
+                            r.in_play_area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
+                            r.in_play_index = Some(target.index);
+                        }
+                    }
+                    Action::Attack { name } => {
+                        r.kind = OptionType::Attack as u8;
+                        if let Some(c) = self.st.active_pokemon(p as usize) {
+                            r.attack_id = self.st.cdef(c).attacks.iter().position(|a| a.name == name).map(|i| i as u8);
+                            r.card_id = Some(self.st.cards[c as usize].def);
+                        }
+                    }
+                    Action::UseAbility { target, .. } => {
+                        r.kind = OptionType::Ability as u8;
+                        r.area = Some(if target.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
+                        r.index = Some(target.index);
+                    }
+                    Action::Retreat { bench_index } => {
+                        r.kind = OptionType::Retreat as u8;
+                        r.area = Some(AreaType::Bench as u8);
+                        r.index = Some(bench_index);
+                    }
+                    Action::UseStadium => {
+                        r.kind = OptionType::Skill as u8;
+                        r.area = Some(AreaType::Stadium as u8);
+                    }
+                    Action::UseTrainerAbility { .. } => r.kind = OptionType::Skill as u8,
+                    Action::Pass => r.kind = OptionType::End as u8,
+                }
+                r.player_index = Some(p);
+                r
+            })
+            .collect();
+        SelectData {
+            player: p,
+            select_type: SelectType::Main,
+            context: SelectContext::Main,
+            min_count: 1,
+            max_count: 1,
+            options,
+            source: Source::Turn(opts),
+        }
+    }
+
+    fn prompt_select(&self, i: usize) -> SelectData {
+        let pr = self.prompts.as_slice()[i];
+        let player = self.st.player_index_by_id(pr.player_id) as u8;
+        let persp = self.st.player_index_by_id(pr.perspective_id());
+        let ctx = context_for(pr.message);
+        let mk = |t: SelectType, c: SelectContext, min: usize, max: usize, options: Vec<Opt>, vals: Vec<Value>, sh: AnswerShape| SelectData {
+            player,
+            select_type: t,
+            context: c,
+            min_count: min,
+            max_count: max,
+            options,
+            source: Source::Prompt(i, vals, sh),
+        };
+        match pr.kind {
+            PromptKind::Confirm => {
+                let o = |k: OptionType| Opt { kind: k as u8, ..Default::default() };
+                mk(SelectType::YesNo, ctx, 1, 1, vec![o(OptionType::Yes), o(OptionType::No)], vec![json!(true), json!(false)], AnswerShape::Single)
+            }
+            PromptKind::Select { values, .. } => {
+                let n = values.len();
+                let options = (0..n)
+                    .map(|k| Opt {
+                        kind: OptionType::Number as u8,
+                        number: Some(match values {
+                            SelectValues::DrawCards(m) => m as i32 - k as i32,
+                            _ => k as i32,
+                        }),
+                        ..Default::default()
+                    })
+                    .collect();
+                mk(SelectType::Count, ctx, 1, 1, options, (0..n).map(|k| json!(k)).collect(), AnswerShape::Single)
+            }
+            PromptKind::ChooseCards { cards, filter, opts } => {
+                let list = self.prompt_list(cards);
+                let sel = self.choose_cards_selectable(cards, &filter, &opts);
+                let (area, owner) = area_of(cards);
+                let mut options = Vec::new();
+                let mut vals = Vec::new();
+                for (k, &c) in list.iter().enumerate() {
+                    if sel[k] {
+                        options.push(Opt {
+                            kind: OptionType::Card as u8,
+                            area: Some(area),
+                            index: Some(k as u8),
+                            player_index: Some(owner),
+                            card_id: Some(self.st.cards[c as usize].def),
+                            serial: Some(c),
+                            ..Default::default()
+                        });
+                        vals.push(json!(k));
+                    }
+                }
+                let min = opts.min as usize;
+                let max = (opts.max as usize).min(options.len());
+                mk(SelectType::Card, ctx, if opts.allow_cancel { 0 } else { min }, max, options, vals, AnswerShape::Array)
+            }
+            PromptKind::ChoosePokemon { min, max, .. } => {
+                let cands = self.choose_pokemon_candidates(&pr);
+                let options = cands
+                    .iter()
+                    .map(|t| {
+                        let owner = if t.player == PlayerType::BottomPlayer { persp } else { 1 - persp };
+                        let s = get_target(&self.st, persp, *t).unwrap();
+                        let c = self.st.slot_pokemon(s.p as usize, s.s);
+                        Opt {
+                            kind: OptionType::Card as u8,
+                            area: Some(if t.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
+                            index: Some(t.index),
+                            player_index: Some(owner as u8),
+                            card_id: c.map(|c| self.st.cards[c as usize].def),
+                            serial: c,
+                            ..Default::default()
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                let vals = cands.iter().map(|t| target_json(*t)).collect();
+                let n = options.len();
+                mk(SelectType::Card, ctx, (min as usize).min(n), (max as usize).min(n), options, vals, AnswerShape::Array)
+            }
+            PromptKind::ChoosePrize { count, use_opponent_prizes, .. } => {
+                let q = if use_opponent_prizes { 1 - persp } else { persp };
+                let left = self.st.players[q].prizes.iter().filter(|l| !l.is_empty()).count();
+                let options = (0..left)
+                    .map(|k| Opt { kind: OptionType::Card as u8, area: Some(AreaType::Prize as u8), index: Some(k as u8), player_index: Some(q as u8), ..Default::default() })
+                    .collect();
+                let n = (count as usize).min(left);
+                mk(SelectType::Card, ctx, n, n, options, (0..left).map(|k| json!(k)).collect(), AnswerShape::Array)
+            }
+            PromptKind::ChooseEnergy { energy, .. } => {
+                let options = energy
+                    .iter()
+                    .enumerate()
+                    .map(|(k, e)| Opt {
+                        kind: OptionType::Energy as u8,
+                        area: Some(AreaType::Energy as u8),
+                        index: Some(k as u8),
+                        card_id: Some(self.st.cards[e.card as usize].def),
+                        serial: Some(e.card),
+                        ..Default::default()
+                    })
+                    .collect::<Vec<_>>();
+                let n = options.len();
+                mk(SelectType::Energy, ctx, 0, n, options, (0..n).map(|k| json!(k)).collect(), AnswerShape::Array)
+            }
+            _ => mk(SelectType::YesNo, SelectContext::Look, 0, 0, vec![], vec![], AnswerShape::Single),
+        }
+    }
+
+    /// Answer a select with option indices. Invalid combinations (e.g. an
+    /// energy set that does not pay the cost exactly) return an error and
+    /// leave the game unchanged.
+    pub fn answer(&mut self, sel: &SelectData, chosen: &[usize]) -> R {
+        match &sel.source {
+            Source::Turn(opts) => {
+                let k = *chosen.first().ok_or(GameError("EMPTY_ANSWER"))?;
+                let a = opts.get(k).ok_or(GameError("BAD_OPTION"))?.action;
+                self.act(a)
+            }
+            Source::Prompt(i, vals, shape) => {
+                let raw = match shape {
+                    AnswerShape::Single => vals.get(*chosen.first().ok_or(GameError("EMPTY_ANSWER"))?).cloned().ok_or(GameError("BAD_OPTION"))?,
+                    AnswerShape::Array => {
+                        let mut v = Vec::new();
+                        for &k in chosen {
+                            v.push(vals.get(k).cloned().ok_or(GameError("BAD_OPTION"))?);
+                        }
+                        Value::Array(v)
+                    }
+                };
+                let pr = self.prompts.as_slice()[*i];
+                let res = self.decode_answer(&pr, &raw)?;
+                let backup = *self;
+                let r = self.resolve(*i, res);
+                if r.is_err() {
+                    *self = backup;
+                }
+                r
+            }
+        }
+    }
+}

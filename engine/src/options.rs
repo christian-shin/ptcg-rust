@@ -62,7 +62,7 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
 
     // Attack names: active, bench (useOnBench), CheckPokemonAttacks.
     let mut names: Vec<&'static str> = Vec::new();
-    let mut add = |n: &'static str, names: &mut Vec<&'static str>| {
+    let add = |n: &'static str, names: &mut Vec<&'static str>| {
         if !names.contains(&n) {
             names.push(n);
         }

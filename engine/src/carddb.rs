@@ -85,6 +85,8 @@ pub struct CardDef {
     pub energy_type: u8,
     pub provides: &'static [CardType],
     pub methods: &'static [&'static str],
+    /// Treated as a Pokémon by `getPokemons()` (fossils, dolls).
+    pub fossil_doll: bool,
 }
 
 impl CardDef {

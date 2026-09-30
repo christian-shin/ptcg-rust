@@ -38,7 +38,7 @@ pub struct EnergyEntry {
     pub provides: SVec<CardType, 4>,
 }
 
-pub type EnergyMap = SVec<EnergyEntry, 40>;
+pub type EnergyMap = SVec<EnergyEntry, 32>;
 pub type Cost = SVec<CardType, 10>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

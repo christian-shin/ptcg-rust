@@ -127,12 +127,6 @@ impl Default for Slot {
     }
 }
 
-const FOSSIL_NAMES: &[&str] = &[
-    "Lillie's Poké Doll", "Clefairy Doll", "Rare Fossil", "Robo Substitute", "Mysterious Fossil",
-    "Unidentified Fossil", "Antique Plume Fossil", "Antique Cover Fossil", "Antique Skull Fossil",
-    "Antique Armor Fossil", "Antique Jaw Fossil", "Antique Sail Fossil", "Antique Root Fossil",
-    "Claw Fossil", "Root Fossil",
-];
 
 /// Per-instance card data that changes during a game.
 #[derive(Clone, Copy, Debug)]
@@ -418,7 +412,7 @@ impl State {
         let mut out = SVec::new();
         for c in slot.cards.iter() {
             let d = self.cdef(c);
-            if (d.is_pokemon() && !slot.tools.contains(c) && !slot.energies.contains(c)) || FOSSIL_NAMES.contains(&d.name) {
+            if (d.is_pokemon() && !slot.tools.contains(c) && !slot.energies.contains(c)) || d.fossil_doll {
                 out.push(c);
             }
         }
@@ -431,7 +425,7 @@ impl State {
         let mut top = None;
         for c in slot.cards.iter() {
             let d = self.cdef(c);
-            if (d.is_pokemon() && !slot.tools.contains(c) && !slot.energies.contains(c)) || FOSSIL_NAMES.contains(&d.name) {
+            if (d.is_pokemon() && !slot.tools.contains(c) && !slot.energies.contains(c)) || d.fossil_doll {
                 top = Some(c);
             }
         }

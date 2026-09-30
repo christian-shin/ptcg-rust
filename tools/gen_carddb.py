@@ -22,6 +22,7 @@ for n in extra:
     if n not in names:
         names.append(n)
 
+FOSSILS = {"Lillie's Poké Doll", 'Clefairy Doll', 'Rare Fossil', 'Robo Substitute', 'Mysterious Fossil', 'Unidentified Fossil', 'Antique Plume Fossil', 'Antique Cover Fossil', 'Antique Skull Fossil', 'Antique Armor Fossil', 'Antique Jaw Fossil', 'Antique Sail Fossil', 'Antique Root Fossil', 'Claw Fossil', 'Root Fossil'}
 LOGIC = {'reduceEffect', 'canPlay', 'canUseFromHandToBench'}
 
 
@@ -117,6 +118,7 @@ for n in names:
         'energy_type: %d' % int(c.get('energyType') or 0),
         'provides: %s' % u8s(c.get('provides') or []),
         'methods: &[%s]' % ', '.join(lit(m) for m in c.get('$methods') or []),
+        'fossil_doll: %s' % ('true' if c['name'] in FOSSILS else 'false'),
     ]
     out.append('    CardDef { %s },\n' % ', '.join(fields))
 out.append('];\n')

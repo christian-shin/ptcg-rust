@@ -13,6 +13,22 @@ use crate::state::*;
 use crate::types::*;
 use serde_json::{json, Value};
 
+/// Set of small indices (e.g. blocked card positions), in ascending order.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Blocked(pub u64);
+
+impl Blocked {
+    pub fn push(&mut self, i: u8) {
+        self.0 |= 1u64 << i;
+    }
+    pub fn contains(&self, i: &u8) -> bool {
+        *i < 64 && self.0 & (1u64 << *i) != 0
+    }
+    pub fn to_vec(&self) -> Vec<u8> {
+        (0..64).filter(|i| self.0 & (1u64 << i) != 0).collect()
+    }
+}
+
 /// Partial-card filter (`FilterType`), keys in insertion order.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Filter {
@@ -112,7 +128,7 @@ pub struct ChooseCardsOpts {
     pub min: u8,
     pub max: u8,
     pub allow_cancel: bool,
-    pub blocked: SVec<u8, 60>,
+    pub blocked: Blocked,
     pub is_secret: bool,
     pub different_types: bool,
     pub allow_different_super_types: bool,
@@ -135,7 +151,7 @@ impl ChooseCardsOpts {
             min,
             max,
             allow_cancel,
-            blocked: SVec::new(),
+            blocked: Blocked::default(),
             is_secret: false,
             different_types: false,
             allow_different_super_types: true,
@@ -223,7 +239,8 @@ pub enum Res {
     Int(i32),
     Cards(SVec<CardId, 16>),
     Slots(SVec<SlotRef, 8>),
-    Energy(SVec<EnergyEntry, 40>),
+    /// Chosen energy entries, by card.
+    Energy(SVec<CardId, 40>),
     /// Indices into the owning player's `prizes` array.
     Prizes(SVec<u8, 6>),
     Order(List<60>),
@@ -426,7 +443,7 @@ impl Game {
                 o.insert("min".into(), json!(opts.min));
                 o.insert("max".into(), json!(opts.max));
                 o.insert("allowCancel".into(), json!(opts.allow_cancel));
-                o.insert("blocked".into(), json!(opts.blocked.as_slice()));
+                o.insert("blocked".into(), json!(opts.blocked.to_vec()));
                 o.insert("isSecret".into(), json!(opts.is_secret));
                 o.insert("differentTypes".into(), json!(opts.different_types));
                 o.insert("allowDifferentSuperTypes".into(), json!(opts.allow_different_super_types));
@@ -578,7 +595,11 @@ impl Game {
                     out.push(*energy.get(i).ok_or(invalid)?);
                 }
                 if energy::check_exact_energy(out.as_slice(), cost.as_slice()) {
-                    Ok(Res::Energy(out))
+                    let mut cards: SVec<CardId, 40> = SVec::new();
+                    for e in out.iter() {
+                        cards.push(e.card);
+                    }
+                    Ok(Res::Energy(cards))
                 } else {
                     Err(invalid)
                 }

@@ -134,7 +134,7 @@ pub fn resume(g: &mut Game, rc: RetreatCont, res: Res) -> R {
     if g.st.active_pokemon(p).is_none() || g.st.slot_pokemon(p, bench).is_none() {
         return Ok(());
     }
-    let cards: Vec<CardId> = energy.iter().map(|e| e.card).collect();
+    let cards: Vec<CardId> = energy.iter().copied().collect();
     let active = g.st.players[p].active;
     clear_effects(&mut g.st.players[p].slots[active as usize]);
     g.move_cards_to(ListRef::Slot(rc.p, active), &cards, rc.move_to);

@@ -81,7 +81,7 @@ pub struct EffSlot {
     pub refs: u8,
 }
 
-pub const MAX_FX: usize = 40;
+pub const MAX_FX: usize = 24;
 
 /// Player actions (`game-actions.ts`, `play-card-action.ts`).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -376,78 +376,78 @@ impl Game {
     // -----------------------------------------------------------------------
     // Effect propagation
 
-    /// Cards receiving an effect, in Twinleaf's `propagateEffect` order.
-    fn propagation_order(&self, e: &Effect) -> SVec<CardId, 120> {
+    /// Cards with a handler for this effect kind, in Twinleaf's
+    /// `propagateEffect` order (zone order, then stable sort by rank).
+    fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
+        let bit = 1u64 << kind;
+        let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
+            if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
+                if imp.mask & bit != 0 {
+                    cards.push(c);
+                }
+            }
+        };
         for p in 0..2 {
             let pl = &self.st.players[p];
             for c in pl.stadium.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
             for c in pl.supporter.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
             let a = &pl.slots[pl.active as usize];
             for c in a.cards.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
             for c in a.tools.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
             for &b in pl.bench.iter() {
                 let s = &pl.slots[b as usize];
                 for c in s.cards.iter() {
-                    cards.push(c);
+                    add(c, &mut cards);
                 }
                 for c in s.tools.iter() {
-                    cards.push(c);
+                    add(c, &mut cards);
                 }
             }
             for i in 0..pl.prize_count as usize {
                 for c in pl.prizes[i].iter() {
-                    cards.push(c);
+                    add(c, &mut cards);
                 }
             }
             for c in pl.hand.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
             for c in pl.deck.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
             for c in pl.discard.iter() {
-                cards.push(c);
+                add(c, &mut cards);
             }
         }
-        // Stable sort by rank.
-        let rank: &dyn Fn(CardId) -> u8 = match e {
-            Effect::Power { .. } => &|c| {
-                let d = self.st.cdef(c);
-                match d.super_type {
+        if cards.len() < 2 {
+            return cards;
+        }
+        let rank = |c: CardId| -> u8 {
+            let d = self.st.cdef(c);
+            match e {
+                Effect::Power { .. } => match d.super_type {
                     2 => 0,
                     3 => 1,
                     _ => 2,
-                }
-            },
-            Effect::CheckPokemonPowers { .. } => &|c| {
-                let d = self.st.cdef(c);
-                match d.super_type {
+                },
+                Effect::CheckPokemonPowers { .. } => match d.super_type {
                     1 => 0,
                     3 => 1,
                     2 if d.trainer_type == TrainerType::Stadium as u8 => 3,
                     _ => 2,
-                }
-            },
-            _ => &|c| self.st.cdef(c).super_type,
+                },
+                _ => d.super_type,
+            }
         };
-        let s = cards.as_mut_slice();
-        let mut keyed: SVec<(u8, CardId), 120> = SVec::new();
-        for &c in s.iter() {
-            keyed.push((rank(c), c));
-        }
-        keyed.as_mut_slice().sort_by_key(|k| k.0); // stable
-        for (i, k) in keyed.iter().enumerate() {
-            s[i] = k.1;
-        }
+        cards.as_mut_slice().sort_by_key(|c| rank(*c)); // stable
         cards
     }
 
@@ -481,7 +481,7 @@ impl Game {
         for &c in first.iter() {
             self.call_card(c, id, kind)?;
         }
-        let order = self.propagation_order(&e);
+        let order = self.propagation_order(&e, kind);
         for &c in order.iter() {
             if first.contains(&c) {
                 continue;

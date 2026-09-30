@@ -12,6 +12,7 @@ pub mod energy;
 pub mod engine;
 pub mod game;
 pub mod gen;
+pub mod interface;
 pub mod list;
 pub mod markers;
 pub mod options;
