@@ -444,6 +444,26 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             // Revenge traps: not modeled.
             Ok(())
         }
+        Effect::KnockOutOpponent { b, .. } => {
+            // KnockOutAttackEffect on the target, then TAKE_X_PRIZES.
+            let t = b.target;
+            if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
+                crate::bail!("ILLEGAL_ACTION");
+            }
+            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: Some(b.attack) })?;
+            if !prevented {
+                let pc = match ko {
+                    Effect::KnockOut { prize_count, .. } => prize_count,
+                    _ => 1,
+                };
+                if let Effect::KnockOutOpponent { knocked_out, prize_count, .. } = g.e_mut(id) {
+                    *knocked_out = true;
+                    *prize_count = pc;
+                }
+                crate::engine::check::take_x_prizes(g, b.player as usize, pc)?;
+            }
+            Ok(())
+        }
         Effect::DiscardCards { b, cards } => {
             let owner = b.target.p;
             g.move_cards_to(b.target.list(), cards.as_slice(), ListRef::Discard(owner));
