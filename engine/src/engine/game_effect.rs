@@ -327,6 +327,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::Evolve { p, target, card } => evolve(g, p as usize, target, card),
         Effect::MoveCards { .. } => move_cards(g, id),
+        Effect::CoinFlipSequence { p, mode, callback, .. } => {
+            let cb = CoinCb::Sequence { p, mode, results: 0, n: 0, callback };
+            g.coin_callbacks.push(cb);
+            let k = (g.coin_callbacks.len() - 1) as u8;
+            g.run_fx(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            Ok(())
+        }
         Effect::CoinFlip { p, callback, .. } => {
             let result = g.rng.coin();
             if let Effect::CoinFlip { result: r, .. } = g.e_mut(id) {

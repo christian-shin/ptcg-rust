@@ -47,6 +47,7 @@ pub enum Cont {
     CoinFlipWait { cb: CoinCb, result: bool },
     TrainerCleanup { p: u8, card: CardId },
     ShuffleApply { p: u8 },
+    Prefab(crate::prefabs::PrefabCont),
     Card { card: CardId, frame: CardFrame },
 }
 
@@ -66,6 +67,10 @@ pub enum CoinCb {
     None,
     Card { card: CardId, frame: CardFrame },
     Attack(attack::AttackCoinCb),
+    /// RUN_COIN_FLIP_SEQUENCE: one flip done; `results` bit i = flip i heads.
+    Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8 },
+    /// Final callback of a sequence: card receives (bitmask, count) via `frame.a[2..]`.
+    SequenceCard { card: CardId, frame: CardFrame },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -123,6 +128,10 @@ pub struct Game {
     pub temp_used: [bool; 3],
     /// Callbacks referenced by pending `CoinFlipEffect`s.
     pub coin_callbacks: SVec<CoinCb, 16>,
+    /// Trainer whose effect is creating prompts (`Store.resolvingTrainer`).
+    pub resolving_trainer: Option<(u8, CardId)>,
+    /// `probingStadiumEffect` (stadium-effect.ts module state).
+    pub probing_stadium: bool,
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
     pub trace_effects: bool,
 }
@@ -146,6 +155,8 @@ impl Game {
             temps: [List::new(); 3],
             temp_used: [false; 3],
             coin_callbacks: SVec::new(),
+            resolving_trainer: None,
+            probing_stadium: false,
             trace_effects: false,
         }
     }
@@ -240,7 +251,7 @@ impl Game {
     /// `store.prompt(state, prompt, then)`.
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
         let id = self.next_id();
-        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None });
+        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
@@ -251,7 +262,7 @@ impl Game {
         let mut ids = SVec::new();
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
-            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None });
+            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });
@@ -295,16 +306,27 @@ impl Game {
         let r: R = (|| {
             if all {
                 let mut results: SVec<Res, 4> = SVec::new();
+                let mut source = None;
                 for pid in item.ids.iter() {
-                    if let Some(p) = self.prompts.iter().find(|p| p.id == *pid) {
-                        results.push(p.result.unwrap());
+                    if let Some(p) = self.prompts.iter().find(|p| p.id == *pid).copied() {
+                        let r = self.filter_trainer_result(&p, p.result.unwrap())?;
+                        results.push(r);
+                        if p.trainer.is_some() {
+                            source = p.trainer;
+                        }
                     }
                 }
                 // Resolved prompts are no longer needed.
                 self.prompts.retain(|p| !item.ids.contains(&p.id));
                 // Twinleaf runs `then` while the item is still queued and
                 // splices it afterwards at the index computed beforehand.
-                self.run_cont(item.cont, results.as_slice())?;
+                let prev = self.resolving_trainer;
+                if source.is_some() {
+                    self.resolving_trainer = source;
+                }
+                let rc = self.run_cont(item.cont, results.as_slice());
+                self.resolving_trainer = prev;
+                rc?;
                 self.items.remove_at(ii);
             }
             self.resolve_wait_items()
@@ -361,6 +383,7 @@ impl Game {
                 self.wait(id, Cont::Noop);
                 Ok(())
             }
+            Cont::Prefab(c) => crate::prefabs::resume(self, c, results),
             Cont::Card { card, frame } => cards::resume(self, card, frame, results),
         }
     }
@@ -370,6 +393,29 @@ impl Game {
             CoinCb::None => Ok(()),
             CoinCb::Card { card, frame } => cards::coin_result(self, card, frame, result),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
+            CoinCb::Sequence { p, mode, results, n, callback } => {
+                let results = if result { results | (1 << n) } else { results };
+                let n = n + 1;
+                let more = if mode == 0 { result } else { n < mode };
+                if more {
+                    let cb = CoinCb::Sequence { p, mode, results, n, callback };
+                    self.coin_callbacks.push(cb);
+                    let k = (self.coin_callbacks.len() - 1) as u8;
+                    self.run_fx(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+                    return Ok(());
+                }
+                // Reflip offers (stadium/tool) are applied by those cards' handlers.
+                let fin = self.coin_callbacks.as_slice()[callback as usize];
+                match fin {
+                    CoinCb::SequenceCard { card, mut frame } => {
+                        frame.a[2] = results as i32;
+                        frame.a[3] = n as i32;
+                        cards::resume(self, card, frame, &[])
+                    }
+                    other => self.run_coin_cb(other, result),
+                }
+            }
+            CoinCb::SequenceCard { card, frame } => cards::resume(self, card, frame, &[]),
         }
     }
 
@@ -380,7 +426,7 @@ impl Game {
     /// `propagateEffect` order (zone order, then stable sort by rank).
     fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
-        let bit = 1u64 << kind;
+        let bit = 1u128 << kind;
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
                 if imp.mask & bit != 0 {
@@ -496,6 +542,7 @@ impl Game {
         phase::reducer(self, id)?;
         play::play_energy_reducer(self, id)?;
         play::play_pokemon_reducer(self, id)?;
+        play::play_pokemon_from_zone_reducer(self, id)?;
         play::play_trainer_reducer(self, id)?;
         retreat::reducer(self, id)?;
         crate::engine::game_effect::reducer(self, id)?;
@@ -508,11 +555,50 @@ impl Game {
     fn call_card(&mut self, c: CardId, id: EffId, kind: u32) -> R {
         let d = self.st.cards[c as usize].def;
         if let Some(imp) = cards::impl_for(d) {
-            if imp.mask & (1u64 << kind) != 0 {
+            if imp.mask & (1u128 << kind) != 0 {
+                if let Effect::Trainer { p, card, .. } = *self.e(id) {
+                    if card == c {
+                        let prev = self.resolving_trainer;
+                        self.resolving_trainer = Some((p, c));
+                        let r = (imp.reduce)(self, c, id);
+                        self.resolving_trainer = prev;
+                        return r;
+                    }
+                }
                 return (imp.reduce)(self, c, id);
             }
         }
         Ok(())
+    }
+
+    /// `filterTrainerPromptResult`: drop opponent slots whose TrainerTargetEffect is blocked.
+    fn filter_trainer_result(&mut self, pr: &PromptRec, res: Res) -> R<Res> {
+        let (tp, tc) = match pr.trainer {
+            Some(t) => t,
+            None => return Ok(res),
+        };
+        if let (PromptKind::ChoosePokemon { .. }, Res::Slots(sel)) = (pr.kind, res) {
+            let o = 1 - tp;
+            let mut out: SVec<SlotRef, 8> = SVec::new();
+            let mut blocked: SVec<SlotRef, 8> = SVec::new();
+            let mut seen: SVec<SlotRef, 8> = SVec::new();
+            for s in sel.iter() {
+                if s.p == o && !seen.contains(s) {
+                    seen.push(*s);
+                    let (e, prevented) = self.run_fx(Effect::TrainerTarget { p: tp, card: tc, target: Some(*s) })?;
+                    if prevented || matches!(e, Effect::TrainerTarget { target: None, .. }) {
+                        blocked.push(*s);
+                    }
+                }
+            }
+            for s in sel.iter() {
+                if !blocked.contains(s) {
+                    out.push(*s);
+                }
+            }
+            return Ok(Res::Slots(out));
+        }
+        Ok(res)
     }
 
     // -----------------------------------------------------------------------

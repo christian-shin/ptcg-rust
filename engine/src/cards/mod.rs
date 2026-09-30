@@ -45,6 +45,19 @@ pub struct CardImpl {
 
 pub mod registry;
 
+/// Everything a card port usually needs.
+pub mod prelude {
+    pub use super::{CardFrame, CardImpl};
+    pub use crate::bail;
+    pub use crate::effects::{k, mask, EffId, Effect, SlotRef, PowerRef, AtkBase};
+    pub use crate::game::{CoinCb, Cont, Game, GameError, R};
+    pub use crate::list::*;
+    pub use crate::prefabs::*;
+    pub use crate::prompts::*;
+    pub use crate::state::*;
+    pub use crate::types::*;
+}
+
 fn table() -> &'static Vec<Option<&'static CardImpl>> {
     static T: OnceLock<Vec<Option<&'static CardImpl>>> = OnceLock::new();
     T.get_or_init(|| {

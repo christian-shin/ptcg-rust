@@ -136,6 +136,14 @@ fn main() {
     let mut files: Vec<PathBuf> = Vec::new();
     let mut dump: Option<PathBuf> = None;
     let mut quiet = false;
+    if args.iter().any(|a| a == "--list-ported") {
+        for (i, d) in ptcg::carddb::cards().iter().enumerate() {
+            if d.behavior.is_empty() || ptcg::cards::impl_for(i as u16).is_some() {
+                println!("{}", d.full_name);
+            }
+        }
+        return;
+    }
     let mut it = args.iter();
     while let Some(a) = it.next() {
         match a.as_str() {

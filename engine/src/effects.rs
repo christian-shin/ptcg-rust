@@ -104,7 +104,7 @@ pub enum Effect {
     Heal { p: u8, target: SlotRef, damage: i32 },
     Evolve { p: u8, target: SlotRef, card: CardId },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },
-    MoveCards { source: ListRef, destination: ListRef, cards: Option<SVec<CardId, 16>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
+    MoveCards { source: ListRef, destination: ListRef, cards: Option<List<60>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
     PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId },
@@ -136,8 +136,14 @@ pub enum Effect {
     Trainer { p: u8, card: CardId, target: Option<SlotRef> },
     Energy { p: u8, card: CardId },
     Tool { p: u8, card: CardId },
-    Stadium { p: u8, target: Option<SlotRef>, stadium: CardId },
+    Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },
     Supporter { p: u8, card: CardId },
+    TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
+    DiscardToHand { p: u8, card: CardId },
+    PlayPokemonFromDeck { p: u8, card: CardId, target: SlotRef },
+    PlayPokemonFromDiscard { p: u8, card: CardId, target: SlotRef },
+    /// `mode`: 0 = until tails, n = n flips. `callback` indexes `coin_callbacks`.
+    CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool },
     CoinFlip { p: u8, callback: Option<u8>, result: Option<bool>, skip_reflip_stadium: bool, skip_reflip_tool: bool },
 }
 
@@ -207,6 +213,11 @@ impl Effect {
             Tool { .. } => "TOOL_EFFECT",
             Stadium { .. } => "STADIUM_EFFECT",
             Supporter { .. } => "SUPPORTER_EFFECT",
+            TrainerTarget { .. } => "TRAINER_TARGET_EFFECT",
+            DiscardToHand { .. } => "DISCARD_TO_HAND_EFFECT",
+            PlayPokemonFromDeck { .. } => "PLAY_POKEMON_FROM_DECK_EFFECT",
+            PlayPokemonFromDiscard { .. } => "PLAY_POKEMON_FROM_DISCARD_EFFECT",
+            CoinFlipSequence { .. } => "COIN_FLIP_SEQUENCE_EFFECT",
             CoinFlip { .. } => "COIN_FLIP_EFFECT",
         }
     }
@@ -317,11 +328,98 @@ impl Effect {
             Stadium { .. } => 59,
             Supporter { .. } => 60,
             CoinFlip { .. } => 61,
+            TrainerTarget { .. } => 62,
+            DiscardToHand { .. } => 63,
+            PlayPokemonFromDeck { .. } => 64,
+            PlayPokemonFromDiscard { .. } => 65,
+            CoinFlipSequence { .. } => 66,
         };
         k
     }
 }
 
+/// `Effect::kind()` values, for subscription masks.
+pub mod k {
+    pub const BEGIN_TURN: u32 = 0;
+    pub const DRAW_CARD_FOR_TURN: u32 = 1;
+    pub const DREW_TOPDECK: u32 = 2;
+    pub const END_TURN: u32 = 3;
+    pub const WHO_BEGINS: u32 = 4;
+    pub const BETWEEN_TURNS: u32 = 5;
+    pub const AFTER_ATTACK: u32 = 6;
+    pub const BEFORE_DOING_DAMAGE: u32 = 7;
+    pub const CHECK_HP: u32 = 8;
+    pub const CHECK_POKEMON_STATS: u32 = 9;
+    pub const CHECK_POKEMON_TYPE: u32 = 10;
+    pub const CHECK_RETREAT_COST: u32 = 11;
+    pub const CHECK_ATTACK_COST: u32 = 12;
+    pub const CHECK_PROVIDED_ENERGY: u32 = 13;
+    pub const CHECK_POKEMON_POWERS: u32 = 14;
+    pub const CHECK_POKEMON_ATTACKS: u32 = 15;
+    pub const CHECK_POKEMON_PLAYED_TURN: u32 = 16;
+    pub const CHECK_TABLE_STATE: u32 = 17;
+    pub const CHECK_PRIZES_DESTINATION: u32 = 18;
+    pub const CHECK_SPECIAL_CONDITION_REMOVAL: u32 = 19;
+    pub const RETREAT: u32 = 20;
+    pub const RETREAT_START: u32 = 21;
+    pub const USE_ATTACK: u32 = 22;
+    pub const USE_STADIUM: u32 = 23;
+    pub const USE_POWER: u32 = 24;
+    pub const POWER: u32 = 25;
+    pub const ATTACK: u32 = 26;
+    pub const KNOCK_OUT: u32 = 27;
+    pub const HEAL: u32 = 28;
+    pub const EVOLVE: u32 = 29;
+    pub const DRAW_PRIZES: u32 = 30;
+    pub const MOVE_CARDS: u32 = 31;
+    pub const EFFECT_OF_ABILITY: u32 = 32;
+    pub const SPECIAL_ENERGY: u32 = 33;
+    pub const PLACE_DAMAGE_COUNTERS: u32 = 34;
+    pub const MOVED_TO_ACTIVE: u32 = 35;
+    pub const MOVED_FROM_ACTIVE_TO_BENCH: u32 = 36;
+    pub const APPLY_WEAKNESS: u32 = 37;
+    pub const DEAL_DAMAGE: u32 = 38;
+    pub const PUT_DAMAGE: u32 = 39;
+    pub const AFTER_DAMAGE: u32 = 40;
+    pub const PUT_COUNTERS: u32 = 41;
+    pub const KNOCK_OUT_OPPONENT: u32 = 42;
+    pub const DISCARD_CARDS: u32 = 43;
+    pub const CARDS_TO_HAND: u32 = 44;
+    pub const GUST_OPPONENT_BENCH: u32 = 45;
+    pub const ADD_MARKER: u32 = 46;
+    pub const ADD_SPECIAL_CONDITIONS: u32 = 47;
+    pub const REMOVE_SPECIAL_CONDITIONS: u32 = 48;
+    pub const HEAL_TARGET: u32 = 49;
+    pub const ATTACH_ENERGY: u32 = 50;
+    pub const PLAY_POKEMON: u32 = 51;
+    pub const PLAY_SUPPORTER: u32 = 52;
+    pub const PLAY_STADIUM: u32 = 53;
+    pub const ATTACH_POKEMON_TOOL: u32 = 54;
+    pub const PLAY_ITEM: u32 = 55;
+    pub const TRAINER: u32 = 56;
+    pub const ENERGY: u32 = 57;
+    pub const TOOL: u32 = 58;
+    pub const STADIUM: u32 = 59;
+    pub const SUPPORTER: u32 = 60;
+    pub const COIN_FLIP: u32 = 61;
+    pub const TRAINER_TARGET: u32 = 62;
+    pub const DISCARD_TO_HAND: u32 = 63;
+    pub const PLAY_POKEMON_FROM_DECK: u32 = 64;
+    pub const PLAY_POKEMON_FROM_DISCARD: u32 = 65;
+    pub const COIN_FLIP_SEQUENCE: u32 = 66;
+}
+
+/// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.
+pub const fn mask(kinds: &[u32]) -> KindMask {
+    let mut m = 0u128;
+    let mut i = 0;
+    while i < kinds.len() {
+        m |= 1u128 << kinds[i];
+        i += 1;
+    }
+    m
+}
+
 /// Bitmask over [`Effect::kind`].
-pub type KindMask = u64;
-pub const ALL_KINDS: KindMask = u64::MAX;
+pub type KindMask = u128;
+pub const ALL_KINDS: KindMask = u128::MAX;

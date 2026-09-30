@@ -1,0 +1,1072 @@
+{
+ "MEG 119": {
+  "name": "Lillie's Determination",
+  "decks": 17,
+  "weighted": 87.59
+ },
+ "MEG 131": {
+  "name": "Ultra Ball",
+  "decks": 16,
+  "weighted": 86.71
+ },
+ "MEG 114": {
+  "name": "Boss's Orders",
+  "decks": 16,
+  "weighted": 84.76
+ },
+ "ASC 196": {
+  "name": "Night Stretcher",
+  "decks": 15,
+  "weighted": 84.23
+ },
+ "ASC 142": {
+  "name": "Fezandipiti ex",
+  "decks": 12,
+  "weighted": 79.11
+ },
+ "POR 81": {
+  "name": "Poké Pad",
+  "decks": 14,
+  "weighted": 76.56
+ },
+ "TEF 144": {
+  "name": "Buddy-Buddy Poffin",
+  "decks": 10,
+  "weighted": 65.68
+ },
+ "POR 62": {
+  "name": "Meowth ex",
+  "decks": 8,
+  "weighted": 63.1
+ },
+ "MEE 13": {
+  "name": "Psychic Energy",
+  "decks": 7,
+  "weighted": 57.0
+ },
+ "POR 76": {
+  "name": "Judge",
+  "decks": 8,
+  "weighted": 54.46
+ },
+ "ASC 16": {
+  "name": "Budew",
+  "decks": 4,
+  "weighted": 46.73
+ },
+ "TWM 95": {
+  "name": "Munkidori",
+  "decks": 5,
+  "weighted": 46.0
+ },
+ "MEE 15": {
+  "name": "Darkness Energy",
+  "decks": 5,
+  "weighted": 46.0
+ },
+ "TWM 165": {
+  "name": "Unfair Stamp",
+  "decks": 6,
+  "weighted": 43.62
+ },
+ "SCR 133": {
+  "name": "Crispin",
+  "decks": 3,
+  "weighted": 38.39
+ },
+ "JTG 120": {
+  "name": "Dunsparce",
+  "decks": 2,
+  "weighted": 37.85
+ },
+ "TEF 129": {
+  "name": "Dudunsparce",
+  "decks": 2,
+  "weighted": 37.85
+ },
+ "MEE 10": {
+  "name": "Fire Energy",
+  "decks": 2,
+  "weighted": 37.17
+ },
+ "CRI 82": {
+  "name": "Special Red Card",
+  "decks": 9,
+  "weighted": 36.06
+ },
+ "TWM 128": {
+  "name": "Dreepy",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "TWM 129": {
+  "name": "Drakloak",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "TWM 130": {
+  "name": "Dragapult ex",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "PFL 14": {
+  "name": "Moltres",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "POR 84": {
+  "name": "Rosa's Encouragement",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "POR 71": {
+  "name": "Crushing Hammer",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "MEG 127": {
+  "name": "Risky Ruins",
+  "decks": 1,
+  "weighted": 35.53
+ },
+ "MEG 130": {
+  "name": "Switch",
+  "decks": 8,
+  "weighted": 27.03
+ },
+ "MEG 104": {
+  "name": "Mega Kangaskhan ex",
+  "decks": 6,
+  "weighted": 26.38
+ },
+ "TWM 163": {
+  "name": "Secret Box",
+  "decks": 6,
+  "weighted": 23.96
+ },
+ "MEE 9": {
+  "name": "Grass Energy",
+  "decks": 7,
+  "weighted": 23.82
+ },
+ "SSP 76": {
+  "name": "Latias ex",
+  "decks": 5,
+  "weighted": 23.2
+ },
+ "SSP 170": {
+  "name": "Cyrano",
+  "decks": 5,
+  "weighted": 21.99
+ },
+ "JTG 56": {
+  "name": "Lillie's Clefairy ex",
+  "decks": 5,
+  "weighted": 21.8
+ },
+ "POR 88": {
+  "name": "Telepathic Psychic Energy",
+  "decks": 5,
+  "weighted": 21.11
+ },
+ "ASC 181": {
+  "name": "Air Balloon",
+  "decks": 7,
+  "weighted": 19.89
+ },
+ "TEF 145": {
+  "name": "Ciphermaniac's Codebreaking",
+  "decks": 3,
+  "weighted": 19.12
+ },
+ "TEF 157": {
+  "name": "Prime Catcher",
+  "decks": 2,
+  "weighted": 17.43
+ },
+ "TWM 25": {
+  "name": "Teal Mask Ogerpon ex",
+  "decks": 4,
+  "weighted": 15.42
+ },
+ "DRI 10": {
+  "name": "Shaymin",
+  "decks": 6,
+  "weighted": 14.09
+ },
+ "WHT 84": {
+  "name": "Hilda",
+  "decks": 4,
+  "weighted": 14.04
+ },
+ "MEG 115": {
+  "name": "Energy Switch",
+  "decks": 5,
+  "weighted": 13.96
+ },
+ "TWM 64": {
+  "name": "Wellspring Mask Ogerpon ex",
+  "decks": 3,
+  "weighted": 13.17
+ },
+ "TEF 25": {
+  "name": "Iron Leaves ex",
+  "decks": 3,
+  "weighted": 13.17
+ },
+ "SSP 56": {
+  "name": "Chien-Pao",
+  "decks": 3,
+  "weighted": 13.17
+ },
+ "SCR 131": {
+  "name": "Area Zero Underdepths",
+  "decks": 3,
+  "weighted": 13.17
+ },
+ "TWM 143": {
+  "name": "Bug Catching Set",
+  "decks": 3,
+  "weighted": 12.92
+ },
+ "ASC 212": {
+  "name": "Tool Scrapper",
+  "decks": 2,
+  "weighted": 12.82
+ },
+ "DRI 176": {
+  "name": "Team Rocket's Petrel",
+  "decks": 8,
+  "weighted": 12.79
+ },
+ "SCR 132": {
+  "name": "Briar",
+  "decks": 2,
+  "weighted": 12.56
+ },
+ "ASC 121": {
+  "name": "Koraidon ex",
+  "decks": 2,
+  "weighted": 11.95
+ },
+ "SSP 18": {
+  "name": "Paldean Tauros",
+  "decks": 2,
+  "weighted": 11.95
+ },
+ "JTG 151": {
+  "name": "Lillie's Pearl",
+  "decks": 2,
+  "weighted": 11.95
+ },
+ "ASC 216": {
+  "name": "Prism Energy",
+  "decks": 2,
+  "weighted": 11.95
+ },
+ "JTG 146": {
+  "name": "Brock's Scouting",
+  "decks": 2,
+  "weighted": 11.6
+ },
+ "MEG 125": {
+  "name": "Rare Candy",
+  "decks": 3,
+  "weighted": 11.2
+ },
+ "CRI 61": {
+  "name": "Metagross",
+  "decks": 2,
+  "weighted": 10.81
+ },
+ "SVP 149": {
+  "name": "Pecharunt",
+  "decks": 2,
+  "weighted": 10.74
+ },
+ "PBL 78": {
+  "name": "Gwynn",
+  "decks": 3,
+  "weighted": 10.66
+ },
+ "BLK 83": {
+  "name": "N's Plan",
+  "decks": 1,
+  "weighted": 10.31
+ },
+ "JTG 143": {
+  "name": "Black Belt's Training",
+  "decks": 2,
+  "weighted": 10.28
+ },
+ "PRE 35": {
+  "name": "Duskull",
+  "decks": 2,
+  "weighted": 9.98
+ },
+ "PRE 36": {
+  "name": "Dusclops",
+  "decks": 2,
+  "weighted": 9.98
+ },
+ "PRE 37": {
+  "name": "Dusknoir",
+  "decks": 2,
+  "weighted": 9.98
+ },
+ "DRI 168": {
+  "name": "Sacred Ash",
+  "decks": 2,
+  "weighted": 9.44
+ },
+ "PFL 87": {
+  "name": "Dawn",
+  "decks": 2,
+  "weighted": 9.37
+ },
+ "SFA 39": {
+  "name": "Pecharunt ex",
+  "decks": 3,
+  "weighted": 9.25
+ },
+ "DRI 180": {
+  "name": "Team Rocket's Watchtower",
+  "decks": 3,
+  "weighted": 9.25
+ },
+ "TWM 131": {
+  "name": "Tatsugiri",
+  "decks": 2,
+  "weighted": 8.82
+ },
+ "PRE 95": {
+  "name": "Binding Mochi",
+  "decks": 2,
+  "weighted": 8.82
+ },
+ "TWM 154": {
+  "name": "Kieran",
+  "decks": 2,
+  "weighted": 8.5
+ },
+ "POR 86": {
+  "name": "Growing Grass Energy",
+  "decks": 2,
+  "weighted": 8.04
+ },
+ "JTG 97": {
+  "name": "N's Zorua",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "JTG 98": {
+  "name": "N's Zoroark ex",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "ASC 155": {
+  "name": "N's Zekrom",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "JTG 96": {
+  "name": "N's Purrloin",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "MEG 113": {
+  "name": "Acerola's Mischief",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "JTG 153": {
+  "name": "N's PP Up",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "JTG 152": {
+  "name": "N's Castle",
+  "decks": 1,
+  "weighted": 7.96
+ },
+ "TWM 149": {
+  "name": "Festival Grounds",
+  "decks": 2,
+  "weighted": 7.72
+ },
+ "WHT 80": {
+  "name": "Brave Bangle",
+  "decks": 2,
+  "weighted": 7.18
+ },
+ "SCR 57": {
+  "name": "Slowpoke",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "SCR 58": {
+  "name": "Slowking",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "SFA 47": {
+  "name": "Kyurem",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "PBL 41": {
+  "name": "Annihilape",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "DRI 78": {
+  "name": "Zeraora",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "30C 66": {
+  "name": "Mew ex",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "PFL 94": {
+  "name": "Wondrous Patch",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "SFA 54": {
+  "name": "Academy at Night",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "TWM 166": {
+  "name": "Boomerang Energy",
+  "decks": 1,
+  "weighted": 7.17
+ },
+ "MEG 54": {
+  "name": "Abra",
+  "decks": 1,
+  "weighted": 7.12
+ },
+ "TWM 80": {
+  "name": "Abra",
+  "decks": 1,
+  "weighted": 7.12
+ },
+ "MEG 55": {
+  "name": "Kadabra",
+  "decks": 1,
+  "weighted": 7.12
+ },
+ "MEG 56": {
+  "name": "Alakazam",
+  "decks": 1,
+  "weighted": 7.12
+ },
+ "MEG 128": {
+  "name": "Strange Timepiece",
+  "decks": 1,
+  "weighted": 7.12
+ },
+ "TWM 17": {
+  "name": "Applin",
+  "decks": 2,
+  "weighted": 7.11
+ },
+ "TWM 18": {
+  "name": "Dipplin",
+  "decks": 2,
+  "weighted": 7.11
+ },
+ "TWM 155": {
+  "name": "Lana's Aid",
+  "decks": 2,
+  "weighted": 7.11
+ },
+ "MEG 117": {
+  "name": "Forest of Vitality",
+  "decks": 2,
+  "weighted": 7.11
+ },
+ "PFL 91": {
+  "name": "Jumbo Ice Cream",
+  "decks": 2,
+  "weighted": 6.82
+ },
+ "TEF 152": {
+  "name": "Hero's Cape",
+  "decks": 2,
+  "weighted": 6.82
+ },
+ "POR 77": {
+  "name": "Lumiose City",
+  "decks": 2,
+  "weighted": 6.82
+ },
+ "CRI 80": {
+  "name": "Prism Tower",
+  "decks": 3,
+  "weighted": 5.86
+ },
+ "MEE 14": {
+  "name": "Fighting Energy",
+  "decks": 4,
+  "weighted": 5.86
+ },
+ "DRI 173": {
+  "name": "Team Rocket's Factory",
+  "decks": 4,
+  "weighted": 4.95
+ },
+ "TWM 126": {
+  "name": "Applin",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "TWM 14": {
+  "name": "Grookey",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "TWM 15": {
+  "name": "Thwackey",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "TWM 44": {
+  "name": "Goldeen",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "PRE 21": {
+  "name": "Seaking",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "TEF 23": {
+  "name": "Rellor",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "TEF 24": {
+  "name": "Rabsca",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "PBL 77": {
+  "name": "Gladion's Final Battle",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "POR 82": {
+  "name": "Pokémon Catcher",
+  "decks": 1,
+  "weighted": 4.86
+ },
+ "SVI 186": {
+  "name": "Pokégear 3.0",
+  "decks": 3,
+  "weighted": 4.49
+ },
+ "DRI 164": {
+  "name": "Energy Recycler",
+  "decks": 2,
+  "weighted": 4.07
+ },
+ "CRI 59": {
+  "name": "Beldum",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "TEF 114": {
+  "name": "Metang",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "PBL 46": {
+  "name": "Drilbur",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "PBL 65": {
+  "name": "Mega Excadrill ex",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "BLK 67": {
+  "name": "Genesect ex",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "POR 55": {
+  "name": "Mega Skarmory ex",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "MEE 16": {
+  "name": "Metal Energy",
+  "decks": 1,
+  "weighted": 3.64
+ },
+ "DRI 11": {
+  "name": "Dwebble",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "DRI 12": {
+  "name": "Crustle",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "SFA 64": {
+  "name": "Xerosic's Machinations",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "TEF 146": {
+  "name": "Eri",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "MEG 123": {
+  "name": "Pokémon Center Lady",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "TEF 142": {
+  "name": "Bianca's Devotion",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "TWM 150": {
+  "name": "Handheld Fan",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "JTG 159": {
+  "name": "Spiky Energy",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "TEF 161": {
+  "name": "Mist Energy",
+  "decks": 1,
+  "weighted": 3.18
+ },
+ "MEG 116": {
+  "name": "Fighting Gong",
+  "decks": 2,
+  "weighted": 3.0
+ },
+ "MEG 124": {
+  "name": "Premium Power Pro",
+  "decks": 2,
+  "weighted": 3.0
+ },
+ "TEF 68": {
+  "name": "Bronzor",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "TEF 69": {
+  "name": "Bronzong",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "PFL 83": {
+  "name": "Buneary",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "PFL 84": {
+  "name": "Mega Lopunny ex",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "TWM 141": {
+  "name": "Bloodmoon Ursaluna ex",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "MEG 132": {
+  "name": "Wally's Compassion",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "TEF 160": {
+  "name": "Salvatore",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "SSP 191": {
+  "name": "Enriching Energy",
+  "decks": 1,
+  "weighted": 2.86
+ },
+ "MEE 11": {
+  "name": "Water Energy",
+  "decks": 2,
+  "weighted": 2.86
+ },
+ "PBL 33": {
+  "name": "Shuppet",
+  "decks": 1,
+  "weighted": 2.32
+ },
+ "PBL 34": {
+  "name": "Banette",
+  "decks": 1,
+  "weighted": 2.32
+ },
+ "PBL 39": {
+  "name": "Dhelmise",
+  "decks": 1,
+  "weighted": 2.32
+ },
+ "PBL 5": {
+  "name": "Poltchageist",
+  "decks": 1,
+  "weighted": 2.32
+ },
+ "PBL 6": {
+  "name": "Sinistcha",
+  "decks": 1,
+  "weighted": 2.32
+ },
+ "JTG 121": {
+  "name": "Dudunsparce ex",
+  "decks": 1,
+  "weighted": 2.32
+ },
+ "SCR 14": {
+  "name": "Hydrapple ex",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "ASC 8": {
+  "name": "Chikorita",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "MEG 8": {
+  "name": "Chikorita",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "ASC 9": {
+  "name": "Bayleef",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "MEG 9": {
+  "name": "Bayleef",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "MEG 10": {
+  "name": "Meganium",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "SCR 114": {
+  "name": "Hoothoot",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "SCR 115": {
+  "name": "Noctowl",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "MEG 12": {
+  "name": "Celebi",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "SFA 6": {
+  "name": "Tapu Bulu",
+  "decks": 1,
+  "weighted": 2.25
+ },
+ "MEG 76": {
+  "name": "Riolu",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "MEG 77": {
+  "name": "Mega Lucario ex",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "MEG 75": {
+  "name": "Solrock",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "MEG 72": {
+  "name": "Makuhita",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "MEG 73": {
+  "name": "Hariyama",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "MEG 74": {
+  "name": "Lunatone",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "SSP 177": {
+  "name": "Gravity Mountain",
+  "decks": 1,
+  "weighted": 2.12
+ },
+ "MEG 88": {
+  "name": "Yveltal",
+  "decks": 2,
+  "weighted": 2.08
+ },
+ "DRI 178": {
+  "name": "Team Rocket's Transceiver",
+  "decks": 3,
+  "weighted": 1.77
+ },
+ "DRI 51": {
+  "name": "Team Rocket's Articuno",
+  "decks": 2,
+  "weighted": 1.34
+ },
+ "DRI 171": {
+  "name": "Team Rocket's Ariana",
+  "decks": 2,
+  "weighted": 1.34
+ },
+ "DRI 177": {
+  "name": "Team Rocket's Proton",
+  "decks": 2,
+  "weighted": 1.34
+ },
+ "DRI 174": {
+  "name": "Team Rocket's Giovanni",
+  "decks": 2,
+  "weighted": 1.34
+ },
+ "DRI 182": {
+  "name": "Team Rocket's Energy",
+  "decks": 2,
+  "weighted": 1.34
+ },
+ "PFL 67": {
+  "name": "Toxel",
+  "decks": 2,
+  "weighted": 1.29
+ },
+ "PFL 68": {
+  "name": "Toxtricity",
+  "decks": 2,
+  "weighted": 1.29
+ },
+ "TEF 123": {
+  "name": "Raging Bolt ex",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "M6 62": {
+  "name": "Talonflame ex",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "M6 69": {
+  "name": "Zinnia's Trust",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "SCR 135": {
+  "name": "Glass Trumpet",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "SVI 171": {
+  "name": "Energy Retrieval",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "MEE 12": {
+  "name": "Lightning Energy",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "DRI 134": {
+  "name": "Marnie's Impidimp",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "DRI 135": {
+  "name": "Marnie's Morgrem",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "DRI 136": {
+  "name": "Marnie's Grimmsnarl ex",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "ASC 46": {
+  "name": "Snorunt",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "TWM 53": {
+  "name": "Froslass",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "PBL 75": {
+  "name": "Dark Bell",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "DRI 169": {
+  "name": "Spikemuth Gym",
+  "decks": 1,
+  "weighted": 1.22
+ },
+ "DRI 127": {
+  "name": "Team Rocket's Murkrow",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "ASC 127": {
+  "name": "Team Rocket's Honchkrow",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "DRI 153": {
+  "name": "Team Rocket's Porygon",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "DRI 154": {
+  "name": "Team Rocket's Porygon2",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "DRI 170": {
+  "name": "Team Rocket's Archer",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "PRE 127": {
+  "name": "Roto-Stick",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "SSP 183": {
+  "name": "Miracle Headset",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "WHT 86": {
+  "name": "Ignition Energy",
+  "decks": 1,
+  "weighted": 0.98
+ },
+ "DRI 102": {
+  "name": "Cynthia's Gible",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "DRI 103": {
+  "name": "Cynthia's Gabite",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "DRI 104": {
+  "name": "Cynthia's Garchomp ex",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "DRI 7": {
+  "name": "Cynthia's Roselia",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "DRI 8": {
+  "name": "Cynthia's Roserade",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "DRI 129": {
+  "name": "Cynthia's Spiritomb",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "DRI 162": {
+  "name": "Cynthia's Power Weight",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "POR 87": {
+  "name": "Rocky Fighting Energy",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "TEF 162": {
+  "name": "Neo Upper Energy",
+  "decks": 1,
+  "weighted": 0.88
+ },
+ "PFL 60": {
+  "name": "Carvanha",
+  "decks": 1,
+  "weighted": 0.86
+ },
+ "PFL 61": {
+  "name": "Mega Sharpedo ex",
+  "decks": 1,
+  "weighted": 0.86
+ },
+ "MEG 86": {
+  "name": "Mega Absol ex",
+  "decks": 1,
+  "weighted": 0.43
+ },
+ "TWM 118": {
+  "name": "Brute Bonnet",
+  "decks": 1,
+  "weighted": 0.43
+ },
+ "DRI 19": {
+  "name": "Team Rocket's Tarountula",
+  "decks": 1,
+  "weighted": 0.36
+ },
+ "DRI 20": {
+  "name": "Team Rocket's Spidops",
+  "decks": 1,
+  "weighted": 0.36
+ },
+ "DRI 81": {
+  "name": "Team Rocket's Mewtwo ex",
+  "decks": 1,
+  "weighted": 0.36
+ },
+ "DRI 87": {
+  "name": "Team Rocket's Mimikyu",
+  "decks": 1,
+  "weighted": 0.36
+ },
+ "TWM 158": {
+  "name": "Lucky Helmet",
+  "decks": 1,
+  "weighted": 0.36
+ },
+ "TEF 154": {
+  "name": "Maximum Belt",
+  "decks": 1,
+  "weighted": 0.36
+ }
+}

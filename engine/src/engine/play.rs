@@ -41,6 +41,23 @@ fn can_evolve_from(g: &Game, base: CardId, evo: CardId) -> bool {
         || (!b.evolves_from_base.is_empty() && b.evolves_from_base.contains(&e.evolves_from))
 }
 
+/// `play-pokemon-from-deck-effect.ts` / `...-from-discard-effect.ts`.
+pub fn play_pokemon_from_zone_reducer(g: &mut Game, id: EffId) -> R {
+    let (p, card, target, src) = match *g.e(id) {
+        Effect::PlayPokemonFromDeck { p, card, target } => (p, card, target, ListRef::Deck(p)),
+        Effect::PlayPokemonFromDiscard { p, card, target } => (p, card, target, ListRef::Discard(p)),
+        _ => return Ok(()),
+    };
+    if g.st.slot(target.p as usize, target.s).cards.is_empty() {
+        g.move_card_to(src, card, target.list());
+        let turn = g.st.turn;
+        g.st.players[target.p as usize].slots[target.s as usize].pokemon_played_turn = turn;
+        let _ = p;
+        return Ok(());
+    }
+    crate::bail!("INVALID_TARGET");
+}
+
 pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
     let (p, card, target) = match *g.e(id) {
         Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),

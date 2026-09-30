@@ -21,12 +21,42 @@ markers! {
     LOST_CITY_MARKER = "LOST_CITY_MARKER",
 }
 
+static EXTRA: std::sync::Mutex<Vec<&'static str>> = std::sync::Mutex::new(Vec::new());
+
+/// Name of a marker id (built-in or interned).
 pub fn marker_name(id: MarkerName) -> &'static str {
-    MARKER_NAMES[id as usize]
+    let i = id as usize;
+    if i < MARKER_NAMES.len() {
+        return MARKER_NAMES[i];
+    }
+    EXTRA.lock().unwrap()[i - MARKER_NAMES.len()]
 }
 
 pub fn marker_id(name: &str) -> Option<MarkerName> {
-    MARKER_NAMES.iter().position(|n| *n == name).map(|i| i as MarkerName)
+    if let Some(i) = MARKER_NAMES.iter().position(|n| *n == name) {
+        return Some(i as MarkerName);
+    }
+    EXTRA.lock().unwrap().iter().position(|n| *n == name).map(|i| (i + MARKER_NAMES.len()) as MarkerName)
+}
+
+/// Id for a marker name, registering it on first use. Ids are process-local;
+/// the canonical state writes names.
+pub fn intern(name: &'static str) -> MarkerName {
+    if let Some(id) = marker_id(name) {
+        return id;
+    }
+    let mut v = EXTRA.lock().unwrap();
+    v.push(name);
+    (MARKER_NAMES.len() + v.len() - 1) as MarkerName
+}
+
+/// `marker!("NAME")`: cached interned marker id.
+#[macro_export]
+macro_rules! marker {
+    ($name:expr) => {{
+        static ID: std::sync::OnceLock<$crate::markers::MarkerName> = std::sync::OnceLock::new();
+        *ID.get_or_init(|| $crate::markers::intern($name))
+    }};
 }
 
 /// `MarkerSourceType`.

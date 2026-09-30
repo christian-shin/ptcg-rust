@@ -16,6 +16,7 @@ pub mod interface;
 pub mod list;
 pub mod markers;
 pub mod options;
+pub mod prefabs;
 pub mod prompts;
 pub mod rng;
 pub mod state;
