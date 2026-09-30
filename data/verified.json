@@ -29,7 +29,7 @@
  "Buddy-Buddy Poffin TEF": {
   "status": "verified"
  },
- "Pok\u00e9 Pad MC": {
+ "Poké Pad MC": {
   "status": "verified"
  },
  "Crushing Hammer SVI": {
@@ -149,7 +149,7 @@
  },
  "Team Rocket's Watchtower DRI": {
   "status": "partial",
-  "note": "needs a [C] Pok\u00e9mon with an Ability"
+  "note": "needs a [C] Pokémon with an Ability"
  },
  "Paldean Tauros SSP": {
   "status": "verified"
@@ -265,5 +265,115 @@
  "Gladion's Decisive Battle M5": {
   "status": "partial",
   "note": "+80 branch 2 games"
+ },
+ "Bianca's Devotion TEF": {
+  "status": "verified"
+ },
+ "Crustle DRI": {
+  "status": "verified"
+ },
+ "Drilbur M5": {
+  "status": "verified"
+ },
+ "Dwebble DRI": {
+  "status": "partial",
+  "note": "empty-deck branch unreachable"
+ },
+ "Energy Recycler BST": {
+  "status": "verified"
+ },
+ "Eri TEF": {
+  "status": "verified"
+ },
+ "Genesect ex SV11B": {
+  "status": "verified"
+ },
+ "Handheld Fan TWM": {
+  "status": "verified"
+ },
+ "Hero's Cape TEF": {
+  "status": "verified"
+ },
+ "Jumbo Ice M2": {
+  "status": "verified"
+ },
+ "Lumioise City M3": {
+  "status": "verified"
+ },
+ "Mega Excadrill ex M5": {
+  "status": "verified"
+ },
+ "Mega Skarmory ex M3": {
+  "status": "verified"
+ },
+ "Mist Energy TEF": {
+  "status": "verified"
+ },
+ "Pokegear SVI": {
+  "status": "partial",
+  "note": "empty-deck branch unreachable"
+ },
+ "Pokémon Center Lady FLF": {
+  "status": "verified"
+ },
+ "Prism Tower M4": {
+  "status": "verified"
+ },
+ "Spiky Energy JTG": {
+  "status": "verified"
+ },
+ "Team Rocket's Factory DRI": {
+  "status": "verified"
+ },
+ "Team Rocket's Petrel DRI": {
+  "status": "partial",
+  "note": "empty-deck branch unreachable"
+ },
+ "Xerosic's Machinations SFA": {
+  "status": "verified"
+ },
+ "Abra M1S": {
+  "status": "verified"
+ },
+ "Abra TWM": {
+  "status": "verified"
+ },
+ "Alakazam M1S": {
+  "status": "partial",
+  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)"
+ },
+ "Dawn M2": {
+  "status": "verified"
+ },
+ "Dusclops SFA": {
+  "status": "verified"
+ },
+ "Dusknoir SFA": {
+  "status": "verified"
+ },
+ "Duskull SFA": {
+  "status": "verified"
+ },
+ "Gwynn M5": {
+  "status": "verified"
+ },
+ "Hilda SV11W": {
+  "status": "verified"
+ },
+ "Kadabra M1S": {
+  "status": "partial",
+  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)"
+ },
+ "Rare Candy SVI": {
+  "status": "verified"
+ },
+ "Sacred Ash FLF": {
+  "status": "verified"
+ },
+ "Shaymin DRI": {
+  "status": "verified"
+ },
+ "Strange Timepiece MEG": {
+  "status": "verified"
  }
 }
