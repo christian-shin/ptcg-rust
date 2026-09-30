@@ -66,31 +66,48 @@ fn select_dict<'py>(py: Python<'py>, sel: &SelectData) -> PyResult<Bound<'py, Py
     Ok(d)
 }
 
-/// Uniform random valid answer (retries until the engine accepts one).
-/// Repeat-pick prompts (damage counters) draw with replacement.
+/// Random valid answer. Multi-pick decisions are built one pick at a time
+/// over options that keep a valid answer reachable (`Game::pick_mask`), so
+/// no blind retries are needed.
 fn random_answer(g: &mut Game, sel: &SelectData, rng: &mut Rng) -> bool {
     let n = sel.options.len();
-    let repeats = sel.allows_repeats();
+    if sel.max_count <= 1 {
+        if n == 0 || sel.min_count == 0 && rng.index(n + 1) == n {
+            if g.answer(sel, &[]).is_ok() {
+                return true;
+            }
+        }
+        return n > 0 && g.answer(sel, &[rng.index(n)]).is_ok();
+    }
+    let mut picks: Vec<usize> = Vec::new();
+    loop {
+        let (mask, stop) = g.pick_mask(sel, &picks);
+        let allowed: Vec<usize> = (0..n).filter(|j| mask[*j]).collect();
+        let k = allowed.len() + stop as usize;
+        if k == 0 {
+            break;
+        }
+        let r = rng.index(k);
+        if r == allowed.len() {
+            break;
+        }
+        picks.push(allowed[r]);
+    }
+    if g.answer(sel, &picks).is_ok() {
+        return true;
+    }
+    // Search bound hit or a continuation failed: fall back to blind retries.
     for _ in 0..40 {
-        let lo = if repeats { sel.min_count } else { sel.min_count.min(n) };
-        let hi = if repeats { sel.max_count } else { sel.max_count.min(n) };
-        let k = if hi > lo { lo + rng.index(hi - lo + 1) } else { lo };
-        let idx: Vec<usize> = if repeats {
-            if n == 0 {
-                Vec::new()
-            } else {
-                (0..k).map(|_| rng.index(n)).collect()
-            }
-        } else {
-            let mut v: Vec<usize> = (0..n).collect();
-            for i in (1..v.len()).rev() {
-                v.swap(i, rng.index(i + 1));
-            }
-            v.truncate(k);
-            v.sort();
-            v
-        };
-        if g.answer(sel, &idx).is_ok() {
+        let lo = sel.min_count.min(n);
+        let hi = sel.max_count.min(n);
+        let kk = if hi > lo { lo + rng.index(hi - lo + 1) } else { lo };
+        let mut v: Vec<usize> = (0..n).collect();
+        for i in (1..v.len()).rev() {
+            v.swap(i, rng.index(i + 1));
+        }
+        v.truncate(kk);
+        v.sort();
+        if g.answer(sel, &v).is_ok() {
             return true;
         }
     }
@@ -231,6 +248,8 @@ impl Env {
 struct VecEnv {
     envs: Vec<Env>,
     picks: Vec<Vec<usize>>,
+    /// Cached learner view per env (None = recompute).
+    views: std::sync::Mutex<Vec<Option<Vec<Option<usize>>>>>,
     rng: Rng,
     next_seed: u32,
     invalid: u64,
@@ -238,37 +257,52 @@ struct VecEnv {
 }
 
 /// Option list the learner sees: `Some(i)` = engine option i, `None` = STOP.
-/// STOP is offered only when the picks so far form an answer the engine accepts.
+/// Only picks that keep a valid answer reachable are offered; STOP only when
+/// the picks so far are a valid answer.
 fn view(game: &Game, sel: &SelectData, picks: &[usize]) -> Vec<Option<usize>> {
-    let mut v: Vec<Option<usize>> = if sel.allows_repeats() {
-        (0..sel.options.len()).map(Some).collect()
-    } else {
-        (0..sel.options.len()).filter(|i| !picks.contains(i)).map(Some).collect()
-    };
-    if sel.max_count > 1 && picks.len() >= sel.min_count {
-        let mut trial = *game;
-        if trial.answer(sel, picks).is_ok() {
-            v.push(None);
-        }
+    if sel.select_type as u8 == 0 {
+        // Turn actions are already legal by construction.
+        return (0..sel.options.len()).map(Some).collect();
+    }
+    let (mask, stop) = game.pick_mask(sel, picks);
+    let mut v: Vec<Option<usize>> = (0..sel.options.len()).filter(|j| mask[*j]).map(Some).collect();
+    if stop {
+        v.push(None);
     }
     v
 }
 
 impl VecEnv {
+    fn view_of(&self, i: usize) -> Vec<Option<usize>> {
+        let cached = self.views.lock().unwrap()[i].clone();
+        if let Some(v) = cached {
+            return v;
+        }
+        let v = match &self.envs[i].sel {
+            Some(sel) => view(&self.envs[i].game, sel, &self.picks[i]),
+            None => Vec::new(),
+        };
+        self.views.lock().unwrap()[i] = Some(v.clone());
+        v
+    }
+
     fn reset_env(&mut self, i: usize) -> PyResult<()> {
         let seed = self.next_seed;
         self.next_seed = self.next_seed.wrapping_add(1);
         self.picks[i].clear();
+        self.views.lock().unwrap()[i] = None;
         self.envs[i].reset(seed)
     }
 
     fn submit(&mut self, i: usize) -> PyResult<()> {
+        self.views.lock().unwrap()[i] = None;
         let e = &mut self.envs[i];
         let sel = e.sel.clone().unwrap();
         let picks = std::mem::take(&mut self.picks[i]);
         if e.game.answer(&sel, &picks).is_err() {
             self.invalid += 1;
-            *self.invalid_ctx.entry(sel.context as u8).or_default() += 1;
+            let key = sel.context as u8 + if picks.is_empty() { 100 } else { 0 };
+            *self.invalid_ctx.entry(key).or_default() += 1;
             random_answer(&mut e.game, &sel, &mut self.rng);
         }
         e.refresh()
@@ -276,6 +310,7 @@ impl VecEnv {
 
     /// Advance env `i` until the learner must act or the game ends.
     fn advance(&mut self, i: usize) -> PyResult<(f32, bool)> {
+        self.views.lock().unwrap()[i] = None;
         loop {
             let sel = match self.envs[i].sel.clone() {
                 None => {
@@ -313,7 +348,7 @@ impl VecEnv {
         for i in 0..n {
             envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false)?);
         }
-        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, invalid_ctx: Default::default() };
+        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, invalid_ctx: Default::default() };
         for i in 0..n {
             v.advance(i)?;
         }
@@ -357,7 +392,7 @@ impl VecEnv {
             obs.extend(observe(&e.game, 0));
             let mut c = 0;
             if let Some(sel) = &e.sel {
-                for (k, o) in view(&e.game, sel, &self.picks[i]).into_iter().take(k_max).enumerate() {
+                for (k, o) in self.view_of(i).into_iter().take(k_max).enumerate() {
                     let f = match o {
                         Some(j) => option_features(sel, &sel.options[j]),
                         None => {
@@ -382,14 +417,19 @@ impl VecEnv {
         let mut dones = Vec::with_capacity(self.envs.len());
         for (i, a) in actions.into_iter().enumerate() {
             if let Some(sel) = self.envs[i].sel.clone() {
-                let v = view(&self.envs[i].game, &sel, &self.picks[i]);
+                let v = self.view_of(i);
+                self.views.lock().unwrap()[i] = None;
                 if !v.is_empty() {
                     match v[a.min(v.len() - 1)] {
                         None => self.submit(i)?,
                         Some(j) => {
                             self.picks[i].push(j);
-                            let exhausted = !sel.allows_repeats() && self.picks[i].len() >= sel.options.len();
-                            if self.picks[i].len() >= sel.max_count.max(1) || exhausted {
+                            // Submit when nothing more can be picked.
+                            let done = sel.max_count <= 1 || {
+                                let nv = self.view_of(i);
+                                !nv.iter().any(|o| o.is_some())
+                            };
+                            if done {
                                 self.submit(i)?;
                             }
                         }

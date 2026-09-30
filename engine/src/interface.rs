@@ -588,8 +588,28 @@ impl Game {
                 let a = opts.get(k).ok_or(GameError("BAD_OPTION"))?.action;
                 self.act(a)
             }
-            Source::Prompt(i, vals, shape) => {
-                let raw = match shape {
+            Source::Prompt(i, _, _) => {
+                let raw = raw_answer(sel, chosen)?;
+                let pr = self.prompts.as_slice()[*i];
+                let res = self.decode_answer(&pr, &raw)?;
+                let backup = *self;
+                let r = self.resolve(*i, res);
+                if r.is_err() {
+                    *self = backup;
+                }
+                r
+            }
+        }
+    }
+}
+
+/// Twinleaf wire answer for option indices `chosen` of a prompt select.
+fn raw_answer(sel: &SelectData, chosen: &[usize]) -> Result<Value, GameError> {
+    let (vals, shape) = match &sel.source {
+        Source::Prompt(_, vals, shape) => (vals, shape),
+        _ => return Err(GameError("NOT_A_PROMPT")),
+    };
+    Ok(match shape {
                     AnswerShape::Single => vals.get(*chosen.first().ok_or(GameError("EMPTY_ANSWER"))?).cloned().ok_or(GameError("BAD_OPTION"))?,
                     AnswerShape::Array => {
                         let mut v = Vec::new();
@@ -611,16 +631,131 @@ impl Game {
                         }
                         Value::Array(agg.into_iter().map(|(k, d)| json!({ "target": vals[k].clone(), "damage": d })).collect())
                     }
-                };
-                let pr = self.prompts.as_slice()[*i];
-                let res = self.decode_answer(&pr, &raw)?;
-                let backup = *self;
-                let r = self.resolve(*i, res);
-                if r.is_err() {
-                    *self = backup;
+                })
+}
+
+impl Game {
+    /// Whether `chosen` would be accepted by the prompt's decode + validate
+    /// (pure: the game is not modified).
+    pub fn is_valid_answer(&self, sel: &SelectData, chosen: &[usize]) -> bool {
+        match &sel.source {
+            Source::Prompt(i, _, _) => match raw_answer(sel, chosen) {
+                Ok(raw) => {
+                    let pr = self.prompts.as_slice()[*i];
+                    self.decode_answer(&pr, &raw).is_ok()
                 }
-                r
+                Err(_) => false,
+            },
+            Source::Turn(opts) => chosen.len() == 1 && chosen[0] < opts.len(),
+            Source::Chance(_) => chosen.len() == 1,
+        }
+    }
+
+    /// Whether some superset of `chosen` could still pass decode + validate.
+    /// For the prompt kinds whose checks (other than the minimum count) only
+    /// get stricter as picks are added, this is validity with the minimum
+    /// dropped; other kinds are assumed extendable.
+    fn extendable(&self, sel: &SelectData, chosen: &[usize]) -> bool {
+        let i = match &sel.source {
+            Source::Prompt(i, _, _) => *i,
+            _ => return true,
+        };
+        let mut pr = self.prompts.as_slice()[i];
+        match &mut pr.kind {
+            PromptKind::ChooseCards { opts, .. } => opts.min = 0,
+            PromptKind::ChoosePokemon { min, .. } => *min = 0,
+            PromptKind::AttachEnergy { o, .. } => o.min = 0,
+            PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => o.min = 0,
+            PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => o.min = 0,
+            PromptKind::PutDamage { allow_partial, .. } => *allow_partial = true,
+            _ => return true,
+        }
+        match raw_answer(sel, chosen) {
+            Ok(raw) => self.decode_answer(&pr, &raw).is_ok(),
+            Err(_) => false,
+        }
+    }
+
+    /// `is_valid_answer` plus resolving it on a copy: card callbacks can reject
+    /// answers the prompt's own validate accepts.
+    pub fn is_accepted_answer(&self, sel: &SelectData, chosen: &[usize]) -> bool {
+        if !self.is_valid_answer(sel, chosen) {
+            return false;
+        }
+        let mut trial = *self;
+        trial.answer(sel, chosen).is_ok()
+    }
+
+    /// For a pick-by-pick answer: which options can be picked next so that a
+    /// valid answer is still reachable, and whether `picks` can be submitted
+    /// as is (STOP). Bounded search; if the bound is hit an option is assumed
+    /// reachable.
+    pub fn pick_mask(&self, sel: &SelectData, picks: &[usize]) -> (Vec<bool>, bool) {
+        let n = sel.options.len();
+        if !matches!(sel.source, Source::Prompt(..)) {
+            return (vec![true; n], false);
+        }
+        if sel.max_count <= 1 {
+            // Single pick: offer options the prompt and the card's callback accept.
+            let mask: Vec<bool> = (0..n).map(|j| self.is_accepted_answer(sel, &[j])).collect();
+            let stop = sel.min_count == 0 && self.is_accepted_answer(sel, &[]);
+            return (mask, stop);
+        }
+        let repeats = sel.allows_repeats();
+        let stop = picks.len() >= sel.min_count && self.is_accepted_answer(sel, picks);
+        let mut mask = vec![false; n];
+        if picks.len() >= sel.max_count {
+            return (mask, stop);
+        }
+        let mut buf: Vec<usize> = picks.to_vec();
+        for j in 0..n {
+            if !repeats && picks.contains(&j) {
+                continue;
+            }
+            buf.push(j);
+            // Each option gets its own small search budget, so a large option
+            // list (e.g. every from/to pair of a move-damage prompt) cannot
+            // exhaust it for the options that come last.
+            let mut budget = 64usize;
+            mask[j] = self.completable(sel, &mut buf, 0, repeats, &mut budget);
+            buf.pop();
+        }
+        (mask, stop)
+    }
+
+    /// Depth-first search for a valid superset of `buf`; the added options are
+    /// enumerated in index order from `start` (combinations, not permutations).
+    fn completable(&self, sel: &SelectData, buf: &mut Vec<usize>, start: usize, repeats: bool, budget: &mut usize) -> bool {
+        if *budget == 0 {
+            return true;
+        }
+        *budget -= 1;
+        if !self.extendable(sel, buf) {
+            return false;
+        }
+        if buf.len() >= sel.min_count && self.is_valid_answer(sel, buf) {
+            let mut trial = *self;
+            if trial.answer(sel, buf).is_ok() {
+                return true;
             }
         }
+        if buf.len() >= sel.max_count {
+            return false;
+        }
+        for k in start..sel.options.len() {
+            if !repeats && buf.contains(&k) {
+                continue;
+            }
+            buf.push(k);
+            let ok = self.completable(sel, buf, if repeats { k } else { k + 1 }, repeats, budget);
+            buf.pop();
+            if ok {
+                return true;
+            }
+            if *budget == 0 {
+                return true;
+            }
+        }
+        false
     }
 }
