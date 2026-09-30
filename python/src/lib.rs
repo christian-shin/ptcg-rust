@@ -309,6 +309,12 @@ impl VecEnv {
                 eprintln!("reject {:?} ctx={:?} msg={} min={} max={} n={} picks={:?}: {:?}", sel.select_type, sel.context, msg, sel.min_count, sel.max_count, sel.options.len(), picks, err);
             }
             if !random_answer(&mut e.game, &sel, &mut self.rng) {
+                if std::env::var_os("PTCG_DEBUG_REJECT").is_some() {
+                    for j in 0..sel.options.len().min(4) {
+                        let mut t = e.game.fork();
+                        eprintln!("  stuck option {}: {:?}", j, t.answer(&sel, &[j]).err());
+                    }
+                }
                 self.stuck += 1;
                 return Ok(false);
             }
