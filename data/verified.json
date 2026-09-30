@@ -778,5 +778,76 @@
  },
  "Book of Transformation M4": {
   "status": "verified"
+ },
+ "Blissey ex TWM": {
+  "status": "partial",
+  "note": "deck runs out mid-draw 0 games"
+ },
+ "Bouffalant SCR": {
+  "status": "verified"
+ },
+ "Chansey TWM": {
+  "status": "verified"
+ },
+ "Chatot TEF": {
+  "status": "verified"
+ },
+ "Cinccino TEF": {
+  "status": "verified"
+ },
+ "Dunsparce TEF": {
+  "status": "verified"
+ },
+ "Eevee SCR": {
+  "status": "verified"
+ },
+ "Eevee SFA": {
+  "status": "verified"
+ },
+ "Eevee SSP": {
+  "status": "verified"
+ },
+ "Eevee ex PRE": {
+  "status": "verified"
+ },
+ "Exeggcute 30C": {
+  "status": "verified"
+ },
+ "Fan Rotom SCR": {
+  "status": "verified"
+ },
+ "Farfetch'd TWM": {
+  "status": "verified"
+ },
+ "Furfrou M3": {
+  "status": "verified"
+ },
+ "Hoothoot PRE": {
+  "status": "verified"
+ },
+ "Hoothoot TEF": {
+  "status": "verified"
+ },
+ "Hop's Cramorant JTG": {
+  "status": "verified"
+ },
+ "Hop's Dubwool JTG": {
+  "status": "verified"
+ },
+ "Hop's Snorlax JTG": {
+  "status": "verified"
+ },
+ "Mega Audino ex MC": {
+  "status": "verified"
+ },
+ "Minccino SSH": {
+  "status": "verified"
+ },
+ "Minccino TEF": {
+  "status": "partial",
+  "note": "cancelled choice 0 games; multi-tool prompt unreached"
+ },
+ "Patrat M4": {
+  "status": "verified"
  }
 }
