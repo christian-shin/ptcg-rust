@@ -418,5 +418,64 @@
  },
  "Yveltal M1L": {
   "status": "verified"
+ },
+ "Banette M5": {
+  "status": "verified"
+ },
+ "Bloodmoon Ursaluna ex TWM": {
+  "status": "verified"
+ },
+ "Bronzong TEF": {
+  "status": "verified"
+ },
+ "Bronzor LOR 125": {
+  "status": "verified"
+ },
+ "Bronzor TEF": {
+  "status": "verified"
+ },
+ "Bronzor PRE": {
+  "status": "verified"
+ },
+ "Buneary M2": {
+  "status": "verified"
+ },
+ "Dhelmise M5": {
+  "status": "verified"
+ },
+ "Dudunsparce ex JTG": {
+  "status": "verified"
+ },
+ "Energy Retrieval BS": {
+  "status": "verified"
+ },
+ "Glass Trumpet SCR": {
+  "status": "verified"
+ },
+ "Mega Lopunny ex M2": {
+  "status": "verified"
+ },
+ "Poltchageist M5": {
+  "status": "verified"
+ },
+ "Raging Bolt ex TEF": {
+  "status": "verified"
+ },
+ "Rich Energy SSP": {
+  "status": "verified"
+ },
+ "Salvatore TEF": {
+  "status": "partial",
+  "note": "cancelled search 2 games; deck-empty throw 0"
+ },
+ "Shuppet M5": {
+  "status": "verified"
+ },
+ "Sinistcha M5": {
+  "status": "partial",
+  "note": "4-counter spread branch 9 games (needs 6+ Hide 'n' Sneak in discard)"
+ },
+ "Wally's Compassion M1S": {
+  "status": "verified"
  }
 }
