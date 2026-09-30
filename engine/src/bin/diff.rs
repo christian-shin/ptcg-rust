@@ -119,6 +119,14 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
             }
         };
         if let Err(e) = r.and_then(|_| g.settle()) {
+            // The oracle hit the same GameError on its last step (e.g. an
+            // ability whose checks only run after the in-play WaitPrompt):
+            // the trace ends there, so compare the state left behind.
+            let res = &trace["result"];
+            let same_error = i + 1 == steps.len() && res["status"] == "error" && res["message"].as_str() == Some(e.0);
+            if same_error && g.state_hash() == st["h"].as_str().unwrap_or("") {
+                return Outcome::Pass { steps: steps.len() };
+            }
             dump_state(&g, i as isize);
             return Outcome::Diverged { step: i as isize, what: "error".into(), detail: format!("{:?}", e) };
         }
