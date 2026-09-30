@@ -31,6 +31,8 @@ pub static IMPL: CardImpl = CardImpl {
         k::REDUCE_DAMAGE,
         k::SWITCH_OUT_OPPONENTS_ACTIVE,
         k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
+        k::PREVENT_DAMAGE,
+        k::PREVENT_EFFECTS_OF_ATTACKS,
     ]),
     reduce,
     resume: None,

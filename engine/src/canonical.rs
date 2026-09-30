@@ -79,6 +79,16 @@ impl Game {
         if !s.cannot_use_attacks_next_turn_pending.is_empty() {
             o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
         }
+        for (on, key) in [
+            (s.prevent_damage_next_turn, "preventDamageNextTurn"),
+            (s.prevent_damage_next_turn_pending, "preventDamageNextTurnPending"),
+            (s.prevent_effects_of_attacks_next_turn, "preventEffectsOfAttacksNextTurn"),
+            (s.prevent_effects_of_attacks_next_turn_pending, "preventEffectsOfAttacksNextTurnPending"),
+        ] {
+            if on {
+                o.insert(key.into(), json!({}));
+            }
+        }
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
         }
@@ -167,6 +177,7 @@ impl Game {
         nd!(used_run_errand, "usedRunErrand");
         nd!(used_lunar_cycle, "usedLunarCycle");
         nd!(rocket_supporter, "rocketSupporter");
+        nd!(used_fan_call, "usedFanCall");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }
@@ -201,6 +212,11 @@ impl Game {
                 }
                 if inst.damage_taken_last_turn != 0 {
                     diff.insert("damageTakenLastTurn".into(), json!(inst.damage_taken_last_turn));
+                }
+            }
+            if let Some(efb) = inst.evolves_from_base {
+                if efb != d.evolves_from_base {
+                    diff.insert("evolvesFromBase".into(), json!(efb));
                 }
             }
             if inst.extra_prizes {

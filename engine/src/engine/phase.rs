@@ -247,6 +247,10 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     for s in g.st.players[o].in_play().iter() {
         let slot = &mut g.st.players[o].slots[*s as usize];
         slot.damage_reduction_next_turn = 0;
+        slot.prevent_damage_next_turn = false;
+        slot.prevent_damage_next_turn_pending = false;
+        slot.prevent_effects_of_attacks_next_turn = false;
+        slot.prevent_effects_of_attacks_next_turn_pending = false;
         // other next-turn protections: not modeled.
     }
     for s in g.st.players[p].in_play().iter() {
@@ -279,6 +283,14 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.cannot_be_healed_next_turn = false;
         }
         slot.blocked_attack_name_next_turn = None;
+        if slot.prevent_damage_next_turn_pending {
+            slot.prevent_damage_next_turn = true;
+            slot.prevent_damage_next_turn_pending = false;
+        }
+        if slot.prevent_effects_of_attacks_next_turn_pending {
+            slot.prevent_effects_of_attacks_next_turn = true;
+            slot.prevent_effects_of_attacks_next_turn_pending = false;
+        }
     }
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];

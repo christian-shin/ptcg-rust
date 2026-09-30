@@ -141,6 +141,12 @@ pub enum Effect {
     ReduceDamage { b: AtkBase, reduction: i32 },
     /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
     SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
+    /// `PreventDamageEffect` (EffectOfAttackEffect, target = attacker):
+    /// `player.active.preventDamageNextTurnPending = {}` (empty filter only).
+    PreventDamage { b: AtkBase },
+    /// `PreventEffectsOfAttacksEffect` (EffectOfAttackEffect, target = attacker):
+    /// `player.active.preventEffectsOfAttacksNextTurnPending = {}` (empty filter only).
+    PreventEffectsOfAttacks { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -225,6 +231,8 @@ impl Effect {
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
+            PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
+            PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -265,6 +273,7 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             _ => None,
         }
     }
@@ -289,6 +298,7 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             _ => None,
         }
     }
@@ -370,6 +380,8 @@ impl Effect {
             AddSpecialConditionsPower { .. } => 70,
             ReduceDamage { .. } => 110,
             SwitchOutOpponentsActive { .. } => 111,
+            PreventDamage { .. } => 76,
+            PreventEffectsOfAttacks { .. } => 77,
             OpponentPokemonCannotUseAttack { .. } => 91,
         };
         k
@@ -451,6 +463,8 @@ pub mod k {
     pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
     pub const REDUCE_DAMAGE: u32 = 110;
     pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
+    pub const PREVENT_DAMAGE: u32 = 76;
+    pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
 }
 

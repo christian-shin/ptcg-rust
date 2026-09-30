@@ -102,6 +102,12 @@ pub struct Slot {
     pub attack_damage_reduction_next_turn: i32,
     /// `blockedAttackNameNextTurn`.
     pub blocked_attack_name_next_turn: Option<&'static str>,
+    /// `preventDamageNextTurn` / `...Pending` (only the empty filter `{}` is modeled).
+    pub prevent_damage_next_turn: bool,
+    pub prevent_damage_next_turn_pending: bool,
+    /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
+    pub prevent_effects_of_attacks_next_turn: bool,
+    pub prevent_effects_of_attacks_next_turn_pending: bool,
     pub is_public: bool,
 }
 
@@ -135,6 +141,10 @@ impl Default for Slot {
             damage_reduction_next_turn: 0,
             attack_damage_reduction_next_turn: 0,
             blocked_attack_name_next_turn: None,
+            prevent_damage_next_turn: false,
+            prevent_damage_next_turn_pending: false,
+            prevent_effects_of_attacks_next_turn: false,
+            prevent_effects_of_attacks_next_turn_pending: false,
             is_public: false,
         }
     }
@@ -156,11 +166,14 @@ pub struct CardInst {
     /// Attacks whose serialized object now differs from the printed card
     /// (canonical `cards[...].attacks`, with a `barrage` key).
     pub attack_barrage_shown: u8,
+    /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
+    /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
+    pub evolves_from_base: Option<&'static [&'static str]>,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0 }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None }
     }
 }
 
@@ -227,6 +240,8 @@ pub struct Player {
     pub used_lunar_cycle: bool,
     /// `rocketSupporter` (Team Rocket's Petrel; cleared at its owner's end of turn).
     pub rocket_supporter: bool,
+    /// `usedFanCall` (Fan Rotom SCR; cleared by Fan Rotom at any end of turn).
+    pub used_fan_call: bool,
 }
 
 impl Player {
@@ -286,6 +301,7 @@ impl Player {
             used_run_errand: false,
             used_lunar_cycle: false,
             rocket_supporter: false,
+            used_fan_call: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;
