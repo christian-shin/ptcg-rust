@@ -159,6 +159,8 @@ pub struct ChooseCardsOpts {
     pub max_items: Option<u8>,
     pub max_basics: Option<u8>,
     pub max_evolutions: Option<u8>,
+    pub max_stage1: Option<u8>,
+    pub max_stage2: Option<u8>,
 }
 
 impl ChooseCardsOpts {
@@ -182,6 +184,8 @@ impl ChooseCardsOpts {
             max_items: None,
             max_basics: None,
             max_evolutions: None,
+            max_stage1: None,
+            max_stage2: None,
         }
     }
 }
@@ -568,6 +572,8 @@ impl Game {
                     ("maxItems", opts.max_items),
                     ("maxBasics", opts.max_basics),
                     ("maxEvolutions", opts.max_evolutions),
+                    ("maxStage1", opts.max_stage1),
+                    ("maxStage2", opts.max_stage2),
                 ] {
                     if let Some(v) = v {
                         o.insert(k.into(), json!(v));
@@ -779,7 +785,12 @@ impl Game {
         let count = |f: &dyn Fn(&CardDef) -> bool| defs.iter().filter(|d| f(d)).count();
         let pokemon = count(&|d| d.is_pokemon());
         let basics = count(&|d| d.is_pokemon() && d.stage == Stage::Basic as u8);
-        if (o.max_basics.is_some() || o.max_evolutions.is_some()) && basics > 0 && pokemon - basics > 0 {
+        if (o.max_basics.is_some() || o.max_evolutions.is_some())
+            && o.max_stage1.is_none()
+            && o.max_stage2.is_none()
+            && basics > 0
+            && pokemon - basics > 0
+        {
             return false;
         }
         let over = |m: Option<u8>, n: usize| m.map(|m| (m as usize) < n).unwrap_or(false);
@@ -794,6 +805,8 @@ impl Game {
             || over(o.max_tools, count(&|d| d.is_trainer() && d.trainer_type == 3))
             || over(o.max_basics, basics)
             || over(o.max_evolutions, pokemon - basics)
+            || over(o.max_stage1, count(&|d| d.is_pokemon() && d.stage == Stage::Stage1 as u8))
+            || over(o.max_stage2, count(&|d| d.is_pokemon() && d.stage == Stage::Stage2 as u8))
         {
             return false;
         }
