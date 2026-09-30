@@ -1,23 +1,123 @@
 {
- "ASC 132": {
-  "name": "Galarian Obstagoon",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Galarian Obstagoon FST 161)",
+ "30C 66": {
+  "name": "Mew ex",
+  "current": "Mew ex 30C",
+  "print_match": "number-mismatch",
+  "verdict": "use Mew ex 30C",
   "best": {
-   "fullName": "Galarian Obstagoon FST 161",
-   "class": "GalarianObstagoon",
-   "exact": false,
-   "score": 2.25,
+   "fullName": "Mew ex 30C",
+   "class": "Mewex",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.25
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Mew ex 30C",
+    "class": "Mewex",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Mew ex LM",
+    "class": "Mewex",
+    "exact": false,
+    "score": 0.49,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.49
+    }
+   },
+   {
+    "fullName": "Mew ex CEL",
+    "class": "MewEx",
+    "exact": false,
+    "score": 0.49,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.49
+    }
+   },
+   {
+    "fullName": "Mew ex SVP",
+    "class": "MewexSVP",
+    "exact": false,
+    "score": 0.26,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.26
+    }
+   }
+  ],
+  "official": {
+   "hp": 160,
+   "attacks": [
+    [
+     "Teleportation Burst",
+     "30"
+    ]
+   ],
+   "abilities": [
+    "Memory Helix"
+   ],
+   "text": "this pokemon can use the attacks of any of your benched pokemon you still need the necessary energy to use each attack you may switch this pokemon with 1 of your benched pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/30C/66"
+ },
+ "ASC 132": {
+  "name": "Galarian Obstagoon",
+  "current": "Galarian Obstagoon ASC",
+  "print_match": "exact",
+  "verdict": "use Galarian Obstagoon ASC",
+  "best": {
+   "fullName": "Galarian Obstagoon ASC",
+   "class": "GalarianObstagoonASCPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Galarian Obstagoon ASC",
+    "class": "GalarianObstagoonASCPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Galarian Obstagoon FST 161",
     "class": "GalarianObstagoon",
@@ -47,19 +147,6 @@
    {
     "fullName": "Galarian Obstagoon SSH",
     "class": "GalarianObstagoon",
-    "exact": false,
-    "score": 0.18,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": false,
-     "text": 0.18
-    }
-   },
-   {
-    "fullName": "Galarian Obstagoon VIV",
-    "class": "GalarianObstagoonVIV",
     "exact": false,
     "score": 0.18,
     "why": {
@@ -164,13 +251,13 @@
    "fullName": "Fighting Gong M1L",
    "class": "FightingGong",
    "exact": true,
-   "score": 4.95,
+   "score": 5.0,
    "why": {
     "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.95
+    "text": 1.0
    }
   },
   "candidates": [
@@ -178,26 +265,26 @@
     "fullName": "Fighting Gong M1L",
     "class": "FightingGong",
     "exact": true,
-    "score": 4.95,
+    "score": 5.0,
     "why": {
      "atk": true,
      "dmg": true,
      "ab": true,
      "hp": true,
-     "text": 0.95
+     "text": 1.0
     }
    },
    {
     "fullName": "Fighting Gong2 MEG",
     "class": "FightingGong2MEG",
     "exact": true,
-    "score": 4.95,
+    "score": 5.0,
     "why": {
      "atk": true,
      "dmg": true,
      "ab": true,
      "hp": true,
-     "text": 0.95
+     "text": 1.0
     }
    }
   ],
@@ -205,32 +292,84 @@
    "hp": null,
    "attacks": [],
    "abilities": [],
-   "text": "search your deck for a basic f energy card or a basic f pokemon reveal it and put it into your hand then shuffle your deck"
+   "text": "search your deck for a basic energy card or a basic pokemon reveal it and put it into your hand then shuffle your deck"
   },
   "url": "https://limitlesstcg.com/cards/ASC/187"
  },
  "ASC 211": {
   "name": "Thick Scale",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Thick Scale ASC",
+  "print_match": "exact",
+  "verdict": "use Thick Scale ASC",
+  "best": {
+   "fullName": "Thick Scale ASC",
+   "class": "ThickScaleASCPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Thick Scale ASC",
+    "class": "ThickScaleASCPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
    "abilities": [],
-   "text": "the n pokemon this card is attached to takes 50 less damage from attacks from your opponent's g r w or l pokemon after applying weakness and resistance"
+   "text": "the pokemon this card is attached to takes 50 less damage from attacks from your opponent's or pokemon after applying weakness and resistance"
   },
   "url": "https://limitlesstcg.com/cards/ASC/211"
  },
  "ASC 95": {
   "name": "Hop's Phantump",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Hop's Phantump ASC",
+  "print_match": "exact",
+  "verdict": "use Hop's Phantump ASC",
+  "best": {
+   "fullName": "Hop's Phantump ASC",
+   "class": "HopsPhantumpASCPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Hop's Phantump ASC",
+    "class": "HopsPhantumpASCPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 70,
    "attacks": [
@@ -246,11 +385,37 @@
  },
  "ASC 96": {
   "name": "Hop's Trevenant",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Hop's Trevenant ASC",
+  "print_match": "exact",
+  "verdict": "use Hop's Trevenant ASC",
+  "best": {
+   "fullName": "Hop's Trevenant ASC",
+   "class": "HopsTrevenantASCPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Hop's Trevenant ASC",
+    "class": "HopsTrevenantASCPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 140,
    "attacks": [
@@ -270,8 +435,8 @@
  },
  "BLK 47": {
   "name": "Timburr",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Timburr BLK",
+  "print_match": "exact",
   "verdict": "use Timburr BLK",
   "best": {
    "fullName": "Timburr BLK",
@@ -359,23 +524,36 @@
  },
  "BLK 48": {
   "name": "Gurdurr",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Gurdurr BST)",
+  "current": "Gurdurr BLK",
+  "print_match": "exact",
+  "verdict": "use Gurdurr BLK",
   "best": {
-   "fullName": "Gurdurr BST",
-   "class": "Gurdurr",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Gurdurr BLK",
+   "class": "GurdurrBLKPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.0
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Gurdurr BLK",
+    "class": "GurdurrBLKPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Gurdurr BST",
     "class": "Gurdurr",
@@ -414,19 +592,6 @@
      "hp": false,
      "text": 0.42
     }
-   },
-   {
-    "fullName": "Gurdurr DEX",
-    "class": "Gurdurr",
-    "exact": false,
-    "score": 1.11,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.11
-    }
    }
   ],
   "official": {
@@ -448,23 +613,36 @@
  },
  "BLK 52": {
   "name": "Crustle",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Crustle BCR)",
+  "current": "Crustle BLK",
+  "print_match": "exact",
+  "verdict": "use Crustle BLK",
   "best": {
-   "fullName": "Crustle BCR",
-   "class": "Crustle",
-   "exact": false,
-   "score": 2.88,
+   "fullName": "Crustle BLK",
+   "class": "CrustleBLKPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
     "atk": true,
-    "dmg": false,
+    "dmg": true,
     "ab": true,
-    "hp": false,
-    "text": 0.88
+    "hp": true,
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Crustle BLK",
+    "class": "CrustleBLKPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Crustle BCR",
     "class": "Crustle",
@@ -503,19 +681,6 @@
      "hp": true,
      "text": 0.11
     }
-   },
-   {
-    "fullName": "Crustle EVS",
-    "class": "Crustle",
-    "exact": false,
-    "score": 0.37,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": false,
-     "text": 0.37
-    }
    }
   ],
   "official": {
@@ -535,23 +700,36 @@
  },
  "BLK 6": {
   "name": "Petilil",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Petilil NVI)",
+  "current": "Petilil BLK",
+  "print_match": "exact",
+  "verdict": "use Petilil BLK",
   "best": {
-   "fullName": "Petilil NVI",
-   "class": "Petilil",
-   "exact": false,
-   "score": 2.17,
+   "fullName": "Petilil BLK",
+   "class": "PetililBLKPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.17
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Petilil BLK",
+    "class": "PetililBLKPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Petilil NVI",
     "class": "Petilil",
@@ -590,19 +768,6 @@
      "hp": true,
      "text": 0.0
     }
-   },
-   {
-    "fullName": "Petilil BLW",
-    "class": "Petilil",
-    "exact": false,
-    "score": 1.37,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.37
-    }
    }
   ],
   "official": {
@@ -624,11 +789,37 @@
  },
  "DRI 172": {
   "name": "Team Rocket's Bother-Bot",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Team Rocket's Bother-Bot DRI",
+  "print_match": "exact",
+  "verdict": "use Team Rocket's Bother-Bot DRI",
+  "best": {
+   "fullName": "Team Rocket's Bother-Bot DRI",
+   "class": "TeamRocketsBotherBotDRIPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Team Rocket's Bother-Bot DRI",
+    "class": "TeamRocketsBotherBotDRIPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
@@ -639,8 +830,8 @@
  },
  "DRI 37": {
   "name": "Team Rocket's Houndour",
-  "current": null,
-  "print_match": "missing",
+  "current": "Team Rocket's Houndour DRI",
+  "print_match": "exact",
   "verdict": "use Team Rocket's Houndour DRI",
   "best": {
    "fullName": "Team Rocket's Houndour DRI",
@@ -685,11 +876,37 @@
  },
  "DRI 38": {
   "name": "Team Rocket's Houndoom",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Team Rocket's Houndoom DRI",
+  "print_match": "exact",
+  "verdict": "use Team Rocket's Houndoom DRI",
+  "best": {
+   "fullName": "Team Rocket's Houndoom DRI",
+   "class": "TeamRocketsHoundoomDRIPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Team Rocket's Houndoom DRI",
+    "class": "TeamRocketsHoundoomDRIPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 130,
    "attacks": [
@@ -709,11 +926,37 @@
  },
  "DRI 93": {
   "name": "Ethan's Sudowoodo",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Ethan's Sudowoodo DRI",
+  "print_match": "exact",
+  "verdict": "use Ethan's Sudowoodo DRI",
+  "best": {
+   "fullName": "Ethan's Sudowoodo DRI",
+   "class": "EthansSudowoodoDRIPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Ethan's Sudowoodo DRI",
+    "class": "EthansSudowoodoDRIPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 110,
    "attacks": [
@@ -733,8 +976,8 @@
  },
  "JTG 125": {
   "name": "Minccino",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Minccino JTG",
+  "print_match": "exact",
   "verdict": "use Minccino JTG",
   "best": {
    "fullName": "Minccino JTG",
@@ -818,23 +1061,36 @@
  },
  "JTG 70": {
   "name": "Dhelmise",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Dhelmise CES)",
+  "current": "Dhelmise JTG",
+  "print_match": "exact",
+  "verdict": "use Dhelmise JTG",
   "best": {
-   "fullName": "Dhelmise CES",
-   "class": "Dhelmise",
-   "exact": false,
-   "score": 2.36,
+   "fullName": "Dhelmise JTG",
+   "class": "DhelmiseJTGPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.36
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Dhelmise JTG",
+    "class": "DhelmiseJTGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Dhelmise CES",
     "class": "Dhelmise",
@@ -849,6 +1105,19 @@
     }
    },
    {
+    "fullName": "Dhelmise TEF",
+    "class": "DhelmiseTEFPool",
+    "exact": false,
+    "score": 2.09,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.09
+    }
+   },
+   {
     "fullName": "Dhelmise VIV",
     "class": "Dhelmise",
     "exact": false,
@@ -859,32 +1128,6 @@
      "ab": true,
      "hp": true,
      "text": 0.05
-    }
-   },
-   {
-    "fullName": "Dhelmise CEC",
-    "class": "Dhelmise",
-    "exact": false,
-    "score": 2.04,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.04
-    }
-   },
-   {
-    "fullName": "Dhelmise M5",
-    "class": "Dhelmise",
-    "exact": false,
-    "score": 1.1,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.1
     }
    }
   ],
@@ -907,23 +1150,36 @@
  },
  "MEG 105": {
   "name": "Delibird",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Delibird LOT)",
+  "current": "Delibird MEG",
+  "print_match": "exact",
+  "verdict": "use Delibird MEG",
   "best": {
-   "fullName": "Delibird LOT",
-   "class": "Delibird",
-   "exact": false,
-   "score": 3.25,
+   "fullName": "Delibird MEG",
+   "class": "DelibirdMEGPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.25
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Delibird MEG",
+    "class": "DelibirdMEGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Delibird LOT",
     "class": "Delibird",
@@ -962,19 +1218,6 @@
      "hp": true,
      "text": 0.52
     }
-   },
-   {
-    "fullName": "Delibird BCR",
-    "class": "Delibird",
-    "exact": false,
-    "score": 2.39,
-    "why": {
-     "atk": false,
-     "dmg": true,
-     "ab": true,
-     "hp": false,
-     "text": 0.39
-    }
    }
   ],
   "official": {
@@ -996,23 +1239,36 @@
  },
  "MEG 107": {
   "name": "Buneary",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Buneary UPR)",
+  "current": "Buneary MEG",
+  "print_match": "exact",
+  "verdict": "use Buneary MEG",
   "best": {
-   "fullName": "Buneary UPR",
-   "class": "Buneary",
-   "exact": false,
-   "score": 2.25,
+   "fullName": "Buneary MEG",
+   "class": "BunearyMEGPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
-    "hp": false,
-    "text": 0.25
+    "hp": true,
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Buneary MEG",
+    "class": "BunearyMEGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Buneary UPR",
     "class": "Buneary",
@@ -1051,19 +1307,6 @@
      "hp": true,
      "text": 0.08
     }
-   },
-   {
-    "fullName": "Buneary FLF",
-    "class": "Buneary",
-    "exact": false,
-    "score": 1.08,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.08
-    }
    }
   ],
   "official": {
@@ -1085,11 +1328,37 @@
  },
  "MEG 120": {
   "name": "Lt. Surge's Bargain",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Lt. Surge's Bargain MEG",
+  "print_match": "exact",
+  "verdict": "use Lt. Surge's Bargain MEG",
+  "best": {
+   "fullName": "Lt. Surge's Bargain MEG",
+   "class": "LtSurgesBargainMEGPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Lt. Surge's Bargain MEG",
+    "class": "LtSurgesBargainMEGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
@@ -1098,25 +1367,118 @@
   },
   "url": "https://limitlesstcg.com/cards/MEG/120"
  },
- "MEG 31": {
-  "name": "Chi-Yu",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Chi-Yu TWM)",
+ "MEG 123": {
+  "name": "Pokémon Center Lady",
+  "current": "Pokemon Center Lady MEG",
+  "print_match": "number-mismatch",
+  "verdict": "use Pokémon Center Lady FLF",
   "best": {
-   "fullName": "Chi-Yu TWM",
-   "class": "ChiYu",
-   "exact": false,
-   "score": 2.22,
+   "fullName": "Pokémon Center Lady FLF",
+   "class": "PokemonCenterLady",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.22
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Pokémon Center Lady FLF",
+    "class": "PokemonCenterLady",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Pokémon Center Lady FLF 105",
+    "class": "PokemonCenterLady2",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Pokémon Center Lady HIF",
+    "class": "PokemonCenterLadyHIF",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Pokémon Center Lady SSH",
+    "class": "PokemonCenterLadySSH",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "heal 60 damage and remove all special conditions from 1 of your pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/MEG/123"
+ },
+ "MEG 31": {
+  "name": "Chi-Yu",
+  "current": "Chi-Yu MEG",
+  "print_match": "exact",
+  "verdict": "use Chi-Yu MEG",
+  "best": {
+   "fullName": "Chi-Yu MEG",
+   "class": "ChiYuMEGPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Chi-Yu MEG",
+    "class": "ChiYuMEGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Chi-Yu TWM",
     "class": "ChiYu",
@@ -1155,19 +1517,6 @@
      "hp": true,
      "text": 0.18
     }
-   },
-   {
-    "fullName": "Chi-Yu M5",
-    "class": "ChiYu",
-    "exact": false,
-    "score": 1.08,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.08
-    }
    }
   ],
   "official": {
@@ -1185,23 +1534,36 @@
  },
  "MEG 91": {
   "name": "Shroodle",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Shroodle SSP)",
+  "current": "Shroodle MEG",
+  "print_match": "exact",
+  "verdict": "use Shroodle MEG",
   "best": {
-   "fullName": "Shroodle SSP",
-   "class": "Shroodle",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Shroodle MEG",
+   "class": "ShroodleMEGPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.0
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Shroodle MEG",
+    "class": "ShroodleMEGPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Shroodle SSP",
     "class": "Shroodle",
@@ -1231,16 +1593,16 @@
  },
  "MEP 18": {
   "name": "Cottonee",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Cottonee UNM)",
+  "current": "Cottonee MEP",
+  "print_match": "exact",
+  "verdict": "use Cottonee MEP",
   "best": {
-   "fullName": "Cottonee UNM",
-   "class": "Cottonee",
-   "exact": false,
-   "score": 4.0,
+   "fullName": "Cottonee MEP",
+   "class": "CottoneeMEPPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
@@ -1248,6 +1610,19 @@
    }
   },
   "candidates": [
+   {
+    "fullName": "Cottonee MEP",
+    "class": "CottoneeMEPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Cottonee UNM",
     "class": "Cottonee",
@@ -1286,19 +1661,6 @@
      "hp": true,
      "text": 0.0
     }
-   },
-   {
-    "fullName": "Cottonee SV11W",
-    "class": "Cottonee",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.0
-    }
    }
   ],
   "official": {
@@ -1314,10 +1676,95 @@
   },
   "url": "https://limitlesstcg.com/cards/MEP/18"
  },
+ "MEP 46": {
+  "name": "Chikorita",
+  "current": "Chikorita MEP",
+  "print_match": "number-mismatch",
+  "verdict": "use Chikorita MEP 46",
+  "best": {
+   "fullName": "Chikorita MEP 46",
+   "class": "ChikoritaMEPPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Chikorita MEP 46",
+    "class": "ChikoritaMEPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Chikorita MEP",
+    "class": "ChikoritaMEP",
+    "exact": false,
+    "score": 4.0,
+    "why": {
+     "atk": true,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Chikorita M1S",
+    "class": "Chikorita",
+    "exact": false,
+    "score": 4.0,
+    "why": {
+     "atk": true,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Chikorita UF",
+    "class": "Chikorita",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Razor Leaf",
+     "30"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/MEP/46"
+ },
  "MEP 52": {
   "name": "Grookey",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Grookey MEP",
+  "print_match": "exact",
   "verdict": "use Grookey MEP",
   "best": {
    "fullName": "Grookey MEP",
@@ -1399,25 +1846,125 @@
   },
   "url": "https://limitlesstcg.com/cards/MEP/52"
  },
- "PFL 34": {
-  "name": "Pawmot",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Pawmot SVP)",
+ "MEP 86": {
+  "name": "Slowpoke",
+  "current": "Slowpoke MEP",
+  "print_match": "number-mismatch",
+  "verdict": "use Slowpoke MEP 86",
   "best": {
-   "fullName": "Pawmot SVP",
-   "class": "PawmotSVP",
-   "exact": false,
-   "score": 0.21,
+   "fullName": "Slowpoke MEP 86",
+   "class": "SlowpokeMEP86Pool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
-    "ab": false,
-    "hp": false,
-    "text": 0.21
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Slowpoke MEP 86",
+    "class": "SlowpokeMEP86Pool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Slowpoke MEP",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": false,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Slowpoke SCR",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 1.08,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.08
+    }
+   },
+   {
+    "fullName": "Slowpoke 30C",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 1.08,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.08
+    }
+   }
+  ],
+  "official": {
+   "hp": 80,
+   "attacks": [
+    [
+     "Super Psy Bolt",
+     "50"
+    ]
+   ],
+   "abilities": [
+    "Dopey Face"
+   ],
+   "text": "this pokemon can't be confused"
+  },
+  "url": "https://limitlesstcg.com/cards/MEP/86"
+ },
+ "PFL 34": {
+  "name": "Pawmot",
+  "current": "Pawmot PFL",
+  "print_match": "exact",
+  "verdict": "use Pawmot PFL",
+  "best": {
+   "fullName": "Pawmot PFL",
+   "class": "PawmotPFLPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Pawmot PFL",
+    "class": "PawmotPFLPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Pawmot SVP",
     "class": "PawmotSVP",
@@ -1456,19 +2003,6 @@
      "hp": false,
      "text": 0.21
     }
-   },
-   {
-    "fullName": "Pawmot PAF",
-    "class": "PawmotSV",
-    "exact": false,
-    "score": 0.21,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": false,
-     "text": 0.21
-    }
    }
   ],
   "official": {
@@ -1484,13 +2018,119 @@
   },
   "url": "https://limitlesstcg.com/cards/PFL/34"
  },
+ "PRE 114": {
+  "name": "Lacey",
+  "current": "LaceySAR PRE",
+  "print_match": "number-mismatch",
+  "verdict": "use Lacey SCR",
+  "best": {
+   "fullName": "Lacey SCR",
+   "class": "Lacey",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Lacey SCR",
+    "class": "Lacey",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "LaceyFA SCR",
+    "class": "LaceyFA",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "LaceySIR SCR",
+    "class": "LaceySIR",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "LaceySAR PRE",
+    "class": "LaceySAR",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "shuffle your hand into your deck then draw 4 cards if your opponent has 3 or fewer prize cards remaining draw 8 cards instead"
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/114"
+ },
  "PRE 118": {
   "name": "Ogre's Mask",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Ogre's Mask PRE",
+  "print_match": "exact",
+  "verdict": "use Ogre's Mask PRE",
+  "best": {
+   "fullName": "Ogre's Mask PRE",
+   "class": "OgresMaskPREPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Ogre's Mask PRE",
+    "class": "OgresMaskPREPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
@@ -1501,23 +2141,36 @@
  },
  "PRE 16": {
   "name": "Pyroar",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Pyroar STS)",
+  "current": "Pyroar PRE",
+  "print_match": "exact",
+  "verdict": "use Pyroar PRE",
   "best": {
-   "fullName": "Pyroar STS",
-   "class": "Pyroar",
-   "exact": false,
-   "score": 2.1,
+   "fullName": "Pyroar PRE",
+   "class": "PyroarPREPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.1
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Pyroar PRE",
+    "class": "PyroarPREPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Pyroar STS",
     "class": "Pyroar",
@@ -1556,19 +2209,6 @@
      "hp": false,
      "text": 0.14
     }
-   },
-   {
-    "fullName": "Pyroar FLI",
-    "class": "Pyroar",
-    "exact": false,
-    "score": 1.11,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": true,
-     "text": 0.11
-    }
    }
   ],
   "official": {
@@ -1590,8 +2230,8 @@
  },
  "PRE 18": {
   "name": "Slowpoke",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Slowpoke PRE",
+  "print_match": "exact",
   "verdict": "use Slowpoke PRE",
   "best": {
    "fullName": "Slowpoke PRE",
@@ -1677,10 +2317,86 @@
   },
   "url": "https://limitlesstcg.com/cards/PRE/18"
  },
+ "PRE 41": {
+  "name": "Sylveon ex",
+  "current": "Sylveon exSAR PRE",
+  "print_match": "number-mismatch",
+  "verdict": "use Sylveon ex SSP",
+  "best": {
+   "fullName": "Sylveon ex SSP",
+   "class": "Sylveonex",
+   "exact": true,
+   "score": 4.9,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.9
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Sylveon ex SSP",
+    "class": "Sylveonex",
+    "exact": true,
+    "score": 4.9,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.9
+    }
+   },
+   {
+    "fullName": "Sylveon exSAR PRE",
+    "class": "SylveonexSAR",
+    "exact": true,
+    "score": 4.9,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.9
+    }
+   },
+   {
+    "fullName": "Sylveon ex 30C",
+    "class": "Sylveonex",
+    "exact": false,
+    "score": 2.17,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.17
+    }
+   }
+  ],
+  "official": {
+   "hp": 270,
+   "attacks": [
+    [
+     "Magical Charm",
+     "160"
+    ],
+    [
+     "Angelite",
+     ""
+    ]
+   ],
+   "abilities": [],
+   "text": "during your opponent's next turn attacks used by the defending pokemon do 100 less damage before applying weakness and resistance choose 2 of your opponent's benched pokemon shuffle those pokemon and all attached cards into your opponent's deck if 1 of your pokemon used angelite during your last turn this attack can't be used"
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/41"
+ },
  "PRE 83": {
   "name": "Buneary",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Buneary PRE",
+  "print_match": "exact",
   "verdict": "use Buneary PRE",
   "best": {
    "fullName": "Buneary PRE",
@@ -1764,8 +2480,8 @@
  },
  "PRE 90": {
   "name": "Noibat",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Noibat PRE",
+  "print_match": "exact",
   "verdict": "use Noibat PRE",
   "best": {
    "fullName": "Noibat PRE",
@@ -1849,23 +2565,49 @@
  },
  "SCR 141": {
   "name": "Payapa Berry",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Payapa Berry SCR",
+  "print_match": "exact",
+  "verdict": "use Payapa Berry SCR",
+  "best": {
+   "fullName": "Payapa Berry SCR",
+   "class": "PayapaBerrySCRPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Payapa Berry SCR",
+    "class": "PayapaBerrySCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
    "abilities": [],
-   "text": "if the pokemon this card is attached to is damaged by an attack from your opponent's p pokemon it takes 60 less damage after applying weakness and resistance and discard this card"
+   "text": "if the pokemon this card is attached to is damaged by an attack from your opponent's pokemon it takes 60 less damage after applying weakness and resistance and discard this card"
   },
   "url": "https://limitlesstcg.com/cards/SCR/141"
  },
  "SCR 29": {
   "name": "Charcadet",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Charcadet SCR",
+  "print_match": "exact",
   "verdict": "use Charcadet SCR",
   "best": {
    "fullName": "Charcadet SCR",
@@ -1949,8 +2691,8 @@
  },
  "SCR 39": {
   "name": "Froakie",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Froakie SCR",
+  "print_match": "exact",
   "verdict": "use Froakie SCR",
   "best": {
    "fullName": "Froakie SCR",
@@ -2034,8 +2776,8 @@
  },
  "SCR 40": {
   "name": "Frogadier",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Frogadier SCR",
+  "print_match": "exact",
   "verdict": "use Frogadier SCR",
   "best": {
    "fullName": "Frogadier SCR",
@@ -2119,11 +2861,37 @@
  },
  "SCR 66": {
   "name": "Fidough",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Fidough SCR",
+  "print_match": "exact",
+  "verdict": "use Fidough SCR",
+  "best": {
+   "fullName": "Fidough SCR",
+   "class": "FidoughSCRPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Fidough SCR",
+    "class": "FidoughSCRPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 60,
    "attacks": [
@@ -2143,8 +2911,8 @@
  },
  "SCR 68": {
   "name": "Flittle",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Flittle SCR",
+  "print_match": "exact",
   "verdict": "use Flittle SCR",
   "best": {
    "fullName": "Flittle SCR",
@@ -2228,8 +2996,8 @@
  },
  "SCR 81": {
   "name": "Riolu",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Riolu SCR",
+  "print_match": "exact",
   "verdict": "use Riolu SCR",
   "best": {
    "fullName": "Riolu SCR",
@@ -2313,23 +3081,36 @@
  },
  "SSP 111": {
   "name": "Passimian",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Passimian SMP)",
+  "current": "Passimian SSP",
+  "print_match": "exact",
+  "verdict": "use Passimian SSP",
   "best": {
-   "fullName": "Passimian SMP",
-   "class": "PassimianSMP",
-   "exact": false,
-   "score": 2.36,
+   "fullName": "Passimian SSP",
+   "class": "PassimianSSPPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.36
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Passimian SSP",
+    "class": "PassimianSSPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Passimian SMP",
     "class": "PassimianSMP",
@@ -2368,19 +3149,6 @@
      "hp": true,
      "text": 0.22
     }
-   },
-   {
-    "fullName": "Passimian DAA",
-    "class": "Passimian",
-    "exact": false,
-    "score": 2.2,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.2
-    }
    }
   ],
   "official": {
@@ -2398,23 +3166,36 @@
  },
  "SSP 126": {
   "name": "Bronzor",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Bronzor ASR)",
+  "current": "Bronzor SSP",
+  "print_match": "exact",
+  "verdict": "use Bronzor SSP",
   "best": {
-   "fullName": "Bronzor ASR",
-   "class": "Bronzor",
-   "exact": false,
-   "score": 3.28,
+   "fullName": "Bronzor SSP",
+   "class": "BronzorSSPPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.28
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Bronzor SSP",
+    "class": "BronzorSSPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Bronzor ASR",
     "class": "Bronzor",
@@ -2453,19 +3234,6 @@
      "hp": true,
      "text": 0.28
     }
-   },
-   {
-    "fullName": "Bronzor UPR",
-    "class": "Bronzor",
-    "exact": false,
-    "score": 2.0,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.0
-    }
    }
   ],
   "official": {
@@ -2483,23 +3251,36 @@
  },
  "SSP 148": {
   "name": "Swablu",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Swablu CIN)",
+  "current": "Swablu SSP",
+  "print_match": "exact",
+  "verdict": "use Swablu SSP",
   "best": {
-   "fullName": "Swablu CIN",
-   "class": "Swablu",
-   "exact": false,
-   "score": 3.0,
+   "fullName": "Swablu SSP",
+   "class": "SwabluSSPPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.0
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Swablu SSP",
+    "class": "SwabluSSPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Swablu CIN",
     "class": "Swablu",
@@ -2538,19 +3319,6 @@
      "hp": false,
      "text": 0.2
     }
-   },
-   {
-    "fullName": "Swablu M6",
-    "class": "Swablu",
-    "exact": false,
-    "score": 2.15,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.15
-    }
    }
   ],
   "official": {
@@ -2568,23 +3336,36 @@
  },
  "SSP 151": {
   "name": "Bouffalant",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Bouffalant LOR)",
+  "current": "Bouffalant SSP",
+  "print_match": "exact",
+  "verdict": "use Bouffalant SSP",
   "best": {
-   "fullName": "Bouffalant LOR",
-   "class": "Bouffalant",
-   "exact": false,
-   "score": 2.21,
+   "fullName": "Bouffalant SSP",
+   "class": "BouffalantSSPPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.21
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Bouffalant SSP",
+    "class": "BouffalantSSPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Bouffalant LOR",
     "class": "Bouffalant",
@@ -2623,19 +3404,6 @@
      "hp": false,
      "text": 0.37
     }
-   },
-   {
-    "fullName": "Bouffalant BUS",
-    "class": "Bouffalant",
-    "exact": false,
-    "score": 1.23,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.23
-    }
    }
   ],
   "official": {
@@ -2657,38 +3425,166 @@
  },
  "SSP 163": {
   "name": "Babiri Berry",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Babiri Berry SSP",
+  "print_match": "exact",
+  "verdict": "use Babiri Berry SSP",
+  "best": {
+   "fullName": "Babiri Berry SSP",
+   "class": "BabiriBerrySSPPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Babiri Berry SSP",
+    "class": "BabiriBerrySSPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
    "abilities": [],
-   "text": "if the pokemon this card is attached to is damaged by an attack from your opponent's m pokemon it takes 60 less damage after applying weakness and resistance and discard this card"
+   "text": "if the pokemon this card is attached to is damaged by an attack from your opponent's pokemon it takes 60 less damage after applying weakness and resistance and discard this card"
   },
   "url": "https://limitlesstcg.com/cards/SSP/163"
  },
- "SSP 98": {
-  "name": "Mankey",
+ "SSP 39": {
+  "name": "Paldean Tauros",
   "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Mankey CIN)",
+  "print_match": "number-mismatch",
+  "verdict": "use Paldean Tauros SSP 39",
   "best": {
-   "fullName": "Mankey CIN",
-   "class": "Mankey",
-   "exact": false,
-   "score": 3.83,
+   "fullName": "Paldean Tauros SSP 39",
+   "class": "PaldeanTaurosSSP39Pool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.83
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Paldean Tauros SSP 39",
+    "class": "PaldeanTaurosSSP39Pool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Paldean Tauros SSP",
+    "class": "PaldeanTauros",
+    "exact": false,
+    "score": 2.2,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.2
+    }
+   },
+   {
+    "fullName": "Paldean Tauros M2",
+    "class": "PaldeanTauros",
+    "exact": false,
+    "score": 2.12,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.12
+    }
+   },
+   {
+    "fullName": "Paldean Tauros PAL",
+    "class": "PaldeanTauros",
+    "exact": false,
+    "score": 2.07,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.07
+    }
+   }
+  ],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Upthrusting Horns",
+     "30"
+    ],
+    [
+     "Jet Headbutt",
+     "100"
+    ]
+   ],
+   "abilities": [],
+   "text": "you may put 2 energy attached to your opponent's active stage 2 pokemon into their hand"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/39"
+ },
+ "SSP 98": {
+  "name": "Mankey",
+  "current": "Mankey SSP",
+  "print_match": "exact",
+  "verdict": "use Mankey SSP",
+  "best": {
+   "fullName": "Mankey SSP",
+   "class": "MankeySSPPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Mankey SSP",
+    "class": "MankeySSPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Mankey CIN",
     "class": "Mankey",
@@ -2727,19 +3623,6 @@
      "hp": true,
      "text": 0.25
     }
-   },
-   {
-    "fullName": "Mankey FST 133",
-    "class": "MankeyFST",
-    "exact": false,
-    "score": 2.25,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.25
-    }
    }
   ],
   "official": {
@@ -2757,11 +3640,37 @@
  },
  "SVP 198": {
   "name": "Zacian ex",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Zacian ex SVP",
+  "print_match": "exact",
+  "verdict": "use Zacian ex SVP",
+  "best": {
+   "fullName": "Zacian ex SVP",
+   "class": "ZacianexSVPPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Zacian ex SVP",
+    "class": "ZacianexSVPPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 220,
    "attacks": [
@@ -2775,17 +3684,43 @@
     ]
    ],
    "abilities": [],
-   "text": "search your deck for a basic m energy card and attach it to this pokemon then shuffle your deck during your next turn this pokemon can't use slashing strike"
+   "text": "search your deck for a basic energy card and attach it to this pokemon then shuffle your deck during your next turn this pokemon can't use slashing strike"
   },
   "url": "https://limitlesstcg.com/cards/SVP/198"
  },
  "TEF 118": {
   "name": "Iron Treads",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Iron Treads TEF",
+  "print_match": "exact",
+  "verdict": "use Iron Treads TEF",
+  "best": {
+   "fullName": "Iron Treads TEF",
+   "class": "IronTreadsTEFPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Iron Treads TEF",
+    "class": "IronTreadsTEFPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 130,
    "attacks": [
@@ -2797,40 +3732,53 @@
    "abilities": [
     "Dual Core"
    ],
-   "text": "as long as this pokemon has a future booster energy capsule attached it is f and m type move an energy from this pokemon to 1 of your benched pokemon"
+   "text": "as long as this pokemon has a future booster energy capsule attached it is and type move an energy from this pokemon to 1 of your benched pokemon"
   },
   "url": "https://limitlesstcg.com/cards/TEF/118"
  },
  "TEF 19": {
   "name": "Dhelmise",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Dhelmise VIV)",
+  "current": "Dhelmise TEF",
+  "print_match": "exact",
+  "verdict": "use Dhelmise TEF",
   "best": {
-   "fullName": "Dhelmise VIV",
-   "class": "Dhelmise",
-   "exact": false,
-   "score": 2.4,
+   "fullName": "Dhelmise TEF",
+   "class": "DhelmiseTEFPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.4
+    "text": 1.0
    }
   },
   "candidates": [
    {
+    "fullName": "Dhelmise TEF",
+    "class": "DhelmiseTEFPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
     "fullName": "Dhelmise VIV",
     "class": "Dhelmise",
     "exact": false,
-    "score": 2.4,
+    "score": 2.42,
     "why": {
      "atk": false,
      "dmg": false,
      "ab": true,
      "hp": true,
-     "text": 0.4
+     "text": 0.42
     }
    },
    {
@@ -2850,26 +3798,13 @@
     "fullName": "Dhelmise CEC",
     "class": "Dhelmise",
     "exact": false,
-    "score": 2.1,
+    "score": 2.11,
     "why": {
      "atk": false,
      "dmg": false,
      "ab": true,
      "hp": true,
-     "text": 0.1
-    }
-   },
-   {
-    "fullName": "Dhelmise M5",
-    "class": "Dhelmise",
-    "exact": false,
-    "score": 1.37,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.37
+     "text": 0.11
     }
    }
   ],
@@ -2886,29 +3821,42 @@
     ]
    ],
    "abilities": [],
-   "text": "if you have any m pokemon on your bench this attack does 80 more damage"
+   "text": "if you have any pokemon on your bench this attack does 80 more damage"
   },
   "url": "https://limitlesstcg.com/cards/TEF/19"
  },
  "TEF 74": {
   "name": "Beheeyem",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Beheeyem PAR)",
+  "current": "Beheeyem TEF",
+  "print_match": "exact",
+  "verdict": "use Beheeyem TEF",
   "best": {
-   "fullName": "Beheeyem PAR",
-   "class": "Beheeyem",
-   "exact": false,
-   "score": 1.36,
+   "fullName": "Beheeyem TEF",
+   "class": "BeheeyemTEFPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
-    "hp": false,
-    "text": 0.36
+    "hp": true,
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Beheeyem TEF",
+    "class": "BeheeyemTEFPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Beheeyem PAR",
     "class": "Beheeyem",
@@ -2947,19 +3895,6 @@
      "hp": false,
      "text": 0.29
     }
-   },
-   {
-    "fullName": "Beheeyem PLS",
-    "class": "Beheeyem",
-    "exact": false,
-    "score": 1.15,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.15
-    }
    }
   ],
   "official": {
@@ -2977,23 +3912,36 @@
  },
  "TEF 77": {
   "name": "Scream Tail",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Scream Tail SVP)",
+  "current": "Scream Tail TEF",
+  "print_match": "exact",
+  "verdict": "use Scream Tail TEF",
   "best": {
-   "fullName": "Scream Tail SVP",
-   "class": "ScreamTailSVP",
-   "exact": false,
-   "score": 2.24,
+   "fullName": "Scream Tail TEF",
+   "class": "ScreamTailTEFPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.24
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Scream Tail TEF",
+    "class": "ScreamTailTEFPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Scream Tail SVP",
     "class": "ScreamTailSVP",
@@ -3053,11 +4001,37 @@
  },
  "TEF 99": {
   "name": "Iron Boulder ex",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Iron Boulder ex TEF",
+  "print_match": "exact",
+  "verdict": "use Iron Boulder ex TEF",
+  "best": {
+   "fullName": "Iron Boulder ex TEF",
+   "class": "IronBoulderexTEFPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Iron Boulder ex TEF",
+    "class": "IronBoulderexTEFPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": 240,
    "attacks": [
@@ -3077,23 +4051,36 @@
  },
  "TWM 135": {
   "name": "Eevee",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Eevee AQ)",
+  "current": "Eevee TWM",
+  "print_match": "exact",
+  "verdict": "use Eevee TWM",
   "best": {
-   "fullName": "Eevee AQ",
-   "class": "Eevee",
-   "exact": false,
-   "score": 3.49,
+   "fullName": "Eevee TWM",
+   "class": "EeveeTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.49
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Eevee TWM",
+    "class": "EeveeTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Eevee AQ",
     "class": "Eevee",
@@ -3132,19 +4119,6 @@
      "hp": true,
      "text": 0.35
     }
-   },
-   {
-    "fullName": "Eevee UD",
-    "class": "Eevee",
-    "exact": false,
-    "score": 2.42,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.42
-    }
    }
   ],
   "official": {
@@ -3166,11 +4140,37 @@
  },
  "TWM 157": {
   "name": "Lucian",
-  "current": null,
-  "print_match": "missing",
-  "verdict": "no-twinleaf-card",
-  "best": null,
-  "candidates": [],
+  "current": "Lucian TWM",
+  "print_match": "exact",
+  "verdict": "use Lucian TWM",
+  "best": {
+   "fullName": "Lucian TWM",
+   "class": "LucianTWMPool",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Lucian TWM",
+    "class": "LucianTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
   "official": {
    "hp": null,
    "attacks": [],
@@ -3181,23 +4181,36 @@
  },
  "TWM 24": {
   "name": "Teal Mask Ogerpon",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Teal Mask Ogerpon DRI)",
+  "current": "Teal Mask Ogerpon TWM",
+  "print_match": "exact",
+  "verdict": "use Teal Mask Ogerpon TWM",
   "best": {
-   "fullName": "Teal Mask Ogerpon DRI",
-   "class": "TealMaskOgerpon",
-   "exact": false,
-   "score": 2.32,
+   "fullName": "Teal Mask Ogerpon TWM",
+   "class": "TealMaskOgerponTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.32
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Teal Mask Ogerpon TWM",
+    "class": "TealMaskOgerponTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Teal Mask Ogerpon DRI",
     "class": "TealMaskOgerpon",
@@ -3231,23 +4244,36 @@
  },
  "TWM 36": {
   "name": "Litwick",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Litwick PLF)",
+  "current": "Litwick TWM",
+  "print_match": "exact",
+  "verdict": "use Litwick TWM",
   "best": {
-   "fullName": "Litwick PLF",
-   "class": "Litwick",
-   "exact": false,
-   "score": 3.09,
+   "fullName": "Litwick TWM",
+   "class": "LitwickTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
+    "atk": true,
     "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.09
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Litwick TWM",
+    "class": "LitwickTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Litwick PLF",
     "class": "Litwick",
@@ -3286,19 +4312,6 @@
      "hp": true,
      "text": 0.61
     }
-   },
-   {
-    "fullName": "Litwick UNM 28",
-    "class": "Litwick2",
-    "exact": false,
-    "score": 2.61,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.61
-    }
    }
   ],
   "official": {
@@ -3320,23 +4333,36 @@
  },
  "TWM 37": {
   "name": "Lampent",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Lampent UNM)",
+  "current": "Lampent TWM",
+  "print_match": "exact",
+  "verdict": "use Lampent TWM",
   "best": {
-   "fullName": "Lampent UNM",
-   "class": "Lampent",
-   "exact": false,
-   "score": 2.71,
+   "fullName": "Lampent TWM",
+   "class": "LampentTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.71
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Lampent TWM",
+    "class": "LampentTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Lampent UNM",
     "class": "Lampent",
@@ -3375,19 +4401,6 @@
      "hp": true,
      "text": 0.27
     }
-   },
-   {
-    "fullName": "Lampent PLF",
-    "class": "Lampent",
-    "exact": false,
-    "score": 2.09,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": true,
-     "text": 0.09
-    }
    }
   ],
   "official": {
@@ -3409,23 +4422,36 @@
  },
  "TWM 38": {
   "name": "Chandelure",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Chandelure STS)",
+  "current": "Chandelure TWM",
+  "print_match": "exact",
+  "verdict": "use Chandelure TWM",
   "best": {
-   "fullName": "Chandelure STS",
-   "class": "Chandelure",
-   "exact": false,
-   "score": 1.37,
+   "fullName": "Chandelure TWM",
+   "class": "ChandelureTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
-    "ab": false,
+    "atk": true,
+    "dmg": true,
+    "ab": true,
     "hp": true,
-    "text": 0.37
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Chandelure TWM",
+    "class": "ChandelureTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Chandelure STS",
     "class": "Chandelure",
@@ -3464,19 +4490,6 @@
      "hp": true,
      "text": 0.28
     }
-   },
-   {
-    "fullName": "Chandelure2 NXD",
-    "class": "Chandelure2NXD",
-    "exact": false,
-    "score": 1.28,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": true,
-     "text": 0.28
-    }
    }
   ],
   "official": {
@@ -3496,23 +4509,36 @@
  },
  "TWM 50": {
   "name": "Milotic",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Milotic CIN)",
+  "current": "Milotic TWM",
+  "print_match": "exact",
+  "verdict": "use Milotic TWM",
   "best": {
-   "fullName": "Milotic CIN",
-   "class": "Milotic",
-   "exact": false,
-   "score": 1.21,
+   "fullName": "Milotic TWM",
+   "class": "MiloticTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
-    "ab": false,
+    "atk": true,
+    "dmg": true,
+    "ab": true,
     "hp": true,
-    "text": 0.21
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Milotic TWM",
+    "class": "MiloticTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Milotic CIN",
     "class": "Milotic",
@@ -3551,19 +4577,6 @@
      "hp": true,
      "text": 0.08
     }
-   },
-   {
-    "fullName": "Milotic EVS",
-    "class": "Milotic",
-    "exact": false,
-    "score": 1.07,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": true,
-     "text": 0.07
-    }
    }
   ],
   "official": {
@@ -3583,23 +4596,36 @@
  },
  "TWM 52": {
   "name": "Glalie",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Glalie GRI)",
+  "current": "Glalie TWM",
+  "print_match": "exact",
+  "verdict": "use Glalie TWM",
   "best": {
-   "fullName": "Glalie GRI",
-   "class": "Glalie",
-   "exact": false,
-   "score": 2.46,
+   "fullName": "Glalie TWM",
+   "class": "GlalieTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.46
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Glalie TWM",
+    "class": "GlalieTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Glalie GRI",
     "class": "Glalie",
@@ -3638,19 +4664,6 @@
      "hp": false,
      "text": 0.23
     }
-   },
-   {
-    "fullName": "Glalie PLB",
-    "class": "Glalie",
-    "exact": false,
-    "score": 1.18,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.18
-    }
    }
   ],
   "official": {
@@ -3672,23 +4685,36 @@
  },
  "TWM 9": {
   "name": "Volbeat",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Volbeat CES)",
+  "current": "Volbeat TWM",
+  "print_match": "exact",
+  "verdict": "use Volbeat TWM",
   "best": {
-   "fullName": "Volbeat CES",
-   "class": "Volbeat",
-   "exact": false,
-   "score": 2.26,
+   "fullName": "Volbeat TWM",
+   "class": "VolbeatTWMPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.26
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Volbeat TWM",
+    "class": "VolbeatTWMPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Volbeat CES",
     "class": "Volbeat",
@@ -3727,19 +4753,6 @@
      "hp": true,
      "text": 0.07
     }
-   },
-   {
-    "fullName": "Volbeat GE",
-    "class": "Volbeat",
-    "exact": false,
-    "score": 1.26,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": true,
-     "text": 0.26
-    }
    }
   ],
   "official": {
@@ -3761,23 +4774,36 @@
  },
  "WHT 40": {
   "name": "Cofagrigus",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Cofagrigus SSP)",
+  "current": "Cofagrigus WHT",
+  "print_match": "exact",
+  "verdict": "use Cofagrigus WHT",
   "best": {
-   "fullName": "Cofagrigus SSP",
-   "class": "Cofagrigus",
-   "exact": false,
-   "score": 2.19,
+   "fullName": "Cofagrigus WHT",
+   "class": "CofagrigusWHTPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
+    "atk": true,
+    "dmg": true,
     "ab": true,
     "hp": true,
-    "text": 0.19
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Cofagrigus WHT",
+    "class": "CofagrigusWHTPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Cofagrigus SSP",
     "class": "Cofagrigus",
@@ -3816,19 +4842,6 @@
      "hp": false,
      "text": 0.65
     }
-   },
-   {
-    "fullName": "Cofagrigus PLF 57",
-    "class": "Cofagrigus2",
-    "exact": false,
-    "score": 1.24,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": true,
-     "hp": false,
-     "text": 0.24
-    }
    }
   ],
   "official": {
@@ -3850,8 +4863,8 @@
  },
  "WHT 63": {
   "name": "Vullaby",
-  "current": null,
-  "print_match": "name-only",
+  "current": "Vullaby WHT",
+  "print_match": "exact",
   "verdict": "use Vullaby WHT",
   "best": {
    "fullName": "Vullaby WHT",
@@ -3935,23 +4948,36 @@
  },
  "WHT 64": {
   "name": "Mandibuzz",
-  "current": null,
-  "print_match": "name-only",
-  "verdict": "needs-new-class (closest: Mandibuzz FCO)",
+  "current": "Mandibuzz WHT",
+  "print_match": "exact",
+  "verdict": "use Mandibuzz WHT",
   "best": {
-   "fullName": "Mandibuzz FCO",
-   "class": "Mandibuzz",
-   "exact": false,
-   "score": 1.16,
+   "fullName": "Mandibuzz WHT",
+   "class": "MandibuzzWHTPool",
+   "exact": true,
+   "score": 5.0,
    "why": {
-    "atk": false,
-    "dmg": false,
-    "ab": false,
+    "atk": true,
+    "dmg": true,
+    "ab": true,
     "hp": true,
-    "text": 0.16
+    "text": 1.0
    }
   },
   "candidates": [
+   {
+    "fullName": "Mandibuzz WHT",
+    "class": "MandibuzzWHTPool",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
    {
     "fullName": "Mandibuzz FCO",
     "class": "Mandibuzz",
@@ -3980,19 +5006,6 @@
    },
    {
     "fullName": "Mandibuzz RCL",
-    "class": "Mandibuzz",
-    "exact": false,
-    "score": 0.15,
-    "why": {
-     "atk": false,
-     "dmg": false,
-     "ab": false,
-     "hp": false,
-     "text": 0.15
-    }
-   },
-   {
-    "fullName": "Mandibuzz M5",
     "class": "Mandibuzz",
     "exact": false,
     "score": 0.15,

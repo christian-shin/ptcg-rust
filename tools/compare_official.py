@@ -14,12 +14,27 @@ by_name = {}
 for c in tl:
     by_name.setdefault(c.get('name'), []).append(c)
 COST = re.compile(r'^[GRWLPFDMCN]+$')
+ENERGY_LETTERS = set('grwlpfdmcn')
+
+
+# Rules and reminder text that one side prints and the other models as a tag or omits.
+REMINDERS = [
+    r"you may play only 1 supporter card during your turn( \(before your attack\))?\.?",
+    r"as long as this pokemon is on your bench, prevent all damage done to this pokemon by attacks \(both yours and your opponent's\) ?\.?",
+    r"when your pokemon ex is knocked out, your opponent takes 2 prize cards\.?",
+    r"you can't have more than 1 ace spec card in your deck\.?",
+    r"you may play any number of item cards during your turn\.?",
+    r"attach a pokemon tool to 1 of your pokemon that doesn't already have a pokemon tool attached\.?",
+]
 
 
 def norm(s):
     s = (s or '').lower().replace('pokémon', 'pokemon').replace('’', "'")
+    for r in REMINDERS:
+        s = re.sub(r, ' ', s)
     s = re.sub(r'\[[a-z]\]|\{[a-z]\}', ' ', s)
-    return ' '.join(re.findall(r"[a-z0-9']+", s))
+    # Energy symbols: Twinleaf writes [G], Limitless a bare G; drop both.
+    return ' '.join(w for w in re.findall(r"[a-z0-9']+", s) if w not in ENERGY_LETTERS)
 
 
 def parse_official(t):

@@ -1,0 +1,17 @@
+Sylveon ex
+- Psychic - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+PCC
+Magical Charm 160
+During your opponent's next turn, attacks used by the Defending Pokémon do 100 less damage (before applying Weakness and Resistance) .
+WLP
+Angelite
+Choose 2 of your opponent's Benched Pokémon. Shuffle those Pokémon and all attached cards into your opponent's deck. If 1 of your Pokémon used Angelite during your last turn, this attack can't be used.
+Weakness: Metal
+Resistance: none
+Retreat: 2

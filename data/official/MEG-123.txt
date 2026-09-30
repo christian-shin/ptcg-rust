@@ -1,0 +1,4 @@
+Pokémon Center Lady
+Trainer
+- Supporter
+Heal 60 damage and remove all Special Conditions from 1 of your Pokémon.

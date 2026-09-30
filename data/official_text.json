@@ -298,5 +298,40 @@
   "name": "Vullaby",
   "text": "Vullaby\n- Darkness - 70 HP\nPokémon\n- Basic\nC\nPlayful Kick 10\nWeakness: Lightning\nResistance: Fighting\nRetreat: 1",
   "url": "https://limitlesstcg.com/cards/WHT/63"
+ },
+ "SSP 39": {
+  "name": "Paldean Tauros",
+  "text": "Paldean Tauros\n- Water - 130 HP\nPokémon\n- Basic\nCC\nUpthrusting Horns 30\nYou may put 2 Energy attached to your opponent's Active Stage 2 Pokémon into their hand.\nWWC\nJet Headbutt 100\nWeakness: Lightning\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/SSP/39"
+ },
+ "30C 66": {
+  "name": "Mew ex",
+  "text": "Mew ex\n- Psychic - 160 HP\nPokémon\n- Basic\nAbility:\nMemory Helix\nThis Pokémon can use the attacks of any of your Benched Pokémon. (You still need the necessary Energy to use each attack.)\nP\nTeleportation Burst 30\nYou may switch this Pokémon with 1 of your Benched Pokémon.\nWeakness: Darkness\nResistance: Fighting\nRetreat: 0",
+  "url": "https://limitlesstcg.com/cards/30C/66"
+ },
+ "MEG 123": {
+  "name": "Pokémon Center Lady",
+  "text": "Pokémon Center Lady\nTrainer\n- Supporter\nHeal 60 damage and remove all Special Conditions from 1 of your Pokémon.",
+  "url": "https://limitlesstcg.com/cards/MEG/123"
+ },
+ "MEP 46": {
+  "name": "Chikorita",
+  "text": "Chikorita\n- Grass - 70 HP\nPokémon\n- Basic\nGC\nRazor Leaf 30\nWeakness: Fire\nResistance: none\nRetreat: 1",
+  "url": "https://limitlesstcg.com/cards/MEP/46"
+ },
+ "PRE 41": {
+  "name": "Sylveon ex",
+  "text": "Sylveon ex\n- Psychic - 270 HP\nPokémon\n- Stage 1\n- Evolves from\nEevee\nTera\nAs long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .\nPCC\nMagical Charm 160\nDuring your opponent's next turn, attacks used by the Defending Pokémon do 100 less damage (before applying Weakness and Resistance) .\nWLP\nAngelite\nChoose 2 of your opponent's Benched Pokémon. Shuffle those Pokémon and all attached cards into your opponent's deck. If 1 of your Pokémon used Angelite during your last turn, this attack can't be used.\nWeakness: Metal\nResistance: none\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/PRE/41"
+ },
+ "PRE 114": {
+  "name": "Lacey",
+  "text": "Lacey\nTrainer\n- Supporter\nShuffle your hand into your deck. Then, draw 4 cards. If your opponent has 3 or fewer Prize cards remaining, draw 8 cards instead.",
+  "url": "https://limitlesstcg.com/cards/PRE/114"
+ },
+ "MEP 86": {
+  "name": "Slowpoke",
+  "text": "Slowpoke\n- Psychic - 80 HP\nPokémon\n- Basic\nAbility:\nDopey Face\nThis Pokémon can't be Confused.\nPPC\nSuper Psy Bolt 50\nWeakness: Darkness\nResistance: Fighting\nRetreat: 2",
+  "url": "https://limitlesstcg.com/cards/MEP/86"
  }
 }

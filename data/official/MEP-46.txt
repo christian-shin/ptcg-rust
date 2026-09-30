@@ -1,0 +1,9 @@
+Chikorita
+- Grass - 70 HP
+Pokémon
+- Basic
+GC
+Razor Leaf 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

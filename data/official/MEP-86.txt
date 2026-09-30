@@ -1,0 +1,12 @@
+Slowpoke
+- Psychic - 80 HP
+Pokémon
+- Basic
+Ability:
+Dopey Face
+This Pokémon can't be Confused.
+PPC
+Super Psy Bolt 50
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

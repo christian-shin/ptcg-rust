@@ -1,0 +1,13 @@
+Mew ex
+- Psychic - 160 HP
+Pokémon
+- Basic
+Ability:
+Memory Helix
+This Pokémon can use the attacks of any of your Benched Pokémon. (You still need the necessary Energy to use each attack.)
+P
+Teleportation Burst 30
+You may switch this Pokémon with 1 of your Benched Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 0

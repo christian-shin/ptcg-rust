@@ -49,17 +49,24 @@ def cls_name(name, set_code):
     return re.sub(r'[^A-Za-z0-9]', '', name.replace("'s", 's')) + set_code + 'Pool'
 
 
+generated_before = set()
+for root, _, files in os.walk(os.path.join(SRC, 'sets')):
+    if 'pool-additions.ts' in files:
+        generated_before |= set(re.findall(r"fullName: string = \"([^\"]+)\"", open(os.path.join(root, 'pool-additions.ts')).read()))
 by_folder = {}
 for key, r in match.items():
     o = r['official']
-    if r['verdict'].startswith('use') or o['text'].strip() or o['abilities']:
+    # Vanilla printings Twinleaf lacks, plus ones this generator already wrote
+    # (they now match their own generated class, which must be kept).
+    ours = bool(r['best']) and r['best']['class'].endswith('Pool') and r['best']['fullName'] in generated_before
+    if (r['verdict'].startswith('use') and not ours) or o['text'].strip() or o['abilities']:
         continue
     set_code, num = key.split(' ')
     row = pool[key]
     text = json.load(open(os.path.join(ROOT, 'data/official_text.json')))[key]['text']
     c = parse(text)
     full = '%s %s' % (c['name'], set_code)
-    if full in dump_names:
+    if full in dump_names and full not in generated_before:
         full = '%s %s %s' % (c['name'], set_code, num)
     folder = alias[set_code]['folders'][0]
     body = ['export class %s extends PokemonCard {' % cls_name(c['name'], set_code),
@@ -95,8 +102,13 @@ for folder, classes in by_folder.items():
     idx = open(idx_path).read()
     names = [n for n, _, _ in classes]
     imp = "import { %s } from './pool-additions';\n" % ', '.join(names)
-    idx = re.sub(r"import \{[^}]*\} from './pool-additions';\n", '', idx)
-    idx = re.sub(r"  new \w+Pool\(\),\n", '', idx)
+    # Drop only this generator's previous registrations (other *Pool classes
+    # registered by hand stay).
+    m = re.search(r"import \{([^}]*)\} from './pool-additions';\n", idx)
+    if m:
+        for old_cls in [x.strip() for x in m.group(1).split(',') if x.strip()]:
+            idx = idx.replace('  new %s(),\n' % old_cls, '')
+        idx = idx.replace(m.group(0), '')
     idx = imp + idx
     # Register in the set's exported card array (the last `];` closes it).
     k = idx.rindex('];')
