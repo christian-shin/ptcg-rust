@@ -12,16 +12,19 @@ use crate::types::*;
 #[derive(Clone, Copy, Debug)]
 pub enum PrefabCont {
     /// SHUFFLE_HAND_INTO_DECK_THEN_DRAW: hand→deck animation wait done.
-    ShuffleThenDraw { p: u8, draw: u8 },
+    /// `after`: the `afterDraw` callback, a card continuation resumed with no results.
+    ShuffleThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
     /// Shuffle order chosen: apply, then wait, then draw.
-    ShuffleOrderThenDraw { p: u8, draw: u8 },
-    DrawAfterWait { p: u8, draw: u8 },
+    ShuffleOrderThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
+    DrawAfterWait { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
     /// SWITCH_IN_OPPONENT_BENCHED_POKEMON callback.
     SwitchInOpponent { p: u8 },
     /// THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_YOUR_OPPONENTS_[BENCHED_]POKEMON.
     DamageChosen { atk: EffId, damage: i32 },
     /// SEARCH_DECK_FOR_CARDS_TO_HAND.
     SearchToHand { p: u8, source: CardId, show: bool },
+    /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND.
+    SearchPokemonToHand { p: u8 },
     /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH: empty slots at prompt time.
     SearchToBench { p: u8, slots: SVec<SlotId, 8> },
 }
@@ -29,19 +32,37 @@ pub enum PrefabCont {
 pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
     let first = results.first().copied().unwrap_or(Res::Null);
     match c {
-        PrefabCont::ShuffleThenDraw { p, draw } => {
-            shuffle_then_draw(g, p as usize, draw);
+        PrefabCont::ShuffleThenDraw { p, draw, after } => {
+            shuffle_then_draw(g, p as usize, draw, after);
             Ok(())
         }
-        PrefabCont::ShuffleOrderThenDraw { p, draw } => {
+        PrefabCont::ShuffleOrderThenDraw { p, draw, after } => {
             if let Res::Order(o) = first {
                 crate::game::apply_order(&mut g.st.players[p as usize].deck, o.as_slice());
             }
             let id = g.player_id(p as usize);
-            g.wait(id, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw }));
+            g.wait(id, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after }));
             Ok(())
         }
-        PrefabCont::DrawAfterWait { p, draw } => draw_cards(g, p as usize, draw as usize),
+        PrefabCont::DrawAfterWait { p, draw, after } => {
+            draw_cards(g, p as usize, draw as usize)?;
+            if let Some((card, frame)) = after {
+                crate::cards::resume(g, card, frame, &[])?;
+            }
+            Ok(())
+        }
+        PrefabCont::SearchPokemonToHand { p } => {
+            let cards: Vec<CardId> = first.cards().to_vec();
+            show_cards_to_player(g, 1 - p as usize, cards.len());
+            for c in cards {
+                // MOVE_CARD_TO: findCardList(card).moveCardTo(card, hand).
+                if let Some(src) = g.st.locate(c) {
+                    g.move_card_to(src, c, ListRef::Hand(p));
+                }
+            }
+            shuffle_deck(g, p as usize);
+            Ok(())
+        }
         PrefabCont::DamageChosen { atk, damage } => {
             let sel = match first {
                 Res::Slots(s) => s,
@@ -163,13 +184,26 @@ pub fn shuffle_deck(g: &mut Game, p: usize) {
     g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApply { p: p as u8 });
 }
 
-fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8) {
+fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>) {
     let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw }));
+    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after }));
 }
 
 /// `SHUFFLE_HAND_INTO_DECK_THEN_DRAW(store, state, player, { excludeCard, drawCount })`.
 pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId, draw: u8) -> R {
+    shuffle_hand_into_deck_then_draw_ex(g, p, exclude, NO_CARD, draw, None)
+}
+
+/// `SHUFFLE_HAND_INTO_DECK_THEN_DRAW` with `sourceCard` and an `afterDraw`
+/// callback (a card continuation resumed with no results after the draw).
+pub fn shuffle_hand_into_deck_then_draw_ex(
+    g: &mut Game,
+    p: usize,
+    exclude: CardId,
+    source_card: CardId,
+    draw: u8,
+    after: Option<(CardId, crate::cards::CardFrame)>,
+) -> R {
     let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != exclude).collect();
     if !cards.is_empty() {
         let cs: List<60> = List::from_slice(&cards);
@@ -181,16 +215,16 @@ pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId,
             to_top: false,
             to_bottom: false,
             skip_cleanup: false,
-            source_card: NO_CARD,
+            source_card,
         })?;
         if prevented {
             return Ok(());
         }
         let id = g.player_id(p);
-        g.wait(id, Cont::Prefab(PrefabCont::ShuffleThenDraw { p: p as u8, draw }));
+        g.wait(id, Cont::Prefab(PrefabCont::ShuffleThenDraw { p: p as u8, draw, after }));
         return Ok(());
     }
-    shuffle_then_draw(g, p, draw);
+    shuffle_then_draw(g, p, draw, after);
     Ok(())
 }
 
@@ -407,6 +441,16 @@ pub fn search_deck_for_cards_to_hand(g: &mut Game, p: usize, source: CardId, fil
     }
     let show = filter != Filter::none();
     choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchToHand { p: p as u8, source, show }));
+}
+
+/// `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND(store, state, player, filter, options)`.
+pub fn search_deck_for_pokemon_to_hand(g: &mut Game, p: usize, mut filter: Filter, opts: ChooseCardsOpts) -> R {
+    if g.st.players[p].deck.is_empty() {
+        crate::bail!("NO_CARDS_IN_DECK");
+    }
+    filter.super_type = Some(SuperType::Pokemon as u8);
+    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchPokemonToHand { p: p as u8 }));
+    Ok(())
 }
 
 /// `GET_PLAYER_BENCH_SLOTS`: empty bench slots in order.
