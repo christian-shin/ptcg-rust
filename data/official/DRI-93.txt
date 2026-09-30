@@ -1,0 +1,13 @@
+Ethan's Sudowoodo
+- Fighting - 110 HP
+Pokémon
+- Basic
+F
+Impound 20
+During your opponent's next turn, the Defending Pokémon can't retreat.
+CC
+Try to Imitate
+Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+Weakness: Grass
+Resistance: none
+Retreat: 1

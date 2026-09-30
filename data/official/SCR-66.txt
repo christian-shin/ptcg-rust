@@ -1,0 +1,12 @@
+Fidough
+- Psychic - 60 HP
+Pokémon
+- Basic
+C
+Pleasant Aroma
+Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.
+C
+Stampede 10
+Weakness: Metal
+Resistance: none
+Retreat: 2

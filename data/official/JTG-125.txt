@@ -1,0 +1,9 @@
+Minccino
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Slap 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

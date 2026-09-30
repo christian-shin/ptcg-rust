@@ -1,0 +1,13 @@
+Bouffalant
+- Colorless - 130 HP
+Pokémon
+- Basic
+CC
+Ready to Ram 40
+During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out) , put 6 damage counters on the Attacking Pokémon.
+CCCC
+Smashing Headbutt 150
+Discard 2 Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

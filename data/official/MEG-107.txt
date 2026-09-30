@@ -1,0 +1,12 @@
+Buneary
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Charm
+During your opponent's next turn, attacks used by the Defending Pokémon do 20 less damage (before applying Weakness and Resistance) .
+C
+Skip 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

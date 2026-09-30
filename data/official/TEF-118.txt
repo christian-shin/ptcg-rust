@@ -1,0 +1,13 @@
+Iron Treads
+- Metal - 130 HP
+Pokémon
+- Basic
+Ability:
+Dual Core
+As long as this Pokémon has a Future Booster Energy Capsule attached, it is [ F ] and [ M ] type.
+MC
+Wheel Pass 60
+Move an Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

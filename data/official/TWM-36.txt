@@ -1,0 +1,12 @@
+Litwick
+- Fire - 60 HP
+Pokémon
+- Basic
+R
+Call for Family
+Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.
+RC
+Live Coal 20
+Weakness: Water
+Resistance: none
+Retreat: 1

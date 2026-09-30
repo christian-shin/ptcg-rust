@@ -1,0 +1,9 @@
+Charcadet
+- Fire - 70 HP
+Pokémon
+- Basic
+RC
+Flare 30
+Weakness: Water
+Resistance: none
+Retreat: 1

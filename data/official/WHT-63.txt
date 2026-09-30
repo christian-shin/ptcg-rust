@@ -1,0 +1,9 @@
+Vullaby
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Playful Kick 10
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

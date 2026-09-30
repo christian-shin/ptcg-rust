@@ -1,0 +1,15 @@
+Glalie
+- Water - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snorunt
+W
+Damage Beat 20×
+This attack does 20 damage for each damage counter on your opponent's Active Pokémon.
+WCC
+Crazy Headbutt 140
+Discard an Energy from this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 2

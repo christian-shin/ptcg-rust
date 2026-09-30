@@ -1,0 +1,9 @@
+Froakie
+- Water - 60 HP
+Pokémon
+- Basic
+WC
+Rain Splash 20
+Weakness: Lightning
+Resistance: none
+Retreat: 1

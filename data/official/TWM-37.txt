@@ -1,0 +1,14 @@
+Lampent
+- Fire - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+Litwick
+R
+Live Coal 20
+RC
+Burn It All Up 60
+Discard all Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 1

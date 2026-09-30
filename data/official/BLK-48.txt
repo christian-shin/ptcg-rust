@@ -1,0 +1,14 @@
+Gurdurr
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Timburr
+F
+Low Kick 30
+FCC
+Hammer Arm 60
+Discard the top card of your opponent's deck.
+Weakness: Psychic
+Resistance: none
+Retreat: 3

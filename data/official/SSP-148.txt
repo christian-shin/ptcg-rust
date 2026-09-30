@@ -1,0 +1,10 @@
+Swablu
+- Colorless - 50 HP
+Pokémon
+- Basic
+C
+Disarming Voice 10
+Your opponent's Active Pokémon is now Confused.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

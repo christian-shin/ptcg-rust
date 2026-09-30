@@ -1,0 +1,10 @@
+Passimian
+- Fighting - 110 HP
+Pokémon
+- Basic
+FC
+Coordinated Throwing 20×
+This attack does 20 damage for each of your Basic Pokémon in play.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

@@ -1,0 +1,3984 @@
+{
+ "ASC 132": {
+  "name": "Galarian Obstagoon",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Galarian Obstagoon FST 161)",
+  "best": {
+   "fullName": "Galarian Obstagoon FST 161",
+   "class": "GalarianObstagoon",
+   "exact": false,
+   "score": 2.25,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.25
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Galarian Obstagoon FST 161",
+    "class": "GalarianObstagoon",
+    "exact": false,
+    "score": 2.25,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.25
+    }
+   },
+   {
+    "fullName": "Galarian Obstagoon CPA",
+    "class": "GalarianObstagoon",
+    "exact": false,
+    "score": 1.18,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.18
+    }
+   },
+   {
+    "fullName": "Galarian Obstagoon SSH",
+    "class": "GalarianObstagoon",
+    "exact": false,
+    "score": 0.18,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.18
+    }
+   },
+   {
+    "fullName": "Galarian Obstagoon VIV",
+    "class": "GalarianObstagoonVIV",
+    "exact": false,
+    "score": 0.18,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.18
+    }
+   }
+  ],
+  "official": {
+   "hp": 170,
+   "attacks": [
+    [
+     "Scarring Shout",
+     "70"
+    ],
+    [
+     "Punk Smash",
+     "160"
+    ]
+   ],
+   "abilities": [],
+   "text": "this attack does 70 damage for each damage counter on your opponent's active pokemon discard an energy from this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/ASC/132"
+ },
+ "ASC 180": {
+  "name": "Acerola's Mischief",
+  "current": "Acerola's Mischief MEG",
+  "print_match": "name-only",
+  "verdict": "use Acerola's Mischief MEG",
+  "best": {
+   "fullName": "Acerola's Mischief MEG",
+   "class": "AcerolasMischief",
+   "exact": true,
+   "score": 5.0,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Acerola's Mischief MEG",
+    "class": "AcerolasMischief",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Acerola's Mischief FA MEG",
+    "class": "AcerolasMischiefFA",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Acerola's Mischief SIR MEG",
+    "class": "AcerolasMischiefSIR",
+    "exact": true,
+    "score": 5.0,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "you can use this card only if your opponent has 2 or fewer prize cards remaining choose 1 of your pokemon in play during your opponent's next turn prevent all damage from and effects of attacks done to that pokemon by your opponent's pokemon ex"
+  },
+  "url": "https://limitlesstcg.com/cards/ASC/180"
+ },
+ "ASC 187": {
+  "name": "Fighting Gong",
+  "current": "Fighting Gong M1L",
+  "print_match": "name-only",
+  "verdict": "use Fighting Gong M1L",
+  "best": {
+   "fullName": "Fighting Gong M1L",
+   "class": "FightingGong",
+   "exact": true,
+   "score": 4.95,
+   "why": {
+    "atk": true,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.95
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Fighting Gong M1L",
+    "class": "FightingGong",
+    "exact": true,
+    "score": 4.95,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.95
+    }
+   },
+   {
+    "fullName": "Fighting Gong2 MEG",
+    "class": "FightingGong2MEG",
+    "exact": true,
+    "score": 4.95,
+    "why": {
+     "atk": true,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.95
+    }
+   }
+  ],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "search your deck for a basic f energy card or a basic f pokemon reveal it and put it into your hand then shuffle your deck"
+  },
+  "url": "https://limitlesstcg.com/cards/ASC/187"
+ },
+ "ASC 211": {
+  "name": "Thick Scale",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "the n pokemon this card is attached to takes 50 less damage from attacks from your opponent's g r w or l pokemon after applying weakness and resistance"
+  },
+  "url": "https://limitlesstcg.com/cards/ASC/211"
+ },
+ "ASC 95": {
+  "name": "Hop's Phantump",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Splashing Dodge",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": "flip a coin if heads during your opponent's next turn prevent all damage from and effects of attacks done to this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/ASC/95"
+ },
+ "ASC 96": {
+  "name": "Hop's Trevenant",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 140,
+   "attacks": [
+    [
+     "Horrifying Revenge",
+     "30"
+    ],
+    [
+     "Corner",
+     "90"
+    ]
+   ],
+   "abilities": [],
+   "text": "if any of your hop's pokemon were knocked out by damage from an attack during your opponent's last turn this attack does 100 more damage during your opponent's next turn the defending pokemon can't retreat"
+  },
+  "url": "https://limitlesstcg.com/cards/ASC/96"
+ },
+ "BLK 47": {
+  "name": "Timburr",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Timburr BLW)",
+  "best": {
+   "fullName": "Timburr BLW",
+   "class": "Timburr",
+   "exact": false,
+   "score": 2.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": false,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Timburr BLW",
+    "class": "Timburr",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Timburr DEX",
+    "class": "Timburr",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Timburr PLS",
+    "class": "Timburr",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Timburr XY",
+    "class": "Timburr",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Low Kick",
+     "10"
+    ],
+    [
+     "Strength",
+     "50"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/BLK/47"
+ },
+ "BLK 48": {
+  "name": "Gurdurr",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Gurdurr BST)",
+  "best": {
+   "fullName": "Gurdurr BST",
+   "class": "Gurdurr",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Gurdurr BST",
+    "class": "Gurdurr",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Gurdurr TWM",
+    "class": "Gurdurr",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Gurdurr XY",
+    "class": "Gurdurr",
+    "exact": false,
+    "score": 1.42,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.42
+    }
+   },
+   {
+    "fullName": "Gurdurr DEX",
+    "class": "Gurdurr",
+    "exact": false,
+    "score": 1.11,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.11
+    }
+   }
+  ],
+  "official": {
+   "hp": 100,
+   "attacks": [
+    [
+     "Low Kick",
+     "30"
+    ],
+    [
+     "Hammer Arm",
+     "60"
+    ]
+   ],
+   "abilities": [],
+   "text": "discard the top card of your opponent's deck"
+  },
+  "url": "https://limitlesstcg.com/cards/BLK/48"
+ },
+ "BLK 52": {
+  "name": "Crustle",
+  "current": "Crustle BCR",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Crustle BCR)",
+  "best": {
+   "fullName": "Crustle BCR",
+   "class": "Crustle",
+   "exact": false,
+   "score": 2.88,
+   "why": {
+    "atk": true,
+    "dmg": false,
+    "ab": true,
+    "hp": false,
+    "text": 0.88
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Crustle BCR",
+    "class": "Crustle",
+    "exact": false,
+    "score": 2.88,
+    "why": {
+     "atk": true,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.88
+    }
+   },
+   {
+    "fullName": "Crustle DRI",
+    "class": "Crustle",
+    "exact": false,
+    "score": 1.11,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.11
+    }
+   },
+   {
+    "fullName": "Crustle2 DRI",
+    "class": "Crustle2DRI",
+    "exact": false,
+    "score": 1.11,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.11
+    }
+   },
+   {
+    "fullName": "Crustle EVS",
+    "class": "Crustle",
+    "exact": false,
+    "score": 0.37,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.37
+    }
+   }
+  ],
+  "official": {
+   "hp": 150,
+   "attacks": [
+    [
+     "Stone Edge",
+     "80"
+    ]
+   ],
+   "abilities": [
+    "Sturdy"
+   ],
+   "text": "if this pokemon has full hp and would be knocked out by damage from an attack it is not knocked out and its remaining hp becomes 10 flip a coin if heads this attack does 60 more damage"
+  },
+  "url": "https://limitlesstcg.com/cards/BLK/52"
+ },
+ "BLK 6": {
+  "name": "Petilil",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Petilil NVI)",
+  "best": {
+   "fullName": "Petilil NVI",
+   "class": "Petilil",
+   "exact": false,
+   "score": 2.17,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.17
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Petilil NVI",
+    "class": "Petilil",
+    "exact": false,
+    "score": 2.17,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.17
+    }
+   },
+   {
+    "fullName": "Petilil LTR",
+    "class": "PetililLTR",
+    "exact": false,
+    "score": 2.17,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.17
+    }
+   },
+   {
+    "fullName": "Petilil EVS",
+    "class": "Petilil",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Petilil BLW",
+    "class": "Petilil",
+    "exact": false,
+    "score": 1.37,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.37
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Hide",
+     ""
+    ],
+    [
+     "Leafage",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": "flip a coin if heads during your opponent's next turn prevent all damage from and effects of attacks done to this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/BLK/6"
+ },
+ "DRI 172": {
+  "name": "Team Rocket's Bother-Bot",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "turn 1 of your opponent's face down prize cards face up and choose a random card from your opponent's hand your opponent reveals that card you may have your opponent switch those cards that prize card remains face up for the rest of the game"
+  },
+  "url": "https://limitlesstcg.com/cards/DRI/172"
+ },
+ "DRI 37": {
+  "name": "Team Rocket's Houndour",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Steady Firebreathing",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/DRI/37"
+ },
+ "DRI 38": {
+  "name": "Team Rocket's Houndoom",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Cruel Coal",
+     ""
+    ],
+    [
+     "Scorching Fire",
+     "120"
+    ]
+   ],
+   "abilities": [],
+   "text": "your opponent's active pokemon is now burned and confused discard an energy from this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/DRI/38"
+ },
+ "DRI 93": {
+  "name": "Ethan's Sudowoodo",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 110,
+   "attacks": [
+    [
+     "Impound",
+     "20"
+    ],
+    [
+     "Try to Imitate",
+     ""
+    ]
+   ],
+   "abilities": [],
+   "text": "during your opponent's next turn the defending pokemon can't retreat flip a coin if heads choose 1 of your opponent's active pokemon's attacks and use it as this attack"
+  },
+  "url": "https://limitlesstcg.com/cards/DRI/93"
+ },
+ "JTG 125": {
+  "name": "Minccino",
+  "current": "Minccino SSH",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Minccino FCO 87)",
+  "best": {
+   "fullName": "Minccino FCO 87",
+   "class": "Minccino2",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": false,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Minccino FCO 87",
+    "class": "Minccino2",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Minccino BWP",
+    "class": "Minccino",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Minccino SSH",
+    "class": "Minccino",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Minccino SSH 146",
+    "class": "Minccino2",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Slap",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/JTG/125"
+ },
+ "JTG 70": {
+  "name": "Dhelmise",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Dhelmise CES)",
+  "best": {
+   "fullName": "Dhelmise CES",
+   "class": "Dhelmise",
+   "exact": false,
+   "score": 2.36,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.36
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Dhelmise CES",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 2.36,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.36
+    }
+   },
+   {
+    "fullName": "Dhelmise VIV",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 2.05,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.05
+    }
+   },
+   {
+    "fullName": "Dhelmise CEC",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 2.04,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.04
+    }
+   },
+   {
+    "fullName": "Dhelmise M5",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 1.1,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.1
+    }
+   }
+  ],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Bind Down",
+     "60"
+    ],
+    [
+     "Anchor Smash",
+     "130"
+    ]
+   ],
+   "abilities": [],
+   "text": "during your opponent's next turn the defending pokemon can't retreat"
+  },
+  "url": "https://limitlesstcg.com/cards/JTG/70"
+ },
+ "MEG 105": {
+  "name": "Delibird",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Delibird LOT)",
+  "best": {
+   "fullName": "Delibird LOT",
+   "class": "Delibird",
+   "exact": false,
+   "score": 3.25,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.25
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Delibird LOT",
+    "class": "Delibird",
+    "exact": false,
+    "score": 3.25,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.25
+    }
+   },
+   {
+    "fullName": "Delibird CRE",
+    "class": "Delibird",
+    "exact": false,
+    "score": 2.57,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.57
+    }
+   },
+   {
+    "fullName": "Delibird GRI",
+    "class": "Delibird",
+    "exact": false,
+    "score": 2.52,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.52
+    }
+   },
+   {
+    "fullName": "Delibird BCR",
+    "class": "Delibird",
+    "exact": false,
+    "score": 2.39,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.39
+    }
+   }
+  ],
+  "official": {
+   "hp": 90,
+   "attacks": [
+    [
+     "Quick Gift",
+     ""
+    ],
+    [
+     "Gentle Slap",
+     "30"
+    ]
+   ],
+   "abilities": [],
+   "text": "if you go first you can use this attack during your first turn search your deck for a card and put it into your hand then shuffle your deck"
+  },
+  "url": "https://limitlesstcg.com/cards/MEG/105"
+ },
+ "MEG 107": {
+  "name": "Buneary",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Buneary UPR)",
+  "best": {
+   "fullName": "Buneary UPR",
+   "class": "Buneary",
+   "exact": false,
+   "score": 2.25,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": false,
+    "text": 0.25
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Buneary UPR",
+    "class": "Buneary",
+    "exact": false,
+    "score": 2.25,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.25
+    }
+   },
+   {
+    "fullName": "Buneary MD",
+    "class": "Buneary",
+    "exact": false,
+    "score": 2.1,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.1
+    }
+   },
+   {
+    "fullName": "Buneary M2",
+    "class": "Buneary",
+    "exact": false,
+    "score": 2.08,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.08
+    }
+   },
+   {
+    "fullName": "Buneary FLF",
+    "class": "Buneary",
+    "exact": false,
+    "score": 1.08,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.08
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Charm",
+     ""
+    ],
+    [
+     "Skip",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": "during your opponent's next turn attacks used by the defending pokemon do 20 less damage before applying weakness and resistance"
+  },
+  "url": "https://limitlesstcg.com/cards/MEG/107"
+ },
+ "MEG 120": {
+  "name": "Lt. Surge's Bargain",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "ask your opponent if each player may take a prize card if yes each player takes a prize card if no you draw 4 cards"
+  },
+  "url": "https://limitlesstcg.com/cards/MEG/120"
+ },
+ "MEG 31": {
+  "name": "Chi-Yu",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Chi-Yu TWM)",
+  "best": {
+   "fullName": "Chi-Yu TWM",
+   "class": "ChiYu",
+   "exact": false,
+   "score": 2.22,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.22
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Chi-Yu TWM",
+    "class": "ChiYu",
+    "exact": false,
+    "score": 2.22,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.22
+    }
+   },
+   {
+    "fullName": "Chi-Yu SVP",
+    "class": "ChiYuSVP",
+    "exact": false,
+    "score": 2.18,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.18
+    }
+   },
+   {
+    "fullName": "Chi-Yu PAR",
+    "class": "ChiYu",
+    "exact": false,
+    "score": 2.18,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.18
+    }
+   },
+   {
+    "fullName": "Chi-Yu M5",
+    "class": "ChiYu",
+    "exact": false,
+    "score": 1.08,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.08
+    }
+   }
+  ],
+  "official": {
+   "hp": 110,
+   "attacks": [
+    [
+     "Scorching Earth",
+     "40"
+    ]
+   ],
+   "abilities": [],
+   "text": "if your opponent has a stadium in play discard it if you do your opponent can't play any stadium cards from their hand during their next turn"
+  },
+  "url": "https://limitlesstcg.com/cards/MEG/31"
+ },
+ "MEG 91": {
+  "name": "Shroodle",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Shroodle SSP)",
+  "best": {
+   "fullName": "Shroodle SSP",
+   "class": "Shroodle",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Shroodle SSP",
+    "class": "Shroodle",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Poison Jab",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "your opponent's active pokemon is now poisoned"
+  },
+  "url": "https://limitlesstcg.com/cards/MEG/91"
+ },
+ "MEP 18": {
+  "name": "Cottonee",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Cottonee UNM)",
+  "best": {
+   "fullName": "Cottonee UNM",
+   "class": "Cottonee",
+   "exact": false,
+   "score": 4.0,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Cottonee UNM",
+    "class": "Cottonee",
+    "exact": false,
+    "score": 4.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Cottonee SSH",
+    "class": "Cottonee",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Cottonee VIV",
+    "class": "Cottonee",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Cottonee SV11W",
+    "class": "Cottonee",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Collect",
+     ""
+    ]
+   ],
+   "abilities": [],
+   "text": "draw a card"
+  },
+  "url": "https://limitlesstcg.com/cards/MEP/18"
+ },
+ "MEP 52": {
+  "name": "Grookey",
+  "current": "Grookey TWM",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Grookey SSH 11)",
+  "best": {
+   "fullName": "Grookey SSH 11",
+   "class": "Grookey2",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Grookey SSH 11",
+    "class": "Grookey2",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Grookey TWM",
+    "class": "Grookey",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Grookey SSH",
+    "class": "Grookey",
+    "exact": false,
+    "score": 1.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Grookey SHF",
+    "class": "GrookeySHF",
+    "exact": false,
+    "score": 1.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Branch Poke",
+     "40"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/MEP/52"
+ },
+ "PFL 34": {
+  "name": "Pawmot",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Pawmot SVP)",
+  "best": {
+   "fullName": "Pawmot SVP",
+   "class": "PawmotSVP",
+   "exact": false,
+   "score": 0.21,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": false,
+    "hp": false,
+    "text": 0.21
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Pawmot SVP",
+    "class": "PawmotSVP",
+    "exact": false,
+    "score": 0.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.21
+    }
+   },
+   {
+    "fullName": "Pawmot SVI",
+    "class": "Pawmot",
+    "exact": false,
+    "score": 0.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.21
+    }
+   },
+   {
+    "fullName": "PawmotIR SVI",
+    "class": "PawmotIR",
+    "exact": false,
+    "score": 0.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.21
+    }
+   },
+   {
+    "fullName": "Pawmot PAF",
+    "class": "PawmotSV",
+    "exact": false,
+    "score": 0.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.21
+    }
+   }
+  ],
+  "official": {
+   "hp": 140,
+   "attacks": [
+    [
+     "Voltaic Fist",
+     "130"
+    ]
+   ],
+   "abilities": [],
+   "text": "you may have this pokemon also do 60 damage to itself and make your opponent's active pokemon paralyzed"
+  },
+  "url": "https://limitlesstcg.com/cards/PFL/34"
+ },
+ "PRE 118": {
+  "name": "Ogre's Mask",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "choose a pokemon ex in your discard pile that has ogerpon in its name and switch it with 1 of your pokemon ex in play that has ogerpon in its name any attached cards damage counters special conditions turns in play and any other effects remain on the new pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/118"
+ },
+ "PRE 16": {
+  "name": "Pyroar",
+  "current": "Pyroar STS",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Pyroar STS)",
+  "best": {
+   "fullName": "Pyroar STS",
+   "class": "Pyroar",
+   "exact": false,
+   "score": 2.1,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.1
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Pyroar STS",
+    "class": "Pyroar",
+    "exact": false,
+    "score": 2.1,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.1
+    }
+   },
+   {
+    "fullName": "Pyroar LOT",
+    "class": "Pyroar",
+    "exact": false,
+    "score": 1.14,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.14
+    }
+   },
+   {
+    "fullName": "Pyroar EVS",
+    "class": "Pyroar",
+    "exact": false,
+    "score": 1.14,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.14
+    }
+   },
+   {
+    "fullName": "Pyroar FLI",
+    "class": "Pyroar",
+    "exact": false,
+    "score": 1.11,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.11
+    }
+   }
+  ],
+  "official": {
+   "hp": 120,
+   "attacks": [
+    [
+     "Fire Mane",
+     "50"
+    ],
+    [
+     "Flame Tackle",
+     "160"
+    ]
+   ],
+   "abilities": [],
+   "text": "during your next turn this pokemon can't attack"
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/16"
+ },
+ "PRE 18": {
+  "name": "Slowpoke",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Slowpoke DEX)",
+  "best": {
+   "fullName": "Slowpoke DEX",
+   "class": "Slowpoke",
+   "exact": false,
+   "score": 2.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Slowpoke DEX",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Slowpoke BKP",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Slowpoke GRI",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Slowpoke LOT",
+    "class": "Slowpoke",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Water Gun",
+     "10"
+    ],
+    [
+     "Tail Whap",
+     "30"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/18"
+ },
+ "PRE 83": {
+  "name": "Buneary",
+  "current": "Buneary M2",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Buneary BCR)",
+  "best": {
+   "fullName": "Buneary BCR",
+   "class": "Buneary",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Buneary BCR",
+    "class": "Buneary",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Buneary FLF",
+    "class": "Buneary",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Buneary UPR",
+    "class": "Buneary",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Buneary FST 212",
+    "class": "Buneary",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Smash Kick",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/83"
+ },
+ "PRE 90": {
+  "name": "Noibat",
+  "current": "Noibat SIT 132",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Noibat FFI)",
+  "best": {
+   "fullName": "Noibat FFI",
+   "class": "Noibat",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Noibat FFI",
+    "class": "Noibat",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Noibat SIT 132",
+    "class": "Noibat",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Noibat BKT 132",
+    "class": "Noibat2",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Noibat UNM",
+    "class": "Noibat",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Flap",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/PRE/90"
+ },
+ "SCR 141": {
+  "name": "Payapa Berry",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "if the pokemon this card is attached to is damaged by an attack from your opponent's p pokemon it takes 60 less damage after applying weakness and resistance and discard this card"
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/141"
+ },
+ "SCR 29": {
+  "name": "Charcadet",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Charcadet SVI)",
+  "best": {
+   "fullName": "Charcadet SVI",
+   "class": "Charcadet",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Charcadet SVI",
+    "class": "Charcadet",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Charcadet PAF",
+    "class": "CharcadetPAF",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "CharcadetSV PAF",
+    "class": "CharcadetSV",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Charcadet SSP",
+    "class": "Charcadet",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Flare",
+     "30"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/29"
+ },
+ "SCR 39": {
+  "name": "Froakie",
+  "current": "Froakie FLI",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Froakie2 XYP)",
+  "best": {
+   "fullName": "Froakie2 XYP",
+   "class": "Froakie2XYP",
+   "exact": false,
+   "score": 2.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Froakie2 XYP",
+    "class": "Froakie2XYP",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Froakie BKP",
+    "class": "Froakie",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Froakie BKT",
+    "class": "Froakie",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Froakie FLI",
+    "class": "Froakie",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Rain Splash",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/39"
+ },
+ "SCR 40": {
+  "name": "Frogadier",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Frogadier BKT)",
+  "best": {
+   "fullName": "Frogadier BKT",
+   "class": "Frogadier",
+   "exact": false,
+   "score": 2.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": false,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Frogadier BKT",
+    "class": "Frogadier",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Frogadier TWM",
+    "class": "Frogadier",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Frogadier XY",
+    "class": "Frogadier",
+    "exact": false,
+    "score": 1.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Frogadier BKP",
+    "class": "Frogadier",
+    "exact": false,
+    "score": 1.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 90,
+   "attacks": [
+    [
+     "Wave Splash",
+     "40"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/40"
+ },
+ "SCR 66": {
+  "name": "Fidough",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Pleasant Aroma",
+     ""
+    ],
+    [
+     "Stampede",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": "search your deck for a basic pokemon and put it onto your bench then shuffle your deck"
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/66"
+ },
+ "SCR 68": {
+  "name": "Flittle",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Flittle SVI)",
+  "best": {
+   "fullName": "Flittle SVI",
+   "class": "Flittle",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": false,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Flittle SVI",
+    "class": "Flittle",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Flittle PAR",
+    "class": "Flittle",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Flittle SSP",
+    "class": "Flittle",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 50,
+   "attacks": [
+    [
+     "Peck",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/68"
+ },
+ "SCR 81": {
+  "name": "Riolu",
+  "current": "Riolu VIV",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Riolu BUS)",
+  "best": {
+   "fullName": "Riolu BUS",
+   "class": "Riolu",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Riolu BUS",
+    "class": "Riolu",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Riolu VIV",
+    "class": "Riolu",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Riolu SVI",
+    "class": "Riolu",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Riolu FLO",
+    "class": "Riolu",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Punch",
+     "30"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/SCR/81"
+ },
+ "SSP 111": {
+  "name": "Passimian",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Passimian SMP)",
+  "best": {
+   "fullName": "Passimian SMP",
+   "class": "PassimianSMP",
+   "exact": false,
+   "score": 2.36,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.36
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Passimian SMP",
+    "class": "PassimianSMP",
+    "exact": false,
+    "score": 2.36,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.36
+    }
+   },
+   {
+    "fullName": "Passimian SUM",
+    "class": "Passimian",
+    "exact": false,
+    "score": 2.36,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.36
+    }
+   },
+   {
+    "fullName": "Passimian BUS",
+    "class": "Passimian",
+    "exact": false,
+    "score": 2.22,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.22
+    }
+   },
+   {
+    "fullName": "Passimian DAA",
+    "class": "Passimian",
+    "exact": false,
+    "score": 2.2,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.2
+    }
+   }
+  ],
+  "official": {
+   "hp": 110,
+   "attacks": [
+    [
+     "Coordinated Throwing",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "this attack does 20 damage for each of your basic pokemon in play"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/111"
+ },
+ "SSP 126": {
+  "name": "Bronzor",
+  "current": "Bronzor LOR 125",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Bronzor ASR)",
+  "best": {
+   "fullName": "Bronzor ASR",
+   "class": "Bronzor",
+   "exact": false,
+   "score": 3.28,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.28
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Bronzor ASR",
+    "class": "Bronzor",
+    "exact": false,
+    "score": 3.28,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.28
+    }
+   },
+   {
+    "fullName": "Bronzor BKT",
+    "class": "Bronzor",
+    "exact": false,
+    "score": 2.3,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.3
+    }
+   },
+   {
+    "fullName": "Bronzor FCO",
+    "class": "Bronzor",
+    "exact": false,
+    "score": 2.28,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.28
+    }
+   },
+   {
+    "fullName": "Bronzor UPR",
+    "class": "Bronzor",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Shield Attack",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "flip a coin if heads this attack does 20 more damage"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/126"
+ },
+ "SSP 148": {
+  "name": "Swablu",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Swablu CIN)",
+  "best": {
+   "fullName": "Swablu CIN",
+   "class": "Swablu",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Swablu CIN",
+    "class": "Swablu",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Swablu DRM 57",
+    "class": "Swablu2",
+    "exact": false,
+    "score": 2.75,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.75
+    }
+   },
+   {
+    "fullName": "Swablu LTR",
+    "class": "Swablu",
+    "exact": false,
+    "score": 2.2,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.2
+    }
+   },
+   {
+    "fullName": "Swablu M6",
+    "class": "Swablu",
+    "exact": false,
+    "score": 2.15,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.15
+    }
+   }
+  ],
+  "official": {
+   "hp": 50,
+   "attacks": [
+    [
+     "Disarming Voice",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": "your opponent's active pokemon is now confused"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/148"
+ },
+ "SSP 151": {
+  "name": "Bouffalant",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Bouffalant LOR)",
+  "best": {
+   "fullName": "Bouffalant LOR",
+   "class": "Bouffalant",
+   "exact": false,
+   "score": 2.21,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.21
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Bouffalant LOR",
+    "class": "Bouffalant",
+    "exact": false,
+    "score": 2.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.21
+    }
+   },
+   {
+    "fullName": "Bouffalant BLW 91",
+    "class": "Bouffalant",
+    "exact": false,
+    "score": 1.37,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.37
+    }
+   },
+   {
+    "fullName": "Bouffalant LTR",
+    "class": "BouffalantLTR",
+    "exact": false,
+    "score": 1.37,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.37
+    }
+   },
+   {
+    "fullName": "Bouffalant BUS",
+    "class": "Bouffalant",
+    "exact": false,
+    "score": 1.23,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.23
+    }
+   }
+  ],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Ready to Ram",
+     "40"
+    ],
+    [
+     "Smashing Headbutt",
+     "150"
+    ]
+   ],
+   "abilities": [],
+   "text": "during your opponent's next turn if this pokemon is damaged by an attack even if this pokemon is knocked out put 6 damage counters on the attacking pokemon discard 2 energy from this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/151"
+ },
+ "SSP 163": {
+  "name": "Babiri Berry",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "if the pokemon this card is attached to is damaged by an attack from your opponent's m pokemon it takes 60 less damage after applying weakness and resistance and discard this card"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/163"
+ },
+ "SSP 98": {
+  "name": "Mankey",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Mankey CIN)",
+  "best": {
+   "fullName": "Mankey CIN",
+   "class": "Mankey",
+   "exact": false,
+   "score": 3.83,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.83
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Mankey CIN",
+    "class": "Mankey",
+    "exact": false,
+    "score": 3.83,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.83
+    }
+   },
+   {
+    "fullName": "Mankey SVI",
+    "class": "Mankey",
+    "exact": false,
+    "score": 2.27,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.27
+    }
+   },
+   {
+    "fullName": "Mankey BST",
+    "class": "Mankey",
+    "exact": false,
+    "score": 2.25,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.25
+    }
+   },
+   {
+    "fullName": "Mankey FST 133",
+    "class": "MankeyFST",
+    "exact": false,
+    "score": 2.25,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.25
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Dual Chop",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": "flip 2 coins this attack does 10 damage for each heads"
+  },
+  "url": "https://limitlesstcg.com/cards/SSP/98"
+ },
+ "SVP 198": {
+  "name": "Zacian ex",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 220,
+   "attacks": [
+    [
+     "Steel Armament",
+     "20"
+    ],
+    [
+     "Slashing Strike",
+     "210"
+    ]
+   ],
+   "abilities": [],
+   "text": "search your deck for a basic m energy card and attach it to this pokemon then shuffle your deck during your next turn this pokemon can't use slashing strike"
+  },
+  "url": "https://limitlesstcg.com/cards/SVP/198"
+ },
+ "TEF 118": {
+  "name": "Iron Treads",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Wheel Pass",
+     "60"
+    ]
+   ],
+   "abilities": [
+    "Dual Core"
+   ],
+   "text": "as long as this pokemon has a future booster energy capsule attached it is f and m type move an energy from this pokemon to 1 of your benched pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/TEF/118"
+ },
+ "TEF 19": {
+  "name": "Dhelmise",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Dhelmise VIV)",
+  "best": {
+   "fullName": "Dhelmise VIV",
+   "class": "Dhelmise",
+   "exact": false,
+   "score": 2.4,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.4
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Dhelmise VIV",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 2.4,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.4
+    }
+   },
+   {
+    "fullName": "Dhelmise CES",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 2.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.21
+    }
+   },
+   {
+    "fullName": "Dhelmise CEC",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 2.1,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.1
+    }
+   },
+   {
+    "fullName": "Dhelmise M5",
+    "class": "Dhelmise",
+    "exact": false,
+    "score": 1.37,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.37
+    }
+   }
+  ],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Spinning Attack",
+     "30"
+    ],
+    [
+     "Steel Anchor",
+     "80"
+    ]
+   ],
+   "abilities": [],
+   "text": "if you have any m pokemon on your bench this attack does 80 more damage"
+  },
+  "url": "https://limitlesstcg.com/cards/TEF/19"
+ },
+ "TEF 74": {
+  "name": "Beheeyem",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Beheeyem PAR)",
+  "best": {
+   "fullName": "Beheeyem PAR",
+   "class": "Beheeyem",
+   "exact": false,
+   "score": 1.36,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": false,
+    "text": 0.36
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Beheeyem PAR",
+    "class": "Beheeyem",
+    "exact": false,
+    "score": 1.36,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.36
+    }
+   },
+   {
+    "fullName": "Beheeyem NVI",
+    "class": "Beheeyem",
+    "exact": false,
+    "score": 1.3,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.3
+    }
+   },
+   {
+    "fullName": "Beheeyem BKT",
+    "class": "Beheeyem",
+    "exact": false,
+    "score": 1.29,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.29
+    }
+   },
+   {
+    "fullName": "Beheeyem PLS",
+    "class": "Beheeyem",
+    "exact": false,
+    "score": 1.15,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.15
+    }
+   }
+  ],
+  "official": {
+   "hp": 100,
+   "attacks": [
+    [
+     "Cosmic Beatdown",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "this attack does 20 damage for each of your pokemon in play"
+  },
+  "url": "https://limitlesstcg.com/cards/TEF/74"
+ },
+ "TEF 77": {
+  "name": "Scream Tail",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Scream Tail SVP)",
+  "best": {
+   "fullName": "Scream Tail SVP",
+   "class": "ScreamTailSVP",
+   "exact": false,
+   "score": 2.24,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.24
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Scream Tail SVP",
+    "class": "ScreamTailSVP",
+    "exact": false,
+    "score": 2.24,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.24
+    }
+   },
+   {
+    "fullName": "Scream Tail PAR",
+    "class": "ScreamTail",
+    "exact": false,
+    "score": 2.24,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.24
+    }
+   },
+   {
+    "fullName": "Scream Tail PRE",
+    "class": "ScreamTailPRE",
+    "exact": false,
+    "score": 2.24,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.24
+    }
+   }
+  ],
+  "official": {
+   "hp": 90,
+   "attacks": [
+    [
+     "Supportive Singing",
+     ""
+    ],
+    [
+     "Hyper Voice",
+     "40"
+    ]
+   ],
+   "abilities": [],
+   "text": "heal 100 damage from 1 of your benched ancient pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/TEF/77"
+ },
+ "TEF 99": {
+  "name": "Iron Boulder ex",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": 240,
+   "attacks": [
+    [
+     "Repulsor Axe",
+     "60"
+    ],
+    [
+     "Power Stomp",
+     "200"
+    ]
+   ],
+   "abilities": [],
+   "text": "during your opponent's next turn if this pokemon is damaged by an attack even if it is knocked out put 8 damage counters on the attacking pokemon discard 2 energy from this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/TEF/99"
+ },
+ "TWM 135": {
+  "name": "Eevee",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Eevee AQ)",
+  "best": {
+   "fullName": "Eevee AQ",
+   "class": "Eevee",
+   "exact": false,
+   "score": 3.49,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.49
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Eevee AQ",
+    "class": "Eevee",
+    "exact": false,
+    "score": 3.49,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.49
+    }
+   },
+   {
+    "fullName": "Eevee MD",
+    "class": "Eevee",
+    "exact": false,
+    "score": 3.39,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.39
+    }
+   },
+   {
+    "fullName": "Eevee DS 69",
+    "class": "Eevee2",
+    "exact": false,
+    "score": 3.35,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.35
+    }
+   },
+   {
+    "fullName": "Eevee UD",
+    "class": "Eevee",
+    "exact": false,
+    "score": 2.42,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.42
+    }
+   }
+  ],
+  "official": {
+   "hp": 50,
+   "attacks": [
+    [
+     "Ascension",
+     ""
+    ],
+    [
+     "Quick Attack",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "search your deck for a card that evolves from this pokemon and put it onto this pokemon to evolve it then shuffle your deck flip a coin if heads this attack does 20 more damage"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/135"
+ },
+ "TWM 157": {
+  "name": "Lucian",
+  "current": null,
+  "print_match": "missing",
+  "verdict": "no-twinleaf-card",
+  "best": null,
+  "candidates": [],
+  "official": {
+   "hp": null,
+   "attacks": [],
+   "abilities": [],
+   "text": "each player shuffles their hand and puts it on the bottom of their deck if either player put any cards on the bottom of their deck in this way each player flips a coin if heads that player draws 6 cards if tails they draw 3 cards"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/157"
+ },
+ "TWM 24": {
+  "name": "Teal Mask Ogerpon",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Teal Mask Ogerpon DRI)",
+  "best": {
+   "fullName": "Teal Mask Ogerpon DRI",
+   "class": "TealMaskOgerpon",
+   "exact": false,
+   "score": 2.32,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.32
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Teal Mask Ogerpon DRI",
+    "class": "TealMaskOgerpon",
+    "exact": false,
+    "score": 2.32,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.32
+    }
+   }
+  ],
+  "official": {
+   "hp": 110,
+   "attacks": [
+    [
+     "Mountain Stroll",
+     ""
+    ],
+    [
+     "Ogre Comeback",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "search your deck for up to 2 basic energy cards reveal them and put them into your hand then shuffle your deck this attack does 20 more damage for each of your opponent's benched pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/24"
+ },
+ "TWM 36": {
+  "name": "Litwick",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Litwick PLF)",
+  "best": {
+   "fullName": "Litwick PLF",
+   "class": "Litwick",
+   "exact": false,
+   "score": 3.09,
+   "why": {
+    "atk": false,
+    "dmg": true,
+    "ab": true,
+    "hp": true,
+    "text": 0.09
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Litwick PLF",
+    "class": "Litwick",
+    "exact": false,
+    "score": 3.09,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": true,
+     "text": 0.09
+    }
+   },
+   {
+    "fullName": "Litwick BWP",
+    "class": "Litwick",
+    "exact": false,
+    "score": 2.87,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.87
+    }
+   },
+   {
+    "fullName": "Litwick UNM",
+    "class": "Litwick",
+    "exact": false,
+    "score": 2.61,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.61
+    }
+   },
+   {
+    "fullName": "Litwick UNM 28",
+    "class": "Litwick2",
+    "exact": false,
+    "score": 2.61,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.61
+    }
+   }
+  ],
+  "official": {
+   "hp": 60,
+   "attacks": [
+    [
+     "Call for Family",
+     ""
+    ],
+    [
+     "Live Coal",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "search your deck for a basic pokemon and put it onto your bench then shuffle your deck"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/36"
+ },
+ "TWM 37": {
+  "name": "Lampent",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Lampent UNM)",
+  "best": {
+   "fullName": "Lampent UNM",
+   "class": "Lampent",
+   "exact": false,
+   "score": 2.71,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.71
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Lampent UNM",
+    "class": "Lampent",
+    "exact": false,
+    "score": 2.71,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.71
+    }
+   },
+   {
+    "fullName": "Lampent NXD",
+    "class": "Lampent",
+    "exact": false,
+    "score": 2.29,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.29
+    }
+   },
+   {
+    "fullName": "Lampent LOR 25",
+    "class": "Lampent",
+    "exact": false,
+    "score": 2.27,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.27
+    }
+   },
+   {
+    "fullName": "Lampent PLF",
+    "class": "Lampent",
+    "exact": false,
+    "score": 2.09,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.09
+    }
+   }
+  ],
+  "official": {
+   "hp": 80,
+   "attacks": [
+    [
+     "Live Coal",
+     "20"
+    ],
+    [
+     "Burn It All Up",
+     "60"
+    ]
+   ],
+   "abilities": [],
+   "text": "discard all energy from this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/37"
+ },
+ "TWM 38": {
+  "name": "Chandelure",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Chandelure STS)",
+  "best": {
+   "fullName": "Chandelure STS",
+   "class": "Chandelure",
+   "exact": false,
+   "score": 1.37,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": false,
+    "hp": true,
+    "text": 0.37
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Chandelure STS",
+    "class": "Chandelure",
+    "exact": false,
+    "score": 1.37,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.37
+    }
+   },
+   {
+    "fullName": "Chandelure PLF",
+    "class": "Chandelure",
+    "exact": false,
+    "score": 1.31,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.31
+    }
+   },
+   {
+    "fullName": "Chandelure NVI",
+    "class": "Chandelure",
+    "exact": false,
+    "score": 1.28,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.28
+    }
+   },
+   {
+    "fullName": "Chandelure2 NXD",
+    "class": "Chandelure2NXD",
+    "exact": false,
+    "score": 1.28,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.28
+    }
+   }
+  ],
+  "official": {
+   "hp": 130,
+   "attacks": [
+    [
+     "Mind Ruler",
+     "30"
+    ]
+   ],
+   "abilities": [
+    "Alluring Light"
+   ],
+   "text": "once during your turn you may have each player draw a card this attack does 30 damage for each card in your opponent's hand"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/38"
+ },
+ "TWM 50": {
+  "name": "Milotic",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Milotic CIN)",
+  "best": {
+   "fullName": "Milotic CIN",
+   "class": "Milotic",
+   "exact": false,
+   "score": 1.21,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": false,
+    "hp": true,
+    "text": 0.21
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Milotic CIN",
+    "class": "Milotic",
+    "exact": false,
+    "score": 1.21,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.21
+    }
+   },
+   {
+    "fullName": "Milotic DRM",
+    "class": "Milotic",
+    "exact": false,
+    "score": 1.12,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.12
+    }
+   },
+   {
+    "fullName": "Milotic DAA",
+    "class": "Milotic",
+    "exact": false,
+    "score": 1.08,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.08
+    }
+   },
+   {
+    "fullName": "Milotic EVS",
+    "class": "Milotic",
+    "exact": false,
+    "score": 1.07,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.07
+    }
+   }
+  ],
+  "official": {
+   "hp": 120,
+   "attacks": [
+    [
+     "Hydro Splash",
+     "100"
+    ]
+   ],
+   "abilities": [
+    "Mentally Calm"
+   ],
+   "text": "your opponent's pokemon in play and all attached cards can't be put into your opponent's hand"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/50"
+ },
+ "TWM 52": {
+  "name": "Glalie",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Glalie GRI)",
+  "best": {
+   "fullName": "Glalie GRI",
+   "class": "Glalie",
+   "exact": false,
+   "score": 2.46,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.46
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Glalie GRI",
+    "class": "Glalie",
+    "exact": false,
+    "score": 2.46,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.46
+    }
+   },
+   {
+    "fullName": "Glalie CEC",
+    "class": "Glalie",
+    "exact": false,
+    "score": 2.26,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.26
+    }
+   },
+   {
+    "fullName": "Glalie SIT 42",
+    "class": "Glalie",
+    "exact": false,
+    "score": 1.23,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.23
+    }
+   },
+   {
+    "fullName": "Glalie PLB",
+    "class": "Glalie",
+    "exact": false,
+    "score": 1.18,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.18
+    }
+   }
+  ],
+  "official": {
+   "hp": 120,
+   "attacks": [
+    [
+     "Damage Beat",
+     "20"
+    ],
+    [
+     "Crazy Headbutt",
+     "140"
+    ]
+   ],
+   "abilities": [],
+   "text": "this attack does 20 damage for each damage counter on your opponent's active pokemon discard an energy from this pokemon"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/52"
+ },
+ "TWM 9": {
+  "name": "Volbeat",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Volbeat CES)",
+  "best": {
+   "fullName": "Volbeat CES",
+   "class": "Volbeat",
+   "exact": false,
+   "score": 2.26,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.26
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Volbeat CES",
+    "class": "Volbeat",
+    "exact": false,
+    "score": 2.26,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.26
+    }
+   },
+   {
+    "fullName": "Volbeat PRC",
+    "class": "Volbeat",
+    "exact": false,
+    "score": 2.24,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.24
+    }
+   },
+   {
+    "fullName": "Volbeat XY",
+    "class": "Volbeat",
+    "exact": false,
+    "score": 2.07,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.07
+    }
+   },
+   {
+    "fullName": "Volbeat GE",
+    "class": "Volbeat",
+    "exact": false,
+    "score": 1.26,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.26
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Quick Sign",
+     ""
+    ],
+    [
+     "Coordinated Strike",
+     "20"
+    ]
+   ],
+   "abilities": [],
+   "text": "if you go first you can use this attack during your first turn search your deck for up to 2 basic pokemon and put them onto your bench then shuffle your deck if illumise is on your bench this attack does 60 more damage"
+  },
+  "url": "https://limitlesstcg.com/cards/TWM/9"
+ },
+ "WHT 40": {
+  "name": "Cofagrigus",
+  "current": "Cofagrigus NVI",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Cofagrigus SSP)",
+  "best": {
+   "fullName": "Cofagrigus SSP",
+   "class": "Cofagrigus",
+   "exact": false,
+   "score": 2.19,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 0.19
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Cofagrigus SSP",
+    "class": "Cofagrigus",
+    "exact": false,
+    "score": 2.19,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.19
+    }
+   },
+   {
+    "fullName": "Cofagrigus LOT",
+    "class": "Cofagrigus",
+    "exact": false,
+    "score": 2.17,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 0.17
+    }
+   },
+   {
+    "fullName": "Cofagrigus NVI",
+    "class": "Cofagrigus",
+    "exact": false,
+    "score": 1.65,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.65
+    }
+   },
+   {
+    "fullName": "Cofagrigus PLF 57",
+    "class": "Cofagrigus2",
+    "exact": false,
+    "score": 1.24,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 0.24
+    }
+   }
+  ],
+  "official": {
+   "hp": 120,
+   "attacks": [
+    [
+     "Extended Damagriiigus",
+     ""
+    ],
+    [
+     "Perplex",
+     "60"
+    ]
+   ],
+   "abilities": [],
+   "text": "move all damage counters from 1 of your benched pokemon to 1 of your opponent's pokemon your opponent's active pokemon is now confused"
+  },
+  "url": "https://limitlesstcg.com/cards/WHT/40"
+ },
+ "WHT 63": {
+  "name": "Vullaby",
+  "current": "Vullaby RCL",
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Vullaby M5)",
+  "best": {
+   "fullName": "Vullaby M5",
+   "class": "Vullaby",
+   "exact": false,
+   "score": 3.0,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": true,
+    "hp": true,
+    "text": 1.0
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Vullaby M5",
+    "class": "Vullaby",
+    "exact": false,
+    "score": 3.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": true,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Vullaby DEX",
+    "class": "Vullaby",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   },
+   {
+    "fullName": "Vullaby BCR",
+    "class": "Vullaby",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": true,
+     "hp": false,
+     "text": 1.0
+    }
+   },
+   {
+    "fullName": "Vullaby RCL",
+    "class": "Vullaby",
+    "exact": false,
+    "score": 2.0,
+    "why": {
+     "atk": false,
+     "dmg": true,
+     "ab": true,
+     "hp": false,
+     "text": 0.0
+    }
+   }
+  ],
+  "official": {
+   "hp": 70,
+   "attacks": [
+    [
+     "Playful Kick",
+     "10"
+    ]
+   ],
+   "abilities": [],
+   "text": ""
+  },
+  "url": "https://limitlesstcg.com/cards/WHT/63"
+ },
+ "WHT 64": {
+  "name": "Mandibuzz",
+  "current": null,
+  "print_match": "name-only",
+  "verdict": "needs-new-class (closest: Mandibuzz FCO)",
+  "best": {
+   "fullName": "Mandibuzz FCO",
+   "class": "Mandibuzz",
+   "exact": false,
+   "score": 1.16,
+   "why": {
+    "atk": false,
+    "dmg": false,
+    "ab": false,
+    "hp": true,
+    "text": 0.16
+   }
+  },
+  "candidates": [
+   {
+    "fullName": "Mandibuzz FCO",
+    "class": "Mandibuzz",
+    "exact": false,
+    "score": 1.16,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": true,
+     "text": 0.16
+    }
+   },
+   {
+    "fullName": "Mandibuzz FST 173",
+    "class": "Mandibuzz",
+    "exact": false,
+    "score": 0.16,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.16
+    }
+   },
+   {
+    "fullName": "Mandibuzz RCL",
+    "class": "Mandibuzz",
+    "exact": false,
+    "score": 0.15,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.15
+    }
+   },
+   {
+    "fullName": "Mandibuzz M5",
+    "class": "Mandibuzz",
+    "exact": false,
+    "score": 0.15,
+    "why": {
+     "atk": false,
+     "dmg": false,
+     "ab": false,
+     "hp": false,
+     "text": 0.15
+    }
+   }
+  ],
+  "official": {
+   "hp": 110,
+   "attacks": [
+    [
+     "Cutting Wind",
+     "90"
+    ]
+   ],
+   "abilities": [
+    "Look for Prey"
+   ],
+   "text": "once during your turn you may use this ability your opponent reveals their hand and you put a basic pokemon with 70 hp or less that you find there onto your opponent's bench"
+  },
+  "url": "https://limitlesstcg.com/cards/WHT/64"
+ }
+}

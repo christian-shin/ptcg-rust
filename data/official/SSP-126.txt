@@ -1,0 +1,10 @@
+Bronzor
+- Metal - 60 HP
+Pokémon
+- Basic
+MC
+Shield Attack 20+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

@@ -1,0 +1,9 @@
+Riolu
+- Fighting - 70 HP
+Pokémon
+- Basic
+FC
+Punch 30
+Weakness: Psychic
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Dhelmise
+- Psychic - 130 HP
+Pokémon
+- Basic
+PCC
+Bind Down 60
+During your opponent's next turn, the Defending Pokémon can't retreat.
+PPCC
+Anchor Smash 130
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

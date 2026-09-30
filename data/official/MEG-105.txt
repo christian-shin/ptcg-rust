@@ -1,0 +1,12 @@
+Delibird
+- Colorless - 90 HP
+Pokémon
+- Basic
+C
+Quick Gift
+If you go first, you can use this attack during your first turn. Search your deck for a card and put it into your hand. Then, shuffle your deck.
+CC
+Gentle Slap 30
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

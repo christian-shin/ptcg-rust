@@ -1,0 +1,14 @@
+Pyroar
+- Fire - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Litleo
+RC
+Fire Mane 50
+RRC
+Flame Tackle 160
+During your next turn, this Pokémon can't attack.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,10 @@
+Shroodle
+- Darkness - 60 HP
+Pokémon
+- Basic
+DC
+Poison Jab 20
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

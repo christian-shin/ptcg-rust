@@ -1,0 +1,12 @@
+Scream Tail
+- Psychic - 90 HP
+Pokémon
+- Basic
+C
+Supportive Singing
+Heal 100 damage from 1 of your Benched Ancient Pokémon.
+CC
+Hyper Voice 40
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

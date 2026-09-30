@@ -1,0 +1,11 @@
+Timburr
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Low Kick 10
+FCC
+Strength 50
+Weakness: Psychic
+Resistance: none
+Retreat: 2

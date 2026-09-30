@@ -1,0 +1,11 @@
+Frogadier
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Froakie
+WC
+Wave Splash 40
+Weakness: Lightning
+Resistance: none
+Retreat: 1

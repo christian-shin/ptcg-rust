@@ -1,0 +1,9 @@
+Flittle
+- Psychic - 50 HP
+Pokémon
+- Basic
+P
+Peck 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,13 @@
+Iron Boulder ex
+- Fighting - 240 HP
+Pokémon
+- Basic
+FC
+Repulsor Axe 60
+During your opponent's next turn, if this Pokémon is damaged by an attack (even if it is Knocked Out) , put 8 damage counters on the Attacking Pokémon.
+FFC
+Power Stomp 200
+Discard 2 Energy from this Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 3

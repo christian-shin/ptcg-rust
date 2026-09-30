@@ -1,0 +1,10 @@
+Mankey
+- Fighting - 60 HP
+Pokémon
+- Basic
+C
+Dual Chop 10×
+Flip 2 coins. This attack does 10 damage for each heads.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

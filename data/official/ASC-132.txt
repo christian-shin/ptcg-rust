@@ -1,0 +1,15 @@
+Galarian Obstagoon
+- Darkness - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Galarian Linoone
+DC
+Scarring Shout 70×
+This attack does 70 damage for each damage counter on your opponent's Active Pokémon.
+DCC
+Punk Smash 160
+Discard an Energy from this Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 2

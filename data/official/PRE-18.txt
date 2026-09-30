@@ -1,0 +1,11 @@
+Slowpoke
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Water Gun 10
+WC
+Tail Whap 30
+Weakness: Lightning
+Resistance: none
+Retreat: 2

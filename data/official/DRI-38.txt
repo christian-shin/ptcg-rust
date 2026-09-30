@@ -1,0 +1,15 @@
+Team Rocket's Houndoom
+- Fire - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Team Rocket's Houndour
+R
+Cruel Coal
+Your opponent's Active Pokémon is now Burned and Confused.
+RC
+Scorching Fire 120
+Discard an Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

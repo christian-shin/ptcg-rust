@@ -1,0 +1,10 @@
+Cottonee
+- Psychic - 60 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+Weakness: Metal
+Resistance: none
+Retreat: 1

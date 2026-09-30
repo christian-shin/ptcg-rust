@@ -1,0 +1,13 @@
+Zacian ex
+- Metal - 220 HP
+Pokémon
+- Basic
+C
+Steel Armament 20
+Search your deck for a Basic [ M ] Energy card and attach it to this Pokémon. Then, shuffle your deck.
+MMC
+Slashing Strike 210
+During your next turn, this Pokémon can't use Slashing Strike.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

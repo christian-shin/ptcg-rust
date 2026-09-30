@@ -1,0 +1,15 @@
+Hop's Trevenant
+- Psychic - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Hop's Phantump
+C
+Horrifying Revenge 30+
+If any of your Hop's Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 100 more damage.
+PCC
+Corner 90
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

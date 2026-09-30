@@ -1,0 +1,4 @@
+Thick Scale
+Trainer
+- Tool
+The [ N ] Pokémon this card is attached to takes 50 less damage from attacks from your opponent's [ G ] , [ R ] , [ W ] , or [ L ] Pokémon (after applying Weakness and Resistance) .

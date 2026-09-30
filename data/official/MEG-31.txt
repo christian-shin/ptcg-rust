@@ -1,0 +1,10 @@
+Chi-Yu
+- Fire - 110 HP
+Pokémon
+- Basic
+R
+Scorching Earth 40
+If your opponent has a Stadium in play, discard it. If you do, your opponent can't play any Stadium cards from their hand during their next turn.
+Weakness: Water
+Resistance: none
+Retreat: 1

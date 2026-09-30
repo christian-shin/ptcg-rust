@@ -1,0 +1,9 @@
+Grookey
+- Grass - 70 HP
+Pokémon
+- Basic
+GG
+Branch Poke 40
+Weakness: Fire
+Resistance: none
+Retreat: 1

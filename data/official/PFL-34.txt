@@ -1,0 +1,12 @@
+Pawmot
+- Lightning - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Pawmo
+LL
+Voltaic Fist 130
+You may have this Pokémon also do 60 damage to itself and make your opponent's Active Pokémon Paralyzed.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

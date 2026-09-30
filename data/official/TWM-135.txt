@@ -1,0 +1,13 @@
+Eevee
+- Colorless - 50 HP
+Pokémon
+- Basic
+C
+Ascension
+Search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to evolve it. Then, shuffle your deck.
+CCC
+Quick Attack 20+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

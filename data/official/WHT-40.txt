@@ -1,0 +1,15 @@
+Cofagrigus
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Yamask
+PC
+Extended Damagriiigus
+Move all damage counters from 1 of your Benched Pokémon to 1 of your opponent's Pokémon.
+PCC
+Perplex 60
+Your opponent's Active Pokémon is now Confused.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

@@ -1,0 +1,13 @@
+Teal Mask Ogerpon
+- Grass - 110 HP
+Pokémon
+- Basic
+C
+Mountain Stroll
+Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+GC
+Ogre Comeback 20+
+This attack does 20 more damage for each of your opponent's Benched Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

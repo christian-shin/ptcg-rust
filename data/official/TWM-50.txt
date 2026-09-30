@@ -1,0 +1,14 @@
+Milotic
+- Water - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Feebas
+Ability:
+Mentally Calm
+Your opponent's Pokémon in play and all attached cards can't be put into your opponent's hand.
+WCC
+Hydro Splash 100
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,14 @@
+Mandibuzz
+- Darkness - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Vullaby
+Ability:
+Look for Prey
+Once during your turn, you may use this Ability. Your opponent reveals their hand, and you put a Basic Pokémon with 70 HP or less that you find there onto your opponent's Bench.
+CCC
+Cutting Wind 90
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

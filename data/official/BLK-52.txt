@@ -1,0 +1,15 @@
+Crustle
+- Fighting - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Dwebble
+Ability:
+Sturdy
+If this Pokémon has full HP and would be Knocked Out by damage from an attack, it is not Knocked Out, and its remaining HP becomes 10.
+FCC
+Stone Edge 80+
+Flip a coin. If heads, this attack does 60 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 3

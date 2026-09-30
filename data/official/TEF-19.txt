@@ -1,0 +1,12 @@
+Dhelmise
+- Grass - 130 HP
+Pokémon
+- Basic
+CC
+Spinning Attack 30
+GGC
+Steel Anchor 80+
+If you have any [ M ] Pokémon on your Bench, this attack does 80 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 3
