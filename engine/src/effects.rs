@@ -108,6 +108,7 @@ pub enum Effect {
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
     PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId },
+    MoveDamageCounters { p: u8 },
     MovedToActive { p: u8, card: CardId },
     MovedFromActiveToBench { p: u8, card: CardId },
 
@@ -125,6 +126,8 @@ pub enum Effect {
     AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
     RemoveSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
     HealTarget { b: AtkBase, damage: i32 },
+    /// `PlayLockEffect` (target = attacker's slot). `locks`: [`play_lock`] bits.
+    PlayLock { b: AtkBase, locks: u16, turns_remaining: Option<i32>, both_players: bool, attacker_turns_remaining: Option<i32> },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -202,6 +205,8 @@ impl Effect {
             AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             RemoveSpecialConditions { .. } => "REMOVE_SPECIAL_CONDITIONS_EFFECT",
             HealTarget { .. } => "HEAL_TARGET_EFFECT",
+            PlayLock { .. } => "PLAY_LOCK_EFFECT",
+            MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -237,7 +242,8 @@ impl Effect {
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
-            | HealTarget { b, .. } => Some(b),
+            | HealTarget { b, .. }
+            | PlayLock { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -257,7 +263,8 @@ impl Effect {
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
-            | HealTarget { b, .. } => Some(b),
+            | HealTarget { b, .. }
+            | PlayLock { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -333,6 +340,8 @@ impl Effect {
             PlayPokemonFromDeck { .. } => 64,
             PlayPokemonFromDiscard { .. } => 65,
             CoinFlipSequence { .. } => 66,
+            PlayLock { .. } => 67,
+            MoveDamageCounters { .. } => 68,
         };
         k
     }
@@ -407,6 +416,21 @@ pub mod k {
     pub const PLAY_POKEMON_FROM_DECK: u32 = 64;
     pub const PLAY_POKEMON_FROM_DISCARD: u32 = 65;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
+    pub const PLAY_LOCK: u32 = 67;
+    pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
+}
+
+/// `PlayLockOptions` flags for [`Effect::PlayLock`].
+pub mod play_lock {
+    pub const ITEM: u16 = 1 << 0;
+    pub const SUPPORTER: u16 = 1 << 1;
+    pub const STADIUM: u16 = 1 << 2;
+    pub const TOOL: u16 = 1 << 3;
+    pub const SPECIAL_ENERGY: u16 = 1 << 4;
+    pub const ENERGY: u16 = 1 << 5;
+    pub const POKEMON: u16 = 1 << 6;
+    pub const POKEMON_WITH_ABILITIES: u16 = 1 << 7;
+    pub const EVOLVE: u16 = 1 << 8;
 }
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.

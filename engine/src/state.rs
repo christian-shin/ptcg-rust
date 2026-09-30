@@ -194,6 +194,8 @@ pub struct Player {
     pub cannot_attack_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
     pub coin_flip_cancel_trainer_play_turns_remaining: i32,
+    /// `usedTableTurner` (Fezandipiti ex; absent until first written).
+    pub used_table_turner: bool,
 }
 
 impl Player {
@@ -247,6 +249,7 @@ impl Player {
             cannot_attack_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
             coin_flip_cancel_trainer_play_turns_remaining: 0,
+            used_table_turner: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;

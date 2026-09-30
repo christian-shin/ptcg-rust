@@ -120,6 +120,14 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
         };
         if let Err(e) = r.and_then(|_| g.settle()) {
             dump_state(&g, i as isize);
+            // The oracle run also stopped on this GameError (e.g. an ability
+            // offered as legal whose PowerEffect throws after the animation
+            // wait): parity holds if the message and resulting state match.
+            let res = &trace["result"];
+            let same_error = i + 1 == steps.len() && res["status"] == "error" && res["message"].as_str() == Some(e.0);
+            if same_error && st["h"].as_str() == Some(g.state_hash().as_str()) {
+                return Outcome::Pass { steps: steps.len() };
+            }
             return Outcome::Diverged { step: i as isize, what: "error".into(), detail: format!("{:?}", e) };
         }
         let h = st["h"].as_str().unwrap();
@@ -171,7 +179,15 @@ fn main() {
         let text = std::fs::read_to_string(f).unwrap();
         let trace: Value = serde_json::from_str(&text).unwrap();
         let name = f.file_stem().unwrap().to_string_lossy().to_string();
-        let out = replay(&trace, dump.as_deref(), &name);
+        // A panic (e.g. a fixed-capacity list overflowing on a Twinleaf state
+        // with duplicated cards) fails this trace instead of the whole run.
+        let out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| replay(&trace, dump.as_deref(), &name))) {
+            Ok(o) => o,
+            Err(e) => {
+                let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
+                Outcome::Diverged { step: -1, what: "panic".into(), detail: msg }
+            }
+        };
         match &out {
             Outcome::Pass { steps: s } => {
                 pass += 1;

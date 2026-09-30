@@ -292,6 +292,40 @@ pub fn clear_play_locks(pl: &mut Player) {
     pl.play_locks_turns_remaining = 0;
 }
 
+/// `Player.applyPlayLocks(locks, turnsRemaining)`.
+pub fn apply_play_locks(pl: &mut Player, locks: u16, turns_remaining: i32) {
+    use crate::effects::play_lock as l;
+    if locks & l::ITEM != 0 {
+        pl.cannot_play_item_cards = true;
+    }
+    if locks & l::SUPPORTER != 0 {
+        pl.cannot_play_supporter_cards = true;
+    }
+    if locks & l::STADIUM != 0 {
+        pl.cannot_play_stadium_cards = true;
+    }
+    if locks & l::TOOL != 0 {
+        pl.cannot_play_tool_cards = true;
+    }
+    if locks & l::SPECIAL_ENERGY != 0 {
+        pl.cannot_play_special_energy_cards = true;
+    }
+    if locks & l::ENERGY != 0 {
+        pl.cannot_play_energy_cards = true;
+        pl.cannot_play_special_energy_cards = true;
+    }
+    if locks & l::POKEMON != 0 {
+        pl.cannot_play_pokemon_cards = true;
+    }
+    if locks & l::POKEMON_WITH_ABILITIES != 0 {
+        pl.cannot_play_pokemon_with_abilities = true;
+    }
+    if locks & l::EVOLVE != 0 {
+        pl.cannot_evolve_pokemon_cards = true;
+    }
+    pl.play_locks_turns_remaining = pl.play_locks_turns_remaining.max(turns_remaining.max(1));
+}
+
 fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
     if pl.play_locks_turns_remaining > 0 {
         pl.play_locks_turns_remaining -= 1;

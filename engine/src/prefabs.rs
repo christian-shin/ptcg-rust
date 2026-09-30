@@ -22,6 +22,8 @@ pub enum PrefabCont {
     DamageChosen { atk: EffId, damage: i32 },
     /// SEARCH_DECK_FOR_CARDS_TO_HAND.
     SearchToHand { p: u8, source: CardId, show: bool },
+    /// SWITCH_ACTIVE_WITH_BENCHED callback.
+    SwitchActiveWithBenched { p: u8 },
     /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH: empty slots at prompt time.
     SearchToBench { p: u8, slots: SVec<SlotId, 8> },
 }
@@ -78,6 +80,16 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
             shuffle_deck(g, p as usize);
             Ok(())
         }
+        PrefabCont::SwitchActiveWithBenched { p } => {
+            let sel = first.slots();
+            if sel.is_empty() {
+                return Ok(());
+            }
+            if sel[0].p == p {
+                crate::engine::turn::switch_pokemon(g, p as usize, sel[0].s)?;
+            }
+            Ok(())
+        }
         PrefabCont::SwitchInOpponent { p } => {
             let sel = first.slots();
             if sel.is_empty() {
@@ -114,6 +126,22 @@ pub fn trainer_played(g: &Game, e: EffId, me: CardId) -> Option<usize> {
     }
 }
 
+/// `player.forEachPokemon(playerType, (cardList, pokemonCard, target) => ...)`:
+/// slots with a Pokémon card, Active first, with their targets.
+pub fn for_each_pokemon(g: &Game, p: usize, player_type: PlayerType) -> SVec<(SlotId, CardId, CardTarget), 9> {
+    let mut out = SVec::new();
+    let pl = &g.st.players[p];
+    if let Some(c) = g.st.slot_pokemon(p, pl.active) {
+        out.push((pl.active, c, CardTarget::new(player_type, SlotType::Active, 0)));
+    }
+    for (i, &b) in pl.bench.iter().enumerate() {
+        if let Some(c) = g.st.slot_pokemon(p, b) {
+            out.push((b, c, CardTarget::new(player_type, SlotType::Bench, i as u8)));
+        }
+    }
+    out
+}
+
 // ---------------------------------------------------------------------------
 // Card movement
 
@@ -135,6 +163,11 @@ pub fn move_cards(g: &mut Game, src: ListRef, dst: ListRef, cards: &[CardId], so
 
 /// `MOVE_CARDS(..., { count })`.
 pub fn move_count(g: &mut Game, src: ListRef, dst: ListRef, count: usize) -> R {
+    move_count_from(g, src, dst, count, NO_CARD)
+}
+
+/// `MOVE_CARDS(..., { count, sourceCard })`.
+pub fn move_count_from(g: &mut Game, src: ListRef, dst: ListRef, count: usize, source_card: CardId) -> R {
     g.run_fx(Effect::MoveCards {
         source: src,
         destination: dst,
@@ -143,7 +176,7 @@ pub fn move_count(g: &mut Game, src: ListRef, dst: ListRef, count: usize) -> R {
         to_top: false,
         to_bottom: false,
         skip_cleanup: false,
-        source_card: NO_CARD,
+        source_card,
     })?;
     Ok(())
 }
@@ -210,6 +243,57 @@ pub fn switch_in_opponent_benched_pokemon(g: &mut Game, p: usize, allow_cancel: 
         PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel, blocked: SVec::new() },
         Cont::Prefab(PrefabCont::SwitchInOpponent { p: p as u8 }),
     );
+}
+
+/// `SWITCH_ACTIVE_WITH_BENCHED(store, state, player)`.
+pub fn switch_active_with_benched(g: &mut Game, p: usize) {
+    let pl = &g.st.players[p];
+    if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
+        return;
+    }
+    let mut slots = SVec::new();
+    slots.push(SlotType::Bench as u8);
+    let id = g.player_id(p);
+    g.prompt(
+        id,
+        "CHOOSE_NEW_ACTIVE_POKEMON",
+        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        Cont::Prefab(PrefabCont::SwitchActiveWithBenched { p: p as u8 }),
+    );
+}
+
+/// `MOVE_POKEMON_OFF_BOARD(store, state, slot, { pokemonDestination, sourceCard })`
+/// with no separate `attachedDestination`: one full-stack MOVE_CARDS.
+pub fn move_pokemon_off_board(g: &mut Game, slot: SlotRef, destination: ListRef, source_card: CardId) -> R {
+    g.run_fx(Effect::MoveCards {
+        source: slot.list(),
+        destination,
+        cards: None,
+        count: None,
+        to_top: false,
+        to_bottom: false,
+        skip_cleanup: false,
+        source_card,
+    })?;
+    Ok(())
+}
+
+/// `CONFIRMATION_PROMPT(store, state, player, callback, message)`.
+pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: Cont) {
+    let id = g.player_id(p);
+    g.prompt(id, message, PromptKind::Confirm, cont);
+}
+
+/// `OPPONENT_CANNOT_PLAY_CARDS(store, state, effect, source, options)`:
+/// reduce a `PlayLockEffect` (default durations).
+pub fn opponent_cannot_play_cards(g: &mut Game, atk: EffId, locks: u16) -> R {
+    let mut b = match *g.e(atk) {
+        Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source },
+        _ => return Ok(()),
+    };
+    b.target = b.source;
+    g.run_fx(Effect::PlayLock { b, locks, turns_remaining: None, both_players: false, attacker_turns_remaining: None })?;
+    Ok(())
 }
 
 /// `new ChooseCardsPrompt(player, message, list, filter, options)`, including
