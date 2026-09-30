@@ -1,0 +1,151 @@
+# Parallel oracle (Twinleaf) game generation.
+#
+# Dispatched by tools/remote_oracle.py: builds the Twinleaf oracle once, then
+# plays `count` games from a corpus spec across `shards` runners and uploads
+# the traces (and, optionally, V8 coverage filtered to the given Twinleaf
+# files) as artifacts. Replay them locally with engine/target/*/diff.
+name: oracle
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec_b64:
+        description: "Corpus spec JSON, gzip + base64"
+        required: true
+      start:
+        description: "First game index (seed)"
+        default: "0"
+      count:
+        description: "Total games"
+        default: "64"
+      shards:
+        description: "Parallel runners (1-20)"
+        default: "8"
+      cov_files:
+        description: "Twinleaf files (relative to src/, space-separated) to record coverage for; empty = no coverage"
+        default: ""
+      twinleaf_ref:
+        description: "Branch of christian-shin/twinleafgg"
+        default: "oracle"
+      tag:
+        description: "Label for the artifacts"
+        default: "run"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: christian-shin/twinleafgg
+          ref: ${{ inputs.twinleaf_ref }}
+          path: twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: twinleaf/ptcg-server/package-lock.json
+      - name: Install
+        working-directory: twinleaf/ptcg-server
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build oracle
+        working-directory: twinleaf/ptcg-server
+        run: node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc
+      - name: Package
+        run: tar -C twinleaf/ptcg-server -czf oracle.tgz output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oracle-build
+          path: oracle.tgz
+          retention-days: 1
+      - id: m
+        run: |
+          n=${{ inputs.shards }}
+          [ "$n" -ge 1 ] && [ "$n" -le 20 ] || { echo "shards must be 1-20"; exit 1; }
+          echo "matrix=$(python3 -c "import json;print(json.dumps(list(range($n))))")" >> "$GITHUB_OUTPUT"
+
+  games:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: christian-shin/twinleafgg
+          ref: ${{ inputs.twinleaf_ref }}
+          path: twinleaf
+          sparse-checkout: |
+            ptcg-server/package.json
+            ptcg-server/package-lock.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: twinleaf/ptcg-server/package-lock.json
+      - name: Install runtime dependencies
+        run: |
+          mkdir oracle && cp twinleaf/ptcg-server/package.json twinleaf/ptcg-server/package-lock.json oracle/
+          cd oracle && npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+      - uses: actions/download-artifact@v4
+        with:
+          name: oracle-build
+      - name: Unpack
+        run: tar -C oracle -xzf oracle.tgz
+      - name: Spec
+        run: echo "${{ inputs.spec_b64 }}" | base64 -d | gunzip > spec.json
+      - name: Play
+        working-directory: oracle
+        env:
+          START: ${{ inputs.start }}
+          COUNT: ${{ inputs.count }}
+          SHARDS: ${{ inputs.shards }}
+          SHARD: ${{ matrix.shard }}
+          COV_FILES: ${{ inputs.cov_files }}
+        run: |
+          # This shard's slice of [START, START+COUNT), split into 4 processes (4 vCPUs).
+          per=$(( (COUNT + SHARDS - 1) / SHARDS ))
+          s0=$(( START + SHARD * per )); end=$(( START + COUNT )); [ $(( s0 + per )) -lt $end ] && end=$(( s0 + per ))
+          n=$(( end - s0 )); [ $n -le 0 ] && { echo "nothing to do"; mkdir -p ../out; exit 0; }
+          p=$(( (n + 3) / 4 ))
+          mkdir -p ../out ../cov
+          for j in 0 1 2 3; do
+            a=$(( s0 + j * p )); c=$p; [ $(( a + c )) -gt $end ] && c=$(( end - a )); [ $c -le 0 ] && continue
+            if [ -n "$COV_FILES" ]; then
+              mkdir -p ../cov/raw$j
+              NODE_V8_COVERAGE=../cov/raw$j node --max-old-space-size=3072 output/oracle/cli.js corpus ../spec.json ../out $a $c > ../log$j.txt 2>&1 &
+            else
+              node --max-old-space-size=3072 output/oracle/cli.js corpus ../spec.json ../out $a $c > ../log$j.txt 2>&1 &
+            fi
+          done
+          wait
+          cat ../log*.txt
+      - name: Filter coverage to target files
+        if: inputs.cov_files != ''
+        env:
+          COV_FILES: ${{ inputs.cov_files }}
+        run: |
+          python3 - <<'PY'
+          import glob, json, os
+          want = tuple('/output/' + f[:-3] + '.js' for f in os.environ['COV_FILES'].split())
+          os.makedirs('covf', exist_ok=True)
+          for f in glob.glob('cov/raw*/coverage-*.json'):
+              d = json.load(open(f))
+              d['result'] = [s for s in d.get('result', []) if s['url'].endswith(want)]
+              out = os.path.join('covf', os.path.basename(os.path.dirname(f)) + '-' + os.path.basename(f))
+              json.dump(d, open(out, 'w'))
+          print(len(glob.glob('covf/*.json')), 'coverage snapshots kept')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.tag }}-shard${{ matrix.shard }}
+          path: |
+            out/
+            covf/
+            log*.txt
+          retention-days: 7

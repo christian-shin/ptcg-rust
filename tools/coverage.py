@@ -30,7 +30,18 @@ while i < len(args):
     if args[i].startswith('--min='):
         mn = int(args[i][6:]); i += 1; continue
     files.append(args[i]); i += 1
+# Snapshots may come from other machines (CI runners): match scripts by their
+# path under output/, and read the source from the local build of the same commit.
+suffix = {'/output/' + f[:-3] + '.js': f for f in files}
 urls = {'file://' + os.path.join(ORACLE, 'output', f[:-3] + '.js'): f for f in files}
+local_of = {s: u for u, f in urls.items() for s in [ '/output/' + f[:-3] + '.js']}
+
+
+def canon_url(u):
+    for s in suffix:
+        if u.endswith(s):
+            return local_of[s]
+    return None
 snaps = sorted(f for d in cov_dir.split(',') for f in glob.glob(os.path.join(d, 'coverage-*.json')))
 per_url_bounds = collections.defaultdict(set)
 games_ranges = []
@@ -38,7 +49,9 @@ for f in snaps:
     d = json.load(open(f))
     g = {}
     for s in d.get('result', []):
-        if s['url'] in urls:
+        cu = canon_url(s['url'])
+        if cu is not None:
+            s['url'] = cu
             rs = []
             for fn in s['functions']:
                 for r in fn['ranges']:
