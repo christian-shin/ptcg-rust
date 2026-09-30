@@ -85,6 +85,8 @@ pub fn clear_effects(slot: &mut Slot) {
     slot.cannot_attack_next_turn_pending = false;
     slot.cannot_retreat_next_turn = false;
     slot.cannot_retreat_next_turn_pending = false;
+    slot.cannot_use_attacks_next_turn.clear();
+    slot.cannot_use_attacks_next_turn_pending.clear();
 }
 
 /// `PokemonCardList.removeAttackEffects()` for the modeled fields.
@@ -94,6 +96,8 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.cannot_attack_next_turn_pending = false;
     slot.cannot_retreat_next_turn = false;
     slot.cannot_retreat_next_turn_pending = false;
+    slot.cannot_use_attacks_next_turn.clear();
+    slot.cannot_use_attacks_next_turn_pending.clear();
     slot.damage_reduction_next_turn = 0;
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;

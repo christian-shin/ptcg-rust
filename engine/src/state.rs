@@ -92,6 +92,9 @@ pub struct Slot {
     pub cannot_attack_next_turn_pending: bool,
     pub cannot_retreat_next_turn: bool,
     pub cannot_retreat_next_turn_pending: bool,
+    /// `cannotUseAttacksNextTurn` / `...Pending`: attack names.
+    pub cannot_use_attacks_next_turn: SVec<&'static str, 4>,
+    pub cannot_use_attacks_next_turn_pending: SVec<&'static str, 4>,
     pub damage_reduction_next_turn: i32,
     pub is_public: bool,
 }
@@ -121,6 +124,8 @@ impl Default for Slot {
             cannot_attack_next_turn_pending: false,
             cannot_retreat_next_turn: false,
             cannot_retreat_next_turn_pending: false,
+            cannot_use_attacks_next_turn: SVec::new(),
+            cannot_use_attacks_next_turn_pending: SVec::new(),
             damage_reduction_next_turn: 0,
             is_public: false,
         }
@@ -196,6 +201,8 @@ pub struct Player {
     pub cannot_attack_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
     pub coin_flip_cancel_trainer_play_turns_remaining: i32,
+    /// Mega Kangaskhan ex's `usedRunErrand` (absent until set).
+    pub used_run_errand: bool,
 }
 
 impl Player {
@@ -249,6 +256,7 @@ impl Player {
             cannot_attack_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
             coin_flip_cancel_trainer_play_turns_remaining: 0,
+            used_run_errand: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;

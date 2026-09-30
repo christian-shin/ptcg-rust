@@ -67,11 +67,21 @@ fn table() -> &'static Vec<Option<&'static CardImpl>> {
                 if d.behavior.is_empty() {
                     None
                 } else {
-                    registry::IMPLS.iter().copied().find(|i| i.class == d.behavior)
+                    registry::IMPLS.iter().copied().find(|i| class_matches(i.class, d))
                 }
             })
             .collect()
     })
+}
+
+/// `class` is the Twinleaf class name, optionally qualified as `Class@SET`
+/// when two Twinleaf files define classes with the same name (e.g.
+/// `Koraidonex` in both ASC and TEF).
+fn class_matches(class: &str, d: &crate::carddb::CardDef) -> bool {
+    match class.split_once('@') {
+        Some((c, set)) => c == d.behavior && set == d.set,
+        None => class == d.behavior,
+    }
 }
 
 #[inline]

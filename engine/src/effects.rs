@@ -125,6 +125,8 @@ pub enum Effect {
     AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
     RemoveSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
     HealTarget { b: AtkBase, damage: i32 },
+    /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
+    PreventRetreat { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -202,6 +204,7 @@ impl Effect {
             AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             RemoveSpecialConditions { .. } => "REMOVE_SPECIAL_CONDITIONS_EFFECT",
             HealTarget { .. } => "HEAL_TARGET_EFFECT",
+            PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -237,7 +240,8 @@ impl Effect {
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
-            | HealTarget { b, .. } => Some(b),
+            | HealTarget { b, .. }
+            | PreventRetreat { b } => Some(b),
             _ => None,
         }
     }
@@ -257,7 +261,8 @@ impl Effect {
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
-            | HealTarget { b, .. } => Some(b),
+            | HealTarget { b, .. }
+            | PreventRetreat { b } => Some(b),
             _ => None,
         }
     }
@@ -333,6 +338,7 @@ impl Effect {
             PlayPokemonFromDeck { .. } => 64,
             PlayPokemonFromDiscard { .. } => 65,
             CoinFlipSequence { .. } => 66,
+            PreventRetreat { .. } => 67,
         };
         k
     }
@@ -407,6 +413,7 @@ pub mod k {
     pub const PLAY_POKEMON_FROM_DECK: u32 = 64;
     pub const PLAY_POKEMON_FROM_DISCARD: u32 = 65;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
+    pub const PREVENT_RETREAT: u32 = 67;
 }
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.
