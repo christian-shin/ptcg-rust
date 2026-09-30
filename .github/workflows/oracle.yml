@@ -153,7 +153,13 @@ jobs:
               d['result'] = [s for s in d.get('result', []) if s['url'].endswith(want)]
               out = os.path.join('covf', os.path.basename(os.path.dirname(f)) + '-' + os.path.basename(f))
               json.dump(d, open(out, 'w'))
-          print(len(glob.glob('covf/*.json')), 'coverage snapshots kept')
+          kept = sum(1 for f in glob.glob('covf/*.json') if json.load(open(f))['result'])
+          print(kept, 'of', len(glob.glob('covf/*.json')), 'snapshots contain target files')
+          if not kept:
+              f = sorted(glob.glob('cov/raw*/coverage-*.json'))[:1]
+              if f:
+                  urls = [s['url'] for s in json.load(open(f[0])).get('result', [])]
+                  print('no match; sample urls:', [u for u in urls if 'sets/' in u][:5] or urls[:10])
           PY
       - uses: actions/upload-artifact@v4
         with:
