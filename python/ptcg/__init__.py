@@ -69,6 +69,11 @@ class VecEnv:
     def invalid_answers(self):
         return self._v.invalid_answers
 
+    @property
+    def stuck_games(self):
+        """Games ended early (reward 0, done) because a prompt had no valid answer."""
+        return self._v.stuck_games
+
     def step(self, actions):
         r, d = self._v.step([int(a) for a in actions])
         return np.frombuffer(r, dtype=np.float32), np.frombuffer(d, dtype=np.uint8).astype(bool)

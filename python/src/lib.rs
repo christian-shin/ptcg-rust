@@ -253,6 +253,8 @@ struct VecEnv {
     rng: Rng,
     next_seed: u32,
     invalid: u64,
+    /// Games ended because a prompt had no valid answer.
+    stuck: u64,
     invalid_ctx: std::collections::BTreeMap<u8, u64>,
 }
 
@@ -294,7 +296,9 @@ impl VecEnv {
         self.envs[i].reset(seed)
     }
 
-    fn submit(&mut self, i: usize) -> PyResult<()> {
+    /// Submit env `i`'s picks. `Ok(false)`: no valid answer exists (the game
+    /// is stuck, as Twinleaf would be) and the caller must end it.
+    fn submit(&mut self, i: usize) -> PyResult<bool> {
         self.views.lock().unwrap()[i] = None;
         let e = &mut self.envs[i];
         let sel = e.sel.clone().unwrap();
@@ -304,12 +308,16 @@ impl VecEnv {
                 let msg = sel.prompt_message(&e.game);
                 eprintln!("reject {:?} ctx={:?} msg={} min={} max={} n={} picks={:?}: {:?}", sel.select_type, sel.context, msg, sel.min_count, sel.max_count, sel.options.len(), picks, err);
             }
+            if !random_answer(&mut e.game, &sel, &mut self.rng) {
+                self.stuck += 1;
+                return Ok(false);
+            }
             self.invalid += 1;
             let key = sel.context as u8 + if picks.is_empty() { 100 } else { 0 };
             *self.invalid_ctx.entry(key).or_default() += 1;
-            random_answer(&mut e.game, &sel, &mut self.rng);
         }
-        e.refresh()
+        e.refresh()?;
+        Ok(true)
     }
 
     /// Advance env `i` until the learner must act or the game ends.
@@ -330,7 +338,10 @@ impl VecEnv {
             }
             if sel.player == 0 {
                 // Nothing to choose (e.g. no legal cards): answer empty.
-                self.submit(i)?;
+                if !self.submit(i)? {
+                    self.reset_env(i)?;
+                    return Ok((0.0, true));
+                }
                 continue;
             }
             let e = &mut self.envs[i];
@@ -352,7 +363,7 @@ impl VecEnv {
         for i in 0..n {
             envs.push(Env::new(deck_a.clone(), deck_b.clone(), seed.wrapping_add(i as u32), false)?);
         }
-        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, invalid_ctx: Default::default() };
+        let mut v = VecEnv { envs, picks: vec![Vec::new(); n], views: std::sync::Mutex::new(vec![None; n]), rng: Rng::new(seed ^ 0x9e37), next_seed: seed.wrapping_add(n as u32), invalid: 0, stuck: 0, invalid_ctx: Default::default() };
         for i in 0..n {
             v.advance(i)?;
         }
@@ -368,6 +379,12 @@ impl VecEnv {
     #[getter]
     fn invalid_answers(&self) -> u64 {
         self.invalid
+    }
+
+    /// Games ended early because a prompt had no valid answer (Twinleaf stuck).
+    #[getter]
+    fn stuck_games(&self) -> u64 {
+        self.stuck
     }
 
     #[classattr]
@@ -423,9 +440,12 @@ impl VecEnv {
             if let Some(sel) = self.envs[i].sel.clone() {
                 let v = self.view_of(i);
                 self.views.lock().unwrap()[i] = None;
-                if !v.is_empty() {
+                let submitted = if v.is_empty() {
+                    // No pick keeps a valid answer reachable.
+                    Some(self.submit(i)?)
+                } else {
                     match v[a.min(v.len() - 1)] {
-                        None => self.submit(i)?,
+                        None => Some(self.submit(i)?),
                         Some(j) => {
                             self.picks[i].push(j);
                             // Submit when nothing more can be picked.
@@ -434,10 +454,18 @@ impl VecEnv {
                                 !nv.iter().any(|o| o.is_some())
                             };
                             if done {
-                                self.submit(i)?;
+                                Some(self.submit(i)?)
+                            } else {
+                                None
                             }
                         }
                     }
+                };
+                if submitted == Some(false) {
+                    self.reset_env(i)?;
+                    rewards.push(0.0);
+                    dones.push(1u8);
+                    continue;
                 }
             }
             let (r, d) = if self.picks[i].is_empty() { self.advance(i)? } else { (0.0, false) };
