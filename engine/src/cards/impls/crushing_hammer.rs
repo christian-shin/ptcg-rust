@@ -57,7 +57,7 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
         return Ok(());
     }
     let p = f.a[0] as usize;
-    let mut blocked: SVec<CardTarget, 8> = SVec::new();
+    let mut blocked: TargetList = SVec::new();
     let packed = f.a[1] as u32;
     for i in 0..f.l[0] as usize {
         let code = (packed >> (4 * i)) & 0xf;

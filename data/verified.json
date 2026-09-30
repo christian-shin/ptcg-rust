@@ -105,5 +105,54 @@
  "Munkidori TWM": {
   "status": "partial",
   "note": "move prompt in 18 traces; zero-damage transfer and prevented move not hit"
+ },
+ "N's Zoroark ex JTG": {
+  "status": "verified"
+ },
+ "N's Zekrom M2a": {
+  "status": "verified"
+ },
+ "N's Purrloin JTG": {
+  "status": "verified"
+ },
+ "Pecharunt ex SFA": {
+  "status": "verified"
+ },
+ "Brock's Scouting JTG": {
+  "status": "verified"
+ },
+ "Secret Box TWM": {
+  "status": "verified"
+ },
+ "Tool Scrapper DRX": {
+  "status": "verified"
+ },
+ "N's PP Up JTG": {
+  "status": "verified"
+ },
+ "Air Balloon SSH": {
+  "status": "verified"
+ },
+ "N's Castle JTG": {
+  "status": "verified"
+ },
+ "Binding Mochi SFA": {
+  "status": "verified"
+ },
+ "Tatsugiri TWM": {
+  "status": "verified",
+  "note": "cancel path: Twinleaf TypeError (4 games)"
+ },
+ "Acerola's Mischief MEG": {
+  "status": "partial",
+  "note": "played in 9 games; ex-prevention ~1"
+ },
+ "Black Belt's Training JTG": {
+  "status": "partial",
+  "note": "+40 frequency not measured"
+ },
+ "Team Rocket's Watchtower DRI": {
+  "status": "partial",
+  "note": "needs a [C] Pok\u00e9mon with an Ability"
  }
 }

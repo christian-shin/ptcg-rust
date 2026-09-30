@@ -51,7 +51,7 @@ pub fn coin_cb(_g: &mut Game, _a: AttackCoinCb, _result: bool) -> R {
 }
 
 pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
-    &g.st.cdef(a.card).attacks[a.index as usize]
+    &g.st.cdef(a.card).attacks[a.ai()]
 }
 
 pub fn start_use_attack(g: &mut Game, id: EffId) -> R {

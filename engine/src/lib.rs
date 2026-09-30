@@ -7,6 +7,7 @@
 pub mod canonical;
 pub mod carddb;
 pub mod cards;
+pub mod copy_attack;
 pub mod effects;
 pub mod energy;
 pub mod engine;

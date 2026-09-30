@@ -46,8 +46,13 @@ def build_deck(targets, support, rng):
         if c['superType'] == 3 and c.get('energyType') == 0:
             deck[n] += q
             return
-        lim = 1 if 'Ace Spec' in (c.get('_tags') or []) else 4
+        ace = 'Ace Spec' in (c.get('_tags') or [])
+        lim = 1 if ace else 4
+        if ace and by_name['<ace>'] > 0:
+            return  # one ACE SPEC per deck
         q = min(q, lim - by_name[c['name']])
+        if ace and q > 0:
+            by_name['<ace>'] += 1
         if q > 0:
             deck[n] += q
             by_name[c['name']] += q
