@@ -1,0 +1,21 @@
+[package]
+name = "ptcg"
+version = "0.1.0"
+edition = "2021"
+description = "Pokémon TCG rules engine with Twinleaf parity, explicit option lists and copyable state"
+
+[lib]
+name = "ptcg"
+crate-type = ["rlib"]
+
+[dependencies]
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+debug = 1
+lto = "thin"
+codegen-units = 4
+
+[profile.dev]
+opt-level = 1

@@ -1,0 +1,258 @@
+//! Energy payment checks (`StateUtils.checkEnoughEnergy` and friends).
+
+use crate::effects::{Cost, EnergyEntry, EnergyMap};
+use crate::list::SVec;
+use crate::types::{ct, CardType};
+
+pub fn is_choosable(provides: &[CardType]) -> bool {
+    let mut first = None;
+    for &p in provides {
+        match first {
+            None => first = Some(p),
+            Some(f) if f != p => return true,
+            _ => {}
+        }
+    }
+    false
+}
+
+pub fn unit_count(provides: &[CardType]) -> usize {
+    if is_choosable(provides) {
+        1
+    } else {
+        provides.len()
+    }
+}
+
+pub fn provides_matches(provides: &[CardType], t: CardType) -> bool {
+    provides.contains(&ct::ANY) || provides.contains(&t)
+}
+
+#[derive(Clone, Copy, Default)]
+struct Unit {
+    choosable: bool,
+    t: CardType,
+    types: SVec<CardType, 4>,
+}
+
+fn units(energy: &[EnergyEntry]) -> SVec<Unit, 96> {
+    let mut out = SVec::new();
+    for e in energy {
+        let p = e.provides.as_slice();
+        if is_choosable(p) {
+            let mut types = SVec::new();
+            for &t in p {
+                types.push(t);
+            }
+            out.push(Unit { choosable: true, t: 0, types });
+        } else {
+            for &t in p {
+                out.push(Unit { choosable: false, t, types: SVec::new() });
+            }
+        }
+    }
+    out
+}
+
+pub fn check_enough_energy(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
+    if cost.is_empty() {
+        return true;
+    }
+    let mut us = units(energy);
+    let mut colorless = 0usize;
+    let mut needs: SVec<CardType, 16> = SVec::new();
+    for &c in cost {
+        match c {
+            ct::ANY | ct::NONE => {}
+            ct::COLORLESS => colorless += 1,
+            _ => {
+                if let Some(i) = us.iter().position(|u| !u.choosable && u.t == c) {
+                    us.remove_at(i);
+                } else {
+                    needs.push(c);
+                }
+            }
+        }
+    }
+    let mut i = 0;
+    while i < needs.len() {
+        let n = *needs.get(i).unwrap();
+        if let Some(j) = us.iter().position(|u| u.choosable && u.types.contains(&n)) {
+            us.remove_at(j);
+            needs.remove_at(i);
+        } else {
+            i += 1;
+        }
+    }
+    for _ in 0..needs.len() {
+        if let Some(j) = us.iter().position(|u| !u.choosable && u.t == ct::ANY) {
+            us.remove_at(j);
+        } else {
+            return false;
+        }
+    }
+    us.len() >= colorless
+}
+
+pub fn check_exact_energy(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
+    if !check_enough_energy(energy, cost) {
+        return false;
+    }
+    for i in 0..energy.len() {
+        let mut tmp: SVec<EnergyEntry, 40> = SVec::new();
+        for (j, e) in energy.iter().enumerate() {
+            if j != i {
+                tmp.push(*e);
+            }
+        }
+        if check_enough_energy(tmp.as_slice(), cost) {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn all_provides_identical(map: &[EnergyEntry]) -> bool {
+    if map.is_empty() {
+        return false;
+    }
+    let key = |e: &EnergyEntry| {
+        let mut v: Vec<CardType> = e.provides.as_slice().to_vec();
+        // JS default sort compares string forms; single-digit types sort the same.
+        v.sort_by_key(|x| x.to_string());
+        v
+    };
+    let first = key(&map[0]);
+    map.iter().all(|e| key(e) == first)
+}
+
+fn apply_provides_to_typed_costs(provides: &[CardType], costs: &mut SVec<CardType, 16>) {
+    if is_choosable(provides) {
+        if let Some(i) = costs.iter().position(|c| provides_matches(provides, *c)) {
+            costs.remove_at(i);
+        }
+        return;
+    }
+    for &c in provides {
+        if c == ct::ANY && !costs.is_empty() {
+            costs.remove_at(0);
+        } else if let Some(i) = costs.position(&c) {
+            costs.remove_at(i);
+        }
+    }
+}
+
+/// `StateUtils.selectMinimalEnergyForCost`.
+pub fn select_minimal_energy_for_cost(map: &[EnergyEntry], cost: &[CardType]) -> Option<SVec<EnergyEntry, 40>> {
+    let mut result: SVec<EnergyEntry, 40> = SVec::new();
+    if cost.is_empty() {
+        return Some(result);
+    }
+    let mut provides: Vec<EnergyEntry> = map.to_vec();
+    let mut costs: SVec<CardType, 16> = SVec::new();
+    for &c in cost {
+        if c != ct::COLORLESS {
+            costs.push(c);
+        }
+    }
+    while !costs.is_empty() && !provides.is_empty() {
+        let t = *costs.get(0).unwrap();
+        let mut idx = provides.iter().position(|p| provides_matches(p.provides.as_slice(), t));
+        if idx.is_none() {
+            idx = provides.iter().position(|p| p.provides.contains(&ct::ANY));
+        }
+        let i = idx?;
+        let p = provides.remove(i);
+        result.push(p);
+        apply_provides_to_typed_costs(p.provides.as_slice(), &mut costs);
+    }
+    if !costs.is_empty() {
+        return None;
+    }
+    // Stable sort by unit count (Array.prototype.sort is stable).
+    provides.sort_by_key(|p| unit_count(p.provides.as_slice()));
+    let mut k = 0;
+    while k < provides.len() && !check_enough_energy(result.as_slice(), cost) {
+        result.push(provides[k]);
+        k += 1;
+    }
+    if !check_enough_energy(result.as_slice(), cost) {
+        return None;
+    }
+    loop {
+        let mut changed = false;
+        for i in 0..result.len() {
+            let mut tmp: SVec<EnergyEntry, 40> = SVec::new();
+            for (j, e) in result.iter().enumerate() {
+                if j != i {
+                    tmp.push(*e);
+                }
+            }
+            if check_enough_energy(tmp.as_slice(), cost) {
+                result = tmp;
+                changed = true;
+                break;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+    Some(result)
+}
+
+/// `ChooseEnergyPrompt.getCostThatCanBePaid` (used when the prompt can't be cancelled).
+pub fn cost_that_can_be_paid(energy: &EnergyMap, cost: &Cost) -> Cost {
+    let mut result = *cost;
+    let mut provides: Vec<EnergyEntry> = energy.as_slice().to_vec();
+    let mut costs: SVec<CardType, 16> = SVec::new();
+    for &c in cost.iter() {
+        if c != ct::COLORLESS {
+            costs.push(c);
+        }
+    }
+    let colorless_count = result.len() - costs.len();
+    while !costs.is_empty() && !provides.is_empty() {
+        let c = *costs.get(0).unwrap();
+        let mut idx = provides.iter().position(|p| provides_matches(p.provides.as_slice(), c));
+        if idx.is_none() {
+            idx = provides.iter().position(|p| p.provides.contains(&ct::ANY));
+        }
+        match idx {
+            Some(i) => {
+                let p = provides.remove(i);
+                let pr = p.provides.as_slice();
+                if is_choosable(pr) {
+                    if let Some(m) = costs.iter().position(|x| provides_matches(pr, *x)) {
+                        costs.remove_at(m);
+                    }
+                } else {
+                    for &x in pr {
+                        if x == ct::ANY && !costs.is_empty() {
+                            costs.remove_at(0);
+                        } else if let Some(m) = costs.position(&x) {
+                            costs.remove_at(m);
+                        }
+                    }
+                }
+            }
+            None => {
+                costs.remove_at(0);
+                if let Some(d) = result.position(&c) {
+                    result.remove_at(d);
+                }
+            }
+        }
+    }
+    let mut left = 0usize;
+    for p in &provides {
+        left += unit_count(p.provides.as_slice());
+    }
+    let to_delete = colorless_count.saturating_sub(left);
+    for _ in 0..to_delete {
+        if let Some(d) = result.position(&ct::COLORLESS) {
+            result.remove_at(d);
+        }
+    }
+    result
+}

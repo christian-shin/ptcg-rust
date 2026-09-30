@@ -1,0 +1,318 @@
+//! Turn structure (`game-phase-effect.ts`): draw, end of turn, between
+//! turns, special conditions.
+//!
+//! Fields Twinleaf clears here that no pool card ever sets are not modeled;
+//! they are listed next to the code that would touch them.
+
+use crate::effects::*;
+use crate::engine::check;
+use crate::game::{Cont, Game, OnComplete, R};
+use crate::list::*;
+use crate::markers::*;
+use crate::prompts::*;
+use crate::state::*;
+use crate::types::*;
+
+pub fn end_game(g: &mut Game, winner: Winner) {
+    if g.st.phase == GamePhase::Finished {
+        return;
+    }
+    g.st.winner = winner;
+    g.st.phase = GamePhase::Finished;
+}
+
+pub fn init_next_turn(g: &mut Game) -> R {
+    if g.st.phase != GamePhase::Setup && g.st.phase != GamePhase::BetweenTurns {
+        return Ok(());
+    }
+    if g.st.phase == GamePhase::BetweenTurns {
+        // usedTurnSkip is not modeled (no pool card sets it).
+        g.st.active_player ^= 1;
+    }
+    let p = g.st.active_player as usize;
+    g.st.turn += 1;
+    g.st.players[p].moved_to_active_this_turn.clear();
+    g.st.players[p].moved_from_active_to_bench_this_turn.clear();
+
+    if g.st.turn == 1 && !g.st.rules.first_turn_draw_card {
+        g.st.phase = GamePhase::PlayerTurn;
+        return Ok(());
+    }
+    g.st.phase = GamePhase::Draw;
+    if g.st.players[p].deck.is_empty() {
+        let winner = if g.st.active_player != 0 { WINNER_P1 } else { WINNER_P2 };
+        end_game(g, winner);
+        return Ok(());
+    }
+    g.run_fx(Effect::BeginTurn { p: p as u8 })?;
+
+    let id = g.player_id(p);
+    let draw = if g.st.players[p].cannot_draw_at_start_of_turn {
+        g.st.players[p].cannot_draw_at_start_of_turn = false;
+        None
+    } else {
+        match g.run_fx(Effect::DrawCardForTurn { p: p as u8, draw_count: 1 }) {
+            Ok((Effect::DrawCardForTurn { draw_count, .. }, _)) => Some(draw_count),
+            _ => None,
+        }
+    };
+    let draw_count = match draw {
+        Some(n) => n,
+        None => {
+            g.wait(id, Cont::PhasePlayerTurn);
+            return Ok(());
+        }
+    };
+    let hand_start = g.st.players[p].hand.len();
+    g.run_fx(Effect::MoveCards {
+        source: ListRef::Deck(p as u8),
+        destination: ListRef::Hand(p as u8),
+        cards: None,
+        count: Some(draw_count),
+        to_top: false,
+        to_bottom: false,
+        skip_cleanup: false,
+        source_card: NO_CARD,
+    })?;
+    let drawn = g.st.players[p].hand.len().saturating_sub(hand_start);
+    for i in 0..drawn {
+        let card = g.st.players[p].hand.as_slice()[hand_start + i];
+        if g.run_fx(Effect::DrewTopdeck { p: p as u8, card }).is_err() {
+            g.wait(id, Cont::PhasePlayerTurn);
+            return Ok(());
+        }
+    }
+    g.wait(id, Cont::PhasePlayerTurn);
+    Ok(())
+}
+
+fn start_next_turn(g: &mut Game) -> R {
+    let p = g.st.active_player as usize;
+    let a = g.st.players[p].active;
+    remove_condition(g, p, a, SpecialCondition::Paralyzed);
+    g.move_to(ListRef::Supporter(p as u8), ListRef::Discard(p as u8), None);
+    between_turns(g, OnComplete::InitNextTurn)
+}
+
+pub fn between_turns(g: &mut Game, oc: OnComplete) -> R {
+    let entered = g.st.phase == GamePhase::PlayerTurn || g.st.phase == GamePhase::Attack;
+    if entered {
+        g.st.phase = GamePhase::BetweenTurns;
+        let id = g.player_id(g.st.active_player as usize);
+        g.wait(id, Cont::BetweenTurnsWait { oc });
+        return Ok(());
+    }
+    run_between_turns_effects(g, oc)
+}
+
+pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
+    for p in 0..2 {
+        let a = g.st.players[p].active;
+        let slot = g.st.slot(p, a);
+        let e = Effect::BetweenTurns {
+            p: p as u8,
+            poison_damage: slot.poison_damage,
+            burn_damage: slot.burn_damage,
+            burn_flip_result: None,
+            asleep_flip_result: None,
+        };
+        g.run_fx(e)?;
+    }
+    if g.has_prompts() {
+        g.wait_prompt(Cont::BetweenTurnsCheck { oc });
+        return Ok(());
+    }
+    check::check_state(g, oc)
+}
+
+/// `oc` for EndTurn's checkState, after KO resolution.
+pub fn after_end_turn(g: &mut Game, _p: usize) -> R {
+    // Expiring denyPrizes / discardAttackerEnergy fields: not modeled.
+    if g.st.phase == GamePhase::Finished {
+        return Ok(());
+    }
+    start_next_turn(g)
+}
+
+pub fn remove_condition(g: &mut Game, p: usize, s: SlotId, sc: SpecialCondition) {
+    let v = sc as u8;
+    let conds = &mut g.st.players[p].slots[s as usize].special_conditions;
+    if conds.contains(&v) {
+        conds.retain(|x| *x != v);
+    }
+}
+
+pub fn remove_active_condition(g: &mut Game, p: usize, sc: SpecialCondition) {
+    let a = g.st.players[p].active;
+    remove_condition(g, p, a, sc);
+}
+
+pub fn add_condition(slot: &mut Slot, sc: SpecialCondition) {
+    // cannotBeSpecialConditionedNextTurn: not modeled.
+    match sc {
+        SpecialCondition::Poisoned => slot.poison_damage = 10,
+        SpecialCondition::Burned => slot.burn_damage = 20,
+        SpecialCondition::Confused => slot.confusion_damage = 30,
+        _ => {}
+    }
+    let v = sc as u8;
+    if slot.special_conditions.contains(&v) {
+        return;
+    }
+    if sc == SpecialCondition::Poisoned || sc == SpecialCondition::Burned {
+        slot.special_conditions.push(v);
+        return;
+    }
+    slot.special_conditions.retain(|s| {
+        !(*s == SpecialCondition::Paralyzed as u8 || *s == SpecialCondition::Confused as u8 || *s == SpecialCondition::Asleep as u8)
+    });
+    slot.special_conditions.push(v);
+}
+
+fn handle_special_conditions(g: &mut Game, id: EffId) {
+    let (p, poison, burn, burn_flip, asleep_flip) = match *g.e(id) {
+        Effect::BetweenTurns { p, poison_damage, burn_damage, burn_flip_result, asleep_flip_result } => {
+            (p as usize, poison_damage, burn_damage, burn_flip_result, asleep_flip_result)
+        }
+        _ => return,
+    };
+    let pid = g.player_id(p);
+    // Iterate over a snapshot, like `for...of` over the original array.
+    let a0 = g.st.players[p].active;
+    let conds = g.st.slot(p, a0).special_conditions;
+    for &sp in conds.iter() {
+        let a = g.st.players[p].active;
+        match SpecialCondition::from_u8(sp) {
+            SpecialCondition::Poisoned => g.st.players[p].slots[a as usize].damage += poison,
+            SpecialCondition::Burned => {
+                g.st.players[p].slots[a as usize].damage += burn;
+                match burn_flip {
+                    Some(true) => {}
+                    Some(false) => g.st.players[p].slots[a as usize].damage += burn,
+                    None => g.prompt(pid, "FLIP_BURNED", PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a }),
+                }
+            }
+            SpecialCondition::Asleep => match asleep_flip {
+                Some(true) => remove_active_condition(g, p, SpecialCondition::Asleep),
+                Some(false) => {}
+                None => {
+                    let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;
+                    if flips > 0 {
+                        let prompts: Vec<(u8, &'static str, PromptKind)> =
+                            (0..flips).map(|_| (pid, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
+                        g.prompt_group(&prompts, Cont::SleepFlips { p: p as u8, slot: a });
+                    } else {
+                        remove_active_condition(g, p, SpecialCondition::Asleep);
+                    }
+                }
+            },
+            _ => {}
+        }
+    }
+}
+
+pub fn reducer(g: &mut Game, id: EffId) -> R {
+    match *g.e(id) {
+        Effect::EndTurn { p } => end_turn(g, p as usize),
+        Effect::BetweenTurns { .. } => {
+            handle_special_conditions(g, id);
+            Ok(())
+        }
+        _ => Ok(()),
+    }
+}
+
+fn end_turn(g: &mut Game, p: usize) -> R {
+    let o = 1 - p;
+    let ancient = match g.st.player_last_attack[p] {
+        Some((_, src)) => g.st.cdef(src).has_tag(tag::ANCIENT),
+        None => false,
+    };
+    g.st.players[p].ancient_pokemon_attacked_last_turn = ancient;
+    // usedTurnSkip / pendingEndOfTurnEffects: not modeled.
+    g.st.players[p].can_evolve = false;
+    for s in g.st.players[p].in_play().iter() {
+        let slot = &mut g.st.players[p].slots[*s as usize];
+        slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
+        slot.healed_this_turn = false;
+        if let Some(c) = g.st.slot_pokemon(p, *s) {
+            g.st.cards[c as usize].damage_taken_last_turn = 0;
+        }
+    }
+    g.st.players[p].marker.remove(DAMAGE_DEALT_MARKER);
+    g.st.players[p].pokemon_knocked_out_during_opponents_last_turn = false;
+    g.st.players[p].pokemon_knocked_out_by_attack_during_opponents_last_turn = false;
+    g.st.players[p].pokemon_knocked_out_last_turn_entries.clear();
+
+    for s in g.st.players[o].in_play().iter() {
+        let slot = &mut g.st.players[o].slots[*s as usize];
+        slot.damage_reduction_next_turn = 0;
+        // other next-turn protections: not modeled.
+    }
+    for s in g.st.players[p].in_play().iter() {
+        let slot = &mut g.st.players[p].slots[*s as usize];
+        if slot.cannot_attack_next_turn {
+            slot.cannot_attack_next_turn = false;
+        }
+        if slot.cannot_attack_next_turn_pending {
+            slot.cannot_attack_next_turn = true;
+            slot.cannot_attack_next_turn_pending = false;
+        }
+        if slot.cannot_retreat_next_turn {
+            slot.cannot_retreat_next_turn = false;
+        }
+        if slot.cannot_retreat_next_turn_pending {
+            slot.cannot_retreat_next_turn = true;
+            slot.cannot_retreat_next_turn_pending = false;
+        }
+        if slot.cannot_be_healed_next_turn {
+            slot.cannot_be_healed_next_turn = false;
+        }
+    }
+    tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
+    let pl = &mut g.st.players[p];
+    pl.supporter_turn = 0;
+    let a = pl.active;
+    pl.slots[a as usize].attacks_this_turn = Some(0);
+    pl.prizes_taken_last_turn = pl.prizes_taken_this_turn;
+    pl.prizes_taken_this_turn = 0;
+    check::check_state(g, OnComplete::AfterEndTurn { p: p as u8 })
+}
+
+pub fn clear_play_locks(pl: &mut Player) {
+    pl.cannot_play_item_cards = false;
+    pl.cannot_play_supporter_cards = false;
+    pl.cannot_play_stadium_cards = false;
+    pl.cannot_play_tool_cards = false;
+    pl.cannot_play_special_energy_cards = false;
+    pl.cannot_play_energy_cards = false;
+    pl.cannot_play_pokemon_cards = false;
+    pl.cannot_play_pokemon_with_abilities = false;
+    pl.cannot_evolve_pokemon_cards = false;
+    pl.play_locks_turns_remaining = 0;
+}
+
+fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
+    if pl.play_locks_turns_remaining > 0 {
+        pl.play_locks_turns_remaining -= 1;
+        if pl.play_locks_turns_remaining <= 0 {
+            clear_play_locks(pl);
+        }
+    }
+    if pl.stadium_and_tool_have_no_effect_turns_remaining > 0 {
+        pl.stadium_and_tool_have_no_effect_turns_remaining -= 1;
+    }
+    if pl.coin_flip_cancel_trainer_play_turns_remaining > 0 {
+        pl.coin_flip_cancel_trainer_play_turns_remaining -= 1;
+    }
+    if pl.cannot_attack_turns_remaining > 0 {
+        pl.cannot_attack_turns_remaining -= 1;
+    }
+    if pl.unlimited_energy_attach_turns_remaining > 0 {
+        pl.unlimited_energy_attach_turns_remaining -= 1;
+    }
+    pl.used_dragons_wish = pl.unlimited_energy_attach_turns_remaining == 1;
+    pl.cannot_draw_at_start_of_turn = false;
+}
+
+pub fn _unused(_: SVec<u8, 1>) {}
