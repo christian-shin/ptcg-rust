@@ -270,7 +270,7 @@ impl Game {
             coin_callbacks: SVec::new(),
             resolving_trainer: None,
             probing_stadium: false,
-            kinds_present: 0,
+            kinds_present: crate::effects::KindMask::EMPTY,
             trace_effects: false,
             copy_sessions: SVec::new(),
             copy_serial: 0,
@@ -591,10 +591,9 @@ impl Game {
     /// `propagateEffect` order (zone order, then stable sort by rank).
     fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
-        let bit = 1u128 << kind;
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
-                if imp.mask & bit != 0 {
+                if imp.mask.has(kind) {
                     cards.push(c);
                 }
             }
@@ -692,7 +691,7 @@ impl Game {
         for &c in first.iter() {
             self.call_card(c, id, kind)?;
         }
-        let order = if self.kinds_present & (1u128 << kind) != 0 { self.propagation_order(&e, kind) } else { SVec::new() };
+        let order = if self.kinds_present.has(kind) { self.propagation_order(&e, kind) } else { SVec::new() };
         for &c in order.iter() {
             if first.contains(&c) {
                 continue;
@@ -730,7 +729,7 @@ impl Game {
         }
         let d = self.st.cards[c as usize].def;
         if let Some(imp) = cards::impl_for(d) {
-            if imp.mask & (1u128 << kind) != 0 {
+            if imp.mask.has(kind) {
                 if let Effect::Trainer { p, card, .. } = *self.e(id) {
                     if card == c {
                         let prev = self.resolving_trainer;

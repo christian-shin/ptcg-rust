@@ -98,7 +98,7 @@ fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
         Some(i) => i,
         None => return Ok(()),
     };
-    if imp.mask & (1u128 << g.e(id).kind()) == 0 {
+    if !imp.mask.has(g.e(id).kind()) {
         return Ok(());
     }
     let saved = g.deleg;

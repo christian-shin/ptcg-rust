@@ -8,7 +8,7 @@ use super::shuppet::{count_hide_n_sneak_in_discard, reduce_hide_n_sneak, HIDE_N_
 use crate::cards::prelude::*;
 use crate::effects::KindMask;
 
-const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS) | mask(&[k::ATTACK]);
+const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::ATTACK]));
 
 pub static IMPL: CardImpl = CardImpl { class: "Sinistcha", mask: MASK, reduce, resume: None, coin: None, can_play: None };
 

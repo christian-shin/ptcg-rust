@@ -4,7 +4,7 @@ use super::shuppet::{reduce_hide_n_sneak, HIDE_N_SNEAK_KINDS};
 use crate::cards::prelude::*;
 use crate::effects::KindMask;
 
-const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS) | mask(&[k::ATTACK]);
+const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::ATTACK]));
 
 pub static IMPL: CardImpl = CardImpl { class: "Poltchageist", mask: MASK, reduce, resume: None, coin: None, can_play: None };
 

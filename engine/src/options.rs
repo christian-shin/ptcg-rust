@@ -100,7 +100,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
             }
         }
     }
-    if g.kinds_present & (1u128 << crate::effects::k::CHECK_POKEMON_ATTACKS) != 0 || g.st.slot(p, pl.active).tools.len() > 0 {
+    if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_ATTACKS) || g.st.slot(p, pl.active).tools.len() > 0 {
         let mut sim = g.fork();
         if let Ok((Effect::CheckPokemonAttacks { attacks, .. }, _)) = { let e = check_attacks_effect(&sim, p); sim.run_fx(e) } {
             for a in attacks.iter() {
@@ -122,7 +122,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
                     pn.push(pw.name);
                 }
             }
-            if g.kinds_present & (1u128 << crate::effects::k::CHECK_POKEMON_POWERS) != 0 {
+            if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
                 let mut sim = g.fork();
                 let mut powers = SVec::new();
                 for i in 0..g.st.cdef(c).powers.len() {

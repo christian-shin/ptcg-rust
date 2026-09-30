@@ -483,15 +483,45 @@ pub mod play_lock {
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.
 pub const fn mask(kinds: &[u32]) -> KindMask {
-    let mut m = 0u128;
+    let mut m = [0u64; 4];
     let mut i = 0;
     while i < kinds.len() {
-        m |= 1u128 << kinds[i];
+        let k = kinds[i];
+        m[(k >> 6) as usize] |= 1u64 << (k & 63);
         i += 1;
     }
-    m
+    KindMask(m)
 }
 
-/// Bitmask over [`Effect::kind`].
-pub type KindMask = u128;
-pub const ALL_KINDS: KindMask = u128::MAX;
+/// Bitmask over [`Effect::kind`] (256 kinds). Combine in const context with
+/// [`KindMask::or`]; `|` works at runtime.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct KindMask(pub [u64; 4]);
+
+impl KindMask {
+    pub const EMPTY: KindMask = KindMask([0; 4]);
+
+    #[inline]
+    pub const fn has(&self, kind: u32) -> bool {
+        (self.0[(kind >> 6) as usize] >> (kind & 63)) & 1 != 0
+    }
+
+    pub const fn or(self, o: KindMask) -> KindMask {
+        KindMask([self.0[0] | o.0[0], self.0[1] | o.0[1], self.0[2] | o.0[2], self.0[3] | o.0[3]])
+    }
+}
+
+impl std::ops::BitOr for KindMask {
+    type Output = KindMask;
+    fn bitor(self, o: KindMask) -> KindMask {
+        self.or(o)
+    }
+}
+
+impl std::ops::BitOrAssign for KindMask {
+    fn bitor_assign(&mut self, o: KindMask) {
+        *self = self.or(o);
+    }
+}
+
+pub const ALL_KINDS: KindMask = KindMask([u64::MAX; 4]);
