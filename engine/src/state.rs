@@ -102,6 +102,9 @@ pub struct Slot {
     pub attack_damage_reduction_next_turn: i32,
     /// `blockedAttackNameNextTurn`.
     pub blocked_attack_name_next_turn: Option<&'static str>,
+    /// `preventDamageNextTurn` / `...Pending` (only the empty filter `{}` is modeled).
+    pub prevent_damage_next_turn: bool,
+    pub prevent_damage_next_turn_pending: bool,
     pub is_public: bool,
 }
 
@@ -135,6 +138,8 @@ impl Default for Slot {
             damage_reduction_next_turn: 0,
             attack_damage_reduction_next_turn: 0,
             blocked_attack_name_next_turn: None,
+            prevent_damage_next_turn: false,
+            prevent_damage_next_turn_pending: false,
             is_public: false,
         }
     }

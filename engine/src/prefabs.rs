@@ -620,6 +620,18 @@ pub fn block_retreat(g: &mut Game, atk: EffId) -> R {
     Ok(())
 }
 
+/// `PREVENT_DAMAGE(store, state, effect, source)` (no options): reduce a
+/// `PreventDamageEffect` whose target is the attack's source.
+pub fn prevent_damage(g: &mut Game, atk: EffId) -> R {
+    let source = match *g.e(atk) {
+        Effect::Attack { source, .. } => source,
+        _ => return Ok(()),
+    };
+    let b = atk_base_for(g, atk, source);
+    g.run_fx(Effect::PreventDamage { b })?;
+    Ok(())
+}
+
 /// `new AddSpecialConditionsEffect(effect, conditions)` on the opponent's Active.
 pub fn add_special_conditions_to_opponent_active(g: &mut Game, atk: EffId, conditions: &[SpecialCondition]) -> R {
     let o = match *g.e(atk) {

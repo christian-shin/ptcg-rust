@@ -79,6 +79,12 @@ impl Game {
         if !s.cannot_use_attacks_next_turn_pending.is_empty() {
             o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
         }
+        if s.prevent_damage_next_turn {
+            o.insert("preventDamageNextTurn".into(), json!({}));
+        }
+        if s.prevent_damage_next_turn_pending {
+            o.insert("preventDamageNextTurnPending".into(), json!({}));
+        }
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
         }

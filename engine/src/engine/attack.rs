@@ -371,7 +371,16 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
                 g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
             }
-            // preventDamageNextTurn: not modeled.
+            // shouldPreventAttackDamage (only the empty filter is modeled).
+            if g.st.phase == GamePhase::Attack
+                && g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
+                && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_some()
+            {
+                if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
+                    *d = damage;
+                }
+                return Ok(());
+            }
             let red = g.st.slot(t.p as usize, t.s).damage_reduction_next_turn;
             if red != 0 {
                 damage = (damage - red).max(0);
@@ -468,6 +477,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let o = b.opponent as usize;
             let a = g.st.players[o].active;
             g.st.players[o].slots[a as usize].cannot_retreat_next_turn = true;
+            Ok(())
+        }
+        Effect::PreventDamage { b } => {
+            // PreventDamageEffect.applyEffect(): the attacking player's current Active.
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].prevent_damage_next_turn_pending = true;
             Ok(())
         }
         Effect::ReduceDamage { b, reduction } => {

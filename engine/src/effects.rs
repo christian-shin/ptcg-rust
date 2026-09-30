@@ -139,6 +139,9 @@ pub enum Effect {
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
     /// `attackDamageReductionNextTurn = max(0, reduction)`.
     ReduceDamage { b: AtkBase, reduction: i32 },
+    /// `PreventDamageEffect` (EffectOfAttackEffect, target = base.source):
+    /// `player.active.preventDamageNextTurnPending = {}`.
+    PreventDamage { b: AtkBase },
     /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
     SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
 
@@ -224,6 +227,7 @@ impl Effect {
             OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
+            PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
@@ -264,6 +268,7 @@ impl Effect {
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
+            PreventDamage { b } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             _ => None,
         }
@@ -288,6 +293,7 @@ impl Effect {
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
+            PreventDamage { b } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             _ => None,
         }
@@ -369,6 +375,7 @@ impl Effect {
             PreventRetreat { .. } => 69,
             AddSpecialConditionsPower { .. } => 70,
             ReduceDamage { .. } => 110,
+            PreventDamage { .. } => 84,
             SwitchOutOpponentsActive { .. } => 111,
             OpponentPokemonCannotUseAttack { .. } => 91,
         };
@@ -450,6 +457,7 @@ pub mod k {
     pub const PREVENT_RETREAT: u32 = 69;
     pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
     pub const REDUCE_DAMAGE: u32 = 110;
+    pub const PREVENT_DAMAGE: u32 = 84;
     pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
 }
