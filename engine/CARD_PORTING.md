@@ -132,7 +132,12 @@ through Rust. On a divergence:
 * Also re-run the previous corpora to catch regressions:
   `engine/target/release/diff corpus/t1 corpus/cards --quiet`.
 
-Coverage: a pass means nothing unless the card's branches ran. Check the
+Coverage: a pass means nothing unless the card's branches ran. Add
+`--coverage` to `check_cards.py`: it records V8 block coverage per game and
+lists every block of your card's compiled Twinleaf code that ran in fewer than
+10 games (`--min-games`), with a source excerpt. Blocks that can't run (e.g.
+`|| []` on a prompt that can't be cancelled, defensive throws) go in your
+report as exemption candidates; everything else needs more games. Also check the
 traces (answers `a` with `"a":"play"` / `"attack"` / `"ability"` for your card,
 the prompt messages in `d`) and add games or seeds until every branch of the
 TS code has been hit, including failure paths (card played with an invalid

@@ -106,6 +106,8 @@ def main():
     ap.add_argument('--out')
     ap.add_argument('--tag')
     ap.add_argument('--no-gen', action='store_true')
+    ap.add_argument('--coverage', action='store_true', help='record V8 block coverage per game and report per card')
+    ap.add_argument('--min-games', type=int, default=10)
     args = ap.parse_args()
     for t in args.targets:
         if t not in cards:
@@ -115,7 +117,12 @@ def main():
     if not args.no_gen:
         os.makedirs(out, exist_ok=True)
         for f in os.listdir(out):
-            os.remove(os.path.join(out, f))
+            fp = os.path.join(out, f)
+            if os.path.isdir(fp):
+                import shutil
+                shutil.rmtree(fp)
+            else:
+                os.remove(fp)
         data = {r['fullName'] for r in pool if r.get('tier') == 'data'}
         support = (data | ported_names()) - set(args.targets)
         rng = random.Random(args.seed)
@@ -127,17 +134,25 @@ def main():
         spec_path = os.path.join(out, 'spec.json.txt')
         json.dump(spec, open(spec_path, 'w'))
         per = (args.games + args.jobs - 1) // args.jobs
+        env = dict(os.environ)
+        cov_dir = os.path.join(out, 'cov')
+        if args.coverage:
+            os.makedirs(cov_dir, exist_ok=True)
+            env['NODE_V8_COVERAGE'] = cov_dir
         procs = []
         for j in range(args.jobs):
             start = args.seed * 100000 + j * per
             procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'corpus', spec_path, out, str(start), str(per)],
-                                          cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True))
+                                          cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
         logs = [p.communicate()[0] for p in procs]
         bad = [l for log in logs for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
         for l in bad[:10]:
             print('ORACLE:', l)
     r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
     print(r.stdout[-6000:])
+    if args.coverage:
+        files = sorted({row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
+        subprocess.run([sys.executable, os.path.join(ROOT, 'tools/coverage.py'), os.path.join(out, 'cov'), *files, '--min', str(args.min_games)])
     sys.exit(r.returncode)
 
 
