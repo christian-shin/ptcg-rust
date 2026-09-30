@@ -217,6 +217,8 @@ pub struct Player {
     pub pecharuntex_is_in_play: bool,
     /// Mega Kangaskhan ex's `usedRunErrand` (absent until set).
     pub used_run_errand: bool,
+    /// `rocketSupporter` (Team Rocket's Petrel; cleared at its owner's end of turn).
+    pub rocket_supporter: bool,
 }
 
 impl Player {
@@ -274,6 +276,7 @@ impl Player {
             chains_of_control_used: false,
             pecharuntex_is_in_play: false,
             used_run_errand: false,
+            rocket_supporter: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;

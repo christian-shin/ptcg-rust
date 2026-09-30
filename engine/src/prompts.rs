@@ -39,6 +39,8 @@ pub struct Filter {
     pub card_type: Option<CardType>,
     pub tags: Option<u32>,
     pub name: Option<&'static str>,
+    /// `evolvesFrom` (compared with `!==`; non-Pokémon never match).
+    pub evolves_from: Option<&'static str>,
     /// `cardType` was given as a one-element array (`cardType: [T]`).
     pub card_type_list: bool,
 }
@@ -96,6 +98,11 @@ impl Filter {
                 return false;
             }
         }
+        if let Some(n) = self.evolves_from {
+            if !d.is_pokemon() || d.evolves_from != n {
+                return false;
+            }
+        }
         true
     }
     pub fn to_json(&self) -> Value {
@@ -124,6 +131,9 @@ impl Filter {
         }
         if let Some(v) = self.name {
             m.insert("name".into(), json!(v));
+        }
+        if let Some(v) = self.evolves_from {
+            m.insert("evolvesFrom".into(), json!(v));
         }
         Value::Object(m)
     }

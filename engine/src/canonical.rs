@@ -161,6 +161,7 @@ impl Game {
         nd!(chains_of_control_used, "chainsOfControlUsed");
         nd!(pecharuntex_is_in_play, "pecharuntexIsInPlay");
         nd!(used_run_errand, "usedRunErrand");
+        nd!(rocket_supporter, "rocketSupporter");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }
