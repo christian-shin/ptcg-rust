@@ -1465,5 +1465,81 @@
  "Cottonee MEP": {
   "status": "verified",
   "note": "batch b04"
+ },
+ "Gouging Fire SSP": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Gouging Fire ex TEF": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Ho-Oh SSP": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Incineroar ex TEF": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Litten TEF": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Magmortar JTG": {
+  "status": "verified",
+  "note": "batch b12; verified with temporarily generated non-pool pre-evolution (Magmar HIF / Antique Cover Fossil SCR); corpus not kept"
+ },
+ "Oricorio ex M2": {
+  "status": "verified",
+  "note": "batch b12; verified with unmerged Charizard ports; corpus b12-g4 unsupported until they merge"
+ },
+ "Reshiram ex SV11W": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Cinderace M1L": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Centiskorch SSP": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Sizzlipede TEF": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Blaziken DRI": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Blaziken ex JTG": {
+  "status": "partial",
+  "note": "batch b12; empty-transfers defensive branch uncovered"
+ },
+ "Combusken DRI": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Torchic DRI": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Victini SSP": {
+  "status": "partial",
+  "note": "batch b12; ability-blocked return and empty source slot uncovered (unreachable with pool locks)"
+ },
+ "Volcanion ex JTG": {
+  "status": "verified",
+  "note": "batch b12"
+ },
+ "Tirtouga SV11B": {
+  "status": "verified",
+  "note": "batch b12; verified with temporarily generated non-pool pre-evolution (Magmar HIF / Antique Cover Fossil SCR); corpus not kept"
+ },
+ "Black Kyurem ex SSP": {
+  "status": "verified",
+  "note": "batch b12"
  }
 }
