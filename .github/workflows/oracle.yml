@@ -5,6 +5,8 @@
 # the traces (and, optionally, V8 coverage filtered to the given Twinleaf
 # files) as artifacts. Replay them locally with engine/target/*/diff.
 name: oracle
+# remote_oracle.py finds its run by this title (the tag is made unique per dispatch).
+run-name: oracle ${{ inputs.tag }}
 
 on:
   workflow_dispatch:

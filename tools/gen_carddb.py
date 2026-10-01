@@ -24,6 +24,12 @@ for r in pool:
     n = r.get('prev_fullName')
     if n and n not in names:
         names.append(n)
+# Non-pool pre-evolutions the pool needs (tools/support_cards.py), appended
+# so existing card ids don't move.
+SUPPORT = os.path.join(ROOT, 'data/support_cards.json')
+for s in (json.load(open(SUPPORT)) if os.path.exists(SUPPORT) else []):
+    if s['fullName'] not in names:
+        names.append(s['fullName'])
 extra = [a for a in sys.argv[1:]]
 for n in extra:
     if n not in names:

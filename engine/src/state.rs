@@ -102,6 +102,8 @@ pub struct Slot {
     pub attack_damage_reduction_next_turn: i32,
     /// `blockedAttackNameNextTurn`.
     pub blocked_attack_name_next_turn: Option<&'static str>,
+    /// `blockedAttackNameUntilLeavesActive`.
+    pub blocked_attack_name_until_leaves_active: Option<&'static str>,
     /// `preventDamageNextTurn` / `...Pending` (only the empty filter `{}` is modeled).
     pub prevent_damage_next_turn: bool,
     pub prevent_damage_next_turn_pending: bool,
@@ -118,7 +120,35 @@ pub struct Slot {
     /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
     pub prevent_effects_of_attacks_next_turn: bool,
     pub prevent_effects_of_attacks_next_turn_pending: bool,
+    /// `noWeaknessNextTurn` / `...Pending`.
+    pub no_weakness_next_turn: bool,
+    pub no_weakness_next_turn_pending: bool,
+    /// `nextTurnAttackDamageBonus` / `...Pending` (NEXT_TURN_ATTACK_BONUS).
+    pub next_turn_attack_damage_bonus: Option<NextTurnAttackDamageBonus>,
+    pub next_turn_attack_damage_bonus_pending: Option<NextTurnAttackDamageBonus>,
+    /// `defendingPokemonExtraDamageNextTurn` / `...AttackerId` (player index)
+    /// / `...Pending` / `...RearmAfterAttack`.
+    pub defending_extra_damage_next_turn: i32,
+    pub defending_extra_damage_attacker: Option<u8>,
+    pub defending_extra_damage_pending: bool,
+    pub defending_extra_damage_rearm_after_attack: bool,
+    /// `attackCostIncreaseNextTurn` / `...Pending` / `...AttackerId` (player
+    /// index) and the `retreatCostIncreaseNextTurn*` trio (Rillaboom TWM).
+    pub attack_cost_increase_next_turn: i32,
+    pub attack_cost_increase_next_turn_pending: i32,
+    pub attack_cost_increase_next_turn_attacker: Option<u8>,
+    pub retreat_cost_increase_next_turn: i32,
+    pub retreat_cost_increase_next_turn_pending: i32,
+    pub retreat_cost_increase_next_turn_attacker: Option<u8>,
     pub is_public: bool,
+}
+
+/// `NextTurnAttackDamageBonus { attackName, bonusDamage, sourceCardName }`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct NextTurnAttackDamageBonus {
+    pub attack_name: &'static str,
+    pub bonus_damage: i32,
+    pub source_card_name: &'static str,
 }
 
 /// `PreventDamageFilter` (the modeled keys; `{}` = default).
@@ -126,13 +156,23 @@ pub struct Slot {
 pub struct PreventFilter {
     pub source_stage: Option<u8>,
     pub source_card_types: Option<SVec<CardType, 12>>,
+    /// `sourceHasAbility: true` (the attacker's Pokémon has an Ability).
+    pub source_has_ability: bool,
 }
 
 impl PreventFilter {
+    /// `source_stage` sentinel standing for `{ sourceIsEvolution: true }`
+    /// (no `sourceStage`): any non-Basic source matches.
+    pub const SOURCE_IS_EVOLUTION: u8 = 0xFE;
+
     /// `sourceMatchesPreventFilter` for the modeled keys.
-    pub fn matches(&self, stage: u8, types: &[CardType]) -> bool {
+    pub fn matches(&self, stage: u8, types: &[CardType], has_ability: bool) -> bool {
         if let Some(st) = self.source_stage {
-            if stage != st {
+            if st == Self::SOURCE_IS_EVOLUTION {
+                if stage == crate::types::Stage::Basic as u8 {
+                    return false;
+                }
+            } else if stage != st {
                 return false;
             }
         }
@@ -140,6 +180,9 @@ impl PreventFilter {
             if !types.iter().any(|t| ts.as_slice().contains(t)) {
                 return false;
             }
+        }
+        if self.source_has_ability && !has_ability {
+            return false;
         }
         true
     }
@@ -175,6 +218,7 @@ impl Default for Slot {
             damage_reduction_next_turn: 0,
             attack_damage_reduction_next_turn: 0,
             blocked_attack_name_next_turn: None,
+            blocked_attack_name_until_leaves_active: None,
             prevent_damage_next_turn: false,
             prevent_damage_next_turn_pending: false,
             prevent_damage_filter: PreventFilter::default(),
@@ -186,6 +230,20 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attacker: None,
             prevent_effects_of_attacks_next_turn: false,
             prevent_effects_of_attacks_next_turn_pending: false,
+            no_weakness_next_turn: false,
+            no_weakness_next_turn_pending: false,
+            next_turn_attack_damage_bonus: None,
+            next_turn_attack_damage_bonus_pending: None,
+            defending_extra_damage_next_turn: 0,
+            defending_extra_damage_attacker: None,
+            defending_extra_damage_pending: false,
+            defending_extra_damage_rearm_after_attack: false,
+            attack_cost_increase_next_turn: 0,
+            attack_cost_increase_next_turn_pending: 0,
+            attack_cost_increase_next_turn_attacker: None,
+            retreat_cost_increase_next_turn: 0,
+            retreat_cost_increase_next_turn_pending: 0,
+            retreat_cost_increase_next_turn_attacker: None,
             is_public: false,
         }
     }
@@ -212,11 +270,14 @@ pub struct CardInst {
     pub evolves_from_base: Option<&'static [&'static str]>,
     /// Mega Latias ex's `strafeUsed` instance field (canonical when true).
     pub strafe_used: bool,
+    /// Ting-Lu's `discardedStadiumCard` instance field (never reset except
+    /// by its own handler; canonical when true).
+    pub discarded_stadium_card: bool,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, strafe_used: false }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false }
     }
 }
 

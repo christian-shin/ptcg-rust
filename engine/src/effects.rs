@@ -39,7 +39,8 @@ pub struct EnergyEntry {
 }
 
 pub type EnergyMap = SVec<EnergyEntry, 32>;
-pub type Cost = SVec<CardType, 10>;
+/// Room for Rillaboom (TWM) mirrors: every copy in the game adds a [C].
+pub type Cost = SVec<CardType, 16>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct WeaknessV {
@@ -120,9 +121,13 @@ pub enum Effect {
     AfterDamage { b: AtkBase, damage: i32 },
     PutCounters { b: AtkBase, damage: i32 },
     KnockOutOpponent { b: AtkBase, knocked_out: bool, prize_count: i32 },
+    /// `KnockOutPlayerEffect` (KNOCK_OUT_PLAYERS_ACTIVE_POKEMON): the opponent takes the Prizes.
+    KnockOutPlayer { b: AtkBase, knocked_out: bool, prize_count: i32 },
     DiscardCards { b: AtkBase, cards: SVec<CardId, 16> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 16> },
     GustOpponentBench { b: AtkBase },
+    /// `MoveOpponentEnergyEffect`: `b.target` is the source slot.
+    MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
     AddMarker { b: AtkBase, marker: u16, marker_source: CardId },
     AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
     RemoveSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
@@ -134,6 +139,13 @@ pub enum Effect {
     /// `OpponentPokemonCannotUseAttackEffect` (EffectOfAttackEffect):
     /// `opponent.active.blockedAttackNameNextTurn = name`.
     OpponentPokemonCannotUseAttack { b: AtkBase, name: &'static str },
+    /// `PreventAttackUntilLeavesActiveEffect` (EffectOfAttackEffect):
+    /// `source.blockedAttackNameUntilLeavesActive = name` (source = the attacker's slot).
+    PreventAttackUntilLeavesActive { b: AtkBase, name: &'static str },
+    /// `DefendingPokemonTakesMoreDamageDuringAttackerNextTurnEffect`
+    /// (EffectOfAttackEffect): arms `defendingPokemonExtraDamage*` on the
+    /// opponent's current Active.
+    DefendingPokemonTakesMoreDamage { b: AtkBase, damage_bonus: i32 },
     /// `AddSpecialConditionsPowerEffect` (check-effects; non-attack source).
     AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32 },
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
@@ -156,6 +168,17 @@ pub enum Effect {
     /// `PreventEffectsOfAttacksEffect` (EffectOfAttackEffect, target = attacker):
     /// `player.active.preventEffectsOfAttacksNextTurnPending = {}` (empty filter only).
     PreventEffectsOfAttacks { b: AtkBase },
+    /// `ThisPokemonHasNoWeaknessDuringOpponentsNextTurnEffect` (target = attacker):
+    /// `player.active.noWeaknessNextTurnPending = true`.
+    ThisPokemonHasNoWeakness { b: AtkBase },
+    /// `IncreaseDefendingPokemonAttackCostNextTurnEffect` (EffectOfAttackEffect):
+    /// `opponent.active.attackCostIncreaseNextTurnPending = 1` (+ attacker id).
+    IncreaseAttackCostNextTurn { b: AtkBase },
+    /// `IncreaseDefendingPokemonRetreatCostNextTurnEffect` (EffectOfAttackEffect).
+    IncreaseRetreatCostNextTurn { b: AtkBase },
+    /// `CoinFlipCancelTrainerPlayEffect` (EffectOfAttackEffect, target = source):
+    /// `opponent.coinFlipCancelTrainerPlayTurnsRemaining = max(.., 1)`.
+    CoinFlipCancelTrainerPlay { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -226,9 +249,11 @@ impl Effect {
             AfterDamage { .. } => "AFTER_DAMAGE_EFFECT",
             PutCounters { .. } => "PUT_COUNTERS_EFFECT",
             KnockOutOpponent { .. } => "KNOCK_OUT_OPPONENT_EFFECT",
+            KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             GustOpponentBench { .. } => "GUST_OPPONENT_BENCH_EFFECT",
+            MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             AddMarker { .. } => "ADD_MARKER_EFFECT",
             AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             RemoveSpecialConditions { .. } => "REMOVE_SPECIAL_CONDITIONS_EFFECT",
@@ -237,6 +262,8 @@ impl Effect {
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
+            PreventAttackUntilLeavesActive { .. } => "EFFECT_OF_ATTACK_EFFECT",
+            DefendingPokemonTakesMoreDamage { .. } => "DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_ATTACKER_NEXT_TURN_EFFECT",
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
             PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
@@ -245,6 +272,9 @@ impl Effect {
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
+            ThisPokemonHasNoWeakness { .. } => "THIS_POKEMON_HAS_NO_WEAKNESS_DURING_OPPONENTS_NEXT_TURN_EFFECT",
+            IncreaseAttackCostNextTurn { .. } | IncreaseRetreatCostNextTurn { .. } => "EFFECT_OF_ATTACK_EFFECT",
+            CoinFlipCancelTrainerPlay { .. } => "COIN_FLIP_CANCEL_TRAINER_PLAY_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -274,9 +304,11 @@ impl Effect {
             | AfterDamage { b, .. }
             | PutCounters { b, .. }
             | KnockOutOpponent { b, .. }
+            | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | GustOpponentBench { b, .. }
+            | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
@@ -285,8 +317,11 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
-            OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
+            DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
+            ThisPokemonHasNoWeakness { b } => Some(b),
+            IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             _ => None,
         }
     }
@@ -300,9 +335,11 @@ impl Effect {
             | AfterDamage { b, .. }
             | PutCounters { b, .. }
             | KnockOutOpponent { b, .. }
+            | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | GustOpponentBench { b, .. }
+            | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
@@ -311,8 +348,11 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
-            OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
+            DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
+            ThisPokemonHasNoWeakness { b } => Some(b),
+            IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             _ => None,
         }
     }
@@ -364,9 +404,11 @@ impl Effect {
             AfterDamage { .. } => 40,
             PutCounters { .. } => 41,
             KnockOutOpponent { .. } => 42,
+            KnockOutPlayer { .. } => 140,
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
             GustOpponentBench { .. } => 45,
+            MoveOpponentEnergy { .. } => 164,
             AddMarker { .. } => 46,
             AddSpecialConditions { .. } => 47,
             RemoveSpecialConditions { .. } => 48,
@@ -399,7 +441,13 @@ impl Effect {
             SwitchOutOpponentsActive { .. } => 111,
             PreventDamage { .. } => 84,
             PreventEffectsOfAttacks { .. } => 77,
+            ThisPokemonHasNoWeakness { .. } => 148,
             OpponentPokemonCannotUseAttack { .. } => 91,
+            PreventAttackUntilLeavesActive { .. } => 188,
+            DefendingPokemonTakesMoreDamage { .. } => 130,
+            IncreaseAttackCostNextTurn { .. } => 120,
+            IncreaseRetreatCostNextTurn { .. } => 121,
+            CoinFlipCancelTrainerPlay { .. } => 122,
         };
         k
     }
@@ -448,8 +496,10 @@ pub mod k {
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
     pub const AFTER_DAMAGE: u32 = 40;
+    pub const MOVE_OPPONENT_ENERGY: u32 = 164;
     pub const PUT_COUNTERS: u32 = 41;
     pub const KNOCK_OUT_OPPONENT: u32 = 42;
+    pub const KNOCK_OUT_PLAYER: u32 = 140;
     pub const DISCARD_CARDS: u32 = 43;
     pub const CARDS_TO_HAND: u32 = 44;
     pub const GUST_OPPONENT_BENCH: u32 = 45;
@@ -482,9 +532,15 @@ pub mod k {
     pub const SELF_PREVENT_RETREAT: u32 = 105;
     pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
     pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
+    pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
+    pub const PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE: u32 = 188;
+    pub const DEFENDING_POKEMON_TAKES_MORE_DAMAGE: u32 = 130;
+    pub const INCREASE_ATTACK_COST_NEXT_TURN: u32 = 120;
+    pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;
+    pub const COIN_FLIP_CANCEL_TRAINER_PLAY: u32 = 122;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

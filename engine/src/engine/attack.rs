@@ -94,6 +94,9 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     if g.st.slot(p, attacking.s).blocked_attack_name_next_turn == Some(ad.name) {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
+    if g.st.slot(p, attacking.s).blocked_attack_name_until_leaves_active == Some(ad.name) {
+        crate::bail!("CANNOT_USE_ATTACK");
+    }
     // cannotAttackMaxEnergy / other blocked attack names /
     // cannotUseAttackUntilLeavesPlay / cannotUseGXAttacks /
     // coinFlipCancelAttackNextTurn: not modeled.
@@ -411,7 +414,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 && match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
                     Some(sc) => {
                         let d = g.st.cdef(sc);
-                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type)
+                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type, d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8))
                     }
                     None => false,
                 };
@@ -424,6 +427,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let red = g.st.slot(t.p as usize, t.s).damage_reduction_next_turn;
             if red != 0 {
                 damage = (damage - red).max(0);
+            }
+            // "During your next turn, the Defending Pokémon takes N more damage."
+            {
+                let ts = g.st.slot(t.p as usize, t.s);
+                if ts.defending_extra_damage_next_turn > 0 && !ts.defending_extra_damage_pending && ts.defending_extra_damage_attacker == Some(b.player) {
+                    damage += ts.defending_extra_damage_next_turn;
+                }
             }
             if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
                 *d = damage;
@@ -484,6 +494,27 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
+        Effect::KnockOutPlayer { b, .. } => {
+            // KnockOutAttackEffect on the target (the attacker's side), then
+            // TAKE_X_PRIZES for the opponent.
+            let t = b.target;
+            if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
+                crate::bail!("ILLEGAL_ACTION");
+            }
+            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: Some(b.attack) })?;
+            if !prevented {
+                let pc = match ko {
+                    Effect::KnockOut { prize_count, .. } => prize_count,
+                    _ => 1,
+                };
+                if let Effect::KnockOutPlayer { knocked_out, prize_count, .. } = g.e_mut(id) {
+                    *knocked_out = true;
+                    *prize_count = pc;
+                }
+                crate::engine::check::take_x_prizes(g, b.opponent as usize, pc)?;
+            }
+            Ok(())
+        }
         Effect::DiscardCards { b, cards } => {
             let owner = b.target.p;
             g.move_cards_to(b.target.list(), cards.as_slice(), ListRef::Discard(owner));
@@ -496,6 +527,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::GustOpponentBench { b } => {
             crate::engine::turn::switch_pokemon(g, b.opponent as usize, b.target.s)?;
+            Ok(())
+        }
+        Effect::MoveOpponentEnergy { b, card, destination } => {
+            // MoveOpponentEnergyEffect: `target.moveCardTo(card, destination)`.
+            g.move_card_to(b.target.list(), card, destination.list());
             Ok(())
         }
         Effect::AddMarker { b, marker, marker_source } => {
@@ -532,6 +568,28 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
+        Effect::IncreaseAttackCostNextTurn { b } => {
+            // applyEffect(): the opponent's current Active.
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            slot.attack_cost_increase_next_turn_pending = 1;
+            slot.attack_cost_increase_next_turn_attacker = Some(b.player);
+            Ok(())
+        }
+        Effect::IncreaseRetreatCostNextTurn { b } => {
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            slot.retreat_cost_increase_next_turn_pending = 1;
+            slot.retreat_cost_increase_next_turn_attacker = Some(b.player);
+            Ok(())
+        }
+        Effect::CoinFlipCancelTrainerPlay { b } => {
+            let pl = &mut g.st.players[b.opponent as usize];
+            pl.coin_flip_cancel_trainer_play_turns_remaining = pl.coin_flip_cancel_trainer_play_turns_remaining.max(1);
+            Ok(())
+        }
         Effect::PreventRetreat { b } => {
             // EffectOfAttackEffect.applyEffect(): the opponent's current Active.
             let o = b.opponent as usize;
@@ -558,6 +616,12 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let p = b.player as usize;
             let a = g.st.players[p].active;
             g.st.players[p].slots[a as usize].prevent_effects_of_attacks_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::ThisPokemonHasNoWeakness { b } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].no_weakness_next_turn_pending = true;
             Ok(())
         }
         Effect::SelfPreventRetreat { b } => {
@@ -594,6 +658,26 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let o = b.opponent as usize;
             let a = g.st.players[o].active;
             g.st.players[o].slots[a as usize].blocked_attack_name_next_turn = Some(name);
+            Ok(())
+        }
+        Effect::PreventAttackUntilLeavesActive { b, name } => {
+            g.st.players[b.source.p as usize].slots[b.source.s as usize].blocked_attack_name_until_leaves_active = Some(name);
+            Ok(())
+        }
+        Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus } => {
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            let already = slot.defending_extra_damage_next_turn > 0
+                && !slot.defending_extra_damage_pending
+                && slot.defending_extra_damage_attacker == Some(b.player);
+            slot.defending_extra_damage_next_turn = damage_bonus;
+            slot.defending_extra_damage_attacker = Some(b.player);
+            if already {
+                slot.defending_extra_damage_rearm_after_attack = true;
+            } else {
+                slot.defending_extra_damage_pending = true;
+            }
             Ok(())
         }
         Effect::RemoveSpecialConditions { b, conditions } => {

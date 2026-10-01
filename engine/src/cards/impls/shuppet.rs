@@ -14,7 +14,7 @@
 //! PutDamageCountersEffect branches: no ported card emits them yet.)
 use crate::cards::prelude::*;
 
-pub const HIDE_N_SNEAK_KINDS: [u32; 23] = [
+pub const HIDE_N_SNEAK_KINDS: [u32; 31] = [
     k::SELF_PREVENT_RETREAT,
     k::DISCARD_ATTACKER_ENERGY_IF_KO,
     k::APPLY_WEAKNESS,
@@ -23,9 +23,11 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 23] = [
     k::AFTER_DAMAGE,
     k::PUT_COUNTERS,
     k::KNOCK_OUT_OPPONENT,
+    k::KNOCK_OUT_PLAYER,
     k::DISCARD_CARDS,
     k::CARDS_TO_HAND,
     k::GUST_OPPONENT_BENCH,
+    k::MOVE_OPPONENT_ENERGY,
     k::ADD_MARKER,
     k::ADD_SPECIAL_CONDITIONS,
     k::REMOVE_SPECIAL_CONDITIONS,
@@ -33,11 +35,17 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 23] = [
     k::PLAY_LOCK,
     k::PREVENT_RETREAT,
     k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
+    k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE,
+    k::DEFENDING_POKEMON_TAKES_MORE_DAMAGE,
     k::REDUCE_DAMAGE,
     k::SWITCH_OUT_OPPONENTS_ACTIVE,
     k::PLACE_DAMAGE_COUNTERS,
     k::PREVENT_DAMAGE,
     k::PREVENT_EFFECTS_OF_ATTACKS,
+    k::THIS_POKEMON_HAS_NO_WEAKNESS,
+    k::INCREASE_ATTACK_COST_NEXT_TURN,
+    k::INCREASE_RETREAT_COST_NEXT_TURN,
+    k::COIN_FLIP_CANCEL_TRAINER_PLAY,
 ];
 
 pub static IMPL: CardImpl = CardImpl { class: "Shuppet", mask: mask(&HIDE_N_SNEAK_KINDS), reduce, resume: None, coin: None, can_play: None };

@@ -89,10 +89,13 @@ pub fn clear_effects(slot: &mut Slot) {
     slot.cannot_use_attacks_next_turn_pending.clear();
     slot.attack_damage_reduction_next_turn = 0;
     slot.blocked_attack_name_next_turn = None;
+    slot.blocked_attack_name_until_leaves_active = None;
     clear_prevent_next_turn(slot);
 }
 
 fn clear_prevent_next_turn(slot: &mut Slot) {
+    slot.no_weakness_next_turn = false;
+    slot.no_weakness_next_turn_pending = false;
     slot.prevent_damage_next_turn = false;
     slot.prevent_damage_next_turn_pending = false;
     slot.prevent_effects_of_attacks_next_turn = false;
@@ -104,6 +107,10 @@ fn clear_prevent_next_turn(slot: &mut Slot) {
     slot.discard_attacker_energy_if_ko_attack = None;
     slot.discard_attacker_energy_if_ko_source_card = None;
     slot.discard_attacker_energy_if_ko_attacker = None;
+    slot.defending_extra_damage_next_turn = 0;
+    slot.defending_extra_damage_attacker = None;
+    slot.defending_extra_damage_pending = false;
+    slot.defending_extra_damage_rearm_after_attack = false;
 }
 
 /// `PokemonCardList.removeAttackEffects()` for the modeled fields.
@@ -117,10 +124,19 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.cannot_use_attacks_next_turn_pending.clear();
     slot.attack_damage_reduction_next_turn = 0;
     slot.blocked_attack_name_next_turn = None;
+    slot.blocked_attack_name_until_leaves_active = None;
     slot.damage_reduction_next_turn = 0;
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;
+    slot.attack_cost_increase_next_turn = 0;
+    slot.attack_cost_increase_next_turn_pending = 0;
+    slot.attack_cost_increase_next_turn_attacker = None;
+    slot.retreat_cost_increase_next_turn = 0;
+    slot.retreat_cost_increase_next_turn_pending = 0;
+    slot.retreat_cost_increase_next_turn_attacker = None;
     clear_prevent_next_turn(slot);
+    slot.next_turn_attack_damage_bonus = None;
+    slot.next_turn_attack_damage_bonus_pending = None;
 }
 
 fn is_discard_pile(r: ListRef) -> bool {
@@ -330,8 +346,13 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::KnockOut { .. } => knock_out(g, id),
-        Effect::CheckPokemonStats { .. } => {
-            // noWeaknessNextTurn / weaknessOverride / opponent weakness aura: not modeled.
+        Effect::CheckPokemonStats { target, .. } => {
+            if g.st.slot(target.p as usize, target.s).no_weakness_next_turn {
+                if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(id) {
+                    weakness.clear();
+                }
+            }
+            // weaknessOverride / opponent weakness aura: not modeled.
             Ok(())
         }
         Effect::ApplyWeakness { b, damage, ignore_weakness, ignore_resistance } => {

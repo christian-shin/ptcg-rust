@@ -13,7 +13,8 @@ import json, os, subprocess, sys, collections
 from names import english
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIFF = os.path.join(ROOT, 'engine/target/release/diff')
+_bins = [os.path.join(ROOT, 'engine/target', p, 'diff') for p in ('release', 'iter')]
+DIFF = max((b for b in _bins if os.path.exists(b)), key=os.path.getmtime)   # newest build
 
 
 def main():

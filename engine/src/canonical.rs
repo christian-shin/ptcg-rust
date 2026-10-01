@@ -91,6 +91,18 @@ impl Game {
         if s.prevent_effects_of_attacks_next_turn_pending {
             o.insert("preventEffectsOfAttacksNextTurnPending".into(), json!({}));
         }
+        nd!(no_weakness_next_turn, "noWeaknessNextTurn");
+        nd!(no_weakness_next_turn_pending, "noWeaknessNextTurnPending");
+        nd!(attack_cost_increase_next_turn, "attackCostIncreaseNextTurn");
+        nd!(attack_cost_increase_next_turn_pending, "attackCostIncreaseNextTurnPending");
+        if let Some(p) = s.attack_cost_increase_next_turn_attacker {
+            o.insert("attackCostIncreaseNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
+        }
+        nd!(retreat_cost_increase_next_turn, "retreatCostIncreaseNextTurn");
+        nd!(retreat_cost_increase_next_turn_pending, "retreatCostIncreaseNextTurnPending");
+        if let Some(p) = s.retreat_cost_increase_next_turn_attacker {
+            o.insert("retreatCostIncreaseNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
+        }
         nd!(discard_attacker_energy_if_ko_next_turn, "discardAttackerEnergyIfKnockedOutNextTurn");
         nd!(discard_attacker_energy_if_ko_next_turn_pending, "discardAttackerEnergyIfKnockedOutNextTurnPending");
         if let Some(a) = s.discard_attacker_energy_if_ko_attack {
@@ -111,8 +123,23 @@ impl Game {
         if let Some(p) = s.discard_attacker_energy_if_ko_attacker {
             o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
         }
+        nd!(defending_extra_damage_next_turn, "defendingPokemonExtraDamageNextTurn");
+        if let Some(p) = s.defending_extra_damage_attacker {
+            o.insert("defendingPokemonExtraDamageAttackerId".into(), json!(self.st.players[p as usize].id));
+        }
+        nd!(defending_extra_damage_pending, "defendingPokemonExtraDamagePending");
+        nd!(defending_extra_damage_rearm_after_attack, "defendingPokemonExtraDamageRearmAfterAttack");
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
+        }
+        if let Some(n) = s.blocked_attack_name_until_leaves_active {
+            o.insert("blockedAttackNameUntilLeavesActive".into(), json!(n));
+        }
+        if let Some(b) = s.next_turn_attack_damage_bonus {
+            o.insert("nextTurnAttackDamageBonus".into(), next_turn_bonus_json(&b));
+        }
+        if let Some(b) = s.next_turn_attack_damage_bonus_pending {
+            o.insert("nextTurnAttackDamageBonusPending".into(), next_turn_bonus_json(&b));
         }
         if !s.board_effect.is_empty() {
             o.insert("boardEffect".into(), json!(s.board_effect.as_slice()));
@@ -256,6 +283,9 @@ impl Game {
             if inst.strafe_used {
                 diff.insert("strafeUsed".into(), json!(true));
             }
+            if inst.discarded_stadium_card {
+                diff.insert("discardedStadiumCard".into(), json!(true));
+            }
             if inst.attack_barrage_shown != 0 {
                 // Runtime `this.attacks[i].barrage` writes: the whole attacks array.
                 let atks: Vec<Value> = d
@@ -382,10 +412,21 @@ pub fn _phase_name(p: GamePhase) -> u8 {
 fn prevent_filter_json(f: &crate::state::PreventFilter) -> Value {
     let mut o = Map::new();
     if let Some(st) = f.source_stage {
-        o.insert("sourceStage".into(), json!(st));
+        if st == crate::state::PreventFilter::SOURCE_IS_EVOLUTION {
+            o.insert("sourceIsEvolution".into(), json!(true));
+        } else {
+            o.insert("sourceStage".into(), json!(st));
+        }
     }
     if let Some(ts) = &f.source_card_types {
         o.insert("sourceCardTypes".into(), json!(ts.as_slice()));
     }
+    if f.source_has_ability {
+        o.insert("sourceHasAbility".into(), json!(true));
+    }
     Value::Object(o)
+}
+
+fn next_turn_bonus_json(b: &crate::state::NextTurnAttackDamageBonus) -> Value {
+    json!({ "attackName": b.attack_name, "bonusDamage": b.bonus_damage, "sourceCardName": b.source_card_name })
 }

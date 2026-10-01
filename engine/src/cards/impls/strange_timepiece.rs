@@ -113,7 +113,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
 }
 
 /// `DEVOLVE_POKEMON(store, state, target, destination)`.
-fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: ListRef) -> R {
+pub fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: ListRef) -> R {
     let (tp, ts) = (t.p as usize, t.s);
     let pokemons = g.st.slot_pokemons(tp, ts);
     let top = g.st.slot_pokemon(tp, ts);
