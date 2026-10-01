@@ -1,17 +1,20 @@
-//! Mist Energy (TEF): provides [C]. Prevent all effects of attacks from your
-//! opponent's Pokémon done to the Pokémon this card is attached to (damage is
-//! not an effect).
+//! Empoleon ex (PFL 70): Emperor's Stance — prevent all effects of attacks
+//! used by your opponent's Pokémon done to this Pokémon (damage is not an
+//! effect). Iron Feathers — 210; during your opponent's next turn this
+//! Pokémon takes 60 less damage from attacks.
 //!
-//! Twinleaf: every AbstractAttackEffect targeting a slot holding this card is
-//! prevented unless it is ApplyWeakness / PutDamage / DealDamage, when its
-//! source slot belongs to the target owner's opponent and holds a Pokémon.
-//! (AfterDamage, PutCounters, KnockOutOpponent, ... are prevented too.) The
-//! special-energy block probe runs first, for the target owner's opponent.
+//! Twinleaf: every AbstractAttackEffect whose target list holds this card
+//! runs the ability-lock probe (for the effect's player) first; then it is
+//! ignored when source and target have the same owner, and otherwise
+//! prevented unless it is ApplyWeakness / PutDamage / DealDamage, when the
+//! source slot holds a Pokémon. Iron Feathers sets
+//! `player.active.damageReductionNextTurn = 60` directly.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
-    class: "MistEnergy",
+    class: "Empoleonex",
     mask: mask(&[
+        k::ATTACK,
         k::APPLY_WEAKNESS,
         k::DEAL_DAMAGE,
         k::PUT_DAMAGE,
@@ -43,6 +46,13 @@ pub static IMPL: CardImpl = CardImpl {
 };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    if was_attack_used(g, e, 0, me) {
+        if let Effect::Attack { p, .. } = *g.e(e) {
+            let p = p as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].damage_reduction_next_turn = 60;
+        }
+    }
     let b = match g.e(e).atk_base() {
         Some(b) => *b,
         None => return Ok(()),
@@ -51,11 +61,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
         return Ok(());
     }
-    let opponent = 1 - t.p as usize;
-    if is_special_energy_blocked(g, opponent, me, t, false) {
+    if is_ability_blocked(g, b.player as usize, me, None) {
         return Ok(());
     }
-    if b.source.p as usize != opponent {
+    if b.source.p == t.p {
         return Ok(());
     }
     if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_some() {

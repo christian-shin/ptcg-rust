@@ -560,6 +560,12 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[p].slots[a as usize].prevent_effects_of_attacks_next_turn_pending = true;
             Ok(())
         }
+        Effect::ThisPokemonHasNoWeakness { b } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].no_weakness_next_turn_pending = true;
+            Ok(())
+        }
         Effect::SelfPreventRetreat { b } => {
             let p = b.player as usize;
             let a = g.st.players[p].active;

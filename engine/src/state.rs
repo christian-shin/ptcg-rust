@@ -118,6 +118,9 @@ pub struct Slot {
     /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
     pub prevent_effects_of_attacks_next_turn: bool,
     pub prevent_effects_of_attacks_next_turn_pending: bool,
+    /// `noWeaknessNextTurn` / `...Pending`.
+    pub no_weakness_next_turn: bool,
+    pub no_weakness_next_turn_pending: bool,
     pub is_public: bool,
 }
 
@@ -186,6 +189,8 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attacker: None,
             prevent_effects_of_attacks_next_turn: false,
             prevent_effects_of_attacks_next_turn_pending: false,
+            no_weakness_next_turn: false,
+            no_weakness_next_turn_pending: false,
             is_public: false,
         }
     }

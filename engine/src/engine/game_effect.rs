@@ -93,6 +93,8 @@ pub fn clear_effects(slot: &mut Slot) {
 }
 
 fn clear_prevent_next_turn(slot: &mut Slot) {
+    slot.no_weakness_next_turn = false;
+    slot.no_weakness_next_turn_pending = false;
     slot.prevent_damage_next_turn = false;
     slot.prevent_damage_next_turn_pending = false;
     slot.prevent_effects_of_attacks_next_turn = false;
@@ -330,8 +332,13 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::KnockOut { .. } => knock_out(g, id),
-        Effect::CheckPokemonStats { .. } => {
-            // noWeaknessNextTurn / weaknessOverride / opponent weakness aura: not modeled.
+        Effect::CheckPokemonStats { target, .. } => {
+            if g.st.slot(target.p as usize, target.s).no_weakness_next_turn {
+                if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(id) {
+                    weakness.clear();
+                }
+            }
+            // weaknessOverride / opponent weakness aura: not modeled.
             Ok(())
         }
         Effect::ApplyWeakness { b, damage, ignore_weakness, ignore_resistance } => {
