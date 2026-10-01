@@ -199,6 +199,7 @@ impl Game {
         nd!(used_run_errand, "usedRunErrand");
         nd!(used_lunar_cycle, "usedLunarCycle");
         nd!(rocket_supporter, "rocketSupporter");
+        nd!(legacy_energy_used, "legacyEnergyUsed");
         nd!(used_fan_call, "usedFanCall");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
