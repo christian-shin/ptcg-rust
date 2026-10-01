@@ -469,9 +469,55 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[t.p as usize].slots[t.s as usize].damage += damage.max(0);
             Ok(())
         }
-        Effect::AfterDamage { b, .. } => {
+        Effect::AfterDamage { b, damage } => {
             g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-            // Revenge traps: not modeled.
+            // Revenge trap (`getActiveRetaliateOnDamage`; only `{ damage }`
+            // options are modeled) -- even if the target was Knocked Out.
+            let t = b.target;
+            let armed = {
+                let ts = g.st.slot(t.p as usize, t.s);
+                if ts.retaliate_next_turn_pending.is_some() { None } else { ts.retaliate_next_turn }
+            };
+            if let Some(r) = armed {
+                if damage > 0 && t.p != b.player && g.st.phase == GamePhase::Attack && r.damage > 0 {
+                    let owner = t.p as usize;
+                    let attacker = r.attacker as usize;
+                    let mut source = t;
+                    for s in g.st.players[attacker].in_play().iter() {
+                        if g.st.slot_pokemon(attacker, *s) == Some(r.source_card) {
+                            source = SlotRef::new(attacker, *s);
+                        }
+                    }
+                    let ad_damage = g.st.cdef(r.attack.card).attacks[r.attack.idx()].damage;
+                    let atk = g.new_fx(Effect::Attack {
+                        p: owner as u8,
+                        opp: b.player,
+                        attack: r.attack,
+                        damage: ad_damage,
+                        ignore_weakness: false,
+                        ignore_resistance: false,
+                        source,
+                        barrage_used: false,
+                    });
+                    let nb = AtkBase { attack_effect: atk, player: owner as u8, opponent: b.player, attack: r.attack, source, target: b.source };
+                    let res = g.run_fx(Effect::RetaliateDamage { b: nb, damage: r.damage });
+                    g.release_fx(atk);
+                    res?;
+                }
+            }
+            Ok(())
+        }
+        Effect::RetaliateOnDamage { b, damage, source_card } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].retaliate_next_turn_pending =
+                Some(crate::state::StoredRetaliate { damage, attack: b.attack, source_card, attacker: b.player });
+            Ok(())
+        }
+        Effect::RetaliateDamage { b, damage } => {
+            if damage > 0 {
+                g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
+            }
             Ok(())
         }
         Effect::KnockOutOpponent { b, .. } => {

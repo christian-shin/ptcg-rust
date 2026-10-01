@@ -117,6 +117,9 @@ pub struct Slot {
     pub discard_attacker_energy_if_ko_attack: Option<AttackRef>,
     pub discard_attacker_energy_if_ko_source_card: Option<CardId>,
     pub discard_attacker_energy_if_ko_attacker: Option<u8>,
+    /// `retaliateOnDamageNextTurn` / `...Pending`.
+    pub retaliate_next_turn: Option<StoredRetaliate>,
+    pub retaliate_next_turn_pending: Option<StoredRetaliate>,
     /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
     pub prevent_effects_of_attacks_next_turn: bool,
     pub prevent_effects_of_attacks_next_turn_pending: bool,
@@ -141,6 +144,16 @@ pub struct Slot {
     pub retreat_cost_increase_next_turn_pending: i32,
     pub retreat_cost_increase_next_turn_attacker: Option<u8>,
     pub is_public: bool,
+}
+
+/// `StoredRetaliateOnDamage` with options `{ damage }` (the `coinFlipPrevent` and
+/// `reflect` variants are not modeled): `attackerPlayerId` as a player index.
+#[derive(Clone, Copy, Debug)]
+pub struct StoredRetaliate {
+    pub damage: i32,
+    pub attack: AttackRef,
+    pub source_card: CardId,
+    pub attacker: u8,
 }
 
 /// `NextTurnAttackDamageBonus { attackName, bonusDamage, sourceCardName }`.
@@ -223,6 +236,8 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attack: None,
             discard_attacker_energy_if_ko_source_card: None,
             discard_attacker_energy_if_ko_attacker: None,
+            retaliate_next_turn: None,
+            retaliate_next_turn_pending: None,
             prevent_effects_of_attacks_next_turn: false,
             prevent_effects_of_attacks_next_turn_pending: false,
             no_weakness_next_turn: false,
@@ -286,6 +301,10 @@ pub struct Player {
     pub supporter: List<8>,
     pub prizes: [List<4>; 6],
     pub prize_count: u8,
+    /// Bit i = `prizes[i].faceUpPrize` (the flag stays on the list when it empties).
+    pub prize_face_up: u8,
+    /// Bit i = `prizes[i].isSecret === false` (read for `prizes[0]` by the KO prize prompt).
+    pub prize_not_secret: u8,
     pub slots: [Slot; MAX_SLOTS],
     pub slot_used: [bool; MAX_SLOTS],
     pub active: SlotId,
@@ -356,6 +375,8 @@ impl Player {
             supporter: List::new(),
             prizes: [List::new(); 6],
             prize_count: 6,
+            prize_face_up: 0,
+            prize_not_secret: 0,
             slots: [Slot::default(); MAX_SLOTS],
             slot_used: [false; MAX_SLOTS],
             active: 0,

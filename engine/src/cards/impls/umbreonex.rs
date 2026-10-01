@@ -57,7 +57,7 @@ fn take_one_prize(g: &mut Game, me: CardId, p: usize) -> R {
     g.prompt(
         id,
         "CHOOSE_PRIZE_CARD",
-        PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None },
+        PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: false },
         Cont::Card { card: me, frame: f },
     );
     Ok(())

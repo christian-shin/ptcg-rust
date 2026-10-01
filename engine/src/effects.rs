@@ -158,6 +158,13 @@ pub enum Effect {
     /// `DiscardAttackerEnergyIfKnockedOutDuringOpponentsNextTurnEffect`
     /// (target = base.source; `markerSource` = `source_card`).
     DiscardAttackerEnergyIfKnockedOut { b: AtkBase, source_card: CardId },
+    /// `RetaliateOnDamageDuringOpponentsNextTurnEffect` (target = base.source;
+    /// `markerSource` = `source_card`; options `{ damage }` only):
+    /// `player.active.retaliateOnDamageNextTurnPending`.
+    RetaliateOnDamage { b: AtkBase, damage: i32, source_card: CardId },
+    /// `RetaliateDamageEffect` (target = the damaged attacker's slot):
+    /// `target.damage += damage` when positive.
+    RetaliateDamage { b: AtkBase, damage: i32 },
     /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
     SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
     /// `PreventDamageEffect` (EffectOfAttackEffect, target = attacker):
@@ -266,6 +273,8 @@ impl Effect {
             PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
             SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
             DiscardAttackerEnergyIfKnockedOut { .. } => "DISCARD_ATTACKER_ENERGY_IF_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN_EFFECT",
+            RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
+            RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
@@ -314,7 +323,7 @@ impl Effect {
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
-            DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
+            DefendingPokemonTakesMoreDamage { b, .. } | RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
@@ -344,7 +353,7 @@ impl Effect {
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
-            DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
+            DefendingPokemonTakesMoreDamage { b, .. } | RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
@@ -432,6 +441,8 @@ impl Effect {
             PreventDamageFiltered { .. } => 84,
             SelfPreventRetreat { .. } => 105,
             DiscardAttackerEnergyIfKnockedOut { .. } => 106,
+            RetaliateOnDamage { .. } => 220,
+            RetaliateDamage { .. } => 221,
             SwitchOutOpponentsActive { .. } => 111,
             PreventDamage { .. } => 84,
             PreventEffectsOfAttacks { .. } => 77,
@@ -534,6 +545,8 @@ pub mod k {
     pub const INCREASE_ATTACK_COST_NEXT_TURN: u32 = 120;
     pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;
     pub const COIN_FLIP_CANCEL_TRAINER_PLAY: u32 = 122;
+    pub const RETALIATE_ON_DAMAGE: u32 = 220;
+    pub const RETALIATE_DAMAGE: u32 = 221;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

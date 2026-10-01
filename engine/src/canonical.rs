@@ -123,6 +123,25 @@ impl Game {
         if let Some(p) = s.discard_attacker_energy_if_ko_attacker {
             o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
         }
+        for (r, key) in [(s.retaliate_next_turn, "retaliateOnDamageNextTurn"), (s.retaliate_next_turn_pending, "retaliateOnDamageNextTurnPending")] {
+            if let Some(r) = r {
+                let ad = &self.st.cdef(r.attack.card).attacks[r.attack.idx()];
+                let mut ao = Map::new();
+                ao.insert("name".into(), json!(ad.name));
+                ao.insert("cost".into(), json!(ad.cost));
+                ao.insert("damage".into(), json!(ad.damage));
+                ao.insert("text".into(), json!(ad.text));
+                if let Some(dc) = ad.damage_calculation {
+                    ao.insert("damageCalculation".into(), json!(dc));
+                }
+                let mut ro = Map::new();
+                ro.insert("damage".into(), json!(r.damage));
+                ro.insert("attack".into(), Value::Object(ao));
+                ro.insert("sourceCard".into(), json!(self.card_ref(r.source_card)));
+                ro.insert("attackerPlayerId".into(), json!(self.st.players[r.attacker as usize].id));
+                o.insert(key.into(), Value::Object(ro));
+            }
+        }
         nd!(defending_extra_damage_next_turn, "defendingPokemonExtraDamageNextTurn");
         if let Some(p) = s.defending_extra_damage_attacker {
             o.insert("defendingPokemonExtraDamageAttackerId".into(), json!(self.st.players[p as usize].id));
@@ -180,6 +199,12 @@ impl Game {
             "prizes".into(),
             Value::Array((0..pl.prize_count as usize).map(|i| self.refs_of(pl.prizes[i].as_slice())).collect()),
         );
+        if pl.prize_face_up != 0 {
+            o.insert(
+                "faceUpPrizes".into(),
+                Value::Array((0..pl.prize_count as usize).map(|i| json!(pl.prize_face_up & (1 << i) != 0)).collect()),
+            );
+        }
         o.insert("active".into(), self.slot_json(&pl.slots[pl.active as usize]));
         o.insert("bench".into(), Value::Array(pl.bench.iter().map(|b| self.slot_json(&pl.slots[*b as usize])).collect()));
         let d = Player::new(pl.id);
