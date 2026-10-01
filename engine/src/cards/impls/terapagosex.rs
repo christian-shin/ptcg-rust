@@ -30,7 +30,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         for t in [ct::GRASS, ct::FIRE, ct::WATER, ct::LIGHTNING, ct::PSYCHIC, ct::FIGHTING, ct::DARK, ct::METAL, ct::FAIRY, ct::DRAGON] {
             types.push(t);
         }
-        let filter = PreventFilter { source_stage: Some(Stage::Basic as u8), source_card_types: Some(types) };
+        let filter = PreventFilter { source_stage: Some(Stage::Basic as u8), source_card_types: Some(types), source_has_ability: false };
         prevent_damage_filtered(g, e, filter)?;
     }
     tera_rule(g, e, me);

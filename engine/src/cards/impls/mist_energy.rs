@@ -21,6 +21,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::DISCARD_CARDS,
         k::CARDS_TO_HAND,
         k::GUST_OPPONENT_BENCH,
+        k::MOVE_OPPONENT_ENERGY,
         k::ADD_MARKER,
         k::ADD_SPECIAL_CONDITIONS,
         k::REMOVE_SPECIAL_CONDITIONS,
