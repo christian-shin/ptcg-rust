@@ -257,6 +257,18 @@ def main():
         bad = [l for log in logs for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
         for l in bad[:10]:
             print('ORACLE:', l)
+    # Twinleaf's setup rejects decks that fail DeckAnalyser.isValid (60 cards,
+    # 4 copies, one ACE SPEC / Radiant, a Basic, banned pairs) by finishing
+    # the game before it starts: such traces have no steps and test nothing.
+    invalid = collections.Counter()
+    for f in sorted(os.listdir(out)):
+        if f.startswith('g') and f.endswith('.json'):
+            t = json.load(open(os.path.join(out, f)))
+            if not t['steps'] and t['result']['status'] == 'finished':
+                invalid[' vs '.join(t['header'].get('deckNames') or ['?'])] += 1
+    for k, n in invalid.items():
+        print('INVALID DECK: %d game(s) %s ended before setup (Twinleaf DeckAnalyser: 60 cards, max 4 copies, '
+              'one ACE SPEC, one Radiant, a Basic Pokemon)' % (n, k))
     r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
     print(r.stdout[-6000:])
     if args.coverage:

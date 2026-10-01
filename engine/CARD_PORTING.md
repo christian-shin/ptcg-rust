@@ -273,6 +273,9 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   decks must contain them. `"4 Name"` repeats a card. English keys work.
 * `decks` is optional (default: the usual auto decks). Every deck should hold
   the scenario's cards, since either player may be `me`.
+* Decks must be legal: Twinleaf's setup ends a game before it starts when a
+  deck fails `DeckAnalyser.isValid` (60 cards, max 4 copies, one ACE SPEC, one
+  Radiant, a Basic Pokémon). `check_cards.py` reports those as `INVALID DECK`.
 * Effects that last ("during your opponent's next turn...", markers) can't be
   written as edits: set the board, then use `answers` to play the real attack
   or Trainer that creates them.
