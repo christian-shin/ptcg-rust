@@ -1363,8 +1363,8 @@
   "note": "batch b06"
  },
  "Luxray ex TWM": {
-  "status": "blocked",
-  "note": "batch b06; Shinx and Luxio are not in the card DB (not pool cards), so Luxray ex never reaches play; port reviewed but unrun"
+  "status": "partial",
+  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 traces; only the opponent-hand-empty return of Piercing Gaze uncovered"
  },
  "Stunfisk M2a": {
   "status": "verified",
@@ -1403,8 +1403,8 @@
   "note": "batch b04"
  },
  "Seismitoad 30C": {
-  "status": "blocked",
-  "note": "batch b04; unreachable: no Tympole/Palpitoad in pool; coin-flip trainer cancel core unverified"
+  "status": "verified",
+  "note": "batch b04 + support cards (Tympole EVS, Palpitoad OBF); 48 traces, all branches covered"
  },
  "Applin DRI": {
   "status": "verified",
