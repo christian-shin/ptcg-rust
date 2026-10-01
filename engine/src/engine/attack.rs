@@ -414,7 +414,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 && match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
                     Some(sc) => {
                         let d = g.st.cdef(sc);
-                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type)
+                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type, d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8))
                     }
                     None => false,
                 };
@@ -527,6 +527,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::GustOpponentBench { b } => {
             crate::engine::turn::switch_pokemon(g, b.opponent as usize, b.target.s)?;
+            Ok(())
+        }
+        Effect::MoveOpponentEnergy { b, card, destination } => {
+            // MoveOpponentEnergyEffect: `target.moveCardTo(card, destination)`.
+            g.move_card_to(b.target.list(), card, destination.list());
             Ok(())
         }
         Effect::AddMarker { b, marker, marker_source } => {

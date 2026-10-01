@@ -156,6 +156,8 @@ pub struct NextTurnAttackDamageBonus {
 pub struct PreventFilter {
     pub source_stage: Option<u8>,
     pub source_card_types: Option<SVec<CardType, 12>>,
+    /// `sourceHasAbility: true` (the attacker's Pokémon has an Ability).
+    pub source_has_ability: bool,
 }
 
 impl PreventFilter {
@@ -164,7 +166,7 @@ impl PreventFilter {
     pub const SOURCE_IS_EVOLUTION: u8 = 0xFE;
 
     /// `sourceMatchesPreventFilter` for the modeled keys.
-    pub fn matches(&self, stage: u8, types: &[CardType]) -> bool {
+    pub fn matches(&self, stage: u8, types: &[CardType], has_ability: bool) -> bool {
         if let Some(st) = self.source_stage {
             if st == Self::SOURCE_IS_EVOLUTION {
                 if stage == crate::types::Stage::Basic as u8 {
@@ -178,6 +180,9 @@ impl PreventFilter {
             if !types.iter().any(|t| ts.as_slice().contains(t)) {
                 return false;
             }
+        }
+        if self.source_has_ability && !has_ability {
+            return false;
         }
         true
     }

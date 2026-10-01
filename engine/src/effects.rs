@@ -126,6 +126,8 @@ pub enum Effect {
     DiscardCards { b: AtkBase, cards: SVec<CardId, 16> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 16> },
     GustOpponentBench { b: AtkBase },
+    /// `MoveOpponentEnergyEffect`: `b.target` is the source slot.
+    MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
     AddMarker { b: AtkBase, marker: u16, marker_source: CardId },
     AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
     RemoveSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
@@ -251,6 +253,7 @@ impl Effect {
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             GustOpponentBench { .. } => "GUST_OPPONENT_BENCH_EFFECT",
+            MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             AddMarker { .. } => "ADD_MARKER_EFFECT",
             AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             RemoveSpecialConditions { .. } => "REMOVE_SPECIAL_CONDITIONS_EFFECT",
@@ -305,6 +308,7 @@ impl Effect {
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | GustOpponentBench { b, .. }
+            | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
@@ -335,6 +339,7 @@ impl Effect {
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | GustOpponentBench { b, .. }
+            | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | RemoveSpecialConditions { b, .. }
@@ -403,6 +408,7 @@ impl Effect {
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
             GustOpponentBench { .. } => 45,
+            MoveOpponentEnergy { .. } => 164,
             AddMarker { .. } => 46,
             AddSpecialConditions { .. } => 47,
             RemoveSpecialConditions { .. } => 48,
@@ -490,6 +496,7 @@ pub mod k {
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
     pub const AFTER_DAMAGE: u32 = 40;
+    pub const MOVE_OPPONENT_ENERGY: u32 = 164;
     pub const PUT_COUNTERS: u32 = 41;
     pub const KNOCK_OUT_OPPONENT: u32 = 42;
     pub const KNOCK_OUT_PLAYER: u32 = 140;

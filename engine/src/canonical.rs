@@ -415,6 +415,9 @@ fn prevent_filter_json(f: &crate::state::PreventFilter) -> Value {
     if let Some(ts) = &f.source_card_types {
         o.insert("sourceCardTypes".into(), json!(ts.as_slice()));
     }
+    if f.source_has_ability {
+        o.insert("sourceHasAbility".into(), json!(true));
+    }
     Value::Object(o)
 }
 
