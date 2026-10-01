@@ -1317,5 +1317,69 @@
  "Mankey SSP": {
   "status": "verified",
   "note": "batch A"
+ },
+ "Yanmega ex DRI": {
+  "status": "partial",
+  "note": "batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable"
+ },
+ "Zarude SSP": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Jolteon ex PRE": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Electrike M1S": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Manectric M5": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Mega Manectric ex M1S": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Ethan's Pichu DRI": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Galvantula ex SCR": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Magneton SSP": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Morpeko TWM": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Rotom SSP": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Luxray ex TWM": {
+  "status": "blocked",
+  "note": "batch b06; Shinx and Luxio are not in the card DB (not pool cards), so Luxray ex never reaches play; port reviewed but unrun"
+ },
+ "Stunfisk M2a": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Tapu Koko ex JTG": {
+  "status": "verified",
+  "note": "batch b06"
+ },
+ "Team Rocket's Zapdos DRI": {
+  "status": "verified",
+  "note": "batch b06; L65 +60 dead: Twinleaf checks name \"Team Rocket Energy\" (Twinleaf bug)"
+ },
+ "Eelektrik SV11B": {
+  "status": "verified",
+  "note": "batch b06"
  }
 }
