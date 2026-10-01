@@ -87,6 +87,8 @@ pub enum CoinCb {
     /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).
     DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
     DelegSequenceCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
+    /// `withOptionalCoinFlipCancelTrainer` (Seismitoad 30C's Quaking Fist).
+    CancelTrainer { kind: crate::engine::play::TrainerPlayKind, p: u8, card: CardId, target: Option<SlotRef> },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -556,6 +558,7 @@ impl Game {
             CoinCb::DelegCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], Some(result)),
             CoinCb::DelegSequenceCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
+            CoinCb::CancelTrainer { kind, p, card, target } => crate::engine::play::cancel_trainer_coin(self, kind, p, card, target, result),
             CoinCb::Sequence { p, mode, results, n, callback } => {
                 let results = if result { results | (1 << n) } else { results };
                 let n = n + 1;

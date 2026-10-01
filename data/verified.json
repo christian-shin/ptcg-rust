@@ -1149,5 +1149,69 @@
  "PecharuntIR SVP": {
   "status": "needs-reverify",
   "note": "verified as Pecharunt SVP; pool row SVP 129 now maps to the exact printing PecharuntIR SVP"
+ },
+ "Terrakion SV11W": {
+  "status": "verified"
+ },
+ "Conkeldurr TWM": {
+  "status": "verified"
+ },
+ "Gurdurr TWM": {
+  "status": "verified"
+ },
+ "Timburr TWM": {
+  "status": "verified"
+ },
+ "Ting-Lu TWM": {
+  "status": "verified"
+ },
+ "Applin DRI": {
+  "status": "verified"
+ },
+ "Hydrapple DRI": {
+  "status": "verified"
+ },
+ "Bulbasaur M1L": {
+  "status": "verified"
+ },
+ "Mega Venusaur ex M1L": {
+  "status": "verified"
+ },
+ "Mega Meganium ex MC": {
+  "status": "verified"
+ },
+ "Whimsicott ex SV11W": {
+  "status": "verified"
+ },
+ "Dipplin SCR": {
+  "status": "verified"
+ },
+ "Durant ex SSP": {
+  "status": "verified"
+ },
+ "Leafeon ex PRE": {
+  "status": "verified"
+ },
+ "Ethan's Pinsir DRI": {
+  "status": "verified"
+ },
+ "Alolan Exeggutor 30C": {
+  "status": "verified"
+ },
+ "Exeggcute SSP": {
+  "status": "verified"
+ },
+ "Genesect M2": {
+  "status": "verified"
+ },
+ "Rillaboom TWM": {
+  "status": "verified"
+ },
+ "Cottonee MEP": {
+  "status": "verified"
+ },
+ "Seismitoad 30C": {
+  "status": "blocked",
+  "note": "unreachable: no Tympole/Palpitoad in pool; coin-flip trainer cancel core unverified"
  }
 }

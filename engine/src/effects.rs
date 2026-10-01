@@ -39,7 +39,8 @@ pub struct EnergyEntry {
 }
 
 pub type EnergyMap = SVec<EnergyEntry, 32>;
-pub type Cost = SVec<CardType, 10>;
+/// Room for Rillaboom (TWM) mirrors: every copy in the game adds a [C].
+pub type Cost = SVec<CardType, 16>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct WeaknessV {
@@ -156,6 +157,14 @@ pub enum Effect {
     /// `PreventEffectsOfAttacksEffect` (EffectOfAttackEffect, target = attacker):
     /// `player.active.preventEffectsOfAttacksNextTurnPending = {}` (empty filter only).
     PreventEffectsOfAttacks { b: AtkBase },
+    /// `IncreaseDefendingPokemonAttackCostNextTurnEffect` (EffectOfAttackEffect):
+    /// `opponent.active.attackCostIncreaseNextTurnPending = 1` (+ attacker id).
+    IncreaseAttackCostNextTurn { b: AtkBase },
+    /// `IncreaseDefendingPokemonRetreatCostNextTurnEffect` (EffectOfAttackEffect).
+    IncreaseRetreatCostNextTurn { b: AtkBase },
+    /// `CoinFlipCancelTrainerPlayEffect` (EffectOfAttackEffect, target = source):
+    /// `opponent.coinFlipCancelTrainerPlayTurnsRemaining = max(.., 1)`.
+    CoinFlipCancelTrainerPlay { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -245,6 +254,8 @@ impl Effect {
             SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
+            IncreaseAttackCostNextTurn { .. } | IncreaseRetreatCostNextTurn { .. } => "EFFECT_OF_ATTACK_EFFECT",
+            CoinFlipCancelTrainerPlay { .. } => "COIN_FLIP_CANCEL_TRAINER_PLAY_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -287,6 +298,7 @@ impl Effect {
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
+            IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             _ => None,
         }
     }
@@ -313,6 +325,7 @@ impl Effect {
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
+            IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             _ => None,
         }
     }
@@ -400,6 +413,9 @@ impl Effect {
             PreventDamage { .. } => 84,
             PreventEffectsOfAttacks { .. } => 77,
             OpponentPokemonCannotUseAttack { .. } => 91,
+            IncreaseAttackCostNextTurn { .. } => 120,
+            IncreaseRetreatCostNextTurn { .. } => 121,
+            CoinFlipCancelTrainerPlay { .. } => 122,
         };
         k
     }
@@ -485,6 +501,9 @@ pub mod k {
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
+    pub const INCREASE_ATTACK_COST_NEXT_TURN: u32 = 120;
+    pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;
+    pub const COIN_FLIP_CANCEL_TRAINER_PLAY: u32 = 122;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

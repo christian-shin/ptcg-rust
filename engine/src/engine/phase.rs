@@ -320,6 +320,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.prevent_effects_of_attacks_next_turn_pending = false;
         }
     }
+    cost_increase_end_of_turn(g, p);
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];
     pl.supporter_turn = 0;
@@ -328,6 +329,41 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     pl.prizes_taken_last_turn = pl.prizes_taken_this_turn;
     pl.prizes_taken_this_turn = 0;
     check::check_state(g, OnComplete::AfterEndTurn { p: p as u8 })
+}
+
+/// EndTurnEffect: arm / expire `attackCostIncreaseNextTurn` and
+/// `retreatCostIncreaseNextTurn` on both players' Pokémon (`p` ends its turn).
+fn cost_increase_end_of_turn(g: &mut Game, p: usize) {
+    let me = Some(p as u8);
+    for pass in 0..2 {
+        for q in [p, 1 - p] {
+            for s in g.st.players[q].in_play().iter() {
+                if g.st.slot_pokemon(q, *s).is_none() {
+                    continue;
+                }
+                let slot = &mut g.st.players[q].slots[*s as usize];
+                if pass == 0 {
+                    if slot.attack_cost_increase_next_turn_pending != 0 && slot.attack_cost_increase_next_turn_attacker != me {
+                        slot.attack_cost_increase_next_turn = slot.attack_cost_increase_next_turn_pending;
+                        slot.attack_cost_increase_next_turn_pending = 0;
+                    }
+                    if slot.retreat_cost_increase_next_turn_pending != 0 && slot.retreat_cost_increase_next_turn_attacker != me {
+                        slot.retreat_cost_increase_next_turn = slot.retreat_cost_increase_next_turn_pending;
+                        slot.retreat_cost_increase_next_turn_pending = 0;
+                    }
+                } else {
+                    if slot.attack_cost_increase_next_turn_attacker == me && slot.attack_cost_increase_next_turn_pending == 0 && slot.attack_cost_increase_next_turn > 0 {
+                        slot.attack_cost_increase_next_turn = 0;
+                        slot.attack_cost_increase_next_turn_attacker = None;
+                    }
+                    if slot.retreat_cost_increase_next_turn_attacker == me && slot.retreat_cost_increase_next_turn_pending == 0 && slot.retreat_cost_increase_next_turn > 0 {
+                        slot.retreat_cost_increase_next_turn = 0;
+                        slot.retreat_cost_increase_next_turn_attacker = None;
+                    }
+                }
+            }
+        }
+    }
 }
 
 pub fn clear_play_locks(pl: &mut Player) {

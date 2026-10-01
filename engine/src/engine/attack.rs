@@ -532,6 +532,28 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
+        Effect::IncreaseAttackCostNextTurn { b } => {
+            // applyEffect(): the opponent's current Active.
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            slot.attack_cost_increase_next_turn_pending = 1;
+            slot.attack_cost_increase_next_turn_attacker = Some(b.player);
+            Ok(())
+        }
+        Effect::IncreaseRetreatCostNextTurn { b } => {
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            slot.retreat_cost_increase_next_turn_pending = 1;
+            slot.retreat_cost_increase_next_turn_attacker = Some(b.player);
+            Ok(())
+        }
+        Effect::CoinFlipCancelTrainerPlay { b } => {
+            let pl = &mut g.st.players[b.opponent as usize];
+            pl.coin_flip_cancel_trainer_play_turns_remaining = pl.coin_flip_cancel_trainer_play_turns_remaining.max(1);
+            Ok(())
+        }
         Effect::PreventRetreat { b } => {
             // EffectOfAttackEffect.applyEffect(): the opponent's current Active.
             let o = b.opponent as usize;
