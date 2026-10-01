@@ -126,6 +126,12 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.damage_reduction_next_turn = 0;
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;
+    slot.attack_cost_increase_next_turn = 0;
+    slot.attack_cost_increase_next_turn_pending = 0;
+    slot.attack_cost_increase_next_turn_attacker = None;
+    slot.retreat_cost_increase_next_turn = 0;
+    slot.retreat_cost_increase_next_turn_pending = 0;
+    slot.retreat_cost_increase_next_turn_attacker = None;
     clear_prevent_next_turn(slot);
     slot.next_turn_attack_damage_bonus = None;
     slot.next_turn_attack_damage_bonus_pending = None;

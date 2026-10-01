@@ -169,14 +169,44 @@ fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId, keep: bool) {
     trainer_cleanup(g, p, card);
 }
 
-pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
-    match *g.e(id) {
-        Effect::PlaySupporter { p, card, target } => {
-            let pu = p as usize;
-            if g.st.players[pu].cannot_play_supporter_cards {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
-            // coinFlipCancelTrainerPlay: not modeled (flag never set by pool cards).
+/// Which `playTrainerReducer` branch a Seismitoad-style coin flip resumes.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum TrainerPlayKind {
+    Supporter,
+    Stadium,
+    Tool,
+    Item,
+}
+
+/// `withOptionalCoinFlipCancelTrainer`: with the flag set, flip a coin
+/// (CoinFlipEffect) and resume in [`cancel_trainer_coin`]; else continue now.
+fn with_optional_coin_flip_cancel_trainer(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardId, target: Option<SlotRef>) -> R {
+    if g.st.players[p as usize].coin_flip_cancel_trainer_play_turns_remaining <= 0 {
+        return continue_trainer_play(g, kind, p, card, target);
+    }
+    g.coin_flip(p as usize, crate::game::CoinCb::CancelTrainer { kind, p, card, target })?;
+    Ok(())
+}
+
+/// The CoinFlipEffect callback of `withOptionalCoinFlipCancelTrainer`.
+pub fn cancel_trainer_coin(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardId, target: Option<SlotRef>, heads: bool) -> R {
+    if heads {
+        return continue_trainer_play(g, kind, p, card, target);
+    }
+    let pu = p as usize;
+    let t = cleanup_target(g, card)(p);
+    if g.st.players[pu].hand.contains(card) {
+        g.move_card_to(ListRef::Hand(p), card, t);
+    } else if g.st.players[pu].supporter.contains(card) {
+        g.move_card_to(ListRef::Supporter(p), card, t);
+    }
+    Ok(())
+}
+
+fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardId, target: Option<SlotRef>) -> R {
+    let pu = p as usize;
+    match kind {
+        TrainerPlayKind::Supporter => {
             g.run_fx(Effect::Trainer { p, card, target })?;
             restore_played_trainer(g, pu, card);
             let keep = g.st.rules.supporter_cleanup_at_end_turn;
@@ -184,12 +214,8 @@ pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[pu].supporter_turn += 1;
             Ok(())
         }
-        Effect::PlayStadium { p, card } => {
-            let pu = p as usize;
+        TrainerPlayKind::Stadium => {
             let stadium = g.st.stadium_card();
-            if g.st.players[pu].cannot_play_stadium_cards {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
             let prism = stadium.map(|s| g.st.cdef(s).has_tag(tag::PRISM_STAR)).unwrap_or(false);
             for q in [pu, 1 - pu] {
                 if !g.st.players[q].stadium.is_empty() {
@@ -200,6 +226,44 @@ pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[pu].stadium_used_turn = 0;
             g.move_card_to(ListRef::Hand(p), card, ListRef::Stadium(p));
             Ok(())
+        }
+        TrainerPlayKind::Tool => {
+            let target = match target {
+                Some(t) => t,
+                None => return Ok(()),
+            };
+            g.move_card_to(ListRef::Hand(p), card, target.list());
+            let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
+            slot.cards.remove(card);
+            slot.tools.push(card);
+            g.run_fx(Effect::Trainer { p, card, target: Some(target) })?;
+            Ok(())
+        }
+        TrainerPlayKind::Item => {
+            g.move_card_to(ListRef::Hand(p), card, ListRef::Supporter(p));
+            g.run_fx(Effect::Trainer { p, card, target })?;
+            restore_played_trainer(g, pu, card);
+            finalize_trainer_cleanup(g, pu, card, false);
+            Ok(())
+        }
+    }
+}
+
+pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
+    match *g.e(id) {
+        Effect::PlaySupporter { p, card, target } => {
+            let pu = p as usize;
+            if g.st.players[pu].cannot_play_supporter_cards {
+                crate::bail!("BLOCKED_BY_EFFECT");
+            }
+            with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Supporter, p, card, target)
+        }
+        Effect::PlayStadium { p, card } => {
+            let pu = p as usize;
+            if g.st.players[pu].cannot_play_stadium_cards {
+                crate::bail!("BLOCKED_BY_EFFECT");
+            }
+            with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Stadium, p, card, None)
         }
         Effect::AttachPokemonTool { p, card, target } => {
             let pu = p as usize;
@@ -216,23 +280,14 @@ pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
             if g.st.players[pu].cannot_play_tool_cards {
                 crate::bail!("BLOCKED_BY_EFFECT");
             }
-            g.move_card_to(ListRef::Hand(p), card, target.list());
-            let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-            slot.cards.remove(card);
-            slot.tools.push(card);
-            g.run_fx(Effect::Trainer { p, card, target: Some(target) })?;
-            Ok(())
+            with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Tool, p, card, Some(target))
         }
         Effect::PlayItem { p, card, target } => {
             let pu = p as usize;
             if g.st.players[pu].cannot_play_item_cards {
                 crate::bail!("BLOCKED_BY_EFFECT");
             }
-            g.move_card_to(ListRef::Hand(p), card, ListRef::Supporter(p));
-            g.run_fx(Effect::Trainer { p, card, target })?;
-            restore_played_trainer(g, pu, card);
-            finalize_trainer_cleanup(g, pu, card, false);
-            Ok(())
+            with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Item, p, card, target)
         }
         Effect::Trainer { p, card, .. } => {
             if g.st.players[p as usize].hand.contains(card) {

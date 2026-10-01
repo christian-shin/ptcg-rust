@@ -130,6 +130,14 @@ pub struct Slot {
     pub defending_extra_damage_attacker: Option<u8>,
     pub defending_extra_damage_pending: bool,
     pub defending_extra_damage_rearm_after_attack: bool,
+    /// `attackCostIncreaseNextTurn` / `...Pending` / `...AttackerId` (player
+    /// index) and the `retreatCostIncreaseNextTurn*` trio (Rillaboom TWM).
+    pub attack_cost_increase_next_turn: i32,
+    pub attack_cost_increase_next_turn_pending: i32,
+    pub attack_cost_increase_next_turn_attacker: Option<u8>,
+    pub retreat_cost_increase_next_turn: i32,
+    pub retreat_cost_increase_next_turn_pending: i32,
+    pub retreat_cost_increase_next_turn_attacker: Option<u8>,
     pub is_public: bool,
 }
 
@@ -222,6 +230,12 @@ impl Default for Slot {
             defending_extra_damage_attacker: None,
             defending_extra_damage_pending: false,
             defending_extra_damage_rearm_after_attack: false,
+            attack_cost_increase_next_turn: 0,
+            attack_cost_increase_next_turn_pending: 0,
+            attack_cost_increase_next_turn_attacker: None,
+            retreat_cost_increase_next_turn: 0,
+            retreat_cost_increase_next_turn_pending: 0,
+            retreat_cost_increase_next_turn_attacker: None,
             is_public: false,
         }
     }
@@ -246,11 +260,14 @@ pub struct CardInst {
     /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
     /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
     pub evolves_from_base: Option<&'static [&'static str]>,
+    /// Ting-Lu's `discardedStadiumCard` instance field (never reset except
+    /// by its own handler; canonical when true).
+    pub discarded_stadium_card: bool,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false }
     }
 }
 

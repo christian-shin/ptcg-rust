@@ -1381,5 +1381,89 @@
  "Eelektrik SV11B": {
   "status": "verified",
   "note": "batch b06"
+ },
+ "Terrakion SV11W": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Conkeldurr TWM": {
+  "status": "verified",
+  "note": "batch b04; L50 defensive return unreachable"
+ },
+ "Gurdurr TWM": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Timburr TWM": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Ting-Lu TWM": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Seismitoad 30C": {
+  "status": "blocked",
+  "note": "batch b04; unreachable: no Tympole/Palpitoad in pool; coin-flip trainer cancel core unverified"
+ },
+ "Applin DRI": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Hydrapple DRI": {
+  "status": "verified",
+  "note": "batch b04; L52 empty-result return unreachable (6-card prompt, not cancellable)"
+ },
+ "Bulbasaur M1L": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Mega Venusaur ex M1L": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Mega Meganium ex MC": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Whimsicott ex SV11W": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Dipplin SCR": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Durant ex SSP": {
+  "status": "verified",
+  "note": "batch b04; L48 ability-blocked unreachable in pool"
+ },
+ "Leafeon ex PRE": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Ethan's Pinsir DRI": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Alolan Exeggutor 30C": {
+  "status": "verified",
+  "note": "batch b04; L39 ability-blocked unreachable in pool"
+ },
+ "Exeggcute SSP": {
+  "status": "verified",
+  "note": "batch b04; empty-deck return covered by 3 games across two scout runs"
+ },
+ "Genesect M2": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Rillaboom TWM": {
+  "status": "verified",
+  "note": "batch b04"
+ },
+ "Cottonee MEP": {
+  "status": "verified",
+  "note": "batch b04"
  }
 }

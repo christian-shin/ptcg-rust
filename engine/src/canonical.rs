@@ -93,6 +93,16 @@ impl Game {
         }
         nd!(no_weakness_next_turn, "noWeaknessNextTurn");
         nd!(no_weakness_next_turn_pending, "noWeaknessNextTurnPending");
+        nd!(attack_cost_increase_next_turn, "attackCostIncreaseNextTurn");
+        nd!(attack_cost_increase_next_turn_pending, "attackCostIncreaseNextTurnPending");
+        if let Some(p) = s.attack_cost_increase_next_turn_attacker {
+            o.insert("attackCostIncreaseNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
+        }
+        nd!(retreat_cost_increase_next_turn, "retreatCostIncreaseNextTurn");
+        nd!(retreat_cost_increase_next_turn_pending, "retreatCostIncreaseNextTurnPending");
+        if let Some(p) = s.retreat_cost_increase_next_turn_attacker {
+            o.insert("retreatCostIncreaseNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
+        }
         nd!(discard_attacker_energy_if_ko_next_turn, "discardAttackerEnergyIfKnockedOutNextTurn");
         nd!(discard_attacker_energy_if_ko_next_turn_pending, "discardAttackerEnergyIfKnockedOutNextTurnPending");
         if let Some(a) = s.discard_attacker_energy_if_ko_attack {
@@ -263,6 +273,9 @@ impl Game {
             }
             if inst.extra_prizes {
                 diff.insert("extraPrizes".into(), json!(true));
+            }
+            if inst.discarded_stadium_card {
+                diff.insert("discardedStadiumCard".into(), json!(true));
             }
             if inst.attack_barrage_shown != 0 {
                 // Runtime `this.attacks[i].barrage` writes: the whole attacks array.
