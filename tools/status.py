@@ -10,6 +10,7 @@ printing by tools/map_prints.py) are counted separately. The print-match table
 counts pool.json `print_match` (exact Twinleaf printing found or not).
 """
 import json, os, subprocess, sys, collections
+from names import english
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIFF = os.path.join(ROOT, 'engine/target/release/diff')
@@ -74,7 +75,7 @@ def main():
             if r and r.get('fullName') in ported:
                 have += 1
             else:
-                missing.append(r['fullName'] if r else c['name'] + ' (not in Twinleaf)')
+                missing.append(english(r['fullName']) if r else c['name'] + ' (not in Twinleaf)')
         ok = have == need
         share = a.get('share') or 0
         if md:

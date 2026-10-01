@@ -148,6 +148,10 @@ for r in rows:
             for k in ('fullName', 'cls', 'methods', 'reduce_lines', 'effect_fns', 'tier', 'behavior_file'):
                 rec.pop(k, None)
             rec['official'] = 'Twinleaf has no class with this printing\'s text (%s)' % om['verdict']
+    # English identity: the official name plus set and printing number
+    # (Twinleaf's fullName mixes translated names and print-variant suffixes).
+    rec['en_name'] = r['name']
+    rec['key'] = '%s %s %s' % (r['name'], r['set'], r['number'])
     rec['print_match'] = m['match'] if m else None
     rec['print_note'] = print_note(m, rec, prev, remapped)
     out.append(rec)

@@ -157,17 +157,56 @@ pub fn def(id: DefId) -> &'static CardDef {
     &crate::gen::cards::CARDS[id as usize]
 }
 
-fn index() -> &'static HashMap<&'static str, DefId> {
-    static INDEX: OnceLock<HashMap<&'static str, DefId>> = OnceLock::new();
+/// English key of a card: official name, set and printing number
+/// ("Grand Tree SCR 136"). Twinleaf's `full_name` stays the oracle identity.
+pub fn en_key(id: DefId) -> &'static str {
+    crate::gen::names::EN_NAMES[id as usize].0
+}
+
+/// Official English name ("Grand Tree"; Twinleaf may say "Great Tree").
+pub fn en_name(id: DefId) -> &'static str {
+    crate::gen::names::EN_NAMES[id as usize].1
+}
+
+fn index() -> &'static HashMap<String, DefId> {
+    static INDEX: OnceLock<HashMap<String, DefId>> = OnceLock::new();
     INDEX.get_or_init(|| {
-        let mut m = HashMap::new();
+        let mut m: HashMap<String, DefId> = HashMap::new();
         for (i, c) in crate::gen::cards::CARDS.iter().enumerate() {
-            m.insert(c.full_name, i as DefId);
+            m.insert(c.full_name.to_string(), i as DefId);
+        }
+        // English aliases: the key, and "Name SET" when only one printing in
+        // that set has the name. Twinleaf full names win any collision.
+        let mut short: HashMap<String, Option<DefId>> = HashMap::new();
+        for (i, (key, _)) in crate::gen::names::EN_NAMES.iter().enumerate() {
+            m.entry(key.to_string()).or_insert(i as DefId);
+            let s = key.rsplit_once(' ').map_or(*key, |(s, _)| s).to_string();
+            short.entry(s).and_modify(|v| *v = None).or_insert(Some(i as DefId));
+        }
+        for (s, v) in short {
+            if let Some(i) = v {
+                m.entry(s).or_insert(i);
+            }
         }
         m
     })
 }
 
+/// Look a card up by Twinleaf full name or English key / "Name SET".
 pub fn def_by_full_name(name: &str) -> Option<DefId> {
     index().get(name).copied()
+}
+
+#[cfg(test)]
+mod en_tests {
+    use super::*;
+
+    #[test]
+    fn english_aliases() {
+        let g = def_by_full_name("Great Tree SCR").unwrap();
+        assert_eq!(def_by_full_name("Grand Tree SCR 136"), Some(g));
+        assert_eq!(def_by_full_name("Grand Tree SCR"), Some(g));
+        assert_eq!(en_name(g), "Grand Tree");
+        assert_eq!(en_key(g), "Grand Tree SCR 136");
+    }
 }

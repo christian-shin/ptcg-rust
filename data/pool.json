@@ -19,6 +19,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-ascended-heroes/hops-phantump-pool.ts",
+  "en_name": "Hop's Phantump",
+  "key": "Hop's Phantump ASC 95",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Hop's Phantump ASC (ASC #95)"
  },
@@ -42,6 +44,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-ascended-heroes/hops-trevenant-pool.ts",
+  "en_name": "Hop's Trevenant",
+  "key": "Hop's Trevenant ASC 96",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Hop's Trevenant ASC (ASC #96)"
  },
@@ -65,6 +69,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-ascended-heroes/thick-scale-pool.ts",
+  "en_name": "Thick Scale",
+  "key": "Thick Scale ASC 211",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Thick Scale ASC (ASC #211)"
  },
@@ -85,6 +91,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Team Rocket's Houndour",
+  "key": "Team Rocket's Houndour DRI 37",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Team Rocket's Houndour DRI (DRI #37)"
  },
@@ -108,6 +116,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-houndoom-pool.ts",
+  "en_name": "Team Rocket's Houndoom",
+  "key": "Team Rocket's Houndoom DRI 38",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Team Rocket's Houndoom DRI (DRI #38)"
  },
@@ -131,6 +141,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/ethans-sudowoodo-pool.ts",
+  "en_name": "Ethan's Sudowoodo",
+  "key": "Ethan's Sudowoodo DRI 93",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Ethan's Sudowoodo DRI (DRI #93)"
  },
@@ -154,6 +166,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-bother-bot-pool.ts",
+  "en_name": "Team Rocket's Bother-Bot",
+  "key": "Team Rocket's Bother-Bot DRI 172",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Team Rocket's Bother-Bot DRI (DRI #172)"
  },
@@ -178,6 +192,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/lt-surges-bargain-pool.ts",
+  "en_name": "Lt. Surge's Bargain",
+  "key": "Lt. Surge's Bargain MEG 120",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Lt. Surge's Bargain MEG (MEG #120)"
  },
@@ -201,6 +217,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-pitch-black/voltaic-lightning-energy.ts",
+  "en_name": "Voltaic Lightning Energy",
+  "key": "Voltaic Lightning Energy PBL 84",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Bolty [L] Energy M5 (PBL #84)"
  },
@@ -224,6 +242,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-perfect-order/grow-grass-energy.ts",
+  "en_name": "Growing Grass Energy",
+  "key": "Growing Grass Energy POR 86",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Grow [G] Energy M3 (POR #86)"
  },
@@ -248,6 +268,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/ogres-mask-pool.ts",
+  "en_name": "Ogre's Mask",
+  "key": "Ogre's Mask PRE 118",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Ogre's Mask PRE (PRE #118)"
  },
@@ -271,6 +293,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/fidough-pool.ts",
+  "en_name": "Fidough",
+  "key": "Fidough SCR 66",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Fidough SCR (SCR #66)"
  },
@@ -294,6 +318,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/payapa-berry-pool.ts",
+  "en_name": "Payapa Berry",
+  "key": "Payapa Berry SCR 141",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Payapa Berry SCR (SCR #141)"
  },
@@ -317,6 +343,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/babiri-berry-pool.ts",
+  "en_name": "Babiri Berry",
+  "key": "Babiri Berry SSP 163",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Babiri Berry SSP (SSP #163)"
  },
@@ -340,6 +368,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet-promos/zacian-ex-pool.ts",
+  "en_name": "Zacian ex",
+  "key": "Zacian ex SVP 198",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Zacian ex SVP (SVP #198)"
  },
@@ -363,6 +393,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/iron-boulder-ex-pool.ts",
+  "en_name": "Iron Boulder ex",
+  "key": "Iron Boulder ex TEF 99",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Iron Boulder ex TEF (TEF #99)"
  },
@@ -386,6 +418,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/iron-treads-pool.ts",
+  "en_name": "Iron Treads",
+  "key": "Iron Treads TEF 118",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Iron Treads TEF (TEF #118)"
  },
@@ -411,6 +445,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/lucian-pool.ts",
+  "en_name": "Lucian",
+  "key": "Lucian TWM 157",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Lucian TWM (TWM #157)"
  },
@@ -431,6 +467,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Togepi",
+  "key": "Togepi ASC 80",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Togepi ASC (ASC #80)"
  },
@@ -454,6 +492,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-mimikyu.ts",
+  "en_name": "Team Rocket's Mimikyu",
+  "key": "Team Rocket's Mimikyu ASC 97",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Team Rocket's Mimikyu ASC (ASC #97)"
  },
@@ -477,6 +517,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-ascended-heroes/galarian-obstagoon-pool.ts",
+  "en_name": "Galarian Obstagoon",
+  "key": "Galarian Obstagoon ASC 132",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Galarian Obstagoon ASC (ASC #132)"
  },
@@ -500,6 +542,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/petilil-pool.ts",
+  "en_name": "Petilil",
+  "key": "Petilil BLK 6",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Petilil BLK (BLK #6)"
  },
@@ -523,6 +567,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/amoongus.ts",
+  "en_name": "Amoonguss",
+  "key": "Amoonguss BLK 11",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Amoongus SV11B (BLK #11); Twinleaf spells the name 'Amoongus'"
  },
@@ -543,6 +589,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Timburr",
+  "key": "Timburr BLK 47",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Timburr BLK (BLK #47)"
  },
@@ -566,6 +614,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/gurdurr-pool.ts",
+  "en_name": "Gurdurr",
+  "key": "Gurdurr BLK 48",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Gurdurr BLK (BLK #48)"
  },
@@ -589,6 +639,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/dhelmise-pool.ts",
+  "en_name": "Dhelmise",
+  "key": "Dhelmise JTG 70",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Dhelmise JTG (JTG #70)"
  },
@@ -612,6 +664,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/chi-yu-pool.ts",
+  "en_name": "Chi-Yu",
+  "key": "Chi-Yu MEG 31",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Chi-Yu MEG (MEG #31)"
  },
@@ -635,6 +689,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/shroodle-pool.ts",
+  "en_name": "Shroodle",
+  "key": "Shroodle MEG 91",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Shroodle MEG (MEG #91)"
  },
@@ -658,6 +714,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/delibird-pool.ts",
+  "en_name": "Delibird",
+  "key": "Delibird MEG 105",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Delibird MEG (MEG #105)"
  },
@@ -681,6 +739,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/buneary-pool.ts",
+  "en_name": "Buneary",
+  "key": "Buneary MEG 107",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Buneary MEG (MEG #107)"
  },
@@ -704,6 +764,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution-promos/cottonee-pool.ts",
+  "en_name": "Cottonee",
+  "key": "Cottonee MEP 18",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Cottonee MEP (MEP #18)"
  },
@@ -727,6 +789,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/11-mega-evolution/set-phantasmal-flames/pawmot-pool.ts",
+  "en_name": "Pawmot",
+  "key": "Pawmot PFL 34",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Pawmot PFL (PFL #34)"
  },
@@ -747,6 +811,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Slowpoke",
+  "key": "Slowpoke PRE 18",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Slowpoke PRE (PRE #18)"
  },
@@ -767,6 +833,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Charcadet",
+  "key": "Charcadet SCR 29",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Charcadet SCR (SCR #29)"
  },
@@ -787,6 +855,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Frogadier",
+  "key": "Frogadier SCR 40",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Frogadier SCR (SCR #40)"
  },
@@ -807,6 +877,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": null,
+  "en_name": "Flittle",
+  "key": "Flittle SCR 68",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Flittle SCR (SCR #68)"
  },
@@ -830,6 +902,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/paldean-tauros-39-pool.ts",
+  "en_name": "Paldean Tauros",
+  "key": "Paldean Tauros SSP 39",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Paldean Tauros SSP 39 (SSP #39)"
  },
@@ -853,6 +927,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/mankey-pool.ts",
+  "en_name": "Mankey",
+  "key": "Mankey SSP 98",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Mankey SSP (SSP #98)"
  },
@@ -876,6 +952,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/passimian-pool.ts",
+  "en_name": "Passimian",
+  "key": "Passimian SSP 111",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Passimian SSP (SSP #111)"
  },
@@ -899,6 +977,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/swablu-pool.ts",
+  "en_name": "Swablu",
+  "key": "Swablu SSP 148",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Swablu SSP (SSP #148)"
  },
@@ -922,6 +1002,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/bouffalant-pool.ts",
+  "en_name": "Bouffalant",
+  "key": "Bouffalant SSP 151",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Bouffalant SSP (SSP #151)"
  },
@@ -945,6 +1027,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/dhelmise-pool.ts",
+  "en_name": "Dhelmise",
+  "key": "Dhelmise TEF 19",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Dhelmise TEF (TEF #19)"
  },
@@ -968,6 +1052,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/beheeyem-pool.ts",
+  "en_name": "Beheeyem",
+  "key": "Beheeyem TEF 74",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Beheeyem TEF (TEF #74)"
  },
@@ -991,6 +1077,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/scream-tail-pool.ts",
+  "en_name": "Scream Tail",
+  "key": "Scream Tail TEF 77",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Scream Tail TEF (TEF #77)"
  },
@@ -1014,6 +1102,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/volbeat-pool.ts",
+  "en_name": "Volbeat",
+  "key": "Volbeat TWM 9",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Volbeat TWM (TWM #9)"
  },
@@ -1037,6 +1127,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/teal-mask-ogerpon-pool.ts",
+  "en_name": "Teal Mask Ogerpon",
+  "key": "Teal Mask Ogerpon TWM 24",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Teal Mask Ogerpon TWM (TWM #24)"
  },
@@ -1060,6 +1152,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/litwick-pool.ts",
+  "en_name": "Litwick",
+  "key": "Litwick TWM 36",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Litwick TWM (TWM #36)"
  },
@@ -1083,6 +1177,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/lampent-pool.ts",
+  "en_name": "Lampent",
+  "key": "Lampent TWM 37",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Lampent TWM (TWM #37)"
  },
@@ -1106,6 +1202,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/chandelure-pool.ts",
+  "en_name": "Chandelure",
+  "key": "Chandelure TWM 38",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Chandelure TWM (TWM #38)"
  },
@@ -1129,6 +1227,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/milotic-pool.ts",
+  "en_name": "Milotic",
+  "key": "Milotic TWM 50",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Milotic TWM (TWM #50)"
  },
@@ -1152,6 +1252,8 @@
   "tier": "short",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/glalie-pool.ts",
+  "en_name": "Glalie",
+  "key": "Glalie TWM 52",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Glalie TWM (TWM #52)"
  },
@@ -1175,6 +1277,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/eevee-pool.ts",
+  "en_name": "Eevee",
+  "key": "Eevee TWM 135",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Eevee TWM (TWM #135)"
  },
@@ -1198,6 +1302,8 @@
   "tier": "custom",
   "prev_fullName": null,
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/mandibuzz-pool.ts",
+  "en_name": "Mandibuzz",
+  "key": "Mandibuzz WHT 64",
   "print_match": "exact",
   "print_note": "remapped from unmapped to Mandibuzz WHT (WHT #64)"
  },
@@ -1220,6 +1326,8 @@
   "effect_fns": 0,
   "tier": "custom",
   "official": "same text as Mew ex 30C",
+  "en_name": "Mew ex",
+  "key": "Mew ex 30C 66",
   "print_match": "number-mismatch",
   "print_note": "exact printing"
  },
@@ -1244,6 +1352,8 @@
   "tier": "custom",
   "prev_fullName": "Pok\u00e9 Pad MC",
   "behavior_file": "sets/11-mega-evolution/set-ascended-heroes/poke-pad.ts",
+  "en_name": "Pok\u00e9 Pad",
+  "key": "Pok\u00e9 Pad 30C 126",
   "print_match": "exact",
   "print_note": "remapped from Pok\u00e9 Pad MC to Pok\u00e9 Pad 30C (30C #126)"
  },
@@ -1267,6 +1377,8 @@
   "tier": "short",
   "prev_fullName": "Switch BS",
   "behavior_file": "sets/set-base-set/switch.ts",
+  "en_name": "Switch",
+  "key": "Switch 30C 127",
   "print_match": "exact",
   "print_note": "remapped from Switch BS to Switch 30C (30C #127)"
  },
@@ -1291,6 +1403,8 @@
   "tier": "short",
   "prev_fullName": "Ultra Ball SVI",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/ultra-ball.ts",
+  "en_name": "Ultra Ball",
+  "key": "Ultra Ball 30C 128",
   "print_match": "exact",
   "print_note": "remapped from Ultra Ball SVI to Ultra Ball 30C (30C #128)"
  },
@@ -1314,6 +1428,8 @@
   "tier": "short",
   "prev_fullName": "Budew PRE",
   "behavior_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/budew.ts",
+  "en_name": "Budew",
+  "key": "Budew ASC 16",
   "print_match": "exact",
   "print_note": "remapped from Budew PRE to Budew ASC (ASC #16)"
  },
@@ -1337,6 +1453,8 @@
   "tier": "short",
   "prev_fullName": "Team Rocket's Tarountula DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-tarountula.ts",
+  "en_name": "Team Rocket's Tarountula",
+  "key": "Team Rocket's Tarountula ASC 18",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Tarountula DRI to Team Rocket's Tarountula ASC (ASC #18)"
  },
@@ -1360,6 +1478,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Spidops DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-spidops.ts",
+  "en_name": "Team Rocket's Spidops",
+  "key": "Team Rocket's Spidops ASC 19",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Spidops DRI to Team Rocket's Spidops ASC (ASC #19)"
  },
@@ -1380,6 +1500,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Ethan's Slugma DRI",
+  "en_name": "Ethan's Slugma",
+  "key": "Ethan's Slugma ASC 23",
   "print_match": "exact",
   "print_note": "remapped from Ethan's Slugma DRI to Ethan's Slugma ASC (ASC #23)"
  },
@@ -1403,6 +1525,8 @@
   "tier": "custom",
   "prev_fullName": "Ethan's Magcargo DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/ethans-magcargo.ts",
+  "en_name": "Ethan's Magcargo",
+  "key": "Ethan's Magcargo ASC 24",
   "print_match": "exact",
   "print_note": "remapped from Ethan's Magcargo DRI to Ethan's Magcargo ASC (ASC #24)"
  },
@@ -1426,6 +1550,8 @@
   "tier": "custom",
   "prev_fullName": "Ethan's Ho-Oh ex DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/ethans-ho-oh-ex.ts",
+  "en_name": "Ethan's Ho-Oh ex",
+  "key": "Ethan's Ho-Oh ex ASC 26",
   "print_match": "exact",
   "print_note": "remapped from Ethan's Ho-Oh ex DRI to Ethan's Ho-Oh ex ASC (ASC #26)"
  },
@@ -1446,6 +1572,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "N's Darumaka JTG",
+  "en_name": "N's Darumaka",
+  "key": "N's Darumaka ASC 32",
   "print_match": "exact",
   "print_note": "remapped from N's Darumaka JTG to N's Darumaka ASC (ASC #32)"
  },
@@ -1469,6 +1597,8 @@
   "tier": "custom",
   "prev_fullName": "Psyduck SVP",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution-promos/psyduck.ts",
+  "en_name": "Psyduck",
+  "key": "Psyduck ASC 39",
   "print_match": "exact",
   "print_note": "remapped from Psyduck SVP to Psyduck ASC (ASC #39)"
  },
@@ -1492,6 +1622,8 @@
   "tier": "custom",
   "prev_fullName": "Golduck MEP",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution-promos/golduck.ts",
+  "en_name": "Golduck",
+  "key": "Golduck ASC 40",
   "print_match": "exact",
   "print_note": "remapped from Golduck MEP to Golduck ASC (ASC #40)"
  },
@@ -1515,6 +1647,8 @@
   "tier": "short",
   "prev_fullName": "Tynamo SV11B",
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/tynamo.ts",
+  "en_name": "Tynamo",
+  "key": "Tynamo ASC 59",
   "print_match": "exact",
   "print_note": "remapped from Tynamo SV11B to Tynamo ASC (ASC #59)"
  },
@@ -1536,6 +1670,8 @@
   "reduce_lines": 54,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Eelektrik",
+  "key": "Eelektrik ASC 60",
   "print_match": "exact",
   "print_note": "doubtful; kept name-based mapping Eelektrik SV11B; needs official card text; candidate Eelektrik ASC (ASC #60); REVIEW: Twinleaf EelektrikASC extends the Noble Victories Eelektrik (\"before your attack\" wording); the BLK Eelektrik the pool maps now has the modern wording. Verify against the official ASC text before switching; Twinleaf may need EelektrikASC to extend the BLK class."
  },
@@ -1559,6 +1695,8 @@
   "tier": "short",
   "prev_fullName": "Iono's Wattrel JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/ionos-wattrel.ts",
+  "en_name": "Iono's Wattrel",
+  "key": "Iono's Wattrel ASC 71",
   "print_match": "exact",
   "print_note": "remapped from Iono's Wattrel JTG to Iono's Wattrel ASC (ASC #71)"
  },
@@ -1582,6 +1720,8 @@
   "tier": "custom",
   "prev_fullName": "Iono's Kilowattrel JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/ionos-kilowattrel.ts",
+  "en_name": "Iono's Kilowattrel",
+  "key": "Iono's Kilowattrel ASC 72",
   "print_match": "exact",
   "print_note": "remapped from Iono's Kilowattrel JTG to Iono's Kilowattrel ASC (ASC #72)"
  },
@@ -1605,6 +1745,8 @@
   "tier": "short",
   "prev_fullName": "Clefable TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/clefable.ts",
+  "en_name": "Clefable",
+  "key": "Clefable ASC 75",
   "print_match": "exact",
   "print_note": "remapped from Clefable TWM to Clefable ASC (ASC #75)"
  },
@@ -1628,6 +1770,8 @@
   "tier": "custom",
   "prev_fullName": "Lillie's Clefairy ex JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/lillies-clefairy-ex.ts",
+  "en_name": "Lillie's Clefairy ex",
+  "key": "Lillie's Clefairy ex ASC 76",
   "print_match": "exact",
   "print_note": "remapped from Lillie's Clefairy ex JTG to Lillie's Clefairy ex ASC (ASC #76)"
  },
@@ -1651,6 +1795,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Mewtwo ex DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-mewtwo-ex.ts",
+  "en_name": "Team Rocket's Mewtwo ex",
+  "key": "Team Rocket's Mewtwo ex ASC 79",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Mewtwo ex DRI to Team Rocket's Mewtwo ex ASC (ASC #79)"
  },
@@ -1674,6 +1820,8 @@
   "tier": "short",
   "prev_fullName": "Togetic SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/togetic.ts",
+  "en_name": "Togetic",
+  "key": "Togetic ASC 81",
   "print_match": "exact",
   "print_note": "remapped from Togetic SSP to Togetic ASC (ASC #81)"
  },
@@ -1697,6 +1845,8 @@
   "tier": "custom",
   "prev_fullName": "Togekiss SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/togekiss.ts",
+  "en_name": "Togekiss",
+  "key": "Togekiss ASC 82",
   "print_match": "exact",
   "print_note": "remapped from Togekiss SSP to Togekiss ASC (ASC #82)"
  },
@@ -1720,6 +1870,8 @@
   "tier": "short",
   "prev_fullName": "Ralts M1S",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/ralts.ts",
+  "en_name": "Ralts",
+  "key": "Ralts ASC 87",
   "print_match": "exact",
   "print_note": "remapped from Ralts M1S to Ralts ASC (ASC #87)"
  },
@@ -1743,6 +1895,8 @@
   "tier": "short",
   "prev_fullName": "Kirlia M1S",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/kirlia.ts",
+  "en_name": "Kirlia",
+  "key": "Kirlia ASC 88",
   "print_match": "exact",
   "print_note": "remapped from Kirlia M1S to Kirlia ASC (ASC #88)"
  },
@@ -1766,6 +1920,8 @@
   "tier": "custom",
   "prev_fullName": "Mega Gardevoir ex M1S",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/mega-gardevoir-ex.ts",
+  "en_name": "Mega Gardevoir ex",
+  "key": "Mega Gardevoir ex ASC 89",
   "print_match": "exact",
   "print_note": "remapped from Mega Gardevoir ex M1S to Mega Gardevoir ex ASC (ASC #89)"
  },
@@ -1789,6 +1945,8 @@
   "tier": "custom",
   "prev_fullName": "Munkidori TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/munkidori.ts",
+  "en_name": "Munkidori",
+  "key": "Munkidori ASC 99",
   "print_match": "exact",
   "print_note": "remapped from Munkidori TWM to Munkidori ASC (ASC #99)"
  },
@@ -1812,6 +1970,8 @@
   "tier": "custom",
   "prev_fullName": "Lunatone M1L",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/lunatone.ts",
+  "en_name": "Lunatone",
+  "key": "Lunatone ASC 105",
   "print_match": "exact",
   "print_note": "remapped from Lunatone M1L to Lunatone ASC (ASC #105)"
  },
@@ -1835,6 +1995,8 @@
   "tier": "custom",
   "prev_fullName": "Solrock XY",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/solrock.ts",
+  "en_name": "Solrock",
+  "key": "Solrock ASC 106",
   "print_match": "exact",
   "print_note": "remapped from Solrock XY to Solrock ASC (ASC #106); printed text differs from the old printing"
  },
@@ -1858,6 +2020,8 @@
   "tier": "short",
   "prev_fullName": "Cynthia's Gible DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/cynthias-gible.ts",
+  "en_name": "Cynthia's Gible",
+  "key": "Cynthia's Gible ASC 109",
   "print_match": "exact",
   "print_note": "remapped from Cynthia's Gible DRI to Cynthia's Gible ASC (ASC #109)"
  },
@@ -1881,6 +2045,8 @@
   "tier": "custom",
   "prev_fullName": "Cynthia's Gabite DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/cynthias-gabite.ts",
+  "en_name": "Cynthia's Gabite",
+  "key": "Cynthia's Gabite ASC 110",
   "print_match": "exact",
   "print_note": "remapped from Cynthia's Gabite DRI to Cynthia's Gabite ASC (ASC #110)"
  },
@@ -1904,6 +2070,8 @@
   "tier": "custom",
   "prev_fullName": "Cynthia's Garchomp ex DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/cynthias-garchomp-ex.ts",
+  "en_name": "Cynthia's Garchomp ex",
+  "key": "Cynthia's Garchomp ex ASC 111",
   "print_match": "exact",
   "print_note": "remapped from Cynthia's Garchomp ex DRI to Cynthia's Garchomp ex ASC (ASC #111)"
  },
@@ -1927,6 +2095,8 @@
   "tier": "short",
   "prev_fullName": "Riolu M1L",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/riolu.ts",
+  "en_name": "Riolu",
+  "key": "Riolu ASC 112",
   "print_match": "exact",
   "print_note": "remapped from Riolu M1L to Riolu ASC (ASC #112)"
  },
@@ -1950,6 +2120,8 @@
   "tier": "custom",
   "prev_fullName": "Mega Lucario ex M1L",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/mega-lucario-ex.ts",
+  "en_name": "Mega Lucario ex",
+  "key": "Mega Lucario ex ASC 113",
   "print_match": "exact",
   "print_note": "remapped from Mega Lucario ex M1L to Mega Lucario ex ASC (ASC #113)"
  },
@@ -1970,6 +2142,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Gastly EVO",
+  "en_name": "Gastly",
+  "key": "Gastly ASC 123",
   "print_match": "exact",
   "print_note": "remapped from Gastly EVO to Gastly ASC (ASC #123); printed text differs from the old printing"
  },
@@ -1990,6 +2164,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Haunter SSH",
+  "en_name": "Haunter",
+  "key": "Haunter ASC 124",
   "print_match": "exact",
   "print_note": "remapped from Haunter SSH to Haunter ASC (ASC #124); printed text differs from the old printing"
  },
@@ -2013,6 +2189,8 @@
   "tier": "custom",
   "prev_fullName": "Mega Gengar ex MBG",
   "behavior_file": "sets/11-mega-evolution/set-phantasmal-flames/mega-gengar-ex.ts",
+  "en_name": "Mega Gengar ex",
+  "key": "Mega Gengar ex ASC 125",
   "print_match": "exact",
   "print_note": "remapped from Mega Gengar ex MBG to Mega Gengar ex ASC (ASC #125)"
  },
@@ -2036,6 +2214,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Murkrow DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-murkrow.ts",
+  "en_name": "Team Rocket's Murkrow",
+  "key": "Team Rocket's Murkrow ASC 126",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Murkrow DRI to Team Rocket's Murkrow ASC (ASC #126)"
  },
@@ -2059,6 +2239,8 @@
   "tier": "custom",
   "prev_fullName": "Cynthia's Spiritomb DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/cynthias-spiritomb.ts",
+  "en_name": "Cynthia's Spiritomb",
+  "key": "Cynthia's Spiritomb ASC 133",
   "print_match": "exact",
   "print_note": "remapped from Cynthia's Spiritomb DRI to Cynthia's Spiritomb ASC (ASC #133)"
  },
@@ -2079,6 +2261,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "N's Zorua JTG",
+  "en_name": "N's Zorua",
+  "key": "N's Zorua ASC 136",
   "print_match": "exact",
   "print_note": "remapped from N's Zorua JTG to N's Zorua ASC (ASC #136)"
  },
@@ -2102,6 +2286,8 @@
   "tier": "custom",
   "prev_fullName": "N's Zoroark ex JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/ns-zoroark-ex.ts",
+  "en_name": "N's Zoroark ex",
+  "key": "N's Zoroark ex ASC 137",
   "print_match": "exact",
   "print_note": "remapped from N's Zoroark ex JTG to N's Zoroark ex ASC (ASC #137)"
  },
@@ -2125,6 +2311,8 @@
   "tier": "custom",
   "prev_fullName": "Fezandipiti ex SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/fezandipiti-ex.ts",
+  "en_name": "Fezandipiti ex",
+  "key": "Fezandipiti ex ASC 142",
   "print_match": "exact",
   "print_note": "remapped from Fezandipiti ex SFA to Fezandipiti ex ASC (ASC #142)"
  },
@@ -2148,6 +2336,8 @@
   "tier": "short",
   "prev_fullName": "N's Reshiram JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/ns-reshiram.ts",
+  "en_name": "N's Reshiram",
+  "key": "N's Reshiram ASC 154",
   "print_match": "exact",
   "print_note": "remapped from N's Reshiram JTG to N's Reshiram ASC (ASC #154)"
  },
@@ -2168,6 +2358,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Dreepy TWM",
+  "en_name": "Dreepy",
+  "key": "Dreepy ASC 158",
   "print_match": "exact",
   "print_note": "remapped from Dreepy TWM to Dreepy ASC (ASC #158)"
  },
@@ -2191,6 +2383,8 @@
   "tier": "custom",
   "prev_fullName": "Drakloak TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/drakloak.ts",
+  "en_name": "Drakloak",
+  "key": "Drakloak ASC 159",
   "print_match": "exact",
   "print_note": "remapped from Drakloak TWM to Drakloak ASC (ASC #159)"
  },
@@ -2214,6 +2408,8 @@
   "tier": "custom",
   "prev_fullName": "Dragapult ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/dragapult-ex.ts",
+  "en_name": "Dragapult ex",
+  "key": "Dragapult ex ASC 160",
   "print_match": "exact",
   "print_note": "remapped from Dragapult ex TWM to Dragapult ex ASC (ASC #160)"
  },
@@ -2237,6 +2433,8 @@
   "tier": "custom",
   "prev_fullName": "Fan Rotom SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/fan-rotom.ts",
+  "en_name": "Fan Rotom",
+  "key": "Fan Rotom ASC 171",
   "print_match": "exact",
   "print_note": "remapped from Fan Rotom SCR to Fan Rotom ASC (ASC #171)"
  },
@@ -2260,6 +2458,8 @@
   "tier": "short",
   "prev_fullName": "Hop's Cramorant JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/hops-cramorant.ts",
+  "en_name": "Hop's Cramorant",
+  "key": "Hop's Cramorant ASC 177",
   "print_match": "exact",
   "print_note": "remapped from Hop's Cramorant JTG to Hop's Cramorant ASC (ASC #177)"
  },
@@ -2283,6 +2483,8 @@
   "tier": "custom",
   "prev_fullName": "Terapagos ex SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/terapagos-ex.ts",
+  "en_name": "Terapagos ex",
+  "key": "Terapagos ex ASC 179",
   "print_match": "exact",
   "print_note": "remapped from Terapagos ex SCR to Terapagos ex ASC (ASC #179)"
  },
@@ -2306,6 +2508,8 @@
   "effect_fns": 0,
   "tier": "custom",
   "official": "same text as Acerola's Mischief MEG",
+  "en_name": "Acerola's Mischief",
+  "key": "Acerola's Mischief ASC 180",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping Acerola's Mischief MEG; needs official card text"
  },
@@ -2329,6 +2533,8 @@
   "tier": "short",
   "prev_fullName": "Air Balloon SSH",
   "behavior_file": "sets/09-sword-and-shield/set-sword-and-shield/air-balloon.ts",
+  "en_name": "Air Balloon",
+  "key": "Air Balloon ASC 181",
   "print_match": "exact",
   "print_note": "remapped from Air Balloon SSH to Air Balloon ASC (ASC #181)"
  },
@@ -2353,6 +2559,8 @@
   "tier": "short",
   "prev_fullName": "Boss's Orders PAL",
   "behavior_file": "sets/10-scarlet-and-violet/set-paldea-evolved/boss-orders.ts",
+  "en_name": "Boss's Orders",
+  "key": "Boss's Orders ASC 183",
   "print_match": "exact",
   "print_note": "remapped from Boss's Orders PAL to Boss's Orders ASC (ASC #183)"
  },
@@ -2377,6 +2585,8 @@
   "tier": "custom",
   "prev_fullName": "Buddy-Buddy Poffin TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/buddy-buddy-poffin.ts",
+  "en_name": "Buddy-Buddy Poffin",
+  "key": "Buddy-Buddy Poffin ASC 184",
   "print_match": "exact",
   "print_note": "remapped from Buddy-Buddy Poffin TEF to Buddy-Buddy Poffin ASC (ASC #184)"
  },
@@ -2400,6 +2610,8 @@
   "tier": "custom",
   "prev_fullName": "Counter Gain LOT",
   "behavior_file": "sets/08-sun-and-moon/set-lost-thunder/counter-gain.ts",
+  "en_name": "Counter Gain",
+  "key": "Counter Gain ASC 186",
   "print_match": "exact",
   "print_note": "remapped from Counter Gain LOT to Counter Gain ASC (ASC #186)"
  },
@@ -2423,6 +2635,8 @@
   "effect_fns": 0,
   "tier": "short",
   "official": "same text as Fighting Gong M1L",
+  "en_name": "Fighting Gong",
+  "key": "Fighting Gong ASC 187",
   "print_match": "name-only",
   "print_note": "no Twinleaf class in the pool set; kept name-based mapping Fighting Gong M1L; needs official card text"
  },
@@ -2447,6 +2661,8 @@
   "tier": "custom",
   "prev_fullName": "Glass Trumpet SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/glass-trumpet.ts",
+  "en_name": "Glass Trumpet",
+  "key": "Glass Trumpet ASC 189",
   "print_match": "exact",
   "print_note": "remapped from Glass Trumpet SCR to Glass Trumpet ASC (ASC #189)"
  },
@@ -2471,6 +2687,8 @@
   "tier": "custom",
   "prev_fullName": "Iris's Fighting Spirit JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/iris-fighting-spirit.ts",
+  "en_name": "Iris's Fighting Spirit",
+  "key": "Iris's Fighting Spirit ASC 190",
   "print_match": "exact",
   "print_note": "remapped from Iris's Fighting Spirit JTG to Iris's Fighting Spirit ASC (ASC #190)"
  },
@@ -2495,6 +2713,8 @@
   "tier": "custom",
   "prev_fullName": "Lillie's Determination M1L",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/lillies-determination.ts",
+  "en_name": "Lillie's Determination",
+  "key": "Lillie's Determination ASC 192",
   "print_match": "exact",
   "print_note": "remapped from Lillie's Determination M1L to Lillie's Determination ASC (ASC #192)"
  },
@@ -2519,6 +2739,8 @@
   "tier": "short",
   "prev_fullName": "Mega Signal M1S",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/mega-signal.ts",
+  "en_name": "Mega Signal",
+  "key": "Mega Signal ASC 193",
   "print_match": "exact",
   "print_note": "remapped from Mega Signal M1S to Mega Signal ASC (ASC #193)"
  },
@@ -2542,6 +2764,8 @@
   "tier": "short",
   "prev_fullName": "Mystery Garden M1S",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/mystery-garden.ts",
+  "en_name": "Mystery Garden",
+  "key": "Mystery Garden ASC 194",
   "print_match": "exact",
   "print_note": "remapped from Mystery Garden M1S to Mystery Garden ASC (ASC #194)"
  },
@@ -2566,6 +2790,8 @@
   "tier": "custom",
   "prev_fullName": "N's PP Up JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/ns-pp-up.ts",
+  "en_name": "N's PP Up",
+  "key": "N's PP Up ASC 195",
   "print_match": "exact",
   "print_note": "remapped from N's PP Up JTG to N's PP Up ASC (ASC #195)"
  },
@@ -2590,6 +2816,8 @@
   "tier": "custom",
   "prev_fullName": "Night Stretcher SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/nightly-stretcher.ts",
+  "en_name": "Night Stretcher",
+  "key": "Night Stretcher ASC 196",
   "print_match": "exact",
   "print_note": "remapped from Night Stretcher SFA to Night Stretcher ASC (ASC #196)"
  },
@@ -2614,6 +2842,8 @@
   "tier": "custom",
   "prev_fullName": "Power Protein M1L",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/power-protein.ts",
+  "en_name": "Premium Power Pro",
+  "key": "Premium Power Pro ASC 199",
   "print_match": "exact",
   "print_note": "remapped from Power Protein M1L to Premium Power Pro ASC (ASC #199)"
  },
@@ -2638,6 +2868,8 @@
   "tier": "custom",
   "prev_fullName": "Surfer SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/surfer.ts",
+  "en_name": "Surfer",
+  "key": "Surfer ASC 200",
   "print_match": "exact",
   "print_note": "remapped from Surfer SSP to Surfer ASC (ASC #200)"
  },
@@ -2662,6 +2894,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Archer DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-archer.ts",
+  "en_name": "Team Rocket's Archer",
+  "key": "Team Rocket's Archer ASC 201",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Archer DRI to Team Rocket's Archer ASC (ASC #201)"
  },
@@ -2686,6 +2920,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Ariana DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-ariana.ts",
+  "en_name": "Team Rocket's Ariana",
+  "key": "Team Rocket's Ariana ASC 202",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Ariana DRI to Team Rocket's Ariana ASC (ASC #202)"
  },
@@ -2709,6 +2945,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Factory DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-factory.ts",
+  "en_name": "Team Rocket's Factory",
+  "key": "Team Rocket's Factory ASC 203",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Factory DRI to Team Rocket's Factory ASC (ASC #203)"
  },
@@ -2733,6 +2971,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Giovanni DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-giovanni.ts",
+  "en_name": "Team Rocket's Giovanni",
+  "key": "Team Rocket's Giovanni ASC 204",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Giovanni DRI to Team Rocket's Giovanni ASC (ASC #204)"
  },
@@ -2757,6 +2997,8 @@
   "tier": "short",
   "prev_fullName": "Team Rocket's Petrel DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-petrel.ts",
+  "en_name": "Team Rocket's Petrel",
+  "key": "Team Rocket's Petrel ASC 207",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Petrel DRI to Team Rocket's Petrel ASC (ASC #207)"
  },
@@ -2781,6 +3023,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Proton DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-proton.ts",
+  "en_name": "Team Rocket's Proton",
+  "key": "Team Rocket's Proton ASC 208",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Proton DRI to Team Rocket's Proton ASC (ASC #208)"
  },
@@ -2805,6 +3049,8 @@
   "tier": "short",
   "prev_fullName": "Team Rocket's Transceiver DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-transceiver.ts",
+  "en_name": "Team Rocket's Transceiver",
+  "key": "Team Rocket's Transceiver ASC 209",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Transceiver DRI to Team Rocket's Transceiver ASC (ASC #209)"
  },
@@ -2828,6 +3074,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Watchtower DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-watchtower.ts",
+  "en_name": "Team Rocket's Watchtower",
+  "key": "Team Rocket's Watchtower ASC 210",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Watchtower DRI to Team Rocket's Watchtower ASC (ASC #210)"
  },
@@ -2851,6 +3099,8 @@
   "tier": "short",
   "prev_fullName": "Prism Energy NXD",
   "behavior_file": "sets/06-black-and-white/set-next-destinies/prism-energy.ts",
+  "en_name": "Prism Energy",
+  "key": "Prism Energy ASC 216",
   "print_match": "exact",
   "print_note": "remapped from Prism Energy NXD to Prism Energy ASC (ASC #216)"
  },
@@ -2874,6 +3124,8 @@
   "tier": "custom",
   "prev_fullName": "Team Rocket's Energy DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/team-rockets-energy.ts",
+  "en_name": "Team Rocket's Energy",
+  "key": "Team Rocket's Energy ASC 217",
   "print_match": "exact",
   "print_note": "remapped from Team Rocket's Energy DRI to Team Rocket's Energy ASC (ASC #217)"
  },
@@ -2898,6 +3150,8 @@
   "tier": "custom",
   "prev_fullName": "Black Belt's Training JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/black-belts-training.ts",
+  "en_name": "Black Belt's Training",
+  "key": "Black Belt's Training ASC 255",
   "print_match": "exact",
   "print_note": "remapped from Black Belt's Training JTG to Black Belt's Training ASC (ASC #255)"
  },
@@ -2921,6 +3175,8 @@
   "tier": "short",
   "prev_fullName": "Cheren EPO",
   "behavior_file": "sets/06-black-and-white/set-emerging-powers/cheren.ts",
+  "en_name": "Cheren",
+  "key": "Cheren ASC 258",
   "print_match": "exact",
   "print_note": "remapped from Cheren EPO to Cheren ASC (ASC #258)"
  },
@@ -2944,6 +3200,8 @@
   "tier": "custom",
   "prev_fullName": "Jamming Tower TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/jamming-tower.ts",
+  "en_name": "Jamming Tower",
+  "key": "Jamming Tower ASC 261",
   "print_match": "exact",
   "print_note": "remapped from Jamming Tower TWM to Jamming Tower ASC (ASC #261)"
  },
@@ -2967,6 +3225,8 @@
   "tier": "custom",
   "prev_fullName": "Mega Diancie ex M2",
   "behavior_file": "sets/11-mega-evolution/set-phantasmal-flames/mega-diancie-ex.ts",
+  "en_name": "Mega Diancie ex",
+  "key": "Mega Diancie ex ASC 267",
   "print_match": "exact",
   "print_note": "remapped from Mega Diancie ex M2 to Mega Diancie ex ASC (ASC #267)"
  },
@@ -2990,6 +3250,8 @@
   "tier": "custom",
   "prev_fullName": "Marnie's Grimmsnarl ex DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/marnies-grimmsnarl-ex.ts",
+  "en_name": "Marnie's Grimmsnarl ex",
+  "key": "Marnie's Grimmsnarl ex ASC 287",
   "print_match": "exact",
   "print_note": "remapped from Marnie's Grimmsnarl ex DRI to Marnie's Grimmsnarl ex ASC (ASC #287)"
  },
@@ -3013,6 +3275,8 @@
   "tier": "custom",
   "prev_fullName": "Steven's Metagross ex DRI",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/stevens-metagross-ex.ts",
+  "en_name": "Steven's Metagross ex",
+  "key": "Steven's Metagross ex ASC 289",
   "print_match": "exact",
   "print_note": "remapped from Steven's Metagross ex DRI to Steven's Metagross ex ASC (ASC #289)"
  },
@@ -3036,6 +3300,8 @@
   "tier": "short",
   "prev_fullName": "Crustle BCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/crustle-pool.ts",
+  "en_name": "Crustle",
+  "key": "Crustle BLK 52",
   "print_match": "exact",
   "print_note": "remapped from Crustle BCR to Crustle BLK (BLK #52); printed text differs from the old printing"
  },
@@ -3060,6 +3326,8 @@
   "tier": "short",
   "prev_fullName": "Pokegear SVI",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/pokegear-30.ts",
+  "en_name": "Pok\u00e9gear 3.0",
+  "key": "Pok\u00e9gear 3.0 BLK 84",
   "print_match": "exact",
   "print_note": "remapped from Pokegear SVI to Pokegear 3.0 SV11W (BLK #84)"
  },
@@ -3084,6 +3352,8 @@
   "tier": "custom",
   "prev_fullName": "Energy Retrieval BS",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-retrieval.ts",
+  "en_name": "Energy Retrieval",
+  "key": "Energy Retrieval CRI 108",
   "print_match": "exact",
   "print_note": "remapped from Energy Retrieval BS to Energy Retrieval FA CRI (CRI #108); printed text differs from the old printing"
  },
@@ -3108,6 +3378,8 @@
   "tier": "custom",
   "prev_fullName": "Jumbo Ice M2",
   "behavior_file": "sets/11-mega-evolution/set-phantasmal-flames/jumbo-ice.ts",
+  "en_name": "Jumbo Ice Cream",
+  "key": "Jumbo Ice Cream CRI 109",
   "print_match": "exact",
   "print_note": "remapped from Jumbo Ice M2 to Jumbo Ice Cream FA CRI (CRI #109)"
  },
@@ -3131,6 +3403,8 @@
   "tier": "custom",
   "prev_fullName": "Surfing Beach M1S",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/surfing-beach.ts",
+  "en_name": "Surfing Beach",
+  "key": "Surfing Beach CRI 114",
   "print_match": "exact",
   "print_note": "remapped from Surfing Beach M1S to Surfing Beach FA CRI (CRI #114)"
  },
@@ -3154,6 +3428,8 @@
   "tier": "short",
   "prev_fullName": "Tool Scrapper DRX",
   "behavior_file": "sets/06-black-and-white/set-dragons-exalted/tool-scrapper.ts",
+  "en_name": "Tool Scrapper",
+  "key": "Tool Scrapper CRI 115",
   "print_match": "exact",
   "print_note": "remapped from Tool Scrapper DRX to Tool Scrapper FA CRI (CRI #115)"
  },
@@ -3177,6 +3453,8 @@
   "tier": "short",
   "prev_fullName": "Rellor SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/rellor.ts",
+  "en_name": "Rellor",
+  "key": "Rellor DRI 24",
   "print_match": "exact",
   "print_note": "remapped from Rellor SSP to Rellor DRI (DRI #24)"
  },
@@ -3200,6 +3478,8 @@
   "tier": "custom",
   "prev_fullName": "Levincia JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/levincia.ts",
+  "en_name": "Levincia",
+  "key": "Levincia DRI 244",
   "print_match": "exact",
   "print_note": "remapped from Levincia JTG to Levincia DRI (DRI #244)"
  },
@@ -3220,6 +3500,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Minccino SSH",
+  "en_name": "Minccino",
+  "key": "Minccino JTG 125",
   "print_match": "exact",
   "print_note": "remapped from Minccino SSH to Minccino JTG (JTG #125); printed text differs from the old printing"
  },
@@ -3243,6 +3525,8 @@
   "tier": "short",
   "prev_fullName": "Super Potion BS",
   "behavior_file": "sets/07-x-and-y/set-x-and-y/super-potion.ts",
+  "en_name": "Super Potion",
+  "key": "Super Potion JTG 158",
   "print_match": "exact",
   "print_note": "remapped from Super Potion BS to Super Potion JTG (JTG #158); printed text differs from the old printing"
  },
@@ -3267,6 +3551,8 @@
   "prev_fullName": "Pokemon Center Lady MEG",
   "behavior_file": "sets/07-x-and-y/set-flashfire/pokemon-center-lady.ts",
   "official": "same text as Pok\u00e9mon Center Lady FLF",
+  "en_name": "Pok\u00e9mon Center Lady",
+  "key": "Pok\u00e9mon Center Lady MEG 123",
   "print_match": "number-mismatch",
   "print_note": "exact printing"
  },
@@ -3289,6 +3575,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Rare Candy",
+  "key": "Rare Candy MEG 125",
   "print_match": "exact",
   "print_note": "doubtful; kept name-based mapping Rare Candy SVI; needs official card text; candidate Rare Candy MEG (MEG #125); REVIEW: Twinleaf RareCandyMEG extends the ex Holon Phantoms RareCandy (old \"Stage 1 or Stage 2\" text); the MEG printing has the modern SVI text. Keep the SVI behavior; Twinleaf should make RareCandyMEG extend the SVI RareCandy."
  },
@@ -3312,6 +3600,8 @@
   "tier": "custom",
   "prev_fullName": "Repel SUM",
   "behavior_file": "sets/08-sun-and-moon/set-sun-and-moon/repel.ts",
+  "en_name": "Repel",
+  "key": "Repel MEG 126",
   "print_match": "exact",
   "print_note": "remapped from Repel SUM to Repel M1L (MEG #126)"
  },
@@ -3332,6 +3622,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Chikorita UF",
+  "en_name": "Chikorita",
+  "key": "Chikorita MEP 46",
   "print_match": "exact",
   "print_note": "remapped from Chikorita UF to Chikorita MEP 46 (MEP #46); printed text differs from the old printing"
  },
@@ -3352,6 +3644,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Grookey TWM",
+  "en_name": "Grookey",
+  "key": "Grookey MEP 52",
   "print_match": "exact",
   "print_note": "remapped from Grookey TWM to Grookey MEP (MEP #52); printed text differs from the old printing"
  },
@@ -3375,6 +3669,8 @@
   "tier": "custom",
   "prev_fullName": "Brave Bangle SV11W",
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/brave-bangle.ts",
+  "en_name": "Brave Bangle",
+  "key": "Brave Bangle PBL 104",
   "print_match": "exact",
   "print_note": "remapped from Brave Bangle SV11W to Brave Bangle FA PBL (PBL #104)"
  },
@@ -3399,6 +3695,8 @@
   "tier": "short",
   "prev_fullName": "Crushing Hammer SVI",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/crushing-hammer.ts",
+  "en_name": "Crushing Hammer",
+  "key": "Crushing Hammer PBL 105",
   "print_match": "exact",
   "print_note": "remapped from Crushing Hammer SVI to Crushing Hammer FA PBL (PBL #105)"
  },
@@ -3423,6 +3721,8 @@
   "tier": "short",
   "prev_fullName": "Energy Switch SVI",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-switch.ts",
+  "en_name": "Energy Switch",
+  "key": "Energy Switch PBL 107",
   "print_match": "exact",
   "print_note": "remapped from Energy Switch SVI to Energy Switch FA PBL (PBL #107)"
  },
@@ -3447,6 +3747,8 @@
   "tier": "custom",
   "prev_fullName": "Iron Defender M1L",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/iron-defender.ts",
+  "en_name": "Iron Defender",
+  "key": "Iron Defender PBL 110",
   "print_match": "exact",
   "print_note": "remapped from Iron Defender M1L to Iron Defender FA PBL (PBL #110)"
  },
@@ -3470,6 +3772,8 @@
   "tier": "custom",
   "prev_fullName": "Ignition Energy SV11W",
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/ignition-energy.ts",
+  "en_name": "Ignition Energy",
+  "key": "Ignition Energy PFL 124",
   "print_match": "exact",
   "print_note": "remapped from Ignition Energy SV11W to Ignition Energy PFL (PFL #124)"
  },
@@ -3494,6 +3798,8 @@
   "tier": "short",
   "prev_fullName": "Energy Search SVI",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/energy-search.ts",
+  "en_name": "Energy Search",
+  "key": "Energy Search POR 72",
   "print_match": "exact",
   "print_note": "remapped from Energy Search SVI to Energy Search POR (POR #72)"
  },
@@ -3518,6 +3824,8 @@
   "tier": "custom",
   "prev_fullName": "Judge FST",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/judge.ts",
+  "en_name": "Judge",
+  "key": "Judge POR 76",
   "print_match": "exact",
   "print_note": "remapped from Judge FST to Judge POR (POR #76)"
  },
@@ -3541,6 +3849,8 @@
   "tier": "short",
   "prev_fullName": "Pok\u00e9 Ball JU",
   "behavior_file": "sets/set-jungle/pokeball.ts",
+  "en_name": "Pok\u00e9 Ball",
+  "key": "Pok\u00e9 Ball POR 80",
   "print_match": "exact",
   "print_note": "remapped from Pok\u00e9 Ball JU to Poke Ball POR (POR #80)"
  },
@@ -3565,6 +3875,8 @@
   "tier": "short",
   "prev_fullName": "Pokemon Catcher SSH",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/pokemon-catcher.ts",
+  "en_name": "Pok\u00e9mon Catcher",
+  "key": "Pok\u00e9mon Catcher POR 82",
   "print_match": "exact",
   "print_note": "remapped from Pokemon Catcher SSH to Pokemon Catcher POR (POR #82)"
  },
@@ -3589,6 +3901,8 @@
   "tier": "short",
   "prev_fullName": "Potion BS",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet/potion.ts",
+  "en_name": "Potion",
+  "key": "Potion POR 83",
   "print_match": "exact",
   "print_note": "remapped from Potion BS to Potion POR (POR #83); printed text differs from the old printing"
  },
@@ -3612,6 +3926,8 @@
   "tier": "short",
   "prev_fullName": "Energy Recycler BST",
   "behavior_file": "sets/09-sword-and-shield/set-battle-styles/energy-recycler.ts",
+  "en_name": "Energy Recycler",
+  "key": "Energy Recycler POR 108",
   "print_match": "exact",
   "print_note": "remapped from Energy Recycler BST to Energy Recycler FA POR (POR #108)"
  },
@@ -3635,6 +3951,8 @@
   "tier": "short",
   "prev_fullName": "Forest of Vitality MEG",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution/forest-of-vitality.ts",
+  "en_name": "Forest of Vitality",
+  "key": "Forest of Vitality POR 109",
   "print_match": "exact",
   "print_note": "remapped from Forest of Vitality MEG to Forest of Vitality FA POR (POR #109)"
  },
@@ -3659,6 +3977,8 @@
   "tier": "short",
   "prev_fullName": "Sacred Ash FLF",
   "behavior_file": "sets/10-scarlet-and-violet/set-destined-rivals/sacred-ash.ts",
+  "en_name": "Sacred Ash",
+  "key": "Sacred Ash POR 115",
   "print_match": "exact",
   "print_note": "remapped from Sacred Ash FLF to Sacred Ash FA POR (POR #115); printed text differs from the old printing"
  },
@@ -3683,6 +4003,8 @@
   "tier": "custom",
   "prev_fullName": "Wonder Patch MBD",
   "behavior_file": "sets/11-mega-evolution/set-phantasmal-flames/wonder-patch.ts",
+  "en_name": "Wondrous Patch",
+  "key": "Wondrous Patch POR 117",
   "print_match": "exact",
   "print_note": "remapped from Wonder Patch MBD to Wondrous Patch FA POR (POR #117)"
  },
@@ -3703,6 +4025,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Applin SCR",
+  "en_name": "Applin",
+  "key": "Applin PRE 9",
   "print_match": "exact",
   "print_note": "remapped from Applin SCR to Applin PRE (PRE #9)"
  },
@@ -3726,6 +4050,8 @@
   "tier": "custom",
   "prev_fullName": "Dipplin TWM1",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/dipplin.ts",
+  "en_name": "Dipplin",
+  "key": "Dipplin PRE 10",
   "print_match": "exact",
   "print_note": "remapped from Dipplin TWM1 to Dipplin PRE (PRE #10)"
  },
@@ -3749,6 +4075,8 @@
   "tier": "custom",
   "prev_fullName": "Hydrapple ex SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/hydrapple-ex.ts",
+  "en_name": "Hydrapple ex",
+  "key": "Hydrapple ex PRE 11",
   "print_match": "exact",
   "print_note": "remapped from Hydrapple ex SCR to Hydrapple ex PRE (PRE #11)"
  },
@@ -3772,6 +4100,8 @@
   "tier": "custom",
   "prev_fullName": "Teal Mask Ogerpon ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/teal-mask-ogerpon-ex.ts",
+  "en_name": "Teal Mask Ogerpon ex",
+  "key": "Teal Mask Ogerpon ex PRE 12",
   "print_match": "exact",
   "print_note": "remapped from Teal Mask Ogerpon ex TWM to Teal Mask Ogerpon ex PRE (PRE #12)"
  },
@@ -3795,6 +4125,8 @@
   "tier": "short",
   "prev_fullName": "Pyroar STS",
   "behavior_file": "sets/10-scarlet-and-violet/set-prismatic-evolution/pyroar-pool.ts",
+  "en_name": "Pyroar",
+  "key": "Pyroar PRE 16",
   "print_match": "exact",
   "print_note": "remapped from Pyroar STS to Pyroar PRE (PRE #16); printed text differs from the old printing"
  },
@@ -3818,6 +4150,8 @@
   "tier": "custom",
   "prev_fullName": "Hearthflame Mask Ogerpon ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/hearthflame-mask-ogerpon-ex.ts",
+  "en_name": "Hearthflame Mask Ogerpon ex",
+  "key": "Hearthflame Mask Ogerpon ex PRE 17",
   "print_match": "exact",
   "print_note": "remapped from Hearthflame Mask Ogerpon ex TWM to Hearthflame Mask Ogerpon ex PRE (PRE #17)"
  },
@@ -3841,6 +4175,8 @@
   "tier": "custom",
   "prev_fullName": "Goldeen TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/goldeen.ts",
+  "en_name": "Goldeen",
+  "key": "Goldeen PRE 20",
   "print_match": "exact",
   "print_note": "remapped from Goldeen TWM to Goldeen PRE (PRE #20)"
  },
@@ -3864,6 +4200,8 @@
   "tier": "custom",
   "prev_fullName": "Wellspring Mask Ogerpon ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/wellspring-mask-ogerpon-ex.ts",
+  "en_name": "Wellspring Mask Ogerpon ex",
+  "key": "Wellspring Mask Ogerpon ex PRE 27",
   "print_match": "exact",
   "print_note": "remapped from Wellspring Mask Ogerpon ex TWM to Wellspring Mask Ogerpon ex PRE (PRE #27)"
  },
@@ -3887,6 +4225,8 @@
   "tier": "custom",
   "prev_fullName": "Iron Thorns ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex.ts",
+  "en_name": "Iron Thorns ex",
+  "key": "Iron Thorns ex PRE 32",
   "print_match": "exact",
   "print_note": "remapped from Iron Thorns ex TWM to Iron Thorns ex PRE (PRE #32)"
  },
@@ -3910,6 +4250,8 @@
   "tier": "short",
   "prev_fullName": "Duskull SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/duskull.ts",
+  "en_name": "Duskull",
+  "key": "Duskull PRE 35",
   "print_match": "exact",
   "print_note": "remapped from Duskull SFA to Duskull PRE (PRE #35)"
  },
@@ -3933,6 +4275,8 @@
   "tier": "custom",
   "prev_fullName": "Dusclops SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/dusclops.ts",
+  "en_name": "Dusclops",
+  "key": "Dusclops PRE 36",
   "print_match": "exact",
   "print_note": "remapped from Dusclops SFA to Dusclops PRE (PRE #36)"
  },
@@ -3956,6 +4300,8 @@
   "tier": "custom",
   "prev_fullName": "Dusknoir SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/dusknoir.ts",
+  "en_name": "Dusknoir",
+  "key": "Dusknoir PRE 37",
   "print_match": "exact",
   "print_note": "remapped from Dusknoir SFA to Dusknoir PRE (PRE #37)"
  },
@@ -3980,6 +4326,8 @@
   "prev_fullName": "Sylveon exSAR PRE",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/sylveon-ex.ts",
   "official": "same text as Sylveon ex SSP",
+  "en_name": "Sylveon ex",
+  "key": "Sylveon ex PRE 41",
   "print_match": "number-mismatch",
   "print_note": "exact printing"
  },
@@ -4003,6 +4351,8 @@
   "tier": "custom",
   "prev_fullName": "Flutter Mane TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/flutter-mane.ts",
+  "en_name": "Flutter Mane",
+  "key": "Flutter Mane PRE 43",
   "print_match": "exact",
   "print_note": "remapped from Flutter Mane TEF to Flutter Mane PRE (PRE #43)"
  },
@@ -4026,6 +4376,8 @@
   "tier": "custom",
   "prev_fullName": "Fezandipiti TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/fezandipiti.ts",
+  "en_name": "Fezandipiti",
+  "key": "Fezandipiti PRE 45",
   "print_match": "exact",
   "print_note": "remapped from Fezandipiti TWM to Fezandipiti PRE (PRE #45)"
  },
@@ -4049,6 +4401,8 @@
   "tier": "short",
   "prev_fullName": "Iron Boulder SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/iron-boulder.ts",
+  "en_name": "Iron Boulder",
+  "key": "Iron Boulder PRE 46",
   "print_match": "exact",
   "print_note": "remapped from Iron Boulder SCR to Iron Boulder PRE (PRE #46)"
  },
@@ -4072,6 +4426,8 @@
   "tier": "custom",
   "prev_fullName": "Bloodmoon Ursaluna SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/bloodmoon-ursaluna.ts",
+  "en_name": "Bloodmoon Ursaluna",
+  "key": "Bloodmoon Ursaluna PRE 54",
   "print_match": "exact",
   "print_note": "remapped from Bloodmoon Ursaluna SFA to Bloodmoon Ursaluna PRE (PRE #54)"
  },
@@ -4095,6 +4451,8 @@
   "tier": "custom",
   "prev_fullName": "Great Tusk TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/great-tusk.ts",
+  "en_name": "Great Tusk",
+  "key": "Great Tusk PRE 55",
   "print_match": "exact",
   "print_note": "remapped from Great Tusk TEF to Great Tusk PRE (PRE #55)"
  },
@@ -4118,6 +4476,8 @@
   "tier": "custom",
   "prev_fullName": "Okidogi TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/okidogi.ts",
+  "en_name": "Okidogi",
+  "key": "Okidogi PRE 57",
   "print_match": "exact",
   "print_note": "remapped from Okidogi TWM to Okidogi PRE (PRE #57)"
  },
@@ -4141,6 +4501,8 @@
   "tier": "custom",
   "prev_fullName": "Cornerstone Mask Ogerpon ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/cornerstone-mask-ogerpon-ex.ts",
+  "en_name": "Cornerstone Mask Ogerpon ex",
+  "key": "Cornerstone Mask Ogerpon ex PRE 58",
   "print_match": "exact",
   "print_note": "remapped from Cornerstone Mask Ogerpon ex TWM to Cornerstone Mask Ogerpon ex PRE (PRE #58)"
  },
@@ -4164,6 +4526,8 @@
   "tier": "short",
   "prev_fullName": "Roaring Moon TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/roaring-moon.ts",
+  "en_name": "Roaring Moon",
+  "key": "Roaring Moon PRE 65",
   "print_match": "exact",
   "print_note": "remapped from Roaring Moon TEF to Roaring Moon PRE (PRE #65)"
  },
@@ -4187,6 +4551,8 @@
   "tier": "short",
   "prev_fullName": "Duraludon SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/duraludon.ts",
+  "en_name": "Duraludon",
+  "key": "Duraludon PRE 69",
   "print_match": "exact",
   "print_note": "remapped from Duraludon SCR to Duraludon PRE (PRE #69)"
  },
@@ -4210,6 +4576,8 @@
   "tier": "custom",
   "prev_fullName": "Archaludon SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/archaludon.ts",
+  "en_name": "Archaludon",
+  "key": "Archaludon PRE 70",
   "print_match": "exact",
   "print_note": "remapped from Archaludon SCR to Archaludon PRE (PRE #70)"
  },
@@ -4233,6 +4601,8 @@
   "tier": "custom",
   "prev_fullName": "Eevee SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/eevee.ts",
+  "en_name": "Eevee",
+  "key": "Eevee PRE 74",
   "print_match": "exact",
   "print_note": "remapped from Eevee SSP to Eevee PRE (PRE #74)"
  },
@@ -4256,6 +4626,8 @@
   "tier": "custom",
   "prev_fullName": "Noctowl SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/noctowl.ts",
+  "en_name": "Noctowl",
+  "key": "Noctowl PRE 78",
   "print_match": "exact",
   "print_note": "remapped from Noctowl SCR to Noctowl PRE (PRE #78)"
  },
@@ -4279,6 +4651,8 @@
   "tier": "short",
   "prev_fullName": "Dunsparce TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/dunsparce.ts",
+  "en_name": "Dunsparce",
+  "key": "Dunsparce PRE 79",
   "print_match": "exact",
   "print_note": "remapped from Dunsparce TEF to Dunsparce PRE (PRE #79)"
  },
@@ -4302,6 +4676,8 @@
   "tier": "custom",
   "prev_fullName": "Dudunsparce TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/dudunsparce.ts",
+  "en_name": "Dudunsparce",
+  "key": "Dudunsparce PRE 80",
   "print_match": "exact",
   "print_note": "remapped from Dudunsparce TEF to Dudunsparce PRE (PRE #80)"
  },
@@ -4322,6 +4698,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Buneary M2",
+  "en_name": "Buneary",
+  "key": "Buneary PRE 83",
   "print_match": "exact",
   "print_note": "remapped from Buneary M2 to Buneary PRE (PRE #83); printed text differs from the old printing"
  },
@@ -4342,6 +4720,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Noibat SIT 132",
+  "en_name": "Noibat",
+  "key": "Noibat PRE 90",
   "print_match": "exact",
   "print_note": "remapped from Noibat SIT 132 to Noibat PRE (PRE #90); printed text differs from the old printing"
  },
@@ -4365,6 +4745,8 @@
   "tier": "custom",
   "prev_fullName": "Area Zero Underdepths SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/area-zero-underdepths.ts",
+  "en_name": "Area Zero Underdepths",
+  "key": "Area Zero Underdepths PRE 94",
   "print_match": "exact",
   "print_note": "remapped from Area Zero Underdepths SCR to Area Zero Underdepths PRE (PRE #94)"
  },
@@ -4388,6 +4770,8 @@
   "tier": "custom",
   "prev_fullName": "Binding Mochi SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/binding-mochi.ts",
+  "en_name": "Binding Mochi",
+  "key": "Binding Mochi PRE 95",
   "print_match": "exact",
   "print_note": "remapped from Binding Mochi SFA to Binding Mochi PRE (PRE #95)"
  },
@@ -4412,6 +4796,8 @@
   "tier": "custom",
   "prev_fullName": "Briar SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/briar.ts",
+  "en_name": "Briar",
+  "key": "Briar PRE 100",
   "print_match": "exact",
   "print_note": "remapped from Briar SCR to Briar PRE (PRE #100)"
  },
@@ -4436,6 +4822,8 @@
   "tier": "short",
   "prev_fullName": "Bug Catching Set TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/bug-catching-set.ts",
+  "en_name": "Bug Catching Set",
+  "key": "Bug Catching Set PRE 102",
   "print_match": "exact",
   "print_note": "remapped from Bug Catching Set TWM to Bug Catching Set PRE (PRE #102)"
  },
@@ -4460,6 +4848,8 @@
   "tier": "custom",
   "prev_fullName": "Carmine TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/carmine.ts",
+  "en_name": "Carmine",
+  "key": "Carmine PRE 103",
   "print_match": "exact",
   "print_note": "remapped from Carmine TWM to Carmine PRE (PRE #103)"
  },
@@ -4484,6 +4874,8 @@
   "tier": "short",
   "prev_fullName": "Ciphermaniac's Codebreaking TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/cryptomaniacs-deciphering.ts",
+  "en_name": "Ciphermaniac's Codebreaking",
+  "key": "Ciphermaniac's Codebreaking PRE 104",
   "print_match": "exact",
   "print_note": "remapped from Ciphermaniac's Codebreaking TEF to Ciphermaniac's Codebreaking PRE (PRE #104)"
  },
@@ -4508,6 +4900,8 @@
   "tier": "custom",
   "prev_fullName": "Crispin SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/crispin.ts",
+  "en_name": "Crispin",
+  "key": "Crispin PRE 105",
   "print_match": "exact",
   "print_note": "remapped from Crispin SCR to Crispin PRE (PRE #105)"
  },
@@ -4532,6 +4926,8 @@
   "tier": "custom",
   "prev_fullName": "Explorer's Guidance TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/explorers-guidance.ts",
+  "en_name": "Explorer's Guidance",
+  "key": "Explorer's Guidance PRE 107",
   "print_match": "exact",
   "print_note": "remapped from Explorer's Guidance TEF to Explorers Guidance PRE (PRE #107)"
  },
@@ -4555,6 +4951,8 @@
   "tier": "custom",
   "prev_fullName": "Festival Grounds TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/festival-plaza.ts",
+  "en_name": "Festival Grounds",
+  "key": "Festival Grounds PRE 108",
   "print_match": "exact",
   "print_note": "remapped from Festival Grounds TWM to Festival Grounds PRE (PRE #108)"
  },
@@ -4579,6 +4977,8 @@
   "tier": "custom",
   "prev_fullName": "Janine's Secret Technique SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/janines-secret-technique.ts",
+  "en_name": "Janine's Secret Art",
+  "key": "Janine's Secret Art PRE 112",
   "print_match": "exact",
   "print_note": "remapped from Janine's Secret Technique SFA to Janine's Secret Art PRE (PRE #112)"
  },
@@ -4603,6 +5003,8 @@
   "tier": "custom",
   "prev_fullName": "Kieran TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/kieran.ts",
+  "en_name": "Kieran",
+  "key": "Kieran PRE 113",
   "print_match": "exact",
   "print_note": "remapped from Kieran TWM to Kieran PRE (PRE #113)"
  },
@@ -4628,6 +5030,8 @@
   "prev_fullName": "LaceySAR PRE",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/lacey.ts",
   "official": "same text as Lacey SCR",
+  "en_name": "Lacey",
+  "key": "Lacey PRE 114",
   "print_match": "number-mismatch",
   "print_note": "exact printing"
  },
@@ -4651,6 +5055,8 @@
   "tier": "custom",
   "prev_fullName": "Maximum Belt TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/maximum-belt.ts",
+  "en_name": "Maximum Belt",
+  "key": "Maximum Belt PRE 117",
   "print_match": "exact",
   "print_note": "remapped from Maximum Belt TEF to Maximum Belt PRE (PRE #117)"
  },
@@ -4675,6 +5081,8 @@
   "tier": "short",
   "prev_fullName": "Prime Catcher TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/prime-catcher.ts",
+  "en_name": "Prime Catcher",
+  "key": "Prime Catcher PRE 119",
   "print_match": "exact",
   "print_note": "remapped from Prime Catcher TEF to Prime Catcher PRE (PRE #119)"
  },
@@ -4698,6 +5106,8 @@
   "tier": "custom",
   "prev_fullName": "Rescue Board TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/emergency-board.ts",
+  "en_name": "Rescue Board",
+  "key": "Rescue Board PRE 126",
   "print_match": "exact",
   "print_note": "remapped from Rescue Board TEF to Rescue Board PRE (PRE #126)"
  },
@@ -4722,6 +5132,8 @@
   "tier": "custom",
   "prev_fullName": "Scoop Up Cyclone TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/scoop-up-cyclone.ts",
+  "en_name": "Scoop Up Cyclone",
+  "key": "Scoop Up Cyclone PRE 128",
   "print_match": "exact",
   "print_note": "remapped from Scoop Up Cyclone TWM to Scoop Up Cyclone PRE (PRE #128)"
  },
@@ -4745,6 +5157,8 @@
   "tier": "custom",
   "prev_fullName": "Sparkling Crystal SCR",
   "behavior_file": "sets/10-scarlet-and-violet/set-stellar-crown/sparkling-crystal.ts",
+  "en_name": "Sparkling Crystal",
+  "key": "Sparkling Crystal PRE 129",
   "print_match": "exact",
   "print_note": "remapped from Sparkling Crystal SCR to Sparkling Crystal PRE (PRE #129)"
  },
@@ -4769,6 +5183,8 @@
   "tier": "custom",
   "prev_fullName": "Eri TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/eri.ts",
+  "en_name": "Eri",
+  "key": "Eri PRE 136",
   "print_match": "exact",
   "print_note": "remapped from Eri TEF to EriFA PRE (PRE #136)"
  },
@@ -4792,6 +5208,8 @@
   "tier": "custom",
   "prev_fullName": "Ceruledge ex SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/ceruledge-ex.ts",
+  "en_name": "Ceruledge ex",
+  "key": "Ceruledge ex PRE 147",
   "print_match": "exact",
   "print_note": "remapped from Ceruledge ex SSP to Ceruledge exSAR PRE (PRE #147)"
  },
@@ -4815,6 +5233,8 @@
   "tier": "short",
   "prev_fullName": "Palafin ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/palafin-ex.ts",
+  "en_name": "Palafin ex",
+  "key": "Palafin ex PRE 151",
   "print_match": "exact",
   "print_note": "remapped from Palafin ex TWM to Palafin exSAR PRE (PRE #151)"
  },
@@ -4838,6 +5258,8 @@
   "tier": "custom",
   "prev_fullName": "Iron Crown ex TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/iron-crown-ex.ts",
+  "en_name": "Iron Crown ex",
+  "key": "Iron Crown ex PRE 158",
   "print_match": "exact",
   "print_note": "remapped from Iron Crown ex TEF to Iron Crown exSAR PRE (PRE #158)"
  },
@@ -4861,6 +5283,8 @@
   "tier": "custom",
   "prev_fullName": "Pecharunt ex SFA",
   "behavior_file": "sets/10-scarlet-and-violet/set-shrouded-fable/pecharunt-ex.ts",
+  "en_name": "Pecharunt ex",
+  "key": "Pecharunt ex PRE 163",
   "print_match": "exact",
   "print_note": "remapped from Pecharunt ex SFA to Pecharunt exSAR PRE (PRE #163)"
  },
@@ -4884,6 +5308,8 @@
   "tier": "custom",
   "prev_fullName": "Raging Bolt ex TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/raging-bolt-ex.ts",
+  "en_name": "Raging Bolt ex",
+  "key": "Raging Bolt ex PRE 166",
   "print_match": "exact",
   "print_note": "remapped from Raging Bolt ex TEF to Raging Bolt exSAR PRE (PRE #166)"
  },
@@ -4907,6 +5333,8 @@
   "tier": "custom",
   "prev_fullName": "Bloodmoon Ursaluna ex TWM",
   "behavior_file": "sets/10-scarlet-and-violet/set-twilight-masquerade/bloodmoon-ursaluna-ex.ts",
+  "en_name": "Bloodmoon Ursaluna ex",
+  "key": "Bloodmoon Ursaluna ex PRE 168",
   "print_match": "exact",
   "print_note": "remapped from Bloodmoon Ursaluna ex TWM to Bloodmoon Ursaluna exSAR PRE (PRE #168)"
  },
@@ -4931,6 +5359,8 @@
   "tier": "short",
   "prev_fullName": "Drayton SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/drayton.ts",
+  "en_name": "Drayton",
+  "key": "Drayton PRE 172",
   "print_match": "exact",
   "print_note": "remapped from Drayton SSP to DraytonSAR PRE (PRE #172)"
  },
@@ -4954,6 +5384,8 @@
   "tier": "custom",
   "prev_fullName": "Iron Leaves ex TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/iron-leaves-ex.ts",
+  "en_name": "Iron Leaves ex",
+  "key": "Iron Leaves ex PRE 176",
   "print_match": "exact",
   "print_note": "remapped from Iron Leaves ex TEF to Iron Leaves exUR PRE (PRE #176)"
  },
@@ -4977,6 +5409,8 @@
   "tier": "custom",
   "prev_fullName": "Walking Wake ex TEF",
   "behavior_file": "sets/10-scarlet-and-violet/set-temporal-forces/walking-wake-ex.ts",
+  "en_name": "Walking Wake ex",
+  "key": "Walking Wake ex PRE 178",
   "print_match": "exact",
   "print_note": "remapped from Walking Wake ex TEF to Walking Wake exUR PRE (PRE #178)"
  },
@@ -4997,6 +5431,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Froakie FLI",
+  "en_name": "Froakie",
+  "key": "Froakie SCR 39",
   "print_match": "exact",
   "print_note": "remapped from Froakie FLI to Froakie SCR (SCR #39); printed text differs from the old printing"
  },
@@ -5017,6 +5453,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Riolu VIV",
+  "en_name": "Riolu",
+  "key": "Riolu SCR 81",
   "print_match": "exact",
   "print_note": "remapped from Riolu VIV to Riolu SCR (SCR #81); printed text differs from the old printing"
  },
@@ -5040,6 +5478,8 @@
   "tier": "short",
   "prev_fullName": "Bronzor LOR 125",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/bronzor-pool.ts",
+  "en_name": "Bronzor",
+  "key": "Bronzor SSP 126",
   "print_match": "exact",
   "print_note": "remapped from Bronzor LOR 125 to Bronzor SSP (SSP #126); printed text differs from the old printing"
  },
@@ -5063,6 +5503,8 @@
   "tier": "short",
   "prev_fullName": "Scramble Switch PLS",
   "behavior_file": "sets/06-black-and-white/set-plasma-storm/scramble-switch.ts",
+  "en_name": "Scramble Switch",
+  "key": "Scramble Switch SSP 186",
   "print_match": "exact",
   "print_note": "remapped from Scramble Switch PLS to Scramble Switch SSP (SSP #186)"
  },
@@ -5086,6 +5528,8 @@
   "tier": "custom",
   "prev_fullName": "Pecharunt SVP",
   "behavior_file": "sets/10-scarlet-and-violet/set-scarlet-and-violet-promos/pecharunt.ts",
+  "en_name": "Pecharunt",
+  "key": "Pecharunt SVP 129",
   "print_match": "exact",
   "print_note": "remapped from Pecharunt SVP to PecharuntIR SVP (SVP #129)"
  },
@@ -5109,6 +5553,8 @@
   "tier": "short",
   "prev_fullName": "Cook FST",
   "behavior_file": "sets/09-sword-and-shield/set-fusion-strike/cook.ts",
+  "en_name": "Cook",
+  "key": "Cook TWM 147",
   "print_match": "exact",
   "print_note": "remapped from Cook FST to Cook TWM (TWM #147)"
  },
@@ -5132,6 +5578,8 @@
   "tier": "custom",
   "prev_fullName": "Cofagrigus NVI",
   "behavior_file": "sets/10-scarlet-and-violet/set-black-bolt-white-flare/cofagrigus-pool.ts",
+  "en_name": "Cofagrigus",
+  "key": "Cofagrigus WHT 40",
   "print_match": "exact",
   "print_note": "remapped from Cofagrigus NVI to Cofagrigus WHT (WHT #40); printed text differs from the old printing"
  },
@@ -5152,6 +5600,8 @@
   "effect_fns": 0,
   "tier": "data",
   "prev_fullName": "Vullaby RCL",
+  "en_name": "Vullaby",
+  "key": "Vullaby WHT 63",
   "print_match": "exact",
   "print_note": "remapped from Vullaby RCL to Vullaby WHT (WHT #63); printed text differs from the old printing"
  },
@@ -5175,6 +5625,8 @@
   "tier": "custom",
   "prev_fullName": "N's Darmanitan JTG",
   "behavior_file": "sets/10-scarlet-and-violet/set-journey-together/ns-darmanitan.ts",
+  "en_name": "N's Darmanitan",
+  "key": "N's Darmanitan ASC 33",
   "print_match": "exact",
   "print_note": "remapped from N's Darmanitan JTG to N's Darmanitan ASC (ASC #33)"
  },
@@ -5198,6 +5650,8 @@
   "tier": "custom",
   "prev_fullName": "Pikachu ex SSP",
   "behavior_file": "sets/10-scarlet-and-violet/set-surging-sparks/pikachu-ex.ts",
+  "en_name": "Pikachu ex",
+  "key": "Pikachu ex ASC 57",
   "print_match": "exact",
   "print_note": "remapped from Pikachu ex SSP to Pikachu ex ASC (ASC #57)"
  },
@@ -5221,6 +5675,8 @@
   "tier": "short",
   "prev_fullName": "Slowpoke MEP",
   "behavior_file": "sets/11-mega-evolution/set-mega-evolution-promos/slowpoke-86-pool.ts",
+  "en_name": "Slowpoke",
+  "key": "Slowpoke MEP 86",
   "print_match": "exact",
   "print_note": "remapped from Slowpoke MEP to Slowpoke MEP 86 (MEP #86); printed text differs from the old printing"
  },
@@ -5242,6 +5698,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Exeggcute",
+  "key": "Exeggcute 30C 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5263,6 +5721,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Alolan Exeggutor",
+  "key": "Alolan Exeggutor 30C 2",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5284,6 +5744,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Unown",
+  "key": "Unown 30C 72",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5305,6 +5767,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Lucario",
+  "key": "Lucario 30C 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5326,6 +5790,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Seismitoad",
+  "key": "Seismitoad 30C 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5347,6 +5813,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Yveltal",
+  "key": "Yveltal 30C 100",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5368,6 +5836,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Jirachi ex",
+  "key": "Jirachi ex 30C 102",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5389,6 +5859,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Chikorita",
+  "key": "Chikorita ASC 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5408,6 +5880,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Bayleef",
+  "key": "Bayleef ASC 9",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5429,6 +5903,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Meganium ex",
+  "key": "Mega Meganium ex ASC 10",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5450,6 +5926,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Mega Charizard Y ex",
+  "key": "Mega Charizard Y ex ASC 22",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5469,6 +5947,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Snorunt",
+  "key": "Snorunt ASC 46",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5490,6 +5970,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Mega Froslass ex",
+  "key": "Mega Froslass ex ASC 47",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5511,6 +5993,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Stunfisk",
+  "key": "Stunfisk ASC 62",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5532,6 +6016,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Marill",
+  "key": "Marill ASC 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5553,6 +6039,8 @@
   "reduce_lines": 53,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Azumarill ex",
+  "key": "Azumarill ex ASC 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5574,6 +6062,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Spectrier",
+  "key": "Spectrier ASC 98",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5595,6 +6085,8 @@
   "reduce_lines": 15,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Stunfisk ex",
+  "key": "Stunfisk ex ASC 114",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5616,6 +6108,8 @@
   "reduce_lines": 42,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Hawlucha ex",
+  "key": "Mega Hawlucha ex ASC 116",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5637,6 +6131,8 @@
   "reduce_lines": 19,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Koraidon ex",
+  "key": "Koraidon ex ASC 121",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5658,6 +6154,8 @@
   "reduce_lines": 55,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Honchkrow",
+  "key": "Team Rocket's Honchkrow ASC 127",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5679,6 +6177,8 @@
   "reduce_lines": 75,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dragonair",
+  "key": "Dragonair ASC 151",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5700,6 +6200,8 @@
   "reduce_lines": 56,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Dragonite ex",
+  "key": "Mega Dragonite ex ASC 152",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5721,6 +6223,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "N's Zekrom",
+  "key": "N's Zekrom ASC 155",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5742,6 +6246,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Kangaskhan ex",
+  "key": "Team Rocket's Kangaskhan ex ASC 162",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5763,6 +6269,8 @@
   "reduce_lines": 54,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Audino ex",
+  "key": "Mega Audino ex ASC 172",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5785,6 +6293,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Canari",
+  "key": "Canari ASC 185",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5806,6 +6316,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Light Ball",
+  "key": "Light Ball ASC 191",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5827,6 +6339,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Nighttime Mine",
+  "key": "Nighttime Mine ASC 197",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5848,6 +6362,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Zekrom ex",
+  "key": "Zekrom ex BLK 34",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5869,6 +6385,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Elgyem",
+  "key": "Elgyem BLK 40",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5890,6 +6408,8 @@
   "reduce_lines": 47,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Genesect ex",
+  "key": "Genesect ex BLK 67",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5912,6 +6432,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Fennel",
+  "key": "Fennel BLK 82",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5934,6 +6456,8 @@
   "reduce_lines": 65,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "N's Plan",
+  "key": "N's Plan BLK 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5955,6 +6479,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Weedle",
+  "key": "Weedle CRI 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5976,6 +6502,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Kakuna",
+  "key": "Kakuna CRI 2",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -5997,6 +6525,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Beedrill ex",
+  "key": "Beedrill ex CRI 3",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6018,6 +6548,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Froakie",
+  "key": "Froakie CRI 20",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6039,6 +6571,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Frogadier",
+  "key": "Frogadier CRI 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6060,6 +6594,8 @@
   "reduce_lines": 104,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Greninja ex",
+  "key": "Mega Greninja ex CRI 22",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6081,6 +6617,8 @@
   "reduce_lines": 42,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Deoxys",
+  "key": "Deoxys CRI 32",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6102,6 +6640,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Deoxys",
+  "key": "Deoxys CRI 33",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6123,6 +6663,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Trubbish",
+  "key": "Trubbish CRI 56",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6142,6 +6684,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Beldum",
+  "key": "Beldum CRI 59",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6163,6 +6707,8 @@
   "reduce_lines": 52,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Metagross",
+  "key": "Metagross CRI 61",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6184,6 +6730,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Patrat",
+  "key": "Patrat CRI 70",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6206,6 +6754,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "AZ's Tranquility",
+  "key": "AZ's Tranquility CRI 76",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6228,6 +6778,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Great Haul Net",
+  "key": "Great Haul Net CRI 78",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6250,6 +6802,8 @@
   "reduce_lines": 87,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Philippe",
+  "key": "Philippe CRI 79",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6271,6 +6825,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Prism Tower",
+  "key": "Prism Tower CRI 80",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6293,6 +6849,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Special Red Card",
+  "key": "Special Red Card CRI 82",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6315,6 +6873,8 @@
   "reduce_lines": 65,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Transformation Tome",
+  "key": "Transformation Tome CRI 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6336,6 +6896,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Bubbly Water Energy",
+  "key": "Bubbly Water Energy CRI 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6357,6 +6919,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Magnetic Metal Energy",
+  "key": "Magnetic Metal Energy CRI 85",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6378,6 +6942,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Yanma",
+  "key": "Yanma DRI 2",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6399,6 +6965,8 @@
   "reduce_lines": 92,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Yanmega ex",
+  "key": "Yanmega ex DRI 3",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6418,6 +6986,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Cynthia's Roselia",
+  "key": "Cynthia's Roselia DRI 7",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6439,6 +7009,8 @@
   "reduce_lines": 52,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Shaymin",
+  "key": "Shaymin DRI 10",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6460,6 +7032,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Dwebble",
+  "key": "Dwebble DRI 11",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6481,6 +7055,8 @@
   "reduce_lines": 56,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Crustle",
+  "key": "Crustle DRI 12",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6502,6 +7078,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Applin",
+  "key": "Applin DRI 16",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6523,6 +7101,8 @@
   "reduce_lines": 33,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hydrapple",
+  "key": "Hydrapple DRI 18",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6542,6 +7122,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Smoliv",
+  "key": "Smoliv DRI 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6563,6 +7145,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dolliv",
+  "key": "Dolliv DRI 22",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6584,6 +7168,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Arboliva ex",
+  "key": "Arboliva ex DRI 23",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6605,6 +7191,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Ethan's Cyndaquil",
+  "key": "Ethan's Cyndaquil DRI 32",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6626,6 +7214,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Ethan's Typhlosion",
+  "key": "Ethan's Typhlosion DRI 34",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6647,6 +7237,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Torchic",
+  "key": "Torchic DRI 40",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6668,6 +7260,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Combusken",
+  "key": "Combusken DRI 41",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6689,6 +7283,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Articuno",
+  "key": "Team Rocket's Articuno DRI 51",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6710,6 +7306,8 @@
   "reduce_lines": 51,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Zapdos",
+  "key": "Team Rocket's Zapdos DRI 70",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6731,6 +7329,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Ethan's Pichu",
+  "key": "Ethan's Pichu DRI 71",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6752,6 +7352,8 @@
   "reduce_lines": 53,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Zeraora",
+  "key": "Zeraora DRI 78",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6773,6 +7375,8 @@
   "reduce_lines": 50,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Wobbuffet",
+  "key": "Team Rocket's Wobbuffet DRI 82",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6794,6 +7398,8 @@
   "reduce_lines": 40,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Steven's Baltoy",
+  "key": "Steven's Baltoy DRI 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6815,6 +7421,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Steven's Claydol",
+  "key": "Steven's Claydol DRI 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6836,6 +7444,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Marnie's Impidimp",
+  "key": "Marnie's Impidimp DRI 134",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6855,6 +7465,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Marnie's Morgrem",
+  "key": "Marnie's Morgrem DRI 135",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6876,6 +7488,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Marnie's Morpeko",
+  "key": "Marnie's Morpeko DRI 137",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6897,6 +7511,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Steven's Metang",
+  "key": "Steven's Metang DRI 144",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6918,6 +7534,8 @@
   "reduce_lines": 58,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Porygon",
+  "key": "Team Rocket's Porygon DRI 153",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6939,6 +7557,8 @@
   "reduce_lines": 19,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Porygon2",
+  "key": "Team Rocket's Porygon2 DRI 154",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6960,6 +7580,8 @@
   "reduce_lines": 84,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Porygon-Z",
+  "key": "Team Rocket's Porygon-Z DRI 155",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -6981,6 +7603,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Cynthia's Power Weight",
+  "key": "Cynthia's Power Weight DRI 162",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7003,6 +7627,8 @@
   "reduce_lines": 51,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ethan's Adventure",
+  "key": "Ethan's Adventure DRI 165",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7024,6 +7650,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Spikemuth Gym",
+  "key": "Spikemuth Gym DRI 169",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7046,6 +7674,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Venture Bomb",
+  "key": "Team Rocket's Venture Bomb DRI 179",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7065,6 +7695,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Petilil",
+  "key": "Petilil JTG 6",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7086,6 +7718,8 @@
   "reduce_lines": 31,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lilligant",
+  "key": "Lilligant JTG 7",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7107,6 +7741,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Maractus",
+  "key": "Maractus JTG 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7128,6 +7764,8 @@
   "reduce_lines": 51,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Magmortar",
+  "key": "Magmortar JTG 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7147,6 +7785,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Torchic",
+  "key": "Torchic JTG 22",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7166,6 +7806,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Combusken",
+  "key": "Combusken JTG 23",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7187,6 +7829,8 @@
   "reduce_lines": 65,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Volcanion ex",
+  "key": "Volcanion ex JTG 31",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7208,6 +7852,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "N's Sigilyph",
+  "key": "N's Sigilyph JTG 64",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7229,6 +7875,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Swinub",
+  "key": "Swinub JTG 77",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7250,6 +7898,8 @@
   "reduce_lines": 77,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mamoswine ex",
+  "key": "Mamoswine ex JTG 79",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7271,6 +7921,8 @@
   "reduce_lines": 31,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Larvitar",
+  "key": "Larvitar JTG 80",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7290,6 +7942,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Toedscool",
+  "key": "Toedscool JTG 88",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7311,6 +7965,8 @@
   "reduce_lines": 49,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Tyranitar",
+  "key": "Tyranitar JTG 95",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7332,6 +7988,8 @@
   "reduce_lines": 39,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hop's Zacian ex",
+  "key": "Hop's Zacian ex JTG 111",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7353,6 +8011,8 @@
   "reduce_lines": 45,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Salamence ex",
+  "key": "Salamence ex JTG 114",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7374,6 +8034,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hop's Snorlax",
+  "key": "Hop's Snorlax JTG 117",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7395,6 +8057,8 @@
   "reduce_lines": 4,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Dunsparce",
+  "key": "Dunsparce JTG 120",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7416,6 +8080,8 @@
   "reduce_lines": 32,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dudunsparce ex",
+  "key": "Dudunsparce ex JTG 121",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7435,6 +8101,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Hop's Wooloo",
+  "key": "Hop's Wooloo JTG 135",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7456,6 +8124,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hop's Dubwool",
+  "key": "Hop's Dubwool JTG 136",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7478,6 +8148,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Brock's Scouting",
+  "key": "Brock's Scouting JTG 146",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7500,6 +8172,8 @@
   "reduce_lines": 59,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hop's Bag",
+  "key": "Hop's Bag JTG 147",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7521,6 +8195,8 @@
   "reduce_lines": 47,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hop's Choice Band",
+  "key": "Hop's Choice Band JTG 148",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7542,6 +8218,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Lillie's Pearl",
+  "key": "Lillie's Pearl JTG 151",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7563,6 +8241,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "N's Castle",
+  "key": "N's Castle JTG 152",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7584,6 +8264,8 @@
   "reduce_lines": 25,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Postwick",
+  "key": "Postwick JTG 154",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7607,6 +8289,8 @@
   "reduce_lines": 48,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Redeemable Ticket",
+  "key": "Redeemable Ticket JTG 156",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7629,6 +8313,8 @@
   "reduce_lines": 103,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ruffian",
+  "key": "Ruffian JTG 157",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7650,6 +8336,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Spiky Energy",
+  "key": "Spiky Energy JTG 159",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7669,6 +8357,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Grass Energy",
+  "key": "Grass Energy MEE 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7688,6 +8378,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Fire Energy",
+  "key": "Fire Energy MEE 2",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7707,6 +8399,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Water Energy",
+  "key": "Water Energy MEE 3",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7726,6 +8420,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Lightning Energy",
+  "key": "Lightning Energy MEE 4",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7745,6 +8441,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Psychic Energy",
+  "key": "Psychic Energy MEE 5",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7764,6 +8462,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Fighting Energy",
+  "key": "Fighting Energy MEE 6",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7783,6 +8483,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Darkness Energy",
+  "key": "Darkness Energy MEE 7",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7802,6 +8504,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Metal Energy",
+  "key": "Metal Energy MEE 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7823,6 +8527,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Bulbasaur",
+  "key": "Bulbasaur MEG 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7842,6 +8548,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Ivysaur",
+  "key": "Ivysaur MEG 2",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7863,6 +8571,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Mega Venusaur ex",
+  "key": "Mega Venusaur ex MEG 3",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7882,6 +8592,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Chikorita",
+  "key": "Chikorita MEG 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7903,6 +8615,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Bayleef",
+  "key": "Bayleef MEG 9",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7924,6 +8638,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Meganium",
+  "key": "Meganium MEG 10",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7945,6 +8661,8 @@
   "reduce_lines": 48,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Shuckle",
+  "key": "Shuckle MEG 11",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7966,6 +8684,8 @@
   "reduce_lines": 30,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Celebi",
+  "key": "Celebi MEG 12",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -7985,6 +8705,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Magnemite",
+  "key": "Magnemite MEG 45",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8006,6 +8728,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Electrike",
+  "key": "Electrike MEG 49",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8027,6 +8751,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Manectric ex",
+  "key": "Mega Manectric ex MEG 50",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8048,6 +8774,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Abra",
+  "key": "Abra MEG 54",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8069,6 +8797,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Kadabra",
+  "key": "Kadabra MEG 55",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8088,6 +8818,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Gimmighoul",
+  "key": "Gimmighoul MEG 67",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8109,6 +8841,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Onix",
+  "key": "Onix MEG 70",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8128,6 +8862,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Makuhita",
+  "key": "Makuhita MEG 72",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8149,6 +8885,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hariyama",
+  "key": "Hariyama MEG 73",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8170,6 +8908,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Absol ex",
+  "key": "Mega Absol ex MEG 86",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8191,6 +8931,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Yveltal",
+  "key": "Yveltal MEG 88",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8212,6 +8954,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Steelix",
+  "key": "Steelix MEG 93",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8233,6 +8977,8 @@
   "reduce_lines": 15,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Mega Mawile ex",
+  "key": "Mega Mawile ex MEG 94",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8254,6 +9000,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dialga",
+  "key": "Dialga MEG 95",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8273,6 +9021,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Tinkatink",
+  "key": "Tinkatink MEG 96",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8294,6 +9044,8 @@
   "reduce_lines": 34,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Latias ex",
+  "key": "Mega Latias ex MEG 100",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8315,6 +9067,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Kangaskhan ex",
+  "key": "Mega Kangaskhan ex MEG 104",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8336,6 +9090,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Yungoos",
+  "key": "Yungoos MEG 109",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8357,6 +9113,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Risky Ruins",
+  "key": "Risky Ruins MEG 127",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8379,6 +9137,8 @@
   "reduce_lines": 68,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Strange Timepiece",
+  "key": "Strange Timepiece MEG 128",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8401,6 +9161,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Wally's Compassion",
+  "key": "Wally's Compassion MEG 132",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8422,6 +9184,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Poltchageist",
+  "key": "Poltchageist PBL 5",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8443,6 +9207,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Sinistcha",
+  "key": "Sinistcha PBL 6",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8462,6 +9228,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Goldeen",
+  "key": "Goldeen PBL 13",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8483,6 +9251,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Manectric",
+  "key": "Manectric PBL 24",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8504,6 +9274,8 @@
   "reduce_lines": 37,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Slowpoke",
+  "key": "Slowpoke PBL 29",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8525,6 +9297,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Mega Slowbro ex",
+  "key": "Mega Slowbro ex PBL 31",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8546,6 +9320,8 @@
   "reduce_lines": 3,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Shuppet",
+  "key": "Shuppet PBL 33",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8567,6 +9343,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Banette",
+  "key": "Banette PBL 34",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8588,6 +9366,8 @@
   "reduce_lines": 34,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Spiritomb",
+  "key": "Spiritomb PBL 35",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8609,6 +9389,8 @@
   "reduce_lines": 2,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Litwick",
+  "key": "Litwick PBL 36",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8630,6 +9412,8 @@
   "reduce_lines": 34,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lampent",
+  "key": "Lampent PBL 37",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8651,6 +9435,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Chandelure ex",
+  "key": "Mega Chandelure ex PBL 38",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8672,6 +9458,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Dhelmise",
+  "key": "Dhelmise PBL 39",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8693,6 +9481,8 @@
   "reduce_lines": 56,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Annihilape",
+  "key": "Annihilape PBL 41",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8714,6 +9504,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Drilbur",
+  "key": "Drilbur PBL 46",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8735,6 +9527,8 @@
   "reduce_lines": 24,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Darkrai ex",
+  "key": "Mega Darkrai ex PBL 48",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8756,6 +9550,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Chi-Yu",
+  "key": "Chi-Yu PBL 59",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8777,6 +9573,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Excadrill ex",
+  "key": "Mega Excadrill ex PBL 65",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8798,6 +9596,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Pikipek",
+  "key": "Pikipek PBL 66",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8819,6 +9619,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Trumbeak",
+  "key": "Trumbeak PBL 67",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8840,6 +9642,8 @@
   "reduce_lines": 32,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Toucannon",
+  "key": "Toucannon PBL 68",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8861,6 +9665,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Backtrack Badge",
+  "key": "Backtrack Badge PBL 74",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8883,6 +9689,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dark Bell",
+  "key": "Dark Bell PBL 75",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8905,6 +9713,8 @@
   "reduce_lines": 30,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gladion's Final Battle",
+  "key": "Gladion's Final Battle PBL 77",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8927,6 +9737,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gwynn",
+  "key": "Gwynn PBL 78",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8949,6 +9761,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Rust Syndicate Grunt",
+  "key": "Rust Syndicate Grunt PBL 81",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8970,6 +9784,8 @@
   "reduce_lines": 41,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Shadowy Darkness Energy",
+  "key": "Shadowy Darkness Energy PBL 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -8991,6 +9807,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Heracross ex",
+  "key": "Mega Heracross ex PFL 4",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9012,6 +9830,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Genesect",
+  "key": "Genesect PFL 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9031,6 +9851,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Charmeleon",
+  "key": "Charmeleon PFL 12",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9052,6 +9874,8 @@
   "reduce_lines": 68,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Charizard X ex",
+  "key": "Mega Charizard X ex PFL 13",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9073,6 +9897,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Moltres",
+  "key": "Moltres PFL 14",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9094,6 +9920,8 @@
   "reduce_lines": 67,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Oricorio ex",
+  "key": "Oricorio ex PFL 18",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9115,6 +9943,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Piplup",
+  "key": "Piplup PFL 27",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9136,6 +9966,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Zacian",
+  "key": "Zacian PFL 45",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9157,6 +9989,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Sharpedo ex",
+  "key": "Mega Sharpedo ex PFL 61",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9178,6 +10012,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Seviper",
+  "key": "Seviper PFL 62",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9199,6 +10035,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Empoleon ex",
+  "key": "Empoleon ex PFL 70",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9220,6 +10058,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Duraludon",
+  "key": "Duraludon PFL 74",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9241,6 +10081,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Archaludon",
+  "key": "Archaludon PFL 75",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9262,6 +10104,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Buneary",
+  "key": "Buneary PFL 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9283,6 +10127,8 @@
   "reduce_lines": 25,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Lopunny ex",
+  "key": "Mega Lopunny ex PFL 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9304,6 +10150,8 @@
   "reduce_lines": 45,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Battle Cage",
+  "key": "Battle Cage PFL 85",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9326,6 +10174,8 @@
   "reduce_lines": 188,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Blowtorch",
+  "key": "Blowtorch PFL 86",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9348,6 +10198,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Dawn",
+  "key": "Dawn PFL 87",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9370,6 +10222,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Firebreather",
+  "key": "Firebreather PFL 89",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9392,6 +10246,8 @@
   "reduce_lines": 54,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Grimsley's Move",
+  "key": "Grimsley's Move PFL 90",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9413,6 +10269,8 @@
   "reduce_lines": 27,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Punk Helmet",
+  "key": "Punk Helmet PFL 92",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9434,6 +10292,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Sacred Charm",
+  "key": "Sacred Charm PFL 93",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9453,6 +10313,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Scatterbug",
+  "key": "Scatterbug POR 7",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9474,6 +10336,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Spewpa",
+  "key": "Spewpa POR 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9496,6 +10360,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Vivillon",
+  "key": "Vivillon POR 9",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9517,6 +10383,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Rowlet",
+  "key": "Rowlet POR 10",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9538,6 +10406,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dartrix",
+  "key": "Dartrix POR 11",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9559,6 +10429,8 @@
   "reduce_lines": 52,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Decidueye ex",
+  "key": "Decidueye ex POR 12",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9578,6 +10450,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Staryu",
+  "key": "Staryu POR 20",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9599,6 +10473,8 @@
   "reduce_lines": 47,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Starmie ex",
+  "key": "Mega Starmie ex POR 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9620,6 +10496,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Clefairy",
+  "key": "Clefairy POR 30",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9641,6 +10519,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Binacle",
+  "key": "Binacle POR 42",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9662,6 +10542,8 @@
   "reduce_lines": 49,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Barbaracle",
+  "key": "Barbaracle POR 43",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9683,6 +10565,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Skorupi",
+  "key": "Skorupi POR 51",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9704,6 +10588,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Drapion",
+  "key": "Drapion POR 52",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9725,6 +10611,8 @@
   "reduce_lines": 34,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mega Skarmory ex",
+  "key": "Mega Skarmory ex POR 55",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9746,6 +10634,8 @@
   "reduce_lines": 60,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Meowth ex",
+  "key": "Meowth ex POR 62",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9767,6 +10657,8 @@
   "reduce_lines": 15,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Furfrou",
+  "key": "Furfrou POR 67",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9789,6 +10681,8 @@
   "reduce_lines": 40,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Energy Swatter",
+  "key": "Energy Swatter POR 73",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9811,6 +10705,8 @@
   "reduce_lines": 65,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Jacinthe",
+  "key": "Jacinthe POR 75",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9832,6 +10728,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Lumiose City",
+  "key": "Lumiose City POR 77",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9854,6 +10752,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lumiose Galette",
+  "key": "Lumiose Galette POR 78",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9876,6 +10776,8 @@
   "reduce_lines": 33,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Naveen",
+  "key": "Naveen POR 79",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9898,6 +10800,8 @@
   "reduce_lines": 62,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Rosa's Encouragement",
+  "key": "Rosa's Encouragement POR 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9920,6 +10824,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Tarragon",
+  "key": "Tarragon POR 85",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9941,6 +10847,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Rocky Fighting Energy",
+  "key": "Rocky Fighting Energy POR 87",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9962,6 +10870,8 @@
   "reduce_lines": 57,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Telepathic Psychic Energy",
+  "key": "Telepathic Psychic Energy POR 88",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -9983,6 +10893,8 @@
   "reduce_lines": 49,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Leafeon ex",
+  "key": "Leafeon ex PRE 6",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10004,6 +10916,8 @@
   "reduce_lines": 30,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Flareon ex",
+  "key": "Flareon ex PRE 14",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10025,6 +10939,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Seaking",
+  "key": "Seaking PRE 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10046,6 +10962,8 @@
   "reduce_lines": 48,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Jolteon ex",
+  "key": "Jolteon ex PRE 30",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10067,6 +10985,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Sylveon",
+  "key": "Sylveon PRE 40",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10086,6 +11006,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Pupitar",
+  "key": "Pupitar PRE 48",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10107,6 +11029,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Riolu",
+  "key": "Riolu PRE 50",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10129,6 +11053,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Umbreon ex",
+  "key": "Umbreon ex PRE 60",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10148,6 +11074,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Bronzor",
+  "key": "Bronzor PRE 66",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10169,6 +11097,8 @@
   "reduce_lines": 66,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Eevee ex",
+  "key": "Eevee ex PRE 75",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10190,6 +11120,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Hoothoot",
+  "key": "Hoothoot PRE 77",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10211,6 +11143,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Regigigas",
+  "key": "Regigigas PRE 86",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10232,6 +11166,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Haban Berry",
+  "key": "Haban Berry PRE 111",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10254,6 +11190,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Larry's Skill",
+  "key": "Larry's Skill PRE 115",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10276,6 +11214,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Max Rod",
+  "key": "Max Rod PRE 116",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10298,6 +11238,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Roto-Stick",
+  "key": "Roto-Stick PRE 127",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10319,6 +11261,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Dipplin",
+  "key": "Dipplin SCR 13",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10338,6 +11282,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Toedscool",
+  "key": "Toedscool SCR 17",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10359,6 +11305,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Crabominable",
+  "key": "Crabominable SCR 42",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10380,6 +11328,8 @@
   "reduce_lines": 40,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Joltik",
+  "key": "Joltik SCR 50",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10401,6 +11351,8 @@
   "reduce_lines": 41,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Galvantula ex",
+  "key": "Galvantula ex SCR 51",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10422,6 +11374,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Zeraora",
+  "key": "Zeraora SCR 55",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10443,6 +11397,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Slowpoke",
+  "key": "Slowpoke SCR 57",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10464,6 +11420,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Slowking",
+  "key": "Slowking SCR 58",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10485,6 +11443,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Comfey",
+  "key": "Comfey SCR 63",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10506,6 +11466,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Diancie",
+  "key": "Diancie SCR 86",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10527,6 +11489,8 @@
   "reduce_lines": 30,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Raging Bolt",
+  "key": "Raging Bolt SCR 111",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10548,6 +11512,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Eevee",
+  "key": "Eevee SCR 113",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10569,6 +11535,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Hoothoot",
+  "key": "Hoothoot SCR 114",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10590,6 +11558,8 @@
   "reduce_lines": 27,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Bouffalant",
+  "key": "Bouffalant SCR 119",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10611,6 +11581,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Grand Tree",
+  "key": "Grand Tree SCR 136",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10632,6 +11604,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Gravity Gemstone",
+  "key": "Gravity Gemstone SCR 137",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10654,6 +11628,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Kofu",
+  "key": "Kofu SCR 138",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10675,6 +11651,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Galvantula",
+  "key": "Galvantula SFA 2",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10696,6 +11674,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Rowlet",
+  "key": "Rowlet SFA 3",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10717,6 +11697,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dartrix",
+  "key": "Dartrix SFA 4",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10738,6 +11720,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Tapu Bulu",
+  "key": "Tapu Bulu SFA 6",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10759,6 +11743,8 @@
   "reduce_lines": 49,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Cresselia",
+  "key": "Cresselia SFA 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10780,6 +11766,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Slither Wing",
+  "key": "Slither Wing SFA 26",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10801,6 +11789,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Zorua",
+  "key": "Zorua SFA 31",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10822,6 +11812,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Yveltal",
+  "key": "Yveltal SFA 35",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10843,6 +11835,8 @@
   "reduce_lines": 45,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Okidogi ex",
+  "key": "Okidogi ex SFA 36",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10864,6 +11858,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Munkidori ex",
+  "key": "Munkidori ex SFA 37",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10885,6 +11881,8 @@
   "reduce_lines": 109,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Genesect",
+  "key": "Genesect SFA 40",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10904,6 +11902,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Cufant",
+  "key": "Cufant SFA 41",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10925,6 +11925,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Varoom",
+  "key": "Varoom SFA 43",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10946,6 +11948,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Haxorus",
+  "key": "Haxorus SFA 46",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10967,6 +11971,8 @@
   "reduce_lines": 47,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Kyurem",
+  "key": "Kyurem SFA 47",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -10988,6 +11994,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Eevee",
+  "key": "Eevee SFA 50",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11009,6 +12017,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Academy at Night",
+  "key": "Academy at Night SFA 54",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11031,6 +12041,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Cassiopeia",
+  "key": "Cassiopeia SFA 56",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11053,6 +12065,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Colress's Tenacity",
+  "key": "Colress's Tenacity SFA 57",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11075,6 +12089,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Dangerous Laser",
+  "key": "Dangerous Laser SFA 58",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11096,6 +12112,8 @@
   "reduce_lines": 55,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Neutralization Zone",
+  "key": "Neutralization Zone SFA 60",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11118,6 +12136,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Pok\u00e9 Vital A",
+  "key": "Pok\u00e9 Vital A SFA 62",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11139,6 +12159,8 @@
   "reduce_lines": 46,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Powerglass",
+  "key": "Powerglass SFA 63",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11161,6 +12183,8 @@
   "reduce_lines": 40,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Xerosic's Machinations",
+  "key": "Xerosic's Machinations SFA 64",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11182,6 +12206,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Exeggcute",
+  "key": "Exeggcute SSP 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11203,6 +12229,8 @@
   "reduce_lines": 32,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Durant ex",
+  "key": "Durant ex SSP 4",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11224,6 +12252,8 @@
   "reduce_lines": 32,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Zarude",
+  "key": "Zarude SSP 11",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11245,6 +12275,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Paldean Tauros",
+  "key": "Paldean Tauros SSP 18",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11266,6 +12298,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ho-Oh",
+  "key": "Ho-Oh SSP 19",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11287,6 +12321,8 @@
   "reduce_lines": 31,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Victini",
+  "key": "Victini SSP 21",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11306,6 +12342,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Sizzlipede",
+  "key": "Sizzlipede SSP 27",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11327,6 +12365,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Centiskorch",
+  "key": "Centiskorch SSP 28",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11348,6 +12388,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Fuecoco",
+  "key": "Fuecoco SSP 29",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11369,6 +12411,8 @@
   "reduce_lines": 59,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Skeledirge",
+  "key": "Skeledirge SSP 31",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11388,6 +12432,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Charcadet",
+  "key": "Charcadet SSP 32",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11409,6 +12455,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Charcadet",
+  "key": "Charcadet SSP 33",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11430,6 +12478,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Armarouge",
+  "key": "Armarouge SSP 34",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11451,6 +12501,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Feebas",
+  "key": "Feebas SSP 41",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11472,6 +12524,8 @@
   "reduce_lines": 102,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Milotic ex",
+  "key": "Milotic ex SSP 42",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11493,6 +12547,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Walrein",
+  "key": "Walrein SSP 45",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11512,6 +12568,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Shellos",
+  "key": "Shellos SSP 46",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11533,6 +12591,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Black Kyurem ex",
+  "key": "Black Kyurem ex SSP 48",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11554,6 +12614,8 @@
   "reduce_lines": 48,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Chien-Pao",
+  "key": "Chien-Pao SSP 56",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11573,6 +12635,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Magnemite",
+  "key": "Magnemite SSP 58",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11594,6 +12658,8 @@
   "reduce_lines": 44,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Magneton",
+  "key": "Magneton SSP 59",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11615,6 +12681,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Rotom",
+  "key": "Rotom SSP 61",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11636,6 +12704,8 @@
   "reduce_lines": 51,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Azumarill",
+  "key": "Azumarill SSP 74",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11657,6 +12727,8 @@
   "reduce_lines": 40,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Latias ex",
+  "key": "Latias ex SSP 76",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11678,6 +12750,8 @@
   "reduce_lines": 32,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Cofagrigus",
+  "key": "Cofagrigus SSP 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11699,6 +12773,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dedenne",
+  "key": "Dedenne SSP 87",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11720,6 +12796,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Flittle",
+  "key": "Flittle SSP 94",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11741,6 +12819,8 @@
   "reduce_lines": 31,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gimmighoul",
+  "key": "Gimmighoul SSP 97",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11762,6 +12842,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Annihilape",
+  "key": "Annihilape SSP 100",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11783,6 +12865,8 @@
   "reduce_lines": 37,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gastrodon",
+  "key": "Gastrodon SSP 107",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11804,6 +12888,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Koraidon",
+  "key": "Koraidon SSP 116",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11825,6 +12911,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Deino",
+  "key": "Deino SSP 117",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11846,6 +12934,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Zweilous",
+  "key": "Zweilous SSP 118",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11867,6 +12957,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hydreigon ex",
+  "key": "Hydreigon ex SSP 119",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11886,6 +12978,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Shroodle",
+  "key": "Shroodle SSP 120",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11907,6 +13001,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Duraludon",
+  "key": "Duraludon SSP 129",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11928,6 +13024,8 @@
   "reduce_lines": 62,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Archaludon ex",
+  "key": "Archaludon ex SSP 130",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11949,6 +13047,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gholdengo",
+  "key": "Gholdengo SSP 131",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11970,6 +13070,8 @@
   "reduce_lines": 88,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Alolan Exeggutor ex",
+  "key": "Alolan Exeggutor ex SSP 133",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -11991,6 +13093,8 @@
   "reduce_lines": 31,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Turtonator",
+  "key": "Turtonator SSP 137",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12012,6 +13116,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Eternatus",
+  "key": "Eternatus SSP 141",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12033,6 +13139,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Slakoth",
+  "key": "Slakoth SSP 145",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12054,6 +13162,8 @@
   "reduce_lines": 52,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Slaking ex",
+  "key": "Slaking ex SSP 147",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12076,6 +13186,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Brilliant Blender",
+  "key": "Brilliant Blender SSP 164",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12098,6 +13210,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Call Bell",
+  "key": "Call Bell SSP 165",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12120,6 +13234,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Cyrano",
+  "key": "Cyrano SSP 170",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12142,6 +13258,8 @@
   "reduce_lines": 56,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Dusk Ball",
+  "key": "Dusk Ball SSP 175",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12164,6 +13282,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Energy Search Pro",
+  "key": "Energy Search Pro SSP 176",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12185,6 +13305,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gravity Mountain",
+  "key": "Gravity Mountain SSP 177",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12207,6 +13329,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lisia's Appeal",
+  "key": "Lisia's Appeal SSP 179",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12228,6 +13352,8 @@
   "reduce_lines": 19,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lively Stadium",
+  "key": "Lively Stadium SSP 180",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12251,6 +13377,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Meddling Memo",
+  "key": "Meddling Memo SSP 181",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12273,6 +13401,8 @@
   "reduce_lines": 53,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Megaton Blower",
+  "key": "Megaton Blower SSP 182",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12295,6 +13425,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Miracle Headset",
+  "key": "Miracle Headset SSP 183",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12317,6 +13449,8 @@
   "reduce_lines": 57,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Precious Trolley",
+  "key": "Precious Trolley SSP 185",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12339,6 +13473,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Tera Orb",
+  "key": "Tera Orb SSP 189",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12360,6 +13496,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Enriching Energy",
+  "key": "Enriching Energy SSP 191",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12381,6 +13519,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Scyther",
+  "key": "Scyther TEF 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12402,6 +13542,8 @@
   "reduce_lines": 11,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Rellor",
+  "key": "Rellor TEF 23",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12423,6 +13565,8 @@
   "reduce_lines": 38,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Rabsca",
+  "key": "Rabsca TEF 24",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12444,6 +13588,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Litten",
+  "key": "Litten TEF 32",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12465,6 +13611,8 @@
   "reduce_lines": 33,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Incineroar ex",
+  "key": "Incineroar ex TEF 34",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12486,6 +13634,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Sizzlipede",
+  "key": "Sizzlipede TEF 36",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12507,6 +13657,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Gouging Fire ex",
+  "key": "Gouging Fire ex TEF 38",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12528,6 +13680,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Totodile",
+  "key": "Totodile TEF 39",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12549,6 +13703,8 @@
   "reduce_lines": 27,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Croconaw",
+  "key": "Croconaw TEF 40",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12570,6 +13726,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Feraligatr",
+  "key": "Feraligatr TEF 41",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12591,6 +13749,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Palafin",
+  "key": "Palafin TEF 49",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12612,6 +13772,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mr. Mime",
+  "key": "Mr. Mime TEF 63",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12633,6 +13795,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Girafarig",
+  "key": "Girafarig TEF 66",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12654,6 +13818,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Bronzor",
+  "key": "Bronzor TEF 68",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12675,6 +13841,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Bronzong",
+  "key": "Bronzong TEF 69",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12696,6 +13864,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Relicanth",
+  "key": "Relicanth TEF 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12717,6 +13887,8 @@
   "reduce_lines": 44,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Drilbur",
+  "key": "Drilbur TEF 85",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12738,6 +13910,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Sandy Shocks",
+  "key": "Sandy Shocks TEF 98",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12759,6 +13933,8 @@
   "reduce_lines": 67,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Farigiraf ex",
+  "key": "Farigiraf ex TEF 108",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12780,6 +13956,8 @@
   "reduce_lines": 47,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Scizor ex",
+  "key": "Scizor ex TEF 111",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12801,6 +13979,8 @@
   "reduce_lines": 10,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Beldum",
+  "key": "Beldum TEF 113",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12822,6 +14002,8 @@
   "reduce_lines": 42,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Metang",
+  "key": "Metang TEF 114",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12843,6 +14025,8 @@
   "reduce_lines": 30,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Metagross",
+  "key": "Metagross TEF 115",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12864,6 +14048,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Koraidon",
+  "key": "Koraidon TEF 119",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12885,6 +14071,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Koraidon ex",
+  "key": "Koraidon ex TEF 120",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12906,6 +14094,8 @@
   "reduce_lines": 41,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Miraidon",
+  "key": "Miraidon TEF 121",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12927,6 +14117,8 @@
   "reduce_lines": 19,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Miraidon ex",
+  "key": "Miraidon ex TEF 122",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12948,6 +14140,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Hoothoot",
+  "key": "Hoothoot TEF 126",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12969,6 +14163,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Chatot",
+  "key": "Chatot TEF 132",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -12990,6 +14186,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Minccino",
+  "key": "Minccino TEF 136",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13011,6 +14209,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Cinccino",
+  "key": "Cinccino TEF 137",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13033,6 +14233,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Awakening Drum",
+  "key": "Awakening Drum TEF 141",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13055,6 +14257,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Bianca's Devotion",
+  "key": "Bianca's Devotion TEF 142",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13077,6 +14281,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Boxed Order",
+  "key": "Boxed Order TEF 143",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13098,6 +14304,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Full Metal Lab",
+  "key": "Full Metal Lab TEF 148",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13120,6 +14328,8 @@
   "reduce_lines": 54,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hand Trimmer",
+  "key": "Hand Trimmer TEF 150",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13141,6 +14351,8 @@
   "reduce_lines": 63,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Heavy Baton",
+  "key": "Heavy Baton TEF 151",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13162,6 +14374,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Hero's Cape",
+  "key": "Hero's Cape TEF 152",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13184,6 +14398,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Master Ball",
+  "key": "Master Ball TEF 153",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13206,6 +14422,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Morty's Conviction",
+  "key": "Morty's Conviction TEF 155",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13227,6 +14445,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Perilous Jungle",
+  "key": "Perilous Jungle TEF 156",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13249,6 +14469,8 @@
   "reduce_lines": 61,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Reboot Pod",
+  "key": "Reboot Pod TEF 158",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13271,6 +14493,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Salvatore",
+  "key": "Salvatore TEF 160",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13292,6 +14516,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Mist Energy",
+  "key": "Mist Energy TEF 161",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13313,6 +14539,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Neo Upper Energy",
+  "key": "Neo Upper Energy TEF 162",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13334,6 +14562,8 @@
   "reduce_lines": 20,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Illumise",
+  "key": "Illumise TWM 10",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13353,6 +14583,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Grookey",
+  "key": "Grookey TWM 14",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13374,6 +14606,8 @@
   "reduce_lines": 62,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Thwackey",
+  "key": "Thwackey TWM 15",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13395,6 +14629,8 @@
   "reduce_lines": 45,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Rillaboom",
+  "key": "Rillaboom TWM 16",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13416,6 +14652,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Applin",
+  "key": "Applin TWM 17",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13437,6 +14675,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Iron Leaves",
+  "key": "Iron Leaves TWM 19",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13458,6 +14698,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Chi-Yu",
+  "key": "Chi-Yu TWM 39",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13479,6 +14721,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Feebas",
+  "key": "Feebas TWM 49",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13500,6 +14744,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Snorunt",
+  "key": "Snorunt TWM 51",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13521,6 +14767,8 @@
   "reduce_lines": 92,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Froslass",
+  "key": "Froslass TWM 53",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13542,6 +14790,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Froakie",
+  "key": "Froakie TWM 56",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13563,6 +14813,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Frogadier",
+  "key": "Frogadier TWM 57",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13584,6 +14836,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Finizen",
+  "key": "Finizen TWM 59",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13605,6 +14859,8 @@
   "reduce_lines": 69,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Palafin",
+  "key": "Palafin TWM 60",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13626,6 +14882,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Walking Wake",
+  "key": "Walking Wake TWM 63",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13647,6 +14905,8 @@
   "reduce_lines": 29,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Zapdos",
+  "key": "Zapdos TWM 65",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13668,6 +14928,8 @@
   "reduce_lines": 44,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Luxray ex",
+  "key": "Luxray ex TWM 68",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13689,6 +14951,8 @@
   "reduce_lines": 88,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Morpeko",
+  "key": "Morpeko TWM 72",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13710,6 +14974,8 @@
   "reduce_lines": 18,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Abra",
+  "key": "Abra TWM 80",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13731,6 +14997,8 @@
   "reduce_lines": 53,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Alakazam",
+  "key": "Alakazam TWM 82",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13752,6 +15020,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Girafarig",
+  "key": "Girafarig TWM 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13773,6 +15043,8 @@
   "reduce_lines": 42,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Enamorus",
+  "key": "Enamorus TWM 93",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13794,6 +15066,8 @@
   "reduce_lines": 33,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Scream Tail ex",
+  "key": "Scream Tail ex TWM 94",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13815,6 +15089,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hisuian Growlithe",
+  "key": "Hisuian Growlithe TWM 99",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13836,6 +15112,8 @@
   "reduce_lines": 25,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hisuian Arcanine",
+  "key": "Hisuian Arcanine TWM 100",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13857,6 +15135,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Timburr",
+  "key": "Timburr TWM 103",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13878,6 +15158,8 @@
   "reduce_lines": 19,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gurdurr",
+  "key": "Gurdurr TWM 104",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13899,6 +15181,8 @@
   "reduce_lines": 26,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Conkeldurr",
+  "key": "Conkeldurr TWM 105",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13920,6 +15204,8 @@
   "reduce_lines": 90,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Greninja ex",
+  "key": "Greninja ex TWM 106",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13941,6 +15227,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ting-Lu",
+  "key": "Ting-Lu TWM 110",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13962,6 +15250,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Brute Bonnet",
+  "key": "Brute Bonnet TWM 118",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -13983,6 +15273,8 @@
   "reduce_lines": 39,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Heatran",
+  "key": "Heatran TWM 123",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14004,6 +15296,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Applin",
+  "key": "Applin TWM 126",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14025,6 +15319,8 @@
   "reduce_lines": 65,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Tatsugiri",
+  "key": "Tatsugiri TWM 131",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14046,6 +15342,8 @@
   "reduce_lines": 39,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Farfetch'd",
+  "key": "Farfetch'd TWM 132",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14067,6 +15365,8 @@
   "reduce_lines": 40,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Chansey",
+  "key": "Chansey TWM 133",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14088,6 +15388,8 @@
   "reduce_lines": 88,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Blissey ex",
+  "key": "Blissey ex TWM 134",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14110,6 +15412,8 @@
   "reduce_lines": 67,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Accompanying Flute",
+  "key": "Accompanying Flute TWM 142",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14131,6 +15435,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Community Center",
+  "key": "Community Center TWM 146",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14153,6 +15459,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Enhanced Hammer",
+  "key": "Enhanced Hammer TWM 148",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14174,6 +15482,8 @@
   "reduce_lines": 44,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Handheld Fan",
+  "key": "Handheld Fan TWM 150",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14196,6 +15506,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Hassel",
+  "key": "Hassel TWM 151",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14218,6 +15530,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Hyper Aroma",
+  "key": "Hyper Aroma TWM 152",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14240,6 +15554,8 @@
   "reduce_lines": 19,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lana's Aid",
+  "key": "Lana's Aid TWM 155",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14262,6 +15578,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Love Ball",
+  "key": "Love Ball TWM 156",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14283,6 +15601,8 @@
   "reduce_lines": 22,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Lucky Helmet",
+  "key": "Lucky Helmet TWM 158",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14305,6 +15625,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Secret Box",
+  "key": "Secret Box TWM 163",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14326,6 +15648,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Survival Brace",
+  "key": "Survival Brace TWM 164",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14348,6 +15672,8 @@
   "reduce_lines": 27,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Unfair Stamp",
+  "key": "Unfair Stamp TWM 165",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14369,6 +15695,8 @@
   "reduce_lines": 35,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Boomerang Energy",
+  "key": "Boomerang Energy TWM 166",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14390,6 +15718,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Legacy Energy",
+  "key": "Legacy Energy TWM 167",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14411,6 +15741,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Whimsicott ex",
+  "key": "Whimsicott ex WHT 5",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14432,6 +15764,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Reshiram ex",
+  "key": "Reshiram ex WHT 20",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14453,6 +15787,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Frillish",
+  "key": "Frillish WHT 44",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14474,6 +15810,8 @@
   "reduce_lines": 34,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Jellicent ex",
+  "key": "Jellicent ex WHT 45",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14495,6 +15833,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Terrakion",
+  "key": "Terrakion WHT 54",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14516,6 +15856,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Purrloin",
+  "key": "Purrloin WHT 55",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14537,6 +15879,8 @@
   "reduce_lines": 5,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Zorua",
+  "key": "Zorua WHT 61",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14558,6 +15902,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Zoroark",
+  "key": "Zoroark WHT 62",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14580,6 +15926,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Harlequin",
+  "key": "Harlequin WHT 83",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14602,6 +15950,8 @@
   "reduce_lines": 8,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Hilda",
+  "key": "Hilda WHT 84",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14623,6 +15973,8 @@
   "reduce_lines": 14,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Tirtouga",
+  "key": "Tirtouga BLK 22",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14644,6 +15996,8 @@
   "reduce_lines": 17,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Meloetta ex",
+  "key": "Meloetta ex BLK 44",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14665,6 +16019,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Haxorus",
+  "key": "Haxorus BLK 70",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14686,6 +16042,8 @@
   "reduce_lines": 16,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ethan's Pinsir",
+  "key": "Ethan's Pinsir DRI 1",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14707,6 +16065,8 @@
   "reduce_lines": 12,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Cynthia's Roserade",
+  "key": "Cynthia's Roserade DRI 8",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14728,6 +16088,8 @@
   "reduce_lines": 39,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ethan's Quilava",
+  "key": "Ethan's Quilava DRI 33",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14749,6 +16111,8 @@
   "reduce_lines": 7,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Blaziken",
+  "key": "Blaziken DRI 42",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14770,6 +16134,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Chingling",
+  "key": "Team Rocket's Chingling DRI 85",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14791,6 +16157,8 @@
   "reduce_lines": 15,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Team Rocket's Ekans",
+  "key": "Team Rocket's Ekans DRI 112",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14812,6 +16180,8 @@
   "reduce_lines": 37,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Arbok",
+  "key": "Team Rocket's Arbok DRI 113",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14833,6 +16203,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Team Rocket's Sneasel",
+  "key": "Team Rocket's Sneasel DRI 128",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14852,6 +16224,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Steven's Beldum",
+  "key": "Steven's Beldum DRI 143",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14873,6 +16247,8 @@
   "reduce_lines": 61,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Blaziken ex",
+  "key": "Blaziken ex JTG 24",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14894,6 +16270,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Tapu Koko ex",
+  "key": "Tapu Koko ex JTG 51",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14913,6 +16291,8 @@
   "reduce_lines": 0,
   "effect_fns": 0,
   "tier": "data",
+  "en_name": "Piloswine",
+  "key": "Piloswine JTG 78",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14934,6 +16314,8 @@
   "reduce_lines": 28,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "N's Purrloin",
+  "key": "N's Purrloin JTG 96",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14955,6 +16337,8 @@
   "reduce_lines": 37,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Cinderace",
+  "key": "Cinderace MEG 28",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14976,6 +16360,8 @@
   "reduce_lines": 21,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Alakazam",
+  "key": "Alakazam MEG 56",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -14997,6 +16383,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Gumshoos",
+  "key": "Gumshoos MEG 110",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15018,6 +16406,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Charmander",
+  "key": "Charmander PFL 11",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15039,6 +16429,8 @@
   "reduce_lines": 23,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Charcadet",
+  "key": "Charcadet PFL 19",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15060,6 +16452,8 @@
   "reduce_lines": 43,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ceruledge",
+  "key": "Ceruledge PFL 20",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15081,6 +16475,8 @@
   "reduce_lines": 9,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Carvanha",
+  "key": "Carvanha PFL 60",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15102,6 +16498,8 @@
   "reduce_lines": 6,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Toxel",
+  "key": "Toxel PFL 67",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15123,6 +16521,8 @@
   "reduce_lines": 54,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Toxtricity",
+  "key": "Toxtricity PFL 68",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15144,6 +16544,8 @@
   "reduce_lines": 45,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Espeon ex",
+  "key": "Espeon ex PRE 34",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15166,6 +16568,8 @@
   "reduce_lines": 39,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Antique Root Fossil",
+  "key": "Antique Root Fossil SCR 130",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15187,6 +16591,8 @@
   "reduce_lines": 32,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Ceruledge",
+  "key": "Ceruledge SSP 35",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15208,6 +16614,8 @@
   "reduce_lines": 13,
   "effect_fns": 0,
   "tier": "short",
+  "en_name": "Gouging Fire",
+  "key": "Gouging Fire SSP 38",
   "print_match": "exact",
   "print_note": "exact printing"
  },
@@ -15229,6 +16637,8 @@
   "reduce_lines": 36,
   "effect_fns": 0,
   "tier": "custom",
+  "en_name": "Smoochum",
+  "key": "Smoochum SSP 75",
   "print_match": "exact",
   "print_note": "exact printing"
  }

@@ -19,6 +19,7 @@ in the oracle (use it to hunt branches still under --min-games).
 Traces go to corpus/cards/<tag>/ (default tag: first target, slugified).
 """
 import argparse, collections, json, os, random, re, subprocess, sys
+import names  # tools/names.py: English keys <-> Twinleaf full names
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORACLE = os.environ.get('PTCG_ORACLE') or (os.path.join(ROOT, 'twinleaf/ptcg-server') if os.path.isdir(os.path.join(ROOT, 'twinleaf/ptcg-server/output')) else '/Users/christianshin/Documents/pkmntcg/twinleaf/ptcg-server')
@@ -130,6 +131,7 @@ def main():
     ap.add_argument('--remote', type=int, default=0, metavar='SHARDS',
                     help='play the oracle games on GitHub Actions across SHARDS runners (tools/remote_oracle.py)')
     args = ap.parse_args()
+    args.targets = [names.twinleaf(t) for t in args.targets]   # English keys work too
     for t in args.targets:
         if t not in cards:
             sys.exit('unknown card: %s' % t)

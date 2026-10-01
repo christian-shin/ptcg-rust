@@ -131,6 +131,12 @@ Expect ~1-2 minutes of queue/setup overhead, so use it for runs of 32+ games.
 New worktree? Copy a warm build cache first so the first build isn't from scratch:
 `cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
 
+Card names: tools and `def_by_full_name` accept the official English key from
+`data/pool.json` (`key`, e.g. "Grand Tree SCR 136", or "Grand Tree SCR" when
+unique) as well as Twinleaf's `fullName` ("Great Tree SCR"), which stays the
+identity in traces, the oracle and port pins. `carddb::en_name` / `en_key`
+give the English name of a card.
+
 `check_cards.py` builds decks around the targets (Stage 1/2 targets need their
 pre-evolution in the target list or already ported), generates oracle traces
 (policies `heur` and `random`, plus one light bot mix), and replays them through
