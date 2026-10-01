@@ -281,6 +281,8 @@ pub struct Player {
     pub used_lunar_cycle: bool,
     /// `rocketSupporter` (Team Rocket's Petrel; cleared at its owner's end of turn).
     pub rocket_supporter: bool,
+    /// `legacyEnergyUsed` (Legacy Energy TWM; once per game, never reset).
+    pub legacy_energy_used: bool,
     /// `usedFanCall` (Fan Rotom SCR; cleared by Fan Rotom at any end of turn).
     pub used_fan_call: bool,
 }
@@ -342,6 +344,7 @@ impl Player {
             used_run_errand: false,
             used_lunar_cycle: false,
             rocket_supporter: false,
+            legacy_energy_used: false,
             used_fan_call: false,
         };
         p.slot_used[0] = true;
