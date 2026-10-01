@@ -111,6 +111,12 @@ impl Game {
         if let Some(p) = s.discard_attacker_energy_if_ko_attacker {
             o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
         }
+        nd!(defending_extra_damage_next_turn, "defendingPokemonExtraDamageNextTurn");
+        if let Some(p) = s.defending_extra_damage_attacker {
+            o.insert("defendingPokemonExtraDamageAttackerId".into(), json!(self.st.players[p as usize].id));
+        }
+        nd!(defending_extra_damage_pending, "defendingPokemonExtraDamagePending");
+        nd!(defending_extra_damage_rearm_after_attack, "defendingPokemonExtraDamageRearmAfterAttack");
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
         }
@@ -375,7 +381,11 @@ pub fn _phase_name(p: GamePhase) -> u8 {
 fn prevent_filter_json(f: &crate::state::PreventFilter) -> Value {
     let mut o = Map::new();
     if let Some(st) = f.source_stage {
-        o.insert("sourceStage".into(), json!(st));
+        if st == crate::state::PreventFilter::SOURCE_IS_EVOLUTION {
+            o.insert("sourceIsEvolution".into(), json!(true));
+        } else {
+            o.insert("sourceStage".into(), json!(st));
+        }
     }
     if let Some(ts) = &f.source_card_types {
         o.insert("sourceCardTypes".into(), json!(ts.as_slice()));

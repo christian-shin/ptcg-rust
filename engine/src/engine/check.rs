@@ -90,6 +90,11 @@ fn find_ko_pokemons(g: &mut Game) -> R<SVec<SlotRef, 16>> {
     let mut out = SVec::new();
     for p in 0..2 {
         for s in g.st.players[p].in_play().iter() {
+            // forEachPokemon skips slots without a Pokémon card (e.g. a Bench
+            // slot holding only an Energy moved there by Team Rocket's Zapdos).
+            if g.st.slot_pokemon(p, *s).is_none() {
+                continue;
+            }
             let hp = check_hp(g, p, *s)?;
             if g.st.slot(p, *s).damage >= hp {
                 out.push(SlotRef::new(p, *s));

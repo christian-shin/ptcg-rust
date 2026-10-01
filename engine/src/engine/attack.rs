@@ -425,6 +425,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             if red != 0 {
                 damage = (damage - red).max(0);
             }
+            // "During your next turn, the Defending Pokémon takes N more damage."
+            {
+                let ts = g.st.slot(t.p as usize, t.s);
+                if ts.defending_extra_damage_next_turn > 0 && !ts.defending_extra_damage_pending && ts.defending_extra_damage_attacker == Some(b.player) {
+                    damage += ts.defending_extra_damage_next_turn;
+                }
+            }
             if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
                 *d = damage;
             }
@@ -594,6 +601,22 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let o = b.opponent as usize;
             let a = g.st.players[o].active;
             g.st.players[o].slots[a as usize].blocked_attack_name_next_turn = Some(name);
+            Ok(())
+        }
+        Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus } => {
+            let o = b.opponent as usize;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            let already = slot.defending_extra_damage_next_turn > 0
+                && !slot.defending_extra_damage_pending
+                && slot.defending_extra_damage_attacker == Some(b.player);
+            slot.defending_extra_damage_next_turn = damage_bonus;
+            slot.defending_extra_damage_attacker = Some(b.player);
+            if already {
+                slot.defending_extra_damage_rearm_after_attack = true;
+            } else {
+                slot.defending_extra_damage_pending = true;
+            }
             Ok(())
         }
         Effect::RemoveSpecialConditions { b, conditions } => {

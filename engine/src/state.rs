@@ -118,6 +118,12 @@ pub struct Slot {
     /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
     pub prevent_effects_of_attacks_next_turn: bool,
     pub prevent_effects_of_attacks_next_turn_pending: bool,
+    /// `defendingPokemonExtraDamageNextTurn` / `...AttackerId` (player index)
+    /// / `...Pending` / `...RearmAfterAttack`.
+    pub defending_extra_damage_next_turn: i32,
+    pub defending_extra_damage_attacker: Option<u8>,
+    pub defending_extra_damage_pending: bool,
+    pub defending_extra_damage_rearm_after_attack: bool,
     pub is_public: bool,
 }
 
@@ -129,10 +135,18 @@ pub struct PreventFilter {
 }
 
 impl PreventFilter {
+    /// `source_stage` sentinel standing for `{ sourceIsEvolution: true }`
+    /// (no `sourceStage`): any non-Basic source matches.
+    pub const SOURCE_IS_EVOLUTION: u8 = 0xFE;
+
     /// `sourceMatchesPreventFilter` for the modeled keys.
     pub fn matches(&self, stage: u8, types: &[CardType]) -> bool {
         if let Some(st) = self.source_stage {
-            if stage != st {
+            if st == Self::SOURCE_IS_EVOLUTION {
+                if stage == crate::types::Stage::Basic as u8 {
+                    return false;
+                }
+            } else if stage != st {
                 return false;
             }
         }
@@ -186,6 +200,10 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attacker: None,
             prevent_effects_of_attacks_next_turn: false,
             prevent_effects_of_attacks_next_turn_pending: false,
+            defending_extra_damage_next_turn: 0,
+            defending_extra_damage_attacker: None,
+            defending_extra_damage_pending: false,
+            defending_extra_damage_rearm_after_attack: false,
             is_public: false,
         }
     }

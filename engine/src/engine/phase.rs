@@ -226,6 +226,17 @@ fn handle_special_conditions(g: &mut Game, id: EffId) {
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::EndTurn { p } => end_turn(g, p as usize),
+        Effect::AfterAttack { opp, .. } => {
+            let o = opp as usize;
+            for s in g.st.players[o].in_play().iter() {
+                let slot = &mut g.st.players[o].slots[*s as usize];
+                if slot.defending_extra_damage_rearm_after_attack {
+                    slot.defending_extra_damage_rearm_after_attack = false;
+                    slot.defending_extra_damage_pending = true;
+                }
+            }
+            Ok(())
+        }
         Effect::BetweenTurns { .. } => {
             handle_special_conditions(g, id);
             Ok(())
@@ -318,6 +329,25 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.prevent_effects_of_attacks_next_turn_pending {
             slot.prevent_effects_of_attacks_next_turn = true;
             slot.prevent_effects_of_attacks_next_turn_pending = false;
+        }
+    }
+    // defendingPokemonExtraDamage*: arm at the end of the defending player's
+    // turn, then clear at the end of the attacker's following turn.
+    for q in [p, o] {
+        for s in g.st.players[q].in_play().iter() {
+            let slot = &mut g.st.players[q].slots[*s as usize];
+            if slot.defending_extra_damage_pending && slot.defending_extra_damage_attacker != Some(p as u8) {
+                slot.defending_extra_damage_pending = false;
+            }
+        }
+    }
+    for q in [p, o] {
+        for s in g.st.players[q].in_play().iter() {
+            let slot = &mut g.st.players[q].slots[*s as usize];
+            if slot.defending_extra_damage_attacker == Some(p as u8) && !slot.defending_extra_damage_pending && slot.defending_extra_damage_next_turn > 0 {
+                slot.defending_extra_damage_next_turn = 0;
+                slot.defending_extra_damage_attacker = None;
+            }
         }
     }
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
