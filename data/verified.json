@@ -1205,5 +1205,77 @@
  "Great Tree SCR": {
   "status": "verified",
   "note": "batch b15; L53/L59/L65 unreachable (min-1 prompt, blocked targets)"
+ },
+ "Zapdos TWM": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Zekrom ex SV11B": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Beldum TEF": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Dialga MEG": {
+  "status": "verified",
+  "note": "batch b07; L45 no-energy return unreachable"
+ },
+ "Archaludon M2": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Archaludon ex SSP": {
+  "status": "verified",
+  "note": "batch b07; ability-blocked return unreachable in pool"
+ },
+ "Duraludon PFL": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Duraludon SSP": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Genesect SFA": {
+  "status": "verified",
+  "note": "batch b07; ability-blocked returns and ACE SPEC Stadium branch unreachable in pool"
+ },
+ "Gholdengo SSP": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Heatran TWM": {
+  "status": "verified",
+  "note": "batch b07; ability-blocked return unreachable in pool"
+ },
+ "Hop's Zacian ex JTG": {
+  "status": "verified",
+  "note": "batch b07; L49 no-target return unreachable (prompt not cancellable)"
+ },
+ "Jirachi ex 30C": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Mega Mawile ex M1L": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Steelix M1L": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Empoleon ex PFL": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Scizor ex TEF": {
+  "status": "verified",
+  "note": "batch b07"
+ },
+ "Piplup PFL": {
+  "status": "verified",
+  "note": "batch b07"
  }
 }
