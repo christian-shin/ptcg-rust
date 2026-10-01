@@ -1149,5 +1149,61 @@
  "PecharuntIR SVP": {
   "status": "needs-reverify",
   "note": "verified as Pecharunt SVP; pool row SVP 129 now maps to the exact printing PecharuntIR SVP"
+ },
+ "PokéVital A SFA": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Precious Trolley SSP": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Reboot Pod TEF": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Redeemable Ticket JTG": {
+  "status": "verified",
+  "note": "batch b15; zero-prizes throw and no-empty-prize-slot branch unreachable"
+ },
+ "Team Rocket's Venture Bomb DRI": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Bubble Water Energy M4": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Legacy Energy TWM": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Magnet Metal Energy M4": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Shadow Darkness Energy M5": {
+  "status": "verified",
+  "note": "batch b15; opponent-attacker return unreachable (no self-bench damage in pool)"
+ },
+ "Battle Colosseum M2": {
+  "status": "verified",
+  "note": "batch b15; MoveDamageCounters by non-turn player branch unreachable"
+ },
+ "Community Center TWM": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Exciting Stadium SSP": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Full Metal Lab TEF": {
+  "status": "verified",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+ },
+ "Great Tree SCR": {
+  "status": "verified",
+  "note": "batch b15; L53/L59/L65 unreachable (min-1 prompt, blocked targets)"
  }
 }
