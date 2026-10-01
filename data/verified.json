@@ -1541,5 +1541,69 @@
  "Black Kyurem ex SSP": {
   "status": "verified",
   "note": "batch b12"
+ },
+ "Dedenne SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Deoxys M4 32": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Deoxys M4 33": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Espeon ex PRE": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Sylveon PRE": {
+  "status": "verified",
+  "note": "batch b09; L52 Safeguard early return unreachable in pool"
+ },
+ "Sylveon ex SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Elgyem SV11B": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Enamorus TWM": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Flittle SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Frillish SV11W": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Jellicent ex SV11W": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Gimmighoul SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Lampent M5": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Litwick M5": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Mega Chandelure ex M5": {
+  "status": "verified",
+  "note": "batch b09; L57 !chandelureInPlay return 0 games (likely coverage artifact)"
+ },
+ "Azumarill SSP": {
+  "status": "verified",
+  "note": "batch b09; L60 ability-probe catch and L65 no-[P]-in-cost unreachable in pool"
  }
 }
