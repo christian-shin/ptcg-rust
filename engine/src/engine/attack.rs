@@ -66,7 +66,9 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
         _ => return Ok(()),
     };
     let ad = attack_def(g, attack);
-    if g.st.turn == 1 && !ad.can_use_on_first_turn && !g.st.rules.attack_first_turn {
+    // `attack.canUseOnFirstTurn` (printed, or written at runtime by Meloetta ex).
+    let first_turn_ok = g.st.cards[attack.card as usize].attack_first_turn & (1u8 << attack.idx()) != 0;
+    if g.st.turn == 1 && !ad.can_use_on_first_turn && !first_turn_ok && !g.st.rules.attack_first_turn {
         crate::bail!("CANNOT_ATTACK_ON_FIRST_TURN");
     }
     let active = g.st.players[p].active;
@@ -469,9 +471,25 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[t.p as usize].slots[t.s as usize].damage += damage.max(0);
             Ok(())
         }
-        Effect::AfterDamage { b, .. } => {
+        Effect::AfterDamage { b, damage } => {
             g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-            // Revenge traps: not modeled.
+            // Revenge trap (getActiveRetaliateOnDamage; `{ damage }` options only).
+            let t = b.target;
+            let slot = g.st.slot(t.p as usize, t.s);
+            let active = if slot.retaliate_on_damage_next_turn_pending.is_some() { None } else { slot.retaliate_on_damage_next_turn };
+            if let Some(r) = active {
+                if damage > 0 && t.p != b.player && g.st.phase == GamePhase::Attack && r.damage > 0 {
+                    let mut src = t;
+                    let ap = r.attacker as usize;
+                    for s in g.st.players[ap].in_play().iter() {
+                        if g.st.slot_pokemon(ap, *s) == Some(r.source_card) {
+                            src = SlotRef::new(ap, *s);
+                        }
+                    }
+                    let rb = AtkBase { attack_effect: b.attack_effect, player: t.p, opponent: b.player, attack: r.attack, source: src, target: b.source };
+                    g.run_fx(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
+                }
+            }
             Ok(())
         }
         Effect::KnockOutOpponent { b, .. } => {
@@ -628,6 +646,19 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let p = b.player as usize;
             let a = g.st.players[p].active;
             g.st.players[p].slots[a as usize].cannot_retreat_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::RetaliateOnDamage { b, damage, source_card } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].retaliate_on_damage_next_turn_pending =
+                Some(StoredRetaliate { damage, attack: b.attack, source_card, attacker: b.player });
+            Ok(())
+        }
+        Effect::RetaliateDamage { b, damage } => {
+            if damage > 0 {
+                g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
+            }
             Ok(())
         }
         Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card } => {

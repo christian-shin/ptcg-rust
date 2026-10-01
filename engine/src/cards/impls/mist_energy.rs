@@ -42,6 +42,8 @@ pub static IMPL: CardImpl = CardImpl {
         k::INCREASE_ATTACK_COST_NEXT_TURN,
         k::INCREASE_RETREAT_COST_NEXT_TURN,
         k::COIN_FLIP_CANCEL_TRAINER_PLAY,
+        k::RETALIATE_ON_DAMAGE,
+        k::RETALIATE_DAMAGE,
     ]),
     reduce,
     resume: None,
