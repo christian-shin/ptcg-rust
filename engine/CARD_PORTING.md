@@ -205,8 +205,22 @@ reach it. Common cases:
   without Energy checking for no Energy).
 
 Rare but reachable branches (empty deck, empty opposing hand, 13 cards of a
-kind in the discard pile) are not exemptions. Don't grind random games for
-them: write a scenario.
+kind in the discard pile) are not exemptions, and you own them: write a
+scenario for each (below). Don't grind random games or `--scout` runs for a
+branch that needs a specific board.
+
+### Coverage workflow (required)
+
+1. Parity loop until zero divergences (random games, no coverage).
+2. One coverage run of random games (`--coverage`, `--remote` for 32+ games).
+3. For every reachable branch still under 3 games, write a scenario that sets
+   up the board it needs and run it with `--coverage`. A branch counts as
+   covered only when the scenario run's coverage report shows it in ≥3 games,
+   with zero divergences. One scenario may cover several branches.
+4. Whatever is left is either an exemption candidate (unreachable, with the
+   reason) or makes the card partial (say why the scenario didn't reach it).
+5. Commit the scenario files on your branch, and list them in your report
+   (format below). The orchestrator re-runs them to check the coverage claim.
 
 ### Scenarios
 
@@ -239,12 +253,18 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   decks must contain them. `"4 Name"` repeats a card. English keys work.
 * `decks` is optional (default: the usual auto decks). Every deck should hold
   the scenario's cards, since either player may be `me`.
-* Keep scenarios in `scenarios/` named after the card and branch, and list them
-  in your report.
+* Keep scenarios in `scenarios/`, one file per card and branch:
+  `<card-slug>-<branch>.json` (e.g. `luxray-ex-empty-hand.json`). Tag their
+  corpora `<batch>-scen-<card-slug>`.
+* A scenario must reach the branch through normal play after the edits (the
+  policy still picks moves): set the board so the branch is likely, and run
+  enough games (12-16 is usually plenty) that it runs in ≥3.
 
 Implementation: `twinleaf/ptcg-server/src/oracle/scenario.ts` and
-`engine/src/scenario.rs` (keep them identical). If a branch needs an edit that
-doesn't exist yet, add it to both and say so.
+`engine/src/scenario.rs`, kept identical. Porting agents don't edit them (the
+Twinleaf checkout is off limits): if a branch needs an edit that doesn't exist
+yet (say, setting a Special Condition or a Prize card), report it as a
+scenario request with the branch it would cover, and mark the card partial.
 
 Name every corpus directory with your batch prefix (`--tag bNN-...`) so it can't
 collide with other batches. Delete coverage JSONs and `dump/` directories you no
@@ -257,6 +277,19 @@ Card status in your report:
   games, or the card was only exercised with a temporary helper.
 * **blocked**: the card can't be exercised (missing core feature, oracle
   crash); say exactly what is missing.
+
+Scenarios in your report, one entry per scenario file:
+
+```
+scenarios/<file>.json - <Full Name>
+  targets:  <twinleaf file>:<line> `<statement>` (the branch, as the coverage report prints it)
+  setup:    <one line: what the edits do and why that reaches the branch>
+  result:   <N> traces, 0 diverged; branch ran in <K> games (coverage report line pasted)
+  corpus:   corpus/cards/<tag>
+```
+
+If a scenario failed to cover its target, list it anyway, with the result and
+what you think is missing.
 
 ## Rules
 
