@@ -1611,8 +1611,8 @@
   "note": "batch b11"
  },
  "Cofagrigus SSP": {
-  "status": "partial",
-  "note": "batch b11; verified with a temporary Yamask port; re-check now that Yamask PLF 55 is a support card"
+  "status": "verified",
+  "note": "batch b11; re-verified with support card Yamask PLF 55: 48 traces, all branches covered"
  },
  "Zacian M2": {
   "status": "verified",
