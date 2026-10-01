@@ -731,8 +731,8 @@
   "status": "verified"
  },
  "Annihilape SSP": {
-  "status": "blocked",
-  "note": "Primeape/Mankey not in card DB; Destined Fight needs KnockOutPlayerEffect"
+  "status": "verified",
+  "note": "batch A"
  },
  "Poké Pad 30C": {
   "status": "needs-reverify",
@@ -775,8 +775,8 @@
   "note": "verified as Lunatone M1L; pool row ASC 105 now maps to the exact printing Lunatone ASC"
  },
  "Solrock ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Solrock XY; pool row ASC 106 now maps to the exact printing Solrock ASC"
+  "status": "verified",
+  "note": "batch A"
  },
  "Cynthia's Gible ASC": {
   "status": "needs-reverify",
@@ -935,8 +935,8 @@
   "note": "verified as Pokegear SVI; pool row BLK 84 now maps to the exact printing Pokegear 3.0 SV11W (old note: empty-deck branch unreachable)"
  },
  "Energy Retrieval FA CRI": {
-  "status": "needs-reverify",
-  "note": "verified as Energy Retrieval BS; pool row CRI 108 now maps to the exact printing Energy Retrieval FA CRI"
+  "status": "verified",
+  "note": "batch A; DiscardToHand-prevented branch unreachable in pool"
  },
  "Jumbo Ice Cream FA CRI": {
   "status": "needs-reverify",
@@ -951,8 +951,8 @@
   "note": "verified as Rellor SSP; pool row DRI 24 now maps to the exact printing Rellor DRI"
  },
  "Super Potion JTG": {
-  "status": "needs-reverify",
-  "note": "verified as Super Potion BS; pool row JTG 158 now maps to the exact printing Super Potion JTG"
+  "status": "verified",
+  "note": "batch A"
  },
  "Pokemon Center Lady MEG": {
   "status": "needs-reverify",
@@ -987,20 +987,20 @@
   "note": "verified as Energy Search SVI; pool row POR 72 now maps to the exact printing Energy Search POR"
  },
  "Judge POR": {
-  "status": "needs-reverify",
-  "note": "verified as Judge FST; pool row POR 76 now maps to the exact printing Judge POR"
+  "status": "verified",
+  "note": "batch A; pin widened to Judge@FST|POR; throw with hand=Judge only and empty deck unreachable"
  },
  "Poke Ball POR": {
   "status": "needs-reverify",
   "note": "verified as Poké Ball JU; pool row POR 80 now maps to the exact printing Poke Ball POR"
  },
  "Pokemon Catcher POR": {
-  "status": "needs-reverify",
-  "note": "verified as Pokemon Catcher SSH; pool row POR 82 now maps to the exact printing Pokemon Catcher POR"
+  "status": "verified",
+  "note": "batch A"
  },
  "Potion POR": {
-  "status": "needs-reverify",
-  "note": "verified as Potion BS; pool row POR 83 now maps to the exact printing Potion POR"
+  "status": "verified",
+  "note": "batch A; empty-target return unreachable (prompt not cancellable)"
  },
  "Energy Recycler FA POR": {
   "status": "needs-reverify",
@@ -1011,8 +1011,8 @@
   "note": "verified as Forest of Vitality MEG; pool row POR 109 now maps to the exact printing Forest of Vitality FA POR"
  },
  "Sacred Ash FA POR": {
-  "status": "needs-reverify",
-  "note": "verified as Sacred Ash FLF; pool row POR 115 now maps to the exact printing Sacred Ash FA POR"
+  "status": "verified",
+  "note": "batch A"
  },
  "Wondrous Patch FA POR": {
   "status": "needs-reverify",
@@ -1277,5 +1277,45 @@
  "Piplup PFL": {
   "status": "verified",
   "note": "batch b07"
+ },
+ "Frogadier M4": {
+  "status": "verified",
+  "note": "batch A"
+ },
+ "Slowpoke M5": {
+  "status": "verified",
+  "note": "batch A; Twinleaf filter {superType: ANY} matches nothing: discard branch never runs (Twinleaf bug)"
+ },
+ "Zeraora SCR": {
+  "status": "verified",
+  "note": "batch A"
+ },
+ "Metagross TEF": {
+  "status": "verified",
+  "note": "batch A"
+ },
+ "Koraidon TEF": {
+  "status": "verified",
+  "note": "batch A; optional chaining on Active unreachable"
+ },
+ "Koraidon ex TEF": {
+  "status": "verified",
+  "note": "batch A"
+ },
+ "Chi-Yu TWM": {
+  "status": "verified",
+  "note": "batch A"
+ },
+ "Alakazam TWM": {
+  "status": "verified",
+  "note": "batch A"
+ },
+ "Girafarig TWM": {
+  "status": "verified",
+  "note": "batch A; empty-target return unreachable"
+ },
+ "Mankey SSP": {
+  "status": "verified",
+  "note": "batch A"
  }
 }
