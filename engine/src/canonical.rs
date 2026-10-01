@@ -153,6 +153,9 @@ impl Game {
             "prizes".into(),
             Value::Array((0..pl.prize_count as usize).map(|i| self.refs_of(pl.prizes[i].as_slice())).collect()),
         );
+        if pl.prize_face_up[..pl.prize_count as usize].iter().any(|v| *v) {
+            o.insert("faceUpPrizes".into(), json!(pl.prize_face_up[..pl.prize_count as usize].to_vec()));
+        }
         o.insert("active".into(), self.slot_json(&pl.slots[pl.active as usize]));
         o.insert("bench".into(), Value::Array(pl.bench.iter().map(|b| self.slot_json(&pl.slots[*b as usize])).collect()));
         let d = Player::new(pl.id);
@@ -249,6 +252,9 @@ impl Game {
             }
             if inst.extra_prizes {
                 diff.insert("extraPrizes".into(), json!(true));
+            }
+            if inst.strafe_used {
+                diff.insert("strafeUsed".into(), json!(true));
             }
             if inst.attack_barrage_shown != 0 {
                 // Runtime `this.attacks[i].barrage` writes: the whole attacks array.

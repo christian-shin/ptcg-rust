@@ -177,7 +177,7 @@ fn prize_loop(g: &mut Game, mut f: CheckFrame) -> R {
                 blocked: SVec::new(),
                 use_opponent_prizes: false,
                 allow_cancel: false,
-                is_secret: true,
+                is_secret: !g.st.players[pl].prize_public[0],
                 destination: Some(dest),
             },
             Cont::TakePrizes { p, destination: dest },

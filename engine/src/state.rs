@@ -210,11 +210,13 @@ pub struct CardInst {
     /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
     /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
     pub evolves_from_base: Option<&'static [&'static str]>,
+    /// Mega Latias ex's `strafeUsed` instance field (canonical when true).
+    pub strafe_used: bool,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, strafe_used: false }
     }
 }
 
@@ -230,6 +232,11 @@ pub struct Player {
     pub supporter: List<8>,
     pub prizes: [List<4>; 6],
     pub prize_count: u8,
+    /// Prize `CardList.isSecret == false` (Cresselia SFA turns one public);
+    /// all prize lists start secret.
+    pub prize_public: [bool; 6],
+    /// Prize `CardList.faceUpPrize` (canonical `faceUpPrizes`).
+    pub prize_face_up: [bool; 6],
     pub slots: [Slot; MAX_SLOTS],
     pub slot_used: [bool; MAX_SLOTS],
     pub active: SlotId,
@@ -300,6 +307,8 @@ impl Player {
             supporter: List::new(),
             prizes: [List::new(); 6],
             prize_count: 6,
+            prize_public: [false; 6],
+            prize_face_up: [false; 6],
             slots: [Slot::default(); MAX_SLOTS],
             slot_used: [false; MAX_SLOTS],
             active: 0,
