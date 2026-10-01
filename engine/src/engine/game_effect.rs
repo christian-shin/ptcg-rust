@@ -106,6 +106,8 @@ fn clear_prevent_next_turn(slot: &mut Slot) {
     slot.discard_attacker_energy_if_ko_attack = None;
     slot.discard_attacker_energy_if_ko_source_card = None;
     slot.discard_attacker_energy_if_ko_attacker = None;
+    slot.retaliate_on_damage_next_turn = None;
+    slot.retaliate_on_damage_next_turn_pending = None;
 }
 
 /// `PokemonCardList.removeAttackEffects()` for the modeled fields.

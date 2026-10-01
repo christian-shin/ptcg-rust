@@ -14,7 +14,7 @@
 //! PutDamageCountersEffect branches: no ported card emits them yet.)
 use crate::cards::prelude::*;
 
-pub const HIDE_N_SNEAK_KINDS: [u32; 25] = [
+pub const HIDE_N_SNEAK_KINDS: [u32; 27] = [
     k::SELF_PREVENT_RETREAT,
     k::DISCARD_ATTACKER_ENERGY_IF_KO,
     k::APPLY_WEAKNESS,
@@ -40,6 +40,8 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 25] = [
     k::PREVENT_DAMAGE,
     k::PREVENT_EFFECTS_OF_ATTACKS,
     k::THIS_POKEMON_HAS_NO_WEAKNESS,
+    k::RETALIATE_ON_DAMAGE,
+    k::RETALIATE_DAMAGE,
 ];
 
 pub static IMPL: CardImpl = CardImpl { class: "Shuppet", mask: mask(&HIDE_N_SNEAK_KINDS), reduce, resume: None, coin: None, can_play: None };

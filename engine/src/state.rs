@@ -124,7 +124,19 @@ pub struct Slot {
     /// `nextTurnAttackDamageBonus` / `...Pending` (NEXT_TURN_ATTACK_BONUS).
     pub next_turn_attack_damage_bonus: Option<NextTurnAttackDamageBonus>,
     pub next_turn_attack_damage_bonus_pending: Option<NextTurnAttackDamageBonus>,
+    /// `retaliateOnDamageNextTurn` / `...Pending` (`{ damage }` options only).
+    pub retaliate_on_damage_next_turn: Option<StoredRetaliate>,
+    pub retaliate_on_damage_next_turn_pending: Option<StoredRetaliate>,
     pub is_public: bool,
+}
+
+/// `StoredRetaliateOnDamage` with `{ damage }` options.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct StoredRetaliate {
+    pub damage: i32,
+    pub attack: AttackRef,
+    pub source_card: CardId,
+    pub attacker: u8,
 }
 
 /// `NextTurnAttackDamageBonus { attackName, bonusDamage, sourceCardName }`.
@@ -204,6 +216,8 @@ impl Default for Slot {
             no_weakness_next_turn_pending: false,
             next_turn_attack_damage_bonus: None,
             next_turn_attack_damage_bonus_pending: None,
+            retaliate_on_damage_next_turn: None,
+            retaliate_on_damage_next_turn_pending: None,
             is_public: false,
         }
     }
@@ -225,6 +239,9 @@ pub struct CardInst {
     /// Attacks whose serialized object now differs from the printed card
     /// (canonical `cards[...].attacks`, with a `barrage` key).
     pub attack_barrage_shown: u8,
+    /// `this.attacks[i].canUseOnFirstTurn = true` written at runtime (Meloetta ex);
+    /// bit i = attack i. Card-object state: never reset, canonical `cards[...].attacks`.
+    pub attack_first_turn: u8,
     /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
     /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
     pub evolves_from_base: Option<&'static [&'static str]>,
@@ -232,7 +249,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, attack_first_turn: 0, evolves_from_base: None }
     }
 }
 

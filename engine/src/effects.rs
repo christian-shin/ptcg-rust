@@ -161,6 +161,12 @@ pub enum Effect {
     /// `ThisPokemonHasNoWeaknessDuringOpponentsNextTurnEffect` (target = attacker):
     /// `player.active.noWeaknessNextTurnPending = true`.
     ThisPokemonHasNoWeakness { b: AtkBase },
+    /// `RetaliateOnDamageDuringOpponentsNextTurnEffect` (target = attacker,
+    /// `{ damage }` options): `player.active.retaliateOnDamageNextTurnPending`.
+    RetaliateOnDamage { b: AtkBase, damage: i32, source_card: CardId },
+    /// `RetaliateDamageEffect`: `target.damage += damage` (b.player is the
+    /// retaliator's owner, b.source its slot, b.target the attacker's slot).
+    RetaliateDamage { b: AtkBase, damage: i32 },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -252,6 +258,8 @@ impl Effect {
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
             ThisPokemonHasNoWeakness { .. } => "THIS_POKEMON_HAS_NO_WEAKNESS_DURING_OPPONENTS_NEXT_TURN_EFFECT",
+            RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
+            RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -296,6 +304,7 @@ impl Effect {
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -324,6 +333,7 @@ impl Effect {
             OpponentPokemonCannotUseAttack { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -412,6 +422,8 @@ impl Effect {
             PreventDamage { .. } => 84,
             PreventEffectsOfAttacks { .. } => 77,
             ThisPokemonHasNoWeakness { .. } => 148,
+            RetaliateOnDamage { .. } => 172,
+            RetaliateDamage { .. } => 173,
             OpponentPokemonCannotUseAttack { .. } => 91,
         };
         k
@@ -497,6 +509,8 @@ pub mod k {
     pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
     pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
     pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
+    pub const RETALIATE_ON_DAMAGE: u32 = 172;
+    pub const RETALIATE_DAMAGE: u32 = 173;
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
