@@ -228,6 +228,7 @@ impl Game {
         nd!(rocket_supporter, "rocketSupporter");
         nd!(legacy_energy_used, "legacyEnergyUsed");
         nd!(used_fan_call, "usedFanCall");
+        nd!(played_canari, "playedCanari");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }
