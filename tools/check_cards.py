@@ -47,6 +47,45 @@ def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 
 
+def expand_deck(lines):
+    """["4 Name", "Name", ...] -> card names (English keys accepted)."""
+    out = []
+    for l in lines:
+        m = re.match(r'^(\d+)\s+(.+)$', l)
+        n, name = (int(m.group(1)), m.group(2)) if m else (1, l)
+        out += [names.twinleaf(name)] * n
+    return out
+
+
+def load_scenario(path):
+    """Scenario JSON with every card name mapped to its Twinleaf full name."""
+    sc = json.load(open(path))
+    for side in ('me', 'opp'):
+        d = sc.get(side) or {}
+        for k in ('discard', 'hand', 'active_energy'):
+            if k in d:
+                d[k] = expand_deck(d[k])
+        if 'active' in d:
+            d['active'] = names.twinleaf(d['active'])
+        for b in d.get('bench', []):
+            b['card'] = names.twinleaf(b['card'])
+            if 'energy' in b:
+                b['energy'] = expand_deck(b['energy'])
+    for n in [n for side in ('me', 'opp') for k, v in (sc.get(side) or {}).items() for n in (v if isinstance(v, list) and k != 'bench' else [])]:
+        if n not in cards:
+            sys.exit('scenario: unknown card %s' % n)
+    return sc
+
+
+def scenario_decks(path):
+    decks = [expand_deck(d) for d in json.load(open(path))['decks']]
+    for d in decks:
+        for n in d:
+            if n not in cards:
+                sys.exit('scenario deck: unknown card %s' % n)
+    return decks
+
+
 def is_basic_pokemon(c):
     return c['superType'] == 1 and c['stage'] == 2
 
@@ -128,6 +167,8 @@ def main():
     ap.add_argument('--coverage', action='store_true', help='record V8 block coverage per game and report per card')
     ap.add_argument('--min-games', type=int, default=3)
     ap.add_argument('--scout', type=int, default=0, help='Rust-scout N candidate games; replay the best --games of them')
+    ap.add_argument('--scenario', metavar='JSON',
+                    help='board edits applied at a set turn in every game (oracle scenario.ts); may also give "decks"')
     ap.add_argument('--remote', type=int, default=0, metavar='SHARDS',
                     help='play the oracle games on GitHub Actions across SHARDS runners (tools/remote_oracle.py)')
     args = ap.parse_args()
@@ -156,6 +197,11 @@ def main():
         # heur: board-developing random play (bot speed without look-ahead);
         # one light bot mix keeps some realistic lines.
         spec = {'decks': decks, 'policies': ['heur', 'random', 'heur', 'mix:0.3']}
+        if args.scenario:
+            sc = load_scenario(args.scenario)
+            if sc.pop('decks', None):
+                spec['decks'] = [{'name': '%s-s%d' % (tag, k), 'cards': d} for k, d in enumerate(scenario_decks(args.scenario))]
+            spec['scenario'] = sc
         spec_path = os.path.join(out, 'spec.json.txt')
         json.dump(spec, open(spec_path, 'w'))
         per = (args.games + args.jobs - 1) // args.jobs

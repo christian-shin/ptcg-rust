@@ -204,9 +204,47 @@ reach it. Common cases:
 * Defensive checks the rules make impossible (an attack that can't be paid for
   without Energy checking for no Energy).
 
-Rare but reachable branches (empty deck, empty opposing hand) are not
-exemptions: hunt them with seeds, custom decks or `--scout`, and if they still
-don't run, report the card as partial.
+Rare but reachable branches (empty deck, empty opposing hand, 13 cards of a
+kind in the discard pile) are not exemptions. Don't grind random games for
+them: write a scenario.
+
+### Scenarios
+
+A scenario starts every game from a crafted position: the game runs normally
+from seed and decks, and at the first turn decision on or after `turn` both
+engines apply the same board edits, then play continues and is diffed as
+usual. The trace records the hash right after the edits and `diff` checks it,
+so a scenario can't silently differ between the engines.
+
+```
+python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empty-hand.json --games 12 --coverage
+```
+
+```json
+{
+  "turn": 2,
+  "decks": [["4 Luxray ex TWM", "4 Luxio FST 92", "4 Shinx FST 91", "48 Lightning Energy MEE"], ["..."]],
+  "me":  {"active": "Luxray ex TWM", "active_energy": ["3 Lightning Energy MEE"]},
+  "opp": {"hand_to_deck": true}
+}
+```
+
+* `me` is the player whose turn it is at `turn` (default 2, the first turn
+  that can attack); `opp` is the other player.
+* Per side, applied in this order: `hand_to_deck` (whole hand to the bottom of
+  the deck), `discard` and `hand` (cards moved there), `active` (a Pokémon put on
+  an empty Bench spot and switched in with `switchPokemon`), `active_energy`,
+  `active_damage`, `bench` (`[{"card", "energy", "damage"}]`).
+* Cards are taken from the deck (first from the top), else the hand, so the
+  decks must contain them. `"4 Name"` repeats a card. English keys work.
+* `decks` is optional (default: the usual auto decks). Every deck should hold
+  the scenario's cards, since either player may be `me`.
+* Keep scenarios in `scenarios/` named after the card and branch, and list them
+  in your report.
+
+Implementation: `twinleaf/ptcg-server/src/oracle/scenario.ts` and
+`engine/src/scenario.rs` (keep them identical). If a branch needs an edit that
+doesn't exist yet, add it to both and say so.
 
 Name every corpus directory with your batch prefix (`--tag bNN-...`) so it can't
 collide with other batches. Delete coverage JSONs and `dump/` directories you no

@@ -1363,8 +1363,8 @@
   "note": "batch b06"
  },
  "Luxray ex TWM": {
-  "status": "partial",
-  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 traces; only the opponent-hand-empty return of Piercing Gaze uncovered"
+  "status": "verified",
+  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 random traces + scenario scenarios/luxray-ex-empty-hand.json (12 traces) for the opponent-hand-empty return"
  },
  "Stunfisk M2a": {
   "status": "verified",
