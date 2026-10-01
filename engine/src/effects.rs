@@ -120,6 +120,8 @@ pub enum Effect {
     AfterDamage { b: AtkBase, damage: i32 },
     PutCounters { b: AtkBase, damage: i32 },
     KnockOutOpponent { b: AtkBase, knocked_out: bool, prize_count: i32 },
+    /// `KnockOutPlayerEffect` (KNOCK_OUT_PLAYERS_ACTIVE_POKEMON): the opponent takes the Prizes.
+    KnockOutPlayer { b: AtkBase, knocked_out: bool, prize_count: i32 },
     DiscardCards { b: AtkBase, cards: SVec<CardId, 16> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 16> },
     GustOpponentBench { b: AtkBase },
@@ -226,6 +228,7 @@ impl Effect {
             AfterDamage { .. } => "AFTER_DAMAGE_EFFECT",
             PutCounters { .. } => "PUT_COUNTERS_EFFECT",
             KnockOutOpponent { .. } => "KNOCK_OUT_OPPONENT_EFFECT",
+            KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             GustOpponentBench { .. } => "GUST_OPPONENT_BENCH_EFFECT",
@@ -274,6 +277,7 @@ impl Effect {
             | AfterDamage { b, .. }
             | PutCounters { b, .. }
             | KnockOutOpponent { b, .. }
+            | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | GustOpponentBench { b, .. }
@@ -300,6 +304,7 @@ impl Effect {
             | AfterDamage { b, .. }
             | PutCounters { b, .. }
             | KnockOutOpponent { b, .. }
+            | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | GustOpponentBench { b, .. }
@@ -364,6 +369,7 @@ impl Effect {
             AfterDamage { .. } => 40,
             PutCounters { .. } => 41,
             KnockOutOpponent { .. } => 42,
+            KnockOutPlayer { .. } => 140,
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
             GustOpponentBench { .. } => 45,
@@ -450,6 +456,7 @@ pub mod k {
     pub const AFTER_DAMAGE: u32 = 40;
     pub const PUT_COUNTERS: u32 = 41;
     pub const KNOCK_OUT_OPPONENT: u32 = 42;
+    pub const KNOCK_OUT_PLAYER: u32 = 140;
     pub const DISCARD_CARDS: u32 = 43;
     pub const CARDS_TO_HAND: u32 = 44;
     pub const GUST_OPPONENT_BENCH: u32 = 45;

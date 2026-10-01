@@ -118,7 +118,18 @@ pub struct Slot {
     /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
     pub prevent_effects_of_attacks_next_turn: bool,
     pub prevent_effects_of_attacks_next_turn_pending: bool,
+    /// `nextTurnAttackDamageBonus` / `...Pending` (NEXT_TURN_ATTACK_BONUS).
+    pub next_turn_attack_damage_bonus: Option<NextTurnAttackDamageBonus>,
+    pub next_turn_attack_damage_bonus_pending: Option<NextTurnAttackDamageBonus>,
     pub is_public: bool,
+}
+
+/// `NextTurnAttackDamageBonus { attackName, bonusDamage, sourceCardName }`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct NextTurnAttackDamageBonus {
+    pub attack_name: &'static str,
+    pub bonus_damage: i32,
+    pub source_card_name: &'static str,
 }
 
 /// `PreventDamageFilter` (the modeled keys; `{}` = default).
@@ -186,6 +197,8 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attacker: None,
             prevent_effects_of_attacks_next_turn: false,
             prevent_effects_of_attacks_next_turn_pending: false,
+            next_turn_attack_damage_bonus: None,
+            next_turn_attack_damage_bonus_pending: None,
             is_public: false,
         }
     }

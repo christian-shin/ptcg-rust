@@ -121,6 +121,8 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;
     clear_prevent_next_turn(slot);
+    slot.next_turn_attack_damage_bonus = None;
+    slot.next_turn_attack_damage_bonus_pending = None;
 }
 
 fn is_discard_pile(r: ListRef) -> bool {

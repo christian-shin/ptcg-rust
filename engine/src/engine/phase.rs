@@ -319,6 +319,9 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.prevent_effects_of_attacks_next_turn = true;
             slot.prevent_effects_of_attacks_next_turn_pending = false;
         }
+        // Replace the previous bonus with one armed during this turn, or clear it.
+        slot.next_turn_attack_damage_bonus = slot.next_turn_attack_damage_bonus_pending;
+        slot.next_turn_attack_damage_bonus_pending = None;
     }
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];
