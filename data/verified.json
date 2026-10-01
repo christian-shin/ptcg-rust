@@ -1673,5 +1673,73 @@
  "Skeledirge SSP": {
   "status": "partial",
   "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable"
+ },
+ "Steven's Metang DRI": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Varoom SFA": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Haxorus SFA": {
+  "status": "verified",
+  "note": "batch b08; discard-log lambda unreachable; verified with temporarily generated Axew/Fraxure (now support cards)"
+ },
+ "Haxorus SV11B": {
+  "status": "verified",
+  "note": "batch b08; verified with temporarily generated Axew/Fraxure (now support cards)"
+ },
+ "Salamence ex JTG": {
+  "status": "verified",
+  "note": "batch b08; no-energy return unreachable; Shelgon support card needs a port (c3)"
+ },
+ "Dragonair M2a": {
+  "status": "partial",
+  "note": "batch b08; ability-blocked return unreachable (no lock on [N] Stage 1)"
+ },
+ "Mega Dragonite ex M2a": {
+  "status": "partial",
+  "note": "batch b08; ability-blocked return 0/704 games"
+ },
+ "Eternatus SSP": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Alolan Exeggutor ex SSP": {
+  "status": "verified",
+  "note": "batch b08; blocked.push() no-op and !opponentBench unreachable"
+ },
+ "Mega Latias ex M1S": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Miraidon TEF": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Miraidon ex TEF": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Raging Bolt SCR": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Turtonator SSP": {
+  "status": "verified",
+  "note": "batch b08; Twinleaf bug: Fully Singe tests empty cardTag, attack never does anything; ported as no-op"
+ },
+ "Clefairy M3": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Comfey SCR": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Cresselia SFA": {
+  "status": "verified",
+  "note": "batch b08; chosenPrize===null unreachable"
  }
 }
