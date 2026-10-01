@@ -1605,5 +1605,73 @@
  "Azumarill SSP": {
   "status": "verified",
   "note": "batch b09; L60 ability-probe catch and L65 no-[P]-in-cost unreachable in pool"
+ },
+ "Unown 30C": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Cofagrigus SSP": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Yamask port; re-check now that Yamask PLF 55 is a support card"
+ },
+ "Zacian M2": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Armarouge SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Ceruledge M2": {
+  "status": "partial",
+  "note": "batch b11; \"not exactly 4 selected\" defensive branch"
+ },
+ "Ceruledge SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Charcadet 2 SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Charcadet M2": {
+  "status": "partial",
+  "note": "batch b11; empty-deck throw never ran"
+ },
+ "Charmander M2": {
+  "status": "partial",
+  "note": "batch b11; not-Charmander return and ability-blocked return unreachable"
+ },
+ "Mega Charizard X ex M2": {
+  "status": "partial",
+  "note": "batch b11; null prompt result return unreachable"
+ },
+ "Mega Charizard Y ex MC": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Flareon ex PRE": {
+  "status": "partial",
+  "note": "batch b11; empty-deck return never ran"
+ },
+ "Ethan's Cyndaquil DRI": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+ },
+ "Ethan's Quilava DRI": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+ },
+ "Ethan's Typhlosion DRI": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+ },
+ "Fuecoco SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Skeledirge SSP": {
+  "status": "partial",
+  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable"
  }
 }
