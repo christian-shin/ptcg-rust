@@ -26,6 +26,8 @@ def run(spec_path, out, start=0, count=64, shards=8, cov_files='', tag='run', re
     if len(b64) > 60000:
         sys.exit('spec too large for a workflow input (%d bytes compressed)' % len(b64))
     shards = max(1, min(20, shards, count))
+    # Unique tag: concurrent dispatches (several agents) are told apart by run title.
+    tag = '%s-%s' % (tag, os.urandom(4).hex())
     t0 = time.time()
     gh('workflow', 'run', 'oracle.yml', '--repo', REPO, '--ref', 'main',
        '-f', 'spec_b64=' + b64, '-f', 'start=%d' % start, '-f', 'count=%d' % count,
@@ -33,9 +35,10 @@ def run(spec_path, out, start=0, count=64, shards=8, cov_files='', tag='run', re
     run_id = None
     for _ in range(30):
         time.sleep(3)
-        runs = json.loads(gh('run', 'list', '--repo', REPO, '--workflow', 'oracle.yml', '--limit', '5',
-                             '--json', 'databaseId,createdAt,status'))
-        fresh = [r for r in runs if calendar.timegm(time.strptime(r['createdAt'], '%Y-%m-%dT%H:%M:%SZ')) >= t0 - 5]
+        runs = json.loads(gh('run', 'list', '--repo', REPO, '--workflow', 'oracle.yml', '--limit', '20',
+                             '--json', 'databaseId,createdAt,status,displayTitle'))
+        fresh = [r for r in runs if r.get('displayTitle') == 'oracle ' + tag
+                 and calendar.timegm(time.strptime(r['createdAt'], '%Y-%m-%dT%H:%M:%SZ')) >= t0 - 5]
         if fresh:
             run_id = fresh[0]['databaseId']
             break
