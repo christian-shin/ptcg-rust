@@ -1,0 +1,97 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Luxray ex TWM",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "1 Maximum Belt TEF",
+   "2 Prism Tower M4",
+   "4 Ultra Ball SVI",
+   "41 Lightning Energy MEE"
+  ],
+  [
+   "4 Luxray ex TWM",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "1 Maximum Belt TEF",
+   "2 Prism Tower M4",
+   "4 Ultra Ball SVI",
+   "41 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "deck_top": [
+   "Ultra Ball SVI",
+   "Luxio FST 92"
+  ],
+  "prizes": [
+   "Luxray ex TWM",
+   "Shinx FST 91"
+  ],
+  "stadium": "Prism Tower M4",
+  "active": [
+   "Shinx FST 91",
+   "Luxio FST 92",
+   "Luxray ex TWM"
+  ],
+  "active_energy": [
+   "3 Lightning Energy MEE"
+  ],
+  "active_tool": "Maximum Belt TEF",
+  "active_damage": 40,
+  "active_conditions": [
+   "POISONED",
+   "CONFUSED"
+  ],
+  "active_played": "earlier",
+  "bench": [
+   {
+    "card": "Shinx FST 91",
+    "played": "this_turn"
+   },
+   {
+    "card": [
+     "Shinx FST 91",
+     "Luxio FST 92"
+    ],
+    "energy": [
+     "Lightning Energy MEE"
+    ],
+    "damage": 10
+   }
+  ],
+  "supporter_played": true,
+  "energy_attached": true,
+  "reset": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Luxio FST 92",
+  "active_energy": [
+   "Lightning Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Shinx FST 91",
+    "conditions": [
+     "BURNED"
+    ]
+   }
+  ],
+  "hand": [
+   "2 Lightning Energy MEE"
+  ]
+ },
+ "coins": [
+  true,
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Piercing Gaze"
+  }
+ ]
+}

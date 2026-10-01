@@ -60,18 +60,38 @@ def expand_deck(lines):
 def load_scenario(path):
     """Scenario JSON with every card name mapped to its Twinleaf full name."""
     sc = json.load(open(path))
+    seen = []
+
+    def one(n):
+        t = names.twinleaf(n)
+        seen.append(t)
+        return t
+
+    def many(v):
+        out = expand_deck(v)
+        seen.extend(out)
+        return out
+
+    def stack(v):
+        return one(v) if isinstance(v, str) else many(v)
+
     for side in ('me', 'opp'):
         d = sc.get(side) or {}
-        for k in ('discard', 'hand', 'active_energy'):
+        for k in ('discard', 'hand', 'deck_top', 'prizes', 'active_energy'):
             if k in d:
-                d[k] = expand_deck(d[k])
+                d[k] = many(d[k])
+        for k in ('stadium', 'active_tool'):
+            if k in d:
+                d[k] = one(d[k])
         if 'active' in d:
-            d['active'] = names.twinleaf(d['active'])
+            d['active'] = stack(d['active'])
         for b in d.get('bench', []):
-            b['card'] = names.twinleaf(b['card'])
+            b['card'] = stack(b['card'])
             if 'energy' in b:
-                b['energy'] = expand_deck(b['energy'])
-    for n in [n for side in ('me', 'opp') for k, v in (sc.get(side) or {}).items() for n in (v if isinstance(v, list) and k != 'bench' else [])]:
+                b['energy'] = many(b['energy'])
+            if 'tool' in b:
+                b['tool'] = one(b['tool'])
+    for n in seen:
         if n not in cards:
             sys.exit('scenario: unknown card %s' % n)
     return sc

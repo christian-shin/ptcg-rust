@@ -244,15 +244,39 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
 ```
 
 * `me` is the player whose turn it is at `turn` (default 2, the first turn
-  that can attack); `opp` is the other player.
-* Per side, applied in this order: `hand_to_deck` (whole hand to the bottom of
-  the deck), `discard` and `hand` (cards moved there), `active` (a Pokémon put on
-  an empty Bench spot and switched in with `switchPokemon`), `active_energy`,
-  `active_damage`, `bench` (`[{"card", "energy", "damage"}]`).
+  that can attack); `opp` is the other player. A scenario can describe the
+  whole board: with `reset` it doesn't matter what turn 1 did.
+* Top level: `turn`, `me`, `opp`, `coins` (the next real coin flips, `true` =
+  heads; simulation and legality trials are unaffected), `answers` (the next
+  decisions, in the trace's answer format, e.g. `{"a": "attack", "name":
+  "Piercing Gaze"}`, `{"a": "pass"}`, `{"a": "retreat", "bench": 0}`; prompt
+  answers as recorded in traces), `decks`.
+* Side edits, in this order:
+
+  | Edit | Effect |
+  | --- | --- |
+  | `reset: true` | Done for both players before any other edit: every card the player has (hand, discard, Prizes, Stadium, Bench, Active, attachments) goes back to the deck and every slot is emptied. Needs `active`. Prizes not named in `prizes` are refilled from the top of the deck after all other edits. |
+  | `hand_to_deck: true` | Whole hand to the bottom of the deck |
+  | `discard`, `hand`: `[names]` | Cards moved there |
+  | `deck_top`: `[names]` | Cards moved to the top of the deck, first = top (fixes the next draws) |
+  | `prizes`: `[names]` | Prize i's card goes to the deck, the named card takes its place |
+  | `stadium`: name | Put into play (no Stadium may be in play) |
+  | `active`: name or `[Basic, Stage 1, ...]` | Into the Active Spot (benched and switched in, or placed directly after `reset`) |
+  | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
+  | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
+  | `supporter_played`, `energy_attached`, `retreated`: `true` | This turn's flags |
+
+  `conditions`: `PARALYZED`, `CONFUSED`, `ASLEEP`, `POISONED`, `BURNED`.
+  `played`: `"earlier"` (default; can evolve, as if in play since an earlier
+  turn) or `"this_turn"` (just played: can't evolve yet).
 * Cards are taken from the deck (first from the top), else the hand, so the
   decks must contain them. `"4 Name"` repeats a card. English keys work.
 * `decks` is optional (default: the usual auto decks). Every deck should hold
   the scenario's cards, since either player may be `me`.
+* Effects that last ("during your opponent's next turn...", markers) can't be
+  written as edits: set the board, then use `answers` to play the real attack
+  or Trainer that creates them.
+* Example covering most edits: `scenarios/smoke-full.json`.
 * Keep scenarios in `scenarios/`, one file per card and branch:
   `<card-slug>-<branch>.json` (e.g. `luxray-ex-empty-hand.json`). Tag their
   corpora `<batch>-scen-<card-slug>`.
