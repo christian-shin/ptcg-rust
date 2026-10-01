@@ -1741,5 +1741,61 @@
  "Cresselia SFA": {
   "status": "verified",
   "note": "batch b08; chosenPrize===null unreachable"
+ },
+ "Azumarill ex MC": {
+  "status": "verified",
+  "note": "batch b10 (Codex); Energy Balloon +40/[P] is dead in Twinleaf (compares numeric enums to 'P'; Twinleaf bug, replicated)"
+ },
+ "Marill MC": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Meloetta ex SV11B": {
+  "status": "verified",
+  "note": "batch b10 (Codex); ability-blocked return unreachable in pool"
+ },
+ "Mr. Mime TEF": {
+  "status": "verified",
+  "note": "batch b10 (Codex); Special Condition throw covered by scenarios/mr-mime-look-alike-show-condition.json (12 traces); not-Active throw unreachable (attack only from Active)"
+ },
+ "N's Sigilyph JTG": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Scream Tail ex TWM": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Mega Slowbro ex MEP": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Smoochum SSP": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Spectrier ASC": {
+  "status": "verified",
+  "note": "batch b10 (Codex); empty-targets return unreachable (prompt not cancellable)"
+ },
+ "Spiritomb M5": {
+  "status": "verified",
+  "note": "batch b10 (Codex); Spiritual End quadruple branch covered by scenarios/spiritomb-spiritual-end-quadruple.json (12 traces)"
+ },
+ "Steven's Baltoy DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Steven's Claydol DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Team Rocket's Chingling DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Team Rocket's Wobbuffet DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex); empty-targets return and optional-chaining fallback unreachable"
  }
 }
