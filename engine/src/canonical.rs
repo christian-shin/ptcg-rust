@@ -91,6 +91,8 @@ impl Game {
         if s.prevent_effects_of_attacks_next_turn_pending {
             o.insert("preventEffectsOfAttacksNextTurnPending".into(), json!({}));
         }
+        nd!(no_weakness_next_turn, "noWeaknessNextTurn");
+        nd!(no_weakness_next_turn_pending, "noWeaknessNextTurnPending");
         nd!(discard_attacker_energy_if_ko_next_turn, "discardAttackerEnergyIfKnockedOutNextTurn");
         nd!(discard_attacker_energy_if_ko_next_turn_pending, "discardAttackerEnergyIfKnockedOutNextTurnPending");
         if let Some(a) = s.discard_attacker_energy_if_ko_attack {

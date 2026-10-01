@@ -265,6 +265,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         slot.prevent_damage_filter_pending = Default::default();
         slot.prevent_effects_of_attacks_next_turn = false;
         slot.prevent_effects_of_attacks_next_turn_pending = false;
+        slot.no_weakness_next_turn = false;
         // other next-turn protections: not modeled.
     }
     for s in g.st.players[p].in_play().iter() {
@@ -278,6 +279,10 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.prevent_effects_of_attacks_next_turn_pending {
             slot.prevent_effects_of_attacks_next_turn = true;
             slot.prevent_effects_of_attacks_next_turn_pending = false;
+        }
+        if slot.no_weakness_next_turn_pending {
+            slot.no_weakness_next_turn = true;
+            slot.no_weakness_next_turn_pending = false;
         }
         if slot.discard_attacker_energy_if_ko_next_turn_pending {
             slot.discard_attacker_energy_if_ko_next_turn = true;

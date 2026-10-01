@@ -35,6 +35,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::DISCARD_ATTACKER_ENERGY_IF_KO,
         k::PREVENT_DAMAGE,
         k::PREVENT_EFFECTS_OF_ATTACKS,
+        k::THIS_POKEMON_HAS_NO_WEAKNESS,
     ]),
     reduce,
     resume: None,
