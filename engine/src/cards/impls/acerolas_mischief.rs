@@ -29,6 +29,8 @@ pub static IMPL: CardImpl = CardImpl {
         k::ADD_SPECIAL_CONDITIONS,
         k::REMOVE_SPECIAL_CONDITIONS,
         k::HEAL_TARGET,
+        k::RETALIATE_ON_DAMAGE,
+        k::RETALIATE_DAMAGE,
     ]),
     reduce,
     resume: Some(resume),

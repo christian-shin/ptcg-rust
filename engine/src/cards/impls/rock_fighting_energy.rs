@@ -31,6 +31,8 @@ pub static IMPL: CardImpl = CardImpl {
         k::HEAL_TARGET,
         k::PLAY_LOCK,
         k::PREVENT_RETREAT,
+        k::RETALIATE_ON_DAMAGE,
+        k::RETALIATE_DAMAGE,
     ]),
     reduce,
     resume: None,
