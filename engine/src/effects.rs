@@ -137,6 +137,9 @@ pub enum Effect {
     /// `OpponentPokemonCannotUseAttackEffect` (EffectOfAttackEffect):
     /// `opponent.active.blockedAttackNameNextTurn = name`.
     OpponentPokemonCannotUseAttack { b: AtkBase, name: &'static str },
+    /// `PreventAttackUntilLeavesActiveEffect` (EffectOfAttackEffect):
+    /// `source.blockedAttackNameUntilLeavesActive = name` (source = the attacker's slot).
+    PreventAttackUntilLeavesActive { b: AtkBase, name: &'static str },
     /// `DefendingPokemonTakesMoreDamageDuringAttackerNextTurnEffect`
     /// (EffectOfAttackEffect): arms `defendingPokemonExtraDamage*` on the
     /// opponent's current Active.
@@ -256,6 +259,7 @@ impl Effect {
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
+            PreventAttackUntilLeavesActive { .. } => "EFFECT_OF_ATTACK_EFFECT",
             DefendingPokemonTakesMoreDamage { .. } => "DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_ATTACKER_NEXT_TURN_EFFECT",
             AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
@@ -309,7 +313,7 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
-            OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
             DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
@@ -339,7 +343,7 @@ impl Effect {
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
-            OpponentPokemonCannotUseAttack { b, .. } => Some(b),
+            OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
             DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
@@ -433,6 +437,7 @@ impl Effect {
             PreventEffectsOfAttacks { .. } => 77,
             ThisPokemonHasNoWeakness { .. } => 148,
             OpponentPokemonCannotUseAttack { .. } => 91,
+            PreventAttackUntilLeavesActive { .. } => 188,
             DefendingPokemonTakesMoreDamage { .. } => 130,
             IncreaseAttackCostNextTurn { .. } => 120,
             IncreaseRetreatCostNextTurn { .. } => 121,
@@ -524,6 +529,7 @@ pub mod k {
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
+    pub const PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE: u32 = 188;
     pub const DEFENDING_POKEMON_TAKES_MORE_DAMAGE: u32 = 130;
     pub const INCREASE_ATTACK_COST_NEXT_TURN: u32 = 120;
     pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;

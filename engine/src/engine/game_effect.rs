@@ -89,6 +89,7 @@ pub fn clear_effects(slot: &mut Slot) {
     slot.cannot_use_attacks_next_turn_pending.clear();
     slot.attack_damage_reduction_next_turn = 0;
     slot.blocked_attack_name_next_turn = None;
+    slot.blocked_attack_name_until_leaves_active = None;
     clear_prevent_next_turn(slot);
 }
 
@@ -123,6 +124,7 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.cannot_use_attacks_next_turn_pending.clear();
     slot.attack_damage_reduction_next_turn = 0;
     slot.blocked_attack_name_next_turn = None;
+    slot.blocked_attack_name_until_leaves_active = None;
     slot.damage_reduction_next_turn = 0;
     slot.cannot_be_healed_next_turn = false;
     slot.healed_this_turn = false;

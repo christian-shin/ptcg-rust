@@ -94,6 +94,9 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     if g.st.slot(p, attacking.s).blocked_attack_name_next_turn == Some(ad.name) {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
+    if g.st.slot(p, attacking.s).blocked_attack_name_until_leaves_active == Some(ad.name) {
+        crate::bail!("CANNOT_USE_ATTACK");
+    }
     // cannotAttackMaxEnergy / other blocked attack names /
     // cannotUseAttackUntilLeavesPlay / cannotUseGXAttacks /
     // coinFlipCancelAttackNextTurn: not modeled.
@@ -650,6 +653,10 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let o = b.opponent as usize;
             let a = g.st.players[o].active;
             g.st.players[o].slots[a as usize].blocked_attack_name_next_turn = Some(name);
+            Ok(())
+        }
+        Effect::PreventAttackUntilLeavesActive { b, name } => {
+            g.st.players[b.source.p as usize].slots[b.source.s as usize].blocked_attack_name_until_leaves_active = Some(name);
             Ok(())
         }
         Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus } => {

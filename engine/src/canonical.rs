@@ -132,6 +132,9 @@ impl Game {
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
         }
+        if let Some(n) = s.blocked_attack_name_until_leaves_active {
+            o.insert("blockedAttackNameUntilLeavesActive".into(), json!(n));
+        }
         if let Some(b) = s.next_turn_attack_damage_bonus {
             o.insert("nextTurnAttackDamageBonus".into(), next_turn_bonus_json(&b));
         }
