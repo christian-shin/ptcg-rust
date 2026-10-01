@@ -116,6 +116,12 @@ impl Game {
         if let Some(n) = s.blocked_attack_name_next_turn {
             o.insert("blockedAttackNameNextTurn".into(), json!(n));
         }
+        if let Some(b) = s.next_turn_attack_damage_bonus {
+            o.insert("nextTurnAttackDamageBonus".into(), next_turn_bonus_json(&b));
+        }
+        if let Some(b) = s.next_turn_attack_damage_bonus_pending {
+            o.insert("nextTurnAttackDamageBonusPending".into(), next_turn_bonus_json(&b));
+        }
         if !s.board_effect.is_empty() {
             o.insert("boardEffect".into(), json!(s.board_effect.as_slice()));
         }
@@ -384,4 +390,8 @@ fn prevent_filter_json(f: &crate::state::PreventFilter) -> Value {
         o.insert("sourceCardTypes".into(), json!(ts.as_slice()));
     }
     Value::Object(o)
+}
+
+fn next_turn_bonus_json(b: &crate::state::NextTurnAttackDamageBonus) -> Value {
+    json!({ "attackName": b.attack_name, "bonusDamage": b.bonus_damage, "sourceCardName": b.source_card_name })
 }

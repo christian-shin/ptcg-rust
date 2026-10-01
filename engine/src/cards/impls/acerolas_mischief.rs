@@ -21,6 +21,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::AFTER_DAMAGE,
         k::PUT_COUNTERS,
         k::KNOCK_OUT_OPPONENT,
+        k::KNOCK_OUT_PLAYER,
         k::DISCARD_CARDS,
         k::CARDS_TO_HAND,
         k::GUST_OPPONENT_BENCH,

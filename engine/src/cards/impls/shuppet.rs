@@ -23,6 +23,7 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 24] = [
     k::AFTER_DAMAGE,
     k::PUT_COUNTERS,
     k::KNOCK_OUT_OPPONENT,
+    k::KNOCK_OUT_PLAYER,
     k::DISCARD_CARDS,
     k::CARDS_TO_HAND,
     k::GUST_OPPONENT_BENCH,
