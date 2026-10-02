@@ -570,23 +570,30 @@ impl Game {
                     self.run_fx(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
                     return Ok(());
                 }
-                // Reflip offers (stadium/tool) are applied by those cards' handlers.
-                let fin = self.coin_callbacks.as_slice()[callback as usize];
-                match fin {
-                    CoinCb::SequenceCard { card, mut frame } => {
-                        frame.a[2] = results as i32;
-                        frame.a[3] = n as i32;
-                        cards::resume(self, card, frame, &[])
-                    }
-                    CoinCb::DelegSequenceCard { card, source, serial, mut frame } => {
-                        frame.a[2] = results as i32;
-                        frame.a[3] = n as i32;
-                        crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None)
-                    }
-                    other => self.run_coin_cb(other, result),
-                }
+                // Reflip offers (stadium/tool) are applied by those cards' handlers
+                // (a card that wraps the final callback, e.g. Backtrack Badge).
+                self.finish_coin_sequence(callback, results, n, result)
             }
             CoinCb::SequenceCard { card, frame } => cards::resume(self, card, frame, &[]),
+        }
+    }
+
+    /// The final step of a coin flip sequence: runs coin callback `callback`
+    /// with the results (bit i = flip i heads), the flip count and the last flip.
+    pub fn finish_coin_sequence(&mut self, callback: u8, results: u32, n: u8, result: bool) -> R {
+        let fin = self.coin_callbacks.as_slice()[callback as usize];
+        match fin {
+            CoinCb::SequenceCard { card, mut frame } => {
+                frame.a[2] = results as i32;
+                frame.a[3] = n as i32;
+                cards::resume(self, card, frame, &[])
+            }
+            CoinCb::DelegSequenceCard { card, source, serial, mut frame } => {
+                frame.a[2] = results as i32;
+                frame.a[3] = n as i32;
+                crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None)
+            }
+            other => self.run_coin_cb(other, result),
         }
     }
 
