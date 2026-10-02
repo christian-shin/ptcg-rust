@@ -1,0 +1,37 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Togekiss ASC 82",
+      "4 Tynamo ASC 59",
+      "52 Fighting Energy MEE"
+    ],
+    [
+      "4 Togekiss ASC 82",
+      "4 Tynamo ASC 59",
+      "52 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Togekiss ASC 82",
+    "active_energy": [
+      "3 Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Tynamo ASC 59",
+    "bench": [
+      {
+        "card": "Tynamo ASC 59"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Speed Wing"
+    }
+  ]
+}

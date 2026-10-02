@@ -3,7 +3,7 @@
 //! Twinleaf: a HealTargetEffect(effect, 10) targeting the player's Active.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Tynamo@BLK", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Tynamo@BLK|ASC", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 /// `new HealTargetEffect(effect, amount)` with `target = player.active`.
 pub fn heal_own_active(g: &mut Game, e: EffId, amount: i32) -> R {

@@ -1,0 +1,39 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Mega Diancie ex ASC 267",
+      "4 Iron Thorns ex PRE 32",
+      "48 Lightning Energy MEE",
+      "4 Hop's Snorlax JTG 117"
+    ],
+    [
+      "4 Mega Diancie ex ASC 267",
+      "4 Iron Thorns ex PRE 32",
+      "48 Lightning Energy MEE",
+      "4 Hop's Snorlax JTG 117"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_energy": [
+      "3 Lightning Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Mega Diancie ex ASC 267",
+    "bench": [
+      {
+        "card": "Hop's Snorlax JTG 117"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Volt Cyclone"
+    }
+  ]
+}

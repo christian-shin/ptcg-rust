@@ -123,6 +123,11 @@ Same for new effect classes (`effects.rs`: variant + `type_name` + `kind` + a
 `k::` constant) and prompt kinds (`prompts.rs`: kind, descriptor, decode/validate
 matching `oracle/options.ts` `describePrompt` and the TS prompt's `validate`).
 
+Fixed-size arrays in core types can overflow in degenerate stalled games (for
+example `EnergyMap = SVec<EnergyEntry, 32>` with 33 Energy attached to one
+Pokémon after ~100 turns of Tynamo's Hold Still: `SVec<32> overflow` panic in
+`diff`). Scenarios whose Pokémon can only heal should give `me` an attacker.
+
 Keep core edits additive and minimal: other porters are editing the same files
 in parallel on other branches.
 
@@ -218,13 +223,24 @@ is a real gap: add seeds (`--seed`) or a custom spec, or hunt it with
 varied target-heavy ones in the oracle). Coverage line numbers can refer to
 the compiled JavaScript rather than the TypeScript source; match the reported
 statement, not just the number.
+`python3 tools/coverage.py corpus/cards/<tag>/cov <twinleaf file.ts> --min 1000`
+prints every segment with its game count (the default only lists those under
+3), which is how to paste the line for a branch that is covered. V8 only
+reports a range where its count differs from the enclosing one, so a guard's
+own `{ return state; }` may not appear as a segment: then the evidence is the
+guard's segment at N games with the code after it at 0. Legality trials run
+card code too: a `throw` that guards a repeated action (POWER_ALREADY_USED) is
+covered by any game where the action stays offered after being used.
 
 A branch is an exemption candidate only when no game with the current pool can
 reach it. Common cases:
 
 * Ability-blocked returns when no ported card can lock that Pokémon in that
   position (the pool's locks are narrow: e.g. Team Rocket's Watchtower hits
-  [C], Gastrodon hits Benched Stage 2).
+  [C], Gastrodon hits Benched Stage 2). Iron Thorns ex in the Active Spot
+  locks every Rule Box Pokémon (ex, Mega ex, ...) except Future ones, so those
+  are reachable: use a scenario with Iron Thorns ex Active (see
+  `scenarios/mega-diancie-iron-thorns-lock.json`).
 * Empty or null prompt results on prompts that can't be cancelled (min ≥ 1).
 * Defensive checks the rules make impossible (an attack that can't be paid for
   without Energy checking for no Energy).
