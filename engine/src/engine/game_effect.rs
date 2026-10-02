@@ -111,6 +111,8 @@ fn clear_prevent_next_turn(slot: &mut Slot) {
     slot.defending_extra_damage_attacker = None;
     slot.defending_extra_damage_pending = false;
     slot.defending_extra_damage_rearm_after_attack = false;
+    slot.retaliate_on_damage_next_turn = None;
+    slot.retaliate_on_damage_next_turn_pending = None;
 }
 
 /// `PokemonCardList.removeAttackEffects()` for the modeled fields.
