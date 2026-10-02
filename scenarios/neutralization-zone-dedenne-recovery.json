@@ -1,0 +1,40 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Dedenne SSP 87",
+      "4 Hop's Snorlax JTG 117",
+      "1 Neutralization Zone SFA",
+      "51 Fighting Energy MEE"
+    ],
+    [
+      "4 Dedenne SSP 87",
+      "4 Hop's Snorlax JTG 117",
+      "1 Neutralization Zone SFA",
+      "51 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Dedenne SSP",
+    "active_energy": [
+      "Fighting Energy MEE"
+    ],
+    "discard": [
+      "Neutralization Zone SFA"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Electromagnetic Sonar"
+    },
+    [
+      0
+    ]
+  ]
+}

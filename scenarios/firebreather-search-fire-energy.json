@@ -1,0 +1,33 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Hop's Snorlax JTG 117",
+      "4 Firebreather PFL 89",
+      "52 Fire Energy MEE 2"
+    ],
+    [
+      "4 Hop's Snorlax JTG 117",
+      "4 Firebreather PFL 89",
+      "52 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG",
+    "hand": ["Firebreather PFL"],
+    "deck_top": [
+      "Fire Energy MEE",
+      "Fire Energy MEE",
+      "Fire Energy MEE",
+      "Fire Energy MEE",
+      "Fire Energy MEE",
+      "Fire Energy MEE",
+      "Fire Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG"
+  }
+}

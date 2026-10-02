@@ -212,6 +212,12 @@ reach it. Common cases:
 * Defensive checks the rules make impossible (an attack that can't be paid for
   without Energy checking for no Energy).
 
+Check the actual shape of card-selection effects before exempting a filter or
+removal branch. Dedenne SSP's Electromagnetic Sonar can recover any Trainer
+from the discard pile, including Neutralization Zone; its explicit selected
+cards list reaches Neutralization Zone's stadium-removal filter. Narrower
+recovery paths do not make that branch unreachable.
+
 Rare but reachable branches (empty deck, empty opposing hand, 13 cards of a
 kind in the discard pile) are not exemptions, and you own them: write a
 scenario for each (below). Don't grind random games or `--scout` runs for a
