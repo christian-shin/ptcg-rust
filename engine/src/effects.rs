@@ -38,7 +38,8 @@ pub struct EnergyEntry {
     pub provides: SVec<CardType, 4>,
 }
 
-pub type EnergyMap = SVec<EnergyEntry, 32>;
+/// 64: a long stall can pile more than 32 Energy on one Pokémon (Twinleaf has no cap; a deck holds 60 cards).
+pub type EnergyMap = SVec<EnergyEntry, 64>;
 /// Room for Rillaboom (TWM) mirrors: every copy in the game adds a [C].
 pub type Cost = SVec<CardType, 16>;
 
