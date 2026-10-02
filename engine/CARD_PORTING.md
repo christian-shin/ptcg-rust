@@ -136,6 +136,14 @@ Milotic ex and Skeledirge. If you add an attack effect kind, add it to each of
 those lists, or those cards silently ignore the effect. Use only the effect kind
 numbers your batch was given.
 
+Per-card runtime writes also reach the oracle hash: any Twinleaf write to a
+card object's own fields (e.g. `effect.attack.shredAttack = true`) shows up
+in the canonical `cards` entry (the whole `attacks` array). Model it on
+`CardInst` and emit it in `canonical.rs` (see `attack_shred`). Scenario traces
+can't be replayed with `cli.js state` (it ignores the scenario); use a small
+node script that passes `scenario: trace.header.scenario` to `GameRunner`.
+`canPlay` of Supporters is never reached with `supporterTurn > 0` by the oracle.
+
 ### Reprints and pins
 
 Reprints are the same card. Twinleaf usually writes a reprint as a subclass
