@@ -1929,5 +1929,105 @@
  "Hassel TWM": {
   "status": "verified",
   "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Hop's Phantump ASC": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Hop's Trevenant ASC": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Team Rocket's Houndoom DRI": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Ethan's Sudowoodo DRI": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); COPY_OPPONENT_ACTIVE_ATTACK_WITH_RETRY (maxRetries) added to copy_attack.rs"
+ },
+ "Team Rocket's Bother-Bot DRI": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); uses main's prize_face_up/prize_public"
+ },
+ "Lt. Surge's Bargain MEG": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Bolty [L] Energy M5": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); special-energy-blocked return unreachable (no pool blocker)"
+ },
+ "Grow [G] Energy M3": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); special-energy-blocked return unreachable (no pool blocker)"
+ },
+ "Ogre's Mask PRE": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Fidough SCR": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Zacian ex SVP": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Iron Boulder ex TEF": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); uses main's RetaliateOnDamage/RetaliateDamage (172/173)"
+ },
+ "Iron Treads TEF": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); ability-blocked return unreachable (no pool lock reaches Basic Metal/Fighting Iron Treads)"
+ },
+ "Lucian TWM": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Team Rocket's Mimikyu ASC": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Galarian Obstagoon ASC": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Petilil BLK": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Amoongus SV11B": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Gurdurr BLK": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Dhelmise JTG": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Chi-Yu MEG": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Shroodle MEG": {
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified)"
+ },
+ "Thick Scale ASC": {
+  "status": "partial",
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)"
+ },
+ "Payapa Berry SCR": {
+  "status": "partial",
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)"
+ },
+ "Babiri Berry SSP": {
+  "status": "partial",
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)"
  }
 }
