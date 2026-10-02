@@ -2591,5 +2591,45 @@
   "status": "partial",
   "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
   "twinleaf": "Babiri Berry SSP"
+ },
+ "Larry's Skill PRE 115": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); canPlay false is UI-only",
+  "twinleaf": "Larry's Skill PRE"
+ },
+ "Philippe CRI 79": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); canPlay, empty and non-[M] prompt results unreachable",
+  "twinleaf": "Philippe M4"
+ },
+ "Heavy Baton TEF 151": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); tool-blocked, marker-present and redundant tools.includes returns unreachable",
+  "twinleaf": "Heavy Baton PAR"
+ },
+ "Survival Brace TWM 164": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); tool-blocked half of the early return unreachable",
+  "twinleaf": "Survival Brace TWM"
+ },
+ "Counter Gain ASC 186": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); ToolEffect-stub catch unreachable (no pool card throws on ToolEffect)",
+  "twinleaf": "Counter Gain ASC"
+ },
+ "Mystery Garden ASC 194": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms)",
+  "twinleaf": "Mystery Garden ASC"
+ },
+ "Iron Thorns ex PRE 32": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); Future-target, no-list and Initialization-blocked returns unreachable; Kieran switch scenario covers the lock counters",
+  "twinleaf": "Iron Thorns ex PRE"
+ },
+ "Ethan's Ho-Oh ex ASC 26": {
+  "status": "verified",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); findCardList undefined check unreachable",
+  "twinleaf": "Ethan's Ho-Oh ex ASC"
  }
 }
