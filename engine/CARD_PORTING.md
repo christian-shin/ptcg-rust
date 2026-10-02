@@ -124,14 +124,22 @@ ex. If you add an attack effect kind, add it to each of those lists, or those
 cards silently ignore your attack. Use only the effect kind numbers your batch
 was given.
 
-### Same class name, different file
+### Reprints and pins
 
-Twinleaf sometimes has two classes with the same name in different files
-(`Judge` in FST and SVI). A port binds every printing whose behavior class has
-its name unless pinned: `class: "Class@SET"`, `"Class@Full Name"`, or several
-with `"Class@A|B"` (`class_matches` in `engine/src/cards/mod.rs`). Compare the
-two source files: if the logic is the same, widen the existing pin; otherwise
-write a separate port pinned to the new printing.
+Reprints are the same card. Twinleaf usually writes a reprint as a subclass
+with no logic of its own (`class PalafinexSAR extends Palafinex`), and
+`CardDef::behavior` resolves every printing to the class that holds the
+logic, so **one unpinned port covers every printing**. Port the logic class
+once, unpinned, and test it with whichever printing is in the pool.
+
+Pin a port (`class: "Class@SET"`, `"Class@Full Name"`, `"Class@A|B"`; see
+`class_matches` in `engine/src/cards/mod.rs`) only when Twinleaf defines that
+class name in more than one file (`grep -rn "export class Judge\b"
+twinleaf/ptcg-server/src/sets`): those are different cards that share a name
+(`Judge` in FST and SVI). Compare the files: if the logic is the same, widen
+the existing pin to both printings; otherwise write a separate port pinned to
+the new printing. `python3 tools/check_pins.py` fails on any pin whose class
+is defined only once; run it before committing.
 
 ### Pre-evolutions outside the pool
 
