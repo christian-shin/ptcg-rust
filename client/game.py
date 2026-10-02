@@ -431,6 +431,10 @@ class GameSession:
                 if o["type"] == 7 and o["serial"] is not None:
                     self._just_played = {self.serials.get(o["serial"])}
                 return self._describe_option(sel, o, who)
+            if sel["context"] == 38 and self.state["phase"] <= 1 and opts:
+                # Only a player whose opponent mulliganed is offered extra draws.
+                self.say("opp" if who == ME else "you", "Mulligan", "info")
+                return "Draw +%s" % opts[0]["number"]
             if sel["context"] in (13, 41):
                 return None  # damage lines / the turn header say it
             if opts and all(o["area"] == 6 for o in opts):
@@ -454,6 +458,8 @@ class GameSession:
                 for n in names:
                     cnt[n] = cnt.get(n, 0) + 1
                 names = ["%s ×%d" % (n, c) if c > 1 else n for n, c in cnt.items()]
+            if len(names) > 4:
+                return "%s: %d" % (ctx, len(opts))
             return "%s: %s" % (ctx, ", ".join(names))
         except Exception:  # noqa: BLE001 (never let logging break a game)
             return None

@@ -224,6 +224,7 @@ function rangeText(ch, n) { return n + "/" + ch.max + (ch.min > 0 && ch.min < ch
 function titleOf(ch) {
   if (promptSrc && ch.options.length && ch.options.every((o) => o.kind === 1 || o.kind === 2) && ![41, 42, 43].includes(ch.context)) return promptSrc + "?";
   if (ch.options.length && ch.options.every((o) => o.area === 6)) return "Prize";
+  if (!S.you.active && ch.options.length && ch.options.every((o) => o.area === 5 && optPlayer(o) === ME && o.inPlayArea === null)) return "New Active";
   const t = { 1: S.you.active ? "Choose Bench" : "Choose Active", 2: "Choose Bench" }[ch.context];
   return t || ch.title || ch.contextName;
 }
@@ -828,7 +829,7 @@ async function openNewGame(first) {
   const mk = (sel) => h("select", {}, d.decks.map((x) => h("option", { value: x.id, selected: x.id === sel }, x.name)));
   const a = mk(lastDecks.a || "dragapult-ex"), b = mk(lastDecks.b || "raging-bolt-ex");
   const seed = h("input", { type: "number", placeholder: "random", style: "width:110px" });
-  const bot = h("select", { style: "width:auto" }, d.bots.map((x) => h("option", { value: x, text: x, selected: x === lastDecks.bot })));
+  const bot = h("select", { style: "width:auto" }, d.bots.map((x) => h("option", { value: x, text: x, selected: x === (lastDecks.bot || d.defaultBot || "greedy") })));
   const la = h("div", { class: "dl" }), lb = h("div", { class: "dl" });
   const fill = async (sel, box) => {
     const r = await api("/api/deck?id=" + encodeURIComponent(sel.value));

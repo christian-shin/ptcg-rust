@@ -32,7 +32,7 @@ MIME = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=ut
 class App:
     """One game at a time, guarded by a lock."""
 
-    def __init__(self, default_bot="random"):
+    def __init__(self, default_bot="greedy"):
         self.lock = threading.Lock()
         self.cards = game.CardDB()
         self.session = None
@@ -76,7 +76,7 @@ def make_handler(app):
             q = parse_qs(u.query)
             try:
                 if u.path == "/api/decks":
-                    return self._send(200, {"decks": game.list_decks(), "bots": sorted(POLICIES)})
+                    return self._send(200, {"decks": game.list_decks(), "bots": sorted(POLICIES), "defaultBot": app.default_bot})
                 if u.path == "/api/deck":
                     return self._send(200, {"cards": game.deck_listing(q["id"][0], app.cards)})
                 if u.path == "/api/state":
@@ -127,7 +127,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--host", default="127.0.0.1")
-    ap.add_argument("--bot", default="random", choices=sorted(POLICIES))
+    ap.add_argument("--bot", default="greedy", choices=sorted(POLICIES))
     a = ap.parse_args()
     app = App(a.bot)
     srv = ThreadingHTTPServer((a.host, a.port), make_handler(app))

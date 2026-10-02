@@ -108,7 +108,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .flag.used { color: var(--dim); border-color: var(--line); text-decoration: line-through; opacity: .6; }
 .stadium-zone { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .stadium-zone .slot-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
-.stadium-zone .card { width: var(--cw); height: var(--ch); transform: rotate(90deg) scale(.86); margin: calc(var(--ch) * -.12) 0; }
+.stadium-zone .card { width: var(--cw); height: var(--ch); transform: rotate(90deg) scale(.86); margin: calc(var(--ch) * -.1) calc(var(--ch) * .08); }
 .stadium-zone.yours .card { box-shadow: 0 0 0 2px var(--you); }
 .stadium-zone.theirs .card { box-shadow: 0 0 0 2px var(--opp); }
 .stadium-zone .card.click { cursor: pointer; box-shadow: 0 0 0 3px var(--ok); }
@@ -282,7 +282,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .ng .lbl { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); display: flex; gap: 6px; align-items: center; }
 .ng select, .mbox input { background: #0a1520; color: var(--ink); border: 1px solid var(--line2); border-radius: 8px; padding: 7px 9px; font: inherit; }
 .ng select { width: 100%; font-weight: 700; font-size: 14px; }
-.dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; max-height: 46vh; overflow: auto; padding: 4px 6px 4px 0; }
+.dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; height: 46vh; align-content: start; overflow: auto; padding: 4px 6px 4px 0; }
 .dl .di { position: relative; }
 .dl .di .card { width: 100%; height: auto; aspect-ratio: .716; font-size: 6px; }
 .dl .di b { position: absolute; right: -3px; bottom: -3px; background: #e03131; color: #fff; font-size: 11px; border-radius: 9px; min-width: 18px; height: 18px; display: grid; place-items: center; padding: 0 4px; }
