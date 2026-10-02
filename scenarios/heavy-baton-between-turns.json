@@ -1,0 +1,22 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Ethan's Ho-Oh ex ASC 26", "4 Iron Thorns ex PRE 32", "4 Heavy Baton TEF 151", "48 Lightning Energy MEE 4"],
+    ["4 Ethan's Ho-Oh ex ASC 26", "4 Iron Thorns ex PRE 32", "4 Heavy Baton TEF 151", "48 Lightning Energy MEE 4"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_tool": "Heavy Baton TEF 151",
+    "active_energy": ["3 Lightning Energy MEE 4"],
+    "active_damage": 220,
+    "active_conditions": ["POISONED"],
+    "bench": [{"card": "Ethan's Ho-Oh ex ASC 26"}]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Ethan's Ho-Oh ex ASC 26",
+    "bench": [{"card": "Iron Thorns ex PRE 32"}]
+  },
+  "answers": [{"a": "pass"}]
+}

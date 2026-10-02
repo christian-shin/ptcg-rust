@@ -7,7 +7,7 @@
 //! marked player also get +30). Without a Benched Pokémon the switch option
 //! is removed from the SelectPrompt.
 use crate::cards::prelude::*;
-use crate::engine::turn::switch_pokemon;
+use crate::engine::turn::switch_pokemon_silent;
 use crate::marker;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -107,7 +107,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Some(t) => *t,
                 None => bail!("TypeError: result[0]"),
             };
-            switch_pokemon(g, p, t.s)?;
+            switch_pokemon_silent(g, p, t.s)?;
             Ok(())
         }
         _ => Ok(()),

@@ -1,0 +1,18 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Iron Thorns ex PRE 32", "4 Budew ASC 16", "52 Lightning Energy MEE 4"],
+    ["4 Iron Thorns ex PRE 32", "4 Budew ASC 16", "52 Lightning Energy MEE 4"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_energy": ["3 Lightning Energy MEE 4"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Budew ASC 16",
+    "bench": [{"card": "Budew ASC 16"}]
+  },
+  "answers": [{"a": "attack", "name": "Volt Cyclone"}]
+}

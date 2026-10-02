@@ -1,7 +1,7 @@
 //! Pokémon Catcher (SSH): flip a coin; if heads, switch 1 of your
 //! opponent's Benched Pokémon with their Active Pokémon.
 use crate::cards::prelude::*;
-use crate::engine::turn::switch_pokemon;
+use crate::engine::turn::switch_pokemon_silent;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "PokemonCatcher@SSH",
@@ -54,7 +54,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     let o = 1 - f.a[0] as usize;
     let first = results.first().copied().unwrap_or(Res::Null);
     if let Some(t) = first.slots().first().copied() {
-        switch_pokemon(g, o, t.s)?;
+        switch_pokemon_silent(g, o, t.s)?;
     }
     Ok(())
 }

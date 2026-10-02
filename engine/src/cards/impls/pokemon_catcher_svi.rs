@@ -4,7 +4,7 @@
 //! Twinleaf (scarlet-and-violet file): as the SSH port, but the
 //! TrainerEffect is marked `preventDefault` after the bench check.
 use crate::cards::prelude::*;
-use crate::engine::turn::switch_pokemon;
+use crate::engine::turn::switch_pokemon_silent;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "PokemonCatcher@POR",
@@ -58,7 +58,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     let o = 1 - f.a[0] as usize;
     let first = results.first().copied().unwrap_or(Res::Null);
     if let Some(t) = first.slots().first().copied() {
-        switch_pokemon(g, o, t.s)?;
+        switch_pokemon_silent(g, o, t.s)?;
     }
     Ok(())
 }

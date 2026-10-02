@@ -5,7 +5,7 @@
 //! Twinleaf: with an empty opposing Bench the play fails (undefined state).
 use crate::cards::prelude::*;
 use crate::engine::game_effect::clear_effects;
-use crate::engine::turn::switch_pokemon;
+use crate::engine::turn::switch_pokemon_silent;
 
 pub static IMPL: CardImpl = CardImpl { class: "PrimeCatcher", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
@@ -55,7 +55,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let a = g.st.players[o].active;
             clear_effects(&mut g.st.players[o].slots[a as usize]);
             if t.p as usize == o {
-                switch_pokemon(g, o, t.s)?;
+                switch_pokemon_silent(g, o, t.s)?;
             }
             if !has_bench(g, p) {
                 return Ok(());
@@ -67,7 +67,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let a = g.st.players[p].active;
             clear_effects(&mut g.st.players[p].slots[a as usize]);
             if t.p as usize == p {
-                switch_pokemon(g, p, t.s)?;
+                switch_pokemon_silent(g, p, t.s)?;
             }
             Ok(())
         }

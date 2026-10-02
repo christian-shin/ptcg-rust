@@ -55,7 +55,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Some(t) => t,
                 None => bail!("TypeError: Cannot read properties of undefined"),
             };
-            crate::engine::turn::switch_pokemon(g, o, t.s)?;
+            crate::engine::turn::switch_pokemon_silent(g, o, t.s)?;
             Ok(())
         }
         _ => Ok(()),
