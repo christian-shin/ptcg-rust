@@ -1655,16 +1655,16 @@
   "note": "batch b11; empty-deck return never ran"
  },
  "Ethan's Cyndaquil DRI": {
-  "status": "partial",
-  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+  "status": "verified",
+  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)"
  },
  "Ethan's Quilava DRI": {
-  "status": "partial",
-  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+  "status": "verified",
+  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)"
  },
  "Ethan's Typhlosion DRI": {
-  "status": "partial",
-  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+  "status": "verified",
+  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)"
  },
  "Fuecoco SSP": {
   "status": "verified",
@@ -1672,7 +1672,7 @@
  },
  "Skeledirge SSP": {
   "status": "partial",
-  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable"
+  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable; b13 completed its all-attack-effects mask (retaliation and 5 other kinds were missing)"
  },
  "Steven's Metang DRI": {
   "status": "verified",
@@ -1797,5 +1797,137 @@
  "Team Rocket's Wobbuffet DRI": {
   "status": "verified",
   "note": "batch b10 (Codex); empty-targets return and optional-chaining fallback unreachable"
+ },
+ "Crabominable SCR": {
+  "status": "partial",
+  "note": "batch b13 (Sonnet port, luna verified); Kofu discount (L56) needs Kofu (b17): re-run scenarios/crabominable-kofu-discount.json after b17; Food Prep lock-probe catch unreachable"
+ },
+ "Feebas SSP": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Feebas TWM": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Milotic ex SSP": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified); Tera prevention scenario-covered; not-Active/self-damage/non-attack-phase guard returns ported line-for-line (not counted in review rerun); PutDamage Tera body pre-empted by the AbstractAttackEffect handler"
+ },
+ "Finizen TWM": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Palafin TEF": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Palafin TWM": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified); once-per-turn marker covered after review fixed the scenario to Switch 30C; lock-probe catch unreachable"
+ },
+ "Froakie M4": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Froakie TWM": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified); over-cap clamp unreachable (prompt caps selection)"
+ },
+ "Mega Greninja ex M4": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified); no-opponent-Pokémon error unreachable"
+ },
+ "Mega Froslass ex M2a": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Snorunt TWM": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Walrein SSP": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Mega Starmie ex M3": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Croconaw TEF": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Feraligatr TEF": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Totodile TEF": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Walking Wake TWM": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified)"
+ },
+ "Palafin exSAR PRE": {
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified); reprint of Palafinex (unpinned); fetched by Palafin TWM scenario"
+ },
+ "Neutralization Zone SFA": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified); count-based and implicit-all removal unreachable (pool callers pass explicit card lists); stadium-blocked return unreachable"
+ },
+ "Night Mine M2a": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)"
+ },
+ "Perilous Jungle TEF": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)"
+ },
+ "Postwick JTG": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)"
+ },
+ "AZ's Tranquility M4": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Canari M2a": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Cassiopeia SFA": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Colress's Tenacity SFA": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Ethan's Adventure DRI": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Fennel SV11B": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Firebreather M2": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Grimsley's Gambit M2": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Harlequin WHT": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
+ },
+ "Hassel TWM": {
+  "status": "verified",
+  "note": "batch b16 (Sonnet port, luna verified)"
  }
 }
