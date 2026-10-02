@@ -1,0 +1,20 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Dhelmise TEF 19", "4 Beldum TEF 113", "52 Grass Energy MEE"],
+    ["4 Dhelmise TEF 19", "4 Beldum TEF 113", "52 Grass Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Dhelmise TEF 19",
+    "active_energy": ["3 Grass Energy MEE"],
+    "bench": [{"card": "Beldum TEF 113"}, {"card": "Beldum TEF 113"}]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dhelmise TEF 19"
+  },
+  "answers": [
+    {"a": "attack", "name": "Steel Anchor"}
+  ]
+}

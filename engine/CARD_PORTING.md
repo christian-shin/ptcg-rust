@@ -229,6 +229,15 @@ reach it. Common cases:
 * Defensive checks the rules make impossible (an attack that can't be paid for
   without Energy checking for no Energy).
 
+An ability's own `IS_ABILITY_BLOCKED` throw (`BLOCKED_BY_EFFECT`) is not
+reachable through a lock that strips the power: `UseAbilityAction` first runs a
+`CheckPokemonPowersEffect`, and a remove-mode lock (Gastrodon, Watchtower, Iron
+Thorns) removes the power there (`UNKNOWN_POWER`) before the `PowerEffect` ever
+exists, so a Chandelure under Gastrodon never reaches its own check. Callbacks
+of such locks that return early for a card that is "not in a Pokémon slot" can
+be reached with Salvatore (it dispatches `CheckPokemonPowersEffect` for deck
+cards) or Team Rocket's Arbok (for the card still in hand).
+
 Check the actual shape of card-selection effects before exempting a filter or
 removal branch. Dedenne SSP's Electromagnetic Sonar can recover any Trainer
 from the discard pile, including Neutralization Zone; its explicit selected

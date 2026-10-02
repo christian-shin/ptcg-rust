@@ -1,0 +1,17 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Psyduck ASC 39", "4 Golduck ASC 40", "4 Salvatore TEF 160", "48 Water Energy MEE"],
+    ["4 Psyduck ASC 39", "4 Golduck ASC 40", "4 Salvatore TEF 160", "48 Water Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Psyduck ASC 39",
+    "bench": [{"card": ["Psyduck ASC 39", "Golduck ASC 40"]}],
+    "hand": ["Salvatore TEF 160"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Psyduck ASC 39"
+  }
+}

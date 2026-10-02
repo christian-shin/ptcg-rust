@@ -1,0 +1,20 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "52 Grass Energy MEE"],
+    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "52 Grass Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Volbeat TWM 9",
+    "active_energy": ["2 Grass Energy MEE"],
+    "bench": [{"card": "Illumise TWM 10"}]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Volbeat TWM 9"
+  },
+  "answers": [
+    {"a": "attack", "name": "Coordinated Strike"}
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Eevee TWM 135", "2 Jolteon ex PRE 30", "2 Flareon ex PRE 14", "2 Umbreon ex PRE 60", "50 Lightning Energy MEE"],
+    ["4 Eevee TWM 135", "2 Jolteon ex PRE 30", "2 Flareon ex PRE 14", "2 Umbreon ex PRE 60", "50 Lightning Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Eevee TWM 135",
+    "active_energy": ["Lightning Energy MEE"],
+    "deck_top": ["Jolteon ex PRE 30", "Flareon ex PRE 14"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Eevee TWM 135"
+  },
+  "answers": [
+    {"a": "attack", "name": "Ascension"}
+  ]
+}
