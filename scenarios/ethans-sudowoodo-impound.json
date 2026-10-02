@@ -1,0 +1,27 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Ethan's Sudowoodo DRI 93",
+      "4 Dreepy ASC 158",
+      "52 Fighting Energy MEE"
+    ],
+    [
+      "4 Ethan's Sudowoodo DRI 93",
+      "4 Dreepy ASC 158",
+      "52 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Ethan's Sudowoodo DRI 93",
+    "active_energy": ["Fighting Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158"
+  },
+  "answers": [
+    { "a": "attack", "name": "Impound" }
+  ]
+}

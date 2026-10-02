@@ -1,0 +1,33 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Hop's Snorlax JTG 117",
+      "4 Thick Scale ASC 211",
+      "4 Dreepy ASC 158",
+      "48 Darkness Energy MEE"
+    ],
+    [
+      "4 Hop's Snorlax JTG 117",
+      "4 Thick Scale ASC 211",
+      "4 Dreepy ASC 158",
+      "48 Darkness Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117",
+    "active_tool": "Thick Scale ASC 211",
+    "active_conditions": ["POISONED"],
+    "hand_to_deck": true
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "hand_to_deck": true
+  },
+  "answers": [
+    { "a": "pass" },
+    { "a": "pass" }
+  ]
+}

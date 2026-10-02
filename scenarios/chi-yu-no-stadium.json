@@ -1,0 +1,32 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Chi-Yu MEG 31",
+      "4 Dreepy ASC 158",
+      "52 Fire Energy MEE"
+    ],
+    [
+      "4 Chi-Yu MEG 31",
+      "4 Dreepy ASC 158",
+      "52 Fire Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Chi-Yu MEG 31",
+    "active_energy": [
+      "Fire Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Scorching Earth"
+    }
+  ]
+}

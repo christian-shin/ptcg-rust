@@ -1,0 +1,27 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Shroodle MEG 91",
+      "4 Dreepy ASC 158",
+      "52 Darkness Energy MEE"
+    ],
+    [
+      "4 Shroodle MEG 91",
+      "4 Dreepy ASC 158",
+      "52 Darkness Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Shroodle MEG 91",
+    "active_energy": ["Darkness Energy MEE", "Darkness Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158"
+  },
+  "answers": [
+    { "a": "attack", "name": "Poison Jab" }
+  ]
+}

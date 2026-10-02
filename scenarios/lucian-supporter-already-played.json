@@ -1,0 +1,26 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Lucian TWM 157",
+      "4 Dreepy ASC 158",
+      "52 Psychic Energy MEE"
+    ],
+    [
+      "4 Lucian TWM 157",
+      "4 Dreepy ASC 158",
+      "52 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "hand": ["Lucian TWM 157"],
+    "supporter_played": true
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "hand_to_deck": true
+  }
+}

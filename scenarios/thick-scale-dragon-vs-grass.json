@@ -1,0 +1,30 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Petilil BLK 6",
+      "4 Dreepy ASC 158",
+      "4 Thick Scale ASC 211",
+      "48 Grass Energy MEE"
+    ],
+    [
+      "4 Petilil BLK 6",
+      "4 Dreepy ASC 158",
+      "4 Thick Scale ASC 211",
+      "48 Grass Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Petilil BLK 6",
+    "active_energy": ["Grass Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "active_tool": "Thick Scale ASC 211"
+  },
+  "answers": [
+    { "a": "attack", "name": "Leafage" }
+  ]
+}

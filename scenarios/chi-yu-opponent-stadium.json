@@ -1,0 +1,30 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Chi-Yu MEG 31",
+      "4 Dreepy ASC 158",
+      "4 Prism Tower M4",
+      "48 Fire Energy MEE"
+    ],
+    [
+      "4 Chi-Yu MEG 31",
+      "4 Dreepy ASC 158",
+      "4 Prism Tower M4",
+      "48 Fire Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Chi-Yu MEG 31",
+    "active_energy": ["Fire Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "stadium": "Prism Tower M4"
+  },
+  "answers": [
+    { "a": "attack", "name": "Scorching Earth" }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Galarian Obstagoon ASC 132",
+      "4 Dreepy ASC 158",
+      "52 Darkness Energy MEE"
+    ],
+    [
+      "4 Galarian Obstagoon ASC 132",
+      "4 Dreepy ASC 158",
+      "52 Darkness Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Galarian Obstagoon ASC 132",
+    "active_energy": ["Darkness Energy MEE", "Darkness Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "active_damage": 10
+  },
+  "answers": [
+    { "a": "attack", "name": "Scarring Shout" }
+  ]
+}
