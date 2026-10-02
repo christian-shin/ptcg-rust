@@ -230,7 +230,7 @@ pub enum PromptKind {
     Confirm,
     ChooseCards { cards: ListRef, filter: Filter, opts: ChooseCardsOpts },
     ChoosePokemon { player_type: PlayerType, slots: SVec<u8, 3>, min: u8, max: u8, allow_cancel: bool, blocked: TargetList },
-    ChoosePrize { count: u8, blocked: SVec<u8, 6>, use_opponent_prizes: bool, allow_cancel: bool, is_secret: bool, destination: Option<ListRef> },
+    ChoosePrize { count: u8, blocked: SVec<u8, 6>, use_opponent_prizes: bool, allow_cancel: bool, is_secret: bool, destination: Option<ListRef>, face_down_only: bool },
     Select { values: SelectValues, allow_cancel: bool, default_value: i32 },
     ChooseEnergy { energy: EnergyMap, cost: Cost, allow_cancel: bool },
     AttachEnergy { cards: ListRef, player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: AttachOpts },
@@ -591,15 +591,16 @@ impl Game {
                 );
                 base.insert("candidates".into(), Value::Array(self.choose_pokemon_candidates(pr).into_iter().map(target_json).collect()));
             }
-            PromptKind::ChoosePrize { count, blocked, use_opponent_prizes, allow_cancel, is_secret, .. } => {
+            PromptKind::ChoosePrize { count, blocked, use_opponent_prizes, allow_cancel, is_secret, face_down_only, .. } => {
                 let q = if use_opponent_prizes { 1 - p } else { p };
                 let left = self.st.players[q].prizes.iter().filter(|l| !l.is_empty()).count();
                 base.insert("prizes".into(), json!(left));
-                base.insert(
-                    "options".into(),
-                    json!({ "count": count, "max": count, "blocked": blocked.as_slice(), "allowCancel": allow_cancel,
-                            "isSecret": is_secret, "useOpponentPrizes": use_opponent_prizes }),
-                );
+                let mut opts = json!({ "count": count, "max": count, "blocked": blocked.as_slice(), "allowCancel": allow_cancel,
+                            "isSecret": is_secret, "useOpponentPrizes": use_opponent_prizes });
+                if face_down_only {
+                    opts["faceDownOnly"] = json!(true);
+                }
+                base.insert("options".into(), opts);
             }
             PromptKind::Select { values, allow_cancel, default_value } => {
                 base.insert("values".into(), json!(values.values()));
@@ -691,7 +692,7 @@ impl Game {
                 }
                 Ok(Res::Slots(out))
             }
-            PromptKind::ChoosePrize { count, use_opponent_prizes, .. } => {
+            PromptKind::ChoosePrize { count, use_opponent_prizes, face_down_only, .. } => {
                 let q = if use_opponent_prizes { 1 - p } else { p };
                 let nonempty: Vec<u8> =
                     (0..self.st.players[q].prize_count).filter(|i| !self.st.players[q].prizes[*i as usize].is_empty()).collect();
@@ -708,6 +709,9 @@ impl Game {
                     if out.as_slice()[..i].contains(a) {
                         return Err(invalid);
                     }
+                }
+                if face_down_only && out.iter().any(|a| self.st.players[q].prize_face_up[*a as usize]) {
+                    return Err(invalid);
                 }
                 Ok(Res::Prizes(out))
             }

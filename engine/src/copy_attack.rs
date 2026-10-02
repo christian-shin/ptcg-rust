@@ -207,6 +207,11 @@ pub struct CopyFrame {
     pub then: Option<AttackFrame>,
     /// ChooseAttackPrompt cards.
     pub cards: SVec<CardId, 16>,
+    /// `maxRetries` of COPY_ATTACK_FROM_POKEMON_LIST and the current attempt.
+    pub max_retries: u8,
+    pub retry: u8,
+    /// `allowCancel` of the (re-issued) ChooseAttackPrompt.
+    pub allow_cancel: bool,
 }
 
 impl CopyFrame {
@@ -222,8 +227,26 @@ impl CopyFrame {
             catch: false,
             then: None,
             cards: SVec::new(),
+            max_retries: 1,
+            retry: 0,
+            allow_cancel: false,
         }
     }
+}
+
+/// The ChooseAttackPrompt of one COPY_ATTACK_FROM_POKEMON_LIST attempt.
+fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
+    let p = f.p as usize;
+    let pc = f.cards;
+    let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
+    let id = g.player_id(p);
+    g.prompt(
+        id,
+        "CHOOSE_ATTACK_TO_COPY",
+        PromptKind::ChooseAttack { cards: pc, allow_cancel: f.allow_cancel, blocked_message: "NOT_ENOUGH_ENERGY", blocked },
+        Cont::CopyAttack(f),
+    );
+    Ok(())
 }
 
 /// `findPokemonCardForAttack`.
@@ -244,6 +267,12 @@ fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
 /// `COPY_ATTACK_FROM_POKEMON_LIST(store, state, effect, pokemonCards, { allowCancel })`
 /// (disallowCopycatAttack, maxRetries 1, no extra blocked attacks).
 pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool) -> R {
+    copy_attack_from_pokemon_list_retries(g, atk, cards, allow_cancel, 1)
+}
+
+/// `COPY_ATTACK_FROM_POKEMON_LIST` with `maxRetries`: a locked attack or an
+/// error in the delegated attack re-issues the prompt until the attempts run out.
+pub fn copy_attack_from_pokemon_list_retries(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool, max_retries: u8) -> R {
     let (p, source) = match *g.e(atk) {
         Effect::Attack { p, source, .. } => (p as usize, source),
         _ => return Ok(()),
@@ -257,20 +286,15 @@ pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId],
     };
     let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
     f.catch = true;
-    let mut pc: SVec<CardId, 16> = SVec::new();
+    f.max_retries = max_retries;
+    f.allow_cancel = allow_cancel;
     for &c in cards {
         f.cards.push(c);
-        pc.push(c);
     }
-    let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_ATTACK_TO_COPY",
-        PromptKind::ChooseAttack { cards: pc, allow_cancel, blocked_message: "NOT_ENOUGH_ENERGY", blocked },
-        Cont::CopyAttack(f),
-    );
-    Ok(())
+    if max_retries == 0 {
+        return Ok(());
+    }
+    prompt_list(g, f)
 }
 
 /// `blockCannotUseAttacksNextTurn(player, pokemonCards)` (no extra blocked):
@@ -305,6 +329,21 @@ fn attack_locked_next_turn(g: &Game, p: usize, a: AttackRef) -> bool {
     let name = attack::attack_def(g, a).name;
     let act = g.st.players[p].active;
     g.st.slot(p, act).cannot_use_attacks_next_turn.iter().any(|n| *n == name)
+}
+
+/// `COPY_OPPONENT_ACTIVE_ATTACK_WITH_RETRY(store, state, effect)`
+/// (allowCancel false, maxRetries 3).
+pub fn copy_opponent_active_attack_with_retry(g: &mut Game, atk: EffId) -> R {
+    let opp = match *g.e(atk) {
+        Effect::Attack { opp, .. } => opp as usize,
+        _ => return Ok(()),
+    };
+    let oa = g.st.players[opp].active;
+    let pokemon = match g.st.slot_pokemon(opp, oa) {
+        Some(c) if !g.st.cdef(c).attacks.is_empty() => c,
+        _ => return Ok(()),
+    };
+    copy_attack_from_pokemon_list_retries(g, atk, &[pokemon], false, 3)
 }
 
 /// `COPY_OPPONENT_ACTIVE_ATTACK(store, state, effect)` (allowCancel false,
@@ -444,7 +483,13 @@ fn finish_step(g: &mut Game, mut f: CopyFrame, r: R, wait: impl FnOnce(&mut Game
         Err(e) => {
             g.release_fx(f.atk);
             if f.catch {
-                Ok(())
+                if f.retry + 1 >= f.max_retries {
+                    Ok(())
+                } else {
+                    f.retry += 1;
+                    f.stage = CopyStage::ListChosen;
+                    prompt_list(g, f)
+                }
             } else {
                 Err(e)
             }
@@ -506,7 +551,12 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                 _ => return Ok(()),
             };
             if attack_locked_next_turn(g, f.p as usize, a) {
-                return Ok(());
+                if f.retry + 1 >= f.max_retries {
+                    return Ok(());
+                }
+                let mut nf = f;
+                nf.retry += 1;
+                return prompt_list(g, nf);
             }
             if attack::attack_def(g, a).copycat_attack {
                 return Ok(());

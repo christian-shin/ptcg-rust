@@ -1,0 +1,29 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Teal Mask Ogerpon ex PRE 12",
+      "4 Wellspring Mask Ogerpon ex PRE 27",
+      "4 Ogre's Mask PRE 118",
+      "4 Dreepy ASC 158",
+      "44 Grass Energy MEE"
+    ],
+    [
+      "4 Teal Mask Ogerpon ex PRE 12",
+      "4 Wellspring Mask Ogerpon ex PRE 27",
+      "4 Ogre's Mask PRE 118",
+      "4 Dreepy ASC 158",
+      "44 Grass Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Teal Mask Ogerpon ex PRE 12",
+    "hand": ["Ogre's Mask PRE 118"],
+    "discard": ["Wellspring Mask Ogerpon ex PRE 27"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158"
+  }
+}

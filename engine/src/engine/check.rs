@@ -184,6 +184,7 @@ fn prize_loop(g: &mut Game, mut f: CheckFrame) -> R {
                 allow_cancel: false,
                 is_secret: !g.st.players[pl].prize_public[0],
                 destination: Some(dest),
+                face_down_only: false,
             },
             Cont::TakePrizes { p, destination: dest },
         );
@@ -366,7 +367,7 @@ pub fn take_x_prizes(g: &mut Game, p: usize, count: i32) -> R {
     g.prompt(
         id,
         "CHOOSE_PRIZE_CARD",
-        PromptKind::ChoosePrize { count: take as u8, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None },
+        PromptKind::ChoosePrize { count: take as u8, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: false },
         Cont::TakePrizes { p: p as u8, destination: ListRef::Hand(p as u8) },
     );
     Ok(())

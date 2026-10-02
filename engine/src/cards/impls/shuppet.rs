@@ -24,6 +24,8 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 34] = [
     k::PUT_COUNTERS,
     k::KNOCK_OUT_OPPONENT,
     k::KNOCK_OUT_PLAYER,
+    k::RETALIATE_ON_DAMAGE,
+    k::RETALIATE_DAMAGE,
     k::DISCARD_CARDS,
     k::CARDS_TO_HAND,
     k::GUST_OPPONENT_BENCH,
@@ -47,8 +49,6 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 34] = [
     k::INCREASE_ATTACK_COST_NEXT_TURN,
     k::INCREASE_RETREAT_COST_NEXT_TURN,
     k::COIN_FLIP_CANCEL_TRAINER_PLAY,
-    k::RETALIATE_ON_DAMAGE,
-    k::RETALIATE_DAMAGE,
 ];
 
 pub static IMPL: CardImpl = CardImpl { class: "Shuppet", mask: mask(&HIDE_N_SNEAK_KINDS), reduce, resume: None, coin: None, can_play: None };

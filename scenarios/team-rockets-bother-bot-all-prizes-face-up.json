@@ -1,0 +1,55 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Cresselia SFA 21",
+      "4 Galarian Obstagoon ASC 132",
+      "4 Team Rocket's Bother-Bot DRI 172",
+      "4 Dreepy ASC 158",
+      "44 Psychic Energy MEE"
+    ],
+    [
+      "4 Cresselia SFA 21",
+      "4 Galarian Obstagoon ASC 132",
+      "4 Team Rocket's Bother-Bot DRI 172",
+      "4 Dreepy ASC 158",
+      "44 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Cresselia SFA 21",
+    "active_energy": [
+      "Psychic Energy MEE",
+      "Psychic Energy MEE",
+      "Psychic Energy MEE"
+    ],
+    "hand_to_deck": true
+  },
+  "opp": {
+    "reset": true,
+    "active": "Galarian Obstagoon ASC 132",
+    "bench": [
+      { "card": "Galarian Obstagoon ASC 132" },
+      { "card": "Galarian Obstagoon ASC 132" },
+      { "card": "Galarian Obstagoon ASC 132" }
+    ],
+    "hand": ["Team Rocket's Bother-Bot DRI 172"]
+  },
+  "answers": [
+    { "a": "attack", "name": "Crescent Purge" }, true, [0],
+    { "a": "pass" },
+    { "a": "attack", "name": "Crescent Purge" }, true, [1], [0],
+    [{ "player": 2, "slot": 2, "index": 0 }],
+    { "a": "pass" },
+    { "a": "attack", "name": "Crescent Purge" }, true, [1],
+    { "a": "pass" },
+    { "a": "attack", "name": "Crescent Purge" }, true, [2], [0],
+    [{ "player": 2, "slot": 2, "index": 1 }],
+    { "a": "pass" },
+    { "a": "attack", "name": "Crescent Purge" }, true, [2],
+    { "a": "pass" },
+    { "a": "attack", "name": "Crescent Purge" }, true, [3], [0],
+    [{ "player": 2, "slot": 2, "index": 2 }]
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Team Rocket's Bother-Bot DRI 172",
+      "4 Petilil BLK 6",
+      "4 Dreepy ASC 158",
+      "48 Grass Energy MEE"
+    ],
+    [
+      "4 Team Rocket's Bother-Bot DRI 172",
+      "4 Petilil BLK 6",
+      "4 Dreepy ASC 158",
+      "48 Grass Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Petilil BLK 6",
+    "hand": ["Team Rocket's Bother-Bot DRI 172"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "hand_to_deck": true
+  }
+}

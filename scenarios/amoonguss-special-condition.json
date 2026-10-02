@@ -1,0 +1,30 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Foongus SIT 11",
+      "4 Amoongus SV11B",
+      "4 Dreepy ASC 158",
+      "48 Grass Energy MEE"
+    ],
+    [
+      "4 Foongus SIT 11",
+      "4 Amoongus SV11B",
+      "4 Dreepy ASC 158",
+      "48 Grass Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": ["Foongus SIT 11", "Amoongus SV11B"],
+    "active_energy": ["Grass Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158",
+    "active_conditions": ["POISONED"]
+  },
+  "answers": [
+    { "a": "attack", "name": "Dangerous Reaction" }
+  ]
+}

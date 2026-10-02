@@ -1,0 +1,29 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Zeraora DRI 78",
+      "4 Dreepy ASC 158",
+      "4 Bolty [L] Energy M5",
+      "48 Lightning Energy MEE"
+    ],
+    [
+      "4 Zeraora DRI 78",
+      "4 Dreepy ASC 158",
+      "4 Bolty [L] Energy M5",
+      "48 Lightning Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Zeraora DRI 78",
+    "active_energy": ["Bolty [L] Energy M5"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Dreepy ASC 158"
+  },
+  "answers": [
+    { "a": "attack", "name": "Scratch" }
+  ]
+}

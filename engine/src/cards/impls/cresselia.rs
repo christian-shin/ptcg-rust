@@ -56,7 +56,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             g.prompt(
                 id,
                 "CHOOSE_POKEMON",
-                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: true, is_secret: false, destination: None },
+                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: true, is_secret: false, destination: None, face_down_only: false },
                 Cont::Card { card: me, frame: nf },
             );
             Ok(())
