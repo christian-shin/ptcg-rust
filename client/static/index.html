@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PTCG Local Client</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="topbar">
+  <div id="turn-ind"></div>
+  <div id="badges"></div>
+  <div class="spacer"></div>
+  <label class="chk"><input type="checkbox" id="opt-images"> Card images</label>
+  <button id="btn-new">New game</button>
+</header>
+<div id="layout">
+  <main id="board"></main>
+  <aside id="side">
+    <div id="preview"><div class="hint">Hover a card to read it.</div></div>
+    <div id="log-wrap"><div class="side-title">Game log</div><div id="log"></div></div>
+  </aside>
+</div>
+<div id="actionbar"></div>
+<div id="hand-wrap"><div id="hand"></div></div>
+<div id="overlay" hidden></div>
+<div id="viewer" hidden></div>
+<div id="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
