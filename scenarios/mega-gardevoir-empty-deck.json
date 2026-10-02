@@ -1,0 +1,42 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Mega Gardevoir ex ASC 89",
+      "4 Hop's Snorlax JTG 117",
+      "52 Psychic Energy MEE"
+    ],
+    [
+      "4 Mega Gardevoir ex ASC 89",
+      "4 Hop's Snorlax JTG 117",
+      "52 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Mega Gardevoir ex ASC 89",
+    "active_energy": [
+      "Psychic Energy MEE"
+    ],
+    "bench": [
+      {
+        "card": "Hop's Snorlax JTG 117"
+      }
+    ],
+    "discard": [
+      "3 Mega Gardevoir ex ASC 89",
+      "3 Hop's Snorlax JTG 117",
+      "45 Psychic Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Overflowing Wishes"
+    }
+  ]
+}
