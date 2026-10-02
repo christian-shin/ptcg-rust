@@ -220,6 +220,7 @@ impl Game {
         nd!(pokemon_knocked_out_by_attack_during_opponents_last_turn, "pokemonKnockedOutByAttackDuringOpponentsLastTurn");
         nd!(can_evolve, "canEvolve");
         nd!(ancient_pokemon_attacked_last_turn, "ancientPokemonAttackedLastTurn");
+        nd!(ancient_supporter, "ancientSupporter");
         nd!(cannot_play_item_cards, "cannotPlayItemCards");
         nd!(cannot_play_supporter_cards, "cannotPlaySupporterCards");
         nd!(cannot_play_stadium_cards, "cannotPlayStadiumCards");
@@ -302,8 +303,8 @@ impl Game {
             if inst.discarded_stadium_card {
                 diff.insert("discardedStadiumCard".into(), json!(true));
             }
-            if inst.attack_barrage_shown != 0 || inst.attack_first_turn != 0 {
-                // Runtime `this.attacks[i].barrage` writes: the whole attacks array.
+            if inst.attack_barrage_shown != 0 || inst.attack_first_turn != 0 || inst.attack_shred != 0 {
+                // Runtime `this.attacks[i].barrage` / `canUseOnFirstTurn` / `shredAttack` writes: the whole attacks array.
                 let atks: Vec<Value> = d
                     .attacks
                     .iter()
@@ -319,6 +320,9 @@ impl Game {
                         }
                         if inst.attack_first_turn & (1 << i) != 0 {
                             o.insert("canUseOnFirstTurn".into(), json!(true));
+                        }
+                        if inst.attack_shred & (1 << i) != 0 {
+                            o.insert("shredAttack".into(), json!(true));
                         }
                         if inst.attack_barrage_shown & (1 << i) != 0 {
                             o.insert("barrage".into(), json!(inst.attack_barrage & (1 << i) != 0));

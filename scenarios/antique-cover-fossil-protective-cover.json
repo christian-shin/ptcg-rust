@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Cover Fossil SCR",
+   "4 Duraludon PRE 69",
+   "4 Cofagrigus WHT 40",
+   "4 Yamask PLF 55",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Antique Cover Fossil SCR",
+   "4 Duraludon PRE 69",
+   "4 Cofagrigus WHT 40",
+   "4 Yamask PLF 55",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Yamask PLF 55",
+   "Cofagrigus WHT 40"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Antique Cover Fossil SCR",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Perplex"
+  }
+ ]
+}

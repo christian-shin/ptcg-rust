@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Crown ex PRE 158",
+   "4 Iron Treads TEF 118",
+   "4 Duraludon PRE 69",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Iron Crown ex PRE 158",
+   "4 Iron Treads TEF 118",
+   "4 Duraludon PRE 69",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Treads TEF 118",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Iron Crown ex PRE 158"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wheel Pass"
+  }
+ ]
+}

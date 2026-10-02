@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bagon EVS",
+   "4 Shelgon JTG",
+   "4 Duraludon PRE 69",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Bagon EVS",
+   "4 Shelgon JTG",
+   "4 Duraludon PRE 69",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Bagon EVS",
+   "Shelgon JTG"
+  ],
+  "active_energy": [
+   "2 Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Guard Press"
+  }
+ ]
+}

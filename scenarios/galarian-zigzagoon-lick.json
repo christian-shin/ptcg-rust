@@ -1,0 +1,32 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Galarian Zigzagoon FST 159",
+   "4 Duraludon PRE 69",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Galarian Zigzagoon FST 159",
+   "4 Duraludon PRE 69",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Galarian Zigzagoon FST 159",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Lick"
+  }
+ ]
+}

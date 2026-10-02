@@ -188,6 +188,11 @@ pub enum Effect {
     /// `RetaliateDamageEffect`: `target.damage += damage` (b.player is the
     /// retaliator's owner, b.source its slot, b.target the attacker's slot).
     RetaliateDamage { b: AtkBase, damage: i32 },
+    /// `MoveCountersAttackEffect`: moves `damage` of damage counters from
+    /// `b.source` (the counters' source slot, which the TS constructor
+    /// assigns over the attacker's) to `b.target`. Reducer-less: the card
+    /// applies the counters after reducing it.
+    MoveCounters { b: AtkBase, damage: i32 },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -287,6 +292,7 @@ impl Effect {
             OpponentPokemonCannotAttackNextTurn { .. } => "OPPONENT_POKEMON_CANNOT_ATTACK_DURING_THEIR_NEXT_TURN_EFFECT",
             RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
+            MoveCounters { .. } => "MOVE_COUNTERS_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -335,7 +341,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -368,7 +374,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -460,6 +466,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { .. } => 148,
             RetaliateOnDamage { .. } => 172,
             RetaliateDamage { .. } => 173,
+            MoveCounters { .. } => 244,
             OpponentPokemonCannotUseAttack { .. } => 91,
             PreventAttackUntilLeavesActive { .. } => 188,
             DefendingPokemonTakesMoreDamage { .. } => 130,
@@ -554,6 +561,7 @@ pub mod k {
     pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
     pub const RETALIATE_ON_DAMAGE: u32 = 172;
     pub const RETALIATE_DAMAGE: u32 = 173;
+    pub const MOVE_COUNTERS: u32 = 244;
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
