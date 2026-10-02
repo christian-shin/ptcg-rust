@@ -2803,8 +2803,8 @@
   "twinleaf": "Hop's Choice Band JTG"
  },
  "Light Ball ASC 191": {
-  "status": "partial",
-  "note": "batch b17 (Sonnet); Pikachu ex branches need Pikachu ex ASC 57 (c3): re-run scenarios/light-ball-pikachu-ex-*.json after c3",
+  "status": "verified",
+  "note": "batch b17 (Sonnet); Pikachu ex branches covered after c3 (scenarios/light-ball-pikachu-ex-*.json); tool-block probe and not-opponent-Active return not reached",
   "twinleaf": "Light Ball M2a"
  },
  "Powerglass SFA 63": {
@@ -2936,5 +2936,110 @@
   "status": "verified",
   "note": "batch c2 (Sonnet)",
   "twinleaf": "Hearthflame Mask Ogerpon ex PRE"
+ },
+ "Flutter Mane PRE 43": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Flutter Mane PRE"
+ },
+ "Fezandipiti PRE 45": {
+  "status": "partial",
+  "note": "batch c3 (Sonnet); branches `pokemonCard !== this || phase !== ATTACK` and `effect.damage <= 0` not reached",
+  "twinleaf": "Fezandipiti PRE"
+ },
+ "Iron Boulder PRE 46": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Iron Boulder PRE"
+ },
+ "Duraludon PRE 69": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Duraludon PRE"
+ },
+ "Carmine PRE 103": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Carmine PRE"
+ },
+ "Explorer's Guidance PRE 107": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet); sets Player.ancientSupporter (read by Great Tusk)",
+  "twinleaf": "Explorers Guidance PRE"
+ },
+ "Janine's Secret Art PRE 112": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Janine's Secret Art PRE"
+ },
+ "Rescue Board PRE 126": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Rescue Board PRE"
+ },
+ "Scoop Up Cyclone PRE 128": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Scoop Up Cyclone PRE"
+ },
+ "Sparkling Crystal PRE 129": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Sparkling Crystal PRE"
+ },
+ "Ceruledge ex PRE 147": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Ceruledge exSAR PRE"
+ },
+ "Iron Crown ex PRE 158": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Iron Crown exSAR PRE"
+ },
+ "Drayton PRE 172": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "DraytonSAR PRE"
+ },
+ "Walking Wake ex PRE 178": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet); shredAttack runtime write tracked as CardInst.attack_shred",
+  "twinleaf": "Walking Wake exUR PRE"
+ },
+ "Bronzor SSP 126": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Bronzor SSP"
+ },
+ "Scramble Switch SSP 186": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Scramble Switch SSP"
+ },
+ "Cook TWM 147": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Cook TWM"
+ },
+ "Cofagrigus WHT 40": {
+  "status": "partial",
+  "note": "batch c3 (Sonnet); several returns unreachable/not reached (see porting/reports/c3.md)",
+  "twinleaf": "Cofagrigus WHT"
+ },
+ "N's Darmanitan ASC 33": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "N's Darmanitan ASC"
+ },
+ "Pikachu ex ASC 57": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Pikachu ex ASC"
+ },
+ "Slowpoke MEP 86": {
+  "status": "verified",
+  "note": "batch c3 (Sonnet)",
+  "twinleaf": "Slowpoke MEP 86"
  }
 }
