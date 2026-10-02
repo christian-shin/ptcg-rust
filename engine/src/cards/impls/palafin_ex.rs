@@ -4,10 +4,10 @@
 //!
 //! Twinleaf: any EvolveEffect for this card throws CANNOT_EVOLVE unless the
 //! generic ability-lock probe fails (IS_ABILITY_BLOCKED is true when blocked).
-//! Support port (non-pool card): it is the target of Palafin TWM's search.
+//! The TWM support print and Palafin exSAR PRE share the same Palafinex logic.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Palafinex@Palafin ex TWM", mask: mask(&[k::EVOLVE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Palafinex", mask: mask(&[k::EVOLVE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::Evolve { p, card, .. } = *g.e(e) {
