@@ -5,6 +5,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29182",
   "archetype_url": "https://limitlesstcg.com/decks/284",
   "tournament": "26th September 2026 - Regional Brisbane",
+  "country": "AU",
   "placement": 1,
   "cards": [
    {
@@ -162,28 +163,23 @@
  {
   "name": "Basic Box",
   "share": 10.31,
-  "source_url": "https://limitlesstcg.com/decks/list/29481",
+  "source_url": "https://limitlesstcg.com/decks/list/29001",
   "archetype_url": "https://limitlesstcg.com/decks/339",
-  "tournament": "26th September 2026 - Regional Brisbane",
-  "placement": 9,
+  "tournament": "19th September 2026 - Regional Baltimore, MD",
+  "country": "US",
+  "placement": 1,
   "cards": [
    {
     "count": 4,
-    "name": "Teal Mask Ogerpon ex",
-    "set": "TWM",
-    "number": "25"
-   },
-   {
-    "count": 2,
     "name": "Mega Kangaskhan ex",
     "set": "MEG",
     "number": "104"
    },
    {
-    "count": 2,
-    "name": "Lillie's Clefairy ex",
-    "set": "JTG",
-    "number": "56"
+    "count": 3,
+    "name": "Meowth ex",
+    "set": "POR",
+    "number": "62"
    },
    {
     "count": 2,
@@ -193,21 +189,27 @@
    },
    {
     "count": 2,
-    "name": "Meowth ex",
-    "set": "POR",
-    "number": "62"
-   },
-   {
-    "count": 1,
-    "name": "Wellspring Mask Ogerpon ex",
+    "name": "Teal Mask Ogerpon ex",
     "set": "TWM",
-    "number": "64"
+    "number": "25"
+   },
+   {
+    "count": 2,
+    "name": "Lillie's Clefairy ex",
+    "set": "JTG",
+    "number": "56"
    },
    {
     "count": 1,
-    "name": "Koraidon ex",
-    "set": "ASC",
-    "number": "121"
+    "name": "Chien-Pao",
+    "set": "SSP",
+    "number": "56"
+   },
+   {
+    "count": 1,
+    "name": "Raging Bolt ex",
+    "set": "TEF",
+    "number": "123"
    },
    {
     "count": 1,
@@ -223,27 +225,33 @@
    },
    {
     "count": 1,
-    "name": "Paldean Tauros",
-    "set": "SSP",
-    "number": "18"
+    "name": "Enamorus",
+    "set": "TWM",
+    "number": "93"
    },
    {
     "count": 1,
-    "name": "Chien-Pao",
-    "set": "SSP",
-    "number": "56"
+    "name": "Iron Crown ex",
+    "set": "TEF",
+    "number": "81"
    },
    {
     "count": 1,
-    "name": "Pecharunt",
-    "set": "SVP",
-    "number": "149"
+    "name": "Wellspring Mask Ogerpon ex",
+    "set": "TWM",
+    "number": "64"
    },
    {
     "count": 4,
-    "name": "Lillie's Determination",
-    "set": "MEG",
-    "number": "119"
+    "name": "Crispin",
+    "set": "SCR",
+    "number": "133"
+   },
+   {
+    "count": 2,
+    "name": "Cyrano",
+    "set": "SSP",
+    "number": "170"
    },
    {
     "count": 2,
@@ -253,33 +261,9 @@
    },
    {
     "count": 1,
-    "name": "Briar",
-    "set": "SCR",
-    "number": "132"
-   },
-   {
-    "count": 1,
-    "name": "Cyrano",
-    "set": "SSP",
-    "number": "170"
-   },
-   {
-    "count": 1,
     "name": "Ciphermaniac's Codebreaking",
     "set": "TEF",
     "number": "145"
-   },
-   {
-    "count": 1,
-    "name": "N's Plan",
-    "set": "BLK",
-    "number": "83"
-   },
-   {
-    "count": 4,
-    "name": "Ultra Ball",
-    "set": "MEG",
-    "number": "131"
    },
    {
     "count": 4,
@@ -288,10 +272,16 @@
     "number": "115"
    },
    {
+    "count": 4,
+    "name": "Ultra Ball",
+    "set": "MEG",
+    "number": "131"
+   },
+   {
     "count": 2,
-    "name": "Bug Catching Set",
-    "set": "TWM",
-    "number": "143"
+    "name": "Night Stretcher",
+    "set": "ASC",
+    "number": "196"
    },
    {
     "count": 1,
@@ -301,49 +291,62 @@
    },
    {
     "count": 1,
-    "name": "Night Stretcher",
-    "set": "ASC",
-    "number": "196"
+    "name": "Glass Trumpet",
+    "set": "SCR",
+    "number": "135"
    },
    {
     "count": 1,
-    "name": "Prime Catcher",
+    "name": "Hero's Cape",
     "set": "TEF",
-    "number": "157"
+    "number": "152"
    },
    {
-    "count": 1,
-    "name": "Lillie's Pearl",
-    "set": "JTG",
-    "number": "151"
-   },
-   {
-    "count": 3,
+    "count": 4,
     "name": "Area Zero Underdepths",
     "set": "SCR",
     "number": "131"
    },
    {
-    "count": 10,
+    "count": 6,
     "name": "Grass Energy",
     "set": "MEE",
     "number": "9"
    },
    {
-    "count": 4,
-    "name": "Prism Energy",
-    "set": "ASC",
-    "number": "216"
+    "count": 3,
+    "name": "Psychic Energy",
+    "set": "MEE",
+    "number": "13"
+   },
+   {
+    "count": 2,
+    "name": "Fighting Energy",
+    "set": "MEE",
+    "number": "14"
+   },
+   {
+    "count": 2,
+    "name": "Lightning Energy",
+    "set": "MEE",
+    "number": "12"
+   },
+   {
+    "count": 1,
+    "name": "Water Energy",
+    "set": "MEE",
+    "number": "11"
    }
   ]
  },
  {
   "name": "N's Zoroark ex",
   "share": 7.96,
-  "source_url": "https://limitlesstcg.com/decks/list/29609",
+  "source_url": "https://limitlesstcg.com/decks/list/28759",
   "archetype_url": "https://limitlesstcg.com/decks/320",
-  "tournament": "26th September 2026 - Regional Frankfurt",
-  "placement": 12,
+  "tournament": "28th August 2026 - World Championships 2026",
+  "country": "US",
+  "placement": 9,
   "cards": [
    {
     "count": 4,
@@ -359,21 +362,45 @@
    },
    {
     "count": 2,
-    "name": "Munkidori",
-    "set": "TWM",
-    "number": "95"
-   },
-   {
-    "count": 2,
     "name": "N's Zekrom",
     "set": "ASC",
     "number": "155"
    },
    {
     "count": 1,
-    "name": "N's Purrloin",
+    "name": "N's Darumaka",
     "set": "JTG",
-    "number": "96"
+    "number": "26"
+   },
+   {
+    "count": 1,
+    "name": "N's Darmanitan",
+    "set": "JTG",
+    "number": "27"
+   },
+   {
+    "count": 1,
+    "name": "Budew",
+    "set": "ASC",
+    "number": "16"
+   },
+   {
+    "count": 1,
+    "name": "Yveltal",
+    "set": "MEG",
+    "number": "88"
+   },
+   {
+    "count": 1,
+    "name": "Tatsugiri",
+    "set": "TWM",
+    "number": "131"
+   },
+   {
+    "count": 1,
+    "name": "Munkidori",
+    "set": "TWM",
+    "number": "95"
    },
    {
     "count": 1,
@@ -383,15 +410,15 @@
    },
    {
     "count": 1,
-    "name": "Fezandipiti ex",
-    "set": "ASC",
-    "number": "142"
+    "name": "Meowth ex",
+    "set": "POR",
+    "number": "62"
    },
    {
     "count": 1,
-    "name": "Tatsugiri",
-    "set": "TWM",
-    "number": "131"
+    "name": "Fezandipiti ex",
+    "set": "ASC",
+    "number": "142"
    },
    {
     "count": 4,
@@ -412,34 +439,22 @@
     "number": "170"
    },
    {
-    "count": 2,
-    "name": "Judge",
-    "set": "POR",
-    "number": "76"
-   },
-   {
     "count": 1,
     "name": "Black Belt's Training",
     "set": "JTG",
     "number": "143"
    },
    {
-    "count": 1,
-    "name": "Brock's Scouting",
-    "set": "JTG",
-    "number": "146"
-   },
-   {
-    "count": 1,
-    "name": "Acerola's Mischief",
-    "set": "MEG",
-    "number": "113"
-   },
-   {
     "count": 4,
     "name": "Buddy-Buddy Poffin",
     "set": "TEF",
     "number": "144"
+   },
+   {
+    "count": 4,
+    "name": "Transformation Tome",
+    "set": "CRI",
+    "number": "83"
    },
    {
     "count": 3,
@@ -449,12 +464,18 @@
    },
    {
     "count": 3,
+    "name": "Ultra Ball",
+    "set": "MEG",
+    "number": "131"
+   },
+   {
+    "count": 2,
     "name": "Poké Pad",
     "set": "POR",
     "number": "81"
    },
    {
-    "count": 2,
+    "count": 1,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
@@ -467,21 +488,9 @@
    },
    {
     "count": 1,
-    "name": "Ultra Ball",
-    "set": "MEG",
-    "number": "131"
-   },
-   {
-    "count": 1,
     "name": "Secret Box",
     "set": "TWM",
     "number": "163"
-   },
-   {
-    "count": 1,
-    "name": "Tool Scrapper",
-    "set": "ASC",
-    "number": "212"
    },
    {
     "count": 2,
@@ -490,19 +499,7 @@
     "number": "95"
    },
    {
-    "count": 1,
-    "name": "Air Balloon",
-    "set": "ASC",
-    "number": "181"
-   },
-   {
     "count": 2,
-    "name": "Team Rocket's Watchtower",
-    "set": "DRI",
-    "number": "180"
-   },
-   {
-    "count": 1,
     "name": "N's Castle",
     "set": "JTG",
     "number": "152"
@@ -518,10 +515,11 @@
  {
   "name": "Slowking Seek Inspiration",
   "share": 7.17,
-  "source_url": "https://limitlesstcg.com/decks/list/29605",
+  "source_url": "https://limitlesstcg.com/decks/list/29429",
   "archetype_url": "https://limitlesstcg.com/decks/322",
-  "tournament": "26th September 2026 - Regional Frankfurt",
-  "placement": 6,
+  "tournament": "19th September 2026 - Indonesia Premier Ball League",
+  "country": "ID",
+  "placement": 2,
   "cards": [
    {
     "count": 4,
@@ -561,15 +559,9 @@
    },
    {
     "count": 1,
-    "name": "Annihilape",
-    "set": "PBL",
-    "number": "41"
-   },
-   {
-    "count": 1,
-    "name": "Zeraora",
-    "set": "DRI",
-    "number": "78"
+    "name": "Lillie's Clefairy ex",
+    "set": "JTG",
+    "number": "56"
    },
    {
     "count": 1,
@@ -585,15 +577,21 @@
    },
    {
     "count": 1,
-    "name": "Mew ex",
+    "name": "Unown",
     "set": "30C",
-    "number": "66"
+    "number": "72"
    },
    {
     "count": 1,
-    "name": "Lillie's Clefairy ex",
-    "set": "JTG",
-    "number": "56"
+    "name": "Zeraora",
+    "set": "DRI",
+    "number": "78"
+   },
+   {
+    "count": 4,
+    "name": "Lillie's Determination",
+    "set": "MEG",
+    "number": "119"
    },
    {
     "count": 4,
@@ -602,10 +600,10 @@
     "number": "145"
    },
    {
-    "count": 4,
-    "name": "Lillie's Determination",
+    "count": 1,
+    "name": "Boss's Orders",
     "set": "MEG",
-    "number": "119"
+    "number": "114"
    },
    {
     "count": 4,
@@ -626,22 +624,22 @@
     "number": "94"
    },
    {
-    "count": 3,
+    "count": 2,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
    },
    {
     "count": 1,
-    "name": "Secret Box",
-    "set": "TWM",
-    "number": "163"
-   },
-   {
-    "count": 1,
     "name": "Switch",
     "set": "MEG",
     "number": "130"
+   },
+   {
+    "count": 1,
+    "name": "Prime Catcher",
+    "set": "TEF",
+    "number": "157"
    },
    {
     "count": 4,
@@ -662,7 +660,7 @@
     "number": "13"
    },
    {
-    "count": 2,
+    "count": 3,
     "name": "Boomerang Energy",
     "set": "TWM",
     "number": "166"
@@ -675,6 +673,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29493",
   "archetype_url": "https://limitlesstcg.com/decks/350",
   "tournament": "26th September 2026 - Regional Frankfurt",
+  "country": "DE",
   "placement": 1,
   "cards": [
    {
@@ -829,6 +828,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29602",
   "archetype_url": "https://limitlesstcg.com/decks/336",
   "tournament": "26th September 2026 - Regional Frankfurt",
+  "country": "DE",
   "placement": 3,
   "cards": [
    {
@@ -1007,6 +1007,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29612",
   "archetype_url": "https://limitlesstcg.com/decks/376",
   "tournament": "26th September 2026 - Regional Frankfurt",
+  "country": "DE",
   "placement": 16,
   "cards": [
    {
@@ -1146,10 +1147,11 @@
  {
   "name": "Crustle Mysterious Rock Inn",
   "share": 3.18,
-  "source_url": "https://limitlesstcg.com/decks/list/29063",
+  "source_url": "https://limitlesstcg.com/decks/list/28756",
   "archetype_url": "https://limitlesstcg.com/decks/341",
-  "tournament": "26th September 2026 - Regional Frankfurt",
-  "placement": 19,
+  "tournament": "28th August 2026 - World Championships 2026",
+  "country": "US",
+  "placement": 5,
   "cards": [
    {
     "count": 4,
@@ -1171,6 +1173,12 @@
    },
    {
     "count": 4,
+    "name": "Team Rocket's Petrel",
+    "set": "DRI",
+    "number": "176"
+   },
+   {
+    "count": 4,
     "name": "Lillie's Determination",
     "set": "MEG",
     "number": "119"
@@ -1182,40 +1190,28 @@
     "number": "114"
    },
    {
-    "count": 4,
-    "name": "Team Rocket's Petrel",
-    "set": "DRI",
-    "number": "176"
+    "count": 3,
+    "name": "Eri",
+    "set": "TEF",
+    "number": "146"
    },
    {
-    "count": 3,
+    "count": 2,
     "name": "Hilda",
     "set": "WHT",
     "number": "84"
    },
    {
-    "count": 2,
+    "count": 1,
     "name": "Xerosic's Machinations",
     "set": "SFA",
     "number": "64"
-   },
-   {
-    "count": 2,
-    "name": "Eri",
-    "set": "TEF",
-    "number": "146"
    },
    {
     "count": 1,
     "name": "Pokémon Center Lady",
     "set": "MEG",
     "number": "123"
-   },
-   {
-    "count": 1,
-    "name": "Bianca's Devotion",
-    "set": "TEF",
-    "number": "142"
    },
    {
     "count": 4,
@@ -1237,9 +1233,9 @@
    },
    {
     "count": 1,
-    "name": "Ultra Ball",
-    "set": "MEG",
-    "number": "131"
+    "name": "Special Red Card",
+    "set": "CRI",
+    "number": "82"
    },
    {
     "count": 1,
@@ -1249,9 +1245,15 @@
    },
    {
     "count": 1,
-    "name": "Hero's Cape",
-    "set": "TEF",
-    "number": "152"
+    "name": "Ultra Ball",
+    "set": "MEG",
+    "number": "131"
+   },
+   {
+    "count": 1,
+    "name": "Enhanced Hammer",
+    "set": "TWM",
+    "number": "148"
    },
    {
     "count": 1,
@@ -1261,9 +1263,9 @@
    },
    {
     "count": 1,
-    "name": "Team Rocket's Factory",
-    "set": "DRI",
-    "number": "173"
+    "name": "Hero's Cape",
+    "set": "TEF",
+    "number": "152"
    },
    {
     "count": 1,
@@ -1273,15 +1275,15 @@
    },
    {
     "count": 1,
-    "name": "Prism Tower",
-    "set": "CRI",
-    "number": "80"
+    "name": "Festival Grounds",
+    "set": "TWM",
+    "number": "149"
    },
    {
-    "count": 4,
-    "name": "Spiky Energy",
-    "set": "JTG",
-    "number": "159"
+    "count": 1,
+    "name": "Team Rocket's Factory",
+    "set": "DRI",
+    "number": "173"
    },
    {
     "count": 4,
@@ -1294,6 +1296,12 @@
     "name": "Mist Energy",
     "set": "TEF",
     "number": "161"
+   },
+   {
+    "count": 4,
+    "name": "Spiky Energy",
+    "set": "JTG",
+    "number": "159"
    },
    {
     "count": 1,
@@ -1309,6 +1317,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29479",
   "archetype_url": "https://limitlesstcg.com/decks/353",
   "tournament": "26th September 2026 - Regional Brisbane",
+  "country": "AU",
   "placement": 7,
   "cards": [
    {
@@ -1472,10 +1481,11 @@
  {
   "name": "Dhelmise Hide n' Sneak",
   "share": 2.32,
-  "source_url": "https://limitlesstcg.com/decks/list/29636",
+  "source_url": "https://limitlesstcg.com/decks/list/29017",
   "archetype_url": "https://limitlesstcg.com/decks/374",
-  "tournament": "26th September 2026 - Regional Frankfurt",
-  "placement": 49,
+  "tournament": "19th September 2026 - Regional Baltimore, MD",
+  "country": "US",
+  "placement": 19,
   "cards": [
    {
     "count": 4,
@@ -1484,10 +1494,22 @@
     "number": "33"
    },
    {
-    "count": 3,
+    "count": 4,
     "name": "Banette",
     "set": "PBL",
     "number": "34"
+   },
+   {
+    "count": 4,
+    "name": "Poltchageist",
+    "set": "PBL",
+    "number": "5"
+   },
+   {
+    "count": 4,
+    "name": "Sinistcha",
+    "set": "PBL",
+    "number": "6"
    },
    {
     "count": 4,
@@ -1496,58 +1518,40 @@
     "number": "39"
    },
    {
-    "count": 3,
-    "name": "Poltchageist",
-    "set": "PBL",
-    "number": "5"
-   },
-   {
     "count": 2,
-    "name": "Sinistcha",
-    "set": "PBL",
-    "number": "6"
+    "name": "Lillie's Clefairy ex",
+    "set": "JTG",
+    "number": "56"
    },
    {
-    "count": 3,
+    "count": 1,
     "name": "Dunsparce",
     "set": "JTG",
     "number": "120"
    },
    {
-    "count": 2,
+    "count": 1,
     "name": "Dudunsparce",
     "set": "TEF",
     "number": "129"
    },
    {
     "count": 1,
-    "name": "Dudunsparce ex",
-    "set": "JTG",
-    "number": "121"
+    "name": "Latias ex",
+    "set": "SSP",
+    "number": "76"
    },
    {
     "count": 1,
-    "name": "Shaymin",
-    "set": "DRI",
-    "number": "10"
-   },
-   {
-    "count": 1,
-    "name": "Lillie's Clefairy ex",
-    "set": "JTG",
-    "number": "56"
-   },
-   {
-    "count": 4,
-    "name": "Lillie's Determination",
-    "set": "MEG",
-    "number": "119"
-   },
-   {
-    "count": 4,
-    "name": "Gwynn",
+    "name": "Spiritomb",
     "set": "PBL",
-    "number": "78"
+    "number": "35"
+   },
+   {
+    "count": 4,
+    "name": "Explorer's Guidance",
+    "set": "TEF",
+    "number": "147"
    },
    {
     "count": 3,
@@ -1556,10 +1560,16 @@
     "number": "114"
    },
    {
-    "count": 1,
-    "name": "Black Belt's Training",
-    "set": "JTG",
-    "number": "143"
+    "count": 3,
+    "name": "Lillie's Determination",
+    "set": "MEG",
+    "number": "119"
+   },
+   {
+    "count": 3,
+    "name": "Gwynn",
+    "set": "PBL",
+    "number": "78"
    },
    {
     "count": 4,
@@ -1574,40 +1584,10 @@
     "number": "81"
    },
    {
-    "count": 1,
+    "count": 3,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
-   },
-   {
-    "count": 1,
-    "name": "Sacred Ash",
-    "set": "DRI",
-    "number": "168"
-   },
-   {
-    "count": 1,
-    "name": "Switch",
-    "set": "MEG",
-    "number": "130"
-   },
-   {
-    "count": 1,
-    "name": "Secret Box",
-    "set": "TWM",
-    "number": "163"
-   },
-   {
-    "count": 1,
-    "name": "Air Balloon",
-    "set": "ASC",
-    "number": "181"
-   },
-   {
-    "count": 1,
-    "name": "Brave Bangle",
-    "set": "WHT",
-    "number": "80"
    },
    {
     "count": 3,
@@ -1616,32 +1596,57 @@
     "number": "80"
    },
    {
-    "count": 4,
+    "count": 3,
+    "name": "Psychic Energy",
+    "set": "MEE",
+    "number": "13"
+   },
+   {
+    "count": 3,
     "name": "Telepathic Psychic Energy",
     "set": "POR",
     "number": "88"
    },
    {
-    "count": 3,
-    "name": "Psychic Energy",
-    "set": "MEE",
-    "number": "13"
+    "count": 1,
+    "name": "Legacy Energy",
+    "set": "TWM",
+    "number": "167"
    }
   ]
  },
  {
   "name": "Hydrapple ex",
   "share": 2.25,
-  "source_url": "https://limitlesstcg.com/decks/list/29611",
+  "source_url": "https://limitlesstcg.com/decks/list/29002",
   "archetype_url": "https://limitlesstcg.com/decks/352",
-  "tournament": "26th September 2026 - Regional Frankfurt",
-  "placement": 15,
+  "tournament": "19th September 2026 - Regional Baltimore, MD",
+  "country": "US",
+  "placement": 2,
   "cards": [
    {
     "count": 4,
     "name": "Teal Mask Ogerpon ex",
     "set": "TWM",
     "number": "25"
+   },
+   {
+    "count": 2,
+    "name": "Chikorita",
+    "set": "ASC",
+    "number": "8"
+   },
+   {
+    "count": 2,
+    "name": "Bayleef",
+    "set": "MEG",
+    "number": "9"
+   },
+   {
+    "count": 2,
+    "name": "Meganium",
+    "set": "MEG",
+    "number": "10"
    },
    {
     "count": 2,
@@ -1662,52 +1667,10 @@
     "number": "14"
    },
    {
-    "count": 1,
-    "name": "Chikorita",
-    "set": "ASC",
-    "number": "8"
-   },
-   {
-    "count": 1,
-    "name": "Chikorita",
-    "set": "MEG",
-    "number": "8"
-   },
-   {
-    "count": 1,
-    "name": "Bayleef",
-    "set": "ASC",
-    "number": "9"
-   },
-   {
-    "count": 1,
-    "name": "Bayleef",
-    "set": "MEG",
-    "number": "9"
-   },
-   {
     "count": 2,
-    "name": "Meganium",
-    "set": "MEG",
-    "number": "10"
-   },
-   {
-    "count": 1,
-    "name": "Hoothoot",
-    "set": "SCR",
-    "number": "114"
-   },
-   {
-    "count": 1,
-    "name": "Noctowl",
-    "set": "SCR",
-    "number": "115"
-   },
-   {
-    "count": 1,
-    "name": "Celebi",
-    "set": "MEG",
-    "number": "12"
+    "name": "Meowth ex",
+    "set": "POR",
+    "number": "62"
    },
    {
     "count": 1,
@@ -1717,9 +1680,9 @@
    },
    {
     "count": 1,
-    "name": "Meowth ex",
-    "set": "POR",
-    "number": "62"
+    "name": "Celebi",
+    "set": "MEG",
+    "number": "12"
    },
    {
     "count": 1,
@@ -1747,9 +1710,9 @@
    },
    {
     "count": 1,
-    "name": "Dawn",
-    "set": "PFL",
-    "number": "87"
+    "name": "Ciphermaniac's Codebreaking",
+    "set": "TEF",
+    "number": "145"
    },
    {
     "count": 1,
@@ -1765,24 +1728,18 @@
    },
    {
     "count": 4,
-    "name": "Ultra Ball",
-    "set": "MEG",
-    "number": "131"
-   },
-   {
-    "count": 4,
     "name": "Bug Catching Set",
     "set": "TWM",
     "number": "143"
    },
    {
-    "count": 2,
-    "name": "Poké Pad",
-    "set": "POR",
-    "number": "81"
+    "count": 4,
+    "name": "Ultra Ball",
+    "set": "MEG",
+    "number": "131"
    },
    {
-    "count": 1,
+    "count": 2,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
@@ -1794,7 +1751,13 @@
     "number": "165"
    },
    {
-    "count": 3,
+    "count": 1,
+    "name": "Poké Pad",
+    "set": "POR",
+    "number": "81"
+   },
+   {
+    "count": 4,
     "name": "Forest of Vitality",
     "set": "MEG",
     "number": "117"
@@ -1813,6 +1776,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29480",
   "archetype_url": "https://limitlesstcg.com/decks/345",
   "tournament": "26th September 2026 - Regional Brisbane",
+  "country": "AU",
   "placement": 8,
   "cards": [
    {
@@ -1946,22 +1910,23 @@
  {
   "name": "Lillie's Clefairy ex",
   "share": 1.64,
-  "source_url": "https://limitlesstcg.com/decks/list/29454",
+  "source_url": "https://limitlesstcg.com/decks/list/29482",
   "archetype_url": "https://limitlesstcg.com/decks/326",
-  "tournament": "20th September 2026 - Champions League Yokohama",
-  "placement": 2,
+  "tournament": "26th September 2026 - Regional Brisbane",
+  "country": "AU",
+  "placement": 10,
   "cards": [
+   {
+    "count": 4,
+    "name": "Mega Kangaskhan ex",
+    "set": "MEG",
+    "number": "104"
+   },
    {
     "count": 3,
     "name": "Lillie's Clefairy ex",
     "set": "JTG",
     "number": "56"
-   },
-   {
-    "count": 3,
-    "name": "Mega Kangaskhan ex",
-    "set": "MEG",
-    "number": "104"
    },
    {
     "count": 3,
@@ -1989,21 +1954,15 @@
    },
    {
     "count": 1,
-    "name": "Koraidon ex",
+    "name": "Fezandipiti ex",
     "set": "ASC",
-    "number": "121"
+    "number": "142"
    },
    {
     "count": 1,
     "name": "Iron Leaves ex",
     "set": "TEF",
     "number": "25"
-   },
-   {
-    "count": 1,
-    "name": "Fezandipiti ex",
-    "set": "ASC",
-    "number": "142"
    },
    {
     "count": 1,
@@ -2018,16 +1977,22 @@
     "number": "18"
    },
    {
+    "count": 1,
+    "name": "Mew ex",
+    "set": "30C",
+    "number": "66"
+   },
+   {
+    "count": 1,
+    "name": "Passimian",
+    "set": "SSP",
+    "number": "111"
+   },
+   {
     "count": 3,
     "name": "Crispin",
     "set": "SCR",
     "number": "133"
-   },
-   {
-    "count": 3,
-    "name": "Boss's Orders",
-    "set": "MEG",
-    "number": "114"
    },
    {
     "count": 2,
@@ -2036,16 +2001,16 @@
     "number": "170"
    },
    {
-    "count": 1,
-    "name": "Lillie's Determination",
-    "set": "MEG",
-    "number": "119"
-   },
-   {
-    "count": 1,
+    "count": 2,
     "name": "Ciphermaniac's Codebreaking",
     "set": "TEF",
     "number": "145"
+   },
+   {
+    "count": 2,
+    "name": "Boss's Orders",
+    "set": "MEG",
+    "number": "114"
    },
    {
     "count": 4,
@@ -2084,22 +2049,16 @@
     "number": "151"
    },
    {
-    "count": 3,
+    "count": 4,
     "name": "Area Zero Underdepths",
     "set": "SCR",
     "number": "131"
    },
    {
-    "count": 6,
+    "count": 5,
     "name": "Grass Energy",
     "set": "MEE",
     "number": "9"
-   },
-   {
-    "count": 3,
-    "name": "Telepathic Psychic Energy",
-    "set": "POR",
-    "number": "88"
    },
    {
     "count": 2,
@@ -2108,16 +2067,22 @@
     "number": "13"
    },
    {
-    "count": 1,
-    "name": "Fighting Energy",
-    "set": "MEE",
-    "number": "14"
+    "count": 2,
+    "name": "Telepathic Psychic Energy",
+    "set": "POR",
+    "number": "88"
    },
    {
     "count": 1,
     "name": "Water Energy",
     "set": "MEE",
     "number": "11"
+   },
+   {
+    "count": 1,
+    "name": "Fighting Energy",
+    "set": "MEE",
+    "number": "14"
    },
    {
     "count": 1,
@@ -2136,16 +2101,23 @@
  {
   "name": "Raging Bolt ex",
   "share": 1.22,
-  "source_url": "https://limitlesstcg.com/decks/list/29460",
+  "source_url": "https://limitlesstcg.com/decks/list/28788",
   "archetype_url": "https://limitlesstcg.com/decks/280",
-  "tournament": "20th September 2026 - Champions League Yokohama",
-  "placement": 7,
+  "tournament": "28th August 2026 - World Championships 2026",
+  "country": "US",
+  "placement": 43,
   "cards": [
    {
     "count": 4,
     "name": "Mega Kangaskhan ex",
     "set": "MEG",
     "number": "104"
+   },
+   {
+    "count": 3,
+    "name": "Meowth ex",
+    "set": "POR",
+    "number": "62"
    },
    {
     "count": 3,
@@ -2161,21 +2133,15 @@
    },
    {
     "count": 2,
-    "name": "Talonflame ex",
-    "set": "M6",
-    "number": "62"
-   },
-   {
-    "count": 2,
-    "name": "Meowth ex",
-    "set": "POR",
-    "number": "62"
-   },
-   {
-    "count": 2,
     "name": "Latias ex",
     "set": "SSP",
     "number": "76"
+   },
+   {
+    "count": 2,
+    "name": "Lillie's Clefairy ex",
+    "set": "JTG",
+    "number": "56"
    },
    {
     "count": 1,
@@ -2185,9 +2151,9 @@
    },
    {
     "count": 1,
-    "name": "Fezandipiti ex",
-    "set": "ASC",
-    "number": "142"
+    "name": "Chien-Pao",
+    "set": "SSP",
+    "number": "56"
    },
    {
     "count": 1,
@@ -2197,9 +2163,9 @@
    },
    {
     "count": 1,
-    "name": "Chien-Pao",
-    "set": "SSP",
-    "number": "56"
+    "name": "Fezandipiti ex",
+    "set": "ASC",
+    "number": "142"
    },
    {
     "count": 4,
@@ -2221,15 +2187,15 @@
    },
    {
     "count": 1,
-    "name": "Judge",
-    "set": "POR",
-    "number": "76"
+    "name": "Ciphermaniac's Codebreaking",
+    "set": "TEF",
+    "number": "145"
    },
    {
     "count": 1,
-    "name": "Zinnia's Trust",
-    "set": "M6",
-    "number": "69"
+    "name": "Lillie's Determination",
+    "set": "MEG",
+    "number": "119"
    },
    {
     "count": 4,
@@ -2245,21 +2211,15 @@
    },
    {
     "count": 2,
-    "name": "Glass Trumpet",
-    "set": "SCR",
-    "number": "135"
-   },
-   {
-    "count": 1,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
    },
    {
-    "count": 1,
-    "name": "Energy Retrieval",
-    "set": "SVI",
-    "number": "171"
+    "count": 2,
+    "name": "Glass Trumpet",
+    "set": "SCR",
+    "number": "135"
    },
    {
     "count": 1,
@@ -2274,22 +2234,28 @@
     "number": "131"
    },
    {
-    "count": 8,
+    "count": 7,
     "name": "Grass Energy",
     "set": "MEE",
     "number": "9"
    },
    {
-    "count": 3,
+    "count": 2,
     "name": "Lightning Energy",
     "set": "MEE",
     "number": "12"
    },
    {
-    "count": 3,
+    "count": 2,
     "name": "Fighting Energy",
     "set": "MEE",
     "number": "14"
+   },
+   {
+    "count": 2,
+    "name": "Psychic Energy",
+    "set": "MEE",
+    "number": "13"
    },
    {
     "count": 1,
@@ -2302,34 +2268,35 @@
  {
   "name": "Marnie's Grimmsnarl ex",
   "share": 1.22,
-  "source_url": "https://limitlesstcg.com/decks/list/28947",
+  "source_url": "https://limitlesstcg.com/decks/list/29663",
   "archetype_url": "https://limitlesstcg.com/decks/329",
-  "tournament": "19th September 2026 - Regional Baltimore, MD",
-  "placement": 13,
+  "tournament": "26th September 2026 - Regional Frankfurt",
+  "country": "DE",
+  "placement": 85,
   "cards": [
    {
     "count": 4,
-    "name": "Munkidori",
-    "set": "TWM",
-    "number": "95"
-   },
-   {
-    "count": 3,
     "name": "Marnie's Impidimp",
     "set": "DRI",
     "number": "134"
    },
    {
-    "count": 2,
+    "count": 3,
     "name": "Marnie's Morgrem",
     "set": "DRI",
     "number": "135"
    },
    {
-    "count": 3,
+    "count": 2,
     "name": "Marnie's Grimmsnarl ex",
     "set": "DRI",
     "number": "136"
+   },
+   {
+    "count": 4,
+    "name": "Munkidori",
+    "set": "TWM",
+    "number": "95"
    },
    {
     "count": 3,
@@ -2345,21 +2312,21 @@
    },
    {
     "count": 1,
-    "name": "Yveltal",
-    "set": "MEG",
-    "number": "88"
-   },
-   {
-    "count": 1,
     "name": "Budew",
     "set": "ASC",
     "number": "16"
    },
    {
     "count": 1,
-    "name": "Shaymin",
-    "set": "DRI",
-    "number": "10"
+    "name": "Yveltal",
+    "set": "MEG",
+    "number": "88"
+   },
+   {
+    "count": 1,
+    "name": "Tatsugiri",
+    "set": "TWM",
+    "number": "131"
    },
    {
     "count": 4,
@@ -2369,9 +2336,9 @@
    },
    {
     "count": 3,
-    "name": "Team Rocket's Petrel",
-    "set": "DRI",
-    "number": "176"
+    "name": "Boss's Orders",
+    "set": "MEG",
+    "number": "114"
    },
    {
     "count": 3,
@@ -2380,10 +2347,10 @@
     "number": "78"
    },
    {
-    "count": 3,
-    "name": "Boss's Orders",
-    "set": "MEG",
-    "number": "114"
+    "count": 2,
+    "name": "Team Rocket's Petrel",
+    "set": "DRI",
+    "number": "176"
    },
    {
     "count": 4,
@@ -2392,13 +2359,7 @@
     "number": "81"
    },
    {
-    "count": 2,
-    "name": "Rare Candy",
-    "set": "MEG",
-    "number": "125"
-   },
-   {
-    "count": 2,
+    "count": 3,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
@@ -2411,21 +2372,27 @@
    },
    {
     "count": 1,
-    "name": "Secret Box",
-    "set": "TWM",
-    "number": "163"
-   },
-   {
-    "count": 1,
-    "name": "Dark Bell",
-    "set": "PBL",
-    "number": "75"
+    "name": "Energy Switch",
+    "set": "MEG",
+    "number": "115"
    },
    {
     "count": 1,
     "name": "Special Red Card",
     "set": "CRI",
     "number": "82"
+   },
+   {
+    "count": 1,
+    "name": "Unfair Stamp",
+    "set": "TWM",
+    "number": "165"
+   },
+   {
+    "count": 1,
+    "name": "Rare Candy",
+    "set": "MEG",
+    "number": "125"
    },
    {
     "count": 1,
@@ -2453,6 +2420,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29514",
   "archetype_url": "https://limitlesstcg.com/decks/356",
   "tournament": "26th September 2026 - Regional Brisbane",
+  "country": "AU",
   "placement": 48,
   "cards": [
    {
@@ -2580,11 +2548,24 @@
  {
   "name": "Cynthia's Garchomp ex",
   "share": 0.88,
-  "source_url": "https://limitlesstcg.com/decks/list/29999",
+  "source_url": "https://limitlesstcg.com/decks/list/26833",
   "archetype_url": "https://limitlesstcg.com/decks/332",
   "tournament": "26th September 2026 - Regional Frankfurt",
-  "placement": 1,
+  "country": "DE",
+  "placement": 43,
   "cards": [
+   {
+    "count": 4,
+    "name": "Cynthia's Roselia",
+    "set": "DRI",
+    "number": "7"
+   },
+   {
+    "count": 3,
+    "name": "Cynthia's Roserade",
+    "set": "DRI",
+    "number": "8"
+   },
    {
     "count": 4,
     "name": "Cynthia's Gible",
@@ -2604,24 +2585,6 @@
     "number": "104"
    },
    {
-    "count": 4,
-    "name": "Cynthia's Roselia",
-    "set": "DRI",
-    "number": "7"
-   },
-   {
-    "count": 4,
-    "name": "Cynthia's Roserade",
-    "set": "DRI",
-    "number": "8"
-   },
-   {
-    "count": 1,
-    "name": "Shaymin",
-    "set": "DRI",
-    "number": "10"
-   },
-   {
     "count": 1,
     "name": "Cynthia's Spiritomb",
     "set": "DRI",
@@ -2634,22 +2597,16 @@
     "number": "119"
    },
    {
-    "count": 3,
+    "count": 4,
     "name": "Boss's Orders",
     "set": "MEG",
     "number": "114"
    },
    {
     "count": 2,
-    "name": "Hilda",
-    "set": "WHT",
-    "number": "84"
-   },
-   {
-    "count": 2,
-    "name": "Judge",
-    "set": "POR",
-    "number": "76"
+    "name": "Team Rocket's Petrel",
+    "set": "DRI",
+    "number": "176"
    },
    {
     "count": 4,
@@ -2676,16 +2633,28 @@
     "number": "186"
    },
    {
-    "count": 1,
+    "count": 2,
     "name": "Premium Power Pro",
     "set": "MEG",
     "number": "124"
    },
    {
     "count": 1,
-    "name": "Special Red Card",
-    "set": "CRI",
-    "number": "82"
+    "name": "Rare Candy",
+    "set": "MEG",
+    "number": "125"
+   },
+   {
+    "count": 1,
+    "name": "Unfair Stamp",
+    "set": "TWM",
+    "number": "165"
+   },
+   {
+    "count": 1,
+    "name": "Night Stretcher",
+    "set": "ASC",
+    "number": "196"
    },
    {
     "count": 1,
@@ -2694,7 +2663,7 @@
     "number": "130"
    },
    {
-    "count": 3,
+    "count": 4,
     "name": "Cynthia's Power Weight",
     "set": "DRI",
     "number": "162"
@@ -2710,12 +2679,6 @@
     "name": "Fighting Energy",
     "set": "MEE",
     "number": "14"
-   },
-   {
-    "count": 1,
-    "name": "Neo Upper Energy",
-    "set": "TEF",
-    "number": "162"
    }
   ]
  },
@@ -2725,6 +2688,7 @@
   "source_url": "https://limitlesstcg.com/decks/list/29436",
   "archetype_url": "https://limitlesstcg.com/decks/354",
   "tournament": "19th September 2026 - Indonesia Premier Ball League",
+  "country": "ID",
   "placement": 13,
   "cards": [
    {
@@ -2864,10 +2828,11 @@
  {
   "name": "Toxtricity Sinister Surge",
   "share": 0.43,
-  "source_url": "https://limitlesstcg.com/decks/list/25607",
+  "source_url": "https://limitlesstcg.com/decks/list/28777",
   "archetype_url": "https://limitlesstcg.com/decks/355",
-  "tournament": "28th March 2026 - Champions League Osaka",
-  "placement": 16,
+  "tournament": "28th August 2026 - World Championships 2026",
+  "country": "US",
+  "placement": 30,
   "cards": [
    {
     "count": 4,
@@ -2889,15 +2854,15 @@
    },
    {
     "count": 1,
-    "name": "Mega Absol ex",
-    "set": "MEG",
-    "number": "86"
+    "name": "Shaymin",
+    "set": "DRI",
+    "number": "10"
    },
    {
     "count": 1,
-    "name": "Brute Bonnet",
-    "set": "TWM",
-    "number": "118"
+    "name": "Chi-Yu",
+    "set": "PBL",
+    "number": "59"
    },
    {
     "count": 1,
@@ -2907,9 +2872,9 @@
    },
    {
     "count": 1,
-    "name": "Fezandipiti ex",
-    "set": "ASC",
-    "number": "142"
+    "name": "Brute Bonnet",
+    "set": "TWM",
+    "number": "118"
    },
    {
     "count": 1,
@@ -2919,15 +2884,15 @@
    },
    {
     "count": 1,
-    "name": "Shaymin",
-    "set": "DRI",
-    "number": "10"
+    "name": "Fezandipiti ex",
+    "set": "ASC",
+    "number": "142"
    },
    {
-    "count": 4,
-    "name": "Team Rocket's Petrel",
-    "set": "DRI",
-    "number": "176"
+    "count": 1,
+    "name": "Mega Absol ex",
+    "set": "MEG",
+    "number": "86"
    },
    {
     "count": 4,
@@ -2940,6 +2905,24 @@
     "name": "Boss's Orders",
     "set": "MEG",
     "number": "114"
+   },
+   {
+    "count": 2,
+    "name": "Team Rocket's Petrel",
+    "set": "DRI",
+    "number": "176"
+   },
+   {
+    "count": 1,
+    "name": "Judge",
+    "set": "POR",
+    "number": "76"
+   },
+   {
+    "count": 1,
+    "name": "Morty's Conviction",
+    "set": "TEF",
+    "number": "155"
    },
    {
     "count": 4,
@@ -2955,6 +2938,12 @@
    },
    {
     "count": 2,
+    "name": "Energy Recycler",
+    "set": "DRI",
+    "number": "164"
+   },
+   {
+    "count": 2,
     "name": "Night Stretcher",
     "set": "ASC",
     "number": "196"
@@ -2966,16 +2955,10 @@
     "number": "186"
    },
    {
-    "count": 2,
-    "name": "Team Rocket's Transceiver",
-    "set": "DRI",
-    "number": "178"
-   },
-   {
     "count": 1,
-    "name": "Ultra Ball",
-    "set": "MEG",
-    "number": "131"
+    "name": "Secret Box",
+    "set": "TWM",
+    "number": "163"
    },
    {
     "count": 1,
@@ -2985,9 +2968,9 @@
    },
    {
     "count": 1,
-    "name": "Energy Recycler",
-    "set": "DRI",
-    "number": "164"
+    "name": "Ultra Ball",
+    "set": "MEG",
+    "number": "131"
    },
    {
     "count": 1,
@@ -2996,31 +2979,25 @@
     "number": "82"
    },
    {
-    "count": 1,
-    "name": "Secret Box",
-    "set": "TWM",
-    "number": "163"
-   },
-   {
     "count": 2,
     "name": "Air Balloon",
     "set": "ASC",
     "number": "181"
    },
    {
-    "count": 1,
-    "name": "Team Rocket's Factory",
-    "set": "DRI",
-    "number": "173"
-   },
-   {
-    "count": 1,
+    "count": 2,
     "name": "Team Rocket's Watchtower",
     "set": "DRI",
     "number": "180"
    },
    {
-    "count": 11,
+    "count": 1,
+    "name": "Lumiose City",
+    "set": "POR",
+    "number": "77"
+   },
+   {
+    "count": 10,
     "name": "Darkness Energy",
     "set": "MEE",
     "number": "15"
@@ -3030,10 +3007,11 @@
  {
   "name": "Rocket's Mewtwo ex",
   "share": 0.36,
-  "source_url": "https://limitlesstcg.com/decks/list/28254",
+  "source_url": "https://limitlesstcg.com/decks/list/29029",
   "archetype_url": "https://limitlesstcg.com/decks/337",
-  "tournament": "10th June 2026 - NAIC 2026, New Orleans",
-  "placement": 7,
+  "tournament": "19th September 2026 - Regional Baltimore, MD",
+  "country": "US",
+  "placement": 36,
   "cards": [
    {
     "count": 4,
@@ -3055,15 +3033,15 @@
    },
    {
     "count": 2,
-    "name": "Team Rocket's Mimikyu",
-    "set": "DRI",
-    "number": "87"
-   },
-   {
-    "count": 2,
     "name": "Team Rocket's Articuno",
     "set": "DRI",
     "number": "51"
+   },
+   {
+    "count": 2,
+    "name": "Team Rocket's Mimikyu",
+    "set": "DRI",
+    "number": "87"
    },
    {
     "count": 1,
@@ -3073,15 +3051,15 @@
    },
    {
     "count": 4,
-    "name": "Lillie's Determination",
-    "set": "MEG",
-    "number": "119"
-   },
-   {
-    "count": 4,
     "name": "Team Rocket's Ariana",
     "set": "DRI",
     "number": "171"
+   },
+   {
+    "count": 3,
+    "name": "Lillie's Determination",
+    "set": "MEG",
+    "number": "119"
    },
    {
     "count": 3,
@@ -3094,12 +3072,6 @@
     "name": "Team Rocket's Proton",
     "set": "DRI",
     "number": "177"
-   },
-   {
-    "count": 1,
-    "name": "Team Rocket's Petrel",
-    "set": "DRI",
-    "number": "176"
    },
    {
     "count": 4,
@@ -3120,16 +3092,34 @@
     "number": "196"
    },
    {
-    "count": 2,
+    "count": 1,
     "name": "Bug Catching Set",
     "set": "TWM",
     "number": "143"
    },
    {
     "count": 1,
+    "name": "Energy Search",
+    "set": "POR",
+    "number": "72"
+   },
+   {
+    "count": 1,
     "name": "Energy Switch",
     "set": "MEG",
     "number": "115"
+   },
+   {
+    "count": 1,
+    "name": "Pokégear 3.0",
+    "set": "SVI",
+    "number": "186"
+   },
+   {
+    "count": 1,
+    "name": "Secret Box",
+    "set": "TWM",
+    "number": "163"
    },
    {
     "count": 2,
@@ -3139,9 +3129,9 @@
    },
    {
     "count": 1,
-    "name": "Maximum Belt",
-    "set": "TEF",
-    "number": "154"
+    "name": "Brave Bangle",
+    "set": "WHT",
+    "number": "80"
    },
    {
     "count": 2,
