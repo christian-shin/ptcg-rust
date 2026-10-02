@@ -2631,5 +2631,115 @@
   "status": "verified",
   "note": "batch t-sample (Sonnet port; chosen over luna arms); findCardList undefined check unreachable",
   "twinleaf": "Ethan's Ho-Oh ex ASC"
+ },
+ "Delibird MEG 105": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Delibird MEG"
+ },
+ "Buneary MEG 107": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Buneary MEG"
+ },
+ "Pawmot PFL 34": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Pawmot PFL"
+ },
+ "Paldean Tauros SSP 39": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Paldean Tauros SSP 39"
+ },
+ "Passimian SSP 111": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Passimian SSP"
+ },
+ "Swablu SSP 148": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Swablu SSP"
+ },
+ "Bouffalant SSP 151": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Bouffalant SSP"
+ },
+ "Dhelmise TEF 19": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Dhelmise TEF"
+ },
+ "Beheeyem TEF 74": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Beheeyem TEF"
+ },
+ "Scream Tail TEF 77": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Scream Tail TEF"
+ },
+ "Volbeat TWM 9": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Volbeat TWM"
+ },
+ "Teal Mask Ogerpon TWM 24": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Teal Mask Ogerpon TWM"
+ },
+ "Litwick TWM 36": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Litwick TWM"
+ },
+ "Lampent TWM 37": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Lampent TWM"
+ },
+ "Chandelure TWM 38": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet); BLOCKED_BY_EFFECT throw unreachable (lock check strips the power first)",
+  "twinleaf": "Chandelure TWM"
+ },
+ "Milotic TWM 50": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet); findCardList catch, !fromOpponentsPlay and ability-blocked returns unreachable",
+  "twinleaf": "Milotic TWM"
+ },
+ "Glalie TWM 52": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Glalie TWM"
+ },
+ "Eevee TWM 135": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Eevee TWM"
+ },
+ "Mandibuzz WHT 64": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet); BLOCKED_BY_EFFECT throw and empty-result return after the mandatory prompt unreachable",
+  "twinleaf": "Mandibuzz WHT"
+ },
+ "Ethan's Magcargo ASC 24": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet)",
+  "twinleaf": "Ethan's Magcargo ASC"
+ },
+ "Psyduck ASC 39": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet); Damp callback catch unreachable; pinned Psyduck@ASC|MEP (class defined in 10 Twinleaf files)",
+  "twinleaf": "Psyduck ASC"
+ },
+ "Golduck ASC 40": {
+  "status": "verified",
+  "note": "batch c1 (Sonnet); Damp callback catch unreachable; pinned Golduck@ASC|MEP (class defined in 9 Twinleaf files)",
+  "twinleaf": "Golduck ASC"
  }
 }
