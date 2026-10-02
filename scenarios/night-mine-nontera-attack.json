@@ -1,0 +1,35 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Hop's Snorlax JTG 117",
+      "4 Eevee ex PRE 75",
+      "4 Nighttime Mine ASC 197",
+      "48 Fighting Energy MEE"
+    ],
+    [
+      "4 Hop's Snorlax JTG 117",
+      "4 Eevee ex PRE 75",
+      "4 Nighttime Mine ASC 197",
+      "48 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "stadium": "Night Mine M2a",
+    "active": "Hop's Snorlax JTG",
+    "active_energy": [
+      "4 Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Eevee ex PRE"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Dynamic Press"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Eevee ex PRE 75",
+      "4 Koraidon ex ASC 121",
+      "4 Nighttime Mine ASC 197",
+      "4 Fire Energy MEE",
+      "4 Water Energy MEE",
+      "4 Lightning Energy MEE",
+      "4 Fighting Energy MEE",
+      "32 Psychic Energy MEE"
+    ],
+    [
+      "4 Eevee ex PRE 75",
+      "4 Koraidon ex ASC 121",
+      "4 Nighttime Mine ASC 197",
+      "4 Fire Energy MEE",
+      "4 Water Energy MEE",
+      "4 Lightning Energy MEE",
+      "4 Fighting Energy MEE",
+      "32 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "stadium": "Night Mine M2a",
+    "active": "Koraidon ex ASC",
+    "active_energy": [
+      "3 Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Eevee ex PRE"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Orichalcum Fang"
+    }
+  ]
+}

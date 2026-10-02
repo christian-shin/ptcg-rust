@@ -372,6 +372,7 @@ pub struct Player {
     pub legacy_energy_used: bool,
     /// `usedFanCall` (Fan Rotom SCR; cleared by Fan Rotom at any end of turn).
     pub used_fan_call: bool,
+    pub played_canari: bool,
 }
 
 impl Player {
@@ -437,6 +438,7 @@ impl Player {
             rocket_supporter: false,
             legacy_energy_used: false,
             used_fan_call: false,
+            played_canari: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;
