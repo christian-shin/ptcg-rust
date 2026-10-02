@@ -8,7 +8,9 @@ needed), then the evolved card's set, then the newest regulation mark, and
 follows the chain down to the Basic. gen_carddb.py appends these to the
 engine card DB; they are not pool cards.
 """
-import collections, json, os
+import collections, json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import names
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 cards = json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))
@@ -42,5 +44,5 @@ while todo:
     todo.append(pick)
 json.dump(out, open(os.path.join(ROOT, 'data/support_cards.json'), 'w'), indent=1, ensure_ascii=False)
 for s in out:
-    print('%-30s for %-28s %s' % (s['fullName'], s['for'], '' if s['vanilla'] else 'NEEDS PORT'))
+    print('%-30s for %-28s %s' % (names.label(s['fullName']), names.label(s['for']), '' if s['vanilla'] else 'NEEDS PORT'))
 print(len(out), 'support cards')

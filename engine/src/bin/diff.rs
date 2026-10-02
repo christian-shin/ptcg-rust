@@ -37,6 +37,12 @@ fn sorted_set(v: &[Value]) -> Vec<String> {
     s
 }
 
+/// English key, with the Twinleaf full name in parentheses when it differs.
+fn card_label(d: u16) -> String {
+    let (en, tl) = (ptcg::carddb::en_key(d), ptcg::carddb::def(d).full_name);
+    if en == tl { en.to_string() } else { format!("{} ({})", en, tl) }
+}
+
 fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     let header = &trace["header"];
     let seed = header["seed"].as_u64().unwrap() as u32;
@@ -52,7 +58,7 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     }
     for d in decks.iter().flatten() {
         if ptcg::cards::missing_behavior(*d) {
-            return Outcome::Unsupported(format!("card not ported: {}", ptcg::carddb::def(*d).full_name));
+            return Outcome::Unsupported(format!("card not ported: {}", card_label(*d)));
         }
     }
     let mut g = Game::new(seed);

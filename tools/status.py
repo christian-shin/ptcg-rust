@@ -3,8 +3,8 @@
 usage: status.py [--md]
 
 Ported = the card has no Twinleaf logic or has a Rust port (engine `diff
---list-ported`). Verified = listed in data/verified.json (card fullName ->
-{status, note}) after passing check_cards.py with coverage (any status:
+--list-ported`). Verified = listed in data/verified.json (international card key ->
+{status, note, twinleaf = Twinleaf fullName}; matched by key, else by twinleaf) after passing check_cards.py with coverage (any status:
 verified / partial / blocked, as before); "needs-reverify" entries (the pool row was remapped to another
 printing by tools/map_prints.py) are counted separately. The print-match table
 counts pool.json `print_match` (exact Twinleaf printing found or not).
@@ -23,6 +23,7 @@ def main():
     ported = set(subprocess.run([DIFF, '--list-ported'], capture_output=True, text=True).stdout.split('\n'))
     vpath = os.path.join(ROOT, 'data/verified.json')
     verified = json.load(open(vpath)) if os.path.exists(vpath) else {}
+    by_tl = {e['twinleaf']: e for e in verified.values() if e.get('twinleaf')}   # fallback: Twinleaf name
     tiers = collections.Counter()
     done = collections.Counter()
     ver = collections.Counter()
@@ -33,7 +34,7 @@ def main():
         tiers[t] += 1
         if r.get('fullName') in ported:
             done[t] += 1
-        st = (verified.get(r.get('fullName')) or {}).get('status')
+        st = (verified.get(r.get('key')) or by_tl.get(r.get('fullName')) or {}).get('status')
         if st == 'needs-reverify':
             rev[t] += 1
         elif st:

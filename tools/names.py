@@ -28,3 +28,11 @@ def twinleaf(name):
 def english(full_name):
     """English key for a Twinleaf full name (unchanged if not a pool card)."""
     return _to_en.get(full_name, full_name)
+
+
+def label(name):
+    """Human-readable card label: the English key, with the Twinleaf full name
+    in parentheses when it differs ("Growing Grass Energy POR 86 (Grow [G] Energy M3)")."""
+    tl = twinleaf(name)
+    en = english(tl)
+    return en if en == tl else '%s (%s)' % (en, tl)

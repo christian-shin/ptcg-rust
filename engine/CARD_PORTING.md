@@ -168,11 +168,16 @@ Expect ~1-2 minutes of queue/setup overhead, so use it for runs of 32+ games.
 New worktree? Copy a warm build cache first so the first build isn't from scratch:
 `cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
 
-Card names: tools and `def_by_full_name` accept the official English key from
-`data/pool.json` (`key`, e.g. "Grand Tree SCR 136", or "Grand Tree SCR" when
-unique) as well as Twinleaf's `fullName` ("Great Tree SCR"), which stays the
-identity in traces, the oracle and port pins. `carddb::en_name` / `en_key`
-give the English name of a card.
+Card names: every card has two identifiers. The **international key** is the
+official English name, set code and printing number from `data/pool.json`
+(`key`, e.g. "Growing Grass Energy POR 86", or "Name SET" when unique); use it
+in reports, commit messages, `--tag` text people read, and anything else a human
+reads. **Twinleaf's `fullName`** ("Grow [G] Energy M3", Japanese set codes and
+fan translations) stays the identity inside the oracle, traces, corpus, deck
+files and port pins, and `data/verified.json` records both (`key` and
+`"twinleaf"`). Tools and `def_by_full_name` accept either form; `tools/names.py`
+(`english()`, `twinleaf()`, `label()`) and `carddb::en_name` / `en_key` convert.
+When the two differ, write the key first and the Twinleaf name in parentheses.
 
 `check_cards.py` builds decks around the targets (Stage 1/2 targets need their
 pre-evolution in the target list, already ported, or a support card), generates oracle traces
@@ -313,6 +318,9 @@ longer need (they are large).
 
 Card status in your report:
 
+Name each card by its international key, with the Twinleaf name in parentheses
+when different, e.g. `Growing Grass Energy POR 86 (Grow [G] Energy M3): verified`.
+
 * **verified**: zero divergences, every reachable branch in ≥3 games.
 * **partial**: zero divergences, but a reachable branch ran in fewer than 3
   games, or the card was only exercised with a temporary helper.
@@ -322,7 +330,7 @@ Card status in your report:
 Scenarios in your report, one entry per scenario file:
 
 ```
-scenarios/<file>.json - <Full Name>
+scenarios/<file>.json - <International key> (<Twinleaf fullName> if different)
   targets:  <twinleaf file>:<line> `<statement>` (the branch, as the coverage report prints it)
   setup:    <one line: what the edits do and why that reaches the branch>
   result:   <N> traces, 0 diverged; branch ran in <K> games (coverage report line pasted)
@@ -344,7 +352,7 @@ what you think is missing.
 * Commit only your batch's ports and the core changes they need. Never commit
   copies of other batches' unmerged ports; if you need one to test, use it
   locally, remove it, and say which corpora depend on it.
-* Don't edit `data/verified.json`; report statuses and the merger records them.
+* Don't edit `data/verified.json`; report statuses (by international key, Twinleaf name in parentheses when different) and the merger records them.
 * Commits carry the configured git identity only: no Co-Authored-By or other
   trailers. Don't push.
 
@@ -353,9 +361,9 @@ what you think is missing.
 One line per bug, so they can be collected into the fix list:
 
 ```
-<Full Name> (<twinleaf file>:<line>) - <what Twinleaf does> vs <what the card says>
+<International key> [(<Twinleaf fullName> if different)] (<twinleaf file>:<line>) - <what Twinleaf does> vs <what the card says>
 ```
 
-For example: `Team Rocket's Zapdos DRI (team-rockets-zapdos.ts:65) - checks
+For example: `Team Rocket's Zapdos DRI 70 (team-rockets-zapdos.ts:65) - checks
 the name 'Team Rocket Energy', so the +60 never applies vs "Team Rocket's
 Energy"`. Include crashes and stuck prompts (no valid answer) the same way.

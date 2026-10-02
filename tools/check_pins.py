@@ -8,6 +8,8 @@ usage: check_pins.py [impls_dir]    (default engine/src/cards/impls)
 Exit status 1 if an unnecessary pin leaves a printing unbound.
 """
 import collections, os, re, subprocess, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import names
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 impls = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'engine/src/cards/impls')
@@ -36,6 +38,6 @@ for f in sorted(os.listdir(impls)):
         if unbound:
             bad += 1
             print('%s: %s is defined once in Twinleaf, so the pin @%s is unnecessary and leaves %s unbound; '
-                  'use class: "%s"' % (f, cls, pins, ', '.join(unbound), cls))
+                  'use class: "%s"' % (f, cls, pins, ', '.join(names.label(u) for u in unbound), cls))
 print('pins ok' if not bad else '%d unnecessary pin(s)' % bad)
 sys.exit(1 if bad else 0)

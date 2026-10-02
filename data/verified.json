@@ -1,2033 +1,2595 @@
 {
- "N's Plot SV11B": {
-  "status": "verified"
- },
- "Special Red Card M4": {
-  "status": "verified"
- },
- "Unfair Stamp TWM": {
-  "status": "verified"
- },
- "Risky Ruins MEG": {
-  "status": "verified"
- },
- "Cyrano SSP": {
-  "status": "verified"
- },
- "Lillie's Pearl JTG": {
-  "status": "verified"
- },
- "Rosa's Encouragement M3": {
-  "status": "partial",
-  "note": "attach loop unreachable (Twinleaf filter quirk)"
- },
- "Moltres M2": {
-  "status": "verified"
- },
- "Dunsparce JTG": {
-  "status": "verified"
- },
- "Meowth ex M3": {
-  "status": "verified"
- },
- "N's Zekrom M2a": {
-  "status": "verified"
- },
- "N's Purrloin JTG": {
-  "status": "verified"
- },
- "Brock's Scouting JTG": {
-  "status": "verified"
- },
- "Secret Box TWM": {
-  "status": "verified"
- },
- "N's Castle JTG": {
-  "status": "verified"
- },
- "Tatsugiri TWM": {
+ "N's Plan BLK 83": {
   "status": "verified",
-  "note": "cancel path: Twinleaf TypeError (4 games)"
+  "twinleaf": "N's Plot SV11B"
  },
- "Acerola's Mischief MEG": {
+ "Special Red Card CRI 82": {
+  "status": "verified",
+  "twinleaf": "Special Red Card M4"
+ },
+ "Unfair Stamp TWM 165": {
+  "status": "verified",
+  "twinleaf": "Unfair Stamp TWM"
+ },
+ "Risky Ruins MEG 127": {
+  "status": "verified",
+  "twinleaf": "Risky Ruins MEG"
+ },
+ "Cyrano SSP 170": {
+  "status": "verified",
+  "twinleaf": "Cyrano SSP"
+ },
+ "Lillie's Pearl JTG 151": {
+  "status": "verified",
+  "twinleaf": "Lillie's Pearl JTG"
+ },
+ "Rosa's Encouragement POR 84": {
   "status": "partial",
-  "note": "played in 9 games; ex-prevention ~1"
+  "note": "attach loop unreachable (Twinleaf filter quirk)",
+  "twinleaf": "Rosa's Encouragement M3"
  },
- "Paldean Tauros SSP": {
-  "status": "verified"
+ "Moltres PFL 14": {
+  "status": "verified",
+  "twinleaf": "Moltres M2"
  },
- "Chien-Pao SSP": {
-  "status": "verified"
+ "Dunsparce JTG 120": {
+  "status": "verified",
+  "twinleaf": "Dunsparce JTG"
  },
- "Koraidon ex ASC": {
-  "status": "verified"
+ "Meowth ex POR 62": {
+  "status": "verified",
+  "twinleaf": "Meowth ex M3"
  },
- "Mega Kangaskhan ex M1S": {
-  "status": "verified"
+ "N's Zekrom ASC 155": {
+  "status": "verified",
+  "twinleaf": "N's Zekrom M2a"
  },
- "Latias ex SSP": {
+ "N's Purrloin JTG 96": {
+  "status": "verified",
+  "twinleaf": "N's Purrloin JTG"
+ },
+ "Brock's Scouting JTG 146": {
+  "status": "verified",
+  "twinleaf": "Brock's Scouting JTG"
+ },
+ "Secret Box TWM 163": {
+  "status": "verified",
+  "twinleaf": "Secret Box TWM"
+ },
+ "N's Castle JTG 152": {
+  "status": "verified",
+  "twinleaf": "N's Castle JTG"
+ },
+ "Tatsugiri TWM 131": {
+  "status": "verified",
+  "note": "cancel path: Twinleaf TypeError (4 games)",
+  "twinleaf": "Tatsugiri TWM"
+ },
+ "Acerola's Mischief ASC 180": {
   "status": "partial",
-  "note": "retreat branch ~5 games"
+  "note": "played in 9 games; ex-prevention ~1",
+  "twinleaf": "Acerola's Mischief MEG"
  },
- "Slowpoke SCR": {
-  "status": "verified"
+ "Paldean Tauros SSP 18": {
+  "status": "verified",
+  "twinleaf": "Paldean Tauros SSP"
  },
- "Slowking SCR": {
-  "status": "verified"
+ "Chien-Pao SSP 56": {
+  "status": "verified",
+  "twinleaf": "Chien-Pao SSP"
  },
- "Metang TEF": {
-  "status": "verified"
+ "Koraidon ex ASC 121": {
+  "status": "verified",
+  "twinleaf": "Koraidon ex ASC"
  },
- "Kyurem SFA": {
-  "status": "verified"
+ "Mega Kangaskhan ex MEG 104": {
+  "status": "verified",
+  "twinleaf": "Mega Kangaskhan ex M1S"
  },
- "Zeraora DRI": {
-  "status": "verified"
- },
- "Mew ex 30C": {
-  "status": "verified"
- },
- "Telepath [P] Energy M3": {
-  "status": "verified"
- },
- "Boomerang Energy TWM": {
-  "status": "verified"
- },
- "Metagross M4": {
-  "status": "verified"
- },
- "Academy at Night SFA": {
-  "status": "verified"
- },
- "Annihilape M5": {
+ "Latias ex SSP 76": {
   "status": "partial",
-  "note": "no Mankey/Primeape in pool; only reachable via Slowking copy"
+  "note": "retreat branch ~5 games",
+  "twinleaf": "Latias ex SSP"
  },
- "Applin TWM2": {
-  "status": "verified"
+ "Slowpoke SCR 57": {
+  "status": "verified",
+  "twinleaf": "Slowpoke SCR"
  },
- "Applin TWM1": {
-  "status": "verified"
+ "Slowking SCR 58": {
+  "status": "verified",
+  "twinleaf": "Slowking SCR"
  },
- "Thwackey TWM": {
-  "status": "verified"
+ "Metang TEF 114": {
+  "status": "verified",
+  "twinleaf": "Metang TEF"
  },
- "Seaking PRE": {
-  "status": "verified"
+ "Kyurem SFA 47": {
+  "status": "verified",
+  "twinleaf": "Kyurem SFA"
  },
- "Rellor TEF": {
-  "status": "verified"
+ "Zeraora DRI 78": {
+  "status": "verified",
+  "twinleaf": "Zeraora DRI"
  },
- "Rabsca TEF": {
-  "status": "verified"
+ "Mew ex 30C 66": {
+  "status": "verified",
+  "twinleaf": "Mew ex 30C"
  },
- "Lana's Aid TWM": {
-  "status": "verified"
+ "Telepathic Psychic Energy POR 88": {
+  "status": "verified",
+  "twinleaf": "Telepath [P] Energy M3"
  },
- "Gladion's Decisive Battle M5": {
+ "Boomerang Energy TWM 166": {
+  "status": "verified",
+  "twinleaf": "Boomerang Energy TWM"
+ },
+ "Metagross CRI 61": {
+  "status": "verified",
+  "twinleaf": "Metagross M4"
+ },
+ "Academy at Night SFA 54": {
+  "status": "verified",
+  "twinleaf": "Academy at Night SFA"
+ },
+ "Annihilape PBL 41": {
   "status": "partial",
-  "note": "+80 branch 2 games"
+  "note": "no Mankey/Primeape in pool; only reachable via Slowking copy",
+  "twinleaf": "Annihilape M5"
  },
- "Bianca's Devotion TEF": {
-  "status": "verified"
+ "Applin TWM 126": {
+  "status": "verified",
+  "twinleaf": "Applin TWM2"
  },
- "Crustle DRI": {
-  "status": "verified"
+ "Applin TWM 17": {
+  "status": "verified",
+  "twinleaf": "Applin TWM1"
  },
- "Drilbur M5": {
-  "status": "verified"
+ "Thwackey TWM 15": {
+  "status": "verified",
+  "twinleaf": "Thwackey TWM"
  },
- "Dwebble DRI": {
+ "Seaking PRE 21": {
+  "status": "verified",
+  "twinleaf": "Seaking PRE"
+ },
+ "Rellor TEF 23": {
+  "status": "verified",
+  "twinleaf": "Rellor TEF"
+ },
+ "Rabsca TEF 24": {
+  "status": "verified",
+  "twinleaf": "Rabsca TEF"
+ },
+ "Lana's Aid TWM 155": {
+  "status": "verified",
+  "twinleaf": "Lana's Aid TWM"
+ },
+ "Gladion's Final Battle PBL 77": {
   "status": "partial",
-  "note": "empty-deck branch unreachable"
+  "note": "+80 branch 2 games",
+  "twinleaf": "Gladion's Decisive Battle M5"
  },
- "Genesect ex SV11B": {
-  "status": "verified"
+ "Bianca's Devotion TEF 142": {
+  "status": "verified",
+  "twinleaf": "Bianca's Devotion TEF"
  },
- "Handheld Fan TWM": {
-  "status": "verified"
+ "Crustle DRI 12": {
+  "status": "verified",
+  "twinleaf": "Crustle DRI"
  },
- "Hero's Cape TEF": {
-  "status": "verified"
+ "Drilbur PBL 46": {
+  "status": "verified",
+  "twinleaf": "Drilbur M5"
  },
- "Lumioise City M3": {
-  "status": "verified"
- },
- "Mega Excadrill ex M5": {
-  "status": "verified"
- },
- "Mega Skarmory ex M3": {
-  "status": "verified"
- },
- "Mist Energy TEF": {
-  "status": "verified"
- },
- "Prism Tower M4": {
-  "status": "verified"
- },
- "Spiky Energy JTG": {
-  "status": "verified"
- },
- "Xerosic's Machinations SFA": {
-  "status": "verified"
- },
- "Abra M1S": {
-  "status": "verified"
- },
- "Abra TWM": {
-  "status": "verified"
- },
- "Alakazam M1S": {
+ "Dwebble DRI 11": {
   "status": "partial",
-  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)"
+  "note": "empty-deck branch unreachable",
+  "twinleaf": "Dwebble DRI"
  },
- "Dawn M2": {
-  "status": "verified"
+ "Genesect ex BLK 67": {
+  "status": "verified",
+  "twinleaf": "Genesect ex SV11B"
  },
- "Gwynn M5": {
-  "status": "verified"
+ "Handheld Fan TWM 150": {
+  "status": "verified",
+  "twinleaf": "Handheld Fan TWM"
  },
- "Hilda SV11W": {
-  "status": "verified"
+ "Hero's Cape TEF 152": {
+  "status": "verified",
+  "twinleaf": "Hero's Cape TEF"
  },
- "Kadabra M1S": {
+ "Lumiose City POR 77": {
+  "status": "verified",
+  "twinleaf": "Lumioise City M3"
+ },
+ "Mega Excadrill ex PBL 65": {
+  "status": "verified",
+  "twinleaf": "Mega Excadrill ex M5"
+ },
+ "Mega Skarmory ex POR 55": {
+  "status": "verified",
+  "twinleaf": "Mega Skarmory ex M3"
+ },
+ "Mist Energy TEF 161": {
+  "status": "verified",
+  "twinleaf": "Mist Energy TEF"
+ },
+ "Prism Tower CRI 80": {
+  "status": "verified",
+  "twinleaf": "Prism Tower M4"
+ },
+ "Spiky Energy JTG 159": {
+  "status": "verified",
+  "twinleaf": "Spiky Energy JTG"
+ },
+ "Xerosic's Machinations SFA 64": {
+  "status": "verified",
+  "twinleaf": "Xerosic's Machinations SFA"
+ },
+ "Abra MEG 54": {
+  "status": "verified",
+  "twinleaf": "Abra M1S"
+ },
+ "Abra TWM 80": {
+  "status": "verified",
+  "twinleaf": "Abra TWM"
+ },
+ "Alakazam MEG 56": {
   "status": "partial",
-  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)"
+  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)",
+  "twinleaf": "Alakazam M1S"
  },
- "Rare Candy SVI": {
-  "status": "verified"
+ "Dawn PFL 87": {
+  "status": "verified",
+  "twinleaf": "Dawn M2"
  },
- "Shaymin DRI": {
-  "status": "verified"
+ "Gwynn PBL 78": {
+  "status": "verified",
+  "twinleaf": "Gwynn M5"
  },
- "Strange Timepiece MEG": {
-  "status": "verified"
+ "Hilda WHT 84": {
+  "status": "verified",
+  "twinleaf": "Hilda SV11W"
  },
- "Brute Bonnet TWM": {
-  "status": "verified"
- },
- "Carvanha M2": {
-  "status": "verified"
- },
- "Dark Bell M5": {
-  "status": "verified"
- },
- "Froslass TWM": {
+ "Kadabra MEG 55": {
   "status": "partial",
-  "note": "ability-blocked return unreached"
+  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)",
+  "twinleaf": "Kadabra M1S"
  },
- "Marnie's Impidimp DRI": {
-  "status": "verified"
+ "Rare Candy MEG 125": {
+  "status": "verified",
+  "twinleaf": "Rare Candy SVI"
  },
- "Mega Absol ex M1L": {
-  "status": "verified"
+ "Shaymin DRI 10": {
+  "status": "verified",
+  "twinleaf": "Shaymin DRI"
  },
- "Mega Sharpedo ex M2": {
+ "Strange Timepiece MEG 128": {
+  "status": "verified",
+  "twinleaf": "Strange Timepiece MEG"
+ },
+ "Brute Bonnet TWM 118": {
+  "status": "verified",
+  "twinleaf": "Brute Bonnet TWM"
+ },
+ "Carvanha PFL 60": {
+  "status": "verified",
+  "twinleaf": "Carvanha M2"
+ },
+ "Dark Bell PBL 75": {
+  "status": "verified",
+  "twinleaf": "Dark Bell M5"
+ },
+ "Froslass TWM 53": {
   "status": "partial",
-  "note": "Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0)"
+  "note": "ability-blocked return unreached",
+  "twinleaf": "Froslass TWM"
  },
- "Spikemuth Gym DRI": {
+ "Marnie's Impidimp DRI 134": {
+  "status": "verified",
+  "twinleaf": "Marnie's Impidimp DRI"
+ },
+ "Mega Absol ex MEG 86": {
+  "status": "verified",
+  "twinleaf": "Mega Absol ex M1L"
+ },
+ "Mega Sharpedo ex PFL 61": {
   "status": "partial",
-  "note": "empty-deck throw unreached"
+  "note": "Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0)",
+  "twinleaf": "Mega Sharpedo ex M2"
  },
- "Toxel M2": {
-  "status": "verified"
+ "Spikemuth Gym DRI 169": {
+  "status": "partial",
+  "note": "empty-deck throw unreached",
+  "twinleaf": "Spikemuth Gym DRI"
  },
- "Toxtricity M2": {
-  "status": "verified"
+ "Toxel PFL 67": {
+  "status": "verified",
+  "twinleaf": "Toxel M2"
  },
- "Yveltal M1L": {
-  "status": "verified"
+ "Toxtricity PFL 68": {
+  "status": "verified",
+  "twinleaf": "Toxtricity M2"
  },
- "Banette M5": {
-  "status": "verified"
+ "Yveltal MEG 88": {
+  "status": "verified",
+  "twinleaf": "Yveltal M1L"
  },
- "Bronzong TEF": {
-  "status": "verified"
+ "Banette PBL 34": {
+  "status": "verified",
+  "twinleaf": "Banette M5"
+ },
+ "Bronzong TEF 69": {
+  "status": "verified",
+  "twinleaf": "Bronzong TEF"
  },
  "Bronzor LOR 125": {
-  "status": "verified"
+  "status": "verified",
+  "twinleaf": "Bronzor LOR 125"
  },
- "Bronzor TEF": {
-  "status": "verified"
+ "Bronzor TEF 68": {
+  "status": "verified",
+  "twinleaf": "Bronzor TEF"
  },
- "Bronzor PRE": {
-  "status": "verified"
+ "Bronzor PRE 66": {
+  "status": "verified",
+  "twinleaf": "Bronzor PRE"
  },
- "Buneary M2": {
-  "status": "verified"
+ "Buneary PFL 83": {
+  "status": "verified",
+  "twinleaf": "Buneary M2"
  },
- "Dhelmise M5": {
-  "status": "verified"
+ "Dhelmise PBL 39": {
+  "status": "verified",
+  "twinleaf": "Dhelmise M5"
  },
- "Dudunsparce ex JTG": {
-  "status": "verified"
+ "Dudunsparce ex JTG 121": {
+  "status": "verified",
+  "twinleaf": "Dudunsparce ex JTG"
  },
- "Mega Lopunny ex M2": {
-  "status": "verified"
+ "Mega Lopunny ex PFL 84": {
+  "status": "verified",
+  "twinleaf": "Mega Lopunny ex M2"
  },
- "Poltchageist M5": {
-  "status": "verified"
+ "Poltchageist PBL 5": {
+  "status": "verified",
+  "twinleaf": "Poltchageist M5"
  },
- "Rich Energy SSP": {
-  "status": "verified"
+ "Enriching Energy SSP 191": {
+  "status": "verified",
+  "twinleaf": "Rich Energy SSP"
  },
- "Salvatore TEF": {
+ "Salvatore TEF 160": {
   "status": "partial",
-  "note": "cancelled search 2 games; deck-empty throw 0"
+  "note": "cancelled search 2 games; deck-empty throw 0",
+  "twinleaf": "Salvatore TEF"
  },
- "Shuppet M5": {
-  "status": "verified"
+ "Shuppet PBL 33": {
+  "status": "verified",
+  "twinleaf": "Shuppet M5"
  },
- "Sinistcha M5": {
+ "Sinistcha PBL 6": {
   "status": "partial",
-  "note": "4-counter spread branch 9 games (needs 6+ Hide 'n' Sneak in discard)"
+  "note": "4-counter spread branch 9 games (needs 6+ Hide 'n' Sneak in discard)",
+  "twinleaf": "Sinistcha M5"
  },
- "Wally's Compassion M1S": {
-  "status": "verified"
+ "Wally's Compassion MEG 132": {
+  "status": "verified",
+  "twinleaf": "Wally's Compassion M1S"
  },
- "Bayleef M1S": {
-  "status": "verified"
+ "Bayleef MEG 9": {
+  "status": "verified",
+  "twinleaf": "Bayleef M1S"
  },
- "Bayleef MC": {
-  "status": "verified"
+ "Bayleef ASC 9": {
+  "status": "verified",
+  "twinleaf": "Bayleef MC"
  },
  "Celebi MEG 12": {
-  "status": "verified"
+  "status": "verified",
+  "twinleaf": "Celebi MEG 12"
  },
- "Chikorita M1S": {
-  "status": "verified"
+ "Chikorita MEG 8": {
+  "status": "verified",
+  "twinleaf": "Chikorita M1S"
  },
- "Chikorita MC": {
-  "status": "verified"
+ "Chikorita ASC 8": {
+  "status": "verified",
+  "twinleaf": "Chikorita MC"
  },
- "Fighting Gong M1L": {
-  "status": "verified"
+ "Fighting Gong ASC 187": {
+  "status": "verified",
+  "twinleaf": "Fighting Gong M1L"
  },
- "Gravity Mountain SSP": {
-  "status": "verified"
+ "Gravity Mountain SSP 177": {
+  "status": "verified",
+  "twinleaf": "Gravity Mountain SSP"
  },
- "Hariyama M1L": {
-  "status": "verified"
+ "Hariyama MEG 73": {
+  "status": "verified",
+  "twinleaf": "Hariyama M1L"
  },
- "Hoothoot SCR": {
-  "status": "verified"
+ "Hoothoot SCR 114": {
+  "status": "verified",
+  "twinleaf": "Hoothoot SCR"
  },
- "Meganium M1S": {
-  "status": "verified"
+ "Meganium MEG 10": {
+  "status": "verified",
+  "twinleaf": "Meganium M1S"
  },
- "Tapu Bulu SFA": {
-  "status": "verified"
+ "Tapu Bulu SFA 6": {
+  "status": "verified",
+  "twinleaf": "Tapu Bulu SFA"
  },
- "Lucky Helmet TWM": {
-  "status": "verified"
+ "Lucky Helmet TWM 158": {
+  "status": "verified",
+  "twinleaf": "Lucky Helmet TWM"
  },
- "Miraculous Intercom SSP": {
-  "status": "verified"
+ "Miracle Headset SSP 183": {
+  "status": "verified",
+  "twinleaf": "Miraculous Intercom SSP"
  },
- "Roto-Stick PRE": {
-  "status": "verified"
+ "Roto-Stick PRE 127": {
+  "status": "verified",
+  "twinleaf": "Roto-Stick PRE"
  },
- "Team Rocket's Articuno DRI": {
+ "Team Rocket's Articuno DRI 51": {
   "status": "partial",
-  "note": "Dark Frost bonus unreachable (Twinleaf name mismatch)"
+  "note": "Dark Frost bonus unreachable (Twinleaf name mismatch)",
+  "twinleaf": "Team Rocket's Articuno DRI"
  },
- "Team Rocket's Honchkrow M2a": {
-  "status": "verified"
+ "Team Rocket's Honchkrow ASC 127": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Honchkrow M2a"
  },
- "Team Rocket's Porygon DRI": {
-  "status": "verified"
+ "Team Rocket's Porygon DRI 153": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Porygon DRI"
  },
- "Team Rocket's Porygon2 DRI": {
-  "status": "verified"
+ "Team Rocket's Porygon2 DRI 154": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Porygon2 DRI"
  },
- "Cynthia's Power Weight DRI": {
-  "status": "verified"
+ "Cynthia's Power Weight DRI 162": {
+  "status": "verified",
+  "twinleaf": "Cynthia's Power Weight DRI"
  },
- "Cynthia's Roserade DRI": {
-  "status": "verified"
+ "Cynthia's Roserade DRI 8": {
+  "status": "verified",
+  "twinleaf": "Cynthia's Roserade DRI"
  },
- "Energy Search Pro SSP": {
+ "Energy Search Pro SSP 176": {
   "status": "partial",
-  "note": "empty-deck throw 2 games"
+  "note": "empty-deck throw 2 games",
+  "twinleaf": "Energy Search Pro SSP"
  },
- "Enhanced Hammer TWM": {
-  "status": "verified"
+ "Enhanced Hammer TWM 148": {
+  "status": "verified",
+  "twinleaf": "Enhanced Hammer TWM"
  },
- "Hyper Aroma TWM": {
-  "status": "verified"
+ "Hyper Aroma TWM 152": {
+  "status": "verified",
+  "twinleaf": "Hyper Aroma TWM"
  },
- "Love Ball TWM": {
-  "status": "verified"
+ "Love Ball TWM 156": {
+  "status": "verified",
+  "twinleaf": "Love Ball TWM"
  },
- "Master Ball TEF": {
+ "Master Ball TEF 153": {
   "status": "partial",
-  "note": "empty-deck throw 3 games"
+  "note": "empty-deck throw 3 games",
+  "twinleaf": "Master Ball TEF"
  },
- "Max Rod PRE": {
-  "status": "verified"
+ "Max Rod PRE 116": {
+  "status": "verified",
+  "twinleaf": "Max Rod PRE"
  },
- "Neo Upper Energy TEF": {
-  "status": "verified"
+ "Neo Upper Energy TEF 162": {
+  "status": "verified",
+  "twinleaf": "Neo Upper Energy TEF"
  },
- "Rock Fighting Energy M3": {
-  "status": "verified"
+ "Rocky Fighting Energy POR 87": {
+  "status": "verified",
+  "twinleaf": "Rock Fighting Energy M3"
  },
- "Tera Orb SSP": {
-  "status": "verified"
+ "Tera Orb SSP 189": {
+  "status": "verified",
+  "twinleaf": "Tera Orb SSP"
  },
- "Arboliva ex DRI": {
-  "status": "verified"
+ "Arboliva ex DRI 23": {
+  "status": "verified",
+  "twinleaf": "Arboliva ex DRI"
  },
- "Beedrill ex M4": {
-  "status": "verified"
+ "Beedrill ex CRI 3": {
+  "status": "verified",
+  "twinleaf": "Beedrill ex M4"
  },
- "Dartrix M3": {
-  "status": "verified"
+ "Dartrix POR 11": {
+  "status": "verified",
+  "twinleaf": "Dartrix M3"
  },
- "Dartrix SFA": {
-  "status": "verified"
+ "Dartrix SFA 4": {
+  "status": "verified",
+  "twinleaf": "Dartrix SFA"
  },
- "Decidueye ex M3": {
-  "status": "verified"
+ "Decidueye ex POR 12": {
+  "status": "verified",
+  "twinleaf": "Decidueye ex M3"
  },
- "Dolliv DRI": {
-  "status": "verified"
+ "Dolliv DRI 22": {
+  "status": "verified",
+  "twinleaf": "Dolliv DRI"
  },
- "Galvantula SFA": {
-  "status": "verified"
+ "Galvantula SFA 2": {
+  "status": "verified",
+  "twinleaf": "Galvantula SFA"
  },
- "Illumise TWM": {
-  "status": "verified"
+ "Illumise TWM 10": {
+  "status": "verified",
+  "twinleaf": "Illumise TWM"
  },
- "Iron Leaves TWM": {
-  "status": "verified"
+ "Iron Leaves TWM 19": {
+  "status": "verified",
+  "twinleaf": "Iron Leaves TWM"
  },
- "Joltik SCR": {
-  "status": "verified"
+ "Joltik SCR 50": {
+  "status": "verified",
+  "twinleaf": "Joltik SCR"
  },
- "Kakuna M4": {
-  "status": "verified"
+ "Kakuna CRI 2": {
+  "status": "verified",
+  "twinleaf": "Kakuna M4"
  },
- "Lilligant JTG": {
-  "status": "verified"
+ "Lilligant JTG 7": {
+  "status": "verified",
+  "twinleaf": "Lilligant JTG"
  },
- "Maractus JTG": {
-  "status": "verified"
+ "Maractus JTG 8": {
+  "status": "verified",
+  "twinleaf": "Maractus JTG"
  },
- "Mega Heracross ex PFL": {
-  "status": "verified"
+ "Mega Heracross ex PFL 4": {
+  "status": "verified",
+  "twinleaf": "Mega Heracross ex PFL"
  },
- "Rowlet M3": {
-  "status": "verified"
+ "Rowlet POR 10": {
+  "status": "verified",
+  "twinleaf": "Rowlet M3"
  },
- "Rowlet SFA": {
-  "status": "verified"
+ "Rowlet SFA 3": {
+  "status": "verified",
+  "twinleaf": "Rowlet SFA"
  },
- "Scyther TEF": {
-  "status": "verified"
+ "Scyther TEF 1": {
+  "status": "verified",
+  "twinleaf": "Scyther TEF"
  },
- "Shuckle MEG": {
-  "status": "verified"
+ "Shuckle MEG 11": {
+  "status": "verified",
+  "twinleaf": "Shuckle MEG"
  },
- "Spewpa M3": {
-  "status": "verified"
+ "Spewpa POR 8": {
+  "status": "verified",
+  "twinleaf": "Spewpa M3"
  },
- "Vivillon M3": {
-  "status": "verified"
+ "Vivillon POR 9": {
+  "status": "verified",
+  "twinleaf": "Vivillon M3"
  },
- "Weedle M4": {
-  "status": "verified"
+ "Weedle CRI 1": {
+  "status": "verified",
+  "twinleaf": "Weedle M4"
  },
- "Yanma DRI": {
-  "status": "verified"
+ "Yanma DRI 2": {
+  "status": "verified",
+  "twinleaf": "Yanma DRI"
  },
- "Antique Root Fossil SCR": {
-  "status": "verified"
+ "Antique Root Fossil SCR 130": {
+  "status": "verified",
+  "twinleaf": "Antique Root Fossil SCR"
  },
- "Blowtorch PFL": {
-  "status": "verified"
+ "Blowtorch PFL 86": {
+  "status": "verified",
+  "twinleaf": "Blowtorch PFL"
  },
- "Brilliant Blender SSP": {
-  "status": "verified"
+ "Brilliant Blender SSP 164": {
+  "status": "verified",
+  "twinleaf": "Brilliant Blender SSP"
  },
- "Dangerous Laser SFA": {
-  "status": "verified"
+ "Dangerous Laser SFA 58": {
+  "status": "verified",
+  "twinleaf": "Dangerous Laser SFA"
  },
- "Boxed Order TEF": {
-  "status": "verified"
+ "Boxed Order TEF 143": {
+  "status": "verified",
+  "twinleaf": "Boxed Order TEF"
  },
- "Awakening Drum TEF": {
-  "status": "verified"
+ "Awakening Drum TEF 141": {
+  "status": "verified",
+  "twinleaf": "Awakening Drum TEF"
  },
- "Dusk Ball SSP": {
-  "status": "verified"
+ "Dusk Ball SSP 175": {
+  "status": "verified",
+  "twinleaf": "Dusk Ball SSP"
  },
- "Energy Swatter M3": {
-  "status": "verified"
+ "Energy Swatter POR 73": {
+  "status": "verified",
+  "twinleaf": "Energy Swatter M3"
  },
- "Big Catch Net M4": {
-  "status": "verified"
+ "Great Haul Net CRI 78": {
+  "status": "verified",
+  "twinleaf": "Big Catch Net M4"
  },
- "Hand Trimmer TEF": {
-  "status": "verified"
+ "Hand Trimmer TEF 150": {
+  "status": "verified",
+  "twinleaf": "Hand Trimmer TEF"
  },
- "Helper Bell SSP": {
-  "status": "verified"
+ "Call Bell SSP 165": {
+  "status": "verified",
+  "twinleaf": "Helper Bell SSP"
  },
- "Hop's Bag JTG": {
-  "status": "verified"
+ "Hop's Bag JTG 147": {
+  "status": "verified",
+  "twinleaf": "Hop's Bag JTG"
  },
- "Lumiose Galette M3": {
-  "status": "verified"
+ "Lumiose Galette POR 78": {
+  "status": "verified",
+  "twinleaf": "Lumiose Galette M3"
  },
- "Meddling Memo SSP": {
-  "status": "verified"
+ "Meddling Memo SSP 181": {
+  "status": "verified",
+  "twinleaf": "Meddling Memo SSP"
  },
- "Megaton Blower SSP": {
-  "status": "verified"
+ "Megaton Blower SSP 182": {
+  "status": "verified",
+  "twinleaf": "Megaton Blower SSP"
  },
- "Accompanying Flute TWM": {
-  "status": "verified"
+ "Accompanying Flute TWM 142": {
+  "status": "verified",
+  "twinleaf": "Accompanying Flute TWM"
  },
- "Book of Transformation M4": {
-  "status": "verified"
+ "Transformation Tome CRI 83": {
+  "status": "verified",
+  "twinleaf": "Book of Transformation M4"
  },
- "Blissey ex TWM": {
+ "Blissey ex TWM 134": {
   "status": "partial",
-  "note": "deck runs out mid-draw 0 games"
+  "note": "deck runs out mid-draw 0 games",
+  "twinleaf": "Blissey ex TWM"
  },
- "Bouffalant SCR": {
-  "status": "verified"
+ "Bouffalant SCR 119": {
+  "status": "verified",
+  "twinleaf": "Bouffalant SCR"
  },
- "Chansey TWM": {
-  "status": "verified"
+ "Chansey TWM 133": {
+  "status": "verified",
+  "twinleaf": "Chansey TWM"
  },
- "Chatot TEF": {
-  "status": "verified"
+ "Chatot TEF 132": {
+  "status": "verified",
+  "twinleaf": "Chatot TEF"
  },
- "Cinccino TEF": {
-  "status": "verified"
+ "Cinccino TEF 137": {
+  "status": "verified",
+  "twinleaf": "Cinccino TEF"
  },
- "Eevee SCR": {
-  "status": "verified"
+ "Eevee SCR 113": {
+  "status": "verified",
+  "twinleaf": "Eevee SCR"
  },
- "Eevee SFA": {
-  "status": "verified"
+ "Eevee SFA 50": {
+  "status": "verified",
+  "twinleaf": "Eevee SFA"
  },
- "Eevee ex PRE": {
-  "status": "verified"
+ "Eevee ex PRE 75": {
+  "status": "verified",
+  "twinleaf": "Eevee ex PRE"
  },
- "Exeggcute 30C": {
-  "status": "verified"
+ "Exeggcute 30C 1": {
+  "status": "verified",
+  "twinleaf": "Exeggcute 30C"
  },
- "Farfetch'd TWM": {
-  "status": "verified"
+ "Farfetch'd TWM 132": {
+  "status": "verified",
+  "twinleaf": "Farfetch'd TWM"
  },
- "Furfrou M3": {
-  "status": "verified"
+ "Furfrou POR 67": {
+  "status": "verified",
+  "twinleaf": "Furfrou M3"
  },
- "Hoothoot PRE": {
-  "status": "verified"
+ "Hoothoot PRE 77": {
+  "status": "verified",
+  "twinleaf": "Hoothoot PRE"
  },
- "Hoothoot TEF": {
-  "status": "verified"
+ "Hoothoot TEF 126": {
+  "status": "verified",
+  "twinleaf": "Hoothoot TEF"
  },
- "Hop's Dubwool JTG": {
-  "status": "verified"
+ "Hop's Dubwool JTG 136": {
+  "status": "verified",
+  "twinleaf": "Hop's Dubwool JTG"
  },
- "Hop's Snorlax JTG": {
-  "status": "verified"
+ "Hop's Snorlax JTG 117": {
+  "status": "verified",
+  "twinleaf": "Hop's Snorlax JTG"
  },
- "Mega Audino ex MC": {
-  "status": "verified"
+ "Mega Audino ex ASC 172": {
+  "status": "verified",
+  "twinleaf": "Mega Audino ex MC"
  },
- "Minccino SSH": {
-  "status": "verified"
+ "Minccino SSH 145": {
+  "status": "verified",
+  "twinleaf": "Minccino SSH"
  },
- "Minccino TEF": {
+ "Minccino TEF 136": {
   "status": "partial",
-  "note": "cancelled choice 0 games; multi-tool prompt unreached"
+  "note": "cancelled choice 0 games; multi-tool prompt unreached",
+  "twinleaf": "Minccino TEF"
  },
- "Patrat M4": {
-  "status": "verified"
+ "Patrat CRI 70": {
+  "status": "verified",
+  "twinleaf": "Patrat M4"
  },
- "Barbaracle M3": {
-  "status": "verified"
+ "Barbaracle POR 43": {
+  "status": "verified",
+  "twinleaf": "Barbaracle M3"
  },
- "Binacle M3": {
-  "status": "verified"
+ "Binacle POR 42": {
+  "status": "verified",
+  "twinleaf": "Binacle M3"
  },
- "Drapion M3": {
-  "status": "verified"
+ "Drapion POR 52": {
+  "status": "verified",
+  "twinleaf": "Drapion M3"
  },
- "Mega Darkrai ex M5": {
-  "status": "verified"
+ "Mega Darkrai ex PBL 48": {
+  "status": "verified",
+  "twinleaf": "Mega Darkrai ex M5"
  },
- "Munkidori ex SFA": {
-  "status": "verified"
+ "Munkidori ex SFA 37": {
+  "status": "verified",
+  "twinleaf": "Munkidori ex SFA"
  },
- "Okidogi ex SFA": {
-  "status": "verified"
+ "Okidogi ex SFA 36": {
+  "status": "verified",
+  "twinleaf": "Okidogi ex SFA"
  },
- "Purrloin WHT": {
-  "status": "verified"
+ "Purrloin WHT 55": {
+  "status": "verified",
+  "twinleaf": "Purrloin WHT"
  },
- "Seviper M2": {
-  "status": "verified"
+ "Seviper PFL 62": {
+  "status": "verified",
+  "twinleaf": "Seviper M2"
  },
- "Skorupi M3": {
-  "status": "verified"
+ "Skorupi POR 51": {
+  "status": "verified",
+  "twinleaf": "Skorupi M3"
  },
- "Team Rocket's Arbok DRI": {
-  "status": "verified"
+ "Team Rocket's Arbok DRI 113": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Arbok DRI"
  },
- "Team Rocket's Ekans DRI": {
-  "status": "verified"
+ "Team Rocket's Ekans DRI 112": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Ekans DRI"
  },
- "Team Rocket's Sneasel DRI": {
-  "status": "verified"
+ "Team Rocket's Sneasel DRI 128": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Sneasel DRI"
  },
- "Trubbish M4": {
-  "status": "verified"
+ "Trubbish CRI 56": {
+  "status": "verified",
+  "twinleaf": "Trubbish M4"
  },
- "Vullaby RCL": {
-  "status": "verified"
+ "Vullaby RCL 119": {
+  "status": "verified",
+  "twinleaf": "Vullaby RCL"
  },
- "Yveltal 30C": {
-  "status": "verified"
+ "Yveltal 30C 100": {
+  "status": "verified",
+  "twinleaf": "Yveltal 30C"
  },
- "Yveltal SFA": {
-  "status": "verified"
+ "Yveltal SFA 35": {
+  "status": "verified",
+  "twinleaf": "Yveltal SFA"
  },
- "Zoroark SV11W": {
-  "status": "verified"
+ "Zoroark WHT 62": {
+  "status": "verified",
+  "twinleaf": "Zoroark SV11W"
  },
- "Zorua SFA": {
-  "status": "verified"
+ "Zorua SFA 31": {
+  "status": "verified",
+  "twinleaf": "Zorua SFA"
  },
- "Zorua SV11W": {
-  "status": "verified"
+ "Zorua WHT 61": {
+  "status": "verified",
+  "twinleaf": "Zorua SV11W"
  },
- "Chi-Yu M5": {
-  "status": "verified"
+ "Chi-Yu PBL 59": {
+  "status": "verified",
+  "twinleaf": "Chi-Yu M5"
  },
- "Deino SSP": {
-  "status": "verified"
+ "Deino SSP 117": {
+  "status": "verified",
+  "twinleaf": "Deino SSP"
  },
- "Farigiraf ex TEF": {
-  "status": "verified"
+ "Farigiraf ex TEF 108": {
+  "status": "verified",
+  "twinleaf": "Farigiraf ex TEF"
  },
- "Girafarig TEF": {
-  "status": "verified"
+ "Girafarig TEF 66": {
+  "status": "verified",
+  "twinleaf": "Girafarig TEF"
  },
- "Gumshoos M1L": {
-  "status": "verified"
+ "Gumshoos MEG 110": {
+  "status": "verified",
+  "twinleaf": "Gumshoos M1L"
  },
- "Hydreigon ex SSP": {
-  "status": "verified"
+ "Hydreigon ex SSP 119": {
+  "status": "verified",
+  "twinleaf": "Hydreigon ex SSP"
  },
- "Larvitar JTG": {
-  "status": "verified"
+ "Larvitar JTG 80": {
+  "status": "verified",
+  "twinleaf": "Larvitar JTG"
  },
- "Marnie's Morpeko DRI": {
-  "status": "verified"
+ "Marnie's Morpeko DRI 137": {
+  "status": "verified",
+  "twinleaf": "Marnie's Morpeko DRI"
  },
- "Pikipek M5": {
-  "status": "verified"
+ "Pikipek PBL 66": {
+  "status": "verified",
+  "twinleaf": "Pikipek M5"
  },
- "Regigigas PRE": {
-  "status": "verified"
+ "Regigigas PRE 86": {
+  "status": "verified",
+  "twinleaf": "Regigigas PRE"
  },
- "Slaking ex SSP": {
-  "status": "verified"
+ "Slaking ex SSP 147": {
+  "status": "verified",
+  "twinleaf": "Slaking ex SSP"
  },
- "Slakoth SSP": {
-  "status": "verified"
+ "Slakoth SSP 145": {
+  "status": "verified",
+  "twinleaf": "Slakoth SSP"
  },
- "Team Rocket's Kangaskhan ex ASC": {
-  "status": "verified"
+ "Team Rocket's Kangaskhan ex ASC 162": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Kangaskhan ex ASC"
  },
- "Team Rocket's Porygon-Z DRI": {
-  "status": "verified"
+ "Team Rocket's Porygon-Z DRI 155": {
+  "status": "verified",
+  "twinleaf": "Team Rocket's Porygon-Z DRI"
  },
- "Toucannon M5": {
-  "status": "verified"
+ "Toucannon PBL 68": {
+  "status": "verified",
+  "twinleaf": "Toucannon M5"
  },
- "Trumbeak M5": {
-  "status": "verified"
+ "Trumbeak PBL 67": {
+  "status": "verified",
+  "twinleaf": "Trumbeak M5"
  },
- "Tyranitar JTG": {
-  "status": "verified"
+ "Tyranitar JTG 95": {
+  "status": "verified",
+  "twinleaf": "Tyranitar JTG"
  },
- "Umbreon ex PRE": {
-  "status": "verified"
+ "Umbreon ex PRE 60": {
+  "status": "verified",
+  "twinleaf": "Umbreon ex PRE"
  },
- "Yungoos M1L": {
-  "status": "verified"
+ "Yungoos MEG 109": {
+  "status": "verified",
+  "twinleaf": "Yungoos M1L"
  },
- "Zweilous SSP": {
-  "status": "verified"
+ "Zweilous SSP 118": {
+  "status": "verified",
+  "twinleaf": "Zweilous SSP"
  },
- "Crustle BCR": {
-  "status": "verified"
+ "Crustle BCR 85": {
+  "status": "verified",
+  "twinleaf": "Crustle BCR"
  },
- "Diancie SCR": {
-  "status": "verified"
+ "Diancie SCR 86": {
+  "status": "verified",
+  "twinleaf": "Diancie SCR"
  },
- "Drilbur TEF": {
-  "status": "verified"
+ "Drilbur TEF 85": {
+  "status": "verified",
+  "twinleaf": "Drilbur TEF"
  },
- "Frogadier TWM": {
-  "status": "verified"
+ "Frogadier TWM 57": {
+  "status": "verified",
+  "twinleaf": "Frogadier TWM"
  },
- "Gastrodon SSP": {
-  "status": "verified"
+ "Gastrodon SSP 107": {
+  "status": "verified",
+  "twinleaf": "Gastrodon SSP"
  },
- "Greninja ex TWM": {
+ "Greninja ex TWM 106": {
   "status": "partial",
-  "note": "Tera bench-damage prevent 3 games"
+  "note": "Tera bench-damage prevent 3 games",
+  "twinleaf": "Greninja ex TWM"
  },
- "Hisuian Arcanine TWM": {
-  "status": "verified"
- },
- "Hisuian Growlithe TWM": {
-  "status": "verified"
- },
- "Koraidon SSP": {
-  "status": "verified"
- },
- "Lucario 30C": {
-  "status": "verified"
- },
- "Mamoswine ex JTG": {
-  "status": "verified"
- },
- "Mega Hawlucha ex M2a": {
-  "status": "verified"
- },
- "Onix M1L": {
-  "status": "verified"
- },
- "Relicanth TEF": {
-  "status": "verified"
- },
- "Riolu PRE": {
-  "status": "verified"
- },
- "Riolu VIV": {
-  "status": "verified"
- },
- "Sandy Shocks TEF": {
-  "status": "verified"
- },
- "Slither Wing SFA": {
-  "status": "verified"
- },
- "Stunfisk ex ASC": {
-  "status": "verified"
- },
- "Swinub JTG": {
-  "status": "verified"
- },
- "Annihilape SSP": {
+ "Hisuian Arcanine TWM 100": {
   "status": "verified",
-  "note": "batch A"
+  "twinleaf": "Hisuian Arcanine TWM"
  },
- "Poké Pad 30C": {
-  "status": "needs-reverify",
-  "note": "verified as Poké Pad MC; pool row 30C 126 now maps to the exact printing Poké Pad 30C"
- },
- "Switch 30C": {
-  "status": "needs-reverify",
-  "note": "verified as Switch BS; pool row 30C 127 now maps to the exact printing Switch 30C"
- },
- "Ultra Ball 30C": {
-  "status": "needs-reverify",
-  "note": "verified as Ultra Ball SVI; pool row 30C 128 now maps to the exact printing Ultra Ball 30C"
- },
- "Budew ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Budew PRE; pool row ASC 16 now maps to the exact printing Budew ASC"
- },
- "Team Rocket's Tarountula ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Tarountula DRI; pool row ASC 18 now maps to the exact printing Team Rocket's Tarountula ASC"
- },
- "Team Rocket's Spidops ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Spidops DRI; pool row ASC 19 now maps to the exact printing Team Rocket's Spidops ASC"
- },
- "Lillie's Clefairy ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Lillie's Clefairy ex JTG; pool row ASC 76 now maps to the exact printing Lillie's Clefairy ex ASC"
- },
- "Team Rocket's Mewtwo ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Mewtwo ex DRI; pool row ASC 79 now maps to the exact printing Team Rocket's Mewtwo ex ASC (old note: ability-blocked / no-bench returns 0)"
- },
- "Munkidori ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Munkidori TWM; pool row ASC 99 now maps to the exact printing Munkidori ASC (old note: move prompt in 18 traces; zero-damage transfer and prevented move not hit)"
- },
- "Lunatone ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Lunatone M1L; pool row ASC 105 now maps to the exact printing Lunatone ASC"
- },
- "Solrock ASC": {
+ "Hisuian Growlithe TWM 99": {
   "status": "verified",
-  "note": "batch A"
+  "twinleaf": "Hisuian Growlithe TWM"
  },
- "Cynthia's Gible ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Cynthia's Gible DRI; pool row ASC 109 now maps to the exact printing Cynthia's Gible ASC"
- },
- "Cynthia's Gabite ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Cynthia's Gabite DRI; pool row ASC 110 now maps to the exact printing Cynthia's Gabite ASC"
- },
- "Cynthia's Garchomp ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Cynthia's Garchomp ex DRI; pool row ASC 111 now maps to the exact printing Cynthia's Garchomp ex ASC"
- },
- "Riolu ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Riolu M1L; pool row ASC 112 now maps to the exact printing Riolu ASC"
- },
- "Mega Lucario ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Mega Lucario ex M1L; pool row ASC 113 now maps to the exact printing Mega Lucario ex ASC"
- },
- "Gastly ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Gastly EVO; pool row ASC 123 now maps to the exact printing Gastly ASC"
- },
- "Haunter ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC"
- },
- "Mega Gengar ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Mega Gengar ex MBG; pool row ASC 125 now maps to the exact printing Mega Gengar ex ASC"
- },
- "Team Rocket's Murkrow ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Murkrow DRI; pool row ASC 126 now maps to the exact printing Team Rocket's Murkrow ASC"
- },
- "Cynthia's Spiritomb ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Cynthia's Spiritomb DRI; pool row ASC 133 now maps to the exact printing Cynthia's Spiritomb ASC"
- },
- "N's Zoroark ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as N's Zoroark ex JTG; pool row ASC 137 now maps to the exact printing N's Zoroark ex ASC"
- },
- "Fezandipiti ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Fezandipiti ex SFA; pool row ASC 142 now maps to the exact printing Fezandipiti ex ASC (old note: empty-deck error and between-turns KO skip not hit)"
- },
- "Drakloak ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Drakloak TWM; pool row ASC 159 now maps to the exact printing Drakloak ASC"
- },
- "Dragapult ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Dragapult ex TWM; pool row ASC 160 now maps to the exact printing Dragapult ex ASC (old note: bench damage block 6 games)"
- },
- "Fan Rotom ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Fan Rotom SCR; pool row ASC 171 now maps to the exact printing Fan Rotom ASC"
- },
- "Hop's Cramorant ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Hop's Cramorant JTG; pool row ASC 177 now maps to the exact printing Hop's Cramorant ASC"
- },
- "Terapagos ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Terapagos ex SCR; pool row ASC 179 now maps to the exact printing Terapagos ex ASC"
- },
- "Air Balloon ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Air Balloon SSH; pool row ASC 181 now maps to the exact printing Air Balloon ASC"
- },
- "Boss's Orders ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Boss's Orders PAL; pool row ASC 183 now maps to the exact printing Boss's Orders ASC"
- },
- "Buddy-Buddy Poffin ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Buddy-Buddy Poffin TEF; pool row ASC 184 now maps to the exact printing Buddy-Buddy Poffin ASC"
- },
- "Glass Trumpet ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Glass Trumpet SCR; pool row ASC 189 now maps to the exact printing Glass Trumpet ASC"
- },
- "Lillie's Determination ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Lillie's Determination M1L; pool row ASC 192 now maps to the exact printing Lillie's Determination ASC"
- },
- "Mega Signal ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Mega Signal M1S; pool row ASC 193 now maps to the exact printing Mega Signal ASC"
- },
- "N's PP Up ASC": {
-  "status": "needs-reverify",
-  "note": "verified as N's PP Up JTG; pool row ASC 195 now maps to the exact printing N's PP Up ASC"
- },
- "Night Stretcher ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Night Stretcher SFA; pool row ASC 196 now maps to the exact printing Night Stretcher ASC"
- },
- "Premium Power Pro ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Power Protein M1L; pool row ASC 199 now maps to the exact printing Premium Power Pro ASC"
- },
- "Team Rocket's Archer ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Archer DRI; pool row ASC 201 now maps to the exact printing Team Rocket's Archer ASC (old note: KO outside opponent's turn branch 0 games)"
- },
- "Team Rocket's Ariana ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Ariana DRI; pool row ASC 202 now maps to the exact printing Team Rocket's Ariana ASC"
- },
- "Team Rocket's Factory ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Factory DRI; pool row ASC 203 now maps to the exact printing Team Rocket's Factory ASC"
- },
- "Team Rocket's Giovanni ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Giovanni DRI; pool row ASC 204 now maps to the exact printing Team Rocket's Giovanni ASC"
- },
- "Team Rocket's Petrel ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Petrel DRI; pool row ASC 207 now maps to the exact printing Team Rocket's Petrel ASC (old note: empty-deck branch unreachable)"
- },
- "Team Rocket's Proton ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Proton DRI; pool row ASC 208 now maps to the exact printing Team Rocket's Proton ASC"
- },
- "Team Rocket's Transceiver ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Transceiver DRI; pool row ASC 209 now maps to the exact printing Team Rocket's Transceiver ASC"
- },
- "Team Rocket's Watchtower ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Watchtower DRI; pool row ASC 210 now maps to the exact printing Team Rocket's Watchtower ASC (old note: needs a [C] Pokémon with an Ability)"
- },
- "Prism Energy ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Prism Energy NXD; pool row ASC 216 now maps to the exact printing Prism Energy ASC"
- },
- "Team Rocket's Energy ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Energy DRI; pool row ASC 217 now maps to the exact printing Team Rocket's Energy ASC (old note: non-TR discard branch 1 game)"
- },
- "Black Belt's Training ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Black Belt's Training JTG; pool row ASC 255 now maps to the exact printing Black Belt's Training ASC (old note: +40 frequency not measured)"
- },
- "Marnie's Grimmsnarl ex ASC": {
-  "status": "needs-reverify",
-  "note": "verified as Marnie's Grimmsnarl ex DRI; pool row ASC 287 now maps to the exact printing Marnie's Grimmsnarl ex ASC (old note: empty-deck and ability-blocked returns unreached)"
- },
- "Pokegear 3.0 SV11W": {
-  "status": "needs-reverify",
-  "note": "verified as Pokegear SVI; pool row BLK 84 now maps to the exact printing Pokegear 3.0 SV11W (old note: empty-deck branch unreachable)"
- },
- "Energy Retrieval FA CRI": {
+ "Koraidon SSP 116": {
   "status": "verified",
-  "note": "batch A; DiscardToHand-prevented branch unreachable in pool"
+  "twinleaf": "Koraidon SSP"
  },
- "Jumbo Ice Cream FA CRI": {
-  "status": "needs-reverify",
-  "note": "verified as Jumbo Ice M2; pool row CRI 109 now maps to the exact printing Jumbo Ice Cream FA CRI"
- },
- "Tool Scrapper FA CRI": {
-  "status": "needs-reverify",
-  "note": "verified as Tool Scrapper DRX; pool row CRI 115 now maps to the exact printing Tool Scrapper FA CRI"
- },
- "Rellor DRI": {
-  "status": "needs-reverify",
-  "note": "verified as Rellor SSP; pool row DRI 24 now maps to the exact printing Rellor DRI"
- },
- "Super Potion JTG": {
+ "Lucario 30C 83": {
   "status": "verified",
-  "note": "batch A"
+  "twinleaf": "Lucario 30C"
  },
- "Pokemon Center Lady MEG": {
+ "Mamoswine ex JTG 79": {
+  "status": "verified",
+  "twinleaf": "Mamoswine ex JTG"
+ },
+ "Mega Hawlucha ex ASC 116": {
+  "status": "verified",
+  "twinleaf": "Mega Hawlucha ex M2a"
+ },
+ "Onix MEG 70": {
+  "status": "verified",
+  "twinleaf": "Onix M1L"
+ },
+ "Relicanth TEF 84": {
+  "status": "verified",
+  "twinleaf": "Relicanth TEF"
+ },
+ "Riolu PRE 50": {
+  "status": "verified",
+  "twinleaf": "Riolu PRE"
+ },
+ "Riolu VIV 90": {
+  "status": "verified",
+  "twinleaf": "Riolu VIV"
+ },
+ "Sandy Shocks TEF 98": {
+  "status": "verified",
+  "twinleaf": "Sandy Shocks TEF"
+ },
+ "Slither Wing SFA 26": {
+  "status": "verified",
+  "twinleaf": "Slither Wing SFA"
+ },
+ "Stunfisk ex ASC 114": {
+  "status": "verified",
+  "twinleaf": "Stunfisk ex ASC"
+ },
+ "Swinub JTG 77": {
+  "status": "verified",
+  "twinleaf": "Swinub JTG"
+ },
+ "Annihilape SSP 100": {
+  "status": "verified",
+  "note": "batch A",
+  "twinleaf": "Annihilape SSP"
+ },
+ "Poké Pad 30C 126": {
   "status": "needs-reverify",
-  "note": "verified as Pokémon Center Lady FLF; pool row MEG 123 now maps to the exact printing Pokemon Center Lady MEG"
+  "note": "verified as Poké Pad MC; pool row 30C 126 now maps to the exact printing Poké Pad 30C",
+  "twinleaf": "Poké Pad 30C"
  },
- "Chikorita MEP": {
+ "Switch 30C 127": {
   "status": "needs-reverify",
-  "note": "verified as Chikorita UF; pool row MEP 46 now maps to the exact printing Chikorita MEP"
+  "note": "verified as Switch BS; pool row 30C 127 now maps to the exact printing Switch 30C",
+  "twinleaf": "Switch 30C"
  },
- "Brave Bangle FA PBL": {
+ "Ultra Ball 30C 128": {
   "status": "needs-reverify",
-  "note": "verified as Brave Bangle SV11W; pool row PBL 104 now maps to the exact printing Brave Bangle FA PBL"
+  "note": "verified as Ultra Ball SVI; pool row 30C 128 now maps to the exact printing Ultra Ball 30C",
+  "twinleaf": "Ultra Ball 30C"
  },
- "Crushing Hammer FA PBL": {
+ "Budew ASC 16": {
   "status": "needs-reverify",
-  "note": "verified as Crushing Hammer SVI; pool row PBL 105 now maps to the exact printing Crushing Hammer FA PBL"
+  "note": "verified as Budew PRE; pool row ASC 16 now maps to the exact printing Budew ASC",
+  "twinleaf": "Budew ASC"
  },
- "Energy Switch FA PBL": {
+ "Team Rocket's Tarountula ASC 18": {
   "status": "needs-reverify",
-  "note": "verified as Energy Switch SVI; pool row PBL 107 now maps to the exact printing Energy Switch FA PBL"
+  "note": "verified as Team Rocket's Tarountula DRI; pool row ASC 18 now maps to the exact printing Team Rocket's Tarountula ASC",
+  "twinleaf": "Team Rocket's Tarountula ASC"
  },
- "Iron Defender FA PBL": {
+ "Team Rocket's Spidops ASC 19": {
   "status": "needs-reverify",
-  "note": "verified as Iron Defender M1L; pool row PBL 110 now maps to the exact printing Iron Defender FA PBL"
+  "note": "verified as Team Rocket's Spidops DRI; pool row ASC 19 now maps to the exact printing Team Rocket's Spidops ASC",
+  "twinleaf": "Team Rocket's Spidops ASC"
  },
- "Ignition Energy PFL": {
+ "Lillie's Clefairy ex ASC 76": {
   "status": "needs-reverify",
-  "note": "verified as Ignition Energy SV11W; pool row PFL 124 now maps to the exact printing Ignition Energy PFL"
+  "note": "verified as Lillie's Clefairy ex JTG; pool row ASC 76 now maps to the exact printing Lillie's Clefairy ex ASC",
+  "twinleaf": "Lillie's Clefairy ex ASC"
  },
- "Energy Search POR": {
+ "Team Rocket's Mewtwo ex ASC 79": {
   "status": "needs-reverify",
-  "note": "verified as Energy Search SVI; pool row POR 72 now maps to the exact printing Energy Search POR"
+  "note": "verified as Team Rocket's Mewtwo ex DRI; pool row ASC 79 now maps to the exact printing Team Rocket's Mewtwo ex ASC (old note: ability-blocked / no-bench returns 0)",
+  "twinleaf": "Team Rocket's Mewtwo ex ASC"
  },
- "Judge POR": {
-  "status": "verified",
-  "note": "batch A; pin widened to Judge@FST|POR; throw with hand=Judge only and empty deck unreachable"
- },
- "Poke Ball POR": {
+ "Munkidori ASC 99": {
   "status": "needs-reverify",
-  "note": "verified as Poké Ball JU; pool row POR 80 now maps to the exact printing Poke Ball POR"
+  "note": "verified as Munkidori TWM; pool row ASC 99 now maps to the exact printing Munkidori ASC (old note: move prompt in 18 traces; zero-damage transfer and prevented move not hit)",
+  "twinleaf": "Munkidori ASC"
  },
- "Pokemon Catcher POR": {
-  "status": "verified",
-  "note": "batch A"
- },
- "Potion POR": {
-  "status": "verified",
-  "note": "batch A; empty-target return unreachable (prompt not cancellable)"
- },
- "Energy Recycler FA POR": {
+ "Lunatone ASC 105": {
   "status": "needs-reverify",
-  "note": "verified as Energy Recycler BST; pool row POR 108 now maps to the exact printing Energy Recycler FA POR"
+  "note": "verified as Lunatone M1L; pool row ASC 105 now maps to the exact printing Lunatone ASC",
+  "twinleaf": "Lunatone ASC"
  },
- "Forest of Vitality FA POR": {
+ "Solrock ASC 106": {
+  "status": "verified",
+  "note": "batch A",
+  "twinleaf": "Solrock ASC"
+ },
+ "Cynthia's Gible ASC 109": {
   "status": "needs-reverify",
-  "note": "verified as Forest of Vitality MEG; pool row POR 109 now maps to the exact printing Forest of Vitality FA POR"
+  "note": "verified as Cynthia's Gible DRI; pool row ASC 109 now maps to the exact printing Cynthia's Gible ASC",
+  "twinleaf": "Cynthia's Gible ASC"
  },
- "Sacred Ash FA POR": {
-  "status": "verified",
-  "note": "batch A"
- },
- "Wondrous Patch FA POR": {
+ "Cynthia's Gabite ASC 110": {
   "status": "needs-reverify",
-  "note": "verified as Wonder Patch MBD; pool row POR 117 now maps to the exact printing Wondrous Patch FA POR"
+  "note": "verified as Cynthia's Gabite DRI; pool row ASC 110 now maps to the exact printing Cynthia's Gabite ASC",
+  "twinleaf": "Cynthia's Gabite ASC"
  },
- "Dipplin PRE": {
+ "Cynthia's Garchomp ex ASC 111": {
   "status": "needs-reverify",
-  "note": "verified as Dipplin TWM1; pool row PRE 10 now maps to the exact printing Dipplin PRE"
+  "note": "verified as Cynthia's Garchomp ex DRI; pool row ASC 111 now maps to the exact printing Cynthia's Garchomp ex ASC",
+  "twinleaf": "Cynthia's Garchomp ex ASC"
  },
- "Hydrapple ex PRE": {
+ "Riolu ASC 112": {
   "status": "needs-reverify",
-  "note": "verified as Hydrapple ex SCR; pool row PRE 11 now maps to the exact printing Hydrapple ex PRE"
+  "note": "verified as Riolu M1L; pool row ASC 112 now maps to the exact printing Riolu ASC",
+  "twinleaf": "Riolu ASC"
  },
- "Teal Mask Ogerpon ex PRE": {
+ "Mega Lucario ex ASC 113": {
   "status": "needs-reverify",
-  "note": "verified as Teal Mask Ogerpon ex TWM; pool row PRE 12 now maps to the exact printing Teal Mask Ogerpon ex PRE (old note: bench damage prevention 2 games)"
+  "note": "verified as Mega Lucario ex M1L; pool row ASC 113 now maps to the exact printing Mega Lucario ex ASC",
+  "twinleaf": "Mega Lucario ex ASC"
  },
- "Goldeen PRE": {
+ "Gastly ASC 123": {
   "status": "needs-reverify",
-  "note": "verified as Goldeen TWM; pool row PRE 20 now maps to the exact printing Goldeen PRE"
+  "note": "verified as Gastly EVO; pool row ASC 123 now maps to the exact printing Gastly ASC",
+  "twinleaf": "Gastly ASC"
  },
- "Wellspring Mask Ogerpon ex PRE": {
+ "Haunter ASC 124": {
   "status": "needs-reverify",
-  "note": "verified as Wellspring Mask Ogerpon ex TWM; pool row PRE 27 now maps to the exact printing Wellspring Mask Ogerpon ex PRE"
+  "note": "verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC",
+  "twinleaf": "Haunter ASC"
  },
- "Duskull PRE": {
+ "Mega Gengar ex ASC 125": {
   "status": "needs-reverify",
-  "note": "verified as Duskull SFA; pool row PRE 35 now maps to the exact printing Duskull PRE"
+  "note": "verified as Mega Gengar ex MBG; pool row ASC 125 now maps to the exact printing Mega Gengar ex ASC",
+  "twinleaf": "Mega Gengar ex ASC"
  },
- "Dusclops PRE": {
+ "Team Rocket's Murkrow ASC 126": {
   "status": "needs-reverify",
-  "note": "verified as Dusclops SFA; pool row PRE 36 now maps to the exact printing Dusclops PRE"
+  "note": "verified as Team Rocket's Murkrow DRI; pool row ASC 126 now maps to the exact printing Team Rocket's Murkrow ASC",
+  "twinleaf": "Team Rocket's Murkrow ASC"
  },
- "Dusknoir PRE": {
+ "Cynthia's Spiritomb ASC 133": {
   "status": "needs-reverify",
-  "note": "verified as Dusknoir SFA; pool row PRE 37 now maps to the exact printing Dusknoir PRE"
+  "note": "verified as Cynthia's Spiritomb DRI; pool row ASC 133 now maps to the exact printing Cynthia's Spiritomb ASC",
+  "twinleaf": "Cynthia's Spiritomb ASC"
  },
- "Bloodmoon Ursaluna PRE": {
+ "N's Zoroark ex ASC 137": {
   "status": "needs-reverify",
-  "note": "verified as Bloodmoon Ursaluna SFA; pool row PRE 54 now maps to the exact printing Bloodmoon Ursaluna PRE"
+  "note": "verified as N's Zoroark ex JTG; pool row ASC 137 now maps to the exact printing N's Zoroark ex ASC",
+  "twinleaf": "N's Zoroark ex ASC"
  },
- "Great Tusk PRE": {
+ "Fezandipiti ex ASC 142": {
   "status": "needs-reverify",
-  "note": "verified as Great Tusk TEF; pool row PRE 55 now maps to the exact printing Great Tusk PRE"
+  "note": "verified as Fezandipiti ex SFA; pool row ASC 142 now maps to the exact printing Fezandipiti ex ASC (old note: empty-deck error and between-turns KO skip not hit)",
+  "twinleaf": "Fezandipiti ex ASC"
  },
- "Okidogi PRE": {
+ "Drakloak ASC 159": {
   "status": "needs-reverify",
-  "note": "verified as Okidogi TWM; pool row PRE 57 now maps to the exact printing Okidogi PRE"
+  "note": "verified as Drakloak TWM; pool row ASC 159 now maps to the exact printing Drakloak ASC",
+  "twinleaf": "Drakloak ASC"
  },
- "Cornerstone Mask Ogerpon ex PRE": {
+ "Dragapult ex ASC 160": {
   "status": "needs-reverify",
-  "note": "verified as Cornerstone Mask Ogerpon ex TWM; pool row PRE 58 now maps to the exact printing Cornerstone Mask Ogerpon ex PRE"
+  "note": "verified as Dragapult ex TWM; pool row ASC 160 now maps to the exact printing Dragapult ex ASC (old note: bench damage block 6 games)",
+  "twinleaf": "Dragapult ex ASC"
  },
- "Roaring Moon PRE": {
+ "Fan Rotom ASC 171": {
   "status": "needs-reverify",
-  "note": "verified as Roaring Moon TEF; pool row PRE 65 now maps to the exact printing Roaring Moon PRE"
+  "note": "verified as Fan Rotom SCR; pool row ASC 171 now maps to the exact printing Fan Rotom ASC",
+  "twinleaf": "Fan Rotom ASC"
  },
- "Eevee PRE": {
+ "Hop's Cramorant ASC 177": {
   "status": "needs-reverify",
-  "note": "verified as Eevee SSP; pool row PRE 74 now maps to the exact printing Eevee PRE"
+  "note": "verified as Hop's Cramorant JTG; pool row ASC 177 now maps to the exact printing Hop's Cramorant ASC",
+  "twinleaf": "Hop's Cramorant ASC"
  },
- "Noctowl PRE": {
+ "Terapagos ex ASC 179": {
   "status": "needs-reverify",
-  "note": "verified as Noctowl SCR; pool row PRE 78 now maps to the exact printing Noctowl PRE"
+  "note": "verified as Terapagos ex SCR; pool row ASC 179 now maps to the exact printing Terapagos ex ASC",
+  "twinleaf": "Terapagos ex ASC"
  },
- "Dunsparce PRE": {
+ "Air Balloon ASC 181": {
   "status": "needs-reverify",
-  "note": "verified as Dunsparce TEF; pool row PRE 79 now maps to the exact printing Dunsparce PRE"
+  "note": "verified as Air Balloon SSH; pool row ASC 181 now maps to the exact printing Air Balloon ASC",
+  "twinleaf": "Air Balloon ASC"
  },
- "Dudunsparce PRE": {
+ "Boss's Orders ASC 183": {
   "status": "needs-reverify",
-  "note": "verified as Dudunsparce TEF; pool row PRE 80 now maps to the exact printing Dudunsparce PRE"
+  "note": "verified as Boss's Orders PAL; pool row ASC 183 now maps to the exact printing Boss's Orders ASC",
+  "twinleaf": "Boss's Orders ASC"
  },
- "Area Zero Underdepths PRE": {
+ "Buddy-Buddy Poffin ASC 184": {
   "status": "needs-reverify",
-  "note": "verified as Area Zero Underdepths SCR; pool row PRE 94 now maps to the exact printing Area Zero Underdepths PRE"
+  "note": "verified as Buddy-Buddy Poffin TEF; pool row ASC 184 now maps to the exact printing Buddy-Buddy Poffin ASC",
+  "twinleaf": "Buddy-Buddy Poffin ASC"
  },
- "Binding Mochi PRE": {
+ "Glass Trumpet ASC 189": {
   "status": "needs-reverify",
-  "note": "verified as Binding Mochi SFA; pool row PRE 95 now maps to the exact printing Binding Mochi PRE"
+  "note": "verified as Glass Trumpet SCR; pool row ASC 189 now maps to the exact printing Glass Trumpet ASC",
+  "twinleaf": "Glass Trumpet ASC"
  },
- "Briar PRE": {
+ "Lillie's Determination ASC 192": {
   "status": "needs-reverify",
-  "note": "verified as Briar SCR; pool row PRE 100 now maps to the exact printing Briar PRE"
+  "note": "verified as Lillie's Determination M1L; pool row ASC 192 now maps to the exact printing Lillie's Determination ASC",
+  "twinleaf": "Lillie's Determination ASC"
  },
- "Bug Catching Set PRE": {
+ "Mega Signal ASC 193": {
   "status": "needs-reverify",
-  "note": "verified as Bug Catching Set TWM; pool row PRE 102 now maps to the exact printing Bug Catching Set PRE"
+  "note": "verified as Mega Signal M1S; pool row ASC 193 now maps to the exact printing Mega Signal ASC",
+  "twinleaf": "Mega Signal ASC"
  },
- "Ciphermaniac's Codebreaking PRE": {
+ "N's PP Up ASC 195": {
   "status": "needs-reverify",
-  "note": "verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE"
+  "note": "verified as N's PP Up JTG; pool row ASC 195 now maps to the exact printing N's PP Up ASC",
+  "twinleaf": "N's PP Up ASC"
  },
- "Crispin PRE": {
+ "Night Stretcher ASC 196": {
   "status": "needs-reverify",
-  "note": "verified as Crispin SCR; pool row PRE 105 now maps to the exact printing Crispin PRE"
+  "note": "verified as Night Stretcher SFA; pool row ASC 196 now maps to the exact printing Night Stretcher ASC",
+  "twinleaf": "Night Stretcher ASC"
  },
- "Festival Grounds PRE": {
+ "Premium Power Pro ASC 199": {
   "status": "needs-reverify",
-  "note": "verified as Festival Grounds TWM; pool row PRE 108 now maps to the exact printing Festival Grounds PRE"
+  "note": "verified as Power Protein M1L; pool row ASC 199 now maps to the exact printing Premium Power Pro ASC",
+  "twinleaf": "Premium Power Pro ASC"
  },
- "Kieran PRE": {
+ "Team Rocket's Archer ASC 201": {
   "status": "needs-reverify",
-  "note": "verified as Kieran TWM; pool row PRE 113 now maps to the exact printing Kieran PRE"
+  "note": "verified as Team Rocket's Archer DRI; pool row ASC 201 now maps to the exact printing Team Rocket's Archer ASC (old note: KO outside opponent's turn branch 0 games)",
+  "twinleaf": "Team Rocket's Archer ASC"
  },
- "Maximum Belt PRE": {
+ "Team Rocket's Ariana ASC 202": {
   "status": "needs-reverify",
-  "note": "verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0)"
+  "note": "verified as Team Rocket's Ariana DRI; pool row ASC 202 now maps to the exact printing Team Rocket's Ariana ASC",
+  "twinleaf": "Team Rocket's Ariana ASC"
  },
- "Prime Catcher PRE": {
+ "Team Rocket's Factory ASC 203": {
   "status": "needs-reverify",
-  "note": "verified as Prime Catcher TEF; pool row PRE 119 now maps to the exact printing Prime Catcher PRE"
+  "note": "verified as Team Rocket's Factory DRI; pool row ASC 203 now maps to the exact printing Team Rocket's Factory ASC",
+  "twinleaf": "Team Rocket's Factory ASC"
  },
- "EriFA PRE": {
+ "Team Rocket's Giovanni ASC 204": {
   "status": "needs-reverify",
-  "note": "verified as Eri TEF; pool row PRE 136 now maps to the exact printing EriFA PRE"
+  "note": "verified as Team Rocket's Giovanni DRI; pool row ASC 204 now maps to the exact printing Team Rocket's Giovanni ASC",
+  "twinleaf": "Team Rocket's Giovanni ASC"
  },
- "Pecharunt exSAR PRE": {
+ "Team Rocket's Petrel ASC 207": {
   "status": "needs-reverify",
-  "note": "verified as Pecharunt ex SFA; pool row PRE 163 now maps to the exact printing Pecharunt exSAR PRE"
+  "note": "verified as Team Rocket's Petrel DRI; pool row ASC 207 now maps to the exact printing Team Rocket's Petrel ASC (old note: empty-deck branch unreachable)",
+  "twinleaf": "Team Rocket's Petrel ASC"
  },
- "Raging Bolt exSAR PRE": {
+ "Team Rocket's Proton ASC 208": {
   "status": "needs-reverify",
-  "note": "verified as Raging Bolt ex TEF; pool row PRE 166 now maps to the exact printing Raging Bolt exSAR PRE"
+  "note": "verified as Team Rocket's Proton DRI; pool row ASC 208 now maps to the exact printing Team Rocket's Proton ASC",
+  "twinleaf": "Team Rocket's Proton ASC"
  },
- "Bloodmoon Ursaluna exSAR PRE": {
+ "Team Rocket's Transceiver ASC 209": {
   "status": "needs-reverify",
-  "note": "verified as Bloodmoon Ursaluna ex TWM; pool row PRE 168 now maps to the exact printing Bloodmoon Ursaluna exSAR PRE"
+  "note": "verified as Team Rocket's Transceiver DRI; pool row ASC 209 now maps to the exact printing Team Rocket's Transceiver ASC",
+  "twinleaf": "Team Rocket's Transceiver ASC"
  },
- "Iron Leaves exUR PRE": {
+ "Team Rocket's Watchtower ASC 210": {
   "status": "needs-reverify",
-  "note": "verified as Iron Leaves ex TEF; pool row PRE 176 now maps to the exact printing Iron Leaves exUR PRE"
+  "note": "verified as Team Rocket's Watchtower DRI; pool row ASC 210 now maps to the exact printing Team Rocket's Watchtower ASC (old note: needs a [C] Pokémon with an Ability)",
+  "twinleaf": "Team Rocket's Watchtower ASC"
  },
- "PecharuntIR SVP": {
+ "Prism Energy ASC 216": {
   "status": "needs-reverify",
-  "note": "verified as Pecharunt SVP; pool row SVP 129 now maps to the exact printing PecharuntIR SVP"
+  "note": "verified as Prism Energy NXD; pool row ASC 216 now maps to the exact printing Prism Energy ASC",
+  "twinleaf": "Prism Energy ASC"
  },
- "PokéVital A SFA": {
+ "Team Rocket's Energy ASC 217": {
+  "status": "needs-reverify",
+  "note": "verified as Team Rocket's Energy DRI; pool row ASC 217 now maps to the exact printing Team Rocket's Energy ASC (old note: non-TR discard branch 1 game)",
+  "twinleaf": "Team Rocket's Energy ASC"
+ },
+ "Black Belt's Training ASC 255": {
+  "status": "needs-reverify",
+  "note": "verified as Black Belt's Training JTG; pool row ASC 255 now maps to the exact printing Black Belt's Training ASC (old note: +40 frequency not measured)",
+  "twinleaf": "Black Belt's Training ASC"
+ },
+ "Marnie's Grimmsnarl ex ASC 287": {
+  "status": "needs-reverify",
+  "note": "verified as Marnie's Grimmsnarl ex DRI; pool row ASC 287 now maps to the exact printing Marnie's Grimmsnarl ex ASC (old note: empty-deck and ability-blocked returns unreached)",
+  "twinleaf": "Marnie's Grimmsnarl ex ASC"
+ },
+ "Pokégear 3.0 BLK 84": {
+  "status": "needs-reverify",
+  "note": "verified as Pokegear SVI; pool row BLK 84 now maps to the exact printing Pokegear 3.0 SV11W (old note: empty-deck branch unreachable)",
+  "twinleaf": "Pokegear 3.0 SV11W"
+ },
+ "Energy Retrieval CRI 108": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch A; DiscardToHand-prevented branch unreachable in pool",
+  "twinleaf": "Energy Retrieval FA CRI"
  },
- "Precious Trolley SSP": {
+ "Jumbo Ice Cream CRI 109": {
+  "status": "needs-reverify",
+  "note": "verified as Jumbo Ice M2; pool row CRI 109 now maps to the exact printing Jumbo Ice Cream FA CRI",
+  "twinleaf": "Jumbo Ice Cream FA CRI"
+ },
+ "Tool Scrapper CRI 115": {
+  "status": "needs-reverify",
+  "note": "verified as Tool Scrapper DRX; pool row CRI 115 now maps to the exact printing Tool Scrapper FA CRI",
+  "twinleaf": "Tool Scrapper FA CRI"
+ },
+ "Rellor DRI 24": {
+  "status": "needs-reverify",
+  "note": "verified as Rellor SSP; pool row DRI 24 now maps to the exact printing Rellor DRI",
+  "twinleaf": "Rellor DRI"
+ },
+ "Super Potion JTG 158": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch A",
+  "twinleaf": "Super Potion JTG"
  },
- "Reboot Pod TEF": {
+ "Pokémon Center Lady MEG 116": {
+  "status": "needs-reverify",
+  "note": "verified as Pokémon Center Lady FLF; pool row MEG 123 now maps to the exact printing Pokemon Center Lady MEG",
+  "twinleaf": "Pokemon Center Lady MEG"
+ },
+ "Chikorita MEP 69": {
+  "status": "needs-reverify",
+  "note": "verified as Chikorita UF; pool row MEP 46 now maps to the exact printing Chikorita MEP",
+  "twinleaf": "Chikorita MEP"
+ },
+ "Brave Bangle PBL 104": {
+  "status": "needs-reverify",
+  "note": "verified as Brave Bangle SV11W; pool row PBL 104 now maps to the exact printing Brave Bangle FA PBL",
+  "twinleaf": "Brave Bangle FA PBL"
+ },
+ "Crushing Hammer PBL 105": {
+  "status": "needs-reverify",
+  "note": "verified as Crushing Hammer SVI; pool row PBL 105 now maps to the exact printing Crushing Hammer FA PBL",
+  "twinleaf": "Crushing Hammer FA PBL"
+ },
+ "Energy Switch PBL 107": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Switch SVI; pool row PBL 107 now maps to the exact printing Energy Switch FA PBL",
+  "twinleaf": "Energy Switch FA PBL"
+ },
+ "Iron Defender PBL 110": {
+  "status": "needs-reverify",
+  "note": "verified as Iron Defender M1L; pool row PBL 110 now maps to the exact printing Iron Defender FA PBL",
+  "twinleaf": "Iron Defender FA PBL"
+ },
+ "Ignition Energy PFL 124": {
+  "status": "needs-reverify",
+  "note": "verified as Ignition Energy SV11W; pool row PFL 124 now maps to the exact printing Ignition Energy PFL",
+  "twinleaf": "Ignition Energy PFL"
+ },
+ "Energy Search POR 72": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Search SVI; pool row POR 72 now maps to the exact printing Energy Search POR",
+  "twinleaf": "Energy Search POR"
+ },
+ "Judge POR 76": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch A; pin widened to Judge@FST|POR; throw with hand=Judge only and empty deck unreachable",
+  "twinleaf": "Judge POR"
  },
- "Redeemable Ticket JTG": {
+ "Poké Ball POR 80": {
+  "status": "needs-reverify",
+  "note": "verified as Poké Ball JU; pool row POR 80 now maps to the exact printing Poke Ball POR",
+  "twinleaf": "Poke Ball POR"
+ },
+ "Pokémon Catcher POR 82": {
   "status": "verified",
-  "note": "batch b15; zero-prizes throw and no-empty-prize-slot branch unreachable"
+  "note": "batch A",
+  "twinleaf": "Pokemon Catcher POR"
  },
- "Team Rocket's Venture Bomb DRI": {
+ "Potion POR 83": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch A; empty-target return unreachable (prompt not cancellable)",
+  "twinleaf": "Potion POR"
  },
- "Bubble Water Energy M4": {
+ "Energy Recycler POR 108": {
+  "status": "needs-reverify",
+  "note": "verified as Energy Recycler BST; pool row POR 108 now maps to the exact printing Energy Recycler FA POR",
+  "twinleaf": "Energy Recycler FA POR"
+ },
+ "Forest of Vitality POR 109": {
+  "status": "needs-reverify",
+  "note": "verified as Forest of Vitality MEG; pool row POR 109 now maps to the exact printing Forest of Vitality FA POR",
+  "twinleaf": "Forest of Vitality FA POR"
+ },
+ "Sacred Ash POR 115": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch A",
+  "twinleaf": "Sacred Ash FA POR"
  },
- "Legacy Energy TWM": {
+ "Wondrous Patch POR 117": {
+  "status": "needs-reverify",
+  "note": "verified as Wonder Patch MBD; pool row POR 117 now maps to the exact printing Wondrous Patch FA POR",
+  "twinleaf": "Wondrous Patch FA POR"
+ },
+ "Dipplin PRE 10": {
+  "status": "needs-reverify",
+  "note": "verified as Dipplin TWM1; pool row PRE 10 now maps to the exact printing Dipplin PRE",
+  "twinleaf": "Dipplin PRE"
+ },
+ "Hydrapple ex PRE 11": {
+  "status": "needs-reverify",
+  "note": "verified as Hydrapple ex SCR; pool row PRE 11 now maps to the exact printing Hydrapple ex PRE",
+  "twinleaf": "Hydrapple ex PRE"
+ },
+ "Teal Mask Ogerpon ex PRE 12": {
+  "status": "needs-reverify",
+  "note": "verified as Teal Mask Ogerpon ex TWM; pool row PRE 12 now maps to the exact printing Teal Mask Ogerpon ex PRE (old note: bench damage prevention 2 games)",
+  "twinleaf": "Teal Mask Ogerpon ex PRE"
+ },
+ "Goldeen PRE 20": {
+  "status": "needs-reverify",
+  "note": "verified as Goldeen TWM; pool row PRE 20 now maps to the exact printing Goldeen PRE",
+  "twinleaf": "Goldeen PRE"
+ },
+ "Wellspring Mask Ogerpon ex PRE 27": {
+  "status": "needs-reverify",
+  "note": "verified as Wellspring Mask Ogerpon ex TWM; pool row PRE 27 now maps to the exact printing Wellspring Mask Ogerpon ex PRE",
+  "twinleaf": "Wellspring Mask Ogerpon ex PRE"
+ },
+ "Duskull PRE 35": {
+  "status": "needs-reverify",
+  "note": "verified as Duskull SFA; pool row PRE 35 now maps to the exact printing Duskull PRE",
+  "twinleaf": "Duskull PRE"
+ },
+ "Dusclops PRE 36": {
+  "status": "needs-reverify",
+  "note": "verified as Dusclops SFA; pool row PRE 36 now maps to the exact printing Dusclops PRE",
+  "twinleaf": "Dusclops PRE"
+ },
+ "Dusknoir PRE 37": {
+  "status": "needs-reverify",
+  "note": "verified as Dusknoir SFA; pool row PRE 37 now maps to the exact printing Dusknoir PRE",
+  "twinleaf": "Dusknoir PRE"
+ },
+ "Bloodmoon Ursaluna PRE 54": {
+  "status": "needs-reverify",
+  "note": "verified as Bloodmoon Ursaluna SFA; pool row PRE 54 now maps to the exact printing Bloodmoon Ursaluna PRE",
+  "twinleaf": "Bloodmoon Ursaluna PRE"
+ },
+ "Great Tusk PRE 55": {
+  "status": "needs-reverify",
+  "note": "verified as Great Tusk TEF; pool row PRE 55 now maps to the exact printing Great Tusk PRE",
+  "twinleaf": "Great Tusk PRE"
+ },
+ "Okidogi PRE 57": {
+  "status": "needs-reverify",
+  "note": "verified as Okidogi TWM; pool row PRE 57 now maps to the exact printing Okidogi PRE",
+  "twinleaf": "Okidogi PRE"
+ },
+ "Cornerstone Mask Ogerpon ex PRE 58": {
+  "status": "needs-reverify",
+  "note": "verified as Cornerstone Mask Ogerpon ex TWM; pool row PRE 58 now maps to the exact printing Cornerstone Mask Ogerpon ex PRE",
+  "twinleaf": "Cornerstone Mask Ogerpon ex PRE"
+ },
+ "Roaring Moon PRE 65": {
+  "status": "needs-reverify",
+  "note": "verified as Roaring Moon TEF; pool row PRE 65 now maps to the exact printing Roaring Moon PRE",
+  "twinleaf": "Roaring Moon PRE"
+ },
+ "Eevee PRE 74": {
+  "status": "needs-reverify",
+  "note": "verified as Eevee SSP; pool row PRE 74 now maps to the exact printing Eevee PRE",
+  "twinleaf": "Eevee PRE"
+ },
+ "Noctowl PRE 78": {
+  "status": "needs-reverify",
+  "note": "verified as Noctowl SCR; pool row PRE 78 now maps to the exact printing Noctowl PRE",
+  "twinleaf": "Noctowl PRE"
+ },
+ "Dunsparce PRE 79": {
+  "status": "needs-reverify",
+  "note": "verified as Dunsparce TEF; pool row PRE 79 now maps to the exact printing Dunsparce PRE",
+  "twinleaf": "Dunsparce PRE"
+ },
+ "Dudunsparce PRE 80": {
+  "status": "needs-reverify",
+  "note": "verified as Dudunsparce TEF; pool row PRE 80 now maps to the exact printing Dudunsparce PRE",
+  "twinleaf": "Dudunsparce PRE"
+ },
+ "Area Zero Underdepths PRE 94": {
+  "status": "needs-reverify",
+  "note": "verified as Area Zero Underdepths SCR; pool row PRE 94 now maps to the exact printing Area Zero Underdepths PRE",
+  "twinleaf": "Area Zero Underdepths PRE"
+ },
+ "Binding Mochi PRE 95": {
+  "status": "needs-reverify",
+  "note": "verified as Binding Mochi SFA; pool row PRE 95 now maps to the exact printing Binding Mochi PRE",
+  "twinleaf": "Binding Mochi PRE"
+ },
+ "Briar PRE 100": {
+  "status": "needs-reverify",
+  "note": "verified as Briar SCR; pool row PRE 100 now maps to the exact printing Briar PRE",
+  "twinleaf": "Briar PRE"
+ },
+ "Bug Catching Set PRE 102": {
+  "status": "needs-reverify",
+  "note": "verified as Bug Catching Set TWM; pool row PRE 102 now maps to the exact printing Bug Catching Set PRE",
+  "twinleaf": "Bug Catching Set PRE"
+ },
+ "Ciphermaniac's Codebreaking PRE 104": {
+  "status": "needs-reverify",
+  "note": "verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE",
+  "twinleaf": "Ciphermaniac's Codebreaking PRE"
+ },
+ "Crispin PRE 105": {
+  "status": "needs-reverify",
+  "note": "verified as Crispin SCR; pool row PRE 105 now maps to the exact printing Crispin PRE",
+  "twinleaf": "Crispin PRE"
+ },
+ "Festival Grounds PRE 108": {
+  "status": "needs-reverify",
+  "note": "verified as Festival Grounds TWM; pool row PRE 108 now maps to the exact printing Festival Grounds PRE",
+  "twinleaf": "Festival Grounds PRE"
+ },
+ "Kieran PRE 113": {
+  "status": "needs-reverify",
+  "note": "verified as Kieran TWM; pool row PRE 113 now maps to the exact printing Kieran PRE",
+  "twinleaf": "Kieran PRE"
+ },
+ "Maximum Belt PRE 117": {
+  "status": "needs-reverify",
+  "note": "verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0)",
+  "twinleaf": "Maximum Belt PRE"
+ },
+ "Prime Catcher PRE 119": {
+  "status": "needs-reverify",
+  "note": "verified as Prime Catcher TEF; pool row PRE 119 now maps to the exact printing Prime Catcher PRE",
+  "twinleaf": "Prime Catcher PRE"
+ },
+ "Eri PRE 136": {
+  "status": "needs-reverify",
+  "note": "verified as Eri TEF; pool row PRE 136 now maps to the exact printing EriFA PRE",
+  "twinleaf": "EriFA PRE"
+ },
+ "Pecharunt ex PRE 163": {
+  "status": "needs-reverify",
+  "note": "verified as Pecharunt ex SFA; pool row PRE 163 now maps to the exact printing Pecharunt exSAR PRE",
+  "twinleaf": "Pecharunt exSAR PRE"
+ },
+ "Raging Bolt ex PRE 166": {
+  "status": "needs-reverify",
+  "note": "verified as Raging Bolt ex TEF; pool row PRE 166 now maps to the exact printing Raging Bolt exSAR PRE",
+  "twinleaf": "Raging Bolt exSAR PRE"
+ },
+ "Bloodmoon Ursaluna ex PRE 168": {
+  "status": "needs-reverify",
+  "note": "verified as Bloodmoon Ursaluna ex TWM; pool row PRE 168 now maps to the exact printing Bloodmoon Ursaluna exSAR PRE",
+  "twinleaf": "Bloodmoon Ursaluna exSAR PRE"
+ },
+ "Iron Leaves ex PRE 176": {
+  "status": "needs-reverify",
+  "note": "verified as Iron Leaves ex TEF; pool row PRE 176 now maps to the exact printing Iron Leaves exUR PRE",
+  "twinleaf": "Iron Leaves exUR PRE"
+ },
+ "Pecharunt SVP 129": {
+  "status": "needs-reverify",
+  "note": "verified as Pecharunt SVP; pool row SVP 129 now maps to the exact printing PecharuntIR SVP",
+  "twinleaf": "PecharuntIR SVP"
+ },
+ "Poké Vital A SFA 62": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "PokéVital A SFA"
  },
- "Magnet Metal Energy M4": {
+ "Precious Trolley SSP 185": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Precious Trolley SSP"
  },
- "Shadow Darkness Energy M5": {
+ "Reboot Pod TEF 158": {
   "status": "verified",
-  "note": "batch b15; opponent-attacker return unreachable (no self-bench damage in pool)"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Reboot Pod TEF"
  },
- "Battle Colosseum M2": {
+ "Redeemable Ticket JTG 156": {
   "status": "verified",
-  "note": "batch b15; MoveDamageCounters by non-turn player branch unreachable"
+  "note": "batch b15; zero-prizes throw and no-empty-prize-slot branch unreachable",
+  "twinleaf": "Redeemable Ticket JTG"
  },
- "Community Center TWM": {
+ "Team Rocket's Venture Bomb DRI 179": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Team Rocket's Venture Bomb DRI"
  },
- "Exciting Stadium SSP": {
+ "Bubbly Water Energy CRI 84": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Bubble Water Energy M4"
  },
- "Full Metal Lab TEF": {
+ "Legacy Energy TWM 167": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Legacy Energy TWM"
  },
- "Great Tree SCR": {
+ "Magnetic Metal Energy CRI 85": {
   "status": "verified",
-  "note": "batch b15; L53/L59/L65 unreachable (min-1 prompt, blocked targets)"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Magnet Metal Energy M4"
  },
- "Zapdos TWM": {
+ "Shadowy Darkness Energy PBL 83": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b15; opponent-attacker return unreachable (no self-bench damage in pool)",
+  "twinleaf": "Shadow Darkness Energy M5"
  },
- "Zekrom ex SV11B": {
+ "Battle Cage PFL 85": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b15; MoveDamageCounters by non-turn player branch unreachable",
+  "twinleaf": "Battle Colosseum M2"
  },
- "Beldum TEF": {
+ "Community Center TWM 146": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Community Center TWM"
  },
- "Dialga MEG": {
+ "Lively Stadium SSP 180": {
   "status": "verified",
-  "note": "batch b07; L45 no-energy return unreachable"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Exciting Stadium SSP"
  },
- "Archaludon M2": {
+ "Full Metal Lab TEF 148": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "twinleaf": "Full Metal Lab TEF"
  },
- "Archaludon ex SSP": {
+ "Grand Tree SCR 136": {
   "status": "verified",
-  "note": "batch b07; ability-blocked return unreachable in pool"
+  "note": "batch b15; L53/L59/L65 unreachable (min-1 prompt, blocked targets)",
+  "twinleaf": "Great Tree SCR"
  },
- "Duraludon PFL": {
+ "Zapdos TWM 65": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07",
+  "twinleaf": "Zapdos TWM"
  },
- "Duraludon SSP": {
+ "Zekrom ex BLK 34": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07",
+  "twinleaf": "Zekrom ex SV11B"
  },
- "Genesect SFA": {
+ "Beldum TEF 113": {
   "status": "verified",
-  "note": "batch b07; ability-blocked returns and ACE SPEC Stadium branch unreachable in pool"
+  "note": "batch b07",
+  "twinleaf": "Beldum TEF"
  },
- "Gholdengo SSP": {
+ "Dialga MEG 95": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07; L45 no-energy return unreachable",
+  "twinleaf": "Dialga MEG"
  },
- "Heatran TWM": {
+ "Archaludon PFL 75": {
   "status": "verified",
-  "note": "batch b07; ability-blocked return unreachable in pool"
+  "note": "batch b07",
+  "twinleaf": "Archaludon M2"
  },
- "Hop's Zacian ex JTG": {
+ "Archaludon ex SSP 130": {
   "status": "verified",
-  "note": "batch b07; L49 no-target return unreachable (prompt not cancellable)"
+  "note": "batch b07; ability-blocked return unreachable in pool",
+  "twinleaf": "Archaludon ex SSP"
  },
- "Jirachi ex 30C": {
+ "Duraludon PFL 74": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07",
+  "twinleaf": "Duraludon PFL"
  },
- "Mega Mawile ex M1L": {
+ "Duraludon SSP 129": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07",
+  "twinleaf": "Duraludon SSP"
  },
- "Steelix M1L": {
+ "Genesect SFA 40": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07; ability-blocked returns and ACE SPEC Stadium branch unreachable in pool",
+  "twinleaf": "Genesect SFA"
  },
- "Empoleon ex PFL": {
+ "Gholdengo SSP 131": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07",
+  "twinleaf": "Gholdengo SSP"
  },
- "Scizor ex TEF": {
+ "Heatran TWM 123": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07; ability-blocked return unreachable in pool",
+  "twinleaf": "Heatran TWM"
  },
- "Piplup PFL": {
+ "Hop's Zacian ex JTG 111": {
   "status": "verified",
-  "note": "batch b07"
+  "note": "batch b07; L49 no-target return unreachable (prompt not cancellable)",
+  "twinleaf": "Hop's Zacian ex JTG"
  },
- "Frogadier M4": {
+ "Jirachi ex 30C 102": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch b07",
+  "twinleaf": "Jirachi ex 30C"
  },
- "Slowpoke M5": {
+ "Mega Mawile ex MEG 94": {
   "status": "verified",
-  "note": "batch A; Twinleaf filter {superType: ANY} matches nothing: discard branch never runs (Twinleaf bug)"
+  "note": "batch b07",
+  "twinleaf": "Mega Mawile ex M1L"
  },
- "Zeraora SCR": {
+ "Steelix MEG 93": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch b07",
+  "twinleaf": "Steelix M1L"
  },
- "Metagross TEF": {
+ "Empoleon ex PFL 70": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch b07",
+  "twinleaf": "Empoleon ex PFL"
  },
- "Koraidon TEF": {
+ "Scizor ex TEF 111": {
   "status": "verified",
-  "note": "batch A; optional chaining on Active unreachable"
+  "note": "batch b07",
+  "twinleaf": "Scizor ex TEF"
  },
- "Koraidon ex TEF": {
+ "Piplup PFL 27": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch b07",
+  "twinleaf": "Piplup PFL"
  },
- "Chi-Yu TWM": {
+ "Frogadier CRI 21": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch A",
+  "twinleaf": "Frogadier M4"
  },
- "Alakazam TWM": {
+ "Slowpoke PBL 29": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch A; Twinleaf filter {superType: ANY} matches nothing: discard branch never runs (Twinleaf bug)",
+  "twinleaf": "Slowpoke M5"
  },
- "Girafarig TWM": {
+ "Zeraora SCR 55": {
   "status": "verified",
-  "note": "batch A; empty-target return unreachable"
+  "note": "batch A",
+  "twinleaf": "Zeraora SCR"
  },
- "Mankey SSP": {
+ "Metagross TEF 115": {
   "status": "verified",
-  "note": "batch A"
+  "note": "batch A",
+  "twinleaf": "Metagross TEF"
  },
- "Yanmega ex DRI": {
+ "Koraidon TEF 119": {
+  "status": "verified",
+  "note": "batch A; optional chaining on Active unreachable",
+  "twinleaf": "Koraidon TEF"
+ },
+ "Koraidon ex TEF 120": {
+  "status": "verified",
+  "note": "batch A",
+  "twinleaf": "Koraidon ex TEF"
+ },
+ "Chi-Yu TWM 39": {
+  "status": "verified",
+  "note": "batch A",
+  "twinleaf": "Chi-Yu TWM"
+ },
+ "Alakazam TWM 82": {
+  "status": "verified",
+  "note": "batch A",
+  "twinleaf": "Alakazam TWM"
+ },
+ "Girafarig TWM 83": {
+  "status": "verified",
+  "note": "batch A; empty-target return unreachable",
+  "twinleaf": "Girafarig TWM"
+ },
+ "Mankey SSP 98": {
+  "status": "verified",
+  "note": "batch A",
+  "twinleaf": "Mankey SSP"
+ },
+ "Yanmega ex DRI 3": {
   "status": "partial",
-  "note": "batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable"
+  "note": "batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable",
+  "twinleaf": "Yanmega ex DRI"
  },
- "Zarude SSP": {
+ "Zarude SSP 11": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Zarude SSP"
  },
- "Jolteon ex PRE": {
+ "Jolteon ex PRE 30": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Jolteon ex PRE"
  },
- "Electrike M1S": {
+ "Electrike MEG 49": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Electrike M1S"
  },
- "Manectric M5": {
+ "Manectric PBL 24": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Manectric M5"
  },
- "Mega Manectric ex M1S": {
+ "Mega Manectric ex MEG 50": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Mega Manectric ex M1S"
  },
- "Ethan's Pichu DRI": {
+ "Ethan's Pichu DRI 71": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Ethan's Pichu DRI"
  },
- "Galvantula ex SCR": {
+ "Galvantula ex SCR 51": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Galvantula ex SCR"
  },
- "Magneton SSP": {
+ "Magneton SSP 59": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Magneton SSP"
  },
- "Morpeko TWM": {
+ "Morpeko TWM 72": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Morpeko TWM"
  },
- "Rotom SSP": {
+ "Rotom SSP 61": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Rotom SSP"
  },
- "Luxray ex TWM": {
+ "Luxray ex TWM 68": {
   "status": "verified",
-  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 random traces + scenario scenarios/luxray-ex-empty-hand.json (12 traces) for the opponent-hand-empty return"
+  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 random traces + scenario scenarios/luxray-ex-empty-hand.json (12 traces) for the opponent-hand-empty return",
+  "twinleaf": "Luxray ex TWM"
  },
- "Stunfisk M2a": {
+ "Stunfisk ASC 62": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Stunfisk M2a"
  },
- "Tapu Koko ex JTG": {
+ "Tapu Koko ex JTG 51": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Tapu Koko ex JTG"
  },
- "Team Rocket's Zapdos DRI": {
+ "Team Rocket's Zapdos DRI 70": {
   "status": "verified",
-  "note": "batch b06; L65 +60 dead: Twinleaf checks name \"Team Rocket Energy\" (Twinleaf bug)"
+  "note": "batch b06; L65 +60 dead: Twinleaf checks name \"Team Rocket Energy\" (Twinleaf bug)",
+  "twinleaf": "Team Rocket's Zapdos DRI"
  },
- "Eelektrik SV11B": {
+ "Eelektrik ASC 60": {
   "status": "verified",
-  "note": "batch b06"
+  "note": "batch b06",
+  "twinleaf": "Eelektrik SV11B"
  },
- "Terrakion SV11W": {
+ "Terrakion WHT 54": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Terrakion SV11W"
  },
- "Conkeldurr TWM": {
+ "Conkeldurr TWM 105": {
   "status": "verified",
-  "note": "batch b04; L50 defensive return unreachable"
+  "note": "batch b04; L50 defensive return unreachable",
+  "twinleaf": "Conkeldurr TWM"
  },
- "Gurdurr TWM": {
+ "Gurdurr TWM 104": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Gurdurr TWM"
  },
- "Timburr TWM": {
+ "Timburr TWM 103": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Timburr TWM"
  },
- "Ting-Lu TWM": {
+ "Ting-Lu TWM 110": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Ting-Lu TWM"
  },
- "Seismitoad 30C": {
+ "Seismitoad 30C 84": {
   "status": "verified",
-  "note": "batch b04 + support cards (Tympole EVS, Palpitoad OBF); 48 traces, all branches covered"
+  "note": "batch b04 + support cards (Tympole EVS, Palpitoad OBF); 48 traces, all branches covered",
+  "twinleaf": "Seismitoad 30C"
  },
- "Applin DRI": {
+ "Applin DRI 16": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Applin DRI"
  },
- "Hydrapple DRI": {
+ "Hydrapple DRI 18": {
   "status": "verified",
-  "note": "batch b04; L52 empty-result return unreachable (6-card prompt, not cancellable)"
+  "note": "batch b04; L52 empty-result return unreachable (6-card prompt, not cancellable)",
+  "twinleaf": "Hydrapple DRI"
  },
- "Bulbasaur M1L": {
+ "Bulbasaur MEG 1": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Bulbasaur M1L"
  },
- "Mega Venusaur ex M1L": {
+ "Mega Venusaur ex MEG 3": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Mega Venusaur ex M1L"
  },
- "Mega Meganium ex MC": {
+ "Mega Meganium ex ASC 10": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Mega Meganium ex MC"
  },
- "Whimsicott ex SV11W": {
+ "Whimsicott ex WHT 5": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Whimsicott ex SV11W"
  },
- "Dipplin SCR": {
+ "Dipplin SCR 13": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Dipplin SCR"
  },
- "Durant ex SSP": {
+ "Durant ex SSP 4": {
   "status": "verified",
-  "note": "batch b04; L48 ability-blocked unreachable in pool"
+  "note": "batch b04; L48 ability-blocked unreachable in pool",
+  "twinleaf": "Durant ex SSP"
  },
- "Leafeon ex PRE": {
+ "Leafeon ex PRE 6": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Leafeon ex PRE"
  },
- "Ethan's Pinsir DRI": {
+ "Ethan's Pinsir DRI 1": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Ethan's Pinsir DRI"
  },
- "Alolan Exeggutor 30C": {
+ "Alolan Exeggutor 30C 2": {
   "status": "verified",
-  "note": "batch b04; L39 ability-blocked unreachable in pool"
+  "note": "batch b04; L39 ability-blocked unreachable in pool",
+  "twinleaf": "Alolan Exeggutor 30C"
  },
- "Exeggcute SSP": {
+ "Exeggcute SSP 1": {
   "status": "verified",
-  "note": "batch b04; empty-deck return covered by 3 games across two scout runs"
+  "note": "batch b04; empty-deck return covered by 3 games across two scout runs",
+  "twinleaf": "Exeggcute SSP"
  },
- "Genesect M2": {
+ "Genesect PFL 8": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Genesect M2"
  },
- "Rillaboom TWM": {
+ "Rillaboom TWM 16": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Rillaboom TWM"
  },
- "Cottonee MEP": {
+ "Cottonee MEP 18": {
   "status": "verified",
-  "note": "batch b04"
+  "note": "batch b04",
+  "twinleaf": "Cottonee MEP"
  },
- "Gouging Fire SSP": {
+ "Gouging Fire SSP 38": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Gouging Fire SSP"
  },
- "Gouging Fire ex TEF": {
+ "Gouging Fire ex TEF 38": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Gouging Fire ex TEF"
  },
- "Ho-Oh SSP": {
+ "Ho-Oh SSP 19": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Ho-Oh SSP"
  },
- "Incineroar ex TEF": {
+ "Incineroar ex TEF 34": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Incineroar ex TEF"
  },
- "Litten TEF": {
+ "Litten TEF 32": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Litten TEF"
  },
- "Magmortar JTG": {
+ "Magmortar JTG 21": {
   "status": "verified",
-  "note": "batch b12; verified with temporarily generated non-pool pre-evolution (Magmar HIF / Antique Cover Fossil SCR); corpus not kept"
+  "note": "batch b12; verified with temporarily generated non-pool pre-evolution (Magmar HIF / Antique Cover Fossil SCR); corpus not kept",
+  "twinleaf": "Magmortar JTG"
  },
- "Oricorio ex M2": {
+ "Oricorio ex PFL 18": {
   "status": "verified",
-  "note": "batch b12; verified with unmerged Charizard ports; corpus b12-g4 unsupported until they merge"
+  "note": "batch b12; verified with unmerged Charizard ports; corpus b12-g4 unsupported until they merge",
+  "twinleaf": "Oricorio ex M2"
  },
- "Reshiram ex SV11W": {
+ "Reshiram ex WHT 20": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Reshiram ex SV11W"
  },
- "Cinderace M1L": {
+ "Cinderace MEG 28": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Cinderace M1L"
  },
- "Centiskorch SSP": {
+ "Centiskorch SSP 28": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Centiskorch SSP"
  },
- "Sizzlipede TEF": {
+ "Sizzlipede TEF 36": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Sizzlipede TEF"
  },
- "Blaziken DRI": {
+ "Blaziken DRI 42": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Blaziken DRI"
  },
- "Blaziken ex JTG": {
+ "Blaziken ex JTG 24": {
   "status": "partial",
-  "note": "batch b12; empty-transfers defensive branch uncovered"
+  "note": "batch b12; empty-transfers defensive branch uncovered",
+  "twinleaf": "Blaziken ex JTG"
  },
- "Combusken DRI": {
+ "Combusken DRI 41": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Combusken DRI"
  },
- "Torchic DRI": {
+ "Torchic DRI 40": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Torchic DRI"
  },
- "Victini SSP": {
+ "Victini SSP 21": {
   "status": "partial",
-  "note": "batch b12; ability-blocked return and empty source slot uncovered (unreachable with pool locks)"
+  "note": "batch b12; ability-blocked return and empty source slot uncovered (unreachable with pool locks)",
+  "twinleaf": "Victini SSP"
  },
- "Volcanion ex JTG": {
+ "Volcanion ex JTG 31": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Volcanion ex JTG"
  },
- "Tirtouga SV11B": {
+ "Tirtouga BLK 22": {
   "status": "verified",
-  "note": "batch b12; verified with temporarily generated non-pool pre-evolution (Magmar HIF / Antique Cover Fossil SCR); corpus not kept"
+  "note": "batch b12; verified with temporarily generated non-pool pre-evolution (Magmar HIF / Antique Cover Fossil SCR); corpus not kept",
+  "twinleaf": "Tirtouga SV11B"
  },
- "Black Kyurem ex SSP": {
+ "Black Kyurem ex SSP 48": {
   "status": "verified",
-  "note": "batch b12"
+  "note": "batch b12",
+  "twinleaf": "Black Kyurem ex SSP"
  },
- "Dedenne SSP": {
+ "Dedenne SSP 87": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Dedenne SSP"
  },
- "Deoxys M4 32": {
+ "Deoxys CRI 32": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Deoxys M4 32"
  },
- "Deoxys M4 33": {
+ "Deoxys CRI 33": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Deoxys M4 33"
  },
- "Espeon ex PRE": {
+ "Espeon ex PRE 34": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Espeon ex PRE"
  },
- "Sylveon PRE": {
+ "Sylveon PRE 40": {
   "status": "verified",
-  "note": "batch b09; L52 Safeguard early return unreachable in pool"
+  "note": "batch b09; L52 Safeguard early return unreachable in pool",
+  "twinleaf": "Sylveon PRE"
  },
- "Sylveon ex SSP": {
+ "Sylveon ex PRE 41": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Sylveon ex SSP"
  },
- "Elgyem SV11B": {
+ "Elgyem BLK 40": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Elgyem SV11B"
  },
- "Enamorus TWM": {
+ "Enamorus TWM 93": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Enamorus TWM"
  },
- "Flittle SSP": {
+ "Flittle SSP 94": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Flittle SSP"
  },
- "Frillish SV11W": {
+ "Frillish WHT 44": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Frillish SV11W"
  },
- "Jellicent ex SV11W": {
+ "Jellicent ex WHT 45": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Jellicent ex SV11W"
  },
- "Gimmighoul SSP": {
+ "Gimmighoul SSP 97": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Gimmighoul SSP"
  },
- "Lampent M5": {
+ "Lampent PBL 37": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Lampent M5"
  },
- "Litwick M5": {
+ "Litwick PBL 36": {
   "status": "verified",
-  "note": "batch b09"
+  "note": "batch b09",
+  "twinleaf": "Litwick M5"
  },
- "Mega Chandelure ex M5": {
+ "Mega Chandelure ex PBL 38": {
   "status": "verified",
-  "note": "batch b09; L57 !chandelureInPlay return 0 games (likely coverage artifact)"
+  "note": "batch b09; L57 !chandelureInPlay return 0 games (likely coverage artifact)",
+  "twinleaf": "Mega Chandelure ex M5"
  },
- "Azumarill SSP": {
+ "Azumarill SSP 74": {
   "status": "verified",
-  "note": "batch b09; L60 ability-probe catch and L65 no-[P]-in-cost unreachable in pool"
+  "note": "batch b09; L60 ability-probe catch and L65 no-[P]-in-cost unreachable in pool",
+  "twinleaf": "Azumarill SSP"
  },
- "Unown 30C": {
+ "Unown 30C 72": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Unown 30C"
  },
- "Cofagrigus SSP": {
+ "Cofagrigus SSP 83": {
   "status": "verified",
-  "note": "batch b11; re-verified with support card Yamask PLF 55: 48 traces, all branches covered"
+  "note": "batch b11; re-verified with support card Yamask PLF 55: 48 traces, all branches covered",
+  "twinleaf": "Cofagrigus SSP"
  },
- "Zacian M2": {
+ "Zacian PFL 45": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Zacian M2"
  },
- "Armarouge SSP": {
+ "Armarouge SSP 34": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Armarouge SSP"
  },
- "Ceruledge M2": {
+ "Ceruledge PFL 20": {
   "status": "partial",
-  "note": "batch b11; \"not exactly 4 selected\" defensive branch"
+  "note": "batch b11; \"not exactly 4 selected\" defensive branch",
+  "twinleaf": "Ceruledge M2"
  },
- "Ceruledge SSP": {
+ "Ceruledge SSP 35": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Ceruledge SSP"
  },
- "Charcadet 2 SSP": {
+ "Charcadet SSP 33": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Charcadet 2 SSP"
  },
- "Charcadet M2": {
+ "Charcadet PFL 19": {
   "status": "partial",
-  "note": "batch b11; empty-deck throw never ran"
+  "note": "batch b11; empty-deck throw never ran",
+  "twinleaf": "Charcadet M2"
  },
- "Charmander M2": {
+ "Charmander PFL 11": {
   "status": "partial",
-  "note": "batch b11; not-Charmander return and ability-blocked return unreachable"
+  "note": "batch b11; not-Charmander return and ability-blocked return unreachable",
+  "twinleaf": "Charmander M2"
  },
- "Mega Charizard X ex M2": {
+ "Mega Charizard X ex PFL 13": {
   "status": "partial",
-  "note": "batch b11; null prompt result return unreachable"
+  "note": "batch b11; null prompt result return unreachable",
+  "twinleaf": "Mega Charizard X ex M2"
  },
- "Mega Charizard Y ex MC": {
+ "Mega Charizard Y ex ASC 22": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Mega Charizard Y ex MC"
  },
- "Flareon ex PRE": {
+ "Flareon ex PRE 14": {
   "status": "partial",
-  "note": "batch b11; empty-deck return never ran"
+  "note": "batch b11; empty-deck return never ran",
+  "twinleaf": "Flareon ex PRE"
  },
- "Ethan's Cyndaquil DRI": {
+ "Ethan's Cyndaquil DRI 32": {
   "status": "verified",
-  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)"
+  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)",
+  "twinleaf": "Ethan's Cyndaquil DRI"
  },
- "Ethan's Quilava DRI": {
+ "Ethan's Quilava DRI 33": {
   "status": "verified",
-  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)"
+  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)",
+  "twinleaf": "Ethan's Quilava DRI"
  },
- "Ethan's Typhlosion DRI": {
+ "Ethan's Typhlosion DRI 34": {
   "status": "verified",
-  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)"
+  "note": "batch b11; re-checked in b16 with the real Ethan's Adventure (parity + random coverage, 0 divergences)",
+  "twinleaf": "Ethan's Typhlosion DRI"
  },
- "Fuecoco SSP": {
+ "Fuecoco SSP 29": {
   "status": "verified",
-  "note": "batch b11"
+  "note": "batch b11",
+  "twinleaf": "Fuecoco SSP"
  },
- "Skeledirge SSP": {
+ "Skeledirge SSP 31": {
   "status": "partial",
-  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable; b13 completed its all-attack-effects mask (retaliation and 5 other kinds were missing)"
+  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable; b13 completed its all-attack-effects mask (retaliation and 5 other kinds were missing)",
+  "twinleaf": "Skeledirge SSP"
  },
- "Steven's Metang DRI": {
+ "Steven's Metang DRI 144": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Steven's Metang DRI"
  },
- "Varoom SFA": {
+ "Varoom SFA 43": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Varoom SFA"
  },
- "Haxorus SFA": {
+ "Haxorus SFA 46": {
   "status": "verified",
-  "note": "batch b08; discard-log lambda unreachable; verified with temporarily generated Axew/Fraxure (now support cards)"
+  "note": "batch b08; discard-log lambda unreachable; verified with temporarily generated Axew/Fraxure (now support cards)",
+  "twinleaf": "Haxorus SFA"
  },
- "Haxorus SV11B": {
+ "Haxorus BLK 70": {
   "status": "verified",
-  "note": "batch b08; verified with temporarily generated Axew/Fraxure (now support cards)"
+  "note": "batch b08; verified with temporarily generated Axew/Fraxure (now support cards)",
+  "twinleaf": "Haxorus SV11B"
  },
- "Salamence ex JTG": {
+ "Salamence ex JTG 114": {
   "status": "verified",
-  "note": "batch b08; no-energy return unreachable; Shelgon support card needs a port (c3)"
+  "note": "batch b08; no-energy return unreachable; Shelgon support card needs a port (c3)",
+  "twinleaf": "Salamence ex JTG"
  },
- "Dragonair M2a": {
+ "Dragonair ASC 151": {
   "status": "partial",
-  "note": "batch b08; ability-blocked return unreachable (no lock on [N] Stage 1)"
+  "note": "batch b08; ability-blocked return unreachable (no lock on [N] Stage 1)",
+  "twinleaf": "Dragonair M2a"
  },
- "Mega Dragonite ex M2a": {
+ "Mega Dragonite ex ASC 152": {
   "status": "partial",
-  "note": "batch b08; ability-blocked return 0/704 games"
+  "note": "batch b08; ability-blocked return 0/704 games",
+  "twinleaf": "Mega Dragonite ex M2a"
  },
- "Eternatus SSP": {
+ "Eternatus SSP 141": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Eternatus SSP"
  },
- "Alolan Exeggutor ex SSP": {
+ "Alolan Exeggutor ex SSP 133": {
   "status": "verified",
-  "note": "batch b08; blocked.push() no-op and !opponentBench unreachable"
+  "note": "batch b08; blocked.push() no-op and !opponentBench unreachable",
+  "twinleaf": "Alolan Exeggutor ex SSP"
  },
- "Mega Latias ex M1S": {
+ "Mega Latias ex MEG 100": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Mega Latias ex M1S"
  },
- "Miraidon TEF": {
+ "Miraidon TEF 121": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Miraidon TEF"
  },
- "Miraidon ex TEF": {
+ "Miraidon ex TEF 122": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Miraidon ex TEF"
  },
- "Raging Bolt SCR": {
+ "Raging Bolt SCR 111": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Raging Bolt SCR"
  },
- "Turtonator SSP": {
+ "Turtonator SSP 137": {
   "status": "verified",
-  "note": "batch b08; Twinleaf bug: Fully Singe tests empty cardTag, attack never does anything; ported as no-op"
+  "note": "batch b08; Twinleaf bug: Fully Singe tests empty cardTag, attack never does anything; ported as no-op",
+  "twinleaf": "Turtonator SSP"
  },
- "Clefairy M3": {
+ "Clefairy POR 30": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Clefairy M3"
  },
- "Comfey SCR": {
+ "Comfey SCR 63": {
   "status": "verified",
-  "note": "batch b08"
+  "note": "batch b08",
+  "twinleaf": "Comfey SCR"
  },
- "Cresselia SFA": {
+ "Cresselia SFA 21": {
   "status": "verified",
-  "note": "batch b08; chosenPrize===null unreachable"
+  "note": "batch b08; chosenPrize===null unreachable",
+  "twinleaf": "Cresselia SFA"
  },
- "Azumarill ex MC": {
+ "Azumarill ex ASC 84": {
   "status": "verified",
-  "note": "batch b10 (Codex); Energy Balloon +40/[P] is dead in Twinleaf (compares numeric enums to 'P'; Twinleaf bug, replicated)"
+  "note": "batch b10 (Codex); Energy Balloon +40/[P] is dead in Twinleaf (compares numeric enums to 'P'; Twinleaf bug, replicated)",
+  "twinleaf": "Azumarill ex MC"
  },
- "Marill MC": {
+ "Marill ASC 83": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Marill MC"
  },
- "Meloetta ex SV11B": {
+ "Meloetta ex BLK 44": {
   "status": "verified",
-  "note": "batch b10 (Codex); ability-blocked return unreachable in pool"
+  "note": "batch b10 (Codex); ability-blocked return unreachable in pool",
+  "twinleaf": "Meloetta ex SV11B"
  },
- "Mr. Mime TEF": {
+ "Mr. Mime TEF 63": {
   "status": "verified",
-  "note": "batch b10 (Codex); Special Condition throw covered by scenarios/mr-mime-look-alike-show-condition.json (12 traces); not-Active throw unreachable (attack only from Active)"
+  "note": "batch b10 (Codex); Special Condition throw covered by scenarios/mr-mime-look-alike-show-condition.json (12 traces); not-Active throw unreachable (attack only from Active)",
+  "twinleaf": "Mr. Mime TEF"
  },
- "N's Sigilyph JTG": {
+ "N's Sigilyph JTG 64": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "N's Sigilyph JTG"
  },
- "Scream Tail ex TWM": {
+ "Scream Tail ex TWM 94": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Scream Tail ex TWM"
  },
- "Mega Slowbro ex MEP": {
+ "Mega Slowbro ex PBL 31": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Mega Slowbro ex MEP"
  },
- "Smoochum SSP": {
+ "Smoochum SSP 75": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Smoochum SSP"
  },
- "Spectrier ASC": {
+ "Spectrier ASC 98": {
   "status": "verified",
-  "note": "batch b10 (Codex); empty-targets return unreachable (prompt not cancellable)"
+  "note": "batch b10 (Codex); empty-targets return unreachable (prompt not cancellable)",
+  "twinleaf": "Spectrier ASC"
  },
- "Spiritomb M5": {
+ "Spiritomb PBL 35": {
   "status": "verified",
-  "note": "batch b10 (Codex); Spiritual End quadruple branch covered by scenarios/spiritomb-spiritual-end-quadruple.json (12 traces)"
+  "note": "batch b10 (Codex); Spiritual End quadruple branch covered by scenarios/spiritomb-spiritual-end-quadruple.json (12 traces)",
+  "twinleaf": "Spiritomb M5"
  },
- "Steven's Baltoy DRI": {
+ "Steven's Baltoy DRI 83": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Steven's Baltoy DRI"
  },
- "Steven's Claydol DRI": {
+ "Steven's Claydol DRI 84": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Steven's Claydol DRI"
  },
- "Team Rocket's Chingling DRI": {
+ "Team Rocket's Chingling DRI 85": {
   "status": "verified",
-  "note": "batch b10 (Codex)"
+  "note": "batch b10 (Codex)",
+  "twinleaf": "Team Rocket's Chingling DRI"
  },
- "Team Rocket's Wobbuffet DRI": {
+ "Team Rocket's Wobbuffet DRI 82": {
   "status": "verified",
-  "note": "batch b10 (Codex); empty-targets return and optional-chaining fallback unreachable"
+  "note": "batch b10 (Codex); empty-targets return and optional-chaining fallback unreachable",
+  "twinleaf": "Team Rocket's Wobbuffet DRI"
  },
- "Crabominable SCR": {
+ "Crabominable SCR 42": {
   "status": "partial",
-  "note": "batch b13 (Sonnet port, luna verified); Kofu discount (L56) needs Kofu (b17): re-run scenarios/crabominable-kofu-discount.json after b17; Food Prep lock-probe catch unreachable"
+  "note": "batch b13 (Sonnet port, luna verified); Kofu discount (L56) needs Kofu (b17): re-run scenarios/crabominable-kofu-discount.json after b17; Food Prep lock-probe catch unreachable",
+  "twinleaf": "Crabominable SCR"
  },
- "Feebas SSP": {
+ "Feebas SSP 41": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Feebas SSP"
  },
- "Feebas TWM": {
+ "Feebas TWM 49": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Feebas TWM"
  },
- "Milotic ex SSP": {
+ "Milotic ex SSP 42": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified); Tera prevention scenario-covered; not-Active/self-damage/non-attack-phase guard returns ported line-for-line (not counted in review rerun); PutDamage Tera body pre-empted by the AbstractAttackEffect handler"
+  "note": "batch b13 (Sonnet port, luna verified); Tera prevention scenario-covered; not-Active/self-damage/non-attack-phase guard returns ported line-for-line (not counted in review rerun); PutDamage Tera body pre-empted by the AbstractAttackEffect handler",
+  "twinleaf": "Milotic ex SSP"
  },
- "Finizen TWM": {
+ "Finizen TWM 59": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Finizen TWM"
  },
- "Palafin TEF": {
+ "Palafin TEF 49": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Palafin TEF"
  },
- "Palafin TWM": {
+ "Palafin TWM 60": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified); once-per-turn marker covered after review fixed the scenario to Switch 30C; lock-probe catch unreachable"
+  "note": "batch b13 (Sonnet port, luna verified); once-per-turn marker covered after review fixed the scenario to Switch 30C; lock-probe catch unreachable",
+  "twinleaf": "Palafin TWM"
  },
- "Froakie M4": {
+ "Froakie CRI 20": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Froakie M4"
  },
- "Froakie TWM": {
+ "Froakie TWM 56": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified); over-cap clamp unreachable (prompt caps selection)"
+  "note": "batch b13 (Sonnet port, luna verified); over-cap clamp unreachable (prompt caps selection)",
+  "twinleaf": "Froakie TWM"
  },
- "Mega Greninja ex M4": {
+ "Mega Greninja ex CRI 22": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified); no-opponent-Pokémon error unreachable"
+  "note": "batch b13 (Sonnet port, luna verified); no-opponent-Pokémon error unreachable",
+  "twinleaf": "Mega Greninja ex M4"
  },
- "Mega Froslass ex M2a": {
+ "Mega Froslass ex ASC 47": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Mega Froslass ex M2a"
  },
- "Snorunt TWM": {
+ "Snorunt TWM 51": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Snorunt TWM"
  },
- "Walrein SSP": {
+ "Walrein SSP 45": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Walrein SSP"
  },
- "Mega Starmie ex M3": {
+ "Mega Starmie ex POR 21": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Mega Starmie ex M3"
  },
- "Croconaw TEF": {
+ "Croconaw TEF 40": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Croconaw TEF"
  },
- "Feraligatr TEF": {
+ "Feraligatr TEF 41": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Feraligatr TEF"
  },
- "Totodile TEF": {
+ "Totodile TEF 39": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Totodile TEF"
  },
- "Walking Wake TWM": {
+ "Walking Wake TWM 63": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)"
+  "note": "batch b13 (Sonnet port, luna verified)",
+  "twinleaf": "Walking Wake TWM"
  },
- "Palafin exSAR PRE": {
+ "Palafin ex PRE 151": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified); reprint of Palafinex (unpinned); fetched by Palafin TWM scenario"
+  "note": "batch b13 (Sonnet port, luna verified); reprint of Palafinex (unpinned); fetched by Palafin TWM scenario",
+  "twinleaf": "Palafin exSAR PRE"
  },
- "Neutralization Zone SFA": {
+ "Neutralization Zone SFA 60": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified); count-based and implicit-all removal unreachable (pool callers pass explicit card lists); stadium-blocked return unreachable"
+  "note": "batch b16 (Sonnet port, luna verified); count-based and implicit-all removal unreachable (pool callers pass explicit card lists); stadium-blocked return unreachable",
+  "twinleaf": "Neutralization Zone SFA"
  },
- "Night Mine M2a": {
+ "Nighttime Mine ASC 197": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)"
+  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)",
+  "twinleaf": "Night Mine M2a"
  },
- "Perilous Jungle TEF": {
+ "Perilous Jungle TEF 156": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)"
+  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)",
+  "twinleaf": "Perilous Jungle TEF"
  },
- "Postwick JTG": {
+ "Postwick JTG 154": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)"
+  "note": "batch b16 (Sonnet port, luna verified); stadium-blocked early return unreachable (no pool card sets stadiumAndToolHaveNoEffect)",
+  "twinleaf": "Postwick JTG"
  },
- "AZ's Tranquility M4": {
+ "AZ's Tranquility CRI 76": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "AZ's Tranquility M4"
  },
- "Canari M2a": {
+ "Canari ASC 185": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Canari M2a"
  },
- "Cassiopeia SFA": {
+ "Cassiopeia SFA 56": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Cassiopeia SFA"
  },
- "Colress's Tenacity SFA": {
+ "Colress's Tenacity SFA 57": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Colress's Tenacity SFA"
  },
- "Ethan's Adventure DRI": {
+ "Ethan's Adventure DRI 165": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Ethan's Adventure DRI"
  },
- "Fennel SV11B": {
+ "Fennel BLK 82": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Fennel SV11B"
  },
- "Firebreather M2": {
+ "Firebreather PFL 89": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Firebreather M2"
  },
- "Grimsley's Gambit M2": {
+ "Grimsley's Move PFL 90": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Grimsley's Gambit M2"
  },
- "Harlequin WHT": {
+ "Harlequin WHT 83": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Harlequin WHT"
  },
- "Hassel TWM": {
+ "Hassel TWM 151": {
   "status": "verified",
-  "note": "batch b16 (Sonnet port, luna verified)"
+  "note": "batch b16 (Sonnet port, luna verified)",
+  "twinleaf": "Hassel TWM"
  },
- "Hop's Phantump ASC": {
+ "Hop's Phantump ASC 95": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Hop's Phantump ASC"
  },
- "Hop's Trevenant ASC": {
+ "Hop's Trevenant ASC 96": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Hop's Trevenant ASC"
  },
- "Team Rocket's Houndoom DRI": {
+ "Team Rocket's Houndoom DRI 38": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Team Rocket's Houndoom DRI"
  },
- "Ethan's Sudowoodo DRI": {
+ "Ethan's Sudowoodo DRI 93": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified); COPY_OPPONENT_ACTIVE_ATTACK_WITH_RETRY (maxRetries) added to copy_attack.rs"
+  "note": "batch c0 (Sonnet port, luna verified); COPY_OPPONENT_ACTIVE_ATTACK_WITH_RETRY (maxRetries) added to copy_attack.rs",
+  "twinleaf": "Ethan's Sudowoodo DRI"
  },
- "Team Rocket's Bother-Bot DRI": {
+ "Team Rocket's Bother-Bot DRI 172": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified); uses main's prize_face_up/prize_public"
+  "note": "batch c0 (Sonnet port, luna verified); uses main's prize_face_up/prize_public",
+  "twinleaf": "Team Rocket's Bother-Bot DRI"
  },
- "Lt. Surge's Bargain MEG": {
+ "Lt. Surge's Bargain MEG 120": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Lt. Surge's Bargain MEG"
  },
- "Bolty [L] Energy M5": {
+ "Voltaic Lightning Energy PBL 84": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified); special-energy-blocked return unreachable (no pool blocker)"
+  "note": "batch c0 (Sonnet port, luna verified); special-energy-blocked return unreachable (no pool blocker)",
+  "twinleaf": "Bolty [L] Energy M5"
  },
- "Grow [G] Energy M3": {
+ "Growing Grass Energy POR 86": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified); special-energy-blocked return unreachable (no pool blocker)"
+  "note": "batch c0 (Sonnet port, luna verified); special-energy-blocked return unreachable (no pool blocker)",
+  "twinleaf": "Grow [G] Energy M3"
  },
- "Ogre's Mask PRE": {
+ "Ogre's Mask PRE 118": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Ogre's Mask PRE"
  },
- "Fidough SCR": {
+ "Fidough SCR 66": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Fidough SCR"
  },
- "Zacian ex SVP": {
+ "Zacian ex SVP 198": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Zacian ex SVP"
  },
- "Iron Boulder ex TEF": {
+ "Iron Boulder ex TEF 99": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified); uses main's RetaliateOnDamage/RetaliateDamage (172/173)"
+  "note": "batch c0 (Sonnet port, luna verified); uses main's RetaliateOnDamage/RetaliateDamage (172/173)",
+  "twinleaf": "Iron Boulder ex TEF"
  },
- "Iron Treads TEF": {
+ "Iron Treads TEF 118": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified); ability-blocked return unreachable (no pool lock reaches Basic Metal/Fighting Iron Treads)"
+  "note": "batch c0 (Sonnet port, luna verified); ability-blocked return unreachable (no pool lock reaches Basic Metal/Fighting Iron Treads)",
+  "twinleaf": "Iron Treads TEF"
  },
- "Lucian TWM": {
+ "Lucian TWM 157": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Lucian TWM"
  },
- "Team Rocket's Mimikyu ASC": {
+ "Team Rocket's Mimikyu ASC 97": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Team Rocket's Mimikyu ASC"
  },
- "Galarian Obstagoon ASC": {
+ "Galarian Obstagoon ASC 132": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Galarian Obstagoon ASC"
  },
- "Petilil BLK": {
+ "Petilil BLK 6": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Petilil BLK"
  },
- "Amoongus SV11B": {
+ "Amoonguss BLK 11": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Amoongus SV11B"
  },
- "Gurdurr BLK": {
+ "Gurdurr BLK 48": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Gurdurr BLK"
  },
- "Dhelmise JTG": {
+ "Dhelmise JTG 70": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Dhelmise JTG"
  },
- "Chi-Yu MEG": {
+ "Chi-Yu MEG 31": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Chi-Yu MEG"
  },
- "Shroodle MEG": {
+ "Shroodle MEG 91": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)"
+  "note": "batch c0 (Sonnet port, luna verified)",
+  "twinleaf": "Shroodle MEG"
  },
- "Thick Scale ASC": {
+ "Thick Scale ASC 211": {
   "status": "partial",
-  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)"
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
+  "twinleaf": "Thick Scale ASC"
  },
- "Payapa Berry SCR": {
+ "Payapa Berry SCR 141": {
   "status": "partial",
-  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)"
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
+  "twinleaf": "Payapa Berry SCR"
  },
- "Babiri Berry SSP": {
+ "Babiri Berry SSP 163": {
   "status": "partial",
-  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)"
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
+  "twinleaf": "Babiri Berry SSP"
  }
 }

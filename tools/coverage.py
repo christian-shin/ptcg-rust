@@ -84,6 +84,17 @@ def count_at(rs, off):
     return None if best is None else best[2]
 
 
+# Pool cards per source file, labelled with the international key (Twinleaf name in parentheses when it differs).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import names
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+cards_of = collections.defaultdict(list)
+for row in json.load(open(os.path.join(ROOT, 'data/pool.json'))):
+    if row.get('fullName'):
+        cards_of[row.get('behavior_file') or row['twinleaf_file']].append(names.label(row['fullName']))
+        if row.get('twinleaf_file') != row.get('behavior_file') and row.get('twinleaf_file'):
+            cards_of[row['twinleaf_file']].append(names.label(row['fullName']))
+
 for url, name in urls.items():
     src = open(url[7:]).read()
     bounds = sorted(per_url_bounds[url])
@@ -109,6 +120,8 @@ for url, name in urls.items():
     real = [x for x in low if show_all or kind_of(src[x[0]:x[1]]) == 'branch']
     exempt = [x for x in low if kind_of(src[x[0]:x[1]]) == 'fallback']
     print('%s: %d segments, %d below %d games (%d fallback exempt)' % (name, len(segs), len(real), mn, len(exempt)))
+    if name in cards_of:
+        print('  cards: ' + '; '.join(cards_of[name]))
     for (s, e, h) in real:
         line = src.count('\n', 0, s) + 1
         print('  %3d games  L%d  %s' % (h, line, ' '.join(src[s:e].split())[:120]))

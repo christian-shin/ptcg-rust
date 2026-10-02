@@ -1,6 +1,8 @@
 """Verify ported cards against the oracle (PLAN.md 4.8 loop).
 
-usage: check_cards.py "Full Name A" ["Full Name B" ...] [--games N] [--jobs J]
+usage: check_cards.py "Card A" ["Card B" ...]   (international key such as
+                      "Growing Grass Energy POR 86", or Twinleaf full name)
+                      [--games N] [--jobs J]
                       [--out DIR] [--no-gen] [--seed S] [--tag TAG]
                       [--coverage] [--min-games M] [--scout N]
 
@@ -196,6 +198,7 @@ def main():
     for t in args.targets:
         if t not in cards:
             sys.exit('unknown card: %s' % t)
+    print('targets: ' + '; '.join(names.label(t) for t in args.targets))   # English key (Twinleaf name)
     tag = args.tag or slug(args.targets[0])
     out = args.out or os.path.join(ROOT, 'corpus/cards', tag)
     if not args.no_gen:
