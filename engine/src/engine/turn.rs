@@ -12,6 +12,17 @@ use crate::types::*;
 
 /// `Player.switchPokemon(target, store, state)`.
 pub fn switch_pokemon(g: &mut Game, p: usize, target: SlotId) -> R {
+    switch_pokemon_ex(g, p, target, true)
+}
+
+/// `Player.switchPokemon(target)` called without `store, state`: the same
+/// board changes, but no MovedToActiveEffect / MovedFromActiveToBenchEffect
+/// is dispatched (so e.g. ability-lock activation orders are not touched).
+pub fn switch_pokemon_silent(g: &mut Game, p: usize, target: SlotId) -> R {
+    switch_pokemon_ex(g, p, target, false)
+}
+
+fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> R {
     let bi = match g.st.players[p].bench_index_of(target) {
         Some(i) => i,
         None => return Ok(()),
@@ -31,13 +42,17 @@ pub fn switch_pokemon(g: &mut Game, p: usize, target: SlotId) -> R {
             g.st.players[p].moved_to_active_this_turn.push(c);
         }
         g.st.cards[c as usize].moved_to_active_this_turn = true;
-        g.run_fx(Effect::MovedToActive { p: p as u8, card: c })?;
+        if dispatch {
+            g.run_fx(Effect::MovedToActive { p: p as u8, card: c })?;
+        }
     }
     if let Some(c) = benched_out {
         if !g.st.players[p].moved_from_active_to_bench_this_turn.contains(&c) {
             g.st.players[p].moved_from_active_to_bench_this_turn.push(c);
         }
-        g.run_fx(Effect::MovedFromActiveToBench { p: p as u8, card: c })?;
+        if dispatch {
+            g.run_fx(Effect::MovedFromActiveToBench { p: p as u8, card: c })?;
+        }
     }
     Ok(())
 }

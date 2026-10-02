@@ -1,0 +1,20 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Iron Thorns ex PRE 32", "4 Eevee ex PRE 75", "4 Meowth ex POR 62", "48 Lightning Energy MEE 4"],
+    ["4 Iron Thorns ex PRE 32", "4 Eevee ex PRE 75", "4 Meowth ex POR 62", "48 Lightning Energy MEE 4"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_energy": ["3 Lightning Energy MEE 4"],
+    "bench": [{"card": "Eevee ex PRE 75"}],
+    "hand": ["Meowth ex POR 62", "Lightning Energy MEE 4"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Eevee ex PRE 75",
+    "bench": [{"card": "Eevee ex PRE 75"}],
+    "hand": ["Meowth ex POR 62"]
+  }
+}

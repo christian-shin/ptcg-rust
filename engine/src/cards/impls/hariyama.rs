@@ -57,7 +57,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             };
             let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: p as u8, power: PowerRef { card: me, index: 0 }, card: me, target: Some(t) })?;
             if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
-                crate::engine::turn::switch_pokemon(g, 1 - p, t.s)?;
+                crate::engine::turn::switch_pokemon_silent(g, 1 - p, t.s)?;
             }
             Ok(())
         }

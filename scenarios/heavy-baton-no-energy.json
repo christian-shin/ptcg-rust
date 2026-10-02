@@ -1,0 +1,20 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Ethan's Ho-Oh ex ASC 26", "4 Iron Thorns ex PRE 32", "4 Heavy Baton TEF 151", "48 Fire Energy MEE 2"],
+    ["4 Ethan's Ho-Oh ex ASC 26", "4 Iron Thorns ex PRE 32", "4 Heavy Baton TEF 151", "48 Fire Energy MEE 2"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Ethan's Ho-Oh ex ASC 26",
+    "active_energy": ["4 Fire Energy MEE 2"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_tool": "Heavy Baton TEF 151",
+    "active_damage": 100,
+    "bench": [{"card": "Iron Thorns ex PRE 32"}]
+  },
+  "answers": [{"a": "attack", "name": "Shining Feather"}]
+}

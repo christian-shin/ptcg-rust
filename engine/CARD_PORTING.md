@@ -66,9 +66,21 @@ Twinleaf `reduceEffect` handles, or the card silently never sees it.
 | `COIN_FLIP_PROMPT(store, state, player, cb)` | `g.coin_flip(p, CoinCb::Card { card: me, frame })?` → the result arrives in your `coin` fn |
 | `MULTIPLE_COIN_FLIPS_PROMPT` / `FLIP_UNTIL_TAILS...` | `coin_flip_sequence(g, p, n /*0 = until tails*/, CoinCb::SequenceCard { card: me, frame })?` → `resume` gets `frame.a[2]` = heads bitmask, `frame.a[3]` = flips |
 | `IS_ABILITY_BLOCKED(store, state, player, this)` | `is_ability_blocked(g, p, me, None)` |
+| `player.switchPokemon(target, store, state)` | `switch_pokemon(g, p, slot)?` (dispatches MovedToActive / MovedFromActiveToBench) |
+| `player.switchPokemon(target)` (no `store, state`: most older cards, Kieran, the Catchers) | `switch_pokemon_silent(g, p, slot)?`: same board change, no effects dispatched (matters for ability-lock activation order and MovedToActive handlers). Check the TS call before choosing. |
 | `ADD_MARKER / HAS_MARKER / REMOVE_MARKER_AT_END_OF_TURN` | `marker!("NAME")` gives the id; `g.st.players[p].marker.add(...)`, `has_from`, `remove_marker_at_end_of_turn(g, e, m, me)` |
 | `ChooseCardsPrompt` on deck/discard | `choose_cards(g, p, "MESSAGE", ListRef::Deck(p), filter, opts, cont)` — it reproduces the constructor's sort of non-secret deck/discard |
 | Other prompts | `g.prompt(player_id, "MESSAGE", PromptKind::..., Cont::Card { card: me, frame })` |
+
+The `Class` column of a batch table is not always the logic class: use the
+`behavior` field of the card's `CardDef` in `engine/src/gen/cards.rs` (e.g.
+`IronThornsexPRE` is `behavior: "IronThornsex"`, so the port is
+`iron_thornsex.rs` with `class: "IronThornsex"`).
+
+A lock probe (`is_ability_blocked`) on a card that is still in the hand (a
+Pokémon being benched or evolved: PlayPokemon / Evolve handlers run before the
+card moves) sees it in a non-Pokémon list; locks such as Iron Thorns ex return
+"not locked" there, so such abilities still trigger under the lock.
 
 ### Continuations: generators and callbacks
 

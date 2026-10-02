@@ -109,7 +109,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         let a = g.st.players[p].active;
         clear_effects(&mut g.st.players[p].slots[a as usize]);
         if t.p as usize == p {
-            crate::engine::turn::switch_pokemon(g, p, t.s)?;
+            crate::engine::turn::switch_pokemon_silent(g, p, t.s)?;
         }
         let a = g.st.players[p].active;
         crate::engine::phase::add_condition(&mut g.st.players[p].slots[a as usize], SpecialCondition::Poisoned);

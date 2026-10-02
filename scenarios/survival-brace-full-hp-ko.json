@@ -1,0 +1,19 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Ethan's Ho-Oh ex ASC 26", "4 Budew ASC 16", "1 Survival Brace TWM 164", "51 Fire Energy MEE 2"],
+    ["4 Ethan's Ho-Oh ex ASC 26", "4 Budew ASC 16", "1 Survival Brace TWM 164", "51 Fire Energy MEE 2"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Ethan's Ho-Oh ex ASC 26",
+    "active_energy": ["4 Fire Energy MEE 2"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Budew ASC 16",
+    "active_tool": "Survival Brace TWM 164",
+    "bench": [{"card": "Budew ASC 16"}]
+  },
+  "answers": [{"a": "attack", "name": "Shining Feather"}]
+}
