@@ -212,11 +212,25 @@ class GameSession:
         c = self.env.clone()
         try:
             c.step(list(indices))
-            return True
         except BaseException as e:  # noqa: BLE001 (engine panics are BaseException)
             if isinstance(e, (KeyboardInterrupt, SystemExit)):
                 raise
             return False
+        return not self._dead_end(c)
+
+    @staticmethod
+    def _dead_end(env):
+        """True when `env` waits on a decision nobody can legally answer (Twinleaf
+        bugs such as Glass Trumpet with no Benched Colorless Pokémon)."""
+        if env.done or env.select() is None:
+            return False
+        probe = env.clone()
+        try:
+            return not probe.step_random(random.getrandbits(32))
+        except BaseException as e:  # noqa: BLE001
+            if isinstance(e, (KeyboardInterrupt, SystemExit)):
+                raise
+            return True
 
     def validate(self, indices):
         """None when `indices` is a legal answer to the current decision, else the engine's error."""
@@ -225,11 +239,11 @@ class GameSession:
         c = self.env.clone()
         try:
             c.step(list(indices))
-            return None
         except BaseException as e:  # noqa: BLE001
             if isinstance(e, (KeyboardInterrupt, SystemExit)):
                 raise
             return str(e) or type(e).__name__
+        return "dead end: no legal follow-up" if self._dead_end(c) else None
 
     def _apply(self, indices, who):
         """Apply an answer for `who`, log it, then log the visible consequences."""
@@ -270,6 +284,12 @@ class GameSession:
                 continue
             try:
                 ans = self.bot.choose(self)
+                if ans is not None and not self.try_answer(ans):
+                    # Rejected when applied, or leads to a dead end: take the first single
+                    # pick that works, else let the engine pick.
+                    n = len(sel["option"])
+                    cands = [[i] for i in random.sample(range(n), n)] + ([[]] if sel["minCount"] == 0 else [])
+                    ans = next((c for c in cands if self.try_answer(c)), None)
                 self._apply(ans, OPP)
             except BaseException as e:  # noqa: BLE001
                 if isinstance(e, (KeyboardInterrupt, SystemExit)):
