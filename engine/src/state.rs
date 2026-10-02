@@ -352,6 +352,8 @@ pub struct Player {
     pub unlimited_energy_attach_turns_remaining: i32,
     pub cannot_draw_at_start_of_turn: bool,
     pub cannot_attack_turns_remaining: i32,
+    pub cannot_attack_max_energy: Option<i32>,
+    pub cannot_attack_max_energy_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
     pub coin_flip_cancel_trainer_play_turns_remaining: i32,
     /// `usedTableTurner` (Fezandipiti ex; absent until first written).
@@ -423,6 +425,8 @@ impl Player {
             unlimited_energy_attach_turns_remaining: 0,
             cannot_draw_at_start_of_turn: false,
             cannot_attack_turns_remaining: 0,
+            cannot_attack_max_energy: None,
+            cannot_attack_max_energy_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
             coin_flip_cancel_trainer_play_turns_remaining: 0,
             used_table_turner: false,

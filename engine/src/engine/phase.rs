@@ -471,6 +471,12 @@ fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
     if pl.cannot_attack_turns_remaining > 0 {
         pl.cannot_attack_turns_remaining -= 1;
     }
+    if pl.cannot_attack_max_energy_turns_remaining > 0 {
+        pl.cannot_attack_max_energy_turns_remaining -= 1;
+        if pl.cannot_attack_max_energy_turns_remaining <= 0 {
+            pl.cannot_attack_max_energy = None;
+        }
+    }
     if pl.unlimited_energy_attach_turns_remaining > 0 {
         pl.unlimited_energy_attach_turns_remaining -= 1;
     }

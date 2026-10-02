@@ -90,6 +90,18 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     if g.st.players[p].cannot_attack_turns_remaining > 0 {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
+    if g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 {
+        if let Some(max) = g.st.players[p].cannot_attack_max_energy {
+            let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: attacking, energy_map: SVec::new() })?;
+            let count: i32 = match pe {
+                Effect::CheckProvidedEnergy { energy_map, .. } => energy_map.iter().map(|m| m.provides.len() as i32).sum(),
+                _ => 0,
+            };
+            if count <= max {
+                crate::bail!("BLOCKED_BY_EFFECT");
+            }
+        }
+    }
     if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.name) {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
@@ -601,6 +613,17 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let slot = &mut g.st.players[o].slots[a as usize];
             slot.retreat_cost_increase_next_turn_pending = 1;
             slot.retreat_cost_increase_next_turn_attacker = Some(b.player);
+            Ok(())
+        }
+        Effect::OpponentPokemonCannotAttackNextTurn { b, max_energy } => {
+            let pl = &mut g.st.players[b.opponent as usize];
+            match max_energy {
+                None => pl.cannot_attack_turns_remaining = pl.cannot_attack_turns_remaining.max(1),
+                Some(m) => {
+                    pl.cannot_attack_max_energy = Some(m);
+                    pl.cannot_attack_max_energy_turns_remaining = pl.cannot_attack_max_energy_turns_remaining.max(1);
+                }
+            }
             Ok(())
         }
         Effect::CoinFlipCancelTrainerPlay { b } => {

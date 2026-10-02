@@ -119,10 +119,10 @@ in parallel on other branches.
 Several cards react to *every* effect of an attack (Twinleaf checks
 `effect instanceof AbstractAttackEffect` or similar), so their masks list every
 kind with an `atk_base`: Mist Energy, Rabsca, Shuppet's `HIDE_N_SNEAK_KINDS`
-(fix its array length), Acerola's Mischief, Rock Fighting Energy and Empoleon
-ex. If you add an attack effect kind, add it to each of those lists, or those
-cards silently ignore your attack. Use only the effect kind numbers your batch
-was given.
+(fix its array length), Acerola's Mischief, Rock Fighting Energy, Empoleon ex,
+Milotic ex and Skeledirge. If you add an attack effect kind, add it to each of
+those lists, or those cards silently ignore the effect. Use only the effect kind
+numbers your batch was given.
 
 ### Reprints and pins
 

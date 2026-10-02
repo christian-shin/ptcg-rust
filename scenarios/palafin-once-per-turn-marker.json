@@ -1,0 +1,17 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Finizen TWM", "4 Palafin TWM", "4 Switch 30C", "48 Water Energy MEE"],
+    ["4 Finizen TWM", "4 Palafin TWM", "4 Switch 30C", "48 Water Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "hand": ["3 Switch 30C"],
+    "active": ["Finizen TWM", "Palafin TWM"],
+    "bench": [{"card": "Finizen TWM"}, {"card": "Finizen TWM"}]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Finizen TWM"
+  }
+}

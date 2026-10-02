@@ -179,6 +179,9 @@ pub enum Effect {
     /// `CoinFlipCancelTrainerPlayEffect` (EffectOfAttackEffect, target = source):
     /// `opponent.coinFlipCancelTrainerPlayTurnsRemaining = max(.., 1)`.
     CoinFlipCancelTrainerPlay { b: AtkBase },
+    /// `OpponentPokemonCannotAttackDuringTheirNextTurnEffect` (target = source):
+    /// `max_energy` None locks all attacks, Some(n) only Pokémon with <= n Energy.
+    OpponentPokemonCannotAttackNextTurn { b: AtkBase, max_energy: Option<i32> },
     /// `RetaliateOnDamageDuringOpponentsNextTurnEffect` (target = attacker,
     /// `{ damage }` options): `player.active.retaliateOnDamageNextTurnPending`.
     RetaliateOnDamage { b: AtkBase, damage: i32, source_card: CardId },
@@ -281,6 +284,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { .. } => "THIS_POKEMON_HAS_NO_WEAKNESS_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             IncreaseAttackCostNextTurn { .. } | IncreaseRetreatCostNextTurn { .. } => "EFFECT_OF_ATTACK_EFFECT",
             CoinFlipCancelTrainerPlay { .. } => "COIN_FLIP_CANCEL_TRAINER_PLAY_EFFECT",
+            OpponentPokemonCannotAttackNextTurn { .. } => "OPPONENT_POKEMON_CANNOT_ATTACK_DURING_THEIR_NEXT_TURN_EFFECT",
             RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
@@ -330,6 +334,7 @@ impl Effect {
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
+            OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
             RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
             _ => None,
         }
@@ -362,6 +367,7 @@ impl Effect {
             PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
+            OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
             RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } => Some(b),
             _ => None,
         }
@@ -460,6 +466,7 @@ impl Effect {
             IncreaseAttackCostNextTurn { .. } => 120,
             IncreaseRetreatCostNextTurn { .. } => 121,
             CoinFlipCancelTrainerPlay { .. } => 122,
+            OpponentPokemonCannotAttackNextTurn { .. } => 196,
         };
         k
     }
@@ -555,6 +562,7 @@ pub mod k {
     pub const INCREASE_ATTACK_COST_NEXT_TURN: u32 = 120;
     pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;
     pub const COIN_FLIP_CANCEL_TRAINER_PLAY: u32 = 122;
+    pub const OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN: u32 = 196;
 }
 
 /// `PlayLockOptions` flags for [`Effect::PlayLock`].

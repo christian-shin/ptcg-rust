@@ -39,6 +39,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::PREVENT_DAMAGE,
         k::PREVENT_EFFECTS_OF_ATTACKS,
         k::THIS_POKEMON_HAS_NO_WEAKNESS,
+        k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN,
         k::RETALIATE_ON_DAMAGE,
         k::RETALIATE_DAMAGE,
     ]),

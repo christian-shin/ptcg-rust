@@ -234,6 +234,8 @@ impl Game {
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
         nd!(cannot_draw_at_start_of_turn, "cannotDrawAtStartOfTurn");
         nd!(cannot_attack_turns_remaining, "cannotAttackTurnsRemaining");
+        nd!(cannot_attack_max_energy, "cannotAttackMaxEnergy");
+        nd!(cannot_attack_max_energy_turns_remaining, "cannotAttackMaxEnergyTurnsRemaining");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
         nd!(coin_flip_cancel_trainer_play_turns_remaining, "coinFlipCancelTrainerPlayTurnsRemaining");
         nd!(used_table_turner, "usedTableTurner");

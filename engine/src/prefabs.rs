@@ -707,3 +707,15 @@ pub fn add_special_conditions_to_player_active(g: &mut Game, p: usize, source: C
     g.run_fx(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30 })?;
     Ok(())
 }
+
+/// `OPPONENT_POKEMON_WITH_X_OR_LESS_ENERGY_CANNOT_ATTACK(store, state, effect, source, maxEnergy)`:
+/// an `OpponentPokemonCannotAttackDuringTheirNextTurnEffect` (target = the attacker's slot).
+pub fn opponent_pokemon_with_x_or_less_energy_cannot_attack(g: &mut Game, atk: EffId, max_energy: i32) -> R {
+    let source = match *g.e(atk) {
+        Effect::Attack { source, .. } => source,
+        _ => return Ok(()),
+    };
+    let b = atk_base_for(g, atk, source);
+    g.run_fx(Effect::OpponentPokemonCannotAttackNextTurn { b, max_energy: Some(max_energy) })?;
+    Ok(())
+}

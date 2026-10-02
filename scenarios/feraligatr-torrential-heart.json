@@ -1,0 +1,18 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Totodile TEF", "4 Croconaw TEF", "4 Feraligatr TEF", "4 Finizen TWM", "4 Palafin exSAR PRE", "40 Water Energy MEE"],
+    ["4 Totodile TEF", "4 Croconaw TEF", "4 Feraligatr TEF", "4 Finizen TWM", "4 Palafin exSAR PRE", "40 Water Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": ["Totodile TEF", "Croconaw TEF", "Feraligatr TEF"],
+    "active_energy": ["Water Energy MEE", "Water Energy MEE"],
+    "bench": [{"card": "Totodile TEF"}]
+  },
+  "opp": {
+    "reset": true,
+    "active": ["Finizen TWM", "Palafin exSAR PRE"],
+    "bench": [{"card": "Finizen TWM"}]
+  }
+}

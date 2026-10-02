@@ -1,0 +1,18 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Snorunt TWM", "4 Finizen TWM", "52 Water Energy MEE"],
+    ["4 Snorunt TWM", "4 Finizen TWM", "52 Water Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Snorunt TWM",
+    "active_energy": ["Water Energy MEE", "Water Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Finizen TWM",
+    "active_damage": 50
+  },
+  "answers": [{"a": "attack", "name": "Astonish"}]
+}

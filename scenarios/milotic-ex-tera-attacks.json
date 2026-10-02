@@ -1,0 +1,22 @@
+{
+  "turn": 3,
+  "decks": [
+    ["4 Feebas SSP", "4 Milotic ex SSP", "4 Terapagos ex SCR", "4 Finizen TWM", "44 Water Energy MEE"],
+    ["4 Feebas SSP", "4 Milotic ex SSP", "4 Terapagos ex SCR", "4 Finizen TWM", "44 Water Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": ["Feebas SSP", "Milotic ex SSP"],
+    "bench": [{"card": "Feebas SSP"}]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Terapagos ex SCR",
+    "active_energy": ["Water Energy MEE", "Water Energy MEE"],
+    "bench": [{"card": "Finizen TWM"}, {"card": "Finizen TWM"}]
+  },
+  "answers": [
+    {"a": "pass"},
+    {"a": "attack", "name": "Unified Beatdown"}
+  ]
+}
