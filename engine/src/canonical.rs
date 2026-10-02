@@ -105,7 +105,7 @@ impl Game {
         }
         nd!(discard_attacker_energy_if_ko_next_turn, "discardAttackerEnergyIfKnockedOutNextTurn");
         nd!(discard_attacker_energy_if_ko_next_turn_pending, "discardAttackerEnergyIfKnockedOutNextTurnPending");
-        if let Some(a) = s.discard_attacker_energy_if_ko_attack {
+        let attack_json = |a: AttackRef| -> Value {
             let ad = &self.st.cdef(a.card).attacks[a.idx()];
             let mut ao = Map::new();
             ao.insert("name".into(), json!(ad.name));
@@ -115,7 +115,20 @@ impl Game {
             if let Some(dc) = ad.damage_calculation {
                 ao.insert("damageCalculation".into(), json!(dc));
             }
-            o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttack".into(), Value::Object(ao));
+            Value::Object(ao)
+        };
+        if let Some(a) = s.discard_attacker_energy_if_ko_attack {
+            o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttack".into(), attack_json(a));
+        }
+        for (key, r) in [("retaliateOnDamageNextTurn", s.retaliate_on_damage_next_turn), ("retaliateOnDamageNextTurnPending", s.retaliate_on_damage_next_turn_pending)] {
+            if let Some(r) = r {
+                let mut ro = Map::new();
+                ro.insert("damage".into(), json!(r.damage));
+                ro.insert("attack".into(), attack_json(r.attack));
+                ro.insert("sourceCard".into(), json!(self.card_ref(r.source_card)));
+                ro.insert("attackerPlayerId".into(), json!(self.st.players[r.attacker as usize].id));
+                o.insert(key.into(), Value::Object(ro));
+            }
         }
         if let Some(c) = s.discard_attacker_energy_if_ko_source_card {
             o.insert("discardAttackerEnergyIfKnockedOutNextTurnSourceCard".into(), json!(self.card_ref(c)));
@@ -180,6 +193,9 @@ impl Game {
             "prizes".into(),
             Value::Array((0..pl.prize_count as usize).map(|i| self.refs_of(pl.prizes[i].as_slice())).collect()),
         );
+        if pl.prize_face_up[..pl.prize_count as usize].iter().any(|v| *v) {
+            o.insert("faceUpPrizes".into(), json!(pl.prize_face_up[..pl.prize_count as usize].to_vec()));
+        }
         o.insert("active".into(), self.slot_json(&pl.slots[pl.active as usize]));
         o.insert("bench".into(), Value::Array(pl.bench.iter().map(|b| self.slot_json(&pl.slots[*b as usize])).collect()));
         let d = Player::new(pl.id);
@@ -279,10 +295,13 @@ impl Game {
             if inst.extra_prizes {
                 diff.insert("extraPrizes".into(), json!(true));
             }
+            if inst.strafe_used {
+                diff.insert("strafeUsed".into(), json!(true));
+            }
             if inst.discarded_stadium_card {
                 diff.insert("discardedStadiumCard".into(), json!(true));
             }
-            if inst.attack_barrage_shown != 0 {
+            if inst.attack_barrage_shown != 0 || inst.attack_first_turn != 0 {
                 // Runtime `this.attacks[i].barrage` writes: the whole attacks array.
                 let atks: Vec<Value> = d
                     .attacks
@@ -296,6 +315,9 @@ impl Game {
                         o.insert("text".into(), json!(a.text));
                         if let Some(dc) = a.damage_calculation {
                             o.insert("damageCalculation".into(), json!(dc));
+                        }
+                        if inst.attack_first_turn & (1 << i) != 0 {
+                            o.insert("canUseOnFirstTurn".into(), json!(true));
                         }
                         if inst.attack_barrage_shown & (1 << i) != 0 {
                             o.insert("barrage".into(), json!(inst.attack_barrage & (1 << i) != 0));

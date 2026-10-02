@@ -1,0 +1,15 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Luxray ex TWM", "4 Luxio FST 92", "4 Shinx FST 91", "4 Buddy-Buddy Poffin TEF", "4 Ultra Ball SVI", "40 Lightning Energy MEE"],
+    ["4 Luxray ex TWM", "4 Luxio FST 92", "4 Shinx FST 91", "4 Buddy-Buddy Poffin TEF", "4 Ultra Ball SVI", "40 Lightning Energy MEE"]
+  ],
+  "me": {
+    "active": "Luxray ex TWM",
+    "active_energy": ["2 Lightning Energy MEE"],
+    "active_damage": 30,
+    "bench": [{"card": "Shinx FST 91", "energy": ["Lightning Energy MEE"]}],
+    "discard": ["Buddy-Buddy Poffin TEF"]
+  },
+  "opp": {"discard": ["2 Ultra Ball SVI"], "bench": [{"card": "Luxio FST 92", "damage": 20}]}
+}

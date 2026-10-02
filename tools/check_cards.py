@@ -47,6 +47,65 @@ def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 
 
+def expand_deck(lines):
+    """["4 Name", "Name", ...] -> card names (English keys accepted)."""
+    out = []
+    for l in lines:
+        m = re.match(r'^(\d+)\s+(.+)$', l)
+        n, name = (int(m.group(1)), m.group(2)) if m else (1, l)
+        out += [names.twinleaf(name)] * n
+    return out
+
+
+def load_scenario(path):
+    """Scenario JSON with every card name mapped to its Twinleaf full name."""
+    sc = json.load(open(path))
+    seen = []
+
+    def one(n):
+        t = names.twinleaf(n)
+        seen.append(t)
+        return t
+
+    def many(v):
+        out = expand_deck(v)
+        seen.extend(out)
+        return out
+
+    def stack(v):
+        return one(v) if isinstance(v, str) else many(v)
+
+    for side in ('me', 'opp'):
+        d = sc.get(side) or {}
+        for k in ('discard', 'hand', 'deck_top', 'prizes', 'active_energy'):
+            if k in d:
+                d[k] = many(d[k])
+        for k in ('stadium', 'active_tool'):
+            if k in d:
+                d[k] = one(d[k])
+        if 'active' in d:
+            d['active'] = stack(d['active'])
+        for b in d.get('bench', []):
+            b['card'] = stack(b['card'])
+            if 'energy' in b:
+                b['energy'] = many(b['energy'])
+            if 'tool' in b:
+                b['tool'] = one(b['tool'])
+    for n in seen:
+        if n not in cards:
+            sys.exit('scenario: unknown card %s' % n)
+    return sc
+
+
+def scenario_decks(path):
+    decks = [expand_deck(d) for d in json.load(open(path))['decks']]
+    for d in decks:
+        for n in d:
+            if n not in cards:
+                sys.exit('scenario deck: unknown card %s' % n)
+    return decks
+
+
 def is_basic_pokemon(c):
     return c['superType'] == 1 and c['stage'] == 2
 
@@ -128,6 +187,8 @@ def main():
     ap.add_argument('--coverage', action='store_true', help='record V8 block coverage per game and report per card')
     ap.add_argument('--min-games', type=int, default=3)
     ap.add_argument('--scout', type=int, default=0, help='Rust-scout N candidate games; replay the best --games of them')
+    ap.add_argument('--scenario', metavar='JSON',
+                    help='board edits applied at a set turn in every game (oracle scenario.ts); may also give "decks"')
     ap.add_argument('--remote', type=int, default=0, metavar='SHARDS',
                     help='play the oracle games on GitHub Actions across SHARDS runners (tools/remote_oracle.py)')
     args = ap.parse_args()
@@ -156,6 +217,11 @@ def main():
         # heur: board-developing random play (bot speed without look-ahead);
         # one light bot mix keeps some realistic lines.
         spec = {'decks': decks, 'policies': ['heur', 'random', 'heur', 'mix:0.3']}
+        if args.scenario:
+            sc = load_scenario(args.scenario)
+            if sc.pop('decks', None):
+                spec['decks'] = [{'name': '%s-s%d' % (tag, k), 'cards': d} for k, d in enumerate(scenario_decks(args.scenario))]
+            spec['scenario'] = sc
         spec_path = os.path.join(out, 'spec.json.txt')
         json.dump(spec, open(spec_path, 'w'))
         per = (args.games + args.jobs - 1) // args.jobs
@@ -191,6 +257,18 @@ def main():
         bad = [l for log in logs for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
         for l in bad[:10]:
             print('ORACLE:', l)
+    # Twinleaf's setup rejects decks that fail DeckAnalyser.isValid (60 cards,
+    # 4 copies, one ACE SPEC / Radiant, a Basic, banned pairs) by finishing
+    # the game before it starts: such traces have no steps and test nothing.
+    invalid = collections.Counter()
+    for f in sorted(os.listdir(out)):
+        if f.startswith('g') and f.endswith('.json'):
+            t = json.load(open(os.path.join(out, f)))
+            if not t['steps'] and t['result']['status'] == 'finished':
+                invalid[' vs '.join(t['header'].get('deckNames') or ['?'])] += 1
+    for k, n in invalid.items():
+        print('INVALID DECK: %d game(s) %s ended before setup (Twinleaf DeckAnalyser: 60 cards, max 4 copies, '
+              'one ACE SPEC, one Radiant, a Basic Pokemon)' % (n, k))
     r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
     print(r.stdout[-6000:])
     if args.coverage:

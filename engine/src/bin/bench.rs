@@ -1,7 +1,10 @@
 //! Throughput benchmark (PLAN.md 5): random-play games/s, steps/s, and
 //! state clone time.
 //!
-//!   bench <deckA.txt> <deckB.txt> [games]
+//!   bench <deckA.txt> <deckB.txt> [games] [max_threads]
+//!
+//! With `max_threads`, also sweeps 1, 2, 4, ... threads (each playing
+//! `games` games) to show how throughput scales across cores.
 
 use ptcg::carddb::def_by_full_name;
 use ptcg::game::Game;
@@ -111,4 +114,35 @@ fn main() {
         games as f64 / dt,
         steps as f64 / dt
     );
+
+    let Some(max_threads) = args.get(3).map(|s| s.parse::<usize>().unwrap()) else { return };
+    let mut base = 0.0;
+    let mut n = 1;
+    while n <= max_threads {
+        let t = Instant::now();
+        let steps: usize = std::thread::scope(|s| {
+            let hs: Vec<_> = (0..n)
+                .map(|w| {
+                    let (a, b) = (&a, &b);
+                    s.spawn(move || {
+                        let mut rng = Rng::new(12345 + w as u32);
+                        (0..games).map(|i| random_game([a, b], (w * games + i) as u32, &mut rng).0).sum::<usize>()
+                    })
+                })
+                .collect();
+            hs.into_iter().map(|h| h.join().unwrap()).sum()
+        });
+        let gps = (n * games) as f64 / t.elapsed().as_secs_f64();
+        if n == 1 {
+            base = gps;
+        }
+        println!(
+            "threads {:>2}: {:>7.1} games/s, {:>8.0} steps/s, {:.2}x",
+            n,
+            gps,
+            steps as f64 / t.elapsed().as_secs_f64(),
+            gps / base
+        );
+        n = if n * 2 > max_threads && n < max_threads { max_threads } else { n * 2 };
+    }
 }

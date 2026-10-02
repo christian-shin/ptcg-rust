@@ -71,6 +71,10 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
         return Outcome::Diverged { step: -1, what: "hash".into(), detail: "start state".into() };
     }
     let steps = trace["steps"].as_array().unwrap();
+    // Scenario edits (oracle scenario.ts): applied at the first turn decision
+    // on or after `scenario.turn`, then checked against the recorded hash.
+    let scenario = &header["scenario"];
+    let mut scenario_done = scenario.is_null();
     for (i, st) in steps.iter().enumerate() {
         PANIC_STEP.with(|c| c.set(i as isize));
         let d = &st["d"];
@@ -98,6 +102,17 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
                 }
             }
             Pending::Turn(_) => {
+                if !scenario_done && g.st.turn >= ptcg::scenario::scenario_turn(scenario) {
+                    scenario_done = true;
+                    if let Err(e) = ptcg::scenario::apply(&mut g, scenario) {
+                        return Outcome::Diverged { step: i as isize, what: "scenario".into(), detail: e };
+                    }
+                    let at = &trace["scenario"];
+                    if at["step"].as_u64() != Some(i as u64) || at["h"].as_str() != Some(g.state_hash().as_str()) {
+                        dump_state(&g, i as isize);
+                        return Outcome::Diverged { step: i as isize, what: "scenario".into(), detail: format!("oracle applied at {}", at) };
+                    }
+                }
                 if d["kind"] != "turn" {
                     return Outcome::Diverged { step: i as isize, what: "kind".into(), detail: format!("rust turn, oracle {}", canon(d)) };
                 }

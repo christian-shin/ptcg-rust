@@ -114,6 +114,35 @@ matching `oracle/options.ts` `describePrompt` and the TS prompt's `validate`).
 Keep core edits additive and minimal: other porters are editing the same files
 in parallel on other branches.
 
+### New attack effect kinds
+
+Several cards react to *every* effect of an attack (Twinleaf checks
+`effect instanceof AbstractAttackEffect` or similar), so their masks list every
+kind with an `atk_base`: Mist Energy, Rabsca, Shuppet's `HIDE_N_SNEAK_KINDS`
+(fix its array length), Acerola's Mischief, Rock Fighting Energy and Empoleon
+ex. If you add an attack effect kind, add it to each of those lists, or those
+cards silently ignore your attack. Use only the effect kind numbers your batch
+was given.
+
+### Same class name, different file
+
+Twinleaf sometimes has two classes with the same name in different files
+(`Judge` in FST and SVI). A port binds every printing whose behavior class has
+its name unless pinned: `class: "Class@SET"`, `"Class@Full Name"`, or several
+with `"Class@A|B"` (`class_matches` in `engine/src/cards/mod.rs`). Compare the
+two source files: if the logic is the same, widen the existing pin; otherwise
+write a separate port pinned to the new printing.
+
+### Pre-evolutions outside the pool
+
+Pool Pokémon often evolve from cards that aren't pool cards (Shinx and Luxio
+for Luxray ex). These are support cards: `tools/support_cards.py` picks one
+printing per missing name (preferring one with no card logic) into
+`data/support_cards.json`, and `tools/gen_carddb.py` appends them to the card
+DB. Don't generate a temporary card DB to get a pre-evolution into play; if a
+needed one is missing, add it there (re-run both scripts) and say so. Support
+cards with card logic need a port like any other card.
+
 ## Verify
 
 ```
@@ -138,7 +167,7 @@ identity in traces, the oracle and port pins. `carddb::en_name` / `en_key`
 give the English name of a card.
 
 `check_cards.py` builds decks around the targets (Stage 1/2 targets need their
-pre-evolution in the target list or already ported), generates oracle traces
+pre-evolution in the target list, already ported, or a support card), generates oracle traces
 (policies `heur` and `random`, plus one light bot mix), and replays them through
 Rust with the newest `diff` build (`iter` or `release`). Jobs default to half
 the cores (`PTCG_JOBS` overrides). On a divergence:
@@ -150,7 +179,8 @@ the cores (`PTCG_JOBS` overrides). On a divergence:
   (step `-1` = start). It also prints the effect types (`e`) of that step.
 * `python3 tools/statediff.py /tmp/o.json <dump>.rust.json` lists differing paths.
 * Also re-run the previous corpora to catch regressions:
-  `engine/target/iter/diff corpus/t1 corpus/cards --quiet`.
+  `engine/target/iter/diff corpus/t1 corpus/cards/*/ --quiet`. `diff` does not
+  recurse: `corpus/cards` alone checks nothing, so pass the subdirectories.
 
 Coverage: a pass means nothing unless the card's branches ran. `--coverage`
 records V8 block coverage per game (1.6x slower oracle, ~11 MB per game, so
@@ -160,11 +190,133 @@ constructors (once per process) are excluded automatically, and `|| []` /
 `?? []` prompt-result fallbacks are counted as exempt. Whatever is still listed
 is a real gap: add seeds (`--seed`) or a custom spec, or hunt it with
 `--scout 2000` (plays 2000 candidate games in Rust and replays only the most
-varied target-heavy ones in the oracle). Defensive throws that truly can't run
-go in your report as exemption candidates.
+varied target-heavy ones in the oracle). Coverage line numbers can refer to
+the compiled JavaScript rather than the TypeScript source; match the reported
+statement, not just the number.
+
+A branch is an exemption candidate only when no game with the current pool can
+reach it. Common cases:
+
+* Ability-blocked returns when no ported card can lock that Pokémon in that
+  position (the pool's locks are narrow: e.g. Team Rocket's Watchtower hits
+  [C], Gastrodon hits Benched Stage 2).
+* Empty or null prompt results on prompts that can't be cancelled (min ≥ 1).
+* Defensive checks the rules make impossible (an attack that can't be paid for
+  without Energy checking for no Energy).
+
+Rare but reachable branches (empty deck, empty opposing hand, 13 cards of a
+kind in the discard pile) are not exemptions, and you own them: write a
+scenario for each (below). Don't grind random games or `--scout` runs for a
+branch that needs a specific board.
+
+### Coverage workflow (required)
+
+1. Parity loop until zero divergences (random games, no coverage).
+2. One coverage run of random games (`--coverage`, `--remote` for 32+ games).
+3. For every reachable branch still under 3 games, write a scenario that sets
+   up the board it needs and run it with `--coverage`. A branch counts as
+   covered only when the scenario run's coverage report shows it in ≥3 games,
+   with zero divergences. One scenario may cover several branches.
+4. Whatever is left is either an exemption candidate (unreachable, with the
+   reason) or makes the card partial (say why the scenario didn't reach it).
+5. Commit the scenario files on your branch, and list them in your report
+   (format below). The orchestrator re-runs them to check the coverage claim.
+
+### Scenarios
+
+A scenario starts every game from a crafted position: the game runs normally
+from seed and decks, and at the first turn decision on or after `turn` both
+engines apply the same board edits, then play continues and is diffed as
+usual. The trace records the hash right after the edits and `diff` checks it,
+so a scenario can't silently differ between the engines.
+
+```
+python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empty-hand.json --games 12 --coverage
+```
+
+```json
+{
+  "turn": 2,
+  "decks": [["4 Luxray ex TWM", "4 Luxio FST 92", "4 Shinx FST 91", "48 Lightning Energy MEE"], ["..."]],
+  "me":  {"active": "Luxray ex TWM", "active_energy": ["3 Lightning Energy MEE"]},
+  "opp": {"hand_to_deck": true}
+}
+```
+
+* `me` is the player whose turn it is at `turn` (default 2, the first turn
+  that can attack); `opp` is the other player. A scenario can describe the
+  whole board: with `reset` it doesn't matter what turn 1 did.
+* Top level: `turn`, `me`, `opp`, `coins` (the next real coin flips, `true` =
+  heads; simulation and legality trials are unaffected), `answers` (the next
+  decisions, in the trace's answer format, e.g. `{"a": "attack", "name":
+  "Piercing Gaze"}`, `{"a": "pass"}`, `{"a": "retreat", "bench": 0}`; prompt
+  answers as recorded in traces), `decks`.
+* Side edits, in this order:
+
+  | Edit | Effect |
+  | --- | --- |
+  | `reset: true` | Done for both players before any other edit: every card the player has (hand, discard, Prizes, Stadium, Bench, Active, attachments) goes back to the deck and every slot is emptied. Needs `active`. Prizes not named in `prizes` are refilled from the top of the deck after all other edits. |
+  | `hand_to_deck: true` | Whole hand to the bottom of the deck |
+  | `discard`, `hand`: `[names]` | Cards moved there |
+  | `deck_top`: `[names]` | Cards moved to the top of the deck, first = top (fixes the next draws) |
+  | `prizes`: `[names]` | Prize i's card goes to the deck, the named card takes its place |
+  | `stadium`: name | Put into play (no Stadium may be in play) |
+  | `active`: name or `[Basic, Stage 1, ...]` | Into the Active Spot (benched and switched in, or placed directly after `reset`) |
+  | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
+  | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
+  | `supporter_played`, `energy_attached`, `retreated`: `true` | This turn's flags |
+
+  `conditions`: `PARALYZED`, `CONFUSED`, `ASLEEP`, `POISONED`, `BURNED`.
+  `played`: `"earlier"` (default; can evolve, as if in play since an earlier
+  turn) or `"this_turn"` (just played: can't evolve yet).
+* Cards are taken from the deck (first from the top), else the hand, so the
+  decks must contain them. `"4 Name"` repeats a card. English keys work.
+* `decks` is optional (default: the usual auto decks). Every deck should hold
+  the scenario's cards, since either player may be `me`.
+* Decks must be legal: Twinleaf's setup ends a game before it starts when a
+  deck fails `DeckAnalyser.isValid` (60 cards, max 4 copies, one ACE SPEC, one
+  Radiant, a Basic Pokémon). `check_cards.py` reports those as `INVALID DECK`.
+* Effects that last ("during your opponent's next turn...", markers) can't be
+  written as edits: set the board, then use `answers` to play the real attack
+  or Trainer that creates them.
+* Example covering most edits: `scenarios/smoke-full.json`.
+* Keep scenarios in `scenarios/`, one file per card and branch:
+  `<card-slug>-<branch>.json` (e.g. `luxray-ex-empty-hand.json`). Tag their
+  corpora `<batch>-scen-<card-slug>`.
+* A scenario must reach the branch through normal play after the edits (the
+  policy still picks moves): set the board so the branch is likely, and run
+  enough games (12-16 is usually plenty) that it runs in ≥3.
+
+Implementation: `twinleaf/ptcg-server/src/oracle/scenario.ts` and
+`engine/src/scenario.rs`, kept identical. Porting agents don't edit them (the
+Twinleaf checkout is off limits): if a branch needs an edit that doesn't exist
+yet (say, setting a Special Condition or a Prize card), report it as a
+scenario request with the branch it would cover, and mark the card partial.
 
 Name every corpus directory with your batch prefix (`--tag bNN-...`) so it can't
-collide with other batches.
+collide with other batches. Delete coverage JSONs and `dump/` directories you no
+longer need (they are large).
+
+Card status in your report:
+
+* **verified**: zero divergences, every reachable branch in ≥3 games.
+* **partial**: zero divergences, but a reachable branch ran in fewer than 3
+  games, or the card was only exercised with a temporary helper.
+* **blocked**: the card can't be exercised (missing core feature, oracle
+  crash); say exactly what is missing.
+
+Scenarios in your report, one entry per scenario file:
+
+```
+scenarios/<file>.json - <Full Name>
+  targets:  <twinleaf file>:<line> `<statement>` (the branch, as the coverage report prints it)
+  setup:    <one line: what the edits do and why that reaches the branch>
+  result:   <N> traces, 0 diverged; branch ran in <K> games (coverage report line pasted)
+  corpus:   corpus/cards/<tag>
+```
+
+If a scenario failed to cover its target, list it anyway, with the result and
+what you think is missing.
 
 ## Rules
 
@@ -173,4 +325,23 @@ collide with other batches.
 * Do not change existing card ports owned by others unless the fix is needed and
   you say so.
 * Faithful beats correct: if Twinleaf's behavior differs from the printed text,
-  match Twinleaf and mention it in your report.
+  match Twinleaf and report it (format below). These bugs are later fixed in
+  both engines, so precise reports matter.
+* Commit only your batch's ports and the core changes they need. Never commit
+  copies of other batches' unmerged ports; if you need one to test, use it
+  locally, remove it, and say which corpora depend on it.
+* Don't edit `data/verified.json`; report statuses and the merger records them.
+* Commits carry the configured git identity only: no Co-Authored-By or other
+  trailers. Don't push.
+
+### Reporting Twinleaf bugs
+
+One line per bug, so they can be collected into the fix list:
+
+```
+<Full Name> (<twinleaf file>:<line>) - <what Twinleaf does> vs <what the card says>
+```
+
+For example: `Team Rocket's Zapdos DRI (team-rockets-zapdos.ts:65) - checks
+the name 'Team Rocket Energy', so the +60 never applies vs "Team Rocket's
+Energy"`. Include crashes and stuck prompts (no valid answer) the same way.
