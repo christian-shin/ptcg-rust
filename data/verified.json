@@ -2303,8 +2303,8 @@
   "twinleaf": "Team Rocket's Wobbuffet DRI"
  },
  "Crabominable SCR 42": {
-  "status": "partial",
-  "note": "batch b13 (Sonnet port, luna verified); Kofu discount (L56) needs Kofu (b17): re-run scenarios/crabominable-kofu-discount.json after b17; Food Prep lock-probe catch unreachable",
+  "status": "verified",
+  "note": "batch b13 (Sonnet port, luna verified); Kofu discount covered after b17 ported Kofu (scenarios/crabominable-kofu-discount.json, 12/12 games); Food Prep lock-probe catch unreachable",
   "twinleaf": "Crabominable SCR"
  },
  "Feebas SSP 41": {
@@ -2578,18 +2578,18 @@
   "twinleaf": "Shroodle MEG"
  },
  "Thick Scale ASC 211": {
-  "status": "partial",
-  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return covered by scenarios/jamming-tower-*.json after c2 ported Jamming Tower; non-attack return unreachable (PutDamageEffect only comes from attacks)",
   "twinleaf": "Thick Scale ASC"
  },
  "Payapa Berry SCR 141": {
-  "status": "partial",
-  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return covered by scenarios/jamming-tower-*.json after c2 ported Jamming Tower; non-attack return unreachable (PutDamageEffect only comes from attacks)",
   "twinleaf": "Payapa Berry SCR"
  },
  "Babiri Berry SSP 163": {
-  "status": "partial",
-  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return needs Jamming Tower (c2): re-check after c2; non-attack return unreachable (PutDamageEffect only comes from attacks)",
+  "status": "verified",
+  "note": "batch c0 (Sonnet port, luna verified); Tool-blocked return covered by scenarios/jamming-tower-*.json after c2 ported Jamming Tower; non-attack return unreachable (PutDamageEffect only comes from attacks)",
   "twinleaf": "Babiri Berry SSP"
  },
  "Larry's Skill PRE 115": {
@@ -2741,5 +2741,200 @@
   "status": "verified",
   "note": "batch c1 (Sonnet); Damp callback catch unreachable; pinned Golduck@ASC|MEP (class defined in 9 Twinleaf files)",
   "twinleaf": "Golduck ASC"
+ },
+ "Jacinthe POR 75": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Jacinthe M3"
+ },
+ "Kofu SCR 138": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Kofu SCR"
+ },
+ "Lacey PRE 114": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Lacey SCR"
+ },
+ "Lisia's Appeal SSP 179": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Lisia's Appeal SSP"
+ },
+ "Morty's Conviction TEF 155": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Morty's Conviction TEF"
+ },
+ "Naveen POR 79": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Naveen M3"
+ },
+ "Ruffian JTG 157": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Ruffian JTG"
+ },
+ "Rust Syndicate Grunt PBL 81": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Rust Syndicate Grunt M5"
+ },
+ "Tarragon POR 85": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet); DiscardToHand-prevented branch unreachable (only Toedscruel PAR, not in pool)",
+  "twinleaf": "Tarragon M3"
+ },
+ "Gravity Gemstone SCR 137": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Gravity Gemstone SCR"
+ },
+ "Haban Berry PRE 111": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Haban Berry PRE"
+ },
+ "Hop's Choice Band JTG 148": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Hop's Choice Band JTG"
+ },
+ "Light Ball ASC 191": {
+  "status": "partial",
+  "note": "batch b17 (Sonnet); Pikachu ex branches need Pikachu ex ASC 57 (c3): re-run scenarios/light-ball-pikachu-ex-*.json after c3",
+  "twinleaf": "Light Ball M2a"
+ },
+ "Powerglass SFA 63": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Powerglass SFA"
+ },
+ "Punk Helmet PFL 92": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Punk Helmet PFL"
+ },
+ "Backtrack Badge PBL 74": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet)",
+  "twinleaf": "Retry Badge M5"
+ },
+ "Sacred Charm PFL 93": {
+  "status": "verified",
+  "note": "batch b17 (Sonnet); Twinleaf bug: never reduces damage (checks source instanceof PokemonCard, source is a PokemonCardList), ported as a faithful no-op",
+  "twinleaf": "Sacred Charm M2"
+ },
+ "Tynamo ASC 59": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Tynamo ASC"
+ },
+ "Iono's Wattrel ASC 71": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Iono's Wattrel ASC"
+ },
+ "Iono's Kilowattrel ASC 72": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Iono's Kilowattrel ASC"
+ },
+ "Clefable ASC 75": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Clefable ASC"
+ },
+ "Togetic ASC 81": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Togetic ASC"
+ },
+ "Togekiss ASC 82": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Togekiss ASC"
+ },
+ "Ralts ASC 87": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Ralts ASC"
+ },
+ "Kirlia ASC 88": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Kirlia ASC"
+ },
+ "Mega Gardevoir ex ASC 89": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Mega Gardevoir ex ASC"
+ },
+ "N's Reshiram ASC 154": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "N's Reshiram ASC"
+ },
+ "Iris's Fighting Spirit ASC 190": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Iris's Fighting Spirit ASC"
+ },
+ "Surfer ASC 200": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Surfer ASC"
+ },
+ "Cheren ASC 258": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Cheren ASC"
+ },
+ "Jamming Tower ASC 261": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Jamming Tower ASC"
+ },
+ "Mega Diancie ex ASC 267": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Mega Diancie ex ASC"
+ },
+ "Steven's Metagross ex ASC 289": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Steven's Metagross ex ASC"
+ },
+ "Crustle BLK 52": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Crustle BLK"
+ },
+ "Surfing Beach CRI 114": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Surfing Beach FA CRI"
+ },
+ "Levincia DRI 244": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Levincia DRI"
+ },
+ "Repel MEG 126": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Repel M1L"
+ },
+ "Pyroar PRE 16": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Pyroar PRE"
+ },
+ "Hearthflame Mask Ogerpon ex PRE 17": {
+  "status": "verified",
+  "note": "batch c2 (Sonnet)",
+  "twinleaf": "Hearthflame Mask Ogerpon ex PRE"
  }
 }
