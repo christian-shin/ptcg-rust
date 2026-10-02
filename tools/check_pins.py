@@ -12,6 +12,8 @@ import collections, os, re, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 impls = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'engine/src/cards/impls')
 sets = os.path.join(ROOT, 'twinleaf/ptcg-server/src/sets')
+if not os.path.isdir(sets):   # worktrees have no twinleaf/ checkout
+    sets = '/Users/christianshin/Documents/pkmntcg/twinleaf/ptcg-server/src/sets'
 count = collections.Counter()
 for d, _, fs in os.walk(sets):
     for f in fs:
