@@ -54,7 +54,45 @@ class RandomPolicy(Policy):
         return None  # engine-side random (builds legal multi-picks one at a time)
 
 
-POLICIES = {"random": RandomPolicy}
+class GreedyPolicy(RandomPolicy):
+    """Random, but plays like it means it: on its turn it takes a few random
+    non-attack actions (cards, Energy, abilities), then attacks whenever it can,
+    instead of ending the turn at random. Other prompts are answered randomly."""
+
+    name = "greedy"
+    MAX_ACTIONS = 12
+
+    def __init__(self, seed=None):
+        super().__init__(seed)
+        self.turn = None
+        self.actions = 0
+
+    def choose(self, session):
+        sel = session.sel
+        if sel["type"] != 0:
+            return super().choose(session)
+        turn = session.state["turn"]
+        if turn != self.turn:
+            self.turn, self.actions = turn, 0
+        self.actions += 1
+        opts = sel["option"]
+        attacks = [i for i, o in enumerate(opts) if o["type"] == 13]
+        end = [i for i, o in enumerate(opts) if o["type"] == 14]
+        other = [i for i, o in enumerate(opts) if o["type"] not in (12, 13, 14)]
+        # Attachments to the Active Pokémon first, so it can actually attack.
+        to_active = [i for i in other if opts[i]["type"] == 8 and opts[i]["inPlayArea"] == 4]
+        if to_active and self.rng.random() < 0.8:
+            return [self.rng.choice(to_active)]
+        if other and self.actions <= self.MAX_ACTIONS and self.rng.random() < 0.85:
+            return [self.rng.choice(other)]
+        if attacks:
+            return [self.rng.choice(attacks)]
+        if end:
+            return [end[0]]
+        return [self.rng.randrange(len(opts))] if opts else []
+
+
+POLICIES = {"random": RandomPolicy, "greedy": GreedyPolicy}
 
 
 def make_policy(name, seed=None):

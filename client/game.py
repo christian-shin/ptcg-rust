@@ -34,6 +34,12 @@ CONTEXT = {0: "Main", 1: "Choose your Active Pokémon", 2: "Choose Benched Poké
            41: "Go first?", 42: "Mulligan", 43: "Use ability?", 46: "Coin flip", 49: "Shuffle"}
 AREA = {1: "deck", 2: "hand", 3: "discard", 4: "active", 5: "bench", 6: "prize", 7: "stadium", 8: "energy",
         9: "tool", 10: "pre-evolution", 11: "player", 12: "revealed"}
+# Short prompt titles (the binding gives only a numeric context).
+SHORT_CONTEXT = {1: "Active", 2: "Bench", 3: "Switch", 4: "To Active", 5: "To Bench", 6: "Into play",
+                 7: "To hand", 8: "Discard", 9: "To deck", 10: "Deck bottom", 11: "Prize", 13: "Damage counters",
+                 22: "Attach", 24: "Look", 25: "Target", 26: "Discard attached", 28: "Move attached",
+                 30: "Discard Energy", 35: "Attack", 38: "Draw", 41: "Go first?", 42: "Mulligan",
+                 43: "Use ability?", 46: "Coin flip", 49: "Shuffle"}
 KIND = {0: "number", 1: "yes", 2: "no", 3: "card", 4: "toolCard", 5: "energyCard", 6: "energy", 7: "play",
         8: "attach", 9: "evolve", 10: "ability", 11: "discard", 12: "retreat", 13: "attack", 14: "end",
         15: "skill", 16: "specialCondition"}
@@ -131,12 +137,20 @@ def read_deck(deck_id):
     return ptcg.read_deck(os.path.join(ROOT, "decks", "meta-tl", deck_id + ".txt"))
 
 
-def deck_listing(deck_id):
-    """[(count, international name)] for a deck, for display."""
+def deck_listing(deck_id, db=None):
+    """[{count, name, card?}] for a deck, for display (card = printed data incl. image)."""
     cards = {}
     for n in read_deck(deck_id):
         cards[n] = cards.get(n, 0) + 1
-    return [{"count": c, "name": english(n)} for n, c in cards.items()]
+    out = []
+    for n, c in cards.items():
+        row = {"count": c, "name": english(n)}
+        raw = db.by_full.get(n) if db else None
+        if raw:
+            row["card"] = db.card("%s-%s" % (raw["set"], raw["setNumber"]))
+            row["name"] = row["card"]["name"]
+        out.append(row)
+    return out
 
 
 def ref_of(cid):
@@ -159,14 +173,20 @@ class GameSession:
         self.stuck = False
         self._refresh()
         self.prev = self._snapshot()
-        self.say("sys", "Game started: seed %d. You are player 1 (bottom); the opponent is a %s bot." % (self.seed, bot))
+        self._just_played = set()
+        self._last_kind = None
+        self.say("sys", "Seed %d · %s bot" % (self.seed, bot), "info")
         self._run_bot()
 
     # ---- engine plumbing -------------------------------------------------
     def _refresh(self):
         self.sel = self.env.select()
         self.state = json.loads(self.env.canonical())
-        self.serials = {}
+        # Serial -> card id. Cards in temporary lists (looked-at deck tops, revealed
+        # cards) are missing from canonical(), so keep every serial ever seen: all
+        # cards start in a deck or hand, and serials never change.
+        if not hasattr(self, "serials"):
+            self.serials = {}
         for p in self.state["players"]:
             for zone in ("deck", "hand", "discard", "lostzone", "stadium", "supporter"):
                 for c in p[zone]:
@@ -264,16 +284,16 @@ class GameSession:
     def _fail(self, msg):
         self.stuck = True
         self.error = msg
-        self.say("sys", "ERROR: " + msg)
+        self.say("sys", "Error: " + msg, "end")
 
     def _finish(self):
         w = self.env.winner
         if w == 0:
-            self.say("sys", "You win!")
+            self.say("you", "Victory", "end")
         elif w == 1:
-            self.say("sys", "The opponent wins.")
+            self.say("opp", "Defeat", "end")
         else:
-            self.say("sys", "Game ended in a draw / no result.")
+            self.say("sys", "Draw", "end")
 
     def answer(self, indices):
         """Human answer. Raises ValueError with the engine's message when illegal."""
@@ -299,20 +319,28 @@ class GameSession:
         self._run_bot()
 
     # ---- log -------------------------------------------------------------
-    def say(self, who, text):
+    # Log lines are terse, simulator style: {"who": you|opp|sys, "kind": ..., "text": ...}.
+    # kind: turn (turn header), act (an action), dmg, heal, ko, prize, cond, evo, info, end.
+    def say(self, who, text, kind="act"):
         self.log.append({"n": len(self.log), "turn": self.state["turn"] if getattr(self, "state", None) else 0,
-                         "who": who, "text": text})
+                         "who": who, "kind": kind, "text": text})
 
     def name_of(self, cid):
         return self.cards.card(ref_of(cid))["name"]
 
-    def _slot_name(self, p, area, idx):
+    def _slot(self, p, area, idx):
         pl = self.state["players"][p]
-        s = pl["active"] if area == 4 else (pl["bench"][idx] if idx is not None and idx < len(pl["bench"]) else None)
-        top = self._top(s)
-        who = "your" if p == ME else "opp's"
-        where = "Active" if area == 4 else "Bench %d" % ((idx or 0) + 1)
-        return "%s %s%s" % (who, where, (" " + self.name_of(top)) if top else "")
+        if area == 4:
+            return pl["active"]
+        if idx is not None and idx < len(pl["bench"]):
+            return pl["bench"][idx]
+        return None
+
+    def _slot_name(self, p, area, idx):
+        top = self._top(self._slot(p, area, idx))
+        if top:
+            return self.name_of(top)
+        return "Active" if area == 4 else "Bench %d" % ((idx or 0) + 1)
 
     def _top(self, slot):
         if not slot:
@@ -320,6 +348,23 @@ class GameSession:
         pk = [c for c in slot["cards"] if c not in slot.get("energies", []) and c not in slot.get("tools", [])]
         # The stack is stored base -> top; only Pokémon cards remain after dropping attachments.
         return pk[-1] if pk else None
+
+    def _ability_name(self, p, area, idx):
+        top = self._top(self._slot(p, area, idx))
+        if not top:
+            return "Ability"
+        powers = self.cards.card(ref_of(top)).get("powers") or []
+        return powers[0]["name"] if powers else "Ability"
+
+    def _attack_of(self, o, who):
+        card = self.serials.get(o["serial"]) if o["serial"] is not None else None
+        if not card:
+            card = self._top(self.state["players"][who]["active"])
+        c = self.cards.card(ref_of(card)) if card else None
+        atk = None
+        if c and c.get("attacks") and o["attackId"] is not None and o["attackId"] < len(c["attacks"]):
+            atk = c["attacks"][o["attackId"]]
+        return c, atk
 
     def _describe_option(self, sel, o, who):
         k = o["type"]
@@ -333,71 +378,105 @@ class GameSession:
         if k == 2:
             return "No"
         if k == 7:
-            return "play %s" % cn
+            if card and self.cards.card(ref_of(card)).get("super") == "pokemon":
+                return "%s → Bench" % cn
+            return cn or "Play"
         if k == 8:
             tgt = self._slot_name(po, o["inPlayArea"], o["inPlayIndex"]) if o["inPlayArea"] else "?"
-            return "attach %s to %s" % (cn, tgt)
+            return "%s → %s" % (cn, tgt)
         if k == 9:
             tgt = self._slot_name(po, o["inPlayArea"], o["inPlayIndex"]) if o["inPlayArea"] else "?"
-            return "evolve %s with %s" % (tgt, cn)
+            return "%s ⇒ %s" % (tgt, cn)
         if k == 10:
-            return "use ability of %s" % self._slot_name(po, o["area"], o["index"])
+            return "%s · %s" % (self._slot_name(po, o["area"], o["index"]), self._ability_name(po, o["area"], o["index"]))
         if k == 12:
-            return "retreat to Bench %d" % (o["index"] + 1)
+            return "Retreat → %s" % self._slot_name(who, 5, o["index"])
         if k == 13:
-            c = None
-            if card:
-                c = self.cards.card(ref_of(card))
-            else:
-                top = self._top(self.state["players"][who]["active"])
-                c = self.cards.card(ref_of(top)) if top else None
-            nm = c["attacks"][o["attackId"]]["name"] if c and c.get("attacks") and o["attackId"] is not None and o["attackId"] < len(c["attacks"]) else "attack"
-            return "attack with %s" % nm
+            c, atk = self._attack_of(o, who)
+            if atk:
+                return "%s · %s" % (c["name"], atk["name"])
+            return "Attack"
         if k == 14:
-            return "end turn"
+            return "End turn"
         if k == 15:
-            return "use Stadium" if o["area"] == 7 else "use a trainer ability"
+            return "Stadium" if o["area"] == 7 else "Trainer ability"
         if o["area"] in (4, 5) and o["inPlayArea"] is None and k in (3, 4, 5, 6) and card is None:
             return self._slot_name(po, o["area"], o["index"])
         parts = []
         if cn:
             parts.append(cn)
         elif o["area"] == 6:
-            parts.append("prize %d" % (o["index"] + 1))
+            parts.append("Prize %d" % (o["index"] + 1))
         elif o["area"] in (4, 5):
             parts.append(self._slot_name(po, o["area"], o["index"]))
         if o["inPlayArea"]:
-            parts.append("-> " + self._slot_name(po, o["inPlayArea"], o["inPlayIndex"]))
+            parts.append("→ " + self._slot_name(po, o["inPlayArea"], o["inPlayIndex"]))
         return " ".join(parts) or KIND.get(k, "option")
 
     def _describe_answer(self, sel, indices, who):
+        """Terse log text for an answer, or None for nothing worth logging."""
+        self._just_played = set()
+        self._last_kind = None
         if indices is None:
-            return "%s made a choice." % ("You" if who == ME else "Opponent") if sel["type"] != 0 else None
-        who_s = "You" if who == ME else "Opponent"
+            return None
         try:
             opts = [sel["option"][i] for i in indices]
             if sel["type"] == 0:
-                return "%s: %s" % (who_s, self._describe_option(sel, opts[0], who)) if opts else None
+                if not opts:
+                    return None
+                o = opts[0]
+                self._last_kind = o["type"]
+                if o["type"] == 14:
+                    return None  # the next turn header says it
+                if o["type"] == 7 and o["serial"] is not None:
+                    self._just_played = {self.serials.get(o["serial"])}
+                return self._describe_option(sel, o, who)
+            if sel["context"] == 38 and self.state["phase"] <= 1 and opts:
+                # Only a player whose opponent mulliganed is offered extra draws.
+                self.say("opp" if who == ME else "you", "Mulligan", "info")
+                return "Draw +%s" % opts[0]["number"]
+            if sel["context"] in (13, 41):
+                return None  # damage lines / the turn header say it
+            if opts and all(o["area"] == 6 for o in opts):
+                return None  # the prize line says it
             hidden = who == OPP and any(o["area"] in (1, 2, 6, 12, None) and o["serial"] is not None and o["type"] in (3, 4, 5, 6) for o in opts)
-            ctx = CONTEXT.get(sel["context"], "choice")
+            ctx = SHORT_CONTEXT.get(sel["context"]) or CONTEXT.get(sel["context"], "Choice")
+            if self.state["phase"] <= 1 and sel["context"] in (1, 2):
+                return None  # setup placement is face down
             if hidden:
-                return "%s chose %d card(s) (%s)." % (who_s, len(opts), ctx)
+                return "%s: %d card%s" % (ctx, len(opts), "" if len(opts) == 1 else "s")
             if not opts:
-                return "%s chose nothing (%s)." % (who_s, ctx)
-            return "%s chose (%s): %s" % (who_s, ctx, "; ".join(self._describe_option(sel, o, who) for o in opts))
+                return None
+            # Named here, so the diff need not announce these cards entering play.
+            self._just_played = {self.serials.get(o["serial"]) for o in opts if o["serial"] is not None}
+            if all(o["type"] in (1, 2) for o in opts):
+                yn = self._describe_option(sel, opts[0], who)
+                return "%s: %s" % (ctx, yn) if sel["context"] in (42, 43) else yn
+            names = [self._describe_option(sel, o, who) for o in opts]
+            if len(names) > 1 and len(set(names)) < len(names):
+                cnt = {}
+                for n in names:
+                    cnt[n] = cnt.get(n, 0) + 1
+                names = ["%s ×%d" % (n, c) if c > 1 else n for n, c in cnt.items()]
+            if len(names) > 4:
+                return "%s: %d" % (ctx, len(opts))
+            return "%s: %s" % (ctx, ", ".join(names))
         except Exception:  # noqa: BLE001 (never let logging break a game)
             return None
 
     def _snapshot(self):
         st = self.state
-        snap = {"turn": st["turn"], "active": st["activePlayer"], "slots": {}, "prizes": [], "zones": []}
+        snap = {"turn": st["turn"], "active": st["activePlayer"], "slots": {}, "prizes": [], "zones": [],
+                "phase": st["phase"]}
         for pi, p in enumerate(st["players"]):
             snap["prizes"].append(sum(1 for pr in p["prizes"] if pr))
-            snap["zones"].append(set(p["discard"]))
+            snap["zones"].append(set(p["discard"]) | set(p["lostzone"]))
             for s in [p["active"]] + p["bench"]:
                 if s["cards"]:
                     base = s["cards"][0]
-                    snap["slots"][base] = {"p": pi, "name": self.name_of(self._top(s) or base),
+                    card = self.cards.card(ref_of(self._top(s) or base))
+                    hp = (s.get("hp") or card.get("hp", 0)) + s.get("hpBonus", 0)
+                    snap["slots"][base] = {"p": pi, "name": card["name"], "hp": hp,
                                            "damage": s.get("damage", 0), "cond": set(s.get("specialConditions", [])),
                                            "cards": list(s["cards"])}
         return snap
@@ -407,34 +486,37 @@ class GameSession:
         self.prev = new
         if self.state["phase"] <= 1:
             return  # setup: Pokémon are placed face down
-        if new["turn"] != old["turn"]:
-            self.say("sys", "Turn %d: %s" % (new["turn"], "your turn" if new["active"] == ME else "opponent's turn"))
         for base, o in old["slots"].items():
-            owner = "Your" if o["p"] == ME else "Opponent's"
+            who = "you" if o["p"] == ME else "opp"
             n = new["slots"].get(base)
             if n is None:
-                gone = [c for c in o["cards"] if c in self.serials and any(c in zs for zs in new["zones"])]
+                gone = [c for c in o["cards"] if any(c in zs for zs in new["zones"])]
                 if gone:
-                    self.say("sys", "%s %s was Knocked Out (or discarded)." % (owner, o["name"]))
+                    self.say(who, "%s Knocked Out" % o["name"], "ko")
                 else:
-                    self.say("sys", "%s %s left play." % (owner, o["name"]))
+                    self.say(who, "%s left play" % o["name"], "info")
                 continue
-            if n["name"] != o["name"]:
-                self.say("sys", "%s %s evolved into %s." % (owner, o["name"], n["name"]))
+            if n["name"] != o["name"] and self._last_kind != 9:
+                self.say(who, "%s ⇒ %s" % (o["name"], n["name"]), "evo")
             d = n["damage"] - o["damage"]
             if d > 0:
-                self.say("sys", "%s %s took %d damage (%d total)." % (owner, n["name"], d, n["damage"]))
+                self.say(who, "%s −%d · %d HP left" % (n["name"], d, max(0, n["hp"] - n["damage"])), "dmg")
             elif d < 0:
-                self.say("sys", "%s %s healed %d damage." % (owner, n["name"], -d))
+                self.say(who, "%s +%d HP" % (n["name"], -d), "heal")
             for c in sorted(n["cond"] - o["cond"]):
-                self.say("sys", "%s %s is now %s." % (owner, n["name"], CONDITION.get(c, "?")))
+                self.say(who, "%s: %s" % (n["name"], CONDITION.get(c, "?")), "cond")
         for base, n in new["slots"].items():
-            if base not in old["slots"] and old["turn"] >= 0:
-                self.say("sys", "%s %s entered play." % ("Your" if n["p"] == ME else "Opponent's", n["name"]))
+            if base not in old["slots"] and base not in self._just_played and old["phase"] > 1:
+                self.say("you" if n["p"] == ME else "opp", "%s → play" % n["name"], "info")
         for p in (ME, OPP):
             if new["prizes"][p] < old["prizes"][p]:
                 k = old["prizes"][p] - new["prizes"][p]
-                self.say("sys", "%s took %d prize card(s); %d left." % ("You" if p == ME else "Opponent", k, new["prizes"][p]))
+                self.say("you" if p == ME else "opp", "Prize ×%d · %d left" % (k, new["prizes"][p]), "prize")
+        # The header goes last: damage and Knock Outs above belong to the turn that just ended.
+        if new["turn"] != old["turn"] or old["phase"] <= 1:
+            self.say("you" if new["active"] == ME else "opp", "Turn %d" % new["turn"], "turn")
+        self._just_played = set()
+        self._last_kind = None
 
     # ---- views -----------------------------------------------------------
     def view(self, log_from=0):
@@ -457,6 +539,8 @@ class GameSession:
                     prizes.append({"state": "up", "id": cid(pr[0])})
                 else:
                     prizes.append({"state": "down"})
+            # Setup places Pokémon face down: hide the opponent's until the game starts.
+            hide = pi == OPP and st["phase"] <= 1
             pv = {
                 "index": pi,
                 "handCount": len(p["hand"]),
@@ -465,8 +549,8 @@ class GameSession:
                 "lostzone": [cid(c) for c in p["lostzone"]],
                 "prizes": prizes,
                 "prizesLeft": sum(1 for x in prizes if x["state"] != "taken"),
-                "active": self._slot_view(p["active"], cid),
-                "bench": [self._slot_view(s, cid) for s in p["bench"]],
+                "active": self._slot_view(p["active"], cid, hide),
+                "bench": [self._slot_view(s, cid, hide) for s in p["bench"]],
                 "stadium": [cid(c) for c in p["stadium"]],
                 "supporter": [cid(c) for c in p["supporter"]],
                 "energyAttached": p.get("energyPlayedTurn") == turn,
@@ -493,6 +577,7 @@ class GameSession:
             "phase": st["phase"],
             "seed": self.seed,
             "decks": list(self.deck_ids),
+            "deckNames": [_pretty(d) for d in self.deck_ids],
             "you": players[ME],
             "opp": players[OPP],
             "stadium": stadium,
@@ -502,9 +587,11 @@ class GameSession:
             "logLen": len(self.log),
         }
 
-    def _slot_view(self, s, cid):
+    def _slot_view(self, s, cid, hide=False):
         if not s["cards"]:
             return None
+        if hide:
+            return {"hidden": True}
         energies, tools = s.get("energies", []), s.get("tools", [])
         stack = [c for c in s["cards"] if c not in energies and c not in tools]
         top = stack[-1] if stack else s["cards"][0]
@@ -539,6 +626,7 @@ class GameSession:
         return {
             "type": sel["type"], "typeName": SELECT_TYPE.get(sel["type"], "?"),
             "context": sel["context"], "contextName": CONTEXT.get(sel["context"], "Context %d" % sel["context"]),
+            "title": SHORT_CONTEXT.get(sel["context"]) or CONTEXT.get(sel["context"], "Choose"),
             "min": sel["minCount"], "max": sel["maxCount"],
             "repeats": self.allows_repeats(sel),
             "options": opts,
