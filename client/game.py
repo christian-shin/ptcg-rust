@@ -446,7 +446,8 @@ class GameSession:
             # Named here, so the diff need not announce these cards entering play.
             self._just_played = {self.serials.get(o["serial"]) for o in opts if o["serial"] is not None}
             if all(o["type"] in (1, 2) for o in opts):
-                return "%s: %s" % (ctx, self._describe_option(sel, opts[0], who))
+                yn = self._describe_option(sel, opts[0], who)
+                return "%s: %s" % (ctx, yn) if sel["context"] in (42, 43) else yn
             names = [self._describe_option(sel, o, who) for o in opts]
             if len(names) > 1 and len(set(names)) < len(names):
                 cnt = {}

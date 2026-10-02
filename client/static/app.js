@@ -50,8 +50,17 @@ function applyView(v, replaceLog) {
   S = v;
 }
 
+/* Name of the card / attack / ability whose effect the next prompts belong to. */
+let promptSrc = null;
+function srcOf(o) {
+  if (!o) return null;
+  if (o.kind === 7 && o.card) return cardOf(o.card).name;
+  if (o.kind === 13 || o.kind === 10 || o.kind === 15) return o.label.split(" · ").pop();
+  return null;
+}
 async function answer(indices) {
   if (busy) return;
+  if (S && S.choice && S.choice.type === 0) promptSrc = srcOf(S.choice.options[indices[0]]);
   busy = true;
   ui.err = "";
   closePop();
@@ -65,6 +74,7 @@ async function answer(indices) {
   }
   ui = Object.assign(fresh(), { overDismissed: ui.overDismissed });
   applyView(r.body, false);
+  if (!S.choice || S.choice.type === 0) promptSrc = null;
   render();
 }
 function shortErr(e) { return String(e).replace(/^.*?Error:\s*/, "").slice(0, 140); }
@@ -122,7 +132,7 @@ function cardEl(id, opts) {
   const url = imgUrl(c, opts.big);
   let el;
   if (showImages && url && !badImg.has(url)) {
-    el = h("div", { class: "card img" });
+    el = h("div", { class: "card img" }, h("span", { class: "ph-name", text: c.name }));
     const img = h("img", { src: url, alt: c.name, draggable: "false", loading: opts.lazy ? "lazy" : null });
     img.addEventListener("error", () => { badImg.add(url); el.replaceWith(textCard(id, opts)); });
     el.append(img);
@@ -212,6 +222,7 @@ function togglePick(i) {
 }
 function rangeText(ch, n) { return n + "/" + ch.max + (ch.min > 0 && ch.min < ch.max ? " · min " + ch.min : ""); }
 function titleOf(ch) {
+  if (promptSrc && ch.options.length && ch.options.every((o) => o.kind === 1 || o.kind === 2) && ![41, 42, 43].includes(ch.context)) return promptSrc + "?";
   if (ch.options.length && ch.options.every((o) => o.area === 6)) return "Prize";
   const t = { 1: S.you.active ? "Choose Bench" : "Choose Active", 2: "Choose Bench" }[ch.context];
   return t || ch.title || ch.contextName;
@@ -277,7 +288,7 @@ function slotEl(pi, area, idx, sv, targets) {
     }
     wrap.append(en);
   }
-  if (sv.tools.length) wrap.append(h("div", { class: "tools" }, sv.tools.map((t) => { const x = h("span", { class: "tool-chip", text: cardOf(t).name }); wireCard(x, t); return x; })));
+  if (sv.tools.length) wrap.append(h("div", { class: "tools" }, sv.tools.map((t) => h("div", { class: "tool-thumb", title: cardOf(t).name }, cardEl(t)))));
   if (sv.conditions.length) wrap.append(h("div", { class: "conds" }, sv.conditions.map((c) => h("span", { class: "cond " + c, title: c, text: { Poisoned: "PSN", Burned: "BRN", Asleep: "SLP", Paralyzed: "PAR", Confused: "CNF" }[c] || c }))));
   if (sv.markers.length) wrap.append(h("div", { class: "marks" }, sv.markers.slice(0, 2).map((m) => h("span", { class: "mark", title: m, text: m }))));
   if (tg) {
@@ -456,7 +467,7 @@ function viewPile(title, ids) {
 }
 function rowEl(pv, who, targets) {
   const bn = Math.max(5, pv.bench.length);
-  const bench = h("div", { class: "bench", style: "--bn:" + bn + ";--bs:" + Math.min(1, 6.2 / bn).toFixed(3) },
+  const bench = h("div", { class: "bench", style: "--bn:" + bn },
     pv.bench.map((s, i) => slotEl(pv.index, 5, i, s, targets)));
   for (let i = pv.bench.length; i < 5; i++) bench.append(h("div", { class: "empty-slot" }));
   return [prizesEl(pv, who), bench, pilesEl(pv, who)];
@@ -488,7 +499,7 @@ function renderBoard() {
   left.replaceChildren(tag("opp", S.opp));
   const mid = h("div", { style: "display:flex;gap:14px;align-items:center;align-self:center" });
   for (const [pv, who] of [[S.opp, "Opp"], [S.you, "You"]]) {
-    if (pv.supporter.length) mid.append(h("div", { class: "stadium-zone sup-zone" }, h("span", { class: "slot-lbl", text: who === "You" ? "Supporter" : "Opp. Supporter" }), cardEl(pv.supporter[0])));
+    if (pv.supporter.length) mid.append(h("div", { class: "stadium-zone sup-zone" }, h("span", { class: "slot-lbl", text: (who === "You" ? "" : "Opp. ") + (cardOf(pv.supporter[0]).trainerType || "Trainer") }), cardEl(pv.supporter[0])));
   }
   if (S.stadium) {
     const z = h("div", { class: "stadium-zone " + (S.stadium.owner === ME ? "yours" : "theirs") }, h("span", { class: "slot-lbl", text: "Stadium" }));
@@ -540,7 +551,20 @@ function renderHand() {
     }
     hand.append(wrap);
   }
-  requestAnimationFrame(fitHand);
+  requestAnimationFrame(() => { fitRows(); fitHand(); });
+}
+/* Shrink bench cards when a big bench (e.g. 8 slots) would not fit the board width. */
+function fitRows() {
+  const W = $("#board").clientWidth - 32;
+  for (const row of [$("#opp-row"), $("#you-row")]) {
+    const bench = row.querySelector(".bench"), pile = row.querySelector(".pile");
+    if (!bench || !pile) continue;
+    const bn = Number(bench.style.getPropertyValue("--bn")) || 5;
+    const other = row.scrollWidth - bench.offsetWidth;
+    const cw = pile.offsetWidth;
+    const bs = Math.min(1, (W - other - 18 - (bn - 1) * 8) / (bn * cw));
+    bench.style.setProperty("--bs", Math.max(0.4, bs).toFixed(3));
+  }
 }
 function fitHand() {
   const hand = $("#hand");
@@ -570,7 +594,8 @@ function handClick(el, id, opts) {
 /* ---------------- control panel ---------------- */
 function btn(label, cls, onclick, disabled) { return h("button", { class: "btn " + (cls || ""), onclick, disabled: !!disabled }, label); }
 function promptBox(title, cnt, ...rows) {
-  return h("div", { class: "prompt" }, h("div", { class: "pt" }, h("span", { text: title }), cnt !== null && cnt !== undefined ? h("span", { class: "cnt", text: cnt }) : null), ...rows);
+  const src = promptSrc && S.choice && S.choice.type !== 0 ? h("div", { class: "psrc", text: promptSrc }) : null;
+  return h("div", { class: "prompt" }, src, h("div", { class: "pt" }, h("span", { text: title }), cnt !== null && cnt !== undefined ? h("span", { class: "cnt", text: cnt }) : null), ...rows);
 }
 function renderCtrl() {
   const c = $("#ctrl");
@@ -655,7 +680,7 @@ function renderModal() {
       return h("button", { class: "act", onclick: () => answer([o.i]) }, h("span", { class: "costs" }, eIcons(a ? a.cost : [])),
         h("span", { class: "nm", text: a ? a.name : o.label }), c ? h("span", { class: "cnt", style: "color:var(--dim);font-size:11px", text: c.name }) : null, h("span", { class: "dm", text: dmgText(a) }));
     }));
-    m.replaceChildren(h("div", { class: "mbox" }, h("header", {}, h("h2", { text: titleOf(ch) }), h("span", { class: "sp" }), hide), h("div", { class: "mb" }, list),
+    m.replaceChildren(h("div", { class: "mbox" }, h("header", {}, promptSrc ? h("span", { class: "psrc", text: promptSrc }) : null, h("h2", { text: titleOf(ch) }), h("span", { class: "sp" }), hide), h("div", { class: "mb" }, list),
       ui.err ? h("footer", {}, h("span", { class: "err", text: ui.err })) : null));
     return;
   }
@@ -664,7 +689,47 @@ function renderModal() {
   const multiHolder = new Set(ch.options.map((o) => o.card && holderOf(o.card)).filter(Boolean)).size > 1;
   const confirm = btn("Confirm", "primary", () => answer(chosenIndices()));
   const clear = btn("Clear", "", () => { ui.picks = []; ui.counts = {}; paint(); });
+  // Identical cards (same printing, same caption) collapse into one tile with a count,
+  // unless pick order matters (putting cards on the deck in order).
+  const groups = [];
+  if (!ch.repeats && ![9, 10].includes(ch.context)) {
+    const by = new Map();
+    for (const o of ch.options) {
+      const k = o.card ? o.card.split("#")[0] + "|" + capOf(o, multiHolder) : "#" + o.i;
+      if (!by.has(k)) { by.set(k, []); groups.push(by.get(k)); }
+      by.get(k).push(o);
+    }
+  }
+  const grouped = groups.length && groups.length < ch.options.length;
+  const paintGroups = () => {
+    grid.replaceChildren();
+    for (const g of groups) {
+      const o = g[0];
+      const nSel = g.filter((x) => ui.picks.includes(x.i)).length;
+      const t = h("div", { class: "tile" + (nSel ? " sel" : "") + (o.card || o.area === 6 ? "" : " wide") });
+      t.onclick = () => {
+        if (single(ch)) return answer([o.i]);
+        const free = g.find((x) => !ui.picks.includes(x.i));
+        if (free && (ch.max <= 1 || ui.picks.length < ch.max)) togglePick(free.i);
+        else { const last = [...g].reverse().find((x) => ui.picks.includes(x.i)); if (last) togglePick(last.i); }
+        paintGroups();
+      };
+      t.oncontextmenu = (e) => { e.preventDefault(); const last = [...g].reverse().find((x) => ui.picks.includes(x.i)); if (last) { togglePick(last.i); paintGroups(); } };
+      if (o.card) t.append(cardEl(o.card, { noHover: false }));
+      else if (o.area === 6) t.append(backEl());
+      else t.append(h("div", { class: "box", text: o.label }));
+      if (g.length > 1) t.append(h("div", { class: "grp-n", text: "×" + g.length }));
+      t.append(h("div", { class: "cap", text: capOf(o, multiHolder) }));
+      if (nSel) t.append(h("div", { class: "pick-badge", text: g.length > 1 ? nSel + "/" + g.length : "✓" }));
+      grid.append(t);
+    }
+    const n = pickCount();
+    cnt.textContent = rangeText(ch, n);
+    confirm.disabled = !validCount(ch, n);
+    clear.disabled = !n;
+  };
   const paint = () => {
+    if (grouped) return paintGroups();
     grid.replaceChildren();
     for (const o of ch.options) {
       const sel = ui.picks.includes(o.i) || (ui.counts[o.i] || 0) > 0;
@@ -690,7 +755,7 @@ function renderModal() {
   };
   paint();
   m.replaceChildren(h("div", { class: "mbox" },
-    h("header", {}, h("h2", { text: titleOf(ch) }), cnt, h("span", { class: "sp" }), hide),
+    h("header", {}, promptSrc ? h("span", { class: "psrc", text: promptSrc }) : null, h("h2", { text: titleOf(ch) }), cnt, h("span", { class: "sp" }), hide),
     h("div", { class: "mb" }, grid),
     h("footer", {}, h("span", { class: "err", text: ui.err }), h("span", { class: "sp" }), clear, confirm)));
 }
@@ -717,6 +782,16 @@ function capOf(o, multiHolder) {
   return "";
 }
 
+/* Best guess at why the game ended (the binding reports only the winner). */
+function overReason() {
+  const w = S.winner;
+  if (w !== 0 && w !== 1) return "";
+  const [win, lose] = w === 0 ? [S.you, S.opp] : [S.opp, S.you];
+  if (win.prizesLeft === 0) return "All Prizes taken";
+  if (!lose.active && lose.bench.every((b) => !b)) return "No Pokémon left in play";
+  if (lose.deckCount === 0) return "Deck out";
+  return "";
+}
 function renderGameOver(m) {
   const w = S.winner;
   const you = 6 - S.you.prizesLeft, opp = 6 - S.opp.prizesLeft;
@@ -724,6 +799,7 @@ function renderGameOver(m) {
   m.replaceChildren(h("div", { class: "mbox" },
     h("div", { class: "over" },
       h("h1", { class: w === 0 ? "win" : w === 1 ? "lose" : "", text: w === 0 ? "Victory" : w === 1 ? "Defeat" : "Game over" }),
+      h("div", { class: "why", text: overReason() }),
       h("div", { class: "sub", text: S.deckNames[0] + " vs " + S.deckNames[1] }),
       h("div", { class: "score" },
         h("div", {}, h("b", { text: you }), h("span", { text: "Your prizes" })),
@@ -783,7 +859,10 @@ function renderSide() {
     h("span", { class: "t", text: S.over ? "End" : live ? "T" + S.turn : "Setup" }),
     live ? h("span", { class: "turn-pill " + (S.activePlayer === ME ? "you" : "opp"), text: S.activePlayer === ME ? "You" : "Opp" }) : null,
     h("span", { class: "vs", title: "seed " + S.seed, text: S.deckNames[0] + " vs " + S.deckNames[1] })].filter(Boolean));
-  if (!previewId) $("#preview").replaceChildren(h("div", { class: "ph" }));
+  if (!previewId) {
+    const a = S.you.active && !S.you.active.hidden ? S.you.active.id : null;
+    $("#preview").replaceChildren(a ? cardEl(a, { big: true, noHover: true }) : h("div", { class: "ph" }));
+  }
   const el = $("#log");
   const stick = el.scrollTop + el.clientHeight >= el.scrollHeight - 40;
   el.replaceChildren(...logLines.filter((l) => l.kind !== "info" || l.who !== "sys").map((l) => h("div", { class: "ll " + l.who + " k-" + (l.kind || "act"), text: l.text })));
@@ -828,5 +907,5 @@ document.addEventListener("keydown", (e) => {
 });
 document.addEventListener("click", (e) => { if (ui.pop && !$("#pop").contains(e.target)) closePop(); });
 $("#btn-menu").addEventListener("click", (e) => { e.stopPropagation(); openMenu(e.currentTarget); });
-window.addEventListener("resize", () => { if (S) fitHand(); });
+window.addEventListener("resize", () => { if (S) { fitRows(); fitHand(); } });
 boot();

@@ -119,6 +119,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   position: relative; width: var(--cw); height: var(--ch); border-radius: var(--r); overflow: hidden;
   background: #dfe5ec; color: #111; box-shadow: 0 2px 6px rgba(0, 0, 0, .45); flex: none;
 }
+.card.img { background: linear-gradient(160deg, #2a3d52, #1a2836); }
+.card .ph-name { position: absolute; inset: 8% 6% auto; color: #c9d6e3; font-weight: 700; font-size: calc(var(--ch) * .07); line-height: 1.15; }
 .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .card.back {
   background:
@@ -170,7 +172,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .energies { position: absolute; left: 3px; bottom: 9px; display: flex; flex-wrap: wrap-reverse; gap: 1px; max-width: 70%; z-index: 3; font-size: calc(var(--ch) * .12); }
 .energies .e { border: 1.5px solid #fff; box-shadow: 0 1px 2px #000a; font-size: .62em; width: 1.35em; height: 1.35em; }
 .energies .e.special { border-color: var(--gold); }
-.tools { position: absolute; right: 2px; bottom: 9px; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; z-index: 3; }
+.tools { position: absolute; right: -6px; bottom: 10px; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; z-index: 3; }
+.slot .tools .tool-thumb .card { width: calc(var(--cw) * .34); height: calc(var(--ch) * .34); border: 1.5px solid #fff; border-radius: 4px; transform: rotate(8deg); box-shadow: 0 2px 5px #000b; }
+.slot .tools .tool-thumb .card.text { font-size: 4px; padding: 1px; }
 .tool-chip { background: #343a40; border: 1.5px solid #ced4da; border-radius: 4px; font-size: 9px; font-weight: 800; padding: 0 3px; color: #fff; max-width: calc(var(--cw) * .6); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .conds { position: absolute; left: 2px; top: 22%; display: flex; flex-direction: column; gap: 2px; z-index: 3; }
 .cond { font-size: 9px; font-weight: 900; letter-spacing: .03em; padding: 1px 4px; border-radius: 4px; color: #fff; border: 1px solid #fff8; }
@@ -216,11 +220,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .end-btn { min-width: 128px; }
 
 /* ---------------- side ---------------- */
-#side { display: grid; grid-template-rows: auto auto 1fr; background: rgba(4, 10, 18, .55); border-left: 1px solid var(--line); min-height: 0; }
+#side { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; overflow: hidden; grid-template-rows: auto auto 1fr; background: rgba(4, 10, 18, .55); border-left: 1px solid var(--line); min-height: 0; }
 #side-top { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 #status { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
 #status .t { font-weight: 900; font-size: 15px; }
-#status .vs { color: var(--dim); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#status .vs { min-width: 0; color: var(--dim); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #preview { padding: 10px; display: grid; place-items: center; border-bottom: 1px solid var(--line); }
 #preview .card { width: calc(var(--side) - 20px); height: calc((var(--side) - 20px) / .716); max-height: 44vh; max-width: calc(44vh * .716); border-radius: 12px; }
 #preview .ph { height: calc(min((var(--side) - 20px) / .716, 44vh)); width: 100%; border: 1px dashed var(--line); border-radius: 12px; }
@@ -317,3 +321,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .ghost { position: fixed; z-index: 80; pointer-events: none; width: var(--hcw) !important; height: var(--hch) !important; transform: translate(-50%, -55%) rotate(-4deg); opacity: .93; box-shadow: 0 12px 30px rgba(0, 0, 0, .6) !important; }
 #hand .hc.dragging { opacity: .35; }
 #hand .hc { touch-action: none; }
+.psrc { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+.mbox header .psrc { margin: 0; }
+.tile .grp-n { position: absolute; right: -6px; top: -6px; background: #343a40; border: 1px solid var(--line2); color: #fff; font-weight: 900; font-size: 12px; border-radius: 10px; padding: 1px 7px; z-index: 4; }
+.over .why { font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; color: var(--ink); margin-bottom: 4px; }
