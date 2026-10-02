@@ -1,0 +1,19 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Litwick TWM 36", "4 Lampent TWM 37", "52 Fire Energy MEE"],
+    ["4 Litwick TWM 36", "4 Lampent TWM 37", "52 Fire Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": ["Litwick TWM 36", "Lampent TWM 37"],
+    "active_energy": ["2 Fire Energy MEE"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Litwick TWM 36"
+  },
+  "answers": [
+    {"a": "attack", "name": "Burn It All Up"}
+  ]
+}

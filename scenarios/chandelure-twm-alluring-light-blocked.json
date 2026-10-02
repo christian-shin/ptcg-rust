@@ -1,0 +1,19 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Litwick TWM 36", "4 Lampent TWM 37", "4 Chandelure TWM 38", "3 Shellos SSP", "3 Gastrodon SSP 107", "42 Fire Energy MEE"],
+    ["4 Litwick TWM 36", "4 Lampent TWM 37", "4 Chandelure TWM 38", "3 Shellos SSP", "3 Gastrodon SSP 107", "42 Fire Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Litwick TWM 36",
+    "bench": [
+      {"card": ["Litwick TWM 36", "Lampent TWM 37", "Chandelure TWM 38"]},
+      {"card": ["Shellos SSP", "Gastrodon SSP 107"]}
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Litwick TWM 36"
+  }
+}
