@@ -9,7 +9,7 @@ pub static IMPL: CardImpl = CardImpl { class: "Dipplin@SCR", mask: mask(&[k::ATT
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
-        prevent_damage_filtered(g, e, PreventFilter { source_stage: Some(Stage::Basic as u8), source_card_types: None })?;
+        prevent_damage_filtered(g, e, PreventFilter { source_stage: Some(Stage::Basic as u8), ..Default::default() })?;
     }
     Ok(())
 }

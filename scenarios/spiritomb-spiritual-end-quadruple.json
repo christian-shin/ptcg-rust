@@ -1,0 +1,20 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Spiritomb M5", "4 Shuppet M5", "4 Banette M5", "4 Poltchageist M5", "4 Sinistcha M5", "40 Psychic Energy MEE"],
+    ["4 Spiritomb M5", "4 Shuppet M5", "4 Banette M5", "4 Poltchageist M5", "4 Sinistcha M5", "40 Psychic Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Spiritomb M5",
+    "active_energy": ["Psychic Energy MEE"],
+    "discard": ["4 Shuppet M5", "4 Banette M5", "4 Poltchageist M5", "1 Sinistcha M5"]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Shuppet M5",
+    "active_damage": 30,
+    "bench": [{"card": "Poltchageist M5", "damage": 20}, {"card": "Shuppet M5"}]
+  },
+  "answers": [{"a": "attack", "name": "Spiritual End"}]
+}

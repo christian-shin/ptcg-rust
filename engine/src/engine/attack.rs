@@ -66,7 +66,9 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
         _ => return Ok(()),
     };
     let ad = attack_def(g, attack);
-    if g.st.turn == 1 && !ad.can_use_on_first_turn && !g.st.rules.attack_first_turn {
+    // `attack.canUseOnFirstTurn` (printed, or written at runtime by Meloetta ex).
+    let first_turn_ok = g.st.cards[attack.card as usize].attack_first_turn & (1u8 << attack.idx()) != 0;
+    if g.st.turn == 1 && !ad.can_use_on_first_turn && !first_turn_ok && !g.st.rules.attack_first_turn {
         crate::bail!("CANNOT_ATTACK_ON_FIRST_TURN");
     }
     let active = g.st.players[p].active;
@@ -414,7 +416,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 && match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
                     Some(sc) => {
                         let d = g.st.cdef(sc);
-                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type)
+                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type, d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8))
                     }
                     None => false,
                 };
@@ -471,52 +473,22 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::AfterDamage { b, damage } => {
             g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-            // Revenge trap (`getActiveRetaliateOnDamage`; only `{ damage }`
-            // options are modeled) -- even if the target was Knocked Out.
+            // Revenge trap (getActiveRetaliateOnDamage; `{ damage }` options only).
             let t = b.target;
-            let armed = {
-                let ts = g.st.slot(t.p as usize, t.s);
-                if ts.retaliate_next_turn_pending.is_some() { None } else { ts.retaliate_next_turn }
-            };
-            if let Some(r) = armed {
+            let slot = g.st.slot(t.p as usize, t.s);
+            let active = if slot.retaliate_on_damage_next_turn_pending.is_some() { None } else { slot.retaliate_on_damage_next_turn };
+            if let Some(r) = active {
                 if damage > 0 && t.p != b.player && g.st.phase == GamePhase::Attack && r.damage > 0 {
-                    let owner = t.p as usize;
-                    let attacker = r.attacker as usize;
-                    let mut source = t;
-                    for s in g.st.players[attacker].in_play().iter() {
-                        if g.st.slot_pokemon(attacker, *s) == Some(r.source_card) {
-                            source = SlotRef::new(attacker, *s);
+                    let mut src = t;
+                    let ap = r.attacker as usize;
+                    for s in g.st.players[ap].in_play().iter() {
+                        if g.st.slot_pokemon(ap, *s) == Some(r.source_card) {
+                            src = SlotRef::new(ap, *s);
                         }
                     }
-                    let ad_damage = g.st.cdef(r.attack.card).attacks[r.attack.idx()].damage;
-                    let atk = g.new_fx(Effect::Attack {
-                        p: owner as u8,
-                        opp: b.player,
-                        attack: r.attack,
-                        damage: ad_damage,
-                        ignore_weakness: false,
-                        ignore_resistance: false,
-                        source,
-                        barrage_used: false,
-                    });
-                    let nb = AtkBase { attack_effect: atk, player: owner as u8, opponent: b.player, attack: r.attack, source, target: b.source };
-                    let res = g.run_fx(Effect::RetaliateDamage { b: nb, damage: r.damage });
-                    g.release_fx(atk);
-                    res?;
+                    let rb = AtkBase { attack_effect: b.attack_effect, player: t.p, opponent: b.player, attack: r.attack, source: src, target: b.source };
+                    g.run_fx(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
                 }
-            }
-            Ok(())
-        }
-        Effect::RetaliateOnDamage { b, damage, source_card } => {
-            let p = b.player as usize;
-            let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].retaliate_next_turn_pending =
-                Some(crate::state::StoredRetaliate { damage, attack: b.attack, source_card, attacker: b.player });
-            Ok(())
-        }
-        Effect::RetaliateDamage { b, damage } => {
-            if damage > 0 {
-                g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
             }
             Ok(())
         }
@@ -573,6 +545,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::GustOpponentBench { b } => {
             crate::engine::turn::switch_pokemon(g, b.opponent as usize, b.target.s)?;
+            Ok(())
+        }
+        Effect::MoveOpponentEnergy { b, card, destination } => {
+            // MoveOpponentEnergyEffect: `target.moveCardTo(card, destination)`.
+            g.move_card_to(b.target.list(), card, destination.list());
             Ok(())
         }
         Effect::AddMarker { b, marker, marker_source } => {
@@ -669,6 +646,19 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let p = b.player as usize;
             let a = g.st.players[p].active;
             g.st.players[p].slots[a as usize].cannot_retreat_next_turn_pending = true;
+            Ok(())
+        }
+        Effect::RetaliateOnDamage { b, damage, source_card } => {
+            let p = b.player as usize;
+            let a = g.st.players[p].active;
+            g.st.players[p].slots[a as usize].retaliate_on_damage_next_turn_pending =
+                Some(StoredRetaliate { damage, attack: b.attack, source_card, attacker: b.player });
+            Ok(())
+        }
+        Effect::RetaliateDamage { b, damage } => {
+            if damage > 0 {
+                g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
+            }
             Ok(())
         }
         Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card } => {

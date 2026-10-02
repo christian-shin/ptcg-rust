@@ -75,5 +75,12 @@ fn card_db_matches_twinleaf_dump() {
             }
         }
     }
+    // ...and the non-pool pre-evolutions in data/support_cards.json.
+    let support: Vec<Value> = serde_json::from_str(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../data/support_cards.json")).unwrap()).unwrap();
+    for s in &support {
+        let n = s["fullName"].as_str().unwrap();
+        assert!(def_by_full_name(n).is_some(), "{} in db", n);
+        names.insert(n);
+    }
     assert_eq!(cards().len(), names.len());
 }

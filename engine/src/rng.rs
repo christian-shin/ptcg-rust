@@ -5,6 +5,10 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rng {
     s: [u32; 4],
+    /// Coin results forced by a scenario (bit i = flip i, 1 = heads), used
+    /// before the real stream: the oracle's `Chance.force`.
+    forced: u32,
+    nforced: u8,
 }
 
 impl Rng {
@@ -18,7 +22,18 @@ impl Rng {
             z = (z ^ (z >> 13)).wrapping_mul(0xc2b2_ae35);
             *v = z ^ (z >> 16);
         }
-        Rng { s }
+        Rng { s, forced: 0, nforced: 0 }
+    }
+
+    /// Force the next real coin flips (up to 32).
+    pub fn force_coins(&mut self, coins: &[bool]) {
+        self.forced = 0;
+        self.nforced = coins.len().min(32) as u8;
+        for (i, &c) in coins.iter().take(32).enumerate() {
+            if c {
+                self.forced |= 1 << i;
+            }
+        }
     }
 
     /// Fixed outcomes (the all-zero state, which seeding never produces):
@@ -26,7 +41,7 @@ impl Rng {
     /// Legality trials use it in both engines (the oracle's `Chance.trial` /
     /// `FixedSource`), so whether an option is legal never depends on chance.
     pub const fn zero() -> Rng {
-        Rng { s: [0; 4] }
+        Rng { s: [0; 4], forced: 0, nforced: 0 }
     }
 
     pub fn next_u32(&mut self) -> u32 {
@@ -63,6 +78,12 @@ impl Rng {
     pub fn coin(&mut self) -> bool {
         if self.is_fixed() {
             return false;
+        }
+        if self.nforced > 0 {
+            let v = self.forced & 1 == 1;
+            self.forced >>= 1;
+            self.nforced -= 1;
+            return v;
         }
         self.below(2) == 0
     }

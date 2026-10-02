@@ -1363,8 +1363,8 @@
   "note": "batch b06"
  },
  "Luxray ex TWM": {
-  "status": "blocked",
-  "note": "batch b06; Shinx and Luxio are not in the card DB (not pool cards), so Luxray ex never reaches play; port reviewed but unrun"
+  "status": "verified",
+  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 random traces + scenario scenarios/luxray-ex-empty-hand.json (12 traces) for the opponent-hand-empty return"
  },
  "Stunfisk M2a": {
   "status": "verified",
@@ -1403,8 +1403,8 @@
   "note": "batch b04"
  },
  "Seismitoad 30C": {
-  "status": "blocked",
-  "note": "batch b04; unreachable: no Tympole/Palpitoad in pool; coin-flip trainer cancel core unverified"
+  "status": "verified",
+  "note": "batch b04 + support cards (Tympole EVS, Palpitoad OBF); 48 traces, all branches covered"
  },
  "Applin DRI": {
   "status": "verified",
@@ -1541,5 +1541,261 @@
  "Black Kyurem ex SSP": {
   "status": "verified",
   "note": "batch b12"
+ },
+ "Dedenne SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Deoxys M4 32": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Deoxys M4 33": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Espeon ex PRE": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Sylveon PRE": {
+  "status": "verified",
+  "note": "batch b09; L52 Safeguard early return unreachable in pool"
+ },
+ "Sylveon ex SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Elgyem SV11B": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Enamorus TWM": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Flittle SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Frillish SV11W": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Jellicent ex SV11W": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Gimmighoul SSP": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Lampent M5": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Litwick M5": {
+  "status": "verified",
+  "note": "batch b09"
+ },
+ "Mega Chandelure ex M5": {
+  "status": "verified",
+  "note": "batch b09; L57 !chandelureInPlay return 0 games (likely coverage artifact)"
+ },
+ "Azumarill SSP": {
+  "status": "verified",
+  "note": "batch b09; L60 ability-probe catch and L65 no-[P]-in-cost unreachable in pool"
+ },
+ "Unown 30C": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Cofagrigus SSP": {
+  "status": "verified",
+  "note": "batch b11; re-verified with support card Yamask PLF 55: 48 traces, all branches covered"
+ },
+ "Zacian M2": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Armarouge SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Ceruledge M2": {
+  "status": "partial",
+  "note": "batch b11; \"not exactly 4 selected\" defensive branch"
+ },
+ "Ceruledge SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Charcadet 2 SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Charcadet M2": {
+  "status": "partial",
+  "note": "batch b11; empty-deck throw never ran"
+ },
+ "Charmander M2": {
+  "status": "partial",
+  "note": "batch b11; not-Charmander return and ability-blocked return unreachable"
+ },
+ "Mega Charizard X ex M2": {
+  "status": "partial",
+  "note": "batch b11; null prompt result return unreachable"
+ },
+ "Mega Charizard Y ex MC": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Flareon ex PRE": {
+  "status": "partial",
+  "note": "batch b11; empty-deck return never ran"
+ },
+ "Ethan's Cyndaquil DRI": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+ },
+ "Ethan's Quilava DRI": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+ },
+ "Ethan's Typhlosion DRI": {
+  "status": "partial",
+  "note": "batch b11; verified with a temporary Ethan's Adventure port (batch b16 owns it); re-check after b16"
+ },
+ "Fuecoco SSP": {
+  "status": "verified",
+  "note": "batch b11"
+ },
+ "Skeledirge SSP": {
+  "status": "partial",
+  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable"
+ },
+ "Steven's Metang DRI": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Varoom SFA": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Haxorus SFA": {
+  "status": "verified",
+  "note": "batch b08; discard-log lambda unreachable; verified with temporarily generated Axew/Fraxure (now support cards)"
+ },
+ "Haxorus SV11B": {
+  "status": "verified",
+  "note": "batch b08; verified with temporarily generated Axew/Fraxure (now support cards)"
+ },
+ "Salamence ex JTG": {
+  "status": "verified",
+  "note": "batch b08; no-energy return unreachable; Shelgon support card needs a port (c3)"
+ },
+ "Dragonair M2a": {
+  "status": "partial",
+  "note": "batch b08; ability-blocked return unreachable (no lock on [N] Stage 1)"
+ },
+ "Mega Dragonite ex M2a": {
+  "status": "partial",
+  "note": "batch b08; ability-blocked return 0/704 games"
+ },
+ "Eternatus SSP": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Alolan Exeggutor ex SSP": {
+  "status": "verified",
+  "note": "batch b08; blocked.push() no-op and !opponentBench unreachable"
+ },
+ "Mega Latias ex M1S": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Miraidon TEF": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Miraidon ex TEF": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Raging Bolt SCR": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Turtonator SSP": {
+  "status": "verified",
+  "note": "batch b08; Twinleaf bug: Fully Singe tests empty cardTag, attack never does anything; ported as no-op"
+ },
+ "Clefairy M3": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Comfey SCR": {
+  "status": "verified",
+  "note": "batch b08"
+ },
+ "Cresselia SFA": {
+  "status": "verified",
+  "note": "batch b08; chosenPrize===null unreachable"
+ },
+ "Azumarill ex MC": {
+  "status": "verified",
+  "note": "batch b10 (Codex); Energy Balloon +40/[P] is dead in Twinleaf (compares numeric enums to 'P'; Twinleaf bug, replicated)"
+ },
+ "Marill MC": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Meloetta ex SV11B": {
+  "status": "verified",
+  "note": "batch b10 (Codex); ability-blocked return unreachable in pool"
+ },
+ "Mr. Mime TEF": {
+  "status": "verified",
+  "note": "batch b10 (Codex); Special Condition throw covered by scenarios/mr-mime-look-alike-show-condition.json (12 traces); not-Active throw unreachable (attack only from Active)"
+ },
+ "N's Sigilyph JTG": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Scream Tail ex TWM": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Mega Slowbro ex MEP": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Smoochum SSP": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Spectrier ASC": {
+  "status": "verified",
+  "note": "batch b10 (Codex); empty-targets return unreachable (prompt not cancellable)"
+ },
+ "Spiritomb M5": {
+  "status": "verified",
+  "note": "batch b10 (Codex); Spiritual End quadruple branch covered by scenarios/spiritomb-spiritual-end-quadruple.json (12 traces)"
+ },
+ "Steven's Baltoy DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Steven's Claydol DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Team Rocket's Chingling DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex)"
+ },
+ "Team Rocket's Wobbuffet DRI": {
+  "status": "verified",
+  "note": "batch b10 (Codex); empty-targets return and optional-chaining fallback unreachable"
  }
 }

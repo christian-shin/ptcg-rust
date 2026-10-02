@@ -29,7 +29,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if pl.prizes[i as usize].is_empty() {
             continue;
         }
-        if pl.prize_face_up & (1 << i) != 0 {
+        if pl.prize_face_up[i as usize] {
             blocked.push(n);
         }
         n += 1;
@@ -65,12 +65,12 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Res::Prizes(ix) if ix.len() >= 1 => ix.as_slice()[0],
                 _ => bail!("INVALID_PROMPT_RESULT"),
             };
-            if g.st.players[o].prize_face_up & (1 << idx) != 0 {
+            if g.st.players[o].prize_face_up[idx as usize] {
                 bail!("INVALID_PROMPT_RESULT");
             }
             // That Prize card remains face up for the rest of the game.
-            g.st.players[o].prize_face_up |= 1 << idx;
-            g.st.players[o].prize_not_secret |= 1 << idx;
+            g.st.players[o].prize_face_up[idx as usize] = true;
+            g.st.players[o].prize_public[idx as usize] = true;
             let id = g.player_id(p);
             if g.st.players[o].hand.is_empty() {
                 let mut nf = CardFrame::at(4);
@@ -103,8 +103,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 let prize_cards: Vec<CardId> = g.lst(prize).to_vec();
                 move_cards(g, prize, ListRef::Hand(o as u8), &prize_cards, me)?;
                 move_cards(g, ListRef::Hand(o as u8), prize, &[hand_card], me)?;
-                g.st.players[o].prize_face_up |= 1 << idx;
-                g.st.players[o].prize_not_secret |= 1 << idx;
+                g.st.players[o].prize_face_up[idx as usize] = true;
+                g.st.players[o].prize_public[idx as usize] = true;
             }
             finish(g, me, p)
         }

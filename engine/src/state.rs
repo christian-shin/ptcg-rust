@@ -117,9 +117,6 @@ pub struct Slot {
     pub discard_attacker_energy_if_ko_attack: Option<AttackRef>,
     pub discard_attacker_energy_if_ko_source_card: Option<CardId>,
     pub discard_attacker_energy_if_ko_attacker: Option<u8>,
-    /// `retaliateOnDamageNextTurn` / `...Pending`.
-    pub retaliate_next_turn: Option<StoredRetaliate>,
-    pub retaliate_next_turn_pending: Option<StoredRetaliate>,
     /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
     pub prevent_effects_of_attacks_next_turn: bool,
     pub prevent_effects_of_attacks_next_turn_pending: bool,
@@ -143,12 +140,14 @@ pub struct Slot {
     pub retreat_cost_increase_next_turn: i32,
     pub retreat_cost_increase_next_turn_pending: i32,
     pub retreat_cost_increase_next_turn_attacker: Option<u8>,
+    /// `retaliateOnDamageNextTurn` / `...Pending` (`{ damage }` options only).
+    pub retaliate_on_damage_next_turn: Option<StoredRetaliate>,
+    pub retaliate_on_damage_next_turn_pending: Option<StoredRetaliate>,
     pub is_public: bool,
 }
 
-/// `StoredRetaliateOnDamage` with options `{ damage }` (the `coinFlipPrevent` and
-/// `reflect` variants are not modeled): `attackerPlayerId` as a player index.
-#[derive(Clone, Copy, Debug)]
+/// `StoredRetaliateOnDamage` with `{ damage }` options.
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct StoredRetaliate {
     pub damage: i32,
     pub attack: AttackRef,
@@ -169,6 +168,8 @@ pub struct NextTurnAttackDamageBonus {
 pub struct PreventFilter {
     pub source_stage: Option<u8>,
     pub source_card_types: Option<SVec<CardType, 12>>,
+    /// `sourceHasAbility: true` (the attacker's Pokémon has an Ability).
+    pub source_has_ability: bool,
 }
 
 impl PreventFilter {
@@ -177,7 +178,7 @@ impl PreventFilter {
     pub const SOURCE_IS_EVOLUTION: u8 = 0xFE;
 
     /// `sourceMatchesPreventFilter` for the modeled keys.
-    pub fn matches(&self, stage: u8, types: &[CardType]) -> bool {
+    pub fn matches(&self, stage: u8, types: &[CardType], has_ability: bool) -> bool {
         if let Some(st) = self.source_stage {
             if st == Self::SOURCE_IS_EVOLUTION {
                 if stage == crate::types::Stage::Basic as u8 {
@@ -191,6 +192,9 @@ impl PreventFilter {
             if !types.iter().any(|t| ts.as_slice().contains(t)) {
                 return false;
             }
+        }
+        if self.source_has_ability && !has_ability {
+            return false;
         }
         true
     }
@@ -236,8 +240,6 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attack: None,
             discard_attacker_energy_if_ko_source_card: None,
             discard_attacker_energy_if_ko_attacker: None,
-            retaliate_next_turn: None,
-            retaliate_next_turn_pending: None,
             prevent_effects_of_attacks_next_turn: false,
             prevent_effects_of_attacks_next_turn_pending: false,
             no_weakness_next_turn: false,
@@ -254,6 +256,8 @@ impl Default for Slot {
             retreat_cost_increase_next_turn: 0,
             retreat_cost_increase_next_turn_pending: 0,
             retreat_cost_increase_next_turn_attacker: None,
+            retaliate_on_damage_next_turn: None,
+            retaliate_on_damage_next_turn_pending: None,
             is_public: false,
         }
     }
@@ -275,9 +279,14 @@ pub struct CardInst {
     /// Attacks whose serialized object now differs from the printed card
     /// (canonical `cards[...].attacks`, with a `barrage` key).
     pub attack_barrage_shown: u8,
+    /// `this.attacks[i].canUseOnFirstTurn = true` written at runtime (Meloetta ex);
+    /// bit i = attack i. Card-object state: never reset, canonical `cards[...].attacks`.
+    pub attack_first_turn: u8,
     /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
     /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
     pub evolves_from_base: Option<&'static [&'static str]>,
+    /// Mega Latias ex's `strafeUsed` instance field (canonical when true).
+    pub strafe_used: bool,
     /// Ting-Lu's `discardedStadiumCard` instance field (never reset except
     /// by its own handler; canonical when true).
     pub discarded_stadium_card: bool,
@@ -285,7 +294,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0 }
     }
 }
 
@@ -301,10 +310,11 @@ pub struct Player {
     pub supporter: List<8>,
     pub prizes: [List<4>; 6],
     pub prize_count: u8,
-    /// Bit i = `prizes[i].faceUpPrize` (the flag stays on the list when it empties).
-    pub prize_face_up: u8,
-    /// Bit i = `prizes[i].isSecret === false` (read for `prizes[0]` by the KO prize prompt).
-    pub prize_not_secret: u8,
+    /// Prize `CardList.isSecret == false` (Cresselia SFA turns one public);
+    /// all prize lists start secret.
+    pub prize_public: [bool; 6],
+    /// Prize `CardList.faceUpPrize` (canonical `faceUpPrizes`).
+    pub prize_face_up: [bool; 6],
     pub slots: [Slot; MAX_SLOTS],
     pub slot_used: [bool; MAX_SLOTS],
     pub active: SlotId,
@@ -375,8 +385,8 @@ impl Player {
             supporter: List::new(),
             prizes: [List::new(); 6],
             prize_count: 6,
-            prize_face_up: 0,
-            prize_not_secret: 0,
+            prize_public: [false; 6],
+            prize_face_up: [false; 6],
             slots: [Slot::default(); MAX_SLOTS],
             slot_used: [false; MAX_SLOTS],
             active: 0,

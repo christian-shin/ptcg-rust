@@ -710,7 +710,7 @@ impl Game {
                         return Err(invalid);
                     }
                 }
-                if face_down_only && out.iter().any(|a| self.st.players[q].prize_face_up & (1 << *a) != 0) {
+                if face_down_only && out.iter().any(|a| self.st.players[q].prize_face_up[*a as usize]) {
                     return Err(invalid);
                 }
                 Ok(Res::Prizes(out))
