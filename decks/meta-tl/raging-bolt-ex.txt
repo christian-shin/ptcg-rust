@@ -1,29 +1,25 @@
 3 Area Zero Underdepths PRE
-3 Boss's Orders ASC
+2 Boss's Orders ASC
 1 Chien-Pao SSP
 1 Ciphermaniac's Codebreaking PRE
-3 Crispin PRE
+4 Crispin PRE
 2 Cyrano SSP
 4 Energy Switch FA PBL
 1 Fezandipiti ex ASC
-1 Fighting Energy MEE
-1 Fire Energy MEE
-6 Grass Energy MEE
+2 Fighting Energy MEE
+2 Glass Trumpet ASC
+7 Grass Energy MEE
 1 Iron Leaves exUR PRE
-1 Koraidon ex ASC
 2 Latias ex SSP
-3 Lillie's Clefairy ex ASC
+2 Lightning Energy MEE
+2 Lillie's Clefairy ex ASC
 1 Lillie's Determination ASC
-2 Lillie's Pearl JTG
-3 Mega Kangaskhan ex M1S
+4 Mega Kangaskhan ex M1S
 3 Meowth ex M3
-1 Night Stretcher ASC
-1 Paldean Tauros SSP
-1 Prism Energy ASC
+2 Night Stretcher ASC
 2 Psychic Energy MEE
-1 Special Red Card M4
-2 Teal Mask Ogerpon ex PRE
-3 Telepath [P] Energy M3
+2 Raging Bolt exSAR PRE
+3 Teal Mask Ogerpon ex PRE
 4 Ultra Ball 30C
 1 Unfair Stamp TWM
 1 Water Energy MEE

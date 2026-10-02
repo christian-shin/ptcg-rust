@@ -1,78 +1,76 @@
-# Decklist cards not found in card-pool.tsv by (set, number). 86 entries: 84 matched by name, 2 not in pool.
+# Decklist cards not found in card-pool.tsv by (set, number). 84 entries: 84 matched by name, 0 not in pool.
 # columns: SET NUMBER	name	resolution
-MEG 119	Lillie's Determination	NAME-MATCH other set -> ASC 192
-MEG 131	Ultra Ball	NAME-MATCH other set -> 30C 128
 MEG 114	Boss's Orders	NAME-MATCH other set -> ASC 183
+MEG 131	Ultra Ball	NAME-MATCH other set -> 30C 128
+MEG 119	Lillie's Determination	NAME-MATCH other set -> ASC 192
 POR 81	Poké Pad	NAME-MATCH other set -> 30C 126
+MEE 13	Psychic Energy	NAME-MATCH other set -> MEE 5
 TEF 144	Buddy-Buddy Poffin	NAME-MATCH other set -> ASC 184
-MEE 13	Psychic Energy	NAME-MATCH same set -> MEE 5
-TWM 95	Munkidori	NAME-MATCH other set -> ASC 99
-MEE 15	Darkness Energy	NAME-MATCH same set -> MEE 7
 SCR 133	Crispin	NAME-MATCH other set -> PRE 105
+TWM 95	Munkidori	NAME-MATCH other set -> ASC 99
+MEE 15	Darkness Energy	NAME-MATCH other set -> MEE 7
 TEF 129	Dudunsparce	NAME-MATCH other set -> PRE 80
-MEE 10	Fire Energy	NAME-MATCH same set -> MEE 2
+MEE 10	Fire Energy	NAME-MATCH other set -> MEE 2
 TWM 128	Dreepy	NAME-MATCH other set -> ASC 158
 TWM 129	Drakloak	NAME-MATCH other set -> ASC 159
 TWM 130	Dragapult ex	NAME-MATCH other set -> ASC 160
 POR 71	Crushing Hammer	NAME-MATCH other set -> PBL 105
 MEG 130	Switch	NAME-MATCH other set -> 30C 127
-MEE 9	Grass Energy	NAME-MATCH same set -> MEE 1
+MEE 9	Grass Energy	NAME-MATCH other set -> MEE 1
 JTG 56	Lillie's Clefairy ex	NAME-MATCH other set -> ASC 76
 TEF 145	Ciphermaniac's Codebreaking	NAME-MATCH other set -> PRE 104
-TEF 157	Prime Catcher	NAME-MATCH other set -> PRE 119
+MEE 14	Fighting Energy	NAME-MATCH other set -> MEE 6
 TWM 25	Teal Mask Ogerpon ex	NAME-MATCH other set -> PRE 12
 MEG 115	Energy Switch	NAME-MATCH other set -> PBL 107
-TWM 64	Wellspring Mask Ogerpon ex	NAME-MATCH other set -> PRE 27
-TEF 25	Iron Leaves ex	NAME-MATCH other set -> PRE 176
-SCR 131	Area Zero Underdepths	NAME-MATCH other set -> PRE 94
-TWM 143	Bug Catching Set	NAME-MATCH other set -> PRE 102
-ASC 212	Tool Scrapper	NAME-MATCH other set -> CRI 115
+TEF 157	Prime Catcher	NAME-MATCH other set -> PRE 119
 DRI 176	Team Rocket's Petrel	NAME-MATCH other set -> ASC 207
-SCR 132	Briar	NAME-MATCH other set -> PRE 100
-SVP 149	Pecharunt	NAME-MATCH same set -> SVP 129
-JTG 143	Black Belt's Training	NAME-MATCH other set -> ASC 255
-DRI 168	Sacred Ash	NAME-MATCH other set -> POR 115
+TEF 25	Iron Leaves ex	NAME-MATCH other set -> PRE 176
+TWM 64	Wellspring Mask Ogerpon ex	NAME-MATCH other set -> PRE 27
+SCR 131	Area Zero Underdepths	NAME-MATCH other set -> PRE 94
+MEE 11	Water Energy	NAME-MATCH other set -> MEE 3
+TEF 123	Raging Bolt ex	NAME-MATCH other set -> PRE 166
+SCR 135	Glass Trumpet	NAME-MATCH other set -> ASC 189
+MEE 12	Lightning Energy	NAME-MATCH other set -> MEE 4
+TWM 149	Festival Grounds	NAME-MATCH other set -> PRE 108
+TEF 81	Iron Crown ex	NAME-MATCH other set -> PRE 158
 SFA 39	Pecharunt ex	NAME-MATCH other set -> PRE 163
-DRI 180	Team Rocket's Watchtower	NAME-MATCH other set -> ASC 210
 TWM 154	Kieran	NAME-MATCH other set -> PRE 113
 JTG 97	N's Zorua	NAME-MATCH other set -> ASC 136
 JTG 98	N's Zoroark ex	NAME-MATCH other set -> ASC 137
-MEG 113	Acerola's Mischief	NAME-MATCH other set -> ASC 180
+JTG 26	N's Darumaka	NAME-MATCH other set -> ASC 32
+JTG 27	N's Darmanitan	NAME-MATCH other set -> ASC 33
+JTG 143	Black Belt's Training	NAME-MATCH other set -> ASC 255
 JTG 153	N's PP Up	NAME-MATCH other set -> ASC 195
-TWM 149	Festival Grounds	NAME-MATCH other set -> PRE 108
-WHT 80	Brave Bangle	NAME-MATCH other set -> PBL 104
 PFL 94	Wondrous Patch	NAME-MATCH other set -> POR 117
-TWM 18	Dipplin	NAME-MATCH other set -> PRE 10, SCR 13
+DRI 168	Sacred Ash	NAME-MATCH other set -> POR 115
+TWM 18	Dipplin	NAME-MATCH other set -> PRE 10
 MEG 117	Forest of Vitality	NAME-MATCH other set -> POR 109
 PFL 91	Jumbo Ice Cream	NAME-MATCH other set -> CRI 109
-MEE 14	Fighting Energy	NAME-MATCH same set -> MEE 6
-DRI 173	Team Rocket's Factory	NAME-MATCH other set -> ASC 203
-TWM 44	Goldeen	NAME-MATCH other set -> PRE 20, PBL 13
+WHT 80	Brave Bangle	NAME-MATCH other set -> PBL 104
+TWM 44	Goldeen	NAME-MATCH other set -> PRE 20
+ASC 212	Tool Scrapper	NAME-MATCH other set -> CRI 115
 SVI 186	Pokégear 3.0	NAME-MATCH other set -> BLK 84
+DRI 173	Team Rocket's Factory	NAME-MATCH other set -> ASC 203
 DRI 164	Energy Recycler	NAME-MATCH other set -> POR 108
-MEE 16	Metal Energy	NAME-MATCH same set -> MEE 8
+MEE 16	Metal Energy	NAME-MATCH other set -> MEE 8
 TEF 146	Eri	NAME-MATCH other set -> PRE 136
 MEG 116	Fighting Gong	NAME-MATCH other set -> ASC 187
 MEG 124	Premium Power Pro	NAME-MATCH other set -> ASC 199
 TWM 141	Bloodmoon Ursaluna ex	NAME-MATCH other set -> PRE 168
-MEE 11	Water Energy	NAME-MATCH same set -> MEE 3
+TWM 143	Bug Catching Set	NAME-MATCH other set -> PRE 102
+TEF 147	Explorer's Guidance	NAME-MATCH other set -> PRE 107
 SCR 14	Hydrapple ex	NAME-MATCH other set -> PRE 11
-SCR 115	Noctowl	NAME-MATCH other set -> PRE 78
-MEG 76	Riolu	NAME-MATCH other set -> ASC 112, SCR 81, PRE 50
+SCR 132	Briar	NAME-MATCH other set -> PRE 100
+MEG 76	Riolu	NAME-MATCH other set -> ASC 112
 MEG 77	Mega Lucario ex	NAME-MATCH other set -> ASC 113
 MEG 75	Solrock	NAME-MATCH other set -> ASC 106
 MEG 74	Lunatone	NAME-MATCH other set -> ASC 105
-DRI 178	Team Rocket's Transceiver	NAME-MATCH other set -> ASC 209
 DRI 171	Team Rocket's Ariana	NAME-MATCH other set -> ASC 202
 DRI 177	Team Rocket's Proton	NAME-MATCH other set -> ASC 208
 DRI 174	Team Rocket's Giovanni	NAME-MATCH other set -> ASC 204
+DRI 178	Team Rocket's Transceiver	NAME-MATCH other set -> ASC 209
 DRI 182	Team Rocket's Energy	NAME-MATCH other set -> ASC 217
-TEF 123	Raging Bolt ex	NAME-MATCH other set -> PRE 166
-M6 62	Talonflame ex	NOT IN POOL (decks=1, weighted=1.22)
-M6 69	Zinnia's Trust	NOT IN POOL (decks=1, weighted=1.22)
-SCR 135	Glass Trumpet	NAME-MATCH other set -> ASC 189
-SVI 171	Energy Retrieval	NAME-MATCH other set -> CRI 108
-MEE 12	Lightning Energy	NAME-MATCH same set -> MEE 4
+DRI 180	Team Rocket's Watchtower	NAME-MATCH other set -> ASC 210
 DRI 136	Marnie's Grimmsnarl ex	NAME-MATCH other set -> ASC 287
 DRI 127	Team Rocket's Murkrow	NAME-MATCH other set -> ASC 126
 DRI 170	Team Rocket's Archer	NAME-MATCH other set -> ASC 201
@@ -81,8 +79,8 @@ DRI 102	Cynthia's Gible	NAME-MATCH other set -> ASC 109
 DRI 103	Cynthia's Gabite	NAME-MATCH other set -> ASC 110
 DRI 104	Cynthia's Garchomp ex	NAME-MATCH other set -> ASC 111
 DRI 129	Cynthia's Spiritomb	NAME-MATCH other set -> ASC 133
+SVP 149	Pecharunt	NAME-MATCH other set -> SVP 129
 DRI 19	Team Rocket's Tarountula	NAME-MATCH other set -> ASC 18
 DRI 20	Team Rocket's Spidops	NAME-MATCH other set -> ASC 19
 DRI 81	Team Rocket's Mewtwo ex	NAME-MATCH other set -> ASC 79
 DRI 87	Team Rocket's Mimikyu	NAME-MATCH other set -> ASC 97
-TEF 154	Maximum Belt	NAME-MATCH other set -> PRE 117
