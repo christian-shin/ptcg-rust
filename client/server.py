@@ -78,7 +78,7 @@ def make_handler(app):
                 if u.path == "/api/decks":
                     return self._send(200, {"decks": game.list_decks(), "bots": sorted(POLICIES)})
                 if u.path == "/api/deck":
-                    return self._send(200, {"cards": game.deck_listing(q["id"][0])})
+                    return self._send(200, {"cards": game.deck_listing(q["id"][0], app.cards)})
                 if u.path == "/api/state":
                     with app.lock:
                         return self._send(200, app.state(int(q.get("log", ["0"])[0])))
