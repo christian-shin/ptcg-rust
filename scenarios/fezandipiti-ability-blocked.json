@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Fezandipiti PRE 45",
+   "4 Darkness Energy MEE 7",
+   "4 Duraludon PRE 69",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Fezandipiti PRE 45",
+   "4 Darkness Energy MEE 7",
+   "4 Duraludon PRE 69",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hex Hurl"
+  }
+ ]
+}

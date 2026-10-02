@@ -1,0 +1,27 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Explorer's Guidance PRE 107",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Explorer's Guidance PRE 107",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Explorer's Guidance PRE 107"
+  ],
+  "supporter_played": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

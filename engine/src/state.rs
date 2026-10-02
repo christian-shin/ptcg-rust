@@ -282,6 +282,10 @@ pub struct CardInst {
     /// `this.attacks[i].canUseOnFirstTurn = true` written at runtime (Meloetta ex);
     /// bit i = attack i. Card-object state: never reset, canonical `cards[...].attacks`.
     pub attack_first_turn: u8,
+    /// `this.attacks[i].shredAttack = true` written at runtime (Walking Wake ex's
+    /// Azure Wave); bit i = attack i. Card-object state: never reset, canonical
+    /// `cards[...].attacks` (a `shredAttack` key).
+    pub attack_shred: u8,
     /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
     /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
     pub evolves_from_base: Option<&'static [&'static str]>,
@@ -294,7 +298,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0 }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0, attack_shred: 0 }
     }
 }
 
@@ -338,6 +342,8 @@ pub struct Player {
     pub pokemon_knocked_out_last_turn_entries: SVec<DefId, 8>,
     pub can_evolve: bool,
     pub ancient_pokemon_attacked_last_turn: bool,
+    /// `Player.ancientSupporter` (Explorer's Guidance / Professor Sada's Vitality).
+    pub ancient_supporter: bool,
     pub cannot_play_item_cards: bool,
     pub cannot_play_supporter_cards: bool,
     pub cannot_play_stadium_cards: bool,
@@ -412,6 +418,7 @@ impl Player {
             pokemon_knocked_out_last_turn_entries: SVec::new(),
             can_evolve: false,
             ancient_pokemon_attacked_last_turn: false,
+            ancient_supporter: false,
             cannot_play_item_cards: false,
             cannot_play_supporter_cards: false,
             cannot_play_stadium_cards: false,

@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "1 Scoop Up Cyclone PRE 128",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "1 Scoop Up Cyclone PRE 128",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "active_damage": 30,
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "energy": [
+     "Metal Energy MEE 8"
+    ]
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "hand": [
+   "Scoop Up Cyclone PRE 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

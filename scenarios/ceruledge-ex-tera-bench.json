@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Darmanitan ASC 33",
+   "4 N's Darumaka ASC 32",
+   "4 Ceruledge ex PRE 147",
+   "4 Charcadet SCR 29",
+   "4 Duraludon PRE 69",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 N's Darmanitan ASC 33",
+   "4 N's Darumaka ASC 32",
+   "4 Ceruledge ex PRE 147",
+   "4 Charcadet SCR 29",
+   "4 Duraludon PRE 69",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Darumaka ASC 32",
+   "N's Darmanitan ASC 33"
+  ],
+  "active_energy": [
+   "2 Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": [
+     "Charcadet SCR 29",
+     "Ceruledge ex PRE 147"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Darman-i-cannon"
+  }
+ ]
+}

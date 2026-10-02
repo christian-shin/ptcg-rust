@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Terapagos ex ASC 179",
+   "1 Sparkling Crystal PRE 129",
+   "4 Prism Energy ASC 216",
+   "4 Duraludon PRE 69",
+   "47 Grass Energy MEE 1"
+  ],
+  [
+   "4 Terapagos ex ASC 179",
+   "1 Sparkling Crystal PRE 129",
+   "4 Prism Energy ASC 216",
+   "4 Duraludon PRE 69",
+   "47 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "active_tool": "Sparkling Crystal PRE 129",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Prism Energy ASC 216"
+  ],
+  "hand": []
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

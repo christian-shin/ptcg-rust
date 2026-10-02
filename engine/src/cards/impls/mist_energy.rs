@@ -45,6 +45,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::COIN_FLIP_CANCEL_TRAINER_PLAY,
         k::RETALIATE_ON_DAMAGE,
         k::RETALIATE_DAMAGE,
+        k::MOVE_COUNTERS,
     ]),
     reduce,
     resume: None,

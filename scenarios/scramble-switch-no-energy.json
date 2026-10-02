@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "1 Scramble Switch SSP 186",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "1 Scramble Switch SSP 186",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "hand": [
+   "Scramble Switch SSP 186"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

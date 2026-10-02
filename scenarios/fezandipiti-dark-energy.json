@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fezandipiti PRE 45",
+   "4 Duraludon PRE 69",
+   "4 Darkness Energy MEE 7",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Fezandipiti PRE 45",
+   "4 Duraludon PRE 69",
+   "4 Darkness Energy MEE 7",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hammer In"
+  }
+ ]
+}

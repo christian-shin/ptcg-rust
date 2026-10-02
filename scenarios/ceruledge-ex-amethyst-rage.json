@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ceruledge ex PRE 147",
+   "4 Charcadet SCR 29",
+   "4 Pikachu ex ASC 57",
+   "4 Psychic Energy MEE 5",
+   "4 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ceruledge ex PRE 147",
+   "4 Charcadet SCR 29",
+   "4 Pikachu ex ASC 57",
+   "4 Psychic Energy MEE 5",
+   "4 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charcadet SCR 29",
+   "Ceruledge ex PRE 147"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Amethyst Rage"
+  }
+ ]
+}

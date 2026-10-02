@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cofagrigus WHT 40",
+   "4 Yamask PLF 55",
+   "4 Patrat CRI 70",
+   "4 Duraludon PRE 69",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Cofagrigus WHT 40",
+   "4 Yamask PLF 55",
+   "4 Patrat CRI 70",
+   "4 Duraludon PRE 69",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Yamask PLF 55",
+   "Cofagrigus WHT 40"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "damage": 50
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Patrat CRI 70"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Extended Damagriiigus"
+  }
+ ]
+}

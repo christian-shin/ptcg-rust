@@ -44,6 +44,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN,
         k::RETALIATE_ON_DAMAGE,
         k::RETALIATE_DAMAGE,
+        k::MOVE_COUNTERS,
     ]),
     reduce,
     resume: Some(resume),
