@@ -352,6 +352,27 @@ scenarios/<file>.json - <International key> (<Twinleaf fullName> if different)
 If a scenario failed to cover its target, list it anyway, with the result and
 what you think is missing.
 
+### Notes from batch b17
+
+* `check_cards.py` builds one deck holding every target (up to 4 copies each),
+  so more than about 12 distinct targets in one run give `INVALID DECK` games
+  that test nothing. Run supporters and tools as separate groups (<= 9 targets).
+* Scenario decks: a Special Energy such as Legacy Energy TWM is an ACE SPEC (one
+  per deck); use Mist Energy TEF for a plain Special Energy. `answers` cannot name a
+  card id (ids depend on the shuffle), so a branch behind "play this Supporter" relies
+  on the policy playing it; keep the hand small so it is the only play.
+* Coverage counts statements run by legality trials too: a `throw` guard such as
+  `CANNOT_PLAY_THIS_CARD` or `SUPPORTER_ALREADY_PLAYED` is reached whenever the card
+  is in hand with the guarded board (no need to play it). A second Supporter in the
+  hand after the first was played reaches `SUPPORTER_ALREADY_PLAYED`.
+* Coin re-flip cards: `ATTACK_COIN_REFLIP_REDUCE_EFFECT` is ported in
+  `backtrack_badge.rs` (single flip and sequence). A sequence is wrapped by running
+  the default `CoinFlipSequence` with a `CoinCb::SequenceCard` of the card; the
+  final step of a sequence is `Game::finish_coin_sequence`.
+* "Knocked Out during your opponent's last turn" scenarios: copy
+  `scenarios/hassel-ko-previous-turn.json` (scripted `pass`, opponent attack, prize
+  and new-Active answers) and put the needed hand in `me.hand`.
+
 ## Rules
 
 * Do not modify the Twinleaf checkout. If a card can't be verified because of
