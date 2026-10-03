@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Festival Grounds PRE 108",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Festival Grounds PRE 108",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "stadium": "Festival Grounds PRE 108",
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "active_conditions": [
+   "POISONED",
+   "BURNED"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "energy": [
+     "Metal Energy MEE 8"
+    ],
+    "conditions": [
+     "POISONED"
+    ]
+   },
+   {
+    "card": "Duraludon PRE 69",
+    "conditions": [
+     "POISONED"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "active_conditions": [
+   "CONFUSED"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "energy": [
+     "Metal Energy MEE 8"
+    ],
+    "conditions": [
+     "BURNED"
+    ]
+   }
+  ]
+ }
+}

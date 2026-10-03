@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "4 Duraludon PRE 69",
+   "4 Fezandipiti ex ASC 142",
+   "4 Terapagos ex ASC 179",
+   "4 Hop's Snorlax JTG 117",
+   "16 Darkness Energy MEE 7",
+   "16 Metal Energy MEE 8"
+  ],
+  [
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "4 Duraludon PRE 69",
+   "4 Fezandipiti ex ASC 142",
+   "4 Terapagos ex ASC 179",
+   "4 Hop's Snorlax JTG 117",
+   "16 Darkness Energy MEE 7",
+   "16 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_damage": 120,
+  "bench": [
+   {
+    "card": [
+     "Gastly ASC 123",
+     "Haunter ASC 124",
+     "Mega Gengar ex ASC 125"
+    ]
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Unified Beatdown"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

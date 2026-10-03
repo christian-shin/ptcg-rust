@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Leaves ex PRE 176",
+   "4 Duraludon PRE 69",
+   "26 Grass Energy MEE 1",
+   "26 Metal Energy MEE 8"
+  ],
+  [
+   "4 Iron Leaves ex PRE 176",
+   "4 Duraludon PRE 69",
+   "26 Grass Energy MEE 1",
+   "26 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Iron Leaves ex PRE 176"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

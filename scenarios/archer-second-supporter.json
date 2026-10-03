@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Archer ASC 201",
+   "4 Team Rocket's Proton ASC 208",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Crispin PRE 105",
+   "4 Duraludon PRE 69",
+   "4 Black Belt's Training ASC 255",
+   "16 Fire Energy MEE 2",
+   "16 Metal Energy MEE 8"
+  ],
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Archer ASC 201",
+   "4 Team Rocket's Proton ASC 208",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Crispin PRE 105",
+   "4 Duraludon PRE 69",
+   "4 Black Belt's Training ASC 255",
+   "16 Fire Energy MEE 2",
+   "16 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37",
+  "active_damage": 60,
+  "bench": [
+   {
+    "card": "Team Rocket's Houndour DRI 37"
+   }
+  ],
+  "hand": [
+   "Team Rocket's Archer ASC 201",
+   "Team Rocket's Proton ASC 208",
+   "Team Rocket's Giovanni ASC 204",
+   "Crispin PRE 105"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Hammer In"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

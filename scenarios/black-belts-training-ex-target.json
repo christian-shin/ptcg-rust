@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Black Belt's Training ASC 255",
+   "4 Iron Thorns ex PRE 32",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Black Belt's Training ASC 255",
+   "4 Iron Thorns ex PRE 32",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "hand": [
+   "Black Belt's Training ASC 255"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32"
+ }
+}

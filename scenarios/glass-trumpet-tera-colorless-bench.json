@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Terapagos ex ASC 179",
+   "4 Glass Trumpet ASC 189",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE 5",
+   "24 Metal Energy MEE 8"
+  ],
+  [
+   "4 Terapagos ex ASC 179",
+   "4 Glass Trumpet ASC 189",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE 5",
+   "24 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "bench": [
+   {
+    "card": "Terapagos ex ASC 179"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Terapagos ex ASC 179"
+   }
+  ],
+  "hand": [
+   "Glass Trumpet ASC 189"
+  ],
+  "discard": [
+   "4 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}
