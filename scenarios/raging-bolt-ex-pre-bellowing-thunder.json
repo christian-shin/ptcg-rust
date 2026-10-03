@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Raging Bolt ex PRE 166",
+   "28 Lightning Energy MEE 4",
+   "28 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Raging Bolt ex PRE 166",
+   "28 Lightning Energy MEE 4",
+   "28 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166",
+  "active_energy": [
+   "3 Lightning Energy MEE 4",
+   "2 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Raging Bolt ex PRE 166",
+    "energy": [
+     "2 Lightning Energy MEE 4"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bellowing Thunder"
+  }
+ ]
+}

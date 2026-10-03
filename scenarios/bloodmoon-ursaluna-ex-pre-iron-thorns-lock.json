@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bloodmoon Ursaluna ex PRE 168",
+   "4 Iron Thorns ex PRE 32",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Bloodmoon Ursaluna ex PRE 168",
+   "4 Iron Thorns ex PRE 32",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bloodmoon Ursaluna ex PRE 168",
+  "active_energy": [
+   "5 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ }
+}

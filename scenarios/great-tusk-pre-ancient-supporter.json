@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Great Tusk PRE 55",
+   "4 Explorer's Guidance PRE 107",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Great Tusk PRE 55",
+   "4 Explorer's Guidance PRE 107",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Great Tusk PRE 55",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "hand": [
+   "Explorer's Guidance PRE 107"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Great Tusk PRE 55"
+ }
+}

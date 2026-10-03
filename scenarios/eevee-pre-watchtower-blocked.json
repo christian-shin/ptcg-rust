@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Team Rocket's Watchtower ASC 210",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Team Rocket's Watchtower ASC 210",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee PRE 74",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee PRE 74"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reckless Charge"
+  }
+ ]
+}

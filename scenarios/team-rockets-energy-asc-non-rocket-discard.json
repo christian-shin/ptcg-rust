@@ -1,0 +1,26 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Energy ASC 217",
+   "4 Hop's Wooloo JTG 135",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Energy ASC 217",
+   "4 Hop's Wooloo JTG 135",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135",
+  "active_energy": [
+   "Team Rocket's Energy ASC 217"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135"
+ }
+}
