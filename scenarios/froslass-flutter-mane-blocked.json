@@ -1,0 +1,43 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Snorunt TWM 51",
+      "4 Froslass TWM 53",
+      "4 Flutter Mane PRE 43",
+      "4 Hop's Snorlax JTG 117",
+      "20 Water Energy MEE",
+      "24 Psychic Energy MEE"
+    ],
+    [
+      "4 Snorunt TWM 51",
+      "4 Froslass TWM 53",
+      "4 Flutter Mane PRE 43",
+      "4 Hop's Snorlax JTG 117",
+      "20 Water Energy MEE",
+      "24 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Snorunt TWM 51",
+      "Froslass TWM 53"
+    ],
+    "active_energy": [
+      "2 Water Energy MEE"
+    ],
+    "bench": [
+      {
+        "card": "Hop's Snorlax JTG 117"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Flutter Mane PRE 43",
+    "active_energy": [
+      "3 Psychic Energy MEE"
+    ]
+  }
+}

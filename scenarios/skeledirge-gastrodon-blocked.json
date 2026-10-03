@@ -1,0 +1,56 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Fuecoco SSP 29",
+      "4 Crocalor SVP",
+      "4 Skeledirge SSP 31",
+      "4 Gastrodon SSP 107",
+      "4 Marnie's Grimmsnarl ex ASC 287",
+      "4 Hop's Snorlax JTG 117",
+      "18 Fire Energy MEE",
+      "18 Darkness Energy MEE"
+    ],
+    [
+      "4 Fuecoco SSP 29",
+      "4 Crocalor SVP",
+      "4 Skeledirge SSP 31",
+      "4 Gastrodon SSP 107",
+      "4 Marnie's Grimmsnarl ex ASC 287",
+      "4 Hop's Snorlax JTG 117",
+      "18 Fire Energy MEE",
+      "18 Darkness Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Marnie's Grimmsnarl ex ASC 287",
+    "active_energy": [
+      "2 Darkness Energy MEE"
+    ],
+    "bench": [
+      {
+        "card": "Gastrodon SSP 107"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117",
+    "bench": [
+      {
+        "card": [
+          "Fuecoco SSP 29",
+          "Crocalor SVP",
+          "Skeledirge SSP 31"
+        ]
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Shadow Bullet"
+    }
+  ]
+}

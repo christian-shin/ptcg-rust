@@ -1,0 +1,37 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Charmander PFL 11",
+      "4 Charmeleon PFL 12",
+      "4 Flutter Mane PRE 43",
+      "4 Hop's Snorlax JTG 117",
+      "20 Fire Energy MEE",
+      "24 Psychic Energy MEE"
+    ],
+    [
+      "4 Charmander PFL 11",
+      "4 Charmeleon PFL 12",
+      "4 Flutter Mane PRE 43",
+      "4 Hop's Snorlax JTG 117",
+      "20 Fire Energy MEE",
+      "24 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Charmander PFL 11",
+    "bench": [
+      {
+        "card": "Hop's Snorlax JTG 117"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Flutter Mane PRE 43",
+    "active_energy": [
+      "3 Psychic Energy MEE"
+    ]
+  }
+}
