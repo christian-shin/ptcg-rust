@@ -1,0 +1,49 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Mankey SSP 98",
+      "4 Primeape M5",
+      "4 Annihilape PBL 41",
+      "4 Marnie's Grimmsnarl ex ASC 287",
+      "4 Gastrodon SSP 107",
+      "4 Hop's Snorlax JTG 117",
+      "18 Darkness Energy MEE",
+      "18 Psychic Energy MEE"
+    ],
+    [
+      "4 Mankey SSP 98",
+      "4 Primeape M5",
+      "4 Annihilape PBL 41",
+      "4 Marnie's Grimmsnarl ex ASC 287",
+      "4 Gastrodon SSP 107",
+      "4 Hop's Snorlax JTG 117",
+      "18 Darkness Energy MEE",
+      "18 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Marnie's Grimmsnarl ex ASC 287",
+    "active_energy": [
+      "2 Darkness Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": [
+      "Mankey SSP 98",
+      "Primeape M5",
+      "Annihilape PBL 41"
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Shadow Bullet"
+    }
+  ],
+  "coins": [
+    true
+  ]
+}
