@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Spikemuth Gym DRI 169",
+   "4 Marnie's Impidimp DRI 134",
+   "4 Marnie's Morgrem DRI 135",
+   "4 Duraludon PRE 69",
+   "44 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Spikemuth Gym DRI 169",
+   "4 Marnie's Impidimp DRI 134",
+   "4 Marnie's Morgrem DRI 135",
+   "4 Duraludon PRE 69",
+   "44 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "stadium": "Spikemuth Gym DRI 169"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

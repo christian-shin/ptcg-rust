@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chikorita ASC 8",
+   "4 Fezandipiti PRE 45",
+   "4 Charcadet PFL 19",
+   "4 Boss's Orders ASC 183",
+   "4 Darkness Energy MEE 7",
+   "4 Fire Energy MEE 2",
+   "36 Metal Energy MEE 8"
+  ],
+  [
+   "4 Chikorita ASC 8",
+   "4 Fezandipiti PRE 45",
+   "4 Charcadet PFL 19",
+   "4 Boss's Orders ASC 183",
+   "4 Darkness Energy MEE 7",
+   "4 Fire Energy MEE 2",
+   "36 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chikorita ASC 8",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Fezandipiti PRE 45",
+    "energy": [
+     "Darkness Energy MEE 7"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet PFL 19",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "hand": [
+   "Boss's Orders ASC 183"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Growl"
+  }
+ ]
+}

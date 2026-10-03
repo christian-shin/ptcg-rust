@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Latias ex SSP 76",
+   "4 Psyduck ASC 39",
+   "4 Golduck ASC 40",
+   "4 Iron Thorns ex PRE 32",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Latias ex SSP 76",
+   "4 Psyduck ASC 39",
+   "4 Golduck ASC 40",
+   "4 Iron Thorns ex PRE 32",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Psyduck ASC 39",
+  "bench": [
+   {
+    "card": "Latias ex SSP 76"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Psyduck ASC 39"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  }
+ ]
+}

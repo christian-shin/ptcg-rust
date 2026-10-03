@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fezandipiti PRE 45",
+   "4 Duraludon PRE 69",
+   "4 Darkness Energy MEE 7",
+   "4 Psychic Energy MEE 5",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Fezandipiti PRE 45",
+   "4 Duraludon PRE 69",
+   "4 Darkness Energy MEE 7",
+   "4 Psychic Energy MEE 5",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energy Feather"
+  }
+ ]
+}

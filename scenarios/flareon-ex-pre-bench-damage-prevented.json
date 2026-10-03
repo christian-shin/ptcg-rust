@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Marnie's Impidimp DRI 134",
+   "4 Marnie's Morgrem DRI 135",
+   "4 Marnie's Grimmsnarl ex ASC 287",
+   "4 Eevee SFA 50",
+   "4 Flareon ex PRE 14",
+   "40 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Marnie's Impidimp DRI 134",
+   "4 Marnie's Morgrem DRI 135",
+   "4 Marnie's Grimmsnarl ex ASC 287",
+   "4 Eevee SFA 50",
+   "4 Flareon ex PRE 14",
+   "40 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Marnie's Impidimp DRI 134",
+   "Marnie's Morgrem DRI 135",
+   "Marnie's Grimmsnarl ex ASC 287"
+  ],
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee SFA 50",
+  "bench": [
+   {
+    "card": [
+     "Eevee SFA 50",
+     "Flareon ex PRE 14"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shadow Bullet"
+  }
+ ]
+}
