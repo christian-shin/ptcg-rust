@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duskull PRE 35",
+   "56 Psychic Energy MEE"
+  ],
+  [
+   "4 Duskull PRE 35",
+   "56 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duskull PRE 35",
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "hand": [
+   "Duskull PRE 35"
+  ],
+  "discard": [
+   "2 Duskull PRE 35"
+  ],
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duskull PRE 35"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Come and Get You"
+  }
+ ]
+}

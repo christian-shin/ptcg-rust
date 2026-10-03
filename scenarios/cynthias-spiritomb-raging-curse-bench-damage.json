@@ -1,0 +1,21 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Cynthia's Spiritomb ASC 133", "4 Cynthia's Gible ASC", "52 Darkness Energy MEE"],
+    ["4 Cynthia's Spiritomb ASC 133", "4 Cynthia's Gible ASC", "52 Darkness Energy MEE"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Cynthia's Spiritomb ASC 133",
+    "active_energy": ["Darkness Energy MEE"],
+    "bench": [
+      {"card": "Cynthia's Gible ASC", "damage": 30},
+      {"card": "Cynthia's Gible ASC", "damage": 20}
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Cynthia's Spiritomb ASC 133"
+  },
+  "answers": [{"a": "attack", "name": "Raging Curse"}]
+}

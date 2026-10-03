@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fezandipiti ex ASC 142",
+   "56 Metal Energy MEE"
+  ],
+  [
+   "4 Fezandipiti ex ASC 142",
+   "56 Metal Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fezandipiti ex ASC 142",
+  "bench": [
+   {
+    "card": "Fezandipiti ex ASC 142"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fezandipiti ex ASC 142",
+  "active_damage": 200,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Fezandipiti ex ASC 142"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ]
+}
