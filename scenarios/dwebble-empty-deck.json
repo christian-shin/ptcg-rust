@@ -1,0 +1,32 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "hand": [],
+  "discard": [
+   "3 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "45 Grass Energy MEE 1"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11"
+ }
+}

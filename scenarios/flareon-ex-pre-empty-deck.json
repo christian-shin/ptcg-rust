@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee SFA 50",
+   "4 Flareon ex PRE 14",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Eevee SFA 50",
+   "4 Flareon ex PRE 14",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Eevee SFA 50",
+   "Flareon ex PRE 14"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "3 Eevee SFA 50",
+   "3 Flareon ex PRE 14",
+   "44 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Eevee SFA 50",
+   "Flareon ex PRE 14"
+  ]
+ }
+}

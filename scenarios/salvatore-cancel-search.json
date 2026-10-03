@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Psyduck ASC 39",
+   "4 Golduck ASC 40",
+   "4 Salvatore TEF 160",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Psyduck ASC 39",
+   "4 Golduck ASC 40",
+   "4 Salvatore TEF 160",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Psyduck ASC 39",
+  "bench": [
+   {
+    "card": "Psyduck ASC 39"
+   },
+   {
+    "card": "Psyduck ASC 39"
+   },
+   {
+    "card": "Psyduck ASC 39"
+   }
+  ],
+  "hand": [
+   "4 Salvatore TEF 160"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Psyduck ASC 39",
+  "bench": [
+   {
+    "card": "Psyduck ASC 39"
+   },
+   {
+    "card": "Psyduck ASC 39"
+   },
+   {
+    "card": "Psyduck ASC 39"
+   }
+  ],
+  "hand": [
+   "4 Salvatore TEF 160"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ }
+}

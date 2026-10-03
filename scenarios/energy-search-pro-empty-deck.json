@@ -1,0 +1,30 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "1 Energy Search Pro SSP 176",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "1 Energy Search Pro SSP 176",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Energy Search Pro SSP 176"
+  ],
+  "discard": [
+   "3 Duraludon PRE 69",
+   "49 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

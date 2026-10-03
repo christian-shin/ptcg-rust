@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Miraidon ex TEF 122",
+   "4 Duraludon PRE 69",
+   "4 Acerola's Mischief ASC 180",
+   "4 Boss's Orders ASC 183",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Miraidon ex TEF 122",
+   "4 Duraludon PRE 69",
+   "4 Acerola's Mischief ASC 180",
+   "4 Boss's Orders ASC 183",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Boss's Orders ASC 183",
+   "Acerola's Mischief ASC 180"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "prizes_left": 2
+ }
+}

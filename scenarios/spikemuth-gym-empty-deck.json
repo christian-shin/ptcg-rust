@@ -1,0 +1,30 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Spikemuth Gym DRI 169",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Spikemuth Gym DRI 169",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [],
+  "discard": [
+   "3 Duraludon PRE 69",
+   "3 Spikemuth Gym DRI 169",
+   "46 Metal Energy MEE 8"
+  ],
+  "stadium": "Spikemuth Gym DRI 169"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

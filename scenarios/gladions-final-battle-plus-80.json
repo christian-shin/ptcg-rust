@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Gladion's Final Battle PBL 77",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Gladion's Final Battle PBL 77",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "hand": [
+   "Gladion's Final Battle PBL 77"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

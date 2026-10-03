@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Miraidon ex TEF 122",
+   "4 Duraludon PRE 69",
+   "4 Acerola's Mischief ASC 180",
+   "4 Lightning Energy MEE 4",
+   "4 Psychic Energy MEE 5",
+   "40 Metal Energy MEE 8"
+  ],
+  [
+   "4 Miraidon ex TEF 122",
+   "4 Duraludon PRE 69",
+   "4 Acerola's Mischief ASC 180",
+   "4 Lightning Energy MEE 4",
+   "4 Psychic Energy MEE 5",
+   "40 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Acerola's Mischief ASC 180"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Miraidon ex TEF 122",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "prizes_left": 2
+ }
+}

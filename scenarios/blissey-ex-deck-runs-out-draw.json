@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chansey TWM 133",
+   "4 Blissey ex TWM 134",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Chansey TWM 133",
+   "4 Blissey ex TWM 134",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Chansey TWM 133",
+   "Blissey ex TWM 134"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "hand": [
+   "Metal Energy MEE 8"
+  ],
+  "discard": [
+   "3 Chansey TWM 133",
+   "3 Blissey ex TWM 134",
+   "40 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Chansey TWM 133",
+   "Blissey ex TWM 134"
+  ]
+ }
+}

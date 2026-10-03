@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Minccino TEF 136",
+   "4 Sacred Charm PFL 93",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Minccino TEF 136",
+   "4 Sacred Charm PFL 93",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino TEF 136",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino TEF 136",
+  "active_tool": "Sacred Charm PFL 93",
+  "bench": [
+   {
+    "card": "Minccino TEF 136",
+    "tool": "Sacred Charm PFL 93"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Beat"
+  },
+  null
+ ]
+}

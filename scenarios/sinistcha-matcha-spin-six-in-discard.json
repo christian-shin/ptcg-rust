@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Poltchageist PBL 5",
+   "4 Sinistcha PBL 6",
+   "4 Shuppet PBL 33",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Poltchageist PBL 5",
+   "4 Sinistcha PBL 6",
+   "4 Shuppet PBL 33",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Poltchageist PBL 5",
+   "Sinistcha PBL 6"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "discard": [
+   "3 Poltchageist PBL 5",
+   "3 Shuppet PBL 33"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Poltchageist PBL 5",
+  "bench": [
+   {
+    "card": "Shuppet PBL 33"
+   },
+   {
+    "card": "Shuppet PBL 33"
+   },
+   {
+    "card": "Poltchageist PBL 5"
+   }
+  ]
+ }
+}
