@@ -5,7 +5,7 @@
 //! Twinleaf: PREVENT_DAMAGE with `{ sourceStage: BASIC }`.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Archaludon", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Archaludon@Archaludon M2", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
