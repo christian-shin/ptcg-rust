@@ -24,8 +24,8 @@
   "twinleaf": "Lillie's Pearl JTG"
  },
  "Rosa's Encouragement POR 84": {
-  "status": "partial",
-  "note": "attach loop unreachable (Twinleaf filter quirk)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: attach loop unreachable (Twinleaf filter quirk)",
   "twinleaf": "Rosa's Encouragement M3"
  },
  "Moltres PFL 14": {
@@ -66,8 +66,8 @@
   "twinleaf": "Tatsugiri TWM"
  },
  "Acerola's Mischief ASC 180": {
-  "status": "partial",
-  "note": "played in 9 games; ex-prevention ~1",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: played in 9 games; ex-prevention ~1",
   "twinleaf": "Acerola's Mischief MEG"
  },
  "Paldean Tauros SSP 18": {
@@ -87,8 +87,8 @@
   "twinleaf": "Mega Kangaskhan ex M1S"
  },
  "Latias ex SSP 76": {
-  "status": "partial",
-  "note": "retreat branch ~5 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: retreat branch ~5 games",
   "twinleaf": "Latias ex SSP"
  },
  "Slowpoke SCR 57": {
@@ -132,8 +132,8 @@
   "twinleaf": "Academy at Night SFA"
  },
  "Annihilape PBL 41": {
-  "status": "partial",
-  "note": "no Mankey/Primeape in pool; only reachable via Slowking copy",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: no Mankey/Primeape in pool; only reachable via Slowking copy",
   "twinleaf": "Annihilape M5"
  },
  "Applin TWM 126": {
@@ -165,8 +165,8 @@
   "twinleaf": "Lana's Aid TWM"
  },
  "Gladion's Final Battle PBL 77": {
-  "status": "partial",
-  "note": "+80 branch 2 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: +80 branch 2 games",
   "twinleaf": "Gladion's Decisive Battle M5"
  },
  "Bianca's Devotion TEF 142": {
@@ -182,8 +182,8 @@
   "twinleaf": "Drilbur M5"
  },
  "Dwebble DRI 11": {
-  "status": "partial",
-  "note": "empty-deck branch unreachable",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: empty-deck branch unreachable",
   "twinleaf": "Dwebble DRI"
  },
  "Genesect ex BLK 67": {
@@ -235,8 +235,8 @@
   "twinleaf": "Abra TWM"
  },
  "Alakazam MEG 56": {
-  "status": "partial",
-  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)",
   "twinleaf": "Alakazam M1S"
  },
  "Dawn PFL 87": {
@@ -252,8 +252,8 @@
   "twinleaf": "Hilda SV11W"
  },
  "Kadabra MEG 55": {
-  "status": "partial",
-  "note": "IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: IS_ABILITY_BLOCKED return unreachable (no ported Psychic ability blocker)",
   "twinleaf": "Kadabra M1S"
  },
  "Rare Candy MEG 125": {
@@ -281,8 +281,8 @@
   "twinleaf": "Dark Bell M5"
  },
  "Froslass TWM 53": {
-  "status": "partial",
-  "note": "ability-blocked return unreached",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: ability-blocked return unreached",
   "twinleaf": "Froslass TWM"
  },
  "Marnie's Impidimp DRI 134": {
@@ -294,13 +294,13 @@
   "twinleaf": "Mega Absol ex M1L"
  },
  "Mega Sharpedo ex PFL 61": {
-  "status": "partial",
-  "note": "Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0)",
   "twinleaf": "Mega Sharpedo ex M2"
  },
  "Spikemuth Gym DRI 169": {
-  "status": "partial",
-  "note": "empty-deck throw unreached",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: empty-deck throw unreached",
   "twinleaf": "Spikemuth Gym DRI"
  },
  "Toxel PFL 67": {
@@ -360,8 +360,8 @@
   "twinleaf": "Rich Energy SSP"
  },
  "Salvatore TEF 160": {
-  "status": "partial",
-  "note": "cancelled search 2 games; deck-empty throw 0",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: cancelled search 2 games; deck-empty throw 0",
   "twinleaf": "Salvatore TEF"
  },
  "Shuppet PBL 33": {
@@ -369,8 +369,8 @@
   "twinleaf": "Shuppet M5"
  },
  "Sinistcha PBL 6": {
-  "status": "partial",
-  "note": "4-counter spread branch 9 games (needs 6+ Hide 'n' Sneak in discard)",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: 4-counter spread branch 9 games (needs 6+ Hide 'n' Sneak in discard)",
   "twinleaf": "Sinistcha M5"
  },
  "Wally's Compassion MEG 132": {
@@ -434,8 +434,8 @@
   "twinleaf": "Roto-Stick PRE"
  },
  "Team Rocket's Articuno DRI 51": {
-  "status": "partial",
-  "note": "Dark Frost bonus unreachable (Twinleaf name mismatch)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: Dark Frost bonus unreachable (Twinleaf name mismatch)",
   "twinleaf": "Team Rocket's Articuno DRI"
  },
  "Team Rocket's Honchkrow ASC 127": {
@@ -459,8 +459,8 @@
   "twinleaf": "Cynthia's Roserade DRI"
  },
  "Energy Search Pro SSP 176": {
-  "status": "partial",
-  "note": "empty-deck throw 2 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: empty-deck throw 2 games",
   "twinleaf": "Energy Search Pro SSP"
  },
  "Enhanced Hammer TWM 148": {
@@ -476,8 +476,8 @@
   "twinleaf": "Love Ball TWM"
  },
  "Master Ball TEF 153": {
-  "status": "partial",
-  "note": "empty-deck throw 3 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: empty-deck throw 3 games",
   "twinleaf": "Master Ball TEF"
  },
  "Max Rod PRE 116": {
@@ -653,8 +653,8 @@
   "twinleaf": "Book of Transformation M4"
  },
  "Blissey ex TWM 134": {
-  "status": "partial",
-  "note": "deck runs out mid-draw 0 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: deck runs out mid-draw 0 games",
   "twinleaf": "Blissey ex TWM"
  },
  "Bouffalant SCR 119": {
@@ -722,8 +722,8 @@
   "twinleaf": "Minccino SSH"
  },
  "Minccino TEF 136": {
-  "status": "partial",
-  "note": "cancelled choice 0 games; multi-tool prompt unreached",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: cancelled choice 0 games; multi-tool prompt unreached",
   "twinleaf": "Minccino TEF"
  },
  "Patrat CRI 70": {
@@ -907,8 +907,8 @@
   "twinleaf": "Gastrodon SSP"
  },
  "Greninja ex TWM 106": {
-  "status": "partial",
-  "note": "Tera bench-damage prevent 3 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: Tera bench-damage prevent 3 games",
   "twinleaf": "Greninja ex TWM"
  },
  "Hisuian Arcanine TWM 100": {
@@ -1693,8 +1693,8 @@
   "twinleaf": "Mankey SSP"
  },
  "Yanmega ex DRI 3": {
-  "status": "partial",
-  "note": "batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable",
   "twinleaf": "Yanmega ex DRI"
  },
  "Zarude SSP 11": {
@@ -1938,8 +1938,8 @@
   "twinleaf": "Blaziken DRI"
  },
  "Blaziken ex JTG 24": {
-  "status": "partial",
-  "note": "batch b12; empty-transfers defensive branch uncovered",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b12; empty-transfers defensive branch uncovered",
   "twinleaf": "Blaziken ex JTG"
  },
  "Combusken DRI 41": {
@@ -1953,8 +1953,8 @@
   "twinleaf": "Torchic DRI"
  },
  "Victini SSP 21": {
-  "status": "partial",
-  "note": "batch b12; ability-blocked return and empty source slot uncovered (unreachable with pool locks)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b12; ability-blocked return and empty source slot uncovered (unreachable with pool locks)",
   "twinleaf": "Victini SSP"
  },
  "Volcanion ex JTG 31": {
@@ -2073,8 +2073,8 @@
   "twinleaf": "Armarouge SSP"
  },
  "Ceruledge PFL 20": {
-  "status": "partial",
-  "note": "batch b11; \"not exactly 4 selected\" defensive branch",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b11; \"not exactly 4 selected\" defensive branch",
   "twinleaf": "Ceruledge M2"
  },
  "Ceruledge SSP 35": {
@@ -2088,18 +2088,18 @@
   "twinleaf": "Charcadet 2 SSP"
  },
  "Charcadet PFL 19": {
-  "status": "partial",
-  "note": "batch b11; empty-deck throw never ran",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b11; empty-deck throw never ran",
   "twinleaf": "Charcadet M2"
  },
  "Charmander PFL 11": {
-  "status": "partial",
-  "note": "batch b11; not-Charmander return and ability-blocked return unreachable",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b11; not-Charmander return and ability-blocked return unreachable",
   "twinleaf": "Charmander M2"
  },
  "Mega Charizard X ex PFL 13": {
-  "status": "partial",
-  "note": "batch b11; null prompt result return unreachable",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b11; null prompt result return unreachable",
   "twinleaf": "Mega Charizard X ex M2"
  },
  "Mega Charizard Y ex ASC 22": {
@@ -2108,8 +2108,8 @@
   "twinleaf": "Mega Charizard Y ex MC"
  },
  "Flareon ex PRE 14": {
-  "status": "partial",
-  "note": "batch b11; empty-deck return never ran",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b11; empty-deck return never ran",
   "twinleaf": "Flareon ex PRE"
  },
  "Ethan's Cyndaquil DRI 32": {
@@ -2133,8 +2133,8 @@
   "twinleaf": "Fuecoco SSP"
  },
  "Skeledirge SSP 31": {
-  "status": "partial",
-  "note": "batch b11; \"top Pokémon is not Skeledirge\" return unreachable; b13 completed its all-attack-effects mask (retaliation and 5 other kinds were missing)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b11; \"top Pokémon is not Skeledirge\" return unreachable; b13 completed its all-attack-effects mask (retaliation and 5 other kinds were missing)",
   "twinleaf": "Skeledirge SSP"
  },
  "Steven's Metang DRI 144": {
@@ -2163,13 +2163,13 @@
   "twinleaf": "Salamence ex JTG"
  },
  "Dragonair ASC 151": {
-  "status": "partial",
-  "note": "batch b08; ability-blocked return unreachable (no lock on [N] Stage 1)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b08; ability-blocked return unreachable (no lock on [N] Stage 1)",
   "twinleaf": "Dragonair M2a"
  },
  "Mega Dragonite ex ASC 152": {
-  "status": "partial",
-  "note": "batch b08; ability-blocked return 0/704 games",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch b08; ability-blocked return 0/704 games",
   "twinleaf": "Mega Dragonite ex M2a"
  },
  "Eternatus SSP 141": {
@@ -2933,8 +2933,8 @@
   "twinleaf": "Flutter Mane PRE"
  },
  "Fezandipiti PRE 45": {
-  "status": "partial",
-  "note": "batch c3 (Sonnet); branches `pokemonCard !== this || phase !== ATTACK` and `effect.damage <= 0` not reached",
+  "status": "verified",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch c3 (Sonnet); branches `pokemonCard !== this || phase !== ATTACK` and `effect.damage <= 0` not reached",
   "twinleaf": "Fezandipiti PRE"
  },
  "Iron Boulder PRE 46": {
@@ -3013,8 +3013,8 @@
   "twinleaf": "Cook TWM"
  },
  "Cofagrigus WHT 40": {
-  "status": "partial",
-  "note": "batch c3 (Sonnet); several returns unreachable/not reached (see porting/reports/c3.md)",
+  "status": "verified",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: batch c3 (Sonnet); several returns unreachable/not reached (see porting/reports/c3.md)",
   "twinleaf": "Cofagrigus WHT"
  },
  "N's Darmanitan ASC 33": {
