@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tool Scrapper CRI 115",
+   "4 Hop's Wooloo JTG 135",
+   "4 Hop's Choice Band JTG 148",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Tool Scrapper CRI 115",
+   "4 Hop's Wooloo JTG 135",
+   "4 Hop's Choice Band JTG 148",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135",
+  "active_tool": "Hop's Choice Band JTG 148",
+  "hand": [
+   "3 Tool Scrapper CRI 115"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Wooloo JTG 135",
+    "tool": "Hop's Choice Band JTG 148"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135",
+  "active_tool": "Hop's Choice Band JTG 148",
+  "bench": [
+   {
+    "card": "Hop's Wooloo JTG 135",
+    "tool": "Hop's Choice Band JTG 148"
+   }
+  ]
+ }
+}

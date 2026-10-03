@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "56 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "56 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "discard": [
+   "3 Team Rocket's Murkrow ASC 126",
+   "49 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Deceit"
+  }
+ ]
+}

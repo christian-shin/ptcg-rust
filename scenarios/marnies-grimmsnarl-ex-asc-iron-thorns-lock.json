@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Marnie's Impidimp DRI 134",
+   "4 Marnie's Morgrem DRI 135",
+   "4 Marnie's Grimmsnarl ex ASC 287",
+   "4 Iron Thorns ex PRE 32",
+   "44 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Marnie's Impidimp DRI 134",
+   "4 Marnie's Morgrem DRI 135",
+   "4 Marnie's Grimmsnarl ex ASC 287",
+   "4 Iron Thorns ex PRE 32",
+   "44 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Marnie's Impidimp DRI 134",
+   "Marnie's Morgrem DRI 135"
+  ],
+  "hand": [
+   "Marnie's Grimmsnarl ex ASC 287"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ }
+}

@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Buddy-Buddy Poffin ASC 184",
+   "4 Ciphermaniac's Codebreaking PRE 104",
+   "4 Mega Signal ASC 193",
+   "44 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Buddy-Buddy Poffin ASC 184",
+   "4 Ciphermaniac's Codebreaking PRE 104",
+   "4 Mega Signal ASC 193",
+   "44 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126",
+  "hand": [
+   "Ciphermaniac's Codebreaking PRE 104"
+  ],
+  "discard": [
+   "3 Team Rocket's Murkrow ASC 126",
+   "3 Buddy-Buddy Poffin ASC 184",
+   "3 Ciphermaniac's Codebreaking PRE 104",
+   "3 Mega Signal ASC 193",
+   "40 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126"
+ }
+}

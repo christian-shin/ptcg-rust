@@ -1,0 +1,35 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Forest of Vitality POR 109",
+   "4 Hop's Wooloo JTG 135",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Forest of Vitality POR 109",
+   "4 Hop's Wooloo JTG 135",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "hand": [
+   "2 Applin PRE 9",
+   "2 Dipplin PRE 10"
+  ],
+  "stadium": "Forest of Vitality POR 109"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135"
+ }
+}

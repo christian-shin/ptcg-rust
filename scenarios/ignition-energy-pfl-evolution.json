@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Wooloo JTG 135",
+   "4 Hop's Dubwool JTG 136",
+   "4 Ignition Energy PFL 124",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Wooloo JTG 135",
+   "4 Hop's Dubwool JTG 136",
+   "4 Ignition Energy PFL 124",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Hop's Wooloo JTG 135",
+   "Hop's Dubwool JTG 136"
+  ],
+  "active_energy": [
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135"
+ }
+}
