@@ -193,6 +193,14 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
             }
         }
     }
+    if let Some(n) = side["prizes_left"].as_u64() {
+        if n > 6 {
+            return Err("scenario: prizes_left out of range".into());
+        }
+        for i in n as u8..6 {
+            g.move_to(ListRef::Prize(pu, i), ListRef::Deck(pu), None);
+        }
+    }
     Ok(())
 }
 

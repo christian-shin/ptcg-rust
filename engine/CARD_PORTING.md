@@ -329,6 +329,7 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
   | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
   | `supporter_played`, `energy_attached`, `retreated`: `true` | This turn's flags |
+  | `prizes_left`: N | Applied last: Prizes N..5 go to the bottom of the deck, so the player has N Prize cards left (e.g. Briar needs the opponent at 2) |
 
   `conditions`: `PARALYZED`, `CONFUSED`, `ASLEEP`, `POISONED`, `BURNED`.
   `played`: `"earlier"` (default; can evolve, as if in play since an earlier
