@@ -1,0 +1,28 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Goldeen PRE 20",
+      "4 Festival Grounds PRE 108",
+      "4 Hop's Snorlax JTG 117",
+      "48 Water Energy MEE"
+    ],
+    [
+      "4 Goldeen PRE 20",
+      "4 Festival Grounds PRE 108",
+      "4 Hop's Snorlax JTG 117",
+      "48 Water Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Goldeen PRE 20",
+    "active_energy": [
+      "2 Water Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117"
+  }
+}

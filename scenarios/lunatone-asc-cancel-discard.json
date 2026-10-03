@@ -1,0 +1,48 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Lunatone ASC 105",
+      "4 Solrock ASC 106",
+      "4 Hop's Snorlax JTG 117",
+      "48 Fighting Energy MEE"
+    ],
+    [
+      "4 Lunatone ASC 105",
+      "4 Solrock ASC 106",
+      "4 Hop's Snorlax JTG 117",
+      "48 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Lunatone ASC 105",
+    "active_energy": [
+      "2 Fighting Energy MEE"
+    ],
+    "bench": [
+      {
+        "card": "Solrock ASC 106"
+      }
+    ],
+    "hand": [
+      "3 Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117"
+  },
+  "answers": [
+    {
+      "a": "ability",
+      "name": "Lunar Cycle",
+      "source": {
+        "player": 2,
+        "slot": 1,
+        "index": 0
+      }
+    },
+    null
+  ]
+}

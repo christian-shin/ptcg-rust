@@ -1,0 +1,36 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "1 Lunatone ASC 105",
+      "1 Solrock ASC 106",
+      "1 Hop's Snorlax JTG 117",
+      "57 Fighting Energy MEE"
+    ],
+    [
+      "1 Lunatone ASC 105",
+      "1 Solrock ASC 106",
+      "1 Hop's Snorlax JTG 117",
+      "57 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Lunatone ASC 105",
+    "bench": [
+      {
+        "card": "Solrock ASC 106"
+      }
+    ],
+    "hand": [
+      "Fighting Energy MEE"
+    ],
+    "discard": [
+      "51 Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117"
+  }
+}
