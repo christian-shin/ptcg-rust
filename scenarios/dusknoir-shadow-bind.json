@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Dusknoir PRE 37",
+   "4 Duraludon PRE 69",
+   "22 Psychic Energy MEE 5",
+   "22 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Dusknoir PRE 37",
+   "4 Duraludon PRE 69",
+   "22 Psychic Energy MEE 5",
+   "22 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Duskull PRE 35",
+   "Dusclops PRE 36",
+   "Dusknoir PRE 37"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ }
+}

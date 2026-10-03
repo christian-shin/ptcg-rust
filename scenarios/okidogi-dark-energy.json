@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Okidogi PRE 57",
+   "4 Duraludon PRE 69",
+   "26 Fighting Energy MEE 6",
+   "26 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Okidogi PRE 57",
+   "4 Duraludon PRE 69",
+   "26 Fighting Energy MEE 6",
+   "26 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Okidogi PRE 57",
+  "active_energy": [
+   "2 Fighting Energy MEE 6",
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

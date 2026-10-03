@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Proton ASC 208",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Proton ASC 208",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37",
+  "hand": [
+   "Team Rocket's Proton ASC 208"
+  ],
+  "discard": [
+   "3 Team Rocket's Houndour DRI 37",
+   "3 Team Rocket's Proton ASC 208",
+   "46 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37"
+ }
+}

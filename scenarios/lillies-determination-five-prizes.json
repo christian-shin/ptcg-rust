@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lillie's Determination ASC 192",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Lillie's Determination ASC 192",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "hand": [
+   "Lillie's Determination ASC 192"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_damage": 110,
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hammer In"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Wellspring Mask Ogerpon ex PRE 27",
+   "4 Duraludon PRE 69",
+   "26 Water Energy MEE 3",
+   "26 Metal Energy MEE 8"
+  ],
+  [
+   "4 Wellspring Mask Ogerpon ex PRE 27",
+   "4 Duraludon PRE 69",
+   "26 Water Energy MEE 3",
+   "26 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Wellspring Mask Ogerpon ex PRE 27",
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

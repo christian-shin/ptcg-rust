@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "4 Duraludon PRE 69",
+   "4 Fezandipiti ex ASC 142",
+   "4 Terapagos ex ASC 179",
+   "4 Hop's Snorlax JTG 117",
+   "16 Darkness Energy MEE 7",
+   "16 Metal Energy MEE 8"
+  ],
+  [
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "4 Duraludon PRE 69",
+   "4 Fezandipiti ex ASC 142",
+   "4 Terapagos ex ASC 179",
+   "4 Hop's Snorlax JTG 117",
+   "16 Darkness Energy MEE 7",
+   "16 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Gastly ASC 123",
+   "Haunter ASC 124",
+   "Mega Gengar ex ASC 125"
+  ],
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

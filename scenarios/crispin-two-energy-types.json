@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Crispin PRE 105",
+   "4 Duraludon PRE 69",
+   "4 Hop's Snorlax JTG 117",
+   "4 Okidogi PRE 57",
+   "4 Cynthia's Gible ASC 109",
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Terapagos ex ASC 179",
+   "4 N's Darumaka ASC 32",
+   "4 Dreepy ASC 158",
+   "4 Gastly ASC 123",
+   "4 Duskull PRE 35",
+   "4 Hop's Cramorant ASC 177",
+   "4 Riolu ASC 112",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "2 Pikachu ex ASC 57",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8"
+  ],
+  [
+   "4 Crispin PRE 105",
+   "4 Duraludon PRE 69",
+   "4 Hop's Snorlax JTG 117",
+   "4 Okidogi PRE 57",
+   "4 Cynthia's Gible ASC 109",
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Terapagos ex ASC 179",
+   "4 N's Darumaka ASC 32",
+   "4 Dreepy ASC 158",
+   "4 Gastly ASC 123",
+   "4 Duskull PRE 35",
+   "4 Hop's Cramorant ASC 177",
+   "4 Riolu ASC 112",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "2 Pikachu ex ASC 57",
+   "1 Psychic Energy MEE 5",
+   "1 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "hand": [
+   "Crispin PRE 105"
+  ],
+  "prizes": [
+   "Hop's Snorlax JTG 117",
+   "Hop's Snorlax JTG 117",
+   "Okidogi PRE 57",
+   "Okidogi PRE 57",
+   "Cynthia's Gible ASC 109",
+   "Cynthia's Gible ASC 109"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "prizes": [
+   "Hop's Snorlax JTG 117",
+   "Hop's Snorlax JTG 117",
+   "Okidogi PRE 57",
+   "Okidogi PRE 57",
+   "Cynthia's Gible ASC 109",
+   "Cynthia's Gible ASC 109"
+  ]
+ }
+}

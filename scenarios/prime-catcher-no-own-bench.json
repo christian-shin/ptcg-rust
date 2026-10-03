@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Prime Catcher PRE 119",
+   "4 Duraludon PRE 69",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "1 Prime Catcher PRE 119",
+   "4 Duraludon PRE 69",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Prime Catcher PRE 119"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ }
+}

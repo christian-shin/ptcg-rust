@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Duraludon PRE 69",
+   "24 Fire Energy MEE 2",
+   "24 Metal Energy MEE 8"
+  ],
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Duraludon PRE 69",
+   "24 Fire Energy MEE 2",
+   "24 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Houndour DRI 37"
+   }
+  ],
+  "hand": [
+   "Team Rocket's Giovanni ASC 204"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

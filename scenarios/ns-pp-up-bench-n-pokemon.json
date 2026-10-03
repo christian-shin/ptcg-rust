@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's PP Up ASC 195",
+   "4 Duraludon PRE 69",
+   "24 Fire Energy MEE 2",
+   "24 Metal Energy MEE 8"
+  ],
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's PP Up ASC 195",
+   "4 Duraludon PRE 69",
+   "24 Fire Energy MEE 2",
+   "24 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "N's Darumaka ASC 32"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "hand": [
+   "N's PP Up ASC 195"
+  ],
+  "discard": [
+   "3 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}
