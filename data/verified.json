@@ -1574,7 +1574,7 @@
  },
  "Archaludon PFL 75": {
   "status": "verified",
-  "note": "batch b07",
+  "note": "batch b07; pinned Archaludon@Archaludon M2 (2026-10-03), parity re-run clean",
   "twinleaf": "Archaludon M2"
  },
  "Archaludon ex SSP 130": {
@@ -3041,5 +3041,10 @@
   "status": "verified",
   "note": "re-verified in batch r2 (Sonnet); coverage clean with both Twinleaf printings (Pokémon Center Lady FLF = pool mapping, Pokemon Center Lady MEG = exact printing, numbered 116 in Twinleaf); replaces orphan key MEG 116",
   "twinleaf": "Pokémon Center Lady FLF"
+ },
+ "Archaludon PRE 70": {
+  "status": "verified",
+  "note": "fix-archaludon (Sonnet): was bound to the PFL Archaludon port (different Twinleaf class with the same name); now its own port pinned Archaludon@Archaludon SCR|Archaludon PRE (Metal Bridge, Iron Blaster); ability-blocked return covered by scenarios/archaludon-flutter-mane-lock.json",
+  "twinleaf": "Archaludon PRE"
  }
 }
