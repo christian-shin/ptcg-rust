@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Iron Thorns ex PRE 32",
+   "4 Hop's Snorlax JTG 117",
+   "8 Fighting Energy MEE 6",
+   "40 Lightning Energy MEE"
+  ],
+  [
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Iron Thorns ex PRE 32",
+   "4 Hop's Snorlax JTG 117",
+   "8 Fighting Energy MEE 6",
+   "40 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cornerstone Mask Ogerpon ex PRE 58",
+  "active_energy": [
+   "3 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "active_energy": [
+   "3 Lightning Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Zacian ex JTG 111",
+   "1 Maximum Belt PRE 117",
+   "4 Jamming Tower ASC 261",
+   "4 Hop's Snorlax JTG 117",
+   "47 Metal Energy MEE 8"
+  ],
+  [
+   "4 Hop's Zacian ex JTG 111",
+   "1 Maximum Belt PRE 117",
+   "4 Jamming Tower ASC 261",
+   "4 Hop's Snorlax JTG 117",
+   "47 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "active_tool": "Maximum Belt PRE 117",
+  "stadium": "Jamming Tower ASC 261"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ]
+}

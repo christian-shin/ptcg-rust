@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Girafarig TWM 83",
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Hop's Snorlax JTG 117",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Girafarig TWM 83",
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Hop's Snorlax JTG 117",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Girafarig TWM 83",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Cornerstone Mask Ogerpon ex PRE 58"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dual Headbutt"
+  }
+ ]
+}
