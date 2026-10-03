@@ -978,23 +978,23 @@
   "twinleaf": "Poké Pad 30C"
  },
  "Switch 30C 127": {
-  "status": "needs-reverify",
-  "note": "verified as Switch BS; pool row 30C 127 now maps to the exact printing Switch 30C",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Switch BS; pool row 30C 127 now maps to the exact printing Switch 30C",
   "twinleaf": "Switch 30C"
  },
  "Ultra Ball 30C 128": {
-  "status": "needs-reverify",
-  "note": "verified as Ultra Ball SVI; pool row 30C 128 now maps to the exact printing Ultra Ball 30C",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Ultra Ball SVI; pool row 30C 128 now maps to the exact printing Ultra Ball 30C",
   "twinleaf": "Ultra Ball 30C"
  },
  "Budew ASC 16": {
-  "status": "needs-reverify",
-  "note": "verified as Budew PRE; pool row ASC 16 now maps to the exact printing Budew ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Budew PRE; pool row ASC 16 now maps to the exact printing Budew ASC",
   "twinleaf": "Budew ASC"
  },
  "Team Rocket's Tarountula ASC 18": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Tarountula DRI; pool row ASC 18 now maps to the exact printing Team Rocket's Tarountula ASC",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Team Rocket's Tarountula DRI; pool row ASC 18 now maps to the exact printing Team Rocket's Tarountula ASC",
   "twinleaf": "Team Rocket's Tarountula ASC"
  },
  "Team Rocket's Spidops ASC 19": {
@@ -1003,8 +1003,8 @@
   "twinleaf": "Team Rocket's Spidops ASC"
  },
  "Lillie's Clefairy ex ASC 76": {
-  "status": "needs-reverify",
-  "note": "verified as Lillie's Clefairy ex JTG; pool row ASC 76 now maps to the exact printing Lillie's Clefairy ex ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Lillie's Clefairy ex JTG; pool row ASC 76 now maps to the exact printing Lillie's Clefairy ex ASC",
   "twinleaf": "Lillie's Clefairy ex ASC"
  },
  "Team Rocket's Mewtwo ex ASC 79": {
@@ -1013,8 +1013,8 @@
   "twinleaf": "Team Rocket's Mewtwo ex ASC"
  },
  "Munkidori ASC 99": {
-  "status": "needs-reverify",
-  "note": "verified as Munkidori TWM; pool row ASC 99 now maps to the exact printing Munkidori ASC (old note: move prompt in 18 traces; zero-damage transfer and prevented move not hit)",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Munkidori TWM; pool row ASC 99 now maps to the exact printing Munkidori ASC (old note: move prompt in 18 traces; zero-damage transfer and prevented move not hit)",
   "twinleaf": "Munkidori ASC"
  },
  "Lunatone ASC 105": {
@@ -1033,13 +1033,13 @@
   "twinleaf": "Cynthia's Gible ASC"
  },
  "Cynthia's Gabite ASC 110": {
-  "status": "needs-reverify",
-  "note": "verified as Cynthia's Gabite DRI; pool row ASC 110 now maps to the exact printing Cynthia's Gabite ASC",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Cynthia's Gabite DRI; pool row ASC 110 now maps to the exact printing Cynthia's Gabite ASC",
   "twinleaf": "Cynthia's Gabite ASC"
  },
  "Cynthia's Garchomp ex ASC 111": {
-  "status": "needs-reverify",
-  "note": "verified as Cynthia's Garchomp ex DRI; pool row ASC 111 now maps to the exact printing Cynthia's Garchomp ex ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Cynthia's Garchomp ex DRI; pool row ASC 111 now maps to the exact printing Cynthia's Garchomp ex ASC",
   "twinleaf": "Cynthia's Garchomp ex ASC"
  },
  "Riolu ASC 112": {
@@ -1053,13 +1053,13 @@
   "twinleaf": "Mega Lucario ex ASC"
  },
  "Gastly ASC 123": {
-  "status": "needs-reverify",
-  "note": "verified as Gastly EVO; pool row ASC 123 now maps to the exact printing Gastly ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Gastly EVO; pool row ASC 123 now maps to the exact printing Gastly ASC",
   "twinleaf": "Gastly ASC"
  },
  "Haunter ASC 124": {
-  "status": "needs-reverify",
-  "note": "verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC",
   "twinleaf": "Haunter ASC"
  },
  "Mega Gengar ex ASC 125": {
@@ -1068,8 +1068,8 @@
   "twinleaf": "Mega Gengar ex ASC"
  },
  "Team Rocket's Murkrow ASC 126": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Murkrow DRI; pool row ASC 126 now maps to the exact printing Team Rocket's Murkrow ASC",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Team Rocket's Murkrow DRI; pool row ASC 126 now maps to the exact printing Team Rocket's Murkrow ASC",
   "twinleaf": "Team Rocket's Murkrow ASC"
  },
  "Cynthia's Spiritomb ASC 133": {
@@ -1093,13 +1093,13 @@
   "twinleaf": "Drakloak ASC"
  },
  "Dragapult ex ASC 160": {
-  "status": "needs-reverify",
-  "note": "verified as Dragapult ex TWM; pool row ASC 160 now maps to the exact printing Dragapult ex ASC (old note: bench damage block 6 games)",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Dragapult ex TWM; pool row ASC 160 now maps to the exact printing Dragapult ex ASC (old note: bench damage block 6 games)",
   "twinleaf": "Dragapult ex ASC"
  },
  "Fan Rotom ASC 171": {
-  "status": "needs-reverify",
-  "note": "verified as Fan Rotom SCR; pool row ASC 171 now maps to the exact printing Fan Rotom ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Fan Rotom SCR; pool row ASC 171 now maps to the exact printing Fan Rotom ASC",
   "twinleaf": "Fan Rotom ASC"
  },
  "Hop's Cramorant ASC 177": {
@@ -1118,13 +1118,13 @@
   "twinleaf": "Air Balloon ASC"
  },
  "Boss's Orders ASC 183": {
-  "status": "needs-reverify",
-  "note": "verified as Boss's Orders PAL; pool row ASC 183 now maps to the exact printing Boss's Orders ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Boss's Orders PAL; pool row ASC 183 now maps to the exact printing Boss's Orders ASC",
   "twinleaf": "Boss's Orders ASC"
  },
  "Buddy-Buddy Poffin ASC 184": {
-  "status": "needs-reverify",
-  "note": "verified as Buddy-Buddy Poffin TEF; pool row ASC 184 now maps to the exact printing Buddy-Buddy Poffin ASC",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Buddy-Buddy Poffin TEF; pool row ASC 184 now maps to the exact printing Buddy-Buddy Poffin ASC",
   "twinleaf": "Buddy-Buddy Poffin ASC"
  },
  "Glass Trumpet ASC 189": {
@@ -1138,8 +1138,8 @@
   "twinleaf": "Lillie's Determination ASC"
  },
  "Mega Signal ASC 193": {
-  "status": "needs-reverify",
-  "note": "verified as Mega Signal M1S; pool row ASC 193 now maps to the exact printing Mega Signal ASC",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Mega Signal M1S; pool row ASC 193 now maps to the exact printing Mega Signal ASC",
   "twinleaf": "Mega Signal ASC"
  },
  "N's PP Up ASC 195": {
@@ -1148,13 +1148,13 @@
   "twinleaf": "N's PP Up ASC"
  },
  "Night Stretcher ASC 196": {
-  "status": "needs-reverify",
-  "note": "verified as Night Stretcher SFA; pool row ASC 196 now maps to the exact printing Night Stretcher ASC",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Night Stretcher SFA; pool row ASC 196 now maps to the exact printing Night Stretcher ASC",
   "twinleaf": "Night Stretcher ASC"
  },
  "Premium Power Pro ASC 199": {
-  "status": "needs-reverify",
-  "note": "verified as Power Protein M1L; pool row ASC 199 now maps to the exact printing Premium Power Pro ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Power Protein M1L; pool row ASC 199 now maps to the exact printing Premium Power Pro ASC",
   "twinleaf": "Premium Power Pro ASC"
  },
  "Team Rocket's Archer ASC 201": {
@@ -1168,8 +1168,8 @@
   "twinleaf": "Team Rocket's Ariana ASC"
  },
  "Team Rocket's Factory ASC 203": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Factory DRI; pool row ASC 203 now maps to the exact printing Team Rocket's Factory ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Team Rocket's Factory DRI; pool row ASC 203 now maps to the exact printing Team Rocket's Factory ASC",
   "twinleaf": "Team Rocket's Factory ASC"
  },
  "Team Rocket's Giovanni ASC 204": {
@@ -1178,8 +1178,8 @@
   "twinleaf": "Team Rocket's Giovanni ASC"
  },
  "Team Rocket's Petrel ASC 207": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Petrel DRI; pool row ASC 207 now maps to the exact printing Team Rocket's Petrel ASC (old note: empty-deck branch unreachable)",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Team Rocket's Petrel DRI; pool row ASC 207 now maps to the exact printing Team Rocket's Petrel ASC (old note: empty-deck branch unreachable)",
   "twinleaf": "Team Rocket's Petrel ASC"
  },
  "Team Rocket's Proton ASC 208": {
@@ -1188,8 +1188,8 @@
   "twinleaf": "Team Rocket's Proton ASC"
  },
  "Team Rocket's Transceiver ASC 209": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Transceiver DRI; pool row ASC 209 now maps to the exact printing Team Rocket's Transceiver ASC",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Team Rocket's Transceiver DRI; pool row ASC 209 now maps to the exact printing Team Rocket's Transceiver ASC",
   "twinleaf": "Team Rocket's Transceiver ASC"
  },
  "Team Rocket's Watchtower ASC 210": {
@@ -1203,8 +1203,8 @@
   "twinleaf": "Prism Energy ASC"
  },
  "Team Rocket's Energy ASC 217": {
-  "status": "needs-reverify",
-  "note": "verified as Team Rocket's Energy DRI; pool row ASC 217 now maps to the exact printing Team Rocket's Energy ASC (old note: non-TR discard branch 1 game)",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Team Rocket's Energy DRI; pool row ASC 217 now maps to the exact printing Team Rocket's Energy ASC (old note: non-TR discard branch 1 game)",
   "twinleaf": "Team Rocket's Energy ASC"
  },
  "Black Belt's Training ASC 255": {
@@ -1213,8 +1213,8 @@
   "twinleaf": "Black Belt's Training ASC"
  },
  "Marnie's Grimmsnarl ex ASC 287": {
-  "status": "needs-reverify",
-  "note": "verified as Marnie's Grimmsnarl ex DRI; pool row ASC 287 now maps to the exact printing Marnie's Grimmsnarl ex ASC (old note: empty-deck and ability-blocked returns unreached)",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Marnie's Grimmsnarl ex DRI; pool row ASC 287 now maps to the exact printing Marnie's Grimmsnarl ex ASC (old note: empty-deck and ability-blocked returns unreached)",
   "twinleaf": "Marnie's Grimmsnarl ex ASC"
  },
  "Pokégear 3.0 BLK 84": {
@@ -1233,24 +1233,19 @@
   "twinleaf": "Jumbo Ice Cream FA CRI"
  },
  "Tool Scrapper CRI 115": {
-  "status": "needs-reverify",
-  "note": "verified as Tool Scrapper DRX; pool row CRI 115 now maps to the exact printing Tool Scrapper FA CRI",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Tool Scrapper DRX; pool row CRI 115 now maps to the exact printing Tool Scrapper FA CRI",
   "twinleaf": "Tool Scrapper FA CRI"
  },
  "Rellor DRI 24": {
-  "status": "needs-reverify",
-  "note": "verified as Rellor SSP; pool row DRI 24 now maps to the exact printing Rellor DRI",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Rellor SSP; pool row DRI 24 now maps to the exact printing Rellor DRI",
   "twinleaf": "Rellor DRI"
  },
  "Super Potion JTG 158": {
   "status": "verified",
   "note": "batch A",
   "twinleaf": "Super Potion JTG"
- },
- "Pokémon Center Lady MEG 116": {
-  "status": "needs-reverify",
-  "note": "verified as Pokémon Center Lady FLF; pool row MEG 123 now maps to the exact printing Pokemon Center Lady MEG",
-  "twinleaf": "Pokemon Center Lady MEG"
  },
  "Brave Bangle PBL 104": {
   "status": "verified",
@@ -1268,13 +1263,13 @@
   "twinleaf": "Energy Switch FA PBL"
  },
  "Iron Defender PBL 110": {
-  "status": "needs-reverify",
-  "note": "verified as Iron Defender M1L; pool row PBL 110 now maps to the exact printing Iron Defender FA PBL",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Iron Defender M1L; pool row PBL 110 now maps to the exact printing Iron Defender FA PBL",
   "twinleaf": "Iron Defender FA PBL"
  },
  "Ignition Energy PFL 124": {
-  "status": "needs-reverify",
-  "note": "verified as Ignition Energy SV11W; pool row PFL 124 now maps to the exact printing Ignition Energy PFL",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Ignition Energy SV11W; pool row PFL 124 now maps to the exact printing Ignition Energy PFL",
   "twinleaf": "Ignition Energy PFL"
  },
  "Energy Search POR 72": {
@@ -1288,8 +1283,8 @@
   "twinleaf": "Judge POR"
  },
  "Poké Ball POR 80": {
-  "status": "needs-reverify",
-  "note": "verified as Poké Ball JU; pool row POR 80 now maps to the exact printing Poke Ball POR",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Poké Ball JU; pool row POR 80 now maps to the exact printing Poke Ball POR",
   "twinleaf": "Poke Ball POR"
  },
  "Pokémon Catcher POR 82": {
@@ -1303,13 +1298,13 @@
   "twinleaf": "Potion POR"
  },
  "Energy Recycler POR 108": {
-  "status": "needs-reverify",
-  "note": "verified as Energy Recycler BST; pool row POR 108 now maps to the exact printing Energy Recycler FA POR",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Energy Recycler BST; pool row POR 108 now maps to the exact printing Energy Recycler FA POR",
   "twinleaf": "Energy Recycler FA POR"
  },
  "Forest of Vitality POR 109": {
-  "status": "needs-reverify",
-  "note": "verified as Forest of Vitality MEG; pool row POR 109 now maps to the exact printing Forest of Vitality FA POR",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Forest of Vitality MEG; pool row POR 109 now maps to the exact printing Forest of Vitality FA POR",
   "twinleaf": "Forest of Vitality FA POR"
  },
  "Sacred Ash POR 115": {
@@ -1323,8 +1318,8 @@
   "twinleaf": "Wondrous Patch FA POR"
  },
  "Dipplin PRE 10": {
-  "status": "needs-reverify",
-  "note": "verified as Dipplin TWM1; pool row PRE 10 now maps to the exact printing Dipplin PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Dipplin TWM1; pool row PRE 10 now maps to the exact printing Dipplin PRE",
   "twinleaf": "Dipplin PRE"
  },
  "Hydrapple ex PRE 11": {
@@ -1333,8 +1328,8 @@
   "twinleaf": "Hydrapple ex PRE"
  },
  "Teal Mask Ogerpon ex PRE 12": {
-  "status": "needs-reverify",
-  "note": "verified as Teal Mask Ogerpon ex TWM; pool row PRE 12 now maps to the exact printing Teal Mask Ogerpon ex PRE (old note: bench damage prevention 2 games)",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Teal Mask Ogerpon ex TWM; pool row PRE 12 now maps to the exact printing Teal Mask Ogerpon ex PRE (old note: bench damage prevention 2 games)",
   "twinleaf": "Teal Mask Ogerpon ex PRE"
  },
  "Goldeen PRE 20": {
@@ -1353,8 +1348,8 @@
   "twinleaf": "Duskull PRE"
  },
  "Dusclops PRE 36": {
-  "status": "needs-reverify",
-  "note": "verified as Dusclops SFA; pool row PRE 36 now maps to the exact printing Dusclops PRE",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Dusclops SFA; pool row PRE 36 now maps to the exact printing Dusclops PRE",
   "twinleaf": "Dusclops PRE"
  },
  "Dusknoir PRE 37": {
@@ -1368,8 +1363,8 @@
   "twinleaf": "Bloodmoon Ursaluna PRE"
  },
  "Great Tusk PRE 55": {
-  "status": "needs-reverify",
-  "note": "verified as Great Tusk TEF; pool row PRE 55 now maps to the exact printing Great Tusk PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Great Tusk TEF; pool row PRE 55 now maps to the exact printing Great Tusk PRE",
   "twinleaf": "Great Tusk PRE"
  },
  "Okidogi PRE 57": {
@@ -1378,8 +1373,8 @@
   "twinleaf": "Okidogi PRE"
  },
  "Cornerstone Mask Ogerpon ex PRE 58": {
-  "status": "needs-reverify",
-  "note": "verified as Cornerstone Mask Ogerpon ex TWM; pool row PRE 58 now maps to the exact printing Cornerstone Mask Ogerpon ex PRE",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Cornerstone Mask Ogerpon ex TWM; pool row PRE 58 now maps to the exact printing Cornerstone Mask Ogerpon ex PRE",
   "twinleaf": "Cornerstone Mask Ogerpon ex PRE"
  },
  "Roaring Moon PRE 65": {
@@ -1388,18 +1383,18 @@
   "twinleaf": "Roaring Moon PRE"
  },
  "Eevee PRE 74": {
-  "status": "needs-reverify",
-  "note": "verified as Eevee SSP; pool row PRE 74 now maps to the exact printing Eevee PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Eevee SSP; pool row PRE 74 now maps to the exact printing Eevee PRE",
   "twinleaf": "Eevee PRE"
  },
  "Noctowl PRE 78": {
-  "status": "needs-reverify",
-  "note": "verified as Noctowl SCR; pool row PRE 78 now maps to the exact printing Noctowl PRE",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Noctowl SCR; pool row PRE 78 now maps to the exact printing Noctowl PRE",
   "twinleaf": "Noctowl PRE"
  },
  "Dunsparce PRE 79": {
-  "status": "needs-reverify",
-  "note": "verified as Dunsparce TEF; pool row PRE 79 now maps to the exact printing Dunsparce PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Dunsparce TEF; pool row PRE 79 now maps to the exact printing Dunsparce PRE",
   "twinleaf": "Dunsparce PRE"
  },
  "Dudunsparce PRE 80": {
@@ -1408,13 +1403,13 @@
   "twinleaf": "Dudunsparce PRE"
  },
  "Area Zero Underdepths PRE 94": {
-  "status": "needs-reverify",
-  "note": "verified as Area Zero Underdepths SCR; pool row PRE 94 now maps to the exact printing Area Zero Underdepths PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Area Zero Underdepths SCR; pool row PRE 94 now maps to the exact printing Area Zero Underdepths PRE",
   "twinleaf": "Area Zero Underdepths PRE"
  },
  "Binding Mochi PRE 95": {
-  "status": "needs-reverify",
-  "note": "verified as Binding Mochi SFA; pool row PRE 95 now maps to the exact printing Binding Mochi PRE",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Binding Mochi SFA; pool row PRE 95 now maps to the exact printing Binding Mochi PRE",
   "twinleaf": "Binding Mochi PRE"
  },
  "Briar PRE 100": {
@@ -1428,8 +1423,8 @@
   "twinleaf": "Bug Catching Set PRE"
  },
  "Ciphermaniac's Codebreaking PRE 104": {
-  "status": "needs-reverify",
-  "note": "verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE",
   "twinleaf": "Ciphermaniac's Codebreaking PRE"
  },
  "Crispin PRE 105": {
@@ -1443,13 +1438,13 @@
   "twinleaf": "Festival Grounds PRE"
  },
  "Kieran PRE 113": {
-  "status": "needs-reverify",
-  "note": "verified as Kieran TWM; pool row PRE 113 now maps to the exact printing Kieran PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Kieran TWM; pool row PRE 113 now maps to the exact printing Kieran PRE",
   "twinleaf": "Kieran PRE"
  },
  "Maximum Belt PRE 117": {
-  "status": "needs-reverify",
-  "note": "verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0)",
+  "status": "verified",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0)",
   "twinleaf": "Maximum Belt PRE"
  },
  "Prime Catcher PRE 119": {
@@ -1458,23 +1453,23 @@
   "twinleaf": "Prime Catcher PRE"
  },
  "Eri PRE 136": {
-  "status": "needs-reverify",
-  "note": "verified as Eri TEF; pool row PRE 136 now maps to the exact printing EriFA PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Eri TEF; pool row PRE 136 now maps to the exact printing EriFA PRE",
   "twinleaf": "EriFA PRE"
  },
  "Pecharunt ex PRE 163": {
-  "status": "needs-reverify",
-  "note": "verified as Pecharunt ex SFA; pool row PRE 163 now maps to the exact printing Pecharunt exSAR PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Pecharunt ex SFA; pool row PRE 163 now maps to the exact printing Pecharunt exSAR PRE",
   "twinleaf": "Pecharunt exSAR PRE"
  },
  "Raging Bolt ex PRE 166": {
-  "status": "needs-reverify",
-  "note": "verified as Raging Bolt ex TEF; pool row PRE 166 now maps to the exact printing Raging Bolt exSAR PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Raging Bolt ex TEF; pool row PRE 166 now maps to the exact printing Raging Bolt exSAR PRE",
   "twinleaf": "Raging Bolt exSAR PRE"
  },
  "Bloodmoon Ursaluna ex PRE 168": {
-  "status": "needs-reverify",
-  "note": "verified as Bloodmoon Ursaluna ex TWM; pool row PRE 168 now maps to the exact printing Bloodmoon Ursaluna exSAR PRE",
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Bloodmoon Ursaluna ex TWM; pool row PRE 168 now maps to the exact printing Bloodmoon Ursaluna exSAR PRE",
   "twinleaf": "Bloodmoon Ursaluna exSAR PRE"
  },
  "Iron Leaves ex PRE 176": {
@@ -3041,5 +3036,10 @@
   "status": "verified",
   "note": "re-verified in batch r1 (Sonnet) under the exact printing (vanilla); replaces stale key Chikorita MEP 69 (verified as Chikorita UF; pool row MEP 46 now maps to the exact printing Chikorita MEP)",
   "twinleaf": "Chikorita MEP 46"
+ },
+ "Pokémon Center Lady MEG 123": {
+  "status": "verified",
+  "note": "re-verified in batch r2 (Sonnet); coverage clean with both Twinleaf printings (Pokémon Center Lady FLF = pool mapping, Pokemon Center Lady MEG = exact printing, numbered 116 in Twinleaf); replaces orphan key MEG 116",
+  "twinleaf": "Pokémon Center Lady FLF"
  }
 }
