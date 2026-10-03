@@ -8,7 +8,7 @@
 //! uses nothing.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Lunatone", mask: mask(&[k::POWER, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Lunatone@Lunatone M1L|Lunatone ASC", mask: mask(&[k::POWER, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn fighting_filter() -> Filter {
     Filter {

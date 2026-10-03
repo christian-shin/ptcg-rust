@@ -7,7 +7,7 @@
 //! the discard pile.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Duskull", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Duskull@Duskull SFA|Duskull PRE", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !was_attack_used(g, e, 0, me) {

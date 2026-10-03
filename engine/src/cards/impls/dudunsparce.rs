@@ -2,7 +2,7 @@
 //! Pokémon and all attached cards into your deck.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Dudunsparce", mask: mask(&[k::POWER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Dudunsparce@Dudunsparce TEF|Dudunsparce PRE", mask: mask(&[k::POWER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !was_power_used(g, e, 0, me) {
