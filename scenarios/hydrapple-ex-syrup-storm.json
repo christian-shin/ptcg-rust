@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Hydrapple ex PRE 11",
+   "4 Prism Energy ASC 216",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Hydrapple ex PRE 11",
+   "4 Prism Energy ASC 216",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Applin PRE 9",
+   "Dipplin PRE 10",
+   "Hydrapple ex PRE 11"
+  ],
+  "active_energy": [
+   "2 Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Applin PRE 9",
+    "energy": [
+     "Prism Energy ASC 216",
+     "Grass Energy MEE 1"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Applin PRE 9"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Syrup Storm"
+  }
+ ]
+}

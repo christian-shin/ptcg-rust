@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce PRE 80",
+   "52 Psychic Energy MEE"
+  ],
+  [
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce PRE 80",
+   "52 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dunsparce PRE 79",
+   "Dudunsparce PRE 80"
+  ],
+  "discard": [
+   "52 Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dunsparce PRE 79"
+ }
+}

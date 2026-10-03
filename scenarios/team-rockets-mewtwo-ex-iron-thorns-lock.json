@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Team Rocket's Houndour DRI",
+   "4 Iron Thorns ex PRE 32",
+   "48 Psychic Energy MEE"
+  ],
+  [
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Team Rocket's Houndour DRI",
+   "4 Iron Thorns ex PRE 32",
+   "48 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79",
+  "active_energy": [
+   "3 Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Houndour DRI"
+   },
+   {
+    "card": "Team Rocket's Houndour DRI"
+   },
+   {
+    "card": "Team Rocket's Houndour DRI"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Erasure Ball"
+  }
+ ]
+}

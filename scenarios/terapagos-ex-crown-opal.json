@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Terapagos ex ASC 179",
+   "4 Hop's Snorlax JTG 117",
+   "20 Grass Energy MEE",
+   "18 Water Energy MEE",
+   "14 Lightning Energy MEE"
+  ],
+  [
+   "4 Terapagos ex ASC 179",
+   "4 Hop's Snorlax JTG 117",
+   "20 Grass Energy MEE",
+   "18 Water Energy MEE",
+   "14 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE",
+   "Lightning Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crown Opal"
+  }
+ ]
+}
