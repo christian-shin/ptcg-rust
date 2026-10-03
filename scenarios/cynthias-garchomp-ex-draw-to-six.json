@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cynthia's Gible ASC 109",
+   "4 Cynthia's Gabite ASC 110",
+   "4 Cynthia's Garchomp ex ASC 111",
+   "4 Hop's Snorlax JTG 117",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Cynthia's Gible ASC 109",
+   "4 Cynthia's Gabite ASC 110",
+   "4 Cynthia's Garchomp ex ASC 111",
+   "4 Hop's Snorlax JTG 117",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Cynthia's Gible ASC 109",
+   "Cynthia's Gabite ASC 110",
+   "Cynthia's Garchomp ex ASC 111"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Corkscrew Dive"
+  }
+ ]
+}

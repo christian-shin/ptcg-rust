@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lillie's Clefairy ex ASC 76",
+   "4 Iron Thorns ex PRE 32",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Lillie's Clefairy ex ASC 76",
+   "4 Iron Thorns ex PRE 32",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Lillie's Clefairy ex ASC 76",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Full Moon Rondo"
+  }
+ ]
+}

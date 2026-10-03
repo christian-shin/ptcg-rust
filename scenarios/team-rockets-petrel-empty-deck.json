@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Petrel ASC 207",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Team Rocket's Petrel ASC 207",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Team Rocket's Petrel ASC 207"
+  ],
+  "discard": [
+   "3 Team Rocket's Petrel ASC 207",
+   "3 Hop's Snorlax JTG 117",
+   "46 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ }
+}

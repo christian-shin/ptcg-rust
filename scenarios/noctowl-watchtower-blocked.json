@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hoothoot PRE 77",
+   "4 Noctowl PRE 78",
+   "4 Teal Mask Ogerpon ex PRE 12",
+   "4 Team Rocket's Watchtower ASC 210",
+   "4 Hop's Snorlax JTG 117",
+   "4 Pok\u00e9 Ball POR 80",
+   "36 Grass Energy MEE 1"
+  ],
+  [
+   "4 Hoothoot PRE 77",
+   "4 Noctowl PRE 78",
+   "4 Teal Mask Ogerpon ex PRE 12",
+   "4 Team Rocket's Watchtower ASC 210",
+   "4 Hop's Snorlax JTG 117",
+   "4 Pok\u00e9 Ball POR 80",
+   "36 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Teal Mask Ogerpon ex PRE 12",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Hoothoot PRE 77"
+   },
+   {
+    "card": "Hoothoot PRE 77"
+   }
+  ],
+  "hand": [
+   "Noctowl PRE 78",
+   "Noctowl PRE 78"
+  ],
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ }
+}
