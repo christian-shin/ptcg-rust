@@ -2,8 +2,9 @@
 //! any number of Evolution cards on it into your hand.
 //!
 //! Twinleaf: the second prompt is a ChooseCardsPrompt over the whole slot
-//! (Pokémon filter); choosing the Basic throws INVALID_PROMPT_RESULT;
-//! choosing a card devolves `pokemons.length - index` times via
+//! (Pokémon filter) with the Basic's index blocked (phase 4b fix: the Basic
+//! used to be selectable and threw INVALID_PROMPT_RESULT; the throw stays as
+//! a defensive check); choosing a card devolves `pokemons.length - index` times via
 //! DEVOLVE_POKEMON (which sets `pokemonPlayedTurn` but not
 //! `cannotEvolveNextTurn`).
 use crate::cards::prelude::*;
@@ -79,13 +80,21 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             nf.a[0] = p as i32;
             nf.a[1] = t.p as i32;
             nf.a[2] = t.s as i32;
+            // The Basic can't be put into the hand (phase 4b fix): blocked by index.
+            let mut opts = ChooseCardsOpts::new(1, 1, false);
+            let basic = g.st.slot_pokemons(t.p as usize, t.s).get(0).copied();
+            for (i, c) in g.st.slot(t.p as usize, t.s).cards.iter().enumerate() {
+                if Some(c) == basic {
+                    opts.blocked.push(i as u8);
+                }
+            }
             choose_cards(
                 g,
                 p,
                 "CHOOSE_POKEMON_TO_PICK_UP",
                 ListRef::Slot(t.p, t.s),
                 Filter::super_type(SuperType::Pokemon),
-                ChooseCardsOpts::new(1, 1, false),
+                opts,
                 Cont::Card { card: me, frame: nf },
             );
             Ok(())

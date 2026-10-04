@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zeraora DRI 78",
+   "4 Miraidon ex TEF 122",
+   "4 Duraludon PRE 69",
+   "48 Lightning Energy MEE"
+  ],
+  [
+   "4 Zeraora DRI 78",
+   "4 Miraidon ex TEF 122",
+   "4 Duraludon PRE 69",
+   "48 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "3 Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Miraidon ex TEF 122",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ }
+}

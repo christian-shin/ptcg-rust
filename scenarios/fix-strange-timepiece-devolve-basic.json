@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Strange Timepiece MEG 128",
+   "48 Psychic Energy MEE"
+  ],
+  [
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Strange Timepiece MEG 128",
+   "48 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Bronzor TEF 68",
+   "Bronzong TEF 69"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "hand": [
+   "Strange Timepiece MEG 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Bronzor TEF 68"
+ }
+}

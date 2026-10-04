@@ -179,9 +179,15 @@ pub enum TrainerPlayKind {
 }
 
 /// `withOptionalCoinFlipCancelTrainer`: with the flag set, flip a coin
-/// (CoinFlipEffect) and resume in [`cancel_trainer_coin`]; else continue now.
+/// (CoinFlipEffect) and resume in [`cancel_trainer_coin`]; else (or in a
+/// legality trial) continue now.
 fn with_optional_coin_flip_cancel_trainer(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardId, target: Option<SlotRef>) -> R {
     if g.st.players[p as usize].coin_flip_cancel_trainer_play_turns_remaining <= 0 {
+        return continue_trainer_play(g, kind, p, card, target);
+    }
+    // Legality trial (`Chance.inTrial`): a fixed tails would discard the card
+    // without running its checks, so check the heads path instead.
+    if g.rng.is_fixed() {
         return continue_trainer_play(g, kind, p, card, target);
     }
     g.coin_flip(p as usize, crate::game::CoinCb::CancelTrainer { kind, p, card, target })?;
