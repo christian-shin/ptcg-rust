@@ -3,10 +3,13 @@
 //! this Pokémon.
 //!
 //! Twinleaf: nothing on an empty opponent's hand, else a ChooseCardsPrompt
-//! (CHOOSE_CARD_TO_DECK, min 0 max 1, no cancel) on it; a pick is
+//! (CHOOSE_CARD_TO_DECK, min 1 max 1, no cancel) on it; a pick is
 //! MOVE_CARDS'd to their discard, followed by a no-op
 //! MOVE_CARDS(player.supporter → player.discard, [this]) (quirk kept).
 //! Volt Strike: CheckProvidedEnergyEffect on the Active → DiscardCardsEffect.
+//!
+//! Fixed (phase 4b, W4): the prompt was min 0, so the attacker could discard
+//! nothing; the card says "Discard a card you find there".
 use super::galvantulaex::discard_all_active_energy;
 use crate::cards::prelude::*;
 
@@ -23,7 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_DECK", ListRef::Hand(o as u8), Filter::none(), ChooseCardsOpts::new(0, 1, false), Cont::Card { card: me, frame: f });
+        choose_cards(g, p, "CHOOSE_CARD_TO_DECK", ListRef::Hand(o as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
         return Ok(());
     }
     if was_attack_used(g, e, 1, me) {
