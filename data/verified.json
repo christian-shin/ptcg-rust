@@ -25,7 +25,7 @@
  },
  "Rosa's Encouragement POR 84": {
   "status": "verified",
-  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: attach loop unreachable (Twinleaf filter quirk)",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: attach loop unreachable (Twinleaf filter quirk); Twinleaf fix #22 ea637568e (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Rosa's Encouragement M3"
  },
  "Moltres PFL 14": {
@@ -62,7 +62,7 @@
  },
  "Tatsugiri TWM 131": {
   "status": "verified",
-  "note": "cancel path: Twinleaf TypeError (4 games)",
+  "note": "cancel path: Twinleaf TypeError (4 games); Twinleaf fix W2-6 b097fa1a9 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Tatsugiri TWM"
  },
  "Acerola's Mischief ASC 180": {
@@ -76,7 +76,8 @@
  },
  "Chien-Pao SSP 56": {
   "status": "verified",
-  "twinleaf": "Chien-Pao SSP"
+  "twinleaf": "Chien-Pao SSP",
+  "note": "Twinleaf fix X1-2 3c19416aa (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Koraidon ex ASC 121": {
   "status": "verified",
@@ -93,7 +94,8 @@
  },
  "Slowpoke SCR 57": {
   "status": "verified",
-  "twinleaf": "Slowpoke SCR"
+  "twinleaf": "Slowpoke SCR",
+  "note": "Twinleaf fix W1-E 02028f897 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Slowking SCR 58": {
   "status": "verified",
@@ -105,15 +107,18 @@
  },
  "Kyurem SFA 47": {
   "status": "verified",
-  "twinleaf": "Kyurem SFA"
+  "twinleaf": "Kyurem SFA",
+  "note": "Twinleaf fix W4-27 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Zeraora DRI 78": {
   "status": "verified",
-  "twinleaf": "Zeraora DRI"
+  "twinleaf": "Zeraora DRI",
+  "note": "Twinleaf fix W3-7 49c51d264 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Mew ex 30C 66": {
   "status": "verified",
-  "twinleaf": "Mew ex 30C"
+  "twinleaf": "Mew ex 30C",
+  "note": "Twinleaf fix W2-1 f03c213b7 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Telepathic Psychic Energy POR 88": {
   "status": "verified",
@@ -121,11 +126,13 @@
  },
  "Boomerang Energy TWM 166": {
   "status": "verified",
-  "twinleaf": "Boomerang Energy TWM"
+  "twinleaf": "Boomerang Energy TWM",
+  "note": "Twinleaf fix W4-35 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Metagross CRI 61": {
   "status": "verified",
-  "twinleaf": "Metagross M4"
+  "twinleaf": "Metagross M4",
+  "note": "Twinleaf fix W4-6 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Academy at Night SFA 54": {
   "status": "verified",
@@ -133,7 +140,7 @@
  },
  "Annihilape PBL 41": {
   "status": "verified",
-  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: no Mankey/Primeape in pool; only reachable via Slowking copy",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: no Mankey/Primeape in pool; only reachable via Slowking copy; Twinleaf fix X1-1 ae787360b (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Annihilape M5"
  },
  "Applin TWM 126": {
@@ -179,7 +186,8 @@
  },
  "Drilbur PBL 46": {
   "status": "verified",
-  "twinleaf": "Drilbur M5"
+  "twinleaf": "Drilbur M5",
+  "note": "Twinleaf fix W2-3 5a7d84343 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Dwebble DRI 11": {
   "status": "verified",
@@ -192,7 +200,8 @@
  },
  "Handheld Fan TWM 150": {
   "status": "verified",
-  "twinleaf": "Handheld Fan TWM"
+  "twinleaf": "Handheld Fan TWM",
+  "note": "Twinleaf fix W4-30 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Hero's Cape TEF 152": {
   "status": "verified",
@@ -208,7 +217,8 @@
  },
  "Mega Skarmory ex POR 55": {
   "status": "verified",
-  "twinleaf": "Mega Skarmory ex M3"
+  "twinleaf": "Mega Skarmory ex M3",
+  "note": "Twinleaf fix W1-A2 4c879618a (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Mist Energy TEF 161": {
   "status": "verified",
@@ -258,7 +268,8 @@
  },
  "Rare Candy MEG 125": {
   "status": "verified",
-  "twinleaf": "Rare Candy SVI"
+  "twinleaf": "Rare Candy SVI",
+  "note": "Twinleaf fix W3-12 be54e95e6 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Shaymin DRI 10": {
   "status": "verified",
@@ -266,7 +277,8 @@
  },
  "Strange Timepiece MEG 128": {
   "status": "verified",
-  "twinleaf": "Strange Timepiece MEG"
+  "twinleaf": "Strange Timepiece MEG",
+  "note": "Twinleaf fix W3-2 32fffcae0 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Brute Bonnet TWM 118": {
   "status": "verified",
@@ -274,7 +286,8 @@
  },
  "Carvanha PFL 60": {
   "status": "verified",
-  "twinleaf": "Carvanha M2"
+  "twinleaf": "Carvanha M2",
+  "note": "Twinleaf fix W4-23 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Dark Bell PBL 75": {
   "status": "verified",
@@ -295,7 +308,7 @@
  },
  "Mega Sharpedo ex PFL 61": {
   "status": "verified",
-  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0)",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: Hungry Jaws bonus block unreachable (Twinleaf checks attack index 0); Twinleaf fix #19 c2beb8224 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Mega Sharpedo ex M2"
  },
  "Spikemuth Gym DRI 169": {
@@ -309,7 +322,8 @@
  },
  "Toxtricity PFL 68": {
   "status": "verified",
-  "twinleaf": "Toxtricity M2"
+  "twinleaf": "Toxtricity M2",
+  "note": "Twinleaf fix W4-24 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Yveltal MEG 88": {
   "status": "verified",
@@ -361,7 +375,7 @@
  },
  "Salvatore TEF 160": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: cancelled search 2 games; deck-empty throw 0",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: cancelled search 2 games; deck-empty throw 0; Twinleaf fix #3 04b73ef2f (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Salvatore TEF"
  },
  "Shuppet PBL 33": {
@@ -391,7 +405,8 @@
  },
  "Chikorita MEG 8": {
   "status": "verified",
-  "twinleaf": "Chikorita M1S"
+  "twinleaf": "Chikorita M1S",
+  "note": "Twinleaf fix W4-11 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Chikorita ASC 8": {
   "status": "verified",
@@ -415,7 +430,8 @@
  },
  "Meganium MEG 10": {
   "status": "verified",
-  "twinleaf": "Meganium M1S"
+  "twinleaf": "Meganium M1S",
+  "note": "Twinleaf fix W4-25 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Tapu Bulu SFA 6": {
   "status": "verified",
@@ -435,7 +451,7 @@
  },
  "Team Rocket's Articuno DRI 51": {
   "status": "verified",
-  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: Dark Frost bonus unreachable (Twinleaf name mismatch)",
+  "note": "partial branches closed in batch p2 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p2.md); was partial: Dark Frost bonus unreachable (Twinleaf name mismatch); Twinleaf fix #20 604d0a3fc (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Team Rocket's Articuno DRI"
  },
  "Team Rocket's Honchkrow ASC 127": {
@@ -456,11 +472,12 @@
  },
  "Cynthia's Roserade DRI 8": {
   "status": "verified",
-  "twinleaf": "Cynthia's Roserade DRI"
+  "twinleaf": "Cynthia's Roserade DRI",
+  "note": "Twinleaf fix W4-41 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Energy Search Pro SSP 176": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: empty-deck throw 2 games",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: empty-deck throw 2 games; Twinleaf fix #24 d3aea64cf (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Energy Search Pro SSP"
  },
  "Enhanced Hammer TWM 148": {
@@ -506,7 +523,8 @@
  },
  "Dartrix POR 11": {
   "status": "verified",
-  "twinleaf": "Dartrix M3"
+  "twinleaf": "Dartrix M3",
+  "note": "Twinleaf fix W4-16 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Dartrix SFA 4": {
   "status": "verified",
@@ -534,7 +552,8 @@
  },
  "Joltik SCR 50": {
   "status": "verified",
-  "twinleaf": "Joltik SCR"
+  "twinleaf": "Joltik SCR",
+  "note": "Twinleaf fix #13 a8524e6ad (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Kakuna CRI 2": {
   "status": "verified",
@@ -542,11 +561,13 @@
  },
  "Lilligant JTG 7": {
   "status": "verified",
-  "twinleaf": "Lilligant JTG"
+  "twinleaf": "Lilligant JTG",
+  "note": "Twinleaf fix W4-10 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Maractus JTG 8": {
   "status": "verified",
-  "twinleaf": "Maractus JTG"
+  "twinleaf": "Maractus JTG",
+  "note": "Twinleaf fix W4-38 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Mega Heracross ex PFL 4": {
   "status": "verified",
@@ -586,7 +607,8 @@
  },
  "Antique Root Fossil SCR 130": {
   "status": "verified",
-  "twinleaf": "Antique Root Fossil SCR"
+  "twinleaf": "Antique Root Fossil SCR",
+  "note": "Twinleaf fix W4-48 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Blowtorch PFL 86": {
   "status": "verified",
@@ -602,7 +624,8 @@
  },
  "Boxed Order TEF 143": {
   "status": "verified",
-  "twinleaf": "Boxed Order TEF"
+  "twinleaf": "Boxed Order TEF",
+  "note": "Twinleaf fix #7 7990f613d (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Awakening Drum TEF 141": {
   "status": "verified",
@@ -646,11 +669,13 @@
  },
  "Accompanying Flute TWM 142": {
   "status": "verified",
-  "twinleaf": "Accompanying Flute TWM"
+  "twinleaf": "Accompanying Flute TWM",
+  "note": "Twinleaf fix W4-33 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Transformation Tome CRI 83": {
   "status": "verified",
-  "twinleaf": "Book of Transformation M4"
+  "twinleaf": "Book of Transformation M4",
+  "note": "Twinleaf fix W3-9 e2322abd5 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Blissey ex TWM 134": {
   "status": "verified",
@@ -659,7 +684,8 @@
  },
  "Bouffalant SCR 119": {
   "status": "verified",
-  "twinleaf": "Bouffalant SCR"
+  "twinleaf": "Bouffalant SCR",
+  "note": "Twinleaf fix W4-29 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Chansey TWM 133": {
   "status": "verified",
@@ -691,7 +717,8 @@
  },
  "Farfetch'd TWM 132": {
   "status": "verified",
-  "twinleaf": "Farfetch'd TWM"
+  "twinleaf": "Farfetch'd TWM",
+  "note": "Twinleaf fix W1-C 25edb4bce (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Furfrou POR 67": {
   "status": "verified",
@@ -707,7 +734,8 @@
  },
  "Hop's Dubwool JTG 136": {
   "status": "verified",
-  "twinleaf": "Hop's Dubwool JTG"
+  "twinleaf": "Hop's Dubwool JTG",
+  "note": "Twinleaf fix W3-10 07a5d34dc (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Hop's Snorlax JTG 117": {
   "status": "verified",
@@ -723,7 +751,7 @@
  },
  "Minccino TEF 136": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: cancelled choice 0 games; multi-tool prompt unreached",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: cancelled choice 0 games; multi-tool prompt unreached; Twinleaf fix #23 b1680e9d9 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Minccino TEF"
  },
  "Patrat CRI 70": {
@@ -760,7 +788,8 @@
  },
  "Seviper PFL 62": {
   "status": "verified",
-  "twinleaf": "Seviper M2"
+  "twinleaf": "Seviper M2",
+  "note": "Twinleaf fix W4-40 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Skorupi POR 51": {
   "status": "verified",
@@ -792,7 +821,8 @@
  },
  "Yveltal SFA 35": {
   "status": "verified",
-  "twinleaf": "Yveltal SFA"
+  "twinleaf": "Yveltal SFA",
+  "note": "Twinleaf fix W4-45 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Zoroark WHT 62": {
   "status": "verified",
@@ -836,7 +866,8 @@
  },
  "Marnie's Morpeko DRI 137": {
   "status": "verified",
-  "twinleaf": "Marnie's Morpeko DRI"
+  "twinleaf": "Marnie's Morpeko DRI",
+  "note": "Twinleaf fix W4-8 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Pikipek PBL 66": {
   "status": "verified",
@@ -852,7 +883,8 @@
  },
  "Slakoth SSP 145": {
   "status": "verified",
-  "twinleaf": "Slakoth SSP"
+  "twinleaf": "Slakoth SSP",
+  "note": "Twinleaf fix W4-20 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Team Rocket's Kangaskhan ex ASC 162": {
   "status": "verified",
@@ -896,7 +928,8 @@
  },
  "Drilbur TEF 85": {
   "status": "verified",
-  "twinleaf": "Drilbur TEF"
+  "twinleaf": "Drilbur TEF",
+  "note": "Twinleaf fix W2-3 5a7d84343 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Frogadier TWM 57": {
   "status": "verified",
@@ -904,11 +937,12 @@
  },
  "Gastrodon SSP 107": {
   "status": "verified",
-  "twinleaf": "Gastrodon SSP"
+  "twinleaf": "Gastrodon SSP",
+  "note": "Twinleaf fix W4-18 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Greninja ex TWM 106": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: Tera bench-damage prevent 3 games",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: Tera bench-damage prevent 3 games; Twinleaf fix #9 55456fe85 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Greninja ex TWM"
  },
  "Hisuian Arcanine TWM 100": {
@@ -933,7 +967,8 @@
  },
  "Mega Hawlucha ex ASC 116": {
   "status": "verified",
-  "twinleaf": "Mega Hawlucha ex M2a"
+  "twinleaf": "Mega Hawlucha ex M2a",
+  "note": "Twinleaf fix X1-1 91473b0b3 (phase 4b, porting/twinleaf-fixes.md)"
  },
  "Onix MEG 70": {
   "status": "verified",
@@ -1059,12 +1094,12 @@
  },
  "Haunter ASC 124": {
   "status": "verified",
-  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Haunter SSH; pool row ASC 124 now maps to the exact printing Haunter ASC; Twinleaf fix W4-5 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Haunter ASC"
  },
  "Mega Gengar ex ASC 125": {
   "status": "verified",
-  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Mega Gengar ex MBG; pool row ASC 125 now maps to the exact printing Mega Gengar ex ASC",
+  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Mega Gengar ex MBG; pool row ASC 125 now maps to the exact printing Mega Gengar ex ASC; Twinleaf fix #25 8aeba3f99 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Mega Gengar ex ASC"
  },
  "Team Rocket's Murkrow ASC 126": {
@@ -1129,7 +1164,7 @@
  },
  "Glass Trumpet ASC 189": {
   "status": "verified",
-  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Glass Trumpet SCR; pool row ASC 189 now maps to the exact printing Glass Trumpet ASC",
+  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Glass Trumpet SCR; pool row ASC 189 now maps to the exact printing Glass Trumpet ASC; Twinleaf fix #1 54c37005d (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Glass Trumpet ASC"
  },
  "Lillie's Determination ASC 192": {
@@ -1209,7 +1244,7 @@
  },
  "Black Belt's Training ASC 255": {
   "status": "verified",
-  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Black Belt's Training JTG; pool row ASC 255 now maps to the exact printing Black Belt's Training ASC (old note: +40 frequency not measured)",
+  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Black Belt's Training JTG; pool row ASC 255 now maps to the exact printing Black Belt's Training ASC (old note: +40 frequency not measured); Twinleaf fix #47 0b4fd9045 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Black Belt's Training ASC"
  },
  "Marnie's Grimmsnarl ex ASC 287": {
@@ -1344,7 +1379,7 @@
  },
  "Duskull PRE 35": {
   "status": "verified",
-  "note": "re-verified in batch r1 (Sonnet) under the exact printing; was: verified as Duskull SFA; pool row PRE 35 now maps to the exact printing Duskull PRE",
+  "note": "re-verified in batch r1 (Sonnet) under the exact printing; was: verified as Duskull SFA; pool row PRE 35 now maps to the exact printing Duskull PRE; Twinleaf fix #4-5 ac4ab8b19 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Duskull PRE"
  },
  "Dusclops PRE 36": {
@@ -1359,7 +1394,7 @@
  },
  "Bloodmoon Ursaluna PRE 54": {
   "status": "verified",
-  "note": "re-verified in batch r1 (Sonnet) under the exact printing; was: verified as Bloodmoon Ursaluna SFA; pool row PRE 54 now maps to the exact printing Bloodmoon Ursaluna PRE",
+  "note": "re-verified in batch r1 (Sonnet) under the exact printing; was: verified as Bloodmoon Ursaluna SFA; pool row PRE 54 now maps to the exact printing Bloodmoon Ursaluna PRE; Twinleaf fix #17 f0c93bb96 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Bloodmoon Ursaluna PRE"
  },
  "Great Tusk PRE 55": {
@@ -1424,12 +1459,12 @@
  },
  "Ciphermaniac's Codebreaking PRE 104": {
   "status": "verified",
-  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE",
+  "note": "re-verified in batch r2 (Sonnet) under the exact printing; was: verified as Ciphermaniac's Codebreaking TEF; pool row PRE 104 now maps to the exact printing Ciphermaniac's Codebreaking PRE; Twinleaf fix #6 9811615ad (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Ciphermaniac's Codebreaking PRE"
  },
  "Crispin PRE 105": {
   "status": "verified",
-  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Crispin SCR; pool row PRE 105 now maps to the exact printing Crispin PRE",
+  "note": "re-verified in batch r4 (Sonnet) under the exact printing; was: verified as Crispin SCR; pool row PRE 105 now maps to the exact printing Crispin PRE; Twinleaf fix #10/#12 73911ebd9 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Crispin PRE"
  },
  "Festival Grounds PRE 108": {
@@ -1444,7 +1479,7 @@
  },
  "Maximum Belt PRE 117": {
   "status": "verified",
-  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0)",
+  "note": "re-verified in batch r3 (Sonnet) under the exact printing; was: verified as Maximum Belt TEF; pool row PRE 117 now maps to the exact printing Maximum Belt PRE (old note: tool-blocked catch 0); Twinleaf fix W4-31 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Maximum Belt PRE"
  },
  "Prime Catcher PRE 119": {
@@ -1499,7 +1534,7 @@
  },
  "Redeemable Ticket JTG 156": {
   "status": "verified",
-  "note": "batch b15; zero-prizes throw and no-empty-prize-slot branch unreachable",
+  "note": "batch b15; zero-prizes throw and no-empty-prize-slot branch unreachable; Twinleaf fix W4-32 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Redeemable Ticket JTG"
  },
  "Team Rocket's Venture Bomb DRI 179": {
@@ -1509,7 +1544,7 @@
  },
  "Bubbly Water Energy CRI 84": {
   "status": "verified",
-  "note": "batch b15; stadium/special-energy block returns unreachable in pool",
+  "note": "batch b15; stadium/special-energy block returns unreachable in pool; Twinleaf fix W4-34 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Bubble Water Energy M4"
  },
  "Legacy Energy TWM 167": {
@@ -1599,7 +1634,7 @@
  },
  "Gholdengo SSP 131": {
   "status": "verified",
-  "note": "batch b07",
+  "note": "batch b07; Twinleaf fix W1-A3 6431dd83e (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Gholdengo SSP"
  },
  "Heatran TWM 123": {
@@ -1624,7 +1659,7 @@
  },
  "Steelix MEG 93": {
   "status": "verified",
-  "note": "batch b07",
+  "note": "batch b07; Twinleaf fix W4-13 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Steelix M1L"
  },
  "Empoleon ex PFL 70": {
@@ -1694,7 +1729,7 @@
  },
  "Yanmega ex DRI 3": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b06; L51 (marker already set) ran in only 2 games; L67 catch unreachable; Twinleaf fix W3-5 cc9e91ff4 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Yanmega ex DRI"
  },
  "Zarude SSP 11": {
@@ -1749,7 +1784,7 @@
  },
  "Luxray ex TWM 68": {
   "status": "verified",
-  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 random traces + scenario scenarios/luxray-ex-empty-hand.json (12 traces) for the opponent-hand-empty return",
+  "note": "batch b06 + support cards (Shinx FST 91, Luxio FST 92); 48 random traces + scenario scenarios/luxray-ex-empty-hand.json (12 traces) for the opponent-hand-empty return; Twinleaf fix W4-26 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Luxray ex TWM"
  },
  "Stunfisk ASC 62": {
@@ -1764,7 +1799,7 @@
  },
  "Team Rocket's Zapdos DRI 70": {
   "status": "verified",
-  "note": "batch b06; L65 +60 dead: Twinleaf checks name \"Team Rocket Energy\" (Twinleaf bug)",
+  "note": "batch b06; L65 +60 dead: Twinleaf checks name \"Team Rocket Energy\" (Twinleaf bug); Twinleaf fix #21 8e1765c44 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Team Rocket's Zapdos DRI"
  },
  "Eelektrik ASC 60": {
@@ -1834,7 +1869,7 @@
  },
  "Dipplin SCR 13": {
   "status": "verified",
-  "note": "batch b04",
+  "note": "batch b04; Twinleaf fix W4-47 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Dipplin SCR"
  },
  "Durant ex SSP 4": {
@@ -1884,12 +1919,12 @@
  },
  "Gouging Fire ex TEF 38": {
   "status": "verified",
-  "note": "batch b12",
+  "note": "batch b12; Twinleaf fix T4-1 Rust 9744345 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Gouging Fire ex TEF"
  },
  "Ho-Oh SSP 19": {
   "status": "verified",
-  "note": "batch b12",
+  "note": "batch b12; Twinleaf fix W4-28 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Ho-Oh SSP"
  },
  "Incineroar ex TEF 34": {
@@ -1899,7 +1934,7 @@
  },
  "Litten TEF 32": {
   "status": "verified",
-  "note": "batch b12",
+  "note": "batch b12; Twinleaf fix W4-21 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Litten TEF"
  },
  "Magmortar JTG 21": {
@@ -1909,7 +1944,7 @@
  },
  "Oricorio ex PFL 18": {
   "status": "verified",
-  "note": "batch b12; verified with unmerged Charizard ports; corpus b12-g4 unsupported until they merge",
+  "note": "batch b12; verified with unmerged Charizard ports; corpus b12-g4 unsupported until they merge; Twinleaf fix W4-46 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Oricorio ex M2"
  },
  "Reshiram ex WHT 20": {
@@ -1919,7 +1954,7 @@
  },
  "Cinderace MEG 28": {
   "status": "verified",
-  "note": "batch b12",
+  "note": "batch b12; Twinleaf fix W4-43 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Cinderace M1L"
  },
  "Centiskorch SSP 28": {
@@ -1944,7 +1979,7 @@
  },
  "Combusken DRI 41": {
   "status": "verified",
-  "note": "batch b12",
+  "note": "batch b12; Twinleaf fix W4-7 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Combusken DRI"
  },
  "Torchic DRI 40": {
@@ -1959,7 +1994,7 @@
  },
  "Volcanion ex JTG 31": {
   "status": "verified",
-  "note": "batch b12",
+  "note": "batch b12; Twinleaf fix W3-4 759bb30d8 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Volcanion ex JTG"
  },
  "Tirtouga BLK 22": {
@@ -1989,7 +2024,7 @@
  },
  "Espeon ex PRE 34": {
   "status": "verified",
-  "note": "batch b09",
+  "note": "batch b09; Twinleaf fix W4-44 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Espeon ex PRE"
  },
  "Sylveon PRE 40": {
@@ -2024,7 +2059,7 @@
  },
  "Jellicent ex WHT 45": {
   "status": "verified",
-  "note": "batch b09",
+  "note": "batch b09; Twinleaf fix W4-4 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Jellicent ex SV11W"
  },
  "Gimmighoul SSP 97": {
@@ -2034,7 +2069,7 @@
  },
  "Lampent PBL 37": {
   "status": "verified",
-  "note": "batch b09",
+  "note": "batch b09; Twinleaf fix W4-14 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Lampent M5"
  },
  "Litwick PBL 36": {
@@ -2089,7 +2124,7 @@
  },
  "Charcadet PFL 19": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b11; empty-deck throw never ran",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch b11; empty-deck throw never ran; Twinleaf fix #8 cb3d0e67c (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Charcadet M2"
  },
  "Charmander PFL 11": {
@@ -2179,7 +2214,7 @@
  },
  "Alolan Exeggutor ex SSP 133": {
   "status": "verified",
-  "note": "batch b08; blocked.push() no-op and !opponentBench unreachable",
+  "note": "batch b08; blocked.push() no-op and !opponentBench unreachable; Twinleaf fix W3-8 ebfc0316f (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Alolan Exeggutor ex SSP"
  },
  "Mega Latias ex MEG 100": {
@@ -2189,7 +2224,7 @@
  },
  "Miraidon TEF 121": {
   "status": "verified",
-  "note": "batch b08",
+  "note": "batch b08; Twinleaf fix W3-1 1dad519b8 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Miraidon TEF"
  },
  "Miraidon ex TEF 122": {
@@ -2204,7 +2239,7 @@
  },
  "Turtonator SSP 137": {
   "status": "verified",
-  "note": "batch b08; Twinleaf bug: Fully Singe tests empty cardTag, attack never does anything; ported as no-op",
+  "note": "batch b08; Twinleaf bug: Fully Singe tests empty cardTag, attack never does anything; ported as no-op; Twinleaf fix W4-19/51 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Turtonator SSP"
  },
  "Clefairy POR 30": {
@@ -2219,12 +2254,12 @@
  },
  "Cresselia SFA 21": {
   "status": "verified",
-  "note": "batch b08; chosenPrize===null unreachable",
+  "note": "batch b08; chosenPrize===null unreachable; Twinleaf fix #16 41b3d1f16 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Cresselia SFA"
  },
  "Azumarill ex ASC 84": {
   "status": "verified",
-  "note": "batch b10 (Codex); Energy Balloon +40/[P] is dead in Twinleaf (compares numeric enums to 'P'; Twinleaf bug, replicated)",
+  "note": "batch b10 (Codex); Energy Balloon +40/[P] is dead in Twinleaf (compares numeric enums to 'P'; Twinleaf bug, replicated); Twinleaf fix #27 cc13b9aec (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Azumarill ex MC"
  },
  "Marill ASC 83": {
@@ -2239,7 +2274,7 @@
  },
  "Mr. Mime TEF 63": {
   "status": "verified",
-  "note": "batch b10 (Codex); Special Condition throw covered by scenarios/mr-mime-look-alike-show-condition.json (12 traces); not-Active throw unreachable (attack only from Active)",
+  "note": "batch b10 (Codex); Special Condition throw covered by scenarios/mr-mime-look-alike-show-condition.json (12 traces); not-Active throw unreachable (attack only from Active); Twinleaf fix W2-7 94373764e (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Mr. Mime TEF"
  },
  "N's Sigilyph JTG 64": {
@@ -2259,7 +2294,7 @@
  },
  "Smoochum SSP 75": {
   "status": "verified",
-  "note": "batch b10 (Codex)",
+  "note": "batch b10 (Codex); Twinleaf fix W4-49 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Smoochum SSP"
  },
  "Spectrier ASC 98": {
@@ -2379,12 +2414,12 @@
  },
  "Walking Wake TWM 63": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified)",
+  "note": "batch b13 (Sonnet port, luna verified); Twinleaf fix W4-22 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Walking Wake TWM"
  },
  "Palafin ex PRE 151": {
   "status": "verified",
-  "note": "batch b13 (Sonnet port, luna verified); reprint of Palafinex (unpinned); fetched by Palafin TWM scenario",
+  "note": "batch b13 (Sonnet port, luna verified); reprint of Palafinex (unpinned); fetched by Palafin TWM scenario; Twinleaf fix #33 f1da723b8 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Palafin exSAR PRE"
  },
  "Neutralization Zone SFA 60": {
@@ -2539,12 +2574,12 @@
  },
  "Petilil BLK 6": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)",
+  "note": "batch c0 (Sonnet port, luna verified); Twinleaf fix W4-9 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Petilil BLK"
  },
  "Amoonguss BLK 11": {
   "status": "verified",
-  "note": "batch c0 (Sonnet port, luna verified)",
+  "note": "batch c0 (Sonnet port, luna verified); Twinleaf fix W4-1 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Amoongus SV11B"
  },
  "Gurdurr BLK 48": {
@@ -2589,37 +2624,37 @@
  },
  "Philippe CRI 79": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms); canPlay, empty and non-[M] prompt results unreachable",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); canPlay, empty and non-[M] prompt results unreachable; Twinleaf fix #14 bca51f725 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Philippe M4"
  },
  "Heavy Baton TEF 151": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms); tool-blocked, marker-present and redundant tools.includes returns unreachable",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); tool-blocked, marker-present and redundant tools.includes returns unreachable; Twinleaf fix #28 90249208d (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Heavy Baton PAR"
  },
  "Survival Brace TWM 164": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms); tool-blocked half of the early return unreachable",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); tool-blocked half of the early return unreachable; Twinleaf fix #30 60298f3b5+73fe40c65 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Survival Brace TWM"
  },
  "Counter Gain ASC 186": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms); ToolEffect-stub catch unreachable (no pool card throws on ToolEffect)",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); ToolEffect-stub catch unreachable (no pool card throws on ToolEffect); Twinleaf fix #31 5d7bdde08 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Counter Gain ASC"
  },
  "Mystery Garden ASC 194": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms)",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); Twinleaf fix #32 371434e74 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Mystery Garden ASC"
  },
  "Iron Thorns ex PRE 32": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms); Future-target, no-list and Initialization-blocked returns unreachable; Kieran switch scenario covers the lock counters",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); Future-target, no-list and Initialization-blocked returns unreachable; Kieran switch scenario covers the lock counters; Twinleaf fix #33 f0f426180 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Iron Thorns ex PRE"
  },
  "Ethan's Ho-Oh ex ASC 26": {
   "status": "verified",
-  "note": "batch t-sample (Sonnet port; chosen over luna arms); findCardList undefined check unreachable",
+  "note": "batch t-sample (Sonnet port; chosen over luna arms); findCardList undefined check unreachable; Twinleaf fix #42 c5820494f (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Ethan's Ho-Oh ex ASC"
  },
  "Delibird MEG 105": {
@@ -2654,7 +2689,7 @@
  },
  "Bouffalant SSP 151": {
   "status": "verified",
-  "note": "batch c1 (Sonnet)",
+  "note": "batch c1 (Sonnet); Twinleaf fix W4-29 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Bouffalant SSP"
  },
  "Dhelmise TEF 19": {
@@ -2749,7 +2784,7 @@
  },
  "Lisia's Appeal SSP 179": {
   "status": "verified",
-  "note": "batch b17 (Sonnet)",
+  "note": "batch b17 (Sonnet); Twinleaf fix #44 03f3bdbff (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Lisia's Appeal SSP"
  },
  "Morty's Conviction TEF 155": {
@@ -2759,17 +2794,17 @@
  },
  "Naveen POR 79": {
   "status": "verified",
-  "note": "batch b17 (Sonnet)",
+  "note": "batch b17 (Sonnet); Twinleaf fix #45 4727e02c6 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Naveen M3"
  },
  "Ruffian JTG 157": {
   "status": "verified",
-  "note": "batch b17 (Sonnet)",
+  "note": "batch b17 (Sonnet); Twinleaf fix #46 d26a973f8 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Ruffian JTG"
  },
  "Rust Syndicate Grunt PBL 81": {
   "status": "verified",
-  "note": "batch b17 (Sonnet)",
+  "note": "batch b17 (Sonnet); Twinleaf fix #38 b8cd5c5f1 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Rust Syndicate Grunt M5"
  },
  "Tarragon POR 85": {
@@ -2789,7 +2824,7 @@
  },
  "Hop's Choice Band JTG 148": {
   "status": "verified",
-  "note": "batch b17 (Sonnet)",
+  "note": "batch b17 (Sonnet); Twinleaf fix #37 baaff3894 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Hop's Choice Band JTG"
  },
  "Light Ball ASC 191": {
@@ -2814,7 +2849,7 @@
  },
  "Sacred Charm PFL 93": {
   "status": "verified",
-  "note": "batch b17 (Sonnet); Twinleaf bug: never reduces damage (checks source instanceof PokemonCard, source is a PokemonCardList), ported as a faithful no-op",
+  "note": "batch b17 (Sonnet); Twinleaf bug: never reduces damage (checks source instanceof PokemonCard, source is a PokemonCardList), ported as a faithful no-op; Twinleaf fix #18 fe06ef83c (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Sacred Charm M2"
  },
  "Tynamo ASC 59": {
@@ -2849,17 +2884,17 @@
  },
  "Ralts ASC 87": {
   "status": "verified",
-  "note": "batch c2 (Sonnet)",
+  "note": "batch c2 (Sonnet); Twinleaf fix W4-2 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Ralts ASC"
  },
  "Kirlia ASC 88": {
   "status": "verified",
-  "note": "batch c2 (Sonnet)",
+  "note": "batch c2 (Sonnet); Twinleaf fix W4-3 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Kirlia ASC"
  },
  "Mega Gardevoir ex ASC 89": {
   "status": "verified",
-  "note": "batch c2 (Sonnet)",
+  "note": "batch c2 (Sonnet); Twinleaf fix #41 52ee0ec2f (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Mega Gardevoir ex ASC"
  },
  "N's Reshiram ASC 154": {
@@ -2869,12 +2904,12 @@
  },
  "Iris's Fighting Spirit ASC 190": {
   "status": "verified",
-  "note": "batch c2 (Sonnet)",
+  "note": "batch c2 (Sonnet); Twinleaf fix #39 42807cc94 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Iris's Fighting Spirit ASC"
  },
  "Surfer ASC 200": {
   "status": "verified",
-  "note": "batch c2 (Sonnet)",
+  "note": "batch c2 (Sonnet); Twinleaf fix #2 2c72fb6c4 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Surfer ASC"
  },
  "Cheren ASC 258": {
@@ -2894,7 +2929,7 @@
  },
  "Steven's Metagross ex ASC 289": {
   "status": "verified",
-  "note": "batch c2 (Sonnet)",
+  "note": "batch c2 (Sonnet); Twinleaf fix #13 a949bb5b1 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Steven's Metagross ex ASC"
  },
  "Crustle BLK 52": {
@@ -2934,7 +2969,7 @@
  },
  "Fezandipiti PRE 45": {
   "status": "verified",
-  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch c3 (Sonnet); branches `pokemonCard !== this || phase !== ATTACK` and `effect.damage <= 0` not reached",
+  "note": "partial branches closed in batch p1 (Sonnet): covered by scenarios or exempted with cited Twinleaf lines (porting/reports/p1.md); was partial: batch c3 (Sonnet); branches `pokemonCard !== this || phase !== ATTACK` and `effect.damage <= 0` not reached; Twinleaf fix #35 dd8865ae0 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Fezandipiti PRE"
  },
  "Iron Boulder PRE 46": {
@@ -2979,7 +3014,7 @@
  },
  "Ceruledge ex PRE 147": {
   "status": "verified",
-  "note": "batch c3 (Sonnet)",
+  "note": "batch c3 (Sonnet); Twinleaf fix W1-B2 25bfaf50a (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "Ceruledge exSAR PRE"
  },
  "Iron Crown ex PRE 158": {
@@ -3019,7 +3054,7 @@
  },
  "N's Darmanitan ASC 33": {
   "status": "verified",
-  "note": "batch c3 (Sonnet)",
+  "note": "batch c3 (Sonnet); Twinleaf fix W3-6 5bec475a6 (phase 4b, porting/twinleaf-fixes.md)",
   "twinleaf": "N's Darmanitan ASC"
  },
  "Pikachu ex ASC 57": {
@@ -3046,5 +3081,30 @@
   "status": "verified",
   "note": "fix-archaludon (Sonnet): was bound to the PFL Archaludon port (different Twinleaf class with the same name); now its own port pinned Archaludon@Archaludon SCR|Archaludon PRE (Metal Bridge, Iron Blaster); ability-blocked return covered by scenarios/archaludon-flutter-mane-lock.json",
   "twinleaf": "Archaludon PRE"
+ },
+ "Petilil JTG 6": {
+  "status": "verified",
+  "twinleaf": "Petilil JTG",
+  "note": "Twinleaf fix W4-9 (phase 4b, porting/twinleaf-fixes.md)"
+ },
+ "Gimmighoul MEG 67": {
+  "status": "verified",
+  "twinleaf": "Gimmighoul M1L",
+  "note": "Twinleaf fix W4-12 (phase 4b, porting/twinleaf-fixes.md)"
+ },
+ "Charmeleon PFL 12": {
+  "status": "verified",
+  "twinleaf": "Charmeleon M2",
+  "note": "Twinleaf fix W4-15 (phase 4b, porting/twinleaf-fixes.md)"
+ },
+ "Toedscool JTG 88": {
+  "status": "verified",
+  "twinleaf": "Toedscool JTG",
+  "note": "Twinleaf fix W4-17 (phase 4b, porting/twinleaf-fixes.md)"
+ },
+ "Toedscool SCR 17": {
+  "status": "verified",
+  "twinleaf": "Toedscool SCR",
+  "note": "Twinleaf fix W4-17 (phase 4b, porting/twinleaf-fixes.md)"
  }
 }
