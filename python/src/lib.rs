@@ -432,7 +432,7 @@ impl VecEnv {
         self.stuck
     }
 
-    /// Games ended because the engine panicked (see divergences.toml).
+    /// Games ended because the engine panicked (a capacity cap hit by a runaway card bug).
     #[getter]
     fn aborted_games(&self) -> u64 {
         self.aborted
@@ -488,8 +488,8 @@ impl VecEnv {
         let mut rewards = Vec::with_capacity(self.envs.len());
         let mut dones = Vec::with_capacity(self.envs.len());
         for (i, a) in actions.into_iter().enumerate() {
-            // An engine panic (a capacity cap hit by an approved divergence,
-            // see divergences.toml) ends this env's game instead of training.
+            // An engine panic (a capacity cap hit by a runaway card bug) ends this
+            // env's game instead of training.
             let (r, d) = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.step_one(i, a))) {
                 Ok(res) => res?,
                 Err(_) => {

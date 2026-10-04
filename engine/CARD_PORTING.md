@@ -63,6 +63,7 @@ Twinleaf `reduceEffect` handles, or the card silently never sees it.
 | `cardList.getPokemonCard()` | `g.st.slot_pokemon(p, slot)` |
 | `MOVE_CARDS(store, state, from, to, { cards })` | `move_cards(g, from, to, &cards, me)?` (ListRef::Hand(p), Deck, Discard, Slot(p, s), ...) |
 | `player.hand.moveCardTo(c, dest)` (direct, no effect) | `g.move_card_to(ListRef::Hand(p), c, dest)` |
+| `MOVE_CARDS(store, state, slot, dest, { cards })` of attached Energy / a whole stack | `move_cards(g, ListRef::Slot(p, s), ...)`. A slot's `energies` is only a view of the Energy cards that are also in its `cards`: moving from `ListRef::SlotEnergies` (Twinleaf: `slot.energies` as the source) leaves the card in `cards` too, so cards must use the slot as the source (Mega Skarmory ex's Sonic Ripper did that wrongly until phase 4b). |
 | `SHUFFLE_DECK` | `shuffle_deck(g, p)` |
 | `DRAW_CARDS` | `draw_cards(g, p, n)?` |
 | `COIN_FLIP_PROMPT(store, state, player, cb)` | `g.coin_flip(p, CoinCb::Card { card: me, frame })?` → the result arrives in your `coin` fn |

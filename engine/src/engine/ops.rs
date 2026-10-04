@@ -1,6 +1,6 @@
 //! Card-list operations with Twinleaf's exact semantics (`CardList.moveTo`,
 //! `moveCardsTo`, `PokemonCardList` overrides, `sort`), including quirks
-//! such as energies being pushed twice by a full `PokemonCardList.moveTo`.
+//! (the old double push of a slot's energies by `PokemonCardList.moveTo` is fixed).
 
 use crate::game::Game;
 use crate::list::*;
@@ -48,25 +48,36 @@ impl Game {
     }
 
     /// `CardList.moveTo(destination, count)` / `PokemonCardList.moveTo`.
+    ///
+    /// Fixed in Twinleaf (W1-A): a slot's `energies` is a view of the Energy
+    /// cards that are also in `cards`, so moving `cards` moves them; they used
+    /// to be pushed to the destination twice. Only an entry that is in
+    /// `energies` alone (a Pokémon acting as Energy) is moved separately, and
+    /// only by a full move. Energy moved into another slot is recorded in that
+    /// slot's `energies`.
     pub fn move_to(&mut self, src: ListRef, dst: ListRef, count: Option<usize>) {
-        if let Some((p, s)) = Self::slot_of(src) {
-            // Energies CardList is moved first (plain moveTo into dst.cards).
-            let en: SVec<CardId, 48> = {
-                let mut v = SVec::new();
-                for c in self.st.players[p].slots[s as usize].energies.iter() {
-                    v.push(c);
-                }
-                v
-            };
-            if !en.is_empty() {
-                self.st.players[p].slots[s as usize].energies.clear();
-                for &c in en.iter() {
-                    self.lst_mut(dst).push(c);
-                }
-            }
-        }
         let len = self.lst(src).len();
         let n = count.unwrap_or(len).min(len);
+        let mut en_moved: SVec<CardId, 48> = SVec::new();
+        if let Some((p, s)) = Self::slot_of(src) {
+            let slot = &self.st.players[p].slots[s as usize];
+            let full = n >= len;
+            let mut orphans: SVec<CardId, 48> = SVec::new();
+            for c in slot.energies.iter() {
+                if full && !slot.cards.contains(c) {
+                    orphans.push(c);
+                    en_moved.push(c);
+                } else if slot.cards.as_slice()[..n].contains(&c) {
+                    en_moved.push(c);
+                }
+            }
+            for &c in orphans.iter() {
+                self.lst_mut(dst).push(c);
+            }
+            for &c in en_moved.iter() {
+                self.st.players[p].slots[s as usize].energies.remove(c);
+            }
+        }
         let mut moved: SVec<CardId, 120> = SVec::new();
         for &c in &self.lst(src)[..n] {
             moved.push(c);
@@ -84,6 +95,14 @@ impl Game {
         }
         for &c in moved.iter() {
             self.lst_mut(dst).push(c);
+        }
+        if let Some((dp, ds)) = Self::slot_of(dst) {
+            for &c in en_moved.iter() {
+                let e = &mut self.st.players[dp].slots[ds as usize].energies;
+                if !e.contains(c) {
+                    e.push(c);
+                }
+            }
         }
     }
 

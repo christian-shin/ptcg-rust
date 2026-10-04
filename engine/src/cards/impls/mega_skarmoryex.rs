@@ -2,9 +2,10 @@
 //! Pokémon into your deck; 220 damage to 1 of your opponent's Pokémon (no
 //! Weakness/Resistance for the Bench).
 //!
-//! Twinleaf quirks kept: the Energy is moved out of the Active's `energies`
-//! list only (the cards stay in the slot's `cards` too, so they are
-//! duplicated into the deck); the ShuffleDeckPrompt and the target prompt are
+//! Fixed (W1-A): the Energy used to be moved out of the Active's `energies`
+//! list only (the cards stayed in the slot's `cards` too, so they were
+//! duplicated into the deck); it is now moved from the slot itself.
+//! Twinleaf quirk kept: the ShuffleDeckPrompt and the target prompt are
 //! both opened at once (no shuffle wait).
 use crate::cards::prelude::*;
 
@@ -21,7 +22,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let a = g.st.players[p].active;
     let energies: Vec<CardId> = g.st.players[p].slots[a as usize].energies.iter().collect();
     if !energies.is_empty() {
-        move_cards(g, ListRef::SlotEnergies(p as u8, a), ListRef::Deck(p as u8), &energies, me)?;
+        move_cards(g, ListRef::Slot(p as u8, a), ListRef::Deck(p as u8), &energies, me)?;
     }
     let id = g.player_id(p);
     g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });

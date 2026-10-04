@@ -24,7 +24,27 @@ pub fn play_energy_reducer(g: &mut Game, id: EffId) -> R {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
     // cannotAttachEnergyFromHandNextTurn / pending attach consequences: not modeled.
-    g.move_card_to(ListRef::Hand(p as u8), card, target.list());
+    // The Energy card is moved from where it is (Twinleaf moved it from the hand only, so an
+    // Energy attached from the deck, discard pile or the cards just looked at stayed there):
+    // the hand, else any list of the game state, else a scratch list (Twinleaf's
+    // `AttachEnergyEffect.sourceList`, the top cards of LOOK_AT_TOP_X_CARDS_AND_ATTACH...).
+    let mut src = ListRef::Hand(p as u8);
+    if !g.st.players[p].hand.contains(card) {
+        match g.st.locate(card) {
+            Some(l) => src = l,
+            None => {
+                for i in 0..g.temps.len() {
+                    if g.temps[i].as_slice().contains(&card) {
+                        src = ListRef::Temp(i as u8);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    if src != target.list() {
+        g.move_card_to(src, card, target.list());
+    }
     let e = &mut g.st.players[target.p as usize].slots[target.s as usize].energies;
     if !e.contains(card) {
         e.push(card);

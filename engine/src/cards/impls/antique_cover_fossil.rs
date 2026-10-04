@@ -3,10 +3,12 @@
 //! Protective Cover — prevent all effects of attacks used by your opponent's
 //! Pokémon done to this Pokémon. (Damage is not an effect.)
 //!
-//! Twinleaf (copied from the Poké Doll pattern, ported as is): the Trainer
-//! Ability throws CANNOT_USE_POWER unless this card is the first card of the
-//! player's Active slot, then puts it on the BOTTOM of the deck (not the
-//! discard pile) and the other attached cards into the discard pile. On its
+//! Fixed (W1-D): the Trainer Ability used to be copied from the Poké Doll
+//! (CANNOT_USE_POWER unless this card was the first card of the Active slot,
+//! then put on the bottom of the deck via a toBottom MoveCardsEffect that also
+//! duplicated it and dropped the deck's top card). It now discards this card
+//! from play, with its attached cards, wherever it is (like Antique Root
+//! Fossil), via one MoveCardsEffect of the whole slot. On its
 //! own PlayItemEffect the card reduces a PlayPokemonEffect into the first
 //! empty Bench slot; a RetreatEffect with it Active throws. Every attack
 //! effect (AbstractAttackEffect) aimed at a slot holding this card as its top
@@ -35,25 +37,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Some(l) => l,
             None => bail!("INVALID_GAME_STATE"),
         };
-        let a = g.st.players[p].active;
-        if g.st.slot(p, a).cards.as_slice().first().copied() != Some(me) {
-            bail!("CANNOT_USE_POWER");
-        }
         g.run_fx(Effect::MoveCards {
             source: list,
-            destination: ListRef::Deck(p as u8),
-            cards: Some(List::from_slice(&[me])),
+            destination: ListRef::Discard(p as u8),
+            cards: None,
             count: None,
             to_top: false,
-            to_bottom: true,
+            to_bottom: false,
             skip_cleanup: false,
-            source_card: NO_CARD,
+            source_card: me,
         })?;
-        let rest: Vec<CardId> = match list {
-            ListRef::Slot(q, s) => g.st.slot(q as usize, s).cards.iter().filter(|c| *c != me).collect(),
-            _ => g.lst(list).iter().copied().filter(|c| *c != me).collect(),
-        };
-        move_cards(g, list, ListRef::Discard(p as u8), &rest, NO_CARD)?;
     }
 
     if let Effect::PlayItem { p, card, .. } = *g.e(e) {
