@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Toxel PFL 67",
+   "4 Toxtricity PFL 68",
+   "4 Zeraora DRI 78",
+   "48 Darkness Energy MEE"
+  ],
+  [
+   "4 Toxel PFL 67",
+   "4 Toxtricity PFL 68",
+   "4 Zeraora DRI 78",
+   "48 Darkness Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Toxel PFL 67",
+   "Toxtricity PFL 68"
+  ],
+  "bench": [
+   {
+    "card": "Toxel PFL 67"
+   },
+   {
+    "card": "Zeraora DRI 78"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Toxel PFL 67"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Sinister Surge",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

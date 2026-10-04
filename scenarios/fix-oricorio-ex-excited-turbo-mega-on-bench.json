@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Oricorio ex PFL 18",
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex M2",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Oricorio ex PFL 18",
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex M2",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Oricorio ex PFL 18",
+  "hand": [
+   "2 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Charmander PFL 11",
+     "Charmeleon PFL 12",
+     "Mega Charizard X ex M2"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Oricorio ex PFL 18"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Excited Turbo",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

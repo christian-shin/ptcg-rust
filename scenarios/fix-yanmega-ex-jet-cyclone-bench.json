@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Yanma DRI",
+   "4 Yanmega ex DRI 3",
+   "52 Grass Energy MEE"
+  ],
+  [
+   "4 Yanma DRI",
+   "4 Yanmega ex DRI 3",
+   "52 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Yanma DRI",
+   "Yanmega ex DRI 3"
+  ],
+  "active_energy": [
+   "4 Grass Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Yanma DRI"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Yanma DRI"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jet Cyclone"
+  }
+ ]
+}

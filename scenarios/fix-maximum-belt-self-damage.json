@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zekrom ex BLK 34",
+   "1 Maximum Belt PRE 117",
+   "55 Lightning Energy MEE"
+  ],
+  [
+   "4 Zekrom ex BLK 34",
+   "1 Maximum Belt PRE 117",
+   "55 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zekrom ex BLK 34",
+  "active_energy": [
+   "3 Lightning Energy MEE"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zekrom ex BLK 34"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Voltage Burst"
+  }
+ ]
+}

@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's Darmanitan ASC 33",
+   "52 Fire Energy MEE"
+  ],
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's Darmanitan ASC 33",
+   "52 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Darumaka ASC 32",
+   "N's Darmanitan ASC 33"
+  ],
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "N's Darumaka ASC 32"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Darman-i-cannon"
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Exeggcute SSP",
+   "4 Alolan Exeggutor ex SSP 133",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "10 Water Energy MEE",
+   "10 Fighting Energy MEE",
+   "24 Grass Energy MEE"
+  ],
+  [
+   "4 Exeggcute SSP",
+   "4 Alolan Exeggutor ex SSP 133",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "10 Water Energy MEE",
+   "10 Fighting Energy MEE",
+   "24 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Exeggcute SSP",
+   "Alolan Exeggutor ex SSP 133"
+  ],
+  "active_energy": [
+   "Grass Energy MEE",
+   "Water Energy MEE",
+   "Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shinx FST 91",
+  "bench": [
+   {
+    "card": "Shinx FST 91"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Swinging Sphene"
+  }
+ ],
+ "coins": [
+  true
+ ]
+}

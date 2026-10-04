@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Kyurem SFA 47",
+   "4 Shinx FST 91",
+   "24 Metal Energy MEE 8",
+   "28 Water Energy MEE"
+  ],
+  [
+   "4 Kyurem SFA 47",
+   "4 Shinx FST 91",
+   "24 Metal Energy MEE 8",
+   "28 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kyurem SFA 47",
+  "active_energy": [
+   "3 Water Energy MEE",
+   "2 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Kyurem SFA 47",
+  "bench": [
+   {
+    "card": "Shinx FST 91"
+   },
+   {
+    "card": "Shinx FST 91"
+   },
+   {
+    "card": "Shinx FST 91"
+   },
+   {
+    "card": "Shinx FST 91"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Trifrost"
+  }
+ ]
+}

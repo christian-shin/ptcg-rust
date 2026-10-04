@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zeraora DRI 78",
+   "4 Pikachu ex ASC 57",
+   "52 Lightning Energy MEE"
+  ],
+  [
+   "4 Zeraora DRI 78",
+   "4 Pikachu ex ASC 57",
+   "52 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "3 Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "bench": [
+   {
+    "card": "Pikachu ex ASC 57"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Blitz"
+  }
+ ]
+}

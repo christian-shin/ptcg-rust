@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Seviper PFL 62",
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "4 Okidogi ex SFA",
+   "40 Darkness Energy MEE"
+  ],
+  [
+   "4 Seviper PFL 62",
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "4 Okidogi ex SFA",
+   "40 Darkness Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Seviper PFL 62",
+  "active_energy": [
+   "3 Darkness Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Gastly ASC 123",
+     "Haunter ASC 124",
+     "Mega Gengar ex ASC 125"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Okidogi ex SFA"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jet Black Fang"
+  }
+ ]
+}

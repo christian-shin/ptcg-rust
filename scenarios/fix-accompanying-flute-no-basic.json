@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Accompanying Flute TWM 142",
+   "4 Zeraora DRI 78",
+   "52 Lightning Energy MEE"
+  ],
+  [
+   "4 Accompanying Flute TWM 142",
+   "4 Zeraora DRI 78",
+   "52 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "hand": [
+   "Accompanying Flute TWM 142"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "deck_top": [
+   "Lightning Energy MEE",
+   "Lightning Energy MEE",
+   "Lightning Energy MEE",
+   "Lightning Energy MEE",
+   "Lightning Energy MEE"
+  ]
+ }
+}

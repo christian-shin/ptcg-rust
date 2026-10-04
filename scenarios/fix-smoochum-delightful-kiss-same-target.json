@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Smoochum SSP 75",
+   "56 Psychic Energy MEE"
+  ],
+  [
+   "4 Smoochum SSP 75",
+   "56 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Smoochum SSP 75",
+  "bench": [
+   {
+    "card": "Smoochum SSP 75"
+   },
+   {
+    "card": "Smoochum SSP 75"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Smoochum SSP 75"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Happy Kiss"
+  }
+ ]
+}
