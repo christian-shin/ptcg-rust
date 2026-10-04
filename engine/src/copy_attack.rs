@@ -411,6 +411,14 @@ fn cannot_use_attack_now(g: &Game, p: usize, a: AttackRef, energy_count: i32) ->
     slot.blocked_attack_name_next_turn == Some(ad.name) || slot.blocked_attack_name_until_leaves_active == Some(ad.name)
 }
 
+/// Push onto a blocked list of at most 16 entries (a full list can only miss a
+/// blocked attack, which is then caught like any attack that throws).
+fn push_blocked(v: &mut SVec<(u8, u8), 16>, e: (u8, u8)) {
+    if v.len() < 16 {
+        v.push(e);
+    }
+}
+
 /// The ChooseAttackPrompt of COPY_ATTACK_VIA_ABILITY (`promptAttackToCopyViaAbility`).
 fn prompt_ability(g: &mut Game, f: CopyFrame) -> R {
     let id = g.player_id(f.p as usize);
@@ -465,7 +473,7 @@ pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
             let a = AttackRef { card: c, index: i as u8 };
             let name = g.st.cdef(c).attacks[i].name;
             if !affordable[i] || locked.iter().any(|l| *l == name) || cannot_use_attack_now(g, p, a, energy_count) {
-                blocked.push((index, i as u8));
+                push_blocked(&mut blocked, (index, i as u8));
             }
         }
     }
@@ -637,7 +645,7 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                     g.st.phase = phase;
                     let index = f.cards.iter().position(|c| *c == a.card).unwrap_or(0) as u8;
                     let mut nf = f;
-                    nf.blocked.push((index, a.idx() as u8));
+                    push_blocked(&mut nf.blocked, (index, a.idx() as u8));
                     prompt_ability(g, nf)
                 }
                 Err(e) => Err(e),

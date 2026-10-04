@@ -8,8 +8,9 @@
    "4 Primeape M5",
    "4 Annihilape PBL 41",
    "4 Duraludon PRE 69",
-   "30 Psychic Energy MEE",
-   "6 Fighting Energy MEE"
+   "24 Psychic Energy MEE",
+   "6 Fighting Energy MEE",
+   "6 Metal Energy MEE 8"
   ],
   [
    "4 Slowpoke SCR 57",
@@ -18,8 +19,9 @@
    "4 Primeape M5",
    "4 Annihilape PBL 41",
    "4 Duraludon PRE 69",
-   "30 Psychic Energy MEE",
-   "6 Fighting Energy MEE"
+   "24 Psychic Energy MEE",
+   "6 Fighting Energy MEE",
+   "6 Metal Energy MEE 8"
   ]
  ],
  "me": {
@@ -42,7 +44,7 @@
   "reset": true,
   "active": "Duraludon PRE 69",
   "active_energy": [
-   "3 Psychic Energy MEE"
+   "2 Metal Energy MEE 8"
   ],
   "bench": [
    {
