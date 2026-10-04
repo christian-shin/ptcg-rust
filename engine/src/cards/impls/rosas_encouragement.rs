@@ -2,8 +2,10 @@
 //! remaining than your opponent; attach up to 2 Basic Energy cards from your
 //! discard pile to 1 of your Stage 2 Pokémon.
 //!
-//! Twinleaf quirk kept: the Stage 2 / Basic Energy restriction only lives in
-//! the AttachEnergyPrompt filter, which the prompt's validate never checks.
+//! Fixed in phase 4b: the prompt filter also had `stage: STAGE_2`, which no
+//! Energy card matches, so no card was ever selectable and nothing attached.
+//! The filter is now Basic Energy only and the non-Stage 2 Pokémon are in
+//! `blockedTo` (the prompt's validate checks neither).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "RosasEncouragement", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -51,10 +53,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     opts.min = 0;
     opts.max = max;
     opts.same_target = true;
+    for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        if g.st.cdef(c).stage != Stage::Stage2 as u8 {
+            opts.blocked_to.push(t);
+        }
+    }
     let filter = Filter {
         super_type: Some(SuperType::Energy as u8),
         energy_type: Some(EnergyType::Basic as u8),
-        stage: Some(Stage::Stage2 as u8),
         ..Filter::none()
     };
     let mut f = CardFrame::at(1);

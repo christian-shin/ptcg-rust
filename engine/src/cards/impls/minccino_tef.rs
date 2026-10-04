@@ -2,18 +2,18 @@
 //! from your opponent's Pokémon.
 //!
 //! Twinleaf has two `Minccino` classes; this port is bound to TEF.
-//! Twinleaf quirk kept: the Cleaning Up code runs on `WAS_ATTACK_USED(0)`,
-//! i.e. for Beat: Beat fails (CANNOT_PLAY_THIS_CARD) when no opposing
-//! Pokémon has a Tool, otherwise the AttackEffect is prevented (no damage)
-//! and 1–2 opposing Pokémon with Tools are chosen (cancellable). A target
-//! with several Tools gets a non-yielding ChooseCardsPrompt (1–2 Tools);
-//! one with a single Tool loses it at once. Cleaning Up itself does nothing.
+//! The Cleaning Up code is on attack 1 (fixed in phase 4b: it was attached to
+//! attack 0, Beat). Cleaning Up fails (CANNOT_PLAY_THIS_CARD) when no opposing
+//! Pokémon has a Tool, otherwise the AttackEffect is prevented (no damage; the
+//! attack has none) and 1–2 opposing Pokémon with Tools are chosen
+//! (cancellable). A target with several Tools gets a non-yielding
+//! ChooseCardsPrompt (1–2 Tools); one with a single Tool loses it at once.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Minccino@TEF", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
+    if !was_attack_used(g, e, 1, me) {
         return Ok(());
     }
     let (p, opp, source) = match *g.e(e) {

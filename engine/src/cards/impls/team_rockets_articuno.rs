@@ -6,8 +6,8 @@
 //! the attack phase, when this card is the top card of one of the attacked
 //! player's slots and the target is a Basic Team Rocket's Pokémon); it has
 //! no Ability-lock check. Dark Frost looks for an Energy named
-//! "Team Rocket Energy" on the attacker's Active, which no card is called,
-//! so the bonus never applies.
+//! "Team Rocket's Energy" on the attacker's Active (fixed in phase 4b: it
+//! compared against "Team Rocket Energy", so the bonus never applied).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsArticuno", mask: mask(&[k::PUT_COUNTERS, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -37,7 +37,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let a = g.st.players[p].active;
         let has = g.st.slot(p, a).cards.iter().any(|c| {
             let d = g.st.cdef(c);
-            d.is_energy() && d.name == "Team Rocket Energy"
+            d.is_energy() && d.name == "Team Rocket's Energy"
         });
         if has {
             if let Effect::Attack { damage, .. } = g.e_mut(e) {

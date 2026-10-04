@@ -433,9 +433,10 @@ One line per bug, so they can be collected into the fix list:
 <International key> [(<Twinleaf fullName> if different)] (<twinleaf file>:<line>) - <what Twinleaf does> vs <what the card says>
 ```
 
-For example: `Team Rocket's Zapdos DRI 70 (team-rockets-zapdos.ts:65) - checks
-the name 'Team Rocket Energy', so the +60 never applies vs "Team Rocket's
-Energy"`. Include crashes and stuck prompts (no valid answer) the same way.
+For example (this one was fixed in phase 4b): `Team Rocket's Zapdos DRI 70
+(team-rockets-zapdos.ts:65) - checks the name 'Team Rocket Energy', so the +60
+never applies vs "Team Rocket's Energy"`. Include crashes and stuck prompts (no
+valid answer) the same way.
 
 ## Fixing a Twinleaf bug (phase 4b)
 
