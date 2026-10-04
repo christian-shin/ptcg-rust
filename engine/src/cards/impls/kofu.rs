@@ -1,9 +1,10 @@
 //! Kofu (SCR, supporter): put 2 cards from your hand on the bottom of your
 //! deck in any order, then draw 4 cards.
 //!
-//! Twinleaf: the Supporter stays in the hand while the prompt is open, so
-//! Kofu itself is a legal pick (the hand cards are chosen from `player.hand`,
-//! 2 required, no cancel); the trainer effect is not prevented. After the
+//! Twinleaf: the hand cards are chosen from `player.hand` (2 required, no
+//! cancel); the core TrainerEffect reducer has already moved the Supporter to
+//! the supporter pile when the prompt is answered, so Kofu itself is never a
+//! pick (phase 4b #43: checked in corpus traces, not a bug). After the
 //! order prompt the cards go to the deck bottom and `min(4, deck size)` cards
 //! are moved to the hand (no shuffle, no supporter-turn marker).
 use crate::cards::prelude::*;
