@@ -380,7 +380,8 @@ impl Game {
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
         let cont = self.tag_cont(cont);
         let id = self.next_id();
-        // Only runaway Twinleaf card aliasing gets here (divergences.toml).
+        // Safety cap: a card duplicating itself in a loop would get here (the Dangle Tail aliasing that
+        // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();

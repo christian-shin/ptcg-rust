@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Charcadet SSP 32",
+   "4 Ceruledge ex PRE 147",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "4 Psychic Energy MEE 5",
+   "4 Metal Energy MEE 8",
+   "36 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charcadet SSP 32",
+   "4 Ceruledge ex PRE 147",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "4 Psychic Energy MEE 5",
+   "4 Metal Energy MEE 8",
+   "36 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charcadet SSP 32",
+   "Ceruledge ex PRE 147"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Psychic Energy MEE 5",
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Mankey SSP 98"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "bench": [
+   {
+    "card": "Mankey SSP 98",
+    "energy": [
+     "2 Fire Energy MEE 2"
+    ]
+   },
+   {
+    "card": "Mankey SSP 98",
+    "energy": [
+     "Mist Energy TEF 161",
+     "Fire Energy MEE 2"
+    ]
+   }
+  ]
+ }
+}

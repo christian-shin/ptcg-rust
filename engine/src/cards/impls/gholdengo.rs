@@ -6,9 +6,13 @@
 //! this card's list (any evolution or play this turn counts). Surf Back:
 //! ConfirmPrompt, then MOVE_CARDS of the whole Active to the deck,
 //! `player.active.clearEffects()` and a ShuffleDeckPrompt (no trailing wait).
+//! Fixed (W1-A): Surf Back used to run in the attack handler, i.e. before the
+//! damage step, so the Pokémon was already in the deck while its 100 damage
+//! was dealt (no Weakness/Resistance, lost tools, a crash in handlers that
+//! read the attacker); it now runs on the AfterAttackEffect, like Tuck Tail.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Gholdengo", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Gholdengo", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -19,14 +23,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 }
             }
         }
-    } else if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
+    }
+    if let Effect::AfterAttack { p, attack, .. } = *g.e(e) {
+        if attack == my_attack(g, me, 1) {
+            let p = p as usize;
+            let mut f = CardFrame::at(1);
+            f.a[0] = p as i32;
+            confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
+        }
     }
     Ok(())
 }

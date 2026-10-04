@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Scoop Up Cyclone PRE 128",
+   "4 Charcadet SSP 32",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "4 Air Balloon ASC 181",
+   "43 Fire Energy MEE 2"
+  ],
+  [
+   "1 Scoop Up Cyclone PRE 128",
+   "4 Charcadet SSP 32",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "4 Air Balloon ASC 181",
+   "43 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Charcadet SSP 32",
+  "active_energy": [
+   "2 Fire Energy MEE 2",
+   "Mist Energy TEF 161"
+  ],
+  "active_tool": "Air Balloon ASC 181",
+  "bench": [
+   {
+    "card": "Mankey SSP 98",
+    "energy": [
+     "Fire Energy MEE 2"
+    ]
+   }
+  ],
+  "hand": [
+   "Scoop Up Cyclone PRE 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}

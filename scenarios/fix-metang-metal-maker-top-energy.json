@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Beldum TEF 113",
+   "Metang TEF 114"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Mankey SSP 98"
+   },
+   {
+    "card": "Mankey SSP 98"
+   }
+  ],
+  "deck_top": [
+   "3 Metal Energy MEE 8",
+   "Mist Energy TEF 161"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}

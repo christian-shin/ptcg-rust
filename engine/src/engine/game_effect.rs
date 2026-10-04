@@ -173,17 +173,22 @@ fn move_with_prism_check(g: &mut Game, cards: &[CardId], src: ListRef, dst: List
     }
 }
 
+/// Put the cards just moved at the top or the bottom of the destination. They were pushed onto
+/// its end, so lift them out first (Twinleaf duplicated them and dropped the destination's
+/// first cards; fixed in W1-D).
 fn reorder_after(g: &mut Game, dst: ListRef, cards: &[CardId], to_top: bool, to_bottom: bool) {
-    if to_bottom {
-        let cur: Vec<CardId> = g.lst(dst).to_vec();
-        let mut v: Vec<CardId> = cur.iter().skip(cards.len()).copied().collect();
-        v.extend_from_slice(cards);
-        g.lst_mut(dst).set_from(&v);
-    } else if to_top {
-        let mut v: Vec<CardId> = cards.to_vec();
-        v.extend_from_slice(g.lst(dst));
-        g.lst_mut(dst).set_from(&v);
+    if !to_top && !to_bottom {
+        return;
     }
+    let cur: Vec<CardId> = g.lst(dst).to_vec();
+    let inside: Vec<CardId> = cards.iter().copied().filter(|c| cur.contains(c)).collect();
+    let others: Vec<CardId> = cur.iter().copied().filter(|c| !inside.contains(c)).collect();
+    let v: Vec<CardId> = if to_bottom {
+        others.iter().chain(inside.iter()).copied().collect()
+    } else {
+        inside.iter().chain(others.iter()).copied().collect()
+    };
+    g.lst_mut(dst).set_from(&v);
 }
 
 fn move_cards(g: &mut Game, id: EffId) -> R {

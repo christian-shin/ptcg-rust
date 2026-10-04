@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Meowth ex POR 62",
+   "4 Mist Energy TEF 161",
+   "4 Air Balloon ASC 181",
+   "4 Mankey SSP 98",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Meowth ex POR 62",
+   "4 Mist Energy TEF 161",
+   "4 Air Balloon ASC 181",
+   "4 Mankey SSP 98",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Meowth ex POR 62",
+  "active_energy": [
+   "2 Psychic Energy MEE 5",
+   "Mist Energy TEF 161"
+  ],
+  "active_tool": "Air Balloon ASC 181",
+  "bench": [
+   {
+    "card": "Mankey SSP 98"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}

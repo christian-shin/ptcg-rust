@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Farfetch'd TWM 132",
+   "4 Air Balloon ASC 181",
+   "4 Lucky Helmet TWM 158",
+   "4 Mankey SSP 98",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Farfetch'd TWM 132",
+   "4 Air Balloon ASC 181",
+   "4 Lucky Helmet TWM 158",
+   "4 Mankey SSP 98",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "hand": [
+   "Farfetch'd TWM 132"
+  ],
+  "deck_top": [
+   "Air Balloon ASC 181",
+   "Lucky Helmet TWM 158"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}
