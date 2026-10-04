@@ -1,15 +1,19 @@
 //! Heavy Baton (TEF / PAR, tool): if the Pokémon this card is attached to has
-//! a Retreat Cost of 4 or higher, is in the Active Spot, and is Knocked Out
+//! a Retreat Cost of exactly 4, is in the Active Spot, and is Knocked Out
 //! by damage from an attack from your opponent's Pokémon, move up to 3 Basic
 //! Energy cards from that Pokémon to your Benched Pokémon in any way you
 //! like.
 //!
-//! Twinleaf quirks kept: any KnockOutEffect of a slot holding this tool
-//! during the opponent's ATTACK phase triggers it (Active Spot and damage
-//! are not checked, the retreat cost is the printed one); the Energy
-//! list is a copy of the Basic Energy on the slot, but the transfers move
-//! the cards from the owner's discard pile; the slot marker is removed when
-//! the prompt resolves (cancel allowed, same target only).
+//! Twinleaf: a KnockOutEffect of a slot holding this tool during the
+//! opponent's ATTACK phase, where the slot is the owner's Active Spot and the
+//! owner carries DAMAGE_DEALT_MARKER (Knocked Out by damage from an attack;
+//! fixed in phase 4b, it used to trigger on any KO), and the current Retreat
+//! Cost (CheckRetreatCostEffect) is exactly 4 (phase 4b: it used to be a
+//! printed Retreat Cost of 4 or more). The Energy list is a copy of the Basic
+//! Energy on the slot, but the transfers move the cards from the owner's
+//! discard pile (the core has already discarded the Pokémon); the slot marker
+//! is removed when the prompt resolves (cancel allowed, up to 3, any Benched
+//! Pokémon in any combination: no sameTarget since phase 4b).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HeavyBaton", mask: mask(&[k::KNOCK_OUT]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -36,11 +40,21 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.slot(t.p as usize, t.s).marker.has(baton()) {
         return Ok(());
     }
+    // Only the Active Spot, and only when Knocked Out by damage from an attack
+    if g.st.players[p].active != t.s || !g.st.players[p].marker.has(crate::markers::DAMAGE_DEALT_MARKER) {
+        return Ok(());
+    }
     let pokemon = match g.st.slot_pokemon(t.p as usize, t.s) {
         Some(c) => c,
         None => return Ok(()),
     };
-    if g.st.cdef(pokemon).retreat.len() < 4 {
+    // Retreat Cost of exactly 4 (the current one: CheckRetreatCostEffect)
+    let mut cost: crate::effects::Cost = SVec::new();
+    for &t in g.st.cdef(pokemon).retreat {
+        cost.push(t);
+    }
+    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost })?;
+    if !matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == 4) {
         return Ok(());
     }
     let energy: Vec<CardId> = g
@@ -62,7 +76,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     o.allow_cancel = true;
     o.min = 0;
     o.max = 3;
-    o.same_target = true;
     let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
     let mut slots = SVec::new();
     slots.push(SlotType::Bench as u8);

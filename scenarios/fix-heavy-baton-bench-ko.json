@@ -1,0 +1,48 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Fezandipiti ex ASC 142",
+      "4 Ethan's Ho-Oh ex ASC 26",
+      "4 Iron Thorns ex PRE 32",
+      "4 Heavy Baton TEF 151",
+      "24 Lightning Energy MEE 4",
+      "20 Darkness Energy MEE 7"
+    ],
+    [
+      "4 Fezandipiti ex ASC 142",
+      "4 Ethan's Ho-Oh ex ASC 26",
+      "4 Iron Thorns ex PRE 32",
+      "4 Heavy Baton TEF 151",
+      "24 Lightning Energy MEE 4",
+      "20 Darkness Energy MEE 7"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Fezandipiti ex ASC 142",
+    "active_energy": [
+      "3 Darkness Energy MEE 7"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Ethan's Ho-Oh ex ASC 26",
+    "bench": [
+      {
+        "card": "Iron Thorns ex PRE 32",
+        "tool": "Heavy Baton TEF 151",
+        "energy": [
+          "3 Lightning Energy MEE 4"
+        ],
+        "damage": 150
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Cruel Arrow"
+    }
+  ]
+}
