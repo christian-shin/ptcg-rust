@@ -1,0 +1,39 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Mew ex 30C 66",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Drilbur PBL 46",
+   "48 Psychic Energy MEE"
+  ],
+  [
+   "4 Mew ex 30C 66",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Drilbur PBL 46",
+   "48 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "2 Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Drilbur PBL 46",
+    "energy": [
+     "Psychic Energy MEE"
+    ]
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Drilbur PBL 46"
+ }
+}

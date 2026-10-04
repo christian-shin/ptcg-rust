@@ -180,7 +180,8 @@ pub fn is_legal(g: &Game, a: Action) -> bool {
         return false;
     }
     // Resolve info prompts (an ability's animation wait) so checks that run
-    // after them count toward legality; stop at chance prompts and decisions.
+    // after them count toward legality; stop at chance prompts (except the
+    // Confusion flip, see below) and decisions.
     // Chance inside the trial draws fixed outcomes (`Rng::zero`, the oracle's
     // `Chance.trial`): a coin callback that throws after its "Coin flip
     // animation" wait would otherwise make legality depend on a draw, and the
@@ -192,6 +193,16 @@ pub fn is_legal(g: &Game, a: Action) -> bool {
         match trial.pending() {
             crate::game::Pending::Info(i) => {
                 if trial.resolve(i, crate::prompts::Res::True).is_err() {
+                    return false;
+                }
+            }
+            // The Confusion flip's heads branch runs the attack: resolve it as
+            // heads so an attack that throws is not offered to a Confused attacker.
+            crate::game::Pending::Chance(i)
+                if trial.prompts.as_slice()[i].message == "FLIP_CONFUSION"
+                    && matches!(trial.prompts.as_slice()[i].kind, crate::prompts::PromptKind::CoinFlip) =>
+            {
+                if trial.resolve(i, crate::prompts::Res::Bool(true)).is_err() {
                     return false;
                 }
             }

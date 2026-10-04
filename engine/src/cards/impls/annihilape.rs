@@ -6,8 +6,10 @@
 //! Twinleaf quirk kept: the coin's callback sets `surviveOnTenHPReason`
 //! after the flip's wait prompt, i.e. after the PutDamageEffect was already
 //! applied, so the flip happens but never saves the Pokémon. On heads the
-//! callback reads `this.powers[0].name`: when the code runs for a copycat
-//! (a copied Ghostly Blow's session) whose card has no powers, that throws.
+//! callback reads `this.powers[0].name`. Fixed (phase 4b): when the code runs
+//! for a copycat (a copied Ghostly Blow's session), `IS_ABILITY_BLOCKED` is
+//! true for the copycat, so Durable Body no longer applies to it (it used to
+//! throw here for a copycat whose card has no powers).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {

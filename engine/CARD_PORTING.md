@@ -488,6 +488,17 @@ The tracked list is `porting/twinleaf-fixes.md`.
    rebuilds corpora after all fixes merge.
 6. Never add a card bug to `divergences.toml`.
 
+7. **Legality trials** (`legalTurnOptions` / `options::is_legal`) dispatch each
+   candidate action and stop at the first decision or chance prompt, so a
+   throw that comes after such a prompt never reaches the trial. The Confusion
+   flip is the exception: the trial resolves it as heads, so a Confused
+   attacker is not offered an attack that throws once the flip succeeds (the
+   game used to end with `status: error`). For an Ability that picks an attack
+   or a Supporter and then runs it (Mew ex's Memory Helix, Mr. Mime's
+   Look-Alike Show), do not rely on the trial: block the unusable choices in
+   the prompt (`blocked`), and when the chosen one throws anyway, restore the
+   game phase and prompt again without it (see `copy_attack::prompt_ability`).
+
 Report per fix: list number, card (international key), Twinleaf commit,
 Rust change, scenario entry (format above), the official text it now
 follows, and the diverged traces with their causes.

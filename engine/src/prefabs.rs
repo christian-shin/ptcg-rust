@@ -68,8 +68,8 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
         PrefabCont::DamageChosen { atk, damage } => {
             let sel = match first {
                 Res::Slots(s) => s,
-                // `selected[0]` on a cancelled prompt throws in Twinleaf.
-                _ => crate::bail!("TypeError: Cannot read properties of null"),
+                // Not cancellable (`allowCancel: false`), so a result is always given.
+                _ => return Ok(()),
             };
             let t = match sel.get(0) {
                 Some(t) => *t,
@@ -93,8 +93,8 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
             for (i, c) in cards.iter().enumerate() {
                 let s = match slots.get(i) {
                     Some(s) => *s,
-                    // `slots[index]` undefined: the reducer then throws on `.cards`.
-                    None => crate::bail!("TypeError: Cannot read properties of undefined"),
+                    // The prompt's `max` is clamped to the empty slots.
+                    None => break,
                 };
                 g.run_fx(Effect::PlayPokemonFromDeck { p, card: *c, target: SlotRef::new(p as usize, s) })?;
             }
@@ -380,6 +380,10 @@ pub const PROBE_GENERIC: u8 = 255;
 
 /// `IS_ABILITY_BLOCKED(store, state, player, card[, power])`.
 pub fn is_ability_blocked(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
+    // A copied attack's source code, run for the copycat, must not use the source's Abilities.
+    if g.deleg.map_or(false, |d| d.attacks && d.copycat == card) {
+        return true;
+    }
     let power = PowerRef { card, index: power_index.unwrap_or(PROBE_GENERIC) };
     g.run_fx(Effect::Power { p: p as u8, power, card, target: None, probe: true }).is_err()
 }
@@ -520,7 +524,7 @@ pub fn damage_1_opponent_pokemon(g: &mut Game, atk: EffId, damage: i32, bench_on
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_DAMAGE",
-        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: true, blocked: SVec::new() },
+        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
         Cont::Prefab(PrefabCont::DamageChosen { atk, damage }),
     );
 }
@@ -569,7 +573,7 @@ pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
 }
 
 /// `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH(store, state, player, filter, options)`.
-pub fn search_deck_for_pokemon_to_bench(g: &mut Game, p: usize, mut filter: Filter, opts: ChooseCardsOpts) -> R {
+pub fn search_deck_for_pokemon_to_bench(g: &mut Game, p: usize, mut filter: Filter, mut opts: ChooseCardsOpts) -> R {
     if g.st.players[p].deck.is_empty() {
         crate::bail!("NO_CARDS_IN_DECK");
     }
@@ -578,6 +582,9 @@ pub fn search_deck_for_pokemon_to_bench(g: &mut Game, p: usize, mut filter: Filt
         crate::bail!("NO_BENCH_SLOTS_AVAILABLE");
     }
     filter.super_type = Some(SuperType::Pokemon as u8);
+    // Only as many Pokémon as there are empty Bench spaces can be put onto the Bench.
+    opts.max = opts.max.min(slots.len() as u8);
+    opts.min = opts.min.min(slots.len() as u8);
     choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchToBench { p: p as u8, slots }));
     Ok(())
 }

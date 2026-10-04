@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hisuian Growlithe TWM 99",
+   "4 Drilbur PBL 46",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "4 Hisuian Growlithe TWM 99",
+   "4 Drilbur PBL 46",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hisuian Growlithe TWM 99",
+  "active_conditions": [
+   "CONFUSED"
+  ],
+  "bench": [
+   {
+    "card": "Drilbur PBL 46"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Drilbur PBL 46"
+ }
+}

@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Drilbur PBL 46",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Mankey SSP 98",
+   "48 Fighting Energy MEE"
+  ],
+  [
+   "4 Drilbur PBL 46",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Mankey SSP 98",
+   "48 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Drilbur PBL 46",
+  "active_energy": [
+   "Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Drilbur PBL 46"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Call for Family"
+  }
+ ]
+}
