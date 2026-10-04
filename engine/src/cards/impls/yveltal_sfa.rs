@@ -4,6 +4,8 @@
 //!
 //! Twinleaf: no coin flip when the Active has no Energy card; the discard is
 //! a ChooseCardsPrompt on the Active then a DiscardCardsEffect.
+//!
+//! Fixed (phase 4b, W4): printed data only, Resistance is Fighting -30 (was -20).
 use crate::cards::prelude::*;
 use super::trubbish::{discard_an_energy_from_opponents_active, discard_chosen};
 
