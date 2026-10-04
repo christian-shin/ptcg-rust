@@ -27,13 +27,23 @@ pub struct MarkerItem {
     pub target_scope: TargetScope,
 }
 
-/// `Marker`: ordered list of marker items.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct Marker {
-    pub items: SVec<MarkerItem, 12>,
+/// `Marker`: ordered list of marker items. Slots hold up to 12; a player's
+/// list holds up to 48 ([`PlayerMarker`]): many cards add a marker per copy
+/// in either deck (Team Rocket's Archer: one per Archer, 8 in a mirror match).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Marker<const N: usize = 12> {
+    pub items: SVec<MarkerItem, N>,
 }
 
-impl Marker {
+pub type PlayerMarker = Marker<48>;
+
+impl<const N: usize> Default for Marker<N> {
+    fn default() -> Self {
+        Marker { items: SVec::new() }
+    }
+}
+
+impl<const N: usize> Marker<N> {
     pub fn has(&self, name: MarkerName) -> bool {
         self.items.iter().any(|m| m.name == name)
     }
@@ -329,7 +339,7 @@ pub struct Player {
     pub energy_played_turn: i32,
     pub stadium_played_turn: i32,
     pub stadium_used_turn: i32,
-    pub marker: Marker,
+    pub marker: PlayerMarker,
     pub used_vstar: bool,
     pub used_gx: bool,
     pub prizes_taken: i32,

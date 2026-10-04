@@ -21,7 +21,7 @@ impl Game {
         Value::Array(v.into_iter().map(Value::String).collect())
     }
 
-    fn markers_json(&self, m: &Marker) -> Vec<Value> {
+    fn markers_json<const N: usize>(&self, m: &Marker<N>) -> Vec<Value> {
         let mut out: Vec<(String, Value)> = m
             .items
             .iter()
