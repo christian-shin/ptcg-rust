@@ -3,9 +3,12 @@
 //!
 //! Twinleaf: on every CheckProvidedEnergyEffect whose player has this card
 //! as the top card of an in-play Pokémon (and the ability isn't blocked),
-//! every Energy card in the source's `cards` providing [G] (basic or not)
-//! not yet in the map gets a [G][G] entry. Extra copies find their entries
-//! already mapped.
+//! every Basic Energy card in the source's `cards` providing [G] not yet in
+//! the map gets a [G][G] entry. Extra copies find their entries already
+//! mapped.
+//!
+//! Fixed (phase 4b, W4): Twinleaf also doubled Special Energy providing [G]
+//! (e.g. Growing Grass Energy); the card says Basic [G] Energy only.
 use crate::cards::prelude::*;
 use crate::effects::EnergyEntry;
 
@@ -25,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let cards: Vec<CardId> = g.st.slot(source.p as usize, source.s).cards.iter().collect();
     for c in cards {
         let d = g.st.cdef(c);
-        if !d.is_energy() || !d.provides.contains(&ct::GRASS) {
+        if !d.is_energy() || d.energy_type != EnergyType::Basic as u8 || !d.provides.contains(&ct::GRASS) {
             continue;
         }
         if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
