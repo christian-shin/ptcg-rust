@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Maractus JTG 8",
+   "4 Girafarig TWM 83",
+   "4 Shinx FST 91",
+   "48 Grass Energy MEE"
+  ],
+  [
+   "4 Maractus JTG 8",
+   "4 Girafarig TWM 83",
+   "4 Shinx FST 91",
+   "48 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Girafarig TWM 83",
+  "active_energy": [
+   "Grass Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Maractus JTG 8"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shinx FST 91"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dual Headbutt"
+  }
+ ]
+}

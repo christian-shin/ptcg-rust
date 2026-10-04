@@ -110,6 +110,13 @@ Order matters exactly as in TypeScript:
 * If a callback uses the effect object after the prompt resolves (for example,
   it adds damage to the `AttackEffect`), `g.retain_fx(e)` before prompting, store
   `e` in the frame, and `g.release_fx(e)` when done.
+* A coin flip's callback runs after the flip's WaitPrompt is answered, so inside
+  a handler for an effect that the core applies right after the card handlers
+  (PutDamageEffect, ...) it is too late to change that effect. Cards that need
+  the coin before the damage (Annihilape's Durable Body) read
+  `CoinFlipEffect.result` instead, which is set at once:
+  `g.run_fx(Effect::CoinFlip { callback: None, .. })` (see
+  `prefabs::survive_on_ten_on_coin_flip`).
 * A callback that would throw in TypeScript (e.g. `selected[0]` on a cancelled
   prompt) must `bail!` too.
 

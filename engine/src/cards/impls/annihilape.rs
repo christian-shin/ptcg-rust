@@ -3,10 +3,11 @@
 //! Ghostly Blow — 100, place 5 damage counters on 1 of the opponent's
 //! Benched Pokémon.
 //!
-//! Twinleaf quirk kept: the coin's callback sets `surviveOnTenHPReason`
-//! after the flip's wait prompt, i.e. after the PutDamageEffect was already
-//! applied, so the flip happens but never saves the Pokémon. On heads the
-//! callback reads `this.powers[0].name`. Fixed (phase 4b): when the code runs
+//! Fixed (phase 4b, X1-1): the coin's callback used to set
+//! `surviveOnTenHPReason` after the flip's wait prompt, i.e. after the
+//! PutDamageEffect was already applied, so the flip happened but never saved
+//! the Pokémon (and the would-KO test ignored the damage already on it). The
+//! flip is now read right away (SURVIVE_ON_TEN_ON_COIN_FLIP). Also fixed: when the code runs
 //! for a copycat (a copied Ghostly Blow's session), `IS_ABILITY_BLOCKED` is
 //! true for the copycat, so Durable Body no longer applies to it (it used to
 //! throw here for a copycat whose card has no powers).
@@ -17,23 +18,19 @@ pub static IMPL: CardImpl = CardImpl {
     mask: mask(&[k::PUT_DAMAGE, k::ATTACK]),
     reduce,
     resume: Some(resume),
-    coin: Some(coin),
+    coin: None,
     can_play: None,
 };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PutDamage { b, damage, .. } = *g.e(e) {
+    if let Effect::PutDamage { b, .. } = *g.e(e) {
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).cards.contains(me) && g.st.slot_pokemon(t.p as usize, t.s) == Some(me) {
             let owner = t.p as usize;
             if is_ability_blocked(g, owner, me, None) {
                 return Ok(());
             }
-            let hp = crate::engine::check::check_hp(g, owner, t.s)?;
-            if damage >= hp {
-                g.coin_flip(owner, CoinCb::Card { card: me, frame: CardFrame::at(2) })?;
-                return Ok(());
-            }
+            crate::prefabs::survive_on_ten_on_coin_flip(g, e, owner)?;
         }
     }
 
@@ -73,13 +70,5 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         None => return Ok(()),
     };
     g.run_fx(Effect::PlaceDamageCounters { p: p as u8, target: dest, damage: 50, source: me })?;
-    Ok(())
-}
-
-fn coin(g: &mut Game, me: CardId, _f: CardFrame, heads: bool) -> R {
-    // `effect.surviveOnTenHPReason = this.powers[0].name` (no rules effect).
-    if heads && g.st.cdef(me).powers.is_empty() {
-        bail!("Cannot read properties of undefined (reading 'name')");
-    }
     Ok(())
 }

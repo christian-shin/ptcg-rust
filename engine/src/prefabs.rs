@@ -147,6 +147,29 @@ pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::Attack { attack, .. } if attack == mine)
 }
 
+/// `SURVIVE_ON_TEN_ON_COIN_FLIP(store, state, effect, player, reason)` (phase 4b):
+/// when the PutDamageEffect would Knock Out its target (existing damage plus
+/// `effect.damage >=` the CheckHpEffect HP), flip a coin right away
+/// (`CoinFlipEffect.result`, no callback: a callback would run after the
+/// flip's wait prompt, i.e. after the damage was applied); heads sets
+/// `surviveOnTenHPReason`.
+pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize) -> R {
+    let (t, damage) = match *g.e(e) {
+        Effect::PutDamage { b, damage, .. } => (b.target, damage),
+        _ => return Ok(()),
+    };
+    let hp = crate::engine::check::check_hp(g, player, t.s)?;
+    if g.st.slot(t.p as usize, t.s).damage + damage >= hp {
+        let (c, _) = g.run_fx(Effect::CoinFlip { p: player as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+        if let Effect::CoinFlip { result: Some(true), .. } = c {
+            if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
+                *survive_on_ten_hp = true;
+            }
+        }
+    }
+    Ok(())
+}
+
 /// `AFTER_ATTACK(effect, index, this)`.
 pub fn after_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     let mine = my_attack(g, me, index);

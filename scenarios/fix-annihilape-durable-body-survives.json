@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Zeraora DRI 78",
+   "44 Lightning Energy MEE"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Zeraora DRI 78",
+   "44 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape M5",
+   "Annihilape PBL 41"
+  ],
+  "active_damage": 140
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scratch"
+  }
+ ],
+ "coins": [
+  true
+ ]
+}

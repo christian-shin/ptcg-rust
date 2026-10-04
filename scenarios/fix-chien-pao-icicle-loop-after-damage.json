@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chien-Pao SSP 56",
+   "4 Charcadet SSP 33",
+   "26 Water Energy MEE",
+   "26 Grass Energy MEE"
+  ],
+  [
+   "4 Chien-Pao SSP 56",
+   "4 Charcadet SSP 33",
+   "26 Water Energy MEE",
+   "26 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chien-Pao SSP 56",
+  "active_energy": [
+   "2 Water Energy MEE",
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet SSP 33"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Icicle Loop"
+  }
+ ]
+}
