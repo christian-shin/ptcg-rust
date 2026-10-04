@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Duraludon PRE 69",
+   "4 Salvatore TEF 160",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Duraludon PRE 69",
+   "4 Salvatore TEF 160",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Froakie TWM 56",
+  "bench": [
+   {
+    "card": "Duskull PRE 35"
+   }
+  ],
+  "hand": [
+   "Salvatore TEF 160"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Froakie TWM 56"
+ }
+}

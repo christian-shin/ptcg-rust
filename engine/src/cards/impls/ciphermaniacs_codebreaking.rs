@@ -1,5 +1,8 @@
 //! Ciphermaniac's Codebreaking (TEF): search your deck for 2 cards, shuffle
 //! your deck, then put those cards on top of it in any order.
+//!
+//! Fixed (phase 4b): the search is for min(2, deck size) cards (min 2 was
+//! unanswerable with a single card in the deck).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "CiphermaniacsCodebreaking", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -25,7 +28,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
     f.a[1] = t as i32;
-    choose_cards(g, p, "CHOOSE_CARDS", ListRef::Deck(p as u8), Filter::none(), ChooseCardsOpts::new(2, 2, false), Cont::Card { card: me, frame: f });
+    let n = g.st.players[p].deck.len().min(2) as u8;
+    choose_cards(g, p, "CHOOSE_CARDS", ListRef::Deck(p as u8), Filter::none(), ChooseCardsOpts::new(n, n, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

@@ -3,11 +3,11 @@
 //! Basic Energy card from your discard pile to each of them.
 //!
 //! Twinleaf: the card goes hand→supporter (a no-op for an Item already
-//! there) and the TrainerEffect is prevented before the checks; the Bench
-//! check of `canPlay` is not repeated (with no Benched [C] Pokémon the
-//! prompt has no legal target). AttachEnergyPrompt from the discard: Bench
-//! only, min 1, max 2, different targets, blockedTo = every non-[C] Pokémon
-//! (Active included).
+//! there) and the TrainerEffect is prevented before the checks. Fixed (phase
+//! 4b): with no Benched [C] Pokémon the card throws CANNOT_PLAY_THIS_CARD
+//! (the prompt below would have no legal target). AttachEnergyPrompt from the
+//! discard: Bench only, min 1, max 2, different targets, blockedTo = every
+//! non-[C] Pokémon (Active included).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "GlassTrumpet", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -28,6 +28,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let mons = for_each_pokemon(g, p, PlayerType::BottomPlayer);
     if !mons.iter().any(|(_, c, _)| g.st.cdef(*c).has_tag(tag::POKEMON_TERA)) {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    if !mons.iter().any(|(_, c, t)| t.slot == SlotType::Bench && g.st.cdef(*c).card_type.contains(&ct::COLORLESS)) {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let mut blocked_to: SVec<CardTarget, 9> = SVec::new();

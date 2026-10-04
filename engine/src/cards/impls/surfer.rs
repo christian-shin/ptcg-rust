@@ -2,8 +2,10 @@
 //! Pokémon; if you do, draw cards until you have 5 cards in your hand.
 //!
 //! Twinleaf: throws SUPPORTER_ALREADY_PLAYED when a Supporter was played;
-//! moves the card to the supporter list itself and prevents the default;
-//! the ChoosePokemonPrompt (no cancel; the card doesn't check for a Bench)
+//! fixed (phase 4b): throws CANNOT_PLAY_THIS_CARD with an empty Bench (the
+//! prompt would have no valid answer); moves the card to the supporter list
+//! itself and prevents the default;
+//! the ChoosePokemonPrompt (no cancel)
 //! is followed by the silent `player.switchPokemon(cardList)` and a loop of
 //! single-card MOVE_CARDS (count 1) until the hand has 5 cards or the deck
 //! is empty.
@@ -15,6 +17,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(p) = trainer_played(g, e, me) {
         if g.st.players[p].supporter_turn > 0 {
             bail!("SUPPORTER_ALREADY_PLAYED");
+        }
+        let has_bench = g.st.players[p].bench.iter().any(|&b| !g.st.players[p].slots[b as usize].cards.is_empty());
+        if !has_bench {
+            bail!("CANNOT_PLAY_THIS_CARD");
         }
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         g.set_prevent(e, true);
