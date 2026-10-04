@@ -2,6 +2,10 @@
 //! different types, reveal them, put 1 into your hand and attach the other to
 //! 1 of your Pokémon, then shuffle.
 //!
+//! Fixed (phase 4b): the search prompt is `differentTypes` (a duplicate type
+//! can't be picked any more, so the old CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES
+//! throw in its callback is gone).
+//!
 //! Twinleaf order kept: the ShowCards, AttachEnergy and ShuffleDeck prompts
 //! are all created by the search callback (the shuffle before the attach is
 //! answered); the final shuffle has no trailing WaitPrompt; the ShowCards
@@ -26,7 +30,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     g.set_prevent(e, true);
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), basic_energy(), ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: f });
+    let mut opts = ChooseCardsOpts::new(0, 2, false);
+    opts.different_types = true;
+    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), basic_energy(), opts, Cont::Card { card: me, frame: f });
     Ok(())
 }
 
@@ -36,9 +42,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     match f.stage {
         1 => {
             let cards: Vec<CardId> = first.cards().to_vec();
-            if cards.len() > 1 && g.st.cdef(cards[0]).name == g.st.cdef(cards[1]).name {
-                bail!("CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES");
-            }
             let oid = g.player_id(1 - p);
             g.prompt(oid, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
             let temp = g.alloc_temp(&[]);
