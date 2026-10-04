@@ -3,7 +3,9 @@
 //! any way you like, then shuffle.
 //!
 //! Twinleaf: a cancellable AttachEnergyPrompt on the deck (basic Energy,
-//! max 4, differentTypes, validCardTypes [G, L], maxPerType 2). No transfer
+//! max 4, validCardTypes [G, L], maxPerType 2; the old differentTypes option
+//! is dropped: it limited the answer to one Energy per type once the validCardTypes
+//! early return was fixed, but the card allows 2 of each). No transfer
 //! → SHUFFLE_DECK; otherwise a MOVE_CARDS per transfer, then a
 //! ShuffleDeckPrompt.
 use crate::cards::prelude::*;
@@ -22,7 +24,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     o.allow_cancel = true;
     o.min = 0;
     o.max = 4;
-    o.different_types = true;
     let mut vt = SVec::new();
     vt.push(ct::GRASS);
     vt.push(ct::LIGHTNING);

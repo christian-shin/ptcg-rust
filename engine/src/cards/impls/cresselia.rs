@@ -2,11 +2,12 @@
 //! Pokémon. Crescent Purge — 80+; you may turn 1 of your face-down Prize
 //! cards face up for 80 more damage.
 //!
-//! Twinleaf: the "face-down" test is `prizes.filter(p => p.isSecret)` over all
-//! six prize lists (empty ones included), but the ChoosePrizePrompt (count 1,
-//! cancellable) can pick any non-empty Prize; picking one that is already face
-//! up throws CANNOT_USE_POWER, and cancelling throws (`chosenPrize[0]` on
-//! null). The chosen list gets isSecret = false, faceUpPrize = true.
+//! Fixed (phase 4b): the face-down test counts only non-empty Prize lists that
+//! are still face down, and the ChoosePrizePrompt (count 1) is `faceDownOnly`
+//! and no longer cancellable (declining is the ConfirmPrompt's job), so a
+//! face-up Prize can't be picked (it used to throw CANNOT_USE_POWER) and
+//! cancelling can't crash (`chosenPrize[0]` on null). The chosen list gets
+//! isSecret = false, faceUpPrize = true.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Cresselia", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -27,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         let pl = &g.st.players[p];
-        let secret = (0..pl.prize_count as usize).filter(|i| !pl.prize_public[*i]).count();
+        let secret = (0..pl.prize_count as usize).filter(|i| !pl.prize_public[*i] && !pl.prize_face_up[*i] && !pl.prizes[*i].is_empty()).count();
         if secret > 0 {
             g.retain_fx(e);
             let mut f = CardFrame::at(1);
@@ -56,7 +57,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             g.prompt(
                 id,
                 "CHOOSE_POKEMON",
-                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: true, is_secret: false, destination: None, face_down_only: false },
+                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: true },
                 Cont::Card { card: me, frame: nf },
             );
             Ok(())
@@ -69,12 +70,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 };
                 let i = match idx {
                     Some(i) => i as usize,
-                    // `chosenPrize[0]` on null / empty: TypeError.
-                    None => bail!("TypeError"),
+                    // Null / empty result (the prompt can't be cancelled): no bonus.
+                    None => return Ok(()),
                 };
-                if g.st.players[p].prize_face_up[i] {
-                    bail!("CANNOT_USE_POWER");
-                }
                 g.st.players[p].prize_public[i] = true;
                 g.st.players[p].prize_face_up[i] = true;
                 if let Effect::Attack { damage, .. } = g.e_mut(atk) {

@@ -1,0 +1,64 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Cresselia SFA 21",
+      "4 Steven's Metagross ex ASC 289",
+      "4 Dreepy ASC 158",
+      "48 Psychic Energy MEE"
+    ],
+    [
+      "4 Cresselia SFA 21",
+      "4 Steven's Metagross ex ASC 289",
+      "4 Dreepy ASC 158",
+      "48 Psychic Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Cresselia SFA 21",
+    "active_energy": [
+      "3 Psychic Energy MEE"
+    ],
+    "hand_to_deck": true
+  },
+  "opp": {
+    "reset": true,
+    "active": "Steven's Metagross ex ASC 289",
+    "bench": [
+      {
+        "card": "Dreepy ASC 158"
+      }
+    ],
+    "hand_to_deck": true
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Crescent Purge"
+    },
+    true,
+    [
+      0
+    ],
+    {
+      "a": "pass"
+    },
+    {
+      "a": "attack",
+      "name": "Crescent Purge"
+    },
+    true,
+    [
+      1
+    ],
+    {
+      "a": "pass"
+    },
+    {
+      "a": "attack",
+      "name": "Crescent Purge"
+    },
+    true
+  ]
+}
