@@ -2,10 +2,10 @@
 //! Pokémon is in the Active Spot, look at the top 6 cards of your deck,
 //! reveal a Supporter there and put it into your hand; shuffle the rest back.
 //!
-//! Twinleaf quirks kept: the Active check is `player.active.cards[0] === this`;
-//! when a Supporter is taken the deck is not shuffled (the callback returns
-//! after the ShowCards prompt); cancelling moves every looked-at card into the
-//! hand, then throws on `selected.length`.
+//! Twinleaf quirk kept: the Active check is `player.active.cards[0] === this`.
+//! Fixed (phase 4b): the prompt cannot be cancelled (`min: 0` already allows
+//! taking nothing; cancelling moved every looked-at card into the hand and
+//! crashed), and the deck is shuffled after the reveal as well.
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -72,7 +72,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.prompt(
             id,
             "CHOOSE_CARD_TO_HAND",
-            PromptKind::ChooseCards { cards: top, filter, opts: ChooseCardsOpts::new(0, 1, true) },
+            PromptKind::ChooseCards { cards: top, filter, opts: ChooseCardsOpts::new(0, 1, false) },
             Cont::Card { card: me, frame: f },
         );
         return Ok(());
@@ -94,20 +94,15 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let top = ListRef::Temp(f.l[0]);
             g.st.players[p].marker.add(crowd_puller(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
             ability_used(g, p, me);
-            let selected: Option<Vec<CardId>> = match results.first().copied().unwrap_or(Res::Null) {
-                Res::Cards(c) => Some(c.as_slice().to_vec()),
-                _ => None,
+            let selected: Vec<CardId> = match results.first().copied().unwrap_or(Res::Null) {
+                Res::Cards(c) => c.as_slice().to_vec(),
+                _ => Vec::new(),
             };
-            mv(g, top, ListRef::Hand(p as u8), selected.as_deref(), None, me)?;
+            mv(g, top, ListRef::Hand(p as u8), Some(&selected), None, me)?;
             mv(g, top, ListRef::Deck(p as u8), None, None, me)?;
-            let selected = match selected {
-                Some(s) => s,
-                None => bail!("TypeError: Cannot read properties of null (reading 'length')"),
-            };
             if !selected.is_empty() {
                 let oid = g.player_id(1 - p);
                 g.prompt(oid, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
-                return Ok(());
             }
             let id = g.player_id(p);
             g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: CardFrame { stage: 2, ..f } });

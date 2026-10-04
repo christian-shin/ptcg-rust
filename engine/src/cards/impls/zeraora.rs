@@ -1,9 +1,9 @@
 //! Zeraora (DRI): Scratch — 20. Thunder Blitz — discard all Energy from this
 //! Pokémon; 210 damage to 1 of the opponent's Benched Pokémon ex.
 //!
-//! Twinleaf quirk kept: the "any ex" precondition also counts the
-//! opponent's Active Pokémon (forEachPokemon), so the attack can be used with
-//! every Benched target blocked.
+//! Fixed (phase 4b): the "any ex" precondition only counts the opponent's
+//! Benched Pokémon (it counted the Active Pokémon too, so the attack could be
+//! used with every Benched target blocked and the prompt had no valid answer).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -25,9 +25,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     let pu = p as usize;
     let o = opp as usize;
-    let theirs = for_each_pokemon(g, o, PlayerType::TopPlayer);
     let is_ex = |g: &Game, c: CardId| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER);
-    if !theirs.iter().any(|(_, c, _)| is_ex(g, *c)) {
+    let ex_on_bench = g.st.players[o].bench.iter().any(|b| g.st.slot_pokemon(o, *b).map_or(false, |c| is_ex(g, c)));
+    if !ex_on_bench {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let active = SlotRef::new(pu, g.st.players[pu].active);
