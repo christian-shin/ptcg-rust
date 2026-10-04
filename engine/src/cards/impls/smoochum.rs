@@ -1,6 +1,9 @@
-//! Smoochum (SSP): Happy Kiss — search your deck for up to 2 Basic [P] Energy
-//! cards and attach them to your Benched Pokémon in any way you like. Then,
-//! shuffle your deck.
+//! Smoochum (SSP): Delightful Kiss ("Happy Kiss") — search your deck for up to
+//! 2 Basic [P] Energy cards and attach them to 1 of your Benched Pokémon.
+//! Then, shuffle your deck.
+//!
+//! Fixed (phase 4b, W4): the prompt let the two Energy go to different
+//! Benched Pokémon; it now requires the same target (`sameTarget`).
 //!
 //! Twinleaf: throws CANNOT_USE_ATTACK on an empty deck. Opens an
 //! AttachEnergyPrompt (0..2, no cancel) and, without waiting for it, a
@@ -23,6 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         o.allow_cancel = false;
         o.min = 0;
         o.max = 2;
+        o.same_target = true;
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
         let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Psychic Energy"), ..Filter::none() };
