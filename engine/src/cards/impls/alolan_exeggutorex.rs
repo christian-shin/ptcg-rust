@@ -3,10 +3,14 @@
 //! Sphene — flip a coin; heads: Knock Out the opponent's Active if it is
 //! Basic; tails: Knock Out 1 of the opponent's Benched Pokémon.
 //!
-//! Twinleaf quirks: the list of blocked Bench targets stays empty
-//! (`blocked.push()` pushes nothing), so tails can Knock Out any Benched
-//! Pokémon, not only Basic ones. Tropical Fever's AttachEnergyPrompt has the
-//! default `max` = hand size.
+//! Twinleaf quirk kept: Tropical Fever's AttachEnergyPrompt has the default
+//! `max` = hand size.
+//!
+//! Fixed (phase 4b, W4): the list of blocked Bench targets stayed empty
+//! (`blocked.push()` pushes nothing), so tails could Knock Out any Benched
+//! Pokémon, not only Basic ones, and with no Benched Basic Pokémon the prompt
+//! (min 1) had no valid answer. Non-Basic Benched Pokémon are now blocked and
+//! tails does nothing without a Benched Basic Pokémon.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -95,6 +99,23 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
         g.release_fx(atk);
         return r;
     }
+    let mut blocked: TargetList = SVec::new();
+    let mut has_basic = false;
+    for (i, s) in g.st.players[o].bench.iter().enumerate() {
+        if g.st.players[o].slots[*s as usize].cards.is_empty() {
+            continue;
+        }
+        let basic = g.st.slot_pokemon(o, *s).map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false);
+        if basic {
+            has_basic = true;
+        } else {
+            blocked.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
+        }
+    }
+    if !has_basic {
+        g.release_fx(atk);
+        return Ok(());
+    }
     let mut slots = SVec::new();
     slots.push(SlotType::Bench as u8);
     let mut nf = CardFrame::at(2);
@@ -104,7 +125,7 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_DAMAGE",
-        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
         Cont::Card { card: me, frame: nf },
     );
     Ok(())
