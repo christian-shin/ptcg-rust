@@ -3,8 +3,8 @@
 //! discard 2 Energy from this Pokémon; 120 damage to 2 of your opponent's
 //! Pokémon.
 //!
-//! Twinleaf: Shinobi Blade throws CANNOT_USE_POWER on an empty deck, then a
-//! Confirm (SEARCH_DECK_FOR_CARD); yes → ChooseCardsPrompt (min 1, max 1, no
+//! Fixed (phase 4b): Shinobi Blade skips the search on an empty deck (it
+//! threw CANNOT_USE_POWER, making the attack unusable). Otherwise a Confirm (SEARCH_DECK_FOR_CARD); yes → ChooseCardsPrompt (min 1, max 1, no
 //! filter) → MOVE_CARDS deck→hand → bare ShuffleDeckPrompt. Mirage Barrage:
 //! ChooseEnergyPrompt ([C][C] over the Active's energy map) → ChoosePokemon
 //! (opponent, Active/Bench, min 1, max 2) → DAMAGE_OPPONENT_POKEMON(120) and
@@ -21,7 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         if g.st.players[p].deck.is_empty() {
-            bail!("CANNOT_USE_POWER");
+            return Ok(());
         }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

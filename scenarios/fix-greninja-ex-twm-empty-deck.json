@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Greninja ex TWM 106",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Greninja ex TWM 106",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Froakie TWM 56",
+   "Frogadier TWM 57",
+   "Greninja ex TWM 106"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "energy_attached": true,
+  "discard": [
+   "3 Froakie TWM 56",
+   "3 Frogadier TWM 57",
+   "3 Greninja ex TWM 106",
+   "41 Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Froakie TWM 56",
+   "Frogadier TWM 57",
+   "Greninja ex TWM 106"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shinobi Blade"
+  }
+ ]
+}
