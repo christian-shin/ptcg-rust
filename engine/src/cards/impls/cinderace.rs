@@ -2,10 +2,12 @@
 //! Flame Turbo — 50; search your deck for up to 3 Basic Energy cards and
 //! attach them to your Benched Pokémon in any way you like, then shuffle.
 //!
-//! Twinleaf: throws CANNOT_USE_ATTACK with an empty deck; the
-//! AttachEnergyPrompt (deck, Bench, min 0 / max 3, no cancel) is followed
+//! Twinleaf: the AttachEnergyPrompt (deck, Bench, min 0 / max 3, no cancel) is followed
 //! immediately by a SHUFFLE_DECK (before the answer); an empty answer shuffles
 //! again, otherwise a MOVE_CARDS per transfer.
+//!
+//! Fixed (phase 4b, W4): with an empty deck the attack threw
+//! CANNOT_USE_ATTACK (unusable, no damage); it now just does its 50 damage.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Cinderace", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,7 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => return Ok(()),
     };
     if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_USE_ATTACK");
+        return Ok(());
     }
     let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
     o.allow_cancel = false;
