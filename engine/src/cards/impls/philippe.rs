@@ -1,11 +1,18 @@
 //! Philippe (CRI 79 / M4): attach up to 2 Basic [M] Energy cards from your
 //! discard pile to 1 of your [M] Pokémon.
 //!
+//! Fixed (phase 4b): with no Basic [M] Energy in the discard pile or no [M]
+//! Pokémon, the card is unplayable from the hand (CANNOT_PLAY_THIS_CARD before
+//! any state change); copied from the opponent's hand by Mr. Mime's
+//! Look-Alike Show the effect just does nothing (it used to throw inside the
+//! attack's prompt callback and end the game with an error).
+//!
 //! Twinleaf: no supporter bookkeeping of its own (the core handles the
 //! TrainerEffect default). Both probes use CheckPokemonTypeEffect; blocked
 //! Pokémon are the non-[M] ones (both Active and Bench, Bench before the
 //! prompt). The discard prompt uses the filter `superType: ENERGY` and
-//! blocks, by (unsorted) discard position, everything but Basic [M] Energy,
+//! blocks, by discard position (choose_cards remaps it through the prompt's sort,
+//! as the TS constructor does), everything but Basic [M] Energy,
 //! with min 0 and max min(2, count); each chosen card is its own MOVE_CARDS.
 use crate::cards::prelude::*;
 use crate::engine::game_effect::pokemon_types;
@@ -28,8 +35,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
+    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
     let count = g.st.players[p].discard.iter().filter(|c| basic_metal(g, *c)).count();
     if count == 0 {
+        if !played_from_hand {
+            return Ok(());
+        }
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let mut blocked = TargetList::new();
@@ -42,6 +53,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     if metal == 0 {
+        if !played_from_hand {
+            return Ok(());
+        }
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let mut slots = SVec::new();

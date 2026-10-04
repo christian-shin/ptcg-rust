@@ -5,7 +5,10 @@
 //!
 //! Twinleaf: Overflowing Wishes does nothing (no shuffle) without a Benched
 //! Pokémon or with an empty deck; otherwise an AttachEnergyPrompt over the
-//! deck (Bench only, "Psychic Energy", differentTargets, no cancel); each
+//! deck (Bench only, "Psychic Energy", differentTargets, no cancel). Fixed
+//! (phase 4b #41): the prompt is min = min(Benched Pokémon, Basic Psychic
+//! Energy in the deck), max = Benched Pokémon (it used to allow fewer, or
+//! none); each
 //! transfer is a MOVE_CARDS (no AttachEnergyEffect), then SHUFFLE_DECK (also
 //! for an empty answer). Mega Symphonia sums, over every Pokémon's
 //! CheckProvidedEnergyEffect, the provided [P] and [ANY] entries.
@@ -20,16 +23,27 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         let pl = &g.st.players[p];
-        if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
+        let benched_count = pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count();
+        if benched_count == 0 {
             return Ok(());
         }
         if pl.deck.is_empty() {
             return Ok(());
         }
+        let psychic_in_deck = pl
+            .deck
+            .iter()
+            .filter(|c| {
+                let d = g.st.cdef(*c);
+                d.is_energy() && d.energy_type == EnergyType::Basic as u8 && d.name == "Psychic Energy"
+            })
+            .count();
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
         let mut o = AttachOpts::new(pl.deck.len().min(255) as u8);
         o.allow_cancel = false;
+        o.min = benched_count.min(psychic_in_deck) as u8;
+        o.max = benched_count as u8;
         o.different_targets = true;
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

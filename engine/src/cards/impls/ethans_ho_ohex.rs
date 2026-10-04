@@ -4,10 +4,13 @@
 //! Pokémon.
 //!
 //! Twinleaf quirks kept: the marker check throws BLOCKED_BY_EFFECT; the
-//! prompt filter is `name: 'Fire Energy'` (not validated), blockedTo lists
-//! every non-Ethan's Pokémon, min 0; the marker and the ability animation
-//! happen when the prompt resolves, even with 0 Energy chosen; each Energy
-//! is its own MOVE_CARDS (no AttachEnergyEffect). The attack heals each of
+//! prompt filter is `name: 'Fire Energy'`, blockedTo lists every non-Ethan's
+//! Pokémon; the marker and the ability animation happen when the prompt
+//! resolves; each Energy is its own MOVE_CARDS (no AttachEnergyEffect).
+//! Fixed (phase 4b #42): the power also throws CANNOT_USE_POWER without a
+//! Benched Ethan's Pokémon, and the prompt is min 1 (it was min 0, so the
+//! once-per-turn marker could be set with nothing attached, and with no
+//! Benched Ethan's Pokémon the prompt had no valid target). The attack heals each of
 //! your Pokémon with a HealEffect.
 use crate::cards::prelude::*;
 
@@ -46,10 +49,20 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if !has_energy {
             bail!("CANNOT_USE_POWER");
         }
+        let has_benched_ethans = {
+            let pl = &g.st.players[p];
+            pl.bench.iter().any(|b| match g.st.slot_pokemon(p, *b) {
+                Some(c) => g.st.cdef(c).has_tag(tag::ETHANS),
+                None => false,
+            })
+        };
+        if !has_benched_ethans {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut o = AttachOpts::new(g.st.players[p].hand.len() as u8);
         o.allow_cancel = false;
         o.same_target = true;
-        o.min = 0;
+        o.min = 1;
         o.max = 2;
         for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
             if !g.st.cdef(c).has_tag(tag::ETHANS) {

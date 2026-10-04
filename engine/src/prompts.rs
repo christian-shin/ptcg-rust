@@ -1072,7 +1072,9 @@ impl Game {
                     }
                     if let Some(v) = o.valid_card_types {
                         let ok = out.iter().all(|(_, c)| self.st.cdef(*c).provides.iter().any(|t| v.contains(t)));
-                        return if ok { Ok(Res::Attach(out)) } else { Err(invalid) };
+                        if !ok {
+                            return Err(invalid);
+                        }
                     }
                     if o.different_types {
                         let mut seen = Vec::new();

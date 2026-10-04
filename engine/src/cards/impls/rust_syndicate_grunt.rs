@@ -2,10 +2,9 @@
 //! Knocked Out during your opponent's last turn; discard an Energy from 1 of
 //! your opponent's Pokémon.
 //!
-//! Twinleaf: besides the printed condition, `playRust` throws unless the hand
-//! holds no other card (the check is `otherCards.length > 0`), so the card
-//! is playable only as the last card of the hand. The effect is prevented
-//! after the checks, then the card moves to the supporter pile; the
+//! Fixed (phase 4b #38): Twinleaf also required an otherwise empty hand,
+//! which the card text does not say; that check is gone. The effect is
+//! prevented after the checks, then the card moves to the supporter pile; the
 //! Supporter is discarded by CLEAN_UP_SUPPORTER when the prompts finish.
 use crate::cards::prelude::*;
 
@@ -18,9 +17,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    if g.st.players[p].hand.iter().any(|c| c != me) {
-        bail!("CANNOT_PLAY_THIS_CARD");
     }
     if !g.st.players[p].pokemon_knocked_out_during_opponents_last_turn {
         bail!("CANNOT_PLAY_THIS_CARD");

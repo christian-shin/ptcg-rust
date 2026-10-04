@@ -3,8 +3,9 @@
 //! from your hand to it. Mad Bite — 100+, 30 more per damage counter on the
 //! opponent's Active.
 //!
-//! Twinleaf: a ConfirmPrompt first; answering yes without a Basic [F] Energy
-//! in hand throws CANNOT_USE_POWER in the callback.
+//! Fixed (phase 4b): with no Basic [F] Energy in hand the Ability does nothing
+//! (no prompt); it used to ask, then throw CANNOT_USE_POWER in the callback.
+//! Otherwise a ConfirmPrompt, then a cancel-free ChooseCardsPrompt (0-2).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "BloodmoonUrsaluna", mask: mask(&[k::PLAY_POKEMON, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -21,6 +22,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if card == me {
             let p = p as usize;
             if is_ability_blocked(g, p, me, None) {
+                return Ok(());
+            }
+            let has = g.st.players[p].hand.iter().any(|c| {
+                let d = g.st.cdef(c);
+                d.is_energy() && d.energy_type == EnergyType::Basic as u8 && d.provides.contains(&ct::FIGHTING)
+            });
+            if !has {
                 return Ok(());
             }
             let mut f = CardFrame::at(1);
@@ -50,13 +58,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         1 => {
             if !first.as_bool() {
                 return Ok(());
-            }
-            let has = g.st.players[p].hand.iter().any(|c| {
-                let d = g.st.cdef(c);
-                d.is_energy() && d.energy_type == EnergyType::Basic as u8 && d.provides.contains(&ct::FIGHTING)
-            });
-            if !has {
-                bail!("CANNOT_USE_POWER");
             }
             let (sp, s) = match g.st.locate(me) {
                 Some(ListRef::Slot(sp, s)) => (sp, s),

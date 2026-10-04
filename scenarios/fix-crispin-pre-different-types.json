@@ -1,0 +1,35 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Crispin PRE 105",
+      "4 Duraludon PRE 69",
+      "18 Fire Energy MEE",
+      "18 Water Energy MEE",
+      "16 Metal Energy MEE"
+    ],
+    [
+      "4 Crispin PRE 105",
+      "4 Duraludon PRE 69",
+      "18 Fire Energy MEE",
+      "18 Water Energy MEE",
+      "16 Metal Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "bench": [
+      {
+        "card": "Duraludon PRE 69"
+      }
+    ],
+    "hand": [
+      "Crispin PRE 105"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Duraludon PRE 69"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Mr. Mime TEF",
+      "4 Philippe CRI 79",
+      "4 Duraludon PRE 69",
+      "24 Psychic Energy MEE",
+      "24 Metal Energy MEE"
+    ],
+    [
+      "4 Mr. Mime TEF",
+      "4 Philippe CRI 79",
+      "4 Duraludon PRE 69",
+      "24 Psychic Energy MEE",
+      "24 Metal Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Mr. Mime TEF",
+    "active_energy": [
+      "Psychic Energy MEE"
+    ],
+    "discard": [
+      "2 Metal Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "hand": [
+      "Philippe CRI 79"
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Look-Alike Show"
+    },
+    [
+      0
+    ]
+  ]
+}
