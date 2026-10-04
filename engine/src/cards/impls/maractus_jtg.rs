@@ -3,11 +3,15 @@
 //! put 6 damage counters on the Attacking Pokémon. Corner — 20; the
 //! Defending Pokémon can't retreat during your opponent's next turn.
 //!
-//! Twinleaf quirks kept: Explosive Needle runs on any PutDamageEffect whose
-//! target's top card is this Maractus during the attack phase (Active or
-//! Bench, either player's attack); if the pending damage is at least the
-//! remaining HP it adds 60 straight to the source's `damage`, before the
-//! damage itself is applied (and even if it is later prevented or reduced).
+//! Twinleaf quirk kept: Explosive Needle runs on any PutDamageEffect whose
+//! target's top card is this Maractus during the attack phase; if the pending
+//! damage is at least the remaining HP it adds 60 straight to the source's
+//! `damage`, before the damage itself is applied (and even if it is later
+//! prevented or reduced).
+//!
+//! Fixed (phase 4b, W4): the Ability also triggered while Maractus was on the
+//! Bench and for the owner's own attacks; it now needs Maractus in the Active
+//! Spot and the damage to come from the opponent's attack.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Maractus@JTG", mask: mask(&[k::PUT_DAMAGE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -19,7 +23,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if !g.st.slot(tp, ts).cards.contains(me) {
             return Ok(());
         }
-        if g.st.slot_pokemon(tp, ts) != Some(me) || g.st.phase != GamePhase::Attack || is_ability_blocked(g, tp, me, None) {
+        if g.st.slot_pokemon(tp, ts) != Some(me) || g.st.players[tp].active != ts || b.player as usize == tp {
+            return Ok(());
+        }
+        if g.st.phase != GamePhase::Attack || is_ability_blocked(g, tp, me, None) {
             return Ok(());
         }
         let hp = crate::engine::check::check_hp(g, tp, ts)?;
