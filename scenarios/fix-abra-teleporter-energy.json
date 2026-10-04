@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Abra TWM 80",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Abra TWM 80",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Abra TWM 80",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Mankey SSP 98"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}
