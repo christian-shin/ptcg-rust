@@ -6,8 +6,9 @@
 //! Twinleaf: Adrena-Pheromone runs on every PutDamageEffect whose target slot
 //! holds this card (not necessarily on top): it needs this card on top and the
 //! attack phase, then IS_ABILITY_BLOCKED and a CheckProvidedEnergyEffect are
-//! both evaluated with the ATTACKER as `player`. [D] or a rainbow unit counts.
-//! The damage must be positive; a CoinFlipEffect (no callback) decides.
+//! both evaluated with the OWNER as `player` (phase 4b: it used to be the
+//! attacker). [D] or a rainbow unit counts. The damage must be positive; a
+//! CoinFlipEffect (owner, no callback) decides.
 //! Energy Feather counts every provided unit on the slot holding this card.
 use crate::cards::prelude::*;
 
@@ -25,7 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::PutDamage { b, damage, .. } = *g.e(e) {
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).cards.contains(me) {
-            let player = b.player as usize;
+            let player = t.p as usize;
             if g.st.slot_pokemon(t.p as usize, t.s) != Some(me) || g.st.phase != GamePhase::Attack {
                 return Ok(());
             }
