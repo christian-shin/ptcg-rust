@@ -239,7 +239,8 @@ def main():
             sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
             import remote_oracle
             status, n, log = remote_oracle.run(spec_path, out, start=args.seed * 100000, count=args.games, shards=args.remote,
-                                               cov_files=' '.join(cov_files) if args.coverage else '', tag=tag)
+                                               cov_files=' '.join(cov_files) if args.coverage else '', tag=tag,
+                                               ref=os.environ.get('PTCG_ORACLE_REF', 'oracle'))
             bad = [l for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
             for l in bad[:10]:
                 print('ORACLE:', l)

@@ -2,7 +2,9 @@
 
 The Rust engine must behave **exactly** like Twinleaf (commit `41382b8`, oracle
 branch) on every card: same option sets at every decision, same canonical state
-after every step. Twinleaf bugs are part of the spec; port them faithfully.
+after every step. Twinleaf bugs are part of the spec; port them faithfully. Since phase 4b
+(2026-10-04), known card bugs are fixed in both engines instead: see
+"Fixing a Twinleaf bug" at the end.
 A card is done when `tools/check_cards.py` reports zero divergences over traces
 that exercise every reachable branch of its code in at least 3 games.
 
@@ -434,3 +436,45 @@ One line per bug, so they can be collected into the fix list:
 For example: `Team Rocket's Zapdos DRI 70 (team-rockets-zapdos.ts:65) - checks
 the name 'Team Rocket Energy', so the +60 never applies vs "Team Rocket's
 Energy"`. Include crashes and stuck prompts (no valid answer) the same way.
+
+## Fixing a Twinleaf bug (phase 4b)
+
+Card bugs are fixed in the oracle itself (fork christian-shin/twinleafgg,
+branch `oracle`) and the same fix is ported to Rust, so parity stays exact
+and both engines play the card as printed. The reference is the official text
+(`data/official_text.json`, keyed like `data/pool.json`) plus the rulebook.
+The tracked list is `porting/twinleaf-fixes.md`.
+
+1. **Twinleaf.** Fix tasks get their own Twinleaf worktree and branch (never
+   edit the main `twinleaf/` checkout). Make the smallest change that matches
+   the card text, in Twinleaf's style, one commit per card ("Fix <key>:
+   <what>"). Build with
+   `node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc` in
+   `ptcg-server/` (~2 minutes) and run the oracle tools against it with
+   `PTCG_ORACLE=<worktree>/ptcg-server` (and `PTCG_ORACLE_REF=<branch>` for
+   `--remote`, once the branch is pushed).
+2. **Unanswerable prompts.** A card must never open a prompt with no valid
+   answer. Follow the card text: when the text says "you can't use/play this
+   if ...", or when the card would do nothing at all, make it unplayable the
+   way similar Twinleaf cards do (a `throw new GameError(...)` before any
+   state change, so the legality trial removes the option); otherwise clamp
+   the prompt's `min` to what is available. Crashes inside a prompt callback
+   are always bugs.
+3. **Rust.** Port the same change. If the fix is in a core file (a prompt's
+   `validate`, a prefab), port it in the matching core file and list every
+   card that goes through it.
+4. **Regression scenario** `scenarios/fix-<card-slug>-<branch>.json` that runs
+   the fixed branch in >=3 games (`--coverage`), zero divergences. Then
+   re-run the card with random games and every existing scenario that names it
+   (`grep -l "<name>" scenarios/*.json`), all zero divergences.
+5. **Corpus.** Replay the main corpora (`diff corpus/t1 corpus/meta1
+   corpus/meta2 corpus/cards/*/ --quiet`). Traces recorded under the buggy
+   oracle may now diverge; that is expected only when the trace actually hit
+   the bug. Check each diverged trace's first divergence and list it in the
+   report with its cause. Don't regenerate or delete them; the orchestrator
+   rebuilds corpora after all fixes merge.
+6. Never add a card bug to `divergences.toml`.
+
+Report per fix: list number, card (international key), Twinleaf commit,
+Rust change, scenario entry (format above), the official text it now
+follows, and the diverged traces with their causes.
