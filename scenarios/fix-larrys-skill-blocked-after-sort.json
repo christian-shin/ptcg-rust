@@ -1,0 +1,39 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Larry's Skill PRE 115",
+      "4 Duraludon PRE 69",
+      "4 Philippe CRI 79",
+      "4 Crispin PRE 105",
+      "4 Bronzor PRE 66",
+      "4 Ultra Ball SVI",
+      "10 Fire Energy MEE",
+      "10 Metal Energy MEE",
+      "16 Water Energy MEE"
+    ],
+    [
+      "4 Larry's Skill PRE 115",
+      "4 Duraludon PRE 69",
+      "4 Philippe CRI 79",
+      "4 Crispin PRE 105",
+      "4 Bronzor PRE 66",
+      "4 Ultra Ball SVI",
+      "10 Fire Energy MEE",
+      "10 Metal Energy MEE",
+      "16 Water Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "hand": [
+      "Larry's Skill PRE 115",
+      "Fire Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Duraludon PRE 69"
+  }
+}
