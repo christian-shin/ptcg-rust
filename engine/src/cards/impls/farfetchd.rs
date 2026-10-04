@@ -7,7 +7,9 @@
 //! (before the card is benched); the callback finds this card's bench index
 //! (0 if not found), MOVE_CARDS the Tool there and pushes it onto `tools`
 //! directly (no AttachPokemonToolEffect, no max-tools check), then shuffles
-//! with no trailing wait.
+//! with no trailing wait. Fixed (W1-C): MOVE_CARDS also left the Tool in the
+//! slot's `cards`, so it was in two places; it is now taken out of `cards`
+//! (a Tool lives in `tools` only).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Farfetchd", mask: mask(&[k::PLAY_POKEMON]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -45,6 +47,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         if g.st.cdef(c).is_trainer() {
             let s = g.st.players[p].bench.as_slice()[bench_idx];
             move_cards(g, ListRef::Deck(p as u8), ListRef::Slot(p as u8, s), &[c], me)?;
+            g.st.players[p].slots[s as usize].cards.remove(c);
             g.st.players[p].slots[s as usize].tools.push(c);
         }
     }
