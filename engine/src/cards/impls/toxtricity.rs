@@ -1,6 +1,9 @@
 //! Toxtricity (M2 / PFL 68): Sinister Surge — once during your turn, search
-//! your deck for a Basic [D] Energy and attach it to 1 of your [D] Pokémon,
-//! then shuffle; put 2 damage counters on that Pokémon. Thwap — 100.
+//! your deck for a Basic [D] Energy and attach it to 1 of your Benched [D]
+//! Pokémon, then shuffle; put 2 damage counters on that Pokémon. Thwap — 100.
+//!
+//! Fixed (phase 4b, W4): Twinleaf also allowed the Active Pokémon as the target;
+//! the card says Benched only.
 //!
 //! Twinleaf: ABILITY_USED and the once-per-turn marker are set in the prompt
 //! callback (so a cancelled prompt still uses the ability); SHUFFLE_DECK runs
@@ -50,7 +53,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
-        slots.push(SlotType::Active as u8);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         let id = g.player_id(p);
