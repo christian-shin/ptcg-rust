@@ -1,0 +1,46 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Abra TWM 80",
+      "4 Budew ASC 16",
+      "1 Mystery Garden ASC 194",
+      "51 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Abra TWM 80",
+      "4 Budew ASC 16",
+      "1 Mystery Garden ASC 194",
+      "51 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "stadium": "Mystery Garden ASC 194",
+    "active": "Abra TWM 80",
+    "bench": [
+      {
+        "card": "Budew ASC 16"
+      },
+      {
+        "card": "Abra TWM 80"
+      },
+      {
+        "card": "Budew ASC 16"
+      }
+    ],
+    "hand": [
+      "Psychic Energy MEE 5",
+      "Psychic Energy MEE 5"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Abra TWM 80"
+  },
+  "answers": [
+    {
+      "a": "stadium"
+    }
+  ]
+}
