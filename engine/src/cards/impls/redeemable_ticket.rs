@@ -54,5 +54,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     g.st.players[p].deck.set_from(&deck);
+    // `prizes.forEach(p => { isSecret = true; isPublic = false; faceUpPrize = false })`: the new Prizes are face down.
+    g.st.players[p].prize_public = [false; 6];
+    g.st.players[p].prize_face_up = [false; 6];
     move_cards(g, ListRef::Supporter(p as u8), ListRef::Discard(p as u8), &[me], me)
 }

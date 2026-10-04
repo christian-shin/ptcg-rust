@@ -203,6 +203,19 @@ pub struct Game {
     pub deleg: Option<crate::copy_attack::Deleg>,
 }
 
+/// Prompt constructor work Twinleaf does in the prompt class itself:
+/// `ChooseEnergyPrompt` with `allowCancel: false` reduces its cost to what the
+/// offered Energy can pay (`getCostThatCanBePaid`; idempotent).
+fn construct_prompt(kind: PromptKind) -> PromptKind {
+    match kind {
+        PromptKind::ChooseEnergy { energy, cost, allow_cancel: false } => {
+            let cost = crate::energy::cost_that_can_be_paid(&energy, &cost);
+            PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }
+        }
+        k => k,
+    }
+}
+
 pub struct EffectLog;
 
 thread_local! {
@@ -378,6 +391,7 @@ impl Game {
 
     /// `store.prompt(state, prompt, then)`.
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
+        let kind = construct_prompt(kind);
         let cont = self.tag_cont(cont);
         let id = self.next_id();
         // Safety cap: a card duplicating itself in a loop would get here (the Dangle Tail aliasing that
@@ -395,6 +409,7 @@ impl Game {
         let mut ids = SVec::new();
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
+            let kind = construct_prompt(kind);
             self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
             ids.push(id);
         }
