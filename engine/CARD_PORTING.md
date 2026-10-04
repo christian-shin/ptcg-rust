@@ -1,10 +1,10 @@
 # Porting a card to the Rust engine
 
-The Rust engine must behave **exactly** like Twinleaf (commit `41382b8`, oracle
+The Rust engine must behave **exactly** like Twinleaf (the fork's `oracle`
 branch) on every card: same option sets at every decision, same canonical state
-after every step. Twinleaf bugs are part of the spec; port them faithfully. Since phase 4b
-(2026-10-04), known card bugs are fixed in both engines instead: see
-"Fixing a Twinleaf bug" at the end.
+after every step. Where Twinleaf disagrees with the official card text or the
+rules, the bug is fixed in both engines (phase 4b, 2026-10-04): see "Fixing a
+Twinleaf bug" at the end. Never copy a known bug into Rust.
 A card is done when `tools/check_cards.py` reports zero divergences over traces
 that exercise every reachable branch of its code in at least 3 games.
 
@@ -428,9 +428,10 @@ what you think is missing.
   the oracle (e.g. Twinleaf crashes), report it.
 * Do not change existing card ports owned by others unless the fix is needed and
   you say so.
-* Faithful beats correct: if Twinleaf's behavior differs from the printed text,
-  match Twinleaf and report it (format below). These bugs are later fixed in
-  both engines, so precise reports matter.
+* Correct beats faithful: if Twinleaf's behavior differs from the official text
+  (`data/official_text.json`), fix Twinleaf and port the fix ("Fixing a Twinleaf
+  bug"); if a task forbids touching Twinleaf, match it and report the bug in
+  the format below.
 * Commit only your batch's ports and the core changes they need. Never commit
   copies of other batches' unmerged ports; if you need one to test, use it
   locally, remove it, and say which corpora depend on it.
