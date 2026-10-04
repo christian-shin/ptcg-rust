@@ -27,9 +27,11 @@
 //! array, as Rust trials on game copies do. It also resolves info prompts,
 //! including Twinleaf's "Coin flip animation" wait, whose coin was drawn from
 //! the oracle's throwaway simulation stream; Rust stops at its coin chance
-//! prompt. A delegated coin callback that throws on one outcome (Annihilape's
-//! Durable Body run for a power-less copycat) therefore makes the oracle's
-//! legality depend on that stream.
+//! prompt. A delegated coin callback that throws on one outcome would
+//! therefore make the oracle's legality depend on that stream (Annihilape's
+//! Durable Body did for a power-less copycat until phase 4b: source code run
+//! for the copycat now sees the copycat's Ability as blocked, see
+//! [`Game::deleg`] and `prefabs::is_ability_blocked`).
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
 use crate::engine::attack::{self, AttackFrame};
@@ -626,12 +628,14 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
             };
             let p = f.p as usize;
             let active = SlotRef::new(p, g.st.players[p].active);
+            let phase = g.st.phase;
             match g.run_fx(Effect::UseAttack { p: f.p, attack: a, source: active, ignore_status_conditions: false, barrage_used: false, delegate_from: Some(source) }) {
                 Ok(_) => Ok(()),
                 // `catch (error)`: a GameError (not a TypeError) means the chosen attack
                 // cannot be used after all (its own conditions): choose another.
                 Err(e) if !e.0.starts_with("TypeError") => {
-                    let index = f.cards.iter().position(|c| *c == source).unwrap_or(0) as u8;
+                    g.st.phase = phase;
+                    let index = f.cards.iter().position(|c| *c == a.card).unwrap_or(0) as u8;
                     let mut nf = f;
                     nf.blocked.push((index, a.idx() as u8));
                     prompt_ability(g, nf)

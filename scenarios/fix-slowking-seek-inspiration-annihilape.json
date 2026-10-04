@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Duraludon PRE 69",
+   "30 Psychic Energy MEE",
+   "6 Fighting Energy MEE"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Duraludon PRE 69",
+   "30 Psychic Energy MEE",
+   "6 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Slowpoke SCR 57",
+   "Slowking SCR 58"
+  ],
+  "active_energy": [
+   "2 Psychic Energy MEE"
+  ],
+  "deck_top": [
+   "Annihilape PBL 41"
+  ],
+  "prizes": [
+   "6 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "3 Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Seek Inspiration"
+  },
+  {
+   "index": 0,
+   "attack": "Ghostly Blow"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}
