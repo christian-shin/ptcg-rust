@@ -2,11 +2,15 @@
 //! attached to takes damage from an opponent's attack, move an Energy from
 //! the attacking Pokémon to 1 of your opponent's Benched Pokémon.
 //!
-//! Twinleaf quirks kept: the lock check is a bare ToolEffect for the
-//! attacking player; the "has Bench" check looks at the Fan owner's Bench
-//! while the prompt (answered by the Fan owner) targets the attacker's Bench;
-//! the Energy comes from the attacking player's current Active; the move may
-//! be skipped (min 0).
+//! Twinleaf: the lock check is a bare ToolEffect for the Fan's owner; the
+//! prompt (answered by the Fan owner) moves an Energy from the attacking
+//! player's current Active to the attacker's Bench ("your opponent's Benched
+//! Pokémon" from the Fan owner's view).
+//!
+//! Fixed (phase 4b, W4): the "has Bench" check looked at the Fan owner's own
+//! Bench (now the attacker's), the ToolEffect probe used the attacking player
+//! (now the owner), and the move could be skipped (min 0): it now needs
+//! min 1, and nothing happens when the attacker's Active has no Energy.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HandyFan", mask: mask(&[k::AFTER_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -23,7 +27,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if damage <= 0 || b.player == t.p || g.st.players[t.p as usize].active != t.s {
         return Ok(());
     }
-    if g.run_fx(Effect::Tool { p: b.player, card: me }).is_err() {
+    if g.run_fx(Effect::Tool { p: t.p, card: me }).is_err() {
         return Ok(());
     }
     if g.st.phase != GamePhase::Attack {
@@ -31,8 +35,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let p = b.player as usize;
     let o = 1 - p;
-    let has_bench = g.st.players[o].bench.iter().any(|s| !g.st.players[o].slots[*s as usize].cards.is_empty());
-    if !has_bench {
+    let has_bench = g.st.players[p].bench.iter().any(|s| !g.st.players[p].slots[*s as usize].cards.is_empty());
+    let has_energy = g.st.slot(p, g.st.players[p].active).cards.iter().any(|c| g.st.cdef(c).is_energy());
+    if !has_bench || !has_energy {
         return Ok(());
     }
     let mut slots = SVec::new();
@@ -41,7 +46,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let n = g.lst(src).len().min(255) as u8;
     let mut o_opts = AttachOpts::new(n);
     o_opts.allow_cancel = false;
-    o_opts.min = 0;
+    o_opts.min = 1;
     o_opts.max = 1;
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
