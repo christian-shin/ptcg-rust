@@ -1,10 +1,13 @@
 //! Maximum Belt (TEF, ACE SPEC tool): the holder's attacks do 50 more damage
 //! to the opponent's Active Pokémon ex.
 //!
-//! Twinleaf quirks kept: reacts to DealDamageEffect from the holder's slot;
-//! the target may be either player's Active (so self-damage to an ex Active
-//! is boosted too); the bonus needs the DealDamageEffect's current damage
-//! above 0. Tool block probe: a bare ToolEffect for the attacking player.
+//! Twinleaf: reacts to DealDamageEffect from the holder's slot; the bonus
+//! needs the DealDamageEffect's current damage above 0. Tool block probe: a
+//! bare ToolEffect for the attacking player.
+//!
+//! Fixed (phase 4b, W4): the target could be either player's Active (so
+//! self-damage to the holder's own ex Active was boosted too); it is now the
+//! opponent's Active only.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MaximumBelt", mask: mask(&[k::DEAL_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
@@ -24,8 +27,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let t = b.target;
     let on_opp_active = t.p as usize == o && t.s == g.st.players[o].active;
-    let on_my_active = t.p as usize == p && t.s == g.st.players[p].active;
-    if !on_opp_active && !on_my_active {
+    if !on_opp_active {
         return Ok(());
     }
     let ex = g.st.slot_pokemon(t.p as usize, t.s).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER)).unwrap_or(false);

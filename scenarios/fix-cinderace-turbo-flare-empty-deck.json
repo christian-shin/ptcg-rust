@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scorbunny CRE",
+   "4 RabootIR SCR",
+   "4 Cinderace M1L",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Scorbunny CRE",
+   "4 RabootIR SCR",
+   "4 Cinderace M1L",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Scorbunny CRE",
+   "RabootIR SCR",
+   "Cinderace M1L"
+  ],
+  "hand": [],
+  "discard": [
+   "3 Scorbunny CRE",
+   "3 RabootIR SCR",
+   "3 Cinderace M1L",
+   "41 Fire Energy MEE"
+  ],
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Scorbunny CRE"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flame Turbo"
+  }
+ ]
+}

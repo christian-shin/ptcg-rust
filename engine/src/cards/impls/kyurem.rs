@@ -2,6 +2,9 @@
 //! its name in their discard pile, Trifrost costs only [C]. Trifrost —
 //! discard all Energy from this Pokémon; 110 damage to 3 of the opponent's
 //! Pokémon.
+//!
+//! Fixed (phase 4b, W4): the target prompt was min 1 max 3; it is now exactly
+//! min(3, opponent's Pokémon in play).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -55,6 +58,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let mut slots = SVec::new();
         slots.push(SlotType::Active as u8);
         slots.push(SlotType::Bench as u8);
+        let count = for_each_pokemon(g, opp as usize, PlayerType::BottomPlayer).len().min(3) as u8;
         g.retain_fx(e);
         let mut f = CardFrame::at(1);
         f.e[0] = e;
@@ -62,7 +66,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.prompt(
             id,
             "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 3, allow_cancel: false, blocked: SVec::new() },
+            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: count, max: count, allow_cancel: false, blocked: SVec::new() },
             Cont::Card { card: me, frame: f },
         );
     }

@@ -3,6 +3,9 @@
 //!
 //! Twinleaf: PREVENT_DAMAGE with `{ sourceStage: BASIC }`. Two `Dipplin`
 //! classes exist; this port is bound to SCR.
+//!
+//! Fixed (phase 4b, W4): printed data only, Dipplin SCR is a Stage 1 that
+//! evolves from Applin (Twinleaf had it as a Basic).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Dipplin@SCR", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };

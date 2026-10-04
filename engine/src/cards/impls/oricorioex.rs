@@ -2,10 +2,13 @@
 //! if you have any [R] Mega Evolution Pokémon ex in play, attach a Basic [R]
 //! Energy card from your hand to 1 of your Benched [R] Pokémon. Fire Wing — 110.
 //!
-//! Twinleaf: the Mega ex check only looks at the cards stacked in the
-//! Active Spot; blockedTo lists every non-[R] Pokémon (Active included); the
+//! Twinleaf: blockedTo lists every non-[R] Pokémon (Active included); the
 //! prompt filter is `name: 'Fire Energy'`; each transfer is an
 //! AttachEnergyEffect.
+//!
+//! Fixed (phase 4b, W4): the Mega ex check only looked at the cards stacked
+//! in the Active Spot (now any Pokémon in play), and the card was missing its
+//! `ex` tag (so a Knock Out gave 1 Prize card instead of 2).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Oricorioex", mask: mask(&[k::POWER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,10 +19,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Power { p, .. } => p as usize,
             _ => return Ok(()),
         };
-        let a = g.st.players[p].active;
-        let mega = g.st.slot(p, a).cards.iter().any(|c| {
-            let d = g.st.cdef(c);
-            d.is_pokemon() && d.has_tag(tag::POKEMON_EX_LOWER) && d.has_tag(tag::POKEMON_SV_MEGA) && d.card_type.contains(&ct::FIRE)
+        let mega = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| {
+            let d = g.st.cdef(*c);
+            d.has_tag(tag::POKEMON_EX_LOWER) && d.has_tag(tag::POKEMON_SV_MEGA) && d.card_type.contains(&ct::FIRE)
         });
         if !mega {
             bail!("CANNOT_USE_POWER");

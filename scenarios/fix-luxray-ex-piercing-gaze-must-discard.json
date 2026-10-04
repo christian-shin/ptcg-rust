@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Luxray ex TWM 68",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "48 Lightning Energy MEE"
+  ],
+  [
+   "4 Luxray ex TWM 68",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "48 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Shinx FST 91",
+   "Luxio FST 92",
+   "Luxray ex TWM 68"
+  ],
+  "active_energy": [
+   "2 Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shinx FST 91",
+  "hand": [
+   "3 Lightning Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Piercing Gaze"
+  }
+ ]
+}

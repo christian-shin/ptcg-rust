@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chikorita MEG 8",
+   "4 Bayleef MEG 9",
+   "4 Meganium MEG 10",
+   "4 Growing Grass Energy POR 86",
+   "44 Grass Energy MEE"
+  ],
+  [
+   "4 Chikorita MEG 8",
+   "4 Bayleef MEG 9",
+   "4 Meganium MEG 10",
+   "4 Growing Grass Energy POR 86",
+   "44 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Chikorita MEG 8",
+   "Bayleef MEG 9",
+   "Meganium MEG 10"
+  ],
+  "active_energy": [
+   "2 Grass Energy MEE",
+   "Growing Grass Energy POR 86"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chikorita MEG 8"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Solar Beam"
+  }
+ ]
+}

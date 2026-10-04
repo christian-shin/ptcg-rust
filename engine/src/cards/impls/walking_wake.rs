@@ -7,6 +7,10 @@
 //! per-Pokémon cap of CheckHp + 90 for every Pokémon in play; each entry is a
 //! PutCountersEffect on the chosen target and `effect.damage = placed * 2`
 //! (the last entry wins).
+//!
+//! Fixed (phase 4b, W4): the printed damage is 20 ("20×", as on the card), so
+//! the resume sets `effect.damage = 0` before the entries (placing no counters
+//! does 0 damage, not the printed 20).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "WalkingWake", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -69,6 +73,9 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
             Res::DamageMap(m) => m,
             _ => SVec::new(),
         };
+        if let Effect::Attack { damage: d, .. } = g.e_mut(atk) {
+            *d = 0;
+        }
         for (t, damage) in map.iter() {
             let target = get_target(&g.st, p as usize, *t)?;
             let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target };

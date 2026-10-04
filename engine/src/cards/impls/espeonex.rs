@@ -3,10 +3,13 @@
 //! Pokémon by shuffling the highest Stage Evolution card into their deck.
 //! Tera: no attack damage while on the Bench.
 //!
-//! Twinleaf quirks kept: the random discard uses `Chance.index`; Amethyst's
-//! ShuffleDeckPrompt belongs to the *attacking* player and its order is
-//! applied to the attacker's deck (the opponent's deck, which received the
-//! Evolution cards, is not shuffled); the prompt has no trailing wait.
+//! Twinleaf: the random discard uses `Chance.index`; the ShuffleDeckPrompt
+//! has no trailing wait.
+//!
+//! Fixed (phase 4b, W4): Amethyst's ShuffleDeckPrompt belonged to the
+//! attacking player and its order was applied to the attacker's deck, leaving
+//! the opponent's deck (which received the Evolution cards) unshuffled; it now
+//! shuffles the opponent's deck. Resistance is Fighting -30 (was -20).
 use super::strange_timepiece::devolve_pokemon;
 use crate::cards::prelude::*;
 
@@ -26,8 +29,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     if was_attack_used(g, e, 1, me) {
-        let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+        let o = match *g.e(e) {
+            Effect::Attack { opp, .. } => opp as usize,
             _ => return Ok(()),
         };
         for (s, _, _) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter() {
@@ -35,8 +38,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 devolve_pokemon(g, SlotRef::new(o, *s), ListRef::Deck(o as u8))?;
             }
         }
-        let id = g.player_id(p);
-        g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
+        let id = g.player_id(o);
+        g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: o as u8 });
         return Ok(());
     }
     tera_rule(g, e, me);

@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Turtonator SSP 137",
+   "4 Pikachu ex ASC 57",
+   "52 Fire Energy MEE"
+  ],
+  [
+   "4 Turtonator SSP 137",
+   "4 Pikachu ex ASC 57",
+   "52 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Turtonator SSP 137",
+  "active_energy": [
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Turtonator SSP 137",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fully Singe"
+  }
+ ]
+}

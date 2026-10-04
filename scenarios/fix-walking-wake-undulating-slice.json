@@ -1,0 +1,30 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Walking Wake TWM 63",
+   "56 Water Energy MEE"
+  ],
+  [
+   "4 Walking Wake TWM 63",
+   "56 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Walking Wake TWM 63",
+  "active_energy": [
+   "3 Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Walking Wake TWM 63"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Undulating Slice"
+  }
+ ]
+}

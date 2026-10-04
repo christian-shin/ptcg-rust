@@ -5,8 +5,11 @@
 //! Twinleaf quirks kept: the chosen cards are moved straight into the empty
 //! Bench slots (MOVE_CARDS, no PlayPokemon effect) with `pokemonPlayedTurn`
 //! set; with nothing chosen the opponent is shown the cards, they go back to
-//! the deck, and the *player's* own deck is shuffled (the opponent's deck
-//! is not). Neither shuffle has a trailing wait.
+//! the deck, and the opponent's deck is shuffled. Neither shuffle has a
+//! trailing wait.
+//!
+//! Fixed (phase 4b, W4): with nothing chosen Twinleaf shuffled the player's own
+//! deck and left the opponent's top 5 cards at the bottom, in order.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "PerformanceFlute", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -86,8 +89,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         }
         2 => {
             move_all(g, top, ListRef::Deck(o as u8), me)?;
-            let id = g.player_id(p);
-            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
+            let id = g.player_id(o);
+            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: o as u8 });
             Ok(())
         }
         _ => Ok(()),

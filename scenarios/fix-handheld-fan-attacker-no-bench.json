@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zeraora DRI 78",
+   "4 Handheld Fan TWM 150",
+   "52 Lightning Energy MEE"
+  ],
+  [
+   "4 Zeraora DRI 78",
+   "4 Handheld Fan TWM 150",
+   "52 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zeraora DRI 78",
+  "active_tool": "Handheld Fan TWM 150",
+  "bench": [
+   {
+    "card": "Zeraora DRI 78"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scratch"
+  }
+ ]
+}

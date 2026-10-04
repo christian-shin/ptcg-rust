@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bouffalant SCR 119",
+   "56 Fire Energy MEE"
+  ],
+  [
+   "4 Bouffalant SCR 119",
+   "56 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bouffalant SCR 119",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Bouffalant SCR 119",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Boundless Power"
+  }
+ ]
+}
