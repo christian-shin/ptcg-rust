@@ -1,0 +1,29 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Bloodmoon Ursaluna PRE 54",
+      "4 Duraludon PRE 69",
+      "28 Psychic Energy MEE",
+      "24 Fighting Energy MEE"
+    ],
+    [
+      "4 Bloodmoon Ursaluna PRE 54",
+      "4 Duraludon PRE 69",
+      "28 Psychic Energy MEE",
+      "24 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "hand": [
+      "Bloodmoon Ursaluna PRE 54",
+      "2 Psychic Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Duraludon PRE 69"
+  }
+}
