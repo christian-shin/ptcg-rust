@@ -4,9 +4,10 @@
 //! Pokémon in play.
 //!
 //! Twinleaf: throws when the hand holds no Energy; the choice may be
-//! cancelled (nothing happens); the [P] count uses the top card of each slot
-//! (printed type, no CheckPokemonTypeEffect); the draw is a MOVE_CARDS with
-//! `count` (no clamp to the deck size, no ability or stadium block check).
+//! cancelled (nothing happens); the [P] count runs a CheckPokemonTypeEffect on
+//! each slot (phase 4b: it used to read the printed type); the draw is a
+//! MOVE_CARDS with `count`, clamped to the deck size (phase 4b; no ability or
+//! stadium block check).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MysteryGarden", mask: mask(&[k::USE_STADIUM]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -43,8 +44,16 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         return Ok(());
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Discard(p as u8), &cards, me)?;
-    let psychic = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().filter(|(_, c, _)| g.st.cdef(*c).card_type.contains(&ct::PSYCHIC)).count() as i32;
-    let to_draw = psychic - g.st.players[p].hand.len() as i32;
+    let mut psychic = 0;
+    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        let t = SlotRef::new(p, s);
+        let types = crate::engine::game_effect::pokemon_types(g, t);
+        let (ce, _) = g.run_fx(Effect::CheckPokemonType { target: t, card_types: types })?;
+        if matches!(ce, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::PSYCHIC)) {
+            psychic += 1;
+        }
+    }
+    let to_draw = (psychic - g.st.players[p].hand.len() as i32).min(g.st.players[p].deck.len() as i32);
     if to_draw > 0 {
         move_count_from(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), to_draw as usize, me)?;
     }

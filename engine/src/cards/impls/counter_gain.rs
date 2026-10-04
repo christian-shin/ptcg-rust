@@ -2,10 +2,11 @@
 //! than your opponent, the attacks of the Pokémon this card is attached to
 //! cost [C] less.
 //!
-//! Twinleaf: the tool must be on the attacker's Active; a ToolEffect stub
-//! (not IS_TOOL_BLOCKED, so the stadium/tool no-effect turns don't apply)
-//! must not throw; then the first [C] of the cost is removed when the
-//! attacker has more Prize cards left.
+//! Twinleaf: the tool must be on the attacker's Active; IS_TOOL_BLOCKED must
+//! not hold (phase 4b: it used to be a bare ToolEffect stub that ignored the
+//! "Stadiums and Tools have no effect" turns); then the first [C] of the cost
+//! is removed (the card says [C] less) when the attacker has more Prize cards
+//! left.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "CounterGain", mask: mask(&[k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
@@ -20,7 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     let index = cost.iter().position(|c| *c == ct::COLORLESS);
-    if g.run_fx(Effect::Tool { p: p as u8, card: me }).is_err() {
+    if is_tool_blocked(g, p, me) {
         return Ok(());
     }
     let i = match index {

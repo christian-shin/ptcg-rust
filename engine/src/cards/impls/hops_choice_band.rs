@@ -6,8 +6,8 @@
 //! tool probe runs first, then the first [C] is removed if the Active is a
 //! Hop's Pokémon (the handler always returns, so a cost check never reaches
 //! the damage branch). On DealDamageEffect from the holder's slot, after the
-//! probe, damage to the opponent's Active gets +30 for a Hop's holder
-//! (no check that the damage is above 0).
+//! probe, damage to the opponent's Active gets +30 for a Hop's holder when the
+//! damage is above 0 (phase 4b: the guard was missing).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HopsChoiceBand", mask: mask(&[k::CHECK_ATTACK_COST, k::DEAL_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
@@ -36,7 +36,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
             Ok(())
         }
-        Effect::DealDamage { b, .. } => {
+        Effect::DealDamage { b, damage: dealt } => {
             if !g.st.slot(b.source.p as usize, b.source.s).tools.contains(me) {
                 return Ok(());
             }
@@ -50,7 +50,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             let hops = g.st.slot_pokemon(b.source.p as usize, b.source.s).map(|c| g.st.cdef(c).has_tag(tag::HOPS)).unwrap_or(false);
-            if hops {
+            if hops && dealt > 0 {
                 if let Effect::DealDamage { damage, .. } = g.e_mut(e) {
                     *damage += 30;
                 }

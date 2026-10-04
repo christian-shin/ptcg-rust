@@ -7,7 +7,9 @@
 //! allowUseFromDiscard, respectExemptFromInitialize, error
 //! BLOCKED_BY_ABILITY): strips Abilities from CheckPokemonPowersEffect and
 //! throws on PowerEffect when this card is the top card of either Active, the
-//! checked card sits on a Pokémon slot, is not Future and has a Rule Box,
+//! checked card sits on a Pokémon slot or is still in the hand (a Pokémon
+//! being benched or evolved: it is in play, so its on-play Ability is locked
+//! too; fixed in phase 4b), is not Future and has a Rule Box,
 //! and Initialization itself applies (a real PowerEffect for it, by the
 //! player whose Active it is, must not throw; on a PowerEffect also an
 //! EffectOfAbilityEffect against the target slot must keep its target).
@@ -75,8 +77,10 @@ fn is_locked(g: &mut Game, me: CardId, player: usize, card: CardId, power_effect
     if g.st.active_pokemon(player) != Some(me) && g.st.active_pokemon(1 - player) != Some(me) {
         return Ok(false);
     }
+    // A Pokémon still in the hand is being played (benched / evolved), so it is in play: locked too.
     let slot = match g.st.locate(card) {
-        Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
+        Some(ListRef::Slot(q, s)) => Some(SlotRef::new(q as usize, s)),
+        Some(ListRef::Hand(_)) => None,
         _ => return Ok(false),
     };
     let d = g.st.cdef(card);
@@ -94,7 +98,11 @@ fn is_locked(g: &mut Game, me: CardId, player: usize, card: CardId, power_effect
         return Ok(false);
     }
     if power_effect {
-        // CAN_APPLY_LOCK_TO_TARGET
+        // CAN_APPLY_LOCK_TO_TARGET (a card in the hand is not on a Pokémon slot: true)
+        let slot = match slot {
+            Some(slot) => slot,
+            None => return Ok(true),
+        };
         return Ok(match g.run_fx(Effect::EffectOfAbility { p: locker_owner as u8, power: own, card: me, target: Some(slot) }) {
             Ok((Effect::EffectOfAbility { target, .. }, _)) => target.is_some(),
             _ => false,

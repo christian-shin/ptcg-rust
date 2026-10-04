@@ -6,8 +6,8 @@
 //! this card (not necessarily on top), unless the ability is blocked for the
 //! slot's owner, when the slot has no damage and `effect.damage >=` its HP
 //! (CheckHpEffect by the owner), sets `surviveOnTenHPReason`. The core then
-//! caps the damage at HP - 10 only when it went strictly over HP (exactly
-//! lethal damage still Knocks Out).
+//! caps the damage at HP - 10 when it reached HP (phase 4b: exactly lethal
+//! damage used to Knock Out anyway).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Crustle@BCR", mask: mask(&[k::PUT_DAMAGE, k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };

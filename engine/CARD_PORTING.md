@@ -81,8 +81,12 @@ The `Class` column of a batch table is not always the logic class: use the
 
 A lock probe (`is_ability_blocked`) on a card that is still in the hand (a
 Pokémon being benched or evolved: PlayPokemon / Evolve handlers run before the
-card moves) sees it in a non-Pokémon list; locks such as Iron Thorns ex return
-"not locked" there, so such abilities still trigger under the lock.
+card moves) sees it in a hand list, not a Pokémon slot. Iron Thorns ex's
+Initialization treats such a card as in play (since phase 4b), so a Rule Box
+Pokémon's on-play Ability (Meowth ex, Durant ex, Archaludon ex, Marnie's
+Grimmsnarl ex) is locked while Iron Thorns ex is Active. Other locks may still
+return "not locked" for a card in the hand, and for a card in the deck or
+discard pile; mirror each lock's own Twinleaf probe.
 
 ### Continuations: generators and callbacks
 
@@ -262,7 +266,8 @@ Thorns) removes the power there (`UNKNOWN_POWER`) before the `PowerEffect` ever
 exists, so a Chandelure under Gastrodon never reaches its own check. Callbacks
 of such locks that return early for a card that is "not in a Pokémon slot" can
 be reached with Salvatore (it dispatches `CheckPokemonPowersEffect` for deck
-cards) or Team Rocket's Arbok (for the card still in hand).
+cards); Iron Thorns ex no longer returns early for a card in the hand (Team
+Rocket's Arbok and the on-play Abilities probe it there).
 
 Check the actual shape of card-selection effects before exempting a filter or
 removal branch. Dedenne SSP's Electromagnetic Sonar can recover any Trainer
