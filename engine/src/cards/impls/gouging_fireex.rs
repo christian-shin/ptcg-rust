@@ -12,7 +12,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
             _ => return Ok(()),
         };
-        let name = g.st.cdef(me).attacks[1].name;
+        // `this.attacks[1].name`: under a copy-attack session `this.attacks`
+        // are the copied clones (Ethan's Sudowoodo's Try to Imitate).
+        let name = crate::engine::attack::attack_def(g, my_attack(g, me, 1)).name;
         let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
         let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
         g.run_fx(Effect::PreventAttackUntilLeavesActive { b, name })?;
