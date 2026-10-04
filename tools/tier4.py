@@ -174,7 +174,7 @@ def main():
     ap.add_argument('--keep', action='store_true')
     ap.add_argument('--no-stop', action='store_true')
     a = ap.parse_args()
-    out = a.out or os.path.join(ROOT, 'corpus/tier4', str(a.seed))
+    out = os.path.abspath(a.out or os.path.join(ROOT, 'corpus/tier4', str(a.seed)))
     os.makedirs(out, exist_ok=True)
     spec = build_spec(a.seed, a.random_decks)
     spec_path = os.path.join(out, 'spec.json.txt')
@@ -196,6 +196,8 @@ def main():
                                           tag='tier4-%d' % a.seed, ref=os.environ.get('PTCG_ORACLE_REF', 'oracle'))
         else:
             log = play_local(spec_path, chunk, base + done, n, a.jobs)
+        if not glob.glob(os.path.join(chunk, 'g*.json')):
+            sys.exit('no oracle traces were written; oracle output:\n' + log[-3000:])
         bad = oracle_failures(chunk, log)
         stats, div = replay(chunk)
         for k, v in stats.items():
