@@ -2,25 +2,23 @@
  "turn": 2,
  "decks": [
   [
-   "4 Minccino TEF 136",
+   "4 Team Rocket's Articuno DRI 51",
    "4 Duraludon PRE 69",
    "4 Sacred Charm PFL 93",
-   "4 Punk Helmet PFL 92",
-   "44 Metal Energy MEE 8"
+   "48 Water Energy MEE"
   ],
   [
-   "4 Minccino TEF 136",
+   "4 Team Rocket's Articuno DRI 51",
    "4 Duraludon PRE 69",
    "4 Sacred Charm PFL 93",
-   "4 Punk Helmet PFL 92",
-   "44 Metal Energy MEE 8"
+   "48 Water Energy MEE"
   ]
  ],
  "me": {
   "reset": true,
-  "active": "Minccino TEF 136",
+  "active": "Team Rocket's Articuno DRI 51",
   "active_energy": [
-   "2 Metal Energy MEE 8"
+   "3 Water Energy MEE"
   ]
  },
  "opp": {
@@ -29,14 +27,6 @@
   "active_tool": "Sacred Charm PFL 93",
   "bench": [
    {
-    "card": "Duraludon PRE 69",
-    "tool": "Sacred Charm PFL 93"
-   },
-   {
-    "card": "Duraludon PRE 69",
-    "tool": "Punk Helmet PFL 92"
-   },
-   {
     "card": "Duraludon PRE 69"
    }
   ]
@@ -44,7 +34,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Cleaning Up"
+   "name": "Dark Frost"
   }
  ]
 }

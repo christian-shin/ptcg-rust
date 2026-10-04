@@ -2,11 +2,11 @@
 //! Basic Energy cards of different types, reveal them, and put them into
 //! your hand. Then, shuffle your deck.
 //!
-//! Twinleaf quirks kept: no preventDefault (the item is discarded right
-//! away); max = number of distinct `provides[0]` among the deck's Basic
-//! Energy; the prompt callback never calls `next()`, so the generator stops
-//! there and the deck is never shuffled. In the callback: same-name check
-//! on the first two cards (throws), SHOW_CARDS_TO_PLAYER, then MOVE_CARDS.
+//! Twinleaf: no preventDefault (the item is discarded right away); max =
+//! number of distinct `provides[0]` among the deck's Basic Energy. In the
+//! prompt callback: same-name check on the first two cards (throws),
+//! SHOW_CARDS_TO_PLAYER, MOVE_CARDS, then (fixed in phase 4b: the callback
+//! never called `next()`) the generator continues and shuffles the deck.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "EnergySearchPro", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -50,5 +50,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         bail!("CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES");
     }
     show_cards_to_player(g, 1 - p, cards.len());
-    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)
+    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
+    // ShuffleDeckPrompt directly (not the SHUFFLE_DECK prefab): no wait prompt
+    let id = g.player_id(p);
+    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
+    Ok(())
 }

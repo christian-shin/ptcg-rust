@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Marill ASC 83",
+   "4 Azumarill ex ASC 84",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE",
+   "24 Metal Energy MEE 8"
+  ],
+  [
+   "4 Marill ASC 83",
+   "4 Azumarill ex ASC 84",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE",
+   "24 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Marill ASC 83",
+   "Azumarill ex ASC 84"
+  ],
+  "active_energy": [
+   "2 Psychic Energy MEE",
+   "1 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energy Balloon"
+  }
+ ]
+}

@@ -5,13 +5,15 @@
 //!
 //! Twinleaf: the MoveEnergyPrompt (cancellable, 0..1) callback throws
 //! INVALID_TARGET unless every transfer targets the slot holding this card;
-//! ABILITY_USED runs even for an empty answer. Twinleaf bug replicated:
-//! Energy Balloon tests `provides?.includes('P')` / `energyType === 'P'` on
-//! numeric `CardType` enums, so it never counts anything and the attack
-//! always does its base 60 damage (no handler needed).
+//! ABILITY_USED runs even for an empty answer. Fixed in phase 4b: the prompt
+//! now has `blockedFrom` = this Pokémon's slot and `blockedTo` = every other
+//! slot (random answers used to reach the INVALID_TARGET throw). Energy
+//! Balloon (also fixed: it compared numeric `CardType` enums to 'P', so it
+//! never counted anything) runs CheckProvidedEnergyEffect on the Active and
+//! adds 40 for every energy map entry that provides [P].
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Azumarillex", mask: mask(&[k::POWER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Azumarillex", mask: mask(&[k::POWER, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_power_used(g, e, 0, me) {
@@ -23,12 +25,39 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         slots.push(SlotType::Active as u8);
         slots.push(SlotType::Bench as u8);
         let filter = Filter::super_type(SuperType::Energy);
-        let o = MoveOpts { allow_cancel: true, min: 0, max: Some(1), ..Default::default() };
+        let mut o = MoveOpts { allow_cancel: true, min: 0, max: Some(1), ..Default::default() };
+        for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+            if c == me {
+                o.blocked_from.push(t);
+            } else {
+                o.blocked_to.push(t);
+            }
+        }
         let id = g.player_id(p);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         g.prompt(id, "MOVE_ENERGY_CARDS", PromptKind::MoveEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, Cont::Card { card: me, frame: f });
         return Ok(());
+    }
+
+    if was_attack_used(g, e, 0, me) {
+        let p = match *g.e(e) {
+            Effect::Attack { p, .. } => p as usize,
+            _ => return Ok(()),
+        };
+        let mut psychic = 0;
+        let a = g.st.players[p].active;
+        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
+        if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+            for m in energy_map.iter() {
+                if m.provides.iter().any(|t| *t == ct::PSYCHIC) {
+                    psychic += 1;
+                }
+            }
+        }
+        if let Effect::Attack { damage, .. } = g.e_mut(e) {
+            *damage += 40 * psychic;
+        }
     }
 
     Ok(())

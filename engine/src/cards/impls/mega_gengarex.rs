@@ -9,7 +9,9 @@
 //! opponent's ATTACK phase, with this card in play for the KO'd player and
 //! not ability-blocked (probe for the *opponent*), a [D] target (by
 //! CheckPokemonTypeEffect) and an ex opponent Active; a slot marker keeps it
-//! from stacking. Void Gale sets a player marker; on the AfterAttackEffect
+//! from stacking (fixed in phase 4b: the check looked for the marker of this
+//! copy only, so a second copy never saw the first one's marker; it now
+//! tests the marker by name). Void Gale sets a player marker; on the AfterAttackEffect
 //! with that marker and any benched Pokémon a non-cancellable
 //! AttachEnergyPrompt moves 1 Energy from the Active to the Bench.
 use crate::cards::prelude::*;
@@ -56,7 +58,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             return Ok(());
         }
         let m = &mut g.st.players[target.p as usize].slots[target.s as usize].marker;
-        if m.has_from(non_stack(), me) {
+        if m.has(non_stack()) {
             return Ok(());
         }
         m.add(non_stack(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);

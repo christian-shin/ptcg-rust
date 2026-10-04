@@ -1,14 +1,16 @@
 //! Team Rocket's Zapdos (DRI): Jamming Wave — 30; you may move an Energy
 //! from your opponent's Active Pokémon to 1 of their Benched Pokémon.
-//! Bad Thunder — 60+, 60 more if this Pokémon has Team Rocket Energy.
+//! Bad Thunder — 60+, 60 more if this Pokémon has Team Rocket's Energy.
 //!
 //! Twinleaf: CONFIRMATION_PROMPT; on yes, nothing without an opponent's
 //! Benched Pokémon or an Energy card in their Active, else a non-cancellable
 //! AttachEnergyPrompt (opponent's Active → TOP_PLAYER Bench, min 1 max 1).
-//! Quirk kept: the callback resolves `getTarget(state, opponent, to)` with
-//! `to.player = TOP_PLAYER`, i.e. the attacker's Bench at that index — the
-//! Energy lands there even when that slot is empty (a Pokémon-less slot
-//! holding only an Energy, which forEachPokemon then skips).
+//! Fixed in phase 4b: the callback resolved `getTarget(state, opponent, to)`,
+//! which reads TOP_PLAYER as the attacker's Bench (the Energy landed there,
+//! even in an empty slot); it now uses the attacker as the perspective, so the
+//! Energy goes to the opponent's Benched Pokémon. Bad Thunder checks the
+//! Energy name "Team Rocket's Energy" (it compared "Team Rocket Energy", so
+//! the +60 never applied).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsZapdos", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -32,7 +34,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let a = g.st.players[p].active;
         let has = g.st.slot(p, a).cards.iter().any(|c| {
             let d = g.st.cdef(c);
-            d.is_energy() && d.name == "Team Rocket Energy"
+            d.is_energy() && d.name == "Team Rocket's Energy"
         });
         if has {
             if let Effect::Attack { damage, .. } = g.e_mut(e) {
@@ -92,7 +94,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             };
             let src = ListRef::Slot(o as u8, g.st.players[o].active);
             for (to, c) in transfers.iter().copied() {
-                let target = get_target(&g.st, o, to)?;
+                let target = get_target(&g.st, p, to)?;
                 move_cards(g, src, target.list(), &[c], me)?;
             }
             Ok(())

@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Zapdos DRI 70",
+   "4 Duraludon PRE 69",
+   "4 Team Rocket's Energy ASC 217",
+   "24 Lightning Energy MEE 4",
+   "24 Metal Energy MEE 8"
+  ],
+  [
+   "4 Team Rocket's Zapdos DRI 70",
+   "4 Duraludon PRE 69",
+   "4 Team Rocket's Energy ASC 217",
+   "24 Lightning Energy MEE 4",
+   "24 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Zapdos DRI 70",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Team Rocket's Energy ASC 217"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bad Thunder"
+  }
+ ]
+}

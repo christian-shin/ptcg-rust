@@ -16,7 +16,7 @@
   "reset": true,
   "active": "Minccino TEF 136",
   "active_energy": [
-   "Metal Energy MEE 8"
+   "2 Metal Energy MEE 8"
   ]
  },
  "opp": {
@@ -33,7 +33,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Beat"
+   "name": "Cleaning Up"
   },
   null
  ]
