@@ -282,10 +282,11 @@ pub struct MoveOpts {
     pub allow_cancel: bool,
     pub min: u8,
     pub max: Option<u8>,
-    pub blocked_from: SVec<CardTarget, 16>,
-    pub blocked_to: SVec<CardTarget, 16>,
+    // Up to 18 entries: every Pokémon in play on both sides (2 x 9 slots).
+    pub blocked_from: SVec<CardTarget, 18>,
+    pub blocked_to: SVec<CardTarget, 18>,
     /// (source, blocked card indices).
-    pub blocked_map: SVec<(CardTarget, Blocked), 4>,
+    pub blocked_map: SVec<(CardTarget, Blocked), 18>,
 }
 
 impl Default for MoveOpts {
