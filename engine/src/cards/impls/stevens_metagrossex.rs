@@ -3,11 +3,15 @@
 //! attach them to your [P] and [M] Pokémon in any way, then shuffle. Metal
 //! Stomp - 200.
 //!
+//! Fixed (phase 4b): AttachEnergyPrompt's validate no longer returns early on
+//! validCardTypes, so differentTypes applies here: two Energy of the same
+//! type can't be picked (the same-name throw in the callback, which that
+//! pair used to reach, is removed).
+//!
 //! Twinleaf quirks kept: the marker (X_BOOT_MARKER, source this card) and
 //! ABILITY_USED are set *before* the prompt; the AttachEnergyPrompt (deck ->
 //! Bench + Active, basic Energy, min 0, max 2, differentTypes, validCardTypes
-//! [P, M], cancellable) is answered in the callback: two transfers of the
-//! same Energy name throw before anything moves; each transfer is a
+//! [P, M], cancellable) is answered in the callback; each transfer is a
 //! MOVE_CARDS (no AttachEnergyEffect), then SHUFFLE_DECK. No deck check, so
 //! an empty deck still uses the Ability. The marker is cleared at the end of
 //! the turn and on this card's PlayPokemonEffect.
@@ -85,12 +89,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         _ => SVec::new(),
     };
     for (to, c) in transfers.iter().copied() {
-        if transfers.len() > 1 {
-            let (a, b) = (transfers.get(0).unwrap().1, transfers.get(1).unwrap().1);
-            if g.st.cdef(a).name == g.st.cdef(b).name {
-                bail!("CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES");
-            }
-        }
         let target = get_target(&g.st, p, to)?;
         move_cards(g, ListRef::Deck(p as u8), ListRef::Slot(target.p, target.s), &[c], me)?;
     }
