@@ -1,0 +1,56 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Ethan's Ho-Oh ex ASC 26",
+      "4 Iron Thorns ex PRE 32",
+      "4 Heavy Baton TEF 151",
+      "4 Duraludon PRE 69",
+      "4 Archaludon PRE 70",
+      "20 Metal Energy MEE 8",
+      "20 Fire Energy MEE 2"
+    ],
+    [
+      "4 Ethan's Ho-Oh ex ASC 26",
+      "4 Iron Thorns ex PRE 32",
+      "4 Heavy Baton TEF 151",
+      "4 Duraludon PRE 69",
+      "4 Archaludon PRE 70",
+      "20 Metal Energy MEE 8",
+      "20 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Ethan's Ho-Oh ex ASC 26",
+    "active_energy": [
+      "4 Fire Energy MEE 2"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_tool": "Heavy Baton TEF 151",
+    "active_energy": [
+      "3 Metal Energy MEE 8"
+    ],
+    "active_damage": 100,
+    "bench": [
+      {
+        "card": [
+          "Duraludon PRE 69",
+          "Archaludon PRE 70"
+        ]
+      },
+      {
+        "card": "Ethan's Ho-Oh ex ASC 26"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Shining Feather"
+    }
+  ]
+}

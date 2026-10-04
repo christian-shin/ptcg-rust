@@ -1,0 +1,48 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Centiskorch SSP 28",
+      "4 Budew ASC 16",
+      "1 Survival Brace TWM 164",
+      "51 Fire Energy MEE 2"
+    ],
+    [
+      "4 Centiskorch SSP 28",
+      "4 Budew ASC 16",
+      "1 Survival Brace TWM 164",
+      "51 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Centiskorch SSP 28",
+    "active_energy": [
+      "Fire Energy MEE 2"
+    ],
+    "bench": [
+      {
+        "card": "Budew ASC 16",
+        "tool": "Survival Brace TWM 164"
+      },
+      {
+        "card": "Budew ASC 16"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Budew ASC 16",
+    "bench": [
+      {
+        "card": "Budew ASC 16"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Billowing Heat Wave"
+    }
+  ]
+}

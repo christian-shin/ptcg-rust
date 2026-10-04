@@ -4,7 +4,10 @@
 //! Twinleaf: the Stage 1 link is looked up in the whole CardManager
 //! (`gen::stage1::ALL_STAGE1`); no first-turn check other than the
 //! `pokemonPlayedTurn < turn` test via CheckPokemonPlayedTurnEffect; the
-//! evolution is a bare EvolveEffect (special conditions are kept).
+//! evolution is a bare EvolveEffect (special conditions are kept). Phase 4b
+//! fix: `canUseRareCandy` is false while the player can't evolve (Evolution
+//! Jammer, Bronzong TEF), where the EvolveEffect used to throw
+//! BLOCKED_BY_EFFECT after the prompts.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "RareCandy", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -40,7 +43,8 @@ fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
 /// `canUseRareCandy`.
 fn can_use(g: &mut Game, p: usize) -> R<bool> {
     let stage2 = stage2_in_hand(g, p);
-    if stage2.is_empty() {
+    // Evolution Jammer (Bronzong TEF): the player can't evolve (phase 4b fix).
+    if stage2.is_empty() || g.st.players[p].cannot_evolve_pokemon_cards {
         return Ok(false);
     }
     let mut ok = false;

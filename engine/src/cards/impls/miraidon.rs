@@ -3,11 +3,13 @@
 //! Sparking Strike — 160.
 //!
 //! Twinleaf: AttachEnergyPrompt over the deck (Bench + Active, no cancel,
-//! min 0, max 2). No transfers -> SHUFFLE_DECK. Otherwise each transfer is
-//! checked in order (`target.cards[0]` must be a Future Pokémon, else throws
-//! INVALID_TARGET after the earlier ones already moved) and the Energy is
-//! moved with MOVE_CARDS (no AttachEnergyEffect); then a bare ShuffleDeckPrompt
-//! (no trailing wait prompt).
+//! min 0, max 2). blockedTo lists every non-Future Pokémon (phase 4b fix: it
+//! used to offer them and the Energy then threw INVALID_TARGET). No transfers
+//! -> SHUFFLE_DECK. Otherwise each transfer is checked in order
+//! (`target.cards[0]` must be a Future Pokémon, else throws INVALID_TARGET
+//! after the earlier ones already moved) and the Energy is moved with
+//! MOVE_CARDS (no AttachEnergyEffect); then a bare ShuffleDeckPrompt (no
+//! trailing wait prompt).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Miraidon", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -25,6 +27,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         o.allow_cancel = false;
         o.min = 0;
         o.max = 2;
+        // Only Future Pokémon can receive the Energy (blockedTo lists the others).
+        for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+            if !g.st.cdef(c).has_tag(tag::FUTURE) {
+                o.blocked_to.push(t);
+            }
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         let id = g.player_id(p);

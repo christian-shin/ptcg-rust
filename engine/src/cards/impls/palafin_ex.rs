@@ -2,16 +2,18 @@
 //! Zero to Hero. Giga Impact — 250; during your next turn, this Pokémon
 //! can't attack.
 //!
-//! Twinleaf: any EvolveEffect for this card throws CANNOT_EVOLVE unless the
-//! generic ability-lock probe fails (IS_ABILITY_BLOCKED is true when blocked).
+//! Twinleaf: any EvolveEffect for this card throws CANNOT_EVOLVE (Zero to Hero
+//! moves it into play without one). It used to be lifted when the generic
+//! ability-lock probe said blocked, which the Iron Thorns ex hand lock (phase
+//! 4b) would have turned into a way to evolve it from the hand.
 //! The TWM support print and Palafin exSAR PRE share the same Palafinex logic.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Palafinex", mask: mask(&[k::EVOLVE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::Evolve { p, card, .. } = *g.e(e) {
-        if card == me && !is_ability_blocked(g, p as usize, me, None) {
+    if let Effect::Evolve { card, .. } = *g.e(e) {
+        if card == me {
             bail!("CANNOT_EVOLVE");
         }
     }

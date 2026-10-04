@@ -1,0 +1,38 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Finizen TWM",
+      "4 Palafin TWM",
+      "4 Palafin exSAR PRE",
+      "4 Iron Thorns ex PRE 32",
+      "44 Water Energy MEE"
+    ],
+    [
+      "4 Finizen TWM",
+      "4 Palafin TWM",
+      "4 Palafin exSAR PRE",
+      "4 Iron Thorns ex PRE 32",
+      "44 Water Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Finizen TWM",
+    "active_energy": [
+      "Water Energy MEE"
+    ],
+    "bench": [
+      {
+        "card": "Finizen TWM"
+      }
+    ],
+    "hand": [
+      "Palafin exSAR PRE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32"
+  }
+}

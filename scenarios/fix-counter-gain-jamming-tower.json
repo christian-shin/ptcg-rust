@@ -1,0 +1,32 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Regigigas PRE 86",
+      "4 Counter Gain ASC 186",
+      "4 Jamming Tower ASC 261",
+      "48 Metal Energy MEE 8"
+    ],
+    [
+      "4 Regigigas PRE 86",
+      "4 Counter Gain ASC 186",
+      "4 Jamming Tower ASC 261",
+      "48 Metal Energy MEE 8"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Regigigas PRE 86",
+    "active_tool": "Counter Gain ASC 186",
+    "active_energy": [
+      "3 Metal Energy MEE 8"
+    ],
+    "prizes_left": 6,
+    "stadium": "Jamming Tower ASC 261"
+  },
+  "opp": {
+    "reset": true,
+    "active": "Regigigas PRE 86",
+    "prizes_left": 4
+  }
+}

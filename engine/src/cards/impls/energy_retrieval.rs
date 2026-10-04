@@ -1,7 +1,8 @@
 //! Energy Retrieval (BS): trade 1 of the other cards in your hand for
 //! up to 2 basic Energy cards from your discard pile.
 //!
-//! Twinleaf: throws with no Basic Energy in the discard; the hand card is
+//! Twinleaf: throws with no Basic Energy in the discard or no other card in
+//! hand (phase 4b fix; the prompt was unanswerable); the hand card is
 //! chosen from a temporary copy of the hand (min 1, no cancel); the second
 //! prompt's max is min(2, Basic Energy counted before the discard), min 1.
 use crate::cards::prelude::*;
@@ -26,6 +27,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         })
         .count();
     if n == 0 {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    // No other card in hand to trade (phase 4b fix: the prompt was unanswerable).
+    if g.st.players[p].hand.iter().all(|c| c == me) {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     g.set_prevent(e, true);

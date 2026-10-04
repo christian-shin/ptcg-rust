@@ -70,8 +70,9 @@ impl Rng {
         (v % n as u64) as u32
     }
 
+    /// True for [`Rng::zero`]: a legality trial (the oracle's `Chance.inTrial`).
     #[inline]
-    fn is_fixed(&self) -> bool {
+    pub fn is_fixed(&self) -> bool {
         self.s == [0; 4]
     }
 
