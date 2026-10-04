@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gimmighoul SSP 97",
+   "4 Gholdengo SSP 131",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "4 Eevee TWM 135",
+   "4 Sylveon ex PRE 41",
+   "4 Air Balloon ASC 181",
+   "32 Metal Energy MEE 8"
+  ],
+  [
+   "4 Gimmighoul SSP 97",
+   "4 Gholdengo SSP 131",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "4 Eevee TWM 135",
+   "4 Sylveon ex PRE 41",
+   "4 Air Balloon ASC 181",
+   "32 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Gimmighoul SSP 97",
+   "Gholdengo SSP 131"
+  ],
+  "active_energy": [
+   "2 Metal Energy MEE 8",
+   "Mist Energy TEF 161"
+  ],
+  "active_tool": "Air Balloon ASC 181",
+  "bench": [
+   {
+    "card": "Mankey SSP 98"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Eevee TWM 135",
+   "Sylveon ex PRE 41"
+  ],
+  "bench": [
+   {
+    "card": "Mankey SSP 98"
+   }
+  ]
+ }
+}
