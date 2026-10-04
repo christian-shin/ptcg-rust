@@ -6,8 +6,12 @@ policies, scenario: `cli.js regen`), and replays the regenerated traces. A
 trace that still diverges after regeneration is a real parity bug (or an
 invariant violation both engines share) and is listed for fixing.
 
-usage: rebuild_corpus.py [dir ...] [--jobs J] [--dry-run]
+usage: rebuild_corpus.py [dir ...] [--jobs J] [--dry-run] [--oracle-failures]
        (default dirs: corpus/t1 corpus/meta1 corpus/meta2 corpus/cards/*/)
+
+--oracle-failures also regenerates traces whose recorded game ended in
+status error or stuck: they replay as passing when Rust reproduces the end
+state, but they describe bugs the oracle no longer has.
 
 Writes porting/rebuild-<timestamp>.txt (local) with the regenerated and the
 remaining traces.
@@ -46,6 +50,7 @@ def main():
     ap.add_argument('dirs', nargs='*')
     ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 4) - 1))
     ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--oracle-failures', action='store_true')
     a = ap.parse_args()
     dirs = a.dirs or [os.path.join(ROOT, d) for d in ('corpus/t1', 'corpus/meta1', 'corpus/meta2')] + sorted(glob.glob(os.path.join(ROOT, 'corpus/cards/*/')))
     t0 = time.time()
@@ -54,6 +59,18 @@ def main():
         for r in ex.map(lambda d: replay([d]), dirs):
             found.update(r)
     print('%d diverged traces in %d dirs (%.0fs)' % (len(found), len({os.path.dirname(f) for f in found}), time.time() - t0), flush=True)
+    if a.oracle_failures:
+        n = 0
+        for d in dirs:
+            for f in glob.glob(os.path.join(d, 'g*.json')):
+                with open(f) as fh:
+                    s = fh.read()
+                i = s.rfind('"result"')
+                st = re.search(r'"status":\s*"(\w+)"', s[i:]) if i >= 0 else None
+                if st and st.group(1) in ('error', 'stuck') and os.path.abspath(f) not in found:
+                    found[os.path.abspath(f)] = (-1, 'oracle-' + st.group(1), '')
+                    n += 1
+        print('%d more traces recorded an oracle error or stuck game' % n, flush=True)
     if a.dry_run or not found:
         return
     files = sorted(found)
