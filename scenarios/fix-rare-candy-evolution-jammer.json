@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tympole EVS",
+   "4 Palpitoad OBF",
+   "4 Seismitoad 30C 84",
+   "4 Rare Candy MEG 125",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "36 Psychic Energy MEE"
+  ],
+  [
+   "4 Tympole EVS",
+   "4 Palpitoad OBF",
+   "4 Seismitoad 30C 84",
+   "4 Rare Candy MEG 125",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "36 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Bronzor TEF 68",
+   "Bronzong TEF 69"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Bronzor TEF 68",
+  "bench": [
+   {
+    "card": "Tympole EVS"
+   }
+  ],
+  "hand": [
+   "Rare Candy MEG 125",
+   "Seismitoad 30C 84"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evolution Jammer"
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE"
+  ],
+  [
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Yanma DRI 2",
+   "Yanmega ex DRI 3"
+  ],
+  "active_energy": [
+   "4 Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jet Cyclone"
+  }
+ ]
+}

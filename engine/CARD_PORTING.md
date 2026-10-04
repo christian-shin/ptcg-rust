@@ -465,7 +465,13 @@ The tracked list is `porting/twinleaf-fixes.md`.
    way similar Twinleaf cards do (a `throw new GameError(...)` before any
    state change, so the legality trial removes the option); otherwise clamp
    the prompt's `min` to what is available. Crashes inside a prompt callback
-   are always bugs.
+   are always bugs. A guard that runs after a prompt (a throw inside a
+   callback, e.g. "accepting the ability with no target") must move before
+   it, so the ability isn't offered. Legality trials draw fixed outcomes
+   (every coin tails), and a Trainer played under Seismitoad's Quaking Fist
+   flips a coin first: the trial therefore skips that flip and checks the
+   heads path (`Chance.inTrial` in the oracle, `Rng::is_fixed` in Rust),
+   otherwise an unplayable card looks legal and throws on real heads.
 3. **Rust.** Port the same change. If the fix is in a core file (a prompt's
    `validate`, a prefab), port it in the matching core file and list every
    card that goes through it.

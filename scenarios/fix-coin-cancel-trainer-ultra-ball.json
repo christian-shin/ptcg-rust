@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tympole EVS",
+   "4 Palpitoad OBF",
+   "4 Seismitoad 30C 84",
+   "4 Duraludon PRE 69",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Wondrous Patch POR 117",
+   "4 Potion POR 83",
+   "4 Ultra Ball 30C 128",
+   "28 Fighting Energy MEE"
+  ],
+  [
+   "4 Tympole EVS",
+   "4 Palpitoad OBF",
+   "4 Seismitoad 30C 84",
+   "4 Duraludon PRE 69",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Wondrous Patch POR 117",
+   "4 Potion POR 83",
+   "4 Ultra Ball 30C 128",
+   "28 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Tympole EVS",
+   "Palpitoad OBF",
+   "Seismitoad 30C 84"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Ultra Ball 30C 128"
+  ]
+ },
+ "coins": [
+  true,
+  true,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Quaking Fist"
+  }
+ ]
+}

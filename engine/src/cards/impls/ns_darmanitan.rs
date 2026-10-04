@@ -4,8 +4,9 @@
 //!
 //! Twinleaf: Backdraft assigns the damage. Darman-i-cannon discards every
 //! card of the Active's CheckProvidedEnergy map with one DiscardCardsEffect,
-//! then always opens a non-cancellable ChoosePokemonPrompt over the
-//! opponent's Bench (even when it is empty), and puts 90 with a plain
+//! then (when the opponent has a Benched Pokémon; phase 4b fix, it used to
+//! open the prompt on an empty Bench and get stuck) opens a non-cancellable
+//! ChoosePokemonPrompt over the opponent's Bench, and puts 90 with a plain
 //! PutDamageEffect on the chosen Pokémon.
 use crate::cards::prelude::*;
 
@@ -43,6 +44,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: SlotRef::new(pu, a) };
         g.run_fx(Effect::DiscardCards { b, cards })?;
 
+        // No Benched Pokémon to damage (phase 4b fix: the prompt was unanswerable).
+        let has_bench = g.st.players[opp as usize].bench.iter().any(|s| !g.st.players[opp as usize].slots[*s as usize].cards.is_empty());
+        if !has_bench {
+            return Ok(());
+        }
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
         g.retain_fx(e);

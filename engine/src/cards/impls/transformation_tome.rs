@@ -2,9 +2,11 @@
 //! Choose a Basic Pokémon in your discard pile and switch it with 1 of your
 //! Basic Pokémon in play (attachments, damage and effects stay).
 //!
-//! Twinleaf quirks kept: "Basic in play" checks every Pokémon card in a
-//! stack (a Basic under an evolution counts); the in-play choice blocks
-//! slots whose top Pokémon isn't Basic. The swap MOVE_CARDS the slot's
+//! Twinleaf: "Basic in play" is a Pokémon whose top card is Basic (phase 4b
+//! fix: it used to count a Basic under an evolution, so with only evolved
+//! Pokémon in play the card was playable but every slot was blocked and the
+//! prompt unanswerable); the in-play choice blocks slots whose top Pokémon
+//! isn't Basic. The swap MOVE_CARDS the slot's
 //! bottom card to the discard first, which empties the slot of Pokémon, so
 //! the core discards its attachments and resets it; the discard Basic then
 //! goes into the empty slot and the second copy is discarded from hand.
@@ -28,7 +30,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => bail!("CANNOT_PLAY_THIS_CARD"),
     };
     let pl = &g.st.players[p];
-    let in_play = pl.all_slots().iter().any(|s| pl.slots[*s as usize].cards.iter().any(|c| is_basic_mon(g, c)));
+    let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| is_basic_mon(g, *c));
     let in_discard = pl.discard.iter().any(|c| is_basic_mon(g, c));
     if !in_play || !in_discard {
         bail!("CANNOT_PLAY_THIS_CARD");

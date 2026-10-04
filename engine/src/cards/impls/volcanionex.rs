@@ -3,11 +3,12 @@
 //! Cyclone — 160; move an Energy from this Pokémon to 1 of your Benched
 //! Pokémon.
 //!
-//! Twinleaf quirks kept: the AddSpecialConditionsPowerEffect is built with
+//! Twinleaf quirk kept: the AddSpecialConditionsPowerEffect is built with
 //! the OPPONENT as its player and reduced twice (same effect object, once
-//! before and once after the marker is added); Heat Cyclone's
-//! AttachEnergyPrompt uses `PlayerType.TOP_PLAYER`, so its targets are the
-//! opponent's Benched Pokémon (while the bench check looks at your own).
+//! before and once after the marker is added). Heat Cyclone's
+//! AttachEnergyPrompt targets your own Benched Pokémon (phase 4b fix: it
+//! used `PlayerType.TOP_PLAYER`, so it offered the opponent's Bench, moved
+//! the Energy there, and got stuck when that Bench was empty).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Volcanionex", mask: mask(&[k::PLAY_POKEMON, k::POWER, k::ATTACK, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -85,7 +86,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.prompt(
             id,
             "ATTACH_ENERGY_TO_BENCH",
-            PromptKind::AttachEnergy { cards: ListRef::Slot(p as u8, a), player_type: PlayerType::TopPlayer, slots, filter, o },
+            PromptKind::AttachEnergy { cards: ListRef::Slot(p as u8, a), player_type: PlayerType::BottomPlayer, slots, filter, o },
             Cont::Card { card: me, frame: f },
         );
         return Ok(());

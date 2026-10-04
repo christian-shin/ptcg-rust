@@ -3,10 +3,12 @@
 //! Sphene — flip a coin; heads: Knock Out the opponent's Active if it is
 //! Basic; tails: Knock Out 1 of the opponent's Benched Pokémon.
 //!
-//! Twinleaf quirks: the list of blocked Bench targets stays empty
-//! (`blocked.push()` pushes nothing), so tails can Knock Out any Benched
-//! Pokémon, not only Basic ones. Tropical Fever's AttachEnergyPrompt has the
-//! default `max` = hand size.
+//! Twinleaf: tails opens a ChoosePokemonPrompt over the opponent's Bench with
+//! the non-Basic Benched Pokémon blocked, and does nothing when no Benched
+//! Basic exists (phase 4b fix: `blocked.push()` pushed nothing, so any Benched
+//! Pokémon could be Knocked Out, and an empty Bench left the prompt
+//! unanswerable). Tropical Fever's AttachEnergyPrompt has the default `max` =
+//! hand size.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -95,6 +97,23 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
         g.release_fx(atk);
         return r;
     }
+    // Tails: only Benched Basic Pokémon can be Knocked Out (phase 4b fix).
+    let mut blocked: TargetList = SVec::new();
+    let mut basics = 0;
+    for (_, c, t) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
+        if t.slot != SlotType::Bench {
+            continue;
+        }
+        if g.st.cdef(c).stage == Stage::Basic as u8 {
+            basics += 1;
+        } else {
+            blocked.push(t);
+        }
+    }
+    if basics == 0 {
+        g.release_fx(atk);
+        return Ok(());
+    }
     let mut slots = SVec::new();
     slots.push(SlotType::Bench as u8);
     let mut nf = CardFrame::at(2);
@@ -104,7 +123,7 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_DAMAGE",
-        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
         Cont::Card { card: me, frame: nf },
     );
     Ok(())

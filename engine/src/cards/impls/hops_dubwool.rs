@@ -2,9 +2,9 @@
 //! hand to evolve 1 of your Pokémon during your turn, you may switch in 1
 //! of your opponent's Benched Pokémon to the Active Spot. Headbutt — 80.
 //!
-//! Twinleaf: the ability-lock probe runs before the ConfirmPrompt;
-//! accepting with an empty opposing Bench throws CANNOT_PLAY_THIS_CARD in
-//! the callback.
+//! Twinleaf: the ability-lock probe and the opposing-Bench check run before
+//! the ConfirmPrompt (phase 4b fix: accepting with an empty opposing Bench
+//! used to throw CANNOT_PLAY_THIS_CARD in the callback and end the game).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HopsDubwool", mask: mask(&[k::PLAY_POKEMON]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,6 +16,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let p = p as usize;
         if is_ability_blocked(g, p, me, None) {
+            return Ok(());
+        }
+        // Nothing to switch in: don't offer the ability (phase 4b fix).
+        let pl = &g.st.players[1 - p];
+        if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
             return Ok(());
         }
         let mut f = CardFrame::at(1);
@@ -34,10 +39,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         1 => {
             if !first.as_bool() {
                 return Ok(());
-            }
-            let pl = &g.st.players[o];
-            if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-                bail!("CANNOT_PLAY_THIS_CARD");
             }
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);
