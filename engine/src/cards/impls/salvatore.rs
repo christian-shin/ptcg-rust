@@ -2,10 +2,13 @@
 //! an Ability, that evolves from 1 of your Pokémon in play and put it on
 //! that Pokémon to evolve it (also on the turn it was played), then shuffle.
 //!
-//! Twinleaf quirks kept: evolution names come from every non-Basic card in
-//! the CardManager whose `evolvesFrom` names one of your Pokémon in play;
-//! only deck Pokémon that are NOT such evolutions and have an Ability are
-//! blocked (so Ability evolutions stay selectable). The card moves to the
+//! Twinleaf: evolution names come from every non-Basic card in the
+//! CardManager whose `evolvesFrom` names one of your Pokémon in play (only
+//! used for the "nothing can evolve" throw). Fixed (phase 4b): a deck Pokémon
+//! is blocked when its `evolvesFrom` names no Pokémon in play, or when it has
+//! an Ability (before, any Ability-less Pokémon was selectable and the second
+//! prompt then had no valid target; Ability evolutions were selectable too).
+//! The CheckPokemonPowers probe runs for every deck Pokémon. The card moves to the
 //! supporter pile and the TrainerEffect is prevented before the deck check.
 //! The evolution is a plain MOVE_CARDS deck→slot + clearEffects +
 //! pokemonPlayedTurn = turn (no EvolveEffect).
@@ -38,13 +41,15 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if names.is_empty() {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
+    let in_play: Vec<&'static str> = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().map(|(_, c, _)| g.st.cdef(*c).name).collect();
     let mut blocked = Blocked::default();
     let deck: Vec<CardId> = g.st.players[p].deck.iter().collect();
     for (i, c) in deck.into_iter().enumerate() {
         let d = g.st.cdef(c);
-        if !d.is_pokemon() || names.contains(&d.name) {
+        if !d.is_pokemon() {
             continue;
         }
+        let not_evolution = !in_play.contains(&d.evolves_from);
         let mut powers = SVec::new();
         for k in 0..d.powers.len() {
             powers.push(PowerRef { card: c, index: k as u8 });
@@ -54,7 +59,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::CheckPokemonPowers { powers, .. } => powers.iter().any(|r| power_type_of(g, *r) == PowerType::Ability as u8),
             _ => false,
         };
-        if has_ability {
+        if not_evolution || has_ability {
             blocked.push(i as u8);
         }
     }
