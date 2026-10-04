@@ -11,7 +11,12 @@
 //! (deck → Active, basic 'Grass Energy', min 0 max 3). No transfer →
 //! SHUFFLE_DECK; otherwise MOVE_CARDS + SHUFFLE_DECK per transfer (quirk
 //! kept: one shuffle per card). Jet Cyclone: AttachEnergyPrompt (Active →
-//! Bench, any Energy, min 3 max 3, sameTarget, no cancel), MOVE_CARDS each.
+//! Bench, any Energy, min = max = min(3, Energy cards), sameTarget, no
+//! cancel), MOVE_CARDS each.
+//!
+//! Fixed (phase 4b, W4): Jet Cyclone opened a min-3 prompt even with no
+//! Benched Pokémon (status=stuck, "no valid answer"); it now does nothing
+//! extra without a Benched Pokémon, and takes at most the Energy cards there are.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -48,10 +53,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         let a = g.st.players[p].active;
+        let has_bench = g.st.players[p].bench.iter().any(|s| !g.st.players[p].slots[*s as usize].cards.is_empty());
+        let energy_count = g.st.slot(p, a).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count();
+        if !has_bench || energy_count == 0 {
+            return Ok(());
+        }
+        let move_count = energy_count.min(3) as u8;
         let mut o = AttachOpts::new(g.st.slot(p, a).cards.len() as u8);
         o.allow_cancel = false;
-        o.min = 3;
-        o.max = 3;
+        o.min = move_count;
+        o.max = move_count;
         o.same_target = true;
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
