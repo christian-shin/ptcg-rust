@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zacian ex SVP 198",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Zacian ex SVP 198",
+   "4 Mankey SSP 98",
+   "4 Mist Energy TEF 161",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zacian ex SVP 198",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}
