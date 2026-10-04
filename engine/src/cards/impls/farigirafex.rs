@@ -15,12 +15,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::PutDamage { b, .. } = *g.e(e) {
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).cards.contains(me) {
-            // `new PowerEffect(player, this.powers[0], this)`: when a copy session runs
-            // this code for a copycat without Abilities (Team Rocket's Mimikyu copying
-            // Dirty Beam), `this.powers[0]` is undefined, the probe throws and is caught.
-            if g.st.cdef(me).powers.is_empty() {
-                return Ok(());
-            }
+            // Under a copy session (copycat = me) the probe throws BLOCKED_BY_EFFECT.
             let power = PowerRef { card: me, index: 0 };
             if g.run_fx(Effect::Power { p: b.player, power, card: me, target: None, probe: false }).is_err() {
                 return Ok(());

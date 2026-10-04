@@ -708,6 +708,14 @@ impl Game {
             _ => {}
         }
 
+        // A copied attack gives the copycat the attack only: source code run for
+        // the copycat can't use or probe an Ability of the copycat (store.ts).
+        if let Effect::Power { card, .. } = *self.e(id) {
+            if matches!(self.deleg, Some(d) if d.attacks && d.copycat == card) {
+                return Err(GameError("BLOCKED_BY_EFFECT"));
+            }
+        }
+
         // Propagate to cards (PlayPokemonEffect: target's tools first).
         let e = *self.e(id);
         let kind = e.kind();
