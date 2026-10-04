@@ -1,0 +1,15 @@
+Azumarill
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Marill
+Ability:
+Glistening Bubbles
+If you have any Tera Pokémon in play, this Pokémon can use the Double-Edge attack for [ P ] .
+PPPP
+Double-Edge 230
+This Pokémon also does 50 damage to itself.
+Weakness: Metal
+Resistance: none
+Retreat: 2

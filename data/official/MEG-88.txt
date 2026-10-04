@@ -1,0 +1,12 @@
+Yveltal
+- Darkness - 110 HP
+Pokémon
+- Basic
+D
+Clutch 20
+During your opponent's next turn, the Defending Pokémon can't retreat.
+DDC
+Dark Feather 110
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 0

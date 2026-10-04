@@ -1,0 +1,144 @@
+# Tier 4 (PLAN.md 4.4, 8.2): fresh-seed self-play on both engines.
+#
+# Every push to main plays `games` new oracle games (meta decks plus random
+# legal pool decks; policies random, bot, mix:0.2, mix:0.5) across `shards`
+# runners and replays each through the Rust engine with tools/tier4.py:
+# option sets, prompts and state hashes at every step, plus the PLAN.md 4.6
+# invariants. Any divergence, invariant violation, or oracle game ending in
+# error or stuck fails the run; failing traces are uploaded as artifacts.
+name: tier4
+run-name: tier4 ${{ github.event_name == 'push' && github.sha || inputs.games }}
+
+on:
+  push:
+    branches: [main]
+    paths: ["engine/**", "tools/**", "data/**", "decks/**", "divergences.toml", ".github/workflows/tier4.yml"]
+  workflow_dispatch:
+    inputs:
+      games:
+        description: "Total games"
+        default: "2000"
+      shards:
+        description: "Parallel runners (1-20)"
+        default: "10"
+      seed:
+        description: "Seed block 1000-41999 (empty: from the run number)"
+        default: ""
+      twinleaf_ref:
+        description: "Branch of christian-shin/twinleafgg"
+        default: "oracle"
+
+env:
+  GAMES: ${{ inputs.games || '2000' }}
+  SHARDS: ${{ inputs.shards || '10' }}
+  TWINLEAF_REF: ${{ inputs.twinleaf_ref || 'oracle' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - id: sha
+        run: echo "sha=$(git ls-remote https://github.com/christian-shin/twinleafgg.git refs/heads/$TWINLEAF_REF | cut -f1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      # The compiled oracle depends only on the Twinleaf commit (same key as oracle.yml).
+      - id: cache
+        uses: actions/cache@v4
+        with:
+          path: oracle.tgz
+          key: oracle-build-${{ steps.sha.outputs.sha }}
+      - uses: actions/checkout@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          repository: christian-shin/twinleafgg
+          ref: ${{ steps.sha.outputs.sha }}
+          path: twinleaf
+      - uses: actions/setup-node@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: twinleaf/ptcg-server/package-lock.json
+      - name: Build oracle
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: twinleaf/ptcg-server
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc
+          tar -czf ../../oracle.tgz output
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            engine/target
+          key: cargo-${{ hashFiles('engine/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: cargo-${{ hashFiles('engine/Cargo.lock') }}-
+      - name: Build Rust diff
+        working-directory: engine
+        run: cargo build --release --bin diff && cp target/release/diff ../diff
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tier4-build
+          path: |
+            oracle.tgz
+            diff
+          retention-days: 1
+      - id: m
+        run: |
+          n=$SHARDS
+          [ "$n" -ge 1 ] && [ "$n" -le 20 ] || { echo "shards must be 1-20"; exit 1; }
+          echo "matrix=$(python3 -c "import json;print(json.dumps(list(range($n))))")" >> "$GITHUB_OUTPUT"
+
+  games:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: christian-shin/twinleafgg
+          ref: ${{ needs.build.outputs.sha }}
+          path: twinleaf
+          sparse-checkout: |
+            ptcg-server/package.json
+            ptcg-server/package-lock.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: twinleaf/ptcg-server/package-lock.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: tier4-build
+      - name: Install oracle
+        run: |
+          mkdir oracle && cp twinleaf/ptcg-server/package.json twinleaf/ptcg-server/package-lock.json oracle/
+          (cd oracle && npm ci --omit=dev --ignore-scripts --no-audit --no-fund)
+          tar -C oracle -xzf oracle.tgz
+          chmod +x diff
+      - name: Self-play
+        env:
+          PTCG_ORACLE: ${{ github.workspace }}/oracle
+          PTCG_DIFF: ${{ github.workspace }}/diff
+          SEED_IN: ${{ inputs.seed }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          # One seed block per shard: fresh seeds for every run.
+          base=${SEED_IN:-$(( 1000 + (GITHUB_RUN_NUMBER * 20) % 40000 ))}
+          seed=$(( base + SHARD ))
+          per=$(( (GAMES + SHARDS - 1) / SHARDS ))
+          python3 tools/tier4.py --games $per --seed $seed --jobs 4 --chunk $per --no-stop --out out/$seed
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tier4-shard${{ matrix.shard }}
+          path: out
+          retention-days: 14
+          if-no-files-found: ignore

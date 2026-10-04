@@ -1,0 +1,13 @@
+Slither Wing
+- Fighting - 140 HP
+Pokémon
+- Basic
+FC
+Iron Smasher 20+
+If your opponent has any Future Pokémon in play, this attack does 120 more damage.
+FFC
+Smashing Wing 130
+Discard 2 Energy from this Pokémon.
+Weakness: Psychic
+Resistance: none
+Retreat: 3

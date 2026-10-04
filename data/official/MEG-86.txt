@@ -1,0 +1,13 @@
+Mega Absol ex
+- Darkness - 280 HP
+Pokémon
+- Basic
+DC
+Terminal Period
+If your opponent's Active Pokémon has exactly 6 damage counters on it, that Pokémon is Knocked Out.
+DDC
+Claw of Darkness 200
+Your opponent reveals their hand, and you discard a card you find there.
+Weakness: Grass
+Resistance: none
+Retreat: 2

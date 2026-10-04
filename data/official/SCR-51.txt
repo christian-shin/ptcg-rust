@@ -1,0 +1,17 @@
+Galvantula ex
+- Lightning - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Joltik
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+LC
+Charged Web 110+
+If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 110 more damage.
+GLF
+Fulgurite 180
+Discard all Energy from this Pokémon. During your opponent's next turn, they can't play any Item cards from their hand.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

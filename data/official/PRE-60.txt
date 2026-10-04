@@ -1,0 +1,17 @@
+Umbreon ex
+- Darkness - 280 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+DCC
+Moon Mirage 160
+Your opponent's Active Pokémon is now Confused.
+LPD
+Onyx
+Discard all Energy from this Pokémon, and take a Prize card.
+Weakness: Grass
+Resistance: none
+Retreat: 2

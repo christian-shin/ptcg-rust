@@ -1,0 +1,10 @@
+Exeggcute
+- Grass - 60 HP
+Pokémon
+- Basic
+C
+Hypnosis
+Your opponent's Active Pokémon is now Asleep.
+Weakness: Fire
+Resistance: none
+Retreat: 1

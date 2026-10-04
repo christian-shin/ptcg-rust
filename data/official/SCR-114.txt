@@ -1,0 +1,10 @@
+Hoothoot
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Triple Stab 10×
+Flip 3 coins. This attack does 10 damage for each heads.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

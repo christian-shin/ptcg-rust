@@ -1,0 +1,12 @@
+Steven's Baltoy
+- Psychic - 60 HP
+Pokémon
+- Basic
+C
+Summoning Sign
+Search your deck for up to 2 Basic Steven's Pokémon and put them onto your Bench. Then, shuffle your deck.
+P
+Psychic Sphere 20
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

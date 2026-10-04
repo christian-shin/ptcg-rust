@@ -1,0 +1,14 @@
+Kirlia
+- Psychic - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Ralts
+P
+Call Sign
+Search your deck for up to 3 Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+P
+Psyshot 30
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

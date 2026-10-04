@@ -1,0 +1,15 @@
+Cornerstone Mask Ogerpon ex
+- Fighting - 210 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+Ability:
+Cornerstone Stance
+Prevent all damage from attacks done to this Pokémon by your opponent's Pokémon that have an Ability.
+FCC
+Demolish 140
+This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 1

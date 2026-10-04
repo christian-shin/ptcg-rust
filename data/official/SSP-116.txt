@@ -1,0 +1,12 @@
+Koraidon
+- Fighting - 130 HP
+Pokémon
+- Basic
+CC
+Unrelenting Onslaught 30+
+If 1 of your other Ancient Pokémon used an attack during your last turn, this attack does 150 more damage.
+FFC
+Hammer In 110
+Weakness: Psychic
+Resistance: none
+Retreat: 2

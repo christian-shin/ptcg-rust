@@ -1,0 +1,11 @@
+Ivysaur
+- Grass - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Bulbasaur
+GG
+Razor Leaf 60
+Weakness: Fire
+Resistance: none
+Retreat: 3

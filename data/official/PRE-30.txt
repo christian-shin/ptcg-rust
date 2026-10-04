@@ -1,0 +1,17 @@
+Jolteon ex
+- Lightning - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+LC
+Flashing Spear 60+
+You may discard up to 2 Basic Energy from your Benched Pokémon. This attack does 90 more damage for each card you discarded in this way.
+RWL
+Dravite 280
+During your next turn, this Pokémon can't attack.
+Weakness: Fighting
+Resistance: none
+Retreat: 0

@@ -1,0 +1,14 @@
+Sylveon
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Ability:
+Safeguard
+Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.
+PCC
+Magical Shot 100
+Weakness: Metal
+Resistance: none
+Retreat: 1

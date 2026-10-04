@@ -1,0 +1,14 @@
+Barbaracle
+- Fighting - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Binacle
+Ability:
+Stone Arms
+Once during your turn, you may use this Ability. Attach a Basic [ F ] Energy card from your hand to 1 of your [ F ] Pokémon.
+FFC
+Hammer In 80
+Weakness: Grass
+Resistance: none
+Retreat: 2

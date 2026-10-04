@@ -1,0 +1,4 @@
+Awakening Drum
+Trainer
+- Item
+Draw a card for each of your Ancient Pokémon in play.

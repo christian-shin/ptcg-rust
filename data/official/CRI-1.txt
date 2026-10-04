@@ -1,0 +1,10 @@
+Weedle
+- Grass - 50 HP
+Pokémon
+- Basic
+G
+Surprise Attack 30
+Flip a coin. If tails, this attack does nothing.
+Weakness: Fire
+Resistance: none
+Retreat: 1

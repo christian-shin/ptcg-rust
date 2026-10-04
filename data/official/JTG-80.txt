@@ -1,0 +1,10 @@
+Larvitar
+- Fighting - 70 HP
+Pokémon
+- Basic
+CC
+Crunch 20
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 1

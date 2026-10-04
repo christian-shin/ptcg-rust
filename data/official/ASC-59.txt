@@ -1,0 +1,10 @@
+Tynamo
+- Lightning - 40 HP
+Pokémon
+- Basic
+C
+Hold Still
+Heal 10 damage from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 0

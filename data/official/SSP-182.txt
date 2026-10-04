@@ -1,0 +1,4 @@
+Megaton Blower
+Trainer
+- Item
+Discard all Pokémon Tools and Special Energy from all of your opponent's Pokémon, and discard a Stadium in play.

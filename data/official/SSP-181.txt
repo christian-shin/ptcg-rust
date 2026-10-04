@@ -1,0 +1,4 @@
+Meddling Memo
+Trainer
+- Item
+Your opponent counts the cards in their hand, shuffles those cards, and puts them on the bottom of their deck. If they do, they draw that many cards.

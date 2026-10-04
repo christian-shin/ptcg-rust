@@ -1,0 +1,13 @@
+Fezandipiti
+- Psychic - 120 HP
+Pokémon
+- Basic
+Ability:
+Adrena-Pheromone
+If this Pokémon has any [ D ] Energy attached and is damaged by an attack, flip a coin. If heads, prevent that damage.
+P
+Energy Feather 30×
+This attack does 30 damage for each Energy attached to this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 1

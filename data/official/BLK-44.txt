@@ -1,0 +1,13 @@
+Meloetta ex
+- Psychic - 200 HP
+Pokémon
+- Basic
+Ability:
+Debut Performance
+If you go first, this Pokémon can use attacks during your first turn.
+P
+Echoed Voice 30
+During your next turn, this Pokémon's Echoed Voice attack does 80 more damage (before applying Weakness and Resistance) .
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

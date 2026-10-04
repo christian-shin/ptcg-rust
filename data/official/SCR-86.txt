@@ -1,0 +1,12 @@
+Diancie
+- Fighting - 110 HP
+Pokémon
+- Basic
+C
+Diffuse Reflection 40×
+This attack does 40 damage for each Special Energy attached to all of your opponent's Pokémon.
+FC
+Power Gem 60
+Weakness: Grass
+Resistance: none
+Retreat: 1

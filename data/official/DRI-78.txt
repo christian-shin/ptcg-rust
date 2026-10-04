@@ -1,0 +1,12 @@
+Zeraora
+- Lightning - 100 HP
+Pokémon
+- Basic
+C
+Scratch 20
+LLL
+Thunder Raid
+Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,15 @@
+Mega Lucario ex
+- Fighting - 340 HP
+Pokémon
+- Stage 1
+- Evolves from
+Riolu
+F
+Aura Jab 130
+Attach up to 3 Basic [ F ] Energy cards from your discard pile to your Benched Pokémon in any way you like.
+FF
+Mega Brave 270
+During your next turn, this Pokémon can't use Mega Brave.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

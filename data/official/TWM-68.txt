@@ -1,0 +1,15 @@
+Luxray ex
+- Lightning - 310 HP
+Pokémon
+- Stage 2
+- Evolves from
+Luxio
+CC
+Piercing Gaze 120
+Your opponent reveals their hand. Discard a card you find there.
+LL
+Volt Strike 250
+Discard all Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

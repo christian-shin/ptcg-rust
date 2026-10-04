@@ -1,0 +1,13 @@
+Munkidori
+- Psychic - 110 HP
+Pokémon
+- Basic
+Ability:
+Adrena-Brain
+Once during your turn, if this Pokémon has any [ D ] Energy attached, you may move up to 3 damage counters from 1 of your Pokémon to 1 of your opponent's Pokémon.
+PC
+Mind Bend 60
+Your opponent's Active Pokémon is now Confused.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

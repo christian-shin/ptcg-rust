@@ -1,0 +1,12 @@
+Dunsparce
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Trading Places
+Switch this Pokémon with 1 of your Benched Pokémon.
+CC
+Ram 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

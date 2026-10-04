@@ -1,0 +1,12 @@
+Lucario
+- Fighting - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Riolu
+FFC
+Aura Sphere 100
+This attack also does 60 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Psychic
+Resistance: none
+Retreat: 2

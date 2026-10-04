@@ -1,0 +1,17 @@
+Flareon ex
+- Fire - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+RC
+Burning Charge 130
+Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pokémon. Then, shuffle your deck.
+RWL
+Carnelian 280
+During your next turn, this Pokémon can't attack.
+Weakness: Water
+Resistance: none
+Retreat: 2

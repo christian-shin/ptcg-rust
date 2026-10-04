@@ -1,0 +1,17 @@
+Alolan Exeggutor ex
+- Dragon - 300 HP
+Pokémon
+- Stage 1
+- Evolves from
+Exeggcute
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+GW
+Tropical Frenzy 150
+You may attach any number of Basic Energy cards from your hand to your Pokémon in any way you like.
+GWF
+Swinging Sphene
+Flip a coin. If heads, Knock Out your opponent's Active Basic Pokémon. If tails, Knock Out 1 of your opponent's Benched Basic Pokémon.
+Weakness: none
+Resistance: none
+Retreat: 3

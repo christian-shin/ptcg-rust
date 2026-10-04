@@ -1,0 +1,15 @@
+Annihilape
+- Fighting - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Primeape
+F
+Tantrum 130
+This Pokémon is now Confused.
+FC
+Destined Fight
+Both Active Pokémon are Knocked Out.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

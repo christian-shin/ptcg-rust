@@ -1,0 +1,4 @@
+Lumiose Galette
+Trainer
+- Item
+Heal 20 damage and remove a Special Condition from your Active Pokémon.

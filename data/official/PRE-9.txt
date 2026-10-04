@@ -1,0 +1,9 @@
+Applin
+- Grass - 40 HP
+Pokémon
+- Basic
+G
+Spray Fluid 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

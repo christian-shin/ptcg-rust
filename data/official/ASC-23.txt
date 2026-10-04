@@ -1,0 +1,9 @@
+Ethan's Slugma
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Steady Firebreathing 20
+Weakness: Water
+Resistance: none
+Retreat: 2

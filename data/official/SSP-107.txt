@@ -1,0 +1,14 @@
+Gastrodon
+- Fighting - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Shellos
+Ability:
+Sticky Bind
+As long as this Pokémon is on your Bench, Benched Stage 2 Pokémon (both yours and your opponent's) have no Abilities.
+FCC
+Mud Shot 80
+Weakness: Grass
+Resistance: none
+Retreat: 3

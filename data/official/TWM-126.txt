@@ -1,0 +1,12 @@
+Applin
+- Dragon - 40 HP
+Pokémon
+- Basic
+C
+Find a Friend
+Search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+GR
+Rolling Tackle 30
+Weakness: none
+Resistance: none
+Retreat: 1

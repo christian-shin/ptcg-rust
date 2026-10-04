@@ -1,0 +1,13 @@
+Flutter Mane
+- Psychic - 90 HP
+Pokémon
+- Basic
+Ability:
+Midnight Fluttering
+As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon has no Abilities, except for Midnight Fluttering.
+CCC
+Hex Hurl 90
+Put 2 damage counters on your opponent's Benched Pokémon in any way you like.
+Weakness: Metal
+Resistance: none
+Retreat: 1

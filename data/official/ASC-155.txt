@@ -1,0 +1,13 @@
+N's Zekrom
+- Dragon - 130 HP
+Pokémon
+- Basic
+CCC
+Shred 70
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+RLLC
+Rampaging Thunder 250
+During your next turn, this Pokémon can't use attacks.
+Weakness: none
+Resistance: none
+Retreat: 2

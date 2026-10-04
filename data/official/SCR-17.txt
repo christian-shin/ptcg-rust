@@ -1,0 +1,11 @@
+Toedscool
+- Grass - 60 HP
+Pokémon
+- Basic
+G
+Ram 10
+GC
+Gentle Slap 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

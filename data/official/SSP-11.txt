@@ -1,0 +1,13 @@
+Zarude
+- Grass - 120 HP
+Pokémon
+- Basic
+G
+Leaf Drain 20
+Heal 20 damage from this Pokémon.
+GGC
+Jungle Whip 80+
+You may put all Energy attached to this Pokémon into your hand to have this attack do 80 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 1

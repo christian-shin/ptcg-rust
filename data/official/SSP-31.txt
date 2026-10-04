@@ -1,0 +1,15 @@
+Skeledirge
+- Fire - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Crocalor
+Ability:
+Unaware
+Prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon. (Damage is not an effect.)
+RC
+Torcherto 60+
+This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's) .
+Weakness: Water
+Resistance: none
+Retreat: 3

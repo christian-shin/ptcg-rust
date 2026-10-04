@@ -1,0 +1,12 @@
+Abra
+- Psychic - 40 HP
+Pokémon
+- Basic
+Ability:
+Teleporter
+Once during your turn, if this Pokémon is in the Active Spot, you may shuffle it and all attached cards into your deck.
+P
+Beam 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,13 @@
+Pecharunt
+- Darkness - 80 HP
+Pokémon
+- Basic
+Ability:
+Toxic Subjugation
+As long as this Pokémon is in the Active Spot, put 5 more damage counters on your opponent's Poisoned Pokémon during Pokémon Checkup.
+DC
+Poison Chain 10
+Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, that Pokémon can't retreat.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

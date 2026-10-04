@@ -1,0 +1,14 @@
+Meganium
+- Grass - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Bayleef
+Ability:
+Wild Growth
+Each Basic [ G ] Energy attached to all of your Pokémon provides [ G ] [ G ] Energy. The effect of Wild Growth doesn't stack.
+GGCC
+Solar Beam 140
+Weakness: Fire
+Resistance: none
+Retreat: 2

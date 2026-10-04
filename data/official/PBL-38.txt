@@ -1,0 +1,15 @@
+Mega Chandelure ex
+- Psychic - 350 HP
+Pokémon
+- Stage 2
+- Evolves from
+Lampent
+Ability:
+Binding Flame
+Your opponent's Active Pokémon's Retreat Cost is [ C ] more.
+PP
+Phantom Maze 130+
+This attack does 50 more damage for each [ C ] in your opponent's Active Pokémon's Retreat Cost.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

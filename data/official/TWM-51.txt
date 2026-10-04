@@ -1,0 +1,10 @@
+Snorunt
+- Water - 60 HP
+Pokémon
+- Basic
+WC
+Astonish 20
+Choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into their deck.
+Weakness: Metal
+Resistance: none
+Retreat: 1

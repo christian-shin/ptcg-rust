@@ -1,0 +1,4 @@
+Fennel
+Trainer
+- Supporter
+Heal 40 damage from each of your Pokémon.

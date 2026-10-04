@@ -1,0 +1,10 @@
+Fuecoco
+- Fire - 80 HP
+Pokémon
+- Basic
+RC
+Heat Burn 20
+Your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 2

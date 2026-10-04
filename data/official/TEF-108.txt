@@ -1,0 +1,17 @@
+Farigiraf ex
+- Darkness - 260 HP
+Pokémon
+- Stage 1
+- Evolves from
+Girafarig
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+Ability:
+Armor Tail
+Prevent all damage done to this Pokémon by attacks from your opponent's Basic Pokémon ex.
+PCC
+Dirty Beam 160
+This attack also does 30 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 2

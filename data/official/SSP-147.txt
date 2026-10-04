@@ -1,0 +1,15 @@
+Slaking ex
+- Colorless - 340 HP
+Pokémon
+- Stage 2
+- Evolves from
+Vigoroth
+Ability:
+Born to Slack
+If your opponent has no Pokémon ex or Pokémon V in play, this Pokémon can't attack.
+CC
+Great Swing 280
+Discard an Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 4

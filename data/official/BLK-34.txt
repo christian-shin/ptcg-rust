@@ -1,0 +1,12 @@
+Zekrom ex
+- Lightning - 230 HP
+Pokémon
+- Basic
+CC
+Slash 50
+LLC
+Voltage Burst 130+
+This attack does 50 more damage for each Prize card your opponent has taken. This Pokémon also does 30 damage to itself.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

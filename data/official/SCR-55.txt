@@ -1,0 +1,10 @@
+Zeraora
+- Lightning - 120 HP
+Pokémon
+- Basic
+LC
+Combat Thunder 20+
+This attack does 20 more damage for each of your opponent's Benched Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,4 @@
+Spikemuth Gym
+Trainer
+- Stadium
+Once during each player's turn, that player may search their deck for a Marnie's Pokémon, reveal it, and put it into their hand. Then, that player shuffles their deck.

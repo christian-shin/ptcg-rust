@@ -1,0 +1,13 @@
+Morpeko
+- Lightning - 70 HP
+Pokémon
+- Basic
+Ability:
+Snack Seek
+Once during your turn, you may look at the top card of your deck. You may discard that card.
+L
+Pick and Stick
+Attach up to 2 Basic Energy cards from your discard pile to your Pokémon in any way you like.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

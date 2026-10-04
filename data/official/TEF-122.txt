@@ -1,0 +1,13 @@
+Miraidon ex
+- Dragon - 220 HP
+Pokémon
+- Basic
+LP
+Repulsion Bolt 60+
+If your opponent's Active Pokémon already has any damage counters on it, this attack does 100 more damage.
+LPC
+Cyber Drive 220
+During your next turn, this Pokémon can't use Cyber Drive.
+Weakness: none
+Resistance: none
+Retreat: 1

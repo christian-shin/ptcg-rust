@@ -1,0 +1,10 @@
+Duraludon
+- Metal - 130 HP
+Pokémon
+- Basic
+MMM
+Hyper Beam 70
+Discard an Energy from your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

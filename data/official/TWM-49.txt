@@ -1,0 +1,10 @@
+Feebas
+- Water - 30 HP
+Pokémon
+- Basic
+W
+Flail 10×
+This attack does 10 damage for each damage counter on this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,15 @@
+Rabsca
+- Grass - 70 HP
+Pokémon
+- Stage 1
+- Evolves from
+Rellor
+Ability:
+Spherical Shield
+Prevent all damage from and effects of attacks from your opponent's Pokémon done to your Benched Pokémon.
+G
+Psychic 10+
+This attack does 30 more damage for each Energy attached to your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Slowpoke
+- Psychic - 80 HP
+Pokémon
+- Basic
+C
+Dangle Tail
+Put a Pokémon from your discard pile into your hand.
+PC
+Tackle 30
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

@@ -1,0 +1,10 @@
+Riolu
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Accelerating Stab 30
+During your next turn, this Pokémon can't use Accelerating Stab.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

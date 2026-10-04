@@ -1,0 +1,15 @@
+Mega Greninja ex
+- Water - 350 HP
+Pokémon
+- Stage 2
+- Evolves from
+Frogadier
+Ability:
+Mortal Shuriken
+Once during your turn, if this Pokémon is in the Active Spot, you may discard a Basic [ W ] Energy card from your hand in order to use this Ability. Place 6 damage counters on 1 of your opponent's Pokémon.
+WW
+Ninja Spinner 120+
+You may put a [ W ] Energy attached to this Pokémon into your hand and have this attack do 80 more damage.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,10 @@
+Chi-Yu
+- Darkness - 90 HP
+Pokémon
+- Basic
+D
+Whirling Envy 20+
+If this Pokémon has 2 or more damage counters on it, this attack does 90 more damage. This attack's damage isn't affected by Weakness.
+Weakness: Grass
+Resistance: none
+Retreat: 1

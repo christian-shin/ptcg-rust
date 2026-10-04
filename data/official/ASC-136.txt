@@ -1,0 +1,9 @@
+N's Zorua
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Scratch 20
+Weakness: Grass
+Resistance: none
+Retreat: 1

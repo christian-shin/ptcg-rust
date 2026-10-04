@@ -1,0 +1,13 @@
+Mega Darkrai ex
+- Darkness - 280 HP
+Pokémon
+- Basic
+DD
+Dusk Raid 110+
+If your Benched Pokémon have any damage counters on them, this attack does 110 more damage.
+DDD
+Abyss Eye
+If your opponent's Active Pokémon is affected by a Special Condition, it is Knocked Out.
+Weakness: Grass
+Resistance: none
+Retreat: 2

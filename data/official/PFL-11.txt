@@ -1,0 +1,12 @@
+Charmander
+- Fire - 80 HP
+Pokémon
+- Basic
+Ability:
+Agile
+If this Pokémon has no Energy attached, it has no Retreat Cost.
+R
+Live Coal 20
+Weakness: Water
+Resistance: none
+Retreat: 2

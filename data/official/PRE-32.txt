@@ -1,0 +1,13 @@
+Iron Thorns ex
+- Lightning - 230 HP
+Pokémon
+- Basic
+Ability:
+Initialization
+As long as this Pokémon is in the Active Spot, Pokémon with a Rule Box in play (both yours and your opponent's) have no Abilities, except for Future Pokémon. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+LCC
+Volt Cyclone 140
+Move an Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 4

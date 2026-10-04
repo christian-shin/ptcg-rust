@@ -20,6 +20,11 @@ thread_local! {
     static PANIC_STEP: std::cell::Cell<isize> = const { std::cell::Cell::new(-1) };
 }
 
+/// PLAN.md 4.6 invariants at every turn decision (`PTCG_NO_INVARIANTS=1` turns them off).
+fn check_invariants() -> bool {
+    std::env::var("PTCG_NO_INVARIANTS").map_or(true, |v| v.is_empty() || v == "0")
+}
+
 #[derive(Debug)]
 enum Outcome {
     Pass { steps: usize },
@@ -170,6 +175,12 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
             dump_state(&g, i as isize);
             return Outcome::Diverged { step: i as isize, what: "hash".into(), detail: String::new() };
         }
+        if check_invariants() && matches!(g.pending(), Pending::Turn(_)) {
+            if let Err(e) = ptcg::invariants::check(&g) {
+                dump_state(&g, i as isize);
+                return Outcome::Diverged { step: i as isize, what: "invariant".into(), detail: e };
+            }
+        }
     }
     Outcome::Pass { steps: steps.len() }
 }
@@ -277,7 +288,7 @@ fn main() {
             Outcome::Diverged { step, what, detail } => {
                 fail += 1;
                 *firsts.entry(what.clone()).or_default() += 1;
-                println!("DIVERGED {} at step {}: {}\n  {}", name, step, what, detail.replace('\n', "\n  "));
+                println!("DIVERGED {} at step {}: {}\n  {}", f.display(), step, what, detail.replace('\n', "\n  "));
             }
             Outcome::Unsupported(why) => {
                 unsup += 1;

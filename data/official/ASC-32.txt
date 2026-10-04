@@ -1,0 +1,11 @@
+N's Darumaka
+- Fire - 80 HP
+Pokémon
+- Basic
+CC
+Rolling Tackle 20
+RRC
+Flare 50
+Weakness: Water
+Resistance: none
+Retreat: 2

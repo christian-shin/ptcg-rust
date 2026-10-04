@@ -1,0 +1,12 @@
+Psyduck
+- Water - 70 HP
+Pokémon
+- Basic
+Ability:
+Damp
+Pokémon in play (both yours and your opponent's) lose any Ability that requires the Pokémon using it to Knock Out itself.
+CC
+Ram 20
+Weakness: Lightning
+Resistance: none
+Retreat: 1

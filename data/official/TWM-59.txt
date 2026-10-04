@@ -1,0 +1,10 @@
+Finizen
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Aqua Slash 30
+During your next turn, this Pokémon can't attack.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

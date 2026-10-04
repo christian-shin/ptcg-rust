@@ -1,0 +1,12 @@
+Rowlet
+- Grass - 80 HP
+Pokémon
+- Basic
+G
+Find a Friend
+Search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+CCC
+Tackle 30
+Weakness: Fire
+Resistance: none
+Retreat: 2

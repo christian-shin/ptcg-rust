@@ -1,0 +1,4 @@
+Jamming Tower
+Trainer
+- Stadium
+Pokémon Tools attached to each Pokémon (both yours and your opponent's) have no effect.

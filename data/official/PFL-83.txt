@@ -1,0 +1,12 @@
+Buneary
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Run Around
+Switch this Pokémon with 1 of your Benched Pokémon.
+CC
+Kick 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

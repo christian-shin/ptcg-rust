@@ -1,0 +1,15 @@
+Golduck
+- Water - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Psyduck
+Ability:
+Damp
+Pokémon in play (both yours and your opponent's) lose any Ability that requires the Pokémon using it to Knock Out itself.
+CCC
+Hydro Pump 60+
+This attack does 20 more damage for each [ W ] Energy attached to this Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

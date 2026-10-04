@@ -1,0 +1,10 @@
+Feebas
+- Water - 30 HP
+Pokémon
+- Basic
+C
+Leap Out
+Switch this Pokémon with 1 of your Benched Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

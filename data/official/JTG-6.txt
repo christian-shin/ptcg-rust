@@ -1,0 +1,9 @@
+Petilil
+- Grass - 50 HP
+Pokémon
+- Basic
+GC
+Leaf Step 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

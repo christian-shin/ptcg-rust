@@ -1,0 +1,10 @@
+Hop's Cramorant
+- Colorless - 110 HP
+Pokémon
+- Basic
+C
+Fickle Spitting 120
+If your opponent doesn't have exactly 3 or 4 Prize cards remaining, this attack does nothing.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

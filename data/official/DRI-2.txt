@@ -1,0 +1,12 @@
+Yanma
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Whirlwind
+Switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)
+GC
+Razor Wing 30
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

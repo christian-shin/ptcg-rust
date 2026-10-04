@@ -1,0 +1,15 @@
+Palafin ex
+- Water - 340 HP
+Pokémon
+- Stage 1
+- Evolves from
+Finizen
+Ability:
+Hero's Spirit
+Put this Pokémon into play only with the effect of Palafin's Zero to Hero Ability.
+W
+Giga Impact 250
+During your next turn, this Pokémon can't attack.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

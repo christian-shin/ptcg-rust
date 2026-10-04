@@ -1,0 +1,10 @@
+Slakoth
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Take It Easy
+Heal 60 damage from this Pokémon. During your next turn, this Pokémon can't retreat.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Scyther
+- Grass - 90 HP
+Pokémon
+- Basic
+C
+Cut Up 10
+CC
+Slashing Strike 60
+During your next turn, this Pokémon can't use Slashing Strike.
+Weakness: Fire
+Resistance: none
+Retreat: 1

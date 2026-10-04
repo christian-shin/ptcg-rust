@@ -1,0 +1,12 @@
+Rowlet
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Add On
+Draw a card.
+G
+Leafage 10
+Weakness: Fire
+Resistance: none
+Retreat: 1

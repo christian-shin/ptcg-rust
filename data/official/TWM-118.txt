@@ -1,0 +1,13 @@
+Brute Bonnet
+- Darkness - 120 HP
+Pokémon
+- Basic
+D
+Poison Spray
+Your opponent's Active Pokémon is now Poisoned.
+DDD
+Relentless Punches 50+
+This attack does 50 more damage for each damage counter on your opponent's Active Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 3

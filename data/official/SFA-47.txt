@@ -1,0 +1,13 @@
+Kyurem
+- Dragon - 130 HP
+Pokémon
+- Basic
+Ability:
+Plasma Bane
+If your opponent has any cards in their discard pile that have "Colress" in the name, this Pokémon can use the Trifrost attack for [ C ] .
+WWMMC
+Trifrost
+Discard all Energy from this Pokémon. This attack does 110 damage to 3 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: none
+Resistance: none
+Retreat: 2

@@ -1,0 +1,13 @@
+Meowth ex
+- Colorless - 170 HP
+Pokémon
+- Basic
+Ability:
+Last-Ditch Catch
+Once during your turn, when you play this Pokémon from your hand onto your Bench, you may use this Ability. Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck. You can't use more than 1 Ability that has "Last-Ditch" in its name each turn.
+CCC
+Tuck Tail 60
+Put this Pokémon and all attached cards into your hand.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

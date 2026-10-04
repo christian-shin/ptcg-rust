@@ -1,0 +1,15 @@
+Mega Sharpedo ex
+- Darkness - 330 HP
+Pokémon
+- Stage 1
+- Evolves from
+Carvanha
+D
+Greedy Fang 70
+Draw 2 cards.
+DD
+Hungry Jaws 120+
+If this Pokémon has any damage counters on it, this attack does 150 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 0

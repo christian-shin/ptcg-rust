@@ -1,0 +1,13 @@
+Hisuian Growlithe
+- Fighting - 80 HP
+Pokémon
+- Basic
+0
+Blazing Destruction
+Discard a Stadium in play.
+FC
+Take Down 40
+This Pokémon also does 10 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 2

@@ -1,0 +1,14 @@
+Drakloak
+- Dragon - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Dreepy
+Ability:
+Recon Directive
+Once during your turn, you may look at the top 2 cards of your deck and put 1 of them into your hand. Put the other card on the bottom of your deck.
+RP
+Dragon Headbutt 70
+Weakness: none
+Resistance: none
+Retreat: 1

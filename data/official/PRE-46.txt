@@ -1,0 +1,10 @@
+Iron Boulder
+- Psychic - 140 HP
+Pokémon
+- Basic
+PC
+Adjusted Horn 170
+If you don't have the same number of cards in your hand as your opponent, this attack does nothing.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

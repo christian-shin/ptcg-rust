@@ -1,0 +1,15 @@
+Rillaboom
+- Grass - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Thwackey
+G
+Drum Beating 60
+During your opponent's next turn, attacks used by the Defending Pokémon cost [ C ] more, and its Retreat Cost is [ C ] more.
+GG
+Wood Hammer 180
+This Pokémon also does 50 damage to itself.
+Weakness: Fire
+Resistance: none
+Retreat: 4

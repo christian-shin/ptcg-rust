@@ -1,0 +1,13 @@
+Koraidon
+- Dragon - 140 HP
+Pokémon
+- Basic
+FC
+Primordial Beatdown 30×
+This attack does 30 damage for each of your Ancient Pokémon in play.
+RFC
+Shred 130
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: none
+Resistance: none
+Retreat: 2

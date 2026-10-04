@@ -1,0 +1,4 @@
+Prism Tower
+Trainer
+- Stadium
+Once during each player's turn, that player may discard 2 cards from their hand in order to draw a card.

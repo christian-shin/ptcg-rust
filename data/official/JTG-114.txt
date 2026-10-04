@@ -1,0 +1,15 @@
+Salamence ex
+- Dragon - 320 HP
+Pokémon
+- Stage 2
+- Evolves from
+Shelgon
+RCC
+Wide Blast
+This attack does 50 damage to each of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+RWCC
+Dragon Impact 300
+Discard 2 Energy from this Pokémon.
+Weakness: none
+Resistance: none
+Retreat: 2

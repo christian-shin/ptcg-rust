@@ -1,0 +1,14 @@
+Lilligant
+- Grass - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Petilil
+Ability:
+Sunny Day
+Attacks used by your [ G ] Pokémon and [ R ] Pokémon do 20 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .
+GCC
+Spinning Attack 60
+Weakness: Fire
+Resistance: none
+Retreat: 2

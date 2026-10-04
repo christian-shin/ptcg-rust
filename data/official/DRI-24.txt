@@ -1,0 +1,12 @@
+Rellor
+- Grass - 40 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+G
+Rollout 10
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Gimmighoul
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Minor Errand-Running
+Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+CCC
+Tackle 50
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

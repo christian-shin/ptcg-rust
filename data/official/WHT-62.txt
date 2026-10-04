@@ -1,0 +1,15 @@
+Zoroark
+- Darkness - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Zorua
+D
+Mind Jack 30×
+This attack does 30 damage for each of your opponent's Benched Pokémon.
+CCC
+Foul Play
+Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+Weakness: Grass
+Resistance: none
+Retreat: 1

@@ -1,0 +1,5 @@
+Gladion's Final Battle
+Trainer
+- Supporter
+You can use this card only when it is the last card in your hand.
+During this turn, attacks used by your Pokémon that don't have a Rule Box do 80 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) . (Pokémon ex, Pokémon V, etc. have Rule Boxes.)

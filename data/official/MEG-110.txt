@@ -1,0 +1,14 @@
+Gumshoos
+- Colorless - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Yungoos
+Ability:
+Evidence Gathering
+Once during your turn, you may use this Ability. Switch a card from your hand with the top card of your deck.
+CC
+Bite 50
+Weakness: Fighting
+Resistance: none
+Retreat: 1

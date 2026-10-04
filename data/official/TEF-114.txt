@@ -1,0 +1,14 @@
+Metang
+- Metal - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Beldum
+Ability:
+Metal Maker
+Once during your turn, you may look at the top 4 cards of your deck and attach any number of Basic [ M ] Energy cards you find there to your Pokémon in any way you like. Shuffle the other cards and put them on the bottom of your deck.
+MCC
+Beam 60
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

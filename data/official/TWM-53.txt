@@ -1,0 +1,14 @@
+Froslass
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Snorunt
+Ability:
+Freezing Shroud
+During Pokémon Checkup, put 1 damage counter on each Pokémon that has an Ability (both yours and your opponent's) , except any Froslass.
+WC
+Frost Smash 60
+Weakness: Metal
+Resistance: none
+Retreat: 1

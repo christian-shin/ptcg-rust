@@ -1,0 +1,10 @@
+Unown
+- Psychic - 80 HP
+Pokémon
+- Basic
+PP
+Mysterious Signal 40
+If your opponent's Pokémon is Knocked Out by damage from this attack, take 1 more Prize card.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

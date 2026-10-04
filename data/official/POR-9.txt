@@ -1,0 +1,15 @@
+Vivillon
+- Grass - 120 HP
+Pokémon
+- Stage 2
+- Evolves from
+Spewpa
+Ability:
+Grand Wing
+Once during your turn, you may use this Ability. Your opponent shuffles their hand and puts it on the bottom of their deck. If they put any cards on the bottom of their deck in this way, they draw 4 cards.
+G
+Blow Through 60+
+If a Stadium is in play, this attack does 60 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 1

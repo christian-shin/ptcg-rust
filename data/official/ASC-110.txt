@@ -1,0 +1,14 @@
+Cynthia's Gabite
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Cynthia's Gible
+Ability:
+Champion's Call
+Once during your turn, you may search your deck for a Cynthia's Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+F
+Dragonslice 40
+Weakness: Grass
+Resistance: none
+Retreat: 1

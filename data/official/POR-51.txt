@@ -1,0 +1,10 @@
+Skorupi
+- Darkness - 80 HP
+Pokémon
+- Basic
+DD
+Poison Jab 20
+Your opponent's Active Pokémon is now Poisoned.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Illumise
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Slowing Perfume
+You can use this attack only if you go second, and only during your first turn. Shuffle 1 of your opponent's Benched Pokémon and all attached cards into their deck.
+GC
+Glide 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

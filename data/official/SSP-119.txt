@@ -1,0 +1,17 @@
+Hydreigon ex
+- Darkness - 330 HP
+Pokémon
+- Stage 2
+- Evolves from
+Zweilous
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+DC
+Crashing Headbutt 200
+Discard the top 3 cards of your opponent's deck.
+PDMC
+Obsidian 130
+This attack also does 130 damage to 2 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 3

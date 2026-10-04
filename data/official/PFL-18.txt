@@ -1,0 +1,12 @@
+Oricorio ex
+- Fire - 190 HP
+Pokémon
+- Basic
+Ability:
+Excited Turbo
+As often as you like during your turn, if you have any [ R ] Mega Evolution Pokémon ex in play, you may use this Ability. Attach a Basic [ R ] Energy card from your hand to 1 of your Benched [ R ] Pokémon.
+RRC
+Fire Wing 110
+Weakness: Water
+Resistance: none
+Retreat: 1

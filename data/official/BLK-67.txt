@@ -1,0 +1,13 @@
+Genesect ex
+- Metal - 220 HP
+Pokémon
+- Basic
+Ability:
+Metallic Signal
+Once during your turn, you may search your deck for up to 2 Evolution [ M ] Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+MMC
+Protect Charge 150
+During your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

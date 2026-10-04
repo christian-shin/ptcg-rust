@@ -1,0 +1,10 @@
+Joltik
+- Lightning - 30 HP
+Pokémon
+- Basic
+C
+Jolting Charge
+Search your deck for up to 2 Basic [ G ] Energy cards and up to 2 Basic [ L ] Energy cards and attach them to your Pokémon in any way you like. Then, shuffle your deck.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

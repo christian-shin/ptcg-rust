@@ -1,0 +1,15 @@
+Jellicent ex
+- Psychic - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Frillish
+Ability:
+Oceanic Curse
+As long as this Pokémon is in the Active Spot, your opponent can't play any Item cards or Pokémon Tool cards from their hand.
+PC
+Power Press 80+
+If this Pokémon has at least 2 extra Energy attached (in addition to this attack's cost) , this attack does 80 more damage.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

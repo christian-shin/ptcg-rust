@@ -1,0 +1,9 @@
+Gastly
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Petty Grudge 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

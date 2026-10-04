@@ -1,0 +1,15 @@
+Ethan's Magcargo
+- Fire - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Ethan's Slugma
+Ability:
+Melt Away
+If this Pokémon has no Energy attached, it has no Retreat Cost.
+RRR
+Lava Burst 70×
+Discard up to 5 [ R ] Energy from this Pokémon. This attack does 70 damage for each card you discarded in this way.
+Weakness: Water
+Resistance: none
+Retreat: 3

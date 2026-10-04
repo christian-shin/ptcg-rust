@@ -1,0 +1,9 @@
+Torchic
+- Fire - 60 HP
+Pokémon
+- Basic
+RC
+Scratch 30
+Weakness: Water
+Resistance: none
+Retreat: 1

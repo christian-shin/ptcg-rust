@@ -1,0 +1,15 @@
+Banette
+- Psychic - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+Shuppet
+Ability:
+Hide 'n' Sneak
+Prevent all effects of your opponent's Pokémon's attacks and Abilities done to this Pokémon. (Damage is not an effect.)
+P
+Puppet Pull 80
+You may search your deck for a card and put it into your hand. Then, shuffle your deck.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

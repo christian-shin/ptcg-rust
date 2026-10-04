@@ -1,0 +1,15 @@
+Mega Lopunny ex
+- Colorless - 330 HP
+Pokémon
+- Stage 1
+- Evolves from
+Buneary
+C
+Gale Thrust 60+
+If this Pokémon moved from your Bench to the Active Spot this turn, this attack does 170 more damage.
+CC
+Spiky Hopper 160
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

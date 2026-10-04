@@ -1,0 +1,10 @@
+Cynthia's Gible
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Rock Hurl 20
+This attack's damage isn't affected by Resistance.
+Weakness: Grass
+Resistance: none
+Retreat: 1

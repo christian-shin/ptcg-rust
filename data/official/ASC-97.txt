@@ -1,0 +1,10 @@
+Team Rocket's Mimikyu
+- Psychic - 60 HP
+Pokémon
+- Basic
+PC
+Gemstone Mimicry
+Choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 0

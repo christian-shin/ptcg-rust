@@ -1,0 +1,4 @@
+Cook
+Trainer
+- Supporter
+Heal 70 damage from your Active Pokémon.

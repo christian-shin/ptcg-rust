@@ -1,0 +1,4 @@
+Rescue Board
+Trainer
+- Tool
+The Retreat Cost of the Pokémon this card is attached to is [ C ] less. If that Pokémon's remaining HP is 30 or less, it has no Retreat Cost.

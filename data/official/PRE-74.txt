@@ -1,0 +1,13 @@
+Eevee
+- Colorless - 50 HP
+Pokémon
+- Basic
+Ability:
+Boosted Evolution
+As long as this Pokémon is in the Active Spot, it can evolve during your first turn or the turn you play it.
+CC
+Reckless Charge 30
+This Pokémon also does 10 damage to itself.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

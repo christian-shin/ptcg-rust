@@ -1,0 +1,12 @@
+Genesect
+- Metal - 110 HP
+Pokémon
+- Basic
+Ability:
+ACE Nullifier
+If this Pokémon has a Pokémon Tool attached, your opponent can't play any ACE SPEC cards from their hand.
+MCC
+Magnetic Blast 100
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

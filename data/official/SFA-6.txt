@@ -1,0 +1,10 @@
+Tapu Bulu
+- Grass - 140 HP
+Pokémon
+- Basic
+GGCC
+Wood Hammer 220
+This Pokémon also does 30 damage to itself.
+Weakness: Fire
+Resistance: none
+Retreat: 3

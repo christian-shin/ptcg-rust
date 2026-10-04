@@ -1,0 +1,14 @@
+Armarouge
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Charcadet
+CC
+Combustion 50
+RRC
+Crimson Blaster
+Discard all [ R ] Energy from this Pokémon, and this attack does 180 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Water
+Resistance: none
+Retreat: 2

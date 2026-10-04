@@ -1,0 +1,14 @@
+Clefable
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Clefairy
+CC
+Metronome
+Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+PCC
+Magical Shot 100
+Weakness: Metal
+Resistance: none
+Retreat: 2

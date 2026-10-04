@@ -1,0 +1,12 @@
+Ceruledge
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Charcadet
+R
+Infernal Slash 220
+Discard 4 Basic [ R ] Energy cards from your hand. If you can't discard 4 cards in this way, this attack does nothing.
+Weakness: Water
+Resistance: none
+Retreat: 2

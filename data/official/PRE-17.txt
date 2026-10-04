@@ -1,0 +1,15 @@
+Hearthflame Mask Ogerpon ex
+- Fire - 210 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+RCC
+Wrathful Hearth 20×
+This attack does 20 damage for each damage counter on this Pokémon.
+RRR
+Dynamic Blaze 140+
+If your opponent's Active Pokémon is an Evolution Pokémon, this attack does 140 more damage, and discard all Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 1

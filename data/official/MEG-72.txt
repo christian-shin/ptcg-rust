@@ -1,0 +1,11 @@
+Makuhita
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Corkscrew Punch 10
+FF
+Confront 30
+Weakness: Psychic
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Chikorita
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Growl
+During your opponent's next turn, attacks used by the Defending Pokémon do 20 less damage (before applying Weakness and Resistance) .
+GG
+Seed Bomb 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

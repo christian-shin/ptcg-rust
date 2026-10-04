@@ -1,0 +1,13 @@
+Rotom
+- Lightning - 80 HP
+Pokémon
+- Basic
+L
+Crushing Pulse
+Your opponent reveals their hand. Discard all Item cards and Pokémon Tool cards you find there.
+L
+Energy Short 20×
+This attack does 20 damage for each Energy attached to your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

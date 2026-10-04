@@ -1,0 +1,12 @@
+Beldum
+- Metal - 70 HP
+Pokémon
+- Basic
+M
+Dig Claws 10
+MCC
+Iron Tackle 50
+This Pokémon also does 10 damage to itself.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

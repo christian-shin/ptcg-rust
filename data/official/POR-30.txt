@@ -1,0 +1,12 @@
+Clefairy
+- Psychic - 70 HP
+Pokémon
+- Basic
+P
+Follow Me
+Switch in 1 of your opponent's Benched Pokémon to the Active Spot.
+PP
+Flop 30
+Weakness: Metal
+Resistance: none
+Retreat: 1

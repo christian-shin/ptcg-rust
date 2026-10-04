@@ -1,0 +1,9 @@
+Cynthia's Roselia
+- Grass - 70 HP
+Pokémon
+- Basic
+C
+Spike Sting 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

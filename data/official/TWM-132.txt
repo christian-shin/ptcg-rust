@@ -1,0 +1,13 @@
+Farfetch'd
+- Colorless - 70 HP
+Pokémon
+- Basic
+Ability:
+Impromptu Carrier
+When you play this Pokémon from your hand onto your Bench during your turn, you may search your deck for a Pokémon Tool card and attach it to this Pokémon. Then, shuffle your deck.
+C
+Mach Cut 30
+Discard a Special Energy from your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

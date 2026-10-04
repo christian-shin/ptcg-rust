@@ -1,0 +1,14 @@
+Dartrix
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Rowlet
+C
+United Wings 20×
+This attack does 20 damage for each Pokémon in your discard pile that has the United Wings attack.
+G
+Cutting Wind 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

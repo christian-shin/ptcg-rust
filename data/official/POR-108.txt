@@ -1,0 +1,4 @@
+Energy Recycler
+Trainer
+- Item
+Shuffle up to 5 basic Energy cards from your discard pile into your deck.

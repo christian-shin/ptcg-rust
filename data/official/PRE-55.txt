@@ -1,0 +1,12 @@
+Great Tusk
+- Fighting - 140 HP
+Pokémon
+- Basic
+CC
+Land Collapse
+Discard the top card of your opponent's deck. If you played an Ancient Supporter card from your hand during this turn, discard 3 more cards in this way.
+FFCC
+Giant Tusk 160
+Weakness: Psychic
+Resistance: none
+Retreat: 3

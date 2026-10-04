@@ -1,0 +1,15 @@
+Steven's Claydol
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Steven's Baltoy
+P
+Eerie Light 20
+Your opponent's Active Pokémon is now Confused.
+PPC
+Clay Blast 220
+Discard all Energy from this Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

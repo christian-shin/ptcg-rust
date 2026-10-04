@@ -1,0 +1,15 @@
+Alakazam
+- Psychic - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Kadabra
+Ability:
+Psychic Draw
+Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. Draw 3 cards.
+P
+Powerful Hand
+Place 2 damage counters on your opponent's Active Pokémon for each card in your hand.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,15 @@
+Metagross
+- Metal - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Metang
+M
+Meteor Mash 60
+During your next turn, this Pokémon's Meteor Mash attack does 60 more damage (before applying Weakness and Resistance) .
+MCCC
+Luster Blast 200
+Discard 2 Energy from this Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

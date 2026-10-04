@@ -1,0 +1,15 @@
+Mega Venusaur ex
+- Grass - 380 HP
+Pokémon
+- Stage 2
+- Evolves from
+Ivysaur
+Ability:
+Solar Transfer
+As often as you like during your turn, you may use this Ability. Move a Basic [ G ] Energy from 1 of your Pokémon to another of your Pokémon.
+GGGG
+Jungle Dump 240
+Heal 30 damage from this Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 4

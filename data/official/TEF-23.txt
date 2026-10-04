@@ -1,0 +1,10 @@
+Rellor
+- Grass - 50 HP
+Pokémon
+- Basic
+C
+Slight Intrusion 30
+This Pokémon also does 10 damage to itself.
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,14 @@
+Drapion
+- Darkness - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Skorupi
+DD
+Wrack Down 60
+DDD
+Hazardous Tail 100
+This Pokémon also does 70 damage to itself. Your opponent's Active Pokémon is now Paralyzed and Poisoned.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

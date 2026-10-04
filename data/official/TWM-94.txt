@@ -1,0 +1,13 @@
+Scream Tail ex
+- Psychic - 190 HP
+Pokémon
+- Basic
+C
+Scream
+You can use this attack only if you go second, and only during your first turn. Your opponent can't play any Supporter cards from their hand during their next turn.
+PCC
+Crunch 120
+Discard an Energy from your opponent's Active Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

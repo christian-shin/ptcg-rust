@@ -1,0 +1,12 @@
+Froakie
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+W
+Water Gun 10
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Enamorus
+- Psychic - 120 HP
+Pokémon
+- Basic
+C
+Heart Sign 30
+PCC
+Love Resonance 80+
+If any of your Pokémon in play are the same type as any of your opponent's Pokémon in play, this attack does 120 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 1

@@ -1,0 +1,17 @@
+Leafeon ex
+- Grass - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+GC
+Verdant Storm 60×
+This attack does 60 damage for each Energy attached to all of your opponent's Pokémon.
+GRW
+Moss Agate 230
+Heal 100 damage from each of your Benched Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 2

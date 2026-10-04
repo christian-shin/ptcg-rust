@@ -1,0 +1,10 @@
+Trubbish
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Acid Spray 10
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

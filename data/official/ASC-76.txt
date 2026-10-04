@@ -1,0 +1,13 @@
+Lillie's Clefairy ex
+- Psychic - 190 HP
+Pokémon
+- Basic
+Ability:
+Fairy Zone
+The Weakness of each of your opponent's [ N ] Pokémon in play is now [ P ] . (Apply Weakness as ×2.)
+PC
+Full Moon Rondo 20+
+This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's) .
+Weakness: Metal
+Resistance: none
+Retreat: 1

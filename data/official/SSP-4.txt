@@ -1,0 +1,13 @@
+Durant ex
+- Grass - 190 HP
+Pokémon
+- Basic
+Ability:
+Sudden Shearing
+When you play this Pokémon from your hand onto your Bench during your turn, you may discard the top card of your opponent's deck.
+GCC
+Vengeful Crush 120+
+This attack does 30 more damage for each Prize card your opponent has taken.
+Weakness: Fire
+Resistance: none
+Retreat: 2

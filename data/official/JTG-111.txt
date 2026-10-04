@@ -1,0 +1,13 @@
+Hop's Zacian ex
+- Metal - 230 HP
+Pokémon
+- Basic
+C
+Insta-Strike 30
+This attack also does 30 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+MMMC
+Brave Slash 240
+During your next turn, this Pokémon can't use Brave Slash.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

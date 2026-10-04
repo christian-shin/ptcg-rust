@@ -1,0 +1,12 @@
+Miraidon
+- Dragon - 110 HP
+Pokémon
+- Basic
+C
+Peak Acceleration 40
+Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like. Then, shuffle your deck.
+LLP
+Sparking Strike 160
+Weakness: none
+Resistance: none
+Retreat: 2

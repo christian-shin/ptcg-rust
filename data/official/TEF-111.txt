@@ -1,0 +1,15 @@
+Scizor ex
+- Metal - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Scyther
+CC
+Steel Wing 70
+During your opponent's next turn, this Pokémon takes 50 less damage from attacks (after applying Weakness and Resistance) .
+MM
+Cross Breaker 120×
+Discard up to 2 [ M ] Energy from this Pokémon. This attack does 120 damage for each card you discarded in this way.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

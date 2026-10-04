@@ -1,0 +1,10 @@
+Bronzor
+- Psychic - 80 HP
+Pokémon
+- Basic
+P
+Mirror Attack 10+
+If your opponent's Active Pokémon is a [ P ] Pokémon, this attack does 30 more damage.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

@@ -1,0 +1,12 @@
+Terrakion
+- Fighting - 140 HP
+Pokémon
+- Basic
+FC
+Retaliate 50+
+If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 80 more damage.
+FFC
+Land Crush 100
+Weakness: Grass
+Resistance: none
+Retreat: 3

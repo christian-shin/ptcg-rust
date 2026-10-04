@@ -1,0 +1,12 @@
+Ho-Oh
+- Fire - 130 HP
+Pokémon
+- Basic
+RC
+Flap 50
+RRC
+Shining Blaze 100+
+If you have any Tera Pokémon on your Bench, this attack does 100 more damage.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 2

@@ -1,0 +1,5 @@
+Poké Vital A
+Trainer
+- Item
+Heal 150 damage from 1 of your Pokémon.
+This card can't be put into your hand or deck from the discard pile.

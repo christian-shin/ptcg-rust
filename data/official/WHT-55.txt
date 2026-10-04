@@ -1,0 +1,10 @@
+Purrloin
+- Darkness - 60 HP
+Pokémon
+- Basic
+D
+Invite Evil
+Search your deck for up to 3 [ D ] Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+Weakness: Grass
+Resistance: none
+Retreat: 1

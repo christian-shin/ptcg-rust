@@ -1,0 +1,13 @@
+Stunfisk ex
+- Fighting - 210 HP
+Pokémon
+- Basic
+F
+Big Bite 30
+During your opponent's next turn, the Defending Pokémon can't retreat.
+FCC
+Flopping Trap 100+
+If this Pokémon has any damage counters on it, this attack does 100 more damage.
+Weakness: Grass
+Resistance: none
+Retreat: 2

@@ -1,0 +1,14 @@
+Eelektrik
+- Lightning - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Tynamo
+Ability:
+Dynamotor
+Once during your turn (before your attack) , you may attach a [ L ] Energy card from your discard pile to 1 of your Benched Pokémon.
+LLC
+Electric Ball 50
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,13 @@
+Latias ex
+- Psychic - 210 HP
+Pokémon
+- Basic
+Ability:
+Skyliner
+Your Basic Pokémon in play have no Retreat Cost.
+PPC
+Eon Blade 200
+During your next turn, this Pokémon can't attack.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

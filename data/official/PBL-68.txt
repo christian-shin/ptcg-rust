@@ -1,0 +1,15 @@
+Toucannon
+- Colorless - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Trumbeak
+Ability:
+Aerial Draw
+Once during your turn, you may use this Ability. Draw a card.
+C
+Feather Rondo 60+
+This attack does 20 more damage for each Benched Pokémon (both yours and your opponent's) .
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 2

@@ -1,0 +1,10 @@
+Team Rocket's Chingling
+- Psychic - 30 HP
+Pokémon
+- Basic
+0
+Chiming Commotion
+Discard a random card from your opponent's hand.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 0

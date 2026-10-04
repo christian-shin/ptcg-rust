@@ -1,0 +1,15 @@
+Hydrapple ex
+- Grass - 330 HP
+Pokémon
+- Stage 2
+- Evolves from
+Dipplin
+Ability:
+Ripening Charge
+Once during your turn, you may attach a Basic [ G ] Energy card from your hand to 1 of your Pokémon. If you attached Energy to a Pokémon in this way, heal 30 damage from that Pokémon.
+CC
+Syrup Storm 30+
+This attack does 30 more damage for each [ G ] Energy attached to all of your Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 3

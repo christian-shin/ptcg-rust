@@ -1,0 +1,4 @@
+Brilliant Blender
+Trainer
+- Item
+Search your deck for up to 5 cards and discard them. Then, shuffle your deck.

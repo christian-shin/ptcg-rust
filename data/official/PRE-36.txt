@@ -1,0 +1,14 @@
+Dusclops
+- Psychic - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Duskull
+Ability:
+Cursed Blast
+Once during your turn, you may put 5 damage counters on 1 of your opponent's Pokémon. If you use this Ability, this Pokémon is Knocked Out.
+PP
+Will-O-Wisp 50
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

@@ -1,0 +1,4 @@
+Energy Switch
+Trainer
+- Item
+Move a basic Energy from 1 of your Pokémon to another of your Pokémon.

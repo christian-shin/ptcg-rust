@@ -1,0 +1,12 @@
+Victini
+- Fire - 70 HP
+Pokémon
+- Basic
+Ability:
+Victory Cheer
+Attacks used by your Evolution [ R ] Pokémon do 10 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .
+RC
+Flare 30
+Weakness: Water
+Resistance: none
+Retreat: 1

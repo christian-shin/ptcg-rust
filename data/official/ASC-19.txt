@@ -1,0 +1,15 @@
+Team Rocket's Spidops
+- Grass - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Team Rocket's Tarountula
+Ability:
+Charging Up
+Once during your turn, you may attach a Basic Energy card from your discard pile to this Pokémon.
+GC
+Rocket Rush 30×
+This attack does 30 damage for each of your Team Rocket's Pokémon in play.
+Weakness: Fire
+Resistance: none
+Retreat: 2

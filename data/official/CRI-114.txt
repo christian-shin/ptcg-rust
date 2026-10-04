@@ -1,0 +1,4 @@
+Surfing Beach
+Trainer
+- Stadium
+Once during each player's turn, that player may switch their Active [ W ] Pokémon with 1 of their Benched [ W ] Pokémon.

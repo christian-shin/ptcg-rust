@@ -1,0 +1,10 @@
+Electrike
+- Lightning - 70 HP
+Pokémon
+- Basic
+L
+Thunder Jolt 30
+This Pokémon also does 10 damage to itself.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

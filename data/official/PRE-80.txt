@@ -1,0 +1,14 @@
+Dudunsparce
+- Colorless - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+Dunsparce
+Ability:
+Run Away Draw
+Once during your turn, you may draw 3 cards. If you drew any cards in this way, shuffle this Pokémon and all attached cards into your deck.
+CCC
+Land Crush 90
+Weakness: Fighting
+Resistance: none
+Retreat: 3

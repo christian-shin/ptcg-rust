@@ -1,0 +1,13 @@
+Raging Bolt ex
+- Dragon - 240 HP
+Pokémon
+- Basic
+C
+Burst Roar
+Discard your hand and draw 6 cards.
+LF
+Bellowing Thunder 70×
+You may discard any amount of Basic Energy from your Pokémon. This attack does 70 damage for each card you discarded in this way.
+Weakness: none
+Resistance: none
+Retreat: 3

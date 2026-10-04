@@ -1,0 +1,12 @@
+Frogadier
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Froakie
+W
+Numbing Water 20
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

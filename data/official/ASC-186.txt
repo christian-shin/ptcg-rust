@@ -1,0 +1,4 @@
+Counter Gain
+Trainer
+- Tool
+If you have more Prize cards remaining than your opponent, the attacks of the Pokémon this card is attached to cost [ C ] less.

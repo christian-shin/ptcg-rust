@@ -1,0 +1,4 @@
+Risky Ruins
+Trainer
+- Stadium
+Whenever any player puts a Basic non- [ D ] Pokémon onto their Bench during their turn, place 2 damage counters on that Pokémon.

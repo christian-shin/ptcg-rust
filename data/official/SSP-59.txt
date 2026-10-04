@@ -1,0 +1,14 @@
+Magneton
+- Lightning - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Magnemite
+Ability:
+Overvolt Discharge
+Once during your turn, you may attach up to 3 Basic Energy cards from your discard pile to your [ L ] Pokémon in any way you like. If you use this Ability, this Pokémon is Knocked Out.
+LC
+Electric Ball 40
+Weakness: Fighting
+Resistance: none
+Retreat: 1

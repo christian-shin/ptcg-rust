@@ -1,0 +1,12 @@
+Onix
+- Fighting - 120 HP
+Pokémon
+- Basic
+CC
+Bind 30
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+CCCC
+Strength 100
+Weakness: Grass
+Resistance: none
+Retreat: 4

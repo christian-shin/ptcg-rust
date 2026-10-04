@@ -1,0 +1,15 @@
+Teal Mask Ogerpon ex
+- Grass - 210 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+Ability:
+Teal Dance
+Once during your turn, you may attach a Basic [ G ] Energy card from your hand to this Pokémon. If you attached Energy to a Pokémon in this way, draw a card.
+GGG
+Myriad Leaf Shower 30+
+This attack does 30 more damage for each Energy attached to both Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

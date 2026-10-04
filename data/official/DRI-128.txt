@@ -1,0 +1,12 @@
+Team Rocket's Sneasel
+- Darkness - 80 HP
+Pokémon
+- Basic
+D
+Scratch 20
+DD
+Strike the Sleeper
+This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Grass
+Resistance: none
+Retreat: 1

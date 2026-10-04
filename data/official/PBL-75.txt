@@ -1,0 +1,4 @@
+Dark Bell
+Trainer
+- Item
+Both Active non- [ D ] Pokémon are now Confused.

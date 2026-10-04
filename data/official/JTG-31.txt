@@ -1,0 +1,13 @@
+Volcanion ex
+- Fire - 220 HP
+Pokémon
+- Basic
+Ability:
+Scalding Steam
+Once during your turn, if this Pokémon is in the Active Spot, you may make your opponent's Active Pokémon Burned.
+RRC
+Scorching Cyclone 160
+Move an Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 3

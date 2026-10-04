@@ -1,0 +1,13 @@
+Comfey
+- Psychic - 70 HP
+Pokémon
+- Basic
+P
+Flower Shower
+Each player draws 3 cards.
+P
+Play Rough 20+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 1

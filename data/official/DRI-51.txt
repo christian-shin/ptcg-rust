@@ -1,0 +1,13 @@
+Team Rocket's Articuno
+- Water - 120 HP
+Pokémon
+- Basic
+Ability:
+Repelling Veil
+Prevent all effects of attacks used by your opponent's Pokémon done to your Basic Team Rocket's Pokémon. (Existing effects are not removed. Damage is not an effect.)
+WCC
+Dark Frost 60+
+If this Pokémon has any Team Rocket's Energy attached, this attack does 60 more damage.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

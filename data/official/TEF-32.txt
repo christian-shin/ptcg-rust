@@ -1,0 +1,10 @@
+Litten
+- Fire - 70 HP
+Pokémon
+- Basic
+R
+Fake Out 10
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+Weakness: Water
+Resistance: none
+Retreat: 2

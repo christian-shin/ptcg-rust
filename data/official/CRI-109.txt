@@ -1,0 +1,4 @@
+Jumbo Ice Cream
+Trainer
+- Item
+Heal 80 damage from your Active Pokémon that has 3 or more Energy attached.

@@ -1,0 +1,13 @@
+Mega Kangaskhan ex
+- Colorless - 300 HP
+Pokémon
+- Basic
+Ability:
+Run Errand
+Once during your turn, if this Pokémon is in the Active Spot, you may use this Ability. Draw 2 cards. You can't use more than 1 Run Errand Ability each turn.
+CCC
+Rapid-Fire Combo 200+
+Flip a coin until you get tails. This attack does 50 more damage for each heads.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

@@ -1,0 +1,4 @@
+Strange Timepiece
+Trainer
+- Item
+Devolve 1 of your evolved [ P ] Pokémon by putting any number of Evolution cards on it into your hand. (That Pokémon can't evolve this turn.)

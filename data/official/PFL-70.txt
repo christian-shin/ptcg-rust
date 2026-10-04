@@ -1,0 +1,15 @@
+Empoleon ex
+- Metal - 320 HP
+Pokémon
+- Stage 2
+- Evolves from
+Prinplup
+Ability:
+Emperor's Stance
+Prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon. (Damage is not an effect.)
+MMC
+Iron Feathers 210
+During your opponent's next turn, this Pokémon takes 60 less damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

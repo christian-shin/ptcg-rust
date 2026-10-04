@@ -1,0 +1,10 @@
+Moltres
+- Fire - 120 HP
+Pokémon
+- Basic
+R
+Fighting Wings 20+
+If your opponent's Active Pokémon is a Pokémon ex, this attack does 90 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 1

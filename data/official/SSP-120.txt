@@ -1,0 +1,9 @@
+Shroodle
+- Darkness - 60 HP
+Pokémon
+- Basic
+D
+Spray Fluid 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

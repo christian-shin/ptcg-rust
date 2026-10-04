@@ -1,0 +1,4 @@
+Precious Trolley
+Trainer
+- Item
+Search your deck for any number of Basic Pokémon and put them onto your Bench. Then, shuffle your deck.

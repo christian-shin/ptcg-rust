@@ -1,0 +1,13 @@
+Team Rocket's Zapdos
+- Lightning - 120 HP
+Pokémon
+- Basic
+CC
+Jamming Wing 30
+You may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.
+LCC
+Wicked Thunder 60+
+If this Pokémon has any Team Rocket's Energy attached, this attack does 60 more damage.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

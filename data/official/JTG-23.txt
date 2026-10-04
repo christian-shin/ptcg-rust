@@ -1,0 +1,11 @@
+Combusken
+- Fire - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Torchic
+RC
+Slash 50
+Weakness: Water
+Resistance: none
+Retreat: 2

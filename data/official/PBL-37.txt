@@ -1,0 +1,12 @@
+Lampent
+- Psychic - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Litwick
+P
+Spreading Light
+Search your deck for up to 3 Lampent and put them onto your Bench. Then, shuffle your deck.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

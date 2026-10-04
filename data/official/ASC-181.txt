@@ -1,0 +1,4 @@
+Air Balloon
+Trainer
+- Tool
+The Retreat Cost of the Pokémon this card is attached to is [ C ] [ C ] less.

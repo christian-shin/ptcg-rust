@@ -1,0 +1,10 @@
+Applin
+- Grass - 40 HP
+Pokémon
+- Basic
+G
+Mini Drain 10
+Heal 10 damage from this Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

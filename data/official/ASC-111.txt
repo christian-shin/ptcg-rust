@@ -1,0 +1,15 @@
+Cynthia's Garchomp ex
+- Fighting - 330 HP
+Pokémon
+- Stage 2
+- Evolves from
+Cynthia's Gabite
+F
+Corkscrew Dive 100
+You may draw cards until you have 6 cards in your hand.
+FF
+Draconic Buster 260
+Discard all Energy from this Pokémon.
+Weakness: Grass
+Resistance: none
+Retreat: 0

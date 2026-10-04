@@ -1,0 +1,9 @@
+Steven's Beldum
+- Metal - 70 HP
+Pokémon
+- Basic
+MC
+Ram 30
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

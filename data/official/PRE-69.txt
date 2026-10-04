@@ -1,0 +1,12 @@
+Duraludon
+- Metal - 130 HP
+Pokémon
+- Basic
+M
+Hammer In 30
+MMC
+Raging Hammer 80+
+This attack does 10 more damage for each damage counter on this Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

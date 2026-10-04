@@ -1,0 +1,17 @@
+Greninja ex
+- Fighting - 310 HP
+Pokémon
+- Stage 2
+- Evolves from
+Frogadier
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+W
+Shinobi Blade 170
+You may search your deck for a card and put it into your hand. Then, shuffle your deck.
+WCC
+Mirage Barrage
+Discard 2 Energy from this Pokémon. This attack does 120 damage to 2 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Psychic
+Resistance: none
+Retreat: 1

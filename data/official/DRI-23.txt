@@ -1,0 +1,15 @@
+Arboliva ex
+- Grass - 310 HP
+Pokémon
+- Stage 2
+- Evolves from
+Dolliv
+G
+Oil Salvo
+Choose 1 of your opponent's Pokémon 6 times. (You can choose the same Pokémon more than once.) For each time you chose a Pokémon, do 20 damage to it. This damage isn't affected by Weakness or Resistance.
+CCC
+Aroma Shot 160
+This Pokémon recovers from all Special Conditions.
+Weakness: Fire
+Resistance: none
+Retreat: 2

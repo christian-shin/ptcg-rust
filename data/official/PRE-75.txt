@@ -1,0 +1,14 @@
+Eevee ex
+- Colorless - 200 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+Ability:
+Rainbow DNA
+This Pokémon can evolve into any Pokémon ex that evolves from Eevee if you play it from your hand onto this Pokémon. (This Pokémon can't evolve during your first turn or the turn you play it.)
+RWL
+Coruscating Quartz 200
+Weakness: Fighting
+Resistance: none
+Retreat: 1

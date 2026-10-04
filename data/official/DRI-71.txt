@@ -1,0 +1,10 @@
+Ethan's Pichu
+- Lightning - 30 HP
+Pokémon
+- Basic
+0
+Zapping Draw 30
+Draw a card.
+Weakness: Fighting
+Resistance: none
+Retreat: 0

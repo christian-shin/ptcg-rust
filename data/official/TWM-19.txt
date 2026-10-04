@@ -1,0 +1,13 @@
+Iron Leaves
+- Grass - 120 HP
+Pokémon
+- Basic
+G
+Recovery Net
+Put up to 2 Pokémon from your discard pile into your hand.
+GCC
+Avenging Edge 100+
+If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 60 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 1

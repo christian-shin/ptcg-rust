@@ -1,0 +1,15 @@
+Tyranitar
+- Darkness - 190 HP
+Pokémon
+- Stage 2
+- Evolves from
+Pupitar
+Ability:
+Daunting Gaze
+As long as this Pokémon is in the Active Spot, your opponent can't play any Item cards from their hand.
+DC
+Cracking Stomp 150
+Discard the top 2 cards of your opponent's deck.
+Weakness: Grass
+Resistance: none
+Retreat: 3

@@ -1,0 +1,12 @@
+Shuckle
+- Grass - 80 HP
+Pokémon
+- Basic
+Ability:
+Fermented Juice
+Once during your turn, if this Pokémon has any [ G ] Energy attached, you may use this Ability. Heal 30 damage from 1 of your Pokémon.
+GC
+Rollout 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

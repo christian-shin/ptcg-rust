@@ -1,0 +1,13 @@
+Eternatus
+- Dragon - 150 HP
+Pokémon
+- Basic
+D
+Dyna-Blast 10+
+If your opponent's Active Pokémon is a Pokémon ex, this attack does 80 more damage.
+RDD
+World Ender 230
+Discard a Stadium in play. If you can't, this attack does nothing.
+Weakness: none
+Resistance: none
+Retreat: 2

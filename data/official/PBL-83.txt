@@ -1,0 +1,44 @@
+Shadowy Darkness Energy
+Energy
+- Special Energy
+As long as this card is attached to a Pokémon, it provides [ D ] Energy.
+As long as the [ D ] Pokémon this card is attached to is on your Bench, prevent all damage done to it by attacks from your opponent's Pokémon.
+J Regulation Mark • More formats
+Standard
+legal
+Standard (JP)
+legal
+Expanded
+legal
+Expanded (JP)
+legal
+Language
+English
+German
+French
+Spanish
+Italian
+Portuguese
+Pitch Black (PBL)
+#83 · Rare
+Int. Prints
+USD
+EUR
+Pitch Black
+#83
+$0.22
+0.08€
+JP. Prints
+Abyss Eye
+#81
+Decklists that include this card
+Deck
+Tournament
+Place
+Sharpedo Toxtricity by Tapio Ikonen
+Regional Frankfurt
+120th
+Open all decklists (1)
+City League Decklists (1)
+var cardId = 40250
+Price Hi

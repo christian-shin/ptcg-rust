@@ -1,0 +1,15 @@
+Crustle
+- Grass - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Dwebble
+Ability:
+Mysterious Rock Inn
+Prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.
+GCC
+Superb Scissors 120
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 3

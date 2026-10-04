@@ -1,0 +1,17 @@
+Espeon ex
+- Psychic - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Eevee
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+PCC
+Psych Out 160
+Discard a random card from your opponent's hand.
+GPD
+Amazez
+Devolve each of your opponent's evolved Pokémon by shuffling the highest Stage Evolution card on it into your opponent's deck.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

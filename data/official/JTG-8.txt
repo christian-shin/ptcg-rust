@@ -1,0 +1,13 @@
+Maractus
+- Grass - 110 HP
+Pokémon
+- Basic
+Ability:
+Exploding Needles
+If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon, put 6 damage counters on the Attacking Pokémon.
+C
+Corner 20
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Fire
+Resistance: none
+Retreat: 2

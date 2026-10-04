@@ -1,0 +1,14 @@
+Palafin
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Finizen
+Ability:
+Zero to Hero
+Once during your turn, when this Pokémon moves from the Active Spot to the Bench, you may search your deck for a Palafin ex and switch it with this Pokémon. Any attached cards, damage counters, Special Conditions, turns in play, and any other effects remain on the new Pokémon. If you switched a Pokémon in this way, put this card into your deck. Then, shuffle your deck.
+WC
+Wave Splash 30
+Weakness: Lightning
+Resistance: none
+Retreat: 1

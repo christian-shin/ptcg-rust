@@ -1,0 +1,12 @@
+Shaymin
+- Grass - 80 HP
+Pokémon
+- Basic
+Ability:
+Flower Curtain
+Prevent all damage done to your Benched Pokémon that don't have a Rule Box by attacks from your opponent's Pokémon. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+CC
+Smash Kick 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

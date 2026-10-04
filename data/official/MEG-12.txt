@@ -1,0 +1,12 @@
+Celebi
+- Grass - 80 HP
+Pokémon
+- Basic
+G
+Traverse Time
+Search your deck for up to 3 in any combination of [ G ] Pokémon and Stadium cards, reveal them, and put them into your hand. Then, shuffle your deck.
+G
+Solar Cutter 30
+Weakness: Fire
+Resistance: none
+Retreat: 1

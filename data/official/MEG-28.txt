@@ -1,0 +1,15 @@
+Cinderace
+- Fire - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Raboot
+Ability:
+Explosiveness
+If this Pokémon is in your hand when you are setting up to play, you may put it face down in the Active Spot.
+C
+Turbo Flare 50
+Search your deck for up to 3 Basic Energy cards and attach them to your Benched Pokémon in any way you like. Then, shuffle your deck.
+Weakness: Water
+Resistance: none
+Retreat: 0

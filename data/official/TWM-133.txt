@@ -1,0 +1,13 @@
+Chansey
+- Colorless - 120 HP
+Pokémon
+- Basic
+C
+Lucky Attachment
+Attach a Basic Energy card from your hand to 1 of your Pokémon.
+CCC
+Boundless Power 80
+During your next turn, this Pokémon can't attack.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

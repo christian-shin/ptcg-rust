@@ -1,0 +1,14 @@
+Blaziken
+- Fire - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Combusken
+CC
+Heat Blast 70
+RRC
+Inferno Kick Flurry 120
+Discard 2 Energy from this Pokémon. This attack also does 120 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Water
+Resistance: none
+Retreat: 2

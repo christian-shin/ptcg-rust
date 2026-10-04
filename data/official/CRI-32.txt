@@ -1,0 +1,10 @@
+Deoxys
+- Psychic - 120 HP
+Pokémon
+- Basic
+PPP
+Psyspear 120
+If this Pokémon has at least 2 extra Energy attached (in addition to this attack's cost) , this attack also does 120 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

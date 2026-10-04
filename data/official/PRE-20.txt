@@ -1,0 +1,13 @@
+Goldeen
+- Water - 50 HP
+Pokémon
+- Basic
+Ability:
+Festival Lead
+If Festival Grounds is in play, this Pokémon may use an attack it has twice. If the first attack Knocks Out your opponent's Active Pokémon, you may attack again after your opponent chooses a new Active Pokémon.
+CC
+Whirlpool 10
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

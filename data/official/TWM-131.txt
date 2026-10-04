@@ -1,0 +1,12 @@
+Tatsugiri
+- Dragon - 70 HP
+Pokémon
+- Basic
+Ability:
+Attract Customers
+Once during your turn, if this Pokémon is in the Active Spot, you may look at the top 6 cards of your deck, reveal a Supporter card you find there, and put it into your hand. Shuffle the other cards back into your deck.
+RW
+Surf 50
+Weakness: none
+Resistance: none
+Retreat: 1

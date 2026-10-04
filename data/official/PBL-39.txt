@@ -1,0 +1,10 @@
+Dhelmise
+- Psychic - 140 HP
+Pokémon
+- Basic
+P
+Vengeful Anchor 30+
+If you have 4 or more Pokémon that have the Hide 'n' Sneak Ability in your discard pile, this attack does 140 more damage.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

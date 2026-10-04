@@ -1,0 +1,12 @@
+Shuppet
+- Psychic - 50 HP
+Pokémon
+- Basic
+Ability:
+Hide 'n' Sneak
+Prevent all effects of your opponent's Pokémon's attacks and Abilities done to this Pokémon. (Damage is not an effect.)
+P
+Hang Down 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

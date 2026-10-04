@@ -1,0 +1,11 @@
+Haunter
+- Darkness - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Gastly
+D
+Spooky Shot 40
+Weakness: Fighting
+Resistance: none
+Retreat: 1

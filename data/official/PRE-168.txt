@@ -1,0 +1,13 @@
+Bloodmoon Ursaluna ex
+- Colorless - 260 HP
+Pokémon
+- Basic
+Ability:
+Seasoned Skill
+Blood Moon used by this Pokémon costs [ C ] less for each Prize card your opponent has taken.
+CCCCC
+Blood Moon 240
+During your next turn, this Pokémon can't attack.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

@@ -1,0 +1,12 @@
+Gouging Fire ex
+- Fire - 230 HP
+Pokémon
+- Basic
+RC
+Heat Blast 60
+RRC
+Blaze Blitz 260
+This Pokémon can't use Blaze Blitz again until it leaves the Active Spot.
+Weakness: Water
+Resistance: none
+Retreat: 2

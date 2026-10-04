@@ -1,0 +1,15 @@
+Mega Starmie ex
+- Water - 330 HP
+Pokémon
+- Stage 1
+- Evolves from
+Staryu
+W
+Jetting Blow 120
+This attack also does 50 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+CCC
+Nebula Beam 210
+This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

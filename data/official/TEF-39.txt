@@ -1,0 +1,10 @@
+Totodile
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Big Bite 10
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

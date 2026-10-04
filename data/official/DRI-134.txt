@@ -1,0 +1,12 @@
+Marnie's Impidimp
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Filch
+Draw a card.
+D
+Corkscrew Punch 10
+Weakness: Grass
+Resistance: none
+Retreat: 1

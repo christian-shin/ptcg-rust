@@ -1,0 +1,15 @@
+Magmortar
+- Fire - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Magmar
+Ability:
+Magma Surge
+During Pokémon Checkup, put 3 more damage counters on your opponent's Burned Pokémon.
+RRC
+Searing Flame 90
+Flip a coin. If heads, your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 2

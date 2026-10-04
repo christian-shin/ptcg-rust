@@ -1,0 +1,13 @@
+Team Rocket's Murkrow
+- Darkness - 80 HP
+Pokémon
+- Basic
+C
+Deceit
+Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.
+DC
+Torment 30
+Choose 1 of your opponent's Active Pokémon's attacks. During your opponent's next turn, that Pokémon can't use that attack.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

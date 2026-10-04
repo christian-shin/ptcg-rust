@@ -1,0 +1,13 @@
+Pupitar
+- Fighting - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Larvitar
+C
+Sand Spray 20
+CCC
+Hammer In 60
+Weakness: Grass
+Resistance: none
+Retreat: 1

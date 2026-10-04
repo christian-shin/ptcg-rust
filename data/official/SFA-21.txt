@@ -1,0 +1,13 @@
+Cresselia
+- Psychic - 120 HP
+Pokémon
+- Basic
+P
+Healing Pirouette
+Heal 20 damage from each of your Pokémon.
+PPP
+Crescent Purge 80+
+You may turn 1 of your face-down Prize cards face up. If you do, this attack does 80 more damage. (That Prize card remains face up for the rest of the game.)
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

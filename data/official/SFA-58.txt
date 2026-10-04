@@ -1,0 +1,4 @@
+Dangerous Laser
+Trainer
+- Item
+Your opponent's Active Pokémon is now Burned and Confused.

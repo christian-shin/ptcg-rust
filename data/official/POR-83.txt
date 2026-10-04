@@ -1,0 +1,4 @@
+Potion
+Trainer
+- Item
+Heal 30 damage from 1 of your Pokémon.

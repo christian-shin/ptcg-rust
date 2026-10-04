@@ -1,0 +1,14 @@
+Dolliv
+- Grass - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Smoliv
+G
+Nutrients
+Heal 40 damage from 1 of your Pokémon.
+CC
+Tackle 40
+Weakness: Fire
+Resistance: none
+Retreat: 1

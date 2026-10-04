@@ -1,0 +1,12 @@
+Duraludon
+- Metal - 130 HP
+Pokémon
+- Basic
+MM
+Confront 50
+MMM
+Duralubeam 130
+Discard 2 Energy from this Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

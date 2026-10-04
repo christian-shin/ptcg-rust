@@ -1,0 +1,15 @@
+Yanmega ex
+- Grass - 280 HP
+Pokémon
+- Stage 1
+- Evolves from
+Yanma
+Ability:
+Buzzing Boost
+Once during your turn, when this Pokémon moves from your Bench to the Active Spot, you may search your deck for up to 3 Basic [ G ] Energy cards and attach them to this Pokémon. Then, shuffle your deck.
+GGGC
+Jet Cyclone 210
+Move 3 Energy from this Pokémon to 1 of your Benched Pokémon.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

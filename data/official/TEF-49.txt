@@ -1,0 +1,15 @@
+Palafin
+- Water - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Finizen
+W
+Vanguard Punch 130
+This Pokémon also does 10 damage to itself for each damage counter on it.
+WCC
+Double Hit 90×
+Flip 2 coins. This attack does 90 damage for each heads.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

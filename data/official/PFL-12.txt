@@ -1,0 +1,11 @@
+Charmeleon
+- Fire - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Charmander
+R
+Steady Firebreathing 40
+Weakness: Water
+Resistance: none
+Retreat: 2

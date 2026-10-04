@@ -1,0 +1,4 @@
+Binding Mochi
+Trainer
+- Tool
+Attacks used by the Poisoned Pokémon this card is attached to do 40 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .

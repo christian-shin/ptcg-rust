@@ -1,0 +1,14 @@
+Hydrapple
+- Grass - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Dipplin
+G
+Hydra Breath
+Discard 6 Basic [ G ] Energy cards from your hand, and Knock Out your opponent's Active Pokémon. If you can't discard 6 cards in this way, this attack does nothing.
+GCC
+Whip Smash 140
+Weakness: Fire
+Resistance: none
+Retreat: 3

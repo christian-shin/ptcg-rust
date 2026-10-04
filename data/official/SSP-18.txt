@@ -1,0 +1,12 @@
+Paldean Tauros
+- Fire - 130 HP
+Pokémon
+- Basic
+R
+Rear Kick 30
+RCC
+Spirited Tackle 90+
+If your opponent's Active Pokémon is a Stage 1 Pokémon, this attack does 90 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 2

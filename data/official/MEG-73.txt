@@ -1,0 +1,15 @@
+Hariyama
+- Fighting - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Makuhita
+Ability:
+Heave-Ho Catcher
+Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. Switch in 1 of your opponent's Benched Pokémon to the Active Spot.
+FFF
+Wild Press 210
+This Pokémon also does 70 damage to itself.
+Weakness: Psychic
+Resistance: none
+Retreat: 3

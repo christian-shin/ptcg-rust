@@ -1,0 +1,15 @@
+Mamoswine ex
+- Fighting - 340 HP
+Pokémon
+- Stage 2
+- Evolves from
+Piloswine
+Ability:
+Mammoth Hauler
+Once during your turn, you may search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+FF
+Rumbling March 180+
+This attack does 40 more damage for each Stage 2 Pokémon on your Bench.
+Weakness: Grass
+Resistance: none
+Retreat: 4

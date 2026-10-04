@@ -1,0 +1,10 @@
+Riolu
+- Fighting - 70 HP
+Pokémon
+- Basic
+F
+Quick Attack 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

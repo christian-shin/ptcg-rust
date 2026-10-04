@@ -1,0 +1,12 @@
+Team Rocket's Ekans
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Drag Down
+Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed.
+D
+Gnaw 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

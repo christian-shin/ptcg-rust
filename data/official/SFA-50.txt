@@ -1,0 +1,12 @@
+Eevee
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Colorful Catch
+Search your deck for up to 3 Basic Energy cards of different types, reveal them, and put them into your hand. Then, shuffle your deck.
+CC
+Headbutt 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Furfrou
+- Colorless - 90 HP
+Pokémon
+- Basic
+C
+Hand Trim
+Discard random cards from your opponent's hand until they have 5 cards in their hand.
+C
+Headbutt 30
+Weakness: Fighting
+Resistance: none
+Retreat: 1

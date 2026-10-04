@@ -1,0 +1,11 @@
+Dreepy
+- Dragon - 70 HP
+Pokémon
+- Basic
+P
+Petty Grudge 10
+RP
+Bite 40
+Weakness: none
+Resistance: none
+Retreat: 1

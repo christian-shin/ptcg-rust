@@ -1,0 +1,15 @@
+Hisuian Arcanine
+- Fighting - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Hisuian Growlithe
+0
+Proud Fangs 30+
+If your Benched Pokémon have any damage counters on them, this attack does 90 more damage.
+FFC
+Searing Flame 90
+Your opponent's Active Pokémon is now Burned.
+Weakness: Grass
+Resistance: none
+Retreat: 2

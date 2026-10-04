@@ -1,0 +1,12 @@
+Gouging Fire
+- Fire - 130 HP
+Pokémon
+- Basic
+R
+Lunge Out 30
+RRC
+Blazing Charge 100+
+If your opponent has 4 or fewer Prize cards remaining, this attack does 70 more damage.
+Weakness: Water
+Resistance: none
+Retreat: 2

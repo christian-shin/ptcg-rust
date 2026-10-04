@@ -1,0 +1,13 @@
+Chi-Yu
+- Fire - 110 HP
+Pokémon
+- Basic
+C
+Allure
+Draw 2 cards.
+RC
+Ground Melter 60+
+If a Stadium is in play, this attack does 60 more damage. Then, discard that Stadium.
+Weakness: Water
+Resistance: none
+Retreat: 1

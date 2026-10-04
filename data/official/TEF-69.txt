@@ -1,0 +1,14 @@
+Bronzong
+- Psychic - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Bronzor
+P
+Evolution Jammer 30
+During your opponent's next turn, they can't play any Pokémon from their hand to evolve their Pokémon.
+PCC
+Super Psy Bolt 100
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

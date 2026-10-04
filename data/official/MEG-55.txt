@@ -1,0 +1,14 @@
+Kadabra
+- Psychic - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+Abra
+Ability:
+Psychic Draw
+Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, you may use this Ability. Draw 2 cards.
+P
+Super Psy Bolt 30
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

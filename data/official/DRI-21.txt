@@ -1,0 +1,9 @@
+Smoliv
+- Grass - 60 HP
+Pokémon
+- Basic
+C
+Ram 10
+Weakness: Fire
+Resistance: none
+Retreat: 1

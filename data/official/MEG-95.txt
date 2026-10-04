@@ -1,0 +1,12 @@
+Dialga
+- Metal - 140 HP
+Pokémon
+- Basic
+M
+Beam 30
+MMC
+Chrono Burst 80+
+You may shuffle all Energy attached to this Pokémon into your deck and have this attack do 80 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

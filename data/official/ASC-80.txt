@@ -1,0 +1,9 @@
+Togepi
+- Psychic - 50 HP
+Pokémon
+- Basic
+CC
+Pound 30
+Weakness: Metal
+Resistance: none
+Retreat: 1

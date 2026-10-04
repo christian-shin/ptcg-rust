@@ -1,0 +1,12 @@
+Marill
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Hide
+Flip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.
+PC
+Flop 20
+Weakness: Metal
+Resistance: none
+Retreat: 1

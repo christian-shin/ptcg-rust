@@ -1,0 +1,13 @@
+Piloswine
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Swinub
+C
+Strength 20
+FF
+Impaling Tusk 50
+Weakness: Grass
+Resistance: none
+Retreat: 3

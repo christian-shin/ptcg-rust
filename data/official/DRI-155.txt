@@ -1,0 +1,15 @@
+Team Rocket's Porygon-Z
+- Colorless - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Team Rocket's Porygon2
+Ability:
+Reconstitute
+You must discard 2 cards from your hand in order to use this Ability. Once during your turn, you may draw a card.
+CC
+R Command 20×
+This attack does 20 damage for each Supporter card that has "Team Rocket" in its name in your discard pile.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

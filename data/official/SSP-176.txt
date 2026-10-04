@@ -1,0 +1,4 @@
+Energy Search Pro
+Trainer
+- Item
+Search your deck for any number of Basic Energy cards of different types, reveal them, and put them into your hand. Then, shuffle your deck.

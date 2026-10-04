@@ -1,0 +1,4 @@
+Judge
+Trainer
+- Supporter
+Each player shuffles their hand into their deck and draws 4 cards.

@@ -1,0 +1,12 @@
+Croconaw
+- Water - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Totodile
+W
+Reverse Thrust 30
+Switch this Pokémon with 1 of your Benched Pokémon.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

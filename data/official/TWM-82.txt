@@ -1,0 +1,15 @@
+Alakazam
+- Psychic - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Kadabra
+P
+Strange Hacking
+Your opponent's Active Pokémon is now Confused. You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+P
+Psychic 10+
+This attack does 50 more damage for each Energy attached to your opponent's Active Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

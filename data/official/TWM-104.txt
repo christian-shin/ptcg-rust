@@ -1,0 +1,14 @@
+Gurdurr
+- Fighting - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Timburr
+F
+Knuckle Punch 20
+FCC
+Superpower 50+
+You may do 30 more damage. If you do, this Pokémon also does 30 damage to itself.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

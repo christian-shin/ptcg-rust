@@ -1,0 +1,12 @@
+Dedenne
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Electromagnetic Sonar
+Put a Trainer card from your discard pile into your hand.
+P
+Gnaw 30
+Weakness: Metal
+Resistance: none
+Retreat: 1

@@ -1,0 +1,14 @@
+Slowking
+- Psychic - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Slowpoke
+PC
+Seek Inspiration
+Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+PPC
+Super Psy Bolt 120
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

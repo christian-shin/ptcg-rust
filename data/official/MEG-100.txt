@@ -1,0 +1,13 @@
+Mega Latias ex
+- Dragon - 280 HP
+Pokémon
+- Basic
+C
+Strafe 40
+You may switch this Pokémon with 1 of your Benched Pokémon.
+RPC
+Illusory Impulse 300
+Discard all Energy from this Pokémon.
+Weakness: none
+Resistance: none
+Retreat: 1

@@ -1,0 +1,14 @@
+Frogadier
+- Water - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Froakie
+W
+Summoning Jutsu
+Search your deck for up to 3 Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+WW
+Aqua Edge 50
+Weakness: Lightning
+Resistance: none
+Retreat: 1

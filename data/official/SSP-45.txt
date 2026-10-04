@@ -1,0 +1,15 @@
+Walrein
+- Water - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Sealeo
+W
+Frigid Fangs 60
+During your opponent's next turn, Pokémon that have 2 or less Energy attached can't attack. (This includes new Pokémon that come into play.)
+WW
+Megaton Fall 170
+This Pokémon also does 50 damage to itself.
+Weakness: Metal
+Resistance: none
+Retreat: 3

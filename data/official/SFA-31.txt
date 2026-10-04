@@ -1,0 +1,12 @@
+Zorua
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Stampede 10
+DC
+Double Scratch 20×
+Flip 2 coins. This attack does 20 damage for each heads.
+Weakness: Grass
+Resistance: none
+Retreat: 1

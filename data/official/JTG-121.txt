@@ -1,0 +1,15 @@
+Dudunsparce ex
+- Colorless - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Dunsparce
+C
+Tenacious Tail 60×
+This attack does 60 damage for each of your opponent's Pokémon ex in play.
+CCC
+Destructive Drill 150
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 3

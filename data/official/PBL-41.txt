@@ -1,0 +1,15 @@
+Annihilape
+- Psychic - 150 HP
+Pokémon
+- Stage 2
+- Evolves from
+Primeape
+Ability:
+Durable Body
+If this Pokémon would be Knocked Out by damage from an attack, flip a coin. If heads, this Pokémon is not Knocked Out, and its remaining HP becomes 10.
+PP
+Ghostly Blow 100
+Place 5 damage counters on 1 of your opponent's Benched Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

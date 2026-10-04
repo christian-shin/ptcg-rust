@@ -1,0 +1,4 @@
+Poké Ball
+Trainer
+- Item
+Flip a coin. If heads, search your deck for a Pokémon, reveal it, and put it into your hand. Shuffle your deck afterward.

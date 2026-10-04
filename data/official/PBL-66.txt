@@ -1,0 +1,10 @@
+Pikipek
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Double Stab 10×
+Flip 2 coins. This attack does 10 damage for each heads.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

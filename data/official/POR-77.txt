@@ -1,0 +1,4 @@
+Lumiose City
+Trainer
+- Stadium
+Once during each player's turn, that player may search their deck for a Basic Pokémon and put it onto their Bench. Then, that player shuffles their deck. If a player searches their deck in this way, their turn ends.

@@ -1,0 +1,9 @@
+Scatterbug
+- Grass - 40 HP
+Pokémon
+- Basic
+G
+Gnaw 20
+Weakness: Fire
+Resistance: none
+Retreat: 1

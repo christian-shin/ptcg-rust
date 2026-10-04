@@ -1,0 +1,14 @@
+Cinccino
+- Colorless - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Minccino
+C
+Gentle Slap 30
+CC
+Special Roll 70×
+This attack does 70 damage for each Special Energy card attached to this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

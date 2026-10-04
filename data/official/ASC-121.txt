@@ -1,0 +1,15 @@
+Koraidon ex
+- Fighting - 230 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+FC
+Orichalcum Fang 50+
+If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 120 more damage.
+FFC
+Impact Blow 200
+During your next turn, this Pokémon can't use Impact Blow.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

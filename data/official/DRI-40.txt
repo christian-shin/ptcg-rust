@@ -1,0 +1,12 @@
+Torchic
+- Fire - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+R
+Combustion 10
+Weakness: Water
+Resistance: none
+Retreat: 1

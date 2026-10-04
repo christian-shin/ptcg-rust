@@ -1,0 +1,14 @@
+Togekiss
+- Psychic - 140 HP
+Pokémon
+- Stage 2
+- Evolves from
+Togetic
+Ability:
+Wonder Kiss
+When your opponent's Active Pokémon is Knocked Out, flip a coin. If heads, take 1 more Prize card. The effect of Wonder Kiss doesn't stack.
+CCC
+Speed Wing 140
+Weakness: Metal
+Resistance: none
+Retreat: 1

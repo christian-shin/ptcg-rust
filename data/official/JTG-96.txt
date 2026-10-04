@@ -1,0 +1,10 @@
+N's Purrloin
+- Darkness - 70 HP
+Pokémon
+- Basic
+DC
+Thieving Swipe 30
+Your opponent reveals their hand, and you choose a card you find there and put it on the bottom of their deck.
+Weakness: Grass
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Drilbur
+- Fighting - 70 HP
+Pokémon
+- Basic
+Ability:
+Dig Dig Dig
+When you play this Pokémon from your hand onto your Bench during your turn, you may search your deck for up to 3 Basic [ F ] Energy cards and discard them. Then, shuffle your deck.
+FC
+Sand Spray 20
+Weakness: Grass
+Resistance: none
+Retreat: 1

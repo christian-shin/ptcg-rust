@@ -1,0 +1,9 @@
+Toedscool
+- Fighting - 60 HP
+Pokémon
+- Basic
+C
+Spray Fluid 10
+Weakness: Grass
+Resistance: none
+Retreat: 1

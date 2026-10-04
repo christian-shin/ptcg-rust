@@ -1,0 +1,15 @@
+Seaking
+- Water - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Goldeen
+Ability:
+Festival Lead
+If Festival Grounds is in play, this Pokémon may use an attack it has twice. If the first attack Knocks Out your opponent's Active Pokémon, you may attack again after your opponent chooses a new Active Pokémon.
+C
+Rapid Draw 60
+Draw 2 cards.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

@@ -1,0 +1,15 @@
+Conkeldurr
+- Fighting - 180 HP
+Pokémon
+- Stage 2
+- Evolves from
+Gurdurr
+F
+Tantrum 80
+This Pokémon is now Confused.
+FCCC
+Gutsy Swing 250
+If this Pokémon is affected by a Special Condition, ignore all Energy in this attack's cost.
+Weakness: Psychic
+Resistance: none
+Retreat: 3

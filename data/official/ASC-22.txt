@@ -1,0 +1,12 @@
+Mega Charizard Y ex
+- Fire - 360 HP
+Pokémon
+- Stage 2
+- Evolves from
+Charmeleon
+RRC
+Explosion Y
+Discard 3 Energy from this Pokémon, and this attack does 280 damage to 1 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Water
+Resistance: none
+Retreat: 1

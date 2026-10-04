@@ -1,0 +1,15 @@
+Team Rocket's Arbok
+- Darkness - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Team Rocket's Ekans
+Ability:
+Potent Glare
+As long as this Pokémon is in the Active Spot, your opponent can't play any Pokémon that has an Ability from their hand, except for Team Rocket's Pokémon.
+DDD
+Spinning Tail
+This attack does 30 damage to each of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Fighting
+Resistance: none
+Retreat: 2

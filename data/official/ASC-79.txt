@@ -1,0 +1,13 @@
+Team Rocket's Mewtwo ex
+- Psychic - 280 HP
+Pokémon
+- Basic
+Ability:
+Power Saver
+This Pokémon can't attack unless you have 4 or more Team Rocket's Pokémon in play.
+PPC
+Erasure Ball 160+
+You may discard up to 2 Energy from your Benched Pokémon. This attack does 60 more damage for each card you discarded in this way.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

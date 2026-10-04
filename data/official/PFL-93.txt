@@ -1,0 +1,4 @@
+Sacred Charm
+Trainer
+- Tool
+The Pokémon this card is attached to takes 30 less damage from attacks from your opponent's Pokémon that have an Ability (after applying Weakness and Resistance) .

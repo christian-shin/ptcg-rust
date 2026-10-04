@@ -1,0 +1,13 @@
+Poltchageist
+- Grass - 30 HP
+Pokémon
+- Basic
+Ability:
+Hide 'n' Sneak
+Prevent all effects of your opponent's Pokémon's attacks and Abilities done to this Pokémon. (Damage is not an effect.)
+C
+Furtive Drop
+Place 1 damage counter on your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 0

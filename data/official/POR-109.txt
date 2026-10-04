@@ -1,0 +1,4 @@
+Forest of Vitality
+Trainer
+- Stadium
+Each player's [ G ] Pokémon can evolve into [ G ] Pokémon during the turn they play those Pokémon, except during their first turn.

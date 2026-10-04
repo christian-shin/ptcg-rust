@@ -1,0 +1,10 @@
+Girafarig
+- Psychic - 90 HP
+Pokémon
+- Basic
+PC
+Psychic Assault 20+
+This attack does 10 more damage for each damage counter on your opponent's Active Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

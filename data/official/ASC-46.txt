@@ -1,0 +1,9 @@
+Snorunt
+- Water - 70 HP
+Pokémon
+- Basic
+W
+Chilly 10
+Weakness: Metal
+Resistance: none
+Retreat: 1

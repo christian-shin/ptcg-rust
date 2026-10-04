@@ -1,6 +1,6 @@
 """Fetch official English card text from Limitless TCG for pool rows.
 
-usage: fetch_official.py [--rows name-only,missing,absent] [--force]
+usage: fetch_official.py [--rows name-only,missing,absent|all] [--force]
 Writes data/official/<SET>-<NUM>.txt (plain text of the card block) and
 data/official_text.json {"SET NUM": {"name", "text", "url"}}.
 """
@@ -35,7 +35,7 @@ db_path = os.path.join(ROOT, 'data/official_text.json')
 db = json.load(open(db_path)) if os.path.exists(db_path) else {}
 for r in pool:
     match = r.get('print_match') or ('absent' if not r.get('fullName') else None)
-    if match not in kinds:
+    if 'all' not in kinds and match not in kinds:
         continue
     key = '%s %s' % (r['set'], r['number'])
     if key in db and not force:

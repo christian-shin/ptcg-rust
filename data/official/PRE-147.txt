@@ -1,0 +1,17 @@
+Ceruledge ex
+- Fire - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Charcadet
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+R
+Abyssal Flames 30+
+This attack does 20 more damage for each Energy card in your discard pile.
+RPM
+Raging Amethyst 280
+Discard all Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

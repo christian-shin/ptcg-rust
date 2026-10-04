@@ -1,0 +1,12 @@
+Reshiram ex
+- Fire - 230 HP
+Pokémon
+- Basic
+CC
+Slash 50
+RRC
+Blazing Burst 130+
+This attack does 50 more damage for each Prize card your opponent has taken. Discard an Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,12 @@
+Deino
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Stomp Off
+Discard the top card of your opponent's deck.
+DC
+Bite 20
+Weakness: Grass
+Resistance: none
+Retreat: 1

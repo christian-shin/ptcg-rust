@@ -1,0 +1,13 @@
+Heatran
+- Metal - 140 HP
+Pokémon
+- Basic
+Ability:
+Incandescent Body
+If this Pokémon is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out) , the Attacking Pokémon is now Burned.
+MCC
+Steel Burst 50×
+Discard all [ M ] Energy from this Pokémon. This attack does 50 damage for each card you discarded in this way.
+Weakness: Fire
+Resistance: Grass
+Retreat: 4

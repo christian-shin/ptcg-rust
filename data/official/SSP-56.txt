@@ -1,0 +1,13 @@
+Chien-Pao
+- Water - 120 HP
+Pokémon
+- Basic
+Ability:
+Snow Sink
+When you play this Pokémon from your hand onto your Bench during your turn, you may discard a Stadium in play.
+WWC
+Icicle Loop 120
+Put an Energy attached to this Pokémon into your hand.
+Weakness: Metal
+Resistance: none
+Retreat: 1

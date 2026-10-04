@@ -1,0 +1,15 @@
+Haxorus
+- Dragon - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Fraxure
+CC
+Cross-Cut 80+
+If your opponent's Active Pokémon is an Evolution Pokémon, this attack does 80 more damage.
+FMC
+Axe Blast
+If your opponent's Active Pokémon is a Basic Pokémon, it is Knocked Out.
+Weakness: none
+Resistance: none
+Retreat: 3

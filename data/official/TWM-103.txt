@@ -1,0 +1,10 @@
+Timburr
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Best Punch 40
+Flip a coin. If tails, this attack does nothing.
+Weakness: Psychic
+Resistance: none
+Retreat: 2

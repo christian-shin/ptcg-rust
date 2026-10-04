@@ -1,0 +1,15 @@
+Crabominable
+- Water - 160 HP
+Pokémon
+- Stage 1
+- Evolves from
+Crabrawler
+Ability:
+Food Prep
+Attacks used by this Pokémon cost [ C ] less for each Kofu card in your discard pile.
+WCCCC
+Haymaker 250
+During your next turn, this Pokémon can't use Haymaker.
+Weakness: Metal
+Resistance: none
+Retreat: 3

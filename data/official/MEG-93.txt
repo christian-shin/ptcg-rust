@@ -1,0 +1,14 @@
+Steelix
+- Metal - 200 HP
+Pokémon
+- Stage 1
+- Evolves from
+Onix
+CC
+Welcoming Tail 40+
+If you have exactly 6 Prize cards remaining, this attack does 200 more damage.
+MMCC
+Skull Bash 140
+Weakness: Fire
+Resistance: Grass
+Retreat: 4

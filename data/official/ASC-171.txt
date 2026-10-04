@@ -1,0 +1,13 @@
+Fan Rotom
+- Colorless - 70 HP
+Pokémon
+- Basic
+Ability:
+Fan Call
+Once during your first turn, you may search your deck for up to 3 [ C ] Pokémon with 100 HP or less, reveal them, and put them into your hand. Then, shuffle your deck. You can't use more than 1 Fan Call Ability during your turn.
+C
+Assault Landing 70
+If there is no Stadium in play, this attack does nothing.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

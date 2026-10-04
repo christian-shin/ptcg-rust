@@ -1,0 +1,5 @@
+Unfair Stamp
+Trainer
+- Item
+You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Each player shuffles their hand into their deck. Then, you draw 5 cards, and your opponent draws 2 cards.

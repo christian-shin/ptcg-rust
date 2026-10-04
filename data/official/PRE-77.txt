@@ -1,0 +1,12 @@
+Hoothoot
+- Colorless - 80 HP
+Pokémon
+- Basic
+Ability:
+Insomnia
+This Pokémon can't be Asleep.
+CC
+Tackle 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 2

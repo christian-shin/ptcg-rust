@@ -1,0 +1,13 @@
+Yveltal
+- Darkness - 120 HP
+Pokémon
+- Basic
+D
+Corrosive Winds
+Put 2 damage counters on each of your opponent's Pokémon that has any damage counters on it.
+DDC
+Destructive Beam 100
+Flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

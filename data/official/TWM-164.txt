@@ -1,0 +1,4 @@
+Survival Brace
+Trainer
+- Tool
+If the Pokémon this card is attached to has full HP and would be Knocked Out by damage from an attack from your opponent's Pokémon, it is not Knocked Out, and its remaining HP becomes 10. Then, discard this card.

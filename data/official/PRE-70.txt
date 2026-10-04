@@ -1,0 +1,15 @@
+Archaludon
+- Metal - 180 HP
+Pokémon
+- Stage 1
+- Evolves from
+Duraludon
+Ability:
+Metal Bridge
+All of your Pokémon that have [ M ] Energy attached have no Retreat Cost.
+MMC
+Iron Blaster 160
+During your next turn, this Pokémon can't attack.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

@@ -1,0 +1,15 @@
+Decidueye ex
+- Grass - 320 HP
+Pokémon
+- Stage 2
+- Evolves from
+Dartrix
+Ability:
+Sniper's Eye
+If your opponent has exactly 4 cards in their hand, ignore all [ C ] Energy in the costs of attacks used by this Pokémon.
+GCCC
+Crushing Arrow 240
+Discard an Energy from your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 2

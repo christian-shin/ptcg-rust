@@ -1,0 +1,4 @@
+Battle Cage
+Trainer
+- Stadium
+Prevent all damage counters from being placed on Benched Pokémon (both yours and your opponent's) by effects of attacks and Abilities from the opponent's Pokémon. (Damage from attacks is still taken.)

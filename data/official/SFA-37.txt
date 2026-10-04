@@ -1,0 +1,13 @@
+Munkidori ex
+- Darkness - 210 HP
+Pokémon
+- Basic
+Ability:
+Oh No You Don't
+If this Pokémon is Knocked Out by damage from an attack from your opponent's Pokémon, and if you have any Pecharunt ex in play, your opponent takes 1 fewer Prize card.
+DDC
+Dirty Headbutt 190
+During your next turn, this Pokémon can't use Dirty Headbutt.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

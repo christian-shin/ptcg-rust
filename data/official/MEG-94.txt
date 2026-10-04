@@ -1,0 +1,13 @@
+Mega Mawile ex
+- Metal - 270 HP
+Pokémon
+- Basic
+MM
+Gobble Down 80×
+This attack does 80 damage for each Prize card you have taken.
+MMC
+Huge Bite 260
+If your opponent's Active Pokémon already has any damage counters on it, this attack's base damage is 30.
+Weakness: Fire
+Resistance: Grass
+Retreat: 2

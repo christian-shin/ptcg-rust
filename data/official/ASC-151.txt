@@ -1,0 +1,14 @@
+Dragonair
+- Dragon - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Dratini
+Ability:
+Evolutionary Guidance
+Once during your turn, if this Pokémon has any Energy attached, you may use this Ability. Search your deck for an Evolution Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.
+WL
+Tail Snap 60
+Weakness: none
+Resistance: none
+Retreat: 2

@@ -1,0 +1,13 @@
+Iron Leaves ex
+- Grass - 220 HP
+Pokémon
+- Basic
+Ability:
+Rapid Vernier
+When you play this Pokémon from your hand onto your Bench during your turn, you may switch it with your Active Pokémon. If you do, you may move any amount of Energy from your other Pokémon to this Pokémon.
+GGC
+Prism Edge 180
+During your next turn, this Pokémon can't attack.
+Weakness: Fire
+Resistance: none
+Retreat: 1

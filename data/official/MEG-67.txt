@@ -1,0 +1,9 @@
+Gimmighoul
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Slap 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 2

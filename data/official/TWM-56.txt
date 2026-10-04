@@ -1,0 +1,12 @@
+Froakie
+- Water - 60 HP
+Pokémon
+- Basic
+W
+Flock
+Search your deck for up to 2 Froakie and put them onto your Bench. Then, shuffle your deck.
+W
+Flop 10
+Weakness: Lightning
+Resistance: none
+Retreat: 1

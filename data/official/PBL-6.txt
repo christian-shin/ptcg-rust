@@ -1,0 +1,15 @@
+Sinistcha
+- Grass - 60 HP
+Pokémon
+- Stage 1
+- Evolves from
+Poltchageist
+Ability:
+Hide 'n' Sneak
+Prevent all effects of your opponent's Pokémon's attacks and Abilities done to this Pokémon. (Damage is not an effect.)
+C
+Matcha Spin
+If you have 6 or more Pokémon that have the Hide 'n' Sneak Ability in your discard pile, place 4 damage counters on each of your opponent's Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 1

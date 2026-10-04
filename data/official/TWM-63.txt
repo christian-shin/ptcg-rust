@@ -1,0 +1,13 @@
+Walking Wake
+- Water - 130 HP
+Pokémon
+- Basic
+W
+Aurora Gain 20
+Heal 20 damage from this Pokémon.
+WWC
+Undulating Slice 20×
+Put up to 9 damage counters on this Pokémon. This attack does 20 damage for each damage counter you placed in this way.
+Weakness: Lightning
+Resistance: none
+Retreat: 1

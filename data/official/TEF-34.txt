@@ -1,0 +1,15 @@
+Incineroar ex
+- Fire - 320 HP
+Pokémon
+- Stage 2
+- Evolves from
+Torracat
+Ability:
+Hustle Play
+Attacks used by this Pokémon cost [ C ] less for each of your opponent's Benched Pokémon.
+RCCCC
+Blaze Blast 240
+Your opponent's Active Pokémon is now Burned.
+Weakness: Water
+Resistance: none
+Retreat: 2

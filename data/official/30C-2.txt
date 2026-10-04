@@ -1,0 +1,15 @@
+Alolan Exeggutor
+- Grass - 150 HP
+Pokémon
+- Stage 1
+- Evolves from
+Exeggcute
+Ability:
+Scale Up
+If this Pokémon has 6 or more [ G ] Energy attached, it gets +250 HP.
+GCCC
+Mega Drain 150
+Heal 50 damage from this Pokémon
+Weakness: Fire
+Resistance: none
+Retreat: 4

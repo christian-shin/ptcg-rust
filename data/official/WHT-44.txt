@@ -1,0 +1,10 @@
+Frillish
+- Psychic - 80 HP
+Pokémon
+- Basic
+P
+Oceanic Gloom 20
+During your opponent's next turn, they can't play any Item cards from their hand.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

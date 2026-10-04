@@ -1,0 +1,12 @@
+Lunatone
+- Fighting - 110 HP
+Pokémon
+- Basic
+Ability:
+Lunar Cycle
+Once during your turn, if you have Solrock in play, you may discard a Basic [ F ] Energy card from your hand in order to use this Ability. Draw 3 cards. You can't use more than 1 Lunar Cycle Ability each turn.
+FF
+Power Gem 50
+Weakness: Grass
+Resistance: none
+Retreat: 1

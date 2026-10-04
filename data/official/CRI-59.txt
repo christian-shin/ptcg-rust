@@ -1,0 +1,11 @@
+Beldum
+- Metal - 70 HP
+Pokémon
+- Basic
+M
+Headbutt 10
+MC
+Beam 20
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

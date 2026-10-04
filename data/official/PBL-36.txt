@@ -1,0 +1,9 @@
+Litwick
+- Psychic - 70 HP
+Pokémon
+- Basic
+P
+Will-O-Wisp 20
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,12 @@
+Togetic
+- Psychic - 90 HP
+Pokémon
+- Stage 1
+- Evolves from
+Togepi
+CC
+Draining Kiss 30
+Heal 30 damage from this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 1

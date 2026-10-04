@@ -1,0 +1,12 @@
+Ralts
+- Psychic - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+P
+Headbutt 10
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,15 @@
+Manectric
+- Lightning - 120 HP
+Pokémon
+- Stage 1
+- Evolves from
+Electrike
+LL
+Flashing Barrier 50
+During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Evolution Pokémon.
+LLL
+Sonic Edge 110
+This attack's damage isn't affected by any effects on your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

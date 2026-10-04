@@ -1,0 +1,4 @@
+Lively Stadium
+Trainer
+- Stadium
+Each Basic Pokémon in play (both yours and your opponent's) gets +30 HP.

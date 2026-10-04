@@ -1,0 +1,13 @@
+Ethan's Ho-Oh ex
+- Fire - 230 HP
+Pokémon
+- Basic
+Ability:
+Golden Flame
+Once during your turn, you may attach up to 2 Basic [ R ] Energy cards from your hand to 1 of your Benched Ethan's Pokémon.
+RRRR
+Shining Feathers 160
+Heal 50 damage from each of your Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

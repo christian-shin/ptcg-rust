@@ -1,0 +1,15 @@
+Azumarill ex
+- Psychic - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Marill
+Ability:
+Bubble Gathering
+As often as you like during your turn, you may use this Ability. Move an Energy from 1 of your other Pokémon to this Pokémon.
+CCC
+Energized Balloon 60+
+This attack does 40 more damage for each [ P ] Energy attached to this Pokémon.
+Weakness: Metal
+Resistance: none
+Retreat: 2

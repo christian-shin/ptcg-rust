@@ -1,0 +1,4 @@
+Switch
+Trainer
+- Item
+Switch your Active Pokémon with 1 of your Benched Pokémon.

@@ -1,0 +1,10 @@
+Sizzlipede
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Heat Dive 30
+This Pokémon also does 10 damage to itself.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,9 @@
+Magnemite
+- Lightning - 60 HP
+Pokémon
+- Basic
+L
+Lightning Ball 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

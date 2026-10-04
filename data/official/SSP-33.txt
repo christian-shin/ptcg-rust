@@ -1,0 +1,12 @@
+Charcadet
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Light Punch 10
+RRC
+Flamethrower 70
+Discard an Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 2

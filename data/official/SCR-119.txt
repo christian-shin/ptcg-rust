@@ -1,0 +1,13 @@
+Bouffalant
+- Colorless - 100 HP
+Pokémon
+- Basic
+Ability:
+Curly Wall
+As long as you have at least 1 other Bouffalant in play, all of your Basic [ C ] Pokémon take 60 less damage from attacks from your opponent's Pokémon (after applying Weakness and Resistance) . The effect of Curly Wall doesn't stack.
+CCC
+Boundless Power 130
+During your next turn, this Pokémon can't attack.
+Weakness: Fighting
+Resistance: none
+Retreat: 2

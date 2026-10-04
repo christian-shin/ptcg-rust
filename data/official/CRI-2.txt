@@ -1,0 +1,14 @@
+Kakuna
+- Grass - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+Weedle
+Ability:
+Exoskeleton
+This Pokémon takes 20 less damage from attacks (after applying Weakness and Resistance) .
+G
+Hang Down 20
+Weakness: Fire
+Resistance: none
+Retreat: 3

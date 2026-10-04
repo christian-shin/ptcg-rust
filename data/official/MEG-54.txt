@@ -1,0 +1,10 @@
+Abra
+- Psychic - 50 HP
+Pokémon
+- Basic
+P
+Teleportation Attack 10
+Switch this Pokémon with 1 of your Benched Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

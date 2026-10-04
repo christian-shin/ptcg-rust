@@ -1,0 +1,14 @@
+Thwackey
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Grookey
+Ability:
+Boom Boom Groove
+Once during your turn, if your Active Pokémon has the Festival Lead Ability, you may search your deck for a card and put it into your hand. Then, shuffle your deck.
+GG
+Beat 50
+Weakness: Fire
+Resistance: none
+Retreat: 2

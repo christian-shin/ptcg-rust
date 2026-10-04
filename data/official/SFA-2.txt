@@ -1,0 +1,15 @@
+Galvantula
+- Grass - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Joltik
+Ability:
+Compound Eyes
+Attacks used by this Pokémon do 50 more damage to your opponent's Active Pokémon that has an Ability (before applying Weakness and Resistance) .
+GC
+Shocking Web 50+
+If this Pokémon has any [ L ] Energy attached, this attack does 80 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 1

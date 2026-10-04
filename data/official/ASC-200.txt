@@ -1,0 +1,4 @@
+Surfer
+Trainer
+- Supporter
+Switch your Active Pokémon with 1 of your Benched Pokémon. If you do, draw cards until you have 5 cards in your hand.

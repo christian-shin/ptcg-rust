@@ -1,0 +1,14 @@
+Combusken
+- Fire - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Torchic
+C
+Combustion 20
+RC
+Double Kick 40×
+Flip 2 coins. This attack does 40 damage for each heads.
+Weakness: Water
+Resistance: none
+Retreat: 2

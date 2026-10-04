@@ -1,0 +1,12 @@
+Elgyem
+- Psychic - 60 HP
+Pokémon
+- Basic
+P
+Slight Shift
+Move an Energy from 1 of your opponent's Pokémon to another of their Pokémon.
+CCC
+Beam 40
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

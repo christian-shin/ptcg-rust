@@ -1,0 +1,11 @@
+Cufant
+- Metal - 100 HP
+Pokémon
+- Basic
+MC
+Tackle 30
+MMC
+Confront 70
+Weakness: Fire
+Resistance: Grass
+Retreat: 3

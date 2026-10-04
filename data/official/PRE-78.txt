@@ -1,0 +1,14 @@
+Noctowl
+- Colorless - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Hoothoot
+Ability:
+Jewel Seeker
+Once during your turn, when you play this Pokémon from your hand to evolve 1 of your Pokémon, if you have any Tera Pokémon in play, you may search your deck for up to 2 Trainer cards, reveal them, and put them into your hand. Then, shuffle your deck.
+CC
+Speed Wing 60
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

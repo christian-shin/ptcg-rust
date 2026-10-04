@@ -1,0 +1,10 @@
+Ethan's Cyndaquil
+- Fire - 70 HP
+Pokémon
+- Basic
+R
+Ember 30
+Discard an Energy from this Pokémon.
+Weakness: Water
+Resistance: none
+Retreat: 1

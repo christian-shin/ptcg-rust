@@ -1,0 +1,15 @@
+Blaziken ex
+- Fire - 320 HP
+Pokémon
+- Stage 2
+- Evolves from
+Combusken
+Ability:
+Seething Spirit
+Once during your turn, you may attach a Basic Energy card from your discard pile to 1 of your Pokémon.
+RC
+Smolder-sault 200
+During your next turn, this Pokémon can't attack.
+Weakness: Water
+Resistance: none
+Retreat: 2

@@ -1,0 +1,10 @@
+Tapu Koko ex
+- Lightning - 200 HP
+Pokémon
+- Basic
+LC
+Linked Lightning 60+
+This attack does 20 more damage for each of your Benched Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 0

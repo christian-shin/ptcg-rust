@@ -1,0 +1,10 @@
+Smoochum
+- Psychic - 30 HP
+Pokémon
+- Basic
+0
+Delightful Kiss
+Search your deck for up to 2 Basic [ P ] Energy cards and attach them to 1 of your Benched Pokémon. Then, shuffle your deck.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 0

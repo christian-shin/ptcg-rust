@@ -1,0 +1,12 @@
+Genesect
+- Grass - 120 HP
+Pokémon
+- Basic
+G
+Bug's Cannon
+This attack does 20 damage to 1 of your opponent's Pokémon for each [ G ] Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+GGC
+Speed Attack 110
+Weakness: Fire
+Resistance: none
+Retreat: 2

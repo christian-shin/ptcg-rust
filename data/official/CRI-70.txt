@@ -1,0 +1,12 @@
+Patrat
+- Colorless - 70 HP
+Pokémon
+- Basic
+Ability:
+Watchful Eye
+Damage counters on each Pokémon (both yours and your opponent's) can't be moved to other Pokémon.
+C
+Bite 10
+Weakness: Fighting
+Resistance: none
+Retreat: 1

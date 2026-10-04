@@ -1,0 +1,5 @@
+Blowtorch
+Trainer
+- Item
+You can use this card only if you discard a Basic [ R ] Energy card from your hand.
+Discard a Pokémon Tool or Special Energy card from 1 of your opponent's Pokémon, or discard a Stadium in play.

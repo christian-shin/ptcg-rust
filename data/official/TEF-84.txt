@@ -1,0 +1,12 @@
+Relicanth
+- Fighting - 100 HP
+Pokémon
+- Basic
+Ability:
+Memory Dive
+Each of your evolved Pokémon can use any attack from its previous Evolutions. (You still need the necessary Energy to use each attack.)
+FC
+Razor Fin 30
+Weakness: Grass
+Resistance: none
+Retreat: 1

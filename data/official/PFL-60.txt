@@ -1,0 +1,10 @@
+Carvanha
+- Darkness - 70 HP
+Pokémon
+- Basic
+D
+Reckless Charge 30
+This Pokémon also does 10 damage to itself.
+Weakness: Grass
+Resistance: none
+Retreat: 1

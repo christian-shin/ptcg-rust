@@ -1,0 +1,12 @@
+Piplup
+- Water - 70 HP
+Pokémon
+- Basic
+C
+Call for Support
+Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.
+CC
+Tackle 20
+Weakness: Lightning
+Resistance: none
+Retreat: 1

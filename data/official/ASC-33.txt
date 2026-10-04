@@ -1,0 +1,15 @@
+N's Darmanitan
+- Fire - 140 HP
+Pokémon
+- Stage 1
+- Evolves from
+N's Darumaka
+CC
+Back Draft 30×
+This attack does 30 damage for each Basic Energy card in your opponent's discard pile.
+RRC
+Flamebody Cannon 90
+Discard all Energy from this Pokémon, and this attack also does 90 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Water
+Resistance: none
+Retreat: 3

@@ -1,0 +1,10 @@
+Iono's Wattrel
+- Lightning - 60 HP
+Pokémon
+- Basic
+L
+Quick Attack 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

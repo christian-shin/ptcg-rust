@@ -1,0 +1,12 @@
+Chatot
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+A Cappella
+Search your deck for up to 3 Basic Pokémon and put them onto your Bench. Then, shuffle your deck.
+C
+Gust 20
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1

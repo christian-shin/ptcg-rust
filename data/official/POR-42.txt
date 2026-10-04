@@ -1,0 +1,12 @@
+Binacle
+- Fighting - 80 HP
+Pokémon
+- Basic
+F
+Double Draw
+Draw 2 cards.
+FF
+Scratch 30
+Weakness: Grass
+Resistance: none
+Retreat: 2

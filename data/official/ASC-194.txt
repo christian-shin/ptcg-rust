@@ -1,0 +1,4 @@
+Mystery Garden
+Trainer
+- Stadium
+Once during each player's turn, that player may discard an Energy card from their hand in order to draw cards until they have as many cards in their hand as they have [ P ] Pokémon in play.

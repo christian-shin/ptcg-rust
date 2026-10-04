@@ -1,0 +1,9 @@
+Shellos
+- Water - 70 HP
+Pokémon
+- Basic
+CC
+Sprinkle Water 30
+Weakness: Lightning
+Resistance: none
+Retreat: 2

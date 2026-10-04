@@ -1,0 +1,10 @@
+Cynthia's Spiritomb
+- Darkness - 70 HP
+Pokémon
+- Basic
+C
+Raging Curse 10×
+This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon. This attack's damage isn't affected by Weakness.
+Weakness: Grass
+Resistance: none
+Retreat: 1

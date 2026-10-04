@@ -1,0 +1,13 @@
+Jirachi ex
+- Metal - 160 HP
+Pokémon
+- Basic
+C
+Wish Granter
+Draw cards until you have 7 cards in your hand.
+CCC
+Swift 150
+This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pokémon.
+Weakness: Fire
+Resistance: Grass
+Retreat: 1

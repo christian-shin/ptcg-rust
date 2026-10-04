@@ -1,0 +1,10 @@
+Stunfisk
+- Lightning - 110 HP
+Pokémon
+- Basic
+L
+Pouncing Trap 30
+During your opponent's next turn, the Defending Pokémon can't retreat. During your next turn, the Defending Pokémon takes 100 more damage from attacks (after applying Weakness and Resistance) .
+Weakness: Fighting
+Resistance: none
+Retreat: 2

@@ -1,0 +1,10 @@
+Zacian
+- Psychic - 130 HP
+Pokémon
+- Basic
+PC
+Limit Break 50+
+If your opponent has 3 or fewer Prize cards remaining, this attack does 90 more damage.
+Weakness: Metal
+Resistance: none
+Retreat: 2

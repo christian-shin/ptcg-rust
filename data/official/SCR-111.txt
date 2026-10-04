@@ -1,0 +1,12 @@
+Raging Bolt
+- Dragon - 130 HP
+Pokémon
+- Basic
+LF
+Thunderburst Storm
+This attack does 30 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+LFC
+Dragon Headbutt 130
+Weakness: none
+Resistance: none
+Retreat: 3

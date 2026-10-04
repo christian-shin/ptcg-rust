@@ -1,0 +1,15 @@
+Milotic ex
+- Water - 270 HP
+Pokémon
+- Stage 1
+- Evolves from
+Feebas
+Ability:
+Sparkling Scales
+Prevent all damage from and effects of attacks from your opponent's Tera Pokémon done to this Pokémon.
+WCC
+Hypno Splash 160
+Your opponent's Active Pokémon is now Asleep.
+Weakness: Lightning
+Resistance: none
+Retreat: 2

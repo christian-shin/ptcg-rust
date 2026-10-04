@@ -1,0 +1,15 @@
+Haxorus
+- Dragon - 170 HP
+Pokémon
+- Stage 2
+- Evolves from
+Fraxure
+F
+Bring Down the Axe
+If your opponent's Active Pokémon has any Special Energy attached, it is Knocked Out.
+FM
+Dragon Pulse 230
+Discard the top 3 cards of your deck.
+Weakness: none
+Resistance: none
+Retreat: 2

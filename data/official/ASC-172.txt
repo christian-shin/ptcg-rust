@@ -1,0 +1,13 @@
+Mega Audino ex
+- Colorless - 270 HP
+Pokémon
+- Basic
+C
+Kaleidowaltz
+Flip 3 coins. For each heads, search your deck for up to 2 Basic Energy cards and attach them to your Pokémon in any way you like. Then, shuffle your deck.
+CCC
+Ear Force 20+
+This attack does 80 more damage for each Energy attached to your opponent's Active Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

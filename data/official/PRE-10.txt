@@ -1,0 +1,15 @@
+Dipplin
+- Grass - 80 HP
+Pokémon
+- Stage 1
+- Evolves from
+Applin
+Ability:
+Festival Lead
+If Festival Grounds is in play, this Pokémon may use an attack it has twice. If the first attack Knocks Out your opponent's Active Pokémon, you may attack again after your opponent chooses a new Active Pokémon.
+G
+Do the Wave 20×
+This attack does 20 damage for each of your Benched Pokémon.
+Weakness: Fire
+Resistance: none
+Retreat: 2

@@ -1,0 +1,14 @@
+Ethan's Quilava
+- Fire - 100 HP
+Pokémon
+- Stage 1
+- Evolves from
+Ethan's Cyndaquil
+Ability:
+Bonded by the Journey
+Once during your turn, you may search your deck for an Ethan's Adventure card, reveal it, and put it into your hand. Then, shuffle your deck.
+R
+Combustion 40
+Weakness: Water
+Resistance: none
+Retreat: 1

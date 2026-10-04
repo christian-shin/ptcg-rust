@@ -1,0 +1,13 @@
+Koraidon ex
+- Dragon - 230 HP
+Pokémon
+- Basic
+CC
+Retribution Strike 20+
+This attack does 10 more damage for each damage counter on this Pokémon.
+RFF
+Kaiser Tackle 280
+This Pokémon also does 60 damage to itself.
+Weakness: none
+Resistance: none
+Retreat: 2

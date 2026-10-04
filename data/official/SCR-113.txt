@@ -1,0 +1,12 @@
+Eevee
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Call for Family
+Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.
+CC
+Gnaw 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

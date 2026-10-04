@@ -1,0 +1,4 @@
+Black Belt's Training
+Trainer
+- Supporter
+During this turn, attacks used by your Pokémon do 40 more damage to your opponent's Active Pokémon ex (before applying Weakness and Resistance) .

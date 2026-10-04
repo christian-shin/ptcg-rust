@@ -1,0 +1,12 @@
+Spectrier
+- Psychic - 120 HP
+Pokémon
+- Basic
+P
+Spooky Shot 30
+PPC
+Phantasmal Barrage
+Discard all Energy from this Pokémon and place 12 damage counters on 1 of your opponent's Pokémon.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

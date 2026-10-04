@@ -1,0 +1,4 @@
+Energy Swatter
+Trainer
+- Item
+Your opponent reveals their hand, and you choose an Energy card you find there and put it on the bottom of their deck.

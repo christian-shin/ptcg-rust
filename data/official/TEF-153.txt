@@ -1,0 +1,4 @@
+Master Ball
+Trainer
+- Item
+Search your deck for a Pokémon, reveal it, and put it into your hand. Shuffle your deck afterward.

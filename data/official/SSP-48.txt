@@ -1,0 +1,13 @@
+Black Kyurem ex
+- Water - 230 HP
+Pokémon
+- Basic
+CCC
+Ice Age 90
+If your opponent's Active Pokémon is a [ N ] Pokémon, it is now Paralyzed.
+WWCC
+Black Frost 250
+This Pokémon also does 30 damage to itself.
+Weakness: Metal
+Resistance: none
+Retreat: 3

@@ -1,0 +1,12 @@
+Okidogi
+- Fighting - 130 HP
+Pokémon
+- Basic
+Ability:
+Adrena-Power
+If this Pokémon has any [ D ] Energy attached, it gets +100 HP, and the attacks it uses do 100 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .
+FF
+Good Punch 70
+Weakness: Psychic
+Resistance: none
+Retreat: 2

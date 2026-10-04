@@ -1,0 +1,4 @@
+Wondrous Patch
+Trainer
+- Item
+Attach a Basic [ P ] Energy card from your discard pile to 1 of your Benched [ P ] Pokémon.

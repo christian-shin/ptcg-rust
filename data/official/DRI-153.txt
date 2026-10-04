@@ -1,0 +1,10 @@
+Team Rocket's Porygon
+- Colorless - 60 HP
+Pokémon
+- Basic
+C
+Hacking
+Discard a card from your hand. If you do, your opponent discards a card from their hand.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

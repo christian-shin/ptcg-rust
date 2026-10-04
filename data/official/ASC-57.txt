@@ -1,0 +1,15 @@
+Pikachu ex
+- Lightning - 200 HP
+Pokémon
+- Basic
+Tera
+As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both yours and your opponent’s) .
+Ability:
+Resolute Heart
+If this Pokémon has full HP and would be Knocked Out by damage from an attack, it is not Knocked Out, and its remaining HP becomes 10.
+GLM
+Topaz Bolt 300
+Discard 3 Energy from this Pokémon.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

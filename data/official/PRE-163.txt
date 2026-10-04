@@ -1,0 +1,13 @@
+Pecharunt ex
+- Darkness - 190 HP
+Pokémon
+- Basic
+Ability:
+Subjugating Chains
+Once during your turn, you may switch 1 of your Benched [ D ] Pokémon, except any Pecharunt ex, with your Active Pokémon. If you do, the new Active Pokémon is now Poisoned. You can't use more than 1 Subjugating Chains Ability each turn.
+DD
+Irritated Outburst 60×
+This attack does 60 damage for each Prize card your opponent has taken.
+Weakness: Fighting
+Resistance: none
+Retreat: 1

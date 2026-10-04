@@ -1,0 +1,5 @@
+Neutralization Zone
+Trainer
+- Stadium
+Prevent all damage done to Pokémon that don't have a Rule Box (both yours and your opponent's) by attacks from the opponent's Pokémon ex and Pokémon V. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+This card can't be put into your hand or deck from the discard pile.

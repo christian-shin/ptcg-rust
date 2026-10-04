@@ -1,0 +1,14 @@
+Cynthia's Roserade
+- Grass - 130 HP
+Pokémon
+- Stage 1
+- Evolves from
+Cynthia's Roselia
+Ability:
+Cheer On to Glory
+Attacks used by your Cynthia's Pokémon do 30 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance) .
+GCC
+Leaf Step 80
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,15 @@
+Mega Excadrill ex
+- Metal - 340 HP
+Pokémon
+- Stage 1
+- Evolves from
+Drilbur
+MM
+Undermine 90
+Discard the top 2 cards of your opponent's deck.
+MMM
+Maximum Drilling 200+
+If this Pokémon has at least 2 extra Energy attached (in addition to this attack's cost) , this attack does 130 more damage.
+Weakness: Fire
+Resistance: Grass
+Retreat: 4

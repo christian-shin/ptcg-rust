@@ -1,0 +1,5 @@
+Area Zero Underdepths
+Trainer
+- Stadium
+Each player who has any Tera Pokémon in play can have up to 8 Pokémon on their Bench.
+If a player no longer has any Tera Pokémon in play, that player discards Pokémon from their Bench until they have 5. When this card leaves play, both players discard Pokémon from their Bench until they have 5, and the player who played this card discards first.

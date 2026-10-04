@@ -1,0 +1,12 @@
+Bayleef
+- Grass - 110 HP
+Pokémon
+- Stage 1
+- Evolves from
+Chikorita
+GC
+Push Down 50
+Switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)
+Weakness: Fire
+Resistance: none
+Retreat: 2

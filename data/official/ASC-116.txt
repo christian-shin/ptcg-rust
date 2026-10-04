@@ -1,0 +1,13 @@
+Mega Hawlucha ex
+- Fighting - 250 HP
+Pokémon
+- Basic
+Ability:
+Tenacious Body
+If this Pokémon would be Knocked Out by damage from an attack, flip a coin. If heads, this Pokémon is not Knocked Out, and its remaining HP becomes 10.
+FFC
+Somersault Dive 120+
+If a Stadium is in play, this attack does 140 more damage. Then, discard that Stadium.
+Weakness: Psychic
+Resistance: none
+Retreat: 1

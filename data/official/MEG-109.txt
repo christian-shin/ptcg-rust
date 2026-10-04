@@ -1,0 +1,12 @@
+Yungoos
+- Colorless - 70 HP
+Pokémon
+- Basic
+C
+Collect
+Draw a card.
+CC
+Gnaw 20
+Weakness: Fighting
+Resistance: none
+Retreat: 1

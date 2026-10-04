@@ -1,0 +1,10 @@
+Budew
+- Grass - 30 HP
+Pokémon
+- Basic
+0
+Itchy Pollen 10
+During your opponent's next turn, they can't play any Item cards from their hand.
+Weakness: Fire
+Resistance: none
+Retreat: 0

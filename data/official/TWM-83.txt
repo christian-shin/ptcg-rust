@@ -1,0 +1,10 @@
+Girafarig
+- Psychic - 100 HP
+Pokémon
+- Basic
+C
+Dual Headbutt 30
+This attack also does 10 damage to 1 of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 1

@@ -1,0 +1,10 @@
+Applin
+- Grass - 40 HP
+Pokémon
+- Basic
+G
+Tumbling Attack 10+
+Flip a coin. If heads, this attack does 20 more damage.
+Weakness: Fire
+Resistance: none
+Retreat: 1

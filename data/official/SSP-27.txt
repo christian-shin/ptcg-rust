@@ -1,0 +1,11 @@
+Sizzlipede
+- Fire - 80 HP
+Pokémon
+- Basic
+R
+Live Coal 10
+CCC
+Hook 30
+Weakness: Water
+Resistance: none
+Retreat: 2

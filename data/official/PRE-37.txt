@@ -1,0 +1,15 @@
+Dusknoir
+- Psychic - 160 HP
+Pokémon
+- Stage 2
+- Evolves from
+Dusclops
+Ability:
+Cursed Blast
+Once during your turn, you may put 13 damage counters on 1 of your opponent's Pokémon. If you use this Ability, this Pokémon is Knocked Out.
+PPC
+Shadow Bind 150
+During your opponent's next turn, the Defending Pokémon can't retreat.
+Weakness: Darkness
+Resistance: Fighting
+Retreat: 3

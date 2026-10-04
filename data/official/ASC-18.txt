@@ -1,0 +1,10 @@
+Team Rocket's Tarountula
+- Grass - 50 HP
+Pokémon
+- Basic
+G
+Take Down 30
+This Pokémon also does 10 damage to itself.
+Weakness: Fire
+Resistance: none
+Retreat: 1

@@ -1,0 +1,12 @@
+Yveltal
+- Darkness - 120 HP
+Pokémon
+- Basic
+Ability:
+Life-Locked
+Your opponent's Active Pokémon can't be healed.
+DCC
+Dark Cutter 90
+Weakness: Lightning
+Resistance: Fighting
+Retreat: 1
