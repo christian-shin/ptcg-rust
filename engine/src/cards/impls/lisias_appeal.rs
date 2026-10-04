@@ -1,8 +1,11 @@
 //! Lisia's Appeal (SSP, supporter): switch in 1 of your opponent's Benched
 //! Basic Pokémon to the Active Spot; the new Active Pokémon is now Confused.
 //!
-//! Twinleaf: no supporter-turn check in `reduceEffect`; fails when the
-//! opponent has no Bench. SWITCH_IN_OPPONENT_BENCHED_POKEMON with the
+//! Fixed (phase 4b #44): `reduceEffect` checks the supporter turn
+//! (SUPPORTER_ALREADY_PLAYED) and fails (CANNOT_PLAY_THIS_CARD) unless the
+//! opponent has a Benched Basic Pokémon (a Bench of only evolutions used to
+//! leave a prompt with no valid answer).
+//! SWITCH_IN_OPPONENT_BENCHED_POKEMON with the
 //! non-Basic Bench spots blocked (no cancel); `opponent.switchPokemon` with
 //! `store, state`; then, unless a TrainerTargetEffect on the new Active is
 //! blocked, Confused is added directly (`addSpecialCondition`).
@@ -17,14 +20,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => return Ok(()),
     };
     let o = 1 - p;
-    let has_bench = {
-        let pl = &g.st.players[o];
-        pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty())
-    };
-    if !has_bench {
-        bail!("CANNOT_PLAY_THIS_CARD");
+    if g.st.players[p].supporter_turn > 0 {
+        bail!("SUPPORTER_ALREADY_PLAYED");
     }
     let mut blocked = TargetList::new();
+    let mut has_basic_on_bench = false;
     for (s, c, target) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter() {
         let _ = s;
         if target.slot != SlotType::Bench {
@@ -32,7 +32,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         if g.st.cdef(*c).stage != Stage::Basic as u8 {
             blocked.push(*target);
+        } else {
+            has_basic_on_bench = true;
         }
+    }
+    if !has_basic_on_bench {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     let mut slots = SVec::new();
     slots.push(SlotType::Bench as u8);

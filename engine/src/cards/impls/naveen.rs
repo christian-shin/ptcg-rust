@@ -3,7 +3,10 @@
 //!
 //! Twinleaf: fails on an empty deck only; the card moves to the supporter
 //! pile (effect prevented) and the prompt lists the whole remaining hand
-//! (0 to all, no cancel). DRAW_CARDS_UNTIL_CARDS_IN_HAND is a plain
+//! (no cancel). Fixed (phase 4b #45): the minimum is `max(0, hand - 4)`, so a
+//! hand of 5 or more cards must discard enough to draw at least one card
+//! (the card text: "if you can't draw any cards in this way, you can't use
+//! this card"). DRAW_CARDS_UNTIL_CARDS_IN_HAND is a plain
 //! `deck.moveTo(hand, n)` (no MoveCardsEffect).
 use crate::cards::prelude::*;
 
@@ -27,7 +30,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let temp = g.alloc_temp(&others);
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", temp, Filter::none(), ChooseCardsOpts::new(0, max, false), Cont::Card { card: me, frame: f });
+    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", temp, Filter::none(), ChooseCardsOpts::new(others.len().saturating_sub(4) as u8, max, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

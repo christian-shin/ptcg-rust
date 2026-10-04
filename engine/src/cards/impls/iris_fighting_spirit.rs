@@ -2,20 +2,28 @@
 //! discard another card from your hand. Draw cards until you have 6 cards in
 //! your hand.
 //!
-//! Twinleaf: the discard prompt over the hand is min 0, max 1, no cancel
-//! (the card can be played with an empty choice, which does nothing; the
-//! Supporter itself is still in the hand while choosing); then
-//! DRAW_CARDS_UNTIL_CARDS_IN_HAND (plain `deck.moveTo(hand, n)`) unless the
-//! hand already has 6 or more cards.
+//! Fixed (phase 4b #39): `reduceEffect` throws SUPPORTER_ALREADY_PLAYED after
+//! another Supporter and CANNOT_PLAY_THIS_CARD without another card in the
+//! hand; the discard prompt is min 1, max 1, no cancel (it used to allow an
+//! empty choice, which played the card for nothing). The Supporter has left
+//! the hand by the time the prompt is answered, so only other cards are
+//! listed. Then DRAW_CARDS_UNTIL_CARDS_IN_HAND (plain `deck.moveTo(hand, n)`)
+//! unless the hand already has 6 or more cards.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "IrisFightingSpirit", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(p) = trainer_played(g, e, me) {
+        if g.st.players[p].supporter_turn > 0 {
+            bail!("SUPPORTER_ALREADY_PLAYED");
+        }
+        if !g.st.players[p].hand.iter().any(|c| c != me) {
+            bail!("CANNOT_PLAY_THIS_CARD");
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(0, 1, false), Cont::Card { card: me, frame: f });
+        choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
     }
     Ok(())
 }
