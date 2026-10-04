@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Charcadet PFL 19",
+   "56 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charcadet PFL 19",
+   "56 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Charcadet PFL 19",
+  "hand": [],
+  "discard": [
+   "3 Charcadet PFL 19",
+   "49 Fire Energy MEE 2"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet PFL 19"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gather Power"
+  }
+ ]
+}
