@@ -5,16 +5,8 @@
 # (options / prompt / hash / panic / ...) and whose detail contains
 # `detail_contains` is reported as approved instead of diverged.
 
-[[divergence]]
-id = "dangle-tail-runaway-aliases"
-description = "Slowpoke SCR's Dangle Tail aliases one card instance into several zones (Twinleaf keeps duplicated instances as the same object); repeated uses compound, and every alias runs the card's handlers, so one attack can queue 50+ prompts and scratch lists. Rust caps prompts/items at 32 and scratch lists at 32 and stops the replay there."
-justification = "Only reachable after the Twinleaf duplication bug has compounded several times (1 trace in ~13.4k). Raising the caps to follow it makes every Game larger and every full copy slower for all other states."
-what = "panic"
-detail_contains = "temp lists exhausted"
-
-[[divergence]]
-id = "dangle-tail-runaway-prompts"
-description = "Same runaway Dangle Tail aliasing as above, overflowing the 32-entry prompt/item stack instead of the scratch lists."
-justification = "As above."
-what = "panic"
-detail_contains = "prompt stack exhausted"
+# The two approved Dangle Tail divergences ("dangle-tail-runaway-aliases" and
+# "dangle-tail-runaway-prompts") were removed when Slowpoke SCR's Dangle Tail
+# duplication was fixed in both engines (phase 4b, W1-E). The Rust caps they
+# described (32 prompts/items, 32 scratch lists) stay as safety nets only; no
+# card should reach them now.

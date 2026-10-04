@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Mankey SSP 98",
+   "4 Charcadet SSP 32",
+   "4 Mist Energy TEF 161",
+   "40 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Mankey SSP 98",
+   "4 Charcadet SSP 32",
+   "4 Mist Energy TEF 161",
+   "40 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slowpoke SCR 57",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "Mist Energy TEF 161",
+   "2 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}
