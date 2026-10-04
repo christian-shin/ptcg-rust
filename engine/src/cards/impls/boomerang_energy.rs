@@ -2,9 +2,11 @@
 //! attack of the Pokémon it is attached to, attach it from the discard pile
 //! to that Pokémon after attacking.
 //!
-//! Twinleaf quirks kept: any DiscardCardsEffect of the attacking player's
-//! turn arms the re-attach (not only this card being discarded), and the
-//! card is re-attached at EndTurn to whatever is Active then.
+//! Twinleaf quirk kept: the card is re-attached at EndTurn to whatever is
+//! Active then.
+//!
+//! Fixed (phase 4b, W4): any DiscardCardsEffect of the attacking player's
+//! turn armed the re-attach; it now needs this card among the discarded cards.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -35,9 +37,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
 
-    if let Effect::DiscardCards { b, .. } = *g.e(e) {
+    if let Effect::DiscardCards { b, ref cards } = *g.e(e) {
         let pu = b.player as usize;
-        if g.st.players[pu].marker.has_from(existence(), me) {
+        if cards.contains(&me) && g.st.players[pu].marker.has_from(existence(), me) {
             if is_special_energy_blocked(g, pu, me, b.source, false) {
                 return Ok(());
             }
