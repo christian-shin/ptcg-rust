@@ -1,10 +1,10 @@
 //! Duskull (SFA): Come and Get You — put up to 3 Duskull from your discard
 //! pile onto your Bench. Mumble — 30.
 //!
-//! Twinleaf quirks kept: the attack throws CANNOT_USE_POWER unless a Duskull
-//! is in the *hand* (not the discard pile); the prompt is `min: 1` with
-//! `max = min(empty bench slots, 3)` even when that is 0 or no Duskull is in
-//! the discard pile.
+//! Twinleaf: the prompt is `min: 1` with `max = min(empty bench slots, 3)`.
+//! Fixed (phase 4b): the attack throws CANNOT_USE_POWER unless a Duskull is in
+//! the discard pile (it checked the hand) and there is an empty Bench slot
+//! (a full Bench made the prompt `max 0 / min 1`, unanswerable).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Duskull@Duskull SFA|Duskull PRE", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,11 +19,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     let slots = empty_bench_slots(g, p);
     let max = slots.len().min(3) as u8;
-    let has_duskull = g.st.players[p].hand.iter().any(|c| {
+    let has_duskull = g.st.players[p].discard.iter().any(|c| {
         let d = g.st.cdef(c);
         d.is_pokemon() && d.name == "Duskull"
     });
-    if !has_duskull {
+    if !has_duskull || slots.is_empty() {
         bail!("CANNOT_USE_POWER");
     }
     let mut f = CardFrame::at(1);
