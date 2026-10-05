@@ -57,7 +57,9 @@ pub static IMPL: CardImpl = CardImpl {
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(b) = g.e(e).atk_base().copied() {
         let t = b.target;
-        if g.st.slot(t.p as usize, t.s).cards.contains(me) {
+        // Shred: the damage steps are not blocked (see `isDamageIgnoringDefenderEffects`).
+        let shred_damage = matches!(*g.e(e), Effect::DealDamage { .. } | Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::AfterDamage { .. }) && ignores_defender_effects(g, &b);
+        if !shred_damage && g.st.slot(t.p as usize, t.s).cards.contains(me) {
             let is_put = matches!(*g.e(e), Effect::PutDamage { .. });
             'blk: {
                 if g.st.slot_pokemon(t.p as usize, t.s) != Some(me) {

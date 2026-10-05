@@ -18,6 +18,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
         }
         Effect::PutDamage { b, .. } => {
+            if ignores_defender_effects(g, &b) {
+                return Ok(());
+            }
             if g.st.stadium_card() != Some(me) {
                 return Ok(());
             }

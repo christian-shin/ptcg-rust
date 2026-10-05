@@ -10,11 +10,10 @@
 //! damage, ability not blocked for that player. Twin Shotels opens a
 //! non-cancellable ChoosePokemonPrompt for exactly min(2, the opponent's
 //! Pokémon in play) targets (phase 4b: it allowed 1); for each chosen Pokémon
-//! it zeroes the attack damage, adds 50 straight to that Pokémon (phase 4b: it
-//! used to reduce an ApplyWeaknessEffect with its flags unset against the
-//! opponent's Active, so the Active's Weakness applied to every target) and
-//! reduces an AfterDamageEffect whose target is that Pokémon (phase 4b: it was
-//! the opponent's Active).
+//! it runs a DealDamageEffect of 50 on that Pokémon with `ignoreDefenderEffects`
+//! and Weakness/Resistance ignored on the attack (phase 4b R7B: it used to add
+//! the 50 straight to the Pokémon, skipping the attacker's effects, e.g.
+//! Maximum Belt on the Active ex, and the survive-on-10 effects).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "IronCrownex", mask: mask(&[k::ATTACK, k::DEAL_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -81,13 +80,16 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
             Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
             _ => return Ok(()),
         };
+        // Not affected by Weakness or Resistance, or by any effects on those Pokémon (rulings 1490,
+        // 1629, 1875); effects on the attacker (Maximum Belt on the Active ex, ...) apply.
+        if let Effect::Attack { ignore_defender_effects, ignore_weakness, ignore_resistance, .. } = g.e_mut(atk) {
+            *ignore_defender_effects = true;
+            *ignore_weakness = true;
+            *ignore_resistance = true;
+        }
         for t in targets {
-            if let Effect::Attack { damage, .. } = g.e_mut(atk) {
-                *damage = 0;
-            }
-            g.st.players[t.p as usize].slots[t.s as usize].damage += 50;
             let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: t };
-            g.run_fx(Effect::AfterDamage { b, damage: 50 })?;
+            g.run_fx(Effect::DealDamage { b, damage: 50 })?;
         }
         Ok(())
     })();

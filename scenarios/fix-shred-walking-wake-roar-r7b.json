@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Walking Wake ex PRE 178",
+   "4 Mega Diancie ex ASC 267",
+   "13 Water Energy MEE 3",
+   "13 Psychic Energy MEE 5",
+   "13 Fire Energy MEE 2",
+   "13 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Walking Wake ex PRE 178",
+   "4 Mega Diancie ex ASC 267",
+   "13 Water Energy MEE 3",
+   "13 Psychic Energy MEE 5",
+   "13 Fire Energy MEE 2",
+   "13 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Walking Wake ex PRE 178",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267",
+  "active_conditions": [
+   "POISONED"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cathartic Roar"
+  }
+ ]
+}

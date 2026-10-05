@@ -49,6 +49,7 @@ fn run_switch_out(g: &mut Game, p: usize, o: usize, attack: AttackRef, bench_tar
         damage: 0,
         ignore_weakness: false,
         ignore_resistance: false,
+        ignore_defender_effects: false,
         source,
         barrage_used: false,
     });

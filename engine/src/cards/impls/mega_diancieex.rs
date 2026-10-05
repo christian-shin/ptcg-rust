@@ -36,6 +36,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         );
     }
     if let Effect::PutDamage { b, damage, .. } = *g.e(e) {
+        if ignores_defender_effects(g, &b) {
+            return Ok(());
+        }
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).cards.contains(me) {
             if g.st.slot_pokemon(t.p as usize, t.s) != Some(me) {

@@ -102,7 +102,9 @@ pub enum Effect {
     UsePower { p: u8, power: PowerRef, card: CardId, target: CardTarget, bench_target: Option<SlotRef> },
     /// `probe`: the lock-check stand-in power ('test') carrying the real power's flags.
     Power { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, probe: bool },
-    Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, source: SlotRef, barrage_used: bool },
+    /// `ignore_defender_effects`: `AttackEffect.ignoreDefenderEffects` (Shred: effects on the damaged
+    /// Pokémon don't change this attack's damage; see `prefabs::ignores_defender_effects`).
+    Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, barrage_used: bool },
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef> },
     Heal { p: u8, target: SlotRef, damage: i32 },
     Evolve { p: u8, target: SlotRef, card: CardId },

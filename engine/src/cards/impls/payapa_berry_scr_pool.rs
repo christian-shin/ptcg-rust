@@ -19,6 +19,9 @@ pub fn berry_reduce(g: &mut Game, me: CardId, e: EffId, attacker_type: CardType)
         Effect::PutDamage { b, .. } => b,
         _ => return Ok(()),
     };
+    if ignores_defender_effects(g, &b) {
+        return Ok(());
+    }
     let t = b.target;
     if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
         return Ok(());

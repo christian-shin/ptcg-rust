@@ -8,11 +8,11 @@
 //! PowerEffect for this copy that throws skips the whole handler (including
 //! Cathartic Roar's bonus); otherwise `effect.attack.shredAttack = true` is
 //! written on the used attack's object (visible in the canonical `cards`
-//! entry of the attacking card) and the damage is applied by the shared
-//! "not affected by effects" pattern (own ApplyWeaknessEffect, damage zeroed,
-//! added straight to the opponent's Active, AfterDamageEffect). Cathartic
-//! Roar then adds 120 to the zeroed damage when the opponent's Active has any
-//! Special Condition.
+//! entry of the attacking card; nothing reads it any more) and
+//! `ignoreDefenderEffects` is set (phase 4b R7B: the damage used to be added
+//! straight to the Active, with Cathartic Roar's +120 then going through the
+//! effects on the Defending Pokémon). Cathartic Roar adds 120 to the damage
+//! when the opponent's Active has any Special Condition.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "WalkingWakeex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };

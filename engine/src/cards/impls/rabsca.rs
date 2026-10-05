@@ -80,7 +80,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(b) => *b,
         None => return Ok(()),
     };
-    let is_damage = matches!(*g.e(e), Effect::PutDamage { .. } | Effect::PutCounters { .. });
+    // Shred: protection on the damaged Pokémon is ignored (PutDamage only).
+    let shred_put = matches!(*g.e(e), Effect::PutDamage { .. }) && ignores_defender_effects(g, &b);
+    let is_damage = !shred_put && matches!(*g.e(e), Effect::PutDamage { .. } | Effect::PutCounters { .. });
     let damage_like = matches!(*g.e(e), Effect::DealDamage { .. } | Effect::PutDamage { .. } | Effect::PutCounters { .. } | Effect::ApplyWeakness { .. } | Effect::AfterDamage { .. });
     for owner in 0..2usize {
         // PREVENT_DAMAGE_... then PREVENT_EFFECTS_..., each with its own checks.

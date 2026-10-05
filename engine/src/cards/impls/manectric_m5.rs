@@ -4,9 +4,9 @@
 //! opponent's Active Pokémon.
 //!
 //! Twinleaf: PREVENT_DAMAGE(..., { sourceIsEvolution: true }) and
-//! THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS (ApplyWeaknessEffect on the
-//! attack's current damage, `damage = 0`, damage added to the opponent's
-//! Active, AfterDamageEffect).
+//! THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS (`ignoreDefenderEffects` on
+//! the AttackEffect; phase 4b R7B: it used to add the damage straight to the
+//! Active, skipping the attacker's effects too).
 use super::mega_lopunnyex::shred;
 use crate::cards::prelude::*;
 

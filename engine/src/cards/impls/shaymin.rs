@@ -15,6 +15,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Effect::PutDamage { b, .. } => b,
         _ => return Ok(()),
     };
+    if ignores_defender_effects(g, &b) {
+        return Ok(());
+    }
     let defending = b.target.p as usize;
     if b.source.p as usize == defending {
         return Ok(());

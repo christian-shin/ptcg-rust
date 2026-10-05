@@ -31,6 +31,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
 
     if let Effect::PutDamage { b, .. } = *g.e(e) {
+        if ignores_defender_effects(g, &b) {
+            return Ok(());
+        }
         let owner = match g.st.locate(me).and_then(|l| l.owner()) {
             Some(o) => o,
             None => bail!("INVALID_GAME_STATE"),

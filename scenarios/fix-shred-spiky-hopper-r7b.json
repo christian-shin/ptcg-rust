@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Mega Diancie ex ASC 267",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ],
+  [
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Mega Diancie ex ASC 267",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Buneary PFL 83",
+   "Mega Lopunny ex PFL 84"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spiky Hopper"
+  }
+ ]
+}

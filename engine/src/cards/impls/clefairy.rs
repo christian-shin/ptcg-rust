@@ -56,6 +56,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         damage: 0,
         ignore_weakness: false,
         ignore_resistance: false,
+        ignore_defender_effects: false,
         source,
         barrage_used: false,
     });

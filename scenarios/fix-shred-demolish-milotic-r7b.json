@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Milotic ex SSP 42",
+   "4 Feebas SSP 41",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ],
+  [
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Milotic ex SSP 42",
+   "4 Feebas SSP 41",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cornerstone Mask Ogerpon ex PRE 58",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Feebas SSP 41",
+   "Milotic ex SSP 42"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Demolish"
+  }
+ ]
+}

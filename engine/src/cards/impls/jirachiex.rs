@@ -5,9 +5,9 @@
 //! Twinleaf: DRAW_CARDS_UNTIL_CARDS_IN_HAND is a plain `deck.moveTo(hand, n)`
 //! (no MoveCardsEffect). Swift uses THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS
 //! with `ignoreWeaknessAndResistance` (phase 4b; Weakness and Resistance used
-//! to apply, despite the text): its own ApplyWeaknessEffect on the current
-//! `effect.damage`, `effect.damage = 0`, the damage added straight to the
-//! opponent's Active, then an AfterDamageEffect.
+//! to apply, despite the text) and sets `ignoreDefenderEffects` (phase 4b R7B:
+//! the damage used to be added straight to the Active, skipping the effects on
+//! the attacker too).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Jirachiex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };

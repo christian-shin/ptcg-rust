@@ -517,6 +517,7 @@ pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, att
         damage,
         ignore_weakness: false,
         ignore_resistance: false,
+        ignore_defender_effects: false,
         source,
         barrage_used: false,
     });

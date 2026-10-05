@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Koraidon TEF 119",
+   "1 Haban Berry PRE 111",
+   "4 Mega Diancie ex ASC 267",
+   "11 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "10 Lightning Energy MEE 4",
+   "10 Metal Energy MEE 8"
+  ],
+  [
+   "4 Koraidon TEF 119",
+   "1 Haban Berry PRE 111",
+   "4 Mega Diancie ex ASC 267",
+   "11 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "10 Lightning Energy MEE 4",
+   "10 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "active_tool": "Haban Berry PRE 111"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon TEF 119",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Shred"
+  }
+ ]
+}

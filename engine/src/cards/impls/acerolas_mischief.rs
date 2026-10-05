@@ -53,7 +53,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 
     if let Some(b) = g.e(e).atk_base().copied() {
         let t = b.target;
-        if g.st.slot(t.p as usize, t.s).marker.has_from(mischief(), me) {
+        // Shred: the damage steps are not blocked (see `isDamageIgnoringDefenderEffects`).
+        let shred_damage = matches!(*g.e(e), Effect::DealDamage { .. } | Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::AfterDamage { .. }) && ignores_defender_effects(g, &b);
+        if !shred_damage && g.st.slot(t.p as usize, t.s).marker.has_from(mischief(), me) {
             let ex = g.st.slot_pokemon(b.source.p as usize, b.source.s).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER)).unwrap_or(false);
             if b.player != t.p && ex {
                 g.set_prevent(e, true);

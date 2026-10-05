@@ -155,6 +155,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
         damage: ad.damage,
         ignore_weakness: false,
         ignore_resistance: false,
+        ignore_defender_effects: false,
         source: f.attacking,
         barrage_used: false,
     });
@@ -471,6 +472,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 crate::bail!("ILLEGAL_ACTION");
             }
             let opp = 1 - b.player as usize;
+            let shred = crate::prefabs::ignores_defender_effects(g, &b);
             let mut damage = damage;
             // Defending Pokémon's attacks do N less (before W/R), direct PutDamage only.
             let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
@@ -491,7 +493,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
             }
             // shouldPreventAttackDamage (sourceStage / sourceCardTypes filters modeled).
-            let prevent = g.st.phase == GamePhase::Attack
+            let prevent = !shred
+                && g.st.phase == GamePhase::Attack
                 && g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
                 && match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
                     Some(sc) => {
@@ -507,13 +510,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 return Ok(());
             }
             let red = g.st.slot(t.p as usize, t.s).damage_reduction_next_turn;
-            if red != 0 {
+            if !shred && red != 0 {
                 damage = (damage - red).max(0);
             }
             // "During your next turn, the Defending Pokémon takes N more damage."
             {
                 let ts = g.st.slot(t.p as usize, t.s);
-                if ts.defending_extra_damage_next_turn > 0 && !ts.defending_extra_damage_pending && ts.defending_extra_damage_attacker == Some(b.player) {
+                if !shred && ts.defending_extra_damage_next_turn > 0 && !ts.defending_extra_damage_pending && ts.defending_extra_damage_attacker == Some(b.player) {
                     damage += ts.defending_extra_damage_next_turn;
                 }
             }
