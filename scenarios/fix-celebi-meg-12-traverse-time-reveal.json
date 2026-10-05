@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Celebi MEG 12",
+   "4 Budew ASC 16",
+   "4 Festival Grounds PRE 108",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Celebi MEG 12",
+   "4 Budew ASC 16",
+   "4 Festival Grounds PRE 108",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Celebi MEG 12",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Traverse Time"
+  }
+ ]
+}
