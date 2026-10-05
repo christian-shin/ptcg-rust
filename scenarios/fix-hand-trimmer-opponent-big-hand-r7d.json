@@ -1,0 +1,32 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hand Trimmer TEF 150",
+   "4 Duraludon PRE 69",
+   "7 Metal Energy MEE 8",
+   "45 Fire Energy MEE 2"
+  ],
+  [
+   "4 Hand Trimmer TEF 150",
+   "4 Duraludon PRE 69",
+   "7 Metal Energy MEE 8",
+   "45 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Hand Trimmer TEF 150",
+   "2 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "7 Metal Energy MEE 8"
+  ]
+ }
+}

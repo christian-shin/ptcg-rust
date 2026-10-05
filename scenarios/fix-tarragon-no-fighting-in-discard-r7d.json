@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tarragon POR 85",
+   "4 Duraludon PRE 69",
+   "4 Riolu ASC 112",
+   "3 Metal Energy MEE 8",
+   "45 Fire Energy MEE 2"
+  ],
+  [
+   "4 Tarragon POR 85",
+   "4 Duraludon PRE 69",
+   "4 Riolu ASC 112",
+   "3 Metal Energy MEE 8",
+   "45 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Riolu ASC 112",
+  "hand": [
+   "Tarragon POR 85"
+  ],
+  "discard": [
+   "3 Duraludon PRE 69",
+   "3 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Riolu ASC 112"
+ }
+}

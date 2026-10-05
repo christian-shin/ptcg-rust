@@ -1,0 +1,32 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Larry's Skill PRE 115",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Larry's Skill PRE 115",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Larry's Skill PRE 115",
+   "2 Metal Energy MEE 8"
+  ],
+  "discard": [
+   "3 Larry's Skill PRE 115",
+   "3 Duraludon PRE 69",
+   "44 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

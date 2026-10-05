@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "4 Alakazam MEG 56",
+   "4 Rosa's Encouragement POR 84",
+   "44 Psychic Energy MEE"
+  ],
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "4 Alakazam MEG 56",
+   "4 Rosa's Encouragement POR 84",
+   "44 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "hand": [
+   "Rosa's Encouragement POR 84"
+  ],
+  "discard": [
+   "4 Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Abra MEG 54",
+     "Kadabra MEG 55",
+     "Alakazam MEG 56"
+    ]
+   },
+   {
+    "card": "Abra MEG 54"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "prizes_left": 4
+ }
+}

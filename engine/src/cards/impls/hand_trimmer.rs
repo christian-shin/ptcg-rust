@@ -14,6 +14,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => return Ok(()),
     };
     let o = 1 - p;
+    // Fixed (phase 4b, ruling 959): obviously no effect when neither player has more than 5 cards in hand.
+    let mine = g.st.players[p].hand.iter().filter(|c| *c != me).count();
+    if g.st.players[o].hand.len() <= 5 && mine <= 5 {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     g.set_prevent(e, true);
     for q in [o, p] {
         let n = g.st.players[q].hand.iter().filter(|c| *c != me).count();

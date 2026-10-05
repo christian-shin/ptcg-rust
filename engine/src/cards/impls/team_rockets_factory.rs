@@ -19,6 +19,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if !g.st.players[p].rocket_supporter {
                 bail!("CANNOT_USE_STADIUM");
             }
+            // Fixed (phase 4b, rulings 1733/1734): the draw needs at least 1 card in the deck.
+            if g.st.players[p].deck.is_empty() {
+                bail!("CANNOT_USE_STADIUM");
+            }
             draw_cards(g, p, 2)?;
             g.st.players[p].marker.add(factory_used(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
         }

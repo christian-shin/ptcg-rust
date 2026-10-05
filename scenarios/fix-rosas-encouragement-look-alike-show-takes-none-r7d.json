@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mr. Mime TEF",
+   "4 Rosa's Encouragement POR 84",
+   "4 Abra MEG 54",
+   "2 Kadabra MEG 55",
+   "2 Alakazam MEG 56",
+   "4 Psychic Energy MEE 5",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Mr. Mime TEF",
+   "4 Rosa's Encouragement POR 84",
+   "4 Abra MEG 54",
+   "2 Kadabra MEG 55",
+   "2 Alakazam MEG 56",
+   "4 Psychic Energy MEE 5",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mr. Mime TEF",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Abra MEG 54",
+     "Kadabra MEG 55",
+     "Alakazam MEG 56"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "hand": [
+   "Rosa's Encouragement POR 84"
+  ],
+  "prizes_left": 4
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Look-Alike Show"
+  },
+  [
+   0
+  ]
+ ]
+}

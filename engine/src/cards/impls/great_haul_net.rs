@@ -2,7 +2,7 @@
 //! [W] Pokémon and/or up to 3 Basic [W] Energy cards from your discard pile
 //! into your deck.
 //!
-//! Twinleaf: one ChooseCardsPrompt (min 0, max 6, maxPokemons 3,
+//! Twinleaf: one ChooseCardsPrompt (min 1 since phase 4b, rulings 1778/1853: public zone; max 6, maxPokemons 3,
 //! maxBasicEnergies 3) over the discard with the other cards blocked; then
 //! the card moves from wherever it is to the discard before a wait-less
 //! shuffle.
@@ -30,7 +30,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     g.set_prevent(e, true);
-    let mut opts = ChooseCardsOpts::new(0, 6, false);
+    let mut opts = ChooseCardsOpts::new(1, 6, false);
     opts.blocked = blocked;
     opts.max_pokemons = Some(3);
     opts.max_basic_energies = Some(3);

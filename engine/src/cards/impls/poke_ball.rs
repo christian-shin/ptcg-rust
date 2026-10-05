@@ -15,6 +15,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
+    // Fixed (phase 4b, rulings 779/851): a search of an empty deck is not possible, so the card can't be played.
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     g.set_prevent(e, true);
     let mut f = CardFrame::at(0);
     f.a[0] = p as i32;

@@ -622,6 +622,31 @@ The tracked list is `porting/twinleaf-fixes.md`.
     the old one at the bottom of the stack and takes over the state kept on the
     card object (`damageTakenLastTurn`, `movedToActiveThisTurn` and the player's
     `movedToActiveThisTurn` / `movedFromActiveToBenchThisTurn` id lists; ruling 1840).
+13. **Choices and hidden information** (Rule Book; rulings 1778, 1853, 1721, 386,
+    932, 1097, 851, 779, 336, 337). Cards must follow these whatever Twinleaf did:
+    * "Up to N" in a Trainer or an Ability: at least 1 when able (`min: 1`, and no
+      `allowCancel`, which is the same as choosing 0). Only an attack may choose 0
+      (ruling 1721). That holds for public zones (discard pile, cards in play, a
+      revealed hand) and for cards you looked at (Hassel, Grimsley's Move). A
+      Supporter whose effect is used through an attack (Mr. Mime's Look-Alike
+      Show, ruling 1844) may choose 0: the cards test `player.hand.cards.includes(this)`
+      at the start of the effect (`played_from_hand` in Rust, kept in the frame).
+    * "N" without "up to": exactly N, or as many as you can. "Any number" /
+      "any amount": 0 is allowed.
+    * A search of the DECK for a card of a given kind may find nothing (the deck
+      is hidden): `min: 0`, and the search is always made (prompt opened, deck
+      shuffled afterwards) when the deck is not empty, even if it holds no valid
+      card (Telepathic Psychic Energy used to skip both). A search for "any
+      card" with no kind named must take at least 1 (rulings 1778, 325, 892), and
+      a "Look at the top N cards ... put up to X" choice over looked-at cards is
+      not hidden.
+    * A Trainer, Stadium or Item can't be played or used when it is obvious that
+      it would do nothing: an empty deck for a search, a draw or a discard-hand
+      cost (rulings 779, 1037, 1098, 1733), nothing to take in the discard pile
+      (948), an empty opposing hand (880), a hand already at the target size
+      (959), a full Bench for "put onto your Bench" (337). Throw
+      `CANNOT_PLAY_THIS_CARD` / `CANNOT_USE_STADIUM` before any state change. A
+      deck that only might hold nothing is not an obvious case.
 
 Report per fix: list number, card (international key), Twinleaf commit,
 Rust change, scenario entry (format above), the official text it now

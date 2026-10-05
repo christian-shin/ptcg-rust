@@ -3,8 +3,8 @@
 //!
 //! Twinleaf: only undamaged Pokémon are blocked (phase 4b: Pokémon with no
 //! Energy card in `cards` used to be blocked too); a chosen Pokémon with no
-//! Energy is just healed; otherwise both prompts can be cancelled (nothing
-//! happens); the Energy choice is on the whole slot list (superType ENERGY);
+//! Energy is just healed; neither prompt can be cancelled since phase 4b (a cancel
+//! was choosing nothing; rulings 1778/1853); the Energy choice is on the whole slot list (superType ENERGY);
 //! MOVE_CARDS to the discard, then HealEffect 60 (x-and-y file; same flow as
 //! the BS port).
 use crate::cards::prelude::*;
@@ -39,7 +39,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_HEAL",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: true, blocked },
+        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
         Cont::Card { card: me, frame: f },
     );
     Ok(())
@@ -66,7 +66,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             g.prompt(
                 id,
                 "CHOOSE_CARD_TO_DISCARD",
-                PromptKind::ChooseCards { cards: ListRef::Slot(t.p, t.s), filter: Filter::super_type(SuperType::Energy), opts: ChooseCardsOpts::new(1, 1, true) },
+                PromptKind::ChooseCards { cards: ListRef::Slot(t.p, t.s), filter: Filter::super_type(SuperType::Energy), opts: ChooseCardsOpts::new(1, 1, false) },
                 Cont::Card { card: me, frame: nf },
             );
             Ok(())

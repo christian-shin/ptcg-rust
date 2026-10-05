@@ -16,6 +16,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => return Ok(()),
     };
     let o = 1 - p;
+    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
@@ -50,7 +51,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     slots.push(SlotType::Bench as u8);
     let mut opts = AttachOpts::new(max);
     opts.allow_cancel = false;
-    opts.min = 0;
+    // Fixed (phase 4b, rulings 1778/1853): "up to 2" from a public zone takes at least 1 when played from the hand;
+    // used through an attack (Look-Alike Show) it may be 0 (ruling 1844).
+    opts.min = if played_from_hand { 1 } else { 0 };
     opts.max = max;
     opts.same_target = true;
     for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {

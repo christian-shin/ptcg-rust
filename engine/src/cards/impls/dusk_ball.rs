@@ -19,6 +19,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
+    // Fixed (phase 4b, rulings 779/851): a look at an empty deck is not possible, so the card can't be played.
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     g.set_prevent(e, true);
     let size = g.st.players[p].deck.len();
     let n = size.min(7);

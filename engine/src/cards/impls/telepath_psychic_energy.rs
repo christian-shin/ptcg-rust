@@ -3,7 +3,9 @@
 //! 2 Basic [P] Pokémon and put them onto your Bench, then shuffle.
 //!
 //! Twinleaf reacts to every AttachEnergyEffect of this card (not only from
-//! the hand); the type check runs before the card is attached.
+//! the hand); the type check runs before the card is attached. Phase 4b: the search
+//! always happens when the deck is not empty (it used to be skipped, without a
+//! shuffle, when the deck held no Basic [P] Pokémon).
 use crate::cards::prelude::*;
 use crate::effects::EnergyEntry;
 
@@ -44,20 +46,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if slots == 0 {
             return Ok(());
         }
-        let valid = g.st.players[p]
-            .deck
-            .iter()
-            .filter(|c| {
-                let d = g.st.cdef(*c);
-                d.is_pokemon() && d.stage == Stage::Basic as u8 && d.card_type.contains(&ct::PSYCHIC)
-            })
-            .count();
-        if valid == 0 {
+        // Fixed (phase 4b, rulings 336/779/1764): an empty deck can't be searched (public); a deck without a Basic [P]
+        // Pokémon is still searched and shuffled afterwards (every search shuffles), the player just finds nothing.
+        if g.st.players[p].deck.is_empty() {
             return Ok(());
         }
-        let max = 2.min(valid).min(slots) as u8;
         let filter = Filter { stage: Some(Stage::Basic as u8), card_type: Some(ct::PSYCHIC), card_type_list: true, ..Filter::none() };
-        search_deck_for_pokemon_to_bench(g, p, filter, ChooseCardsOpts::new(0, max, true))?;
+        search_deck_for_pokemon_to_bench(g, p, filter, ChooseCardsOpts::new(0, 2, true))?;
     }
     Ok(())
 }

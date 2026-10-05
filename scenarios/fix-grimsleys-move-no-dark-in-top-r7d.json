@@ -1,0 +1,31 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Grimsley's Move PFL 90",
+   "4 Duraludon PRE 69",
+   "7 Metal Energy MEE 8",
+   "45 Fire Energy MEE 2"
+  ],
+  [
+   "4 Grimsley's Move PFL 90",
+   "4 Duraludon PRE 69",
+   "7 Metal Energy MEE 8",
+   "45 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Grimsley's Move PFL 90"
+  ],
+  "deck_top": [
+   "7 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

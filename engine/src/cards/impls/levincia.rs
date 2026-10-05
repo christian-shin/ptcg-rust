@@ -4,7 +4,7 @@
 //!
 //! Twinleaf: throws CANNOT_USE_POWER unless the discard pile holds a basic
 //! Energy providing [L]; the ChooseCardsPrompt (name "Lightning Energy",
-//! min 0, max 2, no cancel) is followed by a MOVE_CARDS to the hand (an
+//! min 1, max 2, no cancel: up to 2 from a public zone, rulings 1778/1853) is followed by a MOVE_CARDS to the hand (an
 //! empty selection still reduces a MoveCardsEffect).
 use crate::cards::prelude::*;
 
@@ -25,7 +25,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Lightning Energy"), ..Filter::none() };
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Discard(p as u8), filter, ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: f });
+    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Discard(p as u8), filter, ChooseCardsOpts::new(1, 2, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 
