@@ -3,11 +3,13 @@
 //! of your Tera Pokémon, take 1 more Prize card.
 //!
 //! Twinleaf keeps the flag on the card instance (`extraPrizes`); every Briar
-//! copy in any zone reacts to Active knock-outs during the attack phase, and
-//! the flag survives until such a knock-out happens.
+//! copy in any zone reacts to Active knock-outs during the attack phase.
+//! Fixed in phase 4b (R4): the flag is cleared at every end of turn ("during
+//! this turn"); it used to survive until the next knock-out of an Active
+//! Pokémon, so it could apply on a later turn or to the opponent.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Briar", mask: mask(&[k::TRAINER, k::KNOCK_OUT]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Briar", mask: mask(&[k::TRAINER, k::KNOCK_OUT, k::END_TURN]), reduce, resume: None, coin: None, can_play: None };
 
 /// `PokemonCardList.isTera()`.
 fn slot_is_tera(g: &Game, p: usize, s: SlotId) -> bool {
@@ -15,6 +17,9 @@ fn slot_is_tera(g: &Game, p: usize, s: SlotId) -> bool {
 }
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    if let Effect::EndTurn { .. } = *g.e(e) {
+        g.st.cards[me as usize].extra_prizes = false;
+    }
     if let Some(p) = trainer_played(g, e, me) {
         let o = 1 - p;
         if g.st.players[p].supporter_turn > 0 {

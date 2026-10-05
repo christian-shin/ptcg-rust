@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Teal Mask Ogerpon ex PRE 12",
+   "4 Budew ASC 16",
+   "4 Briar PRE 100",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Teal Mask Ogerpon ex PRE 12",
+   "4 Budew ASC 16",
+   "4 Briar PRE 100",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Budew ASC 16",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "hand": [
+   "Briar PRE 100"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Teal Mask Ogerpon ex PRE 12",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "prizes_left": 2
+ }
+}
