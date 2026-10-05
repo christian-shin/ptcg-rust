@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "40 Psychic Energy MEE"
+  ],
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "40 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43",
+  "bench": [
+   {
+    "card": [
+     "Duskull PRE 35",
+     "Dusclops PRE 36"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Shuppet PBL 33",
+   "Banette PBL 34"
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ]
+}
