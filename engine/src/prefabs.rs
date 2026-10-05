@@ -374,9 +374,11 @@ pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: 
 /// `OPPONENT_CANNOT_PLAY_CARDS(store, state, effect, source, options)`:
 /// reduce a `PlayLockEffect` (default durations).
 pub fn opponent_cannot_play_cards(g: &mut Game, atk: EffId, locks: u16) -> R {
-    let mut b = match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source },
-        _ => return Ok(()),
+    // An AfterAttackEffect handler passes `new AttackEffect(player, opponent, effect.attack)`
+    // (Chi-Yu MEG): its source is the player's Active.
+    let mut b = match attack_data(g, atk) {
+        Some((p, opp, attack, source)) => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source },
+        None => return Ok(()),
     };
     b.target = b.source;
     g.run_fx(Effect::PlayLock { b, locks, turns_remaining: None, both_players: false, attacker_turns_remaining: None })?;
