@@ -151,9 +151,14 @@ Several cards react to *every* effect of an attack (Twinleaf checks
 `effect instanceof AbstractAttackEffect` or similar), so their masks list every
 kind with an `atk_base`: Mist Energy, Rabsca, Shuppet's `HIDE_N_SNEAK_KINDS`
 (fix its array length), Acerola's Mischief, Rock Fighting Energy, Empoleon ex,
-Milotic ex and Skeledirge. If you add an attack effect kind, add it to each of
-those lists, or those cards silently ignore the effect. Use only the effect kind
-numbers your batch was given.
+Milotic ex and Skeledirge. Acerola's Mischief, Rock Fighting Energy and
+Empoleon ex use `HIDE_N_SNEAK_KINDS` itself (an omission there once made
+Empoleon ex ignore Pouncing Trap's extra damage). If you add an attack effect
+kind, add it to each of those lists, or those cards silently ignore the effect.
+Use only the effect kind numbers your batch was given. Effects that act on the
+attacker (`SelfPreventRetreat`, `PreventAttackUntilLeavesActive`, ...) must
+carry the attacker as `b.target`, or the Defending Pokémon's protections
+(Mist Energy, Empoleon ex) would prevent them.
 
 Per-card runtime writes also reach the oracle hash: any Twinleaf write to a
 card object's own fields (e.g. `effect.attack.shredAttack = true`) shows up
@@ -162,6 +167,10 @@ in the canonical `cards` entry (the whole `attacks` array). Model it on
 can't be replayed with `cli.js state` (it ignores the scenario); use a small
 node script that passes `scenario: trace.header.scenario` to `GameRunner`.
 `canPlay` of Supporters is never reached with `supporterTurn > 0` by the oracle.
+The oracle skips `Store.calculatePlayability` (`OracleHooks.noPlayability`):
+it ran every `canPlay` of the active player's hand against the live state
+after each action, and a probe such as Bianca's Devotion's `CheckHpEffect`
+rewrote `hpBonus` of every Pokémon, which Rust (no such probes) never saw.
 
 ### Reprints and pins
 

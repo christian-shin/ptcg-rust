@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "4 Bianca's Devotion TEF 142",
+   "4 Lively Stadium SSP 180",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "4 Bianca's Devotion TEF 142",
+   "4 Lively Stadium SSP 180",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Abra MEG 54"
+   }
+  ],
+  "hand": [
+   "Kadabra MEG 55",
+   "Bianca's Devotion TEF 142"
+  ],
+  "stadium": "Lively Stadium SSP 180"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Abra MEG 54"
+ }
+}
