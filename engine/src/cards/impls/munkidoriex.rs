@@ -2,9 +2,13 @@
 //! you have Pecharunt ex in play, the opponent takes 1 fewer Prize card.
 //! Dirty Headbutt — 190; during your next turn this Pokémon can't use it.
 //!
-//! Twinleaf: any KnockOutEffect on this card's slot counts (not only attack
-//! damage), and "Pecharunt ex in play" is the owner's `pecharuntexIsInPlay`
-//! flag (set by Pecharunt ex, never cleared).
+//! Twinleaf (phase 4b): a KnockOutEffect on this card's slot counts only
+//! during the opponent's ATTACK phase with the owner carrying
+//! DAMAGE_DEALT_MARKER (Knocked Out by damage from an attack; it used to count
+//! any KO, e.g. Poison), and "Pecharunt ex in play" is a scan of the owner's
+//! Pokémon (it used the owner's `pecharuntexIsInPlay` flag, which Pecharunt ex
+//! set only while its owner's Active had a Special Condition and never
+//! cleared).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Munkidoriex", mask: mask(&[k::KNOCK_OUT, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -16,7 +20,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if is_ability_blocked(g, p, me, None) {
                 return Ok(());
             }
-            if g.st.players[p].pecharuntex_is_in_play {
+            if g.st.phase != GamePhase::Attack
+                || g.st.active_player as usize != 1 - p
+                || !g.st.players[p].marker.has(crate::markers::DAMAGE_DEALT_MARKER)
+            {
+                return Ok(());
+            }
+            let has_pecharunt = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| g.st.cdef(*c).name == "Pecharunt ex");
+            if has_pecharunt {
                 if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
                     *prize_count -= 1;
                 }

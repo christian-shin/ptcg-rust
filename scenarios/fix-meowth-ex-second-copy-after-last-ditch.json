@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Meowth ex POR 62",
+   "4 Hoothoot SCR 114",
+   "4 Boss's Orders ASC 183",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Meowth ex POR 62",
+   "4 Hoothoot SCR 114",
+   "4 Boss's Orders ASC 183",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hoothoot SCR 114",
+  "hand": [
+   "Meowth ex POR 62",
+   "Meowth ex POR 62"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot SCR 114"
+ }
+}

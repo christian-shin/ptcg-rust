@@ -537,12 +537,28 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
 
 pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::CheckAttackCost { .. } => {
+        Effect::CheckAttackCost { p, .. } => {
             // attackCostIncreaseWhileActive / ignoreAttackCostCardTypes: not modeled.
+            // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
+            let a = g.st.players[p as usize].active;
+            let n = g.st.slot(p as usize, a).attack_cost_increase_next_turn;
+            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(id) {
+                for _ in 0..n.max(0) {
+                    cost.push(ct::COLORLESS);
+                }
+            }
             Ok(())
         }
-        Effect::CheckRetreatCost { .. } => {
+        Effect::CheckRetreatCost { p, .. } => {
+            // retreatCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
             // zeroRetreatCostNextTurn: not modeled.
+            let a = g.st.players[p as usize].active;
+            let n = g.st.slot(p as usize, a).retreat_cost_increase_next_turn;
+            if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(id) {
+                for _ in 0..n.max(0) {
+                    cost.push(ct::COLORLESS);
+                }
+            }
             Ok(())
         }
         Effect::CheckProvidedEnergy { source, .. } => {

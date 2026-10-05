@@ -375,6 +375,10 @@ fn end_turn(g: &mut Game, p: usize) -> R {
 
 /// EndTurnEffect: arm / expire `attackCostIncreaseNextTurn` and
 /// `retreatCostIncreaseNextTurn` on both players' Pokémon (`p` ends its turn).
+/// Phase 4b (R6): armed when the attacker ends its turn (live during the
+/// defender's turn) and expired when the defender ends its turn; they used to
+/// be armed at the defender's end of turn, i.e. live in the attacker's next
+/// turn, where they never bit.
 fn cost_increase_end_of_turn(g: &mut Game, p: usize) {
     let me = Some(p as u8);
     for pass in 0..2 {
@@ -385,20 +389,28 @@ fn cost_increase_end_of_turn(g: &mut Game, p: usize) {
                 }
                 let slot = &mut g.st.players[q].slots[*s as usize];
                 if pass == 0 {
-                    if slot.attack_cost_increase_next_turn_pending != 0 && slot.attack_cost_increase_next_turn_attacker != me {
+                    if slot.attack_cost_increase_next_turn_pending != 0 && slot.attack_cost_increase_next_turn_attacker == me {
                         slot.attack_cost_increase_next_turn = slot.attack_cost_increase_next_turn_pending;
                         slot.attack_cost_increase_next_turn_pending = 0;
                     }
-                    if slot.retreat_cost_increase_next_turn_pending != 0 && slot.retreat_cost_increase_next_turn_attacker != me {
+                    if slot.retreat_cost_increase_next_turn_pending != 0 && slot.retreat_cost_increase_next_turn_attacker == me {
                         slot.retreat_cost_increase_next_turn = slot.retreat_cost_increase_next_turn_pending;
                         slot.retreat_cost_increase_next_turn_pending = 0;
                     }
                 } else {
-                    if slot.attack_cost_increase_next_turn_attacker == me && slot.attack_cost_increase_next_turn_pending == 0 && slot.attack_cost_increase_next_turn > 0 {
+                    if slot.attack_cost_increase_next_turn_attacker.is_some()
+                        && slot.attack_cost_increase_next_turn_attacker != me
+                        && slot.attack_cost_increase_next_turn_pending == 0
+                        && slot.attack_cost_increase_next_turn > 0
+                    {
                         slot.attack_cost_increase_next_turn = 0;
                         slot.attack_cost_increase_next_turn_attacker = None;
                     }
-                    if slot.retreat_cost_increase_next_turn_attacker == me && slot.retreat_cost_increase_next_turn_pending == 0 && slot.retreat_cost_increase_next_turn > 0 {
+                    if slot.retreat_cost_increase_next_turn_attacker.is_some()
+                        && slot.retreat_cost_increase_next_turn_attacker != me
+                        && slot.retreat_cost_increase_next_turn_pending == 0
+                        && slot.retreat_cost_increase_next_turn > 0
+                    {
                         slot.retreat_cost_increase_next_turn = 0;
                         slot.retreat_cost_increase_next_turn_attacker = None;
                     }

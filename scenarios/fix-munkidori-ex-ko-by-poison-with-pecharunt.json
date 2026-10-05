@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Munkidori ex SFA 37",
+   "4 Pecharunt ex PRE 163",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Munkidori ex SFA 37",
+   "4 Pecharunt ex PRE 163",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pecharunt ex PRE 163"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "active_damage": 200,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Pecharunt ex PRE 163"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ]
+}

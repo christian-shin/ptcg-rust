@@ -4,6 +4,8 @@
 //! a TrainerTargetEffect on it is blocked; each uses a CheckPokemonTypeEffect
 //! and ADD_CONFUSION_TO_PLAYER_ACTIVE (AddSpecialConditionsPowerEffect, which
 //! also resets poison/burn/sleep values to the defaults). `canPlay` is UI only.
+//! Phase 4b (R6): throws CANNOT_PLAY_THIS_CARD when neither Active Pokémon is a
+//! non-[D] Pokémon (it used to be playable with no effect).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "DarkBell", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
@@ -29,6 +31,23 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => return Ok(()),
     };
     let o = 1 - p;
+    let mut has_non_dark = false;
+    for q in [p, o] {
+        let a = g.st.players[q].active;
+        if g.st.slot(q, a).cards.is_empty() {
+            continue;
+        }
+        let target = SlotRef::new(q, a);
+        let types = crate::engine::game_effect::pokemon_types(g, target);
+        let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
+        if !matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::DARK)) {
+            has_non_dark = true;
+            break;
+        }
+    }
+    if !has_non_dark {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     confuse_target(g, me, p)?;
     let target = SlotRef::new(o, g.st.players[o].active);
     let (t, prevented) = g.run_fx(Effect::TrainerTarget { p: p as u8, card: me, target: Some(target) })?;

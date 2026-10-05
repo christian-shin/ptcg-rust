@@ -45,6 +45,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(trade(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        // Phase 4b (R6, ruling 1640): discarding is a cost, drawing the effect.
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });

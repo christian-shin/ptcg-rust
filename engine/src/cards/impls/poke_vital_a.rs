@@ -1,11 +1,49 @@
 //! Poké Vital A (SFA, ACE SPEC): heal 150 damage from 1 of your Pokémon.
 //!
-//! Twinleaf: undamaged Pokémon are blocked; no cancel; HealEffect 150. The "can't be put into your deck or hand" text is not implemented.
+//! Twinleaf: undamaged Pokémon are blocked; no cancel; HealEffect 150. Phase
+//! 4b: "This card can't be put into your hand or deck from the discard pile"
+//! is the same MoveCardsEffect clause as Neutralization Zone (filters this
+//! card out of a move from its owner's discard pile to hand or deck, and
+//! prevents the move when nothing is left).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "PokeVitalA", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "PokeVitalA", mask: mask(&[k::TRAINER, k::MOVE_CARDS]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    if let Effect::MoveCards { source, destination, cards, count, .. } = *g.e(e) {
+        for p in 0..2usize {
+            if source != ListRef::Discard(p as u8) || !g.st.players[p].discard.iter().any(|c| c == me) {
+                continue;
+            }
+            if destination != ListRef::Hand(p as u8) && destination != ListRef::Deck(p as u8) {
+                continue;
+            }
+            let v: Vec<CardId>;
+            let new_count;
+            if let Some(cs) = cards {
+                if !cs.iter().any(|c| c == me) {
+                    continue;
+                }
+                v = cs.iter().filter(|c| *c != me).collect();
+                new_count = count;
+            } else if let Some(n) = count {
+                v = g.st.players[p].discard.iter().filter(|c| *c != me).take(n.max(0) as usize).collect();
+                new_count = None;
+            } else {
+                v = g.st.players[p].discard.iter().filter(|c| *c != me).collect();
+                new_count = None;
+            }
+            let prevent = v.is_empty();
+            if let Effect::MoveCards { cards, count, .. } = g.e_mut(e) {
+                *cards = Some(List::from_slice(&v));
+                *count = new_count;
+            }
+            if prevent {
+                g.set_prevent(e, true);
+            }
+        }
+        return Ok(());
+    }
     let p = match trainer_played(g, e, me) {
         Some(p) => p,
         None => return Ok(()),

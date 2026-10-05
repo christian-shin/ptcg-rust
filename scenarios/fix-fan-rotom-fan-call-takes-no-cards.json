@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fan Rotom ASC 171",
+   "4 Delibird MEG 105",
+   "4 Hoothoot SCR 114",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Fan Rotom ASC 171",
+   "4 Delibird MEG 105",
+   "4 Hoothoot SCR 114",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fan Rotom ASC 171",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Fan Rotom ASC 171"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot SCR 114"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Fan Call",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  []
+ ]
+}

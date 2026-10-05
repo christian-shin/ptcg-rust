@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dedenne SSP 87",
+   "1 Poké Vital A SFA 62",
+   "55 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dedenne SSP 87",
+   "1 Poké Vital A SFA 62",
+   "55 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dedenne SSP 87",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "hand": [],
+  "discard": [
+   "Poké Vital A SFA 62"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dedenne SSP 87"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Electromagnetic Sonar"
+  }
+ ]
+}

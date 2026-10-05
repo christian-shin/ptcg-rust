@@ -3,9 +3,10 @@
 //! to 2 Energy from your Benched Pokémon, 60 more damage for each.
 //!
 //! Twinleaf: Power Saver reacts to any UseAttackEffect whose source slot
-//! holds this card (after the Ability-lock check). Erasure Ball's prompt only
-//! allows Basic Energy (filter), is skipped without a Benched Pokémon, and
-//! each chosen card is a separate MOVE_CARDS to the discard pile.
+//! holds this card (after the Ability-lock check). Erasure Ball's prompt
+//! allows any Energy (phase 4b: the filter used to be Basic only, but the text
+//! says "Energy"), is skipped without a Benched Pokémon, and each chosen card
+//! is a separate MOVE_CARDS to the discard pile.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsMewtwoex", mask: mask(&[k::USE_ATTACK, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -37,7 +38,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
         let o = MoveOpts { allow_cancel: false, min: 0, max: Some(2), ..Default::default() };
-        let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Default::default() };
+        let filter = Filter::super_type(SuperType::Energy);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         f.e[0] = e;
