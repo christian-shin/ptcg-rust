@@ -2,11 +2,16 @@
 //! of your opponent's Pokémon in play, reveal it, and put it into your hand.
 //! Then, shuffle your deck.
 //!
-//! Twinleaf quirks kept: no preventDefault; `opponent.bench.filter(card
-//! instanceof PokemonCard)` is always empty (bench entries are card lists),
-//! so only the name of `opponent.active.cards[0]` (the bottom card) is
-//! allowed; the choice is min 1 / max 1 and can be cancelled; MOVE_CARDS
-//! runs even with nothing chosen, then the reveal, then the shuffle.
+//! Twinleaf quirks kept: no preventDefault; the choice is min 1 / max 1 and
+//! can be cancelled; MOVE_CARDS runs even with nothing chosen, then the
+//! reveal, then the shuffle.
+//!
+//! Fixed (phase 4b, R2): the allowed names were only the name of
+//! `opponent.active.cards[0]` (the bottom card of the stack, so the Basic of
+//! an evolved Pokémon) because `opponent.bench.filter(card instanceof
+//! PokemonCard)` is always empty (bench entries are card lists); the allowed
+//! names are now the top Pokémon's name of every Pokémon the opponent has in
+//! play (forEachPokemon).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "LoveBall", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -20,15 +25,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let o = 1 - p;
-    let active = g.st.players[o].active;
-    let allowed = match g.st.slot(o, active).cards.iter().next() {
-        Some(c) => g.st.cdef(c).name,
-        None => bail!("TypeError: Cannot read properties of undefined (reading 'name')"),
-    };
+    let allowed: Vec<&'static str> =
+        for_each_pokemon(g, o, PlayerType::TopPlayer).iter().map(|(_, c, _)| g.st.cdef(*c).name).collect();
     let mut blocked = Blocked::default();
     for (i, c) in g.st.players[p].deck.iter().enumerate() {
         let d = g.st.cdef(c);
-        if d.is_pokemon() && d.name != allowed {
+        if d.is_pokemon() && !allowed.contains(&d.name) {
             blocked.push(i as u8);
         }
     }

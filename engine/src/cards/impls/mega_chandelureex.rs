@@ -37,7 +37,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 cost.push(t);
             }
         }
-        let (re, _) = g.run_fx(Effect::CheckRetreatCost { p: o as u8, cost })?;
+        let (re, _) = g.run_fx(Effect::CheckRetreatCost { p: o as u8, cost, no_cost: false })?;
         let colorless = match re {
             Effect::CheckRetreatCost { cost, .. } => cost.iter().filter(|t| **t == ct::COLORLESS).count() as i32,
             _ => 0,

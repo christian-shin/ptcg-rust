@@ -4,10 +4,14 @@
 //!
 //! Twinleaf: Torcherto assigns `effect.damage = 60 + 20 * benched`. Unaware
 //! reacts to every AbstractAttackEffect whose target slot holds this card
-//! (no check on which player attacks) once the target's top Pokémon is this
-//! card and the source slot has a Pokémon; after the ability-lock probe
-//! (stub Ability for the target's owner) everything but ApplyWeakness /
-//! PutDamage / DealDamage is prevented.
+//! once the target's top Pokémon is this card and the source slot has a
+//! Pokémon; after the ability-lock probe (stub Ability for the target's
+//! owner) everything but ApplyWeakness / PutDamage / DealDamage is prevented.
+//!
+//! Fixed (phase 4b, R2): Unaware also prevented the effects of the owner's
+//! own attacks (a heal, counters from your own Cofagrigus); it now only
+//! applies to attacks of the opponent's Pokémon
+//! (IS_ATTACK_EFFECT_FROM_OPPONENTS_POKEMON).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -81,6 +85,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     if g.st.slot_pokemon(t.p as usize, t.s) != Some(me) {
+        return Ok(());
+    }
+    // Only attacks used by the opponent's Pokémon are prevented.
+    if b.source.p == t.p {
         return Ok(());
     }
     if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {

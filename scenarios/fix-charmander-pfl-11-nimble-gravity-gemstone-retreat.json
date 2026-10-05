@@ -1,0 +1,35 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Charmander PFL 11",
+      "1 Gravity Gemstone SCR 137",
+      "55 Fire Energy MEE 2"
+    ],
+    [
+      "4 Charmander PFL 11",
+      "1 Gravity Gemstone SCR 137",
+      "55 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Charmander PFL 11",
+    "bench": [
+      {
+        "card": "Charmander PFL 11"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Charmander PFL 11",
+    "active_tool": "Gravity Gemstone SCR 137"
+  },
+  "answers": [
+    {
+      "a": "retreat",
+      "bench": 0
+    }
+  ]
+}

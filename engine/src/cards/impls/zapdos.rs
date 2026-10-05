@@ -5,9 +5,13 @@
 //! Twinleaf: the coin callback reduces an AddSpecialConditionsEffect; the
 //! discard is one DiscardCardsEffect with every card of the Active's
 //! CheckProvidedEnergy map, aimed at `player.active`.
+//!
+//! Fixed (phase 4b, R2): Thunderbolt discarded the Energy in the attack
+//! handler, before the damage (Voltaic Lightning Energy's +20 was lost); it
+//! now discards in AfterAttackEffect with a fresh AttackEffect's data.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Zapdos", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Zapdos", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -24,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         return Ok(());
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
         discard_all_energy_from_active(g, e)?;
     }
     Ok(())
@@ -39,10 +43,13 @@ fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
 
 /// `CheckProvidedEnergyEffect(player)` on the Active, then one
 /// DiscardCardsEffect of every mapped card aimed at `player.active`.
-/// Returns how many cards the effect listed.
+/// Returns how many cards the effect listed. `e` is an Attack effect, or the
+/// AfterAttack effect (the `new AttackEffect(player, opponent, attack)` of the
+/// phase 4b fixes: its source is the player's Active).
 pub fn discard_all_energy_from_active(g: &mut Game, e: EffId) -> R<usize> {
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
+        Effect::AfterAttack { p, opp, attack } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
         _ => return Ok(0),
     };
     let pu = p as usize;

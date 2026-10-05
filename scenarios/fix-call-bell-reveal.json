@@ -1,0 +1,26 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Call Bell SSP 165",
+      "4 Cheren ASC 258",
+      "4 Hilda WHT 84",
+      "4 Hop's Snorlax JTG 117",
+      "44 Fighting Energy MEE"
+    ],
+    [
+      "4 Call Bell SSP 165",
+      "4 Cheren ASC 258",
+      "4 Hilda WHT 84",
+      "4 Hop's Snorlax JTG 117",
+      "44 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "hand_to_deck": true,
+    "hand": [
+      "Call Bell SSP 165"
+    ]
+  },
+  "opp": {}
+}

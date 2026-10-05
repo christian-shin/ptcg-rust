@@ -1,0 +1,33 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Zapdos TWM 65",
+      "4 Voltaic Lightning Energy PBL 84",
+      "52 Lightning Energy MEE 4"
+    ],
+    [
+      "4 Zapdos TWM 65",
+      "4 Voltaic Lightning Energy PBL 84",
+      "52 Lightning Energy MEE 4"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Zapdos TWM 65",
+    "active_energy": [
+      "Voltaic Lightning Energy PBL 84",
+      "2 Lightning Energy MEE 4"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Zapdos TWM 65"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Thunderbolt"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Galvantula ex SCR 51",
+      "4 Joltik SCR 50",
+      "4 Voltaic Lightning Energy PBL 84",
+      "24 Grass Energy MEE",
+      "24 Fighting Energy MEE"
+    ],
+    [
+      "4 Galvantula ex SCR 51",
+      "4 Joltik SCR 50",
+      "4 Voltaic Lightning Energy PBL 84",
+      "24 Grass Energy MEE",
+      "24 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Joltik SCR 50",
+      "Galvantula ex SCR 51"
+    ],
+    "active_energy": [
+      "Voltaic Lightning Energy PBL 84",
+      "Grass Energy MEE",
+      "Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Joltik SCR 50"
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Fulgurite"
+    }
+  ]
+}

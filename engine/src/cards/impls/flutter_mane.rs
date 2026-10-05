@@ -14,6 +14,10 @@
 //! must not throw). The name exemption doesn't apply to a lock probe (its
 //! power is named 'test'). Hex Hurl is PUT_X_DAMAGE_COUNTERS_IN_ANY_WAY_YOU_LIKE
 //! (2, Bench).
+//!
+//! Fixed (phase 4b, R2): the lock also stripped Hide 'n' Sneak (Shuppet,
+//! Banette, ...) from the Active Pokémon; Hide 'n' Sneak takes precedence over
+//! Midnight Fluttering (ruling 1877), so such a card is skipped.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "FlutterMane", mask: mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -85,6 +89,10 @@ fn is_locked(g: &mut Game, me: CardId, card: CardId) -> R<bool> {
         None => bail!("INVALID_GAME_STATE"),
     };
     if target_list != ListRef::Slot(opponent as u8, g.st.players[opponent].active) {
+        return Ok(false);
+    }
+    // Hide 'n' Sneak takes precedence over Midnight Fluttering (it keeps working).
+    if g.st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
         return Ok(false);
     }
     // LOCKER_ABILITY_APPLIES

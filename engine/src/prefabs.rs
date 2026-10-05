@@ -176,6 +176,17 @@ pub fn after_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::AfterAttack { attack, .. } if attack == mine)
 }
 
+/// (player, opponent, attack, source) of an AttackEffect, or of the
+/// `new AttackEffect(player, opponent, effect.attack)` that a card builds in an
+/// AfterAttackEffect handler (its source is the player's Active).
+pub fn attack_data(g: &Game, e: EffId) -> Option<(u8, u8, AttackRef, SlotRef)> {
+    match *g.e(e) {
+        Effect::Attack { p, opp, attack, source, .. } => Some((p, opp, attack, source)),
+        Effect::AfterAttack { p, opp, attack } => Some((p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active))),
+        _ => None,
+    }
+}
+
 /// `WAS_POWER_USED(effect, index, this)` (the lock probe never matches).
 pub fn was_power_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::Power { power, probe: false, .. } if power == PowerRef { card: me, index })

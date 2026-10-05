@@ -1,0 +1,40 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Duraludon PRE 69",
+      "4 Magnetic Metal Energy CRI 85",
+      "1 Gravity Gemstone SCR 137",
+      "51 Metal Energy MEE 8"
+    ],
+    [
+      "4 Duraludon PRE 69",
+      "4 Magnetic Metal Energy CRI 85",
+      "1 Gravity Gemstone SCR 137",
+      "51 Metal Energy MEE 8"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "active_energy": [
+      "Magnetic Metal Energy CRI 85"
+    ],
+    "bench": [
+      {
+        "card": "Duraludon PRE 69"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "active_tool": "Gravity Gemstone SCR 137"
+  },
+  "answers": [
+    {
+      "a": "retreat",
+      "bench": 0
+    }
+  ]
+}

@@ -541,8 +541,15 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
             // attackCostIncreaseWhileActive / ignoreAttackCostCardTypes: not modeled.
             Ok(())
         }
-        Effect::CheckRetreatCost { .. } => {
-            // zeroRetreatCostNextTurn: not modeled.
+        Effect::CheckRetreatCost { no_cost, .. } => {
+            // zeroRetreatCostNextTurn: not modeled. A "no Retreat Cost" effect
+            // (noRetreatCost) takes priority over increases, whatever the
+            // handler order (phase 4b, R2).
+            if no_cost {
+                if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(id) {
+                    cost.clear();
+                }
+            }
             Ok(())
         }
         Effect::CheckProvidedEnergy { source, .. } => {

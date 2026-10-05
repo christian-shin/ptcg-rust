@@ -1,0 +1,38 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 N's Zorua ASC 136",
+      "4 N's Castle JTG 152",
+      "1 Gravity Gemstone SCR 137",
+      "51 Darkness Energy MEE 7"
+    ],
+    [
+      "4 N's Zorua ASC 136",
+      "4 N's Castle JTG 152",
+      "1 Gravity Gemstone SCR 137",
+      "51 Darkness Energy MEE 7"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "N's Zorua ASC 136",
+    "stadium": "N's Castle JTG 152",
+    "bench": [
+      {
+        "card": "N's Zorua ASC 136"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "N's Zorua ASC 136",
+    "active_tool": "Gravity Gemstone SCR 137"
+  },
+  "answers": [
+    {
+      "a": "retreat",
+      "bench": 0
+    }
+  ]
+}

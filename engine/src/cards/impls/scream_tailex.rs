@@ -6,9 +6,13 @@
 //! Twinleaf: Scream throws CANNOT_USE_ATTACK unless `state.turn === 2`. Crunch
 //! opens a non-cancellable ChooseCardsPrompt on the Defending Pokémon (when it
 //! has an Energy card) and reduces a DiscardCardsEffect in the callback.
+//!
+//! Fixed (phase 4b, R2): Crunch discarded in the attack handler, before the
+//! damage (the Defending Pokémon's Spiky Energy was already gone); it now runs
+//! in AfterAttackEffect with a fresh AttackEffect's data.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "ScreamTailex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "ScreamTailex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -18,9 +22,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return opponent_cannot_play_cards(g, e, crate::effects::play_lock::SUPPORTER);
     }
 
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
         let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+            Effect::AfterAttack { p, opp, .. } => (p as usize, opp as usize),
             _ => return Ok(()),
         };
         let a = g.st.players[o].active;
@@ -53,9 +57,9 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
             Some(c) => *c,
             None => bail!("TypeError: Cannot read properties of undefined"),
         };
-        let (p, opp, attack, source) = match *g.e(atk) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
+        let (p, opp, attack, source) = match attack_data(g, atk) {
+            Some(d) => d,
+            None => return Ok(()),
         };
         let a = g.st.players[opp as usize].active;
         let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: SlotRef::new(opp as usize, a) };

@@ -1,0 +1,42 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Rowlet POR 10",
+      "4 Rescue Board PRE 126",
+      "4 Growing Grass Energy POR 86",
+      "48 Grass Energy MEE"
+    ],
+    [
+      "4 Rowlet POR 10",
+      "4 Rescue Board PRE 126",
+      "4 Growing Grass Energy POR 86",
+      "48 Grass Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Rowlet POR 10",
+    "active_tool": "Rescue Board PRE 126",
+    "active_energy": [
+      "Growing Grass Energy POR 86",
+      "Grass Energy MEE"
+    ],
+    "active_damage": 60,
+    "bench": [
+      {
+        "card": "Rowlet POR 10"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Rowlet POR 10"
+  },
+  "answers": [
+    {
+      "a": "retreat",
+      "bench": 0
+    }
+  ]
+}

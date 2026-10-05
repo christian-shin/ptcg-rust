@@ -3,18 +3,24 @@
 //! in check decks.
 //!
 //! Twinleaf: on heads with an Energy card in the Defending Pokémon's list, a
-//! cancellable ChooseCardsPrompt (Energy, exactly 1) on that list; the
-//! callback reduces a DiscardCardsEffect even when cancelled (no cards).
+//! ChooseCardsPrompt (Energy, exactly 1) on that list; the callback reduces a
+//! DiscardCardsEffect.
+//!
+//! Fixed (phase 4b, R2): the prompt could be cancelled, so the discard that
+//! the card text makes mandatory could be skipped. The coin flip and the
+//! discard came before the damage (the Defending Pokémon's Spiky Energy was
+//! already gone); they now run in AfterAttackEffect (a fresh AttackEffect's
+//! data).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Larvitar", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: Some(coin), can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Larvitar", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: Some(coin), can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
+    if !after_attack_used(g, e, 0, me) {
         return Ok(());
     }
     let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
+        Effect::AfterAttack { p, .. } => p as usize,
         _ => return Ok(()),
     };
     g.retain_fx(e);
@@ -34,7 +40,7 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
         return Ok(());
     }
     let (p, o) = match *g.e(atk) {
-        Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+        Effect::AfterAttack { p, opp, .. } => (p as usize, opp as usize),
         _ => {
             g.release_fx(atk);
             return Ok(());
@@ -53,7 +59,7 @@ fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
         "CHOOSE_CARD_TO_DISCARD",
         ListRef::Slot(o as u8, a),
         Filter::super_type(SuperType::Energy),
-        ChooseCardsOpts::new(1, 1, true),
+        ChooseCardsOpts::new(1, 1, false),
         Cont::Card { card: me, frame: nf },
     );
     Ok(())
@@ -71,9 +77,9 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         }
     }
     let r = (|| -> R {
-        let (p, opp, attack, source) = match *g.e(atk) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
+        let (p, opp, attack, source) = match attack_data(g, atk) {
+            Some(d) => d,
+            None => return Ok(()),
         };
         let a = g.st.players[opp as usize].active;
         let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: SlotRef::new(opp as usize, a) };

@@ -2,8 +2,11 @@
 //! search your deck for a Supporter card, reveal it, and put it into your
 //! hand. Then, shuffle your deck.
 //!
-//! Twinleaf: playable only on game turn 2; no reveal prompt; the card moves
-//! supporter→discard before the wait-less shuffle.
+//! Twinleaf: playable only on game turn 2; the card moves supporter→discard
+//! before the wait-less shuffle.
+//!
+//! Fixed (phase 4b, R2): the Supporter was never revealed; a ShowCardsPrompt
+//! for the opponent now follows the move to the hand (SHOW_CARDS_TO_PLAYER).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HelperBell", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -35,9 +38,11 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let p = f.a[0] as usize;
     let pu = p as u8;
     let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
+    let n = cards.len();
     for c in cards {
         move_cards(g, ListRef::Deck(pu), ListRef::Hand(pu), &[c], me)?;
     }
+    show_cards_to_player(g, 1 - p, n);
     move_cards(g, ListRef::Supporter(pu), ListRef::Discard(pu), &[me], me)?;
     let id = g.player_id(p);
     g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: pu });

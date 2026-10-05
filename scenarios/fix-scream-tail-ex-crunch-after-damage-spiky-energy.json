@@ -1,0 +1,38 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Scream Tail ex TWM 94",
+      "4 Larvitar JTG 80",
+      "4 Spiky Energy JTG 159",
+      "48 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Scream Tail ex TWM 94",
+      "4 Larvitar JTG 80",
+      "4 Spiky Energy JTG 159",
+      "48 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Scream Tail ex TWM 94",
+    "active_energy": [
+      "3 Psychic Energy MEE 5"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Larvitar JTG 80",
+    "active_energy": [
+      "Spiky Energy JTG 159",
+      "Psychic Energy MEE 5"
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Crunch"
+    }
+  ]
+}

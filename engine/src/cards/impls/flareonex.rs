@@ -3,11 +3,15 @@
 //! — 280; during your next turn, this Pokémon can't attack. Tera: no damage
 //! from attacks while on the Bench.
 //!
-//! Twinleaf: Burning Charge does nothing with an empty deck or no Benched
-//! Pokémon. A 0-2 energy choice (no cancel) is followed (only if any were
-//! chosen) by a ChoosePokemonPrompt; the cards move deck -> that Pokémon
-//! (no reveal). The deck is shuffled afterwards (not reached if the target
-//! prompt returned no target).
+//! Twinleaf: Burning Charge does nothing with an empty deck. A 0-2 energy
+//! choice (no cancel) is followed (only if any were chosen) by a
+//! ChoosePokemonPrompt; the cards move deck -> that Pokémon (no reveal). The
+//! deck is shuffled afterwards (not reached if the target prompt returned no
+//! target).
+//!
+//! Fixed (phase 4b, R2): Burning Charge also did nothing with no Benched
+//! Pokémon, but the text attaches the Energy to 1 of your Pokémon (the Active
+//! Flareon ex counts).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Flareonex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,10 +23,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         if g.st.players[p].deck.is_empty() {
-            return Ok(());
-        }
-        let pl = &g.st.players[p];
-        if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
             return Ok(());
         }
         let mut f = CardFrame::at(1);
