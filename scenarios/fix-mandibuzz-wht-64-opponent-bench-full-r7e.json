@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Hop's Snorlax JTG 117",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Hop's Snorlax JTG 117",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Vullaby WHT 63",
+     "Mandibuzz WHT 64"
+    ]
+   }
+  ],
+  "energy_attached": true,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Vullaby WHT 63"
+   },
+   {
+    "card": "Vullaby WHT 63"
+   },
+   {
+    "card": "Vullaby WHT 63"
+   }
+  ],
+  "hand": [
+   "Hop's Snorlax JTG 117"
+  ],
+  "reset": true
+ }
+}

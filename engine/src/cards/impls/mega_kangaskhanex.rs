@@ -32,6 +32,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].used_run_errand {
             bail!("CANNOT_USE_POWER");
         }
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         draw_cards(g, p, 2)?;
         ability_used(g, p, me);
         g.st.players[p].used_run_errand = true;

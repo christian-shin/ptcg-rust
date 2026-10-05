@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Ivysaur MEG 2",
+   "4 Mega Venusaur ex MEG 3",
+   "4 Hop's Snorlax JTG 117",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Ivysaur MEG 2",
+   "4 Mega Venusaur ex MEG 3",
+   "4 Hop's Snorlax JTG 117",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Bulbasaur MEG 1",
+   "Ivysaur MEG 2",
+   "Mega Venusaur ex MEG 3"
+  ],
+  "active_energy": [
+   "2 Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Solar Trans",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

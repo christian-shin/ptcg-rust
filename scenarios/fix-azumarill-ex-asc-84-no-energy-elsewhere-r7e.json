@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Marill ASC 83",
+   "4 Azumarill ex ASC 84",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Marill ASC 83",
+   "4 Azumarill ex ASC 84",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Marill ASC 83",
+   "Azumarill ex ASC 84"
+  ],
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "energy_attached": true,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}

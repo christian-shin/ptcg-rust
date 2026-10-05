@@ -37,6 +37,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(metal_signal(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut opts = ChooseCardsOpts::new(0, 2, false);
         for (i, c) in g.st.players[p].deck.iter().enumerate() {
             let d = g.st.cdef(c);

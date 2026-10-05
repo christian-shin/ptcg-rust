@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Drilbur PBL 46",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Drilbur PBL 46",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Drilbur PBL 46",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Drilbur PBL 46",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Call for Family"
+  }
+ ]
+}

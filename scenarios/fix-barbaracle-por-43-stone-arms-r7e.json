@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Binacle POR 42",
+   "4 Barbaracle POR 43",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Binacle POR 42",
+   "4 Barbaracle POR 43",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Binacle POR 42",
+     "Barbaracle POR 43"
+    ]
+   }
+  ],
+  "hand": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Stone Arms",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ]
+}

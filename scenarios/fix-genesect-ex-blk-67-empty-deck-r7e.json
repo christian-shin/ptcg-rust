@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Genesect ex BLK 67",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Genesect ex BLK 67",
+   "4 Hop's Snorlax JTG 117",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Genesect ex BLK 67"
+   }
+  ],
+  "energy_attached": true,
+  "reset": true,
+  "discard": [
+   "3 Genesect ex BLK 67",
+   "3 Hop's Snorlax JTG 117",
+   "46 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}

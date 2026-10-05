@@ -490,6 +490,21 @@ The tracked list is `porting/twinleaf-fixes.md`.
    flips a coin first: the trial therefore skips that flip and checks the
    heads path (`Chance.inTrial` in the oracle, `Rng::is_fixed` in Rust),
    otherwise an unplayable card looks legal and throws on real heads.
+   **Attacks are the exception to "does nothing = unplayable"** (rulings 1790,
+   336, 337): an attack can always be used unless its text says "You can't use
+   this attack ..." (Illumise, Terapagos ex, Team Rocket's Mewtwo ex ...); when its
+   effect can't be carried out (no Bench, no Pokemon in the discard pile, an
+   empty deck, a full Bench) it is still used and does nothing, so return
+   instead of throwing. The search prefabs
+   `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH` / `_INTO_HAND` do that
+   themselves during the ATTACK phase (they still throw for Abilities and
+   Trainers: an empty deck or a full Bench is public knowledge, ruling 779).
+   Choice sizes (rulings 1721, 1778, 1853): "up to N" in an attack takes 0..N;
+   in an Ability or a Trainer it takes 1..N (decline = don't use it); "any
+   number / any amount" takes 0 anywhere; "N" is exactly N (or as many as
+   there are); a deck search for a kind of card may always find fewer or none
+   (rulings 519, 839), but a search for "a card" of any kind must take at least
+   1 when the deck has any (rulings 892, 1778).
 3. **Rust.** Port the same change. If the fix is in a core file (a prompt's
    `validate`, a prefab), port it in the matching core file and list every
    card that goes through it.

@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Slowpoke SCR 57",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dangle Tail"
+  }
+ ]
+}

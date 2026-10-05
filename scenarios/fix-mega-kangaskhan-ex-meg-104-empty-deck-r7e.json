@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Mega Kangaskhan ex MEG 104",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "active_energy": [
+   "3 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true,
+  "discard": [
+   "3 Mega Kangaskhan ex MEG 104",
+   "3 Hop's Snorlax JTG 117",
+   "43 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}
