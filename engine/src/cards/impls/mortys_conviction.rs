@@ -4,7 +4,9 @@
 //! Twinleaf: the card moves to the supporter pile (effect prevented) before
 //! the "another card" and empty-deck checks; the prompt lists the hand
 //! without this card (1 required, no cancel); the cards are moved to the
-//! hand with MOVE_CARDS `count` (no shuffle).
+//! hand with MOVE_CARDS `count` (no shuffle). Fixed in phase 4b (R4, Rulings
+//! Compendium 851/1664): it also throws CANNOT_PLAY_THIS_CARD when the
+//! opponent has no Benched Pokémon (it would discard a card for no effect).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MortysConviction", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -24,6 +26,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    let opl = &g.st.players[1 - p];
+    if !opl.bench.iter().any(|b| !opl.slots[*b as usize].cards.is_empty()) {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let temp = g.alloc_temp(&others);

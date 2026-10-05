@@ -1,0 +1,27 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gwynn PBL 78",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Gwynn PBL 78",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Gwynn PBL 78",
+   "Duraludon PRE 69"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

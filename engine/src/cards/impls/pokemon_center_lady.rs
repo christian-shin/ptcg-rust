@@ -2,7 +2,9 @@
 //! Conditions from 1 of your Pokémon.
 //!
 //! Twinleaf: no supporter-turn check in the card; the conditions are wiped
-//! directly (`specialConditions = []`) after the HealEffect.
+//! directly (`specialConditions = []`) after the HealEffect. Fixed in phase 4b
+//! (R4, Rulings Compendium 851): throws CANNOT_PLAY_THIS_CARD when no Pokémon
+//! has damage or a Special Condition (a card can't be played for no effect).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "PokemonCenterLady", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -12,6 +14,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
+    let can_heal = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(s, _, _)| {
+        let sl = g.st.slot(p, *s);
+        sl.damage > 0 || !sl.special_conditions.is_empty()
+    });
+    if !can_heal {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);

@@ -1,9 +1,10 @@
 //! N's Plot (SV11B, Twinleaf class NsPlan): move up to 2 Energy from your
 //! Benched Pokémon to your Active Pokémon.
 //!
-//! Twinleaf quirks kept: playable when only the Active has Energy (the prompt
-//! then offers nothing), and every transfer goes to the Active whatever
-//! destination was chosen.
+//! Fixed in phase 4b (R4): playable only when a Benched Pokémon has Energy
+//! (Energy on the Active alone opened a prompt with no valid answer). Twinleaf
+//! quirk kept: every transfer goes to the Active whatever destination was
+//! chosen.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "NsPlan", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -32,7 +33,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
     let targets = pokemon_targets(g, p);
-    let has_energy = targets.iter().any(|(_, s)| g.st.slot(p, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()));
+    let has_energy = targets.iter().any(|(t, s)| t.slot == SlotType::Bench && g.st.slot(p, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()));
     if !has_energy || targets.len() <= 1 {
         bail!("CANNOT_PLAY_THIS_CARD");
     }

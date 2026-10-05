@@ -1,8 +1,9 @@
 //! Prism Tower (CRI / M4, stadium): once during each player's turn, that
 //! player may discard 2 cards from their hand in order to draw a card.
 //!
-//! Twinleaf: the draw is a MOVE_CARDS of 1 card from the deck (no-op on an
-//! empty deck). The empty-selection branch (restoring `stadiumUsedTurn`) is
+//! Twinleaf: the draw is a MOVE_CARDS of 1 card from the deck. Fixed in phase 4b
+//! (R4, Rulings Compendium 1830): the Stadium can't be used with an empty deck
+//! (discarding 2 cards for no effect). The empty-selection branch (restoring `stadiumUsedTurn`) is
 //! unreachable: the prompt requires exactly 2 cards.
 use crate::cards::prelude::*;
 
@@ -18,6 +19,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_USE_STADIUM");
     }
     if g.st.players[p].hand.len() < 2 {
+        bail!("CANNOT_USE_STADIUM");
+    }
+    if g.st.players[p].deck.is_empty() {
         bail!("CANNOT_USE_STADIUM");
     }
     let mut f = CardFrame::at(1);

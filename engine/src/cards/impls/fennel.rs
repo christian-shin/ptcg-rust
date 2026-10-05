@@ -1,7 +1,9 @@
 //! Fennel (SV11B): heal 40 damage from each of your Pokémon.
 //!
 //! Twinleaf: moves to the supporter pile with preventDefault, then one
-//! HealEffect per Pokémon (Active first, then the Bench in order).
+//! HealEffect per Pokémon (Active first, then the Bench in order). Fixed in
+//! phase 4b (R4, Rulings Compendium 851): throws CANNOT_PLAY_THIS_CARD (before
+//! the move) when no Pokémon has damage.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Fennel", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
@@ -13,6 +15,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    if !for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(s, _, _)| g.st.slot(p, *s).damage > 0) {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);
