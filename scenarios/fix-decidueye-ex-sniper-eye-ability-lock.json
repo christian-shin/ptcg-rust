@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rowlet POR 10",
+   "4 Dartrix POR 11",
+   "4 Decidueye ex POR 12",
+   "4 Iron Thorns ex PRE 32",
+   "30 Grass Energy MEE",
+   "14 Fire Energy MEE"
+  ],
+  [
+   "4 Rowlet POR 10",
+   "4 Dartrix POR 11",
+   "4 Decidueye ex POR 12",
+   "4 Iron Thorns ex PRE 32",
+   "30 Grass Energy MEE",
+   "14 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Rowlet POR 10",
+   "Dartrix POR 11",
+   "Decidueye ex POR 12"
+  ],
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "hand": [
+   "4 Fire Energy MEE"
+  ]
+ }
+}

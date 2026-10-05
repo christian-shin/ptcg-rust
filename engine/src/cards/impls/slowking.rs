@@ -2,6 +2,10 @@
 //! it is a Pokémon without a Rule Box, choose 1 of its attacks and use it as
 //! this attack (COPY_ATTACK_FROM_POKEMON_LIST, see `copy_attack.rs`).
 //! Super Psy Bolt — 120.
+//!
+//! Fixed (phase 4b, R3): the attack choice can't be cancelled (it used to
+//! allow it, so the copied attack could be skipped), and nothing is chosen
+//! when every attack of the Pokémon is locked.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -51,5 +55,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if matches.is_empty() {
         return Ok(());
     }
-    crate::copy_attack::copy_attack_from_pokemon_list(g, e, &matches, true)
+    // "Choose 1 of its attacks and use it": no cancel. Nothing is chosen when
+    // every attack of the Pokémon is locked for the Active (no valid answer).
+    let a = g.st.players[p].active;
+    let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
+    if d.attacks.iter().all(|at| locked.iter().any(|n| *n == at.name)) {
+        return Ok(());
+    }
+    crate::copy_attack::copy_attack_from_pokemon_list(g, e, &matches, false)
 }

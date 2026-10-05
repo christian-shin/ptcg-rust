@@ -8,6 +8,10 @@
 //! type can't be picked (the same-name throw in the callback, which that
 //! pair used to reach, is removed).
 //!
+//! Fixed (phase 4b, R3): the Energy can go only to [P] and [M] Pokémon: the
+//! AttachEnergyPrompt's blockedTo lists every other Pokémon (CheckPokemonType
+//! on each slot; it used to offer them all).
+//!
 //! Twinleaf quirks kept: the marker (X_BOOT_MARKER, source this card) and
 //! ABILITY_USED are set *before* the prompt; the AttachEnergyPrompt (deck ->
 //! Bench + Active, basic Energy, min 0, max 2, differentTypes, validCardTypes
@@ -53,6 +57,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         vt.push(ct::PSYCHIC);
         vt.push(ct::METAL);
         o.valid_card_types = Some(vt);
+        // Only [P] Pokémon and [M] Pokémon can receive the Energy.
+        for (slot, _c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+            let sr = SlotRef::new(p, slot);
+            let types = crate::engine::game_effect::pokemon_types(g, sr);
+            let (te, _) = g.run_fx(Effect::CheckPokemonType { target: sr, card_types: types })?;
+            let ok = matches!(te, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::PSYCHIC) || card_types.contains(&ct::METAL));
+            if !ok {
+                o.blocked_to.push(t);
+            }
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         let id = g.player_id(p);

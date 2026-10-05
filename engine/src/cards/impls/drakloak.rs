@@ -2,8 +2,9 @@
 //! cards of your deck and put 1 of them into your hand; the other goes on the
 //! bottom of your deck.
 //!
-//! Twinleaf quirk kept: cancelling the choice (`selected` null) makes the
-//! first MOVE_CARDS move every looked-at card into the hand.
+//! Fixed (phase 4b, R3): the choice can't be cancelled (it used to be
+//! cancellable, and cancelling made the first MOVE_CARDS move every
+//! looked-at card into the hand).
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -65,7 +66,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.prompt(
             id,
             "CHOOSE_CARD_TO_HAND",
-            PromptKind::ChooseCards { cards: top, filter: Filter::none(), opts: ChooseCardsOpts::new(1, 1, true) },
+            PromptKind::ChooseCards { cards: top, filter: Filter::none(), opts: ChooseCardsOpts::new(1, 1, false) },
             Cont::Card { card: me, frame: f },
         );
         return Ok(());

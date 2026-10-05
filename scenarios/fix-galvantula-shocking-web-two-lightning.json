@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Joltik SCR 50",
+   "4 Galvantula SFA 2",
+   "4 Tapu Bulu SFA 6",
+   "24 Grass Energy MEE",
+   "24 Lightning Energy MEE"
+  ],
+  [
+   "4 Joltik SCR 50",
+   "4 Galvantula SFA 2",
+   "4 Tapu Bulu SFA 6",
+   "24 Grass Energy MEE",
+   "24 Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Joltik SCR 50",
+   "Galvantula SFA 2"
+  ],
+  "active_energy": [
+   "Grass Energy MEE",
+   "2 Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Tapu Bulu SFA 6"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shocking Web"
+  }
+ ]
+}

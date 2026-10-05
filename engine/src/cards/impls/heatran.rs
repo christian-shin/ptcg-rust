@@ -4,19 +4,21 @@
 //! discard all [M] Energy from this Pokémon, 50 damage for each card
 //! discarded.
 //!
-//! Twinleaf: Steel Burst discards every card of the Active's
-//! CheckProvidedEnergy map (any type) in one DiscardCardsEffect and adds
-//! `(listed - 1) * 50` (counted before the discard resolves). Incandescent
-//! Body reacts to AfterDamageEffect on any list holding this card: the lock
-//! probe runs for the *attacking* player, and the burn is a direct
-//! `source.addSpecialCondition` during the attack phase.
+//! Twinleaf: Steel Burst discards the cards of the Active's
+//! CheckProvidedEnergy map whose entry provides [M] in one DiscardCardsEffect
+//! and adds `(listed - 1) * 50` (counted before the discard resolves).
+//! Fixed (phase 4b, R3): it used to discard and count every attached Energy
+//! card, whatever its type. Incandescent Body reacts to AfterDamageEffect on
+//! any list holding this card: the lock probe runs for the *attacking*
+//! player, and the burn is a direct `source.addSpecialCondition` during the
+//! attack phase.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Heatran", mask: mask(&[k::ATTACK, k::AFTER_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
-        let n = super::zapdos::discard_all_energy_from_active(g, e)? as i32;
+        let n = discard_all_metal_energy_from_active(g, e)? as i32;
         if let Effect::Attack { damage, .. } = g.e_mut(e) {
             *damage += (n - 1) * 50;
         }
@@ -40,4 +42,30 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     Ok(())
+}
+
+/// `CheckProvidedEnergyEffect(player)` on the Active, then one
+/// DiscardCardsEffect of the mapped cards whose entry provides [M] aimed at
+/// `player.active`. Returns how many cards the effect listed.
+fn discard_all_metal_energy_from_active(g: &mut Game, e: EffId) -> R<usize> {
+    let (p, opp, attack, source) = match *g.e(e) {
+        Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
+        _ => return Ok(0),
+    };
+    let pu = p as usize;
+    let active = SlotRef::new(pu, g.st.players[pu].active);
+    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
+    let mut cards: SVec<CardId, 16> = SVec::new();
+    if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+        for m in energy_map.iter() {
+            if m.provides.contains(&ct::METAL) {
+                cards.push(m.card);
+            }
+        }
+    }
+    let n = cards.len();
+    let target = SlotRef::new(pu, g.st.players[pu].active);
+    let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
+    g.run_fx(Effect::DiscardCards { b, cards })?;
+    Ok(n)
 }

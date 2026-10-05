@@ -8,6 +8,9 @@
 //! is created, before it is answered; the callback (when something was
 //! chosen) creates the ShowCards prompt, moves the cards and SHUFFLE_DECKs
 //! (shuffle + silent wait).
+//!
+//! Fixed (phase 4b, R3): the deck is shuffled even when nothing was taken
+//! (the callback used to return before SHUFFLE_DECK).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "EthansAdventure", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -47,11 +50,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     }
     let p = f.a[0] as usize;
     let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    if cards.is_empty() {
-        return Ok(());
+    if !cards.is_empty() {
+        show_cards_to_player(g, 1 - p, cards.len());
+        move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
     }
-    show_cards_to_player(g, 1 - p, cards.len());
-    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
     shuffle_deck(g, p);
     Ok(())
 }
