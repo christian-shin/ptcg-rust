@@ -261,10 +261,53 @@ fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     if stage == AtkStage::AfterBarrageCheck1 {
         return barrage_check(g, f, AtkStage::AfterBarrageCheck2);
     }
+    // The second use runs through `useAttack` again: it isn't offered when it
+    // would throw (the attacker lost its Energy, e.g. to Handheld Fan, or is now
+    // Asleep / Paralyzed); the turn just ends.
+    if attack_barrage(g, f.attack) && !barrage_can_attack_again(g, &f)? {
+        g.release_fx(f.atk);
+        g.release_fx(f.origin);
+        g.run_fx(Effect::EndTurn { p: f.p })?;
+        return Ok(());
+    }
     f.stage = AtkStage::AfterBarrageConfirm;
     let pid = g.player_id(f.p as usize);
     g.prompt(pid, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::UseAttack(f));
     Ok(())
+}
+
+/// The status and Energy checks `useAttack` would make for the barrage attack.
+fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
+    let p = f.p as usize;
+    let active = g.st.players[p].active;
+    let sp = g.st.slot(p, active).special_conditions;
+    if sp.contains(&(SpecialCondition::Paralyzed as u8)) || sp.contains(&(SpecialCondition::Asleep as u8)) {
+        return Ok(false);
+    }
+    let ad = attack_def(g, f.attack);
+    let mut attacking = SlotRef::new(p, active);
+    for &b in g.st.players[p].bench.iter() {
+        if let Some(c) = g.st.slot_pokemon(p, b) {
+            if g.st.cdef(c).attacks.iter().any(|a| a.name == ad.name && a.use_on_bench) {
+                attacking = SlotRef::new(p, b);
+            }
+        }
+    }
+    let mut cost: Cost = SVec::new();
+    for &c in ad.cost {
+        cost.push(c);
+    }
+    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: f.p, attack: f.attack, cost })?;
+    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: f.p, source: attacking, energy_map: SVec::new() })?;
+    let cost = match ce {
+        Effect::CheckAttackCost { cost, .. } => cost,
+        _ => SVec::new(),
+    };
+    let emap = match pe {
+        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
+        _ => SVec::new(),
+    };
+    Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))
 }
 
 /// Confirm answered: attack again with a `UseAttackEffect` marked
