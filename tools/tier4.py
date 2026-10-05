@@ -15,8 +15,9 @@ usage: tier4.py [--games N] [--seed S] [--chunk C] [--jobs J | --remote K]
                   from the clock)
   --chunk C       games per chunk (default 400); the run stops after the first
                   chunk with a failure unless --no-stop
-  --remote K      play the oracle games on GitHub Actions across K runners
-                  (tools/remote_oracle.py; PTCG_ORACLE_REF selects the branch)
+  --remote K      play the oracle games remotely (tools/remote_oracle.py: the
+                  verification box, or GitHub Actions across K runners with
+                  PTCG_REMOTE=actions); for big runs prefer `tools/vbox.py tier4`
   --out DIR       default corpus/tier4/<seed>; passing traces are deleted unless
                   --keep, failing ones stay there for `diff` and statediff
 

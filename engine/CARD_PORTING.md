@@ -207,11 +207,16 @@ python3 tools/check_cards.py "Full Name A" "Full Name B"            # parity loo
 python3 tools/check_cards.py "Full Name A" "Full Name B" --coverage  # once, at the end
 ```
 
-More games, faster: add `--remote 8` (up to 20) to run the oracle games on
-GitHub Actions runners instead of locally (`.github/workflows/oracle.yml`,
-driven by `tools/remote_oracle.py`; needs `gh` logged in). Traces and coverage
-come back into the same corpus directory; the Rust diff still runs locally.
-Expect ~1-2 minutes of queue/setup overhead, so use it for runs of 32+ games.
+More games, faster: add `--remote 1` to play the oracle games on the
+verification box (`tools/vbox.py`, a 64-core EC2 instance that starts on
+demand) instead of locally. It plays the oracle as it is on disk
+(`PTCG_ORACLE`, committed or not), so nothing needs pushing. Traces and
+coverage come back into the same corpus directory; the Rust diff still runs
+locally. A 16-game check takes ~30 s (a few minutes more when the box has to
+start or a changed oracle has to be rebuilt there). `PTCG_REMOTE=actions`
+selects the old GitHub Actions path (`--remote 8`, up to 20 runners, pushed
+branch via `PTCG_ORACLE_REF`). Tier 4, corpus regeneration and ad-hoc
+commands also run there: `python3 tools/vbox.py --help`.
 
 New worktree? Copy a warm build cache first so the first build isn't from scratch:
 `cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
@@ -475,8 +480,8 @@ The tracked list is `porting/twinleaf-fixes.md`.
    <what>"). Build with
    `node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc` in
    `ptcg-server/` (~2 minutes) and run the oracle tools against it with
-   `PTCG_ORACLE=<worktree>/ptcg-server` (and `PTCG_ORACLE_REF=<branch>` for
-   `--remote`, once the branch is pushed).
+   `PTCG_ORACLE=<worktree>/ptcg-server` (`--remote` uses the same tree on
+   the verification box).
 2. **Unanswerable prompts.** A card must never open a prompt with no valid
    answer. Follow the card text: when the text says "you can't use/play this
    if ...", or when the card would do nothing at all, make it unplayable the
