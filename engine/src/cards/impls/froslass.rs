@@ -10,6 +10,11 @@
 //! every non-Froslass Pokémon with an Ability on both sides (the player's
 //! first), then removes the marker. The ability lock check uses the marker
 //! owner.
+//!
+//! Twinleaf fix (phase 4b, Y2-1): the Froslass count compares the ability name
+//! with the literal 'Freezing Shroud'; it read `this.powers[0].name`, which
+//! threw at every EndTurn for a copycat without Abilities that had copied
+//! Frost Smash (Zoroark's Foul Play) while a Froslass was in play.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Froslass", mask: mask(&[k::BETWEEN_TURNS, k::END_TURN]), reduce, resume: None, coin: None, can_play: None };

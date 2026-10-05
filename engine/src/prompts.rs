@@ -337,9 +337,23 @@ pub enum Res {
     Transfers(SVec<(CardTarget, CardTarget, CardId), 48>),
     /// PutDamagePrompt: (target, damage).
     DamageMap(SVec<(CardTarget, i32), 16>),
-    /// Move/RemoveDamagePrompt: (from, to).
-    DamageTransfers(SVec<(CardTarget, CardTarget), 16>),
+    /// Move/RemoveDamagePrompt: (from, to, count). One entry per run of identical
+    /// consecutive transfers: Twinleaf's resolver answers with one transfer per
+    /// damage counter (32 and more in one answer), so the list is run-length
+    /// encoded; [`damage_transfers`] expands it back to one pair per transfer.
+    DamageTransfers(SVec<(CardTarget, CardTarget, u8), MAX_DAMAGE_RUNS>),
     Attack(AttackRef),
+}
+
+/// Runs of a decoded Move/RemoveDamagePrompt answer (the bot's answers have at
+/// most one run per from/to Pokémon, 17 at the most; the oracle's random
+/// policy and the agent interface answer with at most 12 transfers).
+pub const MAX_DAMAGE_RUNS: usize = 32;
+
+/// The transfers of a [`Res::DamageTransfers`] in answer order, one (from, to)
+/// pair per transfer (`for (const transfer of transfers)`).
+pub fn damage_transfers(runs: &[(CardTarget, CardTarget, u8)]) -> impl Iterator<Item = (CardTarget, CardTarget)> + '_ {
+    runs.iter().flat_map(|(f, t, n)| std::iter::repeat((*f, *t)).take(*n as usize))
 }
 
 impl Res {
@@ -1025,10 +1039,13 @@ impl Game {
             None => return None,
         };
         // Answers longer than the result capacity are rejected, not a panic
-        // (only reachable from agents; no oracle answer comes close).
+        // (only reachable from agents; no oracle answer comes close, except the
+        // bot's Move damage answers, which are run-length encoded).
         let cap = match pr.kind {
             PromptKind::MoveEnergy { .. } => 48,
             PromptKind::OrderCards { .. } => 120,
+            // Run-length encoded below: only the number of runs is limited.
+            PromptKind::MoveDamage { .. } | PromptKind::RemoveDamage { .. } => usize::MAX,
             _ => 16,
         };
         if arr.len() > cap {
@@ -1166,15 +1183,25 @@ impl Game {
                         PromptKind::RemoveDamage { player_type, slots, o, same_target, .. } => (player_type, slots, o, false, same_target),
                         _ => unreachable!(),
                     };
-                    let mut out: SVec<(CardTarget, CardTarget), 16> = SVec::new();
+                    // Run-length encoded (see `Res::DamageTransfers`); `n` counts the transfers.
+                    let mut out: SVec<(CardTarget, CardTarget, u8), MAX_DAMAGE_RUNS> = SVec::new();
+                    let mut n = 0usize;
                     for v in arr {
-                        out.push((target_from(v, "from").ok_or(invalid)?, target_from(v, "to").ok_or(invalid)?));
+                        let (f, t) = (target_from(v, "from").ok_or(invalid)?, target_from(v, "to").ok_or(invalid)?);
+                        n += 1;
+                        let extend = matches!(out.as_slice().last(), Some(l) if same_t(l.0, f) && same_t(l.1, t) && l.2 < u8::MAX);
+                        if extend {
+                            out.as_mut_slice().last_mut().unwrap().2 += 1;
+                        } else if out.len() == MAX_DAMAGE_RUNS {
+                            return Err(invalid);
+                        } else {
+                            out.push((f, t, 1));
+                        }
                     }
-                    let n = out.len();
-                    if single_source && n > 1 && out.iter().any(|(f, _)| !same_t(*f, out.as_slice()[0].0)) {
+                    if single_source && n > 1 && out.iter().any(|(f, _, _)| !same_t(*f, out.as_slice()[0].0)) {
                         return Err(invalid);
                     }
-                    if single_destination && n > 1 && out.iter().any(|(_, t)| !same_t(*t, out.as_slice()[0].1)) {
+                    if single_destination && n > 1 && out.iter().any(|(_, t, _)| !same_t(*t, out.as_slice()[0].1)) {
                         return Err(invalid);
                     }
                     if n < o.min as usize || o.max.map(|m| n > m as usize).unwrap_or(false) {
@@ -1182,17 +1209,17 @@ impl Game {
                     }
                     let bf = blocked_slots(&self.st, p, o.blocked_from.as_slice());
                     let bt = blocked_slots(&self.st, p, o.blocked_to.as_slice());
-                    for (f, t) in out.iter() {
+                    for (f, t, _) in out.iter() {
                         let fs = get_target(&self.st, p, *f).map_err(|_| invalid)?;
                         let ts = get_target(&self.st, p, *t).map_err(|_| invalid)?;
                         if bf.contains(&fs) || bt.contains(&ts) {
                             return Err(invalid);
                         }
                     }
-                    if player_type != PlayerType::Any && out.iter().any(|(f, t)| f.player != player_type || t.player != player_type) {
+                    if player_type != PlayerType::Any && out.iter().any(|(f, t, _)| f.player != player_type || t.player != player_type) {
                         return Err(invalid);
                     }
-                    if out.iter().any(|(f, t)| !slots.contains(&(f.slot as u8)) || !slots.contains(&(t.slot as u8))) {
+                    if out.iter().any(|(f, t, _)| !slots.contains(&(f.slot as u8)) || !slots.contains(&(t.slot as u8))) {
                         return Err(invalid);
                     }
                     Ok(Res::DamageTransfers(out))

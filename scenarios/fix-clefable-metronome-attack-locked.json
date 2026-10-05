@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Clefairy POR 30",
+   "4 Riolu ASC 112",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Clefairy POR 30",
+   "4 Riolu ASC 112",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Clefable ASC 75",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Riolu ASC 112"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Accelerating Stab"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Metronome"
+  }
+ ]
+}

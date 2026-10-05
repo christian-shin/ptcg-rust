@@ -1,0 +1,446 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Alakazam TWM 82",
+   "4 Kadabra MEG 55",
+   "4 Abra TWM 80",
+   "4 Mega Lucario ex ASC 113",
+   "4 Riolu ASC 112",
+   "40 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Alakazam TWM 82",
+   "4 Kadabra MEG 55",
+   "4 Abra TWM 80",
+   "4 Mega Lucario ex ASC 113",
+   "4 Riolu ASC 112",
+   "40 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Alakazam TWM 82",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113",
+  "active_damage": 200,
+  "bench": [
+   {
+    "card": "Mega Lucario ex ASC 113",
+    "damage": 100
+   },
+   {
+    "card": "Mega Lucario ex ASC 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Strange Hacking"
+  },
+  [
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    },
+    "to": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    }
+   }
+  ]
+ ]
+}

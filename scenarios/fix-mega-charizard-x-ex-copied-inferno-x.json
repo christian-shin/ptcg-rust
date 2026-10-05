@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua SFA",
+   "4 Mega Charizard X ex PFL 13",
+   "4 Charmeleon PFL 12",
+   "4 Charmander PFL 11",
+   "40 Darkness Energy MEE"
+  ],
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua SFA",
+   "4 Mega Charizard X ex PFL 13",
+   "4 Charmeleon PFL 12",
+   "4 Charmander PFL 11",
+   "40 Darkness Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zoroark WHT 62",
+  "active_energy": [
+   "3 Darkness Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Charizard X ex PFL 13"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Inferno X"
+  }
+ ]
+}

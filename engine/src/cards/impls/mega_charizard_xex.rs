@@ -6,7 +6,8 @@
 //! Energy cards, and asks a non-cancellable DiscardEnergyPrompt for 1..=count.
 //! Each chosen card is moved to the discard pile with MOVE_CARDS, and the
 //! damage is set to 90 x the number chosen (left at 90 if the prompt returned
-//! null).
+//! null). Without any such Energy (a copycat) there is no prompt and the damage
+//! is 0 (phase 4b).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaCharizardXex@Mega Charizard X ex M2", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -42,6 +43,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if any {
             o.blocked_map.push((t, b));
         }
+    }
+    // Phase 4b (Y2-4): nothing to discard (a copied Inferno X, the copycat has no [R]
+    // Energy): no damage, and no prompt without a valid answer.
+    if total == 0 {
+        if let Effect::Attack { damage, .. } = g.e_mut(e) {
+            *damage = 0;
+        }
+        return Ok(());
     }
     o.min = 1;
     o.max = Some(total as u8);

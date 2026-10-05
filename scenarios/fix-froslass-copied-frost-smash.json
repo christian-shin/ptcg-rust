@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua SFA",
+   "4 Froslass TWM 53",
+   "4 Snorunt TWM 51",
+   "44 Darkness Energy MEE"
+  ],
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua SFA",
+   "4 Froslass TWM 53",
+   "4 Snorunt TWM 51",
+   "44 Darkness Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zoroark WHT 62",
+  "active_energy": [
+   "3 Darkness Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Froslass TWM 53"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Frost Smash"
+  }
+ ]
+}

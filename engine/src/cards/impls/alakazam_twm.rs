@@ -9,6 +9,10 @@
 //! Active + Bench, cancellable, defaults otherwise); each transfer moves 10
 //! damage directly if the source has at least 10 (no effects). Psychic counts
 //! `provides` of the opponent's CheckProvidedEnergyEffect (their Active).
+//!
+//! The prompt answers one transfer per damage counter, 20-30 of them for the
+//! bot (any number is valid): `Res::DamageTransfers` is run-length encoded and
+//! `damage_transfers` expands it (Y2-3; it held 16 transfers before).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Alakazam@TWM", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -75,7 +79,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         Some(Res::DamageTransfers(t)) => *t,
         _ => return Ok(()),
     };
-    for (from, to) in transfers.iter().copied() {
+    for (from, to) in damage_transfers(transfers.as_slice()) {
         let source = get_target(&g.st, p, from)?;
         let target = get_target(&g.st, p, to)?;
         if g.st.slot(source.p as usize, source.s).damage >= 10 {

@@ -516,6 +516,33 @@ The tracked list is `porting/twinleaf-fixes.md`.
    the prompt (`blocked`), and when the chosen one throws anyway, restore the
    game phase and prompt again without it (see `copy_attack::prompt_ability`).
 
+8. **Copy sessions** (`copy-attack-delegation.ts`, `copy_attack.rs`) run the
+   source card's `reduceEffect` with `this` = the copycat for every effect of
+   the copied attack's lifecycle, up to 4 EndTurns later. The copycat's
+   `attacks` are the source's clones and a PowerEffect probe for it throws
+   BLOCKED_BY_EFFECT (it gets the attack, not the Abilities), but its `powers`
+   array is its own (empty for Zoroark, Ethan's Sudowoodo): source code must
+   not read `this.powers[0]` outside a branch that checks `IS_ABILITY_BLOCKED`
+   first. Crustle BLK's `reason: this.powers[0].name` and Froslass's
+   Freezing Shroud count did, and the TypeError ended the game (Y2-1); the
+   ports use the literal ability name. A sweep of every pool attack copied by
+   Zoroark and Clefable (a scenario per source card, 16 turns of random play)
+   is how the remaining sites were ruled out.
+   Three more rules of the copy prefabs (Y2-2): a non-cancellable
+   ChooseAttackPrompt whose every attack is blocked (Metronome copying
+   Accelerating Stab twice running: the copycat can't use it next turn) is not
+   opened, the copy does nothing (`noAttackLeftToCopy`, `no_attack_left_to_copy`);
+   `COPY_OPPONENT_ACTIVE_ATTACK` (Zoroark's Foul Play) ends the copy silently when
+   the chosen attack throws (Follow Me with no Benched Pokémon), as
+   `COPY_ATTACK_FROM_POKEMON_LIST` does; and an attack that asks for a resource
+   the copycat doesn't have must not open a prompt without a valid answer
+   (Inferno X copied by a Pokémon with no [R] Energy).
+9. **Move/RemoveDamagePrompt results** are one (from, to) pair per damage
+   counter and have no upper bound in Twinleaf (the bot answers with 20-32
+   transfers); `Res::DamageTransfers` stores runs `(from, to, count)` (at most
+   `MAX_DAMAGE_RUNS`, 32; the bot's answers have at most 17) and
+   `damage_transfers` expands them for the card code (Alakazam TWM, Munkidori).
+
 Report per fix: list number, card (international key), Twinleaf commit,
 Rust change, scenario entry (format above), the official text it now
 follows, and the diverged traces with their causes.

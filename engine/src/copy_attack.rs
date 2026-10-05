@@ -240,11 +240,25 @@ impl CopyFrame {
     }
 }
 
+/// `noAttackLeftToCopy(pokemonCards, blocked)`: every attack of every Pokémon is
+/// blocked (the prompt's validate rejects it), so a non-cancellable
+/// ChooseAttackPrompt would have no valid answer. `blocked` holds the first
+/// attack of each locked name, as the prompt's `find` resolves it.
+fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> bool {
+    !cards.iter().enumerate().any(|(ci, c)| {
+        let d = g.st.cdef(*c);
+        d.is_pokemon() && (0..d.attacks.len()).any(|i| !blocked.iter().any(|b| b.0 as usize == ci && b.1 as usize == i))
+    })
+}
+
 /// The ChooseAttackPrompt of one COPY_ATTACK_FROM_POKEMON_LIST attempt.
 fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     let p = f.p as usize;
     let pc = f.cards;
     let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
+    if !f.allow_cancel && no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
+        return Ok(());
+    }
     let id = g.player_id(p);
     g.prompt(
         id,
@@ -353,7 +367,8 @@ pub fn copy_opponent_active_attack_with_retry(g: &mut Game, atk: EffId) -> R {
 }
 
 /// `COPY_OPPONENT_ACTIVE_ATTACK(store, state, effect)` (allowCancel false,
-/// disallowCopycatAttack; no try/catch around the delegated attack).
+/// disallowCopycatAttack; an error in the delegated attack ends the copy
+/// silently, like COPY_ATTACK_FROM_POKEMON_LIST with one try).
 pub fn copy_opponent_active_attack(g: &mut Game, atk: EffId) -> R {
     let (p, opp, source) = match *g.e(atk) {
         Effect::Attack { p, opp, source, .. } => (p as usize, opp as usize, source),
@@ -371,10 +386,14 @@ pub fn copy_opponent_active_attack(g: &mut Game, atk: EffId) -> R {
         None => return Ok(()),
     };
     let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
+    f.catch = true;
     f.cards.push(pokemon);
     let mut pc: SVec<CardId, 16> = SVec::new();
     pc.push(pokemon);
     let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
+    if no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
+        return Ok(());
+    }
     let id = g.player_id(p);
     g.prompt(
         id,

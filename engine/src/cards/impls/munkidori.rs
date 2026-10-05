@@ -106,7 +106,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         _ => return Ok(()),
     };
     let mut total = 0;
-    for (from, to) in transfers.iter().copied() {
+    for (from, to) in damage_transfers(transfers.as_slice()) {
         let source = get_target(&g.st, p, from)?;
         let target = get_target(&g.st, p, to)?;
         g.st.players[p].marker.add(adrena(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
