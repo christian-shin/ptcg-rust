@@ -472,7 +472,9 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
             points[i] += 1;
         }
     }
-    if points[0] > 0 && points[1] > 0 {
+    // Both players met a win condition at the same time: the one who met more wins; the same
+    // number of them means Sudden Death (R7F-12; rulings 234, 820, 1403).
+    if points[0] > 0 && points[1] > 0 && points[0] == points[1] {
         return initiate_sudden_death(g);
     }
     if points[0] + points[1] == 0 {
