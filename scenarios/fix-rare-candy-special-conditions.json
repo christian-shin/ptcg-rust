@@ -1,0 +1,38 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "4 Alakazam MEG 56",
+   "4 Rare Candy MEG 125",
+   "44 Psychic Energy MEE"
+  ],
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "4 Alakazam MEG 56",
+   "4 Rare Candy MEG 125",
+   "44 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "active_conditions": [
+   "POISONED",
+   "BURNED"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "hand": [
+   "Rare Candy MEG 125",
+   "Alakazam MEG 56"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Abra MEG 54"
+ }
+}

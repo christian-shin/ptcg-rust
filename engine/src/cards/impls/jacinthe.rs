@@ -3,8 +3,9 @@
 //! Twinleaf: the supporter and "[P] Pokémon with damage" checks use a
 //! CheckPokemonTypeEffect per Pokémon (no `canPlay` quirks matter). The card
 //! moves to the supporter pile and the trainer effect is prevented before the
-//! (uncancellable, unblocked) prompt: any of your Pokémon can be chosen, and
-//! the heal only happens when the chosen one is [P] at resolution.
+//! (uncancellable) prompt, which blocks every Pokémon that isn't [P] (fixed
+//! in R1-10: any of your Pokémon could be chosen); the heal still checks
+//! that the chosen one is [P] at resolution.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Jacinthe", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -24,9 +25,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
     let mut psychic: SVec<SlotId, 9> = SVec::new();
-    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
+    let mut blocked: TargetList = SVec::new();
+    for (s, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
         if is_psychic(g, SlotRef::new(p, *s))? {
             psychic.push(*s);
+        } else {
+            blocked.push(*t);
         }
     }
     if psychic.is_empty() {
@@ -46,7 +50,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_HEAL",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
         Cont::Card { card: me, frame: f },
     );
     Ok(())

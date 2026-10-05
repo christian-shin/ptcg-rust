@@ -3,9 +3,12 @@
 //! Benched Pokémon.
 //!
 //! Twinleaf: Festival Lead is the attack's `barrage` flag, written on the
-//! card object whenever Do the Wave's AttackEffect is reduced and the
-//! Ability isn't blocked (so it is sticky while blocked). The damage is only
-//! recomputed when the opponent's Active holds a Pokémon.
+//! card object whenever Do the Wave's AttackEffect is reduced. Fixed (R1-7):
+//! while the Ability is blocked the flag is written `false` (it used to be
+//! left as an earlier use set it, so a blocked Dipplin could still attack
+//! twice). The damage is only recomputed when the opponent's Active holds a
+//! Pokémon. (Goldeen and Seaking share `festival_lead` and keep the old
+//! behavior.)
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Dipplin@Dipplin TWM1|Dipplin PRE", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -18,6 +21,11 @@ pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool)
     if is_ability_blocked(g, p, me, None) {
         return;
     }
+    set_festival_flag(g, me, pristine_has_key);
+}
+
+/// The write of `festival_lead` once the Ability is known not to be blocked.
+fn set_festival_flag(g: &mut Game, me: CardId, pristine_has_key: bool) {
     let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
     let inst = &mut g.st.cards[me as usize];
     if fg {
@@ -47,6 +55,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             *damage = benched * 20;
         }
     }
-    festival_lead(g, p, me, true);
+    if is_ability_blocked(g, p, me, None) {
+        // Blocked: the flag is switched off (printed `barrage: false`).
+        let inst = &mut g.st.cards[me as usize];
+        inst.attack_barrage &= !1;
+        inst.attack_barrage_shown &= !1;
+    } else {
+        set_festival_flag(g, me, true);
+    }
     Ok(())
 }

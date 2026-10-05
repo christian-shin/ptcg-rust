@@ -2,12 +2,13 @@
 //! cards of different types, reveal them, and put them into your hand, then
 //! shuffle. Headbutt — 20.
 //!
-//! Twinleaf has several `Eevee` classes; this port is bound to SFA.
-//! Twinleaf quirks kept: an empty deck makes the attack fail
-//! (CANNOT_PLAY_THIS_CARD); the prompt's max is the number of distinct
-//! `provides[0]` among the deck's Basic Energy (capped at 3); the cards are
-//! not revealed, and the generator never resumes after the prompt callback
-//! (it doesn't call `next()`), so the deck is never shuffled.
+//! Twinleaf has several `Eevee` classes; this port is bound to SFA. The
+//! prompt's max is the number of distinct `provides[0]` among the deck's
+//! Basic Energy (capped at 3). Fixed (R1-5): an empty deck no longer makes
+//! the attack fail (nothing happens), the cards are revealed (ShowCards for
+//! the opponent) and the deck is shuffled (the generator never resumed after
+//! the prompt callback, so neither ever happened); the unreachable
+//! CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES throw is gone.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Eevee@SFA", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -21,7 +22,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => return Ok(()),
     };
     if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
+        return Ok(());
     }
     let mut types: Vec<CardType> = Vec::new();
     for c in g.st.players[p].deck.iter() {
@@ -47,16 +48,30 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
+fn shuffle(g: &mut Game, p: usize) {
+    let id = g.player_id(p);
+    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
+}
+
+fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let p = f.a[0] as usize;
-    let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    if cards.len() > 1 && g.st.cdef(cards[0]).name == g.st.cdef(cards[1]).name {
-        bail!("CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES");
+    match f.stage {
+        1 => {
+            let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
+            let sc = g.st.slot_pokemon(f.l[0] as usize, f.l[1]).unwrap_or(NO_CARD);
+            move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, sc)?;
+            if !cards.is_empty() {
+                let oid = g.player_id(1 - p);
+                g.prompt(oid, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Card { card: me, frame: CardFrame { stage: 2, ..f } });
+                return Ok(());
+            }
+            shuffle(g, p);
+            Ok(())
+        }
+        2 => {
+            shuffle(g, p);
+            Ok(())
+        }
+        _ => Ok(()),
     }
-    let sc = g.st.slot_pokemon(f.l[0] as usize, f.l[1]).unwrap_or(NO_CARD);
-    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, sc)?;
-    Ok(())
 }

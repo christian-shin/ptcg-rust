@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Totodile TEF",
+   "4 Croconaw TEF",
+   "4 Dratini M2a",
+   "4 Dragonair M2a",
+   "4 Thick Scale ASC 211",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Totodile TEF",
+   "4 Croconaw TEF",
+   "4 Dratini M2a",
+   "4 Dragonair M2a",
+   "4 Thick Scale ASC 211",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Totodile TEF",
+   "Croconaw TEF"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF"
+   },
+   {
+    "card": "Totodile TEF"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Dratini M2a",
+   "Dragonair M2a"
+  ],
+  "active_tool": "Thick Scale ASC 211",
+  "bench": [
+   {
+    "card": "Dratini M2a"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reverse Thrust"
+  }
+ ]
+}

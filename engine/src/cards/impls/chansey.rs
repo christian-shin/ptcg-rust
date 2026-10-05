@@ -1,6 +1,9 @@
 //! Chansey (TWM): Lucky Attachment — attach a Basic Energy card from your
 //! hand to 1 of your Pokémon. Boundless Power — 80; during your next turn,
 //! this Pokémon can't attack.
+//!
+//! Lucky Attachment does nothing with no Basic Energy in hand (fixed in
+//! R1-13: it used to throw CANNOT_USE_ATTACK, so the attack was not offered).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Chansey", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,7 +19,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             d.is_energy() && d.energy_type == EnergyType::Basic as u8
         });
         if !has {
-            bail!("CANNOT_USE_ATTACK");
+            return Ok(());
         }
         let mut o = AttachOpts::new(g.st.players[p].hand.len() as u8);
         o.allow_cancel = false;

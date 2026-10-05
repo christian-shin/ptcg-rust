@@ -3,8 +3,9 @@
 //! the opponent's Active Pokémon's attacks; it can't be used next turn.
 //!
 //! Twinleaf: Deceit does nothing with an empty deck; the search can be
-//! cancelled (no reveal, no shuffle); the shuffle is created in the
-//! ShowCards callback and has no animation wait. Torment is
+//! cancelled (no reveal); the shuffle is created in the ShowCards callback
+//! (fixed in R1-3: directly in the search callback when nothing was taken,
+//! so the deck is always shuffled) and has no animation wait. Torment is
 //! OPPONENTS_POKEMON_CANNOT_USE_THAT_ATTACK (printed attacks of the current
 //! Active; an OpponentPokemonCannotUseAttackEffect when answered).
 use crate::cards::prelude::*;
@@ -73,6 +74,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         1 => {
             let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
             if cards.is_empty() {
+                // Nothing found: the deck is still shuffled.
+                let id = g.player_id(p);
+                g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
                 return Ok(());
             }
             move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;

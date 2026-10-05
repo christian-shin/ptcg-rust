@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Munkidori ASC 99",
+   "4 Team Rocket's Articuno DRI 51",
+   "4 Team Rocket's Murkrow ASC 126",
+   "24 Psychic Energy MEE",
+   "24 Water Energy MEE"
+  ],
+  [
+   "4 Munkidori ASC 99",
+   "4 Team Rocket's Articuno DRI 51",
+   "4 Team Rocket's Murkrow ASC 126",
+   "24 Psychic Energy MEE",
+   "24 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Munkidori ASC 99",
+  "active_energy": [
+   "Psychic Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Articuno DRI 51",
+  "bench": [
+   {
+    "card": "Team Rocket's Murkrow ASC 126"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mind Bend"
+  }
+ ]
+}

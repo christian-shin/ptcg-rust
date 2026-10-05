@@ -3,9 +3,9 @@
 //! damage from it. Syrup Storm — 30+, 30 more for each [G] Energy attached
 //! to all of your Pokémon.
 //!
-//! Twinleaf quirks kept: the once-per-turn marker and the ABILITY_USED board
-//! effect are set even when the attach prompt is cancelled; only the first
-//! transfer is processed. Syrup Storm counts `provides` entries equal to
+//! Fixed (R1-18): cancelling the attach prompt doesn't use the Ability up (the
+//! once-per-turn marker and the ABILITY_USED board effect used to be set
+//! anyway). Twinleaf quirk kept: only the first transfer is processed. Syrup Storm counts `provides` entries equal to
 //! [G] or ANY across every CheckProvidedEnergy map.
 use crate::cards::prelude::*;
 
@@ -103,6 +103,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         Some(Res::Attach(t)) => *t,
         _ => SVec::new(),
     };
+    // R1-18: declining the attachment doesn't use the Ability up.
+    if transfers.is_empty() {
+        return Ok(());
+    }
     g.st.players[p].marker.add(ripe(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
     ability_used(g, p, me);
     if let Some((to, c)) = transfers.iter().copied().next() {

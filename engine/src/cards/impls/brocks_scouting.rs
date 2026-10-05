@@ -2,7 +2,9 @@
 //! Evolution Pokémon, reveal them, put them into your hand, then shuffle.
 //!
 //! Twinleaf order kept: the card moves itself to the supporter pile; the
-//! final ShuffleDeckPrompt has no trailing WaitPrompt.
+//! final ShuffleDeckPrompt has no trailing WaitPrompt. Fixed (R1-16, rulings
+//! 779 and 851): it can't be played with an empty deck (CANNOT_PLAY_THIS_CARD,
+//! before the card moves).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "BrocksScouting", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -14,6 +16,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);

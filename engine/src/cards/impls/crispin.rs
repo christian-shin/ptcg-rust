@@ -6,6 +6,9 @@
 //! can't be picked any more, so the old CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES
 //! throw in its callback is gone).
 //!
+//! Fixed (R1-17, rulings 779 and 851): it can't be played with an empty deck
+//! (CANNOT_PLAY_THIS_CARD, before the card moves).
+//!
 //! Twinleaf order kept: the ShowCards, AttachEnergy and ShuffleDeck prompts
 //! are all created by the search callback (the shuffle before the attach is
 //! answered); the final shuffle has no trailing WaitPrompt; the ShowCards
@@ -25,6 +28,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);

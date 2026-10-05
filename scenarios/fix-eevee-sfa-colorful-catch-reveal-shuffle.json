@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee SFA 50",
+   "8 Grass Energy MEE 1",
+   "8 Fire Energy MEE 2",
+   "8 Water Energy MEE 3",
+   "8 Lightning Energy MEE 4",
+   "8 Psychic Energy MEE 5",
+   "8 Fighting Energy MEE 6",
+   "8 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Eevee SFA 50",
+   "8 Grass Energy MEE 1",
+   "8 Fire Energy MEE 2",
+   "8 Water Energy MEE 3",
+   "8 Lightning Energy MEE 4",
+   "8 Psychic Energy MEE 5",
+   "8 Fighting Energy MEE 6",
+   "8 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee SFA 50",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee SFA 50"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Colorful Catch"
+  }
+ ]
+}

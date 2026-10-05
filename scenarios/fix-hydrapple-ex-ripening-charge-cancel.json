@@ -1,0 +1,21 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Applin PRE 9", "4 Dipplin PRE 10", "4 Hydrapple ex PRE 11", "48 Grass Energy MEE 1"],
+  ["4 Applin PRE 9", "4 Dipplin PRE 10", "4 Hydrapple ex PRE 11", "48 Grass Energy MEE 1"]
+ ],
+ "me": {
+  "reset": true,
+  "active": ["Applin PRE 9", "Dipplin PRE 10", "Hydrapple ex PRE 11"],
+  "active_damage": 30,
+  "hand": ["2 Grass Energy MEE 1"]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Applin PRE 9"
+ },
+ "answers": [
+  {"a": "ability", "name": "Ripening Charge", "source": {"player": 2, "slot": 1, "index": 0}},
+  null
+ ]
+}

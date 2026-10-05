@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Munkidori ASC 99",
+   "4 Shuppet PBL 33",
+   "24 Darkness Energy MEE 7",
+   "24 Psychic Energy MEE"
+  ],
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Munkidori ASC 99",
+   "4 Shuppet PBL 33",
+   "24 Darkness Energy MEE 7",
+   "24 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43",
+  "active_damage": 30,
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Munkidori ASC 99",
+    "energy": [
+     "Darkness Energy MEE 7"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shuppet PBL 33"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Adrena-Brain",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ]
+}

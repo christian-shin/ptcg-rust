@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jacinthe POR 75",
+   "4 Munkidori ASC 99",
+   "4 Abra MEG 54",
+   "4 Terrakion WHT 54",
+   "44 Psychic Energy MEE"
+  ],
+  [
+   "4 Jacinthe POR 75",
+   "4 Munkidori ASC 99",
+   "4 Abra MEG 54",
+   "4 Terrakion WHT 54",
+   "44 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Munkidori ASC 99",
+  "active_damage": 60,
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Abra MEG 54",
+    "damage": 10
+   },
+   {
+    "card": "Terrakion WHT 54",
+    "damage": 40
+   },
+   {
+    "card": "Terrakion WHT 54"
+   }
+  ],
+  "hand": [
+   "Jacinthe POR 75"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terrakion WHT 54"
+ }
+}
