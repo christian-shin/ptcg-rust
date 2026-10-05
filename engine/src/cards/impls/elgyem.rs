@@ -54,7 +54,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
                 let src = get_target(&g.st, p as usize, *from)?;
                 let dst = get_target(&g.st, p as usize, *to)?;
                 let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: src };
-                g.run_fx(Effect::MoveOpponentEnergy { b, card: *card, destination: dst })?;
+                g.run_fx(Effect::MoveOpponentEnergy { b, card: *card, destination: dst })?; // queued until after the damage (R7A)
             }
         }
         Ok(())

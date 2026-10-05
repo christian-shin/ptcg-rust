@@ -123,14 +123,14 @@ Order matters exactly as in TypeScript:
 ### Energy removed as an effect of an attack (R7A, phase 4b)
 
 Energy that leaves a Pokémon as an effect of an attack (discarded, shuffled into
-the deck, put into the hand) leaves **after the damage**: the player chooses the
+the deck, put into the hand, moved to another Pokémon) leaves **after the damage**: the player chooses the
 Energy first, the damage is done with the Energy still attached (Double Turbo
 Energy, Voltaic Lightning Energy, Spiky Energy, Ancient Bulwark), then the
 Energy is removed (attack flow chart; rulings 1553, 1580, 1846, 1874). Both
 engines keep a window on the attack's `AttackEffect` (`afterDamageEffects` in
 `prefabs/after-damage.ts`, `Game::after_dmg` and `fx_flag::AFTER_DMG_OPEN` in
 Rust): it opens before the AttackEffect is reduced, `DiscardCardsEffect` /
-`CardsToHandEffect` (Energy cards only) reduced inside it are queued by
+`CardsToHandEffect` (Energy cards only) and `MoveOpponentEnergyEffect` reduced inside it are queued by
 `reduceEffect` / `reduce_effect` and run after the DealDamage step, before
 AfterAttackEffect (in `useAttack` and in both copy-attack delegations). A card
 that moves Energy with `MOVE_CARDS` passes `afterDamageOf: effect`

@@ -420,6 +420,12 @@ impl Game {
     /// `DEFER_UNTIL_AFTER_DAMAGE(store, effect)`: queue an Energy removal of an attack whose window is open.
     fn defer_after_damage(&mut self, id: EffId) -> bool {
         let atk = match *self.e(id) {
+            Effect::MoveOpponentEnergy { b, card, .. } => {
+                if !self.st.cdef(card).is_energy() {
+                    return false;
+                }
+                b.attack_effect
+            }
             Effect::DiscardCards { b, ref cards } | Effect::CardsToHand { b, ref cards } => {
                 if !cards.iter().all(|c| self.st.cdef(*c).is_energy()) {
                     return false;
