@@ -69,6 +69,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         slots.push(SlotType::Bench as u8);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
+        if let Effect::Attack { attack, .. } = *g.e(e) {
+            f.a[1] = crate::prefabs::pack_attack(attack);
+        }
         let id = g.player_id(p);
         g.prompt(
             id,
@@ -91,6 +94,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let o = 1 - p;
     let targets: Vec<SlotRef> = results.first().map(|r| r.slots().to_vec()).unwrap_or_default();
     for t in targets {
+        // An effect of the attack on that Pokémon: Mist Energy and the like prevent it (R7F-17, ruling 1843).
+        if crate::prefabs::attack_effect_prevented_on(g, p, o, f.a[1], t)? {
+            continue;
+        }
         move_pokemon_off_board(g, t, ListRef::Deck(o as u8), me)?;
         let id = g.player_id(o);
         g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: o as u8 });

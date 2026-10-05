@@ -4,11 +4,16 @@
 //!
 //! Twinleaf: for the opponent's Active, then each Bench slot, one MOVE_CARDS
 //! (no source card) of the attached Special Energy to their discard pile.
+//!
+//! Fixed (phase 4b, R7F-17; rulings 1843, 1724): the discard ignored Mist
+//! Energy; each Pokémon is first probed with a DiscardCardsEffect without
+//! cards (the effect of the attack on that Pokémon), and a prevented one keeps
+//! its Special Energy.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Ceruledge@SSP", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
-fn discard_special(g: &mut Game, o: usize, s: SlotId) -> R {
+fn discard_special(g: &mut Game, e: EffId, o: usize, s: SlotId) -> R {
     let cards: Vec<CardId> = g
         .st
         .slot(o, s)
@@ -19,6 +24,16 @@ fn discard_special(g: &mut Game, o: usize, s: SlotId) -> R {
             d.is_energy() && d.energy_type == EnergyType::Special as u8
         })
         .collect();
+    let (opp, attack, source) = match *g.e(e) {
+        Effect::Attack { opp, attack, source, .. } => (opp, attack, source),
+        _ => return Ok(()),
+    };
+    let player = 1 - o as u8;
+    let b = AtkBase { attack_effect: e, player: if player == opp { 1 - opp } else { player }, opponent: opp, attack, source, target: SlotRef::new(o, s) };
+    let (_, prevented) = g.run_fx(Effect::DiscardCards { b, cards: SVec::new() })?;
+    if prevented {
+        return Ok(());
+    }
     if !cards.is_empty() {
         move_cards(g, ListRef::Slot(o as u8, s), ListRef::Discard(o as u8), &cards, NO_CARD)?;
     }
@@ -32,10 +47,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         let a = g.st.players[o].active;
-        discard_special(g, o, a)?;
+        discard_special(g, e, o, a)?;
         let bench: Vec<SlotId> = g.st.players[o].bench.iter().copied().collect();
         for s in bench {
-            discard_special(g, o, s)?;
+            discard_special(g, e, o, s)?;
         }
     }
     if was_attack_used(g, e, 1, me) {
