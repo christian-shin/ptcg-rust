@@ -273,12 +273,26 @@ def main():
     for k, n in invalid.items():
         print('INVALID DECK: %d game(s) %s ended before setup (Twinleaf DeckAnalyser: 60 cards, max 4 copies, '
               'one ACE SPEC, one Radiant, a Basic Pokemon)' % (n, k))
+    # A scenario game that ends with an oracle setup error or a rejected scripted
+    # answer never reached its target branch: both engines agree, so "0 diverged"
+    # would hide it.
+    broken = []
+    for f in sorted(os.listdir(out)):
+        if f.startswith('g') and f.endswith('.json'):
+            res = json.load(open(os.path.join(out, f)))['result']
+            msg = res.get('message') or ''
+            if res.get('status') in ('error', 'stuck') and (msg.startswith('scenario:') or 'INVALID_ANSWER' in msg):
+                broken.append((f, res['status'], msg))
+    for f, st, msg in broken:
+        print('WARNING: %s ended %s: %s' % (f, st, msg))
+    if broken:
+        print('WARNING: %d game(s) never reached the scenario target (broken scenario); fix the scenario' % len(broken))
     r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
     print(r.stdout[-6000:])
     if args.coverage:
         files = sorted({row.get('behavior_file') or row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
         subprocess.run([sys.executable, os.path.join(ROOT, 'tools/coverage.py'), os.path.join(out, 'cov'), *files, '--min', str(args.min_games)])
-    sys.exit(r.returncode)
+    sys.exit(r.returncode or (3 if broken else 0))
 
 
 if __name__ == '__main__':
