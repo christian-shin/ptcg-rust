@@ -5,8 +5,9 @@
 //! it. On play: throws when a Supporter was already played; the card moves
 //! to the Supporter area and the play is prevented; throws on an empty deck
 //! (after that move); 6 cards go to a temporary list; the non-cancellable
-//! ChooseCardsPrompt takes `min = deck.length > 1 ? min(2, looked at) : 1`
-//! (deck length measured after taking the 6) and up to 2; the callback sets
+//! ChooseCardsPrompt takes `min = min(2, looked at)` (fixed in phase 4b, R4:
+//! it was 1 when the deck had at most 1 card left after taking the 6) and up
+//! to 2; the callback sets
 //! `ancientSupporter`, moves the chosen cards to the hand and the rest to the
 //! discard pile.
 use crate::cards::prelude::*;
@@ -37,7 +38,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let temp = g.alloc_temp(&[]);
         move_count_from(g, ListRef::Deck(p as u8), temp, 6, me)?;
         let looked = g.lst(temp).len();
-        let min = if g.st.players[p].deck.len() > 1 { looked.min(2) } else { 1 };
+        let min = looked.min(2);
         let t = match temp {
             ListRef::Temp(i) => i,
             _ => unreachable!(),
