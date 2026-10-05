@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Houndoom DRI 38",
+   "4 Slowpoke MEP 86",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Houndour DRI 37",
+   "4 Team Rocket's Houndoom DRI 38",
+   "4 Slowpoke MEP 86",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Houndour DRI 37",
+   "Team Rocket's Houndoom DRI 38"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Slowpoke MEP 86"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cruel Coal"
+  }
+ ]
+}
