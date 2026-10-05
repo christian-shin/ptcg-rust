@@ -1,10 +1,10 @@
 //! Goldeen (TWM): Festival Lead. Whirlpool — 10; flip a coin, if heads
 //! discard an Energy from the opponent's Active Pokémon.
 //!
-//! Twinleaf: with no Energy card in the opponent's Active the handler
-//! returns before touching Festival Lead's runtime `barrage` flag (so it
-//! keeps its previous value); otherwise the flag is written right after the
-//! coin prompt is created.
+//! Twinleaf: Festival Lead's runtime `barrage` flag is written on every use
+//! (fixed in phase 4b, R4: it used to be skipped when the opponent's Active had
+//! no Energy card, and left unchanged while the Ability was blocked), before
+//! the no-Energy return. The coin flip is still skipped without Energy.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -24,6 +24,18 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
         _ => return Ok(()),
     };
+    // Festival Lead: `barrage = Ability works && Festival Grounds in play`, written on every use.
+    let blocked = is_ability_blocked(g, p, me, None);
+    let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
+    {
+        let inst = &mut g.st.cards[me as usize];
+        if !blocked && fg {
+            inst.attack_barrage |= 1;
+        } else {
+            inst.attack_barrage &= !1;
+        }
+        inst.attack_barrage_shown |= 1;
+    }
     let oa = g.st.players[opp].active;
     if !g.st.slot(opp, oa).cards.iter().any(|c| g.st.cdef(c).is_energy()) {
         return Ok(());
@@ -33,7 +45,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     f.a[0] = p as i32;
     f.e[0] = e;
     g.coin_flip(p, CoinCb::Card { card: me, frame: f })?;
-    super::dipplin_twm::festival_lead(g, p, me, false);
     Ok(())
 }
 
