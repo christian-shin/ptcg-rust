@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bouffalant SSP 151",
+   "4 Boomerang Energy TWM 166",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Bouffalant SSP 151",
+   "4 Boomerang Energy TWM 166",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bouffalant SSP 151",
+  "active_energy": [
+   "Boomerang Energy TWM 166",
+   "Boomerang Energy TWM 166",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Smashing Headbutt"
+  }
+ ]
+}

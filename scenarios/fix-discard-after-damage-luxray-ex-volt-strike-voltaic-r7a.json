@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Luxray ex TWM 68",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "4 Voltaic Lightning Energy PBL 84",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "36 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Luxray ex TWM 68",
+   "4 Luxio FST 92",
+   "4 Shinx FST 91",
+   "4 Voltaic Lightning Energy PBL 84",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "36 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Shinx FST 91",
+   "Luxio FST 92",
+   "Luxray ex TWM 68"
+  ],
+  "active_energy": [
+   "Voltaic Lightning Energy PBL 84",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Volt Strike"
+  }
+ ]
+}

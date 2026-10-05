@@ -9,6 +9,7 @@
 //! the discard. Diamond Coat: on a PutDamageEffect whose target holds this
 //! card as its Pokémon card, during the ATTACK phase and unless blocked for
 //! the target's owner, `damage = max(0, damage - 30)`.
+//! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaDiancieex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -76,7 +77,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         }
         for (from, c) in transfers.iter().copied() {
             let source = get_target(&g.st, p, from)?;
-            move_cards(g, source.list(), ListRef::Discard(p as u8), &[c], me)?;
+            move_cards_after_damage(g, e, source.list(), ListRef::Discard(p as u8), &[c], me)?;
         }
         Ok(())
     })();

@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zarude SSP 11",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Zarude SSP 11",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zarude SSP 11",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jungle Whip"
+  }
+ ]
+}

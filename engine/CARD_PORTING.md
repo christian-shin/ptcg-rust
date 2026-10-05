@@ -120,6 +120,27 @@ Order matters exactly as in TypeScript:
 * A callback that would throw in TypeScript (e.g. `selected[0]` on a cancelled
   prompt) must `bail!` too.
 
+### Energy removed as an effect of an attack (R7A, phase 4b)
+
+Energy that leaves a Pokémon as an effect of an attack (discarded, shuffled into
+the deck, put into the hand) leaves **after the damage**: the player chooses the
+Energy first, the damage is done with the Energy still attached (Double Turbo
+Energy, Voltaic Lightning Energy, Spiky Energy, Ancient Bulwark), then the
+Energy is removed (attack flow chart; rulings 1553, 1580, 1846, 1874). Both
+engines keep a window on the attack's `AttackEffect` (`afterDamageEffects` in
+`prefabs/after-damage.ts`, `Game::after_dmg` and `fx_flag::AFTER_DMG_OPEN` in
+Rust): it opens before the AttackEffect is reduced, `DiscardCardsEffect` /
+`CardsToHandEffect` (Energy cards only) reduced inside it are queued by
+`reduceEffect` / `reduce_effect` and run after the DealDamage step, before
+AfterAttackEffect (in `useAttack` and in both copy-attack delegations). A card
+that moves Energy with `MOVE_CARDS` passes `afterDamageOf: effect`
+(`move_cards_after_damage(g, atk, ...)`) and defers the following shuffle with
+`SHUFFLE_DECK_AFTER_DAMAGE` (`shuffle_deck_after_damage`). Cards that discard in
+an AfterAttackEffect handler (Larvitar, Zapdos, Scream Tail, ...) are unaffected:
+the window is closed there. A cost written in the attack cost line, a discard
+from the hand (Hydrapple, Ceruledge PFL) and discards of non-Energy cards are not
+deferred.
+
 ### State Twinleaf mutates that Rust doesn't model yet
 
 Many `PokemonCardList` / `Player` fields exist in Twinleaf but aren't in Rust

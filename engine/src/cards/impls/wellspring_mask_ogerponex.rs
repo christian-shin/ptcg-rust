@@ -9,6 +9,8 @@
 //! choice is priced as [C][C][C]. Twinleaf builds the energy map before the
 //! confirm prompt; nothing can change the Active's energy in between, so it
 //! is rebuilt when the confirm resolves (the frame can't hold the map).
+//! R7A (ruling 1580): the Energy goes back into the deck, and the deck is shuffled, after the damage (`move_cards_after_damage`,
+//! `shuffle_deck_after_damage`); the bench target is asked right after the Energy choice.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -79,16 +81,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                     _ => Vec::new(),
                 };
                 let a = g.st.players[p].active;
-                move_cards(g, ListRef::Slot(p as u8, a), ListRef::Deck(p as u8), &cards, me)?;
-                let mut nf = f;
-                nf.stage = 3;
-                g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: nf });
-                Ok(false)
-            }
-            3 => {
-                if let Res::Order(o) = first {
-                    crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-                }
+                // The Energy goes back into the deck, and the deck is shuffled, after the damage.
+                move_cards_after_damage(g, atk, ListRef::Slot(p as u8, a), ListRef::Deck(p as u8), &cards, me)?;
+                shuffle_deck_after_damage(g, atk, p);
                 let mut slots = SVec::new();
                 slots.push(SlotType::Bench as u8);
                 let mut nf = f;

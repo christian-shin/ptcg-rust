@@ -8,6 +8,7 @@
 //! damage is set to 90 x the number chosen (left at 90 if the prompt returned
 //! null). Without any such Energy (a copycat) there is no prompt and the damage
 //! is 0 (phase 4b).
+//! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaCharizardXex@Mega Charizard X ex M2", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -85,7 +86,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         };
         for (from, c) in transfers.iter().copied() {
             let s = get_target(&g.st, p, from)?;
-            move_cards(g, s.list(), ListRef::Discard(p as u8), &[c], me)?;
+            move_cards_after_damage(g, atk, s.list(), ListRef::Discard(p as u8), &[c], me)?;
             if let Effect::Attack { damage, .. } = g.e_mut(atk) {
                 *damage = transfers.len() as i32 * 90;
             }

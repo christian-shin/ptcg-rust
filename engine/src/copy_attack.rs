@@ -194,6 +194,8 @@ pub enum CopyStage {
     AfterAttackFx,
     AfterBefore,
     AfterDeal,
+    /// The Energy removals that waited for the damage have run (and their prompts resolved).
+    AfterDamageEffects,
     AfterAfter,
 }
 
@@ -547,6 +549,7 @@ fn start_delegated(g: &mut Game, mut f: CopyFrame, source: CardId, index: u8) ->
     });
     f.atk = atk;
     f.stage = CopyStage::AfterAttackFx;
+    g.open_after_damage(atk);
     let r = g.reduce_effect(atk);
     finish_step(g, f, r, wait_if_prompts)
 }
@@ -598,6 +601,12 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
             next_stage(g, f)
         }
         CopyStage::AfterDeal => {
+            // `RUN_AFTER_DAMAGE_EFFECTS`: Energy removed as an effect of the attack leaves after the damage.
+            f.stage = CopyStage::AfterDamageEffects;
+            let r = g.run_after_damage(f.atk);
+            finish_step(g, f, r, wait_if_prompts)
+        }
+        CopyStage::AfterDamageEffects => {
             f.stage = CopyStage::AfterAfter;
             let r = g.run_fx(Effect::AfterAttack { p, opp, attack: f.attack }).map(|_| ());
             finish_step(g, f, r, wait_if_prompts)

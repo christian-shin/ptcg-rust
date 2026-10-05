@@ -7,6 +7,7 @@
 //! allows any Energy (phase 4b: the filter used to be Basic only, but the text
 //! says "Energy"), is skipped without a Benched Pokémon, and each chosen card
 //! is a separate MOVE_CARDS to the discard pile.
+//! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsMewtwoex", mask: mask(&[k::USE_ATTACK, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -75,7 +76,7 @@ fn discard(g: &mut Game, me: CardId, p: usize, atk: EffId, results: &[Res]) -> R
     }
     for (from, c) in transfers.iter() {
         let src = get_target(&g.st, p, *from)?;
-        move_cards(g, src.list(), ListRef::Discard(p as u8), &[*c], me)?;
+        move_cards_after_damage(g, atk, src.list(), ListRef::Discard(p as u8), &[*c], me)?;
     }
     Ok(())
 }
