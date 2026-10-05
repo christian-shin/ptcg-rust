@@ -2,8 +2,9 @@
 //! to 3 Pokémon, reveal them, and put them into your hand. Then, shuffle your
 //! deck. Aqua Edge — 50.
 //!
-//! Twinleaf (chaos-rising file): no Pokémon in the deck → nothing happens
-//! (no shuffle); ChooseCardsPrompt min 0, max min(3, Pokémon in deck), no
+//! Twinleaf (chaos-rising file): an empty deck → nothing happens (no shuffle);
+//! phase 4b R7E (rulings 336, 779, 1764): a deck without a Pokémon is still
+//! searched and shuffled (it used to return); ChooseCardsPrompt min 0, max min(3, Pokémon in deck), no
 //! cancel; the chosen cards are revealed (fixed in phase 4b, R4: there was
 //! no reveal prompt); one MOVE_CARDS per chosen card (sourceCard = the
 //! attacking Pokémon); a final ShuffleDeckPrompt with no wait.
@@ -21,7 +22,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     let n = g.st.players[p].deck.iter().filter(|c| g.st.cdef(*c).is_pokemon()).count();
     let max = n.min(3) as u8;
-    if max == 0 {
+    if g.st.players[p].deck.is_empty() {
         return Ok(());
     }
     let src_card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(NO_CARD);

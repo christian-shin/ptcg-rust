@@ -3,7 +3,7 @@
 //!
 //! Twinleaf: same shape as Chatot's A Capella (no empty-deck check; with a full
 //! Bench the attack does nothing, with no search and no shuffle: phase 4b R7E,
-//! ruling 337; the prompt max is min(empty bench slots, 2)), with a name filter.
+//! ruling 337; also with all 4 Froakie in known zones, ruling 336; the prompt max is min(empty bench slots, 2)), with a name filter.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Froakie@Froakie TWM", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,7 +16,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         let open = empty_bench_slots(g, p);
         let max = open.len().min(2) as u8;
-        if max == 0 {
+        if max == 0 || super::lampent::known_copies(g, p, "Froakie") >= 4 {
             return Ok(());
         }
         let mut f = CardFrame::at(1);

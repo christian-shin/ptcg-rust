@@ -4,7 +4,18 @@
 //! Twinleaf: max = min(3, empty Bench slots); nothing happens (no shuffle)
 //! when the deck is empty or the Bench is full. Each chosen card is placed with
 //! a PlayPokemonFromDeckEffect into the i-th empty slot; SHUFFLE_DECK follows.
+//! Phase 4b R7E (ruling 336): with all 4 Lampent in known zones (discard pile,
+//! in play) the attack is usable and fails without searching.
 use crate::cards::prelude::*;
+
+/// Cards named `name` in `p`'s discard pile and in play (known zones).
+pub fn known_copies(g: &Game, p: usize, name: &str) -> usize {
+    let mut n = g.st.players[p].discard.iter().filter(|c| g.st.cdef(*c).name == name).count();
+    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
+        n += g.st.slot(p, *s).cards.iter().filter(|c| g.st.cdef(*c).name == name).count();
+    }
+    n
+}
 
 pub static IMPL: CardImpl = CardImpl { class: "Lampent", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
@@ -16,7 +27,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         let slots = empty_bench_slots(g, p);
         let max_put = slots.len().min(3);
-        if g.st.players[p].deck.is_empty() || max_put == 0 {
+        if g.st.players[p].deck.is_empty() || max_put == 0 || known_copies(g, p, "Lampent") >= 4 {
             return Ok(());
         }
         let mut f = CardFrame::at(1);
