@@ -43,6 +43,14 @@ def run_results(run_id):
     return out
 
 
+def code_key(sha):
+    """What the games actually tested: the engine, data and deck trees at `sha`
+    (docs-only or tooling-only commits keep the count)."""
+    out = subprocess.run(['git', '-C', ROOT, 'rev-parse', *['%s:%s' % (sha, d) for d in ('engine', 'data', 'decks')]],
+                         capture_output=True, text=True).stdout.split()
+    return '-'.join(x[:9] for x in out) if len(out) == 3 else sha
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--limit', type=int, default=200)
@@ -59,12 +67,12 @@ def main():
         cache[rid] = {'created': r['createdAt'], 'event': r['event'], 'conclusion': r['conclusion'], 'shards': run_results(rid)}
     json.dump(cache, open(CACHE, 'w'), indent=1)
 
-    main_sha = subprocess.run(['git', '-C', ROOT, 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
+    main_sha = code_key('HEAD')
     oracle_sha = subprocess.run(['git', '-C', os.path.join(ROOT, 'twinleaf'), 'rev-parse', 'oracle'], capture_output=True, text=True).stdout.strip()
     pairs = {}
     for rid, r in cache.items():
         for s in r['shards']:
-            k = (s['main'], s['oracle'])
+            k = (code_key(s['main']), s['oracle'])
             p = pairs.setdefault(k, {'games': 0, 'failures': 0, 'red_runs': set(), 'runs': set()})
             p['games'] += s['games']
             p['failures'] += s['failures']
@@ -73,10 +81,10 @@ def main():
                 p['red_runs'].add(rid)
     for (m, o), p in sorted(pairs.items(), key=lambda kv: -kv[1]['games'])[:8]:
         cur = ' <- current' if m == main_sha and o.startswith(oracle_sha[:9]) else ''
-        print('main %s oracle %s: %d games in %d runs, %d failures%s' % (m[:9], o[:9], p['games'], len(p['runs']), p['failures'], cur))
+        print('engine %s oracle %s: %d games in %d runs, %d failures%s' % (m[:29], o[:9], p['games'], len(p['runs']), p['failures'], cur))
     cur = next((p for (m, o), p in pairs.items() if m == main_sha and o.startswith(oracle_sha[:9])), None)
     if cur is None:
-        print('current code (main %s, oracle %s): no completed runs yet' % (main_sha[:9], oracle_sha[:9]))
+        print('current code (engine %s, oracle %s): no completed runs yet' % (main_sha, oracle_sha[:9]))
         sys.exit(1)
     green = cur['failures'] == 0 and cur['games'] >= a.gate
     print('GATE %s: %d / %d games on the current code, %d failures' % ('GREEN' if green else 'open', cur['games'], a.gate, cur['failures']))
