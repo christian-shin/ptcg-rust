@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dedenne SSP 87",
+   "4 Poké Pad 30C 126",
+   "4 Switch 30C 127",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dedenne SSP 87",
+   "4 Poké Pad 30C 126",
+   "4 Switch 30C 127",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dedenne SSP 87",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "2 Poké Pad 30C 126",
+   "2 Switch 30C 127"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dedenne SSP 87"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Electromagnetic Sonar"
+  }
+ ]
+}
