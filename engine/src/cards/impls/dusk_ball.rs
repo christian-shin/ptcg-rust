@@ -7,6 +7,9 @@
 //! (its first MOVE_CARDS empties the array) if anything was looked at. With
 //! a Pokémon chosen, the reveal is queued without waiting. The card is moved
 //! supporter→discard (again) before the wait-less shuffle.
+//!
+//! Fixed (phase 4b, R3): "choose 1 Pokémon you find there" is required when
+//! one of the looked-at cards is a Pokémon (min 1; it used to be min 0).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "DuskBall", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -31,11 +34,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         ListRef::Temp(i) => i,
         _ => 0,
     };
+    let has_pokemon = cards.iter().any(|c| g.st.cdef(*c).is_pokemon());
     let id = g.player_id(p);
     g.prompt(
         id,
         "CHOOSE_CARD_TO_HAND",
-        PromptKind::ChooseCards { cards: temp, filter: Filter::super_type(SuperType::Pokemon), opts: ChooseCardsOpts::new(0, 1, false) },
+        PromptKind::ChooseCards { cards: temp, filter: Filter::super_type(SuperType::Pokemon), opts: ChooseCardsOpts::new(if has_pokemon { 1 } else { 0 }, 1, false) },
         Cont::Card { card: me, frame: f },
     );
     Ok(())

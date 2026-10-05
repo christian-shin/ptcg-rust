@@ -2,10 +2,11 @@
 //! damage to your opponent's Active Pokémon that have an Ability. Shocking
 //! Web — 50; 80 more if this Pokémon has any [L] Energy attached.
 //!
-//! Twinleaf quirks kept: Compound Eyes adds 50 on every DealDamageEffect of
+//! Twinleaf quirk kept: Compound Eyes adds 50 on every DealDamageEffect of
 //! this card's attack when the opponent's Active has any power (no target
-//! check); Shocking Web sets the damage to 50 + 80 for *each* provided-energy
-//! entry whose card is an Energy card printing [L] in `provides`.
+//! check). Fixed (phase 4b, R3): Shocking Web sets the damage to 50, +80
+//! once if any provided-energy entry is an Energy card printing [L] in
+//! `provides` (it used to add 80 per such entry).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Galvantula@SFA", mask: mask(&[k::DEAL_DAMAGE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -40,11 +41,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, energy_map: SVec::new() })?;
         let mut damage = 50;
         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-            for em in energy_map.iter() {
+            let has_lightning = energy_map.iter().any(|em| {
                 let d = g.st.cdef(em.card);
-                if d.is_energy() && d.provides.contains(&ct::LIGHTNING) {
-                    damage += 80;
-                }
+                d.is_energy() && d.provides.contains(&ct::LIGHTNING)
+            });
+            if has_lightning {
+                damage += 80;
             }
         }
         if let Effect::Attack { damage: d, .. } = g.e_mut(e) {

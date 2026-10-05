@@ -3,8 +3,9 @@
 //! them, put them into your hand, then shuffle.
 //!
 //! Twinleaf quirks kept: a MOVE_CARDS hand->supporter of the card (already in
-//! the supporter pile) is reduced; choosing nothing from the deck skips the
-//! shuffle; the final ShuffleDeckPrompt has no trailing WaitPrompt.
+//! the supporter pile) is reduced; the final ShuffleDeckPrompt has no trailing
+//! WaitPrompt. Fixed (phase 4b, R3): choosing nothing from the deck no longer
+//! skips the shuffle.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "SecretBox", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -74,6 +75,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         2 => {
             let cards: Vec<CardId> = first.cards().to_vec();
             if cards.is_empty() {
+                shuffle(g, me, p);
                 return Ok(());
             }
             move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;

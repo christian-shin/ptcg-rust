@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dreepy ASC 158",
+   "4 Drakloak ASC 159",
+   "4 Hop's Snorlax JTG 117",
+   "24 Fire Energy MEE",
+   "24 Psychic Energy MEE"
+  ],
+  [
+   "4 Dreepy ASC 158",
+   "4 Drakloak ASC 159",
+   "4 Hop's Snorlax JTG 117",
+   "24 Fire Energy MEE",
+   "24 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dreepy ASC 158",
+   "Drakloak ASC 159"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Recon Directive",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Poltchageist PBL 5",
+   "4 Sinistcha PBL 6",
+   "4 Shuppet PBL 33",
+   "4 Hop's Snorlax JTG 117",
+   "4 Abra TWM 80",
+   "4 Mist Energy TEF 161",
+   "36 Grass Energy MEE"
+  ],
+  [
+   "4 Poltchageist PBL 5",
+   "4 Sinistcha PBL 6",
+   "4 Shuppet PBL 33",
+   "4 Hop's Snorlax JTG 117",
+   "4 Abra TWM 80",
+   "4 Mist Energy TEF 161",
+   "36 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Poltchageist PBL 5",
+   "Sinistcha PBL 6"
+  ],
+  "active_energy": [
+   "Grass Energy MEE"
+  ],
+  "discard": [
+   "3 Poltchageist PBL 5",
+   "3 Shuppet PBL 33"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Abra TWM 80",
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   },
+   {
+    "card": "Abra TWM 80"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Matcha Spin"
+  }
+ ]
+}

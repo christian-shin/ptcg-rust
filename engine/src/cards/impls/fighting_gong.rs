@@ -14,6 +14,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
+    // Fixed (phase 4b, R3): unplayable with an empty deck (nothing to search).
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     let (mut pokemons, mut trainers) = (0u8, 0u8);
     let mut opts = ChooseCardsOpts::new(0, 0, false);
     for (i, c) in g.st.players[p].deck.iter().enumerate() {

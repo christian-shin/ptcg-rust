@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rowlet POR 10",
+   "4 Dartrix POR 11",
+   "4 Decidueye ex POR 12",
+   "4 Salamence ex JTG 114",
+   "4 Mist Energy TEF 161",
+   "40 Grass Energy MEE"
+  ],
+  [
+   "4 Rowlet POR 10",
+   "4 Dartrix POR 11",
+   "4 Decidueye ex POR 12",
+   "4 Salamence ex JTG 114",
+   "4 Mist Energy TEF 161",
+   "40 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Rowlet POR 10",
+   "Dartrix POR 11",
+   "Decidueye ex POR 12"
+  ],
+  "active_energy": [
+   "4 Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Salamence ex JTG 114",
+  "active_energy": [
+   "Mist Energy TEF 161",
+   "Grass Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crushing Arrow"
+  }
+ ]
+}

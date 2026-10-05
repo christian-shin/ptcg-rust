@@ -1,5 +1,8 @@
 //! Night Stretcher (SFA): put a Pokémon or a Basic Energy card from your
 //! discard pile into your hand.
+//!
+//! Fixed (phase 4b, R3): the choice is exactly 1 card (min 1; it used to be
+//! min 0, so the card could be played and take nothing).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "NightlyStretcher", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -14,7 +17,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     let (mut pokemons, mut energies) = (0u8, 0u8);
-    let mut opts = ChooseCardsOpts::new(0, 1, false);
+    let mut opts = ChooseCardsOpts::new(1, 1, false);
     let discard: Vec<CardId> = g.st.players[p].discard.iter().collect();
     for (i, c) in discard.iter().enumerate() {
         let d = g.st.cdef(*c);

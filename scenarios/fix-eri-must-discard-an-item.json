@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Eri PRE 136",
+   "4 Boxed Order TEF 143",
+   "4 Dusk Ball SSP 175",
+   "44 Psychic Energy MEE"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Eri PRE 136",
+   "4 Boxed Order TEF 143",
+   "4 Dusk Ball SSP 175",
+   "44 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slowpoke SCR 57",
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "hand": [
+   "Eri PRE 136"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Slowpoke SCR 57",
+  "hand": [
+   "Boxed Order TEF 143",
+   "Dusk Ball SSP 175",
+   "Psychic Energy MEE"
+  ]
+ }
+}

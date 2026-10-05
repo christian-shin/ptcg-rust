@@ -4,7 +4,8 @@
 //!
 //! Twinleaf: throws without a Benched Pokémon; the card moves to the
 //! Supporter area (not the discard pile) and the play is prevented; a
-//! ChoosePokemonPrompt over the Bench (cancellable: stops there). When the
+//! ChoosePokemonPrompt over the Bench (fixed in phase 4b, R3: it can't be
+//! cancelled; cancelling used to burn the card with no switch). When the
 //! Active has Energy, a ChooseCardsPrompt over the Active's cards (Energy,
 //! 0..all, no cancel) moves the chosen Energy to the chosen Benched Pokémon;
 //! then the silent `switchPokemon(target)` runs.
@@ -32,7 +33,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_SWITCH",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: true, blocked: SVec::new() },
+        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
         Cont::Card { card: me, frame: f },
     );
     Ok(())
