@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Metagross CRI 61",
+   "4 Flutter Mane PRE 43",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Metagross CRI 61",
+   "4 Flutter Mane PRE 43",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Beldum TEF 113",
+   "Metang TEF 114",
+   "Metagross CRI 61"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Beldum TEF 113"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "bench": [
+   {
+    "card": "Flutter Mane PRE 43"
+   },
+   {
+    "card": "Beldum TEF 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bounce Back"
+  }
+ ]
+}

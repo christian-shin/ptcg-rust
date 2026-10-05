@@ -1,7 +1,8 @@
-//! Metagross (M4 / CRI): Bounce Back — 60, after attacking you choose 1 of
-//! your opponent's Benched Pokémon to switch in (Twinleaf lets the attacker
-//! choose). Metallic Hammer — 150+, you may discard 3 [M] Energy from this
-//! Pokémon for 150 more damage.
+//! Metagross (M4 / CRI): Bounce Back — 60, after attacking switch out your
+//! opponent's Active Pokémon (your opponent chooses the new Active Pokémon;
+//! fixed in phase 4b: Twinleaf let the attacker choose and switched without
+//! dispatching the switch effects). Metallic Hammer — 150+, you may discard 3
+//! [M] Energy from this Pokémon for 150 more damage.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -19,7 +20,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::AfterAttack { p, .. } => p as usize,
             _ => return Ok(()),
         };
-        switch_in_opponent_benched_pokemon(g, p, false);
+        let o = 1 - p;
+        let has_bench = g.st.players[o].bench.iter().any(|s| !g.st.slot(o, *s).cards.is_empty());
+        if has_bench {
+            switch_active_with_benched(g, o);
+        }
         return Ok(());
     }
     if was_attack_used(g, e, 1, me) {
