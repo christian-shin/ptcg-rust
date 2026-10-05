@@ -6,7 +6,9 @@
 //!
 //! Twinleaf quirks kept: Angelite does nothing (and sets no marker) with an
 //! empty opposing Bench; with the marker it throws BLOCKED_BY_EFFECT; the
-//! marker is added before the prompt and again in its callback; each chosen
+//! marker is added before the prompt (phase 4b: no longer again in its
+//! callback, where a copy by Clefable's Metronome added a marker named
+//! `undefined` after the delegation scope ended); each chosen
 //! Pokémon is moved to the opponent's deck and followed by its own
 //! ShuffleDeckPrompt for the opponent (no trailing wait). The marker pair
 //! (ANGELITE / CLEAR_ANGELITE) is kept on the player and cleared at the end
@@ -82,7 +84,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     }
     let p = f.a[0] as usize;
     let o = 1 - p;
-    add(g, p, angelite(), me);
     let targets: Vec<SlotRef> = results.first().map(|r| r.slots().to_vec()).unwrap_or_default();
     for t in targets {
         move_pokemon_off_board(g, t, ListRef::Deck(o as u8), me)?;

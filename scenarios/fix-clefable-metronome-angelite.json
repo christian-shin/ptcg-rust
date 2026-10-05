@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Eevee TWM 135",
+   "4 Sylveon ex PRE 41",
+   "16 Water Energy MEE 3",
+   "16 Lightning Energy MEE 4",
+   "16 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Eevee TWM 135",
+   "4 Sylveon ex PRE 41",
+   "16 Water Energy MEE 3",
+   "16 Lightning Energy MEE 4",
+   "16 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Clefable ASC 75",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Eevee TWM 135",
+   "Sylveon ex PRE 41"
+  ],
+  "bench": [
+   {
+    "card": "Eevee TWM 135"
+   },
+   {
+    "card": "Eevee TWM 135"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Angelite"
+  }
+ ]
+}
