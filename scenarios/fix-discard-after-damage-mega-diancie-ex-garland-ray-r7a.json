@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Diancie ex ASC 267",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Mega Diancie ex ASC 267",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267",
+  "active_energy": [
+   "2 Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Garland Ray"
+  }
+ ]
+}

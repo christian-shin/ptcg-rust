@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Wellspring Mask Ogerpon ex PRE 27",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Duraludon PRE 69",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Wellspring Mask Ogerpon ex PRE 27",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Duraludon PRE 69",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Wellspring Mask Ogerpon ex PRE 27",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Torrential Pump"
+  }
+ ]
+}

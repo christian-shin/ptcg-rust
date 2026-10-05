@@ -66,6 +66,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         slots.push(SlotType::Bench as u8);
         let mut f = CardFrame::at(3);
         f.a[0] = p as i32;
+        f.e[0] = e;
+        g.retain_fx(e);
         let id = g.player_id(p);
         g.prompt(
             id,
@@ -135,11 +137,16 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 _ => SVec::new(),
             };
             let src = ListRef::Slot(p as u8, g.st.players[p].active);
-            for (to, c) in transfers.iter().copied() {
-                let target = get_target(&g.st, p, to)?;
-                move_cards(g, src, target.list(), &[c], me)?;
-            }
-            Ok(())
+            let atk = f.e[0];
+            let r = (|| -> R {
+                for (to, c) in transfers.iter().copied() {
+                    let target = get_target(&g.st, p, to)?;
+                    move_cards_after_damage(g, atk, src, target.list(), &[c], me)?;
+                }
+                Ok(())
+            })();
+            g.release_fx(atk);
+            r
         }
         _ => Ok(()),
     }

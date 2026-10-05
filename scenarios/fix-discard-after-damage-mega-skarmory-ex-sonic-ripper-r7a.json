@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Skarmory ex POR 55",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Duraludon PRE 69",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Mega Skarmory ex POR 55",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Duraludon PRE 69",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Skarmory ex POR 55",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sonic Ripper"
+  }
+ ]
+}

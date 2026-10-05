@@ -6,6 +6,7 @@
 //! ConfirmPrompt (WANT_TO_USE_ABILITY) whose yes-callback reads
 //! CheckProvidedEnergyEffect on the Active, MOVE_CARDS those cards to the
 //! hand, then adds 80 to the attack's damage.
+//! R7A (ruling 1846): the Energy goes into the hand after the damage (`move_cards_after_damage`).
 use super::tynamo_sv11b::heal_own_active;
 use crate::cards::prelude::*;
 
@@ -48,7 +49,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 cards.push(em.card);
             }
         }
-        move_cards(g, active.list(), ListRef::Hand(p as u8), &cards, me)?;
+        move_cards_after_damage(g, atk, active.list(), ListRef::Hand(p as u8), &cards, me)?;
         if let Effect::Attack { damage, .. } = g.e_mut(atk) {
             *damage += 80;
         }

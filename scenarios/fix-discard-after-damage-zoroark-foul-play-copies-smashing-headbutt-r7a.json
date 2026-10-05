@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "4 Bouffalant SSP 151",
+   "4 Boomerang Energy TWM 166",
+   "44 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "4 Bouffalant SSP 151",
+   "4 Boomerang Energy TWM 166",
+   "44 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zoroark WHT 62",
+  "active_energy": [
+   "3 Darkness Energy MEE 7",
+   "Boomerang Energy TWM 166"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Bouffalant SSP 151"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Smashing Headbutt"
+  }
+ ]
+}

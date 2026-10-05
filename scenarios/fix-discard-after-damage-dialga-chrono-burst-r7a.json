@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dialga MEG 95",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Dialga MEG 95",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dialga MEG 95",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chrono Burst"
+  }
+ ]
+}

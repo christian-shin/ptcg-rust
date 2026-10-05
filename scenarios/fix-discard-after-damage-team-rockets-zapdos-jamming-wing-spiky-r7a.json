@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Zapdos DRI 70",
+   "4 Spiky Energy JTG 159",
+   "4 Duraludon PRE 69",
+   "4 Mega Manectric ex MEG 50",
+   "4 Electrike MEG 49",
+   "40 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Team Rocket's Zapdos DRI 70",
+   "4 Spiky Energy JTG 159",
+   "4 Duraludon PRE 69",
+   "4 Mega Manectric ex MEG 50",
+   "4 Electrike MEG 49",
+   "40 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Zapdos DRI 70",
+  "active_energy": [
+   "2 Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jamming Wave"
+  },
+  true
+ ]
+}

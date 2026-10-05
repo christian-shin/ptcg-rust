@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ceruledge SSP 35",
+   "4 Charcadet SSP 32",
+   "4 Mist Energy TEF 161",
+   "4 Spiky Energy JTG 159",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "36 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ceruledge SSP 35",
+   "4 Charcadet SSP 32",
+   "4 Mist Energy TEF 161",
+   "4 Spiky Energy JTG 159",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "36 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charcadet SSP 32",
+   "Ceruledge SSP 35"
+  ],
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "active_energy": [
+   "Spiky Energy JTG 159",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Electrike MEG 49",
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   },
+   {
+    "card": "Electrike MEG 49",
+    "energy": [
+     "Spiky Energy JTG 159"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Blaze Curse"
+  }
+ ]
+}

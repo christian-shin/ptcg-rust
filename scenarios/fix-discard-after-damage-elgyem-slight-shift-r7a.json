@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Elgyem BLK 40",
+   "4 Duraludon PRE 69",
+   "4 Spiky Energy JTG 159",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Elgyem BLK 40",
+   "4 Duraludon PRE 69",
+   "4 Spiky Energy JTG 159",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Elgyem BLK 40",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slight Shift"
+  }
+ ]
+}

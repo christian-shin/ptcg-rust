@@ -235,6 +235,29 @@ pub fn move_cards(g: &mut Game, src: ListRef, dst: ListRef, cards: &[CardId], so
     Ok(())
 }
 
+/// `MOVE_CARDS(store, state, source, destination, { cards, afterDamageOf: attackEffect })`: Energy removed
+/// as an effect of an attack leaves after the damage (queued while the attack's window is open).
+pub fn move_cards_after_damage(g: &mut Game, atk: EffId, src: ListRef, dst: ListRef, cards: &[CardId], source_card: CardId) -> R {
+    if !g.after_damage_open(atk) {
+        return move_cards(g, src, dst, cards, source_card);
+    }
+    let mut cs: SVec<CardId, 32> = SVec::new();
+    for &c in cards {
+        cs.push(c);
+    }
+    g.push_after_damage(atk, crate::game::AfterDmgStep::Move { source: src, destination: dst, source_card, cards: cs });
+    Ok(())
+}
+
+/// `SHUFFLE_DECK_AFTER_DAMAGE(store, state, attackEffect, player)`.
+pub fn shuffle_deck_after_damage(g: &mut Game, atk: EffId, p: usize) {
+    if g.after_damage_open(atk) {
+        g.push_after_damage(atk, crate::game::AfterDmgStep::Shuffle(p as u8));
+    } else {
+        shuffle_deck(g, p);
+    }
+}
+
 /// `MOVE_CARDS(..., { count })`.
 pub fn move_count(g: &mut Game, src: ListRef, dst: ListRef, count: usize) -> R {
     move_count_from(g, src, dst, count, NO_CARD)

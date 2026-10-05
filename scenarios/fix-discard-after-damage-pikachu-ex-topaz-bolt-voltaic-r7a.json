@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pikachu ex ASC 57",
+   "4 Voltaic Lightning Energy PBL 84",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "8 Grass Energy MEE 1",
+   "8 Metal Energy MEE 8",
+   "28 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Pikachu ex ASC 57",
+   "4 Voltaic Lightning Energy PBL 84",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "8 Grass Energy MEE 1",
+   "8 Metal Energy MEE 8",
+   "28 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_energy": [
+   "Voltaic Lightning Energy PBL 84",
+   "Grass Energy MEE 1",
+   "Metal Energy MEE 8",
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Topaz Bolt"
+  }
+ ]
+}

@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Raging Bolt ex PRE 166",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "8 Fighting Energy MEE 6",
+   "40 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Raging Bolt ex PRE 166",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "8 Fighting Energy MEE 6",
+   "40 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Raging Bolt ex PRE 166",
+    "energy": [
+     "Lightning Energy MEE 4",
+     "Lightning Energy MEE 4"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bellowing Thunder"
+  }
+ ]
+}

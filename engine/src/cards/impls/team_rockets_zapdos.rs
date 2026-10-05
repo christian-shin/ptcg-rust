@@ -24,6 +24,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         f.a[1] = o as i32;
+        f.e[0] = e;
+        g.retain_fx(e);
         confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
     }
     if was_attack_used(g, e, 1, me) {
@@ -49,17 +51,21 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let p = f.a[0] as usize;
     let o = f.a[1] as usize;
     let first = results.first().copied().unwrap_or(Res::Null);
+    let atk = f.e[0];
     match f.stage {
         1 => {
             if !first.as_bool() {
+                g.release_fx(atk);
                 return Ok(());
             }
             let pl = &g.st.players[o];
             if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
+                g.release_fx(atk);
                 return Ok(());
             }
             let a = pl.active;
             if !pl.slots[a as usize].cards.iter().any(|c| g.st.cdef(c).is_energy()) {
+                g.release_fx(atk);
                 return Ok(());
             }
             let n = g.st.slot(o, a).cards.len() as u8;
@@ -72,6 +78,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let mut nf = CardFrame::at(2);
             nf.a[0] = p as i32;
             nf.a[1] = o as i32;
+            nf.e[0] = atk;
             let id = g.player_id(p);
             g.prompt(
                 id,
@@ -95,8 +102,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let src = ListRef::Slot(o as u8, g.st.players[o].active);
             for (to, c) in transfers.iter().copied() {
                 let target = get_target(&g.st, p, to)?;
-                move_cards(g, src, target.list(), &[c], me)?;
+                move_cards_after_damage(g, atk, src, target.list(), &[c], me)?;
             }
+            g.release_fx(atk);
             Ok(())
         }
         _ => Ok(()),

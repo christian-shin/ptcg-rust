@@ -6,6 +6,7 @@
 //! otherwise a ConfirmPrompt, then one MOVE_CARDS per mapped card (captured
 //! before the prompt; Active to deck), SHUFFLE_DECK and `effect.damage += 80`
 //! (after the shuffle prompt is opened, before it resolves).
+//! R7A (rulings 1580, 1846): the Energy goes back into the deck, and the deck is shuffled, after the damage (`move_cards_after_damage`, `shuffle_deck_after_damage`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Dialga", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -55,9 +56,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         let slot = SlotRef::new(p, f.l[0]);
         let cards: Vec<CardId> = g.lst(ListRef::Temp(f.l[1])).to_vec();
         for c in cards {
-            move_cards(g, slot.list(), ListRef::Deck(p as u8), &[c], me)?;
+            move_cards_after_damage(g, atk, slot.list(), ListRef::Deck(p as u8), &[c], me)?;
         }
-        shuffle_deck(g, p);
+        shuffle_deck_after_damage(g, atk, p);
         if let Effect::Attack { damage, .. } = g.e_mut(atk) {
             *damage += 80;
         }

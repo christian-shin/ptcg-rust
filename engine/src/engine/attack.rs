@@ -17,6 +17,8 @@ pub enum AtkStage {
     AfterAttackEffect,
     AfterAnimation,
     AfterDealDamage,
+    /// The Energy removals that waited for the damage have run (and their prompts resolved).
+    AfterDamageEffects,
     AfterAfterAttack,
     /// Barrage: after the first / second `checkState` wait, and the confirm.
     AfterBarrageCheck1,
@@ -165,6 +167,7 @@ fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
         f.stage = AtkStage::AfterAnimation;
         return crate::copy_attack::run_delegated_from_use_attack(g, f, copycat, src);
     }
+    g.open_after_damage(atk);
     g.reduce_effect(atk)?;
     if g.has_prompts() {
         f.stage = AtkStage::AfterAttackEffect;
@@ -213,7 +216,18 @@ fn deal_damage(g: &mut Game, mut f: AttackFrame) -> R {
     after_attack(g, f)
 }
 
+/// `RUN_AFTER_DAMAGE_EFFECTS`: Energy removed as an effect of the attack leaves after the damage.
 fn after_attack(g: &mut Game, mut f: AttackFrame) -> R {
+    g.run_after_damage(f.atk)?;
+    if g.has_prompts() {
+        f.stage = AtkStage::AfterDamageEffects;
+        g.wait_prompt(Cont::UseAttack(f));
+        return Ok(());
+    }
+    after_attack_effect(g, f)
+}
+
+fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
     g.run_fx(Effect::AfterAttack { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
     if g.has_prompts() {
@@ -358,6 +372,7 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
         AtkStage::AfterAnimation if f.delegate_from.is_some() => finish_attack(g, f),
         AtkStage::AfterAnimation => deal_damage(g, f),
         AtkStage::AfterDealDamage => after_attack(g, f),
+        AtkStage::AfterDamageEffects => after_attack_effect(g, f),
         AtkStage::AfterAfterAttack => finish_attack(g, f),
         AtkStage::AfterBarrageCheck1 | AtkStage::AfterBarrageCheck2 => barrage_after_check(g, f, f.stage),
         AtkStage::AfterBarrageConfirm => barrage_confirm(g, f, res.as_bool()),

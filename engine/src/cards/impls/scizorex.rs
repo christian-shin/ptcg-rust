@@ -8,6 +8,7 @@
 //! Energy", min 0, max 2, no cancel) even when nothing matches; an empty
 //! answer sets the damage to 0, otherwise each transfer is a MOVE_CARDS to
 //! the discard (no DiscardCardsEffect) and the damage is 120 x transfers.
+//! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Scizorex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -64,7 +65,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         let n = transfers.len() as i32;
         for (from, c) in transfers.iter().copied() {
             let source = get_target(&g.st, p, from)?;
-            move_cards(g, source.list(), ListRef::Discard(p as u8), &[c], me)?;
+            move_cards_after_damage(g, e, source.list(), ListRef::Discard(p as u8), &[c], me)?;
             if let Effect::Attack { damage, .. } = g.e_mut(e) {
                 *damage = n * 120;
             }

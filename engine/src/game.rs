@@ -112,6 +112,25 @@ pub mod fx_flag {
     pub const DAMAGE_INCREASED: u8 = 1 << 0;
     /// `PutDamageEffect.nonstackingDamageReducers` contains 'Curly Wall' (Bouffalant SCR).
     pub const CURLY_WALL: u8 = 1 << 1;
+    /// `AttackEffect.afterDamageEffects` is defined (the attack's after-damage window is open).
+    pub const AFTER_DMG_OPEN: u8 = 1 << 2;
+}
+
+/// A step queued in an attack's after-damage window (`prefabs/after-damage.ts`).
+#[derive(Clone, Copy, Debug)]
+pub enum AfterDmgStep {
+    /// An effect (held by the queue) to reduce after the damage.
+    Fx(EffId),
+    /// `MOVE_CARDS(source, destination, { cards, sourceCard })` after the damage (`afterDamageOf`).
+    Move { source: ListRef, destination: ListRef, source_card: CardId, cards: SVec<CardId, 32> },
+    /// `SHUFFLE_DECK(player)` after the damage.
+    Shuffle(u8),
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct AfterDmg {
+    pub atk: EffId,
+    pub step: AfterDmgStep,
 }
 
 pub const MAX_FX: usize = 48;
@@ -201,6 +220,8 @@ pub struct Game {
     pub copy_serial: u8,
     /// Source card code currently running as `.call(copycat)`.
     pub deleg: Option<crate::copy_attack::Deleg>,
+    /// Energy removals waiting for the damage of an attack (`afterDamageEffects`).
+    pub after_dmg: SVec<AfterDmg, 32>,
 }
 
 /// Prompt constructor work Twinleaf does in the prompt class itself:
@@ -249,7 +270,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg,
+                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg,
             } = src;
             f!((*d).st).write(*st);
             f!((*d).rng).write(*rng);
@@ -268,6 +289,7 @@ impl Game {
             copy_sessions.copy_live_to(f!((*d).copy_sessions));
             f!((*d).copy_serial).write(*copy_serial);
             f!((*d).deleg).write(*deleg);
+            after_dmg.copy_live_to(f!((*d).after_dmg));
         }
     }
 }
@@ -292,6 +314,7 @@ impl Game {
             copy_sessions: SVec::new(),
             copy_serial: 0,
             deleg: None,
+            after_dmg: SVec::new(),
         }
     }
 
@@ -310,6 +333,10 @@ impl Game {
     pub fn release_fx(&mut self, id: EffId) {
         let s = &mut self.fx.as_mut_slice()[id as usize];
         s.refs = s.refs.saturating_sub(1);
+        if s.refs == 0 && s.flags & fx_flag::AFTER_DMG_OPEN != 0 {
+            // The attack is gone with its window (a thrown error): drop what waited for the damage.
+            self.drop_after_damage(id);
+        }
         while let Some(top) = self.fx.as_slice().last() {
             if top.refs == 0 {
                 self.fx.pop();
@@ -317,6 +344,102 @@ impl Game {
                 break;
             }
         }
+    }
+
+    /// `OPEN_AFTER_DAMAGE_EFFECTS(attackEffect)`.
+    pub fn open_after_damage(&mut self, atk: EffId) {
+        self.drop_after_damage(atk);
+        self.set_fx_flag(atk, fx_flag::AFTER_DMG_OPEN);
+    }
+
+    /// The after-damage window of the attack effect is open.
+    pub fn after_damage_open(&self, atk: EffId) -> bool {
+        (atk as usize) < self.fx.len()
+            && matches!(self.fx.as_slice()[atk as usize].e, Effect::Attack { .. })
+            && self.fx.as_slice()[atk as usize].flags & fx_flag::AFTER_DMG_OPEN != 0
+    }
+
+    pub fn push_after_damage(&mut self, atk: EffId, step: AfterDmgStep) {
+        self.after_dmg.push(AfterDmg { atk, step });
+    }
+
+    /// Drop the steps queued for `atk` without running them.
+    fn drop_after_damage(&mut self, atk: EffId) {
+        let mut i = 0;
+        while i < self.after_dmg.len() {
+            if self.after_dmg.as_slice()[i].atk == atk {
+                let d = self.after_dmg.remove_at(i);
+                if let AfterDmgStep::Fx(id) = d.step {
+                    self.release_fx(id);
+                }
+            } else {
+                i += 1;
+            }
+        }
+    }
+
+    /// `RUN_AFTER_DAMAGE_EFFECTS(state, attackEffect)`: close the window, then run the queued steps in order.
+    pub fn run_after_damage(&mut self, atk: EffId) -> R {
+        if (atk as usize) < self.fx.len() {
+            self.fx.as_mut_slice()[atk as usize].flags &= !fx_flag::AFTER_DMG_OPEN;
+        }
+        let mut steps: SVec<AfterDmgStep, 32> = SVec::new();
+        let mut i = 0;
+        while i < self.after_dmg.len() {
+            if self.after_dmg.as_slice()[i].atk == atk {
+                steps.push(self.after_dmg.remove_at(i).step);
+            } else {
+                i += 1;
+            }
+        }
+        for step in steps.iter() {
+            match *step {
+                AfterDmgStep::Move { source, destination, source_card, cards } => {
+                    self.run_fx(Effect::MoveCards {
+                        source,
+                        destination,
+                        cards: Some(List::from_slice(cards.as_slice())),
+                        count: None,
+                        to_top: false,
+                        to_bottom: false,
+                        skip_cleanup: false,
+                        source_card,
+                    })?;
+                }
+                AfterDmgStep::Fx(id) => {
+                    let r = self.reduce_effect(id);
+                    self.release_fx(id);
+                    r?;
+                }
+                AfterDmgStep::Shuffle(p) => crate::prefabs::shuffle_deck(self, p as usize),
+            }
+        }
+        Ok(())
+    }
+
+    /// `DEFER_UNTIL_AFTER_DAMAGE(store, effect)`: queue an Energy removal of an attack whose window is open.
+    fn defer_after_damage(&mut self, id: EffId) -> bool {
+        let atk = match *self.e(id) {
+            Effect::MoveOpponentEnergy { b, card, .. } => {
+                if !self.st.cdef(card).is_energy() {
+                    return false;
+                }
+                b.attack_effect
+            }
+            Effect::DiscardCards { b, ref cards } | Effect::CardsToHand { b, ref cards } => {
+                if !cards.iter().all(|c| self.st.cdef(*c).is_energy()) {
+                    return false;
+                }
+                b.attack_effect
+            }
+            _ => return false,
+        };
+        if !self.after_damage_open(atk) {
+            return false;
+        }
+        self.retain_fx(id);
+        self.push_after_damage(atk, AfterDmgStep::Fx(id));
+        true
     }
 
     #[inline]
@@ -692,6 +815,10 @@ impl Game {
 
     /// `Store.reduceEffect`.
     pub fn reduce_effect(&mut self, id: EffId) -> R {
+        // Energy removed as an effect of an attack waits for the damage (prefabs/after-damage.ts).
+        if self.defer_after_damage(id) {
+            return Ok(());
+        }
         if self.trace_effects {
             let t = self.e(id).type_name();
             EFFECT_TRACE.with(|v| v.borrow_mut().push(t));

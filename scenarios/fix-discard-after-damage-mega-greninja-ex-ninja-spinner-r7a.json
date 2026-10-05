@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Greninja ex CRI 22",
+   "4 Frogadier CRI 21",
+   "4 Froakie CRI 20",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Mega Greninja ex CRI 22",
+   "4 Frogadier CRI 21",
+   "4 Froakie CRI 20",
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Froakie CRI 20",
+   "Frogadier CRI 21",
+   "Mega Greninja ex CRI 22"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ninja Spinner"
+  }
+ ]
+}
