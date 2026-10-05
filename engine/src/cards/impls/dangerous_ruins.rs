@@ -1,9 +1,10 @@
 //! Risky Ruins (MEG): whenever any player puts a Basic non-[D] Pokémon onto
-//! their Bench, put 2 damage counters on that Pokémon.
+//! their Bench during their turn, put 2 damage counters on that Pokémon.
 //!
 //! Twinleaf checks the target slot is empty when the play effect is reduced
-//! (so evolutions never trigger); it does not check that the slot is a
-//! Bench slot.
+//! (so evolutions never trigger). Fixed in phase 4b (R4): it also requires a
+//! Bench slot and the owner's own turn (a Basic put onto the Bench during the
+//! opponent's turn, e.g. Dream Ball taken as a Prize card, took counters).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -30,6 +31,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let d = g.st.cdef(card);
     if !g.st.slot(target.p as usize, target.s).cards.is_empty() || d.card_type.contains(&ct::DARK) {
+        return Ok(());
+    }
+    if !g.st.players[p as usize].bench.contains(&target.s) || g.st.active_player as usize != p as usize {
         return Ok(());
     }
     if d.stage == Stage::Basic as u8 {
