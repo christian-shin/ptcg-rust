@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Annihilape SSP 100",
+   "4 Dwebble DRI 11",
+   "48 Fighting Energy MEE"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Annihilape SSP 100",
+   "4 Dwebble DRI 11",
+   "48 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "prizes_left": 1
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "prizes_left": 1
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ]
+}

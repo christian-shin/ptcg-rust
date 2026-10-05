@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chi-Yu MEG 31",
+   "4 Dwebble DRI 11",
+   "4 Lively Stadium SSP 180",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Chi-Yu MEG 31",
+   "4 Dwebble DRI 11",
+   "4 Lively Stadium SSP 180",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chi-Yu MEG 31",
+  "active_energy": [
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "active_damage": 40,
+  "stadium": "Lively Stadium SSP 180",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scorching Earth"
+  }
+ ]
+}

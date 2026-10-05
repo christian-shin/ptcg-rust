@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Yungoos MEG 109",
+   "4 Gumshoos MEG 110",
+   "4 Sacred Charm PFL 93",
+   "4 Team Rocket's Watchtower ASC 210",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Yungoos MEG 109",
+   "4 Gumshoos MEG 110",
+   "4 Sacred Charm PFL 93",
+   "4 Team Rocket's Watchtower ASC 210",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Yungoos MEG 109",
+   "Gumshoos MEG 110"
+  ],
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Yungoos MEG 109"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Yungoos MEG 109",
+  "active_tool": "Sacred Charm PFL 93",
+  "stadium": "Team Rocket's Watchtower ASC 210",
+  "bench": [
+   {
+    "card": "Yungoos MEG 109"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bite"
+  }
+ ]
+}

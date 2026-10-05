@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pikachu ex ASC 57",
+   "4 Crustle DRI 12",
+   "4 Dwebble DRI 11",
+   "4 Spiky Energy JTG 159",
+   "16 Grass Energy MEE",
+   "16 Lightning Energy MEE",
+   "12 Metal Energy MEE"
+  ],
+  [
+   "4 Pikachu ex ASC 57",
+   "4 Crustle DRI 12",
+   "4 Dwebble DRI 11",
+   "4 Spiky Energy JTG 159",
+   "16 Grass Energy MEE",
+   "16 Lightning Energy MEE",
+   "12 Metal Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_energy": [
+   "Grass Energy MEE",
+   "Lightning Energy MEE",
+   "Metal Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Dwebble DRI 11",
+   "Crustle DRI 12"
+  ],
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Topaz Bolt"
+  }
+ ]
+}
