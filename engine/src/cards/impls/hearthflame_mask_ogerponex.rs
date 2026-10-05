@@ -8,6 +8,11 @@
 //! an empty Active slot), then discards every card of the Active's
 //! CheckProvidedEnergyEffect in one DiscardCardsEffect. The Tera rule is
 //! TERA_RULE spelled out (see `tera_rule`).
+//!
+//! Fixed (phase 4b, R2): the discard of all Energy ran even when the
+//! opponent's Active was a Basic Pokémon; "If your opponent's Active Pokémon
+//! is an Evolution Pokémon, this attack does 140 more damage, and discard all
+//! Energy from this Pokémon" makes both parts depend on the condition.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HearthflameMaskOgerponex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
@@ -38,17 +43,17 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if let Effect::Attack { damage, .. } = g.e_mut(e) {
                 *damage += 140;
             }
-        }
-        let active = SlotRef::new(pu, g.st.players[pu].active);
-        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
-        let mut cards: SVec<CardId, 16> = SVec::new();
-        if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-            for m in energy_map.iter() {
-                cards.push(m.card);
+            let active = SlotRef::new(pu, g.st.players[pu].active);
+            let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
+            let mut cards: SVec<CardId, 16> = SVec::new();
+            if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+                for m in energy_map.iter() {
+                    cards.push(m.card);
+                }
             }
+            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: active };
+            g.run_fx(Effect::DiscardCards { b, cards })?;
         }
-        let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: active };
-        g.run_fx(Effect::DiscardCards { b, cards })?;
     }
     tera_rule(g, e, me);
     Ok(())

@@ -2,10 +2,14 @@
 //! opponent's) take 30 less damage from attacks from the opponent's Pokémon
 //! (after applying Weakness and Resistance).
 //!
-//! Twinleaf: every PutDamageEffect (any source, including a player's own
-//! attack on its own Pokémon) on a [M] Pokémon (CheckPokemonTypeEffect) is
-//! reduced by 30 (floored at 0) unless the stadium effect is blocked for the
-//! target's owner. The stadium can't be used.
+//! Twinleaf: every PutDamageEffect from an attack of the opponent's Pokémon
+//! on a [M] Pokémon (CheckPokemonTypeEffect) is reduced by 30 (floored at 0)
+//! unless the stadium effect is blocked for the target's owner. The stadium
+//! can't be used.
+//!
+//! Fixed (phase 4b, R2): the reduction also applied to damage a player's own
+//! attack put on its own [M] Pokémon (recoil, own Bench damage); the text only
+//! reduces damage from attacks of the opponent's Pokémon.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -24,6 +28,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     match *g.e(e) {
         Effect::PutDamage { b, .. } => {
             let t = b.target;
+            // Your own attacks are not reduced.
+            if b.player == t.p {
+                return Ok(());
+            }
             if is_stadium_effect_blocked(g, t.p as usize, t, me) {
                 return Ok(());
             }

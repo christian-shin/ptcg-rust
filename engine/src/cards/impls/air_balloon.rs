@@ -9,7 +9,7 @@ pub static IMPL: CardImpl = CardImpl { class: "AirBalloon", mask: mask(&[k::CHEC
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let (p, cost) = match *g.e(e) {
-        Effect::CheckRetreatCost { p, cost } => (p as usize, cost),
+        Effect::CheckRetreatCost { p, cost, .. } => (p as usize, cost),
         _ => return Ok(()),
     };
     let a = g.st.players[p].active;

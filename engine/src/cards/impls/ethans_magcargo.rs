@@ -19,8 +19,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.slot(p, a).cards.contains(me) && !is_ability_blocked(g, p, me, None) {
             let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
             if matches!(pe, Effect::CheckProvidedEnergy { energy_map, .. } if energy_map.is_empty()) {
-                if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(e) {
+                if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
                     *cost = SVec::new();
+                    *no_cost = true;
                 }
             }
         }

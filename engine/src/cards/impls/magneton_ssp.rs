@@ -5,9 +5,12 @@
 //!
 //! Twinleaf: throws CANNOT_USE_POWER without a basic Energy in the discard;
 //! a non-cancellable AttachEnergyPrompt (discard → Bench/Active, basic
-//! Energy, min 0 max 3, non-[L] Pokémon blocked). With no transfer nothing
-//! happens (no KO); otherwise MOVE_CARDS each, then `damage += 999` on this
-//! card's slot. No once-per-turn marker, no ABILITY_USED.
+//! Energy, min 0 max 3, non-[L] Pokémon blocked); MOVE_CARDS each transfer,
+//! then `damage += 999` on this card's slot. No once-per-turn marker, no
+//! ABILITY_USED.
+//!
+//! Fixed (phase 4b, R2): with no transfer (0 chosen) Magneton was not Knocked
+//! Out; the text says it is Knocked Out whenever the Ability is used.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Magneton@SSP", mask: mask(&[k::POWER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -61,9 +64,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         Some(Res::Attach(t)) => *t,
         _ => SVec::new(),
     };
-    if transfers.is_empty() {
-        return Ok(());
-    }
     for (to, c) in transfers.iter().copied() {
         let target = get_target(&g.st, p, to)?;
         move_cards(g, ListRef::Discard(p as u8), target.list(), &[c], me)?;

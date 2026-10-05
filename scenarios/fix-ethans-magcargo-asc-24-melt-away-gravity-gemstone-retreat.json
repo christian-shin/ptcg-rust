@@ -1,0 +1,40 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Ethan's Slugma ASC 23",
+      "4 Ethan's Magcargo ASC 24",
+      "1 Gravity Gemstone SCR 137",
+      "51 Fire Energy MEE 2"
+    ],
+    [
+      "4 Ethan's Slugma ASC 23",
+      "4 Ethan's Magcargo ASC 24",
+      "1 Gravity Gemstone SCR 137",
+      "51 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Ethan's Slugma ASC 23",
+      "Ethan's Magcargo ASC 24"
+    ],
+    "bench": [
+      {
+        "card": "Ethan's Slugma ASC 23"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Ethan's Slugma ASC 23",
+    "active_tool": "Gravity Gemstone SCR 137"
+  },
+  "answers": [
+    {
+      "a": "retreat",
+      "bench": 0
+    }
+  ]
+}

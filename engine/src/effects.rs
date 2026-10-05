@@ -83,7 +83,7 @@ pub enum Effect {
     CheckHp { p: u8, target: SlotRef, card: Option<CardId> },
     CheckPokemonStats { target: SlotRef, weakness: SVec<WeaknessV, 4>, resistance: SVec<ResistanceV, 4> },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
-    CheckRetreatCost { p: u8, cost: Cost },
+    CheckRetreatCost { p: u8, cost: Cost, no_cost: bool },
     CheckAttackCost { p: u8, attack: AttackRef, cost: Cost },
     CheckProvidedEnergy { p: u8, source: SlotRef, energy_map: EnergyMap },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },

@@ -1,0 +1,31 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Hilda WHT 84",
+      "4 Larvitar JTG 80",
+      "52 Fighting Energy MEE"
+    ],
+    [
+      "4 Hilda WHT 84",
+      "4 Larvitar JTG 80",
+      "52 Fighting Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Larvitar JTG 80",
+    "hand": [
+      "Hilda WHT 84"
+    ],
+    "discard": [
+      "3 Hilda WHT 84",
+      "3 Larvitar JTG 80",
+      "52 Fighting Energy MEE"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Larvitar JTG 80"
+  }
+}

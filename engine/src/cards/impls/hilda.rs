@@ -5,6 +5,9 @@
 //! `max = min(evolutions,1) + min(energies,1)` with `maxPokemons` /
 //! `maxEnergies`; ShowCards only when something was taken; the final
 //! ShuffleDeckPrompt has no trailing wait.
+//!
+//! Fixed (phase 4b, R2): playable with an empty deck; it now throws
+//! CANNOT_PLAY_THIS_CARD before any state change (rulings 779, 851).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Hilda", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,6 +19,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    // A search of an empty deck is not possible, so the card cannot be played.
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);

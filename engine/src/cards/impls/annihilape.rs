@@ -11,6 +11,11 @@
 //! for a copycat (a copied Ghostly Blow's session), `IS_ABILITY_BLOCKED` is
 //! true for the copycat, so Durable Body no longer applies to it (it used to
 //! throw here for a copycat whose card has no powers).
+//!
+//! Fixed (phase 4b, R2): Ghostly Blow placed its counters with a
+//! PlaceDamageCountersEffect (an Ability effect), which Mist Energy, Empoleon
+//! ex and Skeledirge do not prevent; it now uses a PutCountersEffect (an
+//! effect of the attack) on the chosen Benched Pokémon.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -48,6 +53,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         slots.push(SlotType::Bench as u8);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
+        f.e[0] = e;
+        g.retain_fx(e);
         let id = g.player_id(p);
         g.prompt(
             id,
@@ -59,16 +66,25 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
+fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     if f.stage != 1 {
         return Ok(());
     }
-    let p = f.a[0] as usize;
+    let atk = f.e[0];
     let picked: Vec<SlotRef> = results.first().map(|r| r.slots().to_vec()).unwrap_or_default();
-    let dest = match picked.first() {
-        Some(d) => *d,
-        None => return Ok(()),
-    };
-    g.run_fx(Effect::PlaceDamageCounters { p: p as u8, target: dest, damage: 50, source: me })?;
-    Ok(())
+    let r = (|| -> R {
+        let dest = match picked.first() {
+            Some(d) => *d,
+            None => return Ok(()),
+        };
+        let (p, opp, attack, source) = match *g.e(atk) {
+            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
+            _ => return Ok(()),
+        };
+        let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: dest };
+        g.run_fx(Effect::PutCounters { b, damage: 50 })?;
+        Ok(())
+    })();
+    g.release_fx(atk);
+    r
 }

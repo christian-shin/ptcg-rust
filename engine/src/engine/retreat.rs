@@ -78,7 +78,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             cost.push(t);
         }
     }
-    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost })?;
+    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false })?;
     let cost = match e {
         Effect::CheckRetreatCost { cost, .. } => cost,
         _ => SVec::new(),

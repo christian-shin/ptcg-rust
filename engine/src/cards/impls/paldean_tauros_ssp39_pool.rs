@@ -6,16 +6,20 @@
 //! Energy (CheckProvidedEnergyEffect on the opponent's Active); then a
 //! ConfirmPrompt (WANT_TO_USE_ABILITY) and a non-cancellable ChooseEnergyPrompt
 //! over that map for min(2, entries) [C]; MOVE_CARDS Active -> hand.
+//!
+//! Fixed (phase 4b, R2): the Energy was taken in the attack handler, before
+//! the damage (Spiky Energy on the Defending Pokémon was gone); it now runs in
+//! AfterAttackEffect.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "PaldeanTaurosSSP39Pool", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "PaldeanTaurosSSP39Pool", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
+    if !after_attack_used(g, e, 0, me) {
         return Ok(());
     }
     let (p, o) = match *g.e(e) {
-        Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+        Effect::AfterAttack { p, opp, .. } => (p as usize, opp as usize),
         _ => return Ok(()),
     };
     let target = match g.st.active_pokemon(o) {

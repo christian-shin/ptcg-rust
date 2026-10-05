@@ -1,0 +1,40 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Chi-Yu TWM 39",
+      "4 Hop's Zacian ex JTG 111",
+      "4 Full Metal Lab TEF 148",
+      "48 Fire Energy MEE 2"
+    ],
+    [
+      "4 Chi-Yu TWM 39",
+      "4 Hop's Zacian ex JTG 111",
+      "4 Full Metal Lab TEF 148",
+      "48 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Chi-Yu TWM 39",
+    "active_energy": [
+      "2 Fire Energy MEE 2"
+    ],
+    "stadium": "Full Metal Lab TEF 148"
+  },
+  "opp": {
+    "reset": true,
+    "active": "Hop's Zacian ex JTG 111",
+    "bench": [
+      {
+        "card": "Chi-Yu TWM 39"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Ground Melter"
+    }
+  ]
+}

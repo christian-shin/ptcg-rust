@@ -15,7 +15,7 @@
 //! power is named 'test'). Fixed (R1-14, ruling 1877): the callback returns
 //! `false` for a checked card that has an Ability named "Hide 'n' Sneak" (it
 //! takes precedence over Midnight Fluttering, whichever came into play
-//! first). Hex Hurl is PUT_X_DAMAGE_COUNTERS_IN_ANY_WAY_YOU_LIKE (2, Bench).
+//! first; same fix in R2 and R4). Hex Hurl is PUT_X_DAMAGE_COUNTERS_IN_ANY_WAY_YOU_LIKE (2, Bench).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "FlutterMane", mask: mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };

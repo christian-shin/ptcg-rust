@@ -53,7 +53,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     for &t in g.st.cdef(pokemon).retreat {
         cost.push(t);
     }
-    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost })?;
+    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false })?;
     if !matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == 4) {
         return Ok(());
     }

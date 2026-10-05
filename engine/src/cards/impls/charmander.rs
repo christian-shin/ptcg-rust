@@ -29,8 +29,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => false,
     };
     if empty {
-        if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(e) {
+        if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
             cost.clear();
+            *no_cost = true;
         }
     }
     Ok(())

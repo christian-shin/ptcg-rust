@@ -47,8 +47,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             let types = crate::engine::game_effect::pokemon_types(g, t);
             let (ct_e, _) = g.run_fx(Effect::CheckPokemonType { target: t, card_types: types })?;
             if matches!(ct_e, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::METAL)) {
-                if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(e) {
+                if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
                     cost.clear();
+                    *no_cost = true;
                 }
             }
         }

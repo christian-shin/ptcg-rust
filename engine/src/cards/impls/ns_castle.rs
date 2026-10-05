@@ -16,8 +16,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
             let ns = g.st.active_pokemon(p).map(|c| g.st.cdef(c).has_tag(tag::NS)).unwrap_or(false);
             if ns {
-                if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(e) {
+                if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
                     cost.clear();
+                    *no_cost = true;
                 }
             }
             Ok(())

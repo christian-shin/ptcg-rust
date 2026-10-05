@@ -7,15 +7,21 @@
 //! Fulgurite: CheckProvidedEnergyEffect(player) on the Active, a
 //! DiscardCardsEffect of the map's cards on the Active, then
 //! OPPONENT_CANNOT_PLAY_ITEM_CARDS (PlayLockEffect). Tera bench protection.
+//!
+//! Fixed (phase 4b, R2): the Energy was discarded in the attack handler,
+//! before the damage (Voltaic Lightning Energy's +20 was lost); it is now
+//! discarded in AfterAttackEffect. The Item lock stays in the attack handler.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Galvantulaex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Galvantulaex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
 
 /// CheckProvidedEnergyEffect(player) on the Active, then a DiscardCardsEffect
 /// of every mapped card with `target = player.active`.
 pub fn discard_all_active_energy(g: &mut Game, e: EffId) -> R {
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
+        // `new AttackEffect(player, opponent, attack)`: its source is the Active.
+        Effect::AfterAttack { p, opp, attack } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
         _ => return Ok(()),
     };
     let active = SlotRef::new(p as usize, g.st.players[p as usize].active);
@@ -45,8 +51,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
         }
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
         discard_all_active_energy(g, e)?;
+    }
+    if was_attack_used(g, e, 1, me) {
         return opponent_cannot_play_cards(g, e, crate::effects::play_lock::ITEM);
     }
     tera_rule(g, e, me);

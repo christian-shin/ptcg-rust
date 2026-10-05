@@ -24,8 +24,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             return Ok(());
         }
         if !is_ability_blocked(g, p, me, None) && g.st.cdef(active).stage == Stage::Basic as u8 {
-            if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(e) {
+            if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
                 cost.clear();
+                *no_cost = true;
             }
         }
         return Ok(());

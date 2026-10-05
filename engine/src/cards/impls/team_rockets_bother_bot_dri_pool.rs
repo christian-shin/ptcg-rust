@@ -4,7 +4,9 @@
 //! those cards. (That Prize card remains face up for the rest of the game.)
 //!
 //! Twinleaf: throws CANNOT_PLAY_THIS_CARD when every non-empty Prize card of
-//! the opponent is already face up; the card goes to the supporter zone by
+//! the opponent is already face up and the opponent has no card in hand (phase
+//! 4b, R2: with cards in hand it is playable and you only look at a random
+//! one: a ShowCardsPrompt, then the card is discarded; ruling 1681); the card goes to the supporter zone by
 //! hand (preventDefault). A ChoosePrizePrompt (opponent's Prizes, face-down
 //! only, face-up ones blocked) picks the Prize; its list gets `faceUpPrize`.
 //! An empty opposing hand: ShowCardsPrompt of the Prize card, then the card is
@@ -34,11 +36,24 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         n += 1;
     }
-    if blocked.len() == n as usize {
+    // Playable unless the opponent has no face-down Prize card AND no card in hand.
+    let has_face_down_prize = blocked.len() < n as usize;
+    if !has_face_down_prize && g.st.players[o].hand.is_empty() {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     g.set_prevent(e, true);
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
+    if !has_face_down_prize {
+        // No face-down Prize card to turn face up: you only look at a random
+        // card of their hand.
+        let n = g.st.players[o].hand.len();
+        let _ = g.rng.index(n);
+        let mut nf = CardFrame::at(4);
+        nf.a[0] = p as i32;
+        let id = g.player_id(p);
+        g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Card { card: me, frame: nf });
+        return Ok(());
+    }
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
     let id = g.player_id(p);

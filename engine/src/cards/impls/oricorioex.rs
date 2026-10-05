@@ -9,6 +9,10 @@
 //! Fixed (phase 4b, W4): the Mega ex check only looked at the cards stacked
 //! in the Active Spot (now any Pokémon in play), and the card was missing its
 //! `ex` tag (so a Knock Out gave 1 Prize card instead of 2).
+//!
+//! Fixed (phase 4b, R2): the AttachEnergyPrompt had the default min 0 / max
+//! hand size, so a use could attach nothing (a free repeatable no-op) or many
+//! cards; each use attaches exactly 1 Energy card (min 1, max 1).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Oricorioex", mask: mask(&[k::POWER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -50,6 +54,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let mut o = AttachOpts::new(g.st.players[p].hand.len() as u8);
         o.allow_cancel = false;
+        o.min = 1;
+        o.max = 1;
         o.blocked_to = blocked_to;
         let filter = Filter {
             super_type: Some(SuperType::Energy as u8),

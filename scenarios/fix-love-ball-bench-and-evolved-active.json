@@ -1,0 +1,37 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Love Ball TWM 156",
+      "4 Charmander PFL 11",
+      "4 Charmeleon PFL 12",
+      "4 Hop's Snorlax JTG 117",
+      "44 Fire Energy MEE 2"
+    ],
+    [
+      "4 Love Ball TWM 156",
+      "4 Charmander PFL 11",
+      "4 Charmeleon PFL 12",
+      "4 Hop's Snorlax JTG 117",
+      "44 Fire Energy MEE 2"
+    ]
+  ],
+  "me": {
+    "hand_to_deck": true,
+    "hand": [
+      "Love Ball TWM 156"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": [
+      "Charmander PFL 11",
+      "Charmeleon PFL 12"
+    ],
+    "bench": [
+      {
+        "card": "Hop's Snorlax JTG 117"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Goldeen PRE 20",
+      "4 Seaking PRE 21",
+      "4 Flutter Mane PRE 43",
+      "4 Festival Grounds PRE 108",
+      "44 Water Energy MEE 3"
+    ],
+    [
+      "4 Goldeen PRE 20",
+      "4 Seaking PRE 21",
+      "4 Flutter Mane PRE 43",
+      "4 Festival Grounds PRE 108",
+      "44 Water Energy MEE 3"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Goldeen PRE 20",
+      "Seaking PRE 21"
+    ],
+    "active_energy": [
+      "Water Energy MEE 3"
+    ],
+    "stadium": "Festival Grounds PRE 108"
+  },
+  "opp": {
+    "reset": true,
+    "active": [
+      "Goldeen PRE 20",
+      "Seaking PRE 21"
+    ],
+    "active_energy": [
+      "Water Energy MEE 3"
+    ],
+    "bench": [
+      {
+        "card": "Flutter Mane PRE 43"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Rapid Draw"
+    },
+    false,
+    {
+      "a": "retreat",
+      "bench": 0
+    },
+    {
+      "a": "pass"
+    },
+    {
+      "a": "attack",
+      "name": "Rapid Draw"
+    }
+  ]
+}
