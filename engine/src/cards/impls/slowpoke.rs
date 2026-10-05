@@ -5,7 +5,9 @@
 //! pile holds a Pokémon (Twinleaf checked for any card, so the min-1 prompt
 //! could have no valid answer), and the chosen card is moved from the discard
 //! pile itself (Twinleaf moved it from a fresh CardList, so it stayed in the
-//! discard pile as well as going to the hand).
+//! discard pile as well as going to the hand). Phase 4b (R4, Meta-Rulings): the
+//! chosen cards are revealed to the opponent before they are moved (cards moving
+//! from the discard pile to the hand are revealed).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -47,6 +49,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     }
     let p = f.a[0] as usize;
     let selected: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
+    show_cards_to_player(g, 1 - p, selected.len());
     g.run_fx(Effect::MoveCards {
         source: ListRef::Discard(p as u8),
         destination: ListRef::Hand(p as u8),
