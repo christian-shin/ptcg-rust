@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Electrike MEG 49",
+   "4 Manectric PBL 24",
+   "1 Binding Mochi PRE 95",
+   "4 Mega Starmie ex POR 21",
+   "4 Staryu POR 20",
+   "9 Fire Energy MEE 2",
+   "9 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "8 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ],
+  [
+   "4 Electrike MEG 49",
+   "4 Manectric PBL 24",
+   "1 Binding Mochi PRE 95",
+   "4 Mega Starmie ex POR 21",
+   "4 Staryu POR 20",
+   "9 Fire Energy MEE 2",
+   "9 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "8 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Manectric PBL 24"
+  ],
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ],
+  "active_tool": "Binding Mochi PRE 95",
+  "active_conditions": [
+   "POISONED"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Staryu POR 20",
+   "Mega Starmie ex POR 21"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sonic Edge"
+  }
+ ]
+}

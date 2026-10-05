@@ -639,10 +639,22 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb) -> R {
     Ok(())
 }
 
+/// `ignoresDefenderEffects(effect)`: Shred ("isn't affected by any effects on your opponent's Active
+/// Pokémon"). True for damage by an attack whose `AttackEffect.ignoreDefenderEffects` is set, done to one
+/// of the opponent's Pokémon. Effects on the damaged Pokémon (prevention, reduction, extra damage taken,
+/// Tera/Bench protection) must not change it (rulings 1439, 1345, 1490, 1629, 1875); effects on the
+/// attacker, Weakness/Resistance and survive-on-10-HP effects (rulings 936, 1770) still apply.
+pub fn ignores_defender_effects(g: &Game, b: &AtkBase) -> bool {
+    matches!(*g.e(b.attack_effect), Effect::Attack { ignore_defender_effects: true, .. }) && b.target.p == b.opponent
+}
+
 /// `TERA_RULE(effect, state, source)`: prevent attack damage put on this
 /// Pokémon while it is on the Bench.
 pub fn tera_rule(g: &mut Game, e: EffId, me: CardId) {
     if let Effect::PutDamage { b, .. } = *g.e(e) {
+        if ignores_defender_effects(g, &b) {
+            return;
+        }
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).cards.contains(me) && g.st.slot_pokemon(t.p as usize, t.s) == Some(me) {
             let pl = b.player as usize;

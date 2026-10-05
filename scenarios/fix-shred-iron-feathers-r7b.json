@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce ex JTG 121",
+   "8 Fire Energy MEE 2",
+   "8 Fighting Energy MEE 6",
+   "8 Psychic Energy MEE 5",
+   "8 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ],
+  [
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce ex JTG 121",
+   "8 Fire Energy MEE 2",
+   "8 Fighting Energy MEE 6",
+   "8 Psychic Energy MEE 5",
+   "8 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Piplup PFL 27",
+   "Prinplup BRS 36",
+   "Empoleon ex PFL 70"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Dunsparce PRE 79",
+   "Dudunsparce ex JTG 121"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Iron Feathers"
+  },
+  {
+   "a": "attack",
+   "name": "Destructive Drill"
+  }
+ ]
+}

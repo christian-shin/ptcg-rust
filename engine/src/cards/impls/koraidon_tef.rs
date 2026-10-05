@@ -3,10 +3,9 @@
 //! on your opponent's Active Pokémon.
 //!
 //! Twinleaf (temporal-forces file): Primordial Beatdown sets
-//! `damage = 30 × Ancient Pokémon` (Active + Bench). Shred reduces its own
-//! ApplyWeaknessEffect (130, ignore flags unset), zeroes the attack damage,
-//! adds the result straight to the opponent's Active and reduces an
-//! AfterDamageEffect (no PutDamageEffect).
+//! `damage = 30 × Ancient Pokémon` (Active + Bench). Shred sets
+//! `ignoreDefenderEffects` (phase 4b R7B: it used to add the damage straight to
+//! the Active, skipping the attacker's effects).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Koraidon@TEF", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -32,27 +31,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
 
     if was_attack_used(g, e, 1, me) {
-        let (p, opp, attack, source) = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let o = opp as usize;
-        let target = SlotRef::new(o, g.st.players[o].active);
-        let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-        let (w, _) = g.run_fx(Effect::ApplyWeakness { b, damage: 130, ignore_weakness: false, ignore_resistance: false })?;
-        let damage = match w {
-            Effect::ApplyWeakness { damage, .. } => damage,
-            _ => 130,
-        };
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = 0;
-        }
-        if damage > 0 {
-            let a = g.st.players[o].active;
-            g.st.players[o].slots[a as usize].damage += damage;
-            let target = SlotRef::new(o, a);
-            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-            g.run_fx(Effect::AfterDamage { b, damage })?;
+        // Shred: effects on the Defending Pokémon don't change the damage.
+        if let Effect::Attack { ignore_defender_effects, .. } = g.e_mut(e) {
+            *ignore_defender_effects = true;
         }
     }
     Ok(())

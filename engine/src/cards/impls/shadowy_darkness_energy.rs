@@ -38,6 +38,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Effect::DealDamage { b, .. } | Effect::PutDamage { b, .. } => b,
         _ => return Ok(()),
     };
+    if ignores_defender_effects(g, &b) {
+        return Ok(());
+    }
     if g.st.phase != GamePhase::Attack {
         return Ok(());
     }

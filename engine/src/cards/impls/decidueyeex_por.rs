@@ -42,7 +42,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         // `new AttackEffect(player, opponent, this.attacks[0])`
         let source = SlotRef::new(p as usize, g.st.players[p as usize].active);
-        let atk = g.new_fx(Effect::Attack { p, opp, attack, damage: 0, ignore_weakness: false, ignore_resistance: false, source, barrage_used: false });
+        let atk = g.new_fx(Effect::Attack { p, opp, attack, damage: 0, ignore_weakness: false, ignore_resistance: false, ignore_defender_effects: false, source, barrage_used: false });
         return discard_an_energy_from_opponents_active(g, me, atk, 1);
     }
     Ok(())

@@ -7,8 +7,9 @@
 //! with `ignoreWeaknessAndResistance` (phase 4b; it used to set
 //! `effect.ignoreResistance` on the AttackEffect and build its own
 //! ApplyWeaknessEffect with the flags unset, so Weakness and Resistance
-//! applied): ApplyWeaknessEffect on `effect.damage`, zero the attack damage,
-//! add the damage directly to the opponent's Active, then AfterDamage.
+//! applied): sets `ignoreDefenderEffects` and ignores Weakness/Resistance on
+//! the AttackEffect (phase 4b R7B: the damage used to be added straight to the
+//! Active, skipping the attacker's effects).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaStarmieex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };

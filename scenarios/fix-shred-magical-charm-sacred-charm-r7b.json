@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Sacred Charm PFL 93",
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce ex JTG 121",
+   "9 Fire Energy MEE 2",
+   "9 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "8 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Sacred Charm PFL 93",
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce ex JTG 121",
+   "9 Fire Energy MEE 2",
+   "9 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "8 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Eevee PRE 74",
+   "Sylveon ex PRE 41"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "active_tool": "Sacred Charm PFL 93"
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Dunsparce PRE 79",
+   "Dudunsparce ex JTG 121"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Magical Charm"
+  },
+  {
+   "a": "attack",
+   "name": "Destructive Drill"
+  }
+ ]
+}

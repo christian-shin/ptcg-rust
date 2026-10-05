@@ -542,6 +542,7 @@ fn start_delegated(g: &mut Game, mut f: CopyFrame, source: CardId, index: u8) ->
         damage,
         ignore_weakness: false,
         ignore_resistance: false,
+        ignore_defender_effects: false,
         source: f.src_slot,
         barrage_used: false,
     });

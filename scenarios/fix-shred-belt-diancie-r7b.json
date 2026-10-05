@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Koraidon TEF 119",
+   "1 Maximum Belt PRE 117",
+   "4 Mega Diancie ex ASC 267",
+   "17 Fire Energy MEE 2",
+   "17 Fighting Energy MEE 6",
+   "17 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Koraidon TEF 119",
+   "1 Maximum Belt PRE 117",
+   "4 Mega Diancie ex ASC 267",
+   "17 Fire Energy MEE 2",
+   "17 Fighting Energy MEE 6",
+   "17 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon TEF 119",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shred"
+  }
+ ]
+}

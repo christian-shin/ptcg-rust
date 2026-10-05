@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Zekrom ASC 155",
+   "4 Fezandipiti PRE 45",
+   "18 Fire Energy MEE 2",
+   "17 Darkness Energy MEE 7",
+   "17 Psychic Energy MEE 5"
+  ],
+  [
+   "4 N's Zekrom ASC 155",
+   "4 Fezandipiti PRE 45",
+   "18 Fire Energy MEE 2",
+   "17 Darkness Energy MEE 7",
+   "17 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "N's Zekrom ASC 155",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Shred"
+  }
+ ],
+ "coins": [
+  true,
+  true,
+  true
+ ]
+}

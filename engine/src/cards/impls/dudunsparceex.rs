@@ -1,6 +1,7 @@
 //! Dudunsparce ex (JTG): Tenacious Tail — 60× your opponent's Pokémon ex in
 //! play. Destructive Drill — 150, not affected by effects on your opponent's
-//! Active Pokémon (own ApplyWeaknessEffect, direct damage, AfterDamageEffect).
+//! Active Pokémon (`ignoreDefenderEffects`; phase 4b R7B: it used to add the
+//! damage straight to the Active).
 use super::mega_lopunnyex::shred;
 use crate::cards::prelude::*;
 

@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Regigigas PRE 86",
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce ex JTG 121",
+   "1 Neutralization Zone SFA 60",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ],
+  [
+   "4 Regigigas PRE 86",
+   "4 Dunsparce PRE 79",
+   "4 Dudunsparce ex JTG 121",
+   "1 Neutralization Zone SFA 60",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Regigigas PRE 86",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "stadium": "Neutralization Zone SFA 60"
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Dunsparce PRE 79",
+   "Dudunsparce ex JTG 121"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Destructive Drill"
+  }
+ ]
+}

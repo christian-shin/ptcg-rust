@@ -27,6 +27,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     match *g.e(e) {
         Effect::PutDamage { b, .. } => {
+            if ignores_defender_effects(g, &b) {
+                return Ok(());
+            }
             let t = b.target;
             // Your own attacks are not reduced.
             if b.player == t.p {

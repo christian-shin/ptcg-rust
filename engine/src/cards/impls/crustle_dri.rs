@@ -5,16 +5,18 @@
 //!
 //! Twinleaf: the ability only reacts to PutDamageEffect while this card is
 //! the target's top Pokémon, during the attack phase; the lock check reduces
-//! a real PowerEffect for Mysterious Stone House. Great Scissors applies
-//! Weakness/Resistance on its own ApplyWeaknessEffect (ignore flags unset),
-//! zeroes the attack damage, adds the damage straight to the opponent's
-//! Active and reduces an AfterDamageEffect (no PutDamageEffect).
+//! a real PowerEffect for Mysterious Stone House (skipped for a Shred attack's
+//! damage). Great Scissors sets `ignoreDefenderEffects` (phase 4b R7B: it used
+//! to add the damage straight to the Active, skipping the attacker's effects).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Crustle@DRI", mask: mask(&[k::PUT_DAMAGE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::PutDamage { b, .. } = *g.e(e) {
+        if ignores_defender_effects(g, &b) {
+            return Ok(());
+        }
         let t = b.target;
         if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
             return Ok(());
@@ -43,27 +45,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
 
     if was_attack_used(g, e, 0, me) {
-        let (p, opp, attack, source) = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let o = 1 - p as usize;
-        let target = SlotRef::new(o, g.st.players[o].active);
-        let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-        let (w, _) = g.run_fx(Effect::ApplyWeakness { b, damage: 120, ignore_weakness: false, ignore_resistance: false })?;
-        let damage = match w {
-            Effect::ApplyWeakness { damage, .. } => damage,
-            _ => 120,
-        };
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = 0;
-        }
-        if damage > 0 {
-            let a = g.st.players[o].active;
-            g.st.players[o].slots[a as usize].damage += damage;
-            let target = SlotRef::new(o, a);
-            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-            g.run_fx(Effect::AfterDamage { b, damage })?;
+        // Shred: effects on the Defending Pokémon don't change the damage.
+        if let Effect::Attack { ignore_defender_effects, .. } = g.e_mut(e) {
+            *ignore_defender_effects = true;
         }
     }
     Ok(())

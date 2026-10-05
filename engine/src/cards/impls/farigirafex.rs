@@ -13,6 +13,9 @@ pub static IMPL: CardImpl = CardImpl { class: "Farigirafex", mask: mask(&[k::ATT
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::PutDamage { b, .. } = *g.e(e) {
+        if ignores_defender_effects(g, &b) {
+            return Ok(());
+        }
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).cards.contains(me) {
             // Under a copy session (copycat = me) the probe throws BLOCKED_BY_EFFECT.

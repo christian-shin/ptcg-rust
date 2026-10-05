@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Crown ex PRE 158",
+   "1 Maximum Belt PRE 117",
+   "4 Mega Diancie ex ASC 267",
+   "4 Eevee ex PRE 75",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ],
+  [
+   "4 Iron Crown ex PRE 158",
+   "1 Maximum Belt PRE 117",
+   "4 Mega Diancie ex ASC 267",
+   "4 Eevee ex PRE 75",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "9 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Crown ex PRE 158",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267",
+  "bench": [
+   {
+    "card": "Eevee ex PRE 75"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Twin Shotels"
+  }
+ ]
+}

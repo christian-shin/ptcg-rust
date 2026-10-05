@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Koraidon TEF 119",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ],
+  [
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Koraidon TEF 119",
+   "10 Fire Energy MEE 2",
+   "10 Fighting Energy MEE 6",
+   "10 Psychic Energy MEE 5",
+   "9 Lightning Energy MEE 4",
+   "9 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon TEF 119",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flash Ray"
+  },
+  {
+   "a": "attack",
+   "name": "Shred"
+  }
+ ]
+}
