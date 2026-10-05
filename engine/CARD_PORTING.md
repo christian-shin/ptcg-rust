@@ -649,8 +649,8 @@ The tracked list is `porting/twinleaf-fixes.md`.
       (ruling 1721). That holds for public zones (discard pile, cards in play, a
       revealed hand) and for cards you looked at (Hassel, Grimsley's Move). A
       Supporter whose effect is used through an attack (Mr. Mime's Look-Alike
-      Show, ruling 1844) may choose 0: the cards test `player.hand.cards.includes(this)`
-      at the start of the effect (`played_from_hand` in Rust, kept in the frame).
+      Show, ruling 1844) may choose 0: the cards test `!effect.usedAsAttackEffect` (section 11)
+      at the start of the effect (`played_from_hand = !trainer_via_attack(g, e)` in Rust, kept in the frame).
     * "N" without "up to": exactly N, or as many as you can. "Any number" /
       "any amount": 0 is allowed.
     * A search of the DECK for a card of a given kind may find nothing (the deck

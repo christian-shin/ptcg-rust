@@ -21,7 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].supporter_turn > 0 {
             bail!("SUPPORTER_ALREADY_PLAYED");
         }
-        let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
+        let played_from_hand = !trainer_via_attack(g, e);
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         g.set_prevent(e, true);
         if !g.st.players[p].marker.has(hassel_marker()) {

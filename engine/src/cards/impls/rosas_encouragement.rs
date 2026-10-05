@@ -16,7 +16,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => return Ok(()),
     };
     let o = 1 - p;
-    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
+    let played_from_hand = !trainer_via_attack(g, e);
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }

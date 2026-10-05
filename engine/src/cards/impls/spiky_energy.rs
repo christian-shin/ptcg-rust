@@ -12,6 +12,10 @@
 //! Pokémon was not damaged. It now reacts to AfterDamageEffect, like Punk
 //! Helmet and Lucky Helmet (text: "is damaged by an attack"; rulings 1646,
 //! 1839: it stacks and works wherever the Pokémon end up).
+//!
+//! R7 merge (attack flow chart step 7, after the step 6 effects of the attack): when the attack's after-damage
+//! window is open the counters are queued behind the attack's own Energy discards and are placed only if the
+//! card is still attached (`AfterDmgStep::Retaliate`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "SpikyEnergy", mask: mask(&[k::AFTER_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
@@ -33,6 +37,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let mut pb = b;
     pb.target = b.source;
+    // Step 7 of the attack flow chart: the effects on the Defending Pokémon come after the effects of the
+    // attack's own text, so an attack that discards this card (Duraludon's Hyper Beam) stops it.
+    if g.after_damage_open(b.attack_effect) {
+        g.push_after_damage(b.attack_effect, crate::game::AfterDmgStep::Retaliate { card: me, from: t, b: pb, damage: 20 });
+        return Ok(());
+    }
     g.run_fx(Effect::PutCounters { b: pb, damage: 20 })?;
     Ok(())
 }

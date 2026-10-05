@@ -125,6 +125,9 @@ pub enum AfterDmgStep {
     Move { source: ListRef, destination: ListRef, source_card: CardId, cards: SVec<CardId, 32> },
     /// `SHUFFLE_DECK(player)` after the damage.
     Shuffle(u8),
+    /// Spiky Energy: the counters go onto the attacker after the attack's own effects, if the card is still
+    /// attached to `from` (an attack that discards it from the Defending Pokémon stops it).
+    Retaliate { card: CardId, from: SlotRef, b: AtkBase, damage: i32 },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -412,6 +415,11 @@ impl Game {
                     r?;
                 }
                 AfterDmgStep::Shuffle(p) => crate::prefabs::shuffle_deck(self, p as usize),
+                AfterDmgStep::Retaliate { card, from, b, damage } => {
+                    if self.st.slot(from.p as usize, from.s).cards.contains(card) {
+                        self.run_fx(Effect::PutCounters { b, damage })?;
+                    }
+                }
             }
         }
         Ok(())

@@ -36,7 +36,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     // Played from the hand (not through Mr. Mime's Look-Alike Show; the card is still in the hand here).
-    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
+    let played_from_hand = !trainer_via_attack(g, e);
     let top = g.alloc_temp(&[]);
     move_count(g, ListRef::Deck(p as u8), top, 7)?;
     let filter = Filter { super_type: Some(SuperType::Pokemon as u8), card_type: Some(ct::DARK), card_type_list: true, ..Filter::none() };

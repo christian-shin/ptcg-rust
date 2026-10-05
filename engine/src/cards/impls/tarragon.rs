@@ -23,7 +23,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
-    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
+    let played_from_hand = !trainer_via_attack(g, e);
     let mut pokemons = 0u8;
     let mut energies = 0u8;
     let mut opts = ChooseCardsOpts::new(0, 4, false);
