@@ -6,7 +6,10 @@
 //! prompt would have no valid answer); moves the card to the supporter list
 //! itself and prevents the default;
 //! the ChoosePokemonPrompt (no cancel)
-//! is followed by the silent `player.switchPokemon(cardList)` and a loop of
+//! is followed by `player.switchPokemon(cardList, store, state)` (fixed in
+//! phase 4b, R4: it was the silent form without the move effects: Yanmega ex
+//! Buzz Boost, Palafin Zero to Hero and the ability-lock order never saw the
+//! switch) and a loop of
 //! single-card MOVE_CARDS (count 1) until the hand has 5 cards or the deck
 //! is empty.
 use crate::cards::prelude::*;
@@ -50,7 +53,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         None => bail!("TypeError: Cannot read properties of null"),
     };
     if t.p as usize == p {
-        crate::engine::turn::switch_pokemon_silent(g, p, t.s)?;
+        crate::engine::turn::switch_pokemon(g, p, t.s)?;
     }
     while g.st.players[p].hand.len() < 5 {
         if g.st.players[p].deck.is_empty() {

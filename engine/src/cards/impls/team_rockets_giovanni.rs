@@ -5,9 +5,15 @@
 //! Twinleaf: the card goes to the supporter pile (and `rocketSupporter` is
 //! set) before the Active / Bench checks throw. Each switch clears the old
 //! Active's effects first.
+//!
+//! Fixed in phase 4b (R4): playable when the opponent has no Benched Pokémon
+//! (only your own switch happens; the opponent's is the "if you do" part and is
+//! skipped), and both switches dispatch MovedToActive / MovedFromActiveToBench
+//! (they were silent: Yanmega ex Buzz Boost, Palafin Zero to Hero and the
+//! ability-lock activation order never saw them).
 use crate::cards::prelude::*;
 use crate::engine::game_effect::clear_effects;
-use crate::engine::turn::switch_pokemon_silent;
+use crate::engine::turn::switch_pokemon;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsGiovanni", mask: mask(&[k::TRAINER, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
 
@@ -27,7 +33,6 @@ fn bench_prompt(g: &mut Game, me: CardId, p: usize, pt: PlayerType, blocked: Tar
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(p) = trainer_played(g, e, me) {
-        let o = 1 - p;
         if g.st.players[p].supporter_turn > 0 {
             bail!("SUPPORTER_ALREADY_PLAYED");
         }
@@ -50,11 +55,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
         }
         if rocket_bench == 0 {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
-        let opl = &g.st.players[o];
-        let bench_count = opl.bench.iter().filter(|s| !opl.slots[**s as usize].cards.is_empty()).count();
-        if bench_count == 0 {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
         bench_prompt(g, me, p, PlayerType::BottomPlayer, blocked, 1);
@@ -80,7 +80,12 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let a = g.st.players[p].active;
             clear_effects(&mut g.st.players[p].slots[a as usize]);
             if t.p as usize == p {
-                switch_pokemon_silent(g, p, t.s)?;
+                switch_pokemon(g, p, t.s)?;
+            }
+            // If you do, switch in 1 of the opponent's Benched Pokémon (nothing more to do without one)
+            let opl = &g.st.players[1 - p];
+            if !opl.bench.iter().any(|s| !opl.slots[*s as usize].cards.is_empty()) {
+                return Ok(());
             }
             bench_prompt(g, me, p, PlayerType::TopPlayer, SVec::new(), 2);
             Ok(())
@@ -90,7 +95,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let a = g.st.players[o].active;
             clear_effects(&mut g.st.players[o].slots[a as usize]);
             if t.p as usize == o {
-                switch_pokemon_silent(g, o, t.s)?;
+                switch_pokemon(g, o, t.s)?;
             }
             Ok(())
         }
