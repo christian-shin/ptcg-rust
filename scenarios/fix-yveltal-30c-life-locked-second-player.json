@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Yveltal 30C 100",
+   "4 Pokémon Center Lady MEG 123",
+   "4 Duraludon PRE 69",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Yveltal 30C 100",
+   "4 Pokémon Center Lady MEG 123",
+   "4 Duraludon PRE 69",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Yveltal 30C 100",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_damage": 100,
+  "hand": [
+   "Pokémon Center Lady MEG 123"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ]
+}
