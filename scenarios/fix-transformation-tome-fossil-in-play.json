@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Transformation Tome CRI 83",
+   "4 Duraludon PRE 69",
+   "4 Antique Root Fossil SCR 130",
+   "40 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Transformation Tome CRI 83",
+   "4 Duraludon PRE 69",
+   "4 Antique Root Fossil SCR 130",
+   "40 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Bronzor TEF 68",
+   "Bronzong TEF 69"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Antique Root Fossil SCR 130"
+   }
+  ],
+  "hand": [
+   "Transformation Tome CRI 83",
+   "Transformation Tome CRI 83"
+  ],
+  "discard": [
+   "Duraludon PRE 69"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

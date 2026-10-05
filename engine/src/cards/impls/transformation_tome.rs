@@ -2,11 +2,12 @@
 //! Choose a Basic Pokémon in your discard pile and switch it with 1 of your
 //! Basic Pokémon in play (attachments, damage and effects stay).
 //!
-//! Twinleaf: "Basic in play" is a Pokémon whose top card is Basic (phase 4b
+//! Twinleaf: "Basic in play" is a slot whose top card is Basic (phase 4b
 //! fix: it used to count a Basic under an evolution, so with only evolved
 //! Pokémon in play the card was playable but every slot was blocked and the
-//! prompt unanswerable); the in-play choice blocks slots whose top Pokémon
-//! isn't Basic. The swap MOVE_CARDS the slot's
+//! prompt unanswerable); a Fossil in play (a Trainer card played as a Basic
+//! Pokémon) counts, and the in-play choice blocks slots whose top card isn't
+//! Basic. The swap MOVE_CARDS the slot's
 //! bottom card to the discard first, which empties the slot of Pokémon, so
 //! the core discards its attachments and resets it; the discard Basic then
 //! goes into the empty slot and the second copy is discarded from hand.
@@ -14,9 +15,16 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TransformationTome", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
+/// `c instanceof PokemonCard && c.stage === Stage.BASIC` (the discard check).
 fn is_basic_mon(g: &Game, c: CardId) -> bool {
     let d = g.st.cdef(c);
     d.is_pokemon() && d.stage == Stage::Basic as u8
+}
+
+/// `card.stage === Stage.BASIC` for the top card of a slot in play: no
+/// `instanceof` check, so a Fossil (a Trainer played as a Basic Pokémon) counts.
+fn is_basic_in_play(g: &Game, c: CardId) -> bool {
+    g.st.cdef(c).stage == Stage::Basic as u8
 }
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
@@ -30,7 +38,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         None => bail!("CANNOT_PLAY_THIS_CARD"),
     };
     let pl = &g.st.players[p];
-    let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| is_basic_mon(g, *c));
+    let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| is_basic_in_play(g, *c));
     let in_discard = pl.discard.iter().any(|c| is_basic_mon(g, c));
     if !in_play || !in_discard {
         bail!("CANNOT_PLAY_THIS_CARD");
