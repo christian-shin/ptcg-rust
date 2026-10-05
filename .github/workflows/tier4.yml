@@ -7,8 +7,8 @@
 # invariants. Any divergence, invariant violation, or oracle game ending in
 # error or stuck fails the run; failing traces are uploaded as artifacts.
 #
-# Continuous gate: a scheduled run every 30 minutes plays 5000 fresh games
-# (20 runners x 250, about half an hour). tools/tier4_ledger.py counts green
+# Continuous gate: a scheduled run every 30 minutes plays 2500 fresh games
+# (10 runners x 250, about half an hour; 10 runners stay free for other work). tools/tier4_ledger.py counts green
 # games per (main commit, Twinleaf oracle commit) across runs and downloads
 # failing traces; the gate is 100k games with 0 failures on the current code.
 name: tier4
@@ -36,8 +36,8 @@ on:
         default: "oracle"
 
 env:
-  GAMES: ${{ inputs.games || (github.event_name == 'schedule' && '5000') || '2000' }}
-  SHARDS: ${{ inputs.shards || (github.event_name == 'schedule' && '20') || '10' }}
+  GAMES: ${{ inputs.games || (github.event_name == 'schedule' && '2500') || '2000' }}
+  SHARDS: ${{ inputs.shards || (github.event_name == 'schedule' && '10') || '10' }}
   TWINLEAF_REF: ${{ inputs.twinleaf_ref || 'oracle' }}
 
 jobs:
