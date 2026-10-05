@@ -5,6 +5,9 @@
 //! (Energy on the Active alone opened a prompt with no valid answer). Twinleaf
 //! quirk kept: every transfer goes to the Active whatever destination was
 //! chosen.
+//!
+//! R7C: as the effect of an attack (Mr. Mime's Look-Alike Show) the prompt is min 0
+//! (rulings 1844, 1853); played from the hand it is min 1.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "NsPlan", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -40,7 +43,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);
 
-    let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(2), ..Default::default() };
+    let mut o = MoveOpts { allow_cancel: false, min: if trainer_via_attack(g, e) { 0 } else { 1 }, max: Some(2), ..Default::default() };
     for (t, s) in targets.iter() {
         if t.slot == SlotType::Active {
             let mut b = Blocked::default();

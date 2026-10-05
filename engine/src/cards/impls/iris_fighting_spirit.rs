@@ -9,6 +9,9 @@
 //! the hand by the time the prompt is answered, so only other cards are
 //! listed. Then DRAW_CARDS_UNTIL_CARDS_IN_HAND (plain `deck.moveTo(hand, n)`)
 //! unless the hand already has 6 or more cards.
+//!
+//! R7C: unplayable when it would draw nothing (empty deck, or 7 or more other cards in
+//! the hand so that 6 are left after discarding one; rulings 851, 959, 1037).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "IrisFightingSpirit", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,6 +22,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             bail!("SUPPORTER_ALREADY_PLAYED");
         }
         if !g.st.players[p].hand.iter().any(|c| c != me) {
+            bail!("CANNOT_PLAY_THIS_CARD");
+        }
+        // "Draw cards until you have 6 cards in your hand": a card that would draw nothing (empty
+        // deck, or 6 or more cards left after discarding another one) can't be played (rulings 851, 959, 1037).
+        if g.st.players[p].deck.is_empty() || g.st.players[p].hand.iter().filter(|c| *c != me).count() >= 7 {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
         let mut f = CardFrame::at(1);

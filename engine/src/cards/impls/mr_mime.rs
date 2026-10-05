@@ -11,6 +11,10 @@
 //! effect of a Supporter is not playing it, so `supporterTurn` is bypassed
 //! (SUPPORTER_ALREADY_PLAYED); a Supporter whose effect throws is blocked in
 //! the prompt, which is re-issued (CANNOT_PLAY_THIS_CARD).
+//!
+//! R7C: the TrainerEffect carries `via_attack` (Twinleaf `usedAsAttackEffect`): the
+//! Supporter's "up to" prompts may choose zero and the played-from-hand trackers
+//! (`rocketSupporter`, `ancientSupporter`) are not set (rulings 1727, 1844, 1853).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MrMime", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -64,7 +68,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     // Using the effect of a Supporter is not playing it: bypass `supporterTurn`.
     let supporter_turn = g.st.players[p].supporter_turn;
     g.st.players[p].supporter_turn = 0;
-    let r = g.run_fx(Effect::Trainer { p: p as u8, card, target: None });
+    let r = g.run_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: true });
     g.st.players[p].supporter_turn = supporter_turn;
     match r {
         Ok(_) => Ok(()),

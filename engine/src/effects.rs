@@ -204,7 +204,9 @@ pub enum Effect {
     PlayStadium { p: u8, card: CardId },
     AttachPokemonTool { p: u8, card: CardId, target: SlotRef },
     PlayItem { p: u8, card: CardId, target: Option<SlotRef> },
-    Trainer { p: u8, card: CardId, target: Option<SlotRef> },
+    /// `via_attack` = `usedAsAttackEffect`: a Supporter's effect used as the effect of an attack
+    /// (Mr. Mime's Look-Alike Show; rulings 1727, 1728, 1844, 1853).
+    Trainer { p: u8, card: CardId, target: Option<SlotRef>, via_attack: bool },
     Energy { p: u8, card: CardId },
     Tool { p: u8, card: CardId },
     Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },

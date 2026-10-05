@@ -1,0 +1,34 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Team Rocket's Ariana ASC 202",
+      "4 Team Rocket's Mewtwo ex ASC 79",
+      "4 Mr. Mime TEF 63",
+      "48 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Team Rocket's Ariana ASC 202",
+      "4 Team Rocket's Mewtwo ex ASC 79",
+      "4 Mr. Mime TEF 63",
+      "48 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Team Rocket's Mewtwo ex ASC 79",
+    "bench": [
+      {
+        "card": "Mr. Mime TEF 63"
+      }
+    ],
+    "hand": [
+      "Team Rocket's Ariana ASC 202",
+      "5 Psychic Energy MEE 5"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Mr. Mime TEF 63"
+  }
+}

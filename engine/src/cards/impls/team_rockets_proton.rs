@@ -5,6 +5,8 @@
 //! Twinleaf: sets `rocketSupporter`; the prompt message is
 //! CHOOSE_CARD_TO_PUT_ONTO_BENCH; non-Team Rocket cards are blocked (by
 //! first index), the filter is Basic Pokémon.
+//!
+//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsProton", mask: mask(&[k::TRAINER, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -17,7 +19,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].deck.is_empty() {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
-        g.st.players[p].rocket_supporter = true;
+        // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
+        if !trainer_via_attack(g, e) {
+            g.st.players[p].rocket_supporter = true;
+        }
         g.set_prevent(e, true);
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         let mut opts = ChooseCardsOpts::new(0, 3, false);

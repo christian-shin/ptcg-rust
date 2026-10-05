@@ -108,6 +108,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                     slot.cards.insert(at, new_card);
                 }
             }
+            // It is the same Pokémon (ruling 1840): the state kept on the card object moves to the new card.
+            transfer_pokemon_card_state(g, p, old_card, new_card);
             move_cards(g, ListRef::Supporter(pu), ListRef::Discard(pu), &[me], me)?;
             Ok(())
         }

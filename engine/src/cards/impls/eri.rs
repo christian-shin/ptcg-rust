@@ -23,12 +23,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     f.a[0] = p as i32;
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Item as u8), ..Filter::none() };
     // Fixed (phase 4b, R3): when the opponent's hand holds an Item, at least 1 must be
-    // discarded (Rulings Compendium 1844: a Supporter can't choose to discard zero).
+    // discarded (a Supporter can't choose to discard zero); used as the effect of an attack
+    // (Look-Alike Show) it may discard zero (ruling 1844).
     let has_item = g.st.players[o].hand.iter().any(|c| {
         let d = g.st.cdef(c);
         d.is_trainer() && d.trainer_type == TrainerType::Item as u8
     });
-    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(o as u8), filter, ChooseCardsOpts::new(if has_item { 1 } else { 0 }, 2, false), Cont::Card { card: me, frame: f });
+    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(o as u8), filter, ChooseCardsOpts::new(if has_item && !trainer_via_attack(g, e) { 1 } else { 0 }, 2, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

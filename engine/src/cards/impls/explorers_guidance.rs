@@ -10,6 +10,8 @@
 //! to 2; the callback sets
 //! `ancientSupporter`, moves the chosen cards to the hand and the rest to the
 //! discard pile.
+//!
+//! R7C: `ancient_supporter` is not set when used as the effect of an attack (ruling 1727).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "ExplorersGuidance", mask: mask(&[k::END_TURN, k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -46,6 +48,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         f.a[1] = t as i32;
+        f.a[2] = trainer_via_attack(g, e) as i32;
         choose_cards(g, p, "CHOOSE_CARD_TO_HAND", temp, Filter::none(), ChooseCardsOpts::new(min as u8, 2, false), Cont::Card { card: me, frame: f });
     }
     Ok(())
@@ -58,7 +61,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let p = f.a[0] as usize;
     let temp = ListRef::Temp(f.a[1] as u8);
     let chosen: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    g.st.players[p].ancient_supporter = true;
+    // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
+    if f.a[2] == 0 {
+        g.st.players[p].ancient_supporter = true;
+    }
     move_cards(g, temp, ListRef::Hand(p as u8), &chosen, me)?;
     move_all(g, temp, ListRef::Discard(p as u8), me)
 }

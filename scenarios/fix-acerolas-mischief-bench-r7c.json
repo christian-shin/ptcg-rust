@@ -1,0 +1,61 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Mr. Mime TEF 63",
+      "4 Bronzor TEF 68",
+      "4 Bronzong TEF 69",
+      "4 Acerola's Mischief ASC 180",
+      "4 Boss's Orders ASC 183",
+      "4 Miraidon ex TEF 122",
+      "18 Lightning Energy MEE 4",
+      "18 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Mr. Mime TEF 63",
+      "4 Bronzor TEF 68",
+      "4 Bronzong TEF 69",
+      "4 Acerola's Mischief ASC 180",
+      "4 Boss's Orders ASC 183",
+      "4 Miraidon ex TEF 122",
+      "18 Lightning Energy MEE 4",
+      "18 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Mr. Mime TEF 63",
+    "active_energy": [
+      "Psychic Energy MEE 5"
+    ],
+    "bench": [
+      {
+        "card": "Bronzor TEF 68"
+      },
+      {
+        "card": "Mr. Mime TEF 63"
+      }
+    ],
+    "hand": [
+      "Acerola's Mischief ASC 180",
+      "Bronzong TEF 69"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Miraidon ex TEF 122",
+    "active_energy": [
+      "Lightning Energy MEE 4",
+      "Psychic Energy MEE 5"
+    ],
+    "bench": [
+      {
+        "card": "Miraidon ex TEF 122"
+      }
+    ],
+    "hand": [
+      "Boss's Orders ASC 183"
+    ],
+    "prizes_left": 2
+  }
+}

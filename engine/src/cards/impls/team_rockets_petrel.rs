@@ -4,6 +4,8 @@
 //! Twinleaf sets `player.rocketSupporter` (read by Team Rocket's Factory)
 //! before the search; every Petrel copy clears it at the end of that
 //! player's turn.
+//!
+//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsPetrel", mask: mask(&[k::TRAINER, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,7 +18,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].deck.is_empty() {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
-        g.st.players[p].rocket_supporter = true;
+        // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
+        if !trainer_via_attack(g, e) {
+            g.st.players[p].rocket_supporter = true;
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         choose_cards(

@@ -1,0 +1,59 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Duraludon PRE 69",
+      "4 Archaludon PFL 75",
+      "4 Babiri Berry SSP 163",
+      "12 Metal Energy MEE 8",
+      "6 Fire Energy MEE 2",
+      "6 Water Energy MEE 3",
+      "6 Psychic Energy MEE 5",
+      "18 Metal Energy MEE 8"
+    ],
+    [
+      "4 Duraludon PRE 69",
+      "4 Archaludon PFL 75",
+      "4 Babiri Berry SSP 163",
+      "12 Metal Energy MEE 8",
+      "6 Fire Energy MEE 2",
+      "6 Water Energy MEE 3",
+      "6 Psychic Energy MEE 5",
+      "18 Metal Energy MEE 8"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Duraludon PRE 69",
+      "Archaludon PFL 75"
+    ],
+    "active_energy": [
+      "3 Metal Energy MEE 8"
+    ],
+    "active_tool": "Babiri Berry SSP 163",
+    "bench": [
+      {
+        "card": "Duraludon PRE 69"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Duraludon PRE 69",
+    "active_energy": [
+      "2 Metal Energy MEE 8"
+    ],
+    "bench": [
+      {
+        "card": "Duraludon PRE 69"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Coated Attack"
+    }
+  ]
+}

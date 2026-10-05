@@ -11,6 +11,8 @@
 //! skipped), and both switches dispatch MovedToActive / MovedFromActiveToBench
 //! (they were silent: Yanmega ex Buzz Boost, Palafin Zero to Hero and the
 //! ability-lock activation order never saw them).
+//!
+//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
 use crate::cards::prelude::*;
 use crate::engine::game_effect::clear_effects;
 use crate::engine::turn::switch_pokemon;
@@ -36,7 +38,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].supporter_turn > 0 {
             bail!("SUPPORTER_ALREADY_PLAYED");
         }
-        g.st.players[p].rocket_supporter = true;
+        // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
+        if !trainer_via_attack(g, e) {
+            g.st.players[p].rocket_supporter = true;
+        }
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         g.set_prevent(e, true);
         match g.st.active_pokemon(p) {

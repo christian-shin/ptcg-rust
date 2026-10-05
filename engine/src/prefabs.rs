@@ -192,6 +192,28 @@ pub fn was_power_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::Power { power, probe: false, .. } if power == PowerRef { card: me, index })
 }
 
+/// `TRANSFER_POKEMON_CARD_STATE(player, oldCard, newCard)`: a Pokémon switched with another card
+/// (Transformation Tome, Ogre's Mask, Zero to Hero) is the same Pokémon (ruling 1840): the state
+/// kept on the card object moves to the new card.
+pub fn transfer_pokemon_card_state(g: &mut Game, p: usize, old: CardId, new: CardId) {
+    g.st.cards[new as usize].damage_taken_last_turn = g.st.cards[old as usize].damage_taken_last_turn;
+    g.st.cards[old as usize].damage_taken_last_turn = 0;
+    g.st.cards[new as usize].moved_to_active_this_turn = g.st.cards[old as usize].moved_to_active_this_turn;
+    g.st.cards[old as usize].moved_to_active_this_turn = false;
+    let pl = &mut g.st.players[p];
+    for id in pl.moved_to_active_this_turn.as_mut_slice().iter_mut().chain(pl.moved_from_active_to_bench_this_turn.as_mut_slice().iter_mut()) {
+        if *id == old {
+            *id = new;
+        }
+    }
+}
+
+/// `effect.usedAsAttackEffect` of a TrainerEffect: the Supporter's effect is used as the
+/// effect of an attack (Mr. Mime's Look-Alike Show), so "up to" prompts may choose zero.
+pub fn trainer_via_attack(g: &Game, e: EffId) -> bool {
+    matches!(*g.e(e), Effect::Trainer { via_attack: true, .. })
+}
+
 /// `effect instanceof TrainerEffect && effect.trainerCard === this`: the player.
 pub fn trainer_played(g: &Game, e: EffId, me: CardId) -> Option<usize> {
     match *g.e(e) {

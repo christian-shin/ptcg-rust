@@ -1,0 +1,62 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Duraludon PRE 69",
+      "4 Archaludon PFL 75",
+      "4 Haban Berry PRE 111",
+      "4 Tatsugiri TWM 131",
+      "12 Metal Energy MEE 8",
+      "6 Fire Energy MEE 2",
+      "6 Water Energy MEE 3",
+      "6 Psychic Energy MEE 5",
+      "14 Metal Energy MEE 8"
+    ],
+    [
+      "4 Duraludon PRE 69",
+      "4 Archaludon PFL 75",
+      "4 Haban Berry PRE 111",
+      "4 Tatsugiri TWM 131",
+      "12 Metal Energy MEE 8",
+      "6 Fire Energy MEE 2",
+      "6 Water Energy MEE 3",
+      "6 Psychic Energy MEE 5",
+      "14 Metal Energy MEE 8"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Duraludon PRE 69",
+      "Archaludon PFL 75"
+    ],
+    "active_energy": [
+      "3 Metal Energy MEE 8"
+    ],
+    "active_tool": "Haban Berry PRE 111",
+    "bench": [
+      {
+        "card": "Duraludon PRE 69"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Tatsugiri TWM 131",
+    "active_energy": [
+      "Fire Energy MEE 2",
+      "Water Energy MEE 3"
+    ],
+    "bench": [
+      {
+        "card": "Tatsugiri TWM 131"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Coated Attack"
+    }
+  ]
+}
