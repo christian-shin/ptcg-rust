@@ -2,8 +2,9 @@
 //! Bellowing Thunder — you may discard any amount of Basic Energy from your
 //! Pokémon; 70 damage for each card discarded.
 //!
-//! Twinleaf: Burst Roar throws with an empty deck; the hand goes to the
-//! discard in one MOVE_CARDS, then MOVE_CARDS { count: 6 } deck→hand.
+//! Twinleaf: the hand goes to the discard in one MOVE_CARDS, then
+//! MOVE_CARDS { count: 6 } deck→hand. Fixed in phase 4b (R4): Burst Roar no
+//! longer throws with an empty deck (the text has no such restriction).
 //! Bellowing Thunder zeroes the damage, then
 //! DISCARD_UP_TO_X_ENERGY_FROM_YOUR_POKEMON (max = available Basic Energy,
 //! min 0, no cancel); one DiscardCardsEffect per source slot (first-seen
@@ -22,9 +23,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Attack { p, .. } => p,
             _ => return Ok(()),
         };
-        if g.st.players[p as usize].deck.is_empty() {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
         g.run_fx(Effect::MoveCards {
             source: ListRef::Hand(p),
             destination: ListRef::Discard(p),
