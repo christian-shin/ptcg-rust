@@ -2,9 +2,11 @@
 //! your turn, move a Basic [G] Energy from one of your Pokémon to another.
 //! Jungle Dump — 240; heal 30 damage from this Pokémon.
 //!
-//! Twinleaf: the Ability throws CANNOT_USE_POWER only when none of your
-//! Pokémon has an Energy card attached; otherwise a MoveEnergyPrompt
-//! (min 0, no max, not cancellable) for Basic energy named 'Grass Energy',
+//! Twinleaf: the Ability throws CANNOT_USE_POWER unless a Pokémon has a Basic
+//! 'Grass Energy' attached and there are at least 2 Pokémon in play (phase 4b
+//! R7E, "move a Basic [G] Energy" is exactly 1, ruling 1853; it only checked for
+//! any Energy); then a MoveEnergyPrompt (min 1, max 1, not cancellable; it was
+//! min 0, no max) for Basic energy named 'Grass Energy',
 //! each transfer a MOVE_CARDS with this card as source. Jungle Dump reduces
 //! a HealEffect (not HealTargetEffect) on `player.active`.
 use crate::cards::prelude::*;
@@ -17,11 +19,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Power { p, .. } => p as usize,
             _ => return Ok(()),
         };
-        let with_energy = for_each_pokemon(g, p, PlayerType::BottomPlayer)
-            .iter()
-            .filter(|(s, _, _)| g.st.slot(p, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()))
-            .count();
-        if with_energy == 0 {
+        let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer);
+        let has_grass = in_play.iter().any(|(s, _, _)| {
+            g.st.slot(p, *s).cards.iter().any(|c| {
+                let d = g.st.cdef(c);
+                d.is_energy() && d.energy_type == EnergyType::Basic as u8 && d.name == "Grass Energy"
+            })
+        });
+        if !has_grass || in_play.len() < 2 {
             bail!("CANNOT_USE_POWER");
         }
         let mut slots = SVec::new();
@@ -33,7 +38,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             name: Some("Grass Energy"),
             ..Filter::none()
         };
-        let o = MoveOpts { allow_cancel: false, min: 0, max: None, ..Default::default() };
+        let o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
         let id = g.player_id(p);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

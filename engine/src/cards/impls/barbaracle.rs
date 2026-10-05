@@ -1,8 +1,11 @@
 //! Barbaracle (M3 / POR 43): Stone Arms — once during your turn, attach a
 //! Basic [F] Energy from your hand to 1 of your [F] Pokémon. Hammer In — 80.
 //!
-//! Twinleaf: the AttachEnergyPrompt allows 0 cards; the ability counts as
-//! used (marker + board effect) whatever the answer.
+//! Twinleaf: the Ability throws CANNOT_USE_POWER without a Basic 'Fighting
+//! Energy' in the hand (phase 4b R7E: it only checked for a non-empty hand) and
+//! the AttachEnergyPrompt takes exactly 1 card (it allowed 0, with the ability
+//! used up whatever the answer; ruling 1853); the ability counts as used
+//! (marker + board effect) once the prompt is answered.
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -33,12 +36,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(stone_arms(), me) {
             bail!("POWER_ALREADY_USED");
         }
-        if g.st.players[p].hand.is_empty() {
+        let has_fighting = g.st.players[p].hand.iter().any(|c| {
+            let d = g.st.cdef(c);
+            d.is_energy() && d.energy_type == EnergyType::Basic as u8 && d.name == "Fighting Energy"
+        });
+        if !has_fighting {
             bail!("CANNOT_USE_POWER");
         }
         let mut o = AttachOpts::new(g.st.players[p].hand.len() as u8);
         o.allow_cancel = false;
-        o.min = 0;
+        o.min = 1;
         o.max = 1;
         for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
             if !g.st.cdef(c).card_type.contains(&ct::FIGHTING) {

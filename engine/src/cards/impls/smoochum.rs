@@ -5,8 +5,9 @@
 //! Fixed (phase 4b, W4): the prompt let the two Energy go to different
 //! Benched Pokémon; it now requires the same target (`sameTarget`).
 //!
-//! Twinleaf: throws CANNOT_USE_ATTACK on an empty deck. Opens an
-//! AttachEnergyPrompt (0..2, no cancel) and, without waiting for it, a
+//! Twinleaf: an empty deck makes the attack do nothing (it is still usable:
+//! phase 4b R7E, rulings 337 and 1790; it used to throw CANNOT_USE_ATTACK).
+//! Opens an AttachEnergyPrompt (0..2, no cancel) and, without waiting for it, a
 //! ShuffleDeckPrompt whose callback applies the order (no trailing wait). The
 //! attach callback shuffles again (SHUFFLE_DECK) when nothing was attached.
 use crate::cards::prelude::*;
@@ -20,7 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         if g.st.players[p].deck.is_empty() {
-            bail!("CANNOT_USE_ATTACK");
+            return Ok(());
         }
         let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
         o.allow_cancel = false;

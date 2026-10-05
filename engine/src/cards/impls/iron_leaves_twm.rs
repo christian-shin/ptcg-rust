@@ -4,7 +4,8 @@
 //! opponent's last turn.
 //!
 //! Twinleaf: Recovery Net does nothing with no Pokémon in the discard pile;
-//! otherwise a non-cancellable ChooseCardsPrompt (min 1, max min(2, count))
+//! otherwise a non-cancellable ChooseCardsPrompt (min 0 since phase 4b R7E:
+//! "up to 2" in an attack may take 0, rulings 1721/1778; max min(2, count))
 //! and MOVE_CARDS to hand, with no reveal prompt.
 use crate::cards::prelude::*;
 
@@ -28,7 +29,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             "CHOOSE_CARD_TO_HAND",
             ListRef::Discard(p as u8),
             Filter::super_type(SuperType::Pokemon),
-            ChooseCardsOpts::new(1, n.min(2) as u8, false),
+            ChooseCardsOpts::new(0, n.min(2) as u8, false),
             Cont::Card { card: me, frame: f },
         );
         return Ok(());

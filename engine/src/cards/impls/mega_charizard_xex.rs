@@ -3,11 +3,11 @@
 //!
 //! Twinleaf: counts every attached Energy card whose static `provides`
 //! contains FIRE or ANY, blocks (by index in the slot's card list) the other
-//! Energy cards, and asks a non-cancellable DiscardEnergyPrompt for 1..=count.
-//! Each chosen card is moved to the discard pile with MOVE_CARDS, and the
-//! damage is set to 90 x the number chosen (left at 90 if the prompt returned
-//! null). Without any such Energy (a copycat) there is no prompt and the damage
-//! is 0 (phase 4b).
+//! Energy cards, and asks a non-cancellable DiscardEnergyPrompt for 0..=count
+//! (phase 4b R7E: "any amount" can be 0, ruling 1778; it was 1..=count). The
+//! damage is set to 90 x the number chosen (0 if the prompt returned null) and
+//! each chosen card is moved to the discard pile with MOVE_CARDS. Without any
+//! such Energy (a copycat) there is no prompt and the damage is 0 (phase 4b).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaCharizardXex@Mega Charizard X ex M2", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -52,7 +52,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         return Ok(());
     }
-    o.min = 1;
+    o.min = 0;
     o.max = Some(total as u8);
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
@@ -81,14 +81,19 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let r = (|| -> R {
         let transfers = match first {
             Res::CardsFrom(t) => t,
-            _ => return Ok(()),
+            _ => {
+                if let Effect::Attack { damage, .. } = g.e_mut(atk) {
+                    *damage = 0;
+                }
+                return Ok(());
+            }
         };
+        if let Effect::Attack { damage, .. } = g.e_mut(atk) {
+            *damage = transfers.len() as i32 * 90;
+        }
         for (from, c) in transfers.iter().copied() {
             let s = get_target(&g.st, p, from)?;
             move_cards(g, s.list(), ListRef::Discard(p as u8), &[c], me)?;
-            if let Effect::Attack { damage, .. } = g.e_mut(atk) {
-                *damage = transfers.len() as i32 * 90;
-            }
         }
         Ok(())
     })();

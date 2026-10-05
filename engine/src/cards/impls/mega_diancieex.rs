@@ -4,7 +4,8 @@
 //! discarded.
 //!
 //! Twinleaf: Garland Ray opens a DiscardEnergyPrompt on the Active (any
-//! Energy, min 1, max 2, no cancel); a null answer sets the damage to 0,
+//! Energy, min 0 (phase 4b R7E, rulings 1721/1790: "up to 2" in an attack may
+//! take 0; it was min 1), max 2, no cancel); a null answer sets the damage to 0,
 //! otherwise `damage = 120 * transfers` and each transfer is a MOVE_CARDS to
 //! the discard. Diamond Coat: on a PutDamageEffect whose target holds this
 //! card as its Pokémon card, during the ATTACK phase and unless blocked for
@@ -21,7 +22,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         let mut slots = SVec::new();
         slots.push(SlotType::Active as u8);
-        let o = MoveOpts { allow_cancel: false, min: 1, max: Some(2), ..Default::default() };
+        let o = MoveOpts { allow_cancel: false, min: 0, max: Some(2), ..Default::default() };
         g.retain_fx(e);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

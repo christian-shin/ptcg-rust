@@ -1,13 +1,13 @@
 //! Slowpoke (SCR): Dangle Tail — put a Pokémon from your discard pile into
 //! your hand.
 //!
-//! Fixed (W1-E): the attack is unusable (CANNOT_USE_ATTACK) unless the discard
-//! pile holds a Pokémon (Twinleaf checked for any card, so the min-1 prompt
-//! could have no valid answer), and the chosen card is moved from the discard
-//! pile itself (Twinleaf moved it from a fresh CardList, so it stayed in the
-//! discard pile as well as going to the hand). Phase 4b (R4, Meta-Rulings): the
-//! chosen cards are revealed to the opponent before they are moved (cards moving
-//! from the discard pile to the hand are revealed).
+//! Fixed (W1-E): the chosen card is moved from the discard pile itself
+//! (Twinleaf moved it from a fresh CardList, so it stayed in the discard pile
+//! as well as going to the hand). Phase 4b (R4, Meta-Rulings): the chosen cards
+//! are revealed to the opponent before they are moved (cards moving from the
+//! discard pile to the hand are revealed). Phase 4b (R7E, ruling 1790): an attack
+//! can be used even if its effect can't be carried out, so with no Pokémon in the
+//! discard pile it is usable and does nothing (it used to be unusable).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -26,7 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         if !g.st.players[p].discard.iter().any(|c| g.st.cdef(c).super_type == SuperType::Pokemon as u8) {
-            bail!("CANNOT_USE_ATTACK");
+            return Ok(());
         }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

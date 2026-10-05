@@ -592,6 +592,10 @@ pub fn search_deck_for_cards_to_hand_reveal(g: &mut Game, p: usize, source: Card
 
 /// `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND(store, state, player, filter, options)`.
 pub fn search_deck_for_pokemon_to_hand(g: &mut Game, p: usize, mut filter: Filter, opts: ChooseCardsOpts) -> R {
+    // An attack can be used even when the deck is empty; the search then fails (rulings 336, 779, 1790).
+    if g.st.phase == GamePhase::Attack && g.st.players[p].deck.is_empty() {
+        return Ok(());
+    }
     if g.st.players[p].deck.is_empty() {
         crate::bail!("NO_CARDS_IN_DECK");
     }
@@ -614,6 +618,11 @@ pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
 
 /// `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH(store, state, player, filter, options)`.
 pub fn search_deck_for_pokemon_to_bench(g: &mut Game, p: usize, mut filter: Filter, mut opts: ChooseCardsOpts) -> R {
+    // An attack can be used even when its search can't be carried out; an empty deck or a full Bench is
+    // public knowledge, so the effect then fails without searching (rulings 336, 337, 1790).
+    if g.st.phase == GamePhase::Attack && (g.st.players[p].deck.is_empty() || empty_bench_slots(g, p).is_empty()) {
+        return Ok(());
+    }
     if g.st.players[p].deck.is_empty() {
         crate::bail!("NO_CARDS_IN_DECK");
     }

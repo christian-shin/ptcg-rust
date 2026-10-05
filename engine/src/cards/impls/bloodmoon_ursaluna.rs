@@ -5,7 +5,8 @@
 //!
 //! Fixed (phase 4b): with no Basic [F] Energy in hand the Ability does nothing
 //! (no prompt); it used to ask, then throw CANNOT_USE_POWER in the callback.
-//! Otherwise a ConfirmPrompt, then a cancel-free ChooseCardsPrompt (0-2).
+//! Otherwise a ConfirmPrompt, then a cancel-free ChooseCardsPrompt (1-2: phase 4b
+//! R7E, "up to 2" in an Ability takes at least 1, rulings 1853/1778; it was 0-2).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "BloodmoonUrsaluna", mask: mask(&[k::PLAY_POKEMON, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -67,7 +68,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             nf.a[0] = p as i32;
             nf.l[0] = sp;
             nf.l[1] = s;
-            choose_cards(g, p, "CHOOSE_CARD_TO_ATTACH", ListRef::Hand(p as u8), fighting_filter(), ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: nf });
+            choose_cards(g, p, "CHOOSE_CARD_TO_ATTACH", ListRef::Hand(p as u8), fighting_filter(), ChooseCardsOpts::new(1, 2, false), Cont::Card { card: me, frame: nf });
             Ok(())
         }
         2 => {

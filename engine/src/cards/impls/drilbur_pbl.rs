@@ -2,7 +2,9 @@
 //! Pokémon and put them onto your Bench, then shuffle. Dig Claws — 50.
 //!
 //! SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH({ stage: BASIC },
-//! { min: 0, max: 2 }): throws on an empty deck or a full Bench.
+//! { min: 0, max: 2 }): throws on an empty deck or a full Bench, except during
+//! an attack (phase 4b R7E, rulings 336/337/1790: the attack is usable, the
+//! search just fails; the prefab returns without searching, in both engines).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Drilbur@PBL", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
