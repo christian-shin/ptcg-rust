@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Skorupi POR 51",
+   "4 Drapion POR 52",
+   "4 Duraludon PRE 69",
+   "4 Mist Energy TEF 161",
+   "44 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Skorupi POR 51",
+   "4 Drapion POR 52",
+   "4 Duraludon PRE 69",
+   "4 Mist Energy TEF 161",
+   "44 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Skorupi POR 51",
+   "Drapion POR 52"
+  ],
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hazardous Tail"
+  }
+ ]
+}

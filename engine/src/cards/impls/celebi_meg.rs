@@ -3,7 +3,9 @@
 //! into your hand; then shuffle. Solar Cutter — 30.
 //!
 //! Twinleaf: SEARCH_DECK_FOR_CARDS_TO_HAND with an empty filter and every
-//! other card blocked, so the cards are never shown to the opponent.
+//! other card blocked. Fixed in phase 4b (R4): the cards are revealed (the
+//! prefab only revealed with a non-empty filter; Celebi now passes
+//! `reveal = true`).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Celebi", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -23,7 +25,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 opts.blocked.push(i as u8);
             }
         }
-        search_deck_for_cards_to_hand(g, p, me, Filter::none(), opts);
+        search_deck_for_cards_to_hand_reveal(g, p, me, Filter::none(), opts, Some(true));
     }
     Ok(())
 }

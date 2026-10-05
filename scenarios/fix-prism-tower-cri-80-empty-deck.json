@@ -1,0 +1,30 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Prism Tower CRI 80",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Prism Tower CRI 80",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "3 Metal Energy MEE 8"
+  ],
+  "discard": [
+   "49 Metal Energy MEE 8"
+  ],
+  "stadium": "Prism Tower CRI 80"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

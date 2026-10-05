@@ -1,9 +1,10 @@
 //! Dedenne (SSP): Electromagnetic Sonar - put a Trainer card from your discard
 //! pile into your hand. Gnaw - 30.
 //!
-//! Twinleaf: ChooseCardsPrompt (min 0, max 1, no cancel) over the discard
-//! pile; the chosen cards are shown to the opponent (info prompt only when
-//! any) and moved.
+//! Twinleaf: ChooseCardsPrompt (max 1, no cancel) over the discard pile; the
+//! chosen cards are shown to the opponent (info prompt only when any) and
+//! moved. Fixed in phase 4b (R4): min is 1 when the discard pile holds a
+//! Trainer card (it was always 0, so the Trainer could be declined).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Dedenne", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -16,13 +17,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
+        let has_trainer = g.st.players[p].discard.iter().any(|c| g.st.cdef(c).is_trainer());
         choose_cards(
             g,
             p,
             "CHOOSE_CARD_TO_HAND",
             ListRef::Discard(p as u8),
             Filter::super_type(SuperType::Trainer),
-            ChooseCardsOpts::new(0, 1, false),
+            ChooseCardsOpts::new(if has_trainer { 1 } else { 0 }, 1, false),
             Cont::Card { card: me, frame: f },
         );
     }

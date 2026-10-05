@@ -1,0 +1,30 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Community Center TWM 146",
+   "4 Fennel BLK 82",
+   "4 Duraludon PRE 69",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Community Center TWM 146",
+   "4 Fennel BLK 82",
+   "4 Duraludon PRE 69",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Fennel BLK 82"
+  ],
+  "supporter_played": true,
+  "stadium": "Community Center TWM 146"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

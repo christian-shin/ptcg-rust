@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Kieran PRE 113",
+   "4 Armarouge SSP 34",
+   "4 Charcadet PFL 19",
+   "4 Raging Bolt ex PRE 166",
+   "4 Duraludon PRE 69",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Kieran PRE 113",
+   "4 Armarouge SSP 34",
+   "4 Charcadet PFL 19",
+   "4 Raging Bolt ex PRE 166",
+   "4 Duraludon PRE 69",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charcadet PFL 19",
+   "Armarouge SSP 34"
+  ],
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ],
+  "hand": [
+   "Kieran PRE 113"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ }
+}

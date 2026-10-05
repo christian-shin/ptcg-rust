@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie CRI 20",
+   "4 Frogadier CRI 21",
+   "4 Duraludon PRE 69",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Froakie CRI 20",
+   "4 Frogadier CRI 21",
+   "4 Duraludon PRE 69",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Froakie CRI 20",
+   "Frogadier CRI 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Summoning Jutsu"
+  }
+ ]
+}

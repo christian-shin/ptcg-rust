@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Raging Bolt ex PRE 166",
+   "4 Duraludon PRE 69",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Raging Bolt ex PRE 166",
+   "4 Duraludon PRE 69",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "hand": [
+   "2 Duraludon PRE 69"
+  ],
+  "discard": [
+   "50 Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Burst Roar"
+  }
+ ]
+}

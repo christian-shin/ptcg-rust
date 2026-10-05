@@ -2,9 +2,10 @@
 //! reveal up to 2 [G] Pokémon / Basic [G] Energy there and put them into your
 //! hand, then shuffle the other cards back into your deck.
 //!
-//! Twinleaf quirks kept: `max` counts matching cards in the whole deck, the
-//! remaining cards are put on the bottom of the deck, and when nothing is
-//! taken the deck is not shuffled.
+//! Twinleaf quirks kept: `max` counts matching cards in the whole deck and the
+//! remaining cards are put on the bottom of the deck. Fixed in phase 4b (R4):
+//! the deck is also shuffled when nothing is taken, and the card can't be played
+//! with an empty deck (Rulings Compendium 779/851).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "BugCatchingSet", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,6 +20,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);
     let deck: Vec<CardId> = g.st.players[p].deck.iter().collect();
@@ -75,7 +79,12 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         1 => {
             let cards: Vec<CardId> = first.cards().to_vec();
             if cards.is_empty() {
-                return move_all(g, temp, ListRef::Deck(p as u8), me);
+                move_all(g, temp, ListRef::Deck(p as u8), me)?;
+                let id = g.player_id(p);
+                let mut nf = f;
+                nf.stage = 3;
+                g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: nf });
+                return Ok(());
             }
             move_cards(g, temp, ListRef::Hand(p as u8), &cards, me)?;
             move_all(g, temp, ListRef::Deck(p as u8), me)?;

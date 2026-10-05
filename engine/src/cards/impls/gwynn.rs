@@ -1,8 +1,9 @@
 //! Gwynn (M5 / PBL): discard up to 2 Pokémon that don't have a Rule Box from
 //! your hand, and draw 3 cards for each card discarded.
 //!
-//! Twinleaf: needs 2 selectable cards (else CANNOT_PLAY_THIS_CARD, after the
-//! card moved to the supporter zone); the prompt is `min: 1, max: 2`.
+//! Twinleaf: needs 1 selectable card (else CANNOT_PLAY_THIS_CARD, after the
+//! card moved to the supporter zone; fixed in phase 4b, R4: it needed 2 though
+//! the text says up to 2); the prompt is `min: 1, max: 2`.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Gwynn", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -27,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             blocked += 1;
         }
     }
-    if hand.len() - blocked < 2 {
+    if hand.len() - blocked < 1 {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let mut f = CardFrame::at(1);

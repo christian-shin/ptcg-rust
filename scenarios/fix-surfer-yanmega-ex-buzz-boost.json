@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Kieran PRE 113",
+   "4 Surfer ASC 200",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Duraludon PRE 69",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "4 Kieran PRE 113",
+   "4 Surfer ASC 200",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Duraludon PRE 69",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Yanma DRI 2",
+     "Yanmega ex DRI 3"
+    ]
+   }
+  ],
+  "hand": [
+   "Surfer ASC 200"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

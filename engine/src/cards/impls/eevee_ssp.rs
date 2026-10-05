@@ -6,15 +6,20 @@
 //! Twinleaf quirks kept: every copy (any zone) adds its
 //! EVOLUTIONARY_ADVANTAGE_MARKER to the player of any PlayPokemonEffect and
 //! removes it at that player's end of turn (the marker does nothing else).
-//! On CheckTableStateEffect, if the active player's Active `cards[0]` is this
-//! card and a stub-Ability probe passes, `canEvolve = true` (even when this
-//! Eevee has evolved) and, while it is still the top Pokémon, its
-//! `pokemonPlayedTurn = turn - 1`.
+//!
+//! Fixed in phase 4b (R4): Boosted Evolution answers the CheckPokemonPlayedTurnEffect of
+//! this Eevee's own slot: when it is its owner's Active Pokémon, still this
+//! card (not evolved) and a stub-Ability probe passes, the effect gets
+//! `pokemonPlayedTurn = turn - 1` and `canEvolveOnFirstTurn = true` (the
+//! PlayPokemonEffect first-turn test honours it). It used to write
+//! `player.canEvolve = true` on every CheckTableStateEffect while the active
+//! player's Active `cards[0]` was this card (even after it evolved), letting
+//! every Pokémon of that player evolve on the first turn.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "Eevee@SSP|Eevee PRE",
-    mask: mask(&[k::ATTACK, k::END_TURN, k::PLAY_POKEMON, k::CHECK_TABLE_STATE]),
+    mask: mask(&[k::ATTACK, k::END_TURN, k::PLAY_POKEMON, k::CHECK_POKEMON_PLAYED_TURN]),
     reduce,
     resume: None,
     coin: None,
@@ -40,19 +45,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::PlayPokemon { p, .. } = *g.e(e) {
         g.st.players[p as usize].marker.add(marker(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
     }
-    if let Effect::CheckTableState { .. } = *g.e(e) {
-        let p = g.st.active_player as usize;
-        let a = g.st.players[p].active;
-        if g.st.slot(p, a).cards.get(0) == Some(me) {
-            if is_ability_blocked(g, p, me, None) {
+    if let Effect::CheckPokemonPlayedTurn { p, target, .. } = *g.e(e) {
+        let owner = p as usize;
+        if target.p as usize == owner && target.s == g.st.players[owner].active && g.st.slot_pokemon(target.p as usize, target.s) == Some(me) {
+            if is_ability_blocked(g, owner, me, None) {
                 return Ok(());
             }
-            g.st.players[p].can_evolve = true;
-            let turn = g.st.turn;
-            for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if c == me {
-                    g.st.players[p].slots[s as usize].pokemon_played_turn = turn - 1;
-                }
+            let turn = g.st.turn as i32;
+            if let Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } = g.e_mut(e) {
+                *pokemon_played_turn = turn - 1;
+                *can_evolve_on_first_turn = true;
             }
         }
     }

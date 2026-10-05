@@ -2,20 +2,22 @@
 //! has exactly 6 damage counters, it is Knocked Out. Claw of Darkness — 200,
 //! the opponent reveals their hand and you discard a card from it.
 //!
-//! Twinleaf: Terminal Period adds 999 damage straight onto the Active (during
-//! the AttackEffect, before the attack's own damage); the hand prompt is a
-//! plain ChooseCardsPrompt on the opponent's hand (no ShowCards).
+//! Twinleaf: Terminal Period is a KnockOutOpponentEffect (fixed in phase 4b,
+//! R4: it added 999 damage straight onto the Active, which Mist Energy and
+//! effect prevention could not stop); the hand prompt is a plain
+//! ChooseCardsPrompt on the opponent's hand (no ShowCards).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaAbsolex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { opp, .. } = *g.e(e) {
+        if let Effect::Attack { p, opp, attack, source, .. } = *g.e(e) {
             let o = opp as usize;
             let a = g.st.players[o].active;
             if g.st.slot(o, a).damage == 60 {
-                g.st.players[o].slots[a as usize].damage += 999;
+                let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: SlotRef::new(o, a) };
+                g.run_fx(Effect::KnockOutOpponent { b, knocked_out: false, prize_count: 0 })?;
             }
         }
     }

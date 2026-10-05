@@ -2,12 +2,15 @@
 //! Benched Pokémon; or your attacks do 30 more damage to the opponent's
 //! Active Pokémon ex / V this turn.
 //!
-//! Twinleaf quirks kept: the bonus checks only that the opponent's Active is
-//! ex/V/VMAX/VSTAR, not the DealDamageEffect's target (bench hits of a
-//! marked player also get +30). Without a Benched Pokémon the switch option
-//! is removed from the SelectPrompt.
+//! Without a Benched Pokémon the switch option is removed from the
+//! SelectPrompt. Fixed in phase 4b (R4): the +30 only applies to damage dealt
+//! to the opponent's Active Pokémon (Twinleaf added it to bench hits and to
+//! self-damage whenever the opponent's Active was ex/V); the switch
+//! dispatches MovedToActive / MovedFromActiveToBench (it was a silent board
+//! change: Yanmega ex Buzz Boost, Palafin Zero to Hero and the ability-lock
+//! activation order never saw it).
 use crate::cards::prelude::*;
-use crate::engine::turn::switch_pokemon_silent;
+use crate::engine::turn::switch_pokemon;
 use crate::marker;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -38,7 +41,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::DealDamage { b, damage } = *g.e(e) {
         let p = b.player as usize;
         let o = 1 - p;
-        if g.st.players[p].marker.has_from(kieran(), me) && damage > 0 {
+        if g.st.players[p].marker.has_from(kieran(), me) && damage > 0 && b.target.p as usize == o && b.target.s == g.st.players[o].active {
             if let Some(oa) = g.st.active_pokemon(o) {
                 let d = g.st.cdef(oa);
                 if d.has_tag(tag::POKEMON_V) || d.has_tag(tag::POKEMON_VMAX) || d.has_tag(tag::POKEMON_VSTAR) || d.has_tag(tag::POKEMON_EX_LOWER) {
@@ -107,7 +110,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Some(t) => *t,
                 None => bail!("TypeError: result[0]"),
             };
-            switch_pokemon_silent(g, p, t.s)?;
+            switch_pokemon(g, p, t.s)?;
             Ok(())
         }
         _ => Ok(()),

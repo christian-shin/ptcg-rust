@@ -577,10 +577,16 @@ pub fn show_cards_to_player(g: &mut Game, p: usize, n_cards: usize) {
 
 /// `SEARCH_DECK_FOR_CARDS_TO_HAND(store, state, player, sourceCard, filter, options)`.
 pub fn search_deck_for_cards_to_hand(g: &mut Game, p: usize, source: CardId, filter: Filter, opts: ChooseCardsOpts) {
+    search_deck_for_cards_to_hand_reveal(g, p, source, filter, opts, None)
+}
+
+/// `SEARCH_DECK_FOR_CARDS_TO_HAND(..., sourceEffect, reveal)`: `reveal` overrides the default
+/// (cards are shown only when a filter is given; added in phase 4b for Celebi, whose filter is empty).
+pub fn search_deck_for_cards_to_hand_reveal(g: &mut Game, p: usize, source: CardId, filter: Filter, opts: ChooseCardsOpts, reveal: Option<bool>) {
     if g.st.players[p].deck.is_empty() {
         return;
     }
-    let show = filter != Filter::none();
+    let show = reveal.unwrap_or(filter != Filter::none());
     choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchToHand { p: p as u8, source, show }));
 }
 

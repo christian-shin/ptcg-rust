@@ -3,7 +3,9 @@
 //!
 //! Twinleaf (destined-rivals file): `min 1, max min(5, Pokémon in discard)`, cancellable (a cancel
 //! ends the effect; the card is still cleaned up as played); the final
-//! ShuffleDeckPrompt has no trailing wait.
+//! ShuffleDeckPrompt has no trailing wait. Phase 4b (R4, Meta-Rulings): the chosen
+//! Pokémon are revealed to the opponent before they are moved (discard pile to
+//! deck); up to 5 / min 1 is right (erratum, Rulings Compendium 1689).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "SacredAsh@POR", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -41,6 +43,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             if cards.is_empty() {
                 return Ok(());
             }
+            show_cards_to_player(g, 1 - p, cards.len());
             move_cards(g, ListRef::Discard(p as u8), ListRef::Deck(p as u8), &cards, me)?;
             let mut nf = CardFrame::at(2);
             nf.a[0] = p as i32;

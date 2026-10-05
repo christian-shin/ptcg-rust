@@ -4,8 +4,9 @@
 //!
 //! Twinleaf (chaos-rising file): no Pokémon in the deck → nothing happens
 //! (no shuffle); ChooseCardsPrompt min 0, max min(3, Pokémon in deck), no
-//! cancel; one MOVE_CARDS per chosen card (sourceCard = the attacking
-//! Pokémon); no reveal prompt; a final ShuffleDeckPrompt with no wait.
+//! cancel; the chosen cards are revealed (fixed in phase 4b, R4: there was
+//! no reveal prompt); one MOVE_CARDS per chosen card (sourceCard = the
+//! attacking Pokémon); a final ShuffleDeckPrompt with no wait.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Frogadier@Frogadier M4", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -45,6 +46,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         1 => {
             let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
             let src = f.a[1] as CardId;
+            show_cards_to_player(g, 1 - p, cards.len());
             for c in cards {
                 move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &[c], src)?;
             }

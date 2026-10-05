@@ -1,0 +1,26 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "1 Grand Tree SCR 136",
+   "51 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "1 Grand Tree SCR 136",
+   "51 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Charcadet PFL 19",
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet PFL 19"
+ }
+}
