@@ -6,9 +6,13 @@
 //!
 //! Twinleaf quirks kept: the "can evolve" test uses every non-Basic card the
 //! CardManager knows (`gen::evolutions::ALL_EVOLUTIONS`) whose evolvesFrom
-//! names an in-play Basic not put into play this turn (CheckPokemonPlayedTurn);
-//! there is no first-turn check. Only non-Basics and Basics played this turn
-//! are blocked in the Pokémon prompt. The deck prompts (cancellable, deck
+//! names an in-play Basic not put into play this turn (CheckPokemonPlayedTurn).
+//! Fixed in phase 4b (R4): a Pokémon can't be evolved during its owner's
+//! first turn (turn <= 2 without `canEvolve`, unless the CheckPokemonPlayedTurn
+//! effect grants `canEvolveOnFirstTurn`, as Eevee's Boosted Evolution does),
+//! the same test as PlayPokemonEffect; it used to be missing. Only non-Basics,
+//! Basics played this turn and first-turn Basics are blocked in the Pokémon
+//! prompt. The deck prompts (cancellable, deck
 //! Pokémon with another evolvesFrom blocked) filter on Stage 1 / Stage 2 and
 //! evolvesFrom. The second prompt appears whenever any known card evolves
 //! from the chosen Stage 1. Evolving is MOVE_CARDS deck→slot + clearEffects
@@ -18,14 +22,21 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "GreatTree", mask: mask(&[k::USE_STADIUM]), reduce, resume: Some(resume), coin: None, can_play: None };
 
-fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
+/// `CheckPokemonPlayedTurnEffect`: (pokemonPlayedTurn, canEvolveOnFirstTurn).
+fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<(i32, bool)> {
     let target = SlotRef::new(p, s);
     let played = g.st.slot(p, s).pokemon_played_turn;
-    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played })?;
+    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
     Ok(match e {
-        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, .. } => pokemon_played_turn,
-        _ => played,
+        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
+        _ => (played, false),
     })
+}
+
+/// `firstTurnBlocked`: players can't evolve a Pokémon during their first turn
+/// (the PlayPokemonEffect test), unless the Pokémon has its own exception.
+fn first_turn_blocked(g: &Game, p: usize, can_evolve_on_first_turn: bool) -> bool {
+    g.st.turn <= 2 && !g.st.players[p].can_evolve && !can_evolve_on_first_turn
 }
 
 fn evolves_from_any(name: &str) -> bool {
@@ -43,9 +54,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let turn = g.st.turn as i32;
     let mut any = false;
     for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        let played = played_turn(g, p, s)?;
+        let (played, first_ok) = played_turn(g, p, s)?;
         let d = g.st.cdef(c);
-        if d.stage != Stage::Basic as u8 || played == turn {
+        if d.stage != Stage::Basic as u8 || played == turn || first_turn_blocked(g, p, first_ok) {
             continue;
         }
         if evolves_from_any(d.name) {
@@ -61,7 +72,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             blocked.push(t);
             continue;
         }
-        if played_turn(g, p, s)? == turn {
+        let (played, first_ok) = played_turn(g, p, s)?;
+        if played == turn || first_turn_blocked(g, p, first_ok) {
             blocked.push(t);
         }
     }
@@ -121,8 +133,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Some(c) => c,
                 None => return Ok(()),
             };
-            let played = played_turn(g, p, t.s)?;
-            if g.st.cdef(c).stage != Stage::Basic as u8 || played == g.st.turn as i32 {
+            let (played, first_ok) = played_turn(g, p, t.s)?;
+            if g.st.cdef(c).stage != Stage::Basic as u8 || played == g.st.turn as i32 || first_turn_blocked(g, p, first_ok) {
                 return Ok(());
             }
             let mut nf = CardFrame::at(2);

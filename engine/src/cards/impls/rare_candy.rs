@@ -33,7 +33,7 @@ fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
 fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
     let target = SlotRef::new(p, s);
     let played = g.st.slot(p, s).pokemon_played_turn;
-    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played })?;
+    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
     Ok(match e {
         Effect::CheckPokemonPlayedTurn { pokemon_played_turn, .. } => pokemon_played_turn,
         _ => played,

@@ -112,13 +112,13 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
     let played = g.st.slot(target.p as usize, target.s).pokemon_played_turn;
-    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played })?;
-    let played = match e {
-        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, .. } => pokemon_played_turn,
-        _ => played,
+    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
+    let (played, first_turn_ok) = match e {
+        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
+        _ => (played, false),
     };
     let turn = g.st.turn;
-    if (turn == 0 || turn == 1 || turn == 2) && !g.st.players[p].can_evolve {
+    if (turn == 0 || turn == 1 || turn == 2) && !g.st.players[p].can_evolve && !first_turn_ok {
         crate::bail!("CANNOT_EVOLVE_ON_YOUR_FIRST_TURN");
     }
     if played >= turn {

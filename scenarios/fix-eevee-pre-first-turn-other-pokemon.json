@@ -1,0 +1,36 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee PRE 74",
+  "bench": [
+   {
+    "card": "Charcadet PFL 19"
+   }
+  ],
+  "hand": [
+   "Armarouge SSP 34",
+   "Sylveon ex PRE 41"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet PFL 19"
+ }
+}
