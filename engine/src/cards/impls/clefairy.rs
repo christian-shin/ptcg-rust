@@ -1,8 +1,9 @@
 //! Clefairy (M3 / POR 30): Follow Me — switch in 1 of your opponent's
 //! Benched Pokémon. Flop — 30.
 //!
-//! Twinleaf: AFTER_ATTACK; throws CANNOT_USE_ATTACK when the opponent has no
-//! Bench; GUST_OPPONENT_BENCHED_POKEMON(player, { sourceEffect }) prompts the
+//! Twinleaf: AFTER_ATTACK; with no Benched opponent Pokémon the attack is still
+//! usable and does nothing (phase 4b R7E, ruling 1790: it used to throw
+//! CANNOT_USE_ATTACK); GUST_OPPONENT_BENCHED_POKEMON(player, { sourceEffect }) prompts the
 //! attacker (no cancel) and then reduces a GustOpponentBenchEffect built on a
 //! fresh AttackEffect (preventable, e.g. Mist Energy), whose reducer does the
 //! switch.
@@ -16,7 +17,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             let (p, o) = (p as usize, opp as usize);
             let pl = &g.st.players[o];
             if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-                bail!("CANNOT_USE_ATTACK");
+                return Ok(());
             }
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);

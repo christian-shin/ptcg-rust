@@ -1,8 +1,10 @@
 //! Chatot (TEF): A Capella — search your deck for up to 3 Basic Pokémon and
 //! put them onto your Bench, then shuffle. Gust — 20.
 //!
-//! Twinleaf: no empty-deck / full-bench check (the prompt then has max 0);
-//! the ShuffleDeckPrompt has no trailing wait.
+//! Twinleaf: with no empty Bench slot the attack does nothing, with no search
+//! and no shuffle (phase 4b R7E, ruling 337; it used to open a prompt with max
+//! 0 and shuffle); no empty-deck check; the ShuffleDeckPrompt has no trailing
+//! wait.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Chatot", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -13,6 +15,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
         };
+        if empty_bench_slots(g, p).is_empty() {
+            return Ok(());
+        }
         bench_search(g, me, p, 3, false);
     }
     Ok(())

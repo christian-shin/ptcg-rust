@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Steven's Beldum DRI 143",
+   "4 Steven's Metang DRI 144",
+   "4 Steven's Metagross ex ASC 289",
+   "4 Hop's Snorlax JTG 117",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Steven's Beldum DRI 143",
+   "4 Steven's Metang DRI 144",
+   "4 Steven's Metagross ex ASC 289",
+   "4 Hop's Snorlax JTG 117",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Steven's Beldum DRI 143",
+     "Steven's Metang DRI 144",
+     "Steven's Metagross ex ASC 289"
+    ]
+   }
+  ],
+  "energy_attached": true,
+  "reset": true,
+  "discard": [
+   "3 Steven's Beldum DRI 143",
+   "3 Steven's Metang DRI 144",
+   "3 Steven's Metagross ex ASC 289",
+   "3 Hop's Snorlax JTG 117",
+   "38 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}

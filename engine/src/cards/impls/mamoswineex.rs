@@ -44,6 +44,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(mammoth(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), Filter::super_type(SuperType::Pokemon), ChooseCardsOpts::new(0, 1, false), Cont::Card { card: me, frame: f });

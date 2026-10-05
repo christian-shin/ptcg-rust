@@ -47,6 +47,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(metal_maker(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         g.st.players[p].marker.add(metal_maker(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
         ability_used(g, p, me);
 

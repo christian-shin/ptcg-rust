@@ -21,6 +21,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Power { p, .. } => p as usize,
             _ => return Ok(()),
         };
+        // Phase 4b R7E (ruling 12): an Ability can't be used for no effect: no Energy on the other Pokémon.
+        let energy_on_others = for_each_pokemon(g, p, PlayerType::BottomPlayer)
+            .iter()
+            .any(|(s, c, _)| *c != me && g.st.slot(p, *s).cards.iter().any(|x| g.st.cdef(x).is_energy()));
+        if !energy_on_others {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut slots = SVec::new();
         slots.push(SlotType::Active as u8);
         slots.push(SlotType::Bench as u8);

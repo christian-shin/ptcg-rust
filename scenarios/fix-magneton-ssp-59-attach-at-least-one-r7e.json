@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Magnemite SSP 58",
+   "4 Magneton SSP 59",
+   "4 Hop's Snorlax JTG 117",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Magnemite SSP 58",
+   "4 Magneton SSP 59",
+   "4 Hop's Snorlax JTG 117",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "discard": [
+   "2 Lightning Energy MEE 4"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Magnemite SSP 58",
+     "Magneton SSP 59"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Overvolt Discharge",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ]
+}

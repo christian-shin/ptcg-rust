@@ -6,7 +6,9 @@
 //! Twinleaf: fires on any EvolveEffect for this card (Rare Candy included)
 //! when the discard holds an Energy named "Metal Energy"; blockedTo (non-[M]
 //! printed types) is taken before the evolution; the ability-lock probe runs
-//! after it. AttachEnergyPrompt from the discard (min 0, max 2, no cancel),
+//! after it. AttachEnergyPrompt from the discard (min 1 since phase 4b R7E: "up to
+//! 2" in an Ability takes at least 1, rulings 1853/1778; it was min 0; max 2,
+//! no cancel),
 //! then one MOVE_CARDS per transfer; no shuffle. Metal Defender reduces a
 //! ThisPokemonHasNoWeaknessDuringOpponentsNextTurnEffect.
 use crate::cards::prelude::*;
@@ -64,7 +66,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             }
             let mut o = AttachOpts::new(g.st.players[p].discard.len() as u8);
             o.allow_cancel = false;
-            o.min = 0;
+            o.min = 1;
             o.max = 2;
             for bit in 0..9 {
                 if f.a[1] & (1 << bit) != 0 {

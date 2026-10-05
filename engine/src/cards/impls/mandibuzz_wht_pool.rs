@@ -46,6 +46,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[o].hand.is_empty() {
             bail!("CANNOT_USE_POWER");
         }
+        // Phase 4b R7E (rulings 46, 70, 1634): a full opposing Bench is public knowledge, so the Ability
+        // can't be used.
+        if empty_bench_slots(g, o).is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         use_ability_once_per_turn(g, p, mk(), me)?;
         ability_used(g, p, me);
 

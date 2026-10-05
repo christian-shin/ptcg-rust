@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Hop's Snorlax JTG 117",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Hop's Snorlax JTG 117",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Beldum TEF 113",
+     "Metang TEF 114"
+    ]
+   }
+  ],
+  "energy_attached": true,
+  "reset": true,
+  "discard": [
+   "3 Beldum TEF 113",
+   "3 Metang TEF 114",
+   "3 Hop's Snorlax JTG 117",
+   "42 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}

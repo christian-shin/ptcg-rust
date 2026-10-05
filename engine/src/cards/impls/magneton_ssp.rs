@@ -5,7 +5,8 @@
 //!
 //! Twinleaf: throws CANNOT_USE_POWER without a basic Energy in the discard;
 //! a non-cancellable AttachEnergyPrompt (discard → Bench/Active, basic
-//! Energy, min 0 max 3, non-[L] Pokémon blocked); MOVE_CARDS each transfer,
+//! Energy, min 1 (phase 4b R7E: "up to 3" in an Ability takes at least 1,
+//! rulings 1853/1778; it was min 0) max 3, non-[L] Pokémon blocked); MOVE_CARDS each transfer,
 //! then `damage += 999` on this card's slot. No once-per-turn marker, no
 //! ABILITY_USED.
 //!
@@ -32,7 +33,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let mut o = AttachOpts::new(g.st.players[p].discard.len() as u8);
     o.allow_cancel = false;
-    o.min = 0;
+    o.min = 1;
     o.max = 3;
     for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
         if !g.st.cdef(c).card_type.contains(&ct::LIGHTNING) {

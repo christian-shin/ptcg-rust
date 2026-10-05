@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Swinub JTG 77",
+   "4 Piloswine JTG 78",
+   "4 Mamoswine ex JTG 79",
+   "4 Hop's Snorlax JTG 117",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Swinub JTG 77",
+   "4 Piloswine JTG 78",
+   "4 Mamoswine ex JTG 79",
+   "4 Hop's Snorlax JTG 117",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Swinub JTG 77",
+     "Piloswine JTG 78",
+     "Mamoswine ex JTG 79"
+    ]
+   }
+  ],
+  "energy_attached": true,
+  "reset": true,
+  "discard": [
+   "3 Swinub JTG 77",
+   "3 Piloswine JTG 78",
+   "3 Mamoswine ex JTG 79",
+   "3 Hop's Snorlax JTG 117",
+   "38 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}

@@ -8,7 +8,8 @@
 //! prompt, always answered `true` by the oracle → the card is discarded;
 //! `null` would put it back on top). Pick and Stick does nothing without a
 //! basic Energy in the discard, otherwise a non-cancellable AttachEnergyPrompt
-//! (discard → Bench/Active, basic Energy, min 1 max 2).
+//! (discard → Bench/Active, basic Energy, min 0 max 2: phase 4b R7E, "up to 2"
+//! in an attack may take 0, rulings 1721/1778).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -79,7 +80,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let mut o = AttachOpts::new(g.st.players[p].discard.len() as u8);
         o.allow_cancel = false;
-        o.min = 1;
+        o.min = 0;
         o.max = 2;
         let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
         let mut slots = SVec::new();

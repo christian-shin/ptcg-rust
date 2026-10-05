@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Toxel PFL 67",
+   "4 Toxtricity PFL 68",
+   "4 Hop's Snorlax JTG 117",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Toxel PFL 67",
+   "4 Toxtricity PFL 68",
+   "4 Hop's Snorlax JTG 117",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Toxel PFL 67",
+   "Toxtricity PFL 68"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "energy_attached": true,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ }
+}

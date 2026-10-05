@@ -43,6 +43,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(x_boot(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         ability_used(g, p, me);
         g.st.players[p].marker.add(x_boot(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
         let mut slots = SVec::new();

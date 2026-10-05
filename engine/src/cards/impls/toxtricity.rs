@@ -42,6 +42,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(bad_boost(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        // Phase 4b R7E (rulings 12, 244): an Ability can't be used for no effect: an empty deck or no
+        // Benched [D] Pokémon.
+        let benched_dark = for_each_pokemon(g, p, PlayerType::BottomPlayer)
+            .iter()
+            .any(|(_, c, t)| t.slot == SlotType::Bench && g.st.cdef(*c).card_type.contains(&ct::DARK));
+        if g.st.players[p].deck.is_empty() || !benched_dark {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
         o.allow_cancel = true;
         o.min = 0;

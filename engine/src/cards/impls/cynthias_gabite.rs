@@ -46,6 +46,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].marker.has_from(champions_call(), me) {
             bail!("POWER_ALREADY_USED");
         }
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_USE_POWER");
+        }
         ability_used(g, p, me);
         let mut blocked = Blocked::default();
         for (i, c) in g.st.players[p].deck.iter().enumerate() {
