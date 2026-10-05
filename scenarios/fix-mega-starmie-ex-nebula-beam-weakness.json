@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Staryu POR 20",
+   "4 Mega Starmie ex POR 21",
+   "4 Gouging Fire ex TEF 38",
+   "24 Water Energy MEE",
+   "24 Fire Energy MEE"
+  ],
+  [
+   "4 Staryu POR 20",
+   "4 Mega Starmie ex POR 21",
+   "4 Gouging Fire ex TEF 38",
+   "24 Water Energy MEE",
+   "24 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Staryu POR 20",
+   "Mega Starmie ex POR 21"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gouging Fire ex TEF 38"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nebula Beam"
+  }
+ ]
+}

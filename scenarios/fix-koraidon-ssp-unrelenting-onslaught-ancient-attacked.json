@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scream Tail TEF 77",
+   "4 Koraidon SSP 116",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE",
+   "24 Fighting Energy MEE"
+  ],
+  [
+   "4 Scream Tail TEF 77",
+   "4 Koraidon SSP 116",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE",
+   "24 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Scream Tail TEF 77",
+  "active_energy": [
+   "3 Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Koraidon SSP 116",
+    "energy": [
+     "2 Fighting Energy MEE"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hyper Voice"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "attack",
+   "name": "Unrelenting Onslaught"
+  }
+ ]
+}

@@ -3,7 +3,9 @@
 //! Pokémon and quadruple the number of damage counters on each of them.
 //!
 //! Twinleaf: attack damage is zeroed first; the ChoosePokemonPrompt needs
-//! exactly 2 targets; each chosen Pokémon with damage gets one
+//! exactly min(2, the opponent's Pokémon in play) targets (phase 4b: it needed
+//! 2 even with a lone opposing Pokémon, a prompt with no valid answer); each
+//! chosen Pokémon with damage gets one
 //! PlaceDamageCountersEffect (source = this card) adding 3x its damage.
 use super::shuppet::count_hide_n_sneak_in_discard;
 use crate::cards::prelude::*;
@@ -28,10 +30,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         let id = g.player_id(p);
+        let o = 1 - p;
+        let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
+        let count = (1 + benched).min(2) as u8;
         g.prompt(
             id,
             "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 2, max: 2, allow_cancel: false, blocked: SVec::new() },
+            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: count, max: count, allow_cancel: false, blocked: SVec::new() },
             Cont::Card { card: me, frame: f },
         );
     }

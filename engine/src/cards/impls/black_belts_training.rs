@@ -4,7 +4,9 @@
 //!
 //! Twinleaf: the card moves itself to the supporter pile and marks the
 //! player; each copy only honors its own marker. The bonus applies to any
-//! DealDamageEffect of a marked player whose target is an Active Pokémon ex.
+//! DealDamageEffect of a marked player whose target is the opponent's Active
+//! Pokémon ex (phase 4b: it also applied to the player's own Active Pokémon ex,
+//! e.g. recoil damage to itself).
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -37,8 +39,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) {
                 if g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER) {
                     let o = 1 - p;
-                    let is_active = (t.p as usize == p && t.s == g.st.players[p].active) || (t.p as usize == o && t.s == g.st.players[o].active);
-                    if !is_active {
+                    let is_opp_active = t.p as usize == o && t.s == g.st.players[o].active;
+                    if !is_opp_active {
                         return Ok(());
                     }
                     if let Effect::DealDamage { damage, .. } = g.e_mut(e) {

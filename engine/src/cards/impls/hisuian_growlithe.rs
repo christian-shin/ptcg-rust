@@ -1,7 +1,8 @@
 //! Hisuian Growlithe (TWM): Blazing Destruction — discard a Stadium in play.
 //! Take Down — 40, this Pokémon also does 10 damage to itself.
 //!
-//! Twinleaf: with no Stadium in play the attack throws CANNOT_USE_ATTACK;
+//! Twinleaf: with no Stadium in play the attack does nothing (phase 4b: it used
+//! to throw CANNOT_USE_ATTACK, but an attack can be used with no effect);
 //! the Stadium goes to its owner's discard (MOVE_CARDS of the whole list).
 //! Take Down's recoil is a DealDamageEffect aimed at the attacker's Active.
 use crate::cards::prelude::*;
@@ -35,7 +36,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
         let stadium = match g.st.stadium_card() {
             Some(c) => c,
-            None => bail!("CANNOT_USE_ATTACK"),
+            None => return Ok(()),
         };
         return discard_stadium(g, stadium, me);
     }

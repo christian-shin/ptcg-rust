@@ -1,10 +1,12 @@
 //! Reboot Pod (TEF, ACE SPEC): attach a Basic Energy card from your discard
 //! pile to each of your Future Pokémon in play.
 //!
-//! Twinleaf: one AttachEnergyPrompt from the discard (0..basic-energy-count,
-//! no cancel, different targets, non-Future Pokémon blocked). Each transfer
-//! is a plain MOVE_CARDS discard→slot (no AttachEnergyEffect) followed by a
-//! MOVE_CARDS of the card supporter→discard.
+//! Twinleaf: one AttachEnergyPrompt from the discard (phase 4b: exactly
+//! min(Future Pokémon in play, Basic Energy in the discard pile) cards, one
+//! per Pokémon; it used to be 0..energy count; no cancel, different targets,
+//! non-Future Pokémon blocked); unplayable with no Future Pokémon in play
+//! (phase 4b). Each transfer is a plain MOVE_CARDS discard→slot (no
+//! AttachEnergyEffect) followed by a MOVE_CARDS of the card supporter→discard.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "RebootPod", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -26,19 +28,26 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let mut blocked_to = SVec::new();
+    let mut future = 0usize;
     for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
         if !g.st.cdef(c).has_tag(tag::FUTURE) {
             blocked_to.push(t);
+        } else {
+            future += 1;
         }
     }
+    if future == 0 {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    let attach = n.min(future);
     g.set_prevent(e, true);
     let mut slots = SVec::new();
     slots.push(SlotType::Bench as u8);
     slots.push(SlotType::Active as u8);
-    let mut o = AttachOpts::new(n as u8);
+    let mut o = AttachOpts::new(attach as u8);
     o.allow_cancel = false;
-    o.min = 0;
-    o.max = n as u8;
+    o.min = attach as u8;
+    o.max = attach as u8;
     o.blocked_to = blocked_to;
     o.different_targets = true;
     let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };

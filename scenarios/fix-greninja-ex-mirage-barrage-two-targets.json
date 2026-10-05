@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie SCR 39",
+   "4 Frogadier SCR 40",
+   "4 Greninja ex TWM 106",
+   "4 Swablu SSP 148",
+   "4 Eevee TWM 135",
+   "40 Water Energy MEE"
+  ],
+  [
+   "4 Froakie SCR 39",
+   "4 Frogadier SCR 40",
+   "4 Greninja ex TWM 106",
+   "4 Swablu SSP 148",
+   "4 Eevee TWM 135",
+   "40 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Froakie SCR 39",
+   "Frogadier SCR 40",
+   "Greninja ex TWM 106"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Swablu SSP 148",
+  "bench": [
+   {
+    "card": "Eevee TWM 135"
+   },
+   {
+    "card": "Swablu SSP 148"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mirage Barrage"
+  }
+ ]
+}

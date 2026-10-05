@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Comfey SCR 63",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Comfey SCR 63",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Comfey SCR 63",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Comfey SCR 63"
+   },
+   {
+    "card": "Comfey SCR 63"
+   },
+   {
+    "card": "Comfey SCR 63"
+   }
+  ],
+  "discard": [
+   "49 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Comfey SCR 63",
+  "active_energy": [],
+  "bench": [
+   {
+    "card": "Comfey SCR 63"
+   },
+   {
+    "card": "Comfey SCR 63"
+   },
+   {
+    "card": "Comfey SCR 63"
+   }
+  ],
+  "discard": [
+   "49 Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flower Shower"
+  }
+ ]
+}

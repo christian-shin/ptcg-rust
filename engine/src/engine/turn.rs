@@ -222,6 +222,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             g.st.last_attack = Some(attack);
             if let Some(pc) = pokemon {
                 g.st.player_last_attack[p] = Some((attack, pc));
+                g.st.player_last_attack_turn[p] = g.st.turn;
             }
         }
         Action::UseAbility { name, target } => {

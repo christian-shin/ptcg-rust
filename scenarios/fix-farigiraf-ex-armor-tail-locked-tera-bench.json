@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Thorns ex PRE 32",
+   "4 Girafarig TEF 66",
+   "4 Farigiraf ex TEF 108",
+   "4 Staryu POR 20",
+   "4 Mega Starmie ex POR 21",
+   "40 Water Energy MEE"
+  ],
+  [
+   "4 Iron Thorns ex PRE 32",
+   "4 Girafarig TEF 66",
+   "4 Farigiraf ex TEF 108",
+   "4 Staryu POR 20",
+   "4 Mega Starmie ex POR 21",
+   "40 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "bench": [
+   {
+    "card": [
+     "Girafarig TEF 66",
+     "Farigiraf ex TEF 108"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Staryu POR 20",
+   "Mega Starmie ex POR 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Jetting Blow"
+  }
+ ]
+}

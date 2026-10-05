@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie SCR 39",
+   "4 Frogadier SCR 40",
+   "4 Relicanth TEF 84",
+   "4 Eevee SCR 113",
+   "4 Jolteon ex PRE 30",
+   "40 Water Energy MEE"
+  ],
+  [
+   "4 Froakie SCR 39",
+   "4 Frogadier SCR 40",
+   "4 Relicanth TEF 84",
+   "4 Eevee SCR 113",
+   "4 Jolteon ex PRE 30",
+   "40 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Froakie SCR 39",
+   "Frogadier SCR 40"
+  ],
+  "active_energy": [
+   "2 Water Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Relicanth TEF 84"
+   },
+   {
+    "card": [
+     "Eevee SCR 113",
+     "Jolteon ex PRE 30"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Relicanth TEF 84"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rain Splash"
+  }
+ ]
+}

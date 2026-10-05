@@ -1,10 +1,12 @@
 //! Super Potion (XY, as Super Potion JTG): heal 60 damage from 1 of your
 //! Pokémon. If you do, discard an Energy attached to that Pokémon.
 //!
-//! Twinleaf: Pokémon that are undamaged or have no Energy card in `cards`
-//! are blocked; both prompts can be cancelled (nothing happens); the Energy
-//! choice is on the whole slot list (superType ENERGY); MOVE_CARDS to the
-//! discard, then HealEffect 60 (x-and-y file; same flow as the BS port).
+//! Twinleaf: only undamaged Pokémon are blocked (phase 4b: Pokémon with no
+//! Energy card in `cards` used to be blocked too); a chosen Pokémon with no
+//! Energy is just healed; otherwise both prompts can be cancelled (nothing
+//! happens); the Energy choice is on the whole slot list (superType ENERGY);
+//! MOVE_CARDS to the discard, then HealEffect 60 (x-and-y file; same flow as
+//! the BS port).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "SuperPotion@JTG", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -18,7 +20,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let mut blocked: TargetList = SVec::new();
     for (s, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
         let slot = g.st.slot(p, s);
-        if slot.damage == 0 || !slot.cards.iter().any(|c| g.st.cdef(c).is_energy()) {
+        if slot.damage == 0 {
             blocked.push(t);
         } else {
             has = true;
@@ -52,6 +54,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Some(t) => *t,
                 None => return Ok(()),
             };
+            if !g.st.slot(t.p as usize, t.s).cards.iter().any(|c| g.st.cdef(c).is_energy()) {
+                g.run_fx(Effect::Heal { p: p as u8, target: t, damage: 60 })?;
+                return Ok(());
+            }
             let mut nf = CardFrame::at(2);
             nf.a[0] = p as i32;
             nf.l[0] = t.p;

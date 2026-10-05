@@ -7,7 +7,8 @@
 //! threw CANNOT_USE_POWER, making the attack unusable). Otherwise a Confirm (SEARCH_DECK_FOR_CARD); yes → ChooseCardsPrompt (min 1, max 1, no
 //! filter) → MOVE_CARDS deck→hand → bare ShuffleDeckPrompt. Mirage Barrage:
 //! ChooseEnergyPrompt ([C][C] over the Active's energy map) → ChoosePokemon
-//! (opponent, Active/Bench, min 1, max 2) → DAMAGE_OPPONENT_POKEMON(120) and
+//! (opponent, Active/Bench, min = max = min(2, the opponent's Pokémon in play);
+//! phase 4b: min used to be 1) → DAMAGE_OPPONENT_POKEMON(120) and
 //! only then the DiscardCardsEffect of the chosen energy (target Active).
 //! The Tera rule prevents PutDamageEffects on this Pokémon on the Bench.
 use crate::cards::prelude::*;
@@ -87,10 +88,13 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             slots.push(SlotType::Active as u8);
             slots.push(SlotType::Bench as u8);
             let id = g.player_id(p);
+            let o = 1 - p;
+            let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
+            let max = (1 + benched).min(2) as u8;
             g.prompt(
                 id,
                 "CHOOSE_POKEMON_TO_DAMAGE",
-                PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 2, allow_cancel: false, blocked: SVec::new() },
+                PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: max, max, allow_cancel: false, blocked: SVec::new() },
                 Cont::Card { card: me, frame: nf },
             );
             Ok(())

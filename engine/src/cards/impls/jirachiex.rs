@@ -3,10 +3,11 @@
 //! on the opponent's Active Pokémon.
 //!
 //! Twinleaf: DRAW_CARDS_UNTIL_CARDS_IN_HAND is a plain `deck.moveTo(hand, n)`
-//! (no MoveCardsEffect). Swift uses THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS:
-//! its own ApplyWeaknessEffect on the current `effect.damage` (Weakness and
-//! Resistance still apply, despite the text), `effect.damage = 0`, the damage
-//! added straight to the opponent's Active, then an AfterDamageEffect.
+//! (no MoveCardsEffect). Swift uses THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS
+//! with `ignoreWeaknessAndResistance` (phase 4b; Weakness and Resistance used
+//! to apply, despite the text): its own ApplyWeaknessEffect on the current
+//! `effect.damage`, `effect.damage = 0`, the damage added straight to the
+//! opponent's Active, then an AfterDamageEffect.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Jirachiex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -25,7 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Attack { damage, .. } => damage,
             _ => return Ok(()),
         };
-        super::mega_lopunnyex::shred(g, e, dmg)?;
+        super::mega_lopunnyex::shred_ex(g, e, dmg, true)?;
     }
     Ok(())
 }

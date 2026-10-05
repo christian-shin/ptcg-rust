@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jirachi ex 30C 102",
+   "4 Snorunt ASC 46",
+   "4 Mega Froslass ex ASC 47",
+   "24 Metal Energy MEE 8",
+   "24 Water Energy MEE"
+  ],
+  [
+   "4 Jirachi ex 30C 102",
+   "4 Snorunt ASC 46",
+   "4 Mega Froslass ex ASC 47",
+   "24 Metal Energy MEE 8",
+   "24 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Jirachi ex 30C 102",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Snorunt ASC 46",
+   "Mega Froslass ex ASC 47"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Swift"
+  }
+ ]
+}

@@ -3,10 +3,12 @@
 //! Beam — 210; not affected by Weakness, Resistance, or effects.
 //!
 //! Twinleaf: Jetting Blow prompts (bench, no cancel) only when the opponent
-//! has a Benched Pokémon. Nebula Beam sets `effect.ignoreResistance = true`
-//! on the AttackEffect, but then builds its own ApplyWeaknessEffect (flags
-//! unset, so Weakness and Resistance still apply), zeroes the attack damage,
-//! adds the damage directly to the opponent's Active, then AfterDamage.
+//! has a Benched Pokémon. Nebula Beam is THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS
+//! with `ignoreWeaknessAndResistance` (phase 4b; it used to set
+//! `effect.ignoreResistance` on the AttackEffect and build its own
+//! ApplyWeaknessEffect with the flags unset, so Weakness and Resistance
+//! applied): ApplyWeaknessEffect on `effect.damage`, zero the attack damage,
+//! add the damage directly to the opponent's Active, then AfterDamage.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaStarmieex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -35,10 +37,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { ignore_resistance, .. } = g.e_mut(e) {
-            *ignore_resistance = true;
-        }
-        super::mega_lopunnyex::shred(g, e, 210)?;
+        let d = match *g.e(e) {
+            Effect::Attack { damage, .. } => damage,
+            _ => return Ok(()),
+        };
+        super::mega_lopunnyex::shred_ex(g, e, d, true)?;
     }
     Ok(())
 }

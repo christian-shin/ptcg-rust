@@ -3,7 +3,8 @@
 //!
 //! Twinleaf: no Supporter-already-played check in the card (the core rejects
 //! it), no move to the supporter pile, no preventDefault, no reveal; the
-//! prompt requires 1-2 cards and the shuffle prompt has no wait.
+//! prompt takes 0-2 cards (phase 4b: it required 1-2, but "up to 2" can be none)
+//! and the shuffle prompt has no wait.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Cassiopeia", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,7 +20,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), Filter::none(), ChooseCardsOpts::new(1, 2, false), Cont::Card { card: me, frame: f });
+    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), Filter::none(), ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

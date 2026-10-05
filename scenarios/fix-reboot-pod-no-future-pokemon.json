@@ -1,0 +1,33 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Leaves TWM 19",
+   "4 Iron Treads TEF 118",
+   "4 Koraidon ex ASC 121",
+   "1 Reboot Pod TEF 158",
+   "47 Grass Energy MEE"
+  ],
+  [
+   "4 Iron Leaves TWM 19",
+   "4 Iron Treads TEF 118",
+   "4 Koraidon ex ASC 121",
+   "1 Reboot Pod TEF 158",
+   "47 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "hand": [
+   "Reboot Pod TEF 158"
+  ],
+  "discard": [
+   "3 Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121"
+ }
+}

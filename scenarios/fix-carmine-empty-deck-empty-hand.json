@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Carmine PRE 103",
+   "4 Duraludon PRE 69",
+   "26 Metal Energy MEE 8",
+   "26 Fire Energy MEE 2"
+  ],
+  [
+   "4 Carmine PRE 103",
+   "4 Duraludon PRE 69",
+   "26 Metal Energy MEE 8",
+   "26 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Carmine PRE 103"
+  ],
+  "discard": [
+   "3 Carmine PRE 103",
+   "3 Duraludon PRE 69",
+   "24 Metal Energy MEE 8",
+   "22 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

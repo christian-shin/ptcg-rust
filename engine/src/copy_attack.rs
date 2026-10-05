@@ -152,6 +152,7 @@ fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: 
     g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, end_turns: END_TURN_BUDGET });
     let clone = clone_ref(source, serial, index);
     g.st.player_last_attack[p] = Some((clone, copycat));
+    g.st.player_last_attack_turn[p] = g.st.turn;
     clone
 }
 
