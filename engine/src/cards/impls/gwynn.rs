@@ -4,6 +4,9 @@
 //! Twinleaf: needs 1 selectable card (else CANNOT_PLAY_THIS_CARD, after the
 //! card moved to the supporter zone; fixed in phase 4b, R4: it needed 2 though
 //! the text says up to 2); the prompt is `min: 1, max: 2`.
+//!
+//! R7C: as the effect of an attack (Mr. Mime's Look-Alike Show) the prompt is min 0
+//! (rulings 1844, 1853); played from the hand it is min 1.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Gwynn", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -18,7 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);
-    let mut opts = ChooseCardsOpts::new(1, 2, false);
+    let mut opts = ChooseCardsOpts::new(if trainer_via_attack(g, e) { 0 } else { 1 }, 2, false);
     let hand: Vec<CardId> = g.st.players[p].hand.iter().collect();
     let mut blocked = 0usize;
     for (i, c) in hand.iter().enumerate() {

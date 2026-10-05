@@ -9,6 +9,8 @@
 //! run after both ShuffleDeckPrompts are answered (they used to run right
 //! after the prompts were created, from the unshuffled deck); the opponent's
 //! shuffle/draw is skipped if their MoveCardsEffect is prevented.
+//!
+//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -48,7 +50,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].supporter_turn > 0 {
             bail!("SUPPORTER_ALREADY_PLAYED");
         }
-        g.st.players[p].rocket_supporter = true;
+        // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
+        if !trainer_via_attack(g, e) {
+            g.st.players[p].rocket_supporter = true;
+        }
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         g.set_prevent(e, true);
         let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();

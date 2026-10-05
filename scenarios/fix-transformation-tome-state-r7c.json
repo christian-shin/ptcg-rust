@@ -1,0 +1,62 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Transformation Tome CRI 83",
+      "4 Hop's Snorlax JTG 117",
+      "4 Mega Heracross ex PFL 4",
+      "4 Mr. Mime TEF 63",
+      "1 Maximum Belt PRE 117",
+      "27 Grass Energy MEE 1",
+      "16 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Transformation Tome CRI 83",
+      "4 Hop's Snorlax JTG 117",
+      "4 Mega Heracross ex PFL 4",
+      "4 Mr. Mime TEF 63",
+      "1 Maximum Belt PRE 117",
+      "27 Grass Energy MEE 1",
+      "16 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Hop's Snorlax JTG 117",
+    "active_energy": [
+      "2 Grass Energy MEE 1"
+    ],
+    "active_tool": "Maximum Belt PRE 117",
+    "active_damage": 20,
+    "active_conditions": [
+      "POISONED"
+    ],
+    "bench": [
+      {
+        "card": "Mr. Mime TEF 63",
+        "energy": [
+          "Psychic Energy MEE 5"
+        ]
+      }
+    ],
+    "hand": [
+      "Transformation Tome CRI 83",
+      "Transformation Tome CRI 83"
+    ],
+    "discard": [
+      "Mega Heracross ex PFL 4"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Mr. Mime TEF 63",
+    "active_energy": [
+      "2 Psychic Energy MEE 5"
+    ]
+  },
+  "answers": [
+    {
+      "a": "pass"
+    }
+  ]
+}

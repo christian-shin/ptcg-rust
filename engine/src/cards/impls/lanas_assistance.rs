@@ -5,6 +5,9 @@
 //! Twinleaf: DiscardToHandEffect is probed before the supporter check; the
 //! card moves to the supporter pile before the "no target" failure; the
 //! cards are shown to the opponent and then moved.
+//!
+//! R7C: as the effect of an attack (Mr. Mime's Look-Alike Show) the prompt is min 0
+//! (rulings 1844, 1853); played from the hand it is min 1.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "LanasAssistance", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -24,7 +27,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);
     let mut n = 0;
-    let mut opts = ChooseCardsOpts::new(1, 3, false);
+    let mut opts = ChooseCardsOpts::new(if trainer_via_attack(g, e) { 0 } else { 1 }, 3, false);
     let discard: Vec<CardId> = g.st.players[p].discard.iter().collect();
     for (i, c) in discard.iter().enumerate() {
         let d = g.st.cdef(*c);

@@ -543,6 +543,38 @@ The tracked list is `porting/twinleaf-fixes.md`.
    `MAX_DAMAGE_RUNS`, 32; the bot's answers have at most 17) and
    `damage_transfers` expands them for the card code (Alakazam TWM, Munkidori).
 
+10. **Trainer effects on a Pokémon survive moving and evolving** (rulings 1730,
+    1259, 1149, 1150; R7C). Attack effects end when the Pokémon moves to the Bench,
+    switches, evolves or devolves, but an effect of a Trainer card or an Ability
+    does not. `Marker.removeAllExceptTrainerEffects` /
+    `markers.remove_all_except_trainer_effects` is what `clearEffects` /
+    `clear_effects` and the two evolution marker wipes now do: markers added with
+    `sourceType` `'trainer'` (`SourceType::Trainer`) stay, everything else goes. A
+    slot that is vacated is still reset completely (`resetEmptyPokemonSlot`). The
+    only pool users: Acerola's Mischief (the protection marker) and Heavy Baton's
+    `HEAVY_BATON_ACTIVE_MARKER`; add the source type when a new card keeps a marker
+    on a Pokémon for a Trainer effect.
+11. **A Supporter's effect used as the effect of an attack** (Mr. Mime's
+    Look-Alike Show; rulings 443, 599, 1727, 1728, 1729, 1844, 1853).
+    `TrainerEffect.usedAsAttackEffect` (Rust `Effect::Trainer.via_attack`,
+    `trainer_via_attack(g, e)`) is set by the attack. Supporter limits don't apply
+    (the attack zeroes `supporterTurn` around the effect); the card is not played
+    from the hand, so the played-from-hand trackers `rocketSupporter` (Team Rocket's
+    Archer, Ariana, Giovanni, Petrel, Proton) and `ancientSupporter` (Explorer's
+    Guidance) are not set; the card is in the opponent's hand, so counts of "other
+    cards in your hand" must exclude it explicitly (Kofu); an "up to N" prompt over a
+    public zone that has min 1 when played may choose zero (Eri, Lana's Aid, N's Plan,
+    Gwynn). The Supporter's own text conditions ("You can use this card only if ...",
+    costs) still apply (rulings 444, 598, 441): such a Supporter throws and the
+    attack's prompt blocks it. Any new Supporter whose prompt minimum is raised for
+    an "up to" over a public zone must use `effect.usedAsAttackEffect ? 0 : n`.
+12. **Transformation Tome** puts the discard Basic onto the slot first and discards
+    the old bottom card after, so the slot is never empty (emptying it discards
+    the attachments and resets the damage and conditions). The new card replaces
+    the old one at the bottom of the stack and takes over the state kept on the
+    card object (`damageTakenLastTurn`, `movedToActiveThisTurn` and the player's
+    `movedToActiveThisTurn` / `movedFromActiveToBenchThisTurn` id lists; ruling 1840).
+
 Report per fix: list number, card (international key), Twinleaf commit,
 Rust change, scenario entry (format above), the official text it now
 follows, and the diverged traces with their causes.

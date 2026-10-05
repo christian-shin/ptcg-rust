@@ -1,0 +1,61 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Duraludon PRE 69",
+      "4 Archaludon PFL 75",
+      "4 Payapa Berry SCR 141",
+      "4 Mr. Mime TEF 63",
+      "12 Metal Energy MEE 8",
+      "6 Fire Energy MEE 2",
+      "6 Water Energy MEE 3",
+      "6 Psychic Energy MEE 5",
+      "14 Metal Energy MEE 8"
+    ],
+    [
+      "4 Duraludon PRE 69",
+      "4 Archaludon PFL 75",
+      "4 Payapa Berry SCR 141",
+      "4 Mr. Mime TEF 63",
+      "12 Metal Energy MEE 8",
+      "6 Fire Energy MEE 2",
+      "6 Water Energy MEE 3",
+      "6 Psychic Energy MEE 5",
+      "14 Metal Energy MEE 8"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Duraludon PRE 69",
+      "Archaludon PFL 75"
+    ],
+    "active_energy": [
+      "3 Metal Energy MEE 8"
+    ],
+    "active_tool": "Payapa Berry SCR 141",
+    "bench": [
+      {
+        "card": "Duraludon PRE 69"
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Mr. Mime TEF 63",
+    "active_energy": [
+      "2 Psychic Energy MEE 5"
+    ],
+    "bench": [
+      {
+        "card": "Mr. Mime TEF 63"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Coated Attack"
+    }
+  ]
+}

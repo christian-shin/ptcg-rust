@@ -1,10 +1,11 @@
 //! Duskull (SFA): Come and Get You — put up to 3 Duskull from your discard
 //! pile onto your Bench. Mumble — 30.
 //!
-//! Twinleaf: the prompt is `min: 1` with `max = min(empty bench slots, 3)`.
-//! Fixed (phase 4b): the attack throws CANNOT_USE_POWER unless a Duskull is in
-//! the discard pile (it checked the hand) and there is an empty Bench slot
-//! (a full Bench made the prompt `max 0 / min 1`, unanswerable).
+//! Twinleaf: the prompt is `max = min(empty bench slots, 3)`.
+//! Fixed (phase 4b, R7C): "up to 3" in an attack may choose zero (rulings 1721,
+//! 1778), so the prompt is `min: 0`; an attack that can do nothing (no Duskull in
+//! the discard pile, no empty Bench slot) is still used and opens no prompt (ruling
+//! 1790). It used to throw CANNOT_USE_POWER there and ask for at least 1.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Duskull@Duskull SFA|Duskull PRE", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -23,8 +24,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let d = g.st.cdef(c);
         d.is_pokemon() && d.name == "Duskull"
     });
+    // An attack can be used when it does nothing (ruling 1790); no prompt without a valid choice.
     if !has_duskull || slots.is_empty() {
-        bail!("CANNOT_USE_POWER");
+        return Ok(());
     }
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
@@ -36,7 +38,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     f.a[3] = packed;
     let filter = Filter { super_type: Some(SuperType::Pokemon as u8), name: Some("Duskull"), ..Filter::none() };
-    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Discard(p as u8), filter, ChooseCardsOpts::new(1, max, false), Cont::Card { card: me, frame: f });
+    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Discard(p as u8), filter, ChooseCardsOpts::new(0, max, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

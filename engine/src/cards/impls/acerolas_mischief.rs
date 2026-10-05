@@ -7,6 +7,11 @@
 //! marker is prevented when its player does not own the target and the
 //! source's top Pokémon is an ex. The markers are cleared at the end of the
 //! turn of the player holding the clear marker (the opponent).
+//!
+//! Fixed (phase 4b, R7C, ruling 1730): the marker on the Pokémon is a Trainer effect
+//! (`SourceType::Trainer`), so it stays when the Pokémon moves to the Bench, switches,
+//! evolves or devolves (`remove_all_except_trainer_effects`); it used to be wiped with
+//! the attack effects.
 use super::shuppet::HIDE_N_SNEAK_KINDS;
 use crate::cards::prelude::*;
 use crate::marker;
@@ -86,7 +91,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         Some(t) => *t,
         None => return Ok(()),
     };
-    g.st.players[t.p as usize].slots[t.s as usize].marker.add(mischief(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
+    // A Trainer effect, not an attack effect: it stays when the Pokémon moves to the Bench (ruling 1730).
+    g.st.players[t.p as usize].slots[t.s as usize].marker.add(mischief(), me, crate::markers::SourceType::Trainer, crate::markers::TargetScope::Pokemon);
     g.st.players[1 - p].marker.add(clear_mischief(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
     Ok(())
 }

@@ -7,6 +7,9 @@
 //! pick (phase 4b #43: checked in corpus traces, not a bug). After the
 //! order prompt the cards go to the deck bottom and `min(4, deck size)` cards
 //! are moved to the hand (no shuffle, no supporter-turn marker).
+//!
+//! R7C: counts the cards other than Kofu in the hand (as the effect of an attack Kofu is
+//! not in the hand).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Kofu", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -19,7 +22,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
-    if g.st.players[p].hand.len() <= 2 {
+    // 2 cards other than this one (used as the effect of an attack it isn't in the hand).
+    if g.st.players[p].hand.iter().filter(|c| *c != me).count() < 2 {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     let bottom = g.alloc_temp(&[]);

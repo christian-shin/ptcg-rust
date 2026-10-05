@@ -7,10 +7,14 @@
 //! Pokémon in play the card was playable but every slot was blocked and the
 //! prompt unanswerable); a Fossil in play (a Trainer card played as a Basic
 //! Pokémon) counts, and the in-play choice blocks slots whose top card isn't
-//! Basic. The swap MOVE_CARDS the slot's
-//! bottom card to the discard first, which empties the slot of Pokémon, so
-//! the core discards its attachments and resets it; the discard Basic then
-//! goes into the empty slot and the second copy is discarded from hand.
+//! Basic. Phase 4b fix (rulings 1840, card text "attached cards, damage counters,
+//! Special Conditions, turns in play, and any other effects remain on the new
+//! Pokémon"): the discard Basic goes onto the slot first and the old bottom card
+//! is discarded after (the slot is never empty, so nothing is discarded or reset;
+//! Twinleaf used to empty the slot first), the new card takes the old card's place
+//! at the bottom of the stack and gets its `damageTakenLastTurn` and
+//! `movedToActiveThisTurn` (card flag and the player's id lists). The second copy
+//! is discarded from hand.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "TransformationTome", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -92,12 +96,29 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             };
             let (tp, ts) = (f.a[2] as usize, f.a[3] as SlotId);
             let list = ListRef::Slot(tp as u8, ts);
-            if g.st.slot_pokemon(tp, ts).is_some() {
-                if let Some(bottom) = g.st.slot(tp, ts).cards.get(0) {
-                    move_cards(g, list, ListRef::Discard(pu), &[bottom], me)?;
+            let old = if g.st.slot_pokemon(tp, ts).is_some() { g.st.slot(tp, ts).cards.get(0) } else { None };
+            if let Some(old) = old {
+                // The new card goes onto the slot first and the old one is discarded after, so
+                // the slot is never empty (that would discard its attachments and reset it).
+                move_cards(g, ListRef::Discard(pu), list, &[chosen], me)?;
+                move_cards(g, list, ListRef::Discard(pu), &[old], me)?;
+                // The new card takes the old card's place at the bottom of the stack.
+                let mut order: Vec<CardId> = vec![chosen];
+                order.extend(g.st.slot(tp, ts).cards.iter().filter(|c| *c != chosen));
+                g.st.players[tp].slots[ts as usize].cards = List::from_slice(&order);
+                // State kept on the card object moves with the Pokémon.
+                g.st.cards[chosen as usize].damage_taken_last_turn = g.st.cards[old as usize].damage_taken_last_turn;
+                g.st.cards[old as usize].damage_taken_last_turn = 0;
+                g.st.cards[chosen as usize].moved_to_active_this_turn = g.st.cards[old as usize].moved_to_active_this_turn;
+                g.st.cards[old as usize].moved_to_active_this_turn = false;
+                for id in g.st.players[p].moved_to_active_this_turn.as_mut_slice().iter_mut().chain(g.st.players[p].moved_from_active_to_bench_this_turn.as_mut_slice().iter_mut()) {
+                    if *id == old {
+                        *id = chosen;
+                    }
                 }
+            } else {
+                move_cards(g, ListRef::Discard(pu), list, &[chosen], me)?;
             }
-            move_cards(g, ListRef::Discard(pu), list, &[chosen], me)?;
             move_cards(g, ListRef::Hand(pu), ListRef::Discard(pu), &[f.a[1] as CardId], me)?;
             Ok(())
         }

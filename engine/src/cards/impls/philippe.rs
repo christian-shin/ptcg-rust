@@ -14,6 +14,8 @@
 //! blocks, by discard position (choose_cards remaps it through the prompt's sort,
 //! as the TS constructor does), everything but Basic [M] Energy,
 //! with min 0 and max min(2, count); each chosen card is its own MOVE_CARDS.
+//!
+//! R7C: "played from the hand" is `!via_attack` (it was a hand test).
 use crate::cards::prelude::*;
 use crate::engine::game_effect::pokemon_types;
 
@@ -35,7 +37,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Some(p) => p,
         None => return Ok(()),
     };
-    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
+    let played_from_hand = !trainer_via_attack(g, e);
     let count = g.st.players[p].discard.iter().filter(|c| basic_metal(g, *c)).count();
     if count == 0 {
         if !played_from_hand {

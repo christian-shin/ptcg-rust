@@ -155,7 +155,7 @@ pub fn finish_evolution(g: &mut Game, p: usize, target: SlotRef) -> R {
     // clearEffects only removes non-preserved conditions (order kept).
     slot.special_conditions = before;
     slot.special_conditions.retain(|c| keep.contains(c));
-    slot.marker.clear();
+    slot.marker.remove_all_except_trainer_effects();
     slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
     Ok(())
 }
@@ -240,7 +240,7 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
     let pu = p as usize;
     match kind {
         TrainerPlayKind::Supporter => {
-            g.run_fx(Effect::Trainer { p, card, target })?;
+            g.run_fx(Effect::Trainer { p, card, target, via_attack: false })?;
             restore_played_trainer(g, pu, card);
             let keep = g.st.rules.supporter_cleanup_at_end_turn;
             finalize_trainer_cleanup(g, pu, card, keep);
@@ -269,12 +269,12 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             slot.cards.remove(card);
             slot.tools.push(card);
-            g.run_fx(Effect::Trainer { p, card, target: Some(target) })?;
+            g.run_fx(Effect::Trainer { p, card, target: Some(target), via_attack: false })?;
             Ok(())
         }
         TrainerPlayKind::Item => {
             g.move_card_to(ListRef::Hand(p), card, ListRef::Supporter(p));
-            g.run_fx(Effect::Trainer { p, card, target })?;
+            g.run_fx(Effect::Trainer { p, card, target, via_attack: false })?;
             restore_played_trainer(g, pu, card);
             finalize_trainer_cleanup(g, pu, card, false);
             Ok(())

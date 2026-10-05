@@ -1,0 +1,54 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Chikorita MEG 8",
+      "4 Bayleef MEG 9",
+      "4 Iron Thorns ex PRE 32",
+      "4 Heavy Baton TEF 151",
+      "20 Grass Energy MEE 1",
+      "24 Lightning Energy MEE 4"
+    ],
+    [
+      "4 Chikorita MEG 8",
+      "4 Bayleef MEG 9",
+      "4 Iron Thorns ex PRE 32",
+      "4 Heavy Baton TEF 151",
+      "20 Grass Energy MEE 1",
+      "24 Lightning Energy MEE 4"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": [
+      "Chikorita MEG 8",
+      "Bayleef MEG 9"
+    ],
+    "active_energy": [
+      "2 Grass Energy MEE 1"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Iron Thorns ex PRE 32",
+    "active_tool": "Heavy Baton TEF 151",
+    "active_energy": [
+      "3 Lightning Energy MEE 4"
+    ],
+    "active_damage": 190,
+    "bench": [
+      {
+        "card": "Chikorita MEG 8"
+      },
+      {
+        "card": "Chikorita MEG 8"
+      }
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Push Down"
+    }
+  ]
+}

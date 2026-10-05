@@ -75,6 +75,11 @@ impl<const N: usize> Marker<N> {
     pub fn clear(&mut self) {
         self.items.clear();
     }
+    /// `removeAllExceptTrainerEffects`: keeps the markers a Trainer card put on a
+    /// Pokémon (Acerola's Mischief, rulings 1730 and 1259).
+    pub fn remove_all_except_trainer_effects(&mut self) {
+        self.items.retain(|m| m.source_type == SourceType::Trainer);
+    }
 }
 
 /// `PokemonCardList`: one board slot.

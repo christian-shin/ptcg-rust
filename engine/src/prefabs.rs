@@ -192,6 +192,12 @@ pub fn was_power_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::Power { power, probe: false, .. } if power == PowerRef { card: me, index })
 }
 
+/// `effect.usedAsAttackEffect` of a TrainerEffect: the Supporter's effect is used as the
+/// effect of an attack (Mr. Mime's Look-Alike Show), so "up to" prompts may choose zero.
+pub fn trainer_via_attack(g: &Game, e: EffId) -> bool {
+    matches!(*g.e(e), Effect::Trainer { via_attack: true, .. })
+}
+
 /// `effect instanceof TrainerEffect && effect.trainerCard === this`: the player.
 pub fn trainer_played(g: &Game, e: EffId, me: CardId) -> Option<usize> {
     match *g.e(e) {

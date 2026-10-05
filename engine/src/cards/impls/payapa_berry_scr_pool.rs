@@ -3,12 +3,14 @@
 //! less damage (after applying Weakness and Resistance), and discard this
 //! card.
 //!
-//! Twinleaf (shared with Babiri Berry): on a PutDamageEffect whose target
-//! holds this tool, during the attack phase, unless the tool is blocked for
-//! the owner or the source belongs to the same player: a CheckPokemonType on
-//! the source; if it contains the type, the damage is reduced by 60 (floored
-//! at 0) and the tool moves from the target slot to the owner's discard (no
-//! sourceCard), even when the damage was already 0.
+//! Twinleaf (shared with Babiri Berry and Haban Berry): on a PutDamageEffect
+//! whose target holds this tool, during the attack phase, unless the tool is
+//! blocked for the owner or the source belongs to the same player, and (phase 4b
+//! fix: it used to discard even when no damage was taken) unless the damage is
+//! already 0, the effect is prevented or the target's preventDamage effect stops
+//! this source: a CheckPokemonType on the source; if it contains the type, the
+//! damage is reduced by 60 (floored at 0) and the tool moves from the target
+//! slot to the owner's discard (no sourceCard).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "PayapaBerrySCRPool", mask: mask(&[k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
@@ -31,6 +33,14 @@ pub fn berry_reduce(g: &mut Game, me: CardId, e: EffId, attacker_type: CardType)
         return Ok(());
     }
     if b.source.p == t.p {
+        return Ok(());
+    }
+    // "If the Pokémon is damaged": no damage taken, the Berry stays.
+    let damage_now = match *g.e(e) {
+        Effect::PutDamage { damage, .. } => damage,
+        _ => 0,
+    };
+    if g.prevented(e) || damage_now <= 0 || crate::engine::attack::should_prevent_attack_damage(g, t, b.source) {
         return Ok(());
     }
     let types = crate::engine::game_effect::pokemon_types(g, b.source);

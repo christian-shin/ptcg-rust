@@ -70,7 +70,7 @@ pub fn reset_empty_slot(slot: &mut Slot) {
 
 /// `PokemonCardList.clearEffects()` for the modeled fields.
 pub fn clear_effects(slot: &mut Slot) {
-    slot.marker.clear();
+    slot.marker.remove_all_except_trainer_effects();
     for sc in [SpecialCondition::Poisoned, SpecialCondition::Asleep, SpecialCondition::Burned, SpecialCondition::Confused, SpecialCondition::Paralyzed] {
         let v = sc as u8;
         slot.special_conditions.retain(|x| *x != v);
@@ -461,7 +461,7 @@ fn evolve(g: &mut Game, p: usize, target: SlotRef, card: CardId) -> R {
     let turn = g.st.turn;
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
     slot.pokemon_played_turn = turn;
-    slot.marker.clear();
+    slot.marker.remove_all_except_trainer_effects();
     if g.st.players[p].active == target.s && target.p as usize == p {
         g.st.players[p].slots[target.s as usize].ability_lock_activation_order = 0;
         stamp_ability_lock_activation(g, p, target.s, card);

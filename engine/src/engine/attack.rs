@@ -445,6 +445,18 @@ fn should_prevent_attack_effects(g: &Game, id: EffId) -> bool {
     !matches!(*g.e(id), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. })
 }
 
+/// `shouldPreventAttackDamage(target, source)` (sourceStage / sourceCardTypes filters modeled).
+pub fn should_prevent_attack_damage(g: &Game, t: SlotRef, source: SlotRef) -> bool {
+    g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
+        && match g.st.slot_pokemon(source.p as usize, source.s) {
+            Some(sc) => {
+                let d = g.st.cdef(sc);
+                g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type, d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8))
+            }
+            None => false,
+        }
+}
+
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     if should_prevent_attack_effects(g, id) {
         return Ok(());
@@ -476,15 +488,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
             }
             // shouldPreventAttackDamage (sourceStage / sourceCardTypes filters modeled).
-            let prevent = g.st.phase == GamePhase::Attack
-                && g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
-                && match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
-                    Some(sc) => {
-                        let d = g.st.cdef(sc);
-                        g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type, d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8))
-                    }
-                    None => false,
-                };
+            let prevent = g.st.phase == GamePhase::Attack && should_prevent_attack_damage(g, t, b.source);
             if prevent {
                 if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
                     *d = damage;

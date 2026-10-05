@@ -1,0 +1,63 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Mr. Mime TEF 63",
+      "4 Team Rocket's Mewtwo ex ASC 79",
+      "2 Team Rocket's Archer ASC 201",
+      "2 Team Rocket's Ariana ASC 202",
+      "2 Team Rocket's Giovanni ASC 204",
+      "2 Team Rocket's Petrel ASC 207",
+      "2 Team Rocket's Proton ASC 208",
+      "2 Explorer's Guidance PRE 107",
+      "40 Psychic Energy MEE 5"
+    ],
+    [
+      "4 Mr. Mime TEF 63",
+      "4 Team Rocket's Mewtwo ex ASC 79",
+      "2 Team Rocket's Archer ASC 201",
+      "2 Team Rocket's Ariana ASC 202",
+      "2 Team Rocket's Giovanni ASC 204",
+      "2 Team Rocket's Petrel ASC 207",
+      "2 Team Rocket's Proton ASC 208",
+      "2 Explorer's Guidance PRE 107",
+      "40 Psychic Energy MEE 5"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Mr. Mime TEF 63",
+    "active_energy": [
+      "Psychic Energy MEE 5"
+    ],
+    "bench": [
+      {
+        "card": "Team Rocket's Mewtwo ex ASC 79"
+      }
+    ],
+    "hand": [
+      "Team Rocket's Mewtwo ex ASC 79"
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Mr. Mime TEF 63",
+    "active_energy": [
+      "Psychic Energy MEE 5"
+    ],
+    "hand": [
+      "Team Rocket's Archer ASC 201",
+      "Team Rocket's Ariana ASC 202",
+      "Team Rocket's Giovanni ASC 204",
+      "Team Rocket's Petrel ASC 207",
+      "Team Rocket's Proton ASC 208",
+      "Explorer's Guidance PRE 107"
+    ]
+  },
+  "answers": [
+    {
+      "a": "attack",
+      "name": "Look-Alike Show"
+    }
+  ]
+}
