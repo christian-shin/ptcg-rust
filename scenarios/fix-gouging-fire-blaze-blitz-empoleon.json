@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gouging Fire ex TEF 38",
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Gouging Fire ex TEF 38",
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gouging Fire ex TEF 38",
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Piplup PFL 27",
+   "Prinplup BRS 36",
+   "Empoleon ex PFL 70"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Blaze Blitz"
+  }
+ ]
+}

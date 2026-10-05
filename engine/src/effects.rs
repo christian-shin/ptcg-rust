@@ -141,7 +141,7 @@ pub enum Effect {
     /// `opponent.active.blockedAttackNameNextTurn = name`.
     OpponentPokemonCannotUseAttack { b: AtkBase, name: &'static str },
     /// `PreventAttackUntilLeavesActiveEffect` (EffectOfAttackEffect):
-    /// `source.blockedAttackNameUntilLeavesActive = name` (source = the attacker's slot).
+    /// `source.blockedAttackNameUntilLeavesActive = name` (source = target = the attacker's slot).
     PreventAttackUntilLeavesActive { b: AtkBase, name: &'static str },
     /// `DefendingPokemonTakesMoreDamageDuringAttackerNextTurnEffect`
     /// (EffectOfAttackEffect): arms `defendingPokemonExtraDamage*` on the
@@ -155,7 +155,7 @@ pub enum Effect {
     /// `PreventDamageEffect` with non-empty `PreventDamageOptions` (same
     /// Twinleaf class/kind as [`Effect::PreventDamage`]).
     PreventDamageFiltered { b: AtkBase, filter: crate::state::PreventFilter },
-    /// `SelfPreventRetreatEffect` (target = opponent's Active, the default):
+    /// `SelfPreventRetreatEffect` (target = base.source, the attacker):
     /// `player.active.cannotRetreatNextTurnPending = true`.
     SelfPreventRetreat { b: AtkBase },
     /// `DiscardAttackerEnergyIfKnockedOutDuringOpponentsNextTurnEffect`

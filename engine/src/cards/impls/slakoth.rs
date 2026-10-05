@@ -3,7 +3,8 @@
 //!
 //! Twinleaf: HEAL_X_DAMAGE_FROM_THIS_POKEMON (a HealTargetEffect on
 //! `player.active`) then BLOCK_SELF_RETREAT (a SelfPreventRetreatEffect whose
-//! target is left at the opponent's Active, so e.g. Mist Energy there blocks it).
+//! target is the attacker since phase 4b, so Mist Energy on the Defending
+//! Pokémon no longer blocks it).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Slakoth", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };

@@ -686,14 +686,15 @@ pub fn prevent_effects_of_attacks(g: &mut Game, atk: EffId) -> R {
 }
 
 /// `BLOCK_SELF_RETREAT(store, state, effect, source)`: a
-/// `SelfPreventRetreatEffect` (default target: the opponent's Active).
+/// `SelfPreventRetreatEffect` whose target is the attacking Pokémon (phase 4b:
+/// it used to be left at the opponent's Active, where Mist Energy etc.
+/// prevented it).
 pub fn block_self_retreat(g: &mut Game, atk: EffId) -> R {
-    let o = match *g.e(atk) {
-        Effect::Attack { opp, .. } => opp as usize,
+    let source = match *g.e(atk) {
+        Effect::Attack { source, .. } => source,
         _ => return Ok(()),
     };
-    let target = SlotRef::new(o, g.st.players[o].active);
-    let b = atk_base_for(g, atk, target);
+    let b = atk_base_for(g, atk, source);
     g.run_fx(Effect::SelfPreventRetreat { b })?;
     Ok(())
 }
