@@ -160,6 +160,28 @@ attacker (`SelfPreventRetreat`, `PreventAttackUntilLeavesActive`, ...) must
 carry the attacker as `b.target`, or the Defending Pokémon's protections
 (Mist Energy, Empoleon ex) would prevent them.
 
+### Shred ("isn't affected by any effects on your opponent's Active Pokémon")
+
+An attack with that text (Shred, Demolish, Twin Shotels, Azure Wave, ...) sets
+`AttackEffect.ignoreDefenderEffects` (`Effect::Attack.ignore_defender_effects`;
+`THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS` in Twinleaf, `shred` /
+`shred_ex` in `mega_lopunnyex.rs`) and lets the damage go through the normal
+DealDamage / PutDamage path; never write the damage straight to the Pokémon.
+`ignoresDefenderEffects(effect)` / `prefabs::ignores_defender_effects` is true
+for such damage done to the opponent's Pokémon. Rulings 1439, 1345, 1629,
+1875, 1490: every effect *on the damaged Pokémon* that changes this damage is
+skipped (prevention, reduction, extra damage taken, coin-flip prevention,
+Tera/Bench protection, Abilities, Tools, Stadiums). Rulings 1716, 1816, 531,
+532, 812, 941: effects on the attacker (Maximum Belt, Binding Mochi, "attacks
+used by the Defending Pokémon do N less", ...), Weakness and Resistance (and
+effects that change them) still apply. Rulings 936, 1770: "survive on 10 HP"
+effects still apply after the full damage. A card hook on `PutDamageEffect`
+that changes or prevents the damage of the Pokémon it sits on must start with
+`!ignoresDefenderEffects(effect)` (Rust: `ignores_defender_effects(g, &b)`);
+hooks on `DealDamageEffect` are attacker-side bonuses and must not. Generic
+"prevent all damage and effects" hooks (Milotic ex, Acerola's Mischief) skip the
+damage steps only (`isDamageIgnoringDefenderEffects`).
+
 Per-card runtime writes also reach the oracle hash: any Twinleaf write to a
 card object's own fields (e.g. `effect.attack.shredAttack = true`) shows up
 in the canonical `cards` entry (the whole `attacks` array). Model it on
