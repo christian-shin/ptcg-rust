@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Munkidori ex SFA 37",
+   "4 Pecharunt ex PRE 163",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Munkidori ex SFA 37",
+   "4 Pecharunt ex PRE 163",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "active_damage": 40,
+  "bench": [
+   {
+    "card": "Pecharunt ex PRE 163"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dirty Headbutt"
+  }
+ ]
+}

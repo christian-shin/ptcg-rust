@@ -72,12 +72,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     if g.st.players[p].retreated_turn == g.st.turn {
         crate::bail!("RETREAT_ALREADY_USED");
     }
-    let mut cost: Cost = SVec::new();
-    if let Some(c) = g.st.active_pokemon(p) {
-        for &t in g.st.cdef(c).retreat {
-            cost.push(t);
-        }
-    }
+    let cost = check_retreat_cost_base(g, p);
     let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false })?;
     let cost = match e {
         Effect::CheckRetreatCost { cost, .. } => cost,
@@ -139,4 +134,22 @@ pub fn resume(g: &mut Game, rc: RetreatCont, res: Res) -> R {
     clear_effects(&mut g.st.players[p].slots[active as usize]);
     g.move_cards_to(ListRef::Slot(rc.p, active), &cards, rc.move_to);
     retreat_pokemon(g, p, rc.bench_index)
+}
+
+/// `new CheckRetreatCostEffect(player)`: the Active Pokémon's printed Retreat
+/// Cost, plus one [C] per point of retreatCostIncreaseNextTurn (Rillaboom's
+/// Drum Beating), which is part of the base cost so a "no Retreat Cost" effect
+/// still wins.
+pub fn check_retreat_cost_base(g: &Game, p: usize) -> Cost {
+    let mut cost: Cost = SVec::new();
+    if let Some(c) = g.st.active_pokemon(p) {
+        for &t in g.st.cdef(c).retreat {
+            cost.push(t);
+        }
+    }
+    let a = g.st.players[p].active;
+    for _ in 0..g.st.slot(p, a).retreat_cost_increase_next_turn.max(0) {
+        cost.push(ct::COLORLESS);
+    }
+    cost
 }

@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Hoothoot SCR 114",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Hoothoot SCR 114",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Grookey TWM 14",
+   "Thwackey TWM 15",
+   "Rillaboom TWM 16"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot SCR 114",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Hoothoot SCR 114"
+   }
+  ],
+  "deck_top": [
+   "Grookey TWM 14"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Drum Beating"
+  }
+ ]
+}

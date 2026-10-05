@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "4 Mist Energy TEF 161",
+   "40 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "4 Mist Energy TEF 161",
+   "40 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Mimikyu ASC 97",
+    "energy": [
+     "Mist Energy TEF 161",
+     "Psychic Energy MEE 5"
+    ]
+   },
+   {
+    "card": "Team Rocket's Murkrow ASC 126",
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   },
+   {
+    "card": "Team Rocket's Wobbuffet DRI 82",
+    "energy": [
+     "Psychic Energy MEE 5"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79",
+  "bench": [
+   {
+    "card": "Team Rocket's Mimikyu ASC 97"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Erasure Ball"
+  }
+ ]
+}

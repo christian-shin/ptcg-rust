@@ -31,12 +31,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         let o = 1 - p;
-        let mut cost = crate::effects::Cost::new();
-        if let Some(c) = g.st.active_pokemon(o) {
-            for &t in g.st.cdef(c).retreat {
-                cost.push(t);
-            }
-        }
+        let cost = crate::engine::retreat::check_retreat_cost_base(g, o);
         let (re, _) = g.run_fx(Effect::CheckRetreatCost { p: o as u8, cost, no_cost: false })?;
         let colorless = match re {
             Effect::CheckRetreatCost { cost, .. } => cost.iter().filter(|t| **t == ct::COLORLESS).count() as i32,

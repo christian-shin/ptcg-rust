@@ -4,15 +4,20 @@
 //! attached cards into their deck; can't be used if 1 of your Pokémon used
 //! Angelite during your last turn. Tera: no attack damage while on the Bench.
 //!
-//! Twinleaf quirks kept: Angelite does nothing (and sets no marker) with an
-//! empty opposing Bench; with the marker it throws BLOCKED_BY_EFFECT; the
-//! marker is added before the prompt (phase 4b: no longer again in its
-//! callback, where a copy by Clefable's Metronome added a marker named
-//! `undefined` after the delegation scope ended); each chosen
-//! Pokémon is moved to the opponent's deck and followed by its own
-//! ShuffleDeckPrompt for the opponent (no trailing wait). The marker pair
-//! (ANGELITE / CLEAR_ANGELITE) is kept on the player and cleared at the end
-//! of the following turn of that player.
+//! Twinleaf: Angelite does nothing with an empty opposing Bench; with the
+//! marker it throws BLOCKED_BY_EFFECT; the marker is added before the prompt
+//! (phase 4b: no longer again in its callback, where a copy by Clefable's
+//! Metronome added a marker named `undefined` after the delegation scope
+//! ended); each chosen Pokémon is moved to the opponent's deck and followed by
+//! its own ShuffleDeckPrompt for the opponent (no trailing wait). The marker
+//! pair (ANGELITE / CLEAR_ANGELITE) is kept on the player and cleared at the
+//! end of the following turn of that player.
+//! Phase 4b (R6): "If 1 of your Pokémon used Angelite during your last turn"
+//! is checked by marker name only (any Sylveon ex or copy of the attack; it
+//! used to be keyed to the card, so a second copy could still use it); the
+//! marker is set and checked before the empty-Bench return (using the attack
+//! counts even when it does nothing); "choose 2" is exactly 2 (min 1 for a
+//! single Benched Pokémon only).
 use super::chikorita_asc::defending_pokemon_does_less_damage;
 use crate::cards::prelude::*;
 
@@ -34,10 +39,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::EndTurn { p } = *g.e(e) {
         let p = p as usize;
         if g.st.players[p].marker.has_from(clear_angelite(), me) {
-            g.st.players[p].marker.remove_from(angelite(), me);
+            g.st.players[p].marker.remove(angelite());
             g.st.players[p].marker.remove_from(clear_angelite(), me);
         }
-        if g.st.players[p].marker.has_from(angelite(), me) {
+        if g.st.players[p].marker.has(angelite()) {
             add(g, p, clear_angelite(), me);
         }
         return Ok(());
@@ -52,14 +57,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
             _ => return Ok(()),
         };
-        let has_bench = g.st.players[o].bench.iter().any(|s| !g.st.players[o].slots[*s as usize].cards.is_empty());
-        if !has_bench {
-            return Ok(());
-        }
-        if g.st.players[p].marker.has_from(angelite(), me) {
+        let bench_count = g.st.players[o].bench.iter().filter(|s| !g.st.players[o].slots[**s as usize].cards.is_empty()).count();
+        if g.st.players[p].marker.has(angelite()) {
             bail!("BLOCKED_BY_EFFECT");
         }
         add(g, p, angelite(), me);
+        if bench_count == 0 {
+            return Ok(());
+        }
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
         let mut f = CardFrame::at(1);
@@ -68,7 +73,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.prompt(
             id,
             "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 2, allow_cancel: false, blocked: SVec::new() },
+            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: bench_count.min(2) as _, max: 2, allow_cancel: false, blocked: SVec::new() },
             Cont::Card { card: me, frame: f },
         );
         return Ok(());

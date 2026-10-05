@@ -2,6 +2,11 @@
 //! Bench, you may search your deck for a Supporter (Twinleaf: any Trainer,
 //! non-Supporters blocked). Tuck Tail — put this Pokémon and all attached
 //! cards into your hand.
+//!
+//! Phase 4b (R6): with the state-level TRUMP_CARD_MARKER set (a "Last-Ditch"
+//! Ability was used this turn) the Pokémon is still played, only without the
+//! Ability; it used to throw POWER_ALREADY_USED inside the PlayPokemonEffect,
+//! so a second Meowth ex could not be benched that turn.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -25,7 +30,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             if g.st.players[p].marker.has(trump()) {
-                bail!("POWER_ALREADY_USED");
+                return Ok(());
             }
             if is_ability_blocked(g, p, me, None) {
                 return Ok(());

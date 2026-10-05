@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Magnetic Metal Energy CRI 85",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Magnetic Metal Energy CRI 85",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Beldum TEF 113",
+   "Metang TEF 114"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "deck_top": [
+   "Magnetic Metal Energy CRI 85",
+   "Metal Energy MEE 8",
+   "Magnetic Metal Energy CRI 85",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Metal Maker",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

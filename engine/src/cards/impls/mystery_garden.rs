@@ -8,6 +8,8 @@
 //! each slot (phase 4b: it used to read the printed type); the draw is a
 //! MOVE_CARDS with `count`, clamped to the deck size (phase 4b; no ability or
 //! stadium block check).
+//! Phase 4b (R6, rulings 1733/1734): can't be used unless it would draw at
+//! least 1 card (the [P] count and deck size are checked before the prompt).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MysteryGarden", mask: mask(&[k::USE_STADIUM]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -18,6 +20,18 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => return Ok(()),
     };
     if g.st.players[p].hand.iter().all(|c| !g.st.cdef(c).is_energy()) {
+        bail!("CANNOT_USE_STADIUM");
+    }
+    let mut psychic = 0;
+    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        let t = SlotRef::new(p, s);
+        let types = crate::engine::game_effect::pokemon_types(g, t);
+        let (ce, _) = g.run_fx(Effect::CheckPokemonType { target: t, card_types: types })?;
+        if matches!(ce, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::PSYCHIC)) {
+            psychic += 1;
+        }
+    }
+    if (psychic - (g.st.players[p].hand.len() as i32 - 1)).min(g.st.players[p].deck.len() as i32) <= 0 {
         bail!("CANNOT_USE_STADIUM");
     }
     let mut f = CardFrame::at(1);

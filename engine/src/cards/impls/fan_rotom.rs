@@ -3,8 +3,9 @@
 //! into your hand, then shuffle (1 Fan Call per turn). Assault Landing —
 //! 70; does nothing if there is no Stadium in play.
 //!
-//! Twinleaf: `player.usedFanCall` is set only when cards were taken (in the
-//! ShowCardsPrompt callback) and cleared at every end of turn; "first turn"
+//! Twinleaf: `player.usedFanCall` is set as soon as the Ability is used (phase
+//! 4b: it used to be set only when cards were taken, so the Ability could be
+//! used again after taking none) and cleared at every end of turn; "first turn"
 //! is `state.turn <= 2`. ABILITY_USED is set in the choose callback; the
 //! ShuffleDeckPrompt follows the (non-yielding) ShowCardsPrompt with no wait.
 //! Assault Landing sets the damage to exactly 0 or 70.
@@ -31,6 +32,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.turn > 2 {
             bail!("CANNOT_USE_POWER");
         }
+        g.st.players[p].used_fan_call = true;
         let mut opts = ChooseCardsOpts::new(0, 3, false);
         let mut n = 0u8;
         for (i, c) in g.st.players[p].deck.iter().enumerate() {
@@ -79,7 +81,6 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         2 => {
             let cards: Vec<CardId> = g.lst(ListRef::Temp(f.l[0])).to_vec();
             move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-            g.st.players[p].used_fan_call = true;
             Ok(())
         }
         _ => Ok(()),

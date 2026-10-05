@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dark Bell PBL 75",
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Hoothoot SCR 114",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Dark Bell PBL 75",
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Hoothoot SCR 114",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126",
+  "hand": [
+   "Dark Bell PBL 75"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot SCR 114"
+ }
+}

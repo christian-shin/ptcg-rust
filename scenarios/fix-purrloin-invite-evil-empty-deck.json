@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Purrloin WHT 55",
+   "56 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Purrloin WHT 55",
+   "56 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Purrloin WHT 55",
+  "hand": [],
+  "discard": [
+   "3 Purrloin WHT 55",
+   "49 Darkness Energy MEE 7"
+  ],
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Purrloin WHT 55"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Invite Evil"
+  }
+ ]
+}

@@ -537,14 +537,24 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
 
 pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::CheckAttackCost { .. } => {
+        Effect::CheckAttackCost { p, .. } => {
             // attackCostIncreaseWhileActive / ignoreAttackCostCardTypes: not modeled.
+            // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
+            let a = g.st.players[p as usize].active;
+            let n = g.st.slot(p as usize, a).attack_cost_increase_next_turn;
+            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(id) {
+                for _ in 0..n.max(0) {
+                    cost.push(ct::COLORLESS);
+                }
+            }
             Ok(())
         }
         Effect::CheckRetreatCost { no_cost, .. } => {
             // zeroRetreatCostNextTurn: not modeled. A "no Retreat Cost" effect
             // (noRetreatCost) takes priority over increases, whatever the
-            // handler order (phase 4b, R2).
+            // handler order (phase 4b, R2). retreatCostIncreaseNextTurn
+            // (Rillaboom's Drum Beating) is part of the base cost:
+            // retreat::check_retreat_cost_base.
             if no_cost {
                 if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(id) {
                     cost.clear();

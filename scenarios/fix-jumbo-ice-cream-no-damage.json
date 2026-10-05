@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jumbo Ice Cream CRI 109",
+   "4 Hoothoot SCR 114",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Jumbo Ice Cream CRI 109",
+   "4 Hoothoot SCR 114",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hoothoot SCR 114",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "hand": [
+   "Jumbo Ice Cream CRI 109"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot SCR 114"
+ }
+}

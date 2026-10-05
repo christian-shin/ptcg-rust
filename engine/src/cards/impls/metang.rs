@@ -2,12 +2,14 @@
 //! of your deck and attach any number of [M] Energy you find there to your
 //! Pokémon; put the rest on the bottom of your deck.
 //!
-//! LOOK_AT_TOP_X_CARDS_AND_ATTACH_UP_TO_Y_ENERGY(4, 4, { validCardTypes: [M],
-//! remainderDestination: 'bottom' }). Twinleaf quirks kept: the prompt max
-//! counts every Energy card among the top cards (not only [M]); attached
-//! cards are never removed from the looked-at list (AttachEnergyEffect moves
-//! from the hand only), so they are also put on the bottom of the deck; the
-//! remainder is not shuffled; the marker is set even when the deck is empty.
+//! LOOK_AT_TOP_X_CARDS_AND_ATTACH_UP_TO_Y_ENERGY(4, 4, { energyFilter: Basic,
+//! validCardTypes: [M], remainderDestination: 'bottom' }). Phase 4b (R6): the
+//! text says Basic [M] Energy, so the prompt filter (and the max, which counts
+//! the top cards matching the energy filter) is Basic Energy only; Special
+//! Energy that provides [M] (Magnetic Metal Energy) used to be attachable.
+//! Twinleaf quirks kept: the prompt max counts every Basic Energy card among
+//! the top cards (not only [M]); the remainder is not shuffled; the marker is
+//! set even when the deck is empty.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -54,7 +56,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let top = g.alloc_temp(&[]);
         g.move_to(ListRef::Deck(p as u8), top, Some(4.min(deck_len)));
-        let energies = g.lst(top).iter().filter(|c| g.st.cdef(**c).is_energy()).count();
+        let energies = g.lst(top).iter().filter(|c| g.st.cdef(**c).is_energy() && g.st.cdef(**c).energy_type == EnergyType::Basic as u8).count();
         let max_attach = 4.min(energies) as u8;
         let mut slots = SVec::new();
         slots.push(SlotType::Bench as u8);
@@ -80,7 +82,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 cards: top,
                 player_type: PlayerType::BottomPlayer,
                 slots,
-                filter: Filter::super_type(SuperType::Energy),
+                filter: Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Default::default() },
                 o,
             },
             Cont::Card { card: me, frame: f },

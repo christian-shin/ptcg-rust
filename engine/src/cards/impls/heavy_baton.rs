@@ -44,15 +44,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.players[p].active != t.s || !g.st.players[p].marker.has(crate::markers::DAMAGE_DEALT_MARKER) {
         return Ok(());
     }
-    let pokemon = match g.st.slot_pokemon(t.p as usize, t.s) {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    // Retreat Cost of exactly 4 (the current one: CheckRetreatCostEffect)
-    let mut cost: crate::effects::Cost = SVec::new();
-    for &t in g.st.cdef(pokemon).retreat {
-        cost.push(t);
+    if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
+        return Ok(());
     }
+    // Retreat Cost of exactly 4 (the current one: CheckRetreatCostEffect)
+    let cost = crate::engine::retreat::check_retreat_cost_base(g, p);
     let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false })?;
     if !matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == 4) {
         return Ok(());
