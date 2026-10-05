@@ -41,6 +41,9 @@ SSH_OPTS = ['-i', KEY, '-o', 'HostKeyAlias=ptcg-vbox', '-o', 'UserKnownHostsFile
 ORACLE_PATHS = ['src', 'package.json', 'package-lock.json', 'tsconfig.json']
 REPO_PATHS = ['engine', 'data', 'decks', 'tools', 'scenarios', 'divergences.toml']
 GATE_TREES = ('engine', 'data', 'decks')   # = tools/tier4_ledger.py code_key
+# Bump on every change to the agent half: clients from older worktrees then
+# leave the newer agent on the box in place (it is installed as vbox/agent.py).
+AGENT_VERSION = 2
 
 
 def die(msg):
@@ -74,11 +77,14 @@ def ensure_up(refresh=False):
     while time.time() - t0 < 600:
         state, ip = box_state()
         if state == 'running' and ip:
-            r = subprocess.run(['ssh', *SSH_OPTS, 'ubuntu@' + ip, 'mkdir -p vbox && touch vbox/activity'],
+            r = subprocess.run(['ssh', *SSH_OPTS, 'ubuntu@' + ip, 'mkdir -p vbox && touch vbox/activity && (cat vbox/agent.version 2>/dev/null || true)'],
                                capture_output=True, text=True)
             if r.returncode == 0:
                 _ip = ip
-                subprocess.run([RSYNC, '-a', '-e', ssh_cmd(), os.path.abspath(__file__), 'ubuntu@%s:vbox/vbox.py' % ip], check=True)
+                if int(r.stdout.strip() or 0) < AGENT_VERSION:
+                    subprocess.run([RSYNC, '-a', '-e', ssh_cmd(), os.path.abspath(__file__), 'ubuntu@%s:vbox/agent.py.new' % ip], check=True)
+                    subprocess.run(['ssh', *SSH_OPTS, 'ubuntu@' + ip,
+                                    'mv vbox/agent.py.new vbox/agent.py && echo %d > vbox/agent.version' % AGENT_VERSION], check=True)
                 return ip
         elif state == 'stopped':
             aws('ec2', 'start-instances', '--instance-ids', INSTANCE)
@@ -110,7 +116,7 @@ def ssh(cmd, input=None, check=True, capture=True):
 
 
 def agent(*args, input=None, check=True, capture=True):
-    return ssh('python3 vbox/vbox.py agent ' + ' '.join(shlex.quote(str(a)) for a in args), input=input, check=check,
+    return ssh('python3 vbox/agent.py agent ' + ' '.join(shlex.quote(str(a)) for a in args), input=input, check=check,
                capture=capture)
 
 
@@ -547,7 +553,7 @@ def agent_build(kind, slot, h):
                 rel = os.path.relpath(os.path.join(dp, fn), stage)
                 if rel not in keep and not rel.startswith(skip):
                     os.remove(os.path.join(dp, fn))
-        tmp = dest + '.tmp'
+        tmp = '%s.tmp-%s' % (dest, slot)
         shutil.rmtree(tmp, ignore_errors=True)
         os.makedirs(tmp)
         if kind == 'oracle':
@@ -576,9 +582,15 @@ def agent_build(kind, slot, h):
                 env={'CARGO_TARGET_DIR': target})
             run(['rsync', '-a', stage + '/', os.path.join(tmp, 'root') + '/'])
             shutil.copy(os.path.join(target, 'release', 'diff'), os.path.join(tmp, 'diff'))
-        shutil.rmtree(dest, ignore_errors=True)
-        os.rename(tmp, dest)
-        open(os.path.join(dest, 'READY'), 'w').close()
+        # Two worktrees with the same content may build it at once: the first
+        # install wins and is never replaced (jobs may already be using it).
+        with flock(dest + '.lock'):
+            if os.path.exists(os.path.join(dest, 'READY')):
+                shutil.rmtree(tmp, ignore_errors=True)
+                return
+            shutil.rmtree(dest, ignore_errors=True)
+            os.rename(tmp, dest)
+            open(os.path.join(dest, 'READY'), 'w').close()
 
 
 def agent_start(jid):
@@ -708,7 +720,8 @@ def agent_ledger():
 
 def agent_gc(quiet=False):
     """Drop job outputs older than 14 days (tier-4 summaries stay for the
-    ledger) and builds unused for 7 days."""
+    ledger), builds unused for 7 days, and the staging copy and cargo cache of
+    every local tree not synced for 14 days."""
     now, freed = time.time(), []
     for st in jobs_list():
         d = os.path.join(JOBS, st['id'])
@@ -725,6 +738,14 @@ def agent_gc(quiet=False):
         if now - os.path.getmtime(ready) > 7 * 86400 and os.path.basename(b) not in running:
             shutil.rmtree(b, ignore_errors=True)
             freed.append(b)
+    for lock in glob.glob(os.path.join(STAGE, '*.lock')):
+        slot = lock[:-len('.lock')]
+        if now - os.path.getmtime(lock) > 14 * 86400:
+            with flock(lock):
+                shutil.rmtree(slot, ignore_errors=True)
+                shutil.rmtree(slot + '.target', ignore_errors=True)
+            os.remove(lock)
+            freed.append(slot)
     if not quiet:
         print('\n'.join(freed) or 'nothing to collect')
 
