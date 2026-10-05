@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Crown ex PRE 158",
+   "4 Koraidon ex ASC 121",
+   "4 Swablu SSP 148",
+   "4 Eevee TWM 135",
+   "22 Psychic Energy MEE",
+   "22 Fighting Energy MEE"
+  ],
+  [
+   "4 Iron Crown ex PRE 158",
+   "4 Koraidon ex ASC 121",
+   "4 Swablu SSP 148",
+   "4 Eevee TWM 135",
+   "22 Psychic Energy MEE",
+   "22 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Crown ex PRE 158",
+  "active_energy": [
+   "Psychic Energy MEE",
+   "2 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "bench": [
+   {
+    "card": "Swablu SSP 148"
+   },
+   {
+    "card": "Eevee TWM 135"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Twin Shotels"
+  }
+ ]
+}

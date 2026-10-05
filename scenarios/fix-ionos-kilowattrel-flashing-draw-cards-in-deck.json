@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iono's Wattrel ASC 71",
+   "4 Iono's Kilowattrel ASC 72",
+   "4 Duraludon PRE 69",
+   "24 Lightning Energy MEE 4",
+   "24 Metal Energy MEE 8"
+  ],
+  [
+   "4 Iono's Wattrel ASC 71",
+   "4 Iono's Kilowattrel ASC 72",
+   "4 Duraludon PRE 69",
+   "24 Lightning Energy MEE 4",
+   "24 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Iono's Wattrel ASC 71",
+   "Iono's Kilowattrel ASC 72"
+  ],
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "hand": [
+   "Duraludon PRE 69"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

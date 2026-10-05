@@ -8,12 +8,13 @@
 //! has this card in play (copies stack): attack phase, a Future source that
 //! isn't named Iron Crown ex, the Defending Active as target, positive
 //! damage, ability not blocked for that player. Twin Shotels opens a
-//! non-cancellable ChoosePokemonPrompt (1-2 targets, Active or Bench); for
-//! each chosen Pokémon it sets `ignoreWeakness/ignoreResistance` on the
-//! attack, reduces its own ApplyWeaknessEffect(50) (own flags unset, target =
-//! the opponent's Active even for a Benched pick), zeroes the attack damage,
-//! adds the result to the chosen Pokémon and reduces an AfterDamageEffect
-//! (target = the opponent's Active).
+//! non-cancellable ChoosePokemonPrompt for exactly min(2, the opponent's
+//! Pokémon in play) targets (phase 4b: it allowed 1); for each chosen Pokémon
+//! it zeroes the attack damage, adds 50 straight to that Pokémon (phase 4b: it
+//! used to reduce an ApplyWeaknessEffect with its flags unset against the
+//! opponent's Active, so the Active's Weakness applied to every target) and
+//! reduces an AfterDamageEffect whose target is that Pokémon (phase 4b: it was
+//! the opponent's Active).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "IronCrownex", mask: mask(&[k::ATTACK, k::DEAL_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -32,10 +33,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         f.a[0] = p as i32;
         f.e[0] = e;
         let id = g.player_id(p);
+        let o = 1 - p;
+        let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
+        let max = (1 + benched).min(2) as u8;
         g.prompt(
             id,
             "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 2, allow_cancel: false, blocked: SVec::new() },
+            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: max, max, allow_cancel: false, blocked: SVec::new() },
             Cont::Card { card: me, frame: f },
         );
     }
@@ -77,26 +81,13 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
             Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
             _ => return Ok(()),
         };
-        let o = opp as usize;
         for t in targets {
-            if let Effect::Attack { ignore_weakness, ignore_resistance, .. } = g.e_mut(atk) {
-                *ignore_weakness = true;
-                *ignore_resistance = true;
-            }
-            let oa = SlotRef::new(o, g.st.players[o].active);
-            let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: oa };
-            let (w, _) = g.run_fx(Effect::ApplyWeakness { b, damage: 50, ignore_weakness: false, ignore_resistance: false })?;
-            let damage = match w {
-                Effect::ApplyWeakness { damage, .. } => damage,
-                _ => 50,
-            };
             if let Effect::Attack { damage, .. } = g.e_mut(atk) {
                 *damage = 0;
             }
-            if damage > 0 {
-                g.st.players[t.p as usize].slots[t.s as usize].damage += damage;
-                g.run_fx(Effect::AfterDamage { b, damage })?;
-            }
+            g.st.players[t.p as usize].slots[t.s as usize].damage += 50;
+            let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: t };
+            g.run_fx(Effect::AfterDamage { b, damage: 50 })?;
         }
         Ok(())
     })();

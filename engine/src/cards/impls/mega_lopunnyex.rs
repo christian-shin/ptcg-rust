@@ -30,6 +30,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 /// Pokémon" pattern: own ApplyWeaknessEffect, `effect.damage = 0`, damage
 /// added directly to the opponent's Active, then an AfterDamageEffect.
 pub fn shred(g: &mut Game, e: EffId, base: i32) -> R {
+    shred_ex(g, e, base, false)
+}
+
+/// `THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS(..., ignoreWeaknessAndResistance)`
+/// (phase 4b): with the flag the ApplyWeaknessEffect ignores Weakness and
+/// Resistance ("isn't affected by Weakness or Resistance, or by any effects").
+pub fn shred_ex(g: &mut Game, e: EffId, base: i32, ignore_wr: bool) -> R {
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
         _ => return Ok(()),
@@ -37,7 +44,7 @@ pub fn shred(g: &mut Game, e: EffId, base: i32) -> R {
     let o = 1 - p as usize;
     let target = SlotRef::new(o, g.st.players[o].active);
     let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-    let (w, _) = g.run_fx(Effect::ApplyWeakness { b, damage: base, ignore_weakness: false, ignore_resistance: false })?;
+    let (w, _) = g.run_fx(Effect::ApplyWeakness { b, damage: base, ignore_weakness: ignore_wr, ignore_resistance: ignore_wr })?;
     let damage = match w {
         Effect::ApplyWeakness { damage, .. } => damage,
         _ => base,

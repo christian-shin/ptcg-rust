@@ -1,0 +1,26 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Drilbur TEF 85",
+   "4 Hisuian Growlithe TWM 99",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Drilbur TEF 85",
+   "4 Hisuian Growlithe TWM 99",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hisuian Growlithe TWM 99",
+  "hand": [
+   "Drilbur TEF 85"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hisuian Growlithe TWM 99"
+ }
+}

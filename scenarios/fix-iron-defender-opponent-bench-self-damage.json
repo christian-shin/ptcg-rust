@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Sizzlipede SSP 27",
+   "4 Centiskorch SSP 28",
+   "4 Duraludon PRE 69",
+   "4 Iron Defender PBL 110",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Sizzlipede SSP 27",
+   "4 Centiskorch SSP 28",
+   "4 Duraludon PRE 69",
+   "4 Iron Defender PBL 110",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Iron Defender PBL 110"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Sizzlipede SSP 27",
+   "Centiskorch SSP 28"
+  ],
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ }
+}

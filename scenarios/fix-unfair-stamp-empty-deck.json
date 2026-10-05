@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "1 Unfair Stamp TWM 165",
+   "27 Metal Energy MEE 8",
+   "28 Fire Energy MEE 2"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "1 Unfair Stamp TWM 165",
+   "27 Metal Energy MEE 8",
+   "28 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "hand": [
+   "Unfair Stamp TWM 165"
+  ],
+  "discard": [
+   "2 Duraludon PRE 69",
+   "27 Metal Energy MEE 8",
+   "21 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Hammer In"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

@@ -337,6 +337,9 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
                 let a = g.st.players[p].active;
                 let conf = g.st.slot(p, a).confusion_damage;
                 g.st.players[p].slots[a as usize].damage += conf;
+                // A failed attack attempt while Confused isn't an attack used
+                // (phase 4b, ruling n=1621): the playerLastAttack stamp is voided.
+                g.st.player_last_attack_turn[p] = -1;
                 g.release_fx(f.origin);
                 g.run_fx(Effect::EndTurn { p: f.p })?;
                 return Ok(());

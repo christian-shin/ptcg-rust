@@ -5,8 +5,9 @@
 //! Twinleaf: on its PlayPokemonEffect (returns early on an empty deck or a
 //! blocked ability, checked while the card is still in hand) a Confirm
 //! prompt; yes → ChooseCardsPrompt (min 0, max 3, no cancel, basic energy
-//! named "Fighting Energy"); choosing nothing ends it without a shuffle;
-//! otherwise MOVE_CARDS deck→discard and a bare ShuffleDeckPrompt.
+//! named "Fighting Energy"); MOVE_CARDS deck→discard when any was chosen, then
+//! a bare ShuffleDeckPrompt (phase 4b: choosing nothing used to skip the
+//! shuffle).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Drilbur@TEF", mask: mask(&[k::PLAY_POKEMON]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -48,10 +49,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         }
         2 => {
             let cards: Vec<CardId> = first.cards().to_vec();
-            if cards.is_empty() {
-                return Ok(());
+            if !cards.is_empty() {
+                move_cards(g, ListRef::Deck(p as u8), ListRef::Discard(p as u8), &cards, me)?;
             }
-            move_cards(g, ListRef::Deck(p as u8), ListRef::Discard(p as u8), &cards, me)?;
             let id = g.player_id(p);
             g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
             Ok(())

@@ -1,12 +1,14 @@
 //! Iron Defender (MEG): during your opponent's next turn, all of your [M]
 //! Pokémon take 30 less damage from attacks from your opponent's Pokémon.
 //!
-//! Twinleaf quirks kept: every Iron Defender instance (in any zone) runs a
+//! Twinleaf: every Iron Defender instance (in any zone) runs a
 //! CheckPokemonTypeEffect on the target of every PutDamageEffect; if the
-//! owner of the zone holding that instance has the marker sourced by it,
-//! any [M] target (either side, any attacker) takes 30 less. Each played
-//! copy has its own marker, so reductions stack. The markers (all sources)
-//! are removed from the opponent of whoever ends a turn.
+//! owner of the zone holding that instance has the marker sourced by it and
+//! the target is an [M] Pokémon, it takes 30 less, but only in the attack
+//! phase, when the target is that owner's Pokémon and the attacker is not
+//! (phase 4b: it used to reduce any [M] target, either side, any attacker).
+//! Each played copy has its own marker, so reductions stack. The markers (all
+//! sources) are removed from the opponent of whoever ends a turn.
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -38,7 +40,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let types = crate::engine::game_effect::pokemon_types(g, target);
         let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
         let metal = matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::METAL));
-        if has && metal {
+        if has && metal && g.st.phase == GamePhase::Attack && b.target.p as usize == owner && b.source.p as usize != owner {
             if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
                 *damage -= 30;
             }

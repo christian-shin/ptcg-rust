@@ -1,0 +1,32 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Special Red Card CRI 82",
+   "4 Duraludon PRE 69",
+   "26 Metal Energy MEE 8",
+   "26 Fire Energy MEE 2"
+  ],
+  [
+   "4 Special Red Card CRI 82",
+   "4 Duraludon PRE 69",
+   "26 Metal Energy MEE 8",
+   "26 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Special Red Card CRI 82"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "3 Fire Energy MEE 2"
+  ],
+  "prizes_left": 3
+ }
+}

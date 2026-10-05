@@ -247,8 +247,10 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 
 fn end_turn(g: &mut Game, p: usize) -> R {
     let o = 1 - p;
+    // Only an attack used during this turn counts (phase 4b: a turn that ended
+    // without an attack kept the previous attack's flag).
     let ancient = match g.st.player_last_attack[p] {
-        Some((_, src)) => g.st.cdef(src).has_tag(tag::ANCIENT),
+        Some((_, src)) => g.st.player_last_attack_turn[p] == g.st.turn && g.st.cdef(src).has_tag(tag::ANCIENT),
         None => false,
     };
     g.st.players[p].ancient_pokemon_attacked_last_turn = ancient;

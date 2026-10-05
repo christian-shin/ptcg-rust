@@ -2,8 +2,9 @@
 //! cards left; they put their hand on the bottom of their deck and, if any
 //! cards were put there, draw 3 cards.
 //!
-//! Twinleaf quirk kept: the hand is not shuffled (it goes to the bottom in
-//! hand order).
+//! Phase 4b (ruling n=1833): can't be played when the opponent has no cards in
+//! hand. Twinleaf quirk kept: the hand is not shuffled (it goes to the bottom
+//! in hand order).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "SpecialRedCard", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
@@ -24,7 +25,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if prizes > 3 {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
-    if !g.st.players[o].hand.is_empty() {
+    if g.st.players[o].hand.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    {
         let temp = g.alloc_temp(&[]);
         move_all(g, ListRef::Hand(o as u8), temp, me)?;
         move_all(g, temp, ListRef::Deck(o as u8), me)?;

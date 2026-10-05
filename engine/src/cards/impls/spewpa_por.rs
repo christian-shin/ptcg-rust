@@ -2,9 +2,9 @@
 //! next turn prevent all damage and effects from attacks done to this
 //! Pokémon.
 //!
-//! Twinleaf quirk kept: heads only calls PREVENT_DAMAGE (a
-//! PreventDamageEffect arming `preventDamageNextTurnPending = {}` on the
-//! attacker's Active); effects of attacks are not prevented.
+//! Twinleaf: FLIP_COIN_TO_PREVENT_DAMAGE_AND_EFFECTS_DURING_OPPONENTS_NEXT_TURN.
+//! Phase 4b: heads used to call only PREVENT_DAMAGE; it now also calls
+//! PREVENT_EFFECTS_OF_ATTACKS, like Petilil's Hide.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Spewpa@POR", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
@@ -26,7 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 
 fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
     let atk = f.e[0];
-    let r = if heads { prevent_damage(g, atk) } else { Ok(()) };
+    let r = if heads { prevent_damage(g, atk).and_then(|_| prevent_effects_of_attacks(g, atk)) } else { Ok(()) };
     g.release_fx(atk);
     r
 }

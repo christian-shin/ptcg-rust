@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Enamorus TWM 93",
+   "4 Eevee SCR 113",
+   "4 Espeon ex PRE 34",
+   "4 Jolteon ex PRE 30",
+   "4 Swablu SSP 148",
+   "20 Psychic Energy MEE",
+   "20 Water Energy MEE"
+  ],
+  [
+   "4 Enamorus TWM 93",
+   "4 Eevee SCR 113",
+   "4 Espeon ex PRE 34",
+   "4 Jolteon ex PRE 30",
+   "4 Swablu SSP 148",
+   "20 Psychic Energy MEE",
+   "20 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Enamorus TWM 93",
+  "active_energy": [
+   "Psychic Energy MEE",
+   "2 Water Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Eevee SCR 113",
+     "Jolteon ex PRE 30"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Swablu SSP 148"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Love Resonance"
+  }
+ ]
+}

@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snorunt ASC 46",
+   "4 Mega Froslass ex ASC 47",
+   "4 Koraidon ex ASC 121",
+   "4 Mist Energy TEF 161",
+   "24 Water Energy MEE",
+   "20 Fighting Energy MEE"
+  ],
+  [
+   "4 Snorunt ASC 46",
+   "4 Mega Froslass ex ASC 47",
+   "4 Koraidon ex ASC 121",
+   "4 Mist Energy TEF 161",
+   "24 Water Energy MEE",
+   "20 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Snorunt ASC 46",
+   "Mega Froslass ex ASC 47"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Absolute Snow"
+  }
+ ]
+}

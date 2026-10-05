@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Megaton Blower SSP 182",
+   "4 Duraludon PRE 69",
+   "4 Gravity Gemstone SCR 137",
+   "4 Mist Energy TEF 161",
+   "46 Metal Energy MEE 8",
+   "1 Team Rocket's Watchtower ASC 210"
+  ],
+  [
+   "1 Megaton Blower SSP 182",
+   "4 Duraludon PRE 69",
+   "4 Gravity Gemstone SCR 137",
+   "4 Mist Energy TEF 161",
+   "46 Metal Energy MEE 8",
+   "1 Team Rocket's Watchtower ASC 210"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Megaton Blower SSP 182"
+  ],
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ }
+}

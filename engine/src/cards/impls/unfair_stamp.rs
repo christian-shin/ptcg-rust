@@ -3,7 +3,8 @@
 //! their deck; you draw 5 cards and your opponent draws 2.
 //!
 //! Every Unfair Stamp copy (in any zone) adds its own marker to its owner when
-//! that player's Pokémon is Knocked Out during the opponent's turn.
+//! that player's Pokémon is Knocked Out during the opponent's turn. Phase 4b:
+//! playable with an empty deck (the hand is shuffled into it first).
 use crate::cards::prelude::*;
 use crate::marker;
 
@@ -38,9 +39,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(p) = trainer_played(g, e, me) {
         let o = 1 - p;
         if !g.st.players[p].marker.has(stamp_marker()) {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
-        if g.st.players[p].deck.is_empty() {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
         let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();

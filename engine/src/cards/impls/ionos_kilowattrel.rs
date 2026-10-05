@@ -5,7 +5,8 @@
 //! Twinleaf quirks kept: the player marker RUMBLING_ENGINE_MARKER (source
 //! this card) is cleared on this card's PlayPokemonEffect and on *every*
 //! EndTurnEffect (whoever's turn it is, for that effect's player). The
-//! Ability throws at 6+ cards in hand, when already used, or without a
+//! Ability throws at 6+ cards in hand or with no cards in the deck (phase 4b,
+//! ruling n=1633: the effect is to draw cards), when already used, or without a
 //! "Lightning Energy" named basic Energy on the Pokémon. With exactly one
 //! such Energy it is discarded without a prompt; otherwise a ChooseCards
 //! prompt over the slot (min 0, max 1, cancellable; an empty answer does
@@ -50,7 +51,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Power { p, .. } => p as usize,
             _ => return Ok(()),
         };
-        if g.st.players[p].hand.len() >= 6 {
+        if g.st.players[p].hand.len() >= 6 || g.st.players[p].deck.is_empty() {
             bail!("CANNOT_USE_POWER");
         }
         if g.st.players[p].marker.has_from(rumbling(), me) {

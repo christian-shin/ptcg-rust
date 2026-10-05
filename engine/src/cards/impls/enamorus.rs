@@ -1,8 +1,9 @@
 //! Enamorus (TWM): Heart Sign - 30. Love Resonance - 80+; 120 more if any of
 //! your Pokémon in play share a type with any of your opponent's.
 //!
-//! Twinleaf reads the types of `cardList.cards[0]` (the first card of each
-//! in-play slot, i.e. the bottom Pokémon), not the top evolution.
+//! Twinleaf reads the types of `cardList.getPokemonCard()` (the top Pokémon of
+//! each in-play slot; phase 4b: it used to read `cardList.cards[0]`, the
+//! bottom Pokémon of an evolved stack).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Enamorus", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
@@ -10,7 +11,7 @@ pub static IMPL: CardImpl = CardImpl { class: "Enamorus", mask: mask(&[k::ATTACK
 fn types_in_play(g: &Game, p: usize, pt: PlayerType) -> Vec<CardType> {
     let mut out: Vec<CardType> = Vec::new();
     for (s, _, _) in for_each_pokemon(g, p, pt).iter() {
-        if let Some(c) = g.st.slot(p, *s).cards.iter().next() {
+        if let Some(c) = g.st.slot_pokemon(p, *s) {
             for &t in g.st.cdef(c).card_type {
                 if !out.contains(&t) {
                     out.push(t);

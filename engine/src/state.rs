@@ -579,6 +579,8 @@ pub struct State {
     pub last_attack: Option<AttackRef>,
     /// Indexed by player index (Twinleaf keys by player id).
     pub player_last_attack: [Option<(AttackRef, CardId)>; 2],
+    /// `playerLastAttack[player].turn` (phase 4b): `state.turn` when it was set.
+    pub player_last_attack_turn: [i32; 2],
     pub is_sudden_death: bool,
     pub bench_size_change_handled: bool,
     /// Players Twinleaf actually added (an invalid deck finishes the game
@@ -601,6 +603,7 @@ impl State {
             skip_opponent_turn: false,
             last_attack: None,
             player_last_attack: [None, None],
+            player_last_attack_turn: [0, 0],
             is_sudden_death: false,
             bench_size_change_handled: false,
             players_added: 2,

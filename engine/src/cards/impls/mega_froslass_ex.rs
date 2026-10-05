@@ -1,11 +1,12 @@
 //! Mega Froslass ex (M2a): Resentful Refrain — 50x per card in your
 //! opponent's hand (`effect.damage = 50 * handCount`). Absolute Snow — 150;
-//! your opponent's Active Pokémon is now Asleep, via AFTER_ATTACK and an
-//! AddSpecialConditionsPowerEffect (ADD_SLEEP_TO_PLAYER_ACTIVE) sourced from
-//! this card.
+//! your opponent's Active Pokémon is now Asleep, via
+//! YOUR_OPPPONENTS_ACTIVE_POKEMON_IS_NOW_ASLEEP (an AddSpecialConditionsEffect
+//! in the attack handler; phase 4b: it used to be AFTER_ATTACK with an
+//! AddSpecialConditionsPowerEffect, which Mist Energy etc. could not prevent).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "MegaFroslassex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "MegaFroslassex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -18,12 +19,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             *damage = 50 * n;
         }
     }
-    if after_attack_used(g, e, 1, me) {
-        let o = match *g.e(e) {
-            Effect::AfterAttack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        add_special_conditions_to_player_active(g, o, me, &[SpecialCondition::Asleep])?;
+    if was_attack_used(g, e, 1, me) {
+        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Asleep])?;
     }
     Ok(())
 }

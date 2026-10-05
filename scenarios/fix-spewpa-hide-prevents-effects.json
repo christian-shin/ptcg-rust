@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scatterbug POR 7",
+   "4 Spewpa POR 8",
+   "4 Swablu SSP 148",
+   "48 Grass Energy MEE"
+  ],
+  [
+   "4 Scatterbug POR 7",
+   "4 Spewpa POR 8",
+   "4 Swablu SSP 148",
+   "48 Grass Energy MEE"
+  ]
+ ],
+ "coins": [
+  true
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Scatterbug POR 7",
+   "Spewpa POR 8"
+  ],
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hide"
+  },
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ]
+}
