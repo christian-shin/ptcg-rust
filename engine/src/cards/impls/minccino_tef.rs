@@ -3,8 +3,9 @@
 //!
 //! Twinleaf has two `Minccino` classes; this port is bound to TEF.
 //! The Cleaning Up code is on attack 1 (fixed in phase 4b: it was attached to
-//! attack 0, Beat). Cleaning Up fails (CANNOT_PLAY_THIS_CARD) when no opposing
-//! Pokémon has a Tool, otherwise the AttackEffect is prevented (no damage; the
+//! attack 0, Beat). Cleaning Up does nothing when no opposing Pokémon has a
+//! Tool (fixed in R1-12: it used to throw CANNOT_PLAY_THIS_CARD, so the attack
+//! was not offered), otherwise the AttackEffect is prevented (no damage; the
 //! attack has none) and 1–2 opposing Pokémon with Tools are chosen
 //! (cancellable). A target with several Tools gets a non-yielding
 //! ChooseCardsPrompt (1–2 Tools); one with a single Tool loses it at once.
@@ -30,7 +31,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     if with_tool == 0 {
-        bail!("CANNOT_PLAY_THIS_CARD");
+        return Ok(());
     }
     g.set_prevent(e, true);
     let max = with_tool.min(2);

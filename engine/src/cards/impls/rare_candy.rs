@@ -4,10 +4,12 @@
 //! Twinleaf: the Stage 1 link is looked up in the whole CardManager
 //! (`gen::stage1::ALL_STAGE1`); no first-turn check other than the
 //! `pokemonPlayedTurn < turn` test via CheckPokemonPlayedTurnEffect; the
-//! evolution is a bare EvolveEffect (special conditions are kept). Phase 4b
-//! fix: `canUseRareCandy` is false while the player can't evolve (Evolution
-//! Jammer, Bronzong TEF), where the EvolveEffect used to throw
-//! BLOCKED_BY_EFFECT after the prompts.
+//! evolution is an EvolveEffect. Phase 4b fixes: `canUseRareCandy` is false
+//! while the player can't evolve (Evolution Jammer, Bronzong TEF), where the
+//! EvolveEffect used to throw BLOCKED_BY_EFFECT after the prompts; and (R1-15,
+//! ruling 1045) the evolution is followed by the same clean-up as a normal
+//! evolution (`engine::play::finish_evolution`: the Pokémon loses its Special
+//! Conditions and other effects; it used to keep them).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "RareCandy", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -130,6 +132,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             if let Some(c) = cards.first() {
                 let target = SlotRef::new(f.a[1] as usize, f.a[2] as SlotId);
                 g.run_fx(Effect::Evolve { p: p as u8, target, card: *c })?;
+                // R1-15 (ruling 1045): it counts as evolving, so the Pokémon loses its
+                // Special Conditions and other effects like in a normal evolution.
+                crate::engine::play::finish_evolution(g, p, target)?;
             }
             Ok(())
         }

@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Terrakion WHT 54",
+   "4 Brock's Scouting JTG 146",
+   "4 Crispin PRE 105",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Terrakion WHT 54",
+   "4 Brock's Scouting JTG 146",
+   "4 Crispin PRE 105",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terrakion WHT 54",
+  "hand": [
+   "Brock's Scouting JTG 146",
+   "Crispin PRE 105"
+  ],
+  "discard": [
+   "3 Terrakion WHT 54",
+   "3 Brock's Scouting JTG 146",
+   "3 Crispin PRE 105",
+   "42 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terrakion WHT 54"
+ }
+}

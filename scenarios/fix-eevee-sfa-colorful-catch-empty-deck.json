@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee SFA 50",
+   "56 Grass Energy MEE 1"
+  ],
+  [
+   "4 Eevee SFA 50",
+   "56 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee SFA 50",
+  "hand": [],
+  "discard": [
+   "3 Eevee SFA 50",
+   "49 Grass Energy MEE 1"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee SFA 50"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Colorful Catch"
+  }
+ ]
+}

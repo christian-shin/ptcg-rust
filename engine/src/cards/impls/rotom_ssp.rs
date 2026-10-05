@@ -2,11 +2,13 @@
 //! all Item and Pokémon Tool cards you find there. Energy Short — 20× the
 //! Energy attached to your opponent's Active Pokémon.
 //!
-//! Twinleaf: a ShowCardsPrompt whose callback walks `opponent.hand.cards`
-//! with `forEach` while MOVE_CARDS splices matches out into an escrow list —
-//! the element after each moved card is skipped (quirk kept) — then
-//! MOVE_CARDS escrow → discard. Energy Short counts every `provides` entry
-//! of CheckProvidedEnergyEffect(opponent) and sets `damage = n * 20`.
+//! Twinleaf: a ShowCardsPrompt whose callback moves every Item / Pokémon Tool
+//! of `opponent.hand` into an escrow list one MOVE_CARDS at a time (fixed in
+//! R1-11: it walked the hand itself with `forEach` while MOVE_CARDS spliced
+//! it, so the card after each moved one was skipped; it now walks a filtered
+//! copy), then MOVE_CARDS escrow → discard. Energy Short counts every
+//! `provides` entry of CheckProvidedEnergyEffect(opponent) and sets
+//! `damage = n * 20`.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Rotom@SSP", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -47,16 +49,18 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, _results: &[Res]) -> R {
     let o = f.a[0] as usize;
     let hand = ListRef::Hand(o as u8);
     let escrow = g.alloc_temp(&[]);
-    // Array.prototype.forEach over a list spliced during iteration.
-    let n0 = g.lst(hand).len();
-    let mut i = 0;
-    while i < n0 && i < g.lst(hand).len() {
-        let c = g.lst(hand)[i];
-        let d = g.st.cdef(c);
-        if d.is_trainer() && (d.trainer_type == TrainerType::Item as u8 || d.trainer_type == TrainerType::Tool as u8) {
-            move_cards(g, hand, escrow, &[c], me)?;
-        }
-        i += 1;
+    // Iterate over a copy of the matching cards (the hand is spliced as they move).
+    let matching: Vec<CardId> = g
+        .lst(hand)
+        .iter()
+        .copied()
+        .filter(|c| {
+            let d = g.st.cdef(*c);
+            d.is_trainer() && (d.trainer_type == TrainerType::Item as u8 || d.trainer_type == TrainerType::Tool as u8)
+        })
+        .collect();
+    for c in matching {
+        move_cards(g, hand, escrow, &[c], me)?;
     }
     g.run_fx(Effect::MoveCards {
         source: escrow,

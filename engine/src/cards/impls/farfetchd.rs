@@ -1,7 +1,11 @@
 //! Farfetch'd (TWM): Impromptu Carrier — when you put this card from your
 //! hand onto your Bench, you may search your deck for a Pokémon Tool and
-//! attach it to this Pokémon, then shuffle. Mach Cut — 30 (text not
-//! implemented in Twinleaf).
+//! attach it to this Pokémon, then shuffle. Mach Cut — 30; discard a Special
+//! Energy from your opponent's Active Pokémon (fixed in R1-8: Twinleaf had no
+//! handler for it; now the attacker picks one Special Energy attached to the
+//! opponent's Active with a ChooseCardsPrompt (min 1, max 1, no cancel,
+//! nothing when there is none) and a DiscardCardsEffect follows, like
+//! Hawlucha FST's Flying Stomp).
 //!
 //! Twinleaf: the prompt is created during PlayPokemonEffect propagation
 //! (before the card is benched); the callback finds this card's bench index
@@ -12,9 +16,33 @@
 //! (a Tool lives in `tools` only).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Farfetchd", mask: mask(&[k::PLAY_POKEMON]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Farfetchd", mask: mask(&[k::PLAY_POKEMON, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    // Mach Cut
+    if was_attack_used(g, e, 0, me) {
+        let (p, o) = match *g.e(e) {
+            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+            _ => return Ok(()),
+        };
+        let a = g.st.players[o].active;
+        let has_special = g.st.slot(o, a).cards.iter().any(|c| {
+            let d = g.st.cdef(c);
+            d.is_energy() && d.energy_type == EnergyType::Special as u8
+        });
+        if !has_special {
+            return Ok(());
+        }
+        g.retain_fx(e);
+        let mut f = CardFrame::at(2);
+        f.e[0] = e;
+        f.l[0] = o as u8;
+        f.l[1] = a;
+        let mut filter = Filter::super_type(SuperType::Energy);
+        filter.energy_type = Some(EnergyType::Special as u8);
+        choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Slot(o as u8, a), filter, ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
+        return Ok(());
+    }
     if let Effect::PlayPokemon { card, target, .. } = *g.e(e) {
         if card != me {
             return Ok(());
@@ -32,6 +60,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 }
 
 fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
+    if f.stage == 2 {
+        return super::trubbish::discard_chosen(g, f, results);
+    }
     if f.stage != 1 {
         return Ok(());
     }

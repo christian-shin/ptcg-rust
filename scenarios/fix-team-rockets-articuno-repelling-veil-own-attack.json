@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Tarountula ASC 18",
+   "4 Team Rocket's Articuno DRI 51",
+   "4 Terrakion WHT 54",
+   "24 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Team Rocket's Tarountula ASC 18",
+   "4 Team Rocket's Articuno DRI 51",
+   "4 Terrakion WHT 54",
+   "24 Grass Energy MEE 1",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Tarountula ASC 18",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Articuno DRI 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terrakion WHT 54"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Take Down"
+  }
+ ]
+}

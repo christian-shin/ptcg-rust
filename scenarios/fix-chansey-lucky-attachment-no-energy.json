@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chansey TWM 133",
+   "56 Grass Energy MEE 1"
+  ],
+  [
+   "4 Chansey TWM 133",
+   "56 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chansey TWM 133",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "hand": [],
+  "energy_attached": true,
+  "bench": [
+   {
+    "card": "Chansey TWM 133"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Chansey TWM 133"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Lucky Attachment"
+  }
+ ]
+}

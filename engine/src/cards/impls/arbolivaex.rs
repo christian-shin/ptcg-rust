@@ -2,18 +2,39 @@
 //! times; 20 damage each time, not affected by Weakness or Resistance.
 //! Aroma Shot — 160; this Pokémon recovers from all Special Conditions.
 //!
-//! Twinleaf quirks kept: Oil Salvo is a non-cancellable PutDamagePrompt
-//! (120 damage in multiples of 20, per-target cap = printed HP + 120), then
+//! Twinleaf: Oil Salvo is a non-cancellable PutDamagePrompt (120 damage in
+//! multiples of 20, per-target cap = printed HP + 120), then
 //! DAMAGE_OPPONENT_POKEMON per entry, so the Active's share goes through a
-//! DealDamageEffect (Weakness/Resistance apply). Aroma Shot has no effect
-//! handler (Special Conditions are not removed).
+//! DealDamageEffect. Fixed (R1-1): the attack sets `ignoreWeakness` and
+//! `ignoreResistance` (the damage isn't affected by Weakness or Resistance),
+//! and Aroma Shot removes all five Special Conditions from the attacker's
+//! Active (RemoveSpecialConditionsEffect(effect, undefined); it used to have
+//! no handler).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Arbolivaex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    if was_attack_used(g, e, 1, me) {
+        // Aroma Shot: this Pokémon recovers from all Special Conditions.
+        if let Effect::Attack { p, opp, attack, source, .. } = *g.e(e) {
+            let target = SlotRef::new(p as usize, g.st.players[p as usize].active);
+            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
+            let mut cs = SVec::new();
+            for c in [SpecialCondition::Paralyzed, SpecialCondition::Confused, SpecialCondition::Asleep, SpecialCondition::Poisoned, SpecialCondition::Burned] {
+                cs.push(c as u8);
+            }
+            g.run_fx(Effect::RemoveSpecialConditions { b, conditions: cs })?;
+        }
+        return Ok(());
+    }
     if !was_attack_used(g, e, 0, me) {
         return Ok(());
+    }
+    // Oil Salvo: this damage isn't affected by Weakness or Resistance.
+    if let Effect::Attack { ignore_weakness, ignore_resistance, .. } = g.e_mut(e) {
+        *ignore_weakness = true;
+        *ignore_resistance = true;
     }
     let (p, o) = match *g.e(e) {
         Effect::Attack { p, opp, .. } => (p as usize, opp as usize),

@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rotom SSP 61",
+   "4 Ultra Ball 30C 128",
+   "4 Potion POR 83",
+   "4 Buddy-Buddy Poffin ASC 184",
+   "1 Hero's Cape TEF 152",
+   "4 Hassel TWM 151",
+   "39 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Rotom SSP 61",
+   "4 Ultra Ball 30C 128",
+   "4 Potion POR 83",
+   "4 Buddy-Buddy Poffin ASC 184",
+   "1 Hero's Cape TEF 152",
+   "4 Hassel TWM 151",
+   "39 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Rotom SSP 61",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Rotom SSP 61",
+  "hand": [
+   "Ultra Ball 30C 128",
+   "Potion POR 83",
+   "Buddy-Buddy Poffin ASC 184",
+   "Hero's Cape TEF 152",
+   "Hassel TWM 151",
+   "Ultra Ball 30C 128"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crushing Pulse"
+  }
+ ]
+}

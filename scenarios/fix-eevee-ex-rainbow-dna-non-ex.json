@@ -1,0 +1,32 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Eevee ex PRE 75",
+   "4 Sylveon PRE 40",
+   "4 Sylveon ex SSP",
+   "48 Psychic Energy MEE"
+  ],
+  [
+   "4 Eevee ex PRE 75",
+   "4 Sylveon PRE 40",
+   "4 Sylveon ex SSP",
+   "48 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee ex PRE 75",
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "hand": [
+   "Sylveon PRE 40",
+   "Sylveon ex SSP"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee ex PRE 75"
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Festival Grounds PRE 108",
+   "4 Flutter Mane PRE 43",
+   "4 Beldum TEF 113",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Festival Grounds PRE 108",
+   "4 Flutter Mane PRE 43",
+   "4 Beldum TEF 113",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Applin PRE 9",
+   "Dipplin PRE 10"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Applin PRE 9"
+   },
+   {
+    "card": "Applin PRE 9"
+   }
+  ],
+  "stadium": "Festival Grounds PRE 108"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43",
+  "bench": [
+   {
+    "card": "Beldum TEF 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Do the Wave"
+  }
+ ]
+}

@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Smoliv DRI",
+   "4 Dolliv DRI 22",
+   "4 Arboliva ex DRI 23",
+   "4 Terrakion WHT 54",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "4 Smoliv DRI",
+   "4 Dolliv DRI 22",
+   "4 Arboliva ex DRI 23",
+   "4 Terrakion WHT 54",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Smoliv DRI",
+   "Dolliv DRI 22",
+   "Arboliva ex DRI 23"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terrakion WHT 54"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Oil Salvo"
+  }
+ ]
+}

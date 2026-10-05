@@ -125,6 +125,13 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
         crate::bail!("POKEMON_CANT_EVOLVE_THIS_TURN");
     }
     g.run_fx(Effect::Evolve { p: p as u8, target, card })?;
+    finish_evolution(g, p, target)
+}
+
+/// What `playPokemonReducer` does after the `EvolveEffect`: the Pokémon loses
+/// its Special Conditions (except the preserved ones) and its other effects.
+/// Rare Candy runs it too (it counts as evolving the Pokémon; ruling 1045).
+pub fn finish_evolution(g: &mut Game, p: usize, target: SlotRef) -> R {
     let (e, _) = g.run_fx(Effect::CheckSpecialConditionRemoval { p: p as u8, target, preserved: SVec::new() })?;
     let preserved = match e {
         Effect::CheckSpecialConditionRemoval { preserved, .. } => preserved,

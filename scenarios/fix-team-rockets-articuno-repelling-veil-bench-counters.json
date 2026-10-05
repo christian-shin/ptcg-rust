@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Team Rocket's Articuno DRI 51",
+   "4 Team Rocket's Murkrow ASC 126",
+   "24 Psychic Energy MEE",
+   "24 Water Energy MEE"
+  ],
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Team Rocket's Articuno DRI 51",
+   "4 Team Rocket's Murkrow ASC 126",
+   "24 Psychic Energy MEE",
+   "24 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43",
+  "active_energy": [
+   "3 Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126",
+  "bench": [
+   {
+    "card": "Team Rocket's Articuno DRI 51"
+   },
+   {
+    "card": "Team Rocket's Murkrow ASC 126"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hex Hurl"
+  }
+ ]
+}

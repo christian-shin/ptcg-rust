@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Farfetch'd TWM 132",
+   "4 Mist Energy TEF 161",
+   "4 Beldum TEF 113",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Farfetch'd TWM 132",
+   "4 Mist Energy TEF 161",
+   "4 Beldum TEF 113",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Farfetch'd TWM 132",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "2 Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Beldum TEF 113"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mach Cut"
+  }
+ ]
+}
