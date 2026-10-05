@@ -84,7 +84,9 @@ pub enum Effect {
     CheckPokemonStats { target: SlotRef, weakness: SVec<WeaknessV, 4>, resistance: SVec<ResistanceV, 4> },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
     CheckRetreatCost { p: u8, cost: Cost, no_cost: bool },
-    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost },
+    /// `set_cost` / `ignore_colorless`: an effect that sets or ignores the cost
+    /// (Kyurem's Plasma Bane, Conkeldurr, ...); applied after all handlers.
+    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool },
     CheckProvidedEnergy { p: u8, source: SlotRef, energy_map: EnergyMap },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32> },

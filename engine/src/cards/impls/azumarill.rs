@@ -23,7 +23,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if is_ability_blocked(g, p, me, None) {
                 return Ok(());
             }
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
+            if let Effect::CheckAttackCost { cost, set_cost, .. } = g.e_mut(e) {
                 let mut v: Vec<CardType> = cost.iter().copied().collect();
                 if !v.contains(&ct::PSYCHIC) {
                     return Ok(());
@@ -36,6 +36,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 for t in v {
                     cost.push(t);
                 }
+                // "can use the Double-Edge attack for [P]": a cost that is set is
+                // not increased or decreased (R7F-11).
+                let mut c: crate::effects::Cost = SVec::new();
+                c.push(ct::PSYCHIC);
+                *set_cost = Some(c);
             }
         }
         return Ok(());

@@ -28,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         for &c in crate::engine::attack::attack_def(g, attack).cost {
             cost.push(c);
         }
-        let (ce, _) = g.run_fx(Effect::CheckAttackCost { p, attack, cost })?;
+        let (ce, _) = g.run_fx(Effect::CheckAttackCost { p, attack, cost, set_cost: None, ignore_colorless: false })?;
         let cost_len = match ce {
             Effect::CheckAttackCost { cost, .. } => cost.len() as i32,
             _ => 0,
