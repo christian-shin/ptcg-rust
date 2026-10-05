@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "5 Psychic Energy MEE 5",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "5 Psychic Energy MEE 5",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79",
+  "hand": [
+   "Team Rocket's Ariana ASC 202",
+   "5 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79"
+ }
+}

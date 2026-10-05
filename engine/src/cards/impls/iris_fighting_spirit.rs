@@ -21,6 +21,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if !g.st.players[p].hand.iter().any(|c| c != me) {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
+        // Fixed (phase 4b, rulings 851/959/1098): the discard is a cost; nothing to draw (empty deck, or 6 cards
+        // still in hand after the discard) is obviously no effect.
+        let others = g.st.players[p].hand.iter().filter(|c| *c != me).count();
+        if g.st.players[p].deck.is_empty() || others as i32 - 1 >= 6 {
+            bail!("CANNOT_PLAY_THIS_CARD");
+        }
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;
         choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });

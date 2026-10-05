@@ -3,7 +3,7 @@
 //! to that Pokémon. Then, shuffle your deck. If you attached Energy to your
 //! Active Pokémon in this way, it is now Poisoned.
 //!
-//! Twinleaf: throws when a Supporter was already played; the card moves to
+//! Twinleaf: throws when a Supporter was already played or the deck is empty (phase 4b); the card moves to
 //! the Supporter area and the play is prevented; throws without a [D]
 //! Pokémon in play; one AttachEnergyPrompt over the deck (Basic Energy named
 //! 'Darkness Energy', non-[D] Pokémon blocked, different targets, 0-2, no
@@ -21,6 +21,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    // Fixed (phase 4b, rulings 779/851): a search of an empty deck is not possible, so the card can't be played.
+    if g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);

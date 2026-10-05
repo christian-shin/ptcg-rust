@@ -1,0 +1,46 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Mr. Mime TEF",
+   "4 Grimsley's Move PFL 90",
+   "4 Shroodle MEG 91",
+   "1 Psychic Energy MEE 5",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Mr. Mime TEF",
+   "4 Grimsley's Move PFL 90",
+   "4 Shroodle MEG 91",
+   "1 Psychic Energy MEE 5",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mr. Mime TEF",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "deck_top": [
+   "Shroodle MEG 91",
+   "6 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shroodle MEG 91",
+  "hand": [
+   "Grimsley's Move PFL 90"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Look-Alike Show"
+  },
+  [
+   0
+  ]
+ ]
+}

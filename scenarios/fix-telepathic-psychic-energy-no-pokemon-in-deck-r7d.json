@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Telepathic Psychic Energy POR 88",
+   "4 Ralts ASC 87",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Telepathic Psychic Energy POR 88",
+   "4 Ralts ASC 87",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ralts ASC 87",
+  "hand": [
+   "Telepathic Psychic Energy POR 88"
+  ],
+  "discard": [
+   "3 Ralts ASC 87"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Ralts ASC 87"
+ }
+}

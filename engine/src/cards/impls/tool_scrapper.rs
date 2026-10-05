@@ -1,5 +1,6 @@
 //! Tool Scrapper (DRX): choose up to 2 Pokémon Tools attached to Pokémon in
-//! play (yours or your opponent's) and discard them.
+//! play (yours or your opponent's) and discard them. Phase 4b (rulings 1778/1853): the prompt can't
+//! be cancelled (a cancel was choosing 0).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "ToolScrapper", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -33,7 +34,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_DISCARD_CARDS",
-        PromptKind::ChoosePokemon { player_type: PlayerType::Any, slots, min: 1, max: with_tool.min(2), allow_cancel: true, blocked },
+        PromptKind::ChoosePokemon { player_type: PlayerType::Any, slots, min: 1, max: with_tool.min(2), allow_cancel: false, blocked },
         Cont::Card { card: me, frame: f },
     );
     Ok(())

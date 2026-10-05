@@ -13,7 +13,7 @@
 //! prompt). The discard prompt uses the filter `superType: ENERGY` and
 //! blocks, by discard position (choose_cards remaps it through the prompt's sort,
 //! as the TS constructor does), everything but Basic [M] Energy,
-//! with min 0 and max min(2, count); each chosen card is its own MOVE_CARDS.
+//! with min 1 (0 through Look-Alike Show) and max min(2, count); each chosen card is its own MOVE_CARDS.
 use crate::cards::prelude::*;
 use crate::engine::game_effect::pokemon_types;
 
@@ -63,6 +63,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     slots.push(SlotType::Bench as u8);
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
+    f.a[1] = played_from_hand as i32;
     let id = g.player_id(p);
     g.prompt(
         id,
@@ -91,7 +92,9 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                     blocked.push(i as u8);
                 }
             }
-            let mut opts = ChooseCardsOpts::new(0, 2.min(count) as u8, false);
+            // Fixed (phase 4b, rulings 1778/1853): "up to 2" from a public zone takes at least 1 when played from the
+            // hand; used through an attack (Look-Alike Show) it may be 0 (ruling 1844).
+            let mut opts = ChooseCardsOpts::new(f.a[1] as u8, 2.min(count) as u8, false);
             opts.blocked = blocked;
             let mut nf = CardFrame::at(2);
             nf.a[0] = p as i32;

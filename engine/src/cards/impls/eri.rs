@@ -17,6 +17,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
+    // Fixed (phase 4b, ruling 880): obviously no effect when the opponent has no cards in hand.
+    if g.st.players[o].hand.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
     g.set_prevent(e, true);
     let mut f = CardFrame::at(1);

@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Team Rocket's Factory ASC 203",
+   "4 Team Rocket's Houndour DRI 37",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Team Rocket's Factory ASC 203",
+   "4 Team Rocket's Houndour DRI 37",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37",
+  "bench": [
+   {
+    "card": "Team Rocket's Houndour DRI 37"
+   }
+  ],
+  "hand": [
+   "Team Rocket's Giovanni ASC 204"
+  ],
+  "stadium": "Team Rocket's Factory ASC 203"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37",
+  "bench": [
+   {
+    "card": "Team Rocket's Houndour DRI 37"
+   }
+  ]
+ }
+}

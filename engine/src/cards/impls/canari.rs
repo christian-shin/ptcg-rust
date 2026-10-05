@@ -20,6 +20,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if others.is_empty() {
             bail!("CANNOT_PLAY_THIS_CARD");
         }
+        // Fixed (phase 4b, rulings 779/851/1098): a search of an empty deck is not possible, so the card can't be played.
+        if g.st.players[p].deck.is_empty() {
+            bail!("CANNOT_PLAY_THIS_CARD");
+        }
         g.set_prevent(e, true);
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         let others: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();

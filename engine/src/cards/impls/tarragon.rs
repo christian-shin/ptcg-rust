@@ -5,7 +5,7 @@
 //! leaves the card to be discarded); the supporter check follows, then the
 //! card moves to the supporter pile. Energy counts only when it is a Basic
 //! card named 'Fighting Energy'; Pokémon by `pokemonHasCardType`. The
-//! prompt allows 0 to 4 (maxPokemons/maxEnergies = min(count, 4)); the cards
+//! prompt allows 1 to 4 from the hand, 0 to 4 through Look-Alike Show (maxPokemons/maxEnergies = min(count, 4)); the cards
 //! are moved to the hand first and shown to the opponent afterwards.
 use crate::cards::prelude::*;
 
@@ -23,8 +23,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.players[p].supporter_turn > 0 {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
-    move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-    g.set_prevent(e, true);
+    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
     let mut pokemons = 0u8;
     let mut energies = 0u8;
     let mut opts = ChooseCardsOpts::new(0, 4, false);
@@ -39,6 +38,15 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             opts.blocked.push(i as u8);
         }
     }
+    // Fixed (phase 4b, rulings 851/948): nothing to take is public knowledge, the card can't be played.
+    if pokemons == 0 && energies == 0 {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
+    g.set_prevent(e, true);
+    // Fixed (phase 4b, rulings 1778/1853): "up to 4" from a public zone takes at least 1 when played from the hand;
+    // used through an attack (Look-Alike Show) it may be 0 (ruling 1844).
+    opts.min = if played_from_hand { 1 } else { 0 };
     opts.max_pokemons = Some(pokemons.min(4));
     opts.max_energies = Some(energies.min(4));
     let mut f = CardFrame::at(1);

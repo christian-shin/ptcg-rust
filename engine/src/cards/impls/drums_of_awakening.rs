@@ -1,8 +1,8 @@
 //! Awakening Drum (TEF, ACE SPEC): draw a card for each of your Ancient
 //! Pokémon in play.
 //!
-//! Twinleaf: one MOVE_CARDS deck→hand with `count` (also run with count 0
-//! or an empty deck).
+//! Twinleaf: one MOVE_CARDS deck→hand with `count`; since phase 4b the card is
+//! unplayable with no Ancient Pokémon in play or an empty deck (rulings 851/1733).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "DrumsOfAwakening", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
@@ -20,6 +20,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 n += 1;
             }
         }
+    }
+    // Fixed (phase 4b, rulings 851/1733): no Ancient Pokémon in play or an empty deck is obviously no effect.
+    if n == 0 || g.st.players[p].deck.is_empty() {
+        bail!("CANNOT_PLAY_THIS_CARD");
     }
     move_count_from(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), n, me)
 }

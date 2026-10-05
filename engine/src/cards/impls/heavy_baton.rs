@@ -12,8 +12,9 @@
 //! printed Retreat Cost of 4 or more). The Energy list is a copy of the Basic
 //! Energy on the slot, but the transfers move the cards from the owner's
 //! discard pile (the core has already discarded the Pokémon); the slot marker
-//! is removed when the prompt resolves (cancel allowed, up to 3, any Benched
-//! Pokémon in any combination: no sameTarget since phase 4b).
+//! is removed when the prompt resolves (no cancel, 1 to 3 since phase 4b, any
+//! Benched Pokémon in any combination: no sameTarget since phase 4b; nothing
+//! happens without a Benched Pokémon).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "HeavyBaton", mask: mask(&[k::KNOCK_OUT]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -66,11 +67,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if energy.is_empty() {
         return Ok(());
     }
+    // Nothing to move the Energy to without a Benched Pokémon (phase 4b: the prompt now needs at least 1 transfer)
+    if !g.st.players[p].bench.iter().any(|&b| !g.st.players[p].slots[b as usize].cards.is_empty()) {
+        return Ok(());
+    }
     g.st.players[t.p as usize].slots[t.s as usize].marker.add(baton(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
     let temp = g.alloc_temp(&energy);
     let mut o = AttachOpts::new(energy.len() as u8);
-    o.allow_cancel = true;
-    o.min = 0;
+    // "up to 3" from a public zone: at least 1, no cancel (phase 4b, rulings 1607/1778/1853)
+    o.allow_cancel = false;
+    o.min = 1;
     o.max = 3;
     let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
     let mut slots = SVec::new();

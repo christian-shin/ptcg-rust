@@ -1,9 +1,9 @@
 //! Carmine (TWM): if you go first, you can use this card on your first turn.
 //! Discard your hand and draw 5 cards.
 //!
-//! Twinleaf: throws when a Supporter was already played, or when both the
-//! deck and the rest of the hand are empty (phase 4b: it used to throw on any
-//! empty deck, although discarding the hand is an effect); the other hand
+//! Twinleaf: throws when a Supporter was already played, or when the deck is
+//! empty (rulings 1037/1038: discarding the hand is a cost, not the effect; R5
+//! had made it playable with an empty deck, phase 4b reverted that); the other hand
 //! cards go to the discard pile in one MOVE_CARDS (no source card, only when
 //! there are any), then DRAW_CARDS 5.
 use crate::cards::prelude::*;
@@ -19,7 +19,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("SUPPORTER_ALREADY_PLAYED");
     }
     let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();
-    if g.st.players[p].deck.is_empty() && cards.is_empty() {
+    // Discarding the hand is a cost, not the effect: nothing can be drawn from an empty deck (ruling 1037); an empty
+    // hand with a non-empty deck is playable (ruling 1038).
+    if g.st.players[p].deck.is_empty() {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     if !cards.is_empty() {

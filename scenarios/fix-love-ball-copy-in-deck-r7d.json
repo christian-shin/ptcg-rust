@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Love Ball TWM 156",
+   "4 Duraludon PRE 69",
+   "4 Mankey SSP 98",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Love Ball TWM 156",
+   "4 Duraludon PRE 69",
+   "4 Mankey SSP 98",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "hand": [
+   "Love Ball TWM 156"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

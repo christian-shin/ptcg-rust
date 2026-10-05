@@ -1,8 +1,8 @@
 //! Sacred Ash (DRI, as Sacred Ash FA POR): shuffle up to 5 Pokémon from your
 //! discard pile into your deck.
 //!
-//! Twinleaf (destined-rivals file): `min 1, max min(5, Pokémon in discard)`, cancellable (a cancel
-//! ends the effect; the card is still cleaned up as played); the final
+//! Twinleaf (destined-rivals file): `min 1, max min(5, Pokémon in discard)`, not cancellable since
+//! phase 4b (it was: a cancel is choosing 0, rulings 1778/1853); the final
 //! ShuffleDeckPrompt has no trailing wait. Phase 4b (R4, Meta-Rulings): the chosen
 //! Pokémon are revealed to the opponent before they are moved (discard pile to
 //! deck); up to 5 / min 1 is right (erratum, Rulings Compendium 1689).
@@ -29,7 +29,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         "CHOOSE_CARD_TO_DECK",
         ListRef::Discard(p as u8),
         Filter::super_type(SuperType::Pokemon),
-        ChooseCardsOpts::new(1, max, true),
+        ChooseCardsOpts::new(1, max, false),
         Cont::Card { card: me, frame: f },
     );
     Ok(())

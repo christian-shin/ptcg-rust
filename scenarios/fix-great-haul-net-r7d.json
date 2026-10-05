@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Great Haul Net CRI 78",
+   "4 Staryu POR 20",
+   "4 Feebas SSP 41",
+   "3 Water Energy MEE 3",
+   "45 Fire Energy MEE 2"
+  ],
+  [
+   "4 Great Haul Net CRI 78",
+   "4 Staryu POR 20",
+   "4 Feebas SSP 41",
+   "3 Water Energy MEE 3",
+   "45 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Feebas SSP 41",
+  "hand": [
+   "Great Haul Net CRI 78"
+  ],
+  "discard": [
+   "2 Staryu POR 20",
+   "3 Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Feebas SSP 41"
+ }
+}

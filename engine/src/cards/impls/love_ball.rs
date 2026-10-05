@@ -6,6 +6,9 @@
 //! can be cancelled; MOVE_CARDS runs even with nothing chosen, then the
 //! reveal, then the shuffle.
 //!
+//! Fixed (phase 4b, rulings 336/1285): unplayable when all 4 copies of every name the
+//! opponent has in play are in known zones.
+//!
 //! Fixed (phase 4b, R2): the allowed names were only the name of
 //! `opponent.active.cards[0]` (the bottom card of the stack, so the Basic of
 //! an evolved Pokémon) because `opponent.bench.filter(card instanceof
@@ -27,6 +30,26 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let o = 1 - p;
     let allowed: Vec<&'static str> =
         for_each_pokemon(g, o, PlayerType::TopPlayer).iter().map(|(_, c, _)| g.st.cdef(*c).name).collect();
+    // Fixed (phase 4b, rulings 336/1285): a deck holds at most 4 cards with the same name; when all 4 of every possible
+    // name are in zones both players know (own hand, discard pile, Lost Zone, Pokémon in play), it is public knowledge
+    // that the search finds nothing, so the deck can't be searched.
+    let known = |name: &str| -> usize {
+        let pl = &g.st.players[p];
+        let named = |c: CardId| {
+            let d = g.st.cdef(c);
+            d.is_pokemon() && d.name == name
+        };
+        let mut n = pl.hand.iter().filter(|c| named(*c)).count()
+            + pl.discard.iter().filter(|c| named(*c)).count()
+            + pl.lostzone.iter().filter(|c| named(*c)).count();
+        for s in pl.in_play().iter() {
+            n += pl.slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+        }
+        n
+    };
+    if allowed.iter().all(|name| known(name) >= 4) {
+        bail!("CANNOT_PLAY_THIS_CARD");
+    }
     let mut blocked = Blocked::default();
     for (i, c) in g.st.players[p].deck.iter().enumerate() {
         let d = g.st.cdef(c);

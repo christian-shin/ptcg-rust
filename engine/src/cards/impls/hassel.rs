@@ -21,6 +21,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.players[p].supporter_turn > 0 {
             bail!("SUPPORTER_ALREADY_PLAYED");
         }
+        let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
         move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
         g.set_prevent(e, true);
         if !g.st.players[p].marker.has(hassel_marker()) {
@@ -40,7 +41,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             ListRef::Temp(i) => i,
             _ => 0,
         };
-        choose_cards(g, p, "CHOOSE_CARD_TO_HAND", top, Filter::none(), ChooseCardsOpts::new(0, 3, false), Cont::Card { card: me, frame: f });
+        // Fixed (phase 4b, rulings 1778/1853): the top cards are looked at, so "up to 3" takes at least 1 when played from
+        // the hand; used through an attack (Look-Alike Show) it may be 0 (ruling 1844).
+        let min = if played_from_hand { 1 } else { 0 };
+        choose_cards(g, p, "CHOOSE_CARD_TO_HAND", top, Filter::none(), ChooseCardsOpts::new(min, 3, false), Cont::Card { card: me, frame: f });
         return Ok(());
     }
 

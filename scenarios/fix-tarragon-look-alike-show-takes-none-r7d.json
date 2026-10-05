@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mr. Mime TEF",
+   "4 Tarragon POR 85",
+   "4 Mankey SSP 98",
+   "3 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Mr. Mime TEF",
+   "4 Tarragon POR 85",
+   "4 Mankey SSP 98",
+   "3 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mr. Mime TEF",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "2 Mankey SSP 98",
+   "3 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "hand": [
+   "Tarragon POR 85"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Look-Alike Show"
+  },
+  [
+   0
+  ]
+ ]
+}

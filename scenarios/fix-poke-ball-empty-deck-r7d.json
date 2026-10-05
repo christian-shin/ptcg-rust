@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pok\u00e9 Ball POR 80",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Pok\u00e9 Ball POR 80",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Pok\u00e9 Ball POR 80"
+  ],
+  "discard": [
+   "3 Pok\u00e9 Ball POR 80",
+   "3 Duraludon PRE 69",
+   "46 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

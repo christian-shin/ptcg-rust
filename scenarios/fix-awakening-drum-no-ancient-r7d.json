@@ -1,0 +1,26 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Awakening Drum TEF 141",
+   "4 Duraludon PRE 69",
+   "55 Fire Energy MEE 2"
+  ],
+  [
+   "1 Awakening Drum TEF 141",
+   "4 Duraludon PRE 69",
+   "55 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Awakening Drum TEF 141"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ }
+}

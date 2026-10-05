@@ -3,6 +3,9 @@
 //! shuffle the other cards and put them on the bottom of your deck. Can't be
 //! used on your first turn.
 //!
+//! Fixed (phase 4b): at least 1 when a [D] Pokémon is among the 7 looked-at cards
+//! and the card is played from the hand (rulings 1778/1853; 0 through Look-Alike Show).
+//!
 //! Twinleaf: no move to the supporter pile and no preventDefault (the core
 //! discards the Supporter normally); checks in order: Supporter played, empty
 //! deck, full Bench, turn 1/2. The ShuffleDeckPrompt targets the (already
@@ -32,9 +35,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.turn == 1 || g.st.turn == 2 {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
+    // Played from the hand (not through Mr. Mime's Look-Alike Show; the card is still in the hand here).
+    let played_from_hand = g.st.players[p].hand.iter().any(|c| c == me);
     let top = g.alloc_temp(&[]);
     move_count(g, ListRef::Deck(p as u8), top, 7)?;
     let filter = Filter { super_type: Some(SuperType::Pokemon as u8), card_type: Some(ct::DARK), card_type_list: true, ..Filter::none() };
+    // Fixed (phase 4b, rulings 1778/1853): the top 7 cards are looked at, not searched for, so a [D] Pokémon found
+    // there must be put onto the Bench when played from the hand; through an attack it may be skipped (ruling 1844).
+    let must_put = played_from_hand && g.lst(top).to_vec().iter().any(|c| filter.matches(g.st.cdef(*c)));
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
     f.l[0] = match top {
@@ -42,7 +50,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => 0,
     };
     f.l[1] = open.as_slice()[0];
-    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", top, filter, ChooseCardsOpts::new(0, 1, false), Cont::Card { card: me, frame: f });
+    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", top, filter, ChooseCardsOpts::new(if must_put { 1 } else { 0 }, 1, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

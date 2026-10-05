@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iris's Fighting Spirit ASC 190",
+   "4 Riolu ASC 112",
+   "7 Fighting Energy MEE 6",
+   "45 Fire Energy MEE 2"
+  ],
+  [
+   "4 Iris's Fighting Spirit ASC 190",
+   "4 Riolu ASC 112",
+   "7 Fighting Energy MEE 6",
+   "45 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Riolu ASC 112",
+  "hand": [
+   "Iris's Fighting Spirit ASC 190",
+   "7 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Riolu ASC 112"
+ }
+}
