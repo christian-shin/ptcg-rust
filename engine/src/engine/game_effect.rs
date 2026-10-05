@@ -328,6 +328,26 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     {
         g.st.players[owner].pokemon_knocked_out_by_attack_during_opponents_last_turn = true;
     }
+    // The Check State step takes the Pokémon out of play after every Knock Out was announced.
+    if matches!(*g.e(id), Effect::KnockOut { defer_removal: true, .. }) {
+        return Ok(());
+    }
+    complete_knock_out(g, id)
+}
+
+/// `completeKnockOut`: takes a Knocked Out Pokémon out of play (tools, effects,
+/// the Pokémon and its attached cards go to the owner's discard pile).
+pub fn complete_knock_out(g: &mut Game, id: EffId) -> R {
+    let (p, target) = match *g.e(id) {
+        Effect::KnockOut { p, target, .. } => (p as usize, target),
+        _ => return Ok(()),
+    };
+    let card = match g.st.slot_pokemon(target.p as usize, target.s) {
+        Some(c) => c,
+        None => return Ok(()),
+    };
+    let d = g.st.cdef(card);
+    let owner = p;
     let tp = target.p as usize;
     if g.st.slot(tp, target.s).marker.has(LOST_CITY_MARKER) || d.has_tag(tag::PRISM_STAR) {
         crate::bail!("LOST_CITY_KO_NOT_PORTED");

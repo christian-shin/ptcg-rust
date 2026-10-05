@@ -11,8 +11,10 @@ use crate::types::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CheckStage {
-    /// Resume after KO number `idx` (its effect is `ko_fx`).
+    /// Resume after KO number `idx` was announced (its effect is `ko_fx`).
     AfterKo,
+    /// Resume after Knock Out number `idx` took its Pokémon out of play (effect `ko_fxs[idx]`).
+    AfterRemove,
     AfterBenchSize,
     AfterPrize,
     AfterActive,
@@ -31,6 +33,8 @@ pub struct CheckFrame {
     pub kos: SVec<SlotRef, 16>,
     pub idx: u8,
     pub ko_fx: EffId,
+    /// The announced Knock Out effects (retained until the Pokémon left play).
+    pub ko_fxs: SVec<EffId, 16>,
     pub groups: [SVec<(ListRef, i32), 4>; 2],
     /// Prize prompts to open: (player, count, destination).
     pub prize_prompts: SVec<(u8, i32, ListRef), 4>,
@@ -48,6 +52,7 @@ pub fn check_state(g: &mut Game, oc: OnComplete) -> R {
         kos,
         idx: 0,
         ko_fx: 0,
+        ko_fxs: SVec::new(),
         groups: [SVec::new(), SVec::new()],
         prize_prompts: SVec::new(),
         active_prompts: SVec::new(),
@@ -113,10 +118,13 @@ fn add_prize(f: &mut CheckFrame, taker: usize, destination: ListRef, count: i32)
     }
 }
 
+/// Every Knock Out is announced while all Pokémon are still in play (a Pokémon Knocked
+/// Out at the same time still has its Ability: ruling 1623), then they leave play and
+/// the Prizes are counted (R7F-16; Twinleaf `executeCheckState`).
 fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
     while (f.idx as usize) < f.kos.len() {
         let t = *f.kos.get(f.idx as usize).unwrap();
-        let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: None });
+        let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: None, defer_removal: true });
         g.reduce_effect(id)?;
         f.ko_fx = id;
         if g.has_prompts() {
@@ -124,13 +132,31 @@ fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
             g.wait_prompt(Cont::CheckState(f));
             return Ok(());
         }
+        f.ko_fxs.push(id);
+        f.idx += 1;
+    }
+    f.idx = 0;
+    remove_loop(g, f)
+}
+
+fn remove_loop(g: &mut Game, mut f: CheckFrame) -> R {
+    while (f.idx as usize) < f.ko_fxs.len() {
+        let id = *f.ko_fxs.get(f.idx as usize).unwrap();
+        if !g.prevented(id) {
+            crate::engine::game_effect::complete_knock_out(g, id)?;
+            if g.has_prompts() {
+                f.stage = CheckStage::AfterRemove;
+                g.wait_prompt(Cont::CheckState(f));
+                return Ok(());
+            }
+        }
         finish_ko(g, &mut f);
     }
     after_kos(g, f)
 }
 
 fn finish_ko(g: &mut Game, f: &mut CheckFrame) {
-    let id = f.ko_fx;
+    let id = *f.ko_fxs.get(f.idx as usize).unwrap();
     if !g.prevented(id) {
         if let Effect::KnockOut { p, prize_count, prize_destination, .. } = *g.e(id) {
             let taker = 1 - p as usize;
@@ -255,8 +281,13 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
 pub fn resume(g: &mut Game, mut f: CheckFrame) -> R {
     match f.stage {
         CheckStage::AfterKo => {
-            finish_ko(g, &mut f);
+            f.ko_fxs.push(f.ko_fx);
+            f.idx += 1;
             ko_loop(g, f)
+        }
+        CheckStage::AfterRemove => {
+            finish_ko(g, &mut f);
+            remove_loop(g, f)
         }
         CheckStage::AfterBenchSize => after_bench_size(g, f),
         CheckStage::AfterPrize => prize_loop(g, f),
