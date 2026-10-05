@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hisuian Growlithe TWM 99",
+   "4 Mankey SSP 98",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "4 Hisuian Growlithe TWM 99",
+   "4 Mankey SSP 98",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hisuian Growlithe TWM 99"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Blazing Destruction"
+  }
+ ]
+}
