@@ -683,6 +683,12 @@ impl Game {
                     2 if d.trainer_type == TrainerType::Stadium as u8 => 3,
                     _ => 2,
                 },
+                // AfterAttackEffect: Pokémon, then Energy, then Trainers (R7F-10).
+                Effect::AfterAttack { .. } => match d.super_type {
+                    1 => 0,
+                    3 => 1,
+                    _ => 2,
+                },
                 _ => d.super_type,
             }
         };

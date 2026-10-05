@@ -2,8 +2,13 @@
 //! attack of the Pokémon it is attached to, attach it from the discard pile
 //! to that Pokémon after attacking.
 //!
-//! Twinleaf quirk kept: the card is re-attached at EndTurn to whatever is
-//! Active then.
+//! Twinleaf quirk kept: the card is re-attached to whatever is Active then.
+//!
+//! Fixed (phase 4b, R7F-10; ruling 1650): it was re-attached at EndTurn; it is
+//! now re-attached in AfterAttackEffect (EndTurn stays as the fallback for a
+//! discard no AfterAttackEffect followed), before the effects that trigger
+//! on the Defending Pokémon (Handheld Fan) resolve: AfterAttackEffect reaches
+//! Pokémon, then Energy, then Trainers.
 //!
 //! Fixed (phase 4b, W4): the re-attach was armed by a marker set on the
 //! AttackEffect, but the attacker's own handler runs before its attached
@@ -15,7 +20,7 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "BoomerangEnergy",
-    mask: mask(&[k::DISCARD_CARDS, k::END_TURN]),
+    mask: mask(&[k::DISCARD_CARDS, k::END_TURN, k::AFTER_ATTACK]),
     reduce,
     resume: None,
     coin: None,
@@ -37,14 +42,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
 
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let pu = p as usize;
-        if g.st.players[pu].marker.has_from(discarded(), me) {
-            g.st.players[pu].marker.remove_from(discarded(), me);
-            if g.st.players[pu].discard.iter().any(|c| c == me) {
-                let a = g.st.players[pu].active;
-                move_cards(g, ListRef::Discard(p), ListRef::Slot(p, a), &[me], me)?;
-            }
+    let p = match *g.e(e) {
+        Effect::EndTurn { p } | Effect::AfterAttack { p, .. } => p,
+        _ => return Ok(()),
+    };
+    let pu = p as usize;
+    if g.st.players[pu].marker.has_from(discarded(), me) {
+        g.st.players[pu].marker.remove_from(discarded(), me);
+        if g.st.players[pu].discard.iter().any(|c| c == me) {
+            let a = g.st.players[pu].active;
+            move_cards(g, ListRef::Discard(p), ListRef::Slot(p, a), &[me], me)?;
         }
     }
     Ok(())
