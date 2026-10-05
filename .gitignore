@@ -11,3 +11,4 @@ python/target/
 *.so
 .claude/
 PLAN.md
+data/rulings/cache/
