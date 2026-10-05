@@ -667,6 +667,31 @@ The tracked list is `porting/twinleaf-fixes.md`.
       (959), a full Bench for "put onto your Bench" (337). Throw
       `CANNOT_PLAY_THIS_CARD` / `CANNOT_USE_STADIUM` before any state change. A
       deck that only might hold nothing is not an obvious case.
+14. **Core rules added in the rulings review (R7F).** (a) *Attack costs*:
+    an effect that sets the cost ("can use the attack for [C]": Kyurem,
+    Azumarill) or ignores it (Conkeldurr, Decidueye ex) sets
+    `CheckAttackCostEffect.setCost` / `ignoreColorless`; the core applies it
+    after every handler, so no increase (Rillaboom, Nighttime Mine, Antique
+    Root Fossil, ...) or decrease (Counter Gain, ...) touches it, in either
+    handler order (rulings 147, 252, 1552, 1581, 1842; the Rust fields are
+    `set_cost` / `ignore_colorless`). (b) *AfterAttackEffect* reaches Pokémon,
+    then Energy, then Trainers, so effects triggered on the Defending Pokémon
+    (Handheld Fan) resolve after the attack's own effects and after Boomerang
+    Energy re-attaches (rulings 1625, 1650); such a trigger arms a marker on
+    the attacker's slot in AfterDamageEffect and resolves in AfterAttackEffect.
+    A Stadium an attack discards goes in AfterAttackEffect too (after the
+    damage, before the Knock Out check: rulings 1559, 1589). (c) *Knock Outs*:
+    the Check State step announces every KnockOutEffect before any Pokémon
+    leaves play (`deferRemoval` / `completeKnockOut`, Rust `defer_removal` /
+    `complete_knock_out`), so an Ability that reacts to a Knock Out still works
+    for a Pokémon Knocked Out at the same time (Togekiss, ruling 1623).
+    (d) *Winning*: taking the last Prize card does not end the game by itself;
+    `checkWinner` counts both players' win conditions (no Prize cards left, no
+    Pokémon in play) and the player with more wins, equal numbers go to Sudden
+    Death (rulings 234, 820, 1403); when both players took their last Prize
+    the new Active Pokémon are promoted first (ruling 1584). The player whose
+    turn is next takes Prizes and promotes first (rulings 754, 757), and Prize
+    reductions never go below 0 (ruling 1745).
 
 Report per fix: list number, card (international key), Twinleaf commit,
 Rust change, scenario entry (format above), the official text it now

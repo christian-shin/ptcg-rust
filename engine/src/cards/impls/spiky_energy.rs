@@ -3,16 +3,22 @@
 //! Pokémon (even if it is Knocked Out), put 2 damage counters on the
 //! Attacking Pokémon.
 //!
-//! Twinleaf: reacts to DealDamageEffect (before any damage is put, whatever
-//! its amount) during the attack phase; the block check is made for the
-//! attacking player; the counters are a PutCountersEffect on the attacker.
+//! Twinleaf: the block check is made for the attacking player; the counters
+//! are a PutCountersEffect on the attacker.
+//!
+//! Fixed (phase 4b, R7F-15): it reacted to DealDamageEffect (before any damage
+//! is put, whatever its amount), so it also fired when the damage was
+//! prevented (Crustle's Mysterious Rock Inn, ...) or reduced to 0 although the
+//! Pokémon was not damaged. It now reacts to AfterDamageEffect, like Punk
+//! Helmet and Lucky Helmet (text: "is damaged by an attack"; rulings 1646,
+//! 1839: it stacks and works wherever the Pokémon end up).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "SpikyEnergy", mask: mask(&[k::DEAL_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "SpikyEnergy", mask: mask(&[k::AFTER_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let b = match *g.e(e) {
-        Effect::DealDamage { b, .. } => b,
+        Effect::AfterDamage { b, .. } => b,
         _ => return Ok(()),
     };
     let t = b.target;

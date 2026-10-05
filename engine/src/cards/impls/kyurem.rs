@@ -5,6 +5,12 @@
 //!
 //! Fixed (phase 4b, W4): the target prompt was min 1 max 3; it is now exactly
 //! min(3, opponent's Pokémon in play).
+//!
+//! Fixed (phase 4b, R7F-11; ruling 1581): the cost [C] was an ordinary cost
+//! that Pokémon League Headquarters, Rillaboom's Drum Beating, Antique Root
+//! Fossil, Counter Gain, ... still changed; the Ability now sets it
+//! (CheckAttackCostEffect.setCost), and a set cost is not increased or
+//! decreased.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -31,8 +37,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             d.is_trainer() && d.name.contains("Colress")
         });
         if colress {
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
+            if let Effect::CheckAttackCost { cost, set_cost, .. } = g.e_mut(e) {
                 cost.retain(|t| *t != ct::WATER && *t != ct::METAL);
+                // "can use the Trifrost attack for [C]": a cost that is set is not
+                // increased or decreased (R7F-11, ruling 1581).
+                let mut c: crate::effects::Cost = SVec::new();
+                c.push(ct::COLORLESS);
+                *set_cost = Some(c);
             }
         }
         return Ok(());

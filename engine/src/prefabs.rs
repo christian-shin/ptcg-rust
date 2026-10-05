@@ -419,9 +419,11 @@ pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: 
 /// `OPPONENT_CANNOT_PLAY_CARDS(store, state, effect, source, options)`:
 /// reduce a `PlayLockEffect` (default durations).
 pub fn opponent_cannot_play_cards(g: &mut Game, atk: EffId, locks: u16) -> R {
-    let mut b = match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source },
-        _ => return Ok(()),
+    // An AfterAttackEffect handler passes `new AttackEffect(player, opponent, effect.attack)`
+    // (Chi-Yu MEG): its source is the player's Active.
+    let mut b = match attack_data(g, atk) {
+        Some((p, opp, attack, source)) => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source },
+        None => return Ok(()),
     };
     b.target = b.source;
     g.run_fx(Effect::PlayLock { b, locks, turns_remaining: None, both_players: false, attacker_turns_remaining: None })?;
@@ -832,4 +834,22 @@ pub fn opponent_pokemon_with_x_or_less_energy_cannot_attack(g: &mut Game, atk: E
     let b = atk_base_for(g, atk, source);
     g.run_fx(Effect::OpponentPokemonCannotAttackNextTurn { b, max_energy: Some(max_energy) })?;
     Ok(())
+}
+
+/// `(card << 4) | index` of an attack, for a card frame slot.
+pub fn pack_attack(a: AttackRef) -> i32 {
+    ((a.card as i32) << 4) | (a.index as i32 & 15)
+}
+
+/// Does something prevent the effect of the attack `attack` (used by player `p`
+/// against `o`) on the Pokémon in `target`? A DiscardCardsEffect without cards
+/// on a fresh AttackEffect asks (Mist Energy and the like; R7F-17, ruling 1843).
+pub fn attack_effect_prevented_on(g: &mut Game, p: usize, o: usize, packed_attack: i32, target: SlotRef) -> R<bool> {
+    let attack = AttackRef { card: (packed_attack >> 4) as CardId, index: (packed_attack & 15) as u8 };
+    let source = SlotRef::new(p, g.st.players[p].active);
+    let atk = g.new_fx(Effect::Attack { p: p as u8, opp: o as u8, attack, damage: 0, ignore_weakness: false, ignore_resistance: false, source, barrage_used: false });
+    let b = AtkBase { attack_effect: atk, player: p as u8, opponent: o as u8, attack, source, target };
+    let r = g.run_fx(Effect::DiscardCards { b, cards: SVec::new() });
+    g.release_fx(atk);
+    Ok(r?.1)
 }

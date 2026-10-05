@@ -5,11 +5,17 @@
 //! Twinleaf: for the opponent's Active, then each Bench slot, one MOVE_CARDS
 //! (no source card) of the attached Special Energy to their discard pile.
 //! R7A (ruling 1620 and the attack flow chart): the Special Energy is discarded after the damage (`move_cards_after_damage`).
+//!
+//! Fixed (phase 4b, R7F-17; rulings 1843, 1724): the discard ignored Mist
+//! Energy; each Pokémon is first probed with a DiscardCardsEffect without
+//! cards (the effect of the attack on that Pokémon), and a prevented one keeps
+//! its Special Energy.
+//! R7A + R7F: the probe comes first, then the deferred discard of the Energy of the Pokémon that is not protected.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Ceruledge@SSP", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
-fn discard_special(g: &mut Game, atk: EffId, o: usize, s: SlotId) -> R {
+fn discard_special(g: &mut Game, e: EffId, o: usize, s: SlotId) -> R {
     let cards: Vec<CardId> = g
         .st
         .slot(o, s)
@@ -20,8 +26,18 @@ fn discard_special(g: &mut Game, atk: EffId, o: usize, s: SlotId) -> R {
             d.is_energy() && d.energy_type == EnergyType::Special as u8
         })
         .collect();
+    let (opp, attack, source) = match *g.e(e) {
+        Effect::Attack { opp, attack, source, .. } => (opp, attack, source),
+        _ => return Ok(()),
+    };
+    let player = 1 - o as u8;
+    let b = AtkBase { attack_effect: e, player: if player == opp { 1 - opp } else { player }, opponent: opp, attack, source, target: SlotRef::new(o, s) };
+    let (_, prevented) = g.run_fx(Effect::DiscardCards { b, cards: SVec::new() })?;
+    if prevented {
+        return Ok(());
+    }
     if !cards.is_empty() {
-        move_cards_after_damage(g, atk, ListRef::Slot(o as u8, s), ListRef::Discard(o as u8), &cards, NO_CARD)?;
+        move_cards_after_damage(g, e, ListRef::Slot(o as u8, s), ListRef::Discard(o as u8), &cards, NO_CARD)?;
     }
     Ok(())
 }

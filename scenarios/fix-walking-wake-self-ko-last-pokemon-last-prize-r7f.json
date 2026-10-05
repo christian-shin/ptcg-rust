@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Walking Wake TWM 63",
+   "4 Dwebble DRI 11",
+   "26 Water Energy MEE",
+   "26 Grass Energy MEE"
+  ],
+  [
+   "4 Walking Wake TWM 63",
+   "4 Dwebble DRI 11",
+   "26 Water Energy MEE",
+   "26 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Walking Wake TWM 63",
+  "active_energy": [
+   "2 Water Energy MEE",
+   "Grass Energy MEE"
+  ],
+  "active_damage": 60,
+  "prizes_left": 1
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Undulating Slice"
+  }
+ ]
+}

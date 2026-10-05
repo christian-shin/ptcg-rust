@@ -40,6 +40,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     slots.push(SlotType::Bench as u8);
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
+    if let Effect::Attack { attack, .. } = *g.e(e) {
+        f.a[1] = crate::prefabs::pack_attack(attack);
+    }
     f.l[0] = source.p;
     f.l[1] = source.s;
     let id = g.player_id(p);
@@ -70,6 +73,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             };
             for t in targets.iter().copied() {
                 let owner = t.p as usize;
+                // An effect of the attack on that Pokémon: Mist Energy and the like prevent it (R7F-17, ruling 1843).
+                if crate::prefabs::attack_effect_prevented_on(g, p, owner, f.a[1], t)? {
+                    continue;
+                }
                 let tools = g.st.slot(owner, t.s).tools;
                 if tools.len() > 1 {
                     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };

@@ -1,0 +1,41 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Rowlet POR 10",
+   "4 Dartrix POR 11",
+   "4 Decidueye ex POR 12",
+   "4 Rare Candy MEG 125",
+   "44 Grass Energy MEE"
+  ],
+  [
+   "4 Rowlet POR 10",
+   "4 Dartrix POR 11",
+   "4 Decidueye ex POR 12",
+   "4 Rare Candy MEG 125",
+   "44 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Rowlet POR 10",
+  "hand": [
+   "Rare Candy MEG 125",
+   "Decidueye ex POR 12"
+  ],
+  "bench": [
+   {
+    "card": "Rowlet POR 10"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Rowlet POR 10",
+  "bench": [
+   {
+    "card": "Rowlet POR 10"
+   }
+  ]
+ }
+}

@@ -11,7 +11,8 @@
 //! of a bare MOVE_CARDS.
 //!
 //! Twinleaf: Sniper's Eye strips every [C] from any CheckAttackCostEffect
-//! while this card is the player's Active Pokémon. Crushing Arrow
+//! while this card is the player's Active Pokémon (R7F-11: and sets
+//! `ignoreColorless`, so a [C] added later by another effect is ignored too). Crushing Arrow
 //! (AFTER_ATTACK) prompts (non-cancellable ChooseCardsPrompt, Energy, over the
 //! opponent's Active) only when the Active holds an Energy card.
 use crate::cards::prelude::*;
@@ -27,8 +28,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             if g.st.players[1 - p].hand.len() == 4 {
-                if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
+                if let Effect::CheckAttackCost { cost, ignore_colorless, .. } = g.e_mut(e) {
                     cost.retain(|t| *t != ct::COLORLESS);
+                    // ...also the [C] that other effects add (R7F-11, rulings 252, 1552).
+                    *ignore_colorless = true;
                 }
             }
         }

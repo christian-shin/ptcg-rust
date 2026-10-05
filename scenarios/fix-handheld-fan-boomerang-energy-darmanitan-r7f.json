@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's Darmanitan ASC 33",
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Handheld Fan TWM 150",
+   "4 Boomerang Energy TWM 166",
+   "16 Fire Energy MEE",
+   "16 Grass Energy MEE"
+  ],
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's Darmanitan ASC 33",
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Handheld Fan TWM 150",
+   "4 Boomerang Energy TWM 166",
+   "16 Fire Energy MEE",
+   "16 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Darumaka ASC 32",
+   "N's Darmanitan ASC 33"
+  ],
+  "active_energy": [
+   "Boomerang Energy TWM 166",
+   "2 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "N's Darumaka ASC 32"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Rillaboom TWM 16",
+  "active_tool": "Handheld Fan TWM 150",
+  "bench": [
+   {
+    "card": "Rillaboom TWM 16"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Darman-i-cannon"
+  }
+ ]
+}

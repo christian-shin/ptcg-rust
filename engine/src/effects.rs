@@ -84,7 +84,9 @@ pub enum Effect {
     CheckPokemonStats { target: SlotRef, weakness: SVec<WeaknessV, 4>, resistance: SVec<ResistanceV, 4> },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
     CheckRetreatCost { p: u8, cost: Cost, no_cost: bool },
-    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost },
+    /// `set_cost` / `ignore_colorless`: an effect that sets or ignores the cost
+    /// (Kyurem's Plasma Bane, Conkeldurr, ...); applied after all handlers.
+    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool },
     CheckProvidedEnergy { p: u8, source: SlotRef, energy_map: EnergyMap },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32> },
@@ -105,7 +107,9 @@ pub enum Effect {
     /// `ignore_defender_effects`: `AttackEffect.ignoreDefenderEffects` (Shred: effects on the damaged
     /// Pokémon don't change this attack's damage; see `prefabs::ignores_defender_effects`).
     Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, barrage_used: bool },
-    KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef> },
+    /// `defer_removal`: the Check State step announces every Knock Out first and takes the
+    /// Pokémon out of play later (`game_effect::complete_knock_out`).
+    KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
     Heal { p: u8, target: SlotRef, damage: i32 },
     Evolve { p: u8, target: SlotRef, card: CardId },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },

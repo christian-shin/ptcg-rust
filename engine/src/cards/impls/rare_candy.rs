@@ -2,8 +2,9 @@
 //! Stage 2 card in your hand that evolves from it, put it onto that Pokémon.
 //!
 //! Twinleaf: the Stage 1 link is looked up in the whole CardManager
-//! (`gen::stage1::ALL_STAGE1`); no first-turn check other than the
-//! `pokemonPlayedTurn < turn` test via CheckPokemonPlayedTurnEffect; the
+//! (`gen::stage1::ALL_STAGE1`); the `pokemonPlayedTurn < turn` test via
+//! CheckPokemonPlayedTurnEffect (R7F-14, ruling 689: and no use during the
+//! player's first turn, turn 1 or 2, which Twinleaf missed); the
 //! evolution is an EvolveEffect. Phase 4b fixes: `canUseRareCandy` is false
 //! while the player can't evolve (Evolution Jammer, Bronzong TEF), where the
 //! EvolveEffect used to throw BLOCKED_BY_EFFECT after the prompts; and (R1-15,
@@ -44,6 +45,11 @@ fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
 
 /// `canUseRareCandy`.
 fn can_use(g: &mut Game, p: usize) -> R<bool> {
+    // "You can't use this card during your first turn": a player's first turn is
+    // turn 1 or turn 2 (R7F-14, ruling 689; Twinleaf had no such check).
+    if g.st.turn == 1 || g.st.turn == 2 {
+        return Ok(false);
+    }
     let stage2 = stage2_in_hand(g, p);
     // Evolution Jammer (Bronzong TEF): the player can't evolve (phase 4b fix).
     if stage2.is_empty() || g.st.players[p].cannot_evolve_pokemon_cards {

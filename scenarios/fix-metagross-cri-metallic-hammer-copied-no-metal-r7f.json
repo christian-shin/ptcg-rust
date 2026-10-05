@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Metagross CRI 61",
+   "4 Dwebble DRI 11",
+   "22 Psychic Energy MEE",
+   "22 Fire Energy MEE"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Metagross CRI 61",
+   "4 Dwebble DRI 11",
+   "22 Psychic Energy MEE",
+   "22 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Slowpoke SCR 57",
+   "Slowking SCR 58"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE",
+   "Fire Energy MEE"
+  ],
+  "deck_top": [
+   "Metagross CRI 61",
+   "Metagross CRI 61",
+   "Metagross CRI 61",
+   "Metagross CRI 61"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Seek Inspiration"
+  }
+ ]
+}

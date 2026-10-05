@@ -11,8 +11,10 @@ use crate::types::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CheckStage {
-    /// Resume after KO number `idx` (its effect is `ko_fx`).
+    /// Resume after KO number `idx` was announced (its effect is `ko_fx`).
     AfterKo,
+    /// Resume after Knock Out number `idx` took its Pokémon out of play (effect `ko_fxs[idx]`).
+    AfterRemove,
     AfterBenchSize,
     AfterPrize,
     AfterActive,
@@ -31,6 +33,8 @@ pub struct CheckFrame {
     pub kos: SVec<SlotRef, 16>,
     pub idx: u8,
     pub ko_fx: EffId,
+    /// The announced Knock Out effects (retained until the Pokémon left play).
+    pub ko_fxs: SVec<EffId, 16>,
     pub groups: [SVec<(ListRef, i32), 4>; 2],
     /// Prize prompts to open: (player, count, destination).
     pub prize_prompts: SVec<(u8, i32, ListRef), 4>,
@@ -48,6 +52,7 @@ pub fn check_state(g: &mut Game, oc: OnComplete) -> R {
         kos,
         idx: 0,
         ko_fx: 0,
+        ko_fxs: SVec::new(),
         groups: [SVec::new(), SVec::new()],
         prize_prompts: SVec::new(),
         active_prompts: SVec::new(),
@@ -113,10 +118,13 @@ fn add_prize(f: &mut CheckFrame, taker: usize, destination: ListRef, count: i32)
     }
 }
 
+/// Every Knock Out is announced while all Pokémon are still in play (a Pokémon Knocked
+/// Out at the same time still has its Ability: ruling 1623), then they leave play and
+/// the Prizes are counted (R7F-16; Twinleaf `executeCheckState`).
 fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
     while (f.idx as usize) < f.kos.len() {
         let t = *f.kos.get(f.idx as usize).unwrap();
-        let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: None });
+        let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: None, defer_removal: true });
         g.reduce_effect(id)?;
         f.ko_fx = id;
         if g.has_prompts() {
@@ -124,18 +132,37 @@ fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
             g.wait_prompt(Cont::CheckState(f));
             return Ok(());
         }
+        f.ko_fxs.push(id);
+        f.idx += 1;
+    }
+    f.idx = 0;
+    remove_loop(g, f)
+}
+
+fn remove_loop(g: &mut Game, mut f: CheckFrame) -> R {
+    while (f.idx as usize) < f.ko_fxs.len() {
+        let id = *f.ko_fxs.get(f.idx as usize).unwrap();
+        if !g.prevented(id) {
+            crate::engine::game_effect::complete_knock_out(g, id)?;
+            if g.has_prompts() {
+                f.stage = CheckStage::AfterRemove;
+                g.wait_prompt(Cont::CheckState(f));
+                return Ok(());
+            }
+        }
         finish_ko(g, &mut f);
     }
     after_kos(g, f)
 }
 
 fn finish_ko(g: &mut Game, f: &mut CheckFrame) {
-    let id = f.ko_fx;
+    let id = *f.ko_fxs.get(f.idx as usize).unwrap();
     if !g.prevented(id) {
         if let Effect::KnockOut { p, prize_count, prize_destination, .. } = *g.e(id) {
             let taker = 1 - p as usize;
             let dest = prize_destination.unwrap_or(ListRef::Hand(taker as u8));
-            add_prize(f, taker, dest, prize_count);
+            // Prize reductions (Legacy Energy, Lillie's Pearl, ...) never go below 0 (R7F-13, ruling 1745).
+            add_prize(f, taker, dest, prize_count.max(0));
         }
     }
     g.release_fx(id);
@@ -198,12 +225,16 @@ fn prize_loop(g: &mut Game, mut f: CheckFrame) -> R {
     if g.st.phase == GamePhase::Finished {
         return on_complete(g, f.oc);
     }
-    let prizes_taken = g.st.players.iter().any(|pl| pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty()));
-    if prizes_taken {
+    // A player has no Prize cards left: the game is decided now (check_winner
+    // counts both players' win conditions) unless both took their last Prize card
+    // at the same time: then the new Active Pokémon are promoted and their effects
+    // resolve before the winner is determined (R7F-12; rulings 820, 1584).
+    let taken: [bool; 2] = [0, 1].map(|i: usize| g.st.players[i].prizes[..g.st.players[i].prize_count as usize].iter().all(|l| l.is_empty()));
+    if (taken[0] || taken[1]) && !(taken[0] && taken[1]) {
         return check_winner(g, f.oc);
     }
     f.active_prompts = SVec::new();
-    for p in 0..2 {
+    for p in next_turn_player_order(g) {
         let pl = &g.st.players[p];
         let has_active = !pl.slots[pl.active as usize].cards.is_empty();
         let has_bench = pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty());
@@ -250,8 +281,13 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
 pub fn resume(g: &mut Game, mut f: CheckFrame) -> R {
     match f.stage {
         CheckStage::AfterKo => {
-            finish_ko(g, &mut f);
+            f.ko_fxs.push(f.ko_fx);
+            f.idx += 1;
             ko_loop(g, f)
+        }
+        CheckStage::AfterRemove => {
+            finish_ko(g, &mut f);
+            remove_loop(g, f)
         }
         CheckStage::AfterBenchSize => after_bench_size(g, f),
         CheckStage::AfterPrize => prize_loop(g, f),
@@ -316,9 +352,17 @@ fn auto_take_prize_cards(g: &mut Game, p: usize, count: usize, destination: List
     take_specific_prizes(g, p, ix.as_slice(), destination, false)
 }
 
+/// The player whose turn would be next takes Prizes first and promotes first
+/// when both have Pokémon Knocked Out at the same time (rulings 754, 757).
+fn next_turn_player_order(g: &Game) -> [usize; 2] {
+    let next = if g.st.active_player == 0 { 1 } else { 0 };
+    [next, 1 - next]
+}
+
 fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32, ListRef), 4>> {
     let mut prompts = SVec::new();
-    for i in 0..2 {
+    let mut took_last_prize = false;
+    for i in next_turn_player_order(g) {
         let groups = f.groups[i];
         for gi in 0..groups.len() {
             let (dest, mut count) = *groups.get(gi).unwrap();
@@ -327,10 +371,13 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32, List
                 end_game(g, if i == 0 { WINNER_P1 } else { WINNER_P2 });
                 return Ok(SVec::new());
             }
+            // Taking the last Prize cards does not end the game here: every effect
+            // resolves and check_winner counts both players' win conditions
+            // (R7F-12; rulings 234, 820, 1403, 1584).
             if count >= left && left > 0 {
                 auto_take_prize_cards(g, i, left as usize, dest)?;
-                end_game(g, if i == 0 { WINNER_P1 } else { WINNER_P2 });
-                return Ok(SVec::new());
+                took_last_prize = true;
+                continue;
             }
             if count > 0 && opponent_has_no_pokemon_in_play(g, i) {
                 auto_take_prize_cards(g, i, count as usize, dest)?;
@@ -343,6 +390,9 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32, List
                 prompts.push((i as u8, count, dest));
             }
         }
+    }
+    if took_last_prize {
+        return Ok(SVec::new());
     }
     Ok(prompts)
 }
@@ -414,14 +464,17 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
     let mut points = [0; 2];
     for i in 0..2 {
         let pl = &g.st.players[i];
-        if pl.slots[pl.active as usize].cards.is_empty() {
+        // No Pokémon in play (an Active spot waiting for a promotion from the Bench is not a loss).
+        if pl.slots[pl.active as usize].cards.is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
             points[1 - i] += 1;
         }
         if pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty()) {
             points[i] += 1;
         }
     }
-    if points[0] > 0 && points[1] > 0 {
+    // Both players met a win condition at the same time: the one who met more wins; the same
+    // number of them means Sudden Death (R7F-12; rulings 234, 820, 1403).
+    if points[0] > 0 && points[1] > 0 && points[0] == points[1] {
         return initiate_sudden_death(g);
     }
     if points[0] + points[1] == 0 {
@@ -542,9 +595,22 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
             // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
             let a = g.st.players[p as usize].active;
             let n = g.st.slot(p as usize, a).attack_cost_increase_next_turn;
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(id) {
+            if let Effect::CheckAttackCost { cost, set_cost, ignore_colorless, .. } = g.e_mut(id) {
                 for _ in 0..n.max(0) {
                     cost.push(ct::COLORLESS);
+                }
+                // A cost that an effect set or ignored is final (R7F-11; rulings 147,
+                // 252, 1552, 1581, 1842): CheckAttackCostEffect.setCost / ignoreColorless.
+                if let Some(c) = *set_cost {
+                    *cost = c;
+                } else if *ignore_colorless {
+                    let mut v: Cost = SVec::new();
+                    for t in cost.iter() {
+                        if *t != ct::COLORLESS {
+                            v.push(*t);
+                        }
+                    }
+                    *cost = v;
                 }
             }
             Ok(())

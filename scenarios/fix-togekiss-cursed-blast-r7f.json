@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Dusknoir PRE 37",
+   "4 Togepi ASC 80",
+   "4 Togetic ASC 81",
+   "4 Togekiss ASC 82",
+   "36 Psychic Energy MEE"
+  ],
+  [
+   "4 Duskull PRE 35",
+   "4 Dusclops PRE 36",
+   "4 Dusknoir PRE 37",
+   "4 Togepi ASC 80",
+   "4 Togetic ASC 81",
+   "4 Togekiss ASC 82",
+   "36 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Duskull PRE 35",
+   "Dusclops PRE 36",
+   "Dusknoir PRE 37"
+  ],
+  "bench": [
+   {
+    "card": "Duskull PRE 35"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Togepi ASC 80",
+   "Togetic ASC 81",
+   "Togekiss ASC 82"
+  ],
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Togepi ASC 80"
+   }
+  ]
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

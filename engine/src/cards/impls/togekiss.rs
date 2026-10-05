@@ -3,11 +3,15 @@
 //! Knock Out (does not stack). Speed Wing - 140.
 //!
 //! Twinleaf: on a KnockOutEffect for the owner's Active, with this card in
-//! play on the other side, during the ATTACK phase of that other player,
-//! unless the Ability is blocked and the sourceless marker
-//! TOGEKISS_KNOCKOUT_FLIP isn't set: set the marker, flip (the KnockOutEffect
-//! is retained across the flip), `prizeCount += 1` on heads when it is > 0,
-//! then remove the marker.
+//! play on the other side, unless the Ability is blocked and the sourceless
+//! marker TOGEKISS_KNOCKOUT_FLIP isn't set: set the marker, flip (the
+//! KnockOutEffect is retained across the flip), `prizeCount += 1` on heads
+//! when it is > 0, then remove the marker.
+//!
+//! Fixed (phase 4b, R7F-1; rulings 1591, 1619, 1623): the handler used to
+//! require the ATTACK phase of Togekiss' owner, so a Knock Out by Poison or
+//! Burn in Pokémon Checkup, or by an Ability (Cursed Blast), took no extra
+//! Prize. Any Knock Out of the opponent's Active counts.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Togekiss@SSP|ASC", mask: mask(&[k::KNOCK_OUT]), reduce, resume: None, coin: Some(coin), can_play: None };
@@ -30,9 +34,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         pl.slots[pl.active as usize].cards.contains(me) || pl.bench.iter().any(|b| pl.slots[*b as usize].cards.contains(me))
     };
     if !in_play {
-        return Ok(());
-    }
-    if g.st.phase != GamePhase::Attack || g.st.active_player as usize != attacker {
         return Ok(());
     }
     if is_ability_blocked(g, attacker, me, None) {

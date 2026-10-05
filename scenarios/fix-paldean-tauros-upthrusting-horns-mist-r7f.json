@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Paldean Tauros SSP 39",
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Mist Energy TEF 161",
+   "20 Water Energy MEE",
+   "20 Grass Energy MEE"
+  ],
+  [
+   "4 Paldean Tauros SSP 39",
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Mist Energy TEF 161",
+   "20 Water Energy MEE",
+   "20 Grass Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Paldean Tauros SSP 39",
+  "active_energy": [
+   "2 Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Grookey TWM 14",
+   "Thwackey TWM 15",
+   "Rillaboom TWM 16"
+  ],
+  "active_energy": [
+   "Mist Energy TEF 161",
+   "Grass Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Grookey TWM 14"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Upthrusting Horns"
+  }
+ ]
+}

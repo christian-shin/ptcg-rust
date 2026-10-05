@@ -4,7 +4,9 @@
 //!
 //! Twinleaf: Tantrum reduces an AddSpecialConditionsEffect on
 //! `player.active`; Gutsy Swing empties the CheckAttackCostEffect cost when
-//! this card is the player's Active and it has any Special Condition.
+//! this card is the player's Active and it has any Special Condition. R7F-11
+//! (rulings 252, 1552): the cost is also marked as set, so an increase (Rillaboom's
+//! Drum Beating, ...) no longer adds a [C] back.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Conkeldurr", mask: mask(&[k::ATTACK, k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
@@ -32,8 +34,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             return Ok(());
         }
         if !g.st.slot(p, a).special_conditions.is_empty() {
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
+            if let Effect::CheckAttackCost { cost, set_cost, .. } = g.e_mut(e) {
                 cost.clear();
+                // "Ignore all Energy in this attack's cost": nothing is added to it
+                // later (R7F-11, ruling 252).
+                *set_cost = Some(SVec::new());
             }
         }
     }

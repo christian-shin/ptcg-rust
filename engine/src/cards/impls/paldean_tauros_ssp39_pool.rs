@@ -10,6 +10,11 @@
 //! Fixed (phase 4b, R2): the Energy was taken in the attack handler, before
 //! the damage (Spiky Energy on the Defending Pokémon was gone); it now runs in
 //! AfterAttackEffect.
+//!
+//! Fixed (phase 4b, R7F-8; ruling 1843): the Energy was moved with a plain
+//! MOVE_CARDS, so Mist Energy (or any effect that prevents the effects of
+//! attacks) on the Defending Pokémon did not stop it; it is now a
+//! CardsToHandEffect built from a fresh AttackEffect's data.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "PaldeanTaurosSSP39Pool", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -43,6 +48,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     f.a[0] = p as i32;
     f.a[1] = o as i32;
     f.a[2] = count as i32;
+    f.e[0] = e;
+    g.retain_fx(e);
     // The energy map is recomputed unchanged: nothing can alter the Defending
     // Pokémon between the Confirm prompt and its answer.
     confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
@@ -56,6 +63,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     match f.stage {
         1 => {
             if !first.as_bool() {
+                g.release_fx(f.e[0]);
                 return Ok(());
             }
             let a = g.st.players[o].active;
@@ -71,6 +79,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             let mut nf = CardFrame::at(2);
             nf.a[0] = p as i32;
             nf.a[1] = o as i32;
+            nf.e[0] = f.e[0];
             let id = g.player_id(p);
             g.prompt(id, "CHOOSE_ENERGIES_TO_HAND", PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Cont::Card { card: me, frame: nf });
             Ok(())
@@ -80,11 +89,25 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 Res::Energy(c) => c.as_slice().to_vec(),
                 _ => Vec::new(),
             };
-            if !cards.is_empty() {
+            let r = (|| -> R {
+                if cards.is_empty() {
+                    return Ok(());
+                }
+                let (p2, opp, attack, source) = match attack_data(g, f.e[0]) {
+                    Some(d) => d,
+                    None => return Ok(()),
+                };
                 let a = g.st.players[o].active;
-                move_cards(g, ListRef::Slot(o as u8, a), ListRef::Hand(o as u8), &cards, me)?;
-            }
-            Ok(())
+                let b = AtkBase { attack_effect: f.e[0], player: p2, opponent: opp, attack, source, target: SlotRef::new(o, a) };
+                let mut list = SVec::new();
+                for c in cards.iter() {
+                    list.push(*c);
+                }
+                g.run_fx(Effect::CardsToHand { b, cards: list })?;
+                Ok(())
+            })();
+            g.release_fx(f.e[0]);
+            r
         }
         _ => Ok(()),
     }

@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Kyurem SFA 47",
+   "4 Antique Root Fossil SCR 130",
+   "4 Colress's Tenacity SFA 57",
+   "24 Water Energy MEE",
+   "24 Metal Energy MEE"
+  ],
+  [
+   "4 Kyurem SFA 47",
+   "4 Antique Root Fossil SCR 130",
+   "4 Colress's Tenacity SFA 57",
+   "24 Water Energy MEE",
+   "24 Metal Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kyurem SFA 47",
+  "active_energy": [
+   "Water Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Kyurem SFA 47"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Antique Root Fossil SCR 130",
+  "discard": [
+   "Colress's Tenacity SFA 57"
+  ],
+  "bench": [
+   {
+    "card": "Kyurem SFA 47"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Trifrost"
+  }
+ ]
+}
