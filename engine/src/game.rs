@@ -435,7 +435,7 @@ impl Game {
                 b.attack_effect
             }
             Effect::DiscardCards { b, ref cards } | Effect::CardsToHand { b, ref cards } => {
-                if !cards.iter().all(|c| self.st.cdef(*c).is_energy()) {
+                if cards.is_empty() || !cards.iter().all(|c| self.st.cdef(*c).is_energy()) {
                     return false;
                 }
                 b.attack_effect

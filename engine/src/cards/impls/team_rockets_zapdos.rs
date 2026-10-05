@@ -73,21 +73,17 @@ fn resume_inner(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
     let p = f.a[0] as usize;
     let o = f.a[1] as usize;
     let first = results.first().copied().unwrap_or(Res::Null);
-    let atk = f.e[0];
     match f.stage {
         1 => {
             if !first.as_bool() {
-                g.release_fx(atk);
                 return Ok(());
             }
             let pl = &g.st.players[o];
             if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-                g.release_fx(atk);
                 return Ok(());
             }
             let a = pl.active;
             if !pl.slots[a as usize].cards.iter().any(|c| g.st.cdef(c).is_energy()) {
-                g.release_fx(atk);
                 return Ok(());
             }
             let n = g.st.slot(o, a).cards.len() as u8;
@@ -131,7 +127,6 @@ fn resume_inner(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 let b = AtkBase { attack_effect: f.e[0], player: p as u8, opponent: opp, attack, source, target: active };
                 g.run_fx(Effect::MoveOpponentEnergy { b, card: c, destination: target })?;
             }
-            g.release_fx(atk);
             Ok(())
         }
         _ => Ok(()),
