@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Armarouge SSP 34",
+   "4 Charcadet PFL 19",
+   "4 Duraludon PRE 69",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Armarouge SSP 34",
+   "4 Charcadet PFL 19",
+   "4 Duraludon PRE 69",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charcadet PFL 19",
+   "Armarouge SSP 34"
+  ],
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crimson Blaster"
+  }
+ ]
+}
