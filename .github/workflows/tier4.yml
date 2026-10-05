@@ -7,10 +7,9 @@
 # invariants. Any divergence, invariant violation, or oracle game ending in
 # error or stuck fails the run; failing traces are uploaded as artifacts.
 #
-# Continuous gate: a scheduled run every 30 minutes plays 2500 fresh games
-# (10 runners x 250, about half an hour; 10 runners stay free for other work). tools/tier4_ledger.py counts green
-# games per (main commit, Twinleaf oracle commit) across runs and downloads
-# failing traces; the gate is 100k games with 0 failures on the current code.
+# The 100k-game gate runs on the verification box (`tools/vbox.py tier4`,
+# `tools/vbox.py ledger`). tools/tier4_ledger.py still counts green games of
+# these runs per (main commit, Twinleaf oracle commit).
 name: tier4
 run-name: tier4 ${{ github.event_name }} ${{ inputs.games || github.sha }}
 
@@ -18,8 +17,6 @@ on:
   push:
     branches: [main]
     paths: ["engine/**", "tools/**", "data/**", "decks/**", "divergences.toml", ".github/workflows/tier4.yml"]
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       games:
@@ -36,8 +33,8 @@ on:
         default: "oracle"
 
 env:
-  GAMES: ${{ inputs.games || (github.event_name == 'schedule' && '2500') || '2000' }}
-  SHARDS: ${{ inputs.shards || (github.event_name == 'schedule' && '10') || '10' }}
+  GAMES: ${{ inputs.games || '2000' }}
+  SHARDS: ${{ inputs.shards || '10' }}
   TWINLEAF_REF: ${{ inputs.twinleaf_ref || 'oracle' }}
 
 jobs:

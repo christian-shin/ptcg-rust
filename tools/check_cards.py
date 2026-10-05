@@ -192,7 +192,8 @@ def main():
     ap.add_argument('--scenario', metavar='JSON',
                     help='board edits applied at a set turn in every game (oracle scenario.ts); may also give "decks"')
     ap.add_argument('--remote', type=int, default=0, metavar='SHARDS',
-                    help='play the oracle games on GitHub Actions across SHARDS runners (tools/remote_oracle.py)')
+                    help='play the oracle games remotely: on the verification box (tools/vbox.py; SHARDS is ignored), '
+                         'or with PTCG_REMOTE=actions on GitHub Actions across SHARDS runners (tools/remote_oracle.py)')
     args = ap.parse_args()
     args.targets = [names.twinleaf(t) for t in args.targets]   # English keys work too
     for t in args.targets:
