@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "10 Grass Energy MEE 1",
+   "10 Fire Energy MEE 2",
+   "10 Metal Energy MEE 8",
+   "10 Water Energy MEE 3"
+  ],
+  [
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "10 Grass Energy MEE 1",
+   "10 Fire Energy MEE 2",
+   "10 Metal Energy MEE 8",
+   "10 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dwebble DRI 11",
+   "Crustle DRI 12"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Piplup PFL 27",
+   "Prinplup BRS 36",
+   "Empoleon ex PFL 70"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Great Scissors"
+  }
+ ]
+}
