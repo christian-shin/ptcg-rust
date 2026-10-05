@@ -106,16 +106,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 let mut order: Vec<CardId> = vec![chosen];
                 order.extend(g.st.slot(tp, ts).cards.iter().filter(|c| *c != chosen));
                 g.st.players[tp].slots[ts as usize].cards = List::from_slice(&order);
-                // State kept on the card object moves with the Pokémon.
-                g.st.cards[chosen as usize].damage_taken_last_turn = g.st.cards[old as usize].damage_taken_last_turn;
-                g.st.cards[old as usize].damage_taken_last_turn = 0;
-                g.st.cards[chosen as usize].moved_to_active_this_turn = g.st.cards[old as usize].moved_to_active_this_turn;
-                g.st.cards[old as usize].moved_to_active_this_turn = false;
-                for id in g.st.players[p].moved_to_active_this_turn.as_mut_slice().iter_mut().chain(g.st.players[p].moved_from_active_to_bench_this_turn.as_mut_slice().iter_mut()) {
-                    if *id == old {
-                        *id = chosen;
-                    }
-                }
+                // State kept on the card object moves with the Pokémon (ruling 1840).
+                transfer_pokemon_card_state(g, p, old, chosen);
             } else {
                 move_cards(g, ListRef::Discard(pu), list, &[chosen], me)?;
             }

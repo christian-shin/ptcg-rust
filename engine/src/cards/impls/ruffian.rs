@@ -1,8 +1,10 @@
 //! Ruffian (JTG, supporter): discard a Pokémon Tool and a Special Energy
 //! from 1 of your opponent's Pokémon.
 //!
-//! Fixed (phase 4b #46): a target needs both a Tool and a Special Energy
-//! (Twinleaf accepted either); the effect is prevented and the Supporter is
+//! Phase 4b #46 made a target need both a Tool and a Special Energy; R7C (ruling 1610,
+//! "do as much as you can", ruling 1645, both from the same Pokémon): a target needs a
+//! Tool or a Special Energy and loses what it has; the card can't be played when no
+//! Pokémon has either. The effect is prevented and the Supporter is
 //! moved to the Supporter area first (as Rust Syndicate Grunt does), the prompt
 //! message is CHOOSE_POKEMON_TO_DISCARD_CARDS and CLEAN_UP_SUPPORTER discards
 //! the Supporter when the prompts finish. Targets without a Special Energy and
@@ -27,10 +29,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let mut blocked = TargetList::new();
     for (s, _, t) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
         let slot = g.st.slot(o, s);
+        // The Tool and the Special Energy come from the same Pokémon (ruling 1645); if it only has
+        // one of them, do as much as you can (ruling 1610, Megaton Blower).
         if slot.energies.iter().any(|c| {
             let d = g.st.cdef(c);
             d.is_energy() && d.energy_type == EnergyType::Special as u8
-        }) && slot.tools.iter().any(|c| {
+        }) || slot.tools.iter().any(|c| {
             let d = g.st.cdef(c);
             d.is_trainer() && d.trainer_type == TrainerType::Tool as u8
         }) {

@@ -70,6 +70,8 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                 if let Some(s) = slot {
                     move_cards(g, ListRef::Deck(p as u8), ListRef::Slot(p as u8, s), &[c], me)?;
                     move_cards(g, ListRef::Slot(p as u8, s), ListRef::Deck(p as u8), &[me], me)?;
+                    // It is the same Pokémon (ruling 1840): the state kept on the card object moves to the Palafin ex.
+                    transfer_pokemon_card_state(g, p, me, c);
                 }
             }
             let id = g.player_id(p);
