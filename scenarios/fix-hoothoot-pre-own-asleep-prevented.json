@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Exeggcute 30C 1",
+   "4 Hoothoot PRE 77",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Exeggcute 30C 1",
+   "4 Hoothoot PRE 77",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Exeggcute 30C 1",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot PRE 77"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hypnosis"
+  }
+ ]
+}
