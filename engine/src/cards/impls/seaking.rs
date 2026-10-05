@@ -21,9 +21,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if is_ability_blocked(g, p, me, None) {
         // Fixed (phase 4b, R2): a blocked Ability clears the flag set by an
         // earlier use (it used to keep it, so the attack was used twice).
-        let inst = &mut g.st.cards[me as usize];
-        inst.attack_barrage &= !1;
-        inst.attack_barrage_shown |= 1;
+        crate::copy_attack::write_barrage(g, me, |b, shown| {
+            *b &= !1;
+            *shown |= 1;
+        });
     } else {
         super::dipplin_twm::festival_lead(g, p, me, false);
     }

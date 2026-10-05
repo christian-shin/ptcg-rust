@@ -27,17 +27,18 @@ pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool)
 /// The write of `festival_lead` once the Ability is known not to be blocked.
 fn set_festival_flag(g: &mut Game, me: CardId, pristine_has_key: bool) {
     let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
-    let inst = &mut g.st.cards[me as usize];
-    if fg {
-        inst.attack_barrage |= 1;
-    } else {
-        inst.attack_barrage &= !1;
-    }
-    if fg || !pristine_has_key {
-        inst.attack_barrage_shown |= 1;
-    } else {
-        inst.attack_barrage_shown &= !1;
-    }
+    crate::copy_attack::write_barrage(g, me, |b, shown| {
+        if fg {
+            *b |= 1;
+        } else {
+            *b &= !1;
+        }
+        if fg || !pristine_has_key {
+            *shown |= 1;
+        } else {
+            *shown &= !1;
+        }
+    });
 }
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
@@ -57,9 +58,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     if is_ability_blocked(g, p, me, None) {
         // Blocked: the flag is switched off (printed `barrage: false`).
-        let inst = &mut g.st.cards[me as usize];
-        inst.attack_barrage &= !1;
-        inst.attack_barrage_shown &= !1;
+        crate::copy_attack::write_barrage(g, me, |b, shown| {
+            *b &= !1;
+            *shown &= !1;
+        });
     } else {
         set_festival_flag(g, me, true);
     }

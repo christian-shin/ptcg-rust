@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mew ex 30C 66",
+   "4 Goldeen PRE 20",
+   "4 Seaking PRE 21",
+   "4 Festival Grounds PRE 108",
+   "40 Water Energy MEE 3",
+   "4 Psychic Energy MEE"
+  ],
+  [
+   "4 Mew ex 30C 66",
+   "4 Goldeen PRE 20",
+   "4 Seaking PRE 21",
+   "4 Festival Grounds PRE 108",
+   "40 Water Energy MEE 3",
+   "4 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "2 Psychic Energy MEE",
+   "2 Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Goldeen PRE 20",
+     "Seaking PRE 21"
+    ],
+    "energy": [
+     "Water Energy MEE 3"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Goldeen PRE 20",
+   "Seaking PRE 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Memory Helix",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "index": 0,
+   "attack": "Rapid Draw"
+  }
+ ]
+}

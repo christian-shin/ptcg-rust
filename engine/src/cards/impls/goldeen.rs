@@ -27,15 +27,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     // Festival Lead: `barrage = Ability works && Festival Grounds in play`, written on every use.
     let blocked = is_ability_blocked(g, p, me, None);
     let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
-    {
-        let inst = &mut g.st.cards[me as usize];
+    crate::copy_attack::write_barrage(g, me, |b, shown| {
         if !blocked && fg {
-            inst.attack_barrage |= 1;
+            *b |= 1;
         } else {
-            inst.attack_barrage &= !1;
+            *b &= !1;
         }
-        inst.attack_barrage_shown |= 1;
-    }
+        *shown |= 1;
+    });
     let oa = g.st.players[opp].active;
     if !g.st.slot(opp, oa).cards.iter().any(|c| g.st.cdef(c).is_energy()) {
         return Ok(());

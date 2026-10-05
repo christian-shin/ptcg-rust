@@ -52,6 +52,10 @@ pub struct CopySession {
     /// Player index (Twinleaf stores the id).
     pub player: u8,
     pub end_turns: i8,
+    /// Runtime `barrage` flags of the cloned attacks (bit per index): the
+    /// clones copy the source's flags at `cloneAttacks`; delegated
+    /// `this.attacks[i].barrage = ...` writes land here, not on the copycat.
+    pub barrage: u8,
 }
 
 /// Source code currently running as `.call(copycat)`.
@@ -149,7 +153,7 @@ fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: 
     g.copy_sessions.retain(|s| s.copycat != copycat);
     g.copy_serial = g.copy_serial.wrapping_add(1);
     let serial = g.copy_serial;
-    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, end_turns: END_TURN_BUDGET });
+    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, end_turns: END_TURN_BUDGET, barrage: g.st.cards[source as usize].attack_barrage });
     let clone = clone_ref(source, serial, index);
     g.st.player_last_attack[p] = Some((clone, copycat));
     g.st.player_last_attack_turn[p] = g.st.turn;
@@ -674,4 +678,24 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
         // A wait item fired: continue after the stage that suspended.
         _ => next_stage(g, f),
     }
+}
+
+/// A runtime write `this.attacks[i].barrage = ...` by card code running as
+/// `me`. While delegated source code runs with the clones installed as the
+/// copycat's `attacks`, the write lands on the clone (the session's flags);
+/// otherwise on `me`'s own attack (`attack_barrage`, shown in the canonical
+/// state through `attack_barrage_shown`). `f(barrage, shown)` edits the
+/// target's flag bits; the clone has no canonical `shown` bit.
+pub fn write_barrage(g: &mut Game, me: CardId, f: impl FnOnce(&mut u8, &mut u8)) {
+    if let Some(d) = g.deleg {
+        if d.copycat == me && d.attacks {
+            if let Some(s) = g.copy_sessions.as_mut_slice().iter_mut().find(|x| x.copycat == d.copycat && x.serial == d.serial) {
+                let mut dummy = 0u8;
+                f(&mut s.barrage, &mut dummy);
+            }
+            return;
+        }
+    }
+    let inst = &mut g.st.cards[me as usize];
+    f(&mut inst.attack_barrage, &mut inst.attack_barrage_shown);
 }

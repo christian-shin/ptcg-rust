@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Goldeen PRE 20",
+   "4 Seaking PRE 21",
+   "4 Festival Grounds PRE 108",
+   "40 Water Energy MEE 3",
+   "4 Darkness Energy MEE"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Goldeen PRE 20",
+   "4 Seaking PRE 21",
+   "4 Festival Grounds PRE 108",
+   "40 Water Energy MEE 3",
+   "4 Darkness Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Clefable ASC 75",
+  "active_energy": [
+   "3 Darkness Energy MEE"
+  ],
+  "stadium": "Festival Grounds PRE 108"
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Goldeen PRE 20",
+   "Seaking PRE 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  }
+ ]
+}

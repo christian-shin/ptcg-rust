@@ -21,7 +21,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             if let Effect::UseAttack { attack, .. } = *g.e(e) {
-                g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
+                // A copy-attack clone carries its own flag (nothing reads it).
+                if !attack.is_clone() {
+                    g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
+                }
             }
         }
         return Ok(());

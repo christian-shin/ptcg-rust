@@ -227,6 +227,13 @@ fn after_attack(g: &mut Game, mut f: AttackFrame) -> R {
 /// `attack.barrage`: the printed flag or a runtime write by the card
 /// (`this.attacks[i].barrage = ...`, e.g. Festival Lead).
 pub fn attack_barrage(g: &Game, a: AttackRef) -> bool {
+    if a.is_clone() {
+        // The clone's own flag (`cloneAttacks` copy, plus delegated writes).
+        let bit = 1u8 << a.idx();
+        let serial = (a.index >> 4) & 7;
+        return attack_def(g, a).barrage
+            || g.copy_sessions.as_slice().iter().any(|s| s.source == a.card && s.serial & 7 == serial && s.barrage & bit != 0);
+    }
     attack_def(g, a).barrage || g.st.cards[a.card as usize].attack_barrage & (1u8 << a.idx()) != 0
 }
 

@@ -29,7 +29,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             // `effect.attack.shredAttack = true` (a per-card attack object write).
-            if !g.st.cdef(attack.card).attacks[attack.idx()].shred_attack {
+            // A copy-attack clone carries its own flag (nothing reads it).
+            if !attack.is_clone() && !g.st.cdef(attack.card).attacks[attack.idx()].shred_attack {
                 g.st.cards[attack.card as usize].attack_shred |= 1u8 << attack.idx();
             }
             super::mega_lopunnyex::shred(g, e, damage)?;
