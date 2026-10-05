@@ -1,0 +1,29 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Boxed Order TEF 143",
+   "4 Mankey SSP 98",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "4 Boxed Order TEF 143",
+   "4 Mankey SSP 98",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "hand": [
+   "Boxed Order TEF 143"
+  ],
+  "discard": [
+   "52 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}

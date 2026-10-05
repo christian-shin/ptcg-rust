@@ -1,0 +1,26 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Cook TWM 147",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Cook TWM 147",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mankey SSP 98",
+  "hand": [
+   "Cook TWM 147"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mankey SSP 98"
+ }
+}

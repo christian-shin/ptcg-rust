@@ -3,6 +3,7 @@
 //!
 //! Twinleaf: the card moves itself to the supporter pile, then to the discard
 //! when the prompt is answered; chosen Items are discarded one MOVE_CARDS each.
+//! Fixed (phase 4b, R3): min 1 when the opponent's hand holds an Item (it was 0).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Eri", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -21,7 +22,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let mut f = CardFrame::at(1);
     f.a[0] = p as i32;
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Item as u8), ..Filter::none() };
-    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(o as u8), filter, ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: f });
+    // Fixed (phase 4b, R3): when the opponent's hand holds an Item, at least 1 must be
+    // discarded (Rulings Compendium 1844: a Supporter can't choose to discard zero).
+    let has_item = g.st.players[o].hand.iter().any(|c| {
+        let d = g.st.cdef(c);
+        d.is_trainer() && d.trainer_type == TrainerType::Item as u8
+    });
+    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(o as u8), filter, ChooseCardsOpts::new(if has_item { 1 } else { 0 }, 2, false), Cont::Card { card: me, frame: f });
     Ok(())
 }
 

@@ -281,6 +281,22 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         // other next-turn protections: not modeled.
     }
     for s in g.st.players[p].in_play().iter() {
+        // Phase 4b (R3): "This Pokémon can't use [attack]" only locks an attack the Pokémon
+        // has; a Pokémon that copied the attack (Slowking's Seek Inspiration, Metronome) used
+        // its own attack, so the copy doesn't lock the copied name (Rulings Compendium 1654).
+        // TS: `cannotUseAttacksNextTurnPending.filter(name => cards.some(attacks has name))`.
+        let mut owned: SVec<&'static str, 4> = SVec::new();
+        {
+            let sl = &g.st.players[p].slots[*s as usize];
+            for n in sl.cannot_use_attacks_next_turn_pending.iter() {
+                if sl.cards.iter().any(|c| {
+                    let d = g.st.cdef(c);
+                    d.is_pokemon() && d.attacks.iter().any(|x| x.name == *n)
+                }) {
+                    owned.push(*n);
+                }
+            }
+        }
         let slot = &mut g.st.players[p].slots[*s as usize];
         if slot.prevent_damage_next_turn_pending {
             slot.prevent_damage_next_turn = true;
@@ -314,7 +330,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.cannot_attack_next_turn_pending = false;
         }
         if !slot.cannot_use_attacks_next_turn_pending.is_empty() {
-            slot.cannot_use_attacks_next_turn = slot.cannot_use_attacks_next_turn_pending;
+            slot.cannot_use_attacks_next_turn = owned;
             slot.cannot_use_attacks_next_turn_pending.clear();
         }
         if slot.attack_damage_reduction_next_turn > 0 {
