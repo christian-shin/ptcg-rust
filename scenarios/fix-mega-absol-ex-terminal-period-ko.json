@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Absol ex MEG 86",
+   "4 Duraludon PRE 69",
+   "4 Mist Energy TEF 161",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Mega Absol ex MEG 86",
+   "4 Duraludon PRE 69",
+   "4 Mist Energy TEF 161",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Absol ex MEG 86",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_damage": 60
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Terminal Period"
+  }
+ ]
+}
