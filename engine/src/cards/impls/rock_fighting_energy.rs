@@ -8,44 +8,13 @@
 //! unless it is ApplyWeakness / PutDamage / DealDamage, when its source slot
 //! belongs to the target owner's opponent and holds a Pokémon; the
 //! special-energy block probe runs first, for the target owner's opponent.
+use super::shuppet::HIDE_N_SNEAK_KINDS;
 use crate::cards::prelude::*;
 use crate::effects::EnergyEntry;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "RockFightingEnergy",
-    mask: mask(&[
-        k::CHECK_PROVIDED_ENERGY,
-        k::APPLY_WEAKNESS,
-        k::DEAL_DAMAGE,
-        k::PUT_DAMAGE,
-        k::AFTER_DAMAGE,
-        k::PUT_COUNTERS,
-        k::KNOCK_OUT_OPPONENT,
-        k::KNOCK_OUT_PLAYER,
-        k::DISCARD_CARDS,
-        k::CARDS_TO_HAND,
-        k::GUST_OPPONENT_BENCH,
-        k::ADD_MARKER,
-        k::ADD_SPECIAL_CONDITIONS,
-        k::REMOVE_SPECIAL_CONDITIONS,
-        k::HEAL_TARGET,
-        k::PLAY_LOCK,
-        k::PREVENT_RETREAT,
-        k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE,
-        k::MOVE_OPPONENT_ENERGY,
-        k::REDUCE_DAMAGE,
-        k::SWITCH_OUT_OPPONENTS_ACTIVE,
-        k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
-        k::SELF_PREVENT_RETREAT,
-        k::DISCARD_ATTACKER_ENERGY_IF_KO,
-        k::PREVENT_DAMAGE,
-        k::PREVENT_EFFECTS_OF_ATTACKS,
-        k::THIS_POKEMON_HAS_NO_WEAKNESS,
-        k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN,
-        k::RETALIATE_ON_DAMAGE,
-        k::RETALIATE_DAMAGE,
-        k::MOVE_COUNTERS,
-    ]),
+    mask: mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::CHECK_PROVIDED_ENERGY])),
     reduce,
     resume: None,
     coin: None,

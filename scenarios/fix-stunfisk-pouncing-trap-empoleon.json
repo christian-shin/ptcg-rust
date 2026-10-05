@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Stunfisk ASC 62",
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Stunfisk ASC 62",
+   "4 Piplup PFL 27",
+   "4 Prinplup BRS 36",
+   "4 Empoleon ex PFL 70",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Stunfisk ASC 62",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Piplup PFL 27",
+   "Prinplup BRS 36",
+   "Empoleon ex PFL 70"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  }
+ ]
+}

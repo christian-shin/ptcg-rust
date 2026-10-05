@@ -7,45 +7,13 @@
 //! marker is prevented when its player does not own the target and the
 //! source's top Pokémon is an ex. The markers are cleared at the end of the
 //! turn of the player holding the clear marker (the opponent).
+use super::shuppet::HIDE_N_SNEAK_KINDS;
 use crate::cards::prelude::*;
 use crate::marker;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "AcerolasMischief",
-    mask: mask(&[
-        k::TRAINER,
-        k::END_TURN,
-        k::APPLY_WEAKNESS,
-        k::DEAL_DAMAGE,
-        k::PUT_DAMAGE,
-        k::AFTER_DAMAGE,
-        k::PUT_COUNTERS,
-        k::KNOCK_OUT_OPPONENT,
-        k::KNOCK_OUT_PLAYER,
-        k::DISCARD_CARDS,
-        k::CARDS_TO_HAND,
-        k::GUST_OPPONENT_BENCH,
-        k::ADD_MARKER,
-        k::ADD_SPECIAL_CONDITIONS,
-        k::REMOVE_SPECIAL_CONDITIONS,
-        k::HEAL_TARGET,
-        k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE,
-        k::PLAY_LOCK,
-        k::PREVENT_RETREAT,
-        k::MOVE_OPPONENT_ENERGY,
-        k::REDUCE_DAMAGE,
-        k::SWITCH_OUT_OPPONENTS_ACTIVE,
-        k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
-        k::SELF_PREVENT_RETREAT,
-        k::DISCARD_ATTACKER_ENERGY_IF_KO,
-        k::PREVENT_DAMAGE,
-        k::PREVENT_EFFECTS_OF_ATTACKS,
-        k::THIS_POKEMON_HAS_NO_WEAKNESS,
-        k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN,
-        k::RETALIATE_ON_DAMAGE,
-        k::RETALIATE_DAMAGE,
-        k::MOVE_COUNTERS,
-    ]),
+    mask: mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::TRAINER, k::END_TURN])),
     reduce,
     resume: Some(resume),
     coin: None,
