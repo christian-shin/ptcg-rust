@@ -1,9 +1,11 @@
-"""Run oracle games on GitHub Actions (.github/workflows/oracle.yml).
+"""Run oracle games remotely: on the verification box (tools/vbox.py) by
+default, or on GitHub Actions (.github/workflows/oracle.yml) with
+PTCG_REMOTE=actions.
 
 usage: remote_oracle.py <spec.json> <out_dir> [--start S] [--count N] [--shards K]
                         [--cov-files "sets/a.ts sets/b.ts"] [--tag T] [--ref BRANCH]
 
-Dispatches the workflow with the gzip+base64 spec, waits for it, downloads
+On Actions: dispatches the workflow with the gzip+base64 spec, waits for it, downloads
 every shard's artifact and merges the traces into <out_dir> (coverage
 snapshots, if requested, into <out_dir>/cov). The spec must fit in a
 workflow input (~60 KB compressed; corpus specs are a few KB).
@@ -21,6 +23,11 @@ def gh(*args, capture=True):
 
 
 def run(spec_path, out, start=0, count=64, shards=8, cov_files='', tag='run', ref='oracle'):
+    if os.environ.get('PTCG_REMOTE', 'vbox') != 'actions':
+        # The verification box plays the local oracle tree (PTCG_ORACLE, or the
+        # Twinleaf worktree of PTCG_ORACLE_REF): no branch push needed.
+        import vbox
+        return vbox.run_oracle(spec_path, out, start=start, count=count, cov_files=cov_files, tag=tag)
     spec = json.load(open(spec_path))
     b64 = base64.b64encode(gzip.compress(json.dumps(spec, separators=(',', ':')).encode())).decode()
     if len(b64) > 60000:
