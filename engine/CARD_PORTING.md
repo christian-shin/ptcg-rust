@@ -499,6 +499,11 @@ The tracked list is `porting/twinleaf-fixes.md`.
    `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH` / `_INTO_HAND` do that
    themselves during the ATTACK phase (they still throw for Abilities and
    Trainers: an empty deck or a full Bench is public knowledge, ruling 779).
+   An Ability, unlike an attack, can't be used for no effect (rulings 12, 244,
+   1783): throw CANNOT_USE_POWER when the effect can't happen for a reason
+   everyone knows (empty deck for a search or a draw, full opposing Bench for
+   "put onto your opponent's Bench" (rulings 46, 70, 1634), an empty hand, no Energy
+   to move); a search whose deck may hold no valid card is still usable.
    Choice sizes (rulings 1721, 1778, 1853): "up to N" in an attack takes 0..N;
    in an Ability or a Trainer it takes 1..N (decline = don't use it); "any
    number / any amount" takes 0 anywhere; "N" is exactly N (or as many as
