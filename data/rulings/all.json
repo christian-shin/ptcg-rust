@@ -607,7 +607,7 @@
    "Abilities » CURE"
   ],
   "q": "",
-  "a": "",
+  "a": "Unown's \"CURE\" Poke-POWER should read, \"Once during your turn, when you put Unown from your hand onto your Bench, you may remove all Special Conditions from your Active Pokémon.\" Use of this Poke-POWER is optional.",
   "source": "TPCi Announcement (2011-04-11), PUI Rules Team (2011-05-05)",
   "n": 57
  },
@@ -1026,7 +1026,7 @@
    "Abilities » Energy Grace"
   ],
   "q": "",
-  "a": "",
+  "a": "The correct order for Milotic's \"Energy Grace\" Ability should be this: 1) Attach 3 basic Energy cards from your discard pile to 1 of your Pokemon (excluding Pokemon-EX), 2) Milotic is Knocked Out. That means you cannot use \"Energy Grace\" if you have no basic Energy in your discard pile, and you can't use \"Energy Grace\" to get back any Energy that are attached to Milotic.",
   "source": "TPCi Rules Team (2018-03-08)",
   "n": 98
  },
@@ -1375,7 +1375,7 @@
    "Abilities » Gale Wings"
   ],
   "q": "",
-  "a": "",
+  "a": "Talonflame's \"Gale Wings\" Ability says if it's in your hand when you are setting up to play, you may put it face down as your Active Pokemon. If your opening hand has no Basics but you do have Talonflame, you can choose to put it out as your Active OR show you have no basics and mulligan... YOU DECIDE.",
   "source": "Steam Siege FAQ (2016-08-04), TPCi Rules Team (2016-08-04)",
   "n": 132
  },
@@ -2683,7 +2683,7 @@
    "Abilities » Tool Concealment"
   ],
   "q": "",
-  "a": "",
+  "a": "Banette's \"Tool Concealment\" ability means Pokemon Tool cards simply have no effect. They are still considered as Items and Pokemon Tool cards, so \"Garbotoxin\" still works, \"Startling Megaphone\" would be able to remove them, etc.",
   "source": "Roaring Skies FAQ (2015-05-07), TPCi Rules Team (2015-05-07)",
   "n": 259
  },
@@ -3081,7 +3081,7 @@
    "Attacks » *Attacks in General"
   ],
   "q": "",
-  "a": "",
+  "a": "Once you have declared an attack, you cannot leave the attack step without your opponent's permission. If you declare an \"illegal\" attack (e.g., you don't have the proper energy required to perform the attack), you may ask your opponent's permission to back out of the attack step. If he or she says \"yes\", you can go back and take any actions that you could have taken prior to the attack step. If he or she says \"no\", you may either select an attack that is legal or you may pass.",
   "source": "Organized Play Announcement (2007-03-14), PUI Rules Team (2007-03-15)",
   "n": 298
  },
@@ -3091,7 +3091,7 @@
    "Attacks » *Attacks in General"
   ],
   "q": "",
-  "a": "",
+  "a": "It has been ruled that W/R does not apply to the bench unless specifically mandated by the card. Period. That is a meta-game rule. It was never intended that the W/R would apply to the bench unless specifically stated. Yes we do know that some Pokemon say not to apply W/R to the Bench. [But] if it doesn't say then you wouldn't apply Weakness and Resistance (the default for benched Pokemon is to NOT apply Weakness and Resistance). This has been verified.",
   "source": "WotC Chat (2001-05-03)",
   "n": 299
  },
@@ -3101,7 +3101,7 @@
    "Attacks » *Attacks in General"
   ],
   "q": "",
-  "a": "",
+  "a": "Damage effects applied by the attacker (i.e. Nidoking's \"Power Gene\" adding +10 to Nidoqueen) are handled before weakness and resistance. Damage effects applied by the Defending Pokémon are handled after weakness and resistance.",
   "source": "PUI Rules Team (2004-09-23)",
   "n": 300
  },
@@ -3111,7 +3111,7 @@
    "Attacks » *Attacks in General"
   ],
   "q": "",
-  "a": "",
+  "a": "ANY Pokemon attack or Power that can only be used once per turn, is reset if that Pokemon evolves or devolves or leaves play and that power or attack could be used again if that Pokemon came into play again that same turn. The \"can't use this attack next turn\" sets up a status effect that can be ended through the normal means: benching, leaving play, evolving or devolving. With Pokemon Powers though, you can't get around the once per turn by benching. Benching a Pokemon does NOT get around these effects as they are still the same Pokemon and still in play. [Ed.Note: This does not apply to Tentacool Lv.10 (Fossil) which specifically states in the text of the power that it cannot be used on the same turn it comes into play.]",
   "source": "WotC Chat (2001-09-27), WotC Chat (2002-02-14), WotC Chat (2002-05-23)",
   "n": 301
  },
@@ -3191,7 +3191,7 @@
    "Attacks » *Attacks in General"
   ],
   "q": "",
-  "a": "",
+  "a": "If an attack has an *optional* effect triggered by a discard, a Pokémon copying that attack must be able to do that discard in order to get the additional effect; if they cannot perform the optional discard, it still gets the base effect and damage.",
   "source": "PUI Rules Team (2007-03-15)",
   "n": 309
  },
@@ -3692,7 +3692,7 @@
    "Attacks » Crystal Ray"
   ],
   "q": "",
-  "a": "",
+  "a": "Glaceon-EX's \"Crystal Ray\" attack makes it immune to damage done by attacks from \"Evolution Pokemon\". This is a new term that means any Pokemon that is an evolution card. So a Stage 1 Frogadier brought to the Bench by \"Water Duplicates\" would be affected by this. Basic Pokemon and Restored Pokemon are not affected.",
   "source": "Fates Collide FAQ (2016-05-05), TPCi Rules Team (2016-05-05)",
   "n": 358
  },
@@ -6185,7 +6185,7 @@
    "Energy » *Energy Cards In General"
   ],
   "q": "",
-  "a": "",
+  "a": "A Special Energy Card remains a Special Energy card regardless of what happens to it. A Fire Burned Rainbow Energy may only produce Fire energy but it would still be considered a Special Energy card as well.",
   "source": "WotC Chat (2002-02-14)",
   "n": 604
  },
@@ -6195,7 +6195,7 @@
    "Energy » *Energy Cards In General"
   ],
   "q": "",
-  "a": "",
+  "a": "Any card that provides Energy is considered an Energy card of the type it provides. So if you were to Energy Burn a DCE, it counts as a Fire Energy card that provides 2 fire Energy until the end of the turn. So it could be Gathered by Team Rocket Charmander but would only provide 1 coin flip for the Continuous Fireball attack on Dark Charizard.",
   "source": "WotC Chat (2000-07-06)",
   "n": 605
  },
@@ -6205,7 +6205,7 @@
    "Energy » *Energy Cards In General"
   ],
   "q": "",
-  "a": "",
+  "a": "If a card gives off Energy of any type then that card COUNTS as an Energy card of that type. This means a Buzzap'd Electrode that was chosen to give 2 Grass Energy COUNTS as a Grass Energy Card and can be Energy Transferred by Venusaur's Pokémon Power.",
   "source": "WotC Chat (2000-03-30)",
   "n": 606
  },
@@ -6215,7 +6215,7 @@
    "Energy » *Energy Cards In General"
   ],
   "q": "",
-  "a": "",
+  "a": "Most Special Energy cards that provide a particular energy type do not provide that type when it is in the deck, the discard pile, or in your hand. Please read the text of the Special Energy card for clarification.",
   "source": "TPCi Rules Team (2017-07-06)",
   "n": 607
  },
@@ -6225,7 +6225,7 @@
    "Energy » *Energy Cards In General"
   ],
   "q": "",
-  "a": "",
+  "a": "The [default or normal] amount of energy an Energy card provides is equal to the number of energy symbols in the upper right or left corner of the card, regardless of how many different types of energy is provided.",
   "source": "PUI Rules Team (2004-04-08)",
   "n": 608
  },
@@ -6245,7 +6245,7 @@
    "Energy » Aurora Energy"
   ],
   "q": "",
-  "a": "",
+  "a": "The discard cost on Aurora Energy only applies when attaching the card from your hand. If you attach it from somewhere else, you don't have to discard a card from your hand.",
   "source": "Sword & Shield FAQ (2020-01-24), TPCi Rules Team (2020-02-06)",
   "n": 610
  },
@@ -6497,7 +6497,7 @@
    "Errata » Shield Energy"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Shield Energy is now as follows, \"This card can only be attached to {M} Pokémon. This card provides {M} Energy only while this card is attached to a {M} Pokémon. Any damage done to the {M} Pokémon this card is attached to by an opponent's attack is reduced by 10 (after applying Weakness and Resistance). (If this card is attached to anything other than a {M} Pokémon, discard this card.)\". Damage should be reduced *after* applying Weakness and Resistance. Templating changed to reflect the reduction of damage being taken.",
   "source": "TPCi Announcement (2015-04-24), TPCi Rules Team (2015-05-07)",
   "n": 635
  },
@@ -6589,7 +6589,7 @@
    "Errata » Ascension"
   ],
   "q": "",
-  "a": "",
+  "a": "EX Hidden Legends Feebas is receiving errata for its \"Ascension\" attack to bring it in line with the Japanese version of the card. It should read, \"Flip a coin. If heads, search your deck for a card that evolves from Feebas and put it on Feebas. (This counts as evolving Feebas.) Shuffle your deck afterward.\" Please note that this only affects Feebas; Vulpix's \"Ascension\" attack does not require a coin flip.",
   "source": "PUI Rules Team (2004-07-22)",
   "n": 644
  },
@@ -6599,7 +6599,7 @@
    "Errata » Balloon Berry"
   ],
   "q": "",
-  "a": "",
+  "a": "In the Japanese card, there is a text saying \"If Balloon Berry is attached to one of your Pokémon, the Pokémon.'s retreat cost is 0\". So, you should play Balloon Berry as if it negates the Pokémon's retreat cost while attached to that Pokémon, not just when it actually attempts to retreat. For example, Muk-EX's \"Slimy Water\" attack damage will be reduced to only 40 against a Pokémon with Balloon Berry attached to it.",
   "source": "PUI Rules Team (2003-11-13)",
   "n": 645
  },
@@ -6609,7 +6609,7 @@
    "Errata » Blaze Roar"
   ],
   "q": "",
-  "a": "",
+  "a": "Entei's \"Blaze Roar\" attack should say \"discard 2 Fire Energy CARDS\" rather than just \"discard 2 Fire Energy\".",
   "source": "Organized Play News (2007-11-16)",
   "n": 646
  },
@@ -6619,7 +6619,7 @@
    "Errata » Brick Smash"
   ],
   "q": "",
-  "a": "",
+  "a": "EX Hidden Legends Machamp is receiving errata for its \"Brick Smash\" attack to bring it in line with the Japanese version of the card. Weakness should be applied to the damage that Machamp deals. It should read, \"This attack's damage isn't affected by Resistance, Poké-Powers, Poké-Bodies, or any other effects on the Defending Pokémon.\"",
   "source": "World Championships Announcements (2004-08-21)",
   "n": 647
  },
@@ -6629,7 +6629,7 @@
    "Errata » Buffer"
   ],
   "q": "",
-  "a": "",
+  "a": "The Poké-BODY \"Buffer\" found on Hoppip, Skiploom, and Jumpluff should read, \"If Hoppip/Skiploom/Jumpluff would be Knocked Out by damage from an opponent's attack, flip a coin...\". So only attacks that do damage (not \"place counters\") would cause Buffer to be invoked.",
   "source": "PUI Announcement (2005-04-05), PUI Rules Team (2005-04-07)",
   "n": 648
  },
@@ -6640,7 +6640,7 @@
    "Abilities » Buzzap Thunder"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to an error in the card text for Electrode's \"Buzzap Thunder\" Ability, the text on this card will be changed. The original text for this Ability says, \"Once during your turn (before your attack), you may Knock Out this Pokémon and attach it to one of your Lightning-type Pokémon as a Special Energy card. This card provides 2 Lightning Energy only while this card is attached to a Lightning-type Pokémon.\" The original intention of this Ability was for Electrode to provide 2 Lightning Energy as long as it's attached to any Pokémon, not just a Lightning-type Pokémon. The new text will say, \"Once during your turn (before your attack), you may Knock Out this Pokémon and attach it to one of your Lightning-type Pokémon as a Special Energy card. This card provides 2 Lightning Energy only while this card is attached to a Pokémon.\" Effective immediately, Electrode's Buzzap Thunder Ability will use this updated text instead of the original text.",
   "source": "Organized Play News (2017-01-19)",
   "n": 649
  },
@@ -6650,7 +6650,7 @@
    "Errata » Craggy Face"
   ],
   "q": "",
-  "a": "",
+  "a": "Some abilities referring to \"Stage 2 Evolved Pokémon\" are receiving errata. These cards do not care if the Pokémon is evolved or not, only if it is a Stage 2 Pokémon. So, Stage 2 Pokémon put into play with abilities like Garchomp LV.X's \"Restore\" attack still count for these abilities. Glalie's correct card text should read: \"(Poké-Body) Craggy Face - As long as Glalie is your Active Pokémon, any damage done by attacks from your opponent's Stage 2 Pokémon is reduced by 20 (after applying Weakness and Resistance)\".",
   "source": "Organized Play News (2009-05-01), PUI Rules Team (2009-05-07)",
   "n": 650
  },
@@ -6660,7 +6660,7 @@
    "Errata » Crush and Burn"
   ],
   "q": "",
-  "a": "",
+  "a": "Electrode-EX's \"Crush and Burn\" attack does extra damage based on the number of Energy cards discarded, not the amount of Energy provided. Official Wording: You may discard as many Energy cards as you like attached to your Pokémon in play. If you do, this attack does 30 damage plus 20 more damage for each Energy card you discarded.",
   "source": "PUI Announcement (2004-12-16)",
   "n": 651
  },
@@ -6671,7 +6671,7 @@
    "Trainers » Cyrus {*}"
   ],
   "q": "",
-  "a": "",
+  "a": "The text on Cyrus{*} should say, \"You can play this card only if your Active Pokémon is a {W} or {M} Pokémon\". The original text says you can't play this card unless you have a {W} or {M} Pokémon in play, but the intended requirement is to have a {W} or {M} Pokémon as your Active Pokémon.",
   "source": "Organized Play News (2018-01-24)",
   "n": 652
  },
@@ -6692,7 +6692,7 @@
    "Errata » Defender"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Defender is now as follows, \"Attach Defender to 1 of your Pokémon. Discard this card at the end of your opponent's next turn. Any damage done to the Pokémon Defender is attached to by attacks is reduced by 20 (after applying Weakness and Resistance).\" Defender now protects against all attacks, even ones not made by the opponent.",
   "source": "TPCi Announcement (2011-04-11), PUI Rules Team (2011-05-05)",
   "n": 654
  },
@@ -6702,7 +6702,7 @@
    "Errata » Dialga"
   ],
   "q": "",
-  "a": "",
+  "a": "Dialga from the Platinum expansion is receiving errata to address an incorrect card template for the parallel holo version of the card. Dialga (Platinum, 23/127) should use the Metal-type card template, rather than the Colorless-type card template.",
   "source": "Organized Play News (2009-02-26)",
   "n": 655
  },
@@ -6712,7 +6712,7 @@
    "Errata » Discharge"
   ],
   "q": "",
-  "a": "",
+  "a": "Electivire's \"Discharge\" attack should say \"for each Electric Energy CARD\" rather than just \"for each Electric Energy\".",
   "source": "Organized Play News (2007-11-16)",
   "n": 656
  },
@@ -6722,7 +6722,7 @@
    "Errata » Double Rainbow Energy"
   ],
   "q": "",
-  "a": "",
+  "a": "Double Rainbow Energy should be applied *before* applying Weakness and Resistance. This brings it in line with the Japanese version of the card.",
   "source": "PUI Announcement (2004-10-01)",
   "n": 657
  },
@@ -6733,7 +6733,7 @@
    "Errata » Double Thread"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to an error in card text, Galvantula's \"Double Thread\" attack has been changed. The original text says, \"This attack does 30 damage to 2 of your opponent's Pokémon. Also apply Weakness and Resistance for Benched Pokémon\". The text has been changed to match the original intention of the attack, which is to affect only Benched Pokémon. Double Thread is updated to say, \"This attack does 30 damage to 2 of your opponent's Benched Pokémon. Apply Weakness and Resistance\". Effective immediately, Galvantula's \"Double Thread\" attack will use this updated attack text instead of the original text.",
   "source": "Organized Play News (2016-08-11)",
   "n": 658
  },
@@ -6743,7 +6743,7 @@
    "Errata » Drowzee"
   ],
   "q": "",
-  "a": "",
+  "a": "For purposes of proper Pokémon names, treat all cards referring to \"Drowsee\" as \"Drowzee\". For example, you cannot have four \"Drowsee\" plus four \"Drowzee\" in your deck.",
   "source": "PUI Rules Team (2004-09-02)",
   "n": 659
  },
@@ -6754,7 +6754,7 @@
    "Errata » Energy Healer"
   ],
   "q": "",
-  "a": "",
+  "a": "Three cards have been added to the list of errata for the Pokémon Trading Card Game. [...] The text below reflects what the card should say, not what was originally printed. \"When you attach an Energy card from your hand to Onix, remove a damage counter from Onix.\" This Poké-Body only works when you attach an Energy card to Onix.",
   "source": "PUI Rules Team (2010-05-06), TPCi Errata Update (2010-05-07)",
   "n": 660
  },
@@ -6764,7 +6764,7 @@
    "Errata » Energy Shift"
   ],
   "q": "",
-  "a": "",
+  "a": "Electrode is receiving errata for the card to reflect that its Poké-Power can trigger when any attack Knocks Out Electrode, not just during its owner's turn. \"If Electrode would be Knocked Out by damage from an attack, you may use this power. Electrode isn't discarded. Instead, attach it as an Energy card to 1 of your Pokémon. While attached, this card is a Special Energy card and provides every type of Energy but provides only 1 Energy at a time. (Has no effect other than providing Energy.)\"",
   "source": "PUI Rules Team (2007-12-06), Organized Play News (2008-01-29)",
   "n": 661
  },
@@ -6774,7 +6774,7 @@
    "Errata » Evolutionary Gas"
   ],
   "q": "",
-  "a": "",
+  "a": "Skuntank is receiving errata for its \"Evolutionary Gas\" Poké-Power. Evolutionary Gas's effect ends when the Defending Pokémon is no longer the opponent's Active Pokémon. The correct card text should read, \"Once during your turn (before your attack), when you play Skuntank from your hand to evolve 1 of your Active Pokémon, you may choose 1 of the Defending Pokémon. If that Pokémon tries to attack during your opponent's next turn, that attack does nothing. (If the Defending Pokémon is no longer your opponent's Active Pokémon, this effect ends.)\"",
   "source": "Organized Play News (2009-02-26)",
   "n": 662
  },
@@ -6784,7 +6784,7 @@
    "Errata » Exp. Share"
   ],
   "q": "",
-  "a": "",
+  "a": "This version of Exp. Share [from Dragon Vault] was printed without the Pokémon Tool rule box. This card should have that rule box, matching Black & White - Next Destinies #87/99.",
   "source": "TPCi Errata Update (2012-10-17), TPCi Rules Team (2013-02-07)",
   "n": 663
  },
@@ -6794,7 +6794,7 @@
    "Errata » Fainting Spell"
   ],
   "q": "",
-  "a": "",
+  "a": "Gengar is receiving errata for its Poke-POWER, \"Fainting Spell\". Fainting Spell affects your opponent's Attacking Pokemon, not your Defending Pokemon. The correct card text should read, \"Once during your opponent's turn, if Gengar would be Knocked Out by damage from an attack, you may flip a coin. If heads, the Attacking Pokémon is Knocked Out.\"",
   "source": "Organized Play News (2008-11-07)",
   "n": 664
  },
@@ -6804,7 +6804,7 @@
    "Errata » Flame Bluster"
   ],
   "q": "",
-  "a": "",
+  "a": "Magmortar LV.X's \"Flame Bluster\" attack should say \"discard 2 Fire Energy CARDS\" rather than just \"discard 2 Fire Energy\".",
   "source": "Organized Play News (2007-11-16)",
   "n": 665
  },
@@ -6814,7 +6814,7 @@
    "Errata » Ghost Head"
   ],
   "q": "",
-  "a": "",
+  "a": "Banette is receiving errata for its first attack, Ghost Head. Ghost Head can't cause Banette to Knock Out itself ... the attack has to leave Banette with at least 10 HP. \"Put as many damage counters as you like on Banette. (You can't Knock Out Banette.) Put that many damage counters on the Defending Pokémon.\"",
   "source": "Organized Play News (2008-01-29)",
   "n": 666
  },
@@ -6825,7 +6825,7 @@
    "Trainers » Great Ball"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Great Ball is now as follows, \"Look at the top 7 cards of your deck. You may reveal a Pokémon you find there and put it into your hand. Shuffle the other cards back into your deck.\" This card works very differently now; it can no longer search the entire deck for a Pokémon and put it directly onto Bench.",
   "source": "TPCi Announcement (2011-04-11), PUI Rules Team (2011-05-05)",
   "n": 667
  },
@@ -6845,7 +6845,7 @@
    "Errata » Hidden Poison"
   ],
   "q": "",
-  "a": "",
+  "a": "Roserade is receiving errata for its Poke-BODY, \"Hidden Poison\". Hidden Poison affects your opponent's Attacking Pokemon, not your Defending Pokemon. The correct card text should read, \"If Roserade is your Active Pokemon and is damaged by an opponent's attack (even if Roserade is Knocked Out), the Attacking Pokemon is now Poisoned.\"",
   "source": "Organized Play News (2008-11-07)",
   "n": 669
  },
@@ -6856,7 +6856,7 @@
    "Trainers » Hyper Potion"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Hyper Potion is now as follows, \"Heal 120 damage from 1 of your Pokémon that has at least 2 Energy attached. If you healed any damage in this way, discard 2 Energy from it.\"",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 670
  },
@@ -6867,7 +6867,7 @@
    "Errata » Hyper Whirlpool"
   ],
   "q": "",
-  "a": "",
+  "a": "Blastoise-EX and Articuno-EX each have an attack that discards an Energy card from the Defending Pokémon. The player using those attacks is also the player who chooses the Energy card to be discarded.",
   "source": "PUI Announcement (2006-07-25)",
   "n": 671
  },
@@ -6878,7 +6878,7 @@
    "Errata » Ice Generator"
   ],
   "q": "",
-  "a": "",
+  "a": "Holon Energy WP and Ancient Technical Machine [Ice] only prevent effects that come from attacks, not all effects in play. Trainer cards, Poké-Powers, and Poké-Bodies are not prevented by those cards.",
   "source": "PUI Announcement (2006-07-25)",
   "n": 672
  },
@@ -6888,7 +6888,7 @@
    "Errata » Iron Shell"
   ],
   "q": "",
-  "a": "",
+  "a": "Forretress's \"Iron Shell\" Poke-BODY is not optional; you *MUST* flip a coin whenever attaching a Basic Energy Card to Forretress.",
   "source": "PUI Rules Team (2008-08-28)",
   "n": 673
  },
@@ -6898,7 +6898,7 @@
    "Errata » Knockout Gas"
   ],
   "q": "",
-  "a": "",
+  "a": "The Poké-BODY \"Knockout Gas\" found on Koffing should read, \"If Koffing is your Active Pokémon and is Knocked Out by damage from an opponent's attack, the Attacking Pokémon is now Confused and Poisoned.\" So only attacks that do damage (not \"place counters\") would cause Knockout Gas to be invoked.",
   "source": "PUI Rules Team (2005-06-23)",
   "n": 674
  },
@@ -6908,7 +6908,7 @@
    "Errata » Lightning Twister"
   ],
   "q": "",
-  "a": "",
+  "a": "Manectric's \"Lightning Twister\" attack should say, \"Does 20 damage times the amount of Energy from basic Energy cards attached to Manectric.\"",
   "source": "Organized Play News (2008-02-28), PUI Rules Team (2008-03-13)",
   "n": 675
  },
@@ -6918,7 +6918,7 @@
    "Errata » Lucky Egg"
   ],
   "q": "",
-  "a": "",
+  "a": "Three cards have been added to the list of errata for the Pokémon Trading Card Game. [...] The text below reflects what the card should say, not what was originally printed. \"When the Pokémon this card is attached to is Knocked Out by damage from an opponent's attack and put into your discard pile, draw cards until you have 7 cards in your hand.\" If the Pokémon does not go to the discard pile (for example, if it goes to the Lost Zone, etc.), you do not get to draw the cards.",
   "source": "TPCi Errata Update (2010-05-07)",
   "n": 676
  },
@@ -6929,7 +6929,7 @@
    "Trainers » Lum Berry"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Lum Berry is now as follows, \"At the end of each turn, if the Pokemon this card is attached to is affected by any Special Conditions, it recovers from all of them, and discard this card.\"",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 677
  },
@@ -6959,7 +6959,7 @@
    "Errata » Mt. Moon"
   ],
   "q": "",
-  "a": "",
+  "a": "Mt. Moon should read: \"Any Pokémon (both yours and your opponent's) with maximum HP of 70 or less can't use any Poké-Powers.\" This errata replaces text of \"less than 70\" with \"70 or less\". If a Pokémon has a maximum HP of 70, that Pokémon cannot use a Poké-POWER while this Stadium card is in play.",
   "source": "PUI Announcement (2004-10-01)",
   "n": 680
  },
@@ -6970,7 +6970,7 @@
    "Trainers » Pal Pad"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Pal Pad is now as follows, \"Shuffle up to 2 Supporter cards from your discard pile into your deck.\"",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 681
  },
@@ -6991,7 +6991,7 @@
    "Trainers » Potion"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Potion now heals 30 damage from 1 of your Pokémon instead of 20 damage.",
   "source": "TPCi Announcement (2011-04-11), PUI Rules Team (2011-05-05)",
   "n": 683
  },
@@ -7001,7 +7001,7 @@
    "Errata » Power Whip"
   ],
   "q": "",
-  "a": "",
+  "a": "Tangrowth's \"Power Whip\" attack should say, \"This attack does 10 damage for each Energy from basic Energy cards attached to Tangrowth to that Pokemon.\"",
   "source": "Organized Play News (2008-02-28)",
   "n": 684
  },
@@ -7014,7 +7014,7 @@
    "Trainers » Professor Sycamore"
   ],
   "q": "",
-  "a": "",
+  "a": "While there are no functional changes to these cards [Professor Juniper and Professor Sycamore], you may not include both of them in your deck. That is, you may have up to 4 copies of Professor Juniper or up to 4 copies of Professor Sycamore - but if you have any Professor Juniper cards in your deck, you may not put any Professor Sycamore cards in your deck, and vice versa.",
   "source": "TPCi Announcement (2013-10-01), TPCi Rules Team (2013-11-21)",
   "n": 685
  },
@@ -7025,7 +7025,7 @@
    "Errata » Professor's Research"
   ],
   "q": "",
-  "a": "",
+  "a": "In the Expanded format, there's already a rule that says you can't include Professor Sycamore and Professor Juniper in the same deck; players must choose one or the other. The same rule applies to Professor's Research, meaning it cannot be in the same deck as Professor Sycamore or Professor Juniper.",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 686
  },
@@ -7035,7 +7035,7 @@
    "Errata » Protect Wing"
   ],
   "q": "",
-  "a": "",
+  "a": "Some abilities referring to \"Stage 2 Evolved Pokémon\" are receiving errata. These cards do not care if the Pokémon is evolved or not, only if it is a Stage 2 Pokémon. So, Stage 2 Pokémon put into play with abilities like Garchomp LV.X's \"Restore\" attack still count for these abilities. Staraptor's correct card text should read: \"(Poké-Body) Protect Wing - As long as Staraptor is your Active Pokémon, any damage done by attacks from your opponent's Stage 2 Pokémon is reduced by 20 (after applying Weakness and Resistance)\".",
   "source": "Organized Play News (2009-05-01), PUI Rules Team (2009-05-07)",
   "n": 687
  },
@@ -7045,7 +7045,7 @@
    "Errata » Psychic Guard"
   ],
   "q": "",
-  "a": "",
+  "a": "Some abilities referring to \"Stage 2 Evolved Pokémon\" are receiving errata. These cards do not care if the Pokémon is evolved or not, only if it is a Stage 2 Pokémon. So, Stage 2 Pokémon put into play with abilities like Garchomp LV.X's \"Restore\" attack still count for these abilities. Alakazam's correct card text should read: \"Psychic Guard (50) - During your opponent's next turn, any damage done to Alakazam by attacks from your opponent's Stage 2 Pokémon is reduced by 30 (after applying Weakness and Resistance).\"",
   "source": "Organized Play News (2009-05-01), PUI Rules Team (2009-05-07)",
   "n": 688
  },
@@ -7056,7 +7056,7 @@
    "Trainers » Rare Candy"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Rare Candy is now as follows, \"Choose 1 of your Basic Pokémon in play. If you have a Stage 2 card in your hand that evolves from that Pokémon, put that card on the Basic Pokémon. (This counts as evolving that Pokémon.) You can't use this card during your first turn or on a Basic Pokémon that was put into play this turn.\" So now it can't be used on your first turn, and it can't be used on a Pokémon played this turn.",
   "source": "TPCi Announcement (2011-04-11), PUI Rules Team (2011-05-05)",
   "n": 689
  },
@@ -7066,7 +7066,7 @@
    "Errata » Ripples"
   ],
   "q": "",
-  "a": "",
+  "a": "Mantine's Poké-POWER only works when it is the player's Active Pokémon. Official Wording: Once during your turn (before your attack), if Mantine is your Active Pokémon, you may remove 1 damage counter from 1 of your Pokémon (excluding Mantine). This power can't be used if Mantine is affected by a Special Condition.",
   "source": "PUI Announcement (2004-12-16)",
   "n": 690
  },
@@ -7078,7 +7078,7 @@
    "Errata » Root Fossil"
   ],
   "q": "",
-  "a": "",
+  "a": "While in play, Mysterious Fossil, Claw Fossil, and Root Fossil, count as both Trainer cards and as Pokémon. Previous rulings did not consider them to be \"Trainer cards\" while in play.",
   "source": "PUI Announcement (2005-04-05), PUI Rules Team (2005-04-07)",
   "n": 691
  },
@@ -7088,7 +7088,7 @@
    "Errata » Sandy Cloak"
   ],
   "q": "",
-  "a": "",
+  "a": "Wormadam's \"Sandy Cloak\" Poke-BODY should say, \"Prevent all effects of attacks, excluding damage, done to Wormadam Sandy Cloak by your opponent's Pokemon\".",
   "source": "Organized Play News (2008-02-28)",
   "n": 692
  },
@@ -7098,7 +7098,7 @@
    "Errata » Scorching Fire"
   ],
   "q": "",
-  "a": "",
+  "a": "The attack cost for Scorching Fire [from Plasma Storm] was misprinted. It should be {R}{C}{C}{C}{C}, as opposed to the printed {F}{C}{C}{C}{C}.",
   "source": "TPCi Errata Update (2013-01-28), TPCi Rules Team (2013-02-07)",
   "n": 693
  },
@@ -7108,7 +7108,7 @@
    "Errata » Seed Flare"
   ],
   "q": "",
-  "a": "",
+  "a": "Shaymin LV.X is receiving errata for its \"Seed Flare\" attack. Seed Flare does additional damage for each Grass Energy card attached during the attack, rather than each Grass Energy attached during the attack. The correct card text should read, \"Choose as many Grass Energy cards from your hand as you like and attach them to your Pokémon in any way you like. If you do, this attack does 40 damage plus 20 more damage for each Grass Energy card attached in this way.\"",
   "source": "Organized Play News (2009-02-26)",
   "n": 694
  },
@@ -7129,7 +7129,7 @@
    "Trainers » Sitrus Berry"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Sitrus Berry is now as follows, \"At the end of each turn, if the Pokémon this card is attached to has 3 or more damage counters on it, heal 30 damage from it and discard this card.\"",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 696
  },
@@ -7139,7 +7139,7 @@
    "Errata » Steven's Advice"
   ],
   "q": "",
-  "a": "",
+  "a": "Steven's Advice should read: \"Draw a number of cards up to the number of your opponent's Pokémon in play. If you have 7 or more cards (including this one) in your hand, you can't play this card.\" This errata replaces text of \"more than 7\" with \"7 or more\". If a player has 7 cards in his or her hand (including Steven's Advice), they cannot play the card.",
   "source": "PUI Announcement (2004-10-01)",
   "n": 697
  },
@@ -7159,7 +7159,7 @@
    "Errata » Strength Charm"
   ],
   "q": "",
-  "a": "",
+  "a": "Strength Charm should read: \"Whenever an attack from the Pokémon that Strength Charm is attached to does damage to the Active Pokémon (before applying Weakness and Resistance), the attack does 10 more damage. At the end of the turn in which the player attacks with the Pokémon that this card is attached to, discard Strength Charm.\" This errata replaces text of \"after applying Weakness and Resistance\" with \"before applying Weakness and Resistance\" [in the Team Aqua vs Team Magma print]. It is also clarified that it is removed after ANY attack that the Pokémon makes, not just attacks that do damage.",
   "source": "PUI Announcement (2004-10-01)",
   "n": 699
  },
@@ -7169,7 +7169,7 @@
    "Errata » String Bomb"
   ],
   "q": "",
-  "a": "",
+  "a": "Exeggutor's \"String Bomb\" attack should say, \"Flip a coin for each Energy from basic Energy cards attached to Exeggutor and to the Defending Pokémon.\"",
   "source": "Organized Play News (2008-02-28)",
   "n": 700
  },
@@ -7179,7 +7179,7 @@
    "Errata » Supreme Command"
   ],
   "q": "",
-  "a": "",
+  "a": "Empoleon LV.X from Diamond & Pearl contains an error. Its Poké-POWER symbol was printed with the Poké-Body symbol. In all cases, play Empoleon's effect as a Poké-Power. The game play of the effect remains unchanged.",
   "source": "PUI Announcement (2007-05-25)",
   "n": 701
  },
@@ -7189,7 +7189,7 @@
    "Errata » VACATION"
   ],
   "q": "",
-  "a": "",
+  "a": "Poké-Powers that end your turn are receiving errata to make it clear that you still end your turn if the Poké-Power is canceled, such as with Team Galactic's Invention G-103 Power Spray or by Alakazam's \"Power Cancel\" Poké-Power. Unown V's correct card text should read: \"(Poké-Power) VACATION - Once during your turn (before your attack), you may use this power. If you do, your turn ends. Remove 2 damage counters from each of your Pokémon. This power can't be used if Unown V is affected by a Special Condition\".",
   "source": "Organized Play News (2009-05-01), PUI Rules Team (2009-05-07)",
   "n": 702
  },
@@ -7199,7 +7199,7 @@
    "Errata » Waterlog"
   ],
   "q": "",
-  "a": "",
+  "a": "Poké-Powers that end your turn are receiving errata to make it clear that you still end your turn if the Poké-Power is canceled, such as with Team Galactic's Invention G-103 Power Spray or by Alakazam's \"Power Cancel\" Poké-Power. Blastoise's correct card text should read: \"(Poké-Power) Waterlog - Once during your turn (before your attack), you may use this power. If you do, your turn ends. Attach as many basic {W} Energy cards from your hand to any of your Pokémon in any way you like. This power can't be used if Blastoise is affected by a Special Condition.\"",
   "source": "Organized Play News (2009-05-01), PUI Rules Team (2009-05-07)",
   "n": 703
  },
@@ -7431,7 +7431,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Whenever any cards move from a Zone anyone can see (such as the Discard Pile) to one not anyone can see (such as your Hand), that card must be revealed to all players.",
   "source": "TPCi Rules Team (2011-12-01)",
   "n": 726
  },
@@ -7564,7 +7564,7 @@
    "Gameplay » Evolving/Devolving"
   ],
   "q": "",
-  "a": "",
+  "a": "A guiding rule for evolving Pokémon... If it's not in play at the start of that player's turn, it can't be evolved normally. And effects that say \"this counts as evolving the Pokémon\" count against being able to evolve a Pokémon normally afterward. So, you can use Wally's Training after evolving normally, but you can't use Wally's Training then evolve.",
   "source": "PUI Rules Team (2003-10-30)",
   "n": 739
  },
@@ -7574,7 +7574,7 @@
    "Gameplay » Evolving/Devolving"
   ],
   "q": "",
-  "a": "",
+  "a": "Certain attacks & powers (like Erika's Clefairy's Lunar Power attack, Koga's Kakuna's Emerge Pokémon Power, or TR Magikarp's Rapid Evolution attack), can break the standard \"can't evolve turn 1 or the turn it was played\" rule. You CAN play them on the first turn and you can sometimes even choose a Pokémon on your Bench that you just played this turn. To make it easier to understand, the standard evolution rules (\"can't evolve turn 1 or the turn it was played\") deal with the standard means of evolving; meaning taking the next Stage Pokémon from your hand and placing it on a Pokémon. Since these attacks and powers have you take a card from your deck and place it, they are NOT stopped by the standard evolution limits. This also falls under the term \"played\". Aerodactyl's Pokémon Power \"Prehistoric Power\" says No more Evolution cards can be played. The above attacks and powers would NOT be affected by this as those cards are not \"played\" (meaning played from your hand).",
   "source": "WotC Chat (2000-11-30)",
   "n": 740
  },
@@ -7584,7 +7584,7 @@
    "Gameplay » Evolving/Devolving"
   ],
   "q": "",
-  "a": "",
+  "a": "Dark Pokémon evolve from Basic Pokémon. Once you evolve a Basic Pokémon into a Dark Stage 1 Pokémon, it CANNOT evolve into a non-Dark Stage 2 Pokémon, only a Dark Stage 2. \"Once you walk down the Dark Path, forever will it dominate your destiny\" - Yoda the non-Pokémon.",
   "source": "WotC Chat (2000-04-13)",
   "n": 741
  },
@@ -7594,7 +7594,7 @@
    "Gameplay » Evolving/Devolving"
   ],
   "q": "",
-  "a": "",
+  "a": "Evolution effects may take place on the first turn of the game, unless specifically stated on the card. This will affect Trainer cards, Poké-Powers, and effects of attacks. In the past, it was ruled that such an effect would have to state \"This may be used on the first turn of the game.\" The correct usage is the card would have to specifically state \"This may not be used on the first turn of the game.\"",
   "source": "PUI Rules Team (2004-07-22), PUI Rules Update (2004-07-30)",
   "n": 742
  },
@@ -7604,7 +7604,7 @@
    "Gameplay » Game Actions"
   ],
   "q": "",
-  "a": "",
+  "a": "If an action is *optional* (e.g., playing a Trainer, attaching an Energy, attacking your opponent's Pokémon, etc.), and you forget to take that action, you may ask your opponent for permission to take that action. For example, if you attach a Grass Energy to your Pokémon, and you wanted to attach a Fire Energy, you may ask your opponent's permission to take back the Grass Energy and attach the Fire energy instead. If he or she says no, you're stuck with the Grass Energy.",
   "source": "Organized Play Announcement (2007-03-14)",
   "n": 743
  },
@@ -7614,7 +7614,7 @@
    "Gameplay » Game Actions"
   ],
   "q": "",
-  "a": "",
+  "a": "If an action is mandatory (e.g., draw a card at the beginning of your turn, take a prize for knocking out a Pokémon, place damage counters for an attack, etc.), and you forget to take that action, you do not need your opponent's permission to do it. However, you should immediately call a judge so that things don't get muddled.",
   "source": "Organized Play Announcement (2007-03-14)",
   "n": 744
  },
@@ -8084,7 +8084,7 @@
    "Gameplay » Special Conditions"
   ],
   "q": "",
-  "a": "",
+  "a": "Checking for Confusion should be the very first thing you deal with after you announce what attack you want to use. Contrary to the \"Full Details of Attacking\" steps found in some older rulebooks, it must be done prior to making any choices the attack requires (such as choosing an opponent's Pokemon), paying any costs (such as discarding energy), flipping a coin to see if the attack fails, etc. So as soon as you announce which attack you are going to use, you must check for Confusion immediately before proceeding with any requirements of the attack or effects on the attacking Pokemon.",
   "source": "TPCi Rules Team (2014-09-25)",
   "n": 790
  },
@@ -8094,7 +8094,7 @@
    "Gameplay » Special Conditions"
   ],
   "q": "",
-  "a": "",
+  "a": "The Burned special condition has changed from Sun & Moon and onward. Now when a Pokemon is Burned in between turns you first put two damage counters on that Pokemon then flip to see if the Burned condition is removed (heads) or if it remains (tails).",
   "source": "Sun & Moon FAQ (2017-02-02), TPCi Rules Team (2017-02-02)",
   "n": 791
  },
@@ -8328,7 +8328,7 @@
    "Gameplay » Weakness and Resistance"
   ],
   "q": "",
-  "a": "",
+  "a": "The term \"any effects\" does not include effects that alter Weakness and Resistance.",
   "source": "TPCi Rules Changes Announcement (2017-05-03), TPCi Rules Team (2017-05-18)",
   "n": 814
  },
@@ -8465,7 +8465,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "An attack that copies another Pokemon's attack can only copy attacks printed on that Pokemon, not other attacks that the Pokemon may use due to Poke-POWERs, Poke-BODYs, Stadiums, etc. (with the exception of Lv.X Pokemon since they are considered \"extensions\" of the original Pokemon).",
   "source": "PUI Rules Team (2008-04-17)",
   "n": 827
  },
@@ -8475,7 +8475,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Benching a Pokemon removes all Special Conditions on that Pokemon including Poisoned and Burned, and all Attack effects on that Pokemon that do not place a Marker (such as Imprison).",
   "source": "PUI Rules Team (2008-04-17)",
   "n": 828
  },
@@ -8485,7 +8485,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "You cannot have more than 6 Pokemon in play, including Active and Benched Pokemon, unless the card specifically allows for it (e.g. Sky Field).",
   "source": "PUI Rules Team (2008-01-31), TPCi Rules Team (2018-07-26)",
   "n": 829
  },
@@ -8495,7 +8495,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "A player must always have an Active Pokemon. There is no time in which they don't, not even after a KO. Replacement must be done immediately.",
   "source": "PUI Rules Team (2008-04-17)",
   "n": 830
  },
@@ -8505,7 +8505,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "An attack has to do \"some\" damage before an effect can add \"more\" damage to it.",
   "source": "PUI Rules Team (2008-01-31)",
   "n": 831
  },
@@ -8515,7 +8515,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Attacks and Abilities on a Pokémon that refers to itself now use the phrase \"This Pokémon\" instead of the name of that Pokémon. This should clear up confusion during any situation where Abilities can be copied.",
   "source": "TPCi Rules Team (2011-12-01)",
   "n": 832
  },
@@ -8525,7 +8525,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Effects of Poke-Powers, Poke-Bodies, and Abilities do not end when a Pokemon is moved from Active to Bench and vice-versa.",
   "source": "PUI Rules Team (2009-02-26); TPCi Rules Team (2021-05-13)",
   "n": 833
  },
@@ -8535,7 +8535,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Effects on the attacking Pokemon are applied before weakness and resistance. Effects on the defending Pokemon are applied after weakness and resistance.",
   "source": "PUI Rules Team (2009-01-15)",
   "n": 834
  },
@@ -8545,7 +8545,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Effects that prevent you from healing or from removing damage counters do not affect moving those damage counters between Pokémon.",
   "source": "TPCi Rules Team (2011-12-01)",
   "n": 835
  },
@@ -8555,7 +8555,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "If a Retreat Cost is set to zero by an effect, it cannot be increased. Note this is different than a Retreat Cost that was reduced to zero by subtraction.",
   "source": "PUI Rules Team (2008-01-31)",
   "n": 836
  },
@@ -8565,7 +8565,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Mandatory game actions cannot be forgotten or missed; they must be done. Examples: Drawing a Prize card, checking for Asleep, etc.",
   "source": "PUI Rules Team (2008-01-31)",
   "n": 837
  },
@@ -8575,7 +8575,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Prior to the \"Black & White\" series, when a Pokemon refers to itself by name, interpret that card as though the text reads \"this Pokemon\". This has the practical effect of not including other Pokemon of the same name; if a Pokemon copies that text, it refers to itself, not the original Pokemon. Beginning with \"Black & White\", when a Pokemon refers to itself by name, this extends to other Pokemon of the same name; if a Pokemon copies that text, it refers to other Pokemon of the same name. Also, when a Pokemon refers to \"this Pokemon\", this has the practical effect of not including other Pokemon of the same name; if a Pokemon copies that text it refers to itself, not the original Pokemon.",
   "source": "PUI Rules Team (2008-04-17), TPCi Rules Team (2019-05-16)",
   "n": 838
  },
@@ -8585,7 +8585,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "The contents of your deck are technically unknown. If an effect calls on you to search your deck for a specific card or category of card, you may choose not to find a card, even if it is present in the deck.",
   "source": "Worlds 2006 PCL Announcement (2006-08-18), PUI Rules Team (2008-05-08)",
   "n": 839
  },
@@ -8595,7 +8595,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "The game has no knowledge of the contents of your deck. For example, if you search your deck for something and fail, you can still use other cards or effects to search for the exact same thing.",
   "source": "PUI Rules Team (2008-04-17)",
   "n": 840
  },
@@ -8605,7 +8605,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Whether a card's effect is optional or not is determined from the card text. If there is no explicit indication that you have a choice, then you don't have one and the effect is mandatory.",
   "source": "PUI Rules Team (2011-09-29)",
   "n": 841
  },
@@ -8615,7 +8615,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "You cannot play a card if it has no valid target. The effect of that card may be blocked by another effect, in which case the played card effect fizzles and the card is discarded. Costs to play the card must still be paid even if its effect is blocked.",
   "source": "PUI Rules Team (2008-01-31), PUI Rules Team (2009-03-12), TPCi Rules Team (2025-06-26)",
   "n": 842
  },
@@ -8656,7 +8656,7 @@
    "Trainers » *Trainers in General"
   ],
   "q": "",
-  "a": "",
+  "a": "When you use a Trainer card, first you pay the cost (if any), then you resolve the effect of the Trainer card, then you discard that Trainer card. So you could NOT use Item Finder to bring itself back from the discard pile (you would discard 2 other cards from your hand, then pull a Trainer card from your discard pile to your hand, THEN you would discard the Item Finder).",
   "source": "WotC Chat (2000-03-02)",
   "n": 846
  },
@@ -8892,7 +8892,7 @@
    "Trainers » Bellelba & Brycen-Man"
   ],
   "q": "",
-  "a": "",
+  "a": "You can play Bellelba & Brycen-Man as long as there's at least 1 card in either player's deck. It can also be played by discarding 3 cards from your hand if at least 1 player has more than 3 Benched Pokemon. But if at least 1 player doesn't have more than 3 Benched Pokemon, you cannot discard cards from your hand.",
   "source": "Cosmic Eclipse FAQ (2019-10-18), TPCi Rules Team (2019-10-31)",
   "n": 869
  },
@@ -9177,7 +9177,7 @@
    "Trainers » Cynthia & Caitlin"
   ],
   "q": "",
-  "a": "",
+  "a": "You can play Cynthia & Caitlin as long as there's a Supporter card in your discard pile. You can also play it by discarding a card from your hand if there's at least 1 card in your deck. But if you have no cards in your deck, you cannot discard a card from your hand.",
   "source": "Cosmic Eclipse FAQ (2019-10-18), TPCi Rules Team (2019-10-31)",
   "n": 897
  },
@@ -9299,7 +9299,7 @@
    "Errata » Energy Retrieval"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Energy Retrieval is now as follows, \"Put up to 2 basic Energy cards from your discard pile into your hand.\"",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 909
  },
@@ -9486,7 +9486,7 @@
    "Errata » Fighting Stadium"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Fighting Stadium is now as follows, \"The attacks of each {F} Pokémon in play (both yours and your opponent's) do 20 more damage to the opponent's Active Pokémon if it is a Pokémon-EX (before applying Weakness and Resistance).\" This stadium should only impact the Active Pokémon-EX belonging to the opponent of the attacking Pokémon.",
   "source": "TPCi Announcement (2014-11-18), TPCi Rules Team (2014-11-20)",
   "n": 927
  },
@@ -9913,7 +9913,7 @@
    "Errata » Jamming Net"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Jamming Net is now as follows, \"The attacks of the Pokémon this card is attached to do 20 less damage to each of the opponent's Pokémon (before applying Weakness and Resistance). (Don't apply Weakness and Resistance for Benched Pokémon.)\" This tool should only impact the Pokémon belonging to the opponent of the attacking Pokémon.",
   "source": "TPCi Announcement (2014-11-18), TPCi Rules Team (2014-11-20)",
   "n": 968
  },
@@ -10104,7 +10104,7 @@
    "Trainers » Lysandre"
   ],
   "q": "",
-  "a": "",
+  "a": "Lysandre and Boss's Orders cannot be included in the same deck. This is similar to the rule that says Professor Juniper, Professor Sycamore, and Professor's Research cannot be included in the same deck.",
   "source": "TPCi Announcement (2020-04-16), TPCi Rules Team (2020-04-30)",
   "n": 987
  },
@@ -10287,7 +10287,7 @@
    "Trainers » Misty & Lorelei"
   ],
   "q": "",
-  "a": "",
+  "a": "You can play Misty & Lorelei for the base effect as long as there's at least 1 card in your deck. You can always play it by discarding 5 cards from your hand.",
   "source": "Cosmic Eclipse FAQ (2019-10-18), TPCi Rules Team (2019-10-31)",
   "n": 1005
  },
@@ -10410,7 +10410,7 @@
    "Trainers » PlusPower"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of PlusPower is now as follows, \"During this turn, your Pokémon's attacks do 10 more damage to the Active Pokémon (before applying Weakness and Resistance).\" This card no longer attaches to a Pokémon when used.",
   "source": "TPCi Announcement (2011-04-11), PUI Rules Team (2011-05-05)",
   "n": 1017
  },
@@ -10472,7 +10472,7 @@
    "Errata » Pokemon Catcher"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Pokemon Catcher is now as follows, \"Flip a coin. If heads, switch 1 of your opponent's Benched Pokemon with his or her Active Pokemon.\" This card now requires a coin flip; making it functionally identical to Pokémon Reversal.",
   "source": "TPCi Announcement (2013-10-01), TPCi Rules Team (2013-11-21)",
   "n": 1023
  },
@@ -10663,7 +10663,7 @@
    "Errata » Quick Ball"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Quick Ball is now as follows, \"You can play this card only if you discard another card from your hand. Search your deck for a Basic Pokémon, reveal it, and put it into your hand. Then, shuffle your deck.\"",
   "source": "TPCi Announcement (2020-01-09), TPCi Rules Team (2020-01-09)",
   "n": 1041
  },
@@ -10845,7 +10845,7 @@
    "Trainers » Red & Blue"
   ],
   "q": "",
-  "a": "",
+  "a": "You can do any part of Red & Blue as long as there's a Pokemon in play that can evolve into a Pokemon-GX AND there's at least 1 card in your deck.",
   "source": "Cosmic Eclipse FAQ (2019-10-18), TPCi Rules Team (2019-10-31)",
   "n": 1059
  },
@@ -11371,7 +11371,7 @@
    "Trainers » Wide Lens"
   ],
   "q": "",
-  "a": "",
+  "a": "Wide Lens says to apply Weakness and Resistance for attacks that do damage to the opponent's Benched Pokemon. This will not affect attacks that say \"this attack isn't affected by Weakness, Resistance, or any other effects\" or \"ignore all effects including Weakness and Resistance\"; Weakness and Resistance is still ignored for those attacks.",
   "source": "Roaring Skies FAQ (2015-05-07), TPCi Rules Team (2015-05-07)",
   "n": 1110
  },
@@ -11443,7 +11443,7 @@
    "Abilities » Shell Survival"
   ],
   "q": "",
-  "a": "",
+  "a": "There’s a new deck building rule with Shedinja from Vivid Voltage. Shedinja with the “Shell Survival” Ability cannot be the only Basic Pokemon in your deck. You must have at least 1 other Basic Pokemon in your deck besides Shedinja with “Shell Survival”.",
   "source": "Vivid Voltage FAQ (2020-10-31), TPCi Rules Team (2020-11-12)",
   "n": 1117
  },
@@ -11656,7 +11656,7 @@
    "Errata » Cinderace"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to an error on Cinderace (Sword & Shield, 36/202), the Retreat Cost will be changed. The Retreat Cost printed on the original card was {*}, but it should be {*}{*} instead. This change is to reflect the original intent of the card, which was to have a Retreat Cost of {*}{*}.",
   "source": "TPCi Announcements (2020-12-23); TPCi Rules Team (2021-02-04)",
   "n": 1137
  },
@@ -11708,7 +11708,7 @@
    "Errata » Enekoro"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to an error in naming the German version of the card for Enekoro (aka Delcatty), the name of this card will be changed. The original name for this Pokemon card was \"Kaguron\" (aka Celesteela). The card name must be changed to match the correct name of the character, which should fall in line with the animation, card game, and video game series. The new card name for Kaguron (Darkness Ablaze 142/189) will be \"Enekoro\".",
   "source": "TPCi Announcements (2020-08-17) [https://www.pokemon.com/de/pokemon-news/erratum-kaguron-schwert-schild-flammende-finsternis-142189-im-pokemon-sammelkartenspiel/] ; TPCi Rules Team (2021-02-04)",
   "n": 1142
  },
@@ -11718,7 +11718,7 @@
    "Trainers » Gewöhnliche Angel"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to an error in the German version of the card text for Gewöhnliche Angel (aka \"Ordinary Rod\"), the first part of the card will be changed. The original text for the Item card says, \"Wähle 1 aus:\" (\"Choose 1:\"); the new text for Gewöhnliche Angel will say, \"Wähle 1 oder beides aus:\" (\"Choose 1 or both:\").",
   "source": "TPCi Announcements (2020-03-12) [https://www.pokemon.com/de/pokemon-news/erratum-gewoehnliche-angel-im-pokemon-sammelkartenspiel/] ; TPCi Rules Team (2021-02-04)",
   "n": 1143
  },
@@ -11728,7 +11728,7 @@
    "Trainers » Heinrich Eich"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to an error in naming the German version of the card for Samson Eich (aka \"Samson Oak\"), the name of this card will be changed. The original name for this Supporter card was \"Samson Eich\". The card name must be changed to match the original name of the character, which should fall in line with the animation and video game series. The new card name for Samson Eich will be \"Heinrich Eich\".",
   "source": "TPCi Announcements (2020-09-02) [https://www.pokemon.com/de/pokemon-news/erratum-fuer-samson-eich-in-der-pokemon-sammelkartenspiel-erweiterung-sonne-mond-kraefte-im-einklang/] ; TPCi Rules Team (2021-02-04)",
   "n": 1144
  },
@@ -11759,7 +11759,7 @@
    "Trainers » Energy Recycler"
   ],
   "q": "",
-  "a": "",
+  "a": "The wording of Energy Recycler is now as follows, \"Shuffle up to 5 basic Energy cards from your discard pile into your deck.\"",
   "source": "TPCi Announcements (2021-03-04); TPCi Rules Team (2021-03-18)",
   "n": 1147
  },
@@ -11872,7 +11872,7 @@
    "Gameplay » Cards in General"
   ],
   "q": "",
-  "a": "",
+  "a": "You can have four Single Strike Urshifu V and four Rapid Strike Urshifu V in your deck because \"Single Strike\" and \"Rapid Strike\" are part of the card name for these cards. Also, Single Strike Urshifu VMAX must evolve from Single Strike Urshifu V (and vice versa for the Rapid Strike ones).",
   "source": "Battle Styles FAQ; TPCi Rules Team (2021-03-18)",
   "n": 1158
  },
@@ -12878,7 +12878,7 @@
    "Errata » Sonic Slip"
   ],
   "q": "",
-  "a": "",
+  "a": "The original intention of this [Sonic Slip] Ability was to provide protection only from the opponent's attacks, not from your own. The new text will say, \"When you play this Pokemon from your hand to evolve 1 of your Pokemon during your turn, you may prevent all damage from and effects of attacks from your opponent's Pokemon done to this Pokemon until the end of your opponent's next turn.\"",
   "source": "TPCi Announcements (2022-02-09) [https://www.pokemon.com/us/pokemon-news/errata-for-garchomp-in-pokemon-tcg-sword-shield-brilliant-stars/]; Brilliant Stars FAQ; TPCi Rules Team (2022-02-24)",
   "n": 1253
  },
@@ -13629,7 +13629,7 @@
    "Attacks » Ancient Star"
   ],
   "q": "",
-  "a": "",
+  "a": "Aerodactyl VSTAR retains the effect of its \"Ancient Star\" attack even if it goes to the Bench or becomes Active. If an effect like Path to the Peak stadium shuts off Abilities then Ancient Star is turned off, but if that effect goes away, the Ancient Star Ability returns. It will also count toward the number of Pokemon with an Ability in play.",
   "source": "Lost Origin FAQ; TPCi Rules Team (2022-09-08)",
   "n": 1325
  },
@@ -13973,7 +13973,7 @@
    "Abilities » Entrusted Wishes"
   ],
   "q": "",
-  "a": "",
+  "a": "When Radiant Jirachi is Knocked Out by damage from an opponent's attack, using its \"Entrusted Wishes\" Ability is mandatory. You must search your deck, and you must take at least 1 card if you are able to.",
   "source": "Silver Tempest FAQ; TPCi Rules Team (2022-11-10)",
   "n": 1357
  },
@@ -14182,7 +14182,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "Any effect that alters the cost of a Pokemon's attacks is intended to alter the cost of ANY attack that Pokemon uses, not just the ones printed on the card. This means any attack that the Pokemon is given access to, such as Earthen Seal Stone's \"Star Gravity\" attack when attached as a tool, can be used at the altered cost when effects such as Galarian Zapdos V's \"Fighting Instinct\" Ability are in play. For example, Fighting Instinct says, \"This Pokemon's attacks cost {C} less for each of your opponent's Pokemon V in play\"; however a more accurate description would be, \"Attacks that this Pokemon uses cost {C} less for each of your opponent's Pokemon V in play.\" This applies to effects that reduce or increase attack costs, and goes all the way back to the Black & White series thru current series.",
   "source": "TPCi Rules Team (2022-12-01)",
   "n": 1377
  },
@@ -14277,7 +14277,7 @@
    "Errata » Trainers in General"
   ],
   "q": "",
-  "a": "",
+  "a": "Beginning with the Scarlet & Violet expansion, \"Pokemon Tool\" will be its own category of Trainer card; Pokemon Tool cards will no longer be printed as Item cards. Pokemon Tool cards from all previous series will receive errata to align with this change, meaning that older Tool cards are no longer considered as \"Item cards\".",
   "source": "TPCi Announcements (2022-12-12) [https://www.pokemon.com/us/pokemon-news/2023-pokemon-tcg-standard-format-rotation-and-pokemon-tool-errata]; Scarlet & Violet FAQ; TPCi Rules Team (2023-03-30)",
   "n": 1386
  },
@@ -14371,7 +14371,7 @@
    "Trainers » Pokemon Catcher"
   ],
   "q": "",
-  "a": "",
+  "a": "Beginning with the Scarlet & Violet expansion, cards like Pokemon Catcher will now say \"switch in 1 of your opponent's Benched Pokemon\" to make it clear that the effect is on the Benched Pokemon. Likewise, the phrase \"switch out\" will be used if the effect is on the Active Pokemon. Older prints of these cards with different text that have the same game effect will therefore remain legal.",
   "source": "Scarlet & Violet FAQ; TPCi Rules Team (2023-03-30)",
   "n": 1395
  },
@@ -14426,7 +14426,7 @@
    "Gameplay » Deck"
   ],
   "q": "",
-  "a": "",
+  "a": "Here's some info regarding Pokemon ex: • Older cards that refer to Pokemon-ex should include modern Pokemon ex. Pokemon-ex and Pokemon ex are the same. For example, \"Gardevoir ex\" from EX Sandstorm has the same name as \"Gardevoir ex\" from Scarlet & Violet. • Pokemon ex from the SV series have a Rule Box, but Pokemon ex from the original EX series do not have a Rule Box. • Pokemon ex are not Pokemon-EX. For example, \"Gardevoir ex\" from Scarlet & Violet does not have the same name as \"Gardevoir-EX\" from XY-Primal Clash. Case-sensitivity matters.",
   "source": "TPCi Rules Team (2023-04-06)",
   "n": 1400
  },
@@ -15110,7 +15110,7 @@
    "Abilities » Caçada Ofensiva"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to a localization error in the Brazilian Portuguese version of Weavile (SV:Paldea Evolved, 134/193), the text of the \"Caçada Ofensiva\" Ability will be updated. The original text of this Pokemon's Ability was, \"...você poderá mandar 1 dos Pokémon no Banco do seu oponente...\" (\"...you may send 1 of your opponent's Benched Pokemon...\"). The text must be updated to match the intended effect of this Ability, which must be in line with the original Japanese text. The new text for Weavile's Ability will be, \"...você poderá mandar 1 dos Pokémon Básicos no Banco do seu oponente\" (\"...you may send 1 of your opponent's Benched Basic Pokemon...\"). The change will take effect immediately, and all Brazilian Portuguese versions of Weavile (SV:Paldea Evolved, 134/193) will use the updated Ability text.",
   "source": "May 11, 2023 TPCi Announcements [https://www.pokemon.com/br/errata-de-weavile-escarlate-e-violeta-evolucoes-em-paldea-134-193-do-pokemon-estampas-ilustradas]; Nov 9, 2023 TPCi Rules Team",
   "n": 1465
  },
@@ -15122,7 +15122,7 @@
    "Abilities » Squawk and Seize"
   ],
   "q": "",
-  "a": "",
+  "a": "Due to a localization error in the Brazilian Portuguese version of the Squawkabilly ex card (SV:Paldea Evolved, 169/193), the text of the \"Grasnar e Aproveitar\" Ability will be updated. The original text of this Pokémon's Ability was, \"Uma vez durante o seu turno,\" (\"Once during your turn,\"). This Ability was intended to be used only on a player's first turn of the game. The Ability text must be updated to ensure that \"Grasnar e Aproveitar\" functions as intended, and must align with the original Japanese text. The new text for Squawkabilly ex's Ability will be, \"Uma vez durante o seu primeiro turno,\" (\"Once during your first turn,). The change will take effect immediately, and all Brazilian Portuguese versions of Squawkabilly ex (SV:Paldea Evolved, 169/193, 247/193, and 264/193) will use the updated Ability text.",
   "source": "(Jun 21, 2023 TPCi Announcements [https://www.pokemon.com/br/errata-de-squawkabilly-ex-escarlate-e-violeta-evolucoes-em-paldea-169-193-do-pokemon-estampas-ilustradas]; Nov 9, 2023 TPCi Rules Team)",
   "n": 1466
  },
@@ -15815,7 +15815,7 @@
    "Abilities » Hero's Spirit"
   ],
   "q": "",
-  "a": "",
+  "a": "Palafin ex's \"Hero's Spirit\" Ability is very literal. You can put it into play only with the effect of Palafin's \"Zero to Hero\" Ability; you can't put it into play any other way. The only exception would be if something like Hex Maniac or Garbotoxin are used, which remove Abilities of Pokemon that are in the hand.",
   "source": "Twilight Masquerade FAQ; TPCi Rules Team (2024-05-23)",
   "n": 1530
  },
@@ -16708,7 +16708,7 @@
    "Abilities » Far-Flying Meteor"
   ],
   "q": "",
-  "a": "",
+  "a": "The original text for Minior's \"Far-Flying Meteor\" Ability was: \"Once during your turn, if this Pokemon is on your Bench, when you attach an Energy card from your hand to this Pokemon, you may switch it with your Active Pokemon.\" The original intention was to be able to use this Ability whenever you attach an Energy card from your hand to this Pokemon, not just once per turn. It is possible to use this Ability more than once per turn. The new card text for Minior's \"Far-Flying Meteor\" Ability will be: \"During your turn, if this Pokemon is on your Bench, whenever you attach an Energy card from your hand to this Pokemon, you may switch it with your Active Pokemon.\"",
   "source": "(Nov 07, 2024 TPCi Announcements [https://www.pokemon.com/us/pokemon-news/errata-for-minior-scarlet-violet-paradox-rift-and-venusaur-snivy-gx-sun-moon-cosmic-eclipse-in-the-pokemon-tcg]; Nov 7, 2024 TPCi Rules Team)",
   "n": 1615
  },
@@ -16719,7 +16719,7 @@
    "Errata » Shining Vine"
   ],
   "q": "",
-  "a": "",
+  "a": "The original text for Venusaur & Snivy-GX's \"Shining Vine\" Ability was: \"Once during your turn, if this Pokemon is your Active Pokemon, when you attach a Grass Energy card from your hand to it, you may switch 1 of your opponent's Benched Pokemon with their Active Pokemon.\" The new card text for Venusaur & Snivy-GX's \"Shining Vine\" Ability will be: \"During your turn, if this Pokemon is your Active Pokemon, whenever you attach a Grass Energy card from your hand to it, you may switch 1 of your opponent's Benched Pokemon with their Active Pokemon.\"",
   "source": "(Nov 07, 2024 TPCi Announcements [https://www.pokemon.com/us/pokemon-news/errata-for-minior-scarlet-violet-paradox-rift-and-venusaur-snivy-gx-sun-moon-cosmic-eclipse-in-the-pokemon-tcg]; Nov 07, 2024 TPCi Rules Team)",
   "n": 1616
  },
@@ -16963,7 +16963,7 @@
    "Abilities » Trade"
   ],
   "q": "",
-  "a": "",
+  "a": "N's Zoroark ex's \"Trade\" Ability uses a different wording than Zoroark-GX's \"Trade\"; it's intentional that they work differently.",
   "source": "Journey Together FAQ; TPCi Rules Team (2025-03-27)",
   "n": 1639
  },
@@ -17458,7 +17458,7 @@
    "Trainers » Super Rod"
   ],
   "q": "",
-  "a": "",
+  "a": "The original text for Super Rod was: \"Shuffle 3 in any combination of Pokemon and Basic Energy cards from your discard pile into your deck.\" The new card text for Super Rod will be: \"Shuffle up to 3 in any combination of Pokemon and Basic Energy cards from your discard pile into your deck.\" Now the text says \"up to 3\" which means the player can choose 1, 2, or 3 cards. This is a major change compared to the Super Rod from Neo Genesis (103/111).",
   "source": "Jun 23, 2023 TPCi Announcements (date approximate), TPCi Rules Team (2025-06-05)",
   "n": 1686
  },
@@ -17469,7 +17469,7 @@
    "Trainers » Superior Energy Retrieval"
   ],
   "q": "",
-  "a": "",
+  "a": "The original text for Superior Energy Retrieval was: \"Discard 2 cards from your hand. (If you can't discard 2 cards you can't play this card.) Put 4 basic Energy cards from your discard pile into your hand. (You can't choose a card you discarded with the effect of this card.)\" The new card text for Superior Energy Retrieval will be: \"You can use this card only if you discard 2 other cards from your hand. Put up to 4 Basic Energy cards from your discard pile into your hand. (You can't choose a card you discarded with the effect of this card.)\" Now the text says \"up to 4\" which means the player can choose 1, 2, 3, or 4 cards.",
   "source": "Jun 23, 2023 TPCi Announcements (date approximate), TPCi Rules Team (2025-06-05)",
   "n": 1687
  },
@@ -17480,7 +17480,7 @@
    "Errata » Leftovers"
   ],
   "q": "",
-  "a": "",
+  "a": "The original text for Leftovers was: \"If the Pokemon Leftovers is attached to is your Active Pokemon at the end of your turn, remove 1 damage counter from that Pokemon.\" The new card text for Leftovers will be: \"At the end of your turn, if the Pokemon this card is attached to is in the Active Spot, heal 20 damage from it.\" Now it heals 20 damage instead of 10.",
   "source": "Oct 06, 2023 TPCi Announcements (date approximate), TPCi Rules Team (2025-06-05)",
   "n": 1688
  },
@@ -17491,7 +17491,7 @@
    "Errata » Sacred Ash"
   ],
   "q": "",
-  "a": "",
+  "a": "The original text for Sacred Ash was: \"Shuffle 5 Pokemon from your discard pile into your deck.\" The new card text for Sacred Ash will be: \"Shuffle up to 5 Pokemon from your discard pile into your deck.\" Now the text says \"up to 5\" which means the player can choose 1, 2, 3, 4, or 5 cards.",
   "source": "Jun 13, 2025 TPCi Announcements (date approximate), TPCi Rules Team (2025-06-05)",
   "n": 1689
  },
@@ -17748,7 +17748,7 @@
    "Abilities » Explosiveness"
   ],
   "q": "",
-  "a": "",
+  "a": "* Cinderace's \"Explosiveness\" Ability says if it's in your hand when you are setting up to play, you may put it face down in the Active Spot. If your opening hand has no Basic Pokemon but you do have Cinderace, you can choose to put it out as your Active OR show you have no basics and mulligan... YOU DECIDE.",
   "source": "Mega Evolution FAQ; TPCi Rules Team (2025-09-25)",
   "n": 1714
  },
@@ -17982,7 +17982,7 @@
    "Gameplay » Mega Evolution Pokemon"
   ],
   "q": "",
-  "a": "",
+  "a": "* Mega Evolution Pokemon ex are not the same as Mega Evolution Pokemon-EX from the XY series, and they do not interact with cards from the XY series that refer to \"Mega Evolution Pokemon\". Likewise, cards from the Mega Evolution series that refer to \"Mega Evolution Pokemon\" do not interact with cards from the XY series. All the cards from the XY series are referring to the Stage of the Pokemon (MEGA); since Mega Evolution Pokemon ex from the ME series are Basic, Stage 1, or Stage 2, they don't count. For example, Mega Turbo cannot attach Energy to a Mega Lucario ex and Faded Town won't put any damage counters on Mega Gardevoir ex because their Stage is not MEGA.",
   "source": "Mega Evolution FAQ; TPCi Rules Team (2025-09-25)",
   "n": 1737
  },
@@ -18414,7 +18414,7 @@
    "Meta-Rulings » Meta-Rulings"
   ],
   "q": "",
-  "a": "",
+  "a": "* With the release of the Ascended Heroes rulebook: For effects of attacks, if a card uses the phrase \"up to X\" you can choose any number between 0 and the maximum. For other effects (such as the effects of Trainer cards and Abilities), you can choose any number between 1 and the maximum. However, there is one exception: for any effect that allows you to search your deck or discard pile for any card you want and doesn't specify what kind, you must choose at least 1. If a card uses the phrase \"any amount\" or \"any number\" (for example, \"discard any amount of Energy from this Pokemon\") you can choose 0.",
   "source": "TPCi Rules Team (2026-02-19)",
   "n": 1778
  },

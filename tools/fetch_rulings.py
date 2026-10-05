@@ -54,6 +54,9 @@ def parse(s):
         cats = re.search(r'<div class="ruling-categories">(.*?)</div>', a, re.S)
         topics = [text(t) for t in (cats.group(1).split('|') if cats else [])]
         qa = re.findall(r'<dt>(.*?)</dt>\s*<dd>(.*?)</dd>', a, re.S)
+        if not qa:   # statements (errata, announcements) have only a <dd>
+            dds = re.findall(r'<dd>(.*?)</dd>', a, re.S)
+            qa = [('', ' // '.join(dds))] if dds else []
         src = re.search(r'<div id="source">(.*?)</div>', a, re.S)
         for q, ans in qa or [('', '')]:
             out.append({'id': int(m.group(1)), 'topics': topics, 'q': text(q), 'a': text(ans),
