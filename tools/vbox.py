@@ -14,6 +14,7 @@ usage: vbox.py up | stop [--force] | ssh | setup | gc
                $PTCG_ORACLE, $PTCG_DIFF, $JOB set; files written to $JOB/out are fetched)
        vbox.py ledger [--gate 100000]
        vbox.py status [JOB] | logs JOB [--tail N] | wait JOB | fetch JOB DEST | cancel JOB
+       vbox.py cost | budget [--daily-hours H] [--max-boot-hours H] [--ssh-idle-hours H]
 
 Oracle-side flags take --oracle DIR (a ptcg-server directory). The tier-4
 ledger counts green games per (engine/data/decks trees, Twinleaf source hash),
@@ -21,6 +22,11 @@ so it resets by itself whenever either side changes. tools/check_cards.py
 --remote and tools/tier4.py --remote use the box unless PTCG_REMOTE=actions.
 
 The box stops itself after 30 idle minutes; every command starts it again.
+Spending limits (UTC days): once the box has run `daily_hours` today, new jobs
+are refused and it powers off as soon as running jobs end; any boot longer
+than `max_boot_hours` is powered off, jobs or not; an open SSH session keeps an
+idle box up for at most `ssh_idle_hours`. --over-budget (or
+PTCG_VBOX_OVER_BUDGET=1) runs a job past the daily cap.
 Setup: tools/vbox_setup.sh (`vbox.py setup`). Instance and credentials:
 PTCG_VBOX_INSTANCE, PTCG_VBOX_PROFILE (AWS CLI profile), PTCG_VBOX_REGION,
 PTCG_VBOX_KEY (SSH key).
@@ -43,7 +49,11 @@ REPO_PATHS = ['engine', 'data', 'decks', 'tools', 'scenarios', 'divergences.toml
 GATE_TREES = ('engine', 'data', 'decks')   # = tools/tier4_ledger.py code_key
 # Bump on every change to the agent half: clients from older worktrees then
 # leave the newer agent on the box in place (it is installed as vbox/agent.py).
-AGENT_VERSION = 2
+AGENT_VERSION = 3
+# Spending limits (defaults; `vbox.py budget` changes them on the box). Days are UTC, like AWS billing.
+BUDGET_DEFAULTS = {'daily_hours': 3.0, 'max_boot_hours': 12.0, 'ssh_idle_hours': 2.0}
+PRICE = float(os.environ.get('PTCG_VBOX_PRICE', '3.28'))   # c7a.16xlarge on-demand, us-west-2, $/hour (approximate)
+OVER_BUDGET = os.environ.get('PTCG_VBOX_OVER_BUDGET') == '1'
 
 
 def die(msg):
@@ -85,8 +95,10 @@ def ensure_up(refresh=False):
                     subprocess.run([RSYNC, '-a', '-e', ssh_cmd(), os.path.abspath(__file__), 'ubuntu@%s:vbox/agent.py.new' % ip], check=True)
                     subprocess.run(['ssh', *SSH_OPTS, 'ubuntu@' + ip,
                                     'mv vbox/agent.py.new vbox/agent.py && echo %d > vbox/agent.version' % AGENT_VERSION], check=True)
+                refresh_usage()
                 return ip
         elif state == 'stopped':
+            check_cap()
             aws('ec2', 'start-instances', '--instance-ids', INSTANCE)
         elif state in ('terminated', 'shutting-down'):
             die('instance %s is %s' % (INSTANCE, state))
@@ -95,6 +107,33 @@ def ensure_up(refresh=False):
             said = True
         time.sleep(5)
     die('the box did not come up within 10 minutes')
+
+
+def refresh_usage():
+    """Cache the box's usage locally (a stopped box can't be asked) and warn near the cap."""
+    r = subprocess.run(['ssh', *SSH_OPTS, 'ubuntu@' + _ip, 'python3 vbox/agent.py agent usage'], capture_output=True, text=True)
+    try:
+        u = json.loads(r.stdout)
+    except ValueError:
+        return None
+    os.makedirs(CACHE, exist_ok=True)
+    write_json(os.path.join(CACHE, 'usage.json'), u)
+    if u['today_hours'] >= 0.8 * u['budget']['daily_hours']:
+        print('vbox: WARNING %.1f of %.1f box hours used today (UTC, ~$%.0f)%s' % (
+            u['today_hours'], u['budget']['daily_hours'], u['today_hours'] * PRICE,
+            '; new jobs need --over-budget' if u['today_hours'] >= u['budget']['daily_hours'] else ''), file=sys.stderr)
+    return u
+
+
+def check_cap():
+    try:
+        u = json.load(open(os.path.join(CACHE, 'usage.json')))
+    except (OSError, ValueError):
+        return
+    if (not OVER_BUDGET and u.get('day') == time.strftime('%Y-%m-%d', time.gmtime())
+            and u['today_hours'] >= u['budget']['daily_hours']):
+        die('daily cap reached: the box ran %.1f of %.1f hours today (UTC); not starting it. '
+            'Pass --over-budget, or raise the cap with `vbox.py budget --daily-hours H`' % (u['today_hours'], u['budget']['daily_hours']))
 
 
 def ssh_cmd():
@@ -215,7 +254,7 @@ def submit(kind, cmds, oracle=None, repo=None, nice=0, inputs=None, post=None, m
     for name, path in (inputs or {}).items():
         rsync_to([path], 'jobs/%s/in/%s' % (jid, name))
     job = {'id': jid, 'kind': kind, 'oracle': oracle, 'repo': repo, 'nice': nice, 'cmds': cmds, 'post': post or [],
-           'meta': meta or {}, 'timeout': timeout, 'created': time.time(),
+           'meta': meta or {}, 'timeout': timeout, 'created': time.time(), 'over_budget': OVER_BUDGET,
            'client': {'root': ROOT, 'oracle_dir': (meta or {}).get('oracle_dir')}}
     agent('start', jid, input=json.dumps(job))
     return jid
@@ -341,6 +380,27 @@ def cmd_exec(a):
     return 0 if st['state'] == 'done' and not any(st['rcs']) else 1
 
 
+def cmd_cost():
+    u = None
+    if _ip or box_state()[0] == 'running':
+        ensure_up()
+        u = refresh_usage()
+    if u is None:
+        try:
+            u = json.load(open(os.path.join(CACHE, 'usage.json')))
+            print('(box is stopped; as of its last use)')
+        except (OSError, ValueError):
+            die('no usage known yet')
+    b = u['budget']
+    print('today (UTC %s): %.2f h of %.1f h cap  ~$%.2f' % (u['day'], u['today_hours'], b['daily_hours'], u['today_hours'] * PRICE))
+    print('month to date: %.2f h  ~$%.2f (+ ~$5/month disk)' % (u['month_hours'], u['month_hours'] * PRICE))
+    for d, h in sorted(u['days'].items())[-7:]:
+        print('  %s  %5.2f h  ~$%.2f' % (d, h, h * PRICE))
+    if u.get('boot_hours') is not None:
+        print('this boot: up %.2f h (powered off at %.1f h)' % (u['boot_hours'], b['max_boot_hours']))
+    return 0
+
+
 def cmd_ledger(a):
     rows = json.loads(agent('ledger').stdout)
     _, _, trees = snapshot(ROOT, REPO_PATHS)
@@ -369,6 +429,10 @@ def cmd_ledger(a):
 
 
 def client(argv):
+    global OVER_BUDGET
+    if '--over-budget' in argv:
+        argv = [x for x in argv if x != '--over-budget']
+        OVER_BUDGET = True
     ap = argparse.ArgumentParser(prog='vbox.py', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='command', required=True)
     sp.add_parser('up')
@@ -377,6 +441,11 @@ def client(argv):
     sp.add_parser('ssh')
     sp.add_parser('setup')
     sp.add_parser('gc')
+    sp.add_parser('cost')
+    p = sp.add_parser('budget')
+    p.add_argument('--daily-hours', type=float)
+    p.add_argument('--max-boot-hours', type=float)
+    p.add_argument('--ssh-idle-hours', type=float)
     p = sp.add_parser('oracle')
     p.add_argument('spec')
     p.add_argument('out')
@@ -433,6 +502,11 @@ def client(argv):
     elif a.command == 'setup':
         rsync_to([os.path.join(ROOT, 'tools/vbox_setup.sh')], 'vbox/vbox_setup.sh')
         return ssh('bash vbox/vbox_setup.sh', capture=False).returncode
+    elif a.command == 'cost':
+        return cmd_cost()
+    elif a.command == 'budget':
+        sets = ['%s=%s' % (k, v) for k, v in vars(a).items() if k.endswith('_hours') and v is not None]
+        print(json.dumps(json.loads(agent('budget', *sets).stdout), indent=1))
     elif a.command == 'gc':
         print(agent('gc').stdout, end='')
     elif a.command == 'oracle':
@@ -596,6 +670,11 @@ def agent_build(kind, slot, h):
 def agent_start(jid):
     d = os.path.join(JOBS, jid)
     job = json.loads(sys.stdin.read())
+    u = usage()
+    if u['today_hours'] >= u['budget']['daily_hours'] and not job.get('over_budget'):
+        sys.exit('daily cap reached: the box ran %.1f of %.1f hours today (UTC). Pass --over-budget '
+                 '(PTCG_VBOX_OVER_BUDGET=1), or raise it with `vbox.py budget --daily-hours H`' % (
+                     u['today_hours'], u['budget']['daily_hours']))
     os.makedirs(os.path.join(d, 'logs'), exist_ok=True)
     for kind in ('oracle', 'repo'):
         if job.get(kind):
@@ -657,7 +736,7 @@ def agent_run(jid):
     write_json(os.path.join(d, 'status.json'), st)
 
 
-def agent_cancel(jid):
+def agent_cancel(jid, why=None):
     d = os.path.join(JOBS, jid)
     st = json.load(open(os.path.join(d, 'status.json')))
     for pg in st.get('pgids', []):
@@ -666,6 +745,8 @@ def agent_cancel(jid):
     with contextlib.suppress(OSError, TypeError):
         os.kill(st.get('pid'), signal.SIGKILL)
     st.update(state='cancelled', finished=time.time())
+    if why:
+        st['cancel_reason'] = why
     write_json(os.path.join(d, 'status.json'), st)
     print('cancelled ' + jid)
 
@@ -750,25 +831,93 @@ def agent_gc(quiet=False):
         print('\n'.join(freed) or 'nothing to collect')
 
 
+def budget():
+    try:
+        return dict(BUDGET_DEFAULTS, **json.load(open(os.path.join(VB, 'budget.json'))))
+    except (OSError, ValueError):
+        return dict(BUDGET_DEFAULTS)
+
+
+def boot_info():
+    boot = open('/proc/sys/kernel/random/boot_id').read().strip()
+    return boot, float(open('/proc/uptime').read().split()[0])
+
+
+def add_time(days, t, now):
+    """Credit the running time [t, now) to its UTC days."""
+    while t < now:
+        end = (int(t // 86400) + 1) * 86400
+        day = time.strftime('%Y-%m-%d', time.gmtime(t))
+        days[day] = days.get(day, 0.0) + min(now, end) - t
+        t = min(now, end)
+
+
+def usage(record=False):
+    """Box running time per UTC day, kept by the idle timer (root) in vbox/usage.json."""
+    path = os.path.join(VB, 'usage.json')
+    try:
+        u = json.load(open(path))
+    except (OSError, ValueError):
+        u = {'days': {}}
+    boot, up = boot_info()
+    now = time.time()
+    days = dict(u['days'])
+    # This boot's time not yet credited: since the last record, or since boot.
+    add_time(days, u['last'] if u.get('boot') == boot else now - up, now)
+    if record:
+        write_json(path, {'days': days, 'boot': boot, 'last': now})
+    today = time.strftime('%Y-%m-%d', time.gmtime(now))
+    return {'day': today, 'today_hours': days.get(today, 0.0) / 3600, 'boot_hours': up / 3600, 'budget': budget(),
+            'month_hours': sum(v for d, v in days.items() if d[:7] == today[:7]) / 3600,
+            'days': {d: v / 3600 for d, v in days.items()}}
+
+
+def agent_budget(sets):
+    b = budget()
+    for kv in sets:
+        k, v = kv.split('=')
+        if k not in BUDGET_DEFAULTS:
+            sys.exit('unknown budget key ' + k)
+        b[k] = float(v)
+    write_json(os.path.join(VB, 'budget.json'), b)
+    print(json.dumps(b))
+
+
 def agent_idle_check(dry=False):
-    """Run by root every 5 minutes (vbox-idle.timer): power off after 30 idle minutes."""
+    """Run by root every 2 minutes (vbox-idle.timer): record running time,
+    enforce the spending limits, power off after 30 idle minutes."""
     def stay(why):
         if dry:
             print('stay up: ' + why)
-    if any(st['state'] == 'running' for st in jobs_list()):
+
+    def off(why):
+        if dry:
+            return print('would power off: ' + why)
+        print('powering off: ' + why)
+        agent_gc(quiet=True)
+        subprocess.run(['systemctl', 'poweroff'])
+
+    u = usage(record=not dry)
+    b = u['budget']
+    running = [st for st in jobs_list() if st['state'] == 'running']
+    if u['boot_hours'] >= b['max_boot_hours']:
+        if not dry:
+            for st in running:
+                agent_cancel(st['id'], 'max_boot_hours %.1f reached' % b['max_boot_hours'])
+        return off('up %.1f h, max_boot_hours %.1f' % (u['boot_hours'], b['max_boot_hours']))
+    if running:
         return stay('a job is running')
+    if u['today_hours'] >= b['daily_hours']:
+        return off('%.1f h today, daily_hours %.1f' % (u['today_hours'], b['daily_hours']))
     last = [os.path.getmtime(f) for f in [os.path.join(VB, 'activity')] if os.path.exists(f)]
     last += [st.get('finished', 0) for st in jobs_list()]
     idle = time.time() - max(last or [0])
     if idle < 1800:
         return stay('last activity %.0f min ago' % (idle / 60))
     ss = subprocess.run(['ss', '-Htn', 'state', 'established', '( sport = :22 )'], capture_output=True, text=True).stdout
-    if ss.strip():
+    if ss.strip() and idle < b['ssh_idle_hours'] * 3600:
         return stay('SSH session open')
-    if dry:
-        return print('would power off')
-    agent_gc(quiet=True)
-    subprocess.run(['systemctl', 'poweroff'])
+    return off('idle %.0f min' % (idle / 60))
 
 
 def agent_main(argv):
@@ -803,6 +952,10 @@ def agent_main(argv):
         agent_ledger()
     elif cmd == 'gc':
         agent_gc()
+    elif cmd == 'usage':
+        print(json.dumps(usage()))
+    elif cmd == 'budget':
+        agent_budget(args)
     elif cmd == 'idle-check':
         agent_idle_check(dry=args[:1] == ['--dry-run'])
     else:
