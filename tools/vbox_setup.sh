@@ -24,14 +24,14 @@ fi
 mkdir -p "$HOME/vbox" "$HOME/jobs" "$HOME/builds" "$HOME/stage" "$HOME/nm"
 
 # Stop the instance after 30 idle minutes: no running job, no vbox call and no
-# SSH session (tools/vbox.py agent idle-check).
+# SSH session (tools/vbox.py agent idle-check, installed as vbox/agent.py).
 sudo tee /etc/systemd/system/vbox-idle.service >/dev/null <<'EOF'
 [Unit]
 Description=Stop the verification box when idle
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /home/ubuntu/vbox/vbox.py agent idle-check
+ExecStart=/usr/bin/python3 /home/ubuntu/vbox/agent.py agent idle-check
 EOF
 sudo tee /etc/systemd/system/vbox-idle.timer >/dev/null <<'EOF'
 [Unit]
