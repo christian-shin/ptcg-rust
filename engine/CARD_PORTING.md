@@ -139,7 +139,13 @@ that moves Energy with `MOVE_CARDS` passes `afterDamageOf: effect`
 an AfterAttackEffect handler (Larvitar, Zapdos, Scream Tail, ...) are unaffected:
 the window is closed there. A cost written in the attack cost line, a discard
 from the hand (Hydrapple, Ceruledge PFL) and discards of non-Energy cards are not
-deferred.
+deferred. An effect with an empty card list is a probe ("does Mist Energy prevent
+this?", Ceruledge SSP, Minccino TEF, Illumise TWM, ...) and is reduced at once,
+never queued. Retaliation of an Energy on the Defending Pokémon (Spiky Energy) is
+step 7 of the flow chart, after the attack's own effects: it is queued in the
+window (`AFTER_DAMAGE_OR_NOW` / `AfterDmgStep::Retaliate`) and only happens when
+the card is still attached, so Duraludon PFL's Hyper Beam discarding Spiky Energy
+stops it (no ruling names this case; the flow-chart order decides).
 
 ### State Twinleaf mutates that Rust doesn't model yet
 
