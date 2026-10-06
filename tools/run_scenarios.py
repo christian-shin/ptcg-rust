@@ -30,16 +30,20 @@ def run(f):
                         '--jobs', '1', '--tag', 'sc-' + slug, '--out', os.path.join(a.out, 'corpus', slug)],
                        cwd=ROOT, capture_output=True, text=True)
     out = r.stdout + r.stderr
-    keep = [l for l in out.split('\n') if ' traces: ' in l or 'WARNING' in l or 'ORACLE' in l or 'rror' in l]
-    return '%d %s %s' % (r.returncode, os.path.relpath(f, ROOT), ' | '.join(keep[-4:]))
+    keep = [l for l in out.split('\n') if ' traces: ' in l or l.startswith('expect: ') or l.startswith('EXPECT FAILED') or 'WARNING' in l or 'ORACLE' in l or 'rror' in l]
+    return '%d %s %s' % (r.returncode, os.path.relpath(f, ROOT), ' | '.join(keep[-6:]))
 
 
 os.makedirs(a.out, exist_ok=True)
 bad = 0
+expect_bad = 0
 with open(os.path.join(a.out, 'scenarios.txt'), 'w') as fh, ThreadPoolExecutor(a.procs) as ex:
     for line in ex.map(run, files):
         fh.write(line + '\n')
-        if not line.startswith('0 ') or ' 0 diverged' not in line or 'WARNING' in line:
+        failed = re.search(r'expect: \d+ games checked, ([1-9]\d*) failed', line)
+        if failed:
+            expect_bad += 1
+        if not line.startswith('0 ') or ' 0 diverged' not in line or 'WARNING' in line or failed:
             bad += 1
             print(line, flush=True)
-print('scenarios: %d run, %d not clean' % (len(files), bad))
+print('scenarios: %d run, %d not clean, %d with expect failures' % (len(files), bad, expect_bad))

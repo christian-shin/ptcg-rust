@@ -39,5 +39,16 @@
    "a": "attack",
    "name": "World's End"
   }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Pikachu ex ASC 57",
+   "damage": 190,
+   "hp_left": 10,
+   "cite": "ruling 1589 (Resolute Heart: remaining HP becomes 10, with Lively Stadium discarded by World Ender)"
+  }
  ]
 }

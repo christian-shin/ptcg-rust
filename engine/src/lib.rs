@@ -22,6 +22,7 @@ pub mod prefabs;
 pub mod prompts;
 pub mod obs;
 pub mod rng;
+pub mod expect;
 pub mod scenario;
 pub mod search;
 pub mod state;

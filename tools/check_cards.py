@@ -96,6 +96,10 @@ def load_scenario(path):
     for n in seen:
         if n not in cards:
             sys.exit('scenario: unknown card %s' % n)
+    # `expect` is checked by the Rust replay (diff); the oracle ignores the key.
+    for i, e in enumerate(sc.get('expect') or []):
+        if not isinstance(e, dict) or not str(e.get('cite') or '').strip():
+            sys.exit('scenario: expect[%d] needs a cite (a ruling or rulebook reference)' % i)
     return sc
 
 
@@ -290,6 +294,18 @@ def main():
         print('WARNING: %d game(s) never reached the scenario target (broken scenario); fix the scenario' % len(broken))
     r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
     print(r.stdout[-6000:])
+    # Expectation failures are their own outcome: repeat the summary line and the first failure.
+    expect_line = next((l for l in r.stdout.split('\n') if l.startswith('expect: ')), None)
+    if expect_line:
+        tail = r.stdout[-6000:]
+        if expect_line not in tail:
+            print(expect_line)
+        i = r.stdout.find('EXPECT FAILED')
+        if i >= 0 and r.stdout[i:] not in tail:
+            print(r.stdout[i:].split('\nEXPECT FAILED')[0].rstrip())
+        m = re.match(r'expect: (\d+) games checked, (\d+) failed, (\d+) not checked', expect_line)
+        if m and int(m.group(1)) == 0:
+            print('WARNING: no game reached the check point of the scenario expect assertions')
     if args.coverage:
         files = sorted({row.get('behavior_file') or row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
         subprocess.run([sys.executable, os.path.join(ROOT, 'tools/coverage.py'), os.path.join(out, 'cov'), *files, '--min', str(args.min_games)])

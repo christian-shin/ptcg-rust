@@ -52,6 +52,59 @@
   {
    "a": "attack",
    "name": "Reverse Thrust"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "card": "Croconaw TEF 40",
+   "energy": 2,
+   "cite": "rulings 1625, 1651 (Handheld Fan resolves after the attack's own effects: Croconaw has already switched to the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Croconaw TEF 40",
+   "energy": [
+    "Water Energy MEE",
+    "Water Energy MEE"
+   ],
+   "cite": "rulings 1625, 1651 (Handheld Fan resolves after the attack's own effects: Croconaw has already switched to the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "card": "Totodile TEF 39",
+   "energy": [
+    "Water Energy MEE"
+   ],
+   "cite": "rulings 1625, 1651 (Handheld Fan resolves after the attack's own effects: Croconaw has already switched to the Bench); the Energy goes to the other Benched Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Totodile TEF 39",
+   "energy": 0,
+   "cite": "rulings 1625, 1651 (Handheld Fan resolves after the attack's own effects: Croconaw has already switched to the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "tool": "Handheld Fan TWM 150",
+   "energy": 0,
+   "cite": "Handheld Fan text: the Energy moves to one of the attacker's Benched Pokemon, not to the Fan's holder"
   }
  ]
 }

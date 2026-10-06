@@ -55,5 +55,45 @@
     "index": 0
    }
   ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "tool": null,
+   "cite": "card text: Cleaning Up discards up to 2 Pokemon Tools from the opponent's Pokemon (the scripted answer picks one)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "tool": "Handheld Fan TWM 150",
+   "cite": "card text: Cleaning Up discards up to 2 Pokemon Tools from the opponent's Pokemon (the scripted answer picks one); only the chosen Tool is discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "tool": "Handheld Fan TWM 150",
+   "cite": "card text: Cleaning Up discards up to 2 Pokemon Tools from the opponent's Pokemon (the scripted answer picks one); only the chosen Tool is discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Sacred Charm PFL 93"
+   ],
+   "cite": "card text: Cleaning Up discards up to 2 Pokemon Tools from the opponent's Pokemon (the scripted answer picks one)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: Cleaning Up does no damage"
+  }
  ]
 }

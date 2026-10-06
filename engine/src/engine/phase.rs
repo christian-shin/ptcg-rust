@@ -127,6 +127,8 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
 
 /// `oc` for EndTurn's checkState, after KO resolution.
 pub fn after_end_turn(g: &mut Game, p: usize) -> R {
+    // Scenario `expect` assertions at "turn_end": Knock Outs are done, Pokémon Checkup is next.
+    crate::expect::on_turn_end(g);
     // Expire KO-time effects on the opponent (denyPrizes: not modeled).
     let o = 1 - p;
     for s in g.st.players[o].in_play().iter() {

@@ -428,6 +428,68 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   policy still picks moves): set the board so the branch is likely, and run
   enough games (12-16 is usually plenty) that it runs in ≥3.
 
+#### `expect`: the scenario asserts the rules outcome
+
+"0 diverged" only says the Rust engine and the oracle agree. A scenario can
+also assert what the rules say with an optional top-level `expect` list. It is
+evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
+
+```json
+"expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Pikachu ex ASC 57",
+   "damage": 190, "hp_left": 10, "cite": "ruling 1589"},
+  {"at": "turn_end", "who": "me", "bench": 1, "energy": ["Water Energy MEE"], "cite": "rulings 1625, 1651"},
+  {"who": "opp", "zone": "discard", "count": 1, "contains": ["Sacred Charm PFL 93"], "cite": "card text"},
+  {"winner": null, "cite": "<ruling or rulebook rule>"}
+]
+```
+
+* **`cite`** (mandatory, a non-empty string): the ruling or rulebook rule that
+  makes this the right outcome. An assertion without one is rejected
+  (`check_cards.py` exits, `diff` reports EXPECT FAILED), as are unknown keys.
+* **`at`**: when it is checked. `"turn_end"`: when the scenario turn's player
+  ends the turn, after the attack and its effects are done and Knock Outs are
+  resolved (Prizes taken, promotions chosen), before Pokémon Checkup (poison,
+  burn, sleep). It is evaluated in the engine's `after_end_turn`, the point
+  between the Knock Out check and the start of Checkup. `"next_turn"`
+  (default): the first turn decision of the following turn, after Checkup.
+  Every game must satisfy every assertion. A game that ends before the check
+  point (a win at turn end is still seen by `turn_end`, but not by
+  `next_turn`) is reported as not checked, never as passed.
+* **Players**: `who` is `me` (the scenario's first side, the player whose turn
+  it is at `turn`) or `opp`. Needed by every assertion except `winner`.
+* **Pokémon slot** (pick one selector, then any checks):
+
+  | Selector | Meaning |
+  | --- | --- |
+  | `"slot": "active"` | The Active Pokémon |
+  | `"bench": N` | Bench spot N, left to right from 0, as the engine stores them (a Pokémon switched or promoted keeps its spot; the spot it left is taken by the other one) |
+  | `"card": "Name"` | The Pokémon in play whose stack holds that card (any evolution stage). With `slot`/`bench`, `card` is a check instead |
+
+  | Check | Meaning |
+  | --- | --- |
+  | `damage`: N | Exact damage on the Pokémon |
+  | `hp_left`: N | HP (as last computed, with HP changes from Tools and Stadiums) minus damage |
+  | `energy`: N or `[names]` | Count, or exactly these Energy cards (any order) |
+  | `tool`: name or `null` | The Tool attached, or none |
+  | `conditions`: `[...]` | Exactly these Special Conditions (`[]` = none) |
+  | `card`: name | Name of the top Pokémon card (with `slot`/`bench`) |
+  | `in_play`: bool | `false` = nothing there (or the named card is not in play); a selector that finds no Pokémon fails every other check |
+
+* **Zones**: `{"who", "zone": "hand|deck|discard|prizes|lost_zone", "count": N,
+  "contains": [names], "not_contains": [names]}`. `contains` needs distinct
+  cards (two names = two cards). `prizes` is the Prize cards still in the Prize pile.
+* **Other**: `{"who", "prizes_taken": N}` (Prizes taken so far by Knock Outs);
+  `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
+  `{"who", "active": "Name"}` (the Active Pokémon's name).
+* **Names** are English keys or Twinleaf full names; both are accepted.
+* **Output**: `diff` prints `EXPECT FAILED <trace>: assertion #i (at) ...`
+  with the cite and the actual value, and `expect: N games checked, M failed, K
+  not checked`; it exits 1 on failure, like a divergence, with `--quiet` too.
+  With `--dump DIR` it writes the Rust state at the check point as
+  `<trace>.expect<i>.rust.json`. `check_cards.py` repeats the summary line and
+  the first failure, and `run_scenarios.py` counts expect failures in its summary.
+
 Implementation: `twinleaf/ptcg-server/src/oracle/scenario.ts` and
 `engine/src/scenario.rs`, kept identical. Porting agents don't edit them (the
 Twinleaf checkout is off limits): if a branch needs an edit that doesn't exist

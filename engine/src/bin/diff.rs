@@ -3,6 +3,10 @@
 //!
 //!   diff <trace.json|dir>... [--dump <dir>] [--quiet]
 //!
+//! A scenario's `expect` assertions (CARD_PORTING.md "Scenarios") are checked
+//! here against the Rust state and reported as their own outcome, EXPECT FAILED,
+//! apart from divergence from the oracle.
+//!
 //! For each trace: rebuild the game from seed and decks, then at every step
 //! compare the decision descriptor / turn option set, apply the recorded
 //! answer, settle chance and info prompts, and compare the state hash.
@@ -30,6 +34,8 @@ enum Outcome {
     Pass { steps: usize },
     Diverged { step: isize, what: String, detail: String },
     Unsupported(String),
+    /// The replay matched the oracle but the scenario's `expect` assertions failed (or are malformed).
+    ExpectFailed { failures: Vec<String> },
 }
 
 fn canon(v: &Value) -> String {
@@ -113,10 +119,16 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
                 }
             }
             Pending::Turn(_) => {
+                ptcg::expect::on_turn_decision(&g);
                 if !scenario_done && g.st.turn >= ptcg::scenario::scenario_turn(scenario) {
                     scenario_done = true;
                     if let Err(e) = ptcg::scenario::apply(&mut g, scenario) {
                         return Outcome::Diverged { step: i as isize, what: "scenario".into(), detail: e };
+                    }
+                    match ptcg::expect::parse(scenario) {
+                        Ok(a) if !a.is_empty() => ptcg::expect::arm(&g, a, dump.is_some()),
+                        Ok(_) => {}
+                        Err(e) => return Outcome::ExpectFailed { failures: vec![format!("invalid expect: {}", e)] },
                     }
                     let at = &trace["scenario"];
                     if at["step"].as_u64() != Some(i as u64) || at["h"].as_str() != Some(g.state_hash().as_str()) {
@@ -255,6 +267,9 @@ fn main() {
         std::fs::create_dir_all(d).unwrap();
     }
     let (mut pass, mut fail, mut unsup, mut steps, mut appr) = (0, 0, 0, 0usize, 0usize);
+    // Scenario `expect` accounting: games fully checked, games with a failed assertion, games where
+    // an assertion's check point was never reached (the game ended first: not checked, not passed).
+    let (mut exp_checked, mut exp_failed, mut exp_unchecked) = (0usize, 0usize, 0usize);
     let mut firsts: std::collections::BTreeMap<String, usize> = Default::default();
     for f in &files {
         let text = std::fs::read_to_string(f).unwrap();
@@ -263,14 +278,45 @@ fn main() {
         // A panic (e.g. a fixed-capacity list overflowing on a Twinleaf state
         // with duplicated cards) fails this trace instead of the whole run.
         PANIC_STEP.with(|c| c.set(-1));
-        let out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| replay(&trace, dump.as_deref(), &name))) {
+        ptcg::expect::take();
+        let mut out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| replay(&trace, dump.as_deref(), &name))) {
             Ok(o) => o,
             Err(e) => {
                 let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
                 Outcome::Diverged { step: PANIC_STEP.with(|c| c.get()), what: "panic".into(), detail: msg }
             }
         };
+        let run = ptcg::expect::take();
+        if let (Outcome::Pass { .. }, Some(run)) = (&out, &run) {
+            let mut failures: Vec<String> = Vec::new();
+            for fl in &run.failures {
+                let at = if fl.at == ptcg::expect::At::TurnEnd { "turn_end" } else { "next_turn" };
+                failures.push(format!("assertion #{} ({}) {}\n  cite: {}\n  actual: {}", fl.index, at, fl.assertion, fl.cite, fl.actual));
+                if let (Some(dir), Some(state)) = (&dump, &fl.state) {
+                    let _ = std::fs::write(dir.join(format!("{}.expect{}.rust.json", name, fl.index)), state);
+                }
+            }
+            if run.checked() == run.assertions.len() {
+                exp_checked += 1;
+            } else {
+                exp_unchecked += 1;
+                if !quiet {
+                    println!("EXPECT NOT CHECKED {}: {} of {} assertions reached their check point", name, run.checked(), run.assertions.len());
+                }
+            }
+            if !failures.is_empty() {
+                exp_failed += 1;
+                out = Outcome::ExpectFailed { failures };
+            }
+        } else if let Outcome::ExpectFailed { .. } = &out {
+            exp_failed += 1;
+        }
         match &out {
+            Outcome::ExpectFailed { failures, .. } => {
+                for l in failures {
+                    println!("EXPECT FAILED {}: {}", f.display(), l);
+                }
+            }
             Outcome::Pass { steps: s } => {
                 pass += 1;
                 steps += s;
@@ -299,10 +345,13 @@ fn main() {
         }
     }
     println!("\n{} traces: {} pass ({} steps), {} diverged, {} unsupported, {} approved", files.len(), pass, steps, fail, unsup, appr);
+    if exp_checked + exp_failed + exp_unchecked > 0 {
+        println!("expect: {} games checked, {} failed, {} not checked", exp_checked, exp_failed, exp_unchecked);
+    }
     for (k, v) in firsts {
         println!("  first divergence {}: {}", k, v);
     }
-    if fail > 0 {
+    if fail > 0 || exp_failed > 0 {
         std::process::exit(1);
     }
 }
