@@ -77,6 +77,8 @@ pub enum Effect {
     WhoBegins { player: Option<u8> },
     BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32, burn_flip_result: Option<bool>, asleep_flip_result: Option<bool> },
     AfterAttack { p: u8, opp: u8, attack: AttackRef },
+    /// Sent once everything the attack did (AfterAttack, prompts included) is resolved.
+    AfterAttackTriggers { p: u8, opp: u8, attack: AttackRef },
     BeforeDoingDamage { attack_effect: EffId, p: u8, opp: u8, attack: AttackRef },
 
     // ---- checks ----
@@ -236,6 +238,7 @@ impl Effect {
             WhoBegins { .. } => "END_TURN_EFFECT",
             BetweenTurns { .. } => "BETWEEN_TURNS_EFFECT",
             AfterAttack { .. } => "AFTER_ATTACK_EFFECT",
+            AfterAttackTriggers { .. } => "AFTER_ATTACK_TRIGGERS_EFFECT",
             BeforeDoingDamage { .. } => "BEFORE_DOING_DAMAGE_EFFECT",
             CheckHp { .. } => "CHECK_HP_EFFECT",
             CheckPokemonStats { .. } => "CHECK_POKEMON_STATS_EFFECT",
@@ -399,6 +402,7 @@ impl Effect {
             WhoBegins { .. } => 4,
             BetweenTurns { .. } => 5,
             AfterAttack { .. } => 6,
+            AfterAttackTriggers { .. } => 245,
             BeforeDoingDamage { .. } => 7,
             CheckHp { .. } => 8,
             CheckPokemonStats { .. } => 9,
@@ -497,6 +501,7 @@ pub mod k {
     pub const WHO_BEGINS: u32 = 4;
     pub const BETWEEN_TURNS: u32 = 5;
     pub const AFTER_ATTACK: u32 = 6;
+    pub const AFTER_ATTACK_TRIGGERS: u32 = 245;
     pub const BEFORE_DOING_DAMAGE: u32 = 7;
     pub const CHECK_HP: u32 = 8;
     pub const CHECK_POKEMON_STATS: u32 = 9;

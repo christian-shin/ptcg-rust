@@ -20,6 +20,8 @@ pub enum AtkStage {
     /// The Energy removals that waited for the damage have run (and their prompts resolved).
     AfterDamageEffects,
     AfterAfterAttack,
+    /// AfterAttackTriggersEffect resolved (and its prompts).
+    AfterTriggers,
     /// Barrage: after the first / second `checkState` wait, and the confirm.
     AfterBarrageCheck1,
     AfterBarrageCheck2,
@@ -236,6 +238,19 @@ fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
         g.wait_prompt(Cont::UseAttack(f));
         return Ok(());
     }
+    attack_triggers(g, f)
+}
+
+/// Effects that trigger on the Defending Pokémon (Handheld Fan) resolve once everything the attack
+/// did, prompts included, is over (rulings 1625, 1650, 1651).
+fn attack_triggers(g: &mut Game, mut f: AttackFrame) -> R {
+    let p = f.p as usize;
+    g.run_fx(Effect::AfterAttackTriggers { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
+    if g.has_prompts() {
+        f.stage = AtkStage::AfterTriggers;
+        g.wait_prompt(Cont::UseAttack(f));
+        return Ok(());
+    }
     finish_attack(g, f)
 }
 
@@ -374,7 +389,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
         AtkStage::AfterAnimation => deal_damage(g, f),
         AtkStage::AfterDealDamage => after_attack(g, f),
         AtkStage::AfterDamageEffects => after_attack_effect(g, f),
-        AtkStage::AfterAfterAttack => finish_attack(g, f),
+        AtkStage::AfterAfterAttack => attack_triggers(g, f),
+        AtkStage::AfterTriggers => finish_attack(g, f),
         AtkStage::AfterBarrageCheck1 | AtkStage::AfterBarrageCheck2 => barrage_after_check(g, f, f.stage),
         AtkStage::AfterBarrageConfirm => barrage_confirm(g, f, res.as_bool()),
     }

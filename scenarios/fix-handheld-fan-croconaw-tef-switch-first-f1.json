@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Totodile TEF 39",
+   "4 Croconaw TEF 40",
+   "4 Abra MEG 54",
+   "4 Handheld Fan TWM 150",
+   "20 Psychic Energy MEE",
+   "24 Water Energy MEE"
+  ],
+  [
+   "4 Totodile TEF 39",
+   "4 Croconaw TEF 40",
+   "4 Abra MEG 54",
+   "4 Handheld Fan TWM 150",
+   "20 Psychic Energy MEE",
+   "24 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Totodile TEF 39",
+   "Croconaw TEF 40"
+  ],
+  "active_energy": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   },
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Totodile TEF 39",
+  "active_tool": "Handheld Fan TWM 150",
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reverse Thrust"
+  }
+ ]
+}

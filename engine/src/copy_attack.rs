@@ -197,6 +197,8 @@ pub enum CopyStage {
     /// The Energy removals that waited for the damage have run (and their prompts resolved).
     AfterDamageEffects,
     AfterAfter,
+    /// AfterAttackTriggersEffect resolved (and its prompts).
+    AfterTriggers,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -613,6 +615,11 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
             finish_step(g, f, r, wait_if_prompts)
         }
         CopyStage::AfterAfter => {
+            f.stage = CopyStage::AfterTriggers;
+            let r = g.run_fx(Effect::AfterAttackTriggers { p, opp, attack: f.attack }).map(|_| ());
+            finish_step(g, f, r, wait_if_prompts)
+        }
+        CopyStage::AfterTriggers => {
             g.release_fx(f.atk);
             match f.then {
                 Some(af) => attack::animation(g, af),

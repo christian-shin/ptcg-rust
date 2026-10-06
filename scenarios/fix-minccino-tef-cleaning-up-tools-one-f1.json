@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Minccino TEF 136",
+   "4 Dwebble DRI 11",
+   "4 Mist Energy TEF 161",
+   "4 Handheld Fan TWM 150",
+   "4 Sacred Charm PFL 93",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Minccino TEF 136",
+   "4 Dwebble DRI 11",
+   "4 Mist Energy TEF 161",
+   "4 Handheld Fan TWM 150",
+   "4 Sacred Charm PFL 93",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino TEF 136",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "active_tool": "Handheld Fan TWM 150",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "tool": "Sacred Charm PFL 93"
+   },
+   {
+    "card": "Dwebble DRI 11",
+    "tool": "Handheld Fan TWM 150"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cleaning Up"
+  },
+  [
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 0
+   }
+  ]
+ ]
+}

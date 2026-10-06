@@ -22,12 +22,22 @@
 //! on the Bench (Alakazam ex's Dimensional Hand); it moves the Energy to one
 //! of the attacking player's other Benched Pokémon. The marker is cleared at
 //! the end of the turn when no AfterAttackEffect came.
+//!
+//! Fixed (phase 4b, F1; rulings 1625, 1650, 1651): AfterAttackEffect handlers
+//! open prompts (Croconaw TEF Reverse Thrust, Abra MEG Teleportation Attack,
+//! Gholdengo Surf Back, Meowth ex Tuck Tail, ...) that are only answered after
+//! every handler ran, so the Fan saw the attacker still Active and could send
+//! the Energy to the Pokémon about to be switched in. It now resolves in
+//! AfterAttackTriggersEffect, sent after AfterAttackEffect and its prompts.
+//! The HANDY_FAN_MARKER is an effect of a Trainer card (sourceType trainer),
+//! so it stays on the attacker when it is switched to the Bench (rulings
+//! 1730, 1651); an attack effect marker would be wiped by the switch.
 use crate::cards::prelude::*;
 use crate::markers::{SourceType, TargetScope};
 
 pub static IMPL: CardImpl = CardImpl {
     class: "HandyFan",
-    mask: mask(&[k::AFTER_DAMAGE, k::AFTER_ATTACK, k::END_TURN]),
+    mask: mask(&[k::AFTER_DAMAGE, k::AFTER_ATTACK_TRIGGERS, k::END_TURN]),
     reduce,
     resume: Some(resume),
     coin: None,
@@ -55,9 +65,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             let src = b.source;
-            g.st.players[src.p as usize].slots[src.s as usize].marker.add(fan_marker(), me, SourceType::None, TargetScope::None);
+            g.st.players[src.p as usize].slots[src.s as usize].marker.add(fan_marker(), me, SourceType::Trainer, TargetScope::None);
         }
-        Effect::AfterAttack { p, opp, .. } => {
+        Effect::AfterAttackTriggers { p, opp, .. } => {
             let p = p as usize;
             let o = opp as usize;
             let mut attacker: Option<SlotId> = None;

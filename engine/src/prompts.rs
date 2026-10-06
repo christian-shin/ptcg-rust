@@ -836,6 +836,12 @@ impl Game {
     }
 }
 
+/// A discard prompt whose filter asks for Pokémon Tools chooses attached Tools (across Pokémon)
+/// instead of Energy (`isToolFilter` in discard-energy-prompt.ts).
+pub fn is_tool_filter(f: &Filter) -> bool {
+    f.super_type == Some(SuperType::Trainer as u8) && f.trainer_type == Some(TrainerType::Tool as u8)
+}
+
 /// `ChooseCardsPrompt.getCardType`.
 fn choose_cards_card_type(d: &CardDef) -> CardType {
     if d.is_energy() {
@@ -898,15 +904,17 @@ impl Game {
             }
             let s = get_target(&self.st, p, from).unwrap();
             let blocked = o.blocked_map.iter().find(|(src, _)| same_t(*src, from)).map(|x| x.1).unwrap_or_default();
-            let idx: Vec<u8> = self
-                .st
-                .slot(s.p as usize, s.s)
-                .cards
+            // A Tool filter chooses from the Pokémon's `tools` (not in `cards`); `index` is its position there.
+            let tool_mode = is_tool_filter(filter);
+            let slot = self.st.slot(s.p as usize, s.s);
+            let list: &[CardId] = if tool_mode { slot.tools.as_slice() } else { slot.cards.as_slice() };
+            let idx: Vec<u8> = list
                 .iter()
+                .copied()
                 .enumerate()
                 .filter(|(i, c)| {
                     let d = self.st.cdef(*c);
-                    d.is_energy() && !blocked.contains(&(*i as u8)) && filter.matches(d)
+                    (tool_mode || d.is_energy()) && !blocked.contains(&(*i as u8)) && filter.matches(d)
                 })
                 .map(|(i, _)| i as u8)
                 .collect();
@@ -1113,7 +1121,7 @@ impl Game {
                     }
                     Ok(Res::Attach(out))
                 }
-                PromptKind::DiscardEnergy { o, .. } => {
+                PromptKind::DiscardEnergy { o, filter, .. } => {
                     let mut out: SVec<(CardTarget, CardId), 16> = SVec::new();
                     let mut keys: Vec<(u8, u8, u8, usize)> = Vec::new();
                     for v in arr {
@@ -1125,8 +1133,10 @@ impl Game {
                         }
                         keys.push(k);
                         let s = get_target(&self.st, p, from)?;
-                        let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
-                        if !self.st.cdef(c).is_energy() {
+                        let tool_mode = is_tool_filter(&filter);
+                        let slot = self.st.slot(s.p as usize, s.s);
+                        let c = *(if tool_mode { slot.tools.as_slice() } else { slot.cards.as_slice() }).get(i).ok_or(invalid)?;
+                        if !tool_mode && !self.st.cdef(c).is_energy() {
                             return Err(invalid);
                         }
                         out.push((from, c));

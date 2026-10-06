@@ -475,7 +475,8 @@ impl Game {
                 for (from, idx) in self.energy_sources(persp, player_type, slots.as_slice(), &filter, &o) {
                     let s = get_target(&self.st, persp, from).unwrap();
                     for i in idx {
-                        let c = self.st.slot(s.p as usize, s.s).cards.as_slice()[i as usize];
+                        let slot = self.st.slot(s.p as usize, s.s);
+                        let c = if crate::prompts::is_tool_filter(&filter) { slot.tools.as_slice()[i as usize] } else { slot.cards.as_slice()[i as usize] };
                         let mut base = Opt {
                             kind: OptionType::EnergyCard as u8,
                             area: Some(if from.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 }),
