@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ting-Lu TWM 110",
+   "4 Sylveon ex PRE 41",
+   "4 Rillaboom TWM 16",
+   "4 Handheld Fan TWM 150",
+   "4 Lively Stadium SSP 180",
+   "40 Fighting Energy MEE"
+  ],
+  [
+   "4 Ting-Lu TWM 110",
+   "4 Sylveon ex PRE 41",
+   "4 Rillaboom TWM 16",
+   "4 Handheld Fan TWM 150",
+   "4 Lively Stadium SSP 180",
+   "40 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ting-Lu TWM 110",
+  "active_energy": [
+   "Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Rillaboom TWM 16",
+  "stadium": "Lively Stadium SSP 180",
+  "bench": [
+   {
+    "card": "Sylveon ex PRE 41"
+   },
+   {
+    "card": "Rillaboom TWM 16",
+    "tool": "Handheld Fan TWM 150"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ground Crack"
+  }
+ ]
+}

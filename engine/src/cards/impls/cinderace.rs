@@ -8,6 +8,8 @@
 //!
 //! Fixed (phase 4b, W4): with an empty deck the attack threw
 //! CANNOT_USE_ATTACK (unusable, no damage); it now just does its 50 damage.
+//! Fixed (phase 4b, F1): with no Benched Pokémon the prompt had no target; the attack now does its
+//! damage and nothing else (rulings 1790, 336).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Cinderace", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -20,7 +22,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Effect::Attack { p, .. } => p as usize,
         _ => return Ok(()),
     };
-    if g.st.players[p].deck.is_empty() {
+    let pl = &g.st.players[p];
+    if pl.deck.is_empty() || !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
         return Ok(());
     }
     let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);

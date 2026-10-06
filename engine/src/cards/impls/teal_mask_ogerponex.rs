@@ -3,6 +3,9 @@
 //! did, draw a card. Myriad Leaf Shower - 30 + 30 for each Energy attached
 //! to both Active Pokémon. Tera: no attack damage while on the Bench.
 //!
+//! Fixed (phase 4b, F1): the prompt took 0 cards; a "you may" Ability is declined by not
+//! using it, so the attach is exactly 1 Energy (ruling 1778).
+//!
 //! Twinleaf counts the energy of each player's Active via
 //! `CheckProvidedEnergyEffect(player)` (the Active by default).
 use crate::cards::prelude::*;
@@ -63,7 +66,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         f.a[0] = p as i32;
         f.a[1] = sp as i32;
         f.l[0] = ss;
-        choose_cards(g, p, "CHOOSE_CARD_TO_ATTACH", ListRef::Hand(p as u8), filter, ChooseCardsOpts::new(0, 1, false), Cont::Card { card: me, frame: f });
+        choose_cards(g, p, "CHOOSE_CARD_TO_ATTACH", ListRef::Hand(p as u8), filter, ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
         return Ok(());
     }
 

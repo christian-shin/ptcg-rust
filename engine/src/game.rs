@@ -225,6 +225,8 @@ pub struct Game {
     pub deleg: Option<crate::copy_attack::Deleg>,
     /// Energy removals waiting for the damage of an attack (`afterDamageEffects`).
     pub after_dmg: SVec<AfterDmg, 32>,
+    /// Pokémon that survived this attack's damage with "remaining HP becomes 10" (`survive-on-ten.ts`).
+    pub ten_hp: SVec<SlotRef, 8>,
 }
 
 /// Prompt constructor work Twinleaf does in the prompt class itself:
@@ -273,7 +275,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg,
+                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, ten_hp,
             } = src;
             f!((*d).st).write(*st);
             f!((*d).rng).write(*rng);
@@ -293,6 +295,7 @@ impl Game {
             f!((*d).copy_serial).write(*copy_serial);
             f!((*d).deleg).write(*deleg);
             after_dmg.copy_live_to(f!((*d).after_dmg));
+            ten_hp.copy_live_to(f!((*d).ten_hp));
         }
     }
 }
@@ -318,6 +321,7 @@ impl Game {
             copy_serial: 0,
             deleg: None,
             after_dmg: SVec::new(),
+            ten_hp: SVec::new(),
         }
     }
 
@@ -832,6 +836,9 @@ impl Game {
         // Energy removed as an effect of an attack waits for the damage (prefabs/after-damage.ts).
         if self.defer_after_damage(id) {
             return Ok(());
+        }
+        if matches!(*self.e(id), Effect::Attack { .. }) {
+            self.ten_hp = SVec::new();
         }
         if self.trace_effects {
             let t = self.e(id).type_name();

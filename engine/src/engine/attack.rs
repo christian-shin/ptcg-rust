@@ -434,6 +434,9 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
             let hp = crate::engine::check::hp_of(g, tp, ts, card);
             if g.st.slot(tp, ts).damage >= hp {
                 g.st.players[tp].slots[ts as usize].damage = hp - 10;
+                if !g.ten_hp.contains(&SlotRef::new(tp, ts)) {
+                    g.ten_hp.push(SlotRef::new(tp, ts));
+                }
             }
         }
         let mut ab = b;

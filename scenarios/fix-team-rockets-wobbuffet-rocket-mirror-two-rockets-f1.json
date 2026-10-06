@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "4 Dwebble DRI 11",
+   "4 Mist Energy TEF 161",
+   "24 Psychic Energy MEE",
+   "24 Fighting Energy MEE"
+  ],
+  [
+   "4 Team Rocket's Wobbuffet DRI 82",
+   "4 Dwebble DRI 11",
+   "4 Mist Energy TEF 161",
+   "24 Psychic Energy MEE",
+   "24 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Wobbuffet DRI 82",
+  "active_energy": [
+   "Psychic Energy MEE",
+   "Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Wobbuffet DRI 82",
+    "damage": 40
+   },
+   {
+    "card": "Team Rocket's Wobbuffet DRI 82",
+    "damage": 20
+   },
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 30
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rocket Mirror"
+  }
+ ]
+}

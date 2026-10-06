@@ -27,6 +27,12 @@ pub enum Stage {
     CSecond,
     /// Show-mulligan info prompts; `shown` counts those already resolved.
     ShowMulligans,
+    /// Explosiveness confirm: the hand's only starter is Cinderace (ruling 1714); player 0 / player 1 after the deal,
+    /// and the mulligan loops of branch A (player 1) and B (player 0).
+    ConfP0,
+    ConfP1,
+    ConfA,
+    ConfB,
     ExtraDraw,
     ExtraBench,
 }
@@ -102,6 +108,77 @@ fn hand_has_starting_pokemon(g: &Game, p: usize) -> bool {
         let d = g.st.cdef(c);
         (d.is_pokemon() && d.stage == Stage2Basic::BASIC) || d.has_tag(tag::PLAY_DURING_SETUP)
     })
+}
+
+/// A hand with no Basic Pokémon whose only starter is a setup card (Cinderace's Explosiveness): the player
+/// chooses between putting it Active and a mulligan (ruling 1714).
+fn needs_starter_confirm(g: &Game, p: usize) -> bool {
+    hand_has_starting_pokemon(g, p) && !g.st.players[p].hand.iter().any(|c| {
+        let d = g.st.cdef(c);
+        d.is_pokemon() && d.stage == Stage2Basic::BASIC
+    })
+}
+
+fn starter_confirm(g: &mut Game, p: usize, mut f: SetupFrame, stage: Stage) {
+    f.stage = stage;
+    let id = g.player_id(p);
+    g.prompt(id, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::Setup(f));
+}
+
+/// Both hands are dealt: ask player 0 (when needed), then player 1.
+fn eval_p0(g: &mut Game, mut f: SetupFrame) -> R {
+    if needs_starter_confirm(g, 0) {
+        starter_confirm(g, 0, f, Stage::ConfP0);
+        return Ok(());
+    }
+    f.php = hand_has_starting_pokemon(g, 0);
+    eval_p1(g, f)
+}
+
+fn eval_p1(g: &mut Game, mut f: SetupFrame) -> R {
+    if needs_starter_confirm(g, 1) {
+        starter_confirm(g, 1, f, Stage::ConfP1);
+        return Ok(());
+    }
+    f.ohp = hand_has_starting_pokemon(g, 1);
+    after_eval(g, f)
+}
+
+fn after_eval(g: &mut Game, mut f: SetupFrame) -> R {
+    if !f.php && !f.ohp {
+        f.pm += 1;
+        f.om += 1;
+        g.move_to(ListRef::Hand(0), ListRef::Deck(0), None);
+        g.move_to(ListRef::Hand(1), ListRef::Deck(1), None);
+        return deal(g, f);
+    }
+    if f.php && !f.ohp {
+        f.branch = 0;
+        choose_starting(g, 0, f, Stage::AStart);
+    } else if !f.php && f.ohp {
+        f.branch = 1;
+        choose_starting(g, 1, f, Stage::BStart);
+    } else {
+        f.branch = 2;
+        choose_starting(g, 0, f, Stage::CFirst);
+    }
+    Ok(())
+}
+
+/// The mulliganing player of branch A (`other` = 1) or B (0) drew 7: `has` says whether the hand has a starter.
+fn after_mulligan_draw(g: &mut Game, other: usize, mut f: SetupFrame, has: bool) -> R {
+    let a = other == 1;
+    if has {
+        let next = if a { Stage::AOppSetup } else { Stage::BPlayerSetup };
+        choose_starting(g, other, f, next);
+    } else if a {
+        f.om += 1;
+        mulligan_shuffle(g, other, f, Stage::AMulliganed);
+    } else {
+        f.pm += 1;
+        mulligan_shuffle(g, other, f, Stage::BMulliganed);
+    }
+    Ok(())
 }
 
 pub fn start(g: &mut Game) -> R {
@@ -293,27 +370,18 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             for p in 0..2u8 {
                 g.move_to(ListRef::Deck(p), ListRef::Hand(p), Some(7));
             }
-            f.php = hand_has_starting_pokemon(g, 0);
-            f.ohp = hand_has_starting_pokemon(g, 1);
-            if !f.php && !f.ohp {
-                f.pm += 1;
-                f.om += 1;
-                g.move_to(ListRef::Hand(0), ListRef::Deck(0), None);
-                g.move_to(ListRef::Hand(1), ListRef::Deck(1), None);
-                return deal(g, f);
-            }
-            if f.php && !f.ohp {
-                f.branch = 0;
-                choose_starting(g, 0, f, Stage::AStart);
-            } else if !f.php && f.ohp {
-                f.branch = 1;
-                choose_starting(g, 1, f, Stage::BStart);
-            } else {
-                f.branch = 2;
-                choose_starting(g, 0, f, Stage::CFirst);
-            }
-            Ok(())
+            eval_p0(g, f)
         }
+        Stage::ConfP0 => {
+            f.php = matches!(first, Res::Bool(true));
+            eval_p1(g, f)
+        }
+        Stage::ConfP1 => {
+            f.ohp = matches!(first, Res::Bool(true));
+            after_eval(g, f)
+        }
+        Stage::ConfA => after_mulligan_draw(g, 1, f, matches!(first, Res::Bool(true))),
+        Stage::ConfB => after_mulligan_draw(g, 0, f, matches!(first, Res::Bool(true))),
         Stage::AStart | Stage::BStart => {
             let (me, other) = if f.stage == Stage::AStart { (0, 1) } else { (1, 0) };
             put_starting_pokemons_and_prizes(g, me, first.cards());
@@ -333,17 +401,11 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
                 crate::game::apply_order(&mut g.st.players[other].deck, o.as_slice());
             }
             g.move_to(ListRef::Deck(other as u8), ListRef::Hand(other as u8), Some(7));
-            if hand_has_starting_pokemon(g, other) {
-                let next = if f.stage == Stage::AMulliganed { Stage::AOppSetup } else { Stage::BPlayerSetup };
-                choose_starting(g, other, f, next);
-            } else if f.stage == Stage::AMulliganed {
-                f.om += 1;
-                mulligan_shuffle(g, other, f, Stage::AMulliganed);
-            } else {
-                f.pm += 1;
-                mulligan_shuffle(g, other, f, Stage::BMulliganed);
+            if needs_starter_confirm(g, other) {
+                starter_confirm(g, other, f, if other == 1 { Stage::ConfA } else { Stage::ConfB });
+                return Ok(());
             }
-            Ok(())
+            after_mulligan_draw(g, other, f, hand_has_starting_pokemon(g, other))
         }
         Stage::AOppSetup | Stage::BPlayerSetup => {
             let other = if f.stage == Stage::AOppSetup { 1 } else { 0 };

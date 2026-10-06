@@ -227,6 +227,19 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::EndTurn { p } => end_turn(g, p as usize),
         Effect::AfterAttack { opp, .. } => {
+            // A Pokémon that survived this attack on 10 HP keeps 10 HP when an effect of the
+            // attack lowered its maximum HP (survive-on-ten.ts; ruling 1589).
+            let survivors = std::mem::replace(&mut g.ten_hp, SVec::new());
+            for t in survivors.iter() {
+                let (tp, ts) = (t.p as usize, t.s);
+                if g.st.slot_pokemon(tp, ts).is_none() {
+                    continue;
+                }
+                let hp = crate::engine::check::check_hp(g, tp, ts)?;
+                if g.st.slot(tp, ts).damage >= hp {
+                    g.st.players[tp].slots[ts as usize].damage = hp - 10;
+                }
+            }
             let o = opp as usize;
             for s in g.st.players[o].in_play().iter() {
                 let slot = &mut g.st.players[o].slots[*s as usize];
