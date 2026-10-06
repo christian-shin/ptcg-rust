@@ -616,10 +616,18 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
         }
         CopyStage::AfterAfter => {
             f.stage = CopyStage::AfterTriggers;
-            let r = g.run_fx(Effect::AfterAttackTriggers { p, opp, attack: f.attack }).map(|_| ()).and_then(|_| g.run_attack_triggers(f.atk));
+            let r = g.run_fx(Effect::AfterAttackTriggers { p, opp, attack: f.attack }).map(|_| ());
             finish_step(g, f, r, wait_if_prompts)
         }
         CopyStage::AfterTriggers => {
+            // Step 7: one trigger at a time; a trigger that opens a prompt is answered before the next one.
+            while g.attack_triggers_pending(f.atk) {
+                let r = g.resolve_next_attack_trigger(f.atk);
+                if r.is_err() || g.has_prompts() {
+                    return finish_step(g, f, r, wait_if_prompts);
+                }
+            }
+            g.close_attack_triggers(f.atk);
             g.release_fx(f.atk);
             match f.then {
                 Some(af) => attack::animation(g, af),

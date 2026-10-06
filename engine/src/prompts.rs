@@ -195,6 +195,8 @@ pub enum SelectValues {
     /// "Draw N card(s)" for N from `max` down to 0 (mulligan / DRAW_UP_TO_X_CARDS).
     DrawCards(u8),
     Static(&'static [&'static str]),
+    /// Card names chosen at run time (the order of step 7 triggers).
+    Dyn(SVec<&'static str, 8>),
 }
 
 impl SelectValues {
@@ -202,12 +204,14 @@ impl SelectValues {
         match self {
             SelectValues::DrawCards(m) => *m as usize + 1,
             SelectValues::Static(v) => v.len(),
+            SelectValues::Dyn(v) => v.len(),
         }
     }
     pub fn values(&self) -> Vec<String> {
         match self {
             SelectValues::DrawCards(m) => (0..=*m).rev().map(|i| format!("Draw {} card(s)", i)).collect(),
             SelectValues::Static(v) => v.iter().map(|s| s.to_string()).collect(),
+            SelectValues::Dyn(v) => v.iter().map(|s| s.to_string()).collect(),
         }
     }
 }

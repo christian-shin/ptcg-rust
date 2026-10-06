@@ -61,6 +61,8 @@ pub enum Cont {
     /// `.call(copycat)` (copy-attack delegation): resumed with the source's port.
     DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
     /// Little Grudge DiscardEnergyPrompt (KnockOutEffect reducer).
+    /// Order of the step 7 triggers: the defending player's choice of the one to resolve first.
+    TriggerOrder { atk: EffId },
     LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
 }
 
@@ -144,6 +146,8 @@ pub struct AtkTrig {
     pub source_pokemon: Option<CardId>,
     /// Delayed trap of the damaged Pokémon.
     pub retaliate: Option<crate::state::StoredRetaliate>,
+    /// The trigger moves an Energy off the Attacking Pokémon (Handheld Fan).
+    pub removes_attacker_energy: bool,
 }
 
 /// The attack in progress and what it damaged, kept until the Knock Out check (`prefabs/last-attack.ts`).
@@ -440,7 +444,7 @@ impl Game {
     /// `ATTACK_TRIGGER(store, state, afterDamageEffect, card, retaliate)`: record the step 7 trigger of `card` on the
     /// damaged Pokémon `b.target` (the attacker is `b.source`); it resolves in `run_attack_triggers`, or at once when
     /// no window is open. Triggers resolve in the order they were recorded.
-    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::StoredRetaliate>) -> R {
+    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::StoredRetaliate>, removes_attacker_energy: bool) -> R {
         let t = AtkTrig {
             atk: b.attack_effect,
             card,
@@ -449,6 +453,7 @@ impl Game {
             source: b.source,
             source_pokemon: self.st.slot_pokemon(b.source.p as usize, b.source.s),
             retaliate,
+            removes_attacker_energy,
         };
         if self.triggers_open(b.attack_effect) {
             self.triggers.push(t);
@@ -478,24 +483,88 @@ impl Game {
         Ok(())
     }
 
-    /// `RUN_ATTACK_TRIGGERS`: close the window, then resolve the recorded triggers in order.
-    pub fn run_attack_triggers(&mut self, atk: EffId) -> R {
+    /// There are step 7 triggers of the attack left to resolve.
+    pub fn attack_triggers_pending(&self, atk: EffId) -> bool {
+        self.triggers.as_slice().iter().any(|t| t.atk == atk)
+    }
+
+    fn trigger_indices(&self, atk: EffId) -> SVec<usize, 16> {
+        let mut idx: SVec<usize, 16> = SVec::new();
+        for (i, t) in self.triggers.as_slice().iter().enumerate() {
+            if t.atk == atk {
+                idx.push(i);
+            }
+        }
+        idx
+    }
+
+    /// Two pending triggers can give different results in a different order: Handheld Fan moves an Energy off the
+    /// Attacking Pokémon, which can be the Mist Energy that blocks a delayed trap. All others commute.
+    fn trigger_order_matters(&self, idx: &[usize]) -> bool {
+        for &i in idx {
+            let a = self.triggers.as_slice()[i];
+            if !a.removes_attacker_energy {
+                continue;
+            }
+            for &j in idx {
+                let b = self.triggers.as_slice()[j];
+                if b.retaliate.is_none() || b.source_pokemon.is_none() || self.st.slot_pokemon(b.source.p as usize, b.source.s) != b.source_pokemon {
+                    continue;
+                }
+                if self.st.slot(b.source.p as usize, b.source.s).cards.iter().any(|c| self.st.cdef(c).is_energy() && self.st.cdef(c).name == "Mist Energy") {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    /// `RESOLVE_NEXT_ATTACK_TRIGGER` (Advanced Player's Rulebook E-03): resolve the next recorded step 7 trigger, in the
+    /// order recorded, except that the defending player picks the one to resolve first (a Select prompt over the
+    /// cards' names) while 2 or more are pending and the order matters. The caller waits for prompts between calls.
+    pub fn resolve_next_attack_trigger(&mut self, atk: EffId) -> R {
+        let idx = self.trigger_indices(atk);
+        if idx.is_empty() {
+            return Ok(());
+        }
+        if idx.len() >= 2 && self.trigger_order_matters(idx.as_slice()) {
+            let mut names: SVec<&'static str, 8> = SVec::new();
+            for &i in idx.iter() {
+                names.push(self.st.cdef(self.triggers.as_slice()[i].card).full_name);
+            }
+            let opp = match *self.e(atk) {
+                Effect::Attack { opp, .. } => opp as usize,
+                _ => return Ok(()),
+            };
+            let pid = self.player_id(opp);
+            self.prompt(
+                pid,
+                "CHOOSE_OPTION",
+                crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
+                Cont::TriggerOrder { atk },
+            );
+            return Ok(());
+        }
+        let t = self.triggers.remove_at(idx.as_slice()[0]);
+        self.resolve_attack_trigger(t)
+    }
+
+    /// The choice of the `TriggerOrder` prompt: resolve that trigger now.
+    fn resolve_chosen_trigger(&mut self, atk: EffId, choice: i32) -> R {
+        let idx = self.trigger_indices(atk);
+        if choice < 0 || choice as usize >= idx.len() {
+            crate::bail!("TypeError: trigger is undefined");
+        }
+        let t = self.triggers.remove_at(idx.as_slice()[choice as usize]);
+        self.resolve_attack_trigger(t)
+    }
+
+    /// `CLOSE_ATTACK_TRIGGERS`: close the step 7 trigger window of the attack.
+    pub fn close_attack_triggers(&mut self, atk: EffId) {
         if (atk as usize) < self.fx.len() {
             self.fx.as_mut_slice()[atk as usize].flags &= !fx_flag::TRIGGERS_OPEN;
         }
-        let mut queued: SVec<AtkTrig, 16> = SVec::new();
-        let mut i = 0;
-        while i < self.triggers.len() {
-            if self.triggers.as_slice()[i].atk == atk {
-                queued.push(self.triggers.remove_at(i));
-            } else {
-                i += 1;
-            }
-        }
-        for t in queued.iter() {
-            self.resolve_attack_trigger(*t)?;
-        }
-        Ok(())
+        self.drop_triggers(atk);
     }
 
     /// The after-damage window of the attack effect is open.
@@ -788,6 +857,7 @@ impl Game {
             }
             Cont::CheckState(f) => check::resume(self, f),
             Cont::TakePrizes { p, destination } => check::take_prizes_cont(self, p, destination, first),
+            Cont::TriggerOrder { atk } => self.resolve_chosen_trigger(atk, first.as_int()),
             Cont::LittleGrudge { owner, prize_taker, attack, source_card, target } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, target, first),
             Cont::ChooseActive { p } => check::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => check::bench_shrink_cont(self, p, empty, first),

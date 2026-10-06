@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Bouffalant SSP 151",
+   "3 Totodile TEF 39",
+   "3 Handheld Fan TWM 150",
+   "4 Mist Energy TEF 161",
+   "24 Fire Energy MEE 2",
+   "23 Water Energy MEE 3"
+  ],
+  [
+   "3 Bouffalant SSP 151",
+   "3 Totodile TEF 39",
+   "3 Handheld Fan TWM 150",
+   "4 Mist Energy TEF 161",
+   "24 Fire Energy MEE 2",
+   "23 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bouffalant SSP 151",
+  "active_tool": "Handheld Fan TWM 150",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Bouffalant SSP 151"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Totodile TEF 39",
+  "active_energy": [
+   "Mist Energy TEF 161",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ready to Ram"
+  },
+  {
+   "a": "attack",
+   "name": "Big Bite"
+  },
+  0
+ ]
+}

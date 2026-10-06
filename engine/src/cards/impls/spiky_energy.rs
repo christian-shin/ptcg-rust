@@ -31,7 +31,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if t.p == b.player || g.st.players[t.p as usize].active != t.s {
                 return Ok(());
             }
-            g.attack_trigger(b, damage, me, None)
+            g.attack_trigger(b, damage, me, None, false)
         }
         Effect::AttackTrigger { attack_effect, p, opp, attack, card, target, source, source_in_play, retaliate: None, .. } if card == me => {
             if !g.st.slot(target.p as usize, target.s).cards.contains(me) {
