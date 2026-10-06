@@ -700,3 +700,25 @@ The tracked list is `porting/twinleaf-fixes.md`.
 Report per fix: list number, card (international key), Twinleaf commit,
 Rust change, scenario entry (format above), the official text it now
 follows, and the diverged traces with their causes.
+
+
+### Attack flow chart steps 6-8 (F1)
+
+Official order (attack flow chart; Advanced Player's Rulebook A-01, E-03, E-04): step 5 the attack's own effects, step 6
+effects that activate when the Defending Pokemon is damaged (Spiky Energy, Punk Helmet, Lucky Helmet, Handheld Fan,
+Heatran, the delayed traps), step 7 the Knock Out check (Knock Out triggers such as Maractus come at its step 2, just
+before the discard). Card code follows it like this, in both engines:
+
+* A step 6 card reacts to AfterDamageEffect only to *record* the trigger: `ATTACK_TRIGGER(store, state, effect, card)`
+  in Twinleaf (`prefabs/after-damage.ts`), `g.attack_trigger(b, damage, card, retaliate, removes_attacker_energy)` in
+  Rust. The trigger resolves after AfterAttackEffect and the prompts it opened, as an `AttackTriggerEffect`
+  (`Effect::AttackTrigger`, kind 246) that only `card` reacts to. At resolution the card re-checks everything that can
+  have changed since the damage: still attached to the damaged Pokemon, not blocked (Ability, Tool, Special Energy),
+  and `sourceInPlay` for the Attacking Pokemon (it can be on the Bench or gone).
+* Triggers resolve one at a time in the order recorded (cards react in Pokemon, Tool/Trainer, Energy order, then the
+  core's delayed traps); a trigger that opens a prompt is answered before the next. When 2+ are pending and the order
+  matters (`ordersMatter` / `trigger_order_matters`: Handheld Fan next to a delayed trap while the attacker holds a Mist
+  Energy) the defending player chooses which goes first with a Select prompt.
+* Knock Out triggers use `prefabs/last-attack.ts` (`game.last_attack`): the Pokemon that used the attack and the opponent's
+  Pokemon it damaged in the Active Spot, kept until the check. Use `ATTACKER_OF_KNOCK_OUT` / `ATTACK_THAT_DAMAGED_KNOCKED_OUT`
+  (`attacker_of_knock_out`) instead of "the opponent's Active Pokemon", which is another Pokemon after a switch.
