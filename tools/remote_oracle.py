@@ -1,13 +1,13 @@
-"""Run oracle games remotely: on the verification box (tools/vbox.py) by
-default, or on GitHub Actions (.github/workflows/oracle.yml) with
-PTCG_REMOTE=actions.
+"""Run oracle games remotely: on GitHub Actions (.github/workflows/oracle.yml),
+or on a local remote runner if the main checkout has one
+(porting/remote_runner.py, not in git; PTCG_REMOTE=actions forces Actions).
 
 usage: remote_oracle.py <spec.json> <out_dir> [--start S] [--count N] [--shards K]
                         [--cov-files "sets/a.ts sets/b.ts"] [--tag T] [--ref BRANCH]
 
-On Actions: dispatches the workflow with the gzip+base64 spec, waits for it, downloads
-every shard's artifact and merges the traces into <out_dir> (coverage
-snapshots, if requested, into <out_dir>/cov). The spec must fit in a
+On Actions: dispatches the workflow with the gzip+base64 spec, waits for it,
+downloads every shard's artifact and merges the traces into <out_dir>
+(coverage snapshots, if requested, into <out_dir>/cov). The spec must fit in a
 workflow input (~60 KB compressed; corpus specs are a few KB).
 """
 import argparse, base64, calendar, glob, gzip, json, os, shutil, subprocess, sys, tempfile, time
@@ -22,12 +22,23 @@ def gh(*args, capture=True):
     return r.stdout
 
 
+def local_runner():
+    """The local remote runner module kept outside git, if this machine has one."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    r = subprocess.run(['git', '-C', here, 'rev-parse', '--git-common-dir'], capture_output=True, text=True)
+    common = os.path.normpath(os.path.join(here, r.stdout.strip()))   # relative to `here` unless absolute
+    p = os.path.join(os.path.dirname(common), 'porting', 'remote_runner.py')
+    return p if r.returncode == 0 and os.path.exists(p) else None
+
+
 def run(spec_path, out, start=0, count=64, shards=8, cov_files='', tag='run', ref='oracle'):
-    if os.environ.get('PTCG_REMOTE', 'vbox') != 'actions':
-        # The verification box plays the local oracle tree (PTCG_ORACLE, or the
-        # Twinleaf worktree of PTCG_ORACLE_REF): no branch push needed.
-        import vbox
-        return vbox.run_oracle(spec_path, out, start=start, count=count, cov_files=cov_files, tag=tag)
+    runner = local_runner()
+    if runner and os.environ.get('PTCG_REMOTE') != 'actions':
+        import importlib.util
+        mspec = importlib.util.spec_from_file_location('remote_runner', runner)
+        mod = importlib.util.module_from_spec(mspec)
+        mspec.loader.exec_module(mod)
+        return mod.run_oracle(spec_path, out, start=start, count=count, cov_files=cov_files, tag=tag)
     spec = json.load(open(spec_path))
     b64 = base64.b64encode(gzip.compress(json.dumps(spec, separators=(',', ':')).encode())).decode()
     if len(b64) > 60000:

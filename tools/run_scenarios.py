@@ -1,4 +1,4 @@
-"""Run every scenario (or those given) through check_cards.py in parallel, for vbox exec.
+"""Run every scenario (or those given) through check_cards.py in parallel, for running on a remote machine.
 
 usage: run_scenarios.py OUT [--games N] [--procs P] [files...]
 Target = the first card of the scenario's first deck. Writes OUT/scenarios.txt

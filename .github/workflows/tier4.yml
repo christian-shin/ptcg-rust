@@ -7,9 +7,10 @@
 # invariants. Any divergence, invariant violation, or oracle game ending in
 # error or stuck fails the run; failing traces are uploaded as artifacts.
 #
-# The 100k-game gate runs on the verification box (`tools/vbox.py tier4`,
-# `tools/vbox.py ledger`). tools/tier4_ledger.py still counts green games of
-# these runs per (main commit, Twinleaf oracle commit).
+# The 100k-game gate runs here, dispatched in 20k-game runs.
+# tools/tier4_ledger.py counts green games per (main commit, Twinleaf oracle
+# commit) across runs and downloads failing traces; the gate is 100k games
+# with 0 failures.
 name: tier4
 run-name: tier4 ${{ github.event_name }} ${{ inputs.games || github.sha }}
 

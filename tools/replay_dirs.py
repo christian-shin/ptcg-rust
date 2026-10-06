@@ -1,4 +1,4 @@
-"""Replay every corpus directory under a root through $PTCG_DIFF in parallel (for vbox exec).
+"""Replay every corpus directory under a root through $PTCG_DIFF in parallel (for running on a remote machine).
 
 usage: replay_dirs.py ROOT OUT [--procs N]
 Writes OUT/replay.txt: the DIVERGED blocks and per-directory summary lines.

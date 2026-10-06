@@ -15,9 +15,9 @@ usage: tier4.py [--games N] [--seed S] [--chunk C] [--jobs J | --remote K]
                   from the clock)
   --chunk C       games per chunk (default 400); the run stops after the first
                   chunk with a failure unless --no-stop
-  --remote K      play the oracle games remotely (tools/remote_oracle.py: the
-                  verification box, or GitHub Actions across K runners with
-                  PTCG_REMOTE=actions); for big runs prefer `tools/vbox.py tier4`
+  --remote K      play the oracle games remotely (tools/remote_oracle.py: GitHub
+                  Actions across K runners, PTCG_ORACLE_REF selects the branch;
+                  or the local remote runner if this machine has one)
   --out DIR       default corpus/tier4/<seed>; passing traces are deleted unless
                   --keep, failing ones stay there for `diff` and statediff
 
@@ -175,6 +175,7 @@ def main():
     ap.add_argument('--keep', action='store_true')
     ap.add_argument('--no-stop', action='store_true')
     a = ap.parse_args()
+    os.environ['PTCG_REMOTE_TOTAL'] = str(a.games)   # a remote runner may refuse runs this big
     out = os.path.abspath(a.out or os.path.join(ROOT, 'corpus/tier4', str(a.seed)))
     os.makedirs(out, exist_ok=True)
     spec = build_spec(a.seed, a.random_decks)
