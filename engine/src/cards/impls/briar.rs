@@ -11,11 +11,6 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "Briar", mask: mask(&[k::TRAINER, k::KNOCK_OUT, k::END_TURN]), reduce, resume: None, coin: None, can_play: None };
 
-/// `PokemonCardList.isTera()`.
-fn slot_is_tera(g: &Game, p: usize, s: SlotId) -> bool {
-    g.st.slot(p, s).cards.iter().any(|c| g.st.cdef(c).has_tag(tag::POKEMON_TERA))
-}
-
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::EndTurn { .. } = *g.e(e) {
         g.st.cards[me as usize].extra_prizes = false;
@@ -42,8 +37,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if g.st.phase != GamePhase::Attack || g.st.active_player as usize != o {
             return Ok(());
         }
-        let oa = g.st.players[o].active;
-        if slot_is_tera(g, o, oa) && g.st.cards[me as usize].extra_prizes && prize_count > 0 {
+        // The Pokémon that used the attack, wherever it is by now (fixed in phase 4b, F1: it was the opponent's
+        // Active at the Knock Out check, another Pokémon after a switch).
+        let tera = g.attacker_of_knock_out(p).and_then(|a| a.0).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_TERA)).unwrap_or(false);
+        if tera && g.st.cards[me as usize].extra_prizes && prize_count > 0 {
             if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
                 *prize_count += 1;
             }

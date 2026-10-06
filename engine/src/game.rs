@@ -61,7 +61,7 @@ pub enum Cont {
     /// `.call(copycat)` (copy-attack delegation): resumed with the source's port.
     DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
     /// Little Grudge DiscardEnergyPrompt (KnockOutEffect reducer).
-    LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId },
+    LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
 }
 
 /// `checkState(..., onComplete)` callbacks.
@@ -114,6 +114,8 @@ pub mod fx_flag {
     pub const CURLY_WALL: u8 = 1 << 1;
     /// `AttackEffect.afterDamageEffects` is defined (the attack's after-damage window is open).
     pub const AFTER_DMG_OPEN: u8 = 1 << 2;
+    /// `AttackEffect.attackTriggers` is defined (the attack's step 7 trigger window is open).
+    pub const TRIGGERS_OPEN: u8 = 1 << 3;
 }
 
 /// A step queued in an attack's after-damage window (`prefabs/after-damage.ts`).
@@ -125,9 +127,35 @@ pub enum AfterDmgStep {
     Move { source: ListRef, destination: ListRef, source_card: CardId, cards: SVec<CardId, 32> },
     /// `SHUFFLE_DECK(player)` after the damage.
     Shuffle(u8),
-    /// Spiky Energy: the counters go onto the attacker after the attack's own effects, if the card is still
-    /// attached to `from` (an attack that discards it from the Defending Pokémon stops it).
-    Retaliate { card: CardId, from: SlotRef, b: AtkBase, damage: i32 },
+}
+
+/// Step 7 of the attack flow chart: an effect that activates when a Pokémon receives the attack, recorded when the
+/// damage is done (`AttackTrigger` in Twinleaf, `prefabs/after-damage.ts`).
+#[derive(Clone, Copy, Debug)]
+pub struct AtkTrig {
+    pub atk: EffId,
+    /// The card whose effect triggered.
+    pub card: CardId,
+    /// The damaged Pokémon.
+    pub target: SlotRef,
+    pub damage: i32,
+    /// The Attacking Pokémon's slot and the Pokémon card that was in it.
+    pub source: SlotRef,
+    pub source_pokemon: Option<CardId>,
+    /// Delayed trap of the damaged Pokémon.
+    pub retaliate: Option<crate::state::StoredRetaliate>,
+}
+
+/// The attack in progress and what it damaged, kept until the Knock Out check (`prefabs/last-attack.ts`).
+#[derive(Clone, Copy, Debug)]
+pub struct LastAttack {
+    /// The attacking player.
+    pub p: u8,
+    pub source: SlotRef,
+    /// The Pokémon card that used the attack (in `source` when the attack started).
+    pub pokemon: Option<CardId>,
+    /// Opponent's Pokémon damaged by the attack while in the Active Spot.
+    pub damaged_active: SVec<SlotRef, 4>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -225,8 +253,12 @@ pub struct Game {
     pub deleg: Option<crate::copy_attack::Deleg>,
     /// Energy removals waiting for the damage of an attack (`afterDamageEffects`).
     pub after_dmg: SVec<AfterDmg, 32>,
+    /// Step 7 triggers waiting for the end of the attack (`attackTriggers`).
+    pub triggers: SVec<AtkTrig, 16>,
     /// Pokémon that survived this attack's damage with "remaining HP becomes 10" (`survive-on-ten.ts`).
     pub ten_hp: SVec<SlotRef, 8>,
+    /// `last-attack.ts`: the attack in progress / the last attack, for the Knock Out check.
+    pub last_attack: Option<LastAttack>,
 }
 
 /// Prompt constructor work Twinleaf does in the prompt class itself:
@@ -275,7 +307,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, ten_hp,
+                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, last_attack,
             } = src;
             f!((*d).st).write(*st);
             f!((*d).rng).write(*rng);
@@ -295,7 +327,9 @@ impl Game {
             f!((*d).copy_serial).write(*copy_serial);
             f!((*d).deleg).write(*deleg);
             after_dmg.copy_live_to(f!((*d).after_dmg));
+            triggers.copy_live_to(f!((*d).triggers));
             ten_hp.copy_live_to(f!((*d).ten_hp));
+            f!((*d).last_attack).write(*last_attack);
         }
     }
 }
@@ -321,7 +355,9 @@ impl Game {
             copy_serial: 0,
             deleg: None,
             after_dmg: SVec::new(),
+            triggers: SVec::new(),
             ten_hp: SVec::new(),
+            last_attack: None,
         }
     }
 
@@ -340,9 +376,10 @@ impl Game {
     pub fn release_fx(&mut self, id: EffId) {
         let s = &mut self.fx.as_mut_slice()[id as usize];
         s.refs = s.refs.saturating_sub(1);
-        if s.refs == 0 && s.flags & fx_flag::AFTER_DMG_OPEN != 0 {
+        if s.refs == 0 && s.flags & (fx_flag::AFTER_DMG_OPEN | fx_flag::TRIGGERS_OPEN) != 0 {
             // The attack is gone with its window (a thrown error): drop what waited for the damage.
             self.drop_after_damage(id);
+            self.drop_triggers(id);
         }
         while let Some(top) = self.fx.as_slice().last() {
             if top.refs == 0 {
@@ -356,7 +393,109 @@ impl Game {
     /// `OPEN_AFTER_DAMAGE_EFFECTS(attackEffect)`.
     pub fn open_after_damage(&mut self, atk: EffId) {
         self.drop_after_damage(atk);
+        self.drop_triggers(atk);
         self.set_fx_flag(atk, fx_flag::AFTER_DMG_OPEN);
+        self.set_fx_flag(atk, fx_flag::TRIGGERS_OPEN);
+    }
+
+    /// `ATTACKER_OF_KNOCK_OUT`: the Pokémon that used the opponent's attack in progress while a Pokémon of `owner` is
+    /// being Knocked Out: the Pokémon card, and the slot it is in now (None when it left play).
+    pub fn attacker_of_knock_out(&self, owner: usize) -> Option<(Option<CardId>, Option<SlotRef>)> {
+        let la = self.last_attack?;
+        if self.st.phase != GamePhase::Attack || self.st.active_player as usize == owner || la.p as usize == owner {
+            return None;
+        }
+        let in_play = la.pokemon.is_some() && self.st.slot_pokemon(la.source.p as usize, la.source.s) == la.pokemon;
+        Some((la.pokemon, if in_play { Some(la.source) } else { None }))
+    }
+
+    /// `ATTACK_THAT_DAMAGED_KNOCKED_OUT`: as `attacker_of_knock_out`, only for a Knock Out of `target` by damage from
+    /// the attack while it was in the Active Spot.
+    pub fn attack_that_damaged_knocked_out(&self, owner: usize, target: SlotRef) -> Option<(Option<CardId>, Option<SlotRef>)> {
+        let r = self.attacker_of_knock_out(owner)?;
+        if !self.last_attack?.damaged_active.contains(&target) {
+            return None;
+        }
+        Some(r)
+    }
+
+    /// The step 7 trigger window of the attack effect is open.
+    pub fn triggers_open(&self, atk: EffId) -> bool {
+        (atk as usize) < self.fx.len()
+            && matches!(self.fx.as_slice()[atk as usize].e, Effect::Attack { .. })
+            && self.fx.as_slice()[atk as usize].flags & fx_flag::TRIGGERS_OPEN != 0
+    }
+
+    fn drop_triggers(&mut self, atk: EffId) {
+        let mut i = 0;
+        while i < self.triggers.len() {
+            if self.triggers.as_slice()[i].atk == atk {
+                self.triggers.remove_at(i);
+            } else {
+                i += 1;
+            }
+        }
+    }
+
+    /// `ATTACK_TRIGGER(store, state, afterDamageEffect, card, retaliate)`: record the step 7 trigger of `card` on the
+    /// damaged Pokémon `b.target` (the attacker is `b.source`); it resolves in `run_attack_triggers`, or at once when
+    /// no window is open. Triggers resolve in the order they were recorded.
+    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::StoredRetaliate>) -> R {
+        let t = AtkTrig {
+            atk: b.attack_effect,
+            card,
+            target: b.target,
+            damage,
+            source: b.source,
+            source_pokemon: self.st.slot_pokemon(b.source.p as usize, b.source.s),
+            retaliate,
+        };
+        if self.triggers_open(b.attack_effect) {
+            self.triggers.push(t);
+            return Ok(());
+        }
+        self.resolve_attack_trigger(t)
+    }
+
+    fn resolve_attack_trigger(&mut self, t: AtkTrig) -> R {
+        let (p, opp, attack) = match *self.e(t.atk) {
+            Effect::Attack { p, opp, attack, .. } => (p, opp, attack),
+            _ => return Ok(()),
+        };
+        let source_in_play = t.source_pokemon.is_some() && self.st.slot_pokemon(t.source.p as usize, t.source.s) == t.source_pokemon;
+        self.run_fx(Effect::AttackTrigger {
+            attack_effect: t.atk,
+            p,
+            opp,
+            attack,
+            card: t.card,
+            target: t.target,
+            damage: t.damage,
+            source: t.source,
+            source_in_play,
+            retaliate: t.retaliate,
+        })?;
+        Ok(())
+    }
+
+    /// `RUN_ATTACK_TRIGGERS`: close the window, then resolve the recorded triggers in order.
+    pub fn run_attack_triggers(&mut self, atk: EffId) -> R {
+        if (atk as usize) < self.fx.len() {
+            self.fx.as_mut_slice()[atk as usize].flags &= !fx_flag::TRIGGERS_OPEN;
+        }
+        let mut queued: SVec<AtkTrig, 16> = SVec::new();
+        let mut i = 0;
+        while i < self.triggers.len() {
+            if self.triggers.as_slice()[i].atk == atk {
+                queued.push(self.triggers.remove_at(i));
+            } else {
+                i += 1;
+            }
+        }
+        for t in queued.iter() {
+            self.resolve_attack_trigger(*t)?;
+        }
+        Ok(())
     }
 
     /// The after-damage window of the attack effect is open.
@@ -419,11 +558,6 @@ impl Game {
                     r?;
                 }
                 AfterDmgStep::Shuffle(p) => crate::prefabs::shuffle_deck(self, p as usize),
-                AfterDmgStep::Retaliate { card, from, b, damage } => {
-                    if self.st.slot(from.p as usize, from.s).cards.contains(card) {
-                        self.run_fx(Effect::PutCounters { b, damage })?;
-                    }
-                }
             }
         }
         Ok(())
@@ -654,7 +788,7 @@ impl Game {
             }
             Cont::CheckState(f) => check::resume(self, f),
             Cont::TakePrizes { p, destination } => check::take_prizes_cont(self, p, destination, first),
-            Cont::LittleGrudge { owner, prize_taker, attack, source_card } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, first),
+            Cont::LittleGrudge { owner, prize_taker, attack, source_card, target } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, target, first),
             Cont::ChooseActive { p } => check::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => check::bench_shrink_cont(self, p, empty, first),
             Cont::BetweenTurnsWait { oc } => phase::run_between_turns_effects(self, oc),
@@ -837,8 +971,14 @@ impl Game {
         if self.defer_after_damage(id) {
             return Ok(());
         }
-        if matches!(*self.e(id), Effect::Attack { .. }) {
+        if let Effect::Attack { p, source, .. } = *self.e(id) {
             self.ten_hp = SVec::new();
+            self.last_attack = Some(LastAttack {
+                p,
+                source,
+                pokemon: self.st.slot_pokemon(source.p as usize, source.s),
+                damaged_active: SVec::new(),
+            });
         }
         if self.trace_effects {
             let t = self.e(id).type_name();

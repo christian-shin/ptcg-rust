@@ -295,20 +295,36 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     if armed && !pending && g.st.players[p].marker.has(DAMAGE_DEALT_MARKER) {
         if let (Some(attack), Some(source_card), Some(owner)) = (g_attack, g_source, g_owner) {
             let prize_taker = 1 - p;
-            let a = g.st.players[prize_taker].active;
-            let energy: Vec<CardId> = g.st.slot(prize_taker, a).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
+            // "The Attacking Pokémon" is the Pokémon that used the attack, wherever it is by now (ruling 460);
+            // nothing happens when it left play.
+            let attacker_slot = g.attacker_of_knock_out(p).and_then(|a| a.1);
+            let energy: Vec<CardId> = match attacker_slot {
+                Some(sl) => g.st.slot(prize_taker, sl.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect(),
+                None => Vec::new(),
+            };
             if energy.len() == 1 {
-                little_grudge_discard(g, owner as usize, prize_taker, attack, source_card, &energy)?;
+                little_grudge_discard(g, owner as usize, prize_taker, attack, source_card, attacker_slot.unwrap(), &energy)?;
             } else if energy.len() > 1 {
+                let sl = attacker_slot.unwrap();
                 let mut slots = SVec::new();
-                slots.push(SlotType::Active as u8);
-                let o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
+                let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
+                match g.st.players[prize_taker].bench.iter().position(|b| *b == sl.s) {
+                    Some(bi) => {
+                        slots.push(SlotType::Bench as u8);
+                        for i in 0..g.st.players[prize_taker].bench.len() {
+                            if i != bi {
+                                o.blocked_from.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
+                            }
+                        }
+                    }
+                    None => slots.push(SlotType::Active as u8),
+                }
                 let id = g.player_id(p);
                 g.prompt(
                     id,
                     "CHOOSE_ENERGIES_TO_DISCARD",
                     PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
-                    Cont::LittleGrudge { owner, prize_taker: prize_taker as u8, attack, source_card },
+                    Cont::LittleGrudge { owner, prize_taker: prize_taker as u8, attack, source_card, target: sl },
                 );
             }
         }
@@ -519,7 +535,7 @@ pub fn stats_effect(g: &Game, s: SlotRef) -> Effect {
 /// Little Grudge `discardSelected(cards)`: a DiscardCardsEffect from a fresh
 /// AttackEffect of the grudge owner (source = the slot holding the source
 /// card, else the owner's Active) on the prize taker's Active.
-pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, attack: AttackRef, source_card: CardId, cards: &[CardId]) -> R {
+pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, attack: AttackRef, source_card: CardId, target: SlotRef, cards: &[CardId]) -> R {
     if cards.is_empty() {
         return Ok(());
     }
@@ -541,7 +557,6 @@ pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, att
         source,
         barrage_used: false,
     });
-    let target = SlotRef::new(prize_taker, g.st.players[prize_taker].active);
     let b = AtkBase { attack_effect: atk, player: owner as u8, opponent: prize_taker as u8, attack, source, target };
     let mut cs = SVec::new();
     for c in cards {
@@ -553,7 +568,7 @@ pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, att
 }
 
 /// DiscardEnergyPrompt callback of Little Grudge.
-pub fn little_grudge_cont(g: &mut Game, owner: u8, prize_taker: u8, attack: AttackRef, source_card: CardId, res: crate::prompts::Res) -> R {
+pub fn little_grudge_cont(g: &mut Game, owner: u8, prize_taker: u8, attack: AttackRef, source_card: CardId, target: SlotRef, res: crate::prompts::Res) -> R {
     let cards: Vec<CardId> = match res {
         crate::prompts::Res::CardsFrom(t) => t.iter().map(|x| x.1).collect(),
         _ => Vec::new(),
@@ -561,5 +576,5 @@ pub fn little_grudge_cont(g: &mut Game, owner: u8, prize_taker: u8, attack: Atta
     if cards.is_empty() {
         return Ok(());
     }
-    little_grudge_discard(g, owner as usize, prize_taker as usize, attack, source_card, &cards)
+    little_grudge_discard(g, owner as usize, prize_taker as usize, attack, source_card, target, &cards)
 }

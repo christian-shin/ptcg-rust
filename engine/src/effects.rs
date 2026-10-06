@@ -128,6 +128,20 @@ pub enum Effect {
     DealDamage { b: AtkBase, damage: i32 },
     PutDamage { b: AtkBase, damage: i32, weakness_applied: bool, survive_on_ten_hp: bool },
     AfterDamage { b: AtkBase, damage: i32 },
+    /// `AttackTriggerEffect`: a step 7 trigger resolves (`target` is the damaged Pokémon, `source` the Attacking
+    /// Pokémon). Only `card` reacts. Has no AtkBase: it is not an effect of the attack for Mist Energy.
+    AttackTrigger {
+        attack_effect: EffId,
+        p: u8,
+        opp: u8,
+        attack: AttackRef,
+        card: CardId,
+        target: SlotRef,
+        damage: i32,
+        source: SlotRef,
+        source_in_play: bool,
+        retaliate: Option<crate::state::StoredRetaliate>,
+    },
     PutCounters { b: AtkBase, damage: i32 },
     KnockOutOpponent { b: AtkBase, knocked_out: bool, prize_count: i32 },
     /// `KnockOutPlayerEffect` (KNOCK_OUT_PLAYERS_ACTIVE_POKEMON): the opponent takes the Prizes.
@@ -273,6 +287,7 @@ impl Effect {
             DealDamage { .. } => "DEAL_DAMAGE_EFFECT",
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
             AfterDamage { .. } => "AFTER_DAMAGE_EFFECT",
+            AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
             PutCounters { .. } => "PUT_COUNTERS_EFFECT",
             KnockOutOpponent { .. } => "KNOCK_OUT_OPPONENT_EFFECT",
             KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
@@ -437,6 +452,7 @@ impl Effect {
             DealDamage { .. } => 38,
             PutDamage { .. } => 39,
             AfterDamage { .. } => 40,
+            AttackTrigger { .. } => 246,
             PutCounters { .. } => 41,
             KnockOutOpponent { .. } => 42,
             KnockOutPlayer { .. } => 140,
@@ -502,6 +518,7 @@ pub mod k {
     pub const BETWEEN_TURNS: u32 = 5;
     pub const AFTER_ATTACK: u32 = 6;
     pub const AFTER_ATTACK_TRIGGERS: u32 = 245;
+    pub const ATTACK_TRIGGER: u32 = 246;
     pub const BEFORE_DOING_DAMAGE: u32 = 7;
     pub const CHECK_HP: u32 = 8;
     pub const CHECK_POKEMON_STATS: u32 = 9;

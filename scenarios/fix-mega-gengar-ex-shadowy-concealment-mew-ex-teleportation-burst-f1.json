@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Mew ex 30C 66",
+   "3 Okidogi ex SFA 36",
+   "2 Gastly ASC 123",
+   "3 Haunter ASC 124",
+   "2 Mega Gengar ex ASC 125",
+   "3 Totodile TEF 39",
+   "3 Croconaw TEF 40",
+   "2 Gastly EVO",
+   "13 Psychic Energy MEE 5",
+   "13 Darkness Energy MEE 7",
+   "13 Water Energy MEE 3"
+  ],
+  [
+   "3 Mew ex 30C 66",
+   "3 Okidogi ex SFA 36",
+   "2 Gastly ASC 123",
+   "3 Haunter ASC 124",
+   "2 Mega Gengar ex ASC 125",
+   "3 Totodile TEF 39",
+   "3 Croconaw TEF 40",
+   "2 Gastly EVO",
+   "13 Psychic Energy MEE 5",
+   "13 Darkness Energy MEE 7",
+   "13 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Okidogi ex SFA 36",
+  "active_damage": 230,
+  "bench": [
+   {
+    "card": [
+     "Gastly ASC 123",
+     "Haunter ASC 124",
+     "Mega Gengar ex ASC 125"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Teleportation Burst"
+  },
+  true,
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bouffalant SSP 151",
+   "4 Iron Boulder ex TEF 99",
+   "4 Mew ex 30C 66",
+   "2 Slowpoke MEP 86",
+   "2 Mega Slowbro ex PBL 31",
+   "4 Meowth ex POR 62",
+   "4 Spiky Energy JTG 159",
+   "4 Mist Energy TEF 161",
+   "11 Fire Energy MEE 2",
+   "11 Psychic Energy MEE 5",
+   "10 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Bouffalant SSP 151",
+   "4 Iron Boulder ex TEF 99",
+   "4 Mew ex 30C 66",
+   "2 Slowpoke MEP 86",
+   "2 Mega Slowbro ex PBL 31",
+   "4 Meowth ex POR 62",
+   "4 Spiky Energy JTG 159",
+   "4 Mist Energy TEF 161",
+   "11 Fire Energy MEE 2",
+   "11 Psychic Energy MEE 5",
+   "10 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bouffalant SSP 151",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Bouffalant SSP 151"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Meowth ex POR 62"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ready to Ram"
+  },
+  {
+   "a": "attack",
+   "name": "Teleportation Burst"
+  },
+  true,
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

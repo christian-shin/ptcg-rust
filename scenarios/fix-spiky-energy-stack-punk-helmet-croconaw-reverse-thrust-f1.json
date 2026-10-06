@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Totodile TEF 39",
+   "4 Croconaw TEF 40",
+   "2 Spiky Energy JTG 159",
+   "4 Handheld Fan TWM 150",
+   "1 Punk Helmet PFL 92",
+   "4 Okidogi ex SFA 36",
+   "4 Heatran TWM 123",
+   "4 Lucky Helmet TWM 158",
+   "17 Water Energy MEE 3",
+   "16 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Totodile TEF 39",
+   "4 Croconaw TEF 40",
+   "2 Spiky Energy JTG 159",
+   "4 Handheld Fan TWM 150",
+   "1 Punk Helmet PFL 92",
+   "4 Okidogi ex SFA 36",
+   "4 Heatran TWM 123",
+   "4 Lucky Helmet TWM 158",
+   "17 Water Energy MEE 3",
+   "16 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Totodile TEF 39",
+   "Croconaw TEF 40"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Okidogi ex SFA 36",
+  "active_tool": "Punk Helmet PFL 92",
+  "active_energy": [
+   "Spiky Energy JTG 159",
+   "Spiky Energy JTG 159"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reverse Thrust"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

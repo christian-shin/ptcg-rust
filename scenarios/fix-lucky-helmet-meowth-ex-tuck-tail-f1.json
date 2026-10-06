@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Meowth ex POR 62",
+   "4 Lucky Helmet TWM 158",
+   "4 Okidogi ex SFA 36",
+   "3 Luxray ex TWM 68",
+   "4 Espeon ex PRE 34",
+   "14 Fire Energy MEE 2",
+   "14 Darkness Energy MEE 7",
+   "13 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Meowth ex POR 62",
+   "4 Lucky Helmet TWM 158",
+   "4 Okidogi ex SFA 36",
+   "3 Luxray ex TWM 68",
+   "4 Espeon ex PRE 34",
+   "14 Fire Energy MEE 2",
+   "14 Darkness Energy MEE 7",
+   "13 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Meowth ex POR 62",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Okidogi ex SFA 36"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Okidogi ex SFA 36",
+  "active_tool": "Lucky Helmet TWM 158",
+  "hand": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Okidogi ex SFA 36"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tuck Tail"
+  }
+ ]
+}

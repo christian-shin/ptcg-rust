@@ -1,0 +1,78 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Mew ex 30C 66",
+   "3 Okidogi ex SFA 36",
+   "2 Gastly ASC 123",
+   "3 Haunter ASC 124",
+   "2 Mega Gengar ex ASC 125",
+   "3 Totodile TEF 39",
+   "3 Croconaw TEF 40",
+   "2 Gastly EVO",
+   "13 Psychic Energy MEE 5",
+   "13 Darkness Energy MEE 7",
+   "13 Water Energy MEE 3"
+  ],
+  [
+   "3 Mew ex 30C 66",
+   "3 Okidogi ex SFA 36",
+   "2 Gastly ASC 123",
+   "3 Haunter ASC 124",
+   "2 Mega Gengar ex ASC 125",
+   "3 Totodile TEF 39",
+   "3 Croconaw TEF 40",
+   "2 Gastly EVO",
+   "13 Psychic Energy MEE 5",
+   "13 Darkness Energy MEE 7",
+   "13 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gastly EVO",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Totodile TEF 39",
+   "Croconaw TEF 40"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Little Grudge"
+  },
+  {
+   "a": "attack",
+   "name": "Reverse Thrust"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}

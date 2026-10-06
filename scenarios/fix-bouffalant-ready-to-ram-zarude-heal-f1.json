@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bouffalant SSP 151",
+   "4 Zarude SSP 11",
+   "4 Dwebble DRI 11",
+   "24 Fire Energy MEE 2",
+   "24 Grass Energy MEE 1"
+  ],
+  [
+   "4 Bouffalant SSP 151",
+   "4 Zarude SSP 11",
+   "4 Dwebble DRI 11",
+   "24 Fire Energy MEE 2",
+   "24 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bouffalant SSP 151",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "active_damage": 40,
+  "bench": [
+   {
+    "card": "Zarude SSP 11",
+    "energy": [
+     "Grass Energy MEE 1"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ready to Ram"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Leaf Drain"
+  }
+ ]
+}

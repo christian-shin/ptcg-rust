@@ -23,30 +23,20 @@
 //! of the attacking player's other Benched Pokémon. The marker is cleared at
 //! the end of the turn when no AfterAttackEffect came.
 //!
-//! Fixed (phase 4b, F1; rulings 1625, 1650, 1651): AfterAttackEffect handlers
-//! open prompts (Croconaw TEF Reverse Thrust, Abra MEG Teleportation Attack,
-//! Gholdengo Surf Back, Meowth ex Tuck Tail, ...) that are only answered after
-//! every handler ran, so the Fan saw the attacker still Active and could send
-//! the Energy to the Pokémon about to be switched in. It now resolves in
-//! AfterAttackTriggersEffect, sent after AfterAttackEffect and its prompts.
-//! The HANDY_FAN_MARKER is an effect of a Trainer card (sourceType trainer),
-//! so it stays on the attacker when it is switched to the Bench (rulings
-//! 1730, 1651); an attack effect marker would be wiped by the switch.
+//! Fixed (phase 4b, F1, general step 7 mechanism; rulings 1625, 1649, 1650, 1651): the damage records the trigger
+//! (`Game::attack_trigger`) and it resolves after the attack's own effects and the prompts they opened (the
+//! AttackTrigger effect). The attacker is the Pokémon that used the attack wherever it is then (it can have been
+//! switched to the Bench); it moves the Energy to one of the attacking player's other Benched Pokémon.
 use crate::cards::prelude::*;
-use crate::markers::{SourceType, TargetScope};
 
 pub static IMPL: CardImpl = CardImpl {
     class: "HandyFan",
-    mask: mask(&[k::AFTER_DAMAGE, k::AFTER_ATTACK_TRIGGERS, k::END_TURN]),
+    mask: mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
     reduce,
     resume: Some(resume),
     coin: None,
     can_play: None,
 };
-
-fn fan_marker() -> crate::markers::MarkerName {
-    crate::marker!("HANDY_FAN_MARKER")
-}
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     match *g.e(e) {
@@ -58,34 +48,26 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if damage <= 0 || b.player == t.p || g.st.players[t.p as usize].active != t.s {
                 return Ok(());
             }
-            if g.run_fx(Effect::Tool { p: t.p, card: me }).is_err() {
-                return Ok(());
-            }
-            if g.st.phase != GamePhase::Attack {
-                return Ok(());
-            }
-            let src = b.source;
-            g.st.players[src.p as usize].slots[src.s as usize].marker.add(fan_marker(), me, SourceType::Trainer, TargetScope::None);
+            g.attack_trigger(b, damage, me, None)?;
         }
-        Effect::AfterAttackTriggers { p, opp, .. } => {
+        Effect::AttackTrigger { p, opp, card, target: t, source: attacker, source_in_play, retaliate: None, .. } if card == me => {
+            if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
+                return Ok(());
+            }
+            if g.run_fx(Effect::Tool { p: opp, card: me }).is_err() {
+                return Ok(());
+            }
+            if g.st.phase != GamePhase::Attack || !source_in_play {
+                return Ok(());
+            }
             let p = p as usize;
             let o = opp as usize;
-            let mut attacker: Option<SlotId> = None;
-            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if g.st.slot(p, s).marker.has_from(fan_marker(), me) {
-                    attacker = Some(s);
-                }
-            }
-            let s = match attacker {
-                Some(s) => s,
-                None => return Ok(()),
-            };
-            g.st.players[p].slots[s as usize].marker.remove_from(fan_marker(), me);
+            let s = attacker.s;
             let pl = &g.st.players[p];
             let bench_index = pl.bench.iter().position(|b| *b == s);
             let has_bench = pl.bench.iter().any(|b| *b != s && !pl.slots[*b as usize].cards.is_empty());
             let has_energy = g.st.slot(p, s).cards.iter().any(|c| g.st.cdef(c).is_energy());
-            if g.st.slot(p, s).cards.is_empty() || !has_bench || !has_energy {
+            if !has_bench || !has_energy {
                 return Ok(());
             }
             let mut slots = SVec::new();
@@ -109,12 +91,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 PromptKind::AttachEnergy { cards: src, player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o: o_opts },
                 Cont::Card { card: me, frame: f },
             );
-        }
-        Effect::EndTurn { p } => {
-            let p = p as usize;
-            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                g.st.players[p].slots[s as usize].marker.remove_from(fan_marker(), me);
-            }
         }
         _ => {}
     }

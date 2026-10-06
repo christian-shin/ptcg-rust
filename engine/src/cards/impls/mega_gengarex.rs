@@ -8,7 +8,8 @@
 //! adjustments (so it lowers the base count 1 → 0), only during the
 //! opponent's ATTACK phase, with this card in play for the KO'd player and
 //! not ability-blocked (probe for the *opponent*), a [D] target (by
-//! CheckPokemonTypeEffect) and an ex opponent Active; a slot marker keeps it
+//! CheckPokemonTypeEffect) and an ex attacker (fixed in phase 4b, F1: the Pokémon that used the attack, not the
+//! opponent's Active at the Knock Out check, which can be another Pokémon after a switch); a slot marker keeps it
 //! from stacking (fixed in phase 4b: the check looked for the marker of this
 //! copy only, so a second copy never saw the first one's marker; it now
 //! tests the marker by name). Void Gale sets a player marker; on the AfterAttackEffect
@@ -53,7 +54,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if !dark {
             return Ok(());
         }
-        let ex = g.st.active_pokemon(opponent).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER)).unwrap_or(false);
+        // The Pokémon that used the attack, wherever it is by now (switched to the Bench, ...).
+        let ex = g.attacker_of_knock_out(player).and_then(|a| a.0).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER)).unwrap_or(false);
         if !ex {
             return Ok(());
         }

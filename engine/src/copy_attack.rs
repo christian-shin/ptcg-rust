@@ -616,7 +616,7 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
         }
         CopyStage::AfterAfter => {
             f.stage = CopyStage::AfterTriggers;
-            let r = g.run_fx(Effect::AfterAttackTriggers { p, opp, attack: f.attack }).map(|_| ());
+            let r = g.run_fx(Effect::AfterAttackTriggers { p, opp, attack: f.attack }).map(|_| ()).and_then(|_| g.run_attack_triggers(f.atk));
             finish_step(g, f, r, wait_if_prompts)
         }
         CopyStage::AfterTriggers => {

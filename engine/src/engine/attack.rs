@@ -246,6 +246,7 @@ fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
 fn attack_triggers(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
     g.run_fx(Effect::AfterAttackTriggers { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
+    g.run_attack_triggers(f.atk)?;
     if g.has_prompts() {
         f.stage = AtkStage::AfterTriggers;
         g.wait_prompt(Cont::UseAttack(f));
@@ -578,22 +579,40 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::AfterDamage { b, damage } => {
             g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-            // Revenge trap (getActiveRetaliateOnDamage; `{ damage }` options only).
+            if damage > 0 && b.target.p != b.player && g.st.players[b.target.p as usize].active == b.target.s && g.st.phase == GamePhase::Attack {
+                if let Some(la) = g.last_attack.as_mut() {
+                    if !la.damaged_active.contains(&b.target) {
+                        la.damaged_active.push(b.target);
+                    }
+                }
+            }
+            // Revenge trap (getActiveRetaliateOnDamage; `{ damage }` options only). Step 7 of the attack flow chart:
+            // recorded now, resolved after the attack's own effects (AttackTrigger below).
             let t = b.target;
             let slot = g.st.slot(t.p as usize, t.s);
             let active = if slot.retaliate_on_damage_next_turn_pending.is_some() { None } else { slot.retaliate_on_damage_next_turn };
             if let Some(r) = active {
                 if damage > 0 && t.p != b.player && g.st.phase == GamePhase::Attack && r.damage > 0 {
-                    let mut src = t;
-                    let ap = r.attacker as usize;
-                    for s in g.st.players[ap].in_play().iter() {
-                        if g.st.slot_pokemon(ap, *s) == Some(r.source_card) {
-                            src = SlotRef::new(ap, *s);
-                        }
-                    }
-                    let rb = AtkBase { attack_effect: b.attack_effect, player: t.p, opponent: b.player, attack: r.attack, source: src, target: b.source };
-                    g.run_fx(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
+                    g.attack_trigger(b, damage, r.source_card, Some(r))?;
                 }
+            }
+            Ok(())
+        }
+        Effect::AttackTrigger { attack_effect, p, opp, attack, card, target, source, source_in_play, retaliate: Some(r), .. } => {
+            // Resolution of a revenge trap: an EffectOfAttack attributed to the retaliator so Mist Energy blocks it.
+            // The Attacking Pokémon must still be in play (ruling 530) and takes the counters wherever it is (rulings
+            // 482, 1839); the trap is an effect of the damaged Pokémon, gone when that Pokémon left play.
+            if card == r.source_card && r.damage > 0 && source_in_play && g.st.slot(target.p as usize, target.s).cards.contains(r.source_card) {
+                let mut src = target;
+                let ap = r.attacker as usize;
+                for s in g.st.players[ap].in_play().iter() {
+                    if g.st.slot_pokemon(ap, *s) == Some(r.source_card) {
+                        src = SlotRef::new(ap, *s);
+                    }
+                }
+                let rb = AtkBase { attack_effect, player: opp, opponent: p, attack: r.attack, source: src, target: source };
+                let _ = attack;
+                g.run_fx(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
             }
             Ok(())
         }

@@ -14,7 +14,7 @@
 //! attack phase.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Heatran", mask: mask(&[k::ATTACK, k::AFTER_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Heatran", mask: mask(&[k::ATTACK, k::AFTER_DAMAGE, k::ATTACK_TRIGGER]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -23,23 +23,31 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             *damage += (n - 1) * 50;
         }
     }
-    if let Effect::AfterDamage { b, damage } = *g.e(e) {
-        let t = b.target;
-        if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
-            return Ok(());
+    match *g.e(e) {
+        Effect::AfterDamage { b, damage } => {
+            let t = b.target;
+            if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
+                return Ok(());
+            }
+            if damage <= 0 || b.player == t.p || g.st.players[t.p as usize].active != t.s {
+                return Ok(());
+            }
+            g.attack_trigger(b, damage, me, None)?;
         }
-        let player = b.player as usize;
-        let owner = t.p as usize;
-        if damage <= 0 || player == owner || g.st.players[owner].active != t.s {
-            return Ok(());
+        Effect::AttackTrigger { p, card, target, source, source_in_play, retaliate: None, .. } if card == me => {
+            if !g.st.slot(target.p as usize, target.s).cards.contains(me) {
+                return Ok(());
+            }
+            if is_ability_blocked(g, p as usize, me, None) {
+                return Ok(());
+            }
+            // Special Conditions exist only in the Active Spot: an Attacking Pokémon switched to the Bench (or
+            // gone) can't be Burned any more.
+            if g.st.phase == GamePhase::Attack && source_in_play && g.st.players[source.p as usize].active == source.s {
+                crate::engine::phase::add_condition(&mut g.st.players[source.p as usize].slots[source.s as usize], SpecialCondition::Burned);
+            }
         }
-        if is_ability_blocked(g, player, me, None) {
-            return Ok(());
-        }
-        if g.st.phase == GamePhase::Attack {
-            let src = b.source;
-            crate::engine::phase::add_condition(&mut g.st.players[src.p as usize].slots[src.s as usize], SpecialCondition::Burned);
-        }
+        _ => {}
     }
     Ok(())
 }

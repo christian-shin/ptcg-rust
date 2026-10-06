@@ -1,0 +1,79 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Bouffalant SSP 151",
+   "3 Iron Boulder ex TEF 99",
+   "3 Meowth ex POR 62",
+   "3 Totodile TEF 39",
+   "3 Croconaw TEF 40",
+   "3 Maractus JTG 8",
+   "3 Chi-Yu TWM 39",
+   "2 Lively Stadium SSP 180",
+   "2 Punk Helmet PFL 92",
+   "3 Okidogi ex SFA 36",
+   "2 Handheld Fan TWM 150",
+   "3 Spiky Energy JTG 159",
+   "2 Heatran TWM 123",
+   "5 Fire Energy MEE 2",
+   "5 Darkness Energy MEE 7",
+   "5 Water Energy MEE 3",
+   "5 Fighting Energy MEE 6",
+   "5 Grass Energy MEE 1"
+  ],
+  [
+   "3 Bouffalant SSP 151",
+   "3 Iron Boulder ex TEF 99",
+   "3 Meowth ex POR 62",
+   "3 Totodile TEF 39",
+   "3 Croconaw TEF 40",
+   "3 Maractus JTG 8",
+   "3 Chi-Yu TWM 39",
+   "2 Lively Stadium SSP 180",
+   "2 Punk Helmet PFL 92",
+   "3 Okidogi ex SFA 36",
+   "2 Handheld Fan TWM 150",
+   "3 Spiky Energy JTG 159",
+   "2 Heatran TWM 123",
+   "5 Fire Energy MEE 2",
+   "5 Darkness Energy MEE 7",
+   "5 Water Energy MEE 3",
+   "5 Fighting Energy MEE 6",
+   "5 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chi-Yu TWM 39",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "stadium": "Lively Stadium SSP 180"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Maractus JTG 8",
+  "bench": [
+   {
+    "card": "Okidogi ex SFA 36"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ground Melter"
+  },
+  [
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ]
+}
