@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 N's Darumaka ASC 32",
+   "3 N's Darmanitan ASC 33",
+   "3 Okidogi ex SFA 36",
+   "2 Punk Helmet PFL 92",
+   "2 Lucky Helmet TWM 158",
+   "3 Jamming Tower TWM",
+   "2 Boomerang Energy TWM 166",
+   "21 Fire Energy MEE 2",
+   "21 Darkness Energy MEE 7"
+  ],
+  [
+   "3 N's Darumaka ASC 32",
+   "3 N's Darmanitan ASC 33",
+   "3 Okidogi ex SFA 36",
+   "2 Punk Helmet PFL 92",
+   "2 Lucky Helmet TWM 158",
+   "3 Jamming Tower TWM",
+   "2 Boomerang Energy TWM 166",
+   "21 Fire Energy MEE 2",
+   "21 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Darumaka ASC 32",
+   "N's Darmanitan ASC 33"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "N's Darumaka ASC 32"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Okidogi ex SFA 36",
+  "active_tool": "Punk Helmet PFL 92",
+  "stadium": "Jamming Tower TWM",
+  "bench": [
+   {
+    "card": "Okidogi ex SFA 36"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Darman-i-cannon"
+  }
+ ]
+}

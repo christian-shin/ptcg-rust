@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Ting-Lu TWM 110",
+   "3 Dwebble DRI 11",
+   "2 Lively Stadium SSP 180",
+   "2 Heatran TWM 123",
+   "4 Okidogi ex SFA 36",
+   "2 Punk Helmet PFL 92",
+   "2 Lucky Helmet TWM 158",
+   "3 Spiky Energy JTG 159",
+   "2 Handheld Fan TWM 150",
+   "19 Fighting Energy MEE 6",
+   "18 Darkness Energy MEE 7"
+  ],
+  [
+   "3 Ting-Lu TWM 110",
+   "3 Dwebble DRI 11",
+   "2 Lively Stadium SSP 180",
+   "2 Heatran TWM 123",
+   "4 Okidogi ex SFA 36",
+   "2 Punk Helmet PFL 92",
+   "2 Lucky Helmet TWM 158",
+   "3 Spiky Energy JTG 159",
+   "2 Handheld Fan TWM 150",
+   "19 Fighting Energy MEE 6",
+   "18 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ting-Lu TWM 110",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "stadium": "Lively Stadium SSP 180",
+  "bench": [
+   {
+    "card": "Heatran TWM 123"
+   },
+   {
+    "card": "Okidogi ex SFA 36",
+    "tool": "Punk Helmet PFL 92"
+   },
+   {
+    "card": "Okidogi ex SFA 36",
+    "tool": "Lucky Helmet TWM 158"
+   },
+   {
+    "card": "Okidogi ex SFA 36",
+    "energy": [
+     "Spiky Energy JTG 159"
+    ]
+   },
+   {
+    "card": "Okidogi ex SFA 36",
+    "tool": "Handheld Fan TWM 150"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ground Crack"
+  }
+ ]
+}

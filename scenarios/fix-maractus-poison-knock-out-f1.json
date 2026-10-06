@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Maractus JTG 8",
+   "3 Okidogi ex SFA 36",
+   "3 Totodile TEF 39",
+   "17 Grass Energy MEE 1",
+   "17 Darkness Energy MEE 7",
+   "17 Water Energy MEE 3"
+  ],
+  [
+   "3 Maractus JTG 8",
+   "3 Okidogi ex SFA 36",
+   "3 Totodile TEF 39",
+   "17 Grass Energy MEE 1",
+   "17 Darkness Energy MEE 7",
+   "17 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Totodile TEF 39",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Totodile TEF 39"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Maractus JTG 8",
+  "active_damage": 100,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Okidogi ex SFA 36"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ]
+}
