@@ -1,0 +1,76 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Mega Hawlucha ex ASC 116",
+   "4 Zeraora DRI 78",
+   "40 Psychic Energy MEE"
+  ],
+  [
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Mega Hawlucha ex ASC 116",
+   "4 Zeraora DRI 78",
+   "40 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape M5",
+   "Annihilape PBL 41"
+  ],
+  "active_energy": [
+   "2 Psychic Energy MEE"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "active_damage": 240,
+  "bench": [
+   {
+    "card": "Zeraora DRI 78"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ghostly Blow"
+  }
+ ],
+ "coins": [
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "Wait",
+    "ChoosePokemon"
+   ],
+   "cite": "ruling 1770 (the coin and the 10 HP restore come after all the damage); Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "hp_left": 10,
+   "cite": "ruling 1770: heads, 10 HP restored after all the damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 50,
+   "cite": "Ghostly Blow: 5 damage counters on the Benched Pokemon"
+  }
+ ]
+}

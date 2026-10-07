@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Litten TEF 32",
+   "4 Fezandipiti PRE 45",
+   "8 Fire Energy MEE 2",
+   "44 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Litten TEF 32",
+   "4 Fezandipiti PRE 45",
+   "8 Fire Energy MEE 2",
+   "44 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Litten TEF 32",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fake Out"
+  }
+ ],
+ "coins": [
+  false,
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect coin is flipped after the damage (coins [false, true]: the Adrena-Pheromone coin is flipped with the damage and comes first (tails), the Fake Out coin second (heads): Paralyzed; the old order flipped the effect coin first and got tails)"
+  }
+ ]
+}
