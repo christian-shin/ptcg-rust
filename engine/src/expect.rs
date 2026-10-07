@@ -17,6 +17,12 @@ use std::cell::RefCell;
 pub enum At {
     TurnEnd,
     NextTurn,
+    /// The end of the turn after the scenario turn, like `TurnEnd` (the other player's attack and its Knock Outs).
+    NextTurnEnd,
+    /// The moment the game is decided (`end_game`), with the winner set.
+    GameEnd,
+    /// The first turn decision of the Tiebreaker game that replaced the scenario's game.
+    Tiebreaker,
 }
 
 #[derive(Clone, Debug)]
@@ -60,7 +66,10 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             None => At::NextTurn,
             Some(Value::String(s)) if s == "next_turn" => At::NextTurn,
             Some(Value::String(s)) if s == "turn_end" => At::TurnEnd,
-            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end or next_turn)", i, x)),
+            Some(Value::String(s)) if s == "next_turn_end" => At::NextTurnEnd,
+            Some(Value::String(s)) if s == "game_end" => At::GameEnd,
+            Some(Value::String(s)) if s == "tiebreaker" => At::Tiebreaker,
+            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end, next_turn, next_turn_end, game_end or tiebreaker)", i, x)),
         };
         let kinds = [
             o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
@@ -305,6 +314,8 @@ pub struct Run {
     /// Address of the replayed game: option trials run on forks, which must not fire the hooks.
     pub game: usize,
     pub dump: bool,
+    /// The game was already a Tiebreaker game when the assertions were armed.
+    pub sudden_at_arm: bool,
     pub done: Vec<bool>,
     pub failures: Vec<Failure>,
 }
@@ -349,6 +360,7 @@ pub fn arm(g: &Game, assertions: Vec<Assertion>, dump: bool) {
             turn: g.st.turn,
             game: g as *const Game as usize,
             dump,
+            sudden_at_arm: g.st.is_sudden_death,
             done: vec![false; n],
             failures: Vec::new(),
         })
@@ -366,6 +378,19 @@ pub fn on_turn_end(g: &Game) {
         if let Some(run) = r.borrow_mut().as_mut() {
             if run.game == g as *const Game as usize && g.st.turn == run.turn {
                 run.run_at(g, At::TurnEnd);
+            } else if run.game == g as *const Game as usize && g.st.turn == run.turn + 1 {
+                run.run_at(g, At::NextTurnEnd);
+            }
+        }
+    });
+}
+
+/// Hook in `end_game`, once the winner is set.
+pub fn on_game_end(g: &Game) {
+    RUN.with(|r| {
+        if let Some(run) = r.borrow_mut().as_mut() {
+            if run.game == g as *const Game as usize {
+                run.run_at(g, At::GameEnd);
             }
         }
     });
@@ -377,6 +402,9 @@ pub fn on_turn_decision(g: &Game) {
         if let Some(run) = r.borrow_mut().as_mut() {
             if g.st.turn > run.turn {
                 run.run_at(g, At::NextTurn);
+            }
+            if g.st.is_sudden_death && !run.sudden_at_arm && run.game == g as *const Game as usize {
+                run.run_at(g, At::Tiebreaker);
             }
         }
     });
