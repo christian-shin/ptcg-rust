@@ -1,35 +1,44 @@
 {
- "turn": 2,
+ "turn": 3,
  "decks": [
   [
    "1 Cheren ASC 258",
+   "1 Judge POR 76",
    "1 Minccino JTG 125",
-   "58 Water Energy MEE"
+   "57 Water Energy MEE"
   ],
   [
    "1 Cheren ASC 258",
+   "1 Judge POR 76",
    "1 Minccino JTG 125",
-   "58 Water Energy MEE"
+   "57 Water Energy MEE"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Minccino JTG 125",
   "hand": [
-   "Cheren ASC 258"
-  ],
-  "supporter_played": true
+   "Cheren ASC 258",
+   "Judge POR 76"
+  ]
  },
  "opp": {
   "reset": true,
   "active": "Minccino JTG 125"
  },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Cheren ASC"
+  }
+ ],
  "expect": [
   {
    "offered": false,
    "action": "play",
-   "cite": "Advanced Rulebook B-03: only one Supporter during your turn",
-   "card": "Cheren ASC 258"
+   "cite": "Advanced Rulebook B-03: players may only use one Supporter during their turn (Cheren was played first)",
+   "card": "Judge POR 76",
+   "decision": 1
   }
  ]
 }
