@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Sandy Shocks TEF 98",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Sandy Shocks TEF 98",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Sandy Shocks TEF 98",
+  "active_energy": [
+   "3 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Magnetic Burst"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 90,
+   "cite": "Advanced Rulebook B-06: 20 + 70 (3 Energy in play), not affected by Weakness (not 180)"
+  }
+ ]
+}

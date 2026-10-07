@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Crustle DRI 12",
+   "2 Dwebble DRI 11",
+   "6 Fire Energy MEE 2",
+   "6 Grass Energy MEE 1",
+   "2 Mega Absol ex MEG 86",
+   "2 Sacred Charm PFL 93",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "2 Crustle DRI 12",
+   "2 Dwebble DRI 11",
+   "6 Fire Energy MEE 2",
+   "6 Grass Energy MEE 1",
+   "2 Mega Absol ex MEG 86",
+   "2 Sacred Charm PFL 93",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dwebble DRI 11",
+   "Crustle DRI 12"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "2 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Absol ex MEG 86",
+  "active_tool": "Sacred Charm PFL 93"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Great Scissors"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 240,
+   "cite": "Advanced Rulebook B-07 / ruling 1439: effects on the Defending Pokemon (Sacred Charm) are ignored, Weakness still applies (120 x2 = 240)"
+  }
+ ]
+}

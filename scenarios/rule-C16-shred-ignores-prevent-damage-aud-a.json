@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Cornerstone Mask Ogerpon ex PRE 58",
+   "2 Feebas SSP 41",
+   "6 Fighting Energy MEE 6",
+   "6 Grass Energy MEE 1",
+   "2 Milotic ex SSP 42",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "10 Grass Energy MEE 1"
+  ],
+  [
+   "2 Cornerstone Mask Ogerpon ex PRE 58",
+   "2 Feebas SSP 41",
+   "6 Fighting Energy MEE 6",
+   "6 Grass Energy MEE 1",
+   "2 Milotic ex SSP 42",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "10 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cornerstone Mask Ogerpon ex PRE 58",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "2 Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Feebas SSP 41",
+   "Milotic ex SSP 42"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Demolish"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 140,
+   "cite": "Advanced Rulebook C-16 and B-07: an attack whose damage is not affected by any effects on the Active Pokemon ignores damage-preventing effects (Sparkling Scales: prevent damage from Tera Pokemon)"
+  }
+ ]
+}

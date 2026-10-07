@@ -1,0 +1,84 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Deino SSP 117",
+   "2 Eevee PRE 74",
+   "6 Grass Energy MEE 1",
+   "2 Hydreigon ex SSP 119",
+   "2 Mega Diancie ex ASC 267",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Metal Energy MEE 8",
+   "6 Psychic Energy MEE 5",
+   "2 Sylveon ex PRE 41",
+   "2 Zweilous SSP 118",
+   "22 Grass Energy MEE 1"
+  ],
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Deino SSP 117",
+   "2 Eevee PRE 74",
+   "6 Grass Energy MEE 1",
+   "2 Hydreigon ex SSP 119",
+   "2 Mega Diancie ex ASC 267",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Metal Energy MEE 8",
+   "6 Psychic Energy MEE 5",
+   "2 Sylveon ex PRE 41",
+   "2 Zweilous SSP 118",
+   "22 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Deino SSP 117",
+   "Zweilous SSP 118",
+   "Hydreigon ex SSP 119"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Darkness Energy MEE 7",
+   "Metal Energy MEE 8",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "bench": [
+   {
+    "card": [
+     "Eevee PRE 74",
+     "Sylveon ex PRE 41"
+    ]
+   },
+   {
+    "card": "Mega Diancie ex ASC 267"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Obsidian"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 0,
+   "cite": "Advanced Rulebook C-16: damage is prevented only for the Pokemon with the effect (Sylveon ex on the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "damage": 100,
+   "cite": "Advanced Rulebook C-16 and B-08: the other Pokemon still takes 130 (Diamond Coat -30), without Weakness"
+  }
+ ]
+}

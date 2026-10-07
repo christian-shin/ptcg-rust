@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Beldum TEF 113",
+   "2 Fan Rotom ASC 171",
+   "2 Full Metal Lab TEF 148",
+   "6 Grass Energy MEE 1",
+   "2 Sacred Charm PFL 93",
+   "46 Grass Energy MEE 1"
+  ],
+  [
+   "2 Beldum TEF 113",
+   "2 Fan Rotom ASC 171",
+   "2 Full Metal Lab TEF 148",
+   "6 Grass Energy MEE 1",
+   "2 Sacred Charm PFL 93",
+   "46 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fan Rotom ASC 171",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "stadium": "Full Metal Lab TEF 148"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_tool": "Sacred Charm PFL 93"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Assault Landing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 10,
+   "cite": "Advanced Rulebook B-05: every step-5 effect applies: 70 - 30 (Full Metal Lab) - 30 (Sacred Charm, attacker has an Ability) = 10"
+  }
+ ]
+}

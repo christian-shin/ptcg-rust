@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Lunatone ASC 105",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Solrock ASC 106",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Lunatone ASC 105",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Solrock ASC 106",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Solrock ASC 106",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Lunatone ASC 105"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cosmo Beam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "cite": "Advanced Rulebook B-06: damage is not affected by Weakness (Kangaskhan ex is weak to Fighting: 70, not 140)"
+  }
+ ]
+}

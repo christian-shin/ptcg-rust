@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Grass Energy MEE 1",
+   "Maximum Belt PRE 117",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Weedle CRI 1",
+   "49 Grass Energy MEE 1"
+  ],
+  [
+   "6 Grass Energy MEE 1",
+   "Maximum Belt PRE 117",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Weedle CRI 1",
+   "49 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Weedle CRI 1",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Surprise Attack"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "Advanced Rulebook A-01 step 2: heads, 30 + Maximum Belt 50 vs Pokemon ex, no Weakness"
+  }
+ ]
+}

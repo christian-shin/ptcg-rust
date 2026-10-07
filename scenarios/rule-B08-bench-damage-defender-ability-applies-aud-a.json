@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Farigiraf ex TEF 108",
+   "2 Girafarig TWM 83",
+   "2 Kakuna CRI 2",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Psychic Energy MEE 5",
+   "2 Weedle CRI 1",
+   "38 Grass Energy MEE 1"
+  ],
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Farigiraf ex TEF 108",
+   "2 Girafarig TWM 83",
+   "2 Kakuna CRI 2",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Psychic Energy MEE 5",
+   "2 Weedle CRI 1",
+   "38 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Girafarig TWM 83",
+   "Farigiraf ex TEF 108"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "bench": [
+   {
+    "card": [
+     "Weedle CRI 1",
+     "Kakuna CRI 2"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dirty Beam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 10,
+   "cite": "Advanced Rulebook B-05 / B-08: an effect on the Pokemon taking the damage (Exoskeleton, 20 less) applies to damage done to a Benched Pokemon: 30 - 20 = 10"
+  }
+ ]
+}

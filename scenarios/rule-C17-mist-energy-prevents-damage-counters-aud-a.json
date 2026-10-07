@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Dragapult ex ASC 160",
+   "2 Drakloak ASC 159",
+   "2 Dreepy ASC 158",
+   "6 Fire Energy MEE 2",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Mist Energy TEF 161",
+   "6 Psychic Energy MEE 5",
+   "2 Weedle CRI 1",
+   "36 Grass Energy MEE 1"
+  ],
+  [
+   "2 Dragapult ex ASC 160",
+   "2 Drakloak ASC 159",
+   "2 Dreepy ASC 158",
+   "6 Fire Energy MEE 2",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Mist Energy TEF 161",
+   "6 Psychic Energy MEE 5",
+   "2 Weedle CRI 1",
+   "36 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dreepy ASC 158",
+   "Drakloak ASC 159",
+   "Dragapult ex ASC 160"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "bench": [
+   {
+    "card": "Weedle CRI 1",
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Phantom Dive"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 0,
+   "cite": "Advanced Rulebook C-17 and flow chart step 6 (placing damage counters is an effect): Mist Energy prevents it"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 200,
+   "cite": "Advanced Rulebook C-17: the damage to the Active Pokemon is not an effect"
+  }
+ ]
+}

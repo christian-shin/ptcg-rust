@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "Maximum Belt PRE 117",
+   "2 Mega Diancie ex ASC 267",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Psychic Energy MEE 5",
+   "49 Grass Energy MEE 1"
+  ],
+  [
+   "Maximum Belt PRE 117",
+   "2 Mega Diancie ex ASC 267",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Psychic Energy MEE 5",
+   "49 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Garland Ray"
+  },
+  []
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook B-02: a x attack that comes to 0 ends the damage calculation, Maximum Belt adds nothing"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "Advanced Rulebook D-05: an attack may choose 0 (ruling 1721)"
+  }
+ ]
+}

@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Applin DRI 16",
+   "6 Grass Energy MEE 1",
+   "2 Mist Energy TEF 161",
+   "2 Weedle CRI 1",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "2 Applin DRI 16",
+   "6 Grass Energy MEE 1",
+   "2 Mist Energy TEF 161",
+   "2 Weedle CRI 1",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Applin DRI 16",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "active_damage": 20
+ },
+ "opp": {
+  "reset": true,
+  "active": "Weedle CRI 1",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mini Drain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 10,
+   "cite": "Advanced Rulebook C-17: damage is not an effect, so it is done"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "Advanced Rulebook C-17: Mist Energy only prevents effects done to its own Pokemon; the attacker heals 10 from itself"
+  }
+ ]
+}
