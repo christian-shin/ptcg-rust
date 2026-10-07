@@ -7,7 +7,7 @@
 use crate::carddb::en_key;
 use crate::engine::check::hp_of;
 use crate::game::Game;
-use crate::list::CardId;
+use crate::list::{CardId, CardList};
 use crate::state::SlotId;
 use crate::types::{SpecialCondition, WINNER_DRAW, WINNER_NONE};
 use serde_json::Value;
@@ -17,11 +17,15 @@ use std::cell::RefCell;
 pub enum At {
     TurnEnd,
     NextTurn,
+    /// The n-th turn decision since the scenario edits (0 = right after them).
+    Decision,
 }
 
 #[derive(Clone, Debug)]
 pub struct Assertion {
     pub at: At,
+    /// Turns after the scenario turn (`turn_end` default 0, `next_turn` default: the first decision of any later turn).
+    pub turn: Option<i32>,
     pub cite: String,
     pub spec: Value,
 }
@@ -38,7 +42,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active",
+    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -60,7 +64,8 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             None => At::NextTurn,
             Some(Value::String(s)) if s == "next_turn" => At::NextTurn,
             Some(Value::String(s)) if s == "turn_end" => At::TurnEnd,
-            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end or next_turn)", i, x)),
+            Some(Value::String(s)) if s == "decision" => At::Decision,
+            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end, next_turn or decision)", i, x)),
         };
         let kinds = [
             o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
@@ -68,14 +73,39 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             o.contains_key("prizes_taken"),
             o.contains_key("winner"),
             o.contains_key("active"),
+            o.contains_key("legal"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
-            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner or active)", i));
+            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active or legal)", i));
+        }
+        if (at == At::Decision) != o.contains_key("n") {
+            return Err(format!("expect[{}]: n (the decision number) goes with at: decision, and only with it", i));
+        }
+        if at == At::Decision && o.get("n").map_or(true, |n| n.as_u64().is_none()) {
+            return Err(format!("expect[{}]: n must be a number >= 0", i));
+        }
+        let turn = match o.get("turn") {
+            None => None,
+            Some(Value::Number(n)) if n.as_i64().map_or(false, |n| n >= 0) => n.as_i64().map(|n| n as i32),
+            Some(x) => return Err(format!("expect[{}]: bad turn {} (turns after the scenario turn, >= 0)", i, x)),
+        };
+        if let Some(l) = o.get("legal") {
+            if at == At::TurnEnd {
+                return Err(format!("expect[{}]: legal is checked at a turn decision (at: next_turn or decision)", i));
+            }
+            match l.as_str() {
+                Some("retreat") => {}
+                Some("attack") | Some("play") if o.get("name").and_then(|n| n.as_str()).is_some() => {}
+                _ => return Err(format!("expect[{}]: legal must be retreat, or attack / play with a name", i)),
+            }
+            if o.get("is").map_or(false, |b| !b.is_boolean()) {
+                return Err(format!("expect[{}]: is must be true or false", i));
+            }
         }
         if !o.contains_key("winner") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
         }
-        out.push(Assertion { at, cite: cite.to_string(), spec: a.clone() });
+        out.push(Assertion { at, turn, cite: cite.to_string(), spec: a.clone() });
     }
     Ok(out)
 }
@@ -155,6 +185,39 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
         if cards.iter().any(|&c| names_eq(c, g, &n)) {
             return Err(format!("{} {} should not contain {}, actual {}", w, zone, n, shown(g, &cards)));
         }
+    }
+    Ok(())
+}
+
+/// `legal`: whether a turn action is among the legal options of the player to move (the same
+/// trial dispatch as the interface). `is` (default true) is the expected answer; `on` ("active" or a
+/// Bench index) narrows a `play` to that target.
+fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
+    use crate::game::Action;
+    if g.st.active_player as usize != p {
+        return Err(format!("legal: {} is not the player to move", a["who"].as_str().unwrap_or("")));
+    }
+    let want = a["is"].as_bool().unwrap_or(true);
+    let kind = a["legal"].as_str().unwrap_or("");
+    let name = a["name"].as_str().unwrap_or("");
+    let opts = crate::options::legal_turn_options(g);
+    let have = opts.iter().any(|o| match (kind, o.action) {
+        ("retreat", Action::Retreat { .. }) => true,
+        ("attack", Action::Attack { name: n }) => n == name,
+        ("play", Action::PlayCard { hand_index, target }) => {
+            names_eq(g.st.players[p].hand.as_slice()[hand_index as usize], g, name)
+                && match &a["on"] {
+                    Value::Null => true,
+                    Value::String(s) if s == "active" => target.slot == crate::types::SlotType::Active,
+                    Value::Number(n) => target.slot == crate::types::SlotType::Bench && Some(target.index as u64) == n.as_u64(),
+                    _ => false,
+                }
+        }
+        _ => false,
+    });
+    if have != want {
+        let list: Vec<String> = opts.iter().map(|o| o.desc.to_string()).collect();
+        return Err(format!("legal {} {}: expected {}, actual {} (options: {})", kind, name, want, have, list.join(" ")));
     }
     Ok(())
 }
@@ -249,7 +312,9 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
 pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
     let o = &a.spec;
     let w = o["who"].as_str().unwrap_or("");
-    if o.get("zone").is_some() {
+    if o.get("legal").is_some() {
+        check_legal(g, o, who(o, me))
+    } else if o.get("zone").is_some() {
         check_zone(g, o, who(o, me))
     } else if let Some(n) = o["prizes_taken"].as_i64() {
         let have = g.st.players[who(o, me)].prizes_taken;
@@ -307,6 +372,8 @@ pub struct Run {
     pub dump: bool,
     pub done: Vec<bool>,
     pub failures: Vec<Failure>,
+    /// Turn decisions seen since the scenario edits (the first one is number 0).
+    pub decisions: usize,
 }
 
 impl Run {
@@ -317,6 +384,18 @@ impl Run {
     fn run_at(&mut self, g: &Game, at: At) {
         for i in 0..self.assertions.len() {
             if self.assertions[i].at != at || self.done[i] {
+                continue;
+            }
+            // `turn: k` waits for the k-th turn after the scenario turn (`turn_end` defaults to 0).
+            let k = match (self.assertions[i].turn, at) {
+                (Some(k), _) => Some(k),
+                (None, At::TurnEnd) => Some(0),
+                (None, _) => None,
+            };
+            if k.map_or(false, |k| g.st.turn != self.turn + k) {
+                continue;
+            }
+            if at == At::Decision && self.assertions[i].spec["n"].as_u64() != Some(self.decisions as u64) {
                 continue;
             }
             self.done[i] = true;
@@ -351,6 +430,7 @@ pub fn arm(g: &Game, assertions: Vec<Assertion>, dump: bool) {
             dump,
             done: vec![false; n],
             failures: Vec::new(),
+            decisions: 0,
         })
     });
 }
@@ -360,24 +440,46 @@ pub fn take() -> Option<Run> {
     RUN.with(|r| r.borrow_mut().take())
 }
 
+/// Run `f` on the armed run with the thread-local released, so option trials (forks that fire the
+/// same hooks) find nothing armed instead of a borrowed cell.
+fn with_run(f: impl FnOnce(&mut Run)) {
+    let taken = RUN.with(|r| r.borrow_mut().take());
+    if let Some(mut run) = taken {
+        f(&mut run);
+        RUN.with(|r| *r.borrow_mut() = Some(run));
+    }
+}
+
 /// Hook in `after_end_turn`, once Knock Outs are resolved and before Checkup.
 pub fn on_turn_end(g: &Game) {
-    RUN.with(|r| {
-        if let Some(run) = r.borrow_mut().as_mut() {
-            if run.game == g as *const Game as usize && g.st.turn == run.turn {
-                run.run_at(g, At::TurnEnd);
-            }
+    with_run(|run| {
+        if run.game == g as *const Game as usize {
+            run.run_at(g, At::TurnEnd);
         }
     });
 }
 
-/// Hook at every turn decision of the replay: the first one after the scenario turn.
+/// Hook right after the scenario edits: decision 0, the edited board at the scenario turn's first
+/// decision (e.g. which actions are legal on the first turn).
+pub fn on_scenario_start(g: &Game) {
+    with_run(|run| {
+        run.decisions = 0;
+        run.run_at(g, At::Decision);
+    });
+}
+
+/// Hook at every turn decision of the replay: the n-th since the edits (`decision`) and the first
+/// of each later turn (`next_turn`). Decisions before the edits are not counted: arming happens
+/// after this hook at the scenario turn.
 pub fn on_turn_decision(g: &Game) {
-    RUN.with(|r| {
-        if let Some(run) = r.borrow_mut().as_mut() {
-            if g.st.turn > run.turn {
-                run.run_at(g, At::NextTurn);
-            }
+    with_run(|run| {
+        if run.game != g as *const Game as usize {
+            return;
+        }
+        run.decisions += 1;
+        run.run_at(g, At::Decision);
+        if g.st.turn > run.turn {
+            run.run_at(g, At::NextTurn);
         }
     });
 }

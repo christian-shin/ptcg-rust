@@ -93,6 +93,10 @@ def load_scenario(path):
                 b['energy'] = many(b['energy'])
             if 'tool' in b:
                 b['tool'] = one(b['tool'])
+    # A scripted play may name its card (the oracle matches it by name against the hand).
+    for a in sc.get('answers') or []:
+        if isinstance(a, dict) and a.get('a') == 'play' and isinstance(a.get('card'), str) and '#' not in a['card']:
+            a['card'] = one(a['card'])
     for n in seen:
         if n not in cards:
             sys.exit('scenario: unknown card %s' % n)
