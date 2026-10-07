@@ -1,12 +1,14 @@
-//! Mew ex (30C / M6a): Memory Helix — this Pokémon can use the attacks of
-//! any of your Benched Pokémon (COPY_ATTACK_VIA_ABILITY, see
-//! `copy_attack.rs`). Teleportation Burst — 30, you may switch this Pokémon
-//! with 1 of your Benched Pokémon.
+//! Mew ex (30C / M6a): Memory Helix — a passive Ability: this Pokémon can use
+//! the attacks of any of your Benched Pokémon. They are added to its attack
+//! options (CheckPokemonAttacksEffect.copiedAttacks) while it is Active and
+//! the Ability isn't blocked; the AttackAction then runs the chosen one with
+//! `delegateFrom` (see `copy_attack.rs`). Teleportation Burst — 30, you may
+//! switch this Pokémon with 1 of your Benched Pokémon.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "Mewex",
-    mask: mask(&[k::POWER, k::AFTER_ATTACK]),
+    mask: mask(&[k::CHECK_POKEMON_ATTACKS, k::AFTER_ATTACK]),
     reduce,
     resume: Some(resume),
     coin: None,
@@ -14,15 +16,27 @@ pub static IMPL: CardImpl = CardImpl {
 };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if is_ability_blocked(g, p, me, None) {
-            bail!("BLOCKED_BY_EFFECT");
+    if let Effect::CheckPokemonAttacks { p, .. } = *g.e(e) {
+        let p = p as usize;
+        if g.st.active_pokemon(p) != Some(me) || is_ability_blocked(g, p, me, None) {
+            return Ok(());
         }
-        return crate::copy_attack::copy_attack_via_ability(g, p, me);
+        let mut add: SVec<AttackRef, 32> = SVec::new();
+        let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
+        for b in bench {
+            if let Some(c) = g.st.slot_pokemon(p, b) {
+                for i in 0..g.st.cdef(c).attacks.len() {
+                    add.push(AttackRef { card: c, index: i as u8 });
+                }
+            }
+        }
+        if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
+            for a in add.iter() {
+                attacks.push(*a);
+                copied.push(*a);
+            }
+        }
+        return Ok(());
     }
 
     if after_attack_used(g, e, 0, me) {

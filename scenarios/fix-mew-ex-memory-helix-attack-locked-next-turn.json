@@ -35,29 +35,28 @@
  },
  "answers": [
   {
-   "a": "ability",
-   "name": "Memory Helix",
-   "source": {
-    "player": 2,
-    "slot": 1,
-    "index": 0
-   }
-  },
-  {
-   "index": 0,
-   "attack": "Accelerating Stab"
+   "a": "attack",
+   "name": "Accelerating Stab"
   },
   {
    "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Accelerating Stab",
+   "cite": "Advanced Rulebook I-A-02 (a passive Ability is automatic, never announced); Memory Helix card text"
   },
   {
-   "a": "ability",
-   "name": "Memory Helix",
-   "source": {
-    "player": 2,
-    "slot": 1,
-    "index": 0
-   }
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Drilbur PBL 46",
+   "damage": 30,
+   "cite": "Accelerating Stab: 30 damage, done by Mew ex"
   }
  ]
 }

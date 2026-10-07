@@ -35,5 +35,23 @@
  "opp": {
   "reset": true,
   "active": "Drilbur PBL 46"
- }
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Take Down",
+   "is": false,
+   "cite": "Advanced Rulebook E-28: the player who goes first can't attack on their first turn; no copied attack either"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Teleportation Burst",
+   "is": false,
+   "cite": "Advanced Rulebook E-28: the player who goes first can't attack on their first turn"
+  }
+ ]
 }

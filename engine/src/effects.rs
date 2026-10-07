@@ -91,7 +91,9 @@ pub enum Effect {
     CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool },
     CheckProvidedEnergy { p: u8, source: SlotRef, energy_map: EnergyMap },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },
-    CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32> },
+    /// `copied`: the attacks of other Pokémon that the Active Pokémon uses as its own (Mew ex Memory Helix),
+    /// pushed to `attacks` as well; the source is `AttackRef::card`.
+    CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32>, copied: SVec<AttackRef, 32> },
     CheckPokemonPlayedTurn { p: u8, target: SlotRef, pokemon_played_turn: i32, can_evolve_on_first_turn: bool },
     CheckTableState { bench_sizes: [u8; 2] },
     CheckPrizesDestination { p: u8, destination: ListRef },

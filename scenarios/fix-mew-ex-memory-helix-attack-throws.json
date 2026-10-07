@@ -38,17 +38,25 @@
  },
  "answers": [
   {
-   "a": "ability",
-   "name": "Memory Helix",
-   "source": {
-    "player": 2,
-    "slot": 1,
-    "index": 0
-   }
+   "a": "attack",
+   "name": "Blazing Destruction"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Blazing Destruction",
+   "cite": "Blazing Destruction costs no Energy and can be used without a Stadium in play (does nothing then); Memory Helix card text"
   },
   {
-   "index": 0,
-   "attack": "Blazing Destruction"
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Take Down",
+   "is": false,
+   "cite": "Memory Helix: 'You still need the necessary Energy to use each attack' (Take Down needs [F] Energy)"
   }
  ]
 }

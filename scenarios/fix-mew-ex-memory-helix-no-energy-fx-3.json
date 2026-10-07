@@ -3,32 +3,30 @@
  "decks": [
   [
    "4 Mew ex 30C 66",
+   "4 Riolu M1L",
    "4 Hisuian Growlithe TWM 99",
    "4 Drilbur PBL 46",
-   "48 Psychic Energy MEE"
+   "22 Psychic Energy MEE",
+   "22 Fighting Energy MEE"
   ],
   [
    "4 Mew ex 30C 66",
+   "4 Riolu M1L",
    "4 Hisuian Growlithe TWM 99",
    "4 Drilbur PBL 46",
-   "48 Psychic Energy MEE"
+   "22 Psychic Energy MEE",
+   "22 Fighting Energy MEE"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "2 Psychic Energy MEE"
-  ],
-  "active_conditions": [
-   "ASLEEP"
+   "Psychic Energy MEE"
   ],
   "bench": [
    {
-    "card": "Drilbur PBL 46",
-    "energy": [
-     "Psychic Energy MEE"
-    ]
+    "card": "Riolu M1L"
    },
    {
     "card": "Hisuian Growlithe TWM 99"
@@ -46,15 +44,22 @@
    "legal": "attack",
    "name": "Take Down",
    "is": false,
-   "cite": "Advanced Rulebook I-A-01 1b: an Asleep Pokemon can't attack, so no attack of a Benched Pokemon either"
+   "cite": "Memory Helix: 'You still need the necessary Energy to use each attack'"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Accelerating Stab",
+   "is": false,
+   "cite": "Memory Helix: 'You still need the necessary Energy to use each attack'"
   },
   {
    "at": "start",
    "who": "me",
    "legal": "attack",
    "name": "Teleportation Burst",
-   "is": false,
-   "cite": "Advanced Rulebook I-A-01 1b: an Asleep Pokemon can't attack"
+   "cite": "Mew ex's own attack, its [P] Energy is attached"
   }
  ]
 }

@@ -141,11 +141,12 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
 }
 
 /// Attacks available to the active player, as the AttackAction reducer builds them.
-pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<AttackRef, 64>> {
-    let mut out: SVec<AttackRef, 64> = SVec::new();
+/// The bool marks an attack copied from a Benched Pokémon (`CheckPokemonAttacksEffect.copiedAttacks`).
+pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64>> {
+    let mut out: SVec<(AttackRef, bool), 64> = SVec::new();
     if let Some(c) = g.st.active_pokemon(p) {
         for i in 0..g.st.cdef(c).attacks.len() {
-            out.push(AttackRef { card: c, index: i as u8 });
+            out.push((AttackRef { card: c, index: i as u8 }, false));
         }
     }
     let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
@@ -155,22 +156,22 @@ pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<AttackRef, 64>> {
             if d.attacks.iter().any(|a| a.use_on_bench) {
                 for (i, a) in d.attacks.iter().enumerate() {
                     if a.use_on_bench {
-                        out.push(AttackRef { card: c, index: i as u8 });
+                        out.push((AttackRef { card: c, index: i as u8 }, false));
                     }
                 }
                 let (e, _) = g.run_fx(check_attacks_effect(g, p))?;
-                if let Effect::CheckPokemonAttacks { attacks, .. } = e {
+                if let Effect::CheckPokemonAttacks { attacks, copied, .. } = e {
                     for a in attacks.iter() {
-                        out.push(*a);
+                        out.push((*a, copied.iter().any(|c| c == a)));
                     }
                 }
             }
         }
     }
     let (e, _) = g.run_fx(check_attacks_effect(g, p))?;
-    if let Effect::CheckPokemonAttacks { attacks, .. } = e {
+    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = e {
         for a in attacks.iter() {
-            out.push(*a);
+            out.push((*a, copied.iter().any(|c| c == a)));
         }
     }
     Ok(out)
@@ -188,7 +189,7 @@ pub fn check_attacks_effect(g: &Game, p: usize) -> Effect {
             }
         }
     }
-    Effect::CheckPokemonAttacks { p: p as u8, attacks }
+    Effect::CheckPokemonAttacks { p: p as u8, attacks, copied: SVec::new() }
 }
 
 pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
@@ -213,12 +214,14 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
         Action::Attack { name } => {
             let pokemon = g.st.active_pokemon(p);
             let attacks = available_attacks(g, p)?;
-            let attack = match attacks.iter().find(|r| g.st.cdef(r.card).attacks[r.index as usize].name == name) {
+            let (attack, copied) = match attacks.iter().find(|r| g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name) {
                 Some(r) => *r,
                 None => crate::bail!("UNKNOWN_ATTACK"),
             };
             let source = SlotRef::new(p, g.st.players[p].active);
-            g.run_fx(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false, delegate_from: None })?;
+            // An attack copied from a Benched Pokémon (Mew ex Memory Helix) runs as the Active Pokémon's.
+            let delegate_from = if copied { Some(attack.card) } else { None };
+            g.run_fx(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false, delegate_from })?;
             g.st.last_attack = Some(attack);
             if let Some(pc) = pokemon {
                 g.st.player_last_attack[p] = Some((attack, pc));
