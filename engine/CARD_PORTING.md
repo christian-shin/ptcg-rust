@@ -252,18 +252,30 @@ cards with card logic need a port like any other card.
 
 ```
 cd engine && cargo build --profile iter --bins     # seconds per rebuild; `cargo test --release` before committing
-python3 tools/check_cards.py "Full Name A" "Full Name B"            # parity loop: 16 games, no coverage
-python3 tools/check_cards.py "Full Name A" "Full Name B" --coverage  # once, at the end
+python3 tools/check_cards.py "Full Name A" "Full Name B" --remote 1             # parity loop: 16 games, no coverage
+python3 tools/check_cards.py "Full Name A" "Full Name B" --remote 1 --coverage  # once, at the end
 ```
 
-More games, faster: add `--remote 8` (up to 20) to run the oracle games on
-GitHub Actions runners instead of locally (`.github/workflows/oracle.yml`,
-driven by `tools/remote_oracle.py`; needs `gh` logged in and the Twinleaf
-branch pushed, selected with `PTCG_ORACLE_REF=<branch>`). Traces and coverage
-come back into the same corpus directory; the Rust diff still runs locally.
-Expect ~1-2 minutes of queue/setup overhead, so use it for runs of 32+ games.
-If the main checkout has a local remote runner (`porting/remote_runner.py`,
-not in git), `--remote` uses it instead; its notes are under `porting/` there.
+`--remote` plays the oracle games off this machine (`tools/remote_oracle.py`);
+traces and coverage come back into the same corpus directory, and the Rust
+diff still runs locally. Use it for every run, of any size.
+
+* **With a local remote runner** (the main checkout has
+  `porting/remote_runner.py`, not in git; notes under `porting/` there): the
+  runner decides where the games run, uploads the Twinleaf source that
+  `PTCG_ORACLE` points at as it is on disk, and compiles it remotely. Nothing
+  needs to be pushed or built locally. The first run after a Twinleaf change
+  waits a few minutes for the compile (a type error comes back as the run's
+  error); later runs reuse it, so make all the Twinleaf edits for a card
+  before re-running. Don't pick a backend or pass budget or size overrides; a
+  refused run is reported, not retried.
+* **Otherwise, GitHub Actions** (`.github/workflows/oracle.yml`): `--remote 8`
+  (up to 20 runners). Needs `gh` logged in and the Twinleaf branch pushed,
+  selected with `PTCG_ORACLE_REF=<branch>`. Expect ~1-2 minutes of queue/setup
+  overhead.
+
+Without `--remote`, the oracle games run on this machine: only for debugging
+a few games when neither is available.
 
 New worktree? Copy a warm build cache first so the first build isn't from scratch:
 `cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
@@ -385,7 +397,7 @@ branch that needs a specific board.
 ### Coverage workflow (required)
 
 1. Parity loop until zero divergences (random games, no coverage).
-2. One coverage run of random games (`--coverage`, `--remote` for 32+ games).
+2. One coverage run of random games (`--coverage --remote 1`).
 3. For every reachable branch still under 3 games, write a scenario that sets
    up the board it needs and run it with `--coverage`. A branch counts as
    covered only when the scenario run's coverage report shows it in ≥3 games,
@@ -664,11 +676,12 @@ The tracked list is `porting/twinleaf-fixes.md`.
 1. **Twinleaf.** Fix tasks get their own Twinleaf worktree and branch (never
    edit the main `twinleaf/` checkout). Make the smallest change that matches
    the card text, in Twinleaf's style, one commit per card ("Fix <key>:
-   <what>"). Build with
-   `node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc` in
-   `ptcg-server/` (~2 minutes) and run the oracle tools against it with
+   <what>"). Run the oracle tools against it with
    `PTCG_ORACLE=<worktree>/ptcg-server` (and `PTCG_ORACLE_REF=<branch>` for
-   `--remote` on Actions, once the branch is pushed).
+   `--remote` on Actions, once the branch is pushed). With a local remote
+   runner `--remote` compiles the worktree itself; build it locally
+   (`node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc` in
+   `ptcg-server/`, ~2 minutes) only to debug single traces or for Actions.
 2. **Unanswerable prompts.** A card must never open a prompt with no valid
    answer. Follow the card text: when the text says "you can't use/play this
    if ...", or when the card would do nothing at all, make it unplayable the
