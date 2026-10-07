@@ -36,7 +36,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             let p = p as usize;
-            if g.st.phase != GamePhase::Attack || g.st.active_player as usize != 1 - p {
+            // "Knocked Out by damage from an attack from your opponent's Pokémon" (E-04; rulings 648, 674, 1745)
+            if g.knocked_out_by_attack_damage(p, target).is_none() {
                 return Ok(());
             }
             if is_special_energy_blocked(g, p, me, target, false) {

@@ -340,7 +340,7 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     }
     if g.st.phase == GamePhase::Attack
         && g.st.active_player as usize == attacker
-        && g.st.players[owner].marker.has(DAMAGE_DEALT_MARKER)
+        && g.knocked_out_by_attack_damage(owner, target).is_some()
     {
         g.st.players[owner].pokemon_knocked_out_by_attack_during_opponents_last_turn = true;
     }

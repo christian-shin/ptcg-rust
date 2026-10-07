@@ -160,6 +160,8 @@ pub struct LastAttack {
     pub pokemon: Option<CardId>,
     /// Opponent's Pokémon damaged by the attack while in the Active Spot.
     pub damaged_active: SVec<SlotRef, 4>,
+    /// Every Pokémon (any zone) that took damage, not counters, from the attack (`RECORD_DAMAGED`).
+    pub damaged: SVec<SlotRef, 8>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -418,6 +420,16 @@ impl Game {
     pub fn attack_that_damaged_knocked_out(&self, owner: usize, target: SlotRef) -> Option<(Option<CardId>, Option<SlotRef>)> {
         let r = self.attacker_of_knock_out(owner)?;
         if !self.last_attack?.damaged_active.contains(&target) {
+            return None;
+        }
+        Some(r)
+    }
+
+    /// `KNOCKED_OUT_BY_ATTACK_DAMAGE`: as `attacker_of_knock_out`, only when `target` took damage from the attack, in any
+    /// zone (E-04; rulings 648, 674): not for a Knock Out by an effect without damage or by counters.
+    pub fn knocked_out_by_attack_damage(&self, owner: usize, target: SlotRef) -> Option<(Option<CardId>, Option<SlotRef>)> {
+        let r = self.attacker_of_knock_out(owner)?;
+        if !self.last_attack?.damaged.contains(&target) {
             return None;
         }
         Some(r)
@@ -1048,6 +1060,7 @@ impl Game {
                 source,
                 pokemon: self.st.slot_pokemon(source.p as usize, source.s),
                 damaged_active: SVec::new(),
+                damaged: SVec::new(),
             });
         }
         if self.trace_effects {

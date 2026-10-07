@@ -59,9 +59,7 @@ fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
     let owner = f.a[0] as usize;
     if heads {
         if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
-            if *prize_count > 0 {
-                *prize_count += 1;
-            }
+            *prize_count += 1;
         }
     }
     g.st.players[owner].marker.remove(flip_marker());

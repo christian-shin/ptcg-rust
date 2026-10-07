@@ -20,10 +20,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if is_ability_blocked(g, p, me, None) {
                 return Ok(());
             }
-            if g.st.phase != GamePhase::Attack
-                || g.st.active_player as usize != 1 - p
-                || !g.st.players[p].marker.has(crate::markers::DAMAGE_DEALT_MARKER)
-            {
+            if g.knocked_out_by_attack_damage(p, target).is_none() {
                 return Ok(());
             }
             let has_pecharunt = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| g.st.cdef(*c).name == "Pecharunt ex");

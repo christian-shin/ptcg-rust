@@ -9,10 +9,10 @@
 //! Pokémon, so it could apply on a later turn or to the opponent.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Briar", mask: mask(&[k::TRAINER, k::KNOCK_OUT, k::END_TURN]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Briar", mask: mask(&[k::TRAINER, k::KNOCK_OUT, k::BETWEEN_TURNS]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::EndTurn { .. } = *g.e(e) {
+    if let Effect::BetweenTurns { .. } = *g.e(e) {
         g.st.cards[me as usize].extra_prizes = false;
     }
     if let Some(p) = trainer_played(g, e, me) {
@@ -28,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.st.cards[me as usize].extra_prizes = true;
         return Ok(());
     }
-    if let Effect::KnockOut { p, target, prize_count, .. } = *g.e(e) {
+    if let Effect::KnockOut { p, target, .. } = *g.e(e) {
         let p = p as usize;
         if target.p as usize != p || target.s != g.st.players[p].active {
             return Ok(());
@@ -39,8 +39,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         // The Pokémon that used the attack, wherever it is by now (fixed in phase 4b, F1: it was the opponent's
         // Active at the Knock Out check, another Pokémon after a switch).
-        let tera = g.attacker_of_knock_out(p).and_then(|a| a.0).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_TERA)).unwrap_or(false);
-        if tera && g.st.cards[me as usize].extra_prizes && prize_count > 0 {
+        let tera = g.knocked_out_by_attack_damage(p, target).and_then(|a| a.0).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_TERA)).unwrap_or(false);
+        if tera && g.st.cards[me as usize].extra_prizes {
             if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
                 *prize_count += 1;
             }
