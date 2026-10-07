@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mew ex 30C 66",
+   "4 Riolu M1L",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Drilbur PBL 46",
+   "2 Iron Thorns ex PRE 32",
+   "21 Psychic Energy MEE",
+   "21 Fighting Energy MEE"
+  ],
+  [
+   "4 Mew ex 30C 66",
+   "4 Riolu M1L",
+   "4 Hisuian Growlithe TWM 99",
+   "4 Drilbur PBL 46",
+   "2 Iron Thorns ex PRE 32",
+   "21 Psychic Energy MEE",
+   "21 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "Psychic Energy MEE",
+   "2 Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Riolu M1L"
+   },
+   {
+    "card": "Hisuian Growlithe TWM 99"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Take Down",
+   "is": false,
+   "cite": "Iron Thorns ex Initialization: Pokemon with a Rule Box have no Abilities, so Mew ex has no Memory Helix (Advanced Rulebook I-A-02)"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Accelerating Stab",
+   "is": false,
+   "cite": "Iron Thorns ex Initialization: Pokemon with a Rule Box have no Abilities"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Teleportation Burst",
+   "cite": "Mew ex's own attack is not an Ability"
+  }
+ ]
+}

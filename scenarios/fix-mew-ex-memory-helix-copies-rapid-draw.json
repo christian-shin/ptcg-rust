@@ -50,17 +50,25 @@
  },
  "answers": [
   {
-   "a": "ability",
-   "name": "Memory Helix",
-   "source": {
-    "player": 2,
-    "slot": 1,
-    "index": 0
-   }
+   "a": "attack",
+   "name": "Rapid Draw",
+   "from": "Seaking PRE"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Rapid Draw",
+   "cite": "Advanced Rulebook I-A-02 (a passive Ability is automatic, never announced); Memory Helix card text"
   },
   {
-   "index": 0,
-   "attack": "Rapid Draw"
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "Rapid Draw: draw 2 cards, for the player of the Pokemon using it (the hand was empty)"
   }
  ]
 }

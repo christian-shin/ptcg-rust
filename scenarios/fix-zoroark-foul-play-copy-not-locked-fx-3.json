@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "4 Riolu M1L",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "4 Riolu M1L",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zoroark WHT 62",
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Riolu M1L"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Accelerating Stab"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Accelerating Stab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Riolu M1L",
+   "damage": 60,
+   "cite": "Advanced Rulebook C-18: Foul Play uses Accelerating Stab as its own attack, so Zoroark ex's second Foul Play can copy Accelerating Stab again (30 + 30 damage)"
+  }
+ ]
+}

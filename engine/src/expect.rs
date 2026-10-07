@@ -48,7 +48,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes",
+    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -235,7 +235,9 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     let have = opts.iter().any(|o| match (kind, o.action) {
         ("retreat", Action::Retreat { bench_index }) => a["on"].as_u64().map_or(true, |b| b == bench_index as u64),
         ("stadium", Action::UseStadium) => true,
-        ("attack", Action::Attack { name: n }) => n == name,
+        ("attack", Action::Attack { name: n, from }) => {
+            n == name && a["from"].as_str().map_or(true, |w| from.map_or(false, |f| crate::carddb::def_by_full_name(f).map_or(false, |d| en_key(d) == w || crate::carddb::def(d).full_name == w || crate::carddb::en_name(d) == w)))
+        }
         ("ability", Action::UseAbility { name: n, target }) => {
             let src = crate::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
             (name.is_empty() || name == n) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))

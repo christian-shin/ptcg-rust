@@ -320,16 +320,35 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         // has; a Pokémon that copied the attack (Slowking's Seek Inspiration, Metronome) used
         // its own attack, so the copy doesn't lock the copied name (Rulings Compendium 1654).
         // TS: `cannotUseAttacksNextTurnPending.filter(name => cards.some(attacks has name))`.
+        // Memory Helix (Mew ex) is different: the Pokémon uses the attack itself, so the lock keeps
+        // a name that is among the Active Pokémon's offered (copied) attacks.
         let mut owned: SVec<&'static str, 4> = SVec::new();
-        {
+        let mut copied_names: Option<SVec<&'static str, 32>> = None;
+        let pending: SVec<&'static str, 4> = g.st.players[p].slots[*s as usize].cannot_use_attacks_next_turn_pending;
+        for n in pending.iter() {
             let sl = &g.st.players[p].slots[*s as usize];
-            for n in sl.cannot_use_attacks_next_turn_pending.iter() {
-                if sl.cards.iter().any(|c| {
-                    let d = g.st.cdef(c);
-                    d.is_pokemon() && d.attacks.iter().any(|x| x.name == *n)
-                }) {
-                    owned.push(*n);
+            if sl.cards.iter().any(|c| {
+                let d = g.st.cdef(c);
+                d.is_pokemon() && d.attacks.iter().any(|x| x.name == *n)
+            }) {
+                owned.push(*n);
+                continue;
+            }
+            if *s != g.st.players[p].active {
+                continue;
+            }
+            if copied_names.is_none() {
+                let mut v: SVec<&'static str, 32> = SVec::new();
+                let e = crate::engine::turn::check_attacks_effect(g, p);
+                if let (Effect::CheckPokemonAttacks { copied, .. }, _) = g.run_fx(e)? {
+                    for a in copied.iter() {
+                        v.push(g.st.cdef(a.card).attacks[a.idx()].name);
+                    }
                 }
+                copied_names = Some(v);
+            }
+            if copied_names.as_ref().map_or(false, |v| v.iter().any(|x| x == n)) {
+                owned.push(*n);
             }
         }
         let slot = &mut g.st.players[p].slots[*s as usize];
