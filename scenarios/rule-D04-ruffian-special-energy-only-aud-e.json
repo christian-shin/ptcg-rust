@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ruffian JTG 157",
+   "1 Minccino JTG 125",
+   "1 Mist Energy TEF 161",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Ruffian JTG 157",
+   "1 Minccino JTG 125",
+   "1 Mist Energy TEF 161",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Ruffian JTG 157"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ]
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "ruling 1610 and the user decision on Ruffian JTG 157 (a card that does several things is playable when it can do at least one of them): a Special Energy is enough; Advanced Rulebook D-04 (choose as many as you can)",
+   "card": "Ruffian JTG 157"
+  }
+ ]
+}

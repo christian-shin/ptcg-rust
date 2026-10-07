@@ -17,6 +17,8 @@ use std::cell::RefCell;
 pub enum At {
     TurnEnd,
     NextTurn,
+    /// `offered` assertions: a turn decision of the scenario turn (`decision`, default 0 = right after the edits).
+    Decision,
 }
 
 #[derive(Clone, Debug)]
@@ -38,7 +40,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active",
+    "not_contains", "prizes_taken", "winner", "active", "offered", "action", "name", "decision",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -57,22 +59,29 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             return Err(format!("expect[{}]: unknown key {}", i, k));
         }
         let at = match o.get("at") {
+            None if o.contains_key("offered") => At::Decision,
             None => At::NextTurn,
             Some(Value::String(s)) if s == "next_turn" => At::NextTurn,
             Some(Value::String(s)) if s == "turn_end" => At::TurnEnd,
             Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end or next_turn)", i, x)),
         };
         let kinds = [
-            o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
+            !o.contains_key("offered") && (o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone"))),
             o.contains_key("zone"),
             o.contains_key("prizes_taken"),
             o.contains_key("winner"),
             o.contains_key("active"),
+            o.contains_key("offered"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
-            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner or active)", i));
+            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active or offered)", i));
         }
-        if !o.contains_key("winner") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
+        if o.contains_key("offered") {
+            if o.get("offered").and_then(|b| b.as_bool()).is_none() || !matches!(o.get("action").and_then(|a| a.as_str()), Some("play" | "ability" | "stadium" | "retreat" | "attack")) {
+                return Err(format!("expect[{}]: offered needs true/false and action play, ability, stadium, retreat or attack", i));
+            }
+        }
+        if !o.contains_key("winner") && !o.contains_key("offered") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
         }
         out.push(Assertion { at, cite: cite.to_string(), spec: a.clone() });
@@ -245,11 +254,49 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
     Ok(())
 }
 
+/// `offered`: is the action among the legal turn options of the player to move?
+/// `action` play (a card in hand, `card`), ability (`name`, with `card` = the Pokémon when given),
+/// stadium, retreat (`bench`: index, optional) or attack (`name`).
+fn check_offered(g: &Game, o: &Value) -> Result<(), String> {
+    use crate::game::Action;
+    use crate::list::CardList;
+    let want = o["offered"].as_bool().unwrap_or(true);
+    let action = o["action"].as_str().unwrap_or("");
+    let card = o["card"].as_str();
+    let name = o["name"].as_str();
+    let p = g.st.active_player as usize;
+    let mut found = false;
+    for opt in crate::options::legal_turn_options(g) {
+        let hit = match (action, opt.action) {
+            ("play", Action::PlayCard { hand_index, .. }) => {
+                let c = g.st.players[p].hand.as_slice()[hand_index as usize];
+                card.map_or(false, |n| names_eq(c, g, n))
+            }
+            ("ability", Action::UseAbility { name: n, target }) => {
+                let src = crate::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
+                name.map_or(true, |w| w == n) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
+            }
+            ("stadium", Action::UseStadium) => true,
+            ("retreat", Action::Retreat { bench_index }) => o["bench"].as_u64().map_or(true, |b| b == bench_index as u64),
+            ("attack", Action::Attack { name: n }) => name.map_or(true, |w| w == n),
+            _ => false,
+        };
+        found |= hit;
+    }
+    if found == want {
+        Ok(())
+    } else {
+        Err(format!("{} {}: expected offered {}, actual {}", action, card.or(name).unwrap_or(""), want, found))
+    }
+}
+
 /// Evaluate one assertion against the engine state; `me` is the scenario's first side.
 pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
     let o = &a.spec;
     let w = o["who"].as_str().unwrap_or("");
-    if o.get("zone").is_some() {
+    if o.get("offered").is_some() {
+        check_offered(g, o)
+    } else if o.get("zone").is_some() {
         check_zone(g, o, who(o, me))
     } else if let Some(n) = o["prizes_taken"].as_i64() {
         let have = g.st.players[who(o, me)].prizes_taken;
@@ -307,6 +354,8 @@ pub struct Run {
     pub dump: bool,
     pub done: Vec<bool>,
     pub failures: Vec<Failure>,
+    /// Turn decisions seen in the scenario turn so far (0 = the one the edits were applied at).
+    pub decisions: u64,
 }
 
 impl Run {
@@ -317,6 +366,9 @@ impl Run {
     fn run_at(&mut self, g: &Game, at: At) {
         for i in 0..self.assertions.len() {
             if self.assertions[i].at != at || self.done[i] {
+                continue;
+            }
+            if at == At::Decision && self.assertions[i].spec["decision"].as_u64().unwrap_or(0) != self.decisions {
                 continue;
             }
             self.done[i] = true;
@@ -351,7 +403,14 @@ pub fn arm(g: &Game, assertions: Vec<Assertion>, dump: bool) {
             dump,
             done: vec![false; n],
             failures: Vec::new(),
+            decisions: 0,
         })
+    });
+    // `offered` assertions of decision 0: the position right after the edits.
+    RUN.with(|r| {
+        if let Some(run) = r.borrow_mut().as_mut() {
+            run.run_at(g, At::Decision);
+        }
     });
 }
 
@@ -377,6 +436,9 @@ pub fn on_turn_decision(g: &Game) {
         if let Some(run) = r.borrow_mut().as_mut() {
             if g.st.turn > run.turn {
                 run.run_at(g, At::NextTurn);
+            } else if g.st.turn == run.turn && run.game == g as *const Game as usize {
+                run.decisions += 1;
+                run.run_at(g, At::Decision);
             }
         }
     });
@@ -495,6 +557,19 @@ mod tests {
         assert!(ev(&g, 1 - me, json!({"cite":"c","winner":"opp"})).is_ok());
         g.st.winner = crate::types::WINNER_DRAW;
         assert!(ev(&g, me, json!({"cite":"c","winner":"draw"})).is_ok());
+    }
+
+    #[test]
+    fn evaluates_offered() {
+        let g = board();
+        let me = g.st.active_player as usize;
+        // (the test board is in the setup phase: no turn action is legal there)
+        let ok = |v: Value| ev(&g, me, v);
+        assert!(ok(json!({"cite":"c","offered":false,"action":"stadium"})).is_ok());
+        assert!(ok(json!({"cite":"c","offered":false,"action":"ability","name":"Nothing"})).is_ok());
+        assert!(ok(json!({"cite":"c","offered":true,"action":"stadium"})).is_err());
+        assert!(p(json!([{"cite":"c","offered":true}])).is_err(), "action is needed");
+        assert_eq!(p(json!([{"cite":"c","offered":true,"action":"stadium"}])).unwrap()[0].at, At::Decision);
     }
 
     #[test]

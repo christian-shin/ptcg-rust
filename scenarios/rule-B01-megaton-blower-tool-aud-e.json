@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Megaton Blower SSP 182",
+   "1 Minccino JTG 125",
+   "1 Sacred Charm PFL 93",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Megaton Blower SSP 182",
+   "1 Minccino JTG 125",
+   "1 Sacred Charm PFL 93",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Megaton Blower SSP 182"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "active_tool": "Sacred Charm PFL 93"
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "ruling 1610 (do as much as you can: one Tool is enough)",
+   "card": "Megaton Blower SSP 182"
+  }
+ ]
+}

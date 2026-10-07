@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Lively Stadium SSP 180",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Lively Stadium SSP 180",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Lively Stadium SSP 180"
+  ],
+  "stadium_played": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": false,
+   "action": "play",
+   "cite": "Advanced Rulebook B-04: players may only play one Stadium during their turn",
+   "card": "Lively Stadium SSP 180"
+  }
+ ]
+}

@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Slowpoke PRE 18",
+   "1 Minccino JTG 125",
+   "1 Area Zero Underdepths PRE 94",
+   "1 Noibat PRE 90",
+   "1 Hop's Wooloo JTG 135",
+   "1 Rowlet POR 10",
+   "1 Dwebble DRI 11",
+   "1 Gimmighoul MEG 67",
+   "52 Water Energy MEE"
+  ],
+  [
+   "1 Slowpoke PRE 18",
+   "1 Minccino JTG 125",
+   "1 Area Zero Underdepths PRE 94",
+   "1 Noibat PRE 90",
+   "1 Hop's Wooloo JTG 135",
+   "1 Rowlet POR 10",
+   "1 Dwebble DRI 11",
+   "1 Gimmighoul MEG 67",
+   "52 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Slowpoke PRE 18"
+  ],
+  "bench": [
+   {
+    "card": "Noibat PRE 90"
+   },
+   {
+    "card": "Hop's Wooloo JTG 135"
+   },
+   {
+    "card": "Rowlet POR 10"
+   },
+   {
+    "card": "Dwebble DRI 11"
+   },
+   {
+    "card": "Gimmighoul MEG 67"
+   }
+  ],
+  "stadium": "Area Zero Underdepths PRE 94"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": false,
+   "action": "play",
+   "cite": "Area Zero Underdepths: only a player with a Tera Pokemon in play can have up to 8 Pokemon on the Bench",
+   "card": "Slowpoke PRE 18"
+  }
+ ]
+}

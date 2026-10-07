@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Surfer ASC 200",
+   "1 Minccino JTG 125",
+   "1 Noibat PRE 90",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Surfer ASC 200",
+   "1 Minccino JTG 125",
+   "1 Noibat PRE 90",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Surfer ASC 200"
+  ],
+  "bench": [
+   {
+    "card": "Noibat PRE 90"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "Advanced Rulebook E-20: the first half (the switch) can be done",
+   "card": "Surfer ASC 200"
+  }
+ ]
+}

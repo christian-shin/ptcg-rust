@@ -342,7 +342,7 @@ fn read_deck(path: &std::path::Path) -> Vec<DefId> {
 }
 
 /// Random play: at every turn decision, every Trainer / Ability / Stadium option is run and checked for "no change".
-fn random_mode(n: usize, seed0: u32) {
+fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
     use ptcg::rng::Rng;
     let mut decks: Vec<Vec<DefId>> = vec![];
     for dir in ["decks/meta", "decks"] {
@@ -366,12 +366,47 @@ fn random_mode(n: usize, seed0: u32) {
             }
         }
     }
+    let ability_pokemon: Vec<DefId> = pool
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|c| def_by_full_name(c["fullName"].as_str().unwrap()))
+        .filter(|d| def(*d).is_pokemon() && def(*d).powers.iter().any(|p| p.power_type == PowerType::Ability as u8) && cards_impl(*d))
+        .collect();
     let mut stats: std::collections::BTreeMap<String, (u32, u32, String)> = Default::default();
+    // ability name -> (uses, offered again for the same Pokemon, offered again for another Pokemon)
+    let mut reoffer: std::collections::BTreeMap<String, (u32, u32, u32)> = Default::default();
     let mut rng = Rng::new(seed0 ^ 0x77);
     for i in 0..n {
         let seed = seed0.wrapping_mul(7919).wrapping_add(i as u32);
         let mut d0 = decks[rng.index(decks.len())].clone();
         let mut d1 = decks[rng.index(decks.len())].clone();
+        if only_pokemon {
+            // an ability Pokemon line (4 of each stage) plus Basic filler and Energy
+            for d in [&mut d0, &mut d1] {
+                let t = ability_pokemon[rng.index(ability_pokemon.len())];
+                let mut v: Vec<DefId> = vec![];
+                for x in stack_for(t) {
+                    for _ in 0..4 {
+                        v.push(x);
+                    }
+                }
+                let f = def_by_full_name(FILLER).unwrap();
+                for _ in 0..4 {
+                    v.push(f);
+                }
+                let e = def_by_full_name(ENERGY).unwrap();
+                let lt = def_by_full_name("Lightning Energy MEE").unwrap();
+                let mut flip = false;
+                while v.len() < 60 {
+                    v.push(if flip { e } else { lt });
+                    flip = !flip;
+                }
+                v.truncate(60);
+                *d = v;
+            }
+        }
+        if !only_pokemon {
         // trainer salad: replace up to 14 random non-Pokemon, non-basic-Energy cards by random trainers
         for d in [&mut d0, &mut d1] {
             let mut cnt: std::collections::HashMap<&str, usize> = Default::default();
@@ -391,6 +426,7 @@ fn random_mode(n: usize, seed0: u32) {
                 }
                 d[j] = t;
             }
+        }
         }
         let mut g = Box::new(Game::new(seed));
         if g.start([&d0, &d1]).is_err() {
@@ -446,9 +482,35 @@ fn random_mode(n: usize, seed0: u32) {
                     }
                     // play a random option, preferring non-pass
                     let non_pass: Vec<usize> = (0..opts.len()).filter(|k| !matches!(opts[*k].action, Action::Pass)).collect();
-                    let k = if !non_pass.is_empty() && prng.below(100) < 92 { non_pass[prng.index(non_pass.len())] } else { opts.iter().position(|o| matches!(o.action, Action::Pass)).unwrap_or(0) };
+                    let abil: Vec<usize> = (0..opts.len()).filter(|k| matches!(opts[*k].action, Action::UseAbility { .. })).collect();
+                    let k = if only_pokemon && !abil.is_empty() && prng.below(100) < 60 {
+                        abil[prng.index(abil.len())]
+                    } else if !non_pass.is_empty() && prng.below(100) < 92 { non_pass[prng.index(non_pass.len())] } else { opts.iter().position(|o| matches!(o.action, Action::Pass)).unwrap_or(0) };
+                    let used = if let Action::UseAbility { name, target } = opts[k].action {
+                        ptcg::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s)).map(|c| (name, c, g.st.cdef(c).full_name))
+                    } else {
+                        None
+                    };
                     if g.act(opts[k].action).and_then(|_| g.settle()).is_err() {
                         break;
+                    }
+                    if let Some((name, c, cname)) = used {
+                        if let (Pending::Turn(_), true) = (g.pending(), g.st.phase == GamePhase::PlayerTurn) {
+                            let e = reoffer.entry(format!("{} / {}", cname, name)).or_default();
+                            e.0 += 1;
+                            for o2 in legal_turn_options(&g) {
+                                if let Action::UseAbility { name: n2, target: t2 } = o2.action {
+                                    if n2 == name {
+                                        let c2 = ptcg::prompts::get_target(&g.st, p, t2).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
+                                        if c2 == Some(c) {
+                                            e.1 += 1;
+                                        } else {
+                                            e.2 += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 Pending::Decision(pi) => {
@@ -491,6 +553,9 @@ fn random_mode(n: usize, seed0: u32) {
             }
         }
     }
+    for (k, (u, same, other)) in &reoffer {
+        println!("REOFFER {} | used {} again_same {} again_other {}", k, u, same, other);
+    }
     for (k, (n, z, ex)) in &stats {
         println!("{} | offered {} noop {} | {}", k, n, z, ex);
     }
@@ -504,7 +569,7 @@ fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     if let Some(i) = args.iter().position(|a| a == "--random") {
         let n: usize = args.get(i + 1).and_then(|x| x.parse().ok()).unwrap_or(200);
-        random_mode(n, 1);
+        random_mode(n, 1, args.iter().any(|a| a == "--abilities"));
         return;
     }
     let only: Option<Vec<String>> = args.iter().position(|a| a == "--cards").and_then(|i| args.get(i + 1)).map(|s| s.split('|').map(|x| x.to_string()).collect());
@@ -577,6 +642,19 @@ fn main() {
                     _ => {}
                 }
                 if let Some((label, skip)) = tag {
+                    if args.iter().any(|a| a == "--prompts") {
+                        // the first prompt the option opens: message, min, max, number of options
+                        let mut h = Box::new(g.clone());
+                        h.rng.force_coins(&[true; 8]);
+                        if h.act(o.action).and_then(|_| h.settle()).is_ok() {
+                            if let Pending::Decision(pi) = h.pending() {
+                                let msg = h.prompts.as_slice()[pi].message;
+                                if let Ok(Some(sel)) = h.select() {
+                                    println!("PROMPT {} | {} | {} | min {} max {} of {}", td.full_name, kind, msg, sel.min_count, sel.max_count, sel.options.len());
+                                }
+                            }
+                        }
+                    }
                     let (changed, stuck) = changes_state(&g, o.action, skip);
                     offered.push(format!("{}{}{}", label, if changed { "" } else { ":NOOP" }, if stuck { ":STUCK" } else { "" }));
                 }

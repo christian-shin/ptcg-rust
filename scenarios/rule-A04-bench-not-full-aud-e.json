@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Slowpoke PRE 18",
+   "1 Minccino JTG 125",
+   "1 Noibat PRE 90",
+   "1 Hop's Wooloo JTG 135",
+   "1 Rowlet POR 10",
+   "1 Dwebble DRI 11",
+   "54 Water Energy MEE"
+  ],
+  [
+   "1 Slowpoke PRE 18",
+   "1 Minccino JTG 125",
+   "1 Noibat PRE 90",
+   "1 Hop's Wooloo JTG 135",
+   "1 Rowlet POR 10",
+   "1 Dwebble DRI 11",
+   "54 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Slowpoke PRE 18"
+  ],
+  "bench": [
+   {
+    "card": "Noibat PRE 90"
+   },
+   {
+    "card": "Hop's Wooloo JTG 135"
+   },
+   {
+    "card": "Rowlet POR 10"
+   },
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "Advanced Rulebook A-04: a Basic Pokemon can be put onto the Bench from the hand",
+   "card": "Slowpoke PRE 18"
+  }
+ ]
+}

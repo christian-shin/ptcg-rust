@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ruffian JTG 157",
+   "1 Minccino JTG 125",
+   "1 Sacred Charm PFL 93",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Ruffian JTG 157",
+   "1 Minccino JTG 125",
+   "1 Sacred Charm PFL 93",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Ruffian JTG 157"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "active_tool": "Sacred Charm PFL 93"
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "ruling 1610 and the user decision on Ruffian JTG 157 (a card that does several things is playable when it can do at least one of them): a Tool is enough",
+   "card": "Ruffian JTG 157"
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dark Bell PBL 75",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Dark Bell PBL 75",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Dark Bell PBL 75"
+  ],
+  "active_conditions": [
+   "CONFUSED"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "Advanced Rulebook B-01: the opponent's Active Pokemon would become Confused",
+   "card": "Dark Bell PBL 75"
+  }
+ ]
+}

@@ -404,7 +404,7 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   | `active`: name or `[Basic, Stage 1, ...]` | Into the Active Spot (benched and switched in, or placed directly after `reset`) |
   | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
   | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
-  | `supporter_played`, `energy_attached`, `retreated`: `true` | This turn's flags |
+  | `supporter_played`, `energy_attached`, `retreated`, `stadium_played`: `true` | This turn's flags |
   | `prizes_left`: N | Applied last: Prizes N..5 go to the bottom of the deck, so the player has N Prize cards left (e.g. Briar needs the opponent at 2) |
 
   `conditions`: `PARALYZED`, `CONFUSED`, `ASLEEP`, `POISONED`, `BURNED`.
@@ -483,6 +483,14 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).
 * **Names** are English keys or Twinleaf full names; both are accepted.
+* **Offered actions** (what the RL action mask may contain): `{"offered": false, "action": "play",
+  "card": "Boss's Orders ASC", "cite": "..."}`. `action` is `play` (a card in hand, named by `card`; Energy cards too),
+  `ability` (`name`, and `card` = the Pokémon when given), `stadium`, `retreat` (optional `bench`) or `attack` (`name`);
+  `offered` says whether the action must be among the legal turn options. It is checked at turn decision
+  `decision` (default 0 = the position right after the scenario edits; 1 = the next turn decision of the scenario turn,
+  after one scripted action, and so on). Scripted `answers` can use `ability`, `stadium`, `retreat`, `attack` and `pass`
+  actions, and `{"a": "play", "name": "<card>", "target": {...}}` (the card of that name in the hand; `target` optional: the
+  card's id in a trace reference is not known in advance).
 * **Output**: `diff` prints `EXPECT FAILED <trace>: assertion #i (at) ...`
   with the cite and the actual value, and `expect: N games checked, M failed, K
   not checked`; it exits 1 on failure, like a divergence, with `--quiet` too.

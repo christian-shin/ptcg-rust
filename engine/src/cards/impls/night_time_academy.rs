@@ -16,7 +16,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Effect::UseStadium { p, .. } if g.st.stadium_card() == Some(me) => p as usize,
         _ => return Ok(()),
     };
-    if g.st.players[p].deck.is_empty() || g.st.players[p].hand.is_empty() {
+    // Putting a card on top of an empty deck still changes the game state (Advanced Rulebook B-04).
+    if g.st.players[p].hand.is_empty() {
         bail!("CANNOT_USE_POWER");
     }
     let mut f = CardFrame::at(1);

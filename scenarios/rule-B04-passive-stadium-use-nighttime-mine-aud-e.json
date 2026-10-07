@@ -1,0 +1,31 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Minccino JTG 125",
+   "1 Nighttime Mine ASC 197",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Minccino JTG 125",
+   "1 Nighttime Mine ASC 197",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "stadium": "Nighttime Mine ASC 197"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": false,
+   "action": "stadium",
+   "cite": "Advanced Rulebook B-04: the effect of a Stadium without \"that player may\" is automatically active and can not be announced and used"
+  }
+ ]
+}
