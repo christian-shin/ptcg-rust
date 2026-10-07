@@ -1,0 +1,82 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Litten TEF 32",
+   "4 Torracat TEF",
+   "4 Incineroar ex TEF 34",
+   "4 Hoothoot SCR 114",
+   "4 Charmander PFL 11",
+   "14 Grass Energy MEE 1",
+   "14 Fire Energy MEE 2"
+  ],
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Litten TEF 32",
+   "4 Torracat TEF",
+   "4 Incineroar ex TEF 34",
+   "4 Hoothoot SCR 114",
+   "4 Charmander PFL 11",
+   "14 Grass Energy MEE 1",
+   "14 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Grookey TWM 14",
+   "Thwackey TWM 15",
+   "Rillaboom TWM 16"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Hoothoot SCR 114"
+   },
+   {
+    "card": "Hoothoot SCR 114"
+   },
+   {
+    "card": "Hoothoot SCR 114"
+   },
+   {
+    "card": "Hoothoot SCR 114"
+   },
+   {
+    "card": "Charmander PFL 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Litten TEF 32",
+   "Torracat TEF",
+   "Incineroar ex TEF 34"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Drum Beating"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "attack",
+   "name": "Blaze Blast",
+   "is": false,
+   "cite": "Advanced Rulebook D-11, D-12: cost [R] and no Energy attached, so the attack cannot be used"
+  }
+ ]
+}

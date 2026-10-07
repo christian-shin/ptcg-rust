@@ -12,8 +12,8 @@ use crate::cards::prelude::*;
 pub static IMPL: CardImpl = CardImpl { class: "SparklingCrystal", mask: mask(&[k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (p, cost) = match *g.e(e) {
-        Effect::CheckAttackCost { p, cost, .. } => (p as usize, cost),
+    let p = match *g.e(e) {
+        Effect::CheckAttackCost { p, .. } => p as usize,
         _ => return Ok(()),
     };
     let a = g.st.players[p].active;
@@ -29,41 +29,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => return Ok(()),
     };
     let _ = c;
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
-    let map = match pe {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    };
-    let mut available: Vec<CardType> = Vec::new();
-    for en in map.iter() {
-        for t in en.provides.iter() {
-            available.push(*t);
-        }
-    }
-    if cost.len() > 0 {
-        let mut contained: Vec<CardType> = Vec::new();
-        for ct_ in cost.iter() {
-            if *ct_ == ct::COLORLESS && !available.is_empty() {
-                contained.push(available.remove(0));
-                continue;
-            }
-            if let Some(i) = available.iter().position(|x| x == ct_) {
-                contained.push(available.remove(i));
-                continue;
-            }
-            if let Some(i) = available.iter().position(|x| *x == ct::ANY) {
-                contained.push(available.remove(i));
-            }
-        }
-        if contained.len() + 1 >= cost.len() {
-            let mut out: crate::effects::Cost = SVec::new();
-            for x in contained {
-                out.push(x);
-            }
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
-                *cost = out;
-            }
-        }
+    // "Costs 1 Energy less" (any type): applied by the core with the other cost changes after all handlers ran
+    // (check.rs), whatever the handler order (Advanced Rulebook D-11, D-12).
+    if let Effect::CheckAttackCost { any_reduction, .. } = g.e_mut(e) {
+        *any_reduction = true;
     }
     Ok(())
 }

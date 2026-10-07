@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Terapagos ex ASC 179",
+   "1 Sparkling Crystal PRE 129",
+   "4 Nighttime Mine ASC 197",
+   "17 Grass Energy MEE 1",
+   "14 Water Energy MEE 3",
+   "20 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Terapagos ex ASC 179",
+   "1 Sparkling Crystal PRE 129",
+   "4 Nighttime Mine ASC 197",
+   "17 Grass Energy MEE 1",
+   "14 Water Energy MEE 3",
+   "20 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "active_tool": "Sparkling Crystal PRE 129",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4"
+  ],
+  "stadium": "Nighttime Mine ASC 197"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crown Opal"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Crown Opal",
+   "cite": "Advanced Rulebook D-11, D-12: Crown Opal [G][W][L], Nighttime Mine +[C], Sparkling Crystal -1 Energy are calculated together: 3 Energy pay it, whichever effect is applied first"
+  }
+ ]
+}

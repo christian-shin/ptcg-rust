@@ -123,7 +123,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     for &c in ad.cost {
         cost.push(c);
     }
-    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false })?;
+    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: attacking, energy_map: SVec::new() })?;
     let cost = match ce {
         Effect::CheckAttackCost { cost, .. } => cost,
@@ -349,7 +349,7 @@ fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
     for &c in ad.cost {
         cost.push(c);
     }
-    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: f.p, attack: f.attack, cost, set_cost: None, ignore_colorless: false })?;
+    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: f.p, attack: f.attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: f.p, source: attacking, energy_map: SVec::new() })?;
     let cost = match ce {
         Effect::CheckAttackCost { cost, .. } => cost,

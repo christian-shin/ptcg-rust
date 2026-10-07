@@ -12,31 +12,21 @@ use crate::cards::prelude::*;
 pub static IMPL: CardImpl = CardImpl { class: "CounterGain", mask: mask(&[k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (p, cost) = match *g.e(e) {
-        Effect::CheckAttackCost { p, cost, .. } => (p as usize, cost),
+    let p = match *g.e(e) {
+        Effect::CheckAttackCost { p, .. } => p as usize,
         _ => return Ok(()),
     };
     let a = g.st.players[p].active;
     if !g.st.slot(p, a).tools.contains(me) {
         return Ok(());
     }
-    let index = cost.iter().position(|c| *c == ct::COLORLESS);
     if is_tool_blocked(g, p, me) {
         return Ok(());
     }
-    let i = match index {
-        Some(i) => i,
-        None => return Ok(()),
-    };
     if g.st.players[p].prize_left() > g.st.players[1 - p].prize_left() {
-        let mut out: crate::effects::Cost = SVec::new();
-        for (j, c) in cost.iter().enumerate() {
-            if j != i {
-                out.push(*c);
-            }
-        }
-        if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
-            *cost = out;
+        // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
+        if let Effect::CheckAttackCost { reduction, .. } = g.e_mut(e) {
+            *reduction += 1;
         }
     }
     Ok(())

@@ -599,10 +599,62 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
             // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
             let a = g.st.players[p as usize].active;
             let n = g.st.slot(p as usize, a).attack_cost_increase_next_turn;
-            if let Effect::CheckAttackCost { cost, set_cost, ignore_colorless, .. } = g.e_mut(id) {
+            if let Effect::CheckAttackCost { cost, reduction, .. } = g.e_mut(id) {
                 for _ in 0..n.max(0) {
                     cost.push(ct::COLORLESS);
                 }
+                // "[C] less" effects (Counter Gain, Hop's Choice Band, Incineroar ex, Crabominable, Bloodmoon Ursaluna ex)
+                // are applied once, together with the increases, whatever the handler order (Advanced Rulebook D-11, D-12).
+                for _ in 0..*reduction {
+                    match cost.iter().position(|c| *c == ct::COLORLESS) {
+                        Some(i) => {
+                            cost.remove_at(i);
+                        }
+                        None => break,
+                    }
+                }
+            }
+            // "Costs 1 Energy less" of any type (Sparkling Crystal): the Energy attached to the Pokemon covers each
+            // cost slot, one slot may stay open.
+            let (any_reduction, cost_now) = match *g.e(id) {
+                Effect::CheckAttackCost { any_reduction, cost, .. } => (any_reduction, cost),
+                _ => unreachable!(),
+            };
+            if any_reduction && cost_now.len() > 0 {
+                let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: SlotRef::new(p as usize, a), energy_map: SVec::new() })?;
+                let mut available: Vec<CardType> = Vec::new();
+                if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+                    for en in energy_map.iter() {
+                        for t in en.provides.iter() {
+                            available.push(*t);
+                        }
+                    }
+                }
+                let mut contained: Vec<CardType> = Vec::new();
+                for ct_ in cost_now.iter() {
+                    if *ct_ == ct::COLORLESS && !available.is_empty() {
+                        contained.push(available.remove(0));
+                        continue;
+                    }
+                    if let Some(i) = available.iter().position(|x| x == ct_) {
+                        contained.push(available.remove(i));
+                        continue;
+                    }
+                    if let Some(i) = available.iter().position(|x| *x == ct::ANY) {
+                        contained.push(available.remove(i));
+                    }
+                }
+                if contained.len() + 1 >= cost_now.len() {
+                    let mut out: Cost = SVec::new();
+                    for x in contained {
+                        out.push(x);
+                    }
+                    if let Effect::CheckAttackCost { cost, .. } = g.e_mut(id) {
+                        *cost = out;
+                    }
+                }
+            }
+            if let Effect::CheckAttackCost { cost, set_cost, ignore_colorless, .. } = g.e_mut(id) {
                 // A cost that an effect set or ignored is final (R7F-11; rulings 147,
                 // 252, 1552, 1581, 1842): CheckAttackCostEffect.setCost / ignoreColorless.
                 if let Some(c) = *set_cost {

@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Crabrawler SCR",
+   "4 Crabominable SCR",
+   "4 Ignition Energy PFL 124",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Crabrawler SCR",
+   "4 Crabominable SCR",
+   "4 Ignition Energy PFL 124",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Crabrawler SCR",
+   "Crabominable SCR"
+  ],
+  "active_energy": [
+   "Ignition Energy PFL 124",
+   "Ignition Energy PFL 124",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Crabrawler SCR"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Crabrawler SCR"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  [
+   0,
+   1,
+   2
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 3,
+   "contains": [
+    "Ignition Energy PFL 124",
+    "Ignition Energy PFL 124",
+    "Water Energy MEE 3"
+   ],
+   "cite": "ruling 1652: a Retreat Cost of 3 may be paid by discarding as many Energy cards as the cost (3 cards: two Ignition Energy providing 3 each and a Water Energy)"
+  }
+ ]
+}

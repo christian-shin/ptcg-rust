@@ -88,7 +88,9 @@ pub enum Effect {
     CheckRetreatCost { p: u8, cost: Cost, no_cost: bool, reduction: u8 },
     /// `set_cost` / `ignore_colorless`: an effect that sets or ignores the cost
     /// (Kyurem's Plasma Bane, Conkeldurr, ...); applied after all handlers.
-    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool },
+    /// `reduction`: "costs [C] less" effects add up and `any_reduction` (Sparkling Crystal, "1 Energy less") is applied once
+    /// after all handlers, with the increases (Advanced Rulebook D-11, D-12).
+    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool, reduction: u8, any_reduction: bool },
     CheckProvidedEnergy { p: u8, source: SlotRef, energy_map: EnergyMap },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32> },

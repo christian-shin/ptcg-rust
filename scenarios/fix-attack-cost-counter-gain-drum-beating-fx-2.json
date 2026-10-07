@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Charmander PFL 11",
+   "4 Counter Gain ASC 186",
+   "20 Grass Energy MEE 1",
+   "20 Fire Energy MEE 2"
+  ],
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Charmander PFL 11",
+   "4 Counter Gain ASC 186",
+   "20 Grass Energy MEE 1",
+   "20 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Grookey TWM 14",
+   "Thwackey TWM 15",
+   "Rillaboom TWM 16"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "prizes_left": 4
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charmander PFL 11",
+  "active_tool": "Counter Gain ASC 186",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "prizes_left": 6
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Drum Beating"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "attack",
+   "name": "Live Coal",
+   "cite": "Advanced Rulebook D-11, D-12: Live Coal costs [R]; Drum Beating +[C] and Counter Gain (6 Prize cards left vs 4) -[C] are calculated together, so [R] and one Fire Energy is enough"
+  }
+ ]
+}

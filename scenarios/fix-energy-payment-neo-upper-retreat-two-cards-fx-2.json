@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Torracat TEF",
+   "4 Litten TEF 32",
+   "4 Incineroar ex TEF 34",
+   "1 Neo Upper Energy TEF 162",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Torracat TEF",
+   "4 Litten TEF 32",
+   "4 Incineroar ex TEF 34",
+   "1 Neo Upper Energy TEF 162",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Litten TEF 32",
+   "Torracat TEF",
+   "Incineroar ex TEF 34"
+  ],
+  "active_energy": [
+   "Neo Upper Energy TEF 162",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Litten TEF 32"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Litten TEF 32"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  [
+   0,
+   1
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Neo Upper Energy TEF 162",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "ruling 1652: a Retreat Cost of 2 may be paid with 2 Energy cards, here a Neo Upper Energy providing 2 Energy on a Stage 2 Pokemon and a Fire Energy"
+  }
+ ]
+}

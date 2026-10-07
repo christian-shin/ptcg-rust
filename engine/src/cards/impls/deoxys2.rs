@@ -27,7 +27,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     for &c in crate::engine::attack::attack_def(g, attack).cost {
         cost.push(c);
     }
-    g.run_fx(Effect::CheckAttackCost { p, attack, cost, set_cost: None, ignore_colorless: false })?;
+    g.run_fx(Effect::CheckAttackCost { p, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
     let pu = p as usize;
     let src = SlotRef::new(pu, g.st.players[pu].active);
     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: src, energy_map: SVec::new() })?;

@@ -1,0 +1,76 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 Eevee PRE 74",
+   "4 Umbreon ex PRE 60",
+   "4 Team Rocket's Energy ASC 217",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Team Rocket's Mimikyu ASC 97",
+   "4 Eevee PRE 74",
+   "4 Umbreon ex PRE 60",
+   "4 Team Rocket's Energy ASC 217",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mimikyu ASC 97",
+  "active_energy": [
+   "Team Rocket's Energy ASC 217",
+   "Lightning Energy MEE 4"
+  ],
+  "prizes_left": 6
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Eevee PRE 74",
+   "Umbreon ex PRE 60"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Mimikyu ASC 97"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gemstone Hunt"
+  },
+  {
+   "index": 0,
+   "attack": "Onyx"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Team Rocket's Energy ASC 217",
+    "Lightning Energy MEE 4"
+   ],
+   "cite": "Umbreon ex Onyx text: discard all Energy from this Pokemon (Team Rocket's Energy is one card, discarded once)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "Umbreon ex Onyx text: take a Prize card"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "no Energy left on the Pokemon"
+  }
+ ]
+}
