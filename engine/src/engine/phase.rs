@@ -194,7 +194,10 @@ fn handle_special_conditions(g: &mut Game, id: EffId) {
     // Iterate over a snapshot, like `for...of` over the original array.
     let a0 = g.st.players[p].active;
     let conds = g.st.slot(p, a0).special_conditions;
-    for &sp in conds.iter() {
+    // Pokémon Checkup step 1 (Advanced Player's Rulebook I-F): Poisoned, Burned, Asleep, Paralyzed,
+    // whatever order the Special Conditions were applied in (the coin flips follow this order).
+    let order = [SpecialCondition::Poisoned, SpecialCondition::Burned, SpecialCondition::Asleep, SpecialCondition::Paralyzed];
+    for &sp in order.iter().filter(|c| conds.contains(&(**c as u8))).map(|c| *c as u8).collect::<Vec<u8>>().iter() {
         let a = g.st.players[p].active;
         match SpecialCondition::from_u8(sp) {
             SpecialCondition::Poisoned => g.st.players[p].slots[a as usize].damage += poison,
