@@ -41,9 +41,9 @@
   {
    "at": "turn_end",
    "who": "me",
-   "bench": 0,
    "damage": 10,
-   "cite": "Advanced Rulebook C-06 / ruling 43 (a Pokemon with no damage and no Special Condition can't be chosen): the damaged Benched Pokemon is healed 60 (70 - 60)"
+   "cite": "Advanced Rulebook C-06 / ruling 43 (a Pokemon with no damage and no Special Condition can't be chosen): the damaged Benched Pokemon is healed 60 (70 - 60)",
+   "card": "Hop's Snorlax JTG 117"
   }
  ]
 }

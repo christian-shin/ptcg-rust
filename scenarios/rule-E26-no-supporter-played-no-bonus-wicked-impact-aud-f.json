@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Kangaskhan ex ASC 162",
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Raging Bolt ex PRE 166",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Kangaskhan ex ASC 162",
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Raging Bolt ex PRE 166",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Kangaskhan ex ASC 162",
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wicked Impact"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "Advanced Rulebook E-26: no Supporter was played from the hand this turn"
+  }
+ ]
+}
