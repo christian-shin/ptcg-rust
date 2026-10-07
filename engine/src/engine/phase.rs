@@ -329,7 +329,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             let sl = &g.st.players[p].slots[*s as usize];
             if sl.cards.iter().any(|c| {
                 let d = g.st.cdef(c);
-                d.is_pokemon() && d.attacks.iter().any(|x| x.name == *n)
+                d.is_pokemon() && d.attacks.iter().any(|x| x.tl_name == *n)
             }) {
                 owned.push(*n);
                 continue;
@@ -342,7 +342,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
                 let e = crate::engine::turn::check_attacks_effect(g, p);
                 if let (Effect::CheckPokemonAttacks { copied, .. }, _) = g.run_fx(e)? {
                     for a in copied.iter() {
-                        v.push(g.st.cdef(a.card).attacks[a.idx()].name);
+                        v.push(g.st.cdef(a.card).attacks[a.idx()].tl_name);
                     }
                 }
                 copied_names = Some(v);

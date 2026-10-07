@@ -106,7 +106,7 @@ fn disable(g: &mut Game, atk: EffId, results: &[Res]) -> R {
         Some(Res::Attack(a)) => *a,
         _ => return Ok(()),
     };
-    let name = g.st.cdef(a.card).attacks[a.index as usize].name;
+    let name = g.st.cdef(a.card).attacks[a.index as usize].tl_name;
     let b = match *g.e(atk) {
         Effect::Attack { p, opp, attack, source, .. } => {
             let o = opp as usize;

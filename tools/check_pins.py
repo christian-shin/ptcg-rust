@@ -39,7 +39,7 @@ for d, _, fs in os.walk(sets):
                     defs.setdefault(m.group(1).replace("\\'", "'"), (rel, cm[-1]))
 gen = open(os.path.join(ROOT, 'engine/src/gen/cards.rs'), encoding='utf-8').read()
 by_class = collections.defaultdict(list)
-for m in re.finditer(r'full_name: "((?:[^"\\]|\\.)*)", name: "(?:[^"\\]|\\.)*", set: "([^"]*)".*?behavior: "([^"]*)"', gen):
+for m in re.finditer(r'tl_full_name: "((?:[^"\\]|\\.)*)", tl_name: "(?:[^"\\]|\\.)*", tl_set: "([^"]*)".*?behavior: "([^"]*)"', gen):
     by_class[m.group(3)].append((m.group(1), m.group(2)))
 bad = 0
 for f in sorted(os.listdir(impls)):

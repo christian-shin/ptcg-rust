@@ -31,7 +31,7 @@ pub static ALL_STAGE1: &[(&str, &str)] = &[
     ("Amaura", "Antique Sail Fossil"),
     ("Amaura", "Unidentified Fossil"),
     ("Ambipom", "Aipom"),
-    ("Amoongus", "Foongus"),
+    ("Amoonguss", "Foongus"),
     ("Amoonguss", "Foongus"),
     ("Anorith", "Claw Fossil"),
     ("Anorith", "Unidentified Fossil"),

@@ -131,8 +131,12 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
 }
 
 fn names_eq(c: CardId, g: &Game, name: &str) -> bool {
-    let d = g.st.cards[c as usize].def;
-    en_key(d) == name || crate::carddb::def(d).full_name == name || crate::carddb::en_name(d) == name
+    names_eq_def(g.st.cards[c as usize].def, name)
+}
+
+fn names_eq_def(d: crate::carddb::DefId, name: &str) -> bool {
+    let cd = crate::carddb::def(d);
+    en_key(d) == name || cd.full_name == name || cd.tl_full_name == name || crate::carddb::en_name(d) == name || cd.tl_name == name
 }
 
 fn label(g: &Game, c: CardId) -> String {
@@ -217,6 +221,15 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     Ok(())
 }
 
+/// An offered attack (Twinleaf name `n`) is the one a scenario calls `want`: by its Twinleaf or official name.
+fn attack_named(g: &Game, p: usize, n: &str, want: &str) -> bool {
+    n == want
+        || g.st.players[p]
+            .all_slots()
+            .iter()
+            .any(|s| g.st.slot_pokemon(p, *s).map_or(false, |c| g.st.cdef(c).attacks.iter().any(|a| a.tl_name == n && a.name == want)))
+}
+
 /// `legal`: whether a turn action is among the legal options of the player to move (the same
 /// trial dispatch as the interface). `is` (default true) is the expected answer.
 /// `legal` is `play` (a card in hand, `name`; `on`: "active" or a Bench index narrows it to that target),
@@ -236,11 +249,11 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
         ("retreat", Action::Retreat { bench_index }) => a["on"].as_u64().map_or(true, |b| b == bench_index as u64),
         ("stadium", Action::UseStadium) => true,
         ("attack", Action::Attack { name: n, from }) => {
-            n == name && a["from"].as_str().map_or(true, |w| from.map_or(false, |f| crate::carddb::def_by_full_name(f).map_or(false, |d| en_key(d) == w || crate::carddb::def(d).full_name == w || crate::carddb::en_name(d) == w)))
+            attack_named(g, p, n, name) && a["from"].as_str().map_or(true, |w| from.map_or(false, |f| crate::carddb::def_by_full_name(f).map_or(false, |d| names_eq_def(d, w))))
         }
         ("ability", Action::UseAbility { name: n, target }) => {
             let src = crate::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
-            (name.is_empty() || name == n) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
+            (name.is_empty() || n == name || src.map_or(false, |c| g.st.cdef(c).powers.iter().any(|pw| pw.tl_name == n && pw.name == name))) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
         }
         ("play", Action::PlayCard { hand_index, target }) => {
             names_eq(g.st.players[p].hand.as_slice()[hand_index as usize], g, name)
@@ -603,7 +616,7 @@ mod tests {
         g.start([&deck, &deck]).unwrap();
         g.settle().ok();
         // Scenario edits take Twinleaf full names (tools/check_cards.py maps English keys).
-        let tw = |n: &str| crate::carddb::def(crate::carddb::def_by_full_name(n).unwrap()).full_name;
+        let tw = |n: &str| crate::carddb::def(crate::carddb::def_by_full_name(n).unwrap()).tl_full_name;
         let (pika, fire) = (tw("Pikachu ex ASC 57"), tw("Fire Energy MEE"));
         let sc = json!({
             "me": {"reset": true, "active": pika, "active_energy": [fire, fire], "active_damage": 30,

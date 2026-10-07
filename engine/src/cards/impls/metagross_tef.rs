@@ -25,8 +25,8 @@ fn next_turn_attack_bonus(g: &mut Game, me: CardId, e: EffId) {
     if g.st.slot_pokemon(source.p as usize, source.s) != Some(me) {
         return;
     }
-    let full_name = g.st.cdef(me).full_name;
-    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].name;
+    let full_name = g.st.cdef(me).tl_full_name;
+    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].tl_name;
     let slot = &g.st.players[source.p as usize].slots[source.s as usize];
     let bonus = match slot.next_turn_attack_damage_bonus {
         Some(b) if b.source_card_name == full_name && (b.attack_name == "*" || b.attack_name == attack_name) => b.bonus_damage,

@@ -92,13 +92,13 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
     };
     if let Some(c) = g.st.active_pokemon(p) {
         for a in g.st.cdef(c).attacks {
-            add(a.name, &mut names);
+            add(a.tl_name, &mut names);
         }
     }
     for &b in pl.bench.iter() {
         if let Some(c) = g.st.slot_pokemon(p, b) {
             for a in g.st.cdef(c).attacks.iter().filter(|a| a.use_on_bench) {
-                add(a.name, &mut names);
+                add(a.tl_name, &mut names);
             }
         }
     }
@@ -106,10 +106,10 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
         let mut sim = g.fork();
         if let Ok((Effect::CheckPokemonAttacks { attacks, copied, .. }, _)) = { let e = check_attacks_effect(&sim, p); sim.run_fx(e) } {
             for a in attacks.iter() {
-                let n = g.st.cdef(a.card).attacks[a.idx()].name;
+                let n = g.st.cdef(a.card).attacks[a.idx()].tl_name;
                 if copied.iter().any(|c| c == a) {
                     // Copied from a Benched Pokemon (Memory Helix): named by the source card too.
-                    let from = g.st.cdef(a.card).full_name;
+                    let from = g.st.cdef(a.card).tl_full_name;
                     if !from_names.iter().any(|(x, f)| *x == n && *f == from) {
                         from_names.push((n, from));
                     }
@@ -141,8 +141,8 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
         if let Some(c) = g.st.slot_pokemon(slot.p as usize, slot.s) {
             let mut pn: Vec<&'static str> = Vec::new();
             for pw in g.st.cdef(c).powers {
-                if !pn.contains(&pw.name) {
-                    pn.push(pw.name);
+                if !pn.contains(&pw.tl_name) {
+                    pn.push(pw.tl_name);
                 }
             }
             if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
@@ -153,7 +153,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
                 }
                 if let Ok((Effect::CheckPokemonPowers { powers, .. }, _)) = sim.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: c, powers }) {
                     for r in powers.iter() {
-                        let n = g.st.cdef(r.card).powers[r.index as usize].name;
+                        let n = g.st.cdef(r.card).powers[r.index as usize].tl_name;
                         if !pn.contains(&n) {
                             pn.push(n);
                         }

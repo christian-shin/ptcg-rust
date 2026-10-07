@@ -22,7 +22,7 @@ pub fn scenario_turn(sc: &Value) -> i32 {
 /// Deck first (top down), else hand.
 fn take(g: &Game, p: usize, name: &str) -> Result<(ListRef, CardId), String> {
     for from in [ListRef::Deck(p as u8), ListRef::Hand(p as u8)] {
-        if let Some(&c) = g.lst(from).iter().find(|&&c| g.st.cdef(c).full_name == name) {
+        if let Some(&c) = g.lst(from).iter().find(|&&c| crate::carddb::card_is(g.st.cdef(c), name)) {
             return Ok((from, c));
         }
     }

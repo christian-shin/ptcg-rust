@@ -268,16 +268,49 @@ not in git), `--remote` uses it instead; its notes are under `porting/` there.
 New worktree? Copy a warm build cache first so the first build isn't from scratch:
 `cp -Rc /Users/christianshin/Documents/pkmntcg/engine/target/iter engine/target/` (APFS clone, instant).
 
-Card names: every card has two identifiers. The **international key** is the
-official English name, set code and printing number from `data/pool.json`
-(`key`, e.g. "Growing Grass Energy POR 86", or "Name SET" when unique); use it
-in reports, commit messages, `--tag` text people read, and anything else a human
-reads. **Twinleaf's `fullName`** ("Grow [G] Energy M3", Japanese set codes and
-fan translations) stays the identity inside the oracle, traces, corpus, deck
-files and port pins, and `data/verified.json` records both (`key` and
-`"twinleaf"`). Tools and `def_by_full_name` accept either form; `tools/names.py`
-(`english()`, `twinleaf()`, `label()`) and `carddb::en_name` / `en_key` convert.
-When the two differ, write the key first and the Twinleaf name in parentheses.
+Card names: the Rust engine speaks **official English names** everywhere a
+person or tool sees them, and keeps Twinleaf's names hidden for the oracle
+boundary (2026-10-07).
+
+| Rust field | Value |
+| --- | --- |
+| `CardDef.full_name` | the international key `"<Name> <SET> <NUM>"` from `data/pool.json` (`key`, e.g. "Growing Grass Energy POR 86"); cards outside the pool keep Twinleaf's full name |
+| `CardDef.name`, `set`, `set_number` | official card name, international set code and printing number |
+| `AttackDef.name`, `PowerDef.name` | official attack / Ability name (`data/official_text.json`: "Turbo Flare", "Resolute Heart") |
+| `CardDef.tl_full_name`, `tl_name`, `tl_set`, `tl_set_number`; `AttackDef.tl_name`, `PowerDef.tl_name` | Twinleaf's ("Grow [G] Energy M3", "Flame Turbo", "Tenacious Heart") |
+
+`tools/gen_carddb.py` fills both from `data/pool.json` and the official text
+(`tools/official_names.py`; never edit `engine/src/gen/cards.rs`). A card that is
+not in the pool (an old printing, a support card) inherits the official card,
+attack and Ability names of a pool card with the same Twinleaf card name, so
+same-name rules behave exactly as before; otherwise it keeps Twinleaf's.
+
+**Which name to use in a port.** Rules wording ("a card named X", "Pokémon
+with the same name", an Ability called X) compares `name`; write official names
+in literals. Everything that is hashed, described to the oracle or kept in the
+state uses the `tl_*` names, so the oracle's hash and traces never change:
+`canonical.rs` (attack names, `lastAttack`, card refs `<tl_set>-<tl_number>#id`),
+turn-option descriptors (`options.rs`: `{a:'attack', name, from}` carry the
+Twinleaf attack / Ability name and the Twinleaf `from` full name), prompt
+descriptors (`prompts.rs`, ChooseAttack attacks, filter names through
+`tl_card_name`), Select values, Rust `Action::Attack { name, from }`, and
+attack names stored in the state (`blocked_attack_name_*`,
+`cannot_use_attacks_next_turn*`, `NextTurnAttackDamageBonus`: store and compare
+`AttackDef.tl_name`, never `name`; two cards can share an official attack name
+that Twinleaf spells differently). Sorting that mirrors the oracle's
+(`sort_list`) sorts by `tl_name`. `Class@SET` / `Class@Full Name` pins in a
+port's `class:` use Twinleaf's set and full name (`tl_set`, `tl_full_name`).
+The RL interface (`interface.rs`) emits official names (`{"index","attack"}`
+answers) and accepts either spelling.
+
+Tools and `def_by_full_name` accept the international key, "Name SET" when
+unique, or Twinleaf's full name; `tools/names.py` (`english()`, `twinleaf()`,
+`label()`, `move_twinleaf()`) and `carddb::en_name` / `en_key` convert.
+**Scenario files may use either name** (official preferred): `check_cards.py`
+maps card names, scripted-answer attack / Ability names and `from` to Twinleaf's
+before the scenario reaches the oracle (whose `scenario.ts` / `runner.ts` are
+unchanged), and `expect` / `legal` assertions in the Rust replay match both.
+Reports write the key first and the Twinleaf name in parentheses when they differ.
 
 `check_cards.py` builds decks around the targets (Stage 1/2 targets need their
 pre-evolution in the target list, already ported, or a support card), generates oracle traces
@@ -512,7 +545,7 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
 * **Other**: `{"who", "prizes_taken": N}` (Prizes taken so far by Knock Outs);
   `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).
-* **Names** are English keys or Twinleaf full names; both are accepted.
+* **Names** (cards, attacks, Abilities) are official or Twinleaf names; both are accepted. Official is preferred.
 * **Later turns and legal actions** (rules audit): `turn` is described above. `"at": "decision", "n": N` checks the N-th turn
   decision since the edits (0 = right after them, `"at": "start"`; counted over all later turns), so what the first
   decision of a turn allows can be asserted. `{"who", "legal": KIND, "is": false}` asserts that an action is (not) among

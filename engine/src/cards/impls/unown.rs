@@ -28,7 +28,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     match g.st.player_last_attack[attacker] {
-        Some((a, src)) if src == me && crate::engine::attack::attack_def(g, a).name == "Mysterious Signal" => {}
+        Some((a, src)) if src == me && crate::engine::attack::attack_def(g, a).tl_name == "Mysterious Signal" => {}
         _ => return Ok(()),
     }
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {

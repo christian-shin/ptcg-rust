@@ -8,6 +8,9 @@ logic (reduceEffect / canPlay / ...), so reprints share one implementation.
 """
 import json, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import official_names
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 cards = {c['fullName']: c for c in json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))}
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
@@ -34,6 +37,11 @@ extra = [a for a in sys.argv[1:]]
 for n in extra:
     if n not in names:
         names.append(n)
+
+# Official English names (data/official_text.json) per pool printing; everything
+# else (old printings, support cards) inherits through the Twinleaf card name,
+# or keeps its Twinleaf names when the pool has no card of that name.
+OFF = official_names.build(pool, cards)
 
 FOSSILS = {"Lillie's Poké Doll", 'Clefairy Doll', 'Rare Fossil', 'Robo Substitute', 'Mysterious Fossil', 'Unidentified Fossil', 'Antique Plume Fossil', 'Antique Cover Fossil', 'Antique Skull Fossil', 'Antique Armor Fossil', 'Antique Jaw Fossil', 'Antique Sail Fossil', 'Antique Root Fossil', 'Claw Fossil', 'Root Fossil'}
 LOGIC = {'reduceEffect', 'canPlay', 'canUseFromHandToBench'}
@@ -83,29 +91,33 @@ for n in names:
     c = cards[n]
     st = c['superType']
     attacks = []
-    for a in c.get('attacks') or []:
+    for ai, a in enumerate(c.get('attacks') or []):
         flags = []
         for f in ('canUseOnFirstTurn', 'useOnBench', 'gxAttack', 'shredAttack', 'barrage', 'copycatAttack'):
             flags.append('%s: %s' % ({'canUseOnFirstTurn': 'can_use_on_first_turn', 'useOnBench': 'use_on_bench', 'gxAttack': 'gx_attack', 'shredAttack': 'shred_attack', 'barrage': 'barrage', 'copycatAttack': 'copycat_attack'}[f], 'true' if a.get(f) is True else 'false'))
-        attacks.append('AttackDef { name: %s, cost: %s, damage: %d, damage_calculation: %s, text: %s, has_effect_fn: %s, %s }' % (
-            lit(a['name']), u8s(a['cost']), int(a['damage']), rs_str(a.get('damageCalculation')), lit(a.get('text', '')),
+        attacks.append('AttackDef { name: %s, tl_name: %s, cost: %s, damage: %d, damage_calculation: %s, text: %s, has_effect_fn: %s, %s }' % (
+            lit(OFF.attack(c, ai, a['name'])), lit(a['name']), u8s(a['cost']), int(a['damage']), rs_str(a.get('damageCalculation')), lit(a.get('text', '')),
             'true' if isinstance(a.get('effect'), dict) else 'false', ', '.join(flags)))
     powers = []
-    for p in c.get('powers') or []:
+    for pi, p in enumerate(c.get('powers') or []):
         fl = []
         for f, rf in (('useWhenInPlay', 'use_when_in_play'), ('useFromHand', 'use_from_hand'), ('useFromHandToBench', 'use_from_hand_to_bench'),
                       ('useFromDiscard', 'use_from_discard'), ('exemptFromAbilityLock', 'exempt_from_ability_lock'), ('exemptFromInitialize', 'exempt_from_initialize'),
                       ('abilityLock', 'ability_lock'), ('barrage', 'barrage'), ('knocksOutSelf', 'knocks_out_self'), ('isFossil', 'is_fossil')):
             fl.append('%s: %s' % (rf, 'true' if p.get(f) is True else 'false'))
-        powers.append('PowerDef { name: %s, power_type: %d, text: %s, has_effect_fn: %s, %s }' % (
-            lit(p['name']), int(p['powerType']), lit(p.get('text', '')), 'true' if isinstance(p.get('effect'), dict) else 'false', ', '.join(fl)))
+        powers.append('PowerDef { name: %s, tl_name: %s, power_type: %d, text: %s, has_effect_fn: %s, %s }' % (
+            lit(OFF.power(c, pi, p['name'])), lit(p['name']), int(p['powerType']), lit(p.get('text', '')), 'true' if isinstance(p.get('effect'), dict) else 'false', ', '.join(fl)))
     weak = ', '.join('Weakness { card_type: %d, value: %s }' % (w['type'], ('Some(%d)' % w['value']) if w.get('value') is not None else 'None') for w in c.get('weakness') or [])
     res = ', '.join('Resistance { card_type: %d, value: %d }' % (w['type'], w['value']) for w in c.get('resistance') or [])
     fields = [
-        'full_name: %s' % lit(c['fullName']),
-        'name: %s' % lit(c['name']),
-        'set: %s' % lit(c['set']),
-        'set_number: %s' % lit(str(c.get('setNumber', ''))),
+        'full_name: %s' % lit(OFF.full_name(c)),
+        'name: %s' % lit(OFF.card_name(c)),
+        'set: %s' % lit(OFF.set(c)),
+        'set_number: %s' % lit(OFF.number(c)),
+        'tl_full_name: %s' % lit(c['fullName']),
+        'tl_name: %s' % lit(c['name']),
+        'tl_set: %s' % lit(c['set']),
+        'tl_set_number: %s' % lit(str(c.get('setNumber', ''))),
         'class: %s' % lit(c['$class']),
         'behavior: %s' % lit(behavior(c)),
         'super_type: %d' % st,
@@ -120,10 +132,10 @@ for n in names:
         'hp: %d' % int(c.get('hp') or 0),
         'weakness: &[%s]' % weak,
         'resistance: &[%s]' % res,
-        'evolves_from: %s' % lit(c.get('evolvesFrom') or ''),
-        'evolves_to: &[%s]' % ', '.join(lit(x) for x in c.get('evolvesTo') or []),
+        'evolves_from: %s' % lit(OFF.rename(c.get('evolvesFrom') or '')),
+        'evolves_to: &[%s]' % ', '.join(lit(OFF.rename(x)) for x in c.get('evolvesTo') or []),
         'evolves_to_stage: %s' % u8s(c.get('evolvesToStage') or []),
-        'evolves_from_base: &[%s]' % ', '.join(lit(x) for x in c.get('evolvesFromBase') or []),
+        'evolves_from_base: &[%s]' % ', '.join(lit(OFF.rename(x)) for x in c.get('evolvesFromBase') or []),
         'max_tools: %d' % int(c.get('maxTools') or 1),
         'trainer_type: %d' % int(c.get('trainerType') or 0),
         'first_turn: %s' % ('true' if c.get('firstTurn') else 'false'),
@@ -148,7 +160,7 @@ out = ['// Generated by tools/gen_carddb.py. Do not edit.\n',
        'pub static EN_NAMES: &[(&str, &str)] = &[\n']
 for n in names:
     c = cards[n]
-    k, e = en.get(n) or ('%s %s %s' % (c['name'], c['set'], c['setNumber']), c['name'])
+    k, e = en.get(n) or ('%s %s %s' % (OFF.card_name(c), c['set'], c['setNumber']), OFF.card_name(c))
     out.append('    (%s, %s),\n' % (lit(k), lit(e)))
 out.append('];\n')
 path = os.path.join(ROOT, 'engine/src/gen/names.rs')
@@ -163,7 +175,7 @@ out = ['// Generated by tools/gen_carddb.py. Do not edit.\n',
        '/// (name, evolvesFrom) of every Stage 1 Pokémon card Twinleaf knows.\n',
        'pub static ALL_STAGE1: &[(&str, &str)] = &[\n']
 for n, f in pairs:
-    out.append('    (%s, %s),\n' % (lit(n), lit(f)))
+    out.append('    (%s, %s),\n' % (lit(OFF.rename(n)), lit(OFF.rename(f))))
 out.append('];\n')
 path = os.path.join(ROOT, 'engine/src/gen/stage1.rs')
 open(path, 'w').write(''.join(out))
@@ -177,7 +189,7 @@ out = ['// Generated by tools/gen_carddb.py. Do not edit.\n',
        '/// (name, evolvesFrom) of every non-Basic Pokémon card Twinleaf knows.\n',
        'pub static ALL_EVOLUTIONS: &[(&str, &str)] = &[\n']
 for n, f in pairs:
-    out.append('    (%s, %s),\n' % (lit(n), lit(f)))
+    out.append('    (%s, %s),\n' % (lit(OFF.rename(n)), lit(OFF.rename(f))))
 out.append('];\n')
 path = os.path.join(ROOT, 'engine/src/gen/evolutions.rs')
 open(path, 'w').write(''.join(out))

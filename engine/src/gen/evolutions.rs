@@ -45,7 +45,7 @@ pub static ALL_EVOLUTIONS: &[(&str, &str)] = &[
     ("Amaura", "Sail Fossil"),
     ("Amaura", "Unidentified Fossil"),
     ("Ambipom", "Aipom"),
-    ("Amoongus", "Foongus"),
+    ("Amoonguss", "Foongus"),
     ("Amoonguss", "Foongus"),
     ("Ampharos", "Flaaffy"),
     ("Ampharos ex", "Flaaffy"),

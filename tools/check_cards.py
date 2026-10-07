@@ -100,6 +100,16 @@ def load_scenario(path):
     for n in seen:
         if n not in cards:
             sys.exit('scenario: unknown card %s' % n)
+    # Scripted answers name attacks and Abilities (official or Twinleaf names); the oracle wants Twinleaf's.
+    for a in sc.get('answers') or []:
+        if not isinstance(a, dict):
+            continue
+        if a.get('a') in ('attack', 'ability', 'trainerAbility') and isinstance(a.get('name'), str):
+            a['name'] = names.move_twinleaf(a['name'], seen)
+        if a.get('a') == 'attack' and isinstance(a.get('from'), str):
+            a['from'] = names.twinleaf(a['from'])
+        if isinstance(a.get('attack'), str):   # a ChooseAttackPrompt answer {index, attack}
+            a['attack'] = names.move_twinleaf(a['attack'], seen)
     # `expect` is checked by the Rust replay (diff); the oracle ignores the key.
     for i, e in enumerate(sc.get('expect') or []):
         if not isinstance(e, dict) or not str(e.get('cite') or '').strip():

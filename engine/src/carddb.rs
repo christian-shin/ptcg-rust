@@ -19,7 +19,10 @@ pub struct Resistance {
 
 #[derive(Debug)]
 pub struct AttackDef {
+    /// Official English name.
     pub name: &'static str,
+    /// Twinleaf's name: only for the oracle boundary (hash, descriptors, traces).
+    pub tl_name: &'static str,
     pub cost: &'static [CardType],
     pub damage: i32,
     pub damage_calculation: Option<&'static str>,
@@ -35,7 +38,10 @@ pub struct AttackDef {
 
 #[derive(Debug)]
 pub struct PowerDef {
+    /// Official English name.
     pub name: &'static str,
+    /// Twinleaf's name: only for the oracle boundary (hash, descriptors, traces).
+    pub tl_name: &'static str,
     pub power_type: u8,
     pub text: &'static str,
     pub has_effect_fn: bool,
@@ -53,10 +59,21 @@ pub struct PowerDef {
 
 #[derive(Debug)]
 pub struct CardDef {
+    /// Official full name "<Name> <SET> <NUM>" (international set code and
+    /// number). Cards outside the pool (old printings, support cards) keep
+    /// Twinleaf's full name.
     pub full_name: &'static str,
+    /// Official English card name.
     pub name: &'static str,
+    /// International set code and printing number.
     pub set: &'static str,
     pub set_number: &'static str,
+    /// Twinleaf's names and printing, hidden: only for the oracle boundary
+    /// (canonical hash, descriptors, trace headers, `Class@...` pins).
+    pub tl_full_name: &'static str,
+    pub tl_name: &'static str,
+    pub tl_set: &'static str,
+    pub tl_set_number: &'static str,
     /// Twinleaf class of the printed card.
     pub class: &'static str,
     /// Class in the prototype chain that carries the card's logic ("" if none).
@@ -158,7 +175,7 @@ pub fn def(id: DefId) -> &'static CardDef {
 }
 
 /// English key of a card: official name, set and printing number
-/// ("Grand Tree SCR 136"). Twinleaf's `full_name` stays the oracle identity.
+/// ("Grand Tree SCR 136"); equals `full_name` for every pool card.
 pub fn en_key(id: DefId) -> &'static str {
     crate::gen::names::EN_NAMES[id as usize].0
 }
@@ -173,7 +190,10 @@ fn index() -> &'static HashMap<String, DefId> {
     INDEX.get_or_init(|| {
         let mut m: HashMap<String, DefId> = HashMap::new();
         for (i, c) in crate::gen::cards::CARDS.iter().enumerate() {
-            m.insert(c.full_name.to_string(), i as DefId);
+            m.insert(c.tl_full_name.to_string(), i as DefId);
+        }
+        for (i, c) in crate::gen::cards::CARDS.iter().enumerate() {
+            m.entry(c.full_name.to_string()).or_insert(i as DefId);
         }
         // English aliases: the key, and "Name SET" when only one printing in
         // that set has the name. Twinleaf full names win any collision.
@@ -192,9 +212,34 @@ fn index() -> &'static HashMap<String, DefId> {
     })
 }
 
-/// Look a card up by Twinleaf full name or English key / "Name SET".
+/// Look a card up by official full name, Twinleaf full name or English key / "Name SET".
 pub fn def_by_full_name(name: &str) -> Option<DefId> {
     index().get(name).copied()
+}
+
+/// Twinleaf's card name for an official one (identity unless the card was renamed).
+pub fn tl_card_name(name: &str) -> &str {
+    static MAP: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    let m = MAP.get_or_init(|| {
+        let mut m = HashMap::new();
+        for c in crate::gen::cards::CARDS {
+            if c.name != c.tl_name {
+                m.insert(c.name, c.tl_name);
+            }
+        }
+        m
+    });
+    m.get(name).copied().unwrap_or(name)
+}
+
+/// Whether `name` is the official or Twinleaf full name of this card.
+pub fn card_is(d: &CardDef, name: &str) -> bool {
+    d.full_name == name || d.tl_full_name == name
+}
+
+/// Whether `name` is the official or Twinleaf name of this attack.
+pub fn attack_is(a: &AttackDef, name: &str) -> bool {
+    a.name == name || a.tl_name == name
 }
 
 #[cfg(test)]
@@ -208,5 +253,32 @@ mod en_tests {
         assert_eq!(def_by_full_name("Grand Tree SCR"), Some(g));
         assert_eq!(en_name(g), "Grand Tree");
         assert_eq!(en_key(g), "Grand Tree SCR 136");
+        assert_eq!(def(g).full_name, "Grand Tree SCR 136");
+        assert_eq!(def(g).tl_full_name, "Great Tree SCR");
+    }
+
+    #[test]
+    fn full_names_unique_and_resolve() {
+        let mut seen: HashMap<&str, usize> = HashMap::new();
+        let mut seen_tl: HashMap<&str, usize> = HashMap::new();
+        for (i, c) in cards().iter().enumerate() {
+            assert!(seen.insert(c.full_name, i).is_none(), "duplicate full_name {}", c.full_name);
+            assert!(seen_tl.insert(c.tl_full_name, i).is_none(), "duplicate tl_full_name {}", c.tl_full_name);
+            assert_eq!(def_by_full_name(c.tl_full_name), Some(i as DefId), "{}", c.tl_full_name);
+            assert_eq!(def_by_full_name(c.full_name), Some(i as DefId), "{}", c.full_name);
+        }
+    }
+
+    /// `tl_card_name` must be a function: no renamed card's official name may
+    /// also be another card's Twinleaf name.
+    #[test]
+    fn card_name_translation_is_unambiguous() {
+        use std::collections::HashSet;
+        let tl_card: HashSet<&str> = cards().iter().map(|c| c.tl_name).collect();
+        for c in cards() {
+            if c.name != c.tl_name {
+                assert!(!tl_card.contains(c.name), "official card name {} is another card's Twinleaf name", c.name);
+            }
+        }
     }
 }

@@ -50,7 +50,7 @@ fn sorted_set(v: &[Value]) -> Vec<String> {
 
 /// English key, with the Twinleaf full name in parentheses when it differs.
 fn card_label(d: u16) -> String {
-    let (en, tl) = (ptcg::carddb::en_key(d), ptcg::carddb::def(d).full_name);
+    let (en, tl) = (ptcg::carddb::en_key(d), ptcg::carddb::def(d).tl_full_name);
     if en == tl { en.to_string() } else { format!("{} ({})", en, tl) }
 }
 
@@ -243,7 +243,10 @@ fn main() {
     if args.iter().any(|a| a == "--list-ported") {
         for (i, d) in ptcg::carddb::cards().iter().enumerate() {
             if d.behavior.is_empty() || ptcg::cards::impl_for(i as u16).is_some() {
-                println!("{}", d.full_name);
+                println!("{}", d.tl_full_name);
+                if d.full_name != d.tl_full_name {
+                    println!("{}", d.full_name);
+                }
             }
         }
         return;

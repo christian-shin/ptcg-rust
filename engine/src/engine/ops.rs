@@ -194,7 +194,7 @@ impl Game {
                     return s;
                 }
             }
-            if js_str_lt(da.name, db.name) {
+            if js_str_lt(da.tl_name, db.tl_name) {
                 -1
             } else {
                 1

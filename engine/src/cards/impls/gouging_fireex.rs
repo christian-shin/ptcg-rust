@@ -16,7 +16,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         // `this.attacks[1].name`: under a copy-attack session `this.attacks`
         // are the copied clones (Ethan's Sudowoodo's Try to Imitate).
-        let name = crate::engine::attack::attack_def(g, my_attack(g, me, 1)).name;
+        let name = crate::engine::attack::attack_def(g, my_attack(g, me, 1)).tl_name;
         let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: source };
         g.run_fx(Effect::PreventAttackUntilLeavesActive { b, name })?;
     }

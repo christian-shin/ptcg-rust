@@ -59,7 +59,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     // every attack of the Pokémon is locked for the Active (no valid answer).
     let a = g.st.players[p].active;
     let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
-    if d.attacks.iter().all(|at| locked.iter().any(|n| *n == at.name)) {
+    if d.attacks.iter().all(|at| locked.iter().any(|n| *n == at.tl_name)) {
         return Ok(());
     }
     crate::copy_attack::copy_attack_from_pokemon_list(g, e, &matches, false)

@@ -279,8 +279,8 @@ fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
 
 /// `findPokemonCardForAttack`.
 fn find_pokemon_for_attack(g: &Game, cards: &[CardId], a: AttackRef) -> Option<CardId> {
-    let name = attack::attack_def(g, a).name;
-    cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && (*c == a.card || g.st.cdef(*c).attacks.iter().any(|x| x.name == name)))
+    let name = attack::attack_def(g, a).tl_name;
+    cards.iter().copied().find(|c| g.st.cdef(*c).is_pokemon() && (*c == a.card || g.st.cdef(*c).attacks.iter().any(|x| x.tl_name == name)))
 }
 
 /// `findAttackIndex(source, attack)`.
@@ -288,8 +288,8 @@ fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
     if a.card == source && !a.is_clone() {
         return Some(a.idx() as u8);
     }
-    let name = attack::attack_def(g, a).name;
-    g.st.cdef(source).attacks.iter().position(|x| x.name == name).map(|i| i as u8)
+    let name = attack::attack_def(g, a).tl_name;
+    g.st.cdef(source).attacks.iter().position(|x| x.tl_name == name).map(|i| i as u8)
 }
 
 /// `COPY_ATTACK_FROM_POKEMON_LIST(store, state, effect, pokemonCards, { allowCancel })`
@@ -340,10 +340,10 @@ fn block_cannot_use_attacks_next_turn(g: &Game, p: usize, cards: &[CardId]) -> S
             continue;
         }
         for at in d.attacks.iter() {
-            if !locked.iter().any(|n| *n == at.name) {
+            if !locked.iter().any(|n| *n == at.tl_name) {
                 continue;
             }
-            let first = d.attacks.iter().position(|x| x.name == at.name).unwrap_or(0) as u8;
+            let first = d.attacks.iter().position(|x| x.tl_name == at.tl_name).unwrap_or(0) as u8;
             if out.iter().any(|(bi, ba)| *bi as usize == i && *ba == first) {
                 continue;
             }
@@ -354,7 +354,7 @@ fn block_cannot_use_attacks_next_turn(g: &Game, p: usize, cards: &[CardId]) -> S
 }
 
 fn attack_locked_next_turn(g: &Game, p: usize, a: AttackRef) -> bool {
-    let name = attack::attack_def(g, a).name;
+    let name = attack::attack_def(g, a).tl_name;
     let act = g.st.players[p].active;
     g.st.slot(p, act).cannot_use_attacks_next_turn.iter().any(|n| *n == name)
 }
@@ -436,7 +436,7 @@ fn cannot_use_attack_now(g: &Game, p: usize, a: AttackRef, energy_count: i32) ->
             }
         }
     }
-    slot.blocked_attack_name_next_turn == Some(ad.name) || slot.blocked_attack_name_until_leaves_active == Some(ad.name)
+    slot.blocked_attack_name_next_turn == Some(ad.tl_name) || slot.blocked_attack_name_until_leaves_active == Some(ad.tl_name)
 }
 
 /// Push onto a blocked list of at most 16 entries (a full list can only miss a
@@ -499,7 +499,7 @@ pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
         cards.push(c);
         for i in 0..n {
             let a = AttackRef { card: c, index: i as u8 };
-            let name = g.st.cdef(c).attacks[i].name;
+            let name = g.st.cdef(c).attacks[i].tl_name;
             if !affordable[i] || locked.iter().any(|l| *l == name) || cannot_use_attack_now(g, p, a, energy_count) {
                 push_blocked(&mut blocked, (index, i as u8));
             }
