@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dreepy ASC 158",
+   "4 Drakloak ASC 159",
+   "4 Dragapult ex ASC 160",
+   "4 Shaymin DRI 10",
+   "4 Raging Bolt ex PRE 166",
+   "4 Psychic Energy MEE 5",
+   "36 Fire Energy MEE 2"
+  ],
+  [
+   "4 Dreepy ASC 158",
+   "4 Drakloak ASC 159",
+   "4 Dragapult ex ASC 160",
+   "4 Shaymin DRI 10",
+   "4 Raging Bolt ex PRE 166",
+   "4 Psychic Energy MEE 5",
+   "36 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dreepy ASC 158",
+   "Drakloak ASC 159",
+   "Dragapult ex ASC 160"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166",
+  "bench": [
+   {
+    "card": "Shaymin DRI 10"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Phantom Dive"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "card": "Shaymin DRI 10",
+   "damage": 60,
+   "cite": "Advanced Rulebook C-07 (counters are not damage; Flower Curtain prevents damage only): the 6 damage counters are placed on the protected Benched Shaymin"
+  }
+ ]
+}

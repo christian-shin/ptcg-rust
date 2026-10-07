@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Charcadet SSP 32",
+   "4 Armarouge SSP 34",
+   "4 Raging Bolt ex PRE 166",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charcadet SSP 32",
+   "4 Armarouge SSP 34",
+   "4 Raging Bolt ex PRE 166",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charcadet SSP 32",
+   "Armarouge SSP 34"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crimson Blaster"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "Advanced Rulebook II-A (follow the parts you can apply) / ruling 1790: the attack is used and discards all [R] Energy although there is no Benched Pokemon to damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook II-A: no damage to the Active Pokemon (the 180 goes to a Benched Pokemon only)"
+  }
+ ]
+}
