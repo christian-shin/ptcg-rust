@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mega Mawile ex MEG 94",
+   "2 Munkidori ex SFA 37",
+   "2 Gastly ASC 123",
+   "54 Metal Energy MEE"
+  ],
+  [
+   "2 Mega Mawile ex MEG 94",
+   "2 Munkidori ex SFA 37",
+   "2 Gastly ASC 123",
+   "54 Metal Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Mawile ex MEG 94",
+  "active_energy": [
+   "2 Metal Energy MEE"
+  ],
+  "prizes_left": 4
+ },
+ "opp": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gobble Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "Advanced Rulebook D-17 (6 - 4 remaining = 2 taken, 80 each)"
+  }
+ ]
+}

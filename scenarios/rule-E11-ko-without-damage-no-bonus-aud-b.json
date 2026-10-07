@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape M5",
+   "2 Annihilape SSP 100",
+   "2 Terrakion WHT 54",
+   "2 Dwebble DRI 11",
+   "50 Fighting Energy MEE"
+  ],
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape M5",
+   "2 Annihilape SSP 100",
+   "2 Terrakion WHT 54",
+   "2 Dwebble DRI 11",
+   "50 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape M5",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Terrakion WHT 54",
+    "energy": [
+     "Fighting Energy MEE",
+     "Fighting Energy MEE"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  },
+  {
+   "a": "attack",
+   "name": "Retaliate"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 50,
+   "cite": "Advanced Rulebook E-11, rulings 648, 674 (Destined Fight is not damage: Terrakion gets no bonus)"
+  }
+ ]
+}

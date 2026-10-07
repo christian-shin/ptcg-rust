@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Munkidori ex SFA 37",
+   "2 Gastly ASC 123",
+   "54 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Munkidori ex SFA 37",
+   "2 Gastly ASC 123",
+   "54 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 2,
+   "cite": "Advanced Rulebook D-18 (Pokemon ex rule: 2 Prize cards)"
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Gastly ASC 123",
+   "56 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Gastly ASC 123",
+   "56 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ],
+  "active_damage": 220,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "prizes_left": 1
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "game_end",
+   "winner": "me",
+   "cite": "Advanced Rulebook I-E (all Prize cards taken); ruling 825 (a win before the end of the turn beats the poison KO of Checkup)"
+  }
+ ]
+}

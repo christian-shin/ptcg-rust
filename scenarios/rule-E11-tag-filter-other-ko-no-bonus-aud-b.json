@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "3 Ethan's Pinsir DRI 1",
+   "2 Gastly ASC 123",
+   "53 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "3 Ethan's Pinsir DRI 1",
+   "2 Gastly ASC 123",
+   "53 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "bench": [
+   {
+    "card": "Ethan's Pinsir DRI 1",
+    "energy": [
+     "Fighting Energy MEE",
+     "Fighting Energy MEE",
+     "Fighting Energy MEE"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  },
+  {
+   "a": "attack",
+   "name": "One-Point Return"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 70,
+   "cite": "Advanced Rulebook E-11 (only an Ethan's Pokemon counts for One-Point Return)"
+  }
+ ]
+}

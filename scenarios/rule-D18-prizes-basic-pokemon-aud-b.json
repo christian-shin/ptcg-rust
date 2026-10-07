@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "56 Fighting Energy MEE"
+  ],
+  [
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "56 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terrakion WHT 54",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Land Crush"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "Advanced Rulebook D (a Pokemon without a Rule Box gives 1 Prize card)"
+  }
+ ]
+}

@@ -38,9 +38,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Effect::KnockOut { p, target, .. } = *g.e(e) {
         let player = p as usize;
         let opponent = 1 - player;
-        if g.st.phase != GamePhase::Attack || g.st.active_player as usize != opponent {
-            return Ok(());
-        }
+        // Only when Knocked Out by damage from an attack of the opponent's Pokémon (E-04; rulings 648, 674).
+        let attack = match g.knocked_out_by_attack_damage(player, target) {
+            Some(a) => a,
+            None => return Ok(()),
+        };
         let in_play = for_each_pokemon(g, player, PlayerType::BottomPlayer).iter().any(|x| x.1 == me);
         if !in_play || is_ability_blocked(g, opponent, me, None) {
             return Ok(());
@@ -55,7 +57,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             return Ok(());
         }
         // The Pokémon that used the attack, wherever it is by now (switched to the Bench, ...).
-        let ex = g.attacker_of_knock_out(player).and_then(|a| a.0).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER)).unwrap_or(false);
+        let ex = attack.0.map(|c| g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER)).unwrap_or(false);
         if !ex {
             return Ok(());
         }
@@ -64,10 +66,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             return Ok(());
         }
         m.add(non_stack(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
+        // Prize modifiers add up, the total never goes below 0 (check_state floors it; ruling 1745).
         if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
-            if *prize_count > 0 {
-                *prize_count -= 1;
-            }
+            *prize_count -= 1;
         }
     }
     if was_attack_used(g, e, 0, me) {

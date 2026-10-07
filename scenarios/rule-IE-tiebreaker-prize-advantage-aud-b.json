@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Gastly ASC 123",
+   "56 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Gastly ASC 123",
+   "56 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "sudden_death": true,
+ "expect": [
+  {
+   "at": "game_end",
+   "winner": "me",
+   "cite": "rulings 567, 580 (a Tiebreaker game ends when a player has fewer Prize cards remaining)"
+  }
+ ]
+}

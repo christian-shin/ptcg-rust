@@ -19,6 +19,7 @@ pub fn end_game(g: &mut Game, winner: Winner) {
     }
     g.st.winner = winner;
     g.st.phase = GamePhase::Finished;
+    crate::expect::on_game_end(g);
 }
 
 pub fn init_next_turn(g: &mut Game) -> R {

@@ -1,0 +1,126 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape M5",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape M5",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape M5",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 30,
+    "conditions": [
+     "POISONED"
+    ],
+    "energy": [
+     "Fighting Energy MEE"
+    ]
+   }
+  ],
+  "prizes_left": 1,
+  "supporter_played": true,
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 20,
+    "conditions": [
+     "POISONED"
+    ],
+    "energy": [
+     "Fighting Energy MEE"
+    ]
+   }
+  ],
+  "prizes_left": 1,
+  "energy_attached": true,
+  "retreated": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ],
+ "expect": [
+  {
+   "at": "tiebreaker",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Advanced Rulebook I-E (a Tiebreaker game is a new game: nothing carries over)"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Advanced Rulebook I-E (a Tiebreaker game is a new game: nothing carries over)"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "Advanced Rulebook D-17 (prizes taken in the new game)"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "opp",
+   "prizes_taken": 0,
+   "cite": "Advanced Rulebook D-17"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "me",
+   "zone": "prizes",
+   "count": 6,
+   "cite": "Advanced Rulebook I-E (Tiebreaker game: both players set 6 Prize cards)"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "opp",
+   "zone": "prizes",
+   "count": 6,
+   "cite": "Advanced Rulebook I-E"
+  },
+  {
+   "at": "tiebreaker",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "Advanced Rulebook I-E (new game: no discard pile)"
+  },
+  {
+   "at": "tiebreaker",
+   "winner": null,
+   "cite": "rulings 234, 820 (equal win conditions: a Tiebreaker game follows, nobody has won yet)"
+  }
+ ]
+}

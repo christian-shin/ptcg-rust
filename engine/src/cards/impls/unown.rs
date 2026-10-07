@@ -7,7 +7,6 @@
 //! be ATTACK with the attacker active, the owner carries DAMAGE_DEALT_MARKER
 //! and the attacker's `playerLastAttack` is this card's Mysterious Signal.
 use crate::cards::prelude::*;
-use crate::markers::DAMAGE_DEALT_MARKER;
 
 pub static IMPL: CardImpl = CardImpl { class: "Unown@30C", mask: mask(&[k::KNOCK_OUT]), reduce, resume: None, coin: None, can_play: None };
 
@@ -25,7 +24,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if g.st.phase != GamePhase::Attack || g.st.active_player as usize != attacker {
         return Ok(());
     }
-    if !pl.marker.has(DAMAGE_DEALT_MARKER) {
+    if g.knocked_out_by_attack_damage(owner, target).is_none() {
         return Ok(());
     }
     match g.st.player_last_attack[attacker] {
@@ -33,9 +32,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => return Ok(()),
     }
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
-        if *prize_count > 0 {
-            *prize_count += 1;
-        }
+        *prize_count += 1;
     }
     Ok(())
 }

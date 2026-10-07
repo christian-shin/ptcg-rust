@@ -405,6 +405,7 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
   | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
   | `supporter_played`, `energy_attached`, `retreated`: `true` | This turn's flags |
+  | `deck_left`: N | Very last: cards from the top of the deck go to the discard pile until N are left (an empty deck: the owner loses at the beginning of their next turn) |
   | `prizes_left`: N | Applied last: Prizes N..5 go to the bottom of the deck, so the player has N Prize cards left (e.g. Briar needs the opponent at 2) |
 
   `conditions`: `PARALYZED`, `CONFUSED`, `ASLEEP`, `POISONED`, `BURNED`.
@@ -412,6 +413,9 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   turn) or `"this_turn"` (just played: can't evolve yet).
 * Cards are taken from the deck (first from the top), else the hand, so the
   decks must contain them. `"4 Name"` repeats a card. English keys work.
+* Top level `sudden_death: true` marks the game as a Tiebreaker game (a Prize taken then counts for Prize advantage).
+* In `answers`, `{"a": "play" | "ability", "card_prefix": "PRE-100#"}` uses any copy of that card (instance ids depend
+  on the shuffle); the prefix is `<Twinleaf set>-<number>#`.
 * `decks` is optional (default: the usual auto decks). Every deck should hold
   the scenario's cards, since either player may be `me`.
 * Decks must be legal: Twinleaf's setup ends a game before it starts when a
@@ -453,6 +457,9 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   burn, sleep). It is evaluated in the engine's `after_end_turn`, the point
   between the Knock Out check and the start of Checkup. `"next_turn"`
   (default): the first turn decision of the following turn, after Checkup.
+  `"next_turn_end"`: the end of the turn after the scenario turn, like `turn_end` (the other player's attack and its
+  Knock Outs). `"game_end"`: the moment the game is decided, winner set (use it for `winner`; a game that never ends
+  is not checked). `"tiebreaker"`: the first turn decision of the Tiebreaker game that replaces the scenario's game.
   Every game must satisfy every assertion. A game that ends before the check
   point (a win at turn end is still seen by `turn_end`, but not by
   `next_turn`) is reported as not checked, never as passed.

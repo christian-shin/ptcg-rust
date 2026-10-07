@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Gastly ASC 123",
+   "2 Koraidon ex ASC 121",
+   "56 Fighting Energy MEE"
+  ],
+  [
+   "2 Gastly ASC 123",
+   "2 Koraidon ex ASC 121",
+   "56 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "active_damage": 60,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "active_damage": 60,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "Advanced Rulebook I-D / flow chart 8 (Knock Outs at Checkup are all resolved at the same time)"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "flow chart 8"
+  }
+ ]
+}

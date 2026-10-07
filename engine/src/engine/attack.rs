@@ -595,6 +595,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::AfterDamage { b, damage } => {
             g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
+            if damage > 0 && b.target.p != b.player && g.st.phase == GamePhase::Attack {
+                if let Some(la) = g.last_attack.as_mut() {
+                    if !la.damaged.contains(&b.target) {
+                        la.damaged.push(b.target);
+                    }
+                }
+            }
             if damage > 0 && b.target.p != b.player && g.st.players[b.target.p as usize].active == b.target.s && g.st.phase == GamePhase::Attack {
                 if let Some(la) = g.last_attack.as_mut() {
                     if !la.damaged_active.contains(&b.target) {

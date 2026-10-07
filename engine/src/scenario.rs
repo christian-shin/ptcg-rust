@@ -201,6 +201,11 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
             g.move_to(ListRef::Prize(pu, i), ListRef::Deck(pu), None);
         }
     }
+    if let Some(n) = side["deck_left"].as_u64() {
+        while g.st.players[p].deck.len() > n as usize {
+            g.move_to(ListRef::Deck(pu), ListRef::Discard(pu), Some(1));
+        }
+    }
     Ok(())
 }
 
@@ -219,6 +224,9 @@ pub fn apply(g: &mut Game, sc: &Value) -> Result<(), String> {
     apply_side(g, me, &sc["me"])?;
     apply_side(g, 1 - me, &sc["opp"])?;
     let coins: Vec<bool> = sc["coins"].as_array().map(|a| a.iter().filter_map(|x| x.as_bool()).collect()).unwrap_or_default();
+    if sc["sudden_death"].as_bool() == Some(true) {
+        g.st.is_sudden_death = true;
+    }
     g.rng.force_coins(&coins);
     Ok(())
 }

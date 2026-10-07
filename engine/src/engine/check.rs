@@ -367,10 +367,6 @@ fn choose_prize_cards(g: &mut Game, f: &mut CheckFrame) -> R<SVec<(u8, i32, List
         for gi in 0..groups.len() {
             let (dest, mut count) = *groups.get(gi).unwrap();
             let left = g.st.players[i].prize_left() as i32;
-            if count > 0 && g.st.is_sudden_death {
-                end_game(g, if i == 0 { WINNER_P1 } else { WINNER_P2 });
-                return Ok(SVec::new());
-            }
             // Taking the last Prize cards does not end the game here: every effect
             // resolves and check_winner counts both players' win conditions
             // (R7F-12; rulings 234, 820, 1403, 1584).
@@ -478,6 +474,14 @@ pub fn check_winner(g: &mut Game, oc: OnComplete) -> R {
         return initiate_sudden_death(g);
     }
     if points[0] + points[1] == 0 {
+        // A Tiebreaker game is over as soon as a player has Prize advantage: fewer Prize cards remaining than
+        // the opponent, after everything has resolved (rulings 567, 580).
+        if g.st.is_sudden_death {
+            let (a, b) = (g.st.players[0].prize_left(), g.st.players[1].prize_left());
+            if a != b {
+                end_game(g, if a < b { WINNER_P1 } else { WINNER_P2 });
+            }
+        }
         return on_complete(g, oc);
     }
     let winner = if points[0] > points[1] {
@@ -667,16 +671,29 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
     }
 }
 
-/// `initiateSuddenDeath`: every zone back to the deck (PokemonCardList.moveTo
-/// semantics, so attached energies are pushed twice and slot state such as
-/// damage is left on the empty slots), shuffle, then flip for the first player.
+/// `initiateSuddenDeath`: a Tiebreaker game is a new game (Advanced Player's Rulebook I-E; rulings 234, 820, 1403,
+/// 1487). Every zone, the tools and the Supporter back to the deck (PokemonCardList.moveTo semantics, so attached
+/// energies are pushed twice), a fresh Player for everything else (Pokémon slots, Prize lists, markers, per-turn and
+/// per-game flags), the card instance flags and the last attacks reset, shuffle, then flip for the first player.
 fn initiate_sudden_death(g: &mut Game) -> R {
     for p in 0..2u8 {
         let pl = &g.st.players[p as usize];
-        let mut lists: Vec<ListRef> = vec![ListRef::Slot(p, pl.active)];
+        let mut slot_lists: Vec<ListRef> = vec![ListRef::Slot(p, pl.active)];
         for b in pl.bench.iter() {
-            lists.push(ListRef::Slot(p, *b));
+            slot_lists.push(ListRef::Slot(p, *b));
         }
+        for l in slot_lists.iter() {
+            let (sp, ss) = match *l {
+                ListRef::Slot(a, b) => (a as usize, b),
+                _ => continue,
+            };
+            let tools: Vec<CardId> = g.st.slot(sp, ss).tools.iter().collect();
+            for t in tools {
+                g.move_card_to(*l, t, ListRef::Deck(p));
+            }
+        }
+        let pl = &g.st.players[p as usize];
+        let mut lists: Vec<ListRef> = slot_lists;
         lists.push(ListRef::Discard(p));
         for i in 0..pl.prize_count {
             lists.push(ListRef::Prize(p, i));
@@ -684,15 +701,28 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         lists.push(ListRef::Hand(p));
         lists.push(ListRef::LostZone(p));
         lists.push(ListRef::Stadium(p));
+        lists.push(ListRef::Supporter(p));
         for l in lists {
             g.move_to(l, ListRef::Deck(p), None);
         }
-        let pl = &mut g.st.players[p as usize];
-        pl.used_gx = false;
-        pl.used_vstar = false;
-        let id = pl.id;
+        let old = &g.st.players[p as usize];
+        let (id, deck) = (old.id, old.deck);
+        let cards: Vec<CardId> = deck.iter().collect();
+        g.st.players[p as usize] = Player::new(id);
+        g.st.players[p as usize].deck = deck;
+        for c in cards {
+            let inst = &mut g.st.cards[c as usize];
+            inst.moved_to_active_this_turn = false;
+            inst.extra_prizes = false;
+            inst.strafe_used = false;
+            inst.discarded_stadium_card = false;
+            inst.damage_taken_last_turn = 0;
+        }
         g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });
     }
+    g.st.last_attack = None;
+    g.st.player_last_attack = [None, None];
+    g.st.player_last_attack_turn = [0, 0];
     let id = g.player_id(0);
     g.prompt(id, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::SuddenDeathCoin);
     Ok(())

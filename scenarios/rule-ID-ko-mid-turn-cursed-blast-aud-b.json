@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Duskull PRE 35",
+   "2 Dusclops PRE 36",
+   "2 Budew ASC 16",
+   "2 Dwebble DRI 11",
+   "52 Psychic Energy MEE"
+  ],
+  [
+   "2 Duskull PRE 35",
+   "2 Dusclops PRE 36",
+   "2 Budew ASC 16",
+   "2 Dwebble DRI 11",
+   "52 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Duskull PRE 35",
+   "Dusclops PRE 36"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Budew ASC 16",
+  "bench": [
+   {
+    "card": "Budew ASC 16"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "Advanced Rulebook I-D (check for Knock Outs anytime a Pokemon's remaining HP becomes 0), Cursed Blast"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "Advanced Rulebook I-D (Dusclops Knocked Out by its own Ability)"
+  }
+ ]
+}

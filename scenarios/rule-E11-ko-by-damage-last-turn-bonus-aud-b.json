@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "54 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "54 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "bench": [
+   {
+    "card": "Terrakion WHT 54",
+    "energy": [
+     "Fighting Energy MEE",
+     "Fighting Energy MEE"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  },
+  {
+   "a": "attack",
+   "name": "Retaliate"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 130,
+   "cite": "Advanced Rulebook E-11 (Terrakion, Knocked Out by damage from an attack during the opponent's last turn: 50 + 80)"
+  }
+ ]
+}
