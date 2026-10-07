@@ -29,7 +29,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|&(_, c, _)| c == me);
             let a = g.st.players[p].active;
             let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
-            let metal = matches!(pe, Effect::CheckProvidedEnergy { energy_map, .. } if energy_map.iter().any(|m| m.provides.contains(&ct::METAL)));
+            let metal = matches!(pe, Effect::CheckProvidedEnergy { energy_map, .. } if energy_map.iter().any(|m| m.provides.contains(&ct::METAL) || m.provides.contains(&ct::ANY)));
             if in_play && metal {
                 if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
                     *cost = SVec::new();

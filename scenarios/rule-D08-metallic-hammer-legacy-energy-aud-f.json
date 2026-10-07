@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum CRI 59",
+   "4 Metang TEF 114",
+   "4 Metagross CRI 61",
+   "1 Legacy Energy TWM 167",
+   "4 Metal Energy MEE 8",
+   "4 Raging Bolt ex PRE 166",
+   "39 Fire Energy MEE 2"
+  ],
+  [
+   "4 Beldum CRI 59",
+   "4 Metang TEF 114",
+   "4 Metagross CRI 61",
+   "1 Legacy Energy TWM 167",
+   "4 Metal Energy MEE 8",
+   "4 Raging Bolt ex PRE 166",
+   "39 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Beldum CRI 59",
+   "Metang TEF 114",
+   "Metagross CRI 61"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Legacy Energy TWM 167",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metallic Hammer"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "winner": "me",
+   "cite": "card text 150 + 150 more when 3 [M] Energy are discarded = 300, Raging Bolt ex (240 HP) is Knocked Out; Legacy Energy is the third [M] Energy (Advanced Rulebook D-08)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Advanced Rulebook D-08: Legacy Energy provides [M], so exactly three [M] Energy are discarded and the Fire Energy stays"
+  }
+ ]
+}

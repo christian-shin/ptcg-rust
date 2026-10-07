@@ -1,8 +1,8 @@
 //! Mega Charizard X ex (M2 / PFL): Inferno X — discard any amount of [R]
 //! Energy from among your Pokémon; 90 damage for each card discarded.
 //!
-//! Twinleaf: counts every attached Energy card whose static `provides`
-//! contains FIRE or ANY, blocks (by index in the slot's card list) the other
+//! Twinleaf: counts every attached Energy card that provides FIRE or ANY (CheckProvidedEnergy of each
+//! Pokémon, so Legacy Energy counts), blocks (by index in the slot's card list) the other
 //! Energy cards, and asks a non-cancellable DiscardEnergyPrompt for 0..=count
 //! (phase 4b R7E: "any amount" can be 0, ruling 1778; it was 1..=count). The
 //! damage is set to 90 x the number chosen (0 if the prompt returned null) and
@@ -12,11 +12,6 @@
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "MegaCharizardXex@Mega Charizard X ex M2", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn gives_fire(g: &Game, c: CardId) -> bool {
-    let d = g.st.cdef(c);
-    d.provides.contains(&ct::FIRE) || d.provides.contains(&ct::ANY)
-}
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !was_attack_used(g, e, 0, me) {
@@ -28,20 +23,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     let mut total = 0usize;
     let mut o = MoveOpts { allow_cancel: false, ..Default::default() };
+    // "[R] Energy": every Energy that provides [R] as it is provided now, including one that provides every
+    // type (Legacy Energy, Prism Energy on a Basic Pokémon; Advanced Rulebook D-08).
+    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        total += energy_cards_that_provide_type(g, p, s, ct::FIRE)?.len();
+    }
     for (s, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        let mut b = Blocked::default();
-        let mut any = false;
-        for (i, c) in g.st.slot(p, s).cards.iter().enumerate() {
-            if g.st.cdef(c).is_energy() {
-                if gives_fire(g, c) {
-                    total += 1;
-                } else {
-                    b.push(i as u8);
-                    any = true;
-                }
-            }
-        }
-        if any {
+        if let Some(b) = blocked_non_type_energy(g, p, s, ct::FIRE)? {
             o.blocked_map.push((t, b));
         }
     }

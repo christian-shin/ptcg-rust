@@ -5,8 +5,8 @@
 //! Twinleaf: Melt and Flow reacts to CheckRetreatCostEffect when this card is
 //! in its player's Active (generic Ability probe, then a CheckProvidedEnergy on
 //! the Active: no entries -> `cost = []`). Lava Burst runs a CheckProvidedEnergy
-//! (unused), a non-cancellable DiscardEnergyPrompt (Active, basic Energy named
-//! 'Fire Energy', min 0, max 5), then one DiscardCardsEffect (possibly with
+//! (unused), a non-cancellable DiscardEnergyPrompt (Active, Energy cards that
+//! don't provide [R] blocked, min 0, max 5), then one DiscardCardsEffect (possibly with
 //! no cards) aimed at `player.active` and `damage = 70 * cards`.
 use crate::cards::prelude::*;
 
@@ -35,8 +35,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
         let mut slots = SVec::new();
         slots.push(SlotType::Active as u8);
-        let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Fire Energy"), ..Filter::none() };
-        let o = MoveOpts { allow_cancel: false, min: 0, max: Some(5), ..Default::default() };
+        // "[R] Energy": every Energy that provides [R], including one that provides every type (Advanced
+        // Rulebook D-08); the others are blocked in the prompt.
+        let filter = Filter::super_type(SuperType::Energy);
+        let mut o = MoveOpts { allow_cancel: false, min: 0, max: Some(5), ..Default::default() };
+        if let Some(b) = blocked_non_type_energy(g, p, a, ct::FIRE)? {
+            o.blocked_map.push((CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0), b));
+        }
         g.retain_fx(e);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

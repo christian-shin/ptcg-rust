@@ -4,8 +4,8 @@
 //! discarded.
 //!
 //! Twinleaf: Steel Wing sets `player.active.damageReductionNextTurn = 50`.
-//! Cross Breaker opens a DiscardEnergyPrompt on the Active (basic "Metal
-//! Energy", min 0, max 2, no cancel) even when nothing matches; an empty
+//! Cross Breaker opens a DiscardEnergyPrompt on the Active (Energy cards, the
+//! ones that don't provide [M] blocked, min 0, max 2, no cancel) even when nothing matches; an empty
 //! answer sets the damage to 0, otherwise each transfer is a MOVE_CARDS to
 //! the discard (no DiscardCardsEffect) and the damage is 120 x transfers.
 //! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
@@ -28,8 +28,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         let mut slots = SVec::new();
         slots.push(SlotType::Active as u8);
-        let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Metal Energy"), ..Filter::none() };
-        let o = MoveOpts { allow_cancel: false, min: 0, max: Some(2), ..Default::default() };
+        // "[M] Energy": every Energy that provides [M], including one that provides every type (Advanced
+        // Rulebook D-08); the others are blocked in the prompt.
+        let a = g.st.players[p].active;
+        let filter = Filter::super_type(SuperType::Energy);
+        let mut o = MoveOpts { allow_cancel: false, min: 0, max: Some(2), ..Default::default() };
+        if let Some(b) = blocked_non_type_energy(g, p, a, ct::METAL)? {
+            o.blocked_map.push((CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0), b));
+        }
         g.retain_fx(e);
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

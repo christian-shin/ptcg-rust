@@ -238,6 +238,38 @@ pub fn for_each_pokemon(g: &Game, p: usize, player_type: PlayerType) -> SVec<(Sl
     out
 }
 
+/// `ENERGY_CARDS_THAT_PROVIDE_TYPE(store, state, player, cardList, cardType)` (prefabs/costs.ts): the Energy
+/// cards attached to the slot that provide `ty` as the Pokémon's Energy provides it right now
+/// (CheckProvidedEnergyEffect); an Energy that provides every type (Legacy Energy, Prism Energy on a Basic Pokémon)
+/// is a [R] Energy, a [W] Energy, ... for every "[X] Energy" in card text (Advanced Rulebook D-08).
+pub fn energy_cards_that_provide_type(g: &mut Game, p: usize, s: SlotId, ty: CardType) -> R<SVec<CardId, 64>> {
+    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, s), energy_map: SVec::new() })?;
+    let mut cards: SVec<CardId, 64> = SVec::new();
+    if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+        for m in energy_map.iter() {
+            if (m.provides.contains(&ty) || m.provides.contains(&ct::ANY)) && !cards.contains(&m.card) {
+                cards.push(m.card);
+            }
+        }
+    }
+    Ok(cards)
+}
+
+/// `BLOCKED_NON_TYPE_ENERGY(...)`: the prompt `blockedMap` indices of the slot's Energy cards that do not provide
+/// `ty`; `None` when there is none.
+pub fn blocked_non_type_energy(g: &mut Game, p: usize, s: SlotId, ty: CardType) -> R<Option<Blocked>> {
+    let providing = energy_cards_that_provide_type(g, p, s, ty)?;
+    let mut b = Blocked::default();
+    let mut any = false;
+    for (i, c) in g.st.slot(p, s).cards.iter().enumerate() {
+        if g.st.cdef(c).is_energy() && !providing.contains(&c) {
+            b.push(i as u8);
+            any = true;
+        }
+    }
+    Ok(if any { Some(b) } else { None })
+}
+
 // ---------------------------------------------------------------------------
 // Card movement
 

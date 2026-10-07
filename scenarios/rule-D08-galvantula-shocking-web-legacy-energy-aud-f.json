@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Joltik SCR 50",
+   "4 Galvantula SFA 2",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Joltik SCR 50",
+   "4 Galvantula SFA 2",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Joltik SCR 50",
+   "Galvantula SFA 2"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shocking Web"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 130,
+   "cite": "Advanced Rulebook D-08 (Legacy Energy is a [L] Energy, so the Pokemon has any [L] Energy attached): 50 + 80"
+  }
+ ]
+}

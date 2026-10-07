@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Psyduck ASC 39",
+   "4 Golduck ASC 40",
+   "1 Legacy Energy TWM 167",
+   "4 Water Energy MEE 3",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ],
+  [
+   "4 Psyduck ASC 39",
+   "4 Golduck ASC 40",
+   "1 Legacy Energy TWM 167",
+   "4 Water Energy MEE 3",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Psyduck ASC 39",
+   "Golduck ASC 40"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hydro Pump"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "Advanced Rulebook D-08 (Legacy Energy provides every type, so it is a [W] Energy): 60 + 3 x 20"
+  }
+ ]
+}

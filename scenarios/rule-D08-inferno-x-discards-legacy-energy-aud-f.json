@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex PFL 13",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex PFL 13",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charmander PFL 11",
+   "Charmeleon PFL 12",
+   "Mega Charizard X ex PFL 13"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Inferno X"
+  },
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 4
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 90,
+   "cite": "Advanced Rulebook D-08 (Legacy Energy is a [R] Energy and can be discarded for Inferno X): 1 card x 90"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text: only the chosen Legacy Energy is discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Legacy Energy TWM 167"
+   ],
+   "cite": "Advanced Rulebook D-08"
+  }
+ ]
+}

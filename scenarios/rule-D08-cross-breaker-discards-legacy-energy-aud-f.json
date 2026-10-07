@@ -1,0 +1,79 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scyther TEF 1",
+   "4 Scizor ex TEF 111",
+   "1 Legacy Energy TWM 167",
+   "4 Metal Energy MEE 8",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ],
+  [
+   "4 Scyther TEF 1",
+   "4 Scizor ex TEF 111",
+   "1 Legacy Energy TWM 167",
+   "4 Metal Energy MEE 8",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Scyther TEF 1",
+   "Scizor ex TEF 111"
+  ],
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cross Breaker"
+  },
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 3
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "Advanced Rulebook D-08 (Legacy Energy is a [M] Energy and can be discarded for Cross Breaker): 1 card x 120"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Metal Energy MEE 8"
+   ],
+   "cite": "card text: only the chosen Legacy Energy is discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Legacy Energy TWM 167"
+   ],
+   "cite": "Advanced Rulebook D-08"
+  }
+ ]
+}

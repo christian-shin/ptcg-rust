@@ -1,0 +1,92 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Slugma ASC 23",
+   "4 Ethan's Magcargo ASC 24",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ethan's Slugma ASC 23",
+   "4 Ethan's Magcargo ASC 24",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ethan's Slugma ASC 23",
+   "Ethan's Magcargo ASC 24"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Lava Burst"
+  },
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 2
+   },
+   {
+    "from": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 3
+   },
+   {
+    "from": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 4
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 210,
+   "cite": "Advanced Rulebook D-08 (Legacy Energy is a [R] Energy and can be discarded for Lava Burst): 3 cards x 70"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text: discard up to 5 [R] Energy, all three discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Legacy Energy TWM 167"
+   ],
+   "cite": "Advanced Rulebook D-08"
+  }
+ ]
+}

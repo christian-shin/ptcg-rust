@@ -57,7 +57,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
             for m in energy_map.iter() {
-                if m.provides.iter().any(|t| *t == ct::PSYCHIC) {
+                if m.provides.iter().any(|t| *t == ct::PSYCHIC || *t == ct::ANY) {
                     psychic += 1;
                 }
             }
