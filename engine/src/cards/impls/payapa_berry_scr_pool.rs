@@ -52,7 +52,7 @@ pub fn berry_reduce(g: &mut Game, me: CardId, e: EffId, attacker_type: CardType)
         return Ok(());
     }
     if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-        *damage = (*damage - 60).max(0);
+        *damage = *damage - 60;
     }
     move_cards(g, ListRef::Slot(t.p, t.s), ListRef::Discard(owner as u8), &[me], NO_CARD)
 }

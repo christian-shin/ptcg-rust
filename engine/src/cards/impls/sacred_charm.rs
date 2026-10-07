@@ -50,7 +50,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     if has_ability {
         if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-            *damage = (*damage - 30).max(0);
+            *damage = *damage - 30;
         }
     }
     Ok(())

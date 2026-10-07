@@ -42,7 +42,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             let (ct_e, _) = g.run_fx(Effect::CheckPokemonType { target: t, card_types: types })?;
             if matches!(ct_e, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::METAL)) {
                 if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-                    *damage = (*damage - 30).max(0);
+                    *damage = *damage - 30;
                 }
             }
             Ok(())

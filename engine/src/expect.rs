@@ -22,6 +22,9 @@ pub enum At {
 #[derive(Clone, Debug)]
 pub struct Assertion {
     pub at: At,
+    /// `turns_later`: with `turn_end`, the check fires at the end of turn `scenario turn + turns_later`
+    /// (for effects that last into a later turn: "during your next turn"). Turns count game turns, so 2 = my next turn.
+    pub turns_later: i32,
     pub cite: String,
     pub spec: Value,
 }
@@ -38,7 +41,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active",
+    "not_contains", "prizes_taken", "winner", "active", "turns_later",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -62,6 +65,11 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             Some(Value::String(s)) if s == "turn_end" => At::TurnEnd,
             Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end or next_turn)", i, x)),
         };
+        let turns_later = match o.get("turns_later") {
+            None => 0,
+            Some(Value::Number(n)) if n.as_i64().map_or(false, |v| v >= 0 && v < 100) && at == At::TurnEnd => n.as_i64().unwrap() as i32,
+            Some(x) => return Err(format!("expect[{}]: bad turns_later {} (a number of turns, only with at turn_end)", i, x)),
+        };
         let kinds = [
             o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
             o.contains_key("zone"),
@@ -75,7 +83,7 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
         if !o.contains_key("winner") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
         }
-        out.push(Assertion { at, cite: cite.to_string(), spec: a.clone() });
+        out.push(Assertion { at, turns_later, cite: cite.to_string(), spec: a.clone() });
     }
     Ok(out)
 }
@@ -316,7 +324,7 @@ impl Run {
 
     fn run_at(&mut self, g: &Game, at: At) {
         for i in 0..self.assertions.len() {
-            if self.assertions[i].at != at || self.done[i] {
+            if self.assertions[i].at != at || self.done[i] || (at == At::TurnEnd && g.st.turn != self.turn + self.assertions[i].turns_later) {
                 continue;
             }
             self.done[i] = true;
@@ -364,7 +372,7 @@ pub fn take() -> Option<Run> {
 pub fn on_turn_end(g: &Game) {
     RUN.with(|r| {
         if let Some(run) = r.borrow_mut().as_mut() {
-            if run.game == g as *const Game as usize && g.st.turn == run.turn {
+            if run.game == g as *const Game as usize && g.st.turn >= run.turn {
                 run.run_at(g, At::TurnEnd);
             }
         }
