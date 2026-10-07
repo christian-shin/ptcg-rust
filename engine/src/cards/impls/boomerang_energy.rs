@@ -5,8 +5,9 @@
 //! Twinleaf quirk kept: the card is re-attached to whatever is Active then.
 //!
 //! Fixed (phase 4b, R7F-10; ruling 1650): it was re-attached at EndTurn; it is
-//! now re-attached in AfterAttackEffect (EndTurn stays as the fallback for a
-//! discard no AfterAttackEffect followed), before the effects that trigger
+//! now re-attached in AfterAttackTriggersEffect, once the attack's effects and the
+//! Energy choices they ask after the damage are done (EndTurn stays as the fallback
+//! for a discard no AfterAttackTriggersEffect followed), before the effects that trigger
 //! on the Defending Pokémon (Handheld Fan) resolve: AfterAttackEffect reaches
 //! Pokémon, then Energy, then Trainers.
 //!
@@ -20,7 +21,7 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "BoomerangEnergy",
-    mask: mask(&[k::DISCARD_CARDS, k::END_TURN, k::AFTER_ATTACK]),
+    mask: mask(&[k::DISCARD_CARDS, k::END_TURN, k::AFTER_ATTACK_TRIGGERS]),
     reduce,
     resume: None,
     coin: None,
@@ -43,7 +44,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
 
     let p = match *g.e(e) {
-        Effect::EndTurn { p } | Effect::AfterAttack { p, .. } => p,
+        Effect::EndTurn { p } | Effect::AfterAttackTriggers { p, .. } => p,
         _ => return Ok(()),
     };
     let pu = p as usize;
