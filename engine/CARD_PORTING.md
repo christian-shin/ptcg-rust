@@ -456,6 +456,7 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   Every game must satisfy every assertion. A game that ends before the check
   point (a win at turn end is still seen by `turn_end`, but not by
   `next_turn`) is reported as not checked, never as passed.
+* **Playability**: `{"at": "start", "who": "me", "playable": name}` / `"not_playable": name`: whether a legal action plays that card from the hand at the first decision (the RL action mask).
 * **Players**: `who` is `me` (the scenario's first side, the player whose turn
   it is at `turn`) or `opp`. Needed by every assertion except `winner`.
 * **Pokémon slot** (pick one selector, then any checks):
