@@ -21,7 +21,8 @@ fn target_hand_size(g: &Game, p: usize) -> usize {
         }
     }
     for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if s != a {
+        // Twinleaf checks `card instanceof PokemonCard`: a Fossil in play (a Trainer card) is skipped.
+        if s != a && g.st.cdef(c).is_pokemon() {
             has_pokemon = true;
             if !g.st.cdef(c).has_tag(tag::TEAM_ROCKET) {
                 all_rocket = false;
