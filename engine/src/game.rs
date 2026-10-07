@@ -126,7 +126,7 @@ pub enum AfterDmgStep {
     /// An effect (held by the queue) to reduce after the damage.
     Fx(EffId),
     /// `MOVE_CARDS(source, destination, { cards, sourceCard })` after the damage (`afterDamageOf`).
-    Move { source: ListRef, destination: ListRef, source_card: CardId, cards: SVec<CardId, 32> },
+    Move { source: ListRef, destination: ListRef, source_card: CardId, cards: SVec<CardId, 64> },
     /// `SHUFFLE_DECK(player)` after the damage.
     Shuffle(u8),
 }

@@ -35,7 +35,7 @@ struct Unit {
     types: SVec<CardType, 4>,
 }
 
-fn units(energy: &[EnergyEntry]) -> SVec<Unit, 96> {
+fn units(energy: &[EnergyEntry]) -> SVec<Unit, 192> {
     let mut out = SVec::new();
     for e in energy {
         let p = e.provides.as_slice();
@@ -99,7 +99,7 @@ pub fn check_exact_energy(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
         return false;
     }
     for i in 0..energy.len() {
-        let mut tmp: SVec<EnergyEntry, 40> = SVec::new();
+        let mut tmp: SVec<EnergyEntry, 64> = SVec::new();
         for (j, e) in energy.iter().enumerate() {
             if j != i {
                 tmp.push(*e);
@@ -143,8 +143,8 @@ fn apply_provides_to_typed_costs(provides: &[CardType], costs: &mut SVec<CardTyp
 }
 
 /// `StateUtils.selectMinimalEnergyForCost`.
-pub fn select_minimal_energy_for_cost(map: &[EnergyEntry], cost: &[CardType]) -> Option<SVec<EnergyEntry, 40>> {
-    let mut result: SVec<EnergyEntry, 40> = SVec::new();
+pub fn select_minimal_energy_for_cost(map: &[EnergyEntry], cost: &[CardType]) -> Option<SVec<EnergyEntry, 64>> {
+    let mut result: SVec<EnergyEntry, 64> = SVec::new();
     if cost.is_empty() {
         return Some(result);
     }
@@ -182,7 +182,7 @@ pub fn select_minimal_energy_for_cost(map: &[EnergyEntry], cost: &[CardType]) ->
     loop {
         let mut changed = false;
         for i in 0..result.len() {
-            let mut tmp: SVec<EnergyEntry, 40> = SVec::new();
+            let mut tmp: SVec<EnergyEntry, 64> = SVec::new();
             for (j, e) in result.iter().enumerate() {
                 if j != i {
                     tmp.push(*e);
@@ -255,4 +255,38 @@ pub fn cost_that_can_be_paid(energy: &EnergyMap, cost: &Cost) -> Cost {
         }
     }
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(card: u8, t: CardType) -> EnergyEntry {
+        let mut provides = SVec::new();
+        provides.push(t);
+        EnergyEntry { card, provides }
+    }
+
+    /// One Pokemon can hold more than 40 Energy cards (a deck holds 60); none of the Energy checks may overflow.
+    #[test]
+    fn more_than_forty_energy_on_one_pokemon() {
+        let mut map: EnergyMap = SVec::new();
+        for i in 0..58u8 {
+            map.push(entry(i, ct::FIRE));
+        }
+        let cost = [ct::FIRE, ct::COLORLESS];
+        assert!(check_enough_energy(map.as_slice(), &cost));
+        let sel = select_minimal_energy_for_cost(map.as_slice(), &cost).unwrap();
+        assert_eq!(sel.len(), 2);
+        assert!(check_exact_energy(sel.as_slice(), &cost));
+        assert!(!check_exact_energy(map.as_slice(), &cost));
+        let mut big_cost: Cost = SVec::new();
+        for _ in 0..16 {
+            big_cost.push(ct::COLORLESS);
+        }
+        let paid = cost_that_can_be_paid(&map, &big_cost);
+        assert_eq!(paid.len(), 16);
+        let sel = select_minimal_energy_for_cost(map.as_slice(), big_cost.as_slice()).unwrap();
+        assert_eq!(sel.len(), 16);
+    }
 }

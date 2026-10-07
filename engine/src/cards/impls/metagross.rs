@@ -173,7 +173,7 @@ fn discard_chosen(g: &mut Game, p: usize, atk: EffId, first: Res) -> R {
         bail!("INVALID_PROMPT_RESULT");
     }
     // discardTransfersAsEffects: one DiscardCardsEffect per source, in first-seen order.
-    let mut groups: Vec<(SlotRef, SVec<CardId, 16>)> = Vec::new();
+    let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
     for (from, c) in transfers.iter().copied() {
         let s = get_target(&g.st, p, from)?;
         match groups.iter_mut().find(|(x, _)| *x == s) {

@@ -19,7 +19,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         // "Discard all [R] Energy": every Energy that provides [R] (CheckProvidedEnergy), including one that
         // provides every type (Advanced Rulebook D-08).
         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: SlotRef::new(p as usize, a), energy_map: SVec::new() })?;
-        let mut cards: SVec<CardId, 16> = SVec::new();
+        let mut cards: SVec<CardId, 64> = SVec::new();
         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
             for m in energy_map.iter() {
                 if (m.provides.contains(&ct::FIRE) || m.provides.contains(&ct::ANY)) && !cards.contains(&m.card) {

@@ -96,6 +96,9 @@ fn reset_player(g: &mut Game, p: usize) {
     for i in 0..6 {
         g.move_to(ListRef::Prize(pu, i), deck, None);
     }
+    // A fresh board: Prize cards a card effect turned face up before the scenario turn are face down again.
+    g.st.players[p].prize_public = [false; 6];
+    g.st.players[p].prize_face_up = [false; 6];
     g.move_to(ListRef::Stadium(pu), deck, None);
     let mut slots: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
     slots.push(g.st.players[p].active);

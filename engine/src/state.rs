@@ -86,7 +86,7 @@ impl<const N: usize> Marker<N> {
 #[derive(Clone, Copy, Debug)]
 pub struct Slot {
     pub cards: List<60>,
-    pub energies: List<48>,
+    pub energies: List<60>,
     pub tools: List<4>,
     pub damage: i32,
     pub hp: i32,
@@ -350,8 +350,8 @@ pub struct Player {
     pub prizes_taken: i32,
     pub prizes_taken_this_turn: i32,
     pub prizes_taken_last_turn: i32,
-    pub moved_to_active_this_turn: SVec<CardId, 16>,
-    pub moved_from_active_to_bench_this_turn: SVec<CardId, 16>,
+    pub moved_to_active_this_turn: SVec<CardId, 64>,
+    pub moved_from_active_to_bench_this_turn: SVec<CardId, 64>,
     pub pokemon_knocked_out_during_opponents_last_turn: bool,
     pub pokemon_knocked_out_by_attack_during_opponents_last_turn: bool,
     pub pokemon_knocked_out_last_turn_entries: SVec<DefId, 8>,
