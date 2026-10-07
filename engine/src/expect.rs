@@ -15,6 +15,8 @@ use std::cell::RefCell;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum At {
+    /// Right after the scenario edits (the board the scenario starts from).
+    Start,
     TurnEnd,
     NextTurn,
 }
@@ -38,7 +40,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active",
+    "not_contains", "prizes_taken", "winner", "active", "top", "bench_count", "bench_excludes",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -60,7 +62,8 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             None => At::NextTurn,
             Some(Value::String(s)) if s == "next_turn" => At::NextTurn,
             Some(Value::String(s)) if s == "turn_end" => At::TurnEnd,
-            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end or next_turn)", i, x)),
+            Some(Value::String(s)) if s == "start" => At::Start,
+            Some(x) => return Err(format!("expect[{}]: bad at {} (start, turn_end or next_turn)", i, x)),
         };
         let kinds = [
             o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
@@ -68,9 +71,10 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             o.contains_key("prizes_taken"),
             o.contains_key("winner"),
             o.contains_key("active"),
+            o.contains_key("bench_count") || o.contains_key("bench_excludes"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
-            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner or active)", i));
+            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, bench_count or bench_excludes)", i));
         }
         if !o.contains_key("winner") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
@@ -150,6 +154,14 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     }
     if a.get("contains").is_some() && !multiset(g, &cards, &name_list(&a["contains"]), false) {
         return Err(format!("{} {} should contain {}, actual {}", w, zone, a["contains"], shown(g, &cards)));
+    }
+    if a.get("top").is_some() {
+        let want = name_list(&a["top"]);
+        let ok = cards.len() >= want.len() && want.iter().zip(cards.iter()).all(|(n, &c)| names_eq(c, g, n));
+        if !ok {
+            let head: Vec<String> = cards.iter().take(want.len().max(3)).map(|&c| label(g, c)).collect();
+            return Err(format!("{} {} top should be {}, actual top {:?}", w, zone, a["top"], head));
+        }
     }
     for n in name_list(&a["not_contains"]) {
         if cards.iter().any(|&c| names_eq(c, g, &n)) {
@@ -272,6 +284,21 @@ pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
             return Err(format!("winner: expected {}, actual {}", o["winner"], actual));
         }
         Ok(())
+    } else if o.get("bench_count").is_some() || o.get("bench_excludes").is_some() {
+        let p = who(o, me);
+        let pl = &g.st.players[p];
+        let benched: Vec<SlotId> = pl.bench.iter().copied().filter(|&s| g.st.slot_pokemon(p, s).is_some()).collect();
+        if let Some(n) = o["bench_count"].as_u64() {
+            if benched.len() as u64 != n {
+                return Err(format!("{} bench_count: expected {}, actual {}", w, n, benched.len()));
+            }
+        }
+        for n in name_list(&o["bench_excludes"]) {
+            if let Some(&s) = benched.iter().find(|&&s| g.st.slot_pokemons(p, s).iter().any(|&c| names_eq(c, g, &n))) {
+                return Err(format!("{} bench should not hold {}, actual {}", w, n, label(g, g.st.slot_pokemon(p, s).unwrap())));
+            }
+        }
+        Ok(())
     } else if let Some(n) = o["active"].as_str() {
         let p = who(o, me);
         let top = g.st.slot_pokemon(p, g.st.players[p].active);
@@ -342,17 +369,17 @@ thread_local! {
 /// Arm the assertions for the replay of `g` (called right after the scenario edits).
 pub fn arm(g: &Game, assertions: Vec<Assertion>, dump: bool) {
     let n = assertions.len();
-    RUN.with(|r| {
-        *r.borrow_mut() = Some(Run {
-            assertions,
-            me: g.st.active_player as usize,
-            turn: g.st.turn,
-            game: g as *const Game as usize,
-            dump,
-            done: vec![false; n],
-            failures: Vec::new(),
-        })
-    });
+    let mut run = Run {
+        assertions,
+        me: g.st.active_player as usize,
+        turn: g.st.turn,
+        game: g as *const Game as usize,
+        dump,
+        done: vec![false; n],
+        failures: Vec::new(),
+    };
+    run.run_at(g, At::Start);
+    RUN.with(|r| *r.borrow_mut() = Some(run));
 }
 
 /// Take the finished run (None when nothing was armed).
@@ -495,6 +522,24 @@ mod tests {
         assert!(ev(&g, 1 - me, json!({"cite":"c","winner":"opp"})).is_ok());
         g.st.winner = crate::types::WINNER_DRAW;
         assert!(ev(&g, me, json!({"cite":"c","winner":"draw"})).is_ok());
+    }
+
+    #[test]
+    fn evaluates_bench_and_deck_top() {
+        let g = board();
+        let me = g.st.active_player as usize;
+        let ok = |v: Value| ev(&g, me, v);
+        assert!(ok(json!({"cite":"c","who":"me","bench_count":1})).is_ok());
+        assert!(ok(json!({"cite":"c","who":"opp","bench_count":0})).is_ok());
+        assert!(ok(json!({"cite":"c","who":"me","bench_count":2})).is_err());
+        assert!(ok(json!({"cite":"c","who":"me","bench_excludes":["Eternatus SSP 141"]})).is_ok());
+        assert!(ok(json!({"cite":"c","who":"me","bench_excludes":["Pikachu ex ASC 57"]})).is_err());
+        assert!(ok(json!({"cite":"c","who":"opp","bench_excludes":["Pikachu ex ASC 57"]})).is_ok());
+        let top = crate::carddb::en_key(g.st.cards[g.st.players[me].deck.iter().next().unwrap() as usize].def).to_string();
+        assert!(ok(json!({"cite":"c","who":"me","zone":"deck","top":[top]})).is_ok());
+        assert!(ok(json!({"cite":"c","who":"me","zone":"deck","top":["Eternatus SSP 141"]})).is_err());
+        let v = p(json!([{"cite":"c","at":"start","who":"me","bench_count":1}])).unwrap();
+        assert_eq!(v[0].at, At::Start);
     }
 
     #[test]

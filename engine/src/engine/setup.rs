@@ -103,6 +103,18 @@ fn is_starting_candidate(g: &Game, c: CardId) -> bool {
     d.has_tag(tag::PLAY_DURING_SETUP) || (d.is_pokemon() && d.stage == Stage2Basic::BASIC)
 }
 
+/// `canBenchAtSetup`: a Basic Pokémon, or a non-Pokémon card played during setup (Snorlax Doll, ruling 1478). A
+/// Pokémon that only starts face down as the Active Pokémon (Cinderace's Explosiveness, ruling 1714) can't be Benched
+/// (ruling 264; Advanced Rulebook I-G steps 6 and 7).
+fn can_bench_at_setup(g: &Game, c: CardId) -> bool {
+    let d = g.st.cdef(c);
+    if d.is_pokemon() {
+        d.stage == Stage2Basic::BASIC
+    } else {
+        d.has_tag(tag::PLAY_DURING_SETUP)
+    }
+}
+
 fn hand_has_starting_pokemon(g: &Game, p: usize) -> bool {
     g.st.players[p].hand.iter().any(|c| {
         let d = g.st.cdef(c);
@@ -225,9 +237,15 @@ fn put_starting_pokemons_and_prizes(g: &mut Game, p: usize, cards: &[CardId]) {
     let pl = p as u8;
     let active = g.st.players[p].active;
     g.move_card_to(ListRef::Hand(pl), cards[0], ListRef::Slot(pl, active));
-    for (i, &c) in cards.iter().enumerate().skip(1) {
-        let b = g.st.players[p].bench.as_slice()[i - 1];
+    // A card that can't be Benched stays in hand.
+    let mut benched = 0;
+    for &c in cards.iter().skip(1) {
+        if !can_bench_at_setup(g, c) {
+            continue;
+        }
+        let b = g.st.players[p].bench.as_slice()[benched];
         g.move_card_to(ListRef::Hand(pl), c, ListRef::Slot(pl, b));
+        benched += 1;
     }
     for i in 0..6u8 {
         g.move_to(ListRef::Deck(pl), ListRef::Prize(pl, i), Some(1));
@@ -325,7 +343,7 @@ fn allow_extra_bench_placement(g: &mut Game, p: usize, mut f: SetupFrame) -> R {
     in_play.extend(pl.slots[pl.active as usize].cards.iter());
     let hand: Vec<CardId> = pl.hand.iter().collect();
     let new_basics: Vec<usize> =
-        hand.iter().enumerate().filter(|(_, c)| is_starting_candidate(g, **c) && !in_play.contains(c)).map(|(i, _)| i).collect();
+        hand.iter().enumerate().filter(|(_, c)| is_starting_candidate(g, **c) && can_bench_at_setup(g, **c) && !in_play.contains(c)).map(|(i, _)| i).collect();
     if new_basics.is_empty() {
         return finish(g);
     }
