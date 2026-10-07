@@ -1,0 +1,34 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Kyurem SFA 47",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Kyurem SFA 47",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kyurem SFA 47",
+  "active_energy": [
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": false,
+   "action": "attack",
+   "cite": "Advanced Rulebook E-32, D-09: the printed cost [W][W][M][M][C] applies",
+   "name": "Trifrost"
+  }
+ ]
+}

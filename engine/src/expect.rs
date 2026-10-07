@@ -422,7 +422,9 @@ pub fn take() -> Option<Run> {
 /// Hook in `after_end_turn`, once Knock Outs are resolved and before Checkup.
 pub fn on_turn_end(g: &Game) {
     RUN.with(|r| {
-        if let Some(run) = r.borrow_mut().as_mut() {
+        // A busy cell: an `offered` assertion is running its option trials, which reach this hook.
+        let Ok(mut r) = r.try_borrow_mut() else { return };
+        if let Some(run) = r.as_mut() {
             if run.game == g as *const Game as usize && g.st.turn == run.turn {
                 run.run_at(g, At::TurnEnd);
             }
@@ -433,7 +435,8 @@ pub fn on_turn_end(g: &Game) {
 /// Hook at every turn decision of the replay: the first one after the scenario turn.
 pub fn on_turn_decision(g: &Game) {
     RUN.with(|r| {
-        if let Some(run) = r.borrow_mut().as_mut() {
+        let Ok(mut r) = r.try_borrow_mut() else { return };
+        if let Some(run) = r.as_mut() {
             if g.st.turn > run.turn {
                 run.run_at(g, At::NextTurn);
             } else if g.st.turn == run.turn && run.game == g as *const Game as usize {

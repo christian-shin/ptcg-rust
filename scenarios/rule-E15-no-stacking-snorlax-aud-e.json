@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Hop's Wooloo JTG 135",
+   "2 Hop's Snorlax JTG 117",
+   "1 Regigigas PRE 86",
+   "56 Water Energy MEE"
+  ],
+  [
+   "1 Hop's Wooloo JTG 135",
+   "2 Hop's Snorlax JTG 117",
+   "1 Regigigas PRE 86",
+   "56 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135",
+  "active_energy": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Regigigas PRE 86"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Smash Kick"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "Advanced Rulebook E-15 (the effect of Extra Helpings does not stack): 50 + 30, not 50 + 60"
+  }
+ ]
+}

@@ -35,7 +35,10 @@
     "index": 0
    }
   },
-  false
+  false,
+  {
+   "a": "pass"
+  }
  ],
  "expect": [
   {

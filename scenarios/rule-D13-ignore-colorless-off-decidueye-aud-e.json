@@ -1,0 +1,49 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Grass Energy MEE",
+   "1 Rowlet POR 10",
+   "1 Dartrix POR 11",
+   "1 Decidueye ex POR 12",
+   "1 Minccino JTG 125",
+   "55 Water Energy MEE"
+  ],
+  [
+   "1 Grass Energy MEE",
+   "1 Rowlet POR 10",
+   "1 Dartrix POR 11",
+   "1 Decidueye ex POR 12",
+   "1 Minccino JTG 125",
+   "55 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Rowlet POR 10",
+   "Dartrix POR 11",
+   "Decidueye ex POR 12"
+  ],
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "expect": [
+  {
+   "offered": false,
+   "action": "attack",
+   "cite": "Advanced Rulebook D-09, D-13: without the condition the cost is [G][C][C][C]",
+   "name": "Crushing Arrow"
+  }
+ ]
+}

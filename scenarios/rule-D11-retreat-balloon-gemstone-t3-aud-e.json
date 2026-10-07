@@ -40,6 +40,9 @@
   {
    "a": "retreat",
    "bench": 0
+  },
+  {
+   "a": "pass"
   }
  ],
  "expect": [

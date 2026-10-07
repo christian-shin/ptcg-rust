@@ -1,0 +1,41 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Psychic Energy MEE",
+   "1 Marill ASC 83",
+   "1 Azumarill SSP 74",
+   "1 Minccino JTG 125",
+   "56 Water Energy MEE"
+  ],
+  [
+   "1 Psychic Energy MEE",
+   "1 Marill ASC 83",
+   "1 Azumarill SSP 74",
+   "1 Minccino JTG 125",
+   "56 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Marill ASC 83",
+   "Azumarill SSP 74"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "offered": false,
+   "action": "attack",
+   "cite": "Advanced Rulebook E-32, D-09: without a Tera Pokemon the printed cost [P][P][P][P] applies",
+   "name": "Double-Edge"
+  }
+ ]
+}

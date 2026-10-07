@@ -1,0 +1,50 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Grass Energy MEE",
+   "1 Rowlet POR 10",
+   "1 Dartrix POR 11",
+   "1 Decidueye ex POR 12",
+   "1 Minccino JTG 125",
+   "55 Water Energy MEE"
+  ],
+  [
+   "1 Grass Energy MEE",
+   "1 Rowlet POR 10",
+   "1 Dartrix POR 11",
+   "1 Decidueye ex POR 12",
+   "1 Minccino JTG 125",
+   "55 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Rowlet POR 10",
+   "Dartrix POR 11",
+   "Decidueye ex POR 12"
+  ],
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "attack",
+   "cite": "Advanced Rulebook D-13 (ignore all Energy in the cost): Sniper's Eye with exactly 4 cards in the opponent's hand, so [G] is enough",
+   "name": "Crushing Arrow"
+  }
+ ]
+}

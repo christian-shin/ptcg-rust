@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Kyurem SFA 47",
+   "1 Colress's Tenacity SFA 57",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Kyurem SFA 47",
+   "1 Colress's Tenacity SFA 57",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kyurem SFA 47",
+  "active_energy": [
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "discard": [
+   "Colress's Tenacity SFA 57"
+  ]
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "attack",
+   "cite": "Advanced Rulebook E-32: the attack can be used for [C] when the opponent has a Colress card in the discard pile",
+   "name": "Trifrost"
+  }
+ ]
+}
