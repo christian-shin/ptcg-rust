@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Boulder ex TEF 99",
+   "4 Dwebble DRI 11",
+   "28 Fighting Energy MEE 6",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Iron Boulder ex TEF 99",
+   "4 Dwebble DRI 11",
+   "28 Fighting Energy MEE 6",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Boulder ex TEF 99",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Power Stomp"
+  },
+  [
+   1,
+   3
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Fighting Energy MEE 6",
+    "Water Energy MEE 3"
+   ],
+   "cite": "ruling 1652 and Advanced Rulebook C-01: 'discard 2 Energy' on a Basic Pokemon: exactly 2 Energy cards, now through ChooseEnergyPrompt"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "two of four Energy stay attached"
+  }
+ ]
+}

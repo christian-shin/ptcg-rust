@@ -5,8 +5,9 @@
 //!
 //! Twinleaf: Ready to Ram reduces a RetaliateOnDamageDuringOpponentsNextTurn
 //! Effect (`{ damage: 60 }`); Smashing Headbutt is
-//! DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(2, {}, 2).
-use super::team_rockets_houndoom_dri_pool::{discard_up_to_chosen, discard_up_to_x_energy_from_this_pokemon};
+//! DISCARD_X_ENERGY_FROM_THIS_POKEMON(2) (ruling 1652: Energy units, never more cards than 2; no prompt
+//! without Energy on the Active).
+use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon, energy_on_active};
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "BouffalantSSPPool", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
@@ -20,14 +21,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     if was_attack_used(g, e, 1, me) {
-        discard_up_to_x_energy_from_this_pokemon(g, me, e, 2, 2, 1)?;
+        if energy_on_active(g, e) {
+            discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
+        }
     }
     Ok(())
 }
 
 fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     if f.stage == 1 {
-        return discard_up_to_chosen(g, f, results);
+        return discard_energy_chosen(g, f, results);
     }
     Ok(())
 }

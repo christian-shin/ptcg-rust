@@ -9,10 +9,11 @@
 //! attacks) did not stop it (ruling 1574); it now goes through
 //! SWITCH_OUT_OPPONENT_ACTIVE_POKEMON like Bayleef M1S (a preventable
 //! SwitchOutOpponentsActiveEffect before the opponent's prompt, another with
-//! the chosen Bench Pokémon for the switch). Metallic Hammer's choice is now
+//! the chosen Bench Pokémon for the switch). Metallic Hammer's discard is DISCARD_X_ENERGY_FROM_THIS_POKEMON(3, [M]) (ruling 1652). Its choice is now
 //! always offered: a copy of the attack by a Pokémon with fewer than 3 [M]
 //! Energy (Slowking SCR's Seek Inspiration) may still do the 150 more damage
 //! and discards as many [M] Energy as it can (ruling 1822).
+use super::slither_wing::{discard_energy_chosen, discard_x_typed_energy_from_this_pokemon};
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -111,87 +112,20 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
             if let Effect::Attack { damage, .. } = g.e_mut(atk) {
                 *damage += 150;
             }
-            // DISCARD_UP_TO_X_TYPE_ENERGY_FROM_YOUR_POKEMON(effect, 3, M, 3, [ACTIVE]).
-            let mut available = 0;
-            let mut o = MoveOpts { allow_cancel: false, ..Default::default() };
-            for (s, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if t.slot != SlotType::Active {
-                    continue;
-                }
-                // ENERGY_CARDS_THAT_PROVIDE_TYPE: Energy as it is provided now (Legacy Energy provides
-                // every type: Advanced Rulebook D-08).
-                let providing = energy_cards_that_provide_type(g, p, s, ct::METAL)?;
-                available += providing.len();
-                let mut b = Blocked::default();
-                for (i, c) in g.st.slot(p, s).cards.iter().enumerate() {
-                    if !providing.contains(&c) {
-                        b.push(i as u8);
-                    }
-                }
-                o.blocked_map.push((t, b));
-            }
-            if available == 0 {
+            // DISCARD_X_ENERGY_FROM_THIS_POKEMON(effect, 3, M) (ruling 1652: a ChooseEnergyPrompt over the Active's
+            // provided Energy for [M][M][M], no cancel: Energy units, never more cards than 3). No prompt when no
+            // Energy on the Active provides [M] (ENERGY_CARDS_THAT_PROVIDE_TYPE: Advanced Rulebook D-08).
+            let a = g.st.players[p].active;
+            let providing = energy_cards_that_provide_type(g, p, a, ct::METAL)?;
+            if providing.is_empty() {
                 g.release_fx(atk);
                 return Ok(());
             }
-            let max = 3.min(available) as u8;
-            o.min = 3.min(max);
-            o.max = Some(max);
-            let mut slots = SVec::new();
-            slots.push(SlotType::Active as u8);
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            nf.e[0] = atk;
-            let id = g.player_id(p);
-            g.prompt(
-                id,
-                "CHOOSE_ENERGIES_TO_DISCARD",
-                PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
-                Cont::Card { card: _me, frame: nf },
-            );
+            discard_x_typed_energy_from_this_pokemon(g, _me, atk, 3, ct::METAL, 2)?;
+            g.release_fx(atk);
             Ok(())
         }
-        2 => {
-            let r = discard_chosen(g, p, atk, first);
-            g.release_fx(atk);
-            r
-        }
+        2 => discard_energy_chosen(g, f, results),
         _ => Ok(()),
     }
-}
-
-fn discard_chosen(g: &mut Game, p: usize, atk: EffId, first: Res) -> R {
-    let transfers = match first {
-        Res::CardsFrom(t) => t,
-        _ => return Ok(()),
-    };
-    if transfers.is_empty() {
-        return Ok(());
-    }
-    let providing = energy_cards_that_provide_type(g, p, g.st.players[p].active, ct::METAL)?;
-    if !transfers.iter().all(|(_, c)| providing.contains(c)) {
-        bail!("INVALID_PROMPT_RESULT");
-    }
-    // discardTransfersAsEffects: one DiscardCardsEffect per source, in first-seen order.
-    let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
-    for (from, c) in transfers.iter().copied() {
-        let s = get_target(&g.st, p, from)?;
-        match groups.iter_mut().find(|(x, _)| *x == s) {
-            Some((_, v)) => v.push(c),
-            None => {
-                let mut v = SVec::new();
-                v.push(c);
-                groups.push((s, v));
-            }
-        }
-    }
-    let (pp, opp, attack, source) = match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-        _ => return Ok(()),
-    };
-    for (s, cards) in groups {
-        let b = AtkBase { attack_effect: atk, player: pp, opponent: opp, attack, source, target: s };
-        g.run_fx(Effect::DiscardCards { b, cards })?;
-    }
-    Ok(())
 }

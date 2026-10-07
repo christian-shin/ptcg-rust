@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Metagross TEF 115",
+   "4 Dwebble DRI 11",
+   "4 Ignition Energy PFL 124",
+   "28 Metal Energy MEE 8",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Metagross TEF 115",
+   "4 Dwebble DRI 11",
+   "4 Ignition Energy PFL 124",
+   "28 Metal Energy MEE 8",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Metagross TEF 115",
+  "active_energy": [
+   "Ignition Energy PFL 124",
+   "Metal Energy MEE 8",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Luster Blast"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Ignition Energy PFL 124"
+   ],
+   "cite": "ruling 1652 and Advanced Rulebook C-01: one Ignition Energy providing 3 Energy on an Evolution pays 'discard 2 Energy' (Luster Blast, inline ChooseEnergyPrompt)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Metal Energy MEE 8",
+    "Water Energy MEE 3"
+   ],
+   "cite": "the other Energy stay attached"
+  }
+ ]
+}

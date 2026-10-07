@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Metagross CRI 61",
+   "4 Raging Bolt ex PRE 166",
+   "20 Water Energy MEE 3",
+   "1 Neo Upper Energy TEF 162",
+   "31 Metal Energy MEE 8"
+  ],
+  [
+   "4 Metagross CRI 61",
+   "4 Raging Bolt ex PRE 166",
+   "20 Water Energy MEE 3",
+   "1 Neo Upper Energy TEF 162",
+   "31 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Metagross CRI 61",
+  "active_energy": [
+   "Neo Upper Energy TEF 162",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metallic Hammer"
+  },
+  true,
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Neo Upper Energy TEF 162",
+    "Metal Energy MEE 8"
+   ],
+   "cite": "ruling 1652 and Advanced Rulebook C-01: 'discard 3 [M] Energy' paid with a Neo Upper Energy (2 Energy of any type on a Stage 2) and a Metal Energy"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Metal Energy MEE 8",
+    "Metal Energy MEE 8"
+   ],
+   "cite": "the other Energy stay attached"
+  }
+ ]
+}

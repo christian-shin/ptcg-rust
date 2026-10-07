@@ -349,4 +349,34 @@ mod payment_tests {
         assert!(check_energy_payment(&[i1, i2, f], &cost(3)));
         assert!(!check_energy_payment(&[i1, i2], &cost(3)));
     }
+
+    /// Ruling 1652 for "discard 3 [M] Energy" (Metagross CRI) and "discard 3 Energy" (Explosion Y): Neo Upper Energy on a
+    /// Stage 2 (2 of any type) and a Metal Energy pay [M][M][M] with 2 cards; Water + Ignition pay a 3 (until fulfilled);
+    /// a fourth card is never allowed; Ignition Energy provides [C] only and cannot pay a typed cost.
+    #[test]
+    fn typed_and_mixed_payments_follow_the_ruling() {
+        let mk = |card: CardId, v: &[CardType]| {
+            let mut provides = SVec::new();
+            for t in v {
+                provides.push(*t);
+            }
+            EnergyEntry { card, provides }
+        };
+        let neo = mk(1, &[ct::ANY, ct::ANY]);
+        let (m1, m2, m3) = (mk(2, &[ct::METAL]), mk(3, &[ct::METAL]), mk(4, &[ct::METAL]));
+        let ign = mk(5, &[ct::COLORLESS, ct::COLORLESS, ct::COLORLESS]);
+        let water = mk(6, &[ct::WATER]);
+        let mmm = [ct::METAL, ct::METAL, ct::METAL];
+        assert!(check_energy_payment(&[neo, m1], &mmm));
+        assert!(check_energy_payment(&[neo, m1, m2], &mmm));
+        assert!(!check_energy_payment(&[neo, m1, m2, m3], &mmm));
+        assert!(!check_energy_payment(&[m1, m2, m3, ign], &mmm));
+        assert!(!check_energy_payment(&[m1, m2, ign], &mmm));
+        assert!(!check_energy_payment(&[neo], &mmm));
+        assert!(check_energy_payment(&[water, ign], &cost(3)));
+        assert!(check_energy_payment(&[ign], &cost(3)));
+        assert!(check_energy_payment(&[ign], &cost(2)));
+        assert!(!check_energy_payment(&[water, ign, m1], &cost(2)));
+        assert!(!check_energy_payment(&[water, m1, m2], &cost(2)));
+    }
 }

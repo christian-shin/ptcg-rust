@@ -6,10 +6,11 @@
 //! Twinleaf: Repulsor Axe reduces a RetaliateOnDamageDuringOpponentsNextTurn
 //! Effect (`{ damage: 80 }`, target = the attacker's slot) arming
 //! `retaliateOnDamageNextTurnPending` on the attacker's Active; Power Stomp is
-//! DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(2, {}, 2). The revenge itself
+//! DISCARD_X_ENERGY_FROM_THIS_POKEMON(2) (ruling 1652: Energy units, never more cards than 2; no prompt
+//! without Energy on the Active). The revenge itself
 //! lives in the core AfterDamage reducer (see `attack.rs`).
 use crate::cards::prelude::*;
-use super::team_rockets_houndoom_dri_pool::{discard_up_to_chosen, discard_up_to_x_energy_from_this_pokemon};
+use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon, energy_on_active};
 
 pub static IMPL: CardImpl = CardImpl { class: "IronBoulderexTEFPool", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
@@ -21,14 +22,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     if was_attack_used(g, e, 1, me) {
-        discard_up_to_x_energy_from_this_pokemon(g, me, e, 2, 2, 1)?;
+        if energy_on_active(g, e) {
+            discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
+        }
     }
     Ok(())
 }
 
 fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     if f.stage == 1 {
-        return discard_up_to_chosen(g, f, results);
+        return discard_energy_chosen(g, f, results);
     }
     Ok(())
 }

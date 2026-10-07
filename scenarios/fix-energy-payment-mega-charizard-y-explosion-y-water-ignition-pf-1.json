@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Charizard Y ex ASC 22",
+   "4 Raging Bolt ex PRE 166",
+   "28 Fire Energy MEE 2",
+   "4 Ignition Energy PFL 124",
+   "20 Water Energy MEE 3"
+  ],
+  [
+   "4 Mega Charizard Y ex ASC 22",
+   "4 Raging Bolt ex PRE 166",
+   "28 Fire Energy MEE 2",
+   "4 Ignition Energy PFL 124",
+   "20 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Charizard Y ex ASC 22",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Ignition Energy PFL 124",
+   "Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Explosion Y"
+  },
+  [
+   0,
+   3
+  ],
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Ignition Energy PFL 124",
+    "Water Energy MEE 3"
+   ],
+   "cite": "ruling 1652 and Advanced Rulebook C-01: 'discard 3 Energy' paid with Water + Ignition (4 Energy, discarding until the requirement is fulfilled; fewer cards than the requirement)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "the other Energy stay attached"
+  }
+ ]
+}

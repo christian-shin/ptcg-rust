@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Metagross CRI 61",
+   "4 Raging Bolt ex PRE 166",
+   "20 Water Energy MEE 3",
+   "28 Metal Energy MEE 8",
+   "4 Ignition Energy PFL 124"
+  ],
+  [
+   "4 Metagross CRI 61",
+   "4 Raging Bolt ex PRE 166",
+   "20 Water Energy MEE 3",
+   "28 Metal Energy MEE 8",
+   "4 Ignition Energy PFL 124"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Metagross CRI 61",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metallic Hammer"
+  },
+  true,
+  [
+   1,
+   2,
+   3
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 3,
+   "not_contains": [
+    "Ignition Energy PFL 124"
+   ],
+   "cite": "ruling 1652 and Advanced Rulebook C-01: Ignition Energy provides [C] Energy only, so it cannot pay 'discard 3 [M] Energy'; three Metal Energy are discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Ignition Energy PFL 124"
+   ],
+   "cite": "Ignition Energy stays attached"
+  }
+ ]
+}
