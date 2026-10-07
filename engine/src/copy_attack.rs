@@ -217,7 +217,7 @@ pub struct CopyFrame {
     /// useAttack continuation (delegateFrom path): the animation follows.
     pub then: Option<AttackFrame>,
     /// ChooseAttackPrompt cards.
-    pub cards: SVec<CardId, 16>,
+    pub cards: SVec<CardId, 64>,
     /// `maxRetries` of COPY_ATTACK_FROM_POKEMON_LIST and the current attempt.
     pub max_retries: u8,
     pub retry: u8,
@@ -396,7 +396,7 @@ pub fn copy_opponent_active_attack(g: &mut Game, atk: EffId) -> R {
     let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
     f.catch = true;
     f.cards.push(pokemon);
-    let mut pc: SVec<CardId, 16> = SVec::new();
+    let mut pc: SVec<CardId, 64> = SVec::new();
     pc.push(pokemon);
     let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
     if no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
@@ -474,7 +474,7 @@ pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
     };
     let energy_count: i32 = emap.iter().map(|m| m.provides.len() as i32).sum();
     let locked = g.st.slot(p, active).cannot_use_attacks_next_turn;
-    let mut cards: SVec<CardId, 16> = SVec::new();
+    let mut cards: SVec<CardId, 64> = SVec::new();
     let mut blocked: SVec<(u8, u8), 16> = SVec::new();
     for (s, c, _) in crate::prefabs::for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
         if s == active {

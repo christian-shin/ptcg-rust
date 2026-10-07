@@ -63,7 +63,7 @@ fn discard_all_metal_energy_from_active(g: &mut Game, e: EffId) -> R<usize> {
     let pu = p as usize;
     let active = SlotRef::new(pu, g.st.players[pu].active);
     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
-    let mut cards: SVec<CardId, 16> = SVec::new();
+    let mut cards: SVec<CardId, 64> = SVec::new();
     if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
         for m in energy_map.iter() {
             if m.provides.contains(&ct::METAL) || m.provides.contains(&ct::ANY) {

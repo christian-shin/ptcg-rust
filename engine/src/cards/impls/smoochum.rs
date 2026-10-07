@@ -50,7 +50,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         return Ok(());
     }
     let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 16> = match results.first().copied().unwrap_or(Res::Null) {
+    let transfers: SVec<(CardTarget, CardId), 64> = match results.first().copied().unwrap_or(Res::Null) {
         Res::Attach(t) => t,
         _ => SVec::new(),
     };

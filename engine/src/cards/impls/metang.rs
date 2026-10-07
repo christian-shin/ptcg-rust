@@ -100,7 +100,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     }
     let p = f.a[0] as usize;
     let top = ListRef::Temp(f.l[0]);
-    let transfers: SVec<(CardTarget, CardId), 16> = match results.first() {
+    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
         Some(Res::Attach(t)) => *t,
         _ => SVec::new(),
     };

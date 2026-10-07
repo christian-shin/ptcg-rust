@@ -63,7 +63,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     }
     let atk = f.e[0];
     let r = (|| -> R {
-        let mut cards: SVec<CardId, 16> = SVec::new();
+        let mut cards: SVec<CardId, 64> = SVec::new();
         if let Some(Res::CardsFrom(t)) = results.first().copied() {
             for (_, c) in t.iter() {
                 cards.push(*c);

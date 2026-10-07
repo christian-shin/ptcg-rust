@@ -146,8 +146,8 @@ pub enum Effect {
     KnockOutOpponent { b: AtkBase, knocked_out: bool, prize_count: i32 },
     /// `KnockOutPlayerEffect` (KNOCK_OUT_PLAYERS_ACTIVE_POKEMON): the opponent takes the Prizes.
     KnockOutPlayer { b: AtkBase, knocked_out: bool, prize_count: i32 },
-    DiscardCards { b: AtkBase, cards: SVec<CardId, 16> },
-    CardsToHand { b: AtkBase, cards: SVec<CardId, 16> },
+    DiscardCards { b: AtkBase, cards: SVec<CardId, 64> },
+    CardsToHand { b: AtkBase, cards: SVec<CardId, 64> },
     GustOpponentBench { b: AtkBase },
     /// `MoveOpponentEnergyEffect`: `b.target` is the source slot.
     MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },

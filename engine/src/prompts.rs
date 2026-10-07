@@ -245,7 +245,7 @@ pub enum PromptKind {
     RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
-    ChooseAttack { cards: SVec<CardId, 16>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
+    ChooseAttack { cards: SVec<CardId, 64>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -329,16 +329,16 @@ pub enum Res {
     Cards(List<120>),
     Slots(SVec<SlotRef, 8>),
     /// Chosen energy entries, by card.
-    Energy(SVec<CardId, 40>),
+    Energy(SVec<CardId, 64>),
     /// Indices into the owning player's `prizes` array.
     Prizes(SVec<u8, 6>),
     Order(List<120>),
     /// AttachEnergyPrompt: (to, card).
-    Attach(SVec<(CardTarget, CardId), 16>),
+    Attach(SVec<(CardTarget, CardId), 64>),
     /// DiscardEnergyPrompt: (from, card).
-    CardsFrom(SVec<(CardTarget, CardId), 16>),
+    CardsFrom(SVec<(CardTarget, CardId), 64>),
     /// MoveEnergyPrompt: (from, to, card).
-    Transfers(SVec<(CardTarget, CardTarget, CardId), 48>),
+    Transfers(SVec<(CardTarget, CardTarget, CardId), 64>),
     /// PutDamagePrompt: (target, damage).
     DamageMap(SVec<(CardTarget, i32), 16>),
     /// Move/RemoveDamagePrompt: (from, to, count). One entry per run of identical
@@ -735,13 +735,13 @@ impl Game {
                 Ok(Res::Prizes(out))
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
-                let mut out: SVec<EnergyEntry, 40> = SVec::new();
+                let mut out: SVec<EnergyEntry, 64> = SVec::new();
                 for v in raw.as_array().ok_or(invalid)? {
                     let i = v.as_u64().ok_or(invalid)? as usize;
                     out.push(*energy.get(i).ok_or(invalid)?);
                 }
                 if energy::check_exact_energy(out.as_slice(), cost.as_slice()) {
-                    let mut cards: SVec<CardId, 40> = SVec::new();
+                    let mut cards: SVec<CardId, 64> = SVec::new();
                     for e in out.iter() {
                         cards.push(e.card);
                     }
@@ -1067,7 +1067,7 @@ impl Game {
             match pr.kind {
                 PromptKind::AttachEnergy { cards, o, .. } => {
                     let list = self.prompt_list(cards);
-                    let mut out: SVec<(CardTarget, CardId), 16> = SVec::new();
+                    let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
                     for v in arr {
                         let to = target_from(v, "to").ok_or(invalid)?;
                         let i = v.get("index").and_then(|x| x.as_u64()).ok_or(invalid)? as usize;
@@ -1126,7 +1126,7 @@ impl Game {
                     Ok(Res::Attach(out))
                 }
                 PromptKind::DiscardEnergy { o, filter, .. } => {
-                    let mut out: SVec<(CardTarget, CardId), 16> = SVec::new();
+                    let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
                     let mut keys: Vec<(u8, u8, u8, usize)> = Vec::new();
                     for v in arr {
                         let from = target_from(v, "from").ok_or(invalid)?;
@@ -1151,7 +1151,7 @@ impl Game {
                     Ok(Res::CardsFrom(out))
                 }
                 PromptKind::MoveEnergy { .. } => {
-                    let mut out: SVec<(CardTarget, CardTarget, CardId), 48> = SVec::new();
+                    let mut out: SVec<(CardTarget, CardTarget, CardId), 64> = SVec::new();
                     for v in arr {
                         let from = target_from(v, "from").ok_or(invalid)?;
                         let to = target_from(v, "to").ok_or(invalid)?;

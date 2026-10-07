@@ -75,7 +75,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         return Ok(());
     }
     let atk = f.e[0];
-    let mut cards: SVec<CardId, 16> = SVec::new();
+    let mut cards: SVec<CardId, 64> = SVec::new();
     if let Some(Res::Energy(c)) = results.first() {
         for x in c.as_slice() {
             cards.push(*x);

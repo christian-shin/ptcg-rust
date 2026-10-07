@@ -64,7 +64,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 /// `discardTransfersAsEffects`: one DiscardCardsEffect per source slot, in
 /// first-seen order.
 pub fn discard_transfers_as_effects(g: &mut Game, p: usize, e: EffId, transfers: &[(CardTarget, CardId)]) -> R {
-    let mut groups: Vec<(SlotRef, SVec<CardId, 16>)> = Vec::new();
+    let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
     for (from, c) in transfers.iter() {
         let s = get_target(&g.st, p, *from)?;
         match groups.iter_mut().find(|(t, _)| *t == s) {

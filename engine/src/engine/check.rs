@@ -651,7 +651,7 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::CheckProvidedEnergy { source, .. } => {
             let slot = *g.st.slot(source.p as usize, source.s);
-            let mut add: SVec<EnergyEntry, 40> = SVec::new();
+            let mut add: SVec<EnergyEntry, 64> = SVec::new();
             if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e(id) {
                 for c in slot.cards.iter() {
                     let d = g.st.cdef(c);

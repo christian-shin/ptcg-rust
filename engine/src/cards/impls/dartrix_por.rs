@@ -26,7 +26,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     };
     let active = SlotRef::new(pu, g.st.players[pu].active);
     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
-    let mut cards: SVec<CardId, 16> = SVec::new();
+    let mut cards: SVec<CardId, 64> = SVec::new();
     if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
         for em in energy_map.iter() {
             cards.push(em.card);

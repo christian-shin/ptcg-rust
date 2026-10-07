@@ -88,7 +88,7 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         if transfers.is_empty() {
             return Ok(());
         }
-        let mut groups: Vec<(SlotRef, SVec<CardId, 16>)> = Vec::new();
+        let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
         for (from, c) in transfers.iter() {
             let s = get_target(&g.st, p, *from)?;
             match groups.iter_mut().find(|(t, _)| *t == s) {

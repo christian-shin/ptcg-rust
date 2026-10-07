@@ -94,7 +94,7 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             Ok(())
         }
         2 => {
-            let transfers: SVec<(CardTarget, CardId), 16> = match first {
+            let transfers: SVec<(CardTarget, CardId), 64> = match first {
                 Res::Attach(t) => t,
                 _ => SVec::new(),
             };

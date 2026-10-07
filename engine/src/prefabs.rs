@@ -295,7 +295,7 @@ pub fn move_cards_after_damage(g: &mut Game, atk: EffId, src: ListRef, dst: List
     if !g.after_damage_open(atk) {
         return move_cards(g, src, dst, cards, source_card);
     }
-    let mut cs: SVec<CardId, 32> = SVec::new();
+    let mut cs: SVec<CardId, 64> = SVec::new();
     for &c in cards {
         cs.push(c);
     }
