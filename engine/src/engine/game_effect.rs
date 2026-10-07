@@ -191,20 +191,6 @@ fn reorder_after(g: &mut Game, dst: ListRef, cards: &[CardId], to_top: bool, to_
     g.lst_mut(dst).set_from(&v);
 }
 
-/// `RETURN_CARDS_TO_OWNERS_DISCARD` (card-owner.ts): cards in a player's discard pile that belong to the other
-/// player (Energy moved by Handheld Fan, then Knocked Out with its Pokémon) go to their owner's discard pile.
-pub fn return_cards_to_owners_discard(g: &mut Game, destination: ListRef) {
-    let holder = match destination {
-        ListRef::Discard(p) => p as usize,
-        _ => return,
-    };
-    let foreign: Vec<CardId> = g.lst(destination).iter().filter(|c| g.st.owner(**c) != holder).copied().collect();
-    for c in foreign {
-        let owner = g.st.owner(c) as u8;
-        g.move_card_to(destination, c, ListRef::Discard(owner));
-    }
-}
-
 fn move_cards(g: &mut Game, id: EffId) -> R {
     let (source, destination, cards, count, to_top, to_bottom, skip_cleanup) = match *g.e(id) {
         Effect::MoveCards { source, destination, cards, count, to_top, to_bottom, skip_cleanup, .. } => {
@@ -243,9 +229,6 @@ fn move_cards(g: &mut Game, id: EffId) -> R {
     } else {
         g.move_to(source, destination, None);
     }
-
-    // A card always goes to its owner's discard pile (Advanced Rulebook C-01).
-    return_cards_to_owners_discard(g, destination);
 
     if let ListRef::Slot(p, s) = source {
         let (pu, su) = (p as usize, s);
