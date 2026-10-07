@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Budew ASC 16",
+   "4 Bianca's Devotion TEF 142",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Budew ASC 16",
+   "4 Bianca's Devotion TEF 142",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Budew ASC 16",
+  "hand": [
+   "Bianca's Devotion TEF 142"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "contains": [
+    "Bianca's Devotion TEF 142"
+   ],
+   "cite": "Advanced Rulebook C-06 (a Trainer that heals can't choose a Pokemon with no damage counters): the only Pokemon has 30 HP left but no damage, so the Supporter can't be played"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "Advanced Rulebook C-06"
+  }
+ ]
+}
