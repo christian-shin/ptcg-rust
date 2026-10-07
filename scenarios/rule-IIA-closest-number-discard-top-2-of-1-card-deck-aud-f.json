@@ -2,15 +2,20 @@
  "turn": 2,
  "decks": [
   [
-   "4 Larvitar JTG 80",
-   "4 Pupitar PRE 48",
-   "4 Tyranitar JTG 95",
+   "1 Larvitar JTG 80",
+   "1 Pupitar PRE 48",
+   "1 Tyranitar JTG 95",
+   "2 Darkness Energy MEE 7",
    "4 Hop's Snorlax JTG 117",
-   "44 Darkness Energy MEE 7"
+   "51 Fire Energy MEE 2"
   ],
   [
+   "1 Larvitar JTG 80",
+   "1 Pupitar PRE 48",
+   "1 Tyranitar JTG 95",
+   "2 Darkness Energy MEE 7",
    "4 Hop's Snorlax JTG 117",
-   "56 Fire Energy MEE 2"
+   "51 Fire Energy MEE 2"
   ]
  ],
  "me": {

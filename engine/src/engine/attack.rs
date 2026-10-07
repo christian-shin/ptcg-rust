@@ -674,6 +674,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         Effect::DiscardCards { b, cards } => {
             let owner = b.target.p;
             g.move_cards_to(b.target.list(), cards.as_slice(), ListRef::Discard(owner));
+            // A card always goes to its owner's discard pile (Advanced Rulebook C-01).
+            crate::engine::game_effect::return_cards_to_owners_discard(g, ListRef::Discard(owner));
             Ok(())
         }
         Effect::CardsToHand { b, cards } => {
