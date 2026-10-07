@@ -241,12 +241,10 @@ fn main() {
     let mut dump: Option<PathBuf> = None;
     let mut quiet = false;
     if args.iter().any(|a| a == "--list-ported") {
+        // Twinleaf full names: the tools key the oracle's card dump by them.
         for (i, d) in ptcg::carddb::cards().iter().enumerate() {
             if d.behavior.is_empty() || ptcg::cards::impl_for(i as u16).is_some() {
                 println!("{}", d.tl_full_name);
-                if d.full_name != d.tl_full_name {
-                    println!("{}", d.full_name);
-                }
             }
         }
         return;
