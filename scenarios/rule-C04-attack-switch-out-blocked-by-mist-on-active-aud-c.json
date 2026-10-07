@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bayleef MEG 9",
+   "4 Beldum TEF 113",
+   "4 Mist Energy TEF 161",
+   "4 Snorunt TWM 51",
+   "5 Grass Energy MEE",
+   "39 Fire Energy MEE"
+  ],
+  [
+   "4 Bayleef MEG 9",
+   "4 Beldum TEF 113",
+   "4 Mist Energy TEF 161",
+   "4 Snorunt TWM 51",
+   "5 Grass Energy MEE",
+   "39 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bayleef MEG 9",
+  "active_energy": [
+   "2 Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Push Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Beldum TEF 113",
+   "damage": 20,
+   "cite": "Advanced Rulebook C-04 specific case (an Active Pokemon immune to effects of attacks cannot be switched out by an attack; the damage still applies: Push Down 50 - 30 for Beldum's Grass resistance)"
+  }
+ ]
+}

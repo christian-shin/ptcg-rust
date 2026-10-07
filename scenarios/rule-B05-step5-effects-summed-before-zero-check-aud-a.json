@@ -71,7 +71,7 @@
    "slot": "active",
    "damage": 80,
    "cite": "Advanced Rulebook B-05 and A-01 step 5: effects on the Pokemon taking damage are all included before the 0 check: 30 - 50 + 100 (Pouncing Trap) = 80, not 100",
-   "turns_later": 2
+   "turn": 2
   }
  ]
 }

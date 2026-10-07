@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Manectric ex MEG 50",
+   "4 Zekrom ex BLK 34",
+   "5 Lightning Energy MEE",
+   "47 Fire Energy MEE"
+  ],
+  [
+   "4 Mega Manectric ex MEG 50",
+   "4 Zekrom ex BLK 34",
+   "5 Lightning Energy MEE",
+   "47 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Manectric ex MEG 50",
+  "active_energy": [
+   "2 Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Zekrom ex BLK 34",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flash Ray"
+  },
+  {
+   "a": "attack",
+   "name": "Slash"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Slash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook E-01 (prevent all damage from Basic Pokemon during your opponent's next turn)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 3,
+   "who": "me",
+   "slot": "active",
+   "damage": 50,
+   "cite": "Advanced Rulebook E-01 (the prevention ended with that turn)"
+  }
+ ]
+}

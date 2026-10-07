@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bronzong TEF 69",
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "8 Psychic Energy MEE",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Bronzong TEF 69",
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "8 Psychic Energy MEE",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bronzong TEF 69",
+  "active_energy": [
+   "Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "hand": [
+   "Metang TEF 114"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evolution Jammer"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "play",
+   "cite": "Advanced Rulebook E-01 (they can't play any Pokemon to evolve during their next turn)",
+   "name": "Metang TEF 114",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "opp",
+   "legal": "play",
+   "cite": "Advanced Rulebook E-01 (the lock ends with that turn)",
+   "name": "Metang TEF 114"
+  }
+ ]
+}

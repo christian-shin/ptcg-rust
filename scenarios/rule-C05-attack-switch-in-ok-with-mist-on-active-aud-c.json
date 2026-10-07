@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefairy POR 30",
+   "4 Beldum TEF 113",
+   "4 Mist Energy TEF 161",
+   "4 Snorunt TWM 51",
+   "5 Psychic Energy MEE",
+   "39 Fire Energy MEE"
+  ],
+  [
+   "4 Clefairy POR 30",
+   "4 Beldum TEF 113",
+   "4 Mist Energy TEF 161",
+   "4 Snorunt TWM 51",
+   "5 Psychic Energy MEE",
+   "39 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Clefairy POR 30",
+  "active_energy": [
+   "Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Follow Me"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Snorunt TWM 51",
+   "cite": "Advanced Rulebook C-05 specific case (the effect is on the Benched Pokemon: an immune Active Pokemon is switched out all the same)"
+  }
+ ]
+}

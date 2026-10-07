@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Zorua WHT 61",
+     "Zoroark WHT 62"
+    ],
+    "energy": [
+     "3 Fire Energy MEE"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Buneary PFL 83",
+   "Mega Lopunny ex PFL 84"
+  ],
+  "active_energy": [
+   "Fire Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Gale Thrust"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 230,
+   "cite": "Advanced Rulebook E-25 / C-18 (use it as this attack: \"this Pokemon\" is Zoroark, which moved from the Bench to the Active Spot this turn: 60 + 170)"
+  }
+ ]
+}

@@ -463,9 +463,9 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   Every game must satisfy every assertion. A game that ends before the check
   point (a win at turn end is still seen by `turn_end`, but not by
   `next_turn`) is reported as not checked, never as passed.
-* **`turns_later`** (only with `turn_end`, default 0): the check fires at the end of turn `scenario turn + turns_later`
-  (game turns: 2 = the scenario player's next turn). For effects that last into a later turn ("during your next turn,
-  the Defending Pokemon takes 100 more damage"): script the turns with `answers` (`{"a": "pass"}` for the other player).
+* **`turn`** (a number >= 0, default 0 with `turn_end`): the check fires at turn `scenario turn + turn` (game
+  turns: 2 = the scenario player's next turn). For effects that last into a later turn ("during your next turn, the
+  Defending Pokemon takes 100 more damage"): script the turns with `answers` (`{"a": "pass"}` for the other player).
   A game that ends before that turn is reported as not checked.
 * **Players**: `who` is `me` (the scenario's first side, the player whose turn
   it is at `turn`) or `opp`. Needed by every assertion except `winner`.
@@ -494,6 +494,12 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).
 * **Names** are English keys or Twinleaf full names; both are accepted.
+* **Later turns and legal actions** (rules audit): `turn` is described above. `"at": "decision", "n": N` checks the N-th turn decision since the edits (0 = right
+  after them, so first-turn rules can be asserted). `{"who", "legal": "retreat" | "attack" | "play", "name": ..., "on":
+  "active" | bench index, "is": false}` asserts that an action is (not) among the legal options of the player to move
+  (`who` must be that player; `on` narrows a `play` to a target). Scripted `answers` may name a hand card in a play
+  (`{"a": "play", "card": "Switch 30C 127", "target": {...}}`; the oracle matches the first such legal play, since card
+  ids depend on the shuffle); prompt answers stay in the recorded raw format (e.g. `[{"player": 2, "slot": 2, "index": 0}]`).
 * **Output**: `diff` prints `EXPECT FAILED <trace>: assertion #i (at) ...`
   with the cite and the actual value, and `expect: N games checked, M failed, K
   not checked`; it exits 1 on failure, like a divergence, with `--quiet` too.

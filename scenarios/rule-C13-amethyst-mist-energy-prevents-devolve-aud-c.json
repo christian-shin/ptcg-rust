@@ -1,0 +1,90 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Espeon ex PRE 34",
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Mist Energy TEF 161",
+   "5 Darkness Energy MEE",
+   "5 Grass Energy MEE",
+   "5 Psychic Energy MEE",
+   "29 Fire Energy MEE"
+  ],
+  [
+   "4 Espeon ex PRE 34",
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Mist Energy TEF 161",
+   "5 Darkness Energy MEE",
+   "5 Grass Energy MEE",
+   "5 Psychic Energy MEE",
+   "29 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Espeon ex PRE 34",
+  "active_energy": [
+   "Grass Energy MEE",
+   "Psychic Energy MEE",
+   "Darkness Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Beldum TEF 113",
+   "Metang TEF 114"
+  ],
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Beldum TEF 113",
+     "Metang TEF 114"
+    ],
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   },
+   {
+    "card": [
+     "Beldum TEF 113",
+     "Metang TEF 114"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Amethyst"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Metang TEF 114",
+   "cite": "Advanced Rulebook C-17 / ruling 1724 (Mist Energy prevents all effects of the opponent's attacks on its Pokemon, devolving included)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Metang TEF 114",
+   "cite": "Mist Energy protects a Benched Pokemon too (ruling 1843)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "card": "Beldum TEF 113",
+   "cite": "control: a Pokemon without Mist Energy is devolved"
+  }
+ ]
+}

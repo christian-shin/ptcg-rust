@@ -1,0 +1,74 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Abra MEG 54",
+   "4 Alakazam MEG 56",
+   "4 Kadabra MEG 55",
+   "4 Snorunt TWM 51",
+   "4 Strange Timepiece MEG 128",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Abra MEG 54",
+   "4 Alakazam MEG 56",
+   "4 Kadabra MEG 55",
+   "4 Snorunt TWM 51",
+   "4 Strange Timepiece MEG 128",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Abra MEG 54",
+   "Kadabra MEG 55",
+   "Alakazam MEG 56"
+  ],
+  "hand": [
+   "Strange Timepiece MEG 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Strange Timepiece MEG 128"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  [
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "slot": "active",
+   "card": "Abra MEG 54",
+   "cite": "Advanced Rulebook C-13 (choosing the middle card devolves two stages, highest first)"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "contains": [
+    "Kadabra MEG 55",
+    "Alakazam MEG 56"
+   ],
+   "cite": "Advanced Rulebook C-13"
+  }
+ ]
+}

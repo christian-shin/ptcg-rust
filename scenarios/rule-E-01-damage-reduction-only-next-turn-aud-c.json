@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scizor ex TEF 111",
+   "4 Regigigas PRE 86",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Scizor ex TEF 111",
+   "4 Regigigas PRE 86",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Scizor ex TEF 111",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Regigigas PRE 86",
+  "active_energy": [
+   "4 Fire Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Steel Wing"
+  },
+  {
+   "a": "attack",
+   "name": "Jewel Breaker"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Jewel Breaker"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 50,
+   "cite": "Advanced Rulebook E-01 (Steel Wing: 50 less damage during your opponent's next turn: 100 - 50)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 3,
+   "who": "me",
+   "slot": "active",
+   "damage": 150,
+   "cite": "Advanced Rulebook E-01 (the reduction ended with that turn: 50 + 100)"
+  }
+ ]
+}

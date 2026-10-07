@@ -1,0 +1,86 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rillaboom TWM 16",
+   "4 Beldum TEF 113",
+   "4 Snorunt TWM 51",
+   "8 Grass Energy MEE",
+   "8 Metal Energy MEE",
+   "32 Fire Energy MEE"
+  ],
+  [
+   "4 Rillaboom TWM 16",
+   "4 Beldum TEF 113",
+   "4 Snorunt TWM 51",
+   "8 Grass Energy MEE",
+   "8 Metal Energy MEE",
+   "32 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Rillaboom TWM 16",
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "Metal Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Drum Beating"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "attack",
+   "cite": "Advanced Rulebook E-01 (attacks used by the Defending Pokemon cost [C] more during the opponent's next turn)",
+   "name": "Dig Claws",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook E-01 (its Retreat Cost is [C] more: 2 with 1 Energy)",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "opp",
+   "legal": "attack",
+   "cite": "Advanced Rulebook E-01 (the cost increase ends with that turn)",
+   "name": "Dig Claws"
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "opp",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook E-01"
+  }
+ ]
+}

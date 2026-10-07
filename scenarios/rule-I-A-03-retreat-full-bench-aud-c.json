@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bulbasaur MEG 1",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Chikorita MEG 8"
+   },
+   {
+    "card": "Chikorita MEG 8"
+   },
+   {
+    "card": "Chikorita MEG 8"
+   },
+   {
+    "card": "Chikorita MEG 8"
+   },
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook I-A-03 (a Pokemon can retreat with a full Bench)"
+  }
+ ]
+}

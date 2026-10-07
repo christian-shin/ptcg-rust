@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snorunt TWM 51",
+   "4 Pikachu ex ASC 57",
+   "4 Switch 30C 127",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Snorunt TWM 51",
+   "4 Pikachu ex ASC 57",
+   "4 Switch 30C 127",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Snorunt TWM 51",
+  "hand": [
+   "Switch 30C 127"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Switch 30C 127",
+   "is": false,
+   "cite": "Advanced Rulebook C-03 (you cannot switch your Active Pokemon if you have no Benched Pokemon)"
+  }
+ ]
+}

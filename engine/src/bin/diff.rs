@@ -126,7 +126,10 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
                         return Outcome::Diverged { step: i as isize, what: "scenario".into(), detail: e };
                     }
                     match ptcg::expect::parse(scenario) {
-                        Ok(a) if !a.is_empty() => ptcg::expect::arm(&g, a, dump.is_some()),
+                        Ok(a) if !a.is_empty() => {
+                            ptcg::expect::arm(&g, a, dump.is_some());
+                            ptcg::expect::on_scenario_start(&g);
+                        }
                         Ok(_) => {}
                         Err(e) => return Outcome::ExpectFailed { failures: vec![format!("invalid expect: {}", e)] },
                     }
@@ -296,6 +299,7 @@ fn main() {
                     ptcg::expect::At::NextTurnEnd => "next_turn_end",
                     ptcg::expect::At::GameEnd => "game_end",
                     ptcg::expect::At::Tiebreaker => "tiebreaker",
+                    ptcg::expect::At::Decision => "decision",
                 };
                 failures.push(format!("assertion #{} ({}) {}\n  cite: {}\n  actual: {}", fl.index, at, fl.assertion, fl.cite, fl.actual));
                 if let (Some(dir), Some(state)) = (&dump, &fl.state) {

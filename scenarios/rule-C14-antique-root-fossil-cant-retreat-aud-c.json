@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Root Fossil SCR 130",
+   "4 Regigigas PRE 86",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Antique Root Fossil SCR 130",
+   "4 Regigigas PRE 86",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Antique Root Fossil SCR 130",
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Regigigas PRE 86",
+  "active_energy": [
+   "4 Fire Energy MEE"
+  ]
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "retreat",
+   "is": false,
+   "cite": "Advanced Rulebook C-14 / card text (Antique Root Fossil can't retreat; ruling 1847: a fixed attribute)"
+  }
+ ]
+}

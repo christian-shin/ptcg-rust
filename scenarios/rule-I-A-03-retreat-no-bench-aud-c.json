@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Snorunt TWM 51",
+   "52 Fire Energy MEE"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Snorunt TWM 51",
+   "52 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bulbasaur MEG 1",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook I-A-03 (can't retreat with no Benched Pokemon)",
+   "is": false
+  }
+ ]
+}

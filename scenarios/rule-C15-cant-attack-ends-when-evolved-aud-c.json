@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chansey TWM 133",
+   "4 Blissey ex TWM 134",
+   "4 Mega Lucario ex ASC 113",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Chansey TWM 133",
+   "4 Blissey ex TWM 134",
+   "4 Mega Lucario ex ASC 113",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chansey TWM 133",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ],
+  "hand": [
+   "Blissey ex TWM 134"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Boundless Power"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "play",
+   "card": "Blissey ex TWM 134",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02",
+   "name": "Boundless Power",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02 (the effect also disappears if that Pokemon evolves)",
+   "name": "Return"
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "5 Fighting Energy MEE",
+   "47 Fire Energy MEE"
+  ],
+  [
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "5 Fighting Energy MEE",
+   "47 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113",
+  "active_energy": [
+   "2 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mega Brave"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02 (\"can't use [attack name]\")",
+   "name": "Mega Brave",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02 (the other attacks can still be used)",
+   "name": "Aura Jab"
+  },
+  {
+   "at": "decision",
+   "n": 4,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02 (the effect ends with that turn)",
+   "name": "Mega Brave"
+  }
+ ]
+}

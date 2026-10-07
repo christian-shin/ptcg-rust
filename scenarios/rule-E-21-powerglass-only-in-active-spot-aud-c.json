@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snorunt TWM 51",
+   "4 Pikachu ex ASC 57",
+   "4 Powerglass SFA 63",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Snorunt TWM 51",
+   "4 Pikachu ex ASC 57",
+   "4 Powerglass SFA 63",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Snorunt TWM 51",
+  "bench": [
+   {
+    "card": "Snorunt TWM 51",
+    "tool": "Powerglass SFA 63"
+   }
+  ],
+  "discard": [
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 0,
+   "cite": "Advanced Rulebook E-21 / card text (only if the Pokemon is in the Active Spot)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "cite": "Powerglass on a Benched Pokemon does nothing"
+  }
+ ]
+}

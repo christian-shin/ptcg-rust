@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Stunfisk ASC 62",
+   "4 Mega Lucario ex ASC 113",
+   "8 Lightning Energy MEE",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Stunfisk ASC 62",
+   "4 Mega Lucario ex ASC 113",
+   "8 Lightning Energy MEE",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Stunfisk ASC 62",
+  "active_energy": [
+   "Lightning Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "Advanced Rulebook E-02 (during your next turn the Defending Pokemon takes 100 more damage: 30 + 30 + 100)"
+  }
+ ]
+}

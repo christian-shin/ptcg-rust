@@ -2,8 +2,9 @@
 //! evolved from Gimmighoul during this turn. Surf Back — 100; you may shuffle
 //! this Pokémon and all attached cards into your deck.
 //!
-//! Twinleaf: Strike It Rich only checks `pokemonPlayedTurn === state.turn` on
-//! this card's list (any evolution or play this turn counts). Surf Back:
+//! Strike It Rich checks that the card under the user is Gimmighoul and that it
+//! evolved this turn (E-24; Twinleaf used to check only `pokemonPlayedTurn ===
+//! state.turn`, which Zoroark's Foul Play copy satisfied by evolving from Zorua). Surf Back:
 //! ConfirmPrompt, then MOVE_CARDS of the whole Active to the deck,
 //! `player.active.clearEffects()` and a ShuffleDeckPrompt (no trailing wait).
 //! Fixed (W1-A): Surf Back used to run in the attack handler, i.e. before the
@@ -17,7 +18,12 @@ pub static IMPL: CardImpl = CardImpl { class: "Gholdengo", mask: mask(&[k::ATTAC
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
         if let Some(ListRef::Slot(p, s)) = g.st.locate(me) {
-            if g.st.slot(p as usize, s).pokemon_played_turn == g.st.turn as i32 {
+            // The card under the user must be Gimmighoul: a Pokémon copying this attack (Zoroark's Foul Play)
+            // evolved from something else (Advanced Rulebook E-24).
+            let stack = g.st.slot_pokemons(p as usize, s);
+            let under = stack.iter().position(|c| *c == me).and_then(|i| i.checked_sub(1)).map(|i| stack.as_slice()[i]);
+            let from_gimmighoul = under.map_or(false, |c| g.st.cdef(c).name == "Gimmighoul");
+            if g.st.slot(p as usize, s).pokemon_played_turn == g.st.turn as i32 && from_gimmighoul {
                 if let Effect::Attack { damage, .. } = g.e_mut(e) {
                     *damage += 90;
                 }

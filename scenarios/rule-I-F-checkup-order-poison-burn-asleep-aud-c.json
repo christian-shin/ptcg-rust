@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snorunt TWM 51",
+   "4 Pikachu ex ASC 57",
+   "52 Fire Energy MEE"
+  ],
+  [
+   "4 Snorunt TWM 51",
+   "4 Pikachu ex ASC 57",
+   "52 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_conditions": [
+   "ASLEEP",
+   "BURNED",
+   "POISONED"
+  ]
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "turn": 1,
+   "cite": "Advanced Rulebook I-F step 1 (check Poisoned, Burned, Asleep, Paralyzed in that order: the first flip is the Burn flip (heads: recovers), the second the Asleep flip (tails: stays Asleep))",
+   "damage": 30,
+   "conditions": [
+    "ASLEEP",
+    "POISONED"
+   ]
+  }
+ ]
+}

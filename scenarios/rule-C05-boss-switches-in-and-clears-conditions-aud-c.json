@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snorunt TWM 51",
+   "4 Beldum TEF 113",
+   "4 Boss's Orders ASC 183",
+   "4 Pikachu ex ASC 57",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Snorunt TWM 51",
+   "4 Beldum TEF 113",
+   "4 Boss's Orders ASC 183",
+   "4 Pikachu ex ASC 57",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Snorunt TWM 51",
+  "hand": [
+   "Boss's Orders ASC 183"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   },
+   {
+    "card": "Pikachu ex ASC 57"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Boss's Orders ASC 183"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 1
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Pikachu ex ASC 57",
+   "cite": "Advanced Rulebook C-05 (the chosen Benched Pokemon becomes the Active Pokemon)"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "bench": 1,
+   "card": "Beldum TEF 113",
+   "conditions": [],
+   "cite": "Advanced Rulebook C-05 (a Pokemon switched to the Bench loses its Special Conditions)"
+  }
+ ]
+}

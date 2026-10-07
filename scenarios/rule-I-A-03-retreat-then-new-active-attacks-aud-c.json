@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Snorunt TWM 51",
+   "8 Grass Energy MEE",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Snorunt TWM 51",
+   "8 Grass Energy MEE",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bulbasaur MEG 1",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Chikorita MEG 8",
+    "energy": [
+     "Grass Energy MEE"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "attack",
+   "name": "Razor Leaf"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "cite": "Basic Rulebook (after retreating you can still attack with the new Active Pokemon)"
+  }
+ ]
+}

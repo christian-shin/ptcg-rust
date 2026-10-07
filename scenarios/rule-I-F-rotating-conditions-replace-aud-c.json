@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Swablu SSP 148",
+   "4 Pikachu ex ASC 57",
+   "52 Fire Energy MEE"
+  ],
+  [
+   "4 Swablu SSP 148",
+   "4 Pikachu ex ASC 57",
+   "52 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_conditions": [
+   "PARALYZED",
+   "POISONED"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "CONFUSED",
+    "POISONED"
+   ],
+   "cite": "Basic Rulebook (Asleep, Confused and Paralyzed rotate the card: the last one is the only one in effect; Poison and Burn use markers and stay)"
+  }
+ ]
+}

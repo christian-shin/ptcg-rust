@@ -35,7 +35,16 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         for (s, _, _) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter() {
             if g.st.slot_pokemons(o, *s).len() > 1 {
-                devolve_pokemon(g, SlotRef::new(o, *s), ListRef::Deck(o as u8))?;
+                // An effect of the attack on that Pokémon: Mist Energy and the like prevent it.
+                let (p, attack, source) = match *g.e(e) {
+                    Effect::Attack { p, attack, source, .. } => (p, attack, source),
+                    _ => return Ok(()),
+                };
+                let b = AtkBase { attack_effect: e, player: p, opponent: o as u8, attack, source, target: SlotRef::new(o, *s) };
+                let (_, prevented) = g.run_fx(Effect::Devolve { b })?;
+                if !prevented {
+                    devolve_pokemon(g, SlotRef::new(o, *s), ListRef::Deck(o as u8))?;
+                }
             }
         }
         let id = g.player_id(o);

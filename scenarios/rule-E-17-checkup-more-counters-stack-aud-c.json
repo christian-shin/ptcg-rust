@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pecharunt SVP 129",
+   "4 Magmortar JTG 21",
+   "4 Perilous Jungle TEF 156",
+   "4 Pikachu ex ASC 57",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Pecharunt SVP 129",
+   "4 Magmortar JTG 21",
+   "4 Perilous Jungle TEF 156",
+   "4 Pikachu ex ASC 57",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pecharunt SVP 129",
+  "stadium": "Perilous Jungle TEF 156",
+  "bench": [
+   {
+    "card": "Magmortar JTG 21"
+   },
+   {
+    "card": "Magmortar JTG 21"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_conditions": [
+   "POISONED",
+   "BURNED"
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "slot": "active",
+   "turn": 1,
+   "cite": "Advanced Rulebook E-17 (several \"put N more damage counters\" effects add up: Poison 1+5 (Pecharunt)+2 (Perilous Jungle) = 8 counters, Burn 2+3+3 (two Magmortar) = 8 counters)",
+   "damage": 160,
+   "conditions": [
+    "BURNED",
+    "POISONED"
+   ],
+   "hp_left": 40
+  }
+ ]
+}

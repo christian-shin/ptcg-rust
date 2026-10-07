@@ -1,0 +1,62 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Zorua WHT 61",
+   "4 Gholdengo SSP 131",
+   "4 Zoroark WHT 62",
+   "5 Metal Energy MEE",
+   "43 Fire Energy MEE"
+  ],
+  [
+   "4 Zorua WHT 61",
+   "4 Gholdengo SSP 131",
+   "4 Zoroark WHT 62",
+   "5 Metal Energy MEE",
+   "43 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Zorua WHT 61",
+  "active_energy": [
+   "Metal Energy MEE",
+   "2 Fire Energy MEE"
+  ],
+  "hand": [
+   "Zoroark WHT 62"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gholdengo SSP 131"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Zoroark WHT 62",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Strike It Rich"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "Advanced Rulebook E-24 specific case (Zoroark evolved from Zorua, not Gimmighoul, so Strike It Rich copied by Foul Play does no extra damage)"
+  }
+ ]
+}

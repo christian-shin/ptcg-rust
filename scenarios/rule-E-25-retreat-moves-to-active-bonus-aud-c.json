@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Mega Lucario ex ASC 113",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Mega Lucario ex ASC 113",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "2 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Buneary PFL 83",
+     "Mega Lopunny ex PFL 84"
+    ],
+    "energy": [
+     "Fire Energy MEE"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "attack",
+   "name": "Gale Thrust"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 230,
+   "cite": "Advanced Rulebook E-25 (moved from the Bench to the Active Spot this turn, by retreating another Pokemon: 60 + 170)"
+  }
+ ]
+}
