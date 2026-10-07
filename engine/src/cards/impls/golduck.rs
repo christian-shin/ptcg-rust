@@ -18,7 +18,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let mut n = 0;
         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
             for em in energy_map.iter() {
-                n += em.provides.iter().filter(|t| **t == ct::WATER).count() as i32;
+                n += em.provides.iter().filter(|t| **t == ct::WATER || **t == ct::ANY).count() as i32;
             }
         }
         if let Effect::Attack { damage, .. } = g.e_mut(e) {

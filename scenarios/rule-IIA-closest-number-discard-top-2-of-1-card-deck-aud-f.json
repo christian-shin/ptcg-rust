@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Larvitar JTG 80",
+   "1 Pupitar PRE 48",
+   "1 Tyranitar JTG 95",
+   "2 Darkness Energy MEE 7",
+   "4 Hop's Snorlax JTG 117",
+   "51 Fire Energy MEE 2"
+  ],
+  [
+   "1 Larvitar JTG 80",
+   "1 Pupitar PRE 48",
+   "1 Tyranitar JTG 95",
+   "2 Darkness Energy MEE 7",
+   "4 Hop's Snorlax JTG 117",
+   "51 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Larvitar JTG 80",
+   "Pupitar PRE 48",
+   "Tyranitar JTG 95"
+  ],
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "51 Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crackling Stomp"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "deck",
+   "count": 0,
+   "cite": "Advanced Rulebook II-A (if there are not enough, apply the closest possible number): discard the top 2 cards of a 1-card deck"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 2,
+   "cite": "Advanced Rulebook II-A (closest possible number): the 1 card of the deck is discarded (the other card in the pile is the Knocked Out Active Snorlax)"
+  }
+ ]
+}

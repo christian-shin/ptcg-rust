@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Heatran TWM 123",
+   "4 Prism Energy ASC 216",
+   "4 Metal Energy MEE 8",
+   "4 Raging Bolt ex PRE 166",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Heatran TWM 123",
+   "4 Prism Energy ASC 216",
+   "4 Metal Energy MEE 8",
+   "4 Raging Bolt ex PRE 166",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Heatran TWM 123",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Prism Energy ASC 216",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Steel Burst"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 100,
+   "cite": "Advanced Rulebook D-08 (Prism Energy on a Basic Pokemon provides every type, so Steel Burst discards it with the Metal Energy: 2 cards x 50)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Advanced Rulebook D-08 / card text: discard all [M] Energy, the Fire Energy stays"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Prism Energy ASC 216",
+    "Metal Energy MEE 8"
+   ],
+   "cite": "Advanced Rulebook D-08"
+  }
+ ]
+}

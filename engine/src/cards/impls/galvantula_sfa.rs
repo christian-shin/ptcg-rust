@@ -41,9 +41,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, energy_map: SVec::new() })?;
         let mut damage = 50;
         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+            // Energy that provides every type counts as a [L] Energy (Advanced Rulebook D-08).
             let has_lightning = energy_map.iter().any(|em| {
                 let d = g.st.cdef(em.card);
-                d.is_energy() && d.provides.contains(&ct::LIGHTNING)
+                d.is_energy() && (em.provides.contains(&ct::LIGHTNING) || em.provides.contains(&ct::ANY))
             });
             if has_lightning {
                 damage += 80;

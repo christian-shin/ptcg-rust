@@ -457,8 +457,8 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   burn, sleep). It is evaluated in the engine's `after_end_turn`, the point
   between the Knock Out check and the start of Checkup. `"next_turn"`
   (default): the first turn decision of the following turn, after Checkup.
-  `"next_turn_end"`: the end of the turn after the scenario turn, like `turn_end` (the other player's attack and its
-  Knock Outs). `"game_end"`: the moment the game is decided, winner set (use it for `winner`; a game that never ends
+  `"next_turn_end"`: the end of the turn after the scenario turn, like `turn_end`, before its Checkup (the other player's
+  attack and its Knock Outs; what the opponent did or could not do, e.g. an effect that stops it playing Items). `"game_end"`: the moment the game is decided, winner set (use it for `winner`; a game that never ends
   is not checked). `"tiebreaker"`: the first turn decision of the Tiebreaker game that replaces the scenario's game.
   `"start"`: right after the scenario edits, at the first decision (same as `"decision"` with `n` 0): use it with
   `legal` or `bench_count` for what the edited board allows. `"decision"` + `n`: the n-th turn decision since the edits.

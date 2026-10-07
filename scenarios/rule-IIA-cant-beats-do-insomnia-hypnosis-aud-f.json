@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Exeggcute 30C 1",
+   "4 Hoothoot PRE 77",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Exeggcute 30C 1",
+   "4 Hoothoot PRE 77",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Exeggcute 30C 1",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hoothoot PRE 77"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hypnosis"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [],
+   "cite": "Advanced Rulebook II-A (a 'can't' effect beats a 'do' effect): Insomnia, this Pokemon can't be Asleep, beats Hypnosis"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [],
+   "cite": "Advanced Rulebook II-A: still not Asleep after Pokemon Checkup"
+  }
+ ]
+}

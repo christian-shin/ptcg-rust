@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie SCR 39",
+   "4 Frogadier SCR 40",
+   "4 Relicanth TEF 84",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Froakie SCR 39",
+   "4 Frogadier SCR 40",
+   "4 Relicanth TEF 84",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Froakie SCR 39",
+   "Frogadier SCR 40"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Relicanth TEF 84"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Relicanth TEF 84"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rain Splash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "cite": "Advanced Rulebook D-06 (an evolved Pokemon can use an attack from its previous Evolutions with Relicanth's Memory Dive; it needs the Energy)"
+  }
+ ]
+}

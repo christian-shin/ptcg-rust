@@ -16,7 +16,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     let mut valid = false;
     for (s, _, target) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
         let hp = crate::engine::check::check_hp(g, p, *s)?;
-        if hp - g.st.slot(p, *s).damage > 30 {
+        // A Pokémon without damage counters can't be chosen to heal (Advanced Rulebook C-06).
+        if g.st.slot(p, *s).damage == 0 || hp - g.st.slot(p, *s).damage > 30 {
             blocked.push(*target);
         } else {
             valid = true;

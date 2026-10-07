@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Marill ASC 83",
+   "4 Azumarill ex ASC 84",
+   "1 Legacy Energy TWM 167",
+   "4 Psychic Energy MEE 5",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ],
+  [
+   "4 Marill ASC 83",
+   "4 Azumarill ex ASC 84",
+   "1 Legacy Energy TWM 167",
+   "4 Psychic Energy MEE 5",
+   "4 Raging Bolt ex PRE 166",
+   "43 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Marill ASC 83",
+   "Azumarill ex ASC 84"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Energy Balloon"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 180,
+   "cite": "Advanced Rulebook D-08 (Legacy Energy is a [P] Energy): 60 + 3 x 40"
+  }
+ ]
+}

@@ -89,12 +89,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-/// `energyCardProvidesType(card, METAL)`.
-fn provides_metal(g: &Game, c: CardId) -> bool {
-    let d = g.st.cdef(c);
-    d.is_energy() && (d.provides.contains(&ct::METAL) || d.provides.contains(&ct::ANY))
-}
-
 fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     let p = f.a[0] as usize;
     let atk = f.e[0];
@@ -124,11 +118,13 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
                 if t.slot != SlotType::Active {
                     continue;
                 }
+                // ENERGY_CARDS_THAT_PROVIDE_TYPE: Energy as it is provided now (Legacy Energy provides
+                // every type: Advanced Rulebook D-08).
+                let providing = energy_cards_that_provide_type(g, p, s, ct::METAL)?;
+                available += providing.len();
                 let mut b = Blocked::default();
                 for (i, c) in g.st.slot(p, s).cards.iter().enumerate() {
-                    if provides_metal(g, c) {
-                        available += 1;
-                    } else {
+                    if !providing.contains(&c) {
                         b.push(i as u8);
                     }
                 }
@@ -172,7 +168,8 @@ fn discard_chosen(g: &mut Game, p: usize, atk: EffId, first: Res) -> R {
     if transfers.is_empty() {
         return Ok(());
     }
-    if !transfers.iter().all(|(_, c)| provides_metal(g, *c)) {
+    let providing = energy_cards_that_provide_type(g, p, g.st.players[p].active, ct::METAL)?;
+    if !transfers.iter().all(|(_, c)| providing.contains(c)) {
         bail!("INVALID_PROMPT_RESULT");
     }
     // discardTransfersAsEffects: one DiscardCardsEffect per source, in first-seen order.

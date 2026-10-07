@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Exeggcute 30C 1",
+   "4 Psyduck ASC 39",
+   "4 Bubbly Water Energy CRI 84",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Exeggcute 30C 1",
+   "4 Psyduck ASC 39",
+   "4 Bubbly Water Energy CRI 84",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Exeggcute 30C 1",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Psyduck ASC 39",
+  "active_energy": [
+   "Bubbly Water Energy CRI 84"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hypnosis"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [],
+   "cite": "Advanced Rulebook II-A (can't beats do): the [W] Pokemon with Bubbly Water Energy can't be affected by Special Conditions"
+  }
+ ]
+}

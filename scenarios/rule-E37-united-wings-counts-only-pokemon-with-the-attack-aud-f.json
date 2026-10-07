@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rowlet SFA 3",
+   "4 Dartrix SFA 4",
+   "4 Hop's Snorlax JTG 117",
+   "4 Raging Bolt ex PRE 166",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Rowlet SFA 3",
+   "4 Dartrix SFA 4",
+   "4 Hop's Snorlax JTG 117",
+   "4 Raging Bolt ex PRE 166",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Rowlet SFA 3",
+   "Dartrix SFA 4"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "Dartrix SFA 4",
+   "Dartrix SFA 4",
+   "Hop's Snorlax JTG 117",
+   "Rowlet SFA 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "United Wings"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 40,
+   "cite": "Advanced Rulebook E-37 (Pokemon in the discard pile that has the United Wings attack: only the two Dartrix, 2 x 20)"
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "4 Raging Bolt ex PRE 166",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "4 Raging Bolt ex PRE 166",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "active_played": "this_turn",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "deck_top": [
+   "Crustle DRI 12"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ascension"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "active": "Crustle DRI 12",
+   "cite": "Advanced Rulebook C-12 (an effect that evolves a Pokemon works on a Pokemon that was played this turn)"
+  }
+ ]
+}

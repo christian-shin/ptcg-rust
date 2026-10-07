@@ -16,11 +16,15 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             _ => return Ok(()),
         };
         let a = g.st.players[p as usize].active;
-        let mut cards = SVec::new();
-        for c in g.st.slot(p as usize, a).cards.iter() {
-            let d = g.st.cdef(c);
-            if d.is_energy() && d.name == "Fire Energy" {
-                cards.push(c);
+        // "Discard all [R] Energy": every Energy that provides [R] (CheckProvidedEnergy), including one that
+        // provides every type (Advanced Rulebook D-08).
+        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: SlotRef::new(p as usize, a), energy_map: SVec::new() })?;
+        let mut cards: SVec<CardId, 16> = SVec::new();
+        if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+            for m in energy_map.iter() {
+                if (m.provides.contains(&ct::FIRE) || m.provides.contains(&ct::ANY)) && !cards.contains(&m.card) {
+                    cards.push(m.card);
+                }
             }
         }
         let target = SlotRef::new(p as usize, a);

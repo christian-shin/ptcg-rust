@@ -21,6 +21,15 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if !can_heal {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
+    // A Pokémon with no damage counters and no Special Condition has nothing to heal and can't be chosen
+    // (Advanced Rulebook C-06; ruling 43).
+    let mut blocked = TargetList::new();
+    for (s, _, target) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
+        let sl = g.st.slot(p, *s);
+        if sl.damage == 0 && sl.special_conditions.is_empty() {
+            blocked.push(*target);
+        }
+    }
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
@@ -30,7 +39,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     g.prompt(
         id,
         "CHOOSE_POKEMON_TO_HEAL",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
         Cont::Card { card: me, frame: f },
     );
     Ok(())

@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Archaludon PRE 70",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Archaludon PRE 70",
+   "1 Legacy Energy TWM 167",
+   "4 Raging Bolt ex PRE 166",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Duraludon PRE 69",
+   "Archaludon PRE 70"
+  ],
+  "active_energy": [
+   "Legacy Energy TWM 167",
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "active": "Duraludon PRE 69",
+   "cite": "Metal Bridge: a Pokemon with [M] Energy attached has no Retreat Cost; Legacy Energy provides every type (Advanced Rulebook D-08)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": [
+    "Legacy Energy TWM 167",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "no Retreat Cost: nothing is discarded (Advanced Rulebook D-08)"
+  }
+ ]
+}
