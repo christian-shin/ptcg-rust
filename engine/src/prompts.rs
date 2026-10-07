@@ -740,7 +740,7 @@ impl Game {
                     let i = v.as_u64().ok_or(invalid)? as usize;
                     out.push(*energy.get(i).ok_or(invalid)?);
                 }
-                if energy::check_exact_energy(out.as_slice(), cost.as_slice()) {
+                if energy::check_energy_payment(out.as_slice(), cost.as_slice()) {
                     let mut cards: SVec<CardId, 64> = SVec::new();
                     for e in out.iter() {
                         cards.push(e.card);

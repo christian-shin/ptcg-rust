@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard Y ex ASC 22",
+   "4 Ignition Energy PFL 124",
+   "4 Raging Bolt ex PRE 166",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard Y ex ASC 22",
+   "4 Ignition Energy PFL 124",
+   "4 Raging Bolt ex PRE 166",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charmander PFL 11",
+   "Charmeleon PFL 12",
+   "Mega Charizard Y ex ASC 22"
+  ],
+  "active_energy": [
+   "Ignition Energy PFL 124",
+   "Ignition Energy PFL 124",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Explosion Y"
+  },
+  [
+   0,
+   1,
+   2
+  ],
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 3,
+   "contains": [
+    "Ignition Energy PFL 124",
+    "Ignition Energy PFL 124",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "ruling 1652 and Advanced Rulebook C-01: 'discard 3 Energy' may be paid with 3 Energy cards (two Ignition Energy and a Fire Energy), not only with the fewest cards"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "the other Fire Energy stays attached"
+  }
+ ]
+}

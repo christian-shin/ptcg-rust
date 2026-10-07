@@ -22,19 +22,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         let o = 1 - p;
         let benched = g.st.players[o].bench.iter().filter(|s| !g.st.players[o].slots[**s as usize].cards.is_empty()).count();
-        if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
-            let len = cost.len() as i64;
-            let idx = cost.iter().position(|t| *t == ct::COLORLESS).map(|i| i as i64).unwrap_or(-1);
-            let start = if idx < 0 { (len + idx).max(0) } else { idx.min(len) };
-            let end = (start + benched as i64).min(len);
-            let mut out = SVec::new();
-            for (i, t) in cost.iter().enumerate() {
-                let i = i as i64;
-                if i < start || i >= end {
-                    out.push(*t);
-                }
-            }
-            *cost = out;
+        // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
+        if let Effect::CheckAttackCost { reduction, .. } = g.e_mut(e) {
+            *reduction = reduction.saturating_add(benched as u8);
         }
         return Ok(());
     }

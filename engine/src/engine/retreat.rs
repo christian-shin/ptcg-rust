@@ -98,7 +98,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
     if energy::all_provides_identical(map.as_slice()) {
         if let Some(sel) = energy::select_minimal_energy_for_cost(map.as_slice(), cost.as_slice()) {
-            if !sel.is_empty() {
+            // A cost paid by Energy providing several units has a choice (ruling 1652: 1 or 2 Double Turbo Energy for cost 2).
+            let has_choice = sel.len() < cost.len() && map.len() >= cost.len();
+            if !sel.is_empty() && !has_choice {
                 let cards: Vec<CardId> = sel.iter().map(|e| e.card).collect();
                 clear_effects(&mut g.st.players[p].slots[active as usize]);
                 g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);

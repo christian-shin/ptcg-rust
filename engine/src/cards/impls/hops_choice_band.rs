@@ -14,24 +14,20 @@ pub static IMPL: CardImpl = CardImpl { class: "HopsChoiceBand", mask: mask(&[k::
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     match *g.e(e) {
-        Effect::CheckAttackCost { p, cost, .. } => {
+        Effect::CheckAttackCost { p, .. } => {
             let p = p as usize;
             let a = g.st.players[p].active;
             if !g.st.slot(p, a).tools.contains(me) {
                 return Ok(());
             }
-            let index = cost.iter().position(|c| *c == ct::COLORLESS);
             if g.run_fx(Effect::Tool { p: p as u8, card: me }).is_err() {
                 return Ok(());
             }
-            let index = match index {
-                Some(i) => i,
-                None => return Ok(()),
-            };
             let hops = g.st.slot_pokemon(p, a).map(|c| g.st.cdef(c).has_tag(tag::HOPS)).unwrap_or(false);
             if hops {
-                if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
-                    cost.remove_at(index);
+                // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
+                if let Effect::CheckAttackCost { reduction, .. } = g.e_mut(e) {
+                    *reduction += 1;
                 }
             }
             Ok(())

@@ -28,20 +28,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 d.is_trainer() && d.name == "Kofu"
             })
             .count();
-        if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
-            let mut v: Vec<CardType> = cost.iter().copied().collect();
-            let start = match v.iter().position(|t| *t == ct::COLORLESS) {
-                Some(i) => i,
-                None => v.len().saturating_sub(1),
-            };
-            let end = (start + kofu).min(v.len());
-            if start < end {
-                v.drain(start..end);
-            }
-            cost.clear();
-            for t in v {
-                cost.push(t);
-            }
+        // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
+        if let Effect::CheckAttackCost { reduction, .. } = g.e_mut(e) {
+            *reduction = reduction.saturating_add(kofu as u8);
         }
         return Ok(());
     }

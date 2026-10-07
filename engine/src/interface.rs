@@ -683,33 +683,12 @@ impl Game {
             PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => o.min = 0,
             PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => o.min = 0,
             PromptKind::PutDamage { allow_partial, .. } => *allow_partial = true,
-            PromptKind::ChooseEnergy { energy, cost, .. } => {
-                // Exact payment: once some pick can be dropped with the cost
-                // still met, every superset overpays too.
-                let raw = match raw_answer(sel, chosen) {
-                    Ok(Value::Array(a)) => a,
-                    _ => return false,
+            PromptKind::ChooseEnergy { cost, .. } => {
+                // Payments never have more cards than the cost (ruling 1652): longer picks cannot be completed.
+                return match raw_answer(sel, chosen) {
+                    Ok(Value::Array(a)) => a.len() <= cost.len(),
+                    _ => false,
                 };
-                let mut picked: Vec<crate::effects::EnergyEntry> = Vec::new();
-                for v in &raw {
-                    match v.as_u64().and_then(|k| energy.get(k as usize)) {
-                        Some(e) if picked.len() < 40 => picked.push(*e),
-                        _ => return false,
-                    }
-                }
-                let n = picked.len();
-                for i in 0..n {
-                    let mut tmp: Vec<crate::effects::EnergyEntry> = Vec::new();
-                    for (j, e) in picked.iter().enumerate() {
-                        if j != i {
-                            tmp.push(*e);
-                        }
-                    }
-                    if crate::energy::check_enough_energy(&tmp, cost.as_slice()) {
-                        return false;
-                    }
-                }
-                return true;
             }
             _ => return true,
         }

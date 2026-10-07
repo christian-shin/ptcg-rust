@@ -24,21 +24,14 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if is_ability_blocked(g, p, me, None) {
                 return Ok(());
             }
-            let has_c = matches!(g.e(e), Effect::CheckAttackCost { cost, .. } if cost.contains(&ct::COLORLESS));
-            if !has_c {
-                return Ok(());
-            }
             let remaining = g.st.players[1 - p].prize_left();
             let n = match remaining {
                 1..=5 => 6 - remaining,
                 _ => 0,
             };
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(e) {
-                for _ in 0..n {
-                    if let Some(i) = cost.position(&ct::COLORLESS) {
-                        cost.remove_at(i);
-                    }
-                }
+            // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
+            if let Effect::CheckAttackCost { reduction, .. } = g.e_mut(e) {
+                *reduction = reduction.saturating_add(n as u8);
             }
             return Ok(());
         }

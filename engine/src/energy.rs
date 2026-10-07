@@ -112,6 +112,29 @@ pub fn check_exact_energy(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
     true
 }
 
+/// `StateUtils.checkEnergyPayment`: whether `energy` is an allowed payment for an Energy cost that is discarded or paid by
+/// choosing Energy cards (Retreat Cost, "discard N Energy"). Ruling 1652 (retreat; Advanced Rulebook C-01 for Ignition
+/// Energy): a number of cards equal to the cost, or a sequence of discards that first met the cost with its last card;
+/// never more cards than the cost.
+pub fn check_energy_payment(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
+    if !check_enough_energy(energy, cost) {
+        return false;
+    }
+    if check_exact_energy(energy, cost) {
+        return true;
+    }
+    if energy.len() > cost.len() {
+        return false;
+    }
+    if energy.len() == cost.len() {
+        return true;
+    }
+    (0..energy.len()).any(|i| {
+        let tmp: Vec<EnergyEntry> = energy.iter().enumerate().filter(|(j, _)| *j != i).map(|(_, e)| *e).collect();
+        !check_enough_energy(&tmp, cost)
+    })
+}
+
 pub fn all_provides_identical(map: &[EnergyEntry]) -> bool {
     if map.is_empty() {
         return false;
@@ -288,5 +311,42 @@ mod tests {
         assert_eq!(paid.len(), 16);
         let sel = select_minimal_energy_for_cost(map.as_slice(), big_cost.as_slice()).unwrap();
         assert_eq!(sel.len(), 16);
+    }
+}
+
+#[cfg(test)]
+mod payment_tests {
+    use super::*;
+    use crate::list::CardId;
+
+    fn entry(card: CardId, n: usize) -> EnergyEntry {
+        let mut provides = SVec::new();
+        for _ in 0..n {
+            provides.push(ct::COLORLESS);
+        }
+        EnergyEntry { card, provides }
+    }
+
+    fn cost(n: usize) -> Vec<CardType> {
+        vec![ct::COLORLESS; n]
+    }
+
+    /// Ruling 1652: a cost of 2 may be paid with 1 or 2 Energy cards that provide 2 each, never more cards than the cost.
+    #[test]
+    fn several_unit_cards_pay_with_one_card_or_as_many_as_the_cost() {
+        let (a, b, c) = (entry(1, 2), entry(2, 2), entry(3, 2));
+        assert!(check_energy_payment(&[a], &cost(2)));
+        assert!(check_energy_payment(&[a, b], &cost(2)));
+        assert!(!check_energy_payment(&[a, b, c], &cost(2)));
+        assert!(!check_energy_payment(&[], &cost(2)));
+    }
+
+    /// C-01: Ignition Energy (3 units) pays a cost of 3 alone, or with 3 cards in all; 2 cards of which one is left over do not.
+    #[test]
+    fn ignition_energy_pays_alone_or_with_three_cards() {
+        let (i1, i2, f) = (entry(1, 3), entry(2, 3), entry(3, 1));
+        assert!(check_energy_payment(&[i1], &cost(3)));
+        assert!(check_energy_payment(&[i1, i2, f], &cost(3)));
+        assert!(!check_energy_payment(&[i1, i2], &cost(3)));
     }
 }

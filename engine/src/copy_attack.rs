@@ -488,7 +488,7 @@ pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
             for &t in g.st.cdef(c).attacks[i].cost {
                 cost.push(t);
             }
-            let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack: a, cost, set_cost: None, ignore_colorless: false })?;
+            let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack: a, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
             let cost = match ce {
                 Effect::CheckAttackCost { cost, .. } => cost,
                 _ => SVec::new(),

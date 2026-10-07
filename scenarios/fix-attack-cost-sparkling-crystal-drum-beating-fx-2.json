@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Terapagos ex ASC 179",
+   "1 Sparkling Crystal PRE 129",
+   "14 Grass Energy MEE 1",
+   "14 Water Energy MEE 3",
+   "15 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Grookey TWM 14",
+   "4 Thwackey TWM 15",
+   "4 Rillaboom TWM 16",
+   "4 Terapagos ex ASC 179",
+   "1 Sparkling Crystal PRE 129",
+   "14 Grass Energy MEE 1",
+   "14 Water Energy MEE 3",
+   "15 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Grookey TWM 14",
+   "Thwackey TWM 15",
+   "Rillaboom TWM 16"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "active_tool": "Sparkling Crystal PRE 129",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Drum Beating"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "attack",
+   "name": "Crown Opal",
+   "cite": "Advanced Rulebook D-11, D-12: Crown Opal [G][W][L], Drum Beating +[C] and Sparkling Crystal -1 Energy are calculated together: 3 Energy pay it"
+  }
+ ]
+}
