@@ -9,7 +9,7 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "Goldeen@Goldeen TWM|Goldeen PRE",
-    mask: mask(&[k::ATTACK]),
+    mask: mask(&[k::ATTACK, k::AFTER_ATTACK]),
     reduce,
     resume: Some(resume),
     coin: Some(coin),
@@ -17,11 +17,15 @@ pub static IMPL: CardImpl = CardImpl {
 };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
+        return after_attack(g, me, e);
+    }
     if !was_attack_used(g, e, 0, me) {
         return Ok(());
     }
-    let (p, opp) = match *g.e(e) {
-        Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+    let p = match *g.e(e) {
+        Effect::Attack { p, .. } => p as usize,
         _ => return Ok(()),
     };
     // Festival Lead: `barrage = Ability works && Festival Grounds in play`, written on every use.
@@ -35,6 +39,15 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
         *shown |= 1;
     });
+    Ok(())
+}
+
+/// The coin, the Energy check and the discard are asked after the damage (user rule 2026-10-07).
+fn after_attack(g: &mut Game, me: CardId, e: EffId) -> R {
+    let (p, opp) = match *g.e(e) {
+        Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
+        _ => return Ok(()),
+    };
     let oa = g.st.players[opp].active;
     if !g.st.slot(opp, oa).cards.iter().any(|c| g.st.cdef(c).is_energy()) {
         return Ok(());
