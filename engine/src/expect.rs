@@ -17,6 +17,8 @@ use std::cell::RefCell;
 pub enum At {
     TurnEnd,
     NextTurn,
+    /// The end of the turn after the scenario turn (the opponent's turn), before its Pokémon Checkup.
+    NextTurnEnd,
 }
 
 #[derive(Clone, Debug)]
@@ -60,7 +62,8 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             None => At::NextTurn,
             Some(Value::String(s)) if s == "next_turn" => At::NextTurn,
             Some(Value::String(s)) if s == "turn_end" => At::TurnEnd,
-            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end or next_turn)", i, x)),
+            Some(Value::String(s)) if s == "next_turn_end" => At::NextTurnEnd,
+            Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end, next_turn or next_turn_end)", i, x)),
         };
         let kinds = [
             o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
@@ -366,6 +369,9 @@ pub fn on_turn_end(g: &Game) {
         if let Some(run) = r.borrow_mut().as_mut() {
             if run.game == g as *const Game as usize && g.st.turn == run.turn {
                 run.run_at(g, At::TurnEnd);
+            }
+            if run.game == g as *const Game as usize && g.st.turn == run.turn + 1 {
+                run.run_at(g, At::NextTurnEnd);
             }
         }
     });

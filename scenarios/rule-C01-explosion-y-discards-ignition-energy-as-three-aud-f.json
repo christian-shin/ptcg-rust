@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard Y ex ASC 22",
+   "4 Ignition Energy PFL 124",
+   "4 Raging Bolt ex PRE 166",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard Y ex ASC 22",
+   "4 Ignition Energy PFL 124",
+   "4 Raging Bolt ex PRE 166",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Charmander PFL 11",
+   "Charmeleon PFL 12",
+   "Mega Charizard Y ex ASC 22"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Raging Bolt ex PRE 166"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Explosion Y"
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Advanced Rulebook C-01 (one Ignition Energy providing 3 Energy may be discarded to count as discarding 3 Energy from an Evolution Pokemon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Ignition Energy PFL 124"
+   ],
+   "cite": "Advanced Rulebook C-01"
+  },
+  {
+   "at": "turn_end",
+   "winner": "me",
+   "cite": "card text: 280 damage Knocks Out Raging Bolt ex (240 HP), the opponent's only Pokemon"
+  }
+ ]
+}

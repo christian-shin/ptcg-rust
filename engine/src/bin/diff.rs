@@ -290,7 +290,11 @@ fn main() {
         if let (Outcome::Pass { .. }, Some(run)) = (&out, &run) {
             let mut failures: Vec<String> = Vec::new();
             for fl in &run.failures {
-                let at = if fl.at == ptcg::expect::At::TurnEnd { "turn_end" } else { "next_turn" };
+                let at = match fl.at {
+                    ptcg::expect::At::TurnEnd => "turn_end",
+                    ptcg::expect::At::NextTurn => "next_turn",
+                    ptcg::expect::At::NextTurnEnd => "next_turn_end",
+                };
                 failures.push(format!("assertion #{} ({}) {}\n  cite: {}\n  actual: {}", fl.index, at, fl.assertion, fl.cite, fl.actual));
                 if let (Some(dir), Some(state)) = (&dump, &fl.state) {
                     let _ = std::fs::write(dir.join(format!("{}.expect{}.rust.json", name, fl.index)), state);

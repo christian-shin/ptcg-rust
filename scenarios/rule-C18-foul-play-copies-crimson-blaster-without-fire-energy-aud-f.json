@@ -1,0 +1,78 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "4 Charcadet SSP 32",
+   "4 Armarouge SSP 34",
+   "4 Hop's Snorlax JTG 117",
+   "40 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Zoroark WHT 62",
+   "4 Zorua WHT 61",
+   "4 Charcadet SSP 32",
+   "4 Armarouge SSP 34",
+   "4 Hop's Snorlax JTG 117",
+   "40 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Zorua WHT 61",
+   "Zoroark WHT 62"
+  ],
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Charcadet SSP 32",
+   "Armarouge SSP 34"
+  ],
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Foul Play"
+  },
+  {
+   "index": 0,
+   "attack": "Crimson Blaster"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "in_play": false,
+   "cite": "Advanced Rulebook C-18 (using Crimson Blaster as Foul Play: the 180 damage is done even though the user has no Fire Energy to discard)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 3,
+   "cite": "Advanced Rulebook C-18: the copying Zoroark has no Fire Energy, so nothing is discarded"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "card text: Hop's Snorlax is Knocked Out by the 180 damage"
+  }
+ ]
+}

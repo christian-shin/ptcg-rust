@@ -1,0 +1,49 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Exeggcute SSP 1",
+   "4 Alolan Exeggutor ex SSP 133",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Exeggcute SSP 1",
+   "4 Alolan Exeggutor ex SSP 133",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Exeggcute SSP 1",
+  "active_played": "this_turn",
+  "deck_top": [
+   "Alolan Exeggutor ex SSP 133"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Precocious Evolution"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "active": "Alolan Exeggutor ex SSP 133",
+   "cite": "Advanced Rulebook E-28 (Precocious Evolution can be used on the first turn when going first) and C-12 (an effect that puts a card on a Pokemon to evolve it works on the first turn and on a Pokemon played this turn)"
+  }
+ ]
+}

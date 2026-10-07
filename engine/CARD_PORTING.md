@@ -452,7 +452,8 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   resolved (Prizes taken, promotions chosen), before Pokémon Checkup (poison,
   burn, sleep). It is evaluated in the engine's `after_end_turn`, the point
   between the Knock Out check and the start of Checkup. `"next_turn"`
-  (default): the first turn decision of the following turn, after Checkup.
+  (default): the first turn decision of the following turn, after Checkup. `"next_turn_end"`: the end of the following turn (the opponent's), before its Checkup; it
+  shows what the opponent did or could not do in that turn (an effect that stops it playing Items).
   Every game must satisfy every assertion. A game that ends before the check
   point (a win at turn end is still seen by `turn_end`, but not by
   `next_turn`) is reported as not checked, never as passed.

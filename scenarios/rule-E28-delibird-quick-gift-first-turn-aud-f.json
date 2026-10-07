@@ -1,0 +1,41 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Delibird MEG 105",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Delibird MEG 105",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Delibird MEG 105",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Quick Gift"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "Advanced Rulebook E-28 (Quick Gift can be used on the first turn when going first): search the deck for a card and put it into hand (any card: at least 1, Compendium 1778)"
+  }
+ ]
+}

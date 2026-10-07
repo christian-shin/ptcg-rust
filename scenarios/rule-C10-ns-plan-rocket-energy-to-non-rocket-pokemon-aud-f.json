@@ -1,0 +1,101 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Sneasel DRI 128",
+   "4 Hop's Snorlax JTG 117",
+   "4 Team Rocket's Energy ASC 217",
+   "1 N's Plan BLK 83",
+   "47 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Sneasel DRI 128",
+   "4 Hop's Snorlax JTG 117",
+   "4 Team Rocket's Energy ASC 217",
+   "1 N's Plan BLK 83",
+   "47 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Team Rocket's Sneasel DRI 128",
+    "energy": [
+     "Team Rocket's Energy ASC 217",
+     "Fire Energy MEE 2"
+    ]
+   }
+  ],
+  "hand": [
+   "N's Plan BLK 83"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "N's Plan"
+  },
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 1
+   },
+   {
+    "from": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 2
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Team Rocket's Energy ASC 217",
+    "N's Plan BLK 83"
+   ],
+   "cite": "Advanced Rulebook C-10 (moving a Team Rocket's Energy to a Pokemon that is not a Team Rocket's Pokemon: the target can be chosen and the Energy is discarded)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Advanced Rulebook C-10: only the Fire Energy stays on the new Active Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 0,
+   "cite": "both Energy left the Benched Pokemon"
+  }
+ ]
+}
