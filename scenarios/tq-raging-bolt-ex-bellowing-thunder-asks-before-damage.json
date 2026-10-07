@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Raging Bolt ex PRE 166",
+   "4 Mega Hawlucha ex ASC 116",
+   "8 Fighting Energy MEE 6",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Raging Bolt ex PRE 166",
+   "4 Mega Hawlucha ex ASC 116",
+   "8 Fighting Energy MEE 6",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Raging Bolt ex PRE 166",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Fighting Energy MEE 6",
+   "3 Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bellowing Thunder"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "DiscardEnergy",
+    "Wait"
+   ],
+   "cite": "rulings 1553, 1580, 1846, 1874: 'discard Energy to do more damage' sets the damage, so the choice is asked before the damage (the attack animation Wait comes after it)"
+  }
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Hawlucha ex ASC 116",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Mega Hawlucha ex ASC 116",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Yanma DRI 2",
+   "Yanmega ex DRI 3"
+  ],
+  "active_energy": [
+   "4 Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Yanma DRI 2"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jet Cyclone"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "AttachEnergy"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): a choice that does not set the damage is asked after the damage (moving the attacker's own Energy to the Bench is an effect choice, asked after the damage)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 1,
+   "cite": "Jet Cyclone: move 3 Energy from this Pokemon to 1 of your Benched Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 3,
+   "cite": "Jet Cyclone: the Energy went to the Benched Pokemon"
+  }
+ ]
+}

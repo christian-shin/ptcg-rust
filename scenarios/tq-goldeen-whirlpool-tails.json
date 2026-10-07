@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Goldeen PRE 20",
+   "4 Hop's Snorlax JTG 117",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Goldeen PRE 20",
+   "4 Hop's Snorlax JTG 117",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Goldeen PRE 20",
+  "active_energy": [
+   "2 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "2 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Whirlpool"
+  }
+ ],
+ "coins": [
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "Wait"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): a choice that does not set the damage is asked after the damage (the coin flip is shown with a Wait, after the damage)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "energy": 2,
+   "damage": 10,
+   "cite": "Whirlpool: tails does nothing more"
+  }
+ ]
+}
