@@ -8,12 +8,13 @@
 //! 1790). It used to throw CANNOT_USE_POWER there and ask for at least 1.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Duskull@Duskull SFA|Duskull PRE", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Duskull@Duskull SFA|Duskull PRE", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
+    if !after_attack_used(g, e, 0, me) {
         return Ok(());
     }
+    let e = real_attack(g, e);
     let (p, source) = match *g.e(e) {
         Effect::Attack { p, source, .. } => (p as usize, source),
         _ => return Ok(()),

@@ -147,11 +147,11 @@ pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::Attack { attack, .. } if attack == mine)
 }
 
-/// `SURVIVE_ON_TEN_ON_COIN_FLIP(store, state, effect, player, reason)` (phase 4b):
-/// when the PutDamageEffect would Knock Out its target (existing damage plus
-/// `effect.damage >=` the CheckHpEffect HP), flip a coin right away
-/// (`CoinFlipEffect.result`, no callback: a callback would run after the
-/// flip's wait prompt, i.e. after the damage was applied); heads sets
+/// `SURVIVE_ON_TEN_ON_COIN_FLIP(store, state, effect, player, reason)`: when the PutDamageEffect would Knock Out
+/// its target (existing damage plus `effect.damage >=` the CheckHpEffect HP) during an attack, the Pokémon is recorded:
+/// the full damage is done, then the coin is flipped and 10 HP restored AFTER all the damage (ruling 1770,
+/// `resolve_survive_coin_flips`). Outside an attack the coin is flipped right away (`CoinFlipEffect.result`, no
+/// callback: a callback would run after the flip's wait prompt, i.e. after the damage was applied); heads sets
 /// `surviveOnTenHPReason`.
 pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize) -> R {
     let (t, damage) = match *g.e(e) {
@@ -160,10 +160,40 @@ pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize) -> R {
     };
     let hp = crate::engine::check::check_hp(g, player, t.s)?;
     if g.st.slot(t.p as usize, t.s).damage + damage >= hp {
+        if g.st.phase == GamePhase::Attack {
+            if !g.ten_hp_coin.iter().any(|(s, _)| *s == t) {
+                g.ten_hp_coin.push((t, player as u8));
+            }
+            return Ok(());
+        }
         let (c, _) = g.run_fx(Effect::CoinFlip { p: player as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
         if let Effect::CoinFlip { result: Some(true), .. } = c {
             if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
                 *survive_on_ten_hp = true;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// `RESOLVE_SURVIVE_COIN_FLIPS`: flip the coins of the Pokémon that took lethal damage from the attack once all its
+/// damage is done (ruling 1770): heads, it is not Knocked Out and its remaining HP becomes 10.
+pub fn resolve_survive_coin_flips(g: &mut Game) -> R {
+    let list = std::mem::replace(&mut g.ten_hp_coin, SVec::new());
+    for (t, owner) in list.iter().copied() {
+        let (tp, ts) = (t.p as usize, t.s);
+        if g.st.slot_pokemon(tp, ts).is_none() {
+            continue;
+        }
+        let hp = crate::engine::check::check_hp(g, owner as usize, ts)?;
+        if g.st.slot(tp, ts).damage < hp {
+            continue;
+        }
+        let (c, _) = g.run_fx(Effect::CoinFlip { p: owner, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+        if let Effect::CoinFlip { result: Some(true), .. } = c {
+            g.st.players[tp].slots[ts as usize].damage = hp - 10;
+            if !g.ten_hp.contains(&t) {
+                g.ten_hp.push(t);
             }
         }
     }
@@ -176,13 +206,23 @@ pub fn after_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
     matches!(*g.e(e), Effect::AfterAttack { attack, .. } if attack == mine)
 }
 
+/// The attack's own AttackEffect behind an AfterAttackEffect (`effect.attackEffect`); any other effect is returned
+/// as is. A block moved to AfterAttack (effect text asked after the damage) calls this first and then reads the
+/// attack's state as before.
+pub fn real_attack(g: &Game, e: EffId) -> EffId {
+    match *g.e(e) {
+        Effect::AfterAttack { atk, .. } => atk,
+        _ => e,
+    }
+}
+
 /// (player, opponent, attack, source) of an AttackEffect, or of the
 /// `new AttackEffect(player, opponent, effect.attack)` that a card builds in an
 /// AfterAttackEffect handler (its source is the player's Active).
 pub fn attack_data(g: &Game, e: EffId) -> Option<(u8, u8, AttackRef, SlotRef)> {
     match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => Some((p, opp, attack, source)),
-        Effect::AfterAttack { p, opp, attack } => Some((p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active))),
+        Effect::AfterAttack { p, opp, attack, .. } => Some((p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active))),
         _ => None,
     }
 }

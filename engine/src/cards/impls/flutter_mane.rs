@@ -18,7 +18,7 @@
 //! first; same fix in R2 and R4). Hex Hurl is PUT_X_DAMAGE_COUNTERS_IN_ANY_WAY_YOU_LIKE (2, Bench).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "FlutterMane", mask: mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "FlutterMane", mask: mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 /// `IS_POWER_SUBJECT_TO_ABILITY_LOCK` with this card's options.
 fn subject(g: &Game, power: PowerRef, probe: bool) -> bool {
@@ -125,7 +125,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => {}
     }
 
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let (p, o) = match *g.e(e) {
             Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
             _ => return Ok(()),

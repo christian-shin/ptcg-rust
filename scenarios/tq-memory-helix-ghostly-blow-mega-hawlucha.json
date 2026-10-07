@@ -1,0 +1,76 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mew ex 30C 66",
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Mega Hawlucha ex ASC 116",
+   "4 Zeraora DRI 78",
+   "36 Psychic Energy MEE"
+  ],
+  [
+   "4 Mew ex 30C 66",
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "4 Mega Hawlucha ex ASC 116",
+   "4 Zeraora DRI 78",
+   "36 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mew ex 30C 66",
+  "active_energy": [
+   "2 Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Mankey SSP 98",
+     "Primeape M5",
+     "Annihilape PBL 41"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Hawlucha ex ASC 116",
+  "active_damage": 240,
+  "bench": [
+   {
+    "card": "Zeraora DRI 78"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ghostly Blow",
+   "from": "Annihilape M5"
+  }
+ ],
+ "coins": [
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "ChoosePokemon"
+   ],
+   "cite": "ruling 1770; Advanced Rulebook A-01 steps 3-5, C-07: a copied attack follows the copied attack (Memory Helix, ruling 1628): the Tenacious Body coin comes after the damage and before the counter placement"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "hp_left": 10,
+   "cite": "ruling 1770"
+  }
+ ]
+}

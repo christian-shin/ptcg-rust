@@ -48,7 +48,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from",
+    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -86,9 +86,10 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             o.contains_key("active"),
             o.contains_key("legal"),
             o.contains_key("bench_count") || o.contains_key("bench_excludes"),
+            o.contains_key("prompts"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
-            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, legal, bench_count or bench_excludes)", i));
+            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, legal, bench_count, bench_excludes or prompts)", i));
         }
         let start = o.get("at").and_then(|v| v.as_str()) == Some("start");
         if start && o.contains_key("n") {
@@ -118,7 +119,12 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
                 return Err(format!("expect[{}]: is must be true or false", i));
             }
         }
-        if !o.contains_key("winner") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
+        if let Some(pr) = o.get("prompts") {
+            if !pr.as_array().map_or(false, |a| !a.is_empty() && a.iter().all(|x| x.is_string())) {
+                return Err(format!("expect[{}]: prompts must be a non-empty list of prompt kind names (Wait, CoinFlip, PutDamage, ...)", i));
+            }
+        }
+        if !o.contains_key("winner") && !o.contains_key("prompts") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
         }
         let mut spec = a.clone();
@@ -362,7 +368,21 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
 pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
     let o = &a.spec;
     let w = o["who"].as_str().unwrap_or("");
-    if o.get("legal").is_some() {
+    if let Some(want) = o.get("prompts") {
+        // The prompts the engine created since the scenario edits, in order: `want` must appear as a subsequence.
+        let seen = PROMPT_LOG.with(|l| l.borrow().clone());
+        let want: Vec<&str> = want.as_array().unwrap().iter().filter_map(|x| x.as_str()).collect();
+        let mut at = 0;
+        for k in &seen {
+            if at < want.len() && k == want[at] {
+                at += 1;
+            }
+        }
+        if at < want.len() {
+            return Err(format!("prompts: expected {:?} in order, actual {:?}", want, seen));
+        }
+        Ok(())
+    } else if o.get("legal").is_some() {
         check_legal(g, o, who(o, me))
     } else if o.get("zone").is_some() {
         check_zone(g, o, who(o, me))
@@ -483,6 +503,19 @@ impl Run {
 
 thread_local! {
     static RUN: RefCell<Option<Run>> = const { RefCell::new(None) };
+    /// Address of the replayed game while assertions are armed (0 = none).
+    static ARMED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    /// Kind names of the prompts the armed game created since the scenario edits (`prompts` assertions).
+    static PROMPT_LOG: RefCell<Vec<String>> = const { RefCell::new(Vec::new()) };
+}
+
+/// Hook in `Game::prompt`: record the kind name of every prompt of the replayed game (`prompts` assertions).
+pub fn on_prompt(g: &Game, kind: &crate::prompts::PromptKind) {
+    if ARMED.with(|a| a.get()) != g as *const Game as usize {
+        return;
+    }
+    let name: String = format!("{:?}", kind).chars().take_while(|c| c.is_alphanumeric()).collect();
+    PROMPT_LOG.with(|l| l.borrow_mut().push(name));
 }
 
 /// Arm the assertions for the replay of `g` (called right after the scenario edits).
@@ -501,10 +534,13 @@ pub fn arm(g: &Game, assertions: Vec<Assertion>, dump: bool) {
             decisions: 0,
         })
     });
+    ARMED.with(|a| a.set(g as *const Game as usize));
+    PROMPT_LOG.with(|l| l.borrow_mut().clear());
 }
 
 /// Take the finished run (None when nothing was armed).
 pub fn take() -> Option<Run> {
+    ARMED.with(|a| a.set(0));
     RUN.with(|r| r.borrow_mut().take())
 }
 

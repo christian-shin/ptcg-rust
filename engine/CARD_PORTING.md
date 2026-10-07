@@ -556,6 +556,11 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   "target": {...}}` or `"name"` instead of `"card"`; `target` optional; or `{"a": "play"|"ability", "card_prefix": "PRE-100#"}`):
   the oracle matches the first such legal option, since card ids depend on the shuffle. Other answers (`ability`, `stadium`,
   `retreat`, `attack`, `pass`) and prompt answers stay in the recorded raw format (e.g. `[{"player": 2, "slot": 2, "index": 0}]`).
+* **Prompt order** (`"prompts"`, question timing in attacks): `{"at": "turn_end", "prompts": ["CoinFlip", "PutDamage"], "cite": "..."}`
+  asserts that the Rust engine created prompts of these kinds, in this order (a subsequence), since the scenario edits.
+  The names are the `PromptKind` variants (`Wait`, `CoinFlip`, `Confirm`, `ChooseCards`, `ChoosePokemon`, `PutDamage`,
+  `AttachEnergy`, `ShuffleDeck`, ...); no `who`. Use it to pin when an attack asks its question relative to a coin flip
+  or another prompt (rules: Advanced Rulebook A-01 steps 3 to 5, C-07; rulings 1553, 1580, 1770, 1846, 1874).
 * **Output**: `diff` prints `EXPECT FAILED <trace>: assertion #i (at) ...`
   with the cite and the actual value, and `expect: N games checked, M failed, K
   not checked`; it exits 1 on failure, like a divergence, with `--quiet` too.

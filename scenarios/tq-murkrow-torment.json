@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Hop's Snorlax JTG 117",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Hop's Snorlax JTG 117",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Murkrow ASC 126",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Torment"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "ChooseAttack"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage (the attack to lock is chosen after the animation and the damage)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "Torment: 30 damage"
+  }
+ ]
+}

@@ -14,7 +14,8 @@ use crate::cards::prelude::*;
 pub static IMPL: CardImpl = CardImpl { class: "Zapdos", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
@@ -49,7 +50,7 @@ fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
 pub fn discard_all_energy_from_active(g: &mut Game, e: EffId) -> R<usize> {
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-        Effect::AfterAttack { p, opp, attack } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
+        Effect::AfterAttack { p, opp, attack, .. } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
         _ => return Ok(0),
     };
     let pu = p as usize;

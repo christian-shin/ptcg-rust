@@ -264,6 +264,9 @@ pub struct Game {
     pub triggers: SVec<AtkTrig, 16>,
     /// Pokémon that survived this attack's damage with "remaining HP becomes 10" (`survive-on-ten.ts`).
     pub ten_hp: SVec<SlotRef, 8>,
+    /// Pokémon (and the owner who flips) whose Tenacious Body / Durable Body coin waits for all the attack's damage
+    /// (ruling 1770; `survive-on-ten.ts`).
+    pub ten_hp_coin: SVec<(SlotRef, u8), 8>,
     /// `last-attack.ts`: the attack in progress / the last attack, for the Knock Out check.
     pub last_attack: Option<LastAttack>,
 }
@@ -314,7 +317,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, last_attack,
+                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack,
             } = src;
             f!((*d).st).write(*st);
             f!((*d).rng).write(*rng);
@@ -336,6 +339,7 @@ impl Game {
             after_dmg.copy_live_to(f!((*d).after_dmg));
             triggers.copy_live_to(f!((*d).triggers));
             ten_hp.copy_live_to(f!((*d).ten_hp));
+            ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
             f!((*d).last_attack).write(*last_attack);
         }
     }
@@ -364,6 +368,7 @@ impl Game {
             after_dmg: SVec::new(),
             triggers: SVec::new(),
             ten_hp: SVec::new(),
+            ten_hp_coin: SVec::new(),
             last_attack: None,
         }
     }
@@ -748,6 +753,7 @@ impl Game {
         // Safety cap: a card duplicating itself in a loop would get here (the Dangle Tail aliasing that
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
+        crate::expect::on_prompt(self, &kind);
         self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();
         ids.push(id);
@@ -1056,6 +1062,7 @@ impl Game {
         }
         if let Effect::Attack { p, source, .. } = *self.e(id) {
             self.ten_hp = SVec::new();
+            self.ten_hp_coin = SVec::new();
             self.last_attack = Some(LastAttack {
                 p,
                 source,

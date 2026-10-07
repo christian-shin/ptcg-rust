@@ -611,7 +611,8 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
         }
         CopyStage::AfterDamageEffects => {
             f.stage = CopyStage::AfterAfter;
-            let r = g.run_fx(Effect::AfterAttack { p, opp, attack: f.attack }).map(|_| ());
+            // Tenacious Body / Durable Body: the coin is flipped after all the damage is done (ruling 1770).
+            let r = crate::prefabs::resolve_survive_coin_flips(g).and_then(|_| g.run_fx(Effect::AfterAttack { p, opp, attack: f.attack, atk: f.atk }).map(|_| ()));
             finish_step(g, f, r, wait_if_prompts)
         }
         CopyStage::AfterAfter => {

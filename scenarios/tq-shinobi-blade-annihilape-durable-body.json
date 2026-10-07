@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Greninja ex TWM 106",
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Greninja ex TWM 106",
+   "4 Mankey SSP 98",
+   "4 Primeape M5",
+   "4 Annihilape PBL 41",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Froakie TWM 56",
+   "Frogadier TWM 57",
+   "Greninja ex TWM 106"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Mankey SSP 98",
+   "Primeape M5",
+   "Annihilape PBL 41"
+  ],
+  "active_damage": 120,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shinobi Blade"
+  }
+ ],
+ "coins": [
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "Wait",
+    "Confirm"
+   ],
+   "cite": "ruling 1770 (Durable Body); Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage (the you-may search confirm)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "tails not needed: Annihilape (Durable Body) is Knocked Out only on tails; heads leaves it at 10 HP"
+  }
+ ]
+}

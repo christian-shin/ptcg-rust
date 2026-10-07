@@ -13,7 +13,7 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "AlolanExeggutorex",
-    mask: mask(&[k::ATTACK, k::PUT_DAMAGE]),
+    mask: mask(&[k::ATTACK, k::PUT_DAMAGE, k::AFTER_ATTACK]),
     reduce,
     resume: Some(resume),
     coin: Some(coin),
@@ -30,7 +30,8 @@ fn ko(g: &mut Game, atk: EffId, target: SlotRef) -> R {
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     tera_rule(g, e, me);
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
@@ -63,7 +64,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Cont::Card { card: me, frame: f },
         );
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),

@@ -5,10 +5,11 @@
 //! Twinleaf: PREVENT_DAMAGE then PREVENT_EFFECTS_OF_ATTACKS on heads.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Flittle", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Flittle", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),

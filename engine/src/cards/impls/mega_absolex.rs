@@ -8,7 +8,7 @@
 //! ChooseCardsPrompt on the opponent's hand (no ShowCards).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "MegaAbsolex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "MegaAbsolex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -21,7 +21,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
         }
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         let (p, o) = match *g.e(e) {
             Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
             _ => return Ok(()),

@@ -40,7 +40,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 
     if after_attack_used(g, e, 0, me) {
         let (p, opp, attack) = match *g.e(e) {
-            Effect::AfterAttack { p, opp, attack } => (p, opp, attack),
+            Effect::AfterAttack { p, opp, attack, .. } => (p, opp, attack),
             _ => return Ok(()),
         };
         // `new AttackEffect(player, opponent, this.attacks[0])`

@@ -9,12 +9,13 @@
 //! itself is `withOptionalCoinFlipCancelTrainer` in the trainer reducers.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Seismitoad", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Seismitoad", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
+    if !after_attack_used(g, e, 0, me) {
         return Ok(());
     }
+    let e = real_attack(g, e);
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
         _ => return Ok(()),

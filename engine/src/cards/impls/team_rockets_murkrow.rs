@@ -10,10 +10,11 @@
 //! Active; an OpponentPokemonCannotUseAttackEffect when answered).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsMurkrow", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsMurkrow", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
@@ -34,7 +35,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, opts, Cont::Card { card: me, frame: f });
         return Ok(());
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         opponents_pokemon_cannot_use_that_attack(g, me, e);
     }
     Ok(())

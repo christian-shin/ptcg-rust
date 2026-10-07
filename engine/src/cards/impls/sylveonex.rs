@@ -21,7 +21,7 @@
 use super::chikorita_asc::defending_pokemon_does_less_damage;
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Sylveonex", mask: mask(&[k::ATTACK, k::END_TURN, k::PUT_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Sylveonex", mask: mask(&[k::ATTACK, k::END_TURN, k::PUT_DAMAGE, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn angelite() -> crate::markers::MarkerName {
     crate::marker!("ANGELITE_MARKER")
@@ -52,16 +52,24 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         return defending_pokemon_does_less_damage(g, e, 100);
     }
 
+    // Angelite is once per game: the use is refused before the attack does anything.
     if was_attack_used(g, e, 1, me) {
+        if let Effect::Attack { p, .. } = *g.e(e) {
+            let p = p as usize;
+            if g.st.players[p].marker.has(angelite()) {
+                bail!("BLOCKED_BY_EFFECT");
+            }
+            add(g, p, angelite(), me);
+        }
+    }
+
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         let (p, o) = match *g.e(e) {
             Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
             _ => return Ok(()),
         };
         let bench_count = g.st.players[o].bench.iter().filter(|s| !g.st.players[o].slots[**s as usize].cards.is_empty()).count();
-        if g.st.players[p].marker.has(angelite()) {
-            bail!("BLOCKED_BY_EFFECT");
-        }
-        add(g, p, angelite(), me);
         if bench_count == 0 {
             return Ok(());
         }

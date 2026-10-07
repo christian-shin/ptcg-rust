@@ -21,7 +21,7 @@ pub fn discard_all_active_energy(g: &mut Game, e: EffId) -> R {
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
         // `new AttackEffect(player, opponent, attack)`: its source is the Active.
-        Effect::AfterAttack { p, opp, attack } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
+        Effect::AfterAttack { p, opp, attack, .. } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
         _ => return Ok(()),
     };
     let active = SlotRef::new(p as usize, g.st.players[p as usize].active);
