@@ -8,7 +8,7 @@ first chunk with a divergence. Oracle games that end in `error` or `stuck`
 also fail the run: they are card bugs that break RL rollouts.
 
 usage: tier4.py [--games N] [--seed S] [--chunk C] [--jobs J | --remote K]
-                [--random-decks M] [--out DIR] [--keep] [--no-stop]
+                [--random-decks M] [--out DIR] [--keep] [--no-stop] [--resume]
 
   --seed S        1000 <= S < 42000; game seeds are S * 100,000 + i (32-bit, as
                   both engines take them), above every corpus seed (default:
@@ -20,11 +20,16 @@ usage: tier4.py [--games N] [--seed S] [--chunk C] [--jobs J | --remote K]
                   or the local remote runner if this machine has one)
   --out DIR       default corpus/tier4/<seed>; passing traces are deleted unless
                   --keep, failing ones stay there for `diff` and statediff
+  --resume        continue an interrupted run in the same --out: chunks with a
+                  result.json are not played again, and in the others only the
+                  games without a complete trace are played (game i is the
+                  same game on every run, so the results are the same)
 
-Writes <out>/summary.json and prints one line per chunk. Exit status 1 on any
+Writes <out>/c*/result.json per chunk, <out>/summary.json, and prints one line per chunk. Exit status 1 on any
 divergence or oracle failure.
 """
 import argparse, collections, glob, json, os, random, re, subprocess, sys, time
+from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -127,17 +132,37 @@ def build_spec(seed, n_random):
     return {'decks': decks, 'policies': POLICIES}
 
 
-def play_local(spec_path, out, start, count, jobs):
-    per = (count + jobs - 1) // jobs
-    procs = []
-    for j in range(jobs):
-        s, c = start + j * per, min(per, start + count - (start + j * per))
-        if c <= 0:
-            break
-        procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'corpus', spec_path, out, str(s), str(c)],
-                                      cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True))
-    log = ''.join(p.communicate()[0] for p in procs)
-    return log
+def trace_complete(path):
+    """Whether the oracle finished writing this trace (it ends with the game's "result")."""
+    try:
+        with open(path, 'rb') as fh:
+            fh.seek(max(0, os.path.getsize(path) - 65536))
+            s = fh.read().decode('utf-8', 'replace')
+        i = s.rfind('"result"')
+        return i >= 0 and isinstance(json.loads('{' + s[i:]), dict)
+    except (OSError, ValueError):
+        return False
+
+
+def play_local(spec_path, out, games, jobs):
+    """Play the game indices `games` (ascending) in `jobs` processes, one
+    `cli.js corpus` call per run of consecutive indices."""
+    per = (len(games) + jobs - 1) // jobs
+
+    def play(part):
+        runs, log = [], ''
+        for g in part:
+            if runs and runs[-1][1] == g:
+                runs[-1][1] += 1
+            else:
+                runs.append([g, g + 1])
+        for s, e in runs:
+            log += subprocess.run(['node', 'output/oracle/cli.js', 'corpus', spec_path, out, str(s), str(e - s)],
+                                  cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True).stdout
+        return log
+
+    with ThreadPoolExecutor(max(1, jobs)) as ex:
+        return ''.join(ex.map(play, [games[i:i + per] for i in range(0, len(games), max(1, per))]))
 
 
 def oracle_failures(out, log):
@@ -174,6 +199,7 @@ def main():
     ap.add_argument('--out')
     ap.add_argument('--keep', action='store_true')
     ap.add_argument('--no-stop', action='store_true')
+    ap.add_argument('--resume', action='store_true')
     a = ap.parse_args()
     os.environ['PTCG_REMOTE_TOTAL'] = str(a.games)   # a remote runner may refuse runs this big
     out = os.path.abspath(a.out or os.path.join(ROOT, 'corpus/tier4', str(a.seed)))
@@ -192,16 +218,33 @@ def main():
         n = min(a.chunk, a.games - done)
         chunk = os.path.join(out, 'c%06d' % (done // a.chunk))
         os.makedirs(chunk, exist_ok=True)
-        if a.remote:
-            import remote_oracle
-            _, _, log = remote_oracle.run(spec_path, chunk, start=base + done, count=n, shards=a.remote,
-                                          tag='tier4-%d' % a.seed, ref=os.environ.get('PTCG_ORACLE_REF', 'oracle'))
+        result = os.path.join(chunk, 'result.json')
+        if a.resume and os.path.exists(result):
+            r = json.load(open(result))
+            stats, bad, div = r['stats'], [tuple(x) for x in r['bad']], [tuple(x) for x in r['div']]
+            print('[tier4 seed %d] resume: chunk %s already done' % (a.seed, os.path.basename(chunk)), flush=True)
         else:
-            log = play_local(spec_path, chunk, base + done, n, a.jobs)
-        if not glob.glob(os.path.join(chunk, 'g*.json')):
-            sys.exit('no oracle traces were written; oracle output:\n' + log[-3000:])
-        bad = oracle_failures(chunk, log)
-        stats, div = replay(chunk)
+            if a.remote:
+                import remote_oracle
+                _, _, log = remote_oracle.run(spec_path, chunk, start=base + done, count=n, shards=a.remote,
+                                              tag='tier4-%d' % a.seed, ref=os.environ.get('PTCG_ORACLE_REF', 'oracle'))
+            else:
+                games = list(range(base + done, base + done + n))
+                if a.resume:
+                    trace = lambda g: os.path.join(chunk, 'g%06d.json' % g)
+                    games = [g for g in games if not trace_complete(trace(g))]
+                    print('[tier4 seed %d] resume: chunk %s, %d of %d games left to play' % (
+                        a.seed, os.path.basename(chunk), len(games), n), flush=True)
+                    for g in games:
+                        if os.path.exists(trace(g)):
+                            os.remove(trace(g))
+                log = play_local(spec_path, chunk, games, a.jobs) if games else ''
+            if not glob.glob(os.path.join(chunk, 'g*.json')):
+                sys.exit('no oracle traces were written; oracle output:\n' + log[-3000:])
+            bad = oracle_failures(chunk, log)
+            stats, div = replay(chunk)
+            json.dump({'stats': stats, 'bad': bad, 'div': div}, open(result + '.tmp', 'w'))
+            os.replace(result + '.tmp', result)
         for k, v in stats.items():
             tot[k] += v
         tot['oracle_failures'] += len(bad)

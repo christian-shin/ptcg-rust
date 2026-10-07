@@ -1,13 +1,15 @@
 """Regenerate one shard of corpus traces from their headers on GitHub Actions
 (.github/workflows/regen.yml), then replay them through Rust.
 
-usage: regen_shard.py HEADERS.json.gz SHARD SHARDS OUT [--jobs J]
+usage: regen_shard.py HEADERS.json.gz SHARD SHARDS OUT [--jobs J] [--resume]
 
 HEADERS maps a corpus-relative trace path to its header (tools: pack the
 headers of the diverged traces locally). Each shard writes header-only stubs
 under OUT/<path>, runs `cli.js regen` on them (which re-plays the game from
 seed, decks, policies and scenario with the current oracle), replays the
-result with `diff`, and writes OUT/summary-<SHARD>.txt.
+result with `diff`, and writes OUT/summary-<SHARD>.txt. --resume continues
+an interrupted shard in the same OUT: traces already regenerated in full are
+kept and only the others are played again.
 """
 import argparse, gzip, json, os, re, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
@@ -18,6 +20,7 @@ ap.add_argument('shard', type=int)
 ap.add_argument('shards', type=int)
 ap.add_argument('out')
 ap.add_argument('--jobs', type=int, default=4)
+ap.add_argument('--resume', action='store_true')
 a = ap.parse_args()
 ORACLE = os.environ['PTCG_ORACLE']
 DIFF = os.environ['PTCG_DIFF']
@@ -25,14 +28,32 @@ DIFF = os.environ['PTCG_DIFF']
 with gzip.open(a.headers, 'rt') as g:
     headers = json.load(g)
 mine = sorted(headers)[a.shard::a.shards]
-files = []
+
+
+def complete(path):
+    """Whether `cli.js regen` finished writing this trace (it ends with the game's "result")."""
+    try:
+        with open(path, 'rb') as fh:
+            fh.seek(max(0, os.path.getsize(path) - 65536))
+            s = fh.read().decode('utf-8', 'replace')
+        i = s.rfind('"result"')
+        return i >= 0 and isinstance(json.loads('{' + s[i:]), dict)
+    except (OSError, ValueError):
+        return False
+
+
+files, todo = [], []
 for rel in mine:
     p = os.path.abspath(os.path.join(a.out, rel))
+    files.append(p)
+    if a.resume and complete(p):
+        continue
     os.makedirs(os.path.dirname(p), exist_ok=True)
     with open(p, 'w') as f:
         json.dump({'header': headers[rel]}, f)
-    files.append(p)
-print('shard %d/%d: %d traces' % (a.shard, a.shards, len(files)), flush=True)
+    todo.append(p)
+print('shard %d/%d: %d traces%s' % (a.shard, a.shards, len(files),
+                                    ', %d already regenerated' % (len(files) - len(todo)) if a.resume else ''), flush=True)
 
 
 def regen(chunk):
@@ -41,7 +62,7 @@ def regen(chunk):
     return r.stdout + r.stderr
 
 
-chunks = [files[i:i + 10] for i in range(0, len(files), 10)]
+chunks = [todo[i:i + 10] for i in range(0, len(todo), 10)]
 with ThreadPoolExecutor(a.jobs) as ex:
     logs = []
     for i, l in enumerate(ex.map(regen, chunks)):
