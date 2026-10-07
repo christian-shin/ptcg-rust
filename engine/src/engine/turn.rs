@@ -211,10 +211,18 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             let act = g.st.players[p].active;
             clear_effects(&mut g.st.players[p].slots[act as usize]);
         }
-        Action::Attack { name } => {
+        Action::Attack { name, from } => {
             let pokemon = g.st.active_pokemon(p);
             let attacks = available_attacks(g, p)?;
-            let (attack, copied) = match attacks.iter().find(|r| g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name) {
+            // `from` names the Benched Pokemon of an attack copied by Memory Helix.
+            let found = attacks.iter().find(|r| {
+                g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name
+                    && match from {
+                        Some(f) => r.1 && g.st.cdef(r.0.card).full_name == f,
+                        None => true,
+                    }
+            });
+            let (attack, copied) = match found {
                 Some(r) => *r,
                 None => crate::bail!("UNKNOWN_ATTACK"),
             };

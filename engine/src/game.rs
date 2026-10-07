@@ -178,7 +178,8 @@ pub const MAX_TEMPS: usize = 32;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Action {
     PlayCard { hand_index: u8, target: CardTarget },
-    Attack { name: &'static str },
+    /// `from`: full name of the Benched Pokémon whose attack this is (Memory Helix), else None.
+    Attack { name: &'static str, from: Option<&'static str> },
     UseAbility { name: &'static str, target: CardTarget },
     UseTrainerAbility { name: &'static str, target: CardTarget },
     UseStadium,

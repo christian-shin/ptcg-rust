@@ -39,7 +39,8 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Blazing Destruction"
+   "name": "Blazing Destruction",
+   "from": "Hisuian Growlithe TWM"
   }
  ],
  "expect": [

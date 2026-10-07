@@ -36,7 +36,8 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Accelerating Stab"
+   "name": "Accelerating Stab",
+   "from": "Riolu M1L"
   },
   {
    "a": "pass"
@@ -48,6 +49,7 @@
    "who": "me",
    "legal": "attack",
    "name": "Accelerating Stab",
+   "from": "Riolu M1L",
    "cite": "Advanced Rulebook I-A-02 (a passive Ability is automatic, never announced); Memory Helix card text"
   },
   {
@@ -57,6 +59,24 @@
    "card": "Drilbur PBL 46",
    "damage": 30,
    "cite": "Accelerating Stab: 30 damage, done by Mew ex"
+  },
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Accelerating Stab",
+   "is": false,
+   "cite": "user decision 2026-10-07: Mew ex used Accelerating Stab itself through Memory Helix, so 'this Pokemon can't use Accelerating Stab' applies to it (the copy ATTACKS of Advanced Rulebook C-18 use their own attack instead)"
+  },
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Call for Family",
+   "from": "Drilbur M5",
+   "cite": "only Accelerating Stab is locked; Mew ex still has Energy for Drilbur's [C] attack"
   }
  ]
 }

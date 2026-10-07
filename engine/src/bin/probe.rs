@@ -610,7 +610,7 @@ fn attack_prompts() {
             continue;
         }
         for o in legal_turn_options(&g) {
-            if let Action::Attack { name } = o.action {
+            if let Action::Attack { name, .. } = o.action {
                 let mut h = Box::new(g.clone());
                 h.rng.force_coins(&[true; 8]);
                 if h.act(o.action).and_then(|_| h.settle()).is_err() {

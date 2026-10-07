@@ -35,7 +35,8 @@ pub fn describe_action(g: &Game, a: Action) -> Value {
             let c = g.st.players[p].hand.as_slice()[hand_index as usize];
             json!({ "a": "play", "card": g.card_ref(c), "target": target_json(target) })
         }
-        Action::Attack { name } => json!({ "a": "attack", "name": name }),
+        Action::Attack { name, from: None } => json!({ "a": "attack", "name": name }),
+        Action::Attack { name, from: Some(f) } => json!({ "a": "attack", "name": name, "from": f }),
         Action::UseAbility { name, target } => json!({ "a": "ability", "name": name, "source": target_json(target) }),
         Action::UseTrainerAbility { name, target } => json!({ "a": "trainerAbility", "name": name, "source": target_json(target) }),
         Action::UseStadium => json!({ "a": "stadium" }),
@@ -83,6 +84,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
     }
 
     let mut names: Vec<&'static str> = Vec::new();
+    let mut from_names: Vec<(&'static str, &'static str)> = Vec::new();
     let add = |n: &'static str, names: &mut Vec<&'static str>| {
         if !names.contains(&n) {
             names.push(n);
@@ -102,15 +104,36 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
     }
     if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_ATTACKS) || g.st.slot(p, pl.active).tools.len() > 0 {
         let mut sim = g.fork();
-        if let Ok((Effect::CheckPokemonAttacks { attacks, .. }, _)) = { let e = check_attacks_effect(&sim, p); sim.run_fx(e) } {
+        if let Ok((Effect::CheckPokemonAttacks { attacks, copied, .. }, _)) = { let e = check_attacks_effect(&sim, p); sim.run_fx(e) } {
             for a in attacks.iter() {
-                add(g.st.cdef(a.card).attacks[a.idx()].name, &mut names);
+                let n = g.st.cdef(a.card).attacks[a.idx()].name;
+                if copied.iter().any(|c| c == a) {
+                    // Copied from a Benched Pokemon (Memory Helix): named by the source card too.
+                    let from = g.st.cdef(a.card).full_name;
+                    if !from_names.iter().any(|(x, f)| *x == n && *f == from) {
+                        from_names.push((n, from));
+                    }
+                } else {
+                    add(n, &mut names);
+                }
             }
         }
     }
-    js_sort(&mut names);
+    // Same order as the oracle's `[...names, ...name + '\0' + from].sort()`.
+    let mut keyed: Vec<(String, Action)> = Vec::new();
     for n in names {
-        out.push(Action::Attack { name: n });
+        keyed.push((n.to_string(), Action::Attack { name: n, from: None }));
+    }
+    for (n, f) in from_names {
+        keyed.push((format!("{}\u{0}{}", n, f), Action::Attack { name: n, from: Some(f) }));
+    }
+    keyed.sort_by(|a, b| {
+        let x: Vec<u16> = a.0.encode_utf16().collect();
+        let y: Vec<u16> = b.0.encode_utf16().collect();
+        x.cmp(&y)
+    });
+    for (_, a) in keyed {
+        out.push(a);
     }
 
     for t in &own {

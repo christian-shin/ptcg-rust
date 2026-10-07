@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "4 N's Zekrom ASC 155",
+   "48 Darkness Energy MEE"
+  ],
+  [
+   "4 N's Zorua ASC 136",
+   "4 N's Zoroark ex ASC 137",
+   "4 N's Zekrom ASC 155",
+   "48 Darkness Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ],
+  "active_energy": [
+   "2 Darkness Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "N's Zekrom ASC 155"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Night Joker"
+  },
+  {
+   "index": 0,
+   "attack": "Rampaging Thunder"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "N's Zoroark ex ASC 137",
+   "damage": 250,
+   "cite": "Rampaging Thunder: 250 damage, used by Night Joker as this attack without the Energy (Advanced Rulebook C-18)"
+  },
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Night Joker",
+   "is": false,
+   "cite": "Rampaging Thunder: 'During your next turn, this Pokemon can't use attacks'; Zoroark ex used it as its own attack (Advanced Rulebook C-15, C-18)"
+  },
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Rampaging Thunder",
+   "is": false,
+   "cite": "Zoroark ex can't use any attack during its next turn (Advanced Rulebook C-15, C-18)"
+  }
+ ]
+}

@@ -432,6 +432,21 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   policy still picks moves): set the board so the branch is likely, and run
   enough games (12-16 is usually plenty) that it runs in ≥3.
 
+#### Attacks copied by Memory Helix
+
+Mew ex 30C's Memory Helix is passive: the attacks of its Benched Pokemon are
+added to its attack options (`CheckPokemonAttacksEffect.copiedAttacks`, Rust
+`copied`) while it is Active and the Ability isn't blocked, and run with
+`UseAttackEffect.delegateFrom` = the Benched card. The turn-option descriptor of
+a copied attack always carries its source: `{a:'attack', name, from:'<Twinleaf
+fullName of the Benched Pokemon>'}` (Mew ex's own and other attacks keep
+`{a:'attack', name}`), so two Benched Pokemon with a same-name attack are both
+offered. Options sort by `name` then `from` (the key `name + "\0" + from`, JS string order).
+Scripted answers must give `from`; `legal` assertions may omit it (any source) or
+give it (an English key or full name). A lock such as "this Pokemon can't use X"
+applies to Mew ex for a name among its copied attacks; copy attacks (Foul Play,
+Night Joker, Metronome) still don't lock the copied name (Advanced Rulebook C-18).
+
 #### `expect`: the scenario asserts the rules outcome
 
 "0 diverged" only says the Rust engine and the oracle agree. A scenario can

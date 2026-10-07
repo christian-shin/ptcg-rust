@@ -51,7 +51,8 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Rapid Draw"
+   "name": "Rapid Draw",
+   "from": "Seaking PRE"
   }
  ],
  "expect": [

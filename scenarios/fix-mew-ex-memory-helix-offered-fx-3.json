@@ -41,7 +41,8 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Take Down"
+   "name": "Take Down",
+   "from": "Hisuian Growlithe TWM"
   }
  ],
  "expect": [
