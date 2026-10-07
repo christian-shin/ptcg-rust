@@ -216,6 +216,9 @@ pub enum Effect {
     /// assigns over the attacker's) to `b.target`. Reducer-less: the card
     /// applies the counters after reducing it.
     MoveCounters { b: AtkBase, damage: i32 },
+    /// `DevolveEffect`: devolving `b.target` as an effect of an attack (Espeon ex's Amethyst). Reducer-less:
+    /// the card devolves the Pokémon unless the effect was prevented (Mist Energy and the like).
+    Devolve { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef },
@@ -320,6 +323,7 @@ impl Effect {
             RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EFFECT",
+            Devolve { .. } => "DEVOLVE_EFFECT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
             PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
@@ -368,7 +372,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | Devolve { b } => Some(b),
             _ => None,
         }
     }
@@ -401,7 +405,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | Devolve { b } => Some(b),
             _ => None,
         }
     }
@@ -496,6 +500,7 @@ impl Effect {
             RetaliateOnDamage { .. } => 172,
             RetaliateDamage { .. } => 173,
             MoveCounters { .. } => 244,
+            Devolve { .. } => 247,
             OpponentPokemonCannotUseAttack { .. } => 91,
             PreventAttackUntilLeavesActive { .. } => 188,
             DefendingPokemonTakesMoreDamage { .. } => 130,
@@ -593,6 +598,7 @@ pub mod k {
     pub const RETALIATE_ON_DAMAGE: u32 = 172;
     pub const RETALIATE_DAMAGE: u32 = 173;
     pub const MOVE_COUNTERS: u32 = 244;
+    pub const DEVOLVE: u32 = 247;
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;

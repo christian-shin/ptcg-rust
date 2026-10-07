@@ -46,6 +46,7 @@ pub static IMPL: CardImpl = CardImpl {
         k::RETALIATE_ON_DAMAGE,
         k::RETALIATE_DAMAGE,
         k::MOVE_COUNTERS,
+        k::DEVOLVE,
     ]),
     reduce,
     resume: None,
