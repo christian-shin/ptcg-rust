@@ -483,6 +483,13 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).
 * **Names** are English keys or Twinleaf full names; both are accepted.
+* **Later turns and legal actions** (rules audit): `"turn": k` (with `turn_end` or `next_turn`) waits for the k-th
+  turn after the scenario turn. `"at": "decision", "n": N` checks the N-th turn decision since the edits (0 = right
+  after them, so first-turn rules can be asserted). `{"who", "legal": "retreat" | "attack" | "play", "name": ..., "on":
+  "active" | bench index, "is": false}` asserts that an action is (not) among the legal options of the player to move
+  (`who` must be that player; `on` narrows a `play` to a target). Scripted `answers` may name a hand card in a play
+  (`{"a": "play", "card": "Switch 30C 127", "target": {...}}`; the oracle matches the first such legal play, since card
+  ids depend on the shuffle); prompt answers stay in the recorded raw format (e.g. `[{"player": 2, "slot": 2, "index": 0}]`).
 * **Output**: `diff` prints `EXPECT FAILED <trace>: assertion #i (at) ...`
   with the cite and the actual value, and `expect: N games checked, M failed, K
   not checked`; it exits 1 on failure, like a divergence, with `--quiet` too.
