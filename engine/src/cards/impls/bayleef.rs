@@ -12,7 +12,7 @@ pub static IMPL: CardImpl = CardImpl { class: "Bayleef", mask: mask(&[k::AFTER_A
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if after_attack_used(g, e, 0, me) {
-        if let Effect::AfterAttack { p, opp, attack } = *g.e(e) {
+        if let Effect::AfterAttack { p, opp, attack, .. } = *g.e(e) {
             return switch_out_opponent_active(g, me, p as usize, opp as usize, attack);
         }
     }

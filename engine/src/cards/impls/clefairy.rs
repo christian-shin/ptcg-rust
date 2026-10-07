@@ -13,7 +13,7 @@ pub static IMPL: CardImpl = CardImpl { class: "Clefairy", mask: mask(&[k::AFTER_
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if after_attack_used(g, e, 0, me) {
-        if let Effect::AfterAttack { p, opp, attack } = *g.e(e) {
+        if let Effect::AfterAttack { p, opp, attack, .. } = *g.e(e) {
             let (p, o) = (p as usize, opp as usize);
             let pl = &g.st.players[o];
             if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {

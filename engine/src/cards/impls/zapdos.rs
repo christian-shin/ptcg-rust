@@ -49,7 +49,7 @@ fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
 pub fn discard_all_energy_from_active(g: &mut Game, e: EffId) -> R<usize> {
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-        Effect::AfterAttack { p, opp, attack } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
+        Effect::AfterAttack { p, opp, attack, .. } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
         _ => return Ok(0),
     };
     let pu = p as usize;

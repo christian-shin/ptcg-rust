@@ -232,7 +232,9 @@ fn after_attack(g: &mut Game, mut f: AttackFrame) -> R {
 
 fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
-    g.run_fx(Effect::AfterAttack { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
+    // Tenacious Body / Durable Body: the coin is flipped after all the damage is done (ruling 1770).
+    crate::prefabs::resolve_survive_coin_flips(g)?;
+    g.run_fx(Effect::AfterAttack { p: f.p, opp: (1 - p) as u8, attack: f.attack, atk: f.atk })?;
     if g.has_prompts() {
         f.stage = AtkStage::AfterAfterAttack;
         g.wait_prompt(Cont::UseAttack(f));

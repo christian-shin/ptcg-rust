@@ -76,7 +76,9 @@ pub enum Effect {
     EndTurn { p: u8 },
     WhoBegins { player: Option<u8> },
     BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32, burn_flip_result: Option<bool>, asleep_flip_result: Option<bool> },
-    AfterAttack { p: u8, opp: u8, attack: AttackRef },
+    /// `atk` is the attack's own AttackEffect (`AfterAttackEffect.attackEffect`): effect text asked after the damage keeps
+    /// the attack's state through it.
+    AfterAttack { p: u8, opp: u8, attack: AttackRef, atk: EffId },
     /// Sent once everything the attack did (AfterAttack, prompts included) is resolved.
     AfterAttackTriggers { p: u8, opp: u8, attack: AttackRef },
     BeforeDoingDamage { attack_effect: EffId, p: u8, opp: u8, attack: AttackRef },
