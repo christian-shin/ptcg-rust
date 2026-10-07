@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Antique Root Fossil SCR 130",
+   "2 Psychic Energy MEE 5",
+   "46 Fire Energy MEE 2"
+  ],
+  [
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Antique Root Fossil SCR 130",
+   "2 Psychic Energy MEE 5",
+   "46 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79",
+  "bench": [
+   {
+    "card": "Antique Root Fossil SCR 130"
+   }
+  ],
+  "hand": [
+   "Team Rocket's Ariana ASC 202"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Team Rocket's Ariana ASC"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "zone": "hand",
+   "count": 5,
+   "cite": "rulings 1880, 1101 (a Fossil in play is a Pokemon, not a Team Rocket's Pokemon, so draw to 5)"
+  }
+ ]
+}
