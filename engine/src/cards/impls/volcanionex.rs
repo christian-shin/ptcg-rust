@@ -41,6 +41,10 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             bail!("CANNOT_USE_POWER");
         }
         let target = SlotRef::new(o, g.st.players[o].active);
+        // Can't be used when the Defending Pokémon is already Burned (Advanced Rulebook A-02, ruling 1565).
+        if !crate::engine::phase::would_change_special_conditions(g.st.slot(o, target.s), &[SpecialCondition::Burned]) {
+            bail!("CANNOT_USE_POWER");
+        }
         let mut cs = SVec::new();
         cs.push(SpecialCondition::Burned as u8);
         let id = g.new_fx(Effect::AddSpecialConditionsPower {

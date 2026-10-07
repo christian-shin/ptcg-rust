@@ -73,7 +73,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         crate::bail!("RETREAT_ALREADY_USED");
     }
     let cost = check_retreat_cost_base(g, p);
-    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false })?;
+    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false, reduction: 0 })?;
     let cost = match e {
         Effect::CheckRetreatCost { cost, .. } => cost,
         _ => SVec::new(),

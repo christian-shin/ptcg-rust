@@ -40,7 +40,9 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         let target = SlotRef::new(q, a);
         let types = crate::engine::game_effect::pokemon_types(g, target);
         let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
-        if !matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::DARK)) {
+        if !matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::DARK))
+            && crate::engine::phase::would_change_special_conditions(g.st.slot(q, a), &[SpecialCondition::Confused])
+        {
             has_non_dark = true;
             break;
         }

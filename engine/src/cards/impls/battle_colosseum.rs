@@ -9,12 +9,12 @@
 //! * a PutCountersEffect (attack) or PlaceDamageCountersEffect (whose source
 //!   card is still in play) on a Benched Pokémon from its owner's opponent
 //!   is prevented unless the stadium effect is blocked for that target.
-//!   The stadium can be "used" (nothing happens).
+//!   Using the stadium is not allowed (CANNOT_USE_STADIUM, Advanced Rulebook B-04).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "BattleColosseum",
-    mask: mask(&[k::MOVE_DAMAGE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
+    mask: mask(&[k::MOVE_DAMAGE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS, k::USE_STADIUM]),
     reduce,
     resume: None,
     coin: None,
@@ -49,6 +49,12 @@ fn bench_target_prevented(g: &mut Game, me: CardId, source_owner: usize, t: Slot
 }
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    // Automatically active: a Stadium without "that player may" can't be announced and used (Advanced Rulebook B-04).
+    if let Effect::UseStadium { .. } = *g.e(e) {
+        if g.st.stadium_card() == Some(me) {
+            bail!("CANNOT_USE_STADIUM");
+        }
+    }
     if g.st.stadium_card() != Some(me) {
         return Ok(());
     }

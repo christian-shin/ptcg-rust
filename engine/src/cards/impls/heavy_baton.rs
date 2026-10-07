@@ -46,7 +46,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 g.st.players[owner].slots[t.s as usize].marker.remove_from(active_marker(), me);
                 if g.st.players[owner].active == t.s && !g.prevented(e) && damage > 0 && !is_tool_blocked(g, owner, me) {
                     let cost = crate::engine::retreat::check_retreat_cost_base(g, owner);
-                    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: owner as u8, cost, no_cost: false })?;
+                    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: owner as u8, cost, no_cost: false, reduction: 0 })?;
                     if matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == 4) {
                         // A Trainer's effect on the Pokémon: it stays when the Pokémon moves to the Bench.
                         g.st.players[owner].slots[t.s as usize].marker.add(active_marker(), me, crate::markers::SourceType::Trainer, crate::markers::TargetScope::Pokemon);
