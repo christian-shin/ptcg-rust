@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Onix MEG 70",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "active_conditions": [
+   "CONFUSED"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Weedle CRI 1"
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 30,
+   "cite": "Advanced Rulebook A-01 step 2b: tails on the Confusion flip puts 3 damage counters on the Pokemon that tried to attack"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Advanced Rulebook A-01 step 2b: the attack does not happen, the turn ends"
+  }
+ ]
+}

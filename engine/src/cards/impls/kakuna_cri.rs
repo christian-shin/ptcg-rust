@@ -30,7 +30,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     if g.st.slot_pokemon(t.p as usize, t.s) == Some(me) {
         if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-            *damage = (*damage - 20).max(0);
+            *damage = *damage - 20;
         }
     }
     Ok(())

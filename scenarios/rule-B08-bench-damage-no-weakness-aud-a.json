@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Farigiraf ex TEF 108",
+   "2 Girafarig TWM 83",
+   "2 Hop's Phantump ASC 95",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Psychic Energy MEE 5",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Farigiraf ex TEF 108",
+   "2 Girafarig TWM 83",
+   "2 Hop's Phantump ASC 95",
+   "2 Mega Kangaskhan ex MEG 104",
+   "6 Psychic Energy MEE 5",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Girafarig TWM 83",
+   "Farigiraf ex TEF 108"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "2 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "bench": [
+   {
+    "card": "Hop's Phantump ASC 95"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dirty Beam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 30,
+   "cite": "Advanced Rulebook B-08: Weakness and Resistance are not applied to Benched Pokemon (Phantump is weak to Darkness: 30, not 60)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "Advanced Rulebook B-08: the printed damage is only done to the Active Pokemon"
+  }
+ ]
+}

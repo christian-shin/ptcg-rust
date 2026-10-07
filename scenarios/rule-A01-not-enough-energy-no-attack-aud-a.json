@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Onix MEG 70",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Weedle CRI 1"
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook A-01: the Pokemon must have the Energy of the attack cost to use it (Bind needs 2)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Fighting Energy MEE 6"
+   ],
+   "cite": "Advanced Rulebook A-01"
+  }
+ ]
+}

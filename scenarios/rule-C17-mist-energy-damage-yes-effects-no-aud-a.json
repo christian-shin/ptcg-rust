@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Darkness Energy MEE 7",
+   "6 Grass Energy MEE 1",
+   "2 Mist Energy TEF 161",
+   "2 Shroodle MEG 91",
+   "2 Weedle CRI 1",
+   "42 Grass Energy MEE 1"
+  ],
+  [
+   "6 Darkness Energy MEE 7",
+   "6 Grass Energy MEE 1",
+   "2 Mist Energy TEF 161",
+   "2 Shroodle MEG 91",
+   "2 Weedle CRI 1",
+   "42 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Shroodle MEG 91",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Weedle CRI 1",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Poison Jab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "conditions": [],
+   "cite": "Advanced Rulebook C-17: damage is not an effect (20 damage), the Special Condition is prevented"
+  }
+ ]
+}

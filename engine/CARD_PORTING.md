@@ -456,6 +456,10 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   Every game must satisfy every assertion. A game that ends before the check
   point (a win at turn end is still seen by `turn_end`, but not by
   `next_turn`) is reported as not checked, never as passed.
+* **`turns_later`** (only with `turn_end`, default 0): the check fires at the end of turn `scenario turn + turns_later`
+  (game turns: 2 = the scenario player's next turn). For effects that last into a later turn ("during your next turn,
+  the Defending Pokemon takes 100 more damage"): script the turns with `answers` (`{"a": "pass"}` for the other player).
+  A game that ends before that turn is reported as not checked.
 * **Players**: `who` is `me` (the scenario's first side, the player whose turn
   it is at `turn`) or `opp`. Needed by every assertion except `winner`.
 * **Pokémon slot** (pick one selector, then any checks):

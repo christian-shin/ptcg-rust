@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Eevee PRE 74",
+   "2 Feebas SSP 41",
+   "6 Grass Energy MEE 1",
+   "2 Milotic ex SSP 42",
+   "2 Umbreon ex PRE 60",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "6 Darkness Energy MEE 7",
+   "2 Eevee PRE 74",
+   "2 Feebas SSP 41",
+   "6 Grass Energy MEE 1",
+   "2 Milotic ex SSP 42",
+   "2 Umbreon ex PRE 60",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Eevee PRE 74",
+   "Umbreon ex PRE 60"
+  ],
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "2 Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Feebas SSP 41",
+   "Milotic ex SSP 42"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Moon Mirage"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Advanced Rulebook C-16 and C-17: Sparkling Scales prevents all damage from and effects of attacks by Tera Pokemon (no damage, no Confusion)"
+  }
+ ]
+}

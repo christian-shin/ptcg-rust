@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex TEF 120",
+   "6 Lightning Energy MEE 4",
+   "2 Stunfisk ASC 62",
+   "2 Thick Scale ASC 211",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "16 Grass Energy MEE 1"
+  ],
+  [
+   "2 Koraidon ex TEF 120",
+   "6 Lightning Energy MEE 4",
+   "2 Stunfisk ASC 62",
+   "2 Thick Scale ASC 211",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "16 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Stunfisk ASC 62",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon ex TEF 120",
+  "active_tool": "Thick Scale ASC 211"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook B-05: 30 damage - 50 (Thick Scale) is below 0, no damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "Advanced Rulebook B-05 and A-01 step 5: effects on the Pokemon taking damage are all included before the 0 check: 30 - 50 + 100 (Pouncing Trap) = 80, not 100",
+   "turns_later": 2
+  }
+ ]
+}

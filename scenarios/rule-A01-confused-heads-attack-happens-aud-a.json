@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Onix MEG 70",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "active_conditions": [
+   "CONFUSED"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Weedle CRI 1"
+ },
+ "coins": [
+  true,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook A-01 step 2b: heads, the attack happens and the Pokemon takes no damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "Advanced Rulebook A-01 step 2b then 4 and 5: Bind does 30 damage and paralyzes on heads"
+  }
+ ]
+}

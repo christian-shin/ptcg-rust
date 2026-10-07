@@ -1,0 +1,79 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Centiskorch SSP 28",
+   "2 Eevee PRE 74",
+   "6 Fire Energy MEE 2",
+   "2 Kakuna CRI 2",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Sylveon ex PRE 41",
+   "2 Weedle CRI 1",
+   "42 Grass Energy MEE 1"
+  ],
+  [
+   "2 Centiskorch SSP 28",
+   "2 Eevee PRE 74",
+   "6 Fire Energy MEE 2",
+   "2 Kakuna CRI 2",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Sylveon ex PRE 41",
+   "2 Weedle CRI 1",
+   "42 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Centiskorch SSP 28",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Eevee PRE 74",
+     "Sylveon ex PRE 41"
+    ]
+   },
+   {
+    "card": [
+     "Weedle CRI 1",
+     "Kakuna CRI 2"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Billowing Heat Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "damage": 0,
+   "cite": "Advanced Rulebook B-09 and C-16: Sylveon ex on the Bench prevents all damage by attacks, both players, including your own attack"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 1,
+   "damage": 10,
+   "cite": "Advanced Rulebook B-09: damage to your own Benched Pokemon, Weakness not applied (Kakuna is weak to Fire), Exoskeleton -20: 30 - 20 = 10"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 130,
+   "cite": "Advanced Rulebook A-01"
+  }
+ ]
+}

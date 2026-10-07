@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Cynthia's Gible ASC 109",
+   "6 Fighting Energy MEE 6",
+   "2 Swablu SSP 148",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "2 Cynthia's Gible ASC 109",
+   "6 Fighting Energy MEE 6",
+   "2 Swablu SSP 148",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Cynthia's Gible ASC 109",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Swablu SSP 148"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rock Hurl"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "cite": "Advanced Rulebook B-06: damage is not affected by Resistance (Swablu resists Fighting: 20, not 0)"
+  }
+ ]
+}

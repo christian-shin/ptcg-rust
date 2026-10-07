@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "Maximum Belt PRE 117",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Solrock ASC 106",
+   "49 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "Maximum Belt PRE 117",
+   "2 Mega Kangaskhan ex MEG 104",
+   "2 Solrock ASC 106",
+   "49 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Solrock ASC 106",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cosmo Beam"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook D-01: with no Lunatone on the Bench the attack does nothing, Maximum Belt adds no damage"
+  }
+ ]
+}

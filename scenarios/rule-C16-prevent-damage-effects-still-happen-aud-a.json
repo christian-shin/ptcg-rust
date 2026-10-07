@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Eevee PRE 74",
+   "2 Feebas SSP 41",
+   "6 Grass Energy MEE 1",
+   "2 Milotic ex SSP 42",
+   "2 Sylveon PRE 40",
+   "6 Water Energy MEE 3",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "8 Grass Energy MEE 1"
+  ],
+  [
+   "2 Eevee PRE 74",
+   "2 Feebas SSP 41",
+   "6 Grass Energy MEE 1",
+   "2 Milotic ex SSP 42",
+   "2 Sylveon PRE 40",
+   "6 Water Energy MEE 3",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "8 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Feebas SSP 41",
+   "Milotic ex SSP 42"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "2 Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Eevee PRE 74",
+   "Sylveon PRE 40"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hypno Splash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [
+    "ASLEEP"
+   ],
+   "cite": "Advanced Rulebook C-16: Sylveon prevents the damage from an ex, but the attack is not prevented (the Special Condition still applies)"
+  }
+ ]
+}

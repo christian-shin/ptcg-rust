@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Weedle CRI 1",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Onix MEG 70",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "active_conditions": [
+   "PARALYZED"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Weedle CRI 1"
+ },
+ "answers": [],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook A-01 step 1b: an Asleep or Paralyzed Pokemon cannot announce an attack"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "Advanced Rulebook A-01 step 1b (Checkup comes after the turn)"
+  }
+ ]
+}

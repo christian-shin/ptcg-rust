@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Grass Energy MEE 1",
+   "2 Mega Diancie ex ASC 267",
+   "2 Mega Kangaskhan ex MEG 104",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Grass Energy MEE 1",
+   "2 Mega Diancie ex ASC 267",
+   "2 Mega Kangaskhan ex MEG 104",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267"
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rapid-Fire Combo"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 220,
+   "cite": "Advanced Rulebook B-01 and A-01: 200 + 50 (1 heads) in step 1, then Diamond Coat -30 in step 5"
+  }
+ ]
+}

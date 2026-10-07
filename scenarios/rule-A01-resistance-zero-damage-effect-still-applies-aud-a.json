@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Swablu SSP 148",
+   "50 Grass Energy MEE 1"
+  ],
+  [
+   "6 Fighting Energy MEE 6",
+   "2 Onix MEG 70",
+   "2 Swablu SSP 148",
+   "50 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Onix MEG 70",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Swablu SSP 148"
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "Advanced Rulebook A-01 step 4 (damage 30-30=0 ends the damage calculation) and step 5 (the effect is still resolved)"
+  }
+ ]
+}

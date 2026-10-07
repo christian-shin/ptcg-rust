@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "6 Grass Energy MEE 1",
+   "2 Hop's Cramorant ASC 177",
+   "Maximum Belt PRE 117",
+   "2 Mega Kangaskhan ex MEG 104",
+   "49 Grass Energy MEE 1"
+  ],
+  [
+   "6 Grass Energy MEE 1",
+   "2 Hop's Cramorant ASC 177",
+   "Maximum Belt PRE 117",
+   "2 Mega Kangaskhan ex MEG 104",
+   "49 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Cramorant ASC 177",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Kangaskhan ex MEG 104"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fickle Spitting"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook D-01: the opponent has 6 Prize cards, so the attack does nothing and Maximum Belt adds no damage"
+  }
+ ]
+}

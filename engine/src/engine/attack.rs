@@ -547,8 +547,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 return Ok(());
             }
             let red = g.st.slot(t.p as usize, t.s).damage_reduction_next_turn;
+            // Step 5 (Advanced Rulebook B-05): the effects on the Pokémon taking the damage are summed, floored once below.
             if !shred && red != 0 {
-                damage = (damage - red).max(0);
+                damage -= red;
             }
             // "During your next turn, the Defending Pokémon takes N more damage."
             {
@@ -557,6 +558,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                     damage += ts.defending_extra_damage_next_turn;
                 }
             }
+            damage = damage.max(0);
             if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
                 *d = damage;
             }

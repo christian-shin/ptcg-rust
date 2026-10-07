@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "Maximum Belt PRE 117",
+   "4 Mega Diancie ex ASC 267",
+   "20 Metal Energy MEE 8",
+   "10 Psychic Energy MEE 5",
+   "21 Grass Energy MEE 1"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "Maximum Belt PRE 117",
+   "4 Mega Diancie ex ASC 267",
+   "20 Metal Energy MEE 8",
+   "10 Psychic Energy MEE 5",
+   "21 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "active_tool": "Maximum Belt PRE 117"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Iron Tackle"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 170,
+   "cite": "Advanced Rulebook A-01 Damage Calculation Order: base 50 + Maximum Belt 50 (step 2), Weakness x2 (step 3), then Diamond Coat -30 (step 5) = 170"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "Advanced Rulebook B-09: self damage; Maximum Belt only adds to the opponent Active ex"
+  }
+ ]
+}

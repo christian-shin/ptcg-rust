@@ -57,7 +57,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 return Ok(());
             }
             if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-                *damage = (*damage - 60).max(0);
+                *damage = *damage - 60;
             }
             g.set_fx_flag(e, fx_flag::CURLY_WALL);
         }

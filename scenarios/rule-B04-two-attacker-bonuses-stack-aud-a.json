@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "Brave Bangle PBL 104",
+   "2 Electrike MEG 49",
+   "2 Mega Diancie ex ASC 267",
+   "2 Voltaic Lightning Energy PBL 84",
+   "53 Grass Energy MEE 1"
+  ],
+  [
+   "Brave Bangle PBL 104",
+   "2 Electrike MEG 49",
+   "2 Mega Diancie ex ASC 267",
+   "2 Voltaic Lightning Energy PBL 84",
+   "53 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Electrike MEG 49",
+  "active_energy": [
+   "Voltaic Lightning Energy PBL 84"
+  ],
+  "active_tool": "Brave Bangle PBL 104"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Diancie ex ASC 267"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Jolt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 50,
+   "cite": "Advanced Rulebook B-04: all step-2 effects on the attacker apply: 30 + Voltaic 20 + Brave Bangle 30, then Diamond Coat -30 (step 5)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "Advanced Rulebook B-09: self damage is not boosted by effects that add damage to the opponent Active"
+  }
+ ]
+}

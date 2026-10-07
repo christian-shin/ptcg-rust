@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex TEF 120",
+   "6 Lightning Energy MEE 4",
+   "2 Spiky Energy JTG 159",
+   "2 Stunfisk ASC 62",
+   "2 Thick Scale ASC 211",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "14 Grass Energy MEE 1"
+  ],
+  [
+   "2 Koraidon ex TEF 120",
+   "6 Lightning Energy MEE 4",
+   "2 Spiky Energy JTG 159",
+   "2 Stunfisk ASC 62",
+   "2 Thick Scale ASC 211",
+   "4 Weedle CRI 1",
+   "4 Applin DRI 16",
+   "4 Swablu SSP 148",
+   "4 Timburr TWM 103",
+   "4 Onix MEG 70",
+   "4 Hop's Cramorant ASC 177",
+   "4 Lunatone ASC 105",
+   "4 Fan Rotom ASC 171",
+   "14 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Stunfisk ASC 62",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Koraidon ex TEF 120",
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "active_tool": "Thick Scale ASC 211"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook A-01 step 5: damage 0 or less ends the calculation, no damage is done"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook E-03: the Pokemon was not damaged, so Spiky Energy does not trigger"
+  }
+ ]
+}
