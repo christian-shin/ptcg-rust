@@ -1,0 +1,102 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Kadabra MEG 55",
+   "1 Abra MEG 54",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Kadabra MEG 55",
+   "1 Abra MEG 54",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "hand": [
+   "Kadabra MEG 55",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Kadabra M1S",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "offered": false,
+   "action": "ability",
+   "cite": "An Ability can not be used for no effect (ruling 244; the number of cards in a deck is public, ruling 782): no prompt when the deck is empty, so the scripted pass is a turn action",
+   "name": "none"
+  }
+ ]
+}

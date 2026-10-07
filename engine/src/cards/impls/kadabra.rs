@@ -20,6 +20,11 @@ pub fn psychic_draw_reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         Effect::Evolve { p, card, .. } if card == me => p as usize,
         _ => return Ok(()),
     };
+    // An Ability can't be used for no effect: the number of cards in a deck is public (Advanced Rulebook E-05,
+    // rulings 244, 782).
+    if g.st.players[p].deck.is_empty() {
+        return Ok(());
+    }
     if is_ability_blocked(g, p, me, None) {
         return Ok(());
     }

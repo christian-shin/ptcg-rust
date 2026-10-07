@@ -30,7 +30,8 @@
   "reset": true,
   "active": "Teal Mask Ogerpon ex PRE 12",
   "hand": [
-   "Slowpoke PRE 18"
+   "Slowpoke PRE 18",
+   "Water Energy MEE"
   ],
   "bench": [
    {
@@ -55,12 +56,24 @@
   "reset": true,
   "active": "Minccino JTG 125"
  },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Water Energy MEE",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
  "expect": [
   {
    "offered": true,
    "action": "play",
-   "cite": "Area Zero Underdepths: a player with a Tera Pokemon in play can have up to 8 Pokemon on the Bench",
-   "card": "Slowpoke PRE 18"
+   "cite": "Area Zero Underdepths: a player with a Tera Pokemon in play can have up to 8 Pokemon on the Bench (the Bench size is checked after the first action)",
+   "card": "Slowpoke PRE 18",
+   "decision": 1
   }
  ]
 }

@@ -561,12 +561,177 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
     }
 }
 
+/// First prompt of every attack of every pool Pokemon (Active with two Energy of each Basic type).
+fn attack_prompts() {
+    let pool: Value = serde_json::from_str(&std::fs::read_to_string("data/pool.json").unwrap()).unwrap();
+    let types = ["Grass Energy MEE", "Fire Energy MEE", "Water Energy MEE", "Lightning Energy MEE", "Psychic Energy MEE", "Fighting Energy MEE", "Darkness Energy MEE", "Metal Energy MEE"];
+    for c in pool.as_array().unwrap() {
+        let id = match def_by_full_name(c["fullName"].as_str().unwrap()) {
+            Some(i) => i,
+            None => continue,
+        };
+        let td = def(id);
+        if !td.is_pokemon() || td.attacks.is_empty() || !cards_impl(id) {
+            continue;
+        }
+        let mut deck: Vec<DefId> = vec![];
+        for x in stack_for(id) {
+            for _ in 0..2 {
+                deck.push(x);
+            }
+        }
+        for _ in 0..4 {
+            deck.push(def_by_full_name(FILLER).unwrap());
+        }
+        for t in types {
+            for _ in 0..2 {
+                deck.push(def_by_full_name(t).unwrap());
+            }
+        }
+        let e = def_by_full_name(ENERGY).unwrap();
+        while deck.len() < 60 {
+            deck.push(e);
+        }
+        let mut base = Box::new(Game::new(7));
+        base.start([&deck, &deck]).unwrap();
+        let _ = base.settle();
+        if !reach_turn(&mut base) {
+            continue;
+        }
+        let me = base.st.active_player as usize;
+        let stack: Vec<&str> = stack_for(id).iter().map(|d| def(*d).full_name).collect();
+        let en: Vec<Value> = types.iter().flat_map(|t| vec![json!(fname(t)), json!(fname(t))]).collect();
+        let sc = json!({
+            "me": {"reset": true, "active": stack, "active_energy": en, "bench": [{"card": fname(FILLER), "energy": [fname(ENERGY)]}, {"card": fname(FILLER)}], "discard": [fname(FILLER), fname(ENERGY)], "hand": [fname(ENERGY), fname(ENERGY)]},
+            "opp": {"reset": true, "active": fname(FILLER), "active_energy": [fname(ENERGY)], "bench": [{"card": fname(FILLER), "energy": [fname(ENERGY)]}, {"card": fname(FILLER)}], "hand": [fname(ENERGY)]}
+        });
+        let mut g = base.clone();
+        if ptcg::scenario::apply(&mut g, &sc).is_err() {
+            continue;
+        }
+        for o in legal_turn_options(&g) {
+            if let Action::Attack { name } = o.action {
+                let mut h = Box::new(g.clone());
+                h.rng.force_coins(&[true; 8]);
+                if h.act(o.action).and_then(|_| h.settle()).is_err() {
+                    println!("APROMPT {} | {} | error", td.full_name, name);
+                    continue;
+                }
+                match h.pending() {
+                    Pending::Decision(pi) => {
+                        let msg = h.prompts.as_slice()[pi].message;
+                        if let Ok(Some(sel)) = h.select() {
+                            // the smallest number of picks (first options) the prompt accepts
+                            let n = sel.options.len();
+                            let mut acc = String::from("none");
+                            for k in 0..=n.min(20) {
+                                let picks: Vec<usize> = (0..k).collect();
+                                if h.is_accepted_answer(&sel, &picks) {
+                                    acc = k.to_string();
+                                    break;
+                                }
+                            }
+                            println!("APROMPT {} | {} | {} | min {} max {} of {} | accepts_from {}", td.full_name, name, msg, sel.min_count, sel.max_count, n, acc);
+                        }
+                    }
+                    _ => println!("APROMPT {} | {} | none", td.full_name, name),
+                }
+            }
+        }
+    }
+}
+
+/// E-05 / E-06 trigger Abilities: what happens right after the Pokemon is played, in positions where the effect does nothing.
+fn trigger_probe() {
+    let names = [
+        "Marnie's Grimmsnarl ex ASC 287", "Noctowl PRE 78", "Hop's Dubwool JTG 136", "Kadabra MEG 55", "Hariyama MEG 73", "Archaludon ex SSP 130", "Alakazam MEG 56",
+        "Bloodmoon Ursaluna PRE 54", "Iron Leaves ex PRE 176", "Meowth ex POR 62", "Durant ex SSP 4", "Chien-Pao SSP 56", "Drilbur TEF 85", "Farfetch'd TWM 132",
+    ];
+    for n in names {
+        let t = match def_by_full_name(n) {
+            Some(t) => t,
+            None => {
+                println!("TRIGGER {} | unknown", n);
+                continue;
+            }
+        };
+        let td = def(t);
+        let mut deck = deck_for(t);
+        for x in stack_for(t) {
+            if x != t {
+                deck.push(x);
+            }
+        }
+        deck.truncate(60);
+        let mut base = Box::new(Game::new(7));
+        base.start([&deck, &deck]).unwrap();
+        let _ = base.settle();
+        let mut ok = false;
+        for _ in 0..4 {
+            if reach_turn(&mut base) && base.st.turn >= 3 {
+                ok = true;
+                break;
+            }
+            if base.act(Action::Pass).and_then(|_| base.settle()).is_err() {
+                break;
+            }
+        }
+        if !ok {
+            println!("TRIGGER {} | no turn 3", td.full_name);
+            continue;
+        }
+        let pre: Vec<&str> = stack_for(t).iter().filter(|d| **d != t).map(|d| def(*d).full_name).collect();
+        for kind in ['A', 'C', 'D', 'E'] {
+            let mut g = base.clone();
+            let me = g.st.active_player as usize;
+            let active: Vec<&str> = if pre.is_empty() { vec![fname(FILLER)] } else { pre.clone() };
+            let mut sc = json!({"me": side("me", kind, true, td.full_name, false, &active), "opp": side("opp", kind, false, td.full_name, false, &active)});
+            sc["me"]["active"] = json!(active);
+            if ptcg::scenario::apply(&mut g, &sc).is_err() {
+                println!("TRIGGER {} | {} | scenario error", td.full_name, kind);
+                continue;
+            }
+            if kind == 'C' {
+                g.move_to(ListRef::Deck(me as u8), ListRef::LostZone(me as u8), None);
+            }
+            let mut res = String::from("not offered");
+            for o in legal_turn_options(&g) {
+                if let Action::PlayCard { hand_index, .. } = o.action {
+                    let c = g.st.players[me].hand.as_slice()[hand_index as usize];
+                    if g.st.cards[c as usize].def != t {
+                        continue;
+                    }
+                    let mut h = Box::new(g.clone());
+                    if h.act(o.action).and_then(|_| h.settle()).is_err() {
+                        res = "error".into();
+                    } else if let Pending::Decision(pi) = h.pending() {
+                        let msg = h.prompts.as_slice()[pi].message;
+                        res = format!("prompt {}", msg);
+                    } else {
+                        res = "no prompt".into();
+                    }
+                    break;
+                }
+            }
+            println!("TRIGGER {} | {} | {}", td.full_name, kind, res);
+        }
+    }
+}
+
 fn cards_impl(id: DefId) -> bool {
     ptcg::cards::impl_for(id).is_some()
 }
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.iter().any(|a| a == "--triggers") {
+        trigger_probe();
+        return;
+    }
+    if args.iter().any(|a| a == "--attack-prompts") {
+        attack_prompts();
+        return;
+    }
     if let Some(i) = args.iter().position(|a| a == "--random") {
         let n: usize = args.get(i + 1).and_then(|x| x.parse().ok()).unwrap_or(200);
         random_mode(n, 1, args.iter().any(|a| a == "--abilities"));

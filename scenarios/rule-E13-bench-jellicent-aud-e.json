@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Potion POR 83",
+   "1 Minccino JTG 125",
+   "1 Frillish WHT 44",
+   "1 Jellicent ex WHT 45",
+   "56 Water Energy MEE"
+  ],
+  [
+   "1 Potion POR 83",
+   "1 Minccino JTG 125",
+   "1 Frillish WHT 44",
+   "1 Jellicent ex WHT 45",
+   "56 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Potion POR 83"
+  ],
+  "active_damage": 30
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "bench": [
+   {
+    "card": [
+     "Frillish WHT 44",
+     "Jellicent ex WHT 45"
+    ]
+   }
+  ]
+ },
+ "expect": [
+  {
+   "offered": true,
+   "action": "play",
+   "cite": "Advanced Rulebook E-13: Oceanic Curse does nothing while Jellicent ex is on the Bench",
+   "card": "Potion POR 83"
+  }
+ ]
+}

@@ -4,7 +4,7 @@
 //! has taken.
 //!
 //! Twinleaf: any PlayPokemonEffect for this card asks (ConfirmPrompt) unless
-//! the Ability is blocked, even with an empty opposing deck; Vengeful Crush
+//! the Ability is blocked or the opposing deck is empty (aud-e); Vengeful Crush
 //! sets `effect.damage = attack.damage + opponent.prizesTaken * 30`.
 use crate::cards::prelude::*;
 
@@ -15,6 +15,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if card == me {
             let p = p as usize;
             if is_ability_blocked(g, p, me, None) {
+                return Ok(());
+            }
+            // An Ability can't be used for no effect: the number of cards in a deck is public (Advanced Rulebook E-06,
+            // rulings 244, 782).
+            if g.st.players[1 - p].deck.is_empty() {
                 return Ok(());
             }
             let mut f = CardFrame::at(1);
