@@ -5,7 +5,7 @@ use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
     class: "Dragapultex",
-    mask: mask(&[k::ATTACK, k::PUT_DAMAGE]),
+    mask: mask(&[k::PUT_DAMAGE, k::AFTER_ATTACK]),
     reduce,
     resume: Some(resume),
     coin: None,
@@ -13,7 +13,8 @@ pub static IMPL: CardImpl = CardImpl {
 };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         put_x_damage_counters_in_any_way_you_like(g, e, 6, me);
     }
 

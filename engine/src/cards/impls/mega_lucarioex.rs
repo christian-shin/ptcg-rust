@@ -6,10 +6,11 @@
 //! each transfer is a MOVE_CARDS discard → target.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "MegaLucarioex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "MegaLucarioex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
