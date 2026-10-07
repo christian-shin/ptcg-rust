@@ -789,6 +789,22 @@ Rust change, scenario entry (format above), the official text it now
 follows, and the diverged traces with their causes.
 
 
+### Attack text runs before the damage: what must wait (2026-10-07)
+
+Both engines run a card's attack text when its `AttackEffect` is reduced, which is BEFORE the damage. The flow chart puts
+the attack's effects (step 5) AFTER the damage calculation. Chart order is kept only by targeted deferrals (Energy
+removal via the after-damage window, effects coded in `AFTER_ATTACK`, the step-6 trigger queue). So when porting or
+reviewing an attack, ask: **does this text change anything the damage calculation reads?** That includes:
+- the Defending Pokemon's Tools, Abilities or effects;
+- its damage counters, or whether it has full HP;
+- attached Energy on either Pokemon;
+- which Pokemon is Active.
+
+If it does, and the text doesn't say "before doing damage", it must resolve after the damage (after-damage window or
+`AFTER_ATTACK`), in both engines. The same goes for text that depends on the damage just done (heal the damage dealt,
+"if the Defending Pokemon is Knocked Out"). This is a stopgap: a Rust-only refactor to an explicit step pipeline is
+planned after the oracle freeze.
+
 ### Attack flow chart steps 6-8 (F1)
 
 Official order (attack flow chart; Advanced Player's Rulebook A-01, E-03, E-04): step 5 the attack's own effects, step 6
