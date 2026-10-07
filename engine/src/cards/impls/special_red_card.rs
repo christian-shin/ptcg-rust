@@ -3,8 +3,7 @@
 //! cards were put there, draw 3 cards.
 //!
 //! Phase 4b (ruling n=1833): can't be played when the opponent has no cards in
-//! hand. Twinleaf quirk kept: the hand is not shuffled (it goes to the bottom
-//! in hand order).
+//! hand. Audit aud-d (Advanced Rulebook E-35): the hand is shuffled (`Chance.shuffle`) before it goes to the bottom.
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl { class: "SpecialRedCard", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
@@ -29,6 +28,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         bail!("CANNOT_PLAY_THIS_CARD");
     }
     {
+        // "Your opponent shuffles their hand": permute the hand in place (`Chance.shuffle(hand.length)`).
+        let hand: Vec<CardId> = g.st.players[o].hand.iter().collect();
+        let mut perm = [0u8; 120];
+        g.rng.shuffle(hand.len(), &mut perm);
+        let shuffled: Vec<CardId> = (0..hand.len()).map(|i| hand[perm[i] as usize]).collect();
+        g.st.players[o].hand.set_from(&shuffled);
         let temp = g.alloc_temp(&[]);
         move_all(g, ListRef::Hand(o as u8), temp, me)?;
         move_all(g, temp, ListRef::Deck(o as u8), me)?;

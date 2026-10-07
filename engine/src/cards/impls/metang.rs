@@ -3,12 +3,12 @@
 //! Pokémon; put the rest on the bottom of your deck.
 //!
 //! LOOK_AT_TOP_X_CARDS_AND_ATTACH_UP_TO_Y_ENERGY(4, 4, { energyFilter: Basic,
-//! validCardTypes: [M], remainderDestination: 'bottom' }). Phase 4b (R6): the
+//! validCardTypes: [M], remainderDestination: 'shuffleBottom' }; aud-d: the other cards are shuffled before they go to the bottom). Phase 4b (R6): the
 //! text says Basic [M] Energy, so the prompt filter (and the max, which counts
 //! the top cards matching the energy filter) is Basic Energy only; Special
 //! Energy that provides [M] (Magnetic Metal Energy) used to be attachable.
 //! Twinleaf quirks kept: the prompt max counts every Basic Energy card among
-//! the top cards (not only [M]); the remainder is not shuffled; the marker is
+//! the top cards (not only [M]); the marker is
 //! set even when the deck is empty.
 use crate::cards::prelude::*;
 
@@ -110,8 +110,16 @@ fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
         let target = get_target(&g.st, p, to)?;
         g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
     }
-    // moveRemainingTopDeckCards(..., 'bottom'): push without shuffling.
-    let rest: Vec<CardId> = g.lst(top).to_vec();
+    // moveRemainingTopDeckCards(..., 'shuffleBottom'): shuffle the other cards (Chance.shuffle), then push them on the bottom.
+    let mut rest: Vec<CardId> = g.lst(top).to_vec();
+    if !rest.is_empty() {
+        let mut perm = [0u8; 120];
+        g.rng.shuffle(rest.len(), &mut perm);
+        let copy = rest.clone();
+        for i in 0..rest.len() {
+            rest[i] = copy[perm[i] as usize];
+        }
+    }
     for c in rest {
         g.st.players[p].deck.push(c);
     }

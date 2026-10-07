@@ -7,7 +7,7 @@
 use crate::carddb::en_key;
 use crate::engine::check::hp_of;
 use crate::game::Game;
-use crate::list::CardId;
+use crate::list::{CardId, CardList};
 use crate::state::SlotId;
 use crate::types::{SpecialCondition, WINNER_DRAW, WINNER_NONE};
 use serde_json::Value;
@@ -40,7 +40,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active", "top", "bench_count", "bench_excludes",
+    "not_contains", "prizes_taken", "winner", "active", "top", "bench_count", "bench_excludes", "playable", "not_playable",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -72,9 +72,10 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             o.contains_key("winner"),
             o.contains_key("active"),
             o.contains_key("bench_count") || o.contains_key("bench_excludes"),
+            o.contains_key("playable") || o.contains_key("not_playable"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
-            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, bench_count or bench_excludes)", i));
+            return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, bench_count, bench_excludes, playable or not_playable)", i));
         }
         if !o.contains_key("winner") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
@@ -282,6 +283,29 @@ pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
         };
         if actual != o["winner"] {
             return Err(format!("winner: expected {}, actual {}", o["winner"], actual));
+        }
+        Ok(())
+    } else if o.get("playable").is_some() || o.get("not_playable").is_some() {
+        // Whether the player to move has a legal "play this card from the hand" action (best used at "start").
+        let p = g.st.active_player as usize;
+        let acts = crate::options::legal_actions(g);
+        let can = |n: &str| {
+            acts.iter().any(|ta| match ta.action {
+                crate::game::Action::PlayCard { hand_index, .. } => {
+                    g.st.players[p].hand.get(hand_index as usize).map_or(false, |c| names_eq(c, g, n))
+                }
+                _ => false,
+            })
+        };
+        if let Some(n) = o["playable"].as_str() {
+            if !can(n) {
+                return Err(format!("{} should be playable from the hand, but no legal action plays it", n));
+            }
+        }
+        if let Some(n) = o["not_playable"].as_str() {
+            if can(n) {
+                return Err(format!("{} should not be playable, but a legal action plays it", n));
+            }
         }
         Ok(())
     } else if o.get("bench_count").is_some() || o.get("bench_excludes").is_some() {
