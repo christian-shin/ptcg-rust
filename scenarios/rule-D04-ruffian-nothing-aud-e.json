@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ruffian JTG 157",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Ruffian JTG 157",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Ruffian JTG 157"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "active_energy": [
+   "Water Energy MEE"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Ruffian JTG 157",
+   "is": false,
+   "cite": "ruling 851 (a card can not be played when it is obvious it has no effect); Advanced Rulebook B-03 step 1: no Tool and no Special Energy"
+  }
+ ]
+}

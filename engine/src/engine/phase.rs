@@ -184,6 +184,20 @@ pub fn add_condition(slot: &mut Slot, sc: SpecialCondition) {
     slot.special_conditions.push(v);
 }
 
+/// `WOULD_CHANGE_SPECIAL_CONDITIONS` (prefabs/special-condition-change.ts): would making the slot's Pokémon
+/// `conds` change the game state? Re-applying a condition it has changes nothing, except an "enhanced" one
+/// (adding Poisoned / Burned / Confused sets that condition's counters back to 1 / 2 / 3).
+pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) -> bool {
+    conds.iter().any(|sc| {
+        if !slot.special_conditions.contains(&(*sc as u8)) {
+            return true;
+        }
+        (*sc == SpecialCondition::Poisoned && slot.poison_damage != 10)
+            || (*sc == SpecialCondition::Burned && slot.burn_damage != 20)
+            || (*sc == SpecialCondition::Confused && slot.confusion_damage != 30)
+    })
+}
+
 fn handle_special_conditions(g: &mut Game, id: EffId) {
     let (p, poison, burn, burn_flip, asleep_flip) = match *g.e(id) {
         Effect::BetweenTurns { p, poison_damage, burn_damage, burn_flip_result, asleep_flip_result } => {

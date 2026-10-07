@@ -32,7 +32,7 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         };
         let o = 1 - p;
         let cost = crate::engine::retreat::check_retreat_cost_base(g, o);
-        let (re, _) = g.run_fx(Effect::CheckRetreatCost { p: o as u8, cost, no_cost: false })?;
+        let (re, _) = g.run_fx(Effect::CheckRetreatCost { p: o as u8, cost, no_cost: false, reduction: 0 })?;
         let colorless = match re {
             Effect::CheckRetreatCost { cost, .. } => cost.iter().filter(|t| **t == ct::COLORLESS).count() as i32,
             _ => 0,

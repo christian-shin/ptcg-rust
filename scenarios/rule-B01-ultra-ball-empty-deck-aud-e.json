@@ -1,0 +1,88 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ultra Ball 30C 128",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Ultra Ball 30C 128",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Ultra Ball 30C 128",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Ultra Ball 30C 128",
+   "is": false,
+   "cite": "ruling 1098 (discarding two cards is a cost, not the effect: no Ultra Ball with an empty deck)"
+  }
+ ]
+}

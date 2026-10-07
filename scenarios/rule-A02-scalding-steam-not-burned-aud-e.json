@@ -1,0 +1,32 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Volcanion ex JTG 31",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Volcanion ex JTG 31",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Volcanion ex JTG 31"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Scorching Steam",
+   "cite": "Advanced Rulebook A-02: the Defending Pokemon would become Burned"
+  }
+ ]
+}

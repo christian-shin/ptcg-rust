@@ -1,0 +1,105 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Durant ex SSP 4",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Durant ex SSP 4",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Durant ex SSP 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Durant ex SSP",
+   "target": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "none",
+   "is": false,
+   "cite": "An Ability can not be used for no effect (ruling 244; the number of cards in a deck is public, ruling 782): no prompt when the deck is empty, so the scripted pass is a turn action (the opponent's deck)"
+  }
+ ]
+}

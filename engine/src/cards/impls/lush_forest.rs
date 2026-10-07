@@ -10,9 +10,15 @@
 use crate::cards::prelude::*;
 use crate::engine::game_effect::pokemon_types;
 
-pub static IMPL: CardImpl = CardImpl { class: "LushForest", mask: mask(&[k::PLAY_POKEMON]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "LushForest", mask: mask(&[k::PLAY_POKEMON, k::USE_STADIUM]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    // Automatically active: a Stadium without "that player may" can't be announced and used (Advanced Rulebook B-04).
+    if let Effect::UseStadium { .. } = *g.e(e) {
+        if g.st.stadium_card() == Some(me) {
+            bail!("CANNOT_USE_STADIUM");
+        }
+    }
     let (p, card, target) = match *g.e(e) {
         Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
         _ => return Ok(()),

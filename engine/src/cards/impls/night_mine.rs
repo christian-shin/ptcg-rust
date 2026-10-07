@@ -4,9 +4,15 @@
 //! extra [C] is inserted before the first existing [C] (else pushed last).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "NightMine", mask: mask(&[k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "NightMine", mask: mask(&[k::CHECK_ATTACK_COST, k::USE_STADIUM]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+    // Automatically active: a Stadium without "that player may" can't be announced and used (Advanced Rulebook B-04).
+    if let Effect::UseStadium { .. } = *g.e(e) {
+        if g.st.stadium_card() == Some(me) {
+            bail!("CANNOT_USE_STADIUM");
+        }
+    }
     let p = match *g.e(e) {
         Effect::CheckAttackCost { p, .. } if g.st.stadium_card() == Some(me) => p as usize,
         _ => return Ok(()),

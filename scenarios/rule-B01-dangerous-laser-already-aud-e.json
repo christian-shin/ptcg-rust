@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dangerous Laser SFA 58",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Dangerous Laser SFA 58",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Dangerous Laser SFA 58"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "active_conditions": [
+   "BURNED",
+   "CONFUSED"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Dangerous Laser SFA 58",
+   "is": false,
+   "cite": "rulings 962, 1565 (a card or Ability that would only put Special Conditions the Pokemon already has can not be used); Advanced Rulebook B-01"
+  }
+ ]
+}

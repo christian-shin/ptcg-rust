@@ -1,0 +1,46 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "1 Cheren ASC 258",
+   "1 Carmine PRE 103",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Cheren ASC 258",
+   "1 Carmine PRE 103",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Cheren ASC 258",
+   "Carmine PRE 103"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Cheren ASC 258",
+   "is": false,
+   "cite": "Basic Rulebook: the player who goes first can not play a Supporter during their first turn"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Carmine PRE 103",
+   "cite": "Carmine text: if you go first, you may use this card during your first turn"
+  }
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Jamming Tower ASC 261",
+   "1 Lively Stadium SSP 180",
+   "1 Minccino JTG 125",
+   "56 Water Energy MEE"
+  ],
+  [
+   "2 Jamming Tower ASC 261",
+   "1 Lively Stadium SSP 180",
+   "1 Minccino JTG 125",
+   "56 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Jamming Tower ASC 261",
+   "Lively Stadium SSP 180"
+  ],
+  "stadium": "Jamming Tower ASC 261"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Jamming Tower ASC 261",
+   "is": false,
+   "cite": "Advanced Rulebook B-04: players can not play a Stadium of the same name as the one in play"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Lively Stadium SSP 180",
+   "cite": "Advanced Rulebook B-04: a Stadium with a different name replaces the Stadium in play"
+  }
+ ]
+}

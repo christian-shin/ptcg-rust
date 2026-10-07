@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Iris's Fighting Spirit ASC 190",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Iris's Fighting Spirit ASC 190",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Iris's Fighting Spirit ASC 190",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Iris's Fighting Spirit ASC 190",
+   "is": false,
+   "cite": "rulings 925, 1016 (discarding is a cost, not the effect: drawing up to 6 with 7 cards left in hand does nothing)"
+  }
+ ]
+}

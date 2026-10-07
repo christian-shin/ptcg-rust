@@ -1,0 +1,37 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Minccino JTG 125",
+   "1 Prism Tower CRI 80",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Minccino JTG 125",
+   "1 Prism Tower CRI 80",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ],
+  "stadium": "Prism Tower CRI 80"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "cite": "Advanced Rulebook B-04: \"that player may discard 2 cards ... draw a card\" can be used when the cost can be paid and the deck has a card"
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "1 Call Bell SSP 165",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Call Bell SSP 165",
+   "1 Minccino JTG 125",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Call Bell SSP 165"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Call Bell SSP 165",
+   "is": false,
+   "cite": "Call Bell text: only during your first turn"
+  }
+ ]
+}

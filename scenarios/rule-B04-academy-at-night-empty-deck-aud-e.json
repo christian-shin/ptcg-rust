@@ -1,0 +1,86 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Minccino JTG 125",
+   "1 Academy at Night SFA 54",
+   "58 Water Energy MEE"
+  ],
+  [
+   "1 Minccino JTG 125",
+   "1 Academy at Night SFA 54",
+   "58 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE",
+   "Water Energy MEE"
+  ],
+  "stadium": "Academy at Night SFA 54"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "cite": "Advanced Rulebook B-04: using it changes the game state (a card goes from the hand to the top of the empty deck)"
+  }
+ ]
+}

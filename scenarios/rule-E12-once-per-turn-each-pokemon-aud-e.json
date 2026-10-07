@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Totodile TEF 39",
+   "2 Croconaw TEF 40",
+   "2 Feraligatr TEF 41",
+   "1 Minccino JTG 125",
+   "53 Water Energy MEE"
+  ],
+  [
+   "2 Totodile TEF 39",
+   "2 Croconaw TEF 40",
+   "2 Feraligatr TEF 41",
+   "1 Minccino JTG 125",
+   "53 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Totodile TEF 39",
+   "Croconaw TEF 40",
+   "Feraligatr TEF 41"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Totodile TEF 39",
+     "Croconaw TEF 40",
+     "Feraligatr TEF 41"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Torrential Heart",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "ability",
+   "name": "Torrential Heart",
+   "cite": "Advanced Rulebook E-12: with several Pokemon with the same Ability, it can be used once for each of them"
+  }
+ ]
+}

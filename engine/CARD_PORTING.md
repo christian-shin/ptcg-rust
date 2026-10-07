@@ -404,7 +404,7 @@ python3 tools/check_cards.py "Luxray ex TWM" --scenario scenarios/luxray-ex-empt
   | `active`: name or `[Basic, Stage 1, ...]` | Into the Active Spot (benched and switched in, or placed directly after `reset`) |
   | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
   | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
-  | `supporter_played`, `energy_attached`, `retreated`: `true` | This turn's flags |
+  | `supporter_played`, `energy_attached`, `retreated`, `stadium_played`: `true` | This turn's flags |
   | `deck_left`: N | Very last: cards from the top of the deck go to the discard pile until N are left (an empty deck: the owner loses at the beginning of their next turn) |
   | `prizes_left`: N | Applied last: Prizes N..5 go to the bottom of the deck, so the player has N Prize cards left (e.g. Briar needs the opponent at 2) |
 
@@ -498,12 +498,16 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).
 * **Names** are English keys or Twinleaf full names; both are accepted.
-* **Later turns and legal actions** (rules audit): `turn` is described above. `"at": "decision", "n": N` checks the N-th turn decision since the edits (0 = right
-  after them, so first-turn rules can be asserted). `{"who", "legal": "retreat" | "attack" | "play", "name": ..., "on":
-  "active" | bench index, "is": false}` asserts that an action is (not) among the legal options of the player to move
-  (`who` must be that player; `on` narrows a `play` to a target). Scripted `answers` may name a hand card in a play
-  (`{"a": "play", "card": "Switch 30C 127", "target": {...}}`; the oracle matches the first such legal play, since card
-  ids depend on the shuffle); prompt answers stay in the recorded raw format (e.g. `[{"player": 2, "slot": 2, "index": 0}]`).
+* **Later turns and legal actions** (rules audit): `turn` is described above. `"at": "decision", "n": N` checks the N-th turn
+  decision since the edits (0 = right after them, `"at": "start"`; counted over all later turns), so what the first
+  decision of a turn allows can be asserted. `{"who", "legal": KIND, "is": false}` asserts that an action is (not) among
+  the legal turn options of the player to move (what the RL action mask may contain; `who` must be that player; `is`
+  defaults to true). KIND is `play` (a card in hand, `name`; Energy cards too; `on`: `"active"` or a Bench index narrows
+  it to that target), `ability` (`name` of the Ability and/or `card` = the Pokemon that has it), `stadium`, `retreat`
+  (`on`: the Bench index) or `attack` (`name`). Scripted `answers` may name a hand card in a play (`{"a": "play", "card": "Switch 30C 127",
+  "target": {...}}` or `"name"` instead of `"card"`; `target` optional; or `{"a": "play"|"ability", "card_prefix": "PRE-100#"}`):
+  the oracle matches the first such legal option, since card ids depend on the shuffle. Other answers (`ability`, `stadium`,
+  `retreat`, `attack`, `pass`) and prompt answers stay in the recorded raw format (e.g. `[{"player": 2, "slot": 2, "index": 0}]`).
 * **Output**: `diff` prints `EXPECT FAILED <trace>: assertion #i (at) ...`
   with the cite and the actual value, and `expect: N games checked, M failed, K
   not checked`; it exits 1 on failure, like a divergence, with `--quiet` too.

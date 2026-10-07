@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Sacred Charm PFL 93",
+   "1 Minccino JTG 125",
+   "1 Hero's Cape TEF 152",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 Sacred Charm PFL 93",
+   "1 Minccino JTG 125",
+   "1 Hero's Cape TEF 152",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Sacred Charm PFL 93"
+  ],
+  "active_tool": "Hero's Cape TEF 152"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Sacred Charm PFL 93",
+   "is": false,
+   "cite": "Advanced Rulebook B-02: a Pokemon can only have one Pokemon Tool attached at a time, and a Tool can not be replaced"
+  }
+ ]
+}

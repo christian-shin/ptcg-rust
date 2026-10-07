@@ -12,8 +12,8 @@ use crate::cards::prelude::*;
 pub static IMPL: CardImpl = CardImpl { class: "EmergencyBoard", mask: mask(&[k::CHECK_RETREAT_COST]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (p, cost) = match *g.e(e) {
-        Effect::CheckRetreatCost { p, cost, .. } => (p as usize, cost),
+    let p = match *g.e(e) {
+        Effect::CheckRetreatCost { p, .. } => p as usize,
         _ => return Ok(()),
     };
     let a = g.st.players[p].active;
@@ -26,22 +26,13 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     if pokemon.is_some() {
         let remaining = crate::engine::check::check_hp(g, p, a)? - g.st.slot(p, a).damage;
-        let mut out: crate::effects::Cost = SVec::new();
         if remaining <= 30 {
-            // cost = []
-        } else {
-            let index = cost.iter().position(|x| *x == ct::COLORLESS);
-            for (j, x) in cost.iter().enumerate() {
-                if Some(j) != index {
-                    out.push(*x);
-                }
-            }
-        }
-        if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
-            *cost = out;
-            if remaining <= 30 {
+            if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
+                *cost = crate::effects::Cost::new();
                 *no_cost = true;
             }
+        } else if let Effect::CheckRetreatCost { reduction, .. } = g.e_mut(e) {
+            *reduction += 1;
         }
     }
     Ok(())

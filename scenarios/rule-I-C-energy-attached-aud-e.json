@@ -1,0 +1,35 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Minccino JTG 125",
+   "59 Water Energy MEE"
+  ],
+  [
+   "1 Minccino JTG 125",
+   "59 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Water Energy MEE"
+  ],
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Water Energy MEE",
+   "is": false,
+   "cite": "Advanced Rulebook I-C: once during their turn, players may attach one Energy card from their hand"
+  }
+ ]
+}

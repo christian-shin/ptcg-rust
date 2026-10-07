@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 N's Zorua ASC 136",
+   "1 N's Zoroark ex ASC 137",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ],
+  [
+   "1 N's Zorua ASC 136",
+   "1 N's Zoroark ex ASC 137",
+   "1 Minccino JTG 125",
+   "57 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "N's Zorua ASC 136",
+   "N's Zoroark ex ASC 137"
+  ],
+  "hand": [
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Trade",
+   "cite": "Advanced Rulebook E-30 (the discard is a condition of using the Ability; ruling 244): a card to discard and a deck to draw from"
+  }
+ ]
+}

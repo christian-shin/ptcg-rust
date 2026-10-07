@@ -79,7 +79,7 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             Some(x) => return Err(format!("expect[{}]: bad at {} (turn_end, next_turn, next_turn_end, game_end, tiebreaker, decision or start)", i, x)),
         };
         let kinds = [
-            o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone")),
+            !o.contains_key("legal") && (o.contains_key("slot") || o.contains_key("bench") || (o.contains_key("card") && !o.contains_key("zone"))),
             o.contains_key("zone"),
             o.contains_key("prizes_taken"),
             o.contains_key("winner"),
@@ -110,9 +110,9 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
                 return Err(format!("expect[{}]: legal is checked at a turn decision (at: next_turn or decision)", i));
             }
             match l.as_str() {
-                Some("retreat") => {}
+                Some("retreat") | Some("stadium") | Some("ability") => {}
                 Some("attack") | Some("play") if o.get("name").and_then(|n| n.as_str()).is_some() => {}
-                _ => return Err(format!("expect[{}]: legal must be retreat, or attack / play with a name", i)),
+                _ => return Err(format!("expect[{}]: legal must be retreat, stadium, ability, or attack / play with a name", i)),
             }
             if o.get("is").map_or(false, |b| !b.is_boolean()) {
                 return Err(format!("expect[{}]: is must be true or false", i));
@@ -218,8 +218,10 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
 }
 
 /// `legal`: whether a turn action is among the legal options of the player to move (the same
-/// trial dispatch as the interface). `is` (default true) is the expected answer; `on` ("active" or a
-/// Bench index) narrows a `play` to that target.
+/// trial dispatch as the interface). `is` (default true) is the expected answer.
+/// `legal` is `play` (a card in hand, `name`; `on`: "active" or a Bench index narrows it to that target),
+/// `ability` (`name` of the Ability and/or `card` = the Pokemon that has it), `stadium` (use the Stadium in play),
+/// `retreat` (`on`: the Bench index to retreat to) or `attack` (`name`).
 fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     use crate::game::Action;
     if g.st.active_player as usize != p {
@@ -228,10 +230,16 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     let want = a["is"].as_bool().unwrap_or(true);
     let kind = a["legal"].as_str().unwrap_or("");
     let name = a["name"].as_str().unwrap_or("");
+    let card = a["card"].as_str();
     let opts = crate::options::legal_turn_options(g);
     let have = opts.iter().any(|o| match (kind, o.action) {
-        ("retreat", Action::Retreat { .. }) => true,
+        ("retreat", Action::Retreat { bench_index }) => a["on"].as_u64().map_or(true, |b| b == bench_index as u64),
+        ("stadium", Action::UseStadium) => true,
         ("attack", Action::Attack { name: n }) => n == name,
+        ("ability", Action::UseAbility { name: n, target }) => {
+            let src = crate::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
+            (name.is_empty() || name == n) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
+        }
         ("play", Action::PlayCard { hand_index, target }) => {
             names_eq(g.st.players[p].hand.as_slice()[hand_index as usize], g, name)
                 && match &a["on"] {
@@ -250,7 +258,6 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     Ok(())
 }
 
-/// A `card` key selects the Pokémon when no `slot`/`bench` is given, else it checks the top Pokémon.
 fn selects_by_card(a: &Value) -> bool {
     a["card"].is_string() && a.get("slot").is_none() && a.get("bench").is_none()
 }
@@ -660,6 +667,18 @@ mod tests {
         assert!(ev(&g, 1 - me, json!({"cite":"c","winner":"opp"})).is_ok());
         g.st.winner = crate::types::WINNER_DRAW;
         assert!(ev(&g, me, json!({"cite":"c","winner":"draw"})).is_ok());
+    }
+
+    #[test]
+    fn evaluates_legal_kinds() {
+        let g = board();
+        let me = g.st.active_player as usize;
+        // (the test board is in the setup phase: no turn action is legal there)
+        let ok = |v: Value| ev(&g, me, v);
+        let _ = &ok;
+        assert!(p(json!([{"cite":"c","who":"me","legal":"stadium"}])).is_ok());
+        assert!(p(json!([{"cite":"c","who":"me","legal":"ability"}])).is_ok());
+        assert!(p(json!([{"cite":"c","who":"me","legal":"play"}])).is_err(), "play needs a name");
     }
 
     #[test]

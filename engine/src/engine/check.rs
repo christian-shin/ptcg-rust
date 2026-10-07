@@ -619,7 +619,7 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
-        Effect::CheckRetreatCost { no_cost, .. } => {
+        Effect::CheckRetreatCost { no_cost, reduction, .. } => {
             // zeroRetreatCostNextTurn: not modeled. A "no Retreat Cost" effect
             // (noRetreatCost) takes priority over increases, whatever the
             // handler order (phase 4b, R2). retreatCostIncreaseNextTurn
@@ -628,6 +628,23 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
             if no_cost {
                 if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(id) {
                     cost.clear();
+                }
+            } else if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(id) {
+                // "Retreat Cost is [C] less" effects (Air Balloon, Rescue Board) add up and are applied once, together
+                // with the increases, whatever the handler order (Advanced Rulebook D-11, D-12).
+                for _ in 0..reduction {
+                    match cost.iter().position(|c| *c == ct::COLORLESS) {
+                        Some(i) => {
+                            let mut out: Cost = SVec::new();
+                            for (j, c) in cost.iter().enumerate() {
+                                if j != i {
+                                    out.push(*c);
+                                }
+                            }
+                            *cost = out;
+                        }
+                        None => break,
+                    }
                 }
             }
             Ok(())

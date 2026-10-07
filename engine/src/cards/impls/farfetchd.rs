@@ -51,6 +51,11 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if is_ability_blocked(g, p, me, None) {
             return Ok(());
         }
+        // An Ability can't be used for no effect: the number of cards in a deck is public (Advanced Rulebook E-06,
+        // rulings 244, 782).
+        if g.st.players[p].deck.is_empty() {
+            return Ok(());
+        }
         let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
         let mut f = CardFrame::at(1);
         f.a[0] = p as i32;

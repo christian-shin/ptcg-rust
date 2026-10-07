@@ -1,0 +1,49 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Psychic Energy MEE",
+   "1 Marill ASC 83",
+   "1 Azumarill SSP 74",
+   "1 Teal Mask Ogerpon ex PRE 12",
+   "1 Minccino JTG 125",
+   "55 Water Energy MEE"
+  ],
+  [
+   "1 Psychic Energy MEE",
+   "1 Marill ASC 83",
+   "1 Azumarill SSP 74",
+   "1 Teal Mask Ogerpon ex PRE 12",
+   "1 Minccino JTG 125",
+   "55 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Marill ASC 83",
+   "Azumarill SSP 74"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Teal Mask Ogerpon ex PRE 12"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Double-Edge",
+   "cite": "Advanced Rulebook E-32: with a Tera Pokemon in play Double-Edge can be used for [P]"
+  }
+ ]
+}

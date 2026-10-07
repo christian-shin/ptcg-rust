@@ -182,6 +182,9 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
     if side["energy_attached"].as_bool() == Some(true) {
         pl.energy_played_turn = turn;
     }
+    if side["stadium_played"].as_bool() == Some(true) {
+        pl.stadium_played_turn = turn;
+    }
     if side["retreated"].as_bool() == Some(true) {
         pl.retreated_turn = turn;
     }

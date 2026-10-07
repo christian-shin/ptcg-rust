@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ethan's Slugma ASC 23",
+   "1 Ethan's Magcargo ASC 24",
+   "1 Minccino JTG 125",
+   "1 Gravity Gemstone SCR 137",
+   "56 Water Energy MEE"
+  ],
+  [
+   "1 Ethan's Slugma ASC 23",
+   "1 Ethan's Magcargo ASC 24",
+   "1 Minccino JTG 125",
+   "1 Gravity Gemstone SCR 137",
+   "56 Water Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ethan's Slugma ASC 23",
+   "Ethan's Magcargo ASC 24"
+  ],
+  "bench": [
+   {
+    "card": "Minccino JTG 125"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "active_tool": "Gravity Gemstone SCR 137"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "retreat",
+   "on": 0,
+   "cite": "Advanced Rulebook D-13 (Has no retreat cost takes priority over is more), rulings 117, 1617: Melt Away with no Energy attached still retreats for free"
+  }
+ ]
+}
