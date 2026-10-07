@@ -1,0 +1,78 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Petilil BLK 6",
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "8 Fighting Energy MEE",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Petilil BLK 6",
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "8 Fighting Energy MEE",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Petilil BLK 6",
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113",
+  "active_energy": [
+   "2 Fighting Energy MEE"
+  ]
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hide"
+  },
+  {
+   "a": "attack",
+   "name": "Mega Brave"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Aura Jab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "Advanced Rulebook E-01 (during your opponent's next turn: damage and effects are prevented)"
+  },
+  {
+   "at": "turn_end",
+   "turn": 3,
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Petilil BLK 6"
+   ],
+   "cite": "Advanced Rulebook E-01 (the protection ended with that turn: the second attack Knocks Out Petilil)"
+  }
+ ]
+}

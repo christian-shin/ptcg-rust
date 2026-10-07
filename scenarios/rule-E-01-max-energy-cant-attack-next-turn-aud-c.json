@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Walrein SSP 45",
+   "4 Beldum TEF 113",
+   "8 Metal Energy MEE",
+   "8 Water Energy MEE",
+   "36 Fire Energy MEE"
+  ],
+  [
+   "4 Walrein SSP 45",
+   "4 Beldum TEF 113",
+   "8 Metal Energy MEE",
+   "8 Water Energy MEE",
+   "36 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Walrein SSP 45",
+  "active_energy": [
+   "Water Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "Metal Energy MEE",
+   "Fire Energy MEE"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Frigid Fangs"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "attack",
+   "cite": "Advanced Rulebook E-01 (Pokemon that have 2 or less Energy attached can't attack during your opponent's next turn)",
+   "name": "Dig Claws",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "opp",
+   "legal": "attack",
+   "cite": "Advanced Rulebook E-01 (the lock ends with that turn)",
+   "name": "Dig Claws"
+  }
+ ]
+}

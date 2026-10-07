@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pyroar PRE 16",
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "4 Switch 30C 127",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Pyroar PRE 16",
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "4 Switch 30C 127",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pyroar PRE 16",
+  "active_energy": [
+   "4 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ],
+  "hand": [
+   "Switch 30C 127"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flame Tackle"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "play",
+   "card": "Switch 30C 127"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02",
+   "name": "Fire Mane",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 4,
+   "who": "me",
+   "legal": "attack",
+   "cite": "Advanced Rulebook C-15 / E-02 (moving the Pokemon to the Bench removes the effect; Switch brought it back)",
+   "name": "Fire Mane"
+  }
+ ]
+}

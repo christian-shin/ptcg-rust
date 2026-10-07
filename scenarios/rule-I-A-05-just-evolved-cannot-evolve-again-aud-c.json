@@ -1,0 +1,69 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metagross TEF 115",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metagross TEF 115",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "bench": [
+   {
+    "card": "Beldum TEF 113"
+   }
+  ],
+  "hand": [
+   "Metang TEF 114",
+   "Metagross TEF 115"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Metang TEF 114",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Metagross TEF 115",
+   "cite": "Advanced Rulebook I-A-05 (before evolving, Metagross does not fit a Basic)",
+   "is": false,
+   "on": "active"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "play",
+   "name": "Metagross TEF 115",
+   "cite": "Advanced Rulebook I-A-05 (a Pokemon that just evolved cannot evolve further that turn)",
+   "is": false,
+   "on": "active"
+  }
+ ]
+}

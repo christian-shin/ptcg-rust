@@ -1,0 +1,94 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Sacred Charm PFL 93",
+   "4 Snorunt TWM 51",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Sacred Charm PFL 93",
+   "4 Snorunt TWM 51",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bulbasaur MEG 1",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ],
+  "active_tool": "Sacred Charm PFL 93",
+  "active_damage": 40,
+  "active_conditions": [
+   "CONFUSED",
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Chikorita MEG 8"
+   },
+   {
+    "card": "Chikorita MEG 8"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Bulbasaur MEG 1",
+   "energy": 1,
+   "tool": "Sacred Charm PFL 93",
+   "damage": 40,
+   "conditions": [],
+   "cite": "Advanced Rulebook I-A-03 (paying the Retreat Cost discards that much Energy; other Energy, Tool and damage stay; Special Conditions are lost)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Chikorita MEG 8",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Advanced Rulebook I-A-03"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Fire Energy MEE",
+    "Fire Energy MEE"
+   ],
+   "cite": "Advanced Rulebook I-A-03 (Retreat Cost 2 discards 2 Energy)"
+  },
+  {
+   "turn": 1,
+   "who": "me",
+   "bench": 0,
+   "damage": 40,
+   "conditions": [],
+   "cite": "Advanced Rulebook I-A-03 (the benched Pokemon is not Poisoned at Pokemon Checkup: Special Conditions end on the Bench)"
+  }
+ ]
+}

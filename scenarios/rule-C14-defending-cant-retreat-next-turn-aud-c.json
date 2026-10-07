@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Snorunt TWM 51",
+   "8 Grass Energy MEE",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Snorunt TWM 51",
+   "8 Grass Energy MEE",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bulbasaur MEG 1",
+  "active_energy": [
+   "Grass Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51",
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bind Down"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook C-14 / E-01 (the Defending Pokemon can't retreat during the opponent's next turn)",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "opp",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook C-14 / E-01 (the effect ends with that turn)"
+  }
+ ]
+}

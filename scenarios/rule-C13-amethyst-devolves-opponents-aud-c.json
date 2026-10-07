@@ -1,0 +1,105 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Espeon ex PRE 34",
+   "4 Beldum TEF 113",
+   "4 Metagross TEF 115",
+   "4 Metang TEF 114",
+   "4 Sacred Charm PFL 93",
+   "5 Darkness Energy MEE",
+   "5 Grass Energy MEE",
+   "5 Metal Energy MEE",
+   "5 Psychic Energy MEE",
+   "20 Fire Energy MEE"
+  ],
+  [
+   "4 Espeon ex PRE 34",
+   "4 Beldum TEF 113",
+   "4 Metagross TEF 115",
+   "4 Metang TEF 114",
+   "4 Sacred Charm PFL 93",
+   "5 Darkness Energy MEE",
+   "5 Grass Energy MEE",
+   "5 Metal Energy MEE",
+   "5 Psychic Energy MEE",
+   "20 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Espeon ex PRE 34",
+  "active_energy": [
+   "Grass Energy MEE",
+   "Psychic Energy MEE",
+   "Darkness Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Beldum TEF 113",
+   "Metang TEF 114"
+  ],
+  "active_damage": 20,
+  "active_energy": [
+   "Metal Energy MEE"
+  ],
+  "active_tool": "Sacred Charm PFL 93",
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Metang TEF 114"
+   },
+   {
+    "card": [
+     "Beldum TEF 113",
+     "Metang TEF 114",
+     "Metagross TEF 115"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Amethyst"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Beldum TEF 113",
+   "damage": 20,
+   "energy": 1,
+   "tool": "Sacred Charm PFL 93",
+   "conditions": [],
+   "cite": "Advanced Rulebook C-13 (devolving keeps Energy, Tools, damage; Special Conditions are removed)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Metang TEF 114",
+   "cite": "Advanced Rulebook C-13 (a Stage 1 put into play directly cannot be devolved)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "card": "Metang TEF 114",
+   "cite": "Advanced Rulebook C-13 (the highest Stage card is removed: Metagross)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 0,
+   "cite": "Amethyst shuffles the cards into the deck"
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pecharunt SVP 129",
+   "4 Perilous Jungle TEF 156",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Pecharunt SVP 129",
+   "4 Perilous Jungle TEF 156",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pecharunt SVP 129",
+  "active_conditions": [
+   "POISONED"
+  ],
+  "stadium": "Perilous Jungle TEF 156"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_conditions": [
+   "POISONED"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "turn": 1,
+   "cite": "Perilous Jungle: only non-Darkness Pokemon take 2 more counters (card text)",
+   "damage": 10
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "turn": 1,
+   "cite": "Perilous Jungle: 2 more damage counters on each Poisoned non-Darkness Pokemon, both players (10 + 50 Toxic Subjugation + 20)",
+   "damage": 80
+  }
+ ]
+}

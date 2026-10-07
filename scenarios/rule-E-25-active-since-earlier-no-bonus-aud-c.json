@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Mega Lucario ex ASC 113",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Buneary PFL 83",
+   "4 Mega Lopunny ex PFL 84",
+   "4 Mega Lucario ex ASC 113",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Buneary PFL 83",
+   "Mega Lopunny ex PFL 84"
+  ],
+  "active_energy": [
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gale Thrust"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 60,
+   "cite": "Advanced Rulebook E-25 (did not move this turn: no bonus)"
+  }
+ ]
+}

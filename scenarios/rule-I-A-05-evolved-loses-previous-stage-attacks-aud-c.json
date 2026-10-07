@@ -1,0 +1,72 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "8 Metal Energy MEE",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "8 Metal Energy MEE",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_energy": [
+   "Metal Energy MEE",
+   "2 Fire Energy MEE"
+  ],
+  "hand": [
+   "Metang TEF 114"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Metang TEF 114",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "attack",
+   "name": "Dig Claws",
+   "cite": "Advanced Rulebook I-A-05 (control: Beldum can use Dig Claws)"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "attack",
+   "name": "Dig Claws",
+   "cite": "Advanced Rulebook I-A-05 (an evolved Pokemon cannot use the attacks written on its previous Stage Pokemon)",
+   "is": false
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "attack",
+   "name": "Beam",
+   "cite": "Advanced Rulebook I-A-05"
+  }
+ ]
+}

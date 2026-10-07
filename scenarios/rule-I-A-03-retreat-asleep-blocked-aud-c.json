@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Bulbasaur MEG 1",
+   "4 Chikorita MEG 8",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bulbasaur MEG 1",
+  "active_energy": [
+   "3 Fire Energy MEE"
+  ],
+  "active_conditions": [
+   "ASLEEP"
+  ],
+  "bench": [
+   {
+    "card": "Chikorita MEG 8"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "retreat",
+   "cite": "Advanced Rulebook I-A-03 step 1b (an Asleep or Paralyzed Pokemon can't retreat)",
+   "is": false
+  }
+ ]
+}

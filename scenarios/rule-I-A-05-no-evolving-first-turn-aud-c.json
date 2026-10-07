@@ -1,0 +1,40 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "hand": [
+   "Metang TEF 114"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Metang TEF 114",
+   "cite": "Advanced Rulebook I-A-05 (neither player can evolve any of their Pokemon during their first turn)",
+   "is": false,
+   "on": "active"
+  }
+ ]
+}

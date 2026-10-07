@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Buneary PFL 83",
+   "4 Ignition Energy PFL 124",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Buneary PFL 83",
+   "4 Ignition Energy PFL 124",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Buneary PFL 83",
+  "hand": [
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Ignition Energy PFL 124",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "Advanced Rulebook E-21 (the end of turn still happens when the player ends the turn without attacking)"
+  },
+  {
+   "turn": 1,
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Ignition Energy PFL 124"
+   ],
+   "cite": "Advanced Rulebook E-21"
+  }
+ ]
+}

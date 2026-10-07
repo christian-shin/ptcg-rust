@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Metagross TEF 115",
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "5 Metal Energy MEE",
+   "43 Fire Energy MEE"
+  ],
+  [
+   "4 Metagross TEF 115",
+   "4 Mega Lucario ex ASC 113",
+   "4 Snorunt TWM 51",
+   "5 Metal Energy MEE",
+   "43 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Metagross TEF 115",
+  "active_energy": [
+   "Metal Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Meteor Mash"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Meteor Mash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 4,
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "Advanced Rulebook E-02 (the bonus ended with your next turn: 60 + 60)"
+  }
+ ]
+}

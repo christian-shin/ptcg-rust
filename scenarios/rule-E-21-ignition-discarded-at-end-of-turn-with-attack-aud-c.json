@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Buneary PRE 83",
+   "4 Ignition Energy PFL 124",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Buneary PRE 83",
+   "4 Ignition Energy PFL 124",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Buneary PRE 83",
+  "hand": [
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Ignition Energy PFL 124",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "attack",
+   "name": "Smash Kick"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "cite": "Ignition Energy provides [C] on a Basic Pokemon (Smash Kick costs [C])"
+  },
+  {
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "Advanced Rulebook E-21 (discard it at the end of your turn)"
+  },
+  {
+   "turn": 1,
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Ignition Energy PFL 124"
+   ],
+   "cite": "Advanced Rulebook E-21"
+  }
+ ]
+}

@@ -1,0 +1,39 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Kadabra MEG 55",
+   "4 Snorunt TWM 51",
+   "4 Strange Timepiece MEG 128",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Kadabra MEG 55",
+   "4 Snorunt TWM 51",
+   "4 Strange Timepiece MEG 128",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kadabra MEG 55",
+  "hand": [
+   "Strange Timepiece MEG 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Snorunt TWM 51"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Strange Timepiece MEG 128",
+   "is": false,
+   "cite": "Advanced Rulebook C-13 (Stage 1 or Stage 2 Pokemon put into play without evolving cannot be devolved: Timepiece has no target)"
+  }
+ ]
+}

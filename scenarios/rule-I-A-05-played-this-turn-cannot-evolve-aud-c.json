@@ -1,0 +1,69 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Pikachu ex ASC 57",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_played": "this_turn",
+  "bench": [
+   {
+    "card": "Beldum TEF 113",
+    "played": "this_turn"
+   },
+   {
+    "card": "Beldum TEF 113"
+   }
+  ],
+  "hand": [
+   "Metang TEF 114"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Metang TEF 114",
+   "cite": "Advanced Rulebook I-A-05 (a Basic Pokemon that was just put into play cannot evolve that turn)",
+   "is": false,
+   "on": "active"
+  },
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Metang TEF 114",
+   "cite": "Advanced Rulebook I-A-05",
+   "is": false,
+   "on": 0
+  },
+  {
+   "at": "decision",
+   "n": 0,
+   "who": "me",
+   "legal": "play",
+   "name": "Metang TEF 114",
+   "cite": "Advanced Rulebook I-A-05 (control: in play since an earlier turn)",
+   "on": 1
+  }
+ ]
+}

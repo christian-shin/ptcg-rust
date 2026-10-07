@@ -1,0 +1,57 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Gimmighoul SSP 97",
+   "4 Gholdengo SSP 131",
+   "4 Mega Lucario ex ASC 113",
+   "8 Metal Energy MEE",
+   "40 Fire Energy MEE"
+  ],
+  [
+   "4 Gimmighoul SSP 97",
+   "4 Gholdengo SSP 131",
+   "4 Mega Lucario ex ASC 113",
+   "8 Metal Energy MEE",
+   "40 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Gimmighoul SSP 97",
+  "active_energy": [
+   "Metal Energy MEE"
+  ],
+  "hand": [
+   "Gholdengo SSP 131"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Gholdengo SSP 131",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "attack",
+   "name": "Strike It Rich"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "Advanced Rulebook E-24 (evolved from Gimmighoul during this turn: 30 + 90 more)"
+  }
+ ]
+}

@@ -1,0 +1,82 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pikachu ex ASC 57",
+   "4 Froslass TWM 53",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ],
+  [
+   "4 Pikachu ex ASC 57",
+   "4 Froslass TWM 53",
+   "4 Snorunt TWM 51",
+   "48 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "bench": [
+   {
+    "card": [
+     "Snorunt TWM 51",
+     "Froslass TWM 53"
+    ]
+   },
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "bench": [
+   {
+    "card": [
+     "Snorunt TWM 51",
+     "Froslass TWM 53"
+    ]
+   },
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "slot": "active",
+   "turn": 1,
+   "cite": "Freezing Shroud: each Froslass puts 1 damage counter on each Pokemon with an Ability (both players), two Froslass = 2 counters",
+   "damage": 20
+  },
+  {
+   "who": "opp",
+   "slot": "active",
+   "turn": 1,
+   "cite": "Freezing Shroud, both players' Pokemon",
+   "damage": 20
+  },
+  {
+   "turn": 1,
+   "who": "me",
+   "bench": 1,
+   "damage": 0,
+   "cite": "Pokemon without an Ability take no counters"
+  },
+  {
+   "turn": 1,
+   "who": "me",
+   "bench": 0,
+   "damage": 0,
+   "cite": "Froslass is excluded"
+  }
+ ]
+}
