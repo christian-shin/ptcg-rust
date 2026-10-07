@@ -8,9 +8,8 @@
 //!
 //! Twinleaf: no move to the supporter pile and no preventDefault (the core
 //! discards the Supporter normally); checks in order: Supporter played, empty
-//! deck, full Bench, turn 1/2. The ShuffleDeckPrompt targets the (already
-//! emptied) top-cards list, so its order is never applied to anything and the
-//! other cards go to the bottom unshuffled. The Supporter pile → discard move
+//! deck, full Bench, turn 1/2. The other cards are shuffled with Chance.shuffle before they go to
+//! the bottom (aud-d fix; Twinleaf's ShuffleDeckPrompt used to be applied to nothing). The Supporter pile → discard move
 //! runs before the prompt answers, and the new Pokémon gets
 //! `pokemonPlayedTurn = turn` (no PlayPokemonEffect).
 use crate::cards::prelude::*;
@@ -66,8 +65,15 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         move_cards(g, top, ListRef::Slot(p as u8, slot), &[*c], NO_CARD)?;
         g.st.players[p].slots[slot as usize].pokemon_played_turn = g.st.turn;
     }
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Noop);
+    // Audit aud-d (Advanced Rulebook E-35): "Shuffle the other cards" shuffles the looked-at cards (`Chance.shuffle`) before they
+    // go to the bottom; the old ShuffleDeckPrompt was applied to nothing.
+    let rest: Vec<CardId> = g.lst(top).to_vec();
+    if !rest.is_empty() {
+        let mut perm = [0u8; 120];
+        g.rng.shuffle(rest.len(), &mut perm);
+        let shuffled: Vec<CardId> = (0..rest.len()).map(|i| rest[perm[i] as usize]).collect();
+        g.lst_mut(top).set_from(&shuffled);
+    }
     g.run_fx(Effect::MoveCards {
         source: top,
         destination: ListRef::Deck(p as u8),

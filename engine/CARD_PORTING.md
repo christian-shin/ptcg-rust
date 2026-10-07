@@ -460,6 +460,8 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
   `"next_turn_end"`: the end of the turn after the scenario turn, like `turn_end` (the other player's attack and its
   Knock Outs). `"game_end"`: the moment the game is decided, winner set (use it for `winner`; a game that never ends
   is not checked). `"tiebreaker"`: the first turn decision of the Tiebreaker game that replaces the scenario's game.
+  `"start"`: right after the scenario edits, at the first decision (same as `"decision"` with `n` 0): use it with
+  `legal` or `bench_count` for what the edited board allows. `"decision"` + `n`: the n-th turn decision since the edits.
   Every game must satisfy every assertion. A game that ends before the check
   point (a win at turn end is still seen by `turn_end`, but not by
   `next_turn`) is reported as not checked, never as passed.
@@ -490,6 +492,8 @@ evaluated by the Rust replay (`diff`) only; the oracle ignores the key.
 * **Zones**: `{"who", "zone": "hand|deck|discard|prizes|lost_zone", "count": N,
   "contains": [names], "not_contains": [names]}`. `contains` needs distinct
   cards (two names = two cards). `prizes` is the Prize cards still in the Prize pile.
+* **Bench and deck**: `{"who", "bench_count": N}` (Pokemon on the Bench), `{"who", "bench_excludes": [names]}` (none of
+  these on the Bench), and `"top": [names]` with a `deck` zone (the top cards of the deck, first = top).
 * **Other**: `{"who", "prizes_taken": N}` (Prizes taken so far by Knock Outs);
   `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).

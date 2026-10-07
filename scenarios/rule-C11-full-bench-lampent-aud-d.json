@@ -1,0 +1,99 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lampent PBL 37",
+   "4 Litwick TWM 36",
+   "4 Hop's Snorlax JTG 117",
+   "4 Duraludon PRE 69",
+   "4 Pikachu ex ASC 57",
+   "36 Fire Energy MEE",
+   "1 Psychic Energy MEE",
+   "Water Energy MEE",
+   "Grass Energy MEE",
+   "Lightning Energy MEE"
+  ],
+  [
+   "4 Lampent PBL 37",
+   "4 Litwick TWM 36",
+   "4 Hop's Snorlax JTG 117",
+   "4 Duraludon PRE 69",
+   "4 Pikachu ex ASC 57",
+   "36 Fire Energy MEE",
+   "1 Psychic Energy MEE",
+   "Water Energy MEE",
+   "Grass Energy MEE",
+   "Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Litwick TWM 36",
+   "Lampent PBL 37"
+  ],
+  "active_energy": [
+   "1 Psychic Energy MEE",
+   "1 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Pikachu ex ASC 57"
+   }
+  ],
+  "deck_top": [
+   "Water Energy MEE",
+   "Grass Energy MEE",
+   "Lightning Energy MEE"
+  ],
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spreading Light"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 5,
+   "cite": "Advanced Rulebook C-11 (full Bench: the attack ends without putting Pokemon onto the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "deck",
+   "top": [
+    "Water Energy MEE",
+    "Grass Energy MEE",
+    "Lightning Energy MEE"
+   ],
+   "cite": "Advanced Rulebook C-11 (the attack ends before you search the deck) and E-19 (no look, no shuffle)"
+  }
+ ]
+}

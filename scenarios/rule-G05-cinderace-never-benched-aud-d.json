@@ -1,0 +1,13 @@
+{
+ "turn": 1,
+ "decks": [
+  ["4 Cinderace M1L", "1 Hop's Snorlax JTG 117", "55 Fire Energy MEE"],
+  ["4 Cinderace M1L", "1 Hop's Snorlax JTG 117", "55 Fire Energy MEE"]
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "bench_excludes": ["Cinderace MEG 28"], "cite": "ruling 1714 and Advanced Rulebook I-G step 6 (only Basic Pokemon go onto the Bench; Explosiveness is Active only)"},
+  {"at": "start", "who": "opp", "bench_excludes": ["Cinderace MEG 28"], "cite": "ruling 1714 and Advanced Rulebook I-G step 6"},
+  {"at": "start", "who": "me", "zone": "prizes", "count": 6, "cite": "Advanced Rulebook I-G step 7"},
+  {"at": "start", "who": "opp", "zone": "prizes", "count": 6, "cite": "Advanced Rulebook I-G step 7"}
+ ]
+}

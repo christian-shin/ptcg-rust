@@ -1,0 +1,76 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Accompanying Flute TWM 142",
+   "4 Hop's Snorlax JTG 117",
+   "4 Pikachu ex ASC 57",
+   "4 Duraludon PRE 69",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Accompanying Flute TWM 142",
+   "4 Hop's Snorlax JTG 117",
+   "4 Pikachu ex ASC 57",
+   "4 Duraludon PRE 69",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "hand": [
+   "Accompanying Flute TWM 142"
+  ],
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Accompanying Flute TWM 142",
+   "is": false,
+   "cite": "ruling 881 (opponent's Bench is full: public knowledge, the card cannot be played) and Advanced Rulebook C-11"
+  }
+ ]
+}

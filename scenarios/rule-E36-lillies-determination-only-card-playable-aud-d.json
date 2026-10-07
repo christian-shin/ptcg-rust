@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lillie's Determination ASC 192",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fire Energy MEE"
+  ],
+  [
+   "4 Lillie's Determination ASC 192",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "hand": [
+   "Lillie's Determination ASC 192"
+  ],
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Lillie's Determination ASC 192",
+   "cite": "Advanced Rulebook E-36 (Lillie's Determination can be played with no other card in hand: shuffle the deck, then draw), ruling 890"
+  }
+ ]
+}

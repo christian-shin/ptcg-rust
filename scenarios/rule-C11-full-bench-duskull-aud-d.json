@@ -1,0 +1,95 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duskull PRE 35",
+   "4 Hop's Snorlax JTG 117",
+   "4 Duraludon PRE 69",
+   "4 Pikachu ex ASC 57",
+   "40 Fire Energy MEE",
+   "1 Psychic Energy MEE",
+   "Water Energy MEE",
+   "Grass Energy MEE",
+   "Lightning Energy MEE"
+  ],
+  [
+   "4 Duskull PRE 35",
+   "4 Hop's Snorlax JTG 117",
+   "4 Duraludon PRE 69",
+   "4 Pikachu ex ASC 57",
+   "40 Fire Energy MEE",
+   "1 Psychic Energy MEE",
+   "Water Energy MEE",
+   "Grass Energy MEE",
+   "Lightning Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duskull PRE 35",
+  "active_energy": [
+   "1 Psychic Energy MEE",
+   "1 Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Pikachu ex ASC 57"
+   }
+  ],
+  "deck_top": [
+   "Water Energy MEE",
+   "Grass Energy MEE",
+   "Lightning Energy MEE"
+  ],
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ],
+  "discard": [
+   "Duskull PRE 35"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Come and Get You"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 5,
+   "cite": "Advanced Rulebook C-11 (full Bench: the attack ends without putting Pokemon onto the Bench)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Duskull PRE 35"
+   ],
+   "cite": "Advanced Rulebook C-11 (full Bench: no Pokemon are put onto the Bench from the discard pile)"
+  }
+ ]
+}

@@ -1,0 +1,76 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Bag JTG 147",
+   "4 Hop's Snorlax JTG 117",
+   "4 Pikachu ex ASC 57",
+   "4 Duraludon PRE 69",
+   "44 Fire Energy MEE"
+  ],
+  [
+   "4 Hop's Bag JTG 147",
+   "4 Hop's Snorlax JTG 117",
+   "4 Pikachu ex ASC 57",
+   "4 Duraludon PRE 69",
+   "44 Fire Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "active_energy": [
+   "Fire Energy MEE"
+  ],
+  "hand": [
+   "Hop's Bag JTG 147"
+  ],
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex ASC 57",
+  "prizes": [
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE",
+   "Fire Energy MEE"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Hop's Bag JTG 147",
+   "is": false,
+   "cite": "Advanced Rulebook C-11 (full Bench: you cannot use a Trainer with this effect), ruling 1337"
+  }
+ ]
+}
