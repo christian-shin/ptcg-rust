@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "active_damage": 60,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Terrakion WHT 54",
+    "energy": [
+     "Fighting Energy MEE",
+     "Fighting Energy MEE"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Retaliate"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 50,
+   "cite": "ruling 1095 (a Knock Out by Poison happens between turns, not during the opponent's last turn)"
+  }
+ ]
+}

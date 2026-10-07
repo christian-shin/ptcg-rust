@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Munkidori ex SFA 37",
+   "2 Pecharunt ex PRE 163",
+   "2 Gastly ASC 123",
+   "2 Haunter ASC 124",
+   "2 Mega Gengar ex ASC 125",
+   "48 Fighting Energy MEE"
+  ],
+  [
+   "2 Koraidon ex ASC 121",
+   "2 Munkidori ex SFA 37",
+   "2 Pecharunt ex PRE 163",
+   "2 Gastly ASC 123",
+   "2 Haunter ASC 124",
+   "2 Mega Gengar ex ASC 125",
+   "48 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon ex ASC 121",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Pecharunt ex PRE 163"
+   },
+   {
+    "card": [
+     "Gastly ASC 123",
+     "Haunter ASC 124",
+     "Mega Gengar ex ASC 125"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Impact Blow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "ruling 1745 (Prize modifiers add up, never below 0), Advanced Rulebook D-18"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "prizes",
+   "count": 6,
+   "cite": "ruling 1745"
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape M5",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "2 Mankey SSP 98",
+   "2 Primeape M5",
+   "2 Annihilape SSP 100",
+   "2 Dwebble DRI 11",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Mankey SSP 98",
+   "Primeape M5",
+   "Annihilape SSP 100"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ],
+ "sudden_death": true,
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "rulings 567, 580"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "rulings 567, 580"
+  },
+  {
+   "at": "turn_end",
+   "winner": null,
+   "cite": "rulings 567, 580 (both took one Prize card: nobody has fewer Prize cards remaining, the Tiebreaker game goes on)"
+  }
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Mega Mawile ex MEG 94",
+   "2 Brave Bangle PBL 104",
+   "55 Metal Energy MEE"
+  ],
+  [
+   "3 Mega Mawile ex MEG 94",
+   "2 Brave Bangle PBL 104",
+   "55 Metal Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Mawile ex MEG 94",
+  "active_energy": [
+   "3 Metal Energy MEE"
+  ],
+  "active_tool": "Brave Bangle PBL 104"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Mawile ex MEG 94",
+  "bench": [
+   {
+    "card": "Mega Mawile ex MEG 94"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Huge Bite"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 260,
+   "cite": "Advanced Rulebook D-18 (a Mega Evolution ex has a Rule Box: Brave Bangle adds nothing)"
+  }
+ ]
+}

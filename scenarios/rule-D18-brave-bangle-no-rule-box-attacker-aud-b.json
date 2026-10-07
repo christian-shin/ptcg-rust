@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Terrakion WHT 54",
+   "2 Mega Mawile ex MEG 94",
+   "2 Brave Bangle PBL 104",
+   "54 Fighting Energy MEE"
+  ],
+  [
+   "2 Terrakion WHT 54",
+   "2 Mega Mawile ex MEG 94",
+   "2 Brave Bangle PBL 104",
+   "54 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terrakion WHT 54",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ],
+  "active_tool": "Brave Bangle PBL 104"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Mawile ex MEG 94",
+  "bench": [
+   {
+    "card": "Mega Mawile ex MEG 94"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Land Crush"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 130,
+   "cite": "Advanced Rulebook D-18 (Brave Bangle: +30 for a Pokemon without a Rule Box against a Pokemon ex)"
+  }
+ ]
+}

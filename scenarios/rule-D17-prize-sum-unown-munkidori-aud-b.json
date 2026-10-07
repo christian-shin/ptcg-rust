@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Unown 30C 72",
+   "2 Munkidori ex SFA 37",
+   "2 Pecharunt ex PRE 163",
+   "54 Psychic Energy MEE"
+  ],
+  [
+   "2 Unown 30C 72",
+   "2 Munkidori ex SFA 37",
+   "2 Pecharunt ex PRE 163",
+   "54 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Unown 30C 72",
+  "active_energy": [
+   "2 Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Munkidori ex SFA 37",
+  "active_damage": 170,
+  "bench": [
+   {
+    "card": "Pecharunt ex PRE 163"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mysterious Signal"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 2,
+   "cite": "ruling 1745: 1 + 1 (ex) + 1 (Unown) - 1 (Munkidori ex) = 2"
+  }
+ ]
+}

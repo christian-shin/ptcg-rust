@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "1 Togepi ASC 80",
+   "1 Togetic ASC 81",
+   "1 Togekiss ASC 82",
+   "1 Legacy Energy TWM 167",
+   "52 Fighting Energy MEE"
+  ],
+  [
+   "2 Terrakion WHT 54",
+   "2 Gastly ASC 123",
+   "1 Togepi ASC 80",
+   "1 Togetic ASC 81",
+   "1 Togekiss ASC 82",
+   "1 Legacy Energy TWM 167",
+   "52 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terrakion WHT 54",
+  "active_energy": [
+   "3 Fighting Energy MEE"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Togepi ASC 80",
+     "Togetic ASC 81",
+     "Togekiss ASC 82"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "active_energy": [
+   "Legacy Energy TWM 167"
+  ],
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Land Crush"
+  }
+ ],
+ "coins": [
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "ruling 1745 (1 - 1 Legacy + 1 Wonder Kiss = 1)"
+  }
+ ]
+}

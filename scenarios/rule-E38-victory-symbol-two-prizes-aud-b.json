@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 N's Sigilyph JTG 64",
+   "2 Gastly ASC 123",
+   "10 Fighting Energy MEE",
+   "46 Psychic Energy MEE"
+  ],
+  [
+   "2 N's Sigilyph JTG 64",
+   "2 Gastly ASC 123",
+   "10 Fighting Energy MEE",
+   "46 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "N's Sigilyph JTG 64",
+  "active_energy": [
+   "1 Psychic Energy MEE",
+   "2 Fighting Energy MEE"
+  ],
+  "prizes_left": 2
+ },
+ "opp": {
+  "reset": true,
+  "active": "Gastly ASC 123",
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Victory Symbol"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "winner": null,
+   "cite": "Advanced Rulebook E-38 (the attack wins only with exactly 1 Prize card remaining)"
+  }
+ ]
+}
