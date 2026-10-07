@@ -31,6 +31,8 @@ pub struct CheckFrame {
     pub stage: CheckStage,
     pub oc: OnComplete,
     pub kos: SVec<SlotRef, 16>,
+    /// The Pokémon whose Knock Out was announced in this round (a prevented one stays at 0 HP and is not a new Knock Out).
+    pub announced: SVec<CardId, 16>,
     pub idx: u8,
     pub ko_fx: EffId,
     /// The announced Knock Out effects (retained until the Pokémon left play).
@@ -46,10 +48,17 @@ pub fn check_state(g: &mut Game, oc: OnComplete) -> R {
         return on_complete(g, oc);
     }
     let kos = find_ko_pokemons(g)?;
+    let mut announced = SVec::new();
+    for k in kos.iter() {
+        if let Some(c) = g.st.slot_pokemon(k.p as usize, k.s) {
+            announced.push(c);
+        }
+    }
     let f = CheckFrame {
         stage: CheckStage::AfterKo,
         oc,
         kos,
+        announced,
         idx: 0,
         ko_fx: 0,
         ko_fxs: SVec::new(),
@@ -107,6 +116,32 @@ fn find_ko_pokemons(g: &mut Game) -> R<SVec<SlotRef, 16>> {
         }
     }
     Ok(out)
+}
+
+/// `winConditionMet`: `check_winner` would end the game or start a Tiebreaker (a player has no Pokémon in
+/// play, an Active spot waiting for a promotion from the Bench does not count, or no Prize cards left).
+fn win_condition_met(g: &Game) -> bool {
+    (0..2).any(|i| {
+        let pl = &g.st.players[i];
+        let no_pokemon = pl.slots[pl.active as usize].cards.is_empty() && !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty());
+        no_pokemon || pl.prizes[..pl.prize_count as usize].iter().all(|l| l.is_empty())
+    })
+}
+
+/// `knockOutPendingBeforeWinner`: a Knock Out effect at step 2 (Maractus JTG's Explosive Needle) can put counters
+/// on a Pokémon that is then Knocked Out in a further round. Every effect has to resolve before the winner is
+/// determined, so that round's Knock Outs and Prizes count before the game ends (rulings 1577, 1584, 1403).
+fn knock_out_pending_before_winner(g: &mut Game, f: &CheckFrame) -> R<bool> {
+    if !win_condition_met(g) {
+        return Ok(false);
+    }
+    for k in find_ko_pokemons(g)?.iter() {
+        let c = g.st.slot_pokemon(k.p as usize, k.s);
+        if !c.map_or(false, |c| f.announced.contains(&c)) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 fn add_prize(f: &mut CheckFrame, taker: usize, destination: ListRef, count: i32) {
@@ -231,6 +266,9 @@ fn prize_loop(g: &mut Game, mut f: CheckFrame) -> R {
     // resolve before the winner is determined (R7F-12; rulings 820, 1584).
     let taken: [bool; 2] = [0, 1].map(|i: usize| g.st.players[i].prizes[..g.st.players[i].prize_count as usize].iter().all(|l| l.is_empty()));
     if (taken[0] || taken[1]) && !(taken[0] && taken[1]) {
+        if knock_out_pending_before_winner(g, &f)? {
+            return check_state(g, f.oc);
+        }
         return check_winner(g, f.oc);
     }
     f.active_prompts = SVec::new();
@@ -272,6 +310,9 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
             return Ok(());
         }
         return active_loop(g, f);
+    }
+    if knock_out_pending_before_winner(g, &f)? {
+        return check_state(g, f.oc);
     }
     check_winner(g, f.oc)?;
     g.st.bench_size_change_handled = false;
