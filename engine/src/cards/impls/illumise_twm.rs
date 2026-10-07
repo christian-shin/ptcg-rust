@@ -11,15 +11,17 @@
 //! shuffle is prompted (like Sylveon ex's Angelite).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Illumise@TWM", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Illumise@TWM", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    if g.st.turn != 2 {
+    // Slowing Perfume can only be used on your first turn: refused before the attack does anything.
+    if was_attack_used(g, e, 0, me) && g.st.turn != 2 {
         bail!("CANNOT_USE_ATTACK");
     }
+    if !after_attack_used(g, e, 0, me) {
+        return Ok(());
+    }
+    let e = real_attack(g, e);
     let (p, o) = match *g.e(e) {
         Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
         _ => return Ok(()),

@@ -8,13 +8,14 @@
 //! non-cancellable ChoosePrizePrompt (not secret).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Umbreonex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Umbreonex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
         add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Confused])?;
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         let (p, opp, attack, source) = match *g.e(e) {
             Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
             _ => return Ok(()),

@@ -13,7 +13,7 @@
 use super::strange_timepiece::devolve_pokemon;
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Espeonex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Espeonex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE, k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -28,7 +28,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             move_cards(g, ListRef::Hand(o as u8), ListRef::Discard(o as u8), &[c], me)?;
         }
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         let o = match *g.e(e) {
             Effect::Attack { opp, .. } => opp as usize,
             _ => return Ok(()),
