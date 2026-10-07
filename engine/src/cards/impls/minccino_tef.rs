@@ -16,12 +16,13 @@
 //! prevents the attack's effects (Mist Energy, ruling 1843).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Minccino@TEF", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Minccino@TEF", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 1, me) {
+    if !after_attack_used(g, e, 1, me) {
         return Ok(());
     }
+    let e = real_attack(g, e);
     let (p, opp, source) = match *g.e(e) {
         Effect::Attack { p, opp, source, .. } => (p as usize, opp as usize, source),
         _ => return Ok(()),
