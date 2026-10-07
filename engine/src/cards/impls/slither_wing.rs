@@ -7,7 +7,7 @@
 //! DiscardCardsEffect aimed at the attacker's Active.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "SlitherWing", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "SlitherWing", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 /// DISCARD_X_ENERGY_FROM_THIS_POKEMON(store, state, effect, amount): resume
 /// `stage` with the chosen energy through [`discard_energy_chosen`].
@@ -87,7 +87,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             }
         }
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
     }
     Ok(())

@@ -12,7 +12,7 @@
 use crate::cards::prelude::*;
 use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon, energy_on_active};
 
-pub static IMPL: CardImpl = CardImpl { class: "IronBoulderexTEFPool", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "IronBoulderexTEFPool", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
@@ -21,7 +21,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             g.run_fx(Effect::RetaliateOnDamage { b, damage: 80, source_card: me })?;
         }
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         if energy_on_active(g, e) {
             discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
         }

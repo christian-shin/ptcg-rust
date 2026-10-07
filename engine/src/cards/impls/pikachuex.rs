@@ -11,12 +11,13 @@
 //! map and reduces a DiscardCardsEffect on `player.active`.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Pikachuex@SSP|ASC", mask: mask(&[k::PUT_DAMAGE, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Pikachuex@SSP|ASC", mask: mask(&[k::PUT_DAMAGE, k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     super::crustle_bcr::survive_on_ten_if_full_hp(g, me, e)?;
 
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
