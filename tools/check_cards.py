@@ -1,38 +1,46 @@
-"""Verify ported cards against the oracle (PLAN.md 4.8 loop).
+"""Verify cards in the Rust engine (PLAN.md 4.8 loop; Rust-only since the
+oracle freeze of 2026-10-08).
 
 usage: check_cards.py "Card A" ["Card B" ...]   (international key such as
                       "Growing Grass Energy POR 86", or Twinleaf full name)
-                      [--games N] [--jobs J]
-                      [--out DIR] [--no-gen] [--seed S] [--tag TAG]
-                      [--coverage] [--min-games M] [--scout N]
-
-Iterate on parity without --coverage (1.6x faster oracle, no 11 MB/game
-coverage files); run once with --coverage at the end. --scout N plays N
-candidate games in Rust and replays only the most varied target-heavy ones
-in the oracle (use it to hunt branches still under --min-games).
+                      [--games N] [--seed S] [--out DIR] [--tag TAG] [--keep]
+                      [--scenario JSON] [--no-scenarios] [--threads T]
 
 1. Builds decks that contain every target card (4 copies, or 1 for ACE SPEC),
    filled with printed-data Pokémon and ported cards, plus basic energy that
    pays the targets' attack costs. Stage 1/2 targets need their
    pre-evolution among the targets or already ported/data cards.
-2. Generates N oracle traces (bot / mixed / random policies) in parallel.
-3. Replays them through the Rust `diff` tool and prints the summary.
+2. Plays N games with `fuzz` (heur and random policies): engine errors, stuck
+   prompts, turns without options, invariant violations and panics fail the
+   check; each failing game's trace is written to the out dir (`diff` replays
+   it). `--keep` keeps every game's trace.
+3. Prints how often the targets acted (`scout`, same decks), so a card that
+   never got to do anything is visible.
+4. Runs every scenario that mentions a target with `scen` (unless
+   --no-scenarios). With `--scenario JSON`, runs only that scenario, N games.
 
-Traces go to corpus/cards/<tag>/ (default tag: first target, slugified).
+Output goes to corpus/cards/<tag>/ (default tag: first target, slugified).
+Exit status 1 on any failure.
 """
-import argparse, collections, json, os, random, re, subprocess, sys
+import argparse, collections, glob, json, os, random, re, subprocess, sys
 import names  # tools/names.py: English keys <-> Twinleaf full names
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ORACLE = os.environ.get('PTCG_ORACLE') or (os.path.join(ROOT, 'twinleaf/ptcg-server') if os.path.isdir(os.path.join(ROOT, 'twinleaf/ptcg-server/output')) else '/Users/christianshin/Documents/pkmntcg/twinleaf/ptcg-server')
+
+
 def _newest(*paths):
     have = [p for p in paths if os.path.exists(p)]
     return max(have, key=os.path.getmtime) if have else paths[0]
 
 
-# The `iter` profile rebuilds in seconds; use whichever build is newest.
-DIFF = os.environ.get('PTCG_DIFF') or _newest(os.path.join(ROOT, 'engine/target/release/diff'), os.path.join(ROOT, 'engine/target/iter/diff'))
-SCOUT = _newest(os.path.join(ROOT, 'engine/target/release/scout'), os.path.join(ROOT, 'engine/target/iter/scout'))
+def _bin(name):
+    return _newest(os.path.join(ROOT, 'engine/target/release', name), os.path.join(ROOT, 'engine/target/iter', name))
+
+
+DIFF = os.environ.get('PTCG_DIFF') or _bin('diff')
+FUZZ = _bin('fuzz')
+SCEN = _bin('scen')
+SCOUT = _bin('scout')
 
 cards = {c['fullName']: c for c in json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))}
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
@@ -47,83 +55,6 @@ def ported_names():
 
 def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
-
-
-def expand_deck(lines):
-    """["4 Name", "Name", ...] -> card names (English keys accepted)."""
-    out = []
-    for l in lines:
-        m = re.match(r'^(\d+)\s+(.+)$', l)
-        n, name = (int(m.group(1)), m.group(2)) if m else (1, l)
-        out += [names.twinleaf(name)] * n
-    return out
-
-
-def load_scenario(path):
-    """Scenario JSON with every card name mapped to its Twinleaf full name."""
-    sc = json.load(open(path))
-    seen = []
-
-    def one(n):
-        t = names.twinleaf(n)
-        seen.append(t)
-        return t
-
-    def many(v):
-        out = expand_deck(v)
-        seen.extend(out)
-        return out
-
-    def stack(v):
-        return one(v) if isinstance(v, str) else many(v)
-
-    for side in ('me', 'opp'):
-        d = sc.get(side) or {}
-        for k in ('discard', 'hand', 'deck_top', 'prizes', 'active_energy'):
-            if k in d:
-                d[k] = many(d[k])
-        for k in ('stadium', 'active_tool'):
-            if k in d:
-                d[k] = one(d[k])
-        if 'active' in d:
-            d['active'] = stack(d['active'])
-        for b in d.get('bench', []):
-            b['card'] = stack(b['card'])
-            if 'energy' in b:
-                b['energy'] = many(b['energy'])
-            if 'tool' in b:
-                b['tool'] = one(b['tool'])
-    # A scripted play may name its card (the oracle matches it by name against the hand).
-    for a in sc.get('answers') or []:
-        if isinstance(a, dict) and a.get('a') == 'play' and isinstance(a.get('card'), str) and '#' not in a['card']:
-            a['card'] = one(a['card'])
-    for n in seen:
-        if n not in cards:
-            sys.exit('scenario: unknown card %s' % n)
-    # Scripted answers name attacks and Abilities (official or Twinleaf names); the oracle wants Twinleaf's.
-    for a in sc.get('answers') or []:
-        if not isinstance(a, dict):
-            continue
-        if a.get('a') in ('attack', 'ability', 'trainerAbility') and isinstance(a.get('name'), str):
-            a['name'] = names.move_twinleaf(a['name'], seen)
-        if a.get('a') == 'attack' and isinstance(a.get('from'), str):
-            a['from'] = names.twinleaf(a['from'])
-        if isinstance(a.get('attack'), str):   # a ChooseAttackPrompt answer {index, attack}
-            a['attack'] = names.move_twinleaf(a['attack'], seen)
-    # `expect` is checked by the Rust replay (diff); the oracle ignores the key.
-    for i, e in enumerate(sc.get('expect') or []):
-        if not isinstance(e, dict) or not str(e.get('cite') or '').strip():
-            sys.exit('scenario: expect[%d] needs a cite (a ruling or rulebook reference)' % i)
-    return sc
-
-
-def scenario_decks(path):
-    decks = [expand_deck(d) for d in json.load(open(path))['decks']]
-    for d in decks:
-        for n in d:
-            if n not in cards:
-                sys.exit('scenario deck: unknown card %s' % n)
-    return decks
 
 
 def is_basic_pokemon(c):
@@ -195,135 +126,88 @@ def build_deck(targets, support, rng):
     return [n for n, q in sorted(deck.items()) for _ in range(q)]
 
 
+def scenarios_mentioning(targets):
+    """Scenario files that name a target (English key, Twinleaf full name, or the card name with its set)."""
+    keys = set()
+    for t in targets:
+        keys.add(t)
+        e = names.english(t)
+        keys.add(e)
+        keys.add(e.rsplit(' ', 1)[0])  # "Name SET" without the number
+    out = []
+    for f in sorted(glob.glob(os.path.join(ROOT, 'scenarios', '*.json'))):
+        text = open(f).read()
+        if any(k in text for k in keys):
+            out.append(f)
+    return out
+
+
+def run(cmd):
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    return r.returncode, r.stdout + r.stderr
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('targets', nargs='+')
-    ap.add_argument('--games', type=int, default=16)
-    ap.add_argument('--jobs', type=int, default=int(os.environ.get('PTCG_JOBS', max(1, (os.cpu_count() or 4) // 2))))
+    ap.add_argument('--games', type=int, default=200)
     ap.add_argument('--seed', type=int, default=1)
     ap.add_argument('--out')
     ap.add_argument('--tag')
-    ap.add_argument('--no-gen', action='store_true')
-    ap.add_argument('--coverage', action='store_true', help='record V8 block coverage per game and report per card')
-    ap.add_argument('--min-games', type=int, default=3)
-    ap.add_argument('--scout', type=int, default=0, help='Rust-scout N candidate games; replay the best --games of them')
-    ap.add_argument('--scenario', metavar='JSON',
-                    help='board edits applied at a set turn in every game (oracle scenario.ts); may also give "decks"')
-    ap.add_argument('--remote', type=int, default=0, metavar='SHARDS',
-                    help='play the oracle games remotely (tools/remote_oracle.py): on GitHub Actions across SHARDS runners, '
-                         'or on the local remote runner if this machine has one (PTCG_REMOTE=actions forces Actions)')
+    ap.add_argument('--keep', action='store_true', help="keep every game's trace, not only the failing ones")
+    ap.add_argument('--threads', type=int, help='worker threads (default: half the cores on a Mac, at low priority)')
+    ap.add_argument('--scenario', metavar='JSON', help='run only this scenario (N games)')
+    ap.add_argument('--no-scenarios', action='store_true', help="don't run the scenarios that mention the targets")
+    ap.add_argument('--remote', type=int, default=0, help=argparse.SUPPRESS)  # oracle era; ignored
     args = ap.parse_args()
+    if args.remote:
+        print('note: --remote is ignored (the oracle is frozen; everything runs in Rust)')
     args.targets = [names.twinleaf(t) for t in args.targets]   # English keys work too
     for t in args.targets:
         if t not in cards:
             sys.exit('unknown card: %s' % t)
     print('targets: ' + '; '.join(names.label(t) for t in args.targets))   # English key (Twinleaf name)
+    threads = ['--threads', str(args.threads)] if args.threads else []
+    failed = False
+    if args.scenario:
+        rc, log = run([SCEN, args.scenario, '--games', str(args.games), '--seed', str(args.seed)] + threads)
+        print(log.strip()[-6000:])
+        sys.exit(rc)
     tag = args.tag or slug(args.targets[0])
     out = args.out or os.path.join(ROOT, 'corpus/cards', tag)
-    if not args.no_gen:
-        os.makedirs(out, exist_ok=True)
-        for f in os.listdir(out):
-            fp = os.path.join(out, f)
-            if os.path.isdir(fp):
-                import shutil
-                shutil.rmtree(fp)
-            else:
-                os.remove(fp)
-        data = {r['fullName'] for r in pool if r.get('tier') == 'data'}
-        support = (data | ported_names()) - set(args.targets)
-        rng = random.Random(args.seed)
-        decks = []
-        for k in range(6):
-            decks.append({'name': '%s-%d' % (tag, k), 'cards': build_deck(args.targets, support, rng)})
-        # Opponents: half target decks, half plain support decks.
-        # heur: board-developing random play (bot speed without look-ahead);
-        # one light bot mix keeps some realistic lines.
-        spec = {'decks': decks, 'policies': ['heur', 'random', 'heur', 'mix:0.3']}
-        if args.scenario:
-            sc = load_scenario(args.scenario)
-            if sc.pop('decks', None):
-                spec['decks'] = [{'name': '%s-s%d' % (tag, k), 'cards': d} for k, d in enumerate(scenario_decks(args.scenario))]
-            spec['scenario'] = sc
-        spec_path = os.path.join(out, 'spec.json.txt')
-        json.dump(spec, open(spec_path, 'w'))
-        per = (args.games + args.jobs - 1) // args.jobs
-        env = dict(os.environ)
-        cov_dir = os.path.join(out, 'cov')
-        if args.coverage:
-            os.makedirs(cov_dir, exist_ok=True)
-            env['NODE_V8_COVERAGE'] = cov_dir
-        cov_files = sorted({row.get('behavior_file') or row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
-        procs = []
-        if args.remote:
-            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-            import remote_oracle
-            status, n, log = remote_oracle.run(spec_path, out, start=args.seed * 100000, count=args.games, shards=args.remote,
-                                               cov_files=' '.join(cov_files) if args.coverage else '', tag=tag,
-                                               ref=os.environ.get('PTCG_ORACLE_REF', 'oracle'))
-            bad = [l for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
-            for l in bad[:10]:
-                print('ORACLE:', l)
-        elif args.scout:
-            scouted = os.path.join(out, 'scouted.json.txt')
-            r = subprocess.run([SCOUT, spec_path, scouted, '--targets', '|'.join(args.targets), '--candidates', str(args.scout),
-                                '--keep', str(args.games), '--seed', str(args.seed)], capture_output=True, text=True)
-            print(r.stderr.strip()[-1500:])
-            for j in range(args.jobs):
-                procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'replay', scouted, out, str(j * per), str(per)],
-                                              cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
-        for j in range(0 if (args.scout or args.remote) else args.jobs):
-            start = args.seed * 100000 + j * per
-            procs.append(subprocess.Popen(['node', 'output/oracle/cli.js', 'corpus', spec_path, out, str(start), str(per)],
-                                          cwd=ORACLE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env))
-        logs = [p.communicate()[0] for p in procs]
-        logs = logs if procs else []
-        bad = [l for log in logs for l in log.split('\n') if 'status=error' in l or 'status=stuck' in l or 'crashed' in l]
-        for l in bad[:10]:
-            print('ORACLE:', l)
-    # Twinleaf's setup rejects decks that fail DeckAnalyser.isValid (60 cards,
-    # 4 copies, one ACE SPEC / Radiant, a Basic, banned pairs) by finishing
-    # the game before it starts: such traces have no steps and test nothing.
-    invalid = collections.Counter()
-    for f in sorted(os.listdir(out)):
-        if f.startswith('g') and f.endswith('.json'):
-            t = json.load(open(os.path.join(out, f)))
-            if not t['steps'] and t['result']['status'] == 'finished':
-                invalid[' vs '.join(t['header'].get('deckNames') or ['?'])] += 1
-    for k, n in invalid.items():
-        print('INVALID DECK: %d game(s) %s ended before setup (Twinleaf DeckAnalyser: 60 cards, max 4 copies, '
-              'one ACE SPEC, one Radiant, a Basic Pokemon)' % (n, k))
-    # A scenario game that ends with an oracle setup error or a rejected scripted
-    # answer never reached its target branch: both engines agree, so "0 diverged"
-    # would hide it.
-    broken = []
-    for f in sorted(os.listdir(out)):
-        if f.startswith('g') and f.endswith('.json'):
-            res = json.load(open(os.path.join(out, f)))['result']
-            msg = res.get('message') or ''
-            if res.get('status') in ('error', 'stuck') and (msg.startswith('scenario:') or 'INVALID_ANSWER' in msg):
-                broken.append((f, res['status'], msg))
-    for f, st, msg in broken:
-        print('WARNING: %s ended %s: %s' % (f, st, msg))
-    if broken:
-        print('WARNING: %d game(s) never reached the scenario target (broken scenario); fix the scenario' % len(broken))
-    r = subprocess.run([DIFF, out, '--quiet', '--dump', os.path.join(out, 'dump')], capture_output=True, text=True)
-    print(r.stdout[-6000:])
-    # Expectation failures are their own outcome: repeat the summary line and the first failure.
-    expect_line = next((l for l in r.stdout.split('\n') if l.startswith('expect: ')), None)
-    if expect_line:
-        tail = r.stdout[-6000:]
-        if expect_line not in tail:
-            print(expect_line)
-        i = r.stdout.find('EXPECT FAILED')
-        if i >= 0 and r.stdout[i:] not in tail:
-            print(r.stdout[i:].split('\nEXPECT FAILED')[0].rstrip())
-        m = re.match(r'expect: (\d+) games checked, (\d+) failed, (\d+) not checked', expect_line)
-        if m and int(m.group(1)) == 0:
-            print('WARNING: no game reached the check point of the scenario expect assertions')
-    if args.coverage:
-        files = sorted({row.get('behavior_file') or row['twinleaf_file'] for row in pool if row.get('fullName') in args.targets})
-        subprocess.run([sys.executable, os.path.join(ROOT, 'tools/coverage.py'), os.path.join(out, 'cov'), *files, '--min', str(args.min_games)])
-    sys.exit(r.returncode or (3 if broken else 0))
+    os.makedirs(out, exist_ok=True)
+    for f in os.listdir(out):
+        fp = os.path.join(out, f)
+        if os.path.isdir(fp):
+            import shutil
+            shutil.rmtree(fp)
+        else:
+            os.remove(fp)
+    data = {r['fullName'] for r in pool if r.get('tier') == 'data'}
+    support = (data | ported_names()) - set(args.targets)
+    rng = random.Random(args.seed)
+    decks = [{'name': '%s-%d' % (tag, k), 'cards': build_deck(args.targets, support, rng)} for k in range(6)]
+    spec = {'decks': decks, 'policies': ['heur', 'random']}
+    spec_path = os.path.join(out, 'spec.json.txt')
+    json.dump(spec, open(spec_path, 'w'))
+    rc, log = run([FUZZ, spec_path, '--games', str(args.games), '--seed', str(args.seed), '--out', out]
+                  + (['--keep'] if args.keep else []) + threads)
+    print(log.strip()[-4000:])
+    failed |= rc != 0
+    # How often the targets acted, from the same decks (scout plays its own candidate games).
+    rc, log = run([SCOUT, spec_path, os.path.join(out, 'scouted.json.txt'), '--targets', '|'.join(args.targets),
+                   '--candidates', str(max(args.games, 50)), '--keep', '8', '--seed', str(args.seed)])
+    print(log.strip()[-2500:])
+    if not args.no_scenarios:
+        files = scenarios_mentioning(args.targets)
+        if files:
+            rc, log = run([SCEN, *files, '--games', '8', '--seed', str(args.seed), '--quiet'] + threads)
+            print('scenarios mentioning the targets (%d):' % len(files))
+            print(log.strip()[-4000:])
+            failed |= rc != 0
+        else:
+            print('no scenario mentions the targets')
+    sys.exit(1 if failed else 0)
 
 
 if __name__ == '__main__':
