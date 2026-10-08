@@ -52,7 +52,7 @@ pub fn play_energy_reducer(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
-fn can_evolve_from(g: &Game, base: CardId, evo: CardId) -> bool {
+pub fn can_evolve_from(g: &Game, base: CardId, evo: CardId) -> bool {
     let b = g.st.cdef(base);
     let e = g.st.cdef(evo);
     (b.stage < e.stage && b.name == e.evolves_from)

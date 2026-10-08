@@ -109,6 +109,11 @@ fn find_ko_pokemons(g: &mut Game) -> R<SVec<SlotRef, 16>> {
             if g.st.slot_pokemon(p, *s).is_none() {
                 continue;
             }
+            // In a legality trial an undamaged Pokémon can't be Knocked Out
+            // (no effect lowers HP to 0); its HP check is skipped.
+            if g.trial && g.st.slot(p, *s).damage == 0 {
+                continue;
+            }
             let hp = check_hp(g, p, *s)?;
             if g.st.slot(p, *s).damage >= hp {
                 out.push(SlotRef::new(p, *s));

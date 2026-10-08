@@ -249,6 +249,9 @@ pub struct Game {
     pub resolving_trainer: Option<(u8, CardId)>,
     /// `probingStadiumEffect` (stadium-effect.ts module state).
     pub probing_stadium: bool,
+    /// A legality trial (options.rs): work that can't change whether the
+    /// action is legal is skipped (`PTCG_VERIFY_LEGAL=1` checks this).
+    pub trial: bool,
     /// Union of subscription masks of every card in the game (skip propagation otherwise).
     pub kinds_present: crate::effects::KindMask,
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
@@ -320,7 +323,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
+                resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
             } = src;
             f!((*d).st).write(*st);
             f!((*d).rng).write(*rng);
@@ -334,6 +337,7 @@ impl Game {
             coin_callbacks.copy_live_to(f!((*d).coin_callbacks));
             f!((*d).resolving_trainer).write(*resolving_trainer);
             f!((*d).probing_stadium).write(*probing_stadium);
+            f!((*d).trial).write(*trial);
             f!((*d).kinds_present).write(*kinds_present);
             f!((*d).trace_effects).write(*trace_effects);
             copy_sessions.copy_live_to(f!((*d).copy_sessions));
@@ -364,6 +368,7 @@ impl Game {
             coin_callbacks: SVec::new(),
             resolving_trainer: None,
             probing_stadium: false,
+            trial: false,
             kinds_present: crate::effects::KindMask::EMPTY,
             trace_effects: false,
             copy_sessions: SVec::new(),

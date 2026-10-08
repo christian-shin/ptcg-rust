@@ -195,9 +195,69 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
     out
 }
 
-/// Legality for a single action without building descriptors (fast path).
+/// Legality of one turn action: fast answers where they are certain,
+/// otherwise a trial on a copy of the game.
 pub fn is_legal(g: &Game, a: Action) -> bool {
+    let fast = if a == Action::Pass {
+        // Ending the turn is always possible.
+        true
+    } else {
+        !rejects(g, a) && trial_legal(g, a, true)
+    };
+    if verify_legal() {
+        assert_eq!(fast, trial_legal(g, a, false), "fast legality differs from the full trial: {:?}", a);
+    }
+    fast
+}
+
+/// `PTCG_VERIFY_LEGAL=1`: check every fast answer against the full trial.
+fn verify_legal() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("PTCG_VERIFY_LEGAL").map_or(false, |v| v == "1"))
+}
+
+/// Actions the trial would certainly reject, decided without playing them.
+/// Each check mirrors an unconditional failure of the trial's code path;
+/// `PTCG_VERIFY_LEGAL=1` checks them against the trial.
+fn rejects(g: &Game, a: Action) -> bool {
+    match a {
+        Action::PlayCard { hand_index, target } => {
+            let p = g.st.active_player as usize;
+            let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return false };
+            let d = g.st.cdef(card);
+            if !d.is_pokemon() {
+                return false;
+            }
+            // play_pokemon_reducer: a Basic onto an empty slot, else an evolution of the slot's Pokémon.
+            let Ok(t) = crate::prompts::get_target(&g.st, p, target) else { return true };
+            if d.stage == Stage::Basic as u8 && g.st.slot(t.p as usize, t.s).cards.is_empty() {
+                return false;
+            }
+            match g.st.slot_pokemon(t.p as usize, t.s) {
+                None => true,
+                Some(base) => !crate::engine::play::can_evolve_from(g, base, card),
+            }
+        }
+        // retreat::reducer: its unconditional failures (card handlers only add blocks).
+        Action::Retreat { bench_index } => {
+            let p = g.st.active_player as usize;
+            let pl = &g.st.players[p];
+            let active = g.st.slot(p, pl.active);
+            let sp = active.special_conditions;
+            active.cannot_retreat_next_turn
+                || pl.bench.get(bench_index as usize).map_or(true, |b| g.st.slot(p, *b).cards.is_empty())
+                || sp.contains(&(SpecialCondition::Paralyzed as u8))
+                || sp.contains(&(SpecialCondition::Asleep as u8))
+                || pl.retreated_turn == g.st.turn
+        }
+        _ => false,
+    }
+}
+
+/// Play the action on a copy; `fast` skips work that can't change the answer.
+fn trial_legal(g: &Game, a: Action, fast: bool) -> bool {
     let mut trial = g.fork();
+    trial.trial = fast;
     trial.rng = crate::rng::Rng::zero();
     if trial.act_trial(a).is_err() {
         return false;
