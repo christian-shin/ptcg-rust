@@ -949,8 +949,20 @@ impl Game {
                 let more = if mode == 0 { result } else { n < mode };
                 if more {
                     let cb = CoinCb::Sequence { p, mode, results, n, callback };
-                    self.coin_callbacks.push(cb);
-                    let k = (self.coin_callbacks.len() - 1) as u8;
+                    // The sequence reuses its own slot (the flip copies its callback when it resolves, and
+                    // sequences skip the reflip offers that would read it again), so "flip until tails"
+                    // takes one slot however many heads come up.
+                    let own = self.coin_callbacks.as_slice().iter().rposition(|c| matches!(c, CoinCb::Sequence { callback: c2, .. } if *c2 == callback));
+                    let k = match own {
+                        Some(i) => {
+                            self.coin_callbacks.as_mut_slice()[i] = cb;
+                            i as u8
+                        }
+                        None => {
+                            self.coin_callbacks.push(cb);
+                            (self.coin_callbacks.len() - 1) as u8
+                        }
+                    };
                     self.run_fx(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
                     return Ok(());
                 }

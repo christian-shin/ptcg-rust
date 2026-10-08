@@ -16,6 +16,15 @@ use crate::rng::{Draw, Rng};
 use serde_json::{json, Value};
 use std::collections::VecDeque;
 
+thread_local! {
+    /// The decision being resolved (descriptor or answer), reported when the game panics.
+    static LAST: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+fn note(what: impl FnOnce() -> String) {
+    LAST.with(|l| *l.borrow_mut() = what());
+}
+
 /// The oracle runner's caps.
 pub const MAX_STEPS: usize = 4000;
 pub const MAX_TURNS: i32 = 120;
@@ -348,7 +357,10 @@ pub fn play(o: &Opts) -> Played {
     }
     let mut reached = false;
     let end = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| run(o, &mut g, &mut rec, &mut reached)))
-        .unwrap_or_else(|e| End::Fail(format!("panic: {}", e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default())));
+        .unwrap_or_else(|e| {
+            let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
+            End::Fail(format!("panic: {} (turn {}, resolving {})", msg, g.st.turn, LAST.with(|l| l.borrow().clone())))
+        });
     let expect = crate::expect::take();
     crate::rng::take_recorded();
     let trace = o.record.then(|| {
@@ -412,6 +424,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     },
                 };
                 let d = if rec.on { g.describe_prompt(&pr) } else { Value::Null };
+                note(|| format!("prompt {} with {}", g.describe_prompt(&pr)["cls"], wire));
                 let r = match g.decode_answer(&pr, &wire) {
                     Ok(res) => g.resolve(pi, res),
                     Err(e) => return End::Broken(format!("answer {} rejected: {:?} by {}", wire, e, g.describe_prompt(&pr))),
@@ -466,6 +479,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     None => pick_turn(&opts, o.policy[p], &mut prng),
                 };
                 let d = if rec.on { json!({ "kind": "turn", "options": opts.iter().map(|x| x.desc.clone()).collect::<Vec<_>>() }) } else { Value::Null };
+                note(|| format!("turn action {}", opts[k].desc));
                 let r = g.act(opts[k].action).and_then(|_| g.settle());
                 if r.is_ok() {
                     rec.step(g, p, d, opts[k].desc.clone());
