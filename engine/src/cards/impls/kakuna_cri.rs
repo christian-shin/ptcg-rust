@@ -6,32 +6,15 @@
 //! missed damage to a Benched Kakuna) during the ATTACK phase whenever this
 //! card is in the target's list; the lock probe runs before the top-Pokémon
 //! check.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Kakuna@CRI", mask: mask(&[k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Kakuna@CRI",
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 20, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), from_any_attack: true, ..DamageTakenSpec::DEFAULT }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let b = match *g.e(e) {
-        Effect::PutDamage { b, .. } => b,
-        _ => return Ok(()),
-    };
-    if ignores_defender_effects(g, &b) {
-        return Ok(());
-    }
-    let t = b.target;
-    if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
-        return Ok(());
-    }
-    if g.st.phase != GamePhase::Attack {
-        return Ok(());
-    }
-    if is_ability_blocked(g, t.p as usize, me, None) {
-        return Ok(());
-    }
-    if g.st.slot_pokemon(t.p as usize, t.s) == Some(me) {
-        if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-            *damage = *damage - 20;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

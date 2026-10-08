@@ -138,14 +138,19 @@ pub struct DamageTakenSpec {
     pub amount: i32,
     /// The damaged Pokémon.
     pub subject: SlotPred,
-    /// The attacking Pokémon (always the opponent's).
+    /// The attacking Pokémon.
     pub source: SlotPred,
     /// Only the card owner's Pokémon are damaged (`Side::Owner`).
     pub side: Side,
+    /// Damage from any attack, the damaged player's own included (otherwise only the opponent's).
+    pub from_any_attack: bool,
     pub guard: Cond,
     pub nonstacking: Option<NonStack>,
     /// A Tool that is discarded after it reduced damage.
     pub then_discard: bool,
+    /// Today's behavior kept (planned change B-PC-16, Bouffalant SCR): the
+    /// passive applies from any zone, not only while the Pokémon is in play.
+    pub anywhere: bool,
 }
 
 impl DamageTakenSpec {
@@ -154,9 +159,11 @@ impl DamageTakenSpec {
         subject: SlotPred::Holder,
         source: SlotPred::Any,
         side: Side::Any,
+        from_any_attack: false,
         guard: Cond::True,
         nonstacking: None,
         then_discard: false,
+        anywhere: false,
     };
 }
 
@@ -430,6 +437,8 @@ fn damage_taken_prelude(
     subject: &SlotPred,
     source: &SlotPred,
     guard: &Cond,
+    anywhere: bool,
+    from_any_attack: bool,
 ) -> R<Option<(AtkBase, Located)>> {
     let b = match *g.e(e) {
         Effect::PutDamage { b, .. } | Effect::DealDamage { b, .. } => b,
@@ -439,10 +448,11 @@ fn damage_taken_prelude(
         return Ok(None);
     }
     let t = b.target;
-    if b.source.p == t.p {
+    if b.source.p == t.p && !from_any_attack {
         return Ok(None);
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+    let located = if anywhere { locate(g, me, RuleSource::CardRule) } else { locate(g, me, origin) };
+    let Some(at) = located else { return Ok(None) };
     if side == Side::Owner && at.owner != t.p as usize {
         return Ok(None);
     }
@@ -459,7 +469,7 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
     if !matches!(*g.e(e), Effect::PutDamage { .. }) {
         return Ok(());
     }
-    let Some((b, _)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard)? else { return Ok(()) };
+    let Some((b, _)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, d.anywhere, d.from_any_attack)? else { return Ok(()) };
     if let Some(ns) = d.nonstacking {
         if g.fx_flags(e) & ns.flag() != 0 {
             return Ok(());
@@ -492,7 +502,16 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
 fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PreventDamageSpec) -> R {
     if d.how == PreventHow::Tera {
         // `TERA_RULE`: only for the card on top of its Pokémon.
-        if matches!(*g.e(e), Effect::PutDamage { .. }) {
+        if let Effect::PutDamage { b, .. } = *g.e(e) {
+            if origin != RuleSource::CardRule {
+                // Today's behavior kept (planned change I-PC1, Cornerstone Mask Ogerpon ex): the
+                // Tera rule is skipped when the Ability's own gates are: damage from the owner's
+                // own Pokémon, outside the attack phase, or a blocked Ability.
+                let Some(at) = locate(g, me, origin) else { return Ok(()) };
+                if b.source.p == b.target.p || !is_attack_phase(g) || g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() || blocked(g, me, origin, at, Some(b.target)) {
+                    return Ok(());
+                }
+            }
             tera_rule(g, e, me);
         }
         return Ok(());
@@ -500,7 +519,7 @@ fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Pr
     if d.how == PreventHow::Prevent && !matches!(*g.e(e), Effect::PutDamage { .. }) {
         return Ok(());
     }
-    let Some((..)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard)? else { return Ok(()) };
+    let Some((..)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false, false)? else { return Ok(()) };
     match d.how {
         PreventHow::Prevent => g.set_prevent(e, true),
         _ => match g.e_mut(e) {

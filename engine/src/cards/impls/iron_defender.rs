@@ -9,50 +9,35 @@
 //! (phase 4b: it used to reduce any [M] target, either side, any attacker).
 //! Each played copy has its own marker, so reductions stack. The markers (all
 //! sources) are removed from the opponent of whoever ends a turn.
-use crate::cards::prelude::*;
-use crate::marker;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl {
+const MARKER: &str = "IRON_DEFENDER_MARKER";
+
+pub static SPEC: CardSpec = CardSpec {
     class: "IronDefender",
-    mask: mask(&[k::TRAINER, k::PUT_DAMAGE, k::END_TURN]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: MARKER, source: RuleSource::TrainerEffect }))],
+    }),
+    passives: &[Passive {
+        origin: RuleSource::TrainerEffect,
+        modifier: Modifier::DamageTaken(DamageTakenSpec {
+            amount: 30,
+            subject: SlotPred::TypeIs(ct::METAL),
+            side: Side::Owner,
+            guard: Cond::HasMarker { who: Who::Me, name: MARKER, from: MarkerFrom::This },
+            ..DamageTakenSpec::DEFAULT
+        }),
+    }],
+    // The marker lasts through the opponent's next turn.
+    triggers: &[Trigger {
+        origin: RuleSource::CardRule,
+        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Opp }),
+        steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: MARKER, from: MarkerFrom::This }))],
+    }],
+    ..CardSpec::NONE
 };
 
-fn iron() -> crate::markers::MarkerName {
-    marker!("IRON_DEFENDER_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Some(p) = trainer_played(g, e, me) {
-        g.st.players[p].marker.add(iron(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    }
-
-    if let Effect::PutDamage { b, .. } = *g.e(e) {
-        if ignores_defender_effects(g, &b) {
-            return Ok(());
-        }
-        let owner = match g.st.locate(me).and_then(|l| l.owner()) {
-            Some(o) => o,
-            None => bail!("INVALID_GAME_STATE"),
-        };
-        let has = g.st.players[owner].marker.has_from(iron(), me);
-        let target = b.target;
-        let types = crate::engine::game_effect::pokemon_types(g, target);
-        let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
-        let metal = matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::METAL));
-        if has && metal && g.st.phase == GamePhase::Attack && b.target.p as usize == owner && b.source.p as usize != owner {
-            if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-                *damage -= 30;
-            }
-        }
-        return Ok(());
-    }
-
-    if let Effect::EndTurn { p } = *g.e(e) {
-        g.st.players[1 - p as usize].marker.remove(iron());
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

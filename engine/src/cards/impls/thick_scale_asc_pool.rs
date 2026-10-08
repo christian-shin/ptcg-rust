@@ -7,45 +7,16 @@
 //! belongs to the same player: a CheckPokemonType on the holder must contain
 //! [N], then one on the source must contain [G], [R], [W] or [L]; the damage is
 //! reduced by 50 (floored at 0). The card stays attached.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl { class: "ThickScaleASCPool", mask: mask(&[k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "ThickScaleASCPool",
+    passives: &[Passive {
+        origin: RuleSource::Tool,
+        modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 50, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::DRAGON)]), source: SlotPred::OneOf(&[SlotPred::TypeIs(ct::GRASS), SlotPred::TypeIs(ct::FIRE), SlotPred::TypeIs(ct::WATER), SlotPred::TypeIs(ct::LIGHTNING)]), ..DamageTakenSpec::DEFAULT }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let b = match *g.e(e) {
-        Effect::PutDamage { b, .. } => b,
-        _ => return Ok(()),
-    };
-    if ignores_defender_effects(g, &b) {
-        return Ok(());
-    }
-    let t = b.target;
-    if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
-        return Ok(());
-    }
-    if g.st.phase != GamePhase::Attack {
-        return Ok(());
-    }
-    if is_tool_blocked(g, t.p as usize, me) {
-        return Ok(());
-    }
-    if b.source.p == t.p {
-        return Ok(());
-    }
-    let types = crate::engine::game_effect::pokemon_types(g, t);
-    let (holder, _) = g.run_fx(Effect::CheckPokemonType { target: t, card_types: types })?;
-    if !matches!(holder, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::DRAGON)) {
-        return Ok(());
-    }
-    let types = crate::engine::game_effect::pokemon_types(g, b.source);
-    let (src, _) = g.run_fx(Effect::CheckPokemonType { target: b.source, card_types: types })?;
-    let ok = matches!(src, Effect::CheckPokemonType { card_types, .. }
-        if card_types.iter().any(|c| *c == ct::GRASS || *c == ct::FIRE || *c == ct::WATER || *c == ct::LIGHTNING));
-    if !ok {
-        return Ok(());
-    }
-    if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-        *damage = *damage - 50;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
