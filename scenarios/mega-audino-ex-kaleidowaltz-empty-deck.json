@@ -1,0 +1,22 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mega Audino ex ASC 172", "4 Duraludon PRE 69", "52 Lightning Energy MEE"],
+  ["4 Mega Audino ex ASC 172", "4 Duraludon PRE 69", "52 Lightning Energy MEE"]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Audino ex ASC 172",
+  "active_energy": ["Lightning Energy MEE", "Lightning Energy MEE", "Lightning Energy MEE"],
+  "deck_left": 0
+ },
+ "opp": {"reset": true, "active": "Duraludon PRE 69"},
+ "answers": [{"a": "attack", "name": "Kaleidowaltz"}],
+ "expect": [
+  {"at": "turn_end", "who": "me", "zone": "deck", "count": 0,
+   "cite": "rulings 336, 337: a deck search may find nothing; an empty deck leaves no choice and nothing to see, so no prompt is asked"},
+  {"at": "turn_end", "who": "me", "slot": "active",
+   "energy": ["Lightning Energy MEE", "Lightning Energy MEE", "Lightning Energy MEE"],
+   "cite": "card text: nothing in the deck to attach, the Active keeps its 3 Energy"}
+ ]
+}
