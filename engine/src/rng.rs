@@ -82,6 +82,15 @@ impl Rng {
         self
     }
 
+    /// Whether this generator records its outcomes.
+    pub fn recording(&self) -> bool {
+        self.rec
+    }
+
+    pub fn set_record(&mut self, on: bool) {
+        self.rec = on;
+    }
+
     /// Force the next real coin flips (up to 32).
     pub fn force_coins(&mut self, coins: &[bool]) {
         self.forced = 0;
