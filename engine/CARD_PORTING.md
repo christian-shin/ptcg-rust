@@ -339,7 +339,7 @@ board edits are applied, then play continues normally.
   | `prizes`: `[names]` | Prize i's card goes to the deck, the named card takes its place |
   | `stadium`: name | Put into play (no Stadium may be in play) |
   | `active`: name or `[Basic, Stage 1, ...]` | Into the Active Spot (benched and switched in, or placed directly after `reset`) |
-  | `active_energy`, `active_tool`, `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
+  | `active_energy`, `active_tool` (a name or a list), `active_damage`, `active_conditions`, `active_played` | Dress the Active Pokémon |
   | `bench`: `[{card, energy, tool, damage, conditions, played}]` | Pokémon (or stacks) on the next empty Bench spots |
   | `supporter_played`, `energy_attached`, `retreated`, `stadium_played`: `true` | This turn's flags |
   | `deck_left`: N | Very last: cards from the top of the deck go to the discard pile until N are left (an empty deck: the owner loses at the beginning of their next turn) |
@@ -483,7 +483,8 @@ rules say with an optional top-level `expect` list, evaluated by the replay.
   `PutDamage`, `AttachEnergy`, `ShuffleDeck`, ...); no `who`. Use it to pin when
   an attack asks its question relative to a coin flip or another prompt
   (Advanced Rulebook A-01 steps 3 to 5, C-07; rulings 1553, 1580, 1770, 1846,
-  1874).
+  1874). `"absent": [kinds]` (alone or with `prompts`) asserts that no prompt of
+  those kinds was created (a skipped search that must not shuffle).
 * **Output**: `scen` and `diff` print `EXPECT FAILED <trace>: assertion #i
   (at) ...` with the cite and the actual value, and a summary `expect: N games
   checked, M failed, K not checked`; the exit status is 1 on a failure.

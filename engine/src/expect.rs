@@ -48,7 +48,7 @@ impl Assertion {
 
 const KEYS: &[&str] = &[
     "at", "cite", "who", "slot", "bench", "card", "damage", "hp_left", "energy", "tool", "conditions", "in_play", "zone", "count", "contains",
-    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts",
+    "not_contains", "prizes_taken", "winner", "active", "turn", "legal", "name", "is", "on", "n", "top", "bench_count", "bench_excludes", "from", "prompts", "absent",
 ];
 
 /// Parse and validate `scenario.expect`; every assertion needs a `cite`.
@@ -86,7 +86,7 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
             o.contains_key("active"),
             o.contains_key("legal"),
             o.contains_key("bench_count") || o.contains_key("bench_excludes"),
-            o.contains_key("prompts"),
+            o.contains_key("prompts") || o.contains_key("absent"),
         ];
         if kinds.iter().filter(|k| **k).count() != 1 {
             return Err(format!("expect[{}]: needs exactly one subject (slot/bench/card, zone, prizes_taken, winner, active, legal, bench_count, bench_excludes or prompts)", i));
@@ -119,12 +119,13 @@ pub fn parse(sc: &Value) -> Result<Vec<Assertion>, String> {
                 return Err(format!("expect[{}]: is must be true or false", i));
             }
         }
-        if let Some(pr) = o.get("prompts") {
+        for key in ["prompts", "absent"] {
+            let Some(pr) = o.get(key) else { continue };
             if !pr.as_array().map_or(false, |a| !a.is_empty() && a.iter().all(|x| x.is_string())) {
-                return Err(format!("expect[{}]: prompts must be a non-empty list of prompt kind names (Wait, CoinFlip, PutDamage, ...)", i));
+                return Err(format!("expect[{}]: {} must be a non-empty list of prompt kind names (Wait, CoinFlip, PutDamage, ...)", i, key));
             }
         }
-        if !o.contains_key("winner") && !o.contains_key("prompts") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
+        if !o.contains_key("winner") && !o.contains_key("prompts") && !o.contains_key("absent") && o.get("who").and_then(|w| w.as_str()).map_or(true, |w| w != "me" && w != "opp") {
             return Err(format!("expect[{}]: who must be me or opp", i));
         }
         let mut spec = a.clone();
@@ -359,9 +360,18 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
 pub fn evaluate(g: &Game, me: usize, a: &Assertion) -> Result<(), String> {
     let o = &a.spec;
     let w = o["who"].as_str().unwrap_or("");
-    if let Some(want) = o.get("prompts") {
-        // The prompts the engine created since the scenario edits, in order: `want` must appear as a subsequence.
+    if o.get("prompts").is_some() || o.get("absent").is_some() {
+        // The prompts the engine created since the scenario edits, in order: `prompts` must appear as a
+        // subsequence, and no kind of `absent` may appear at all.
         let seen = PROMPT_LOG.with(|l| l.borrow().clone());
+        if let Some(bad) = o.get("absent").and_then(|a| a.as_array()) {
+            for b in bad.iter().filter_map(|x| x.as_str()) {
+                if seen.iter().any(|k| k == b) {
+                    return Err(format!("prompts: {:?} must not appear, actual {:?}", b, seen));
+                }
+            }
+        }
+        let Some(want) = o.get("prompts") else { return Ok(()) };
         let want: Vec<&str> = want.as_array().unwrap().iter().filter_map(|x| x.as_str()).collect();
         let mut at = 0;
         for k in &seen {
