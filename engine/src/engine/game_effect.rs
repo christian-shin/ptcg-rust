@@ -277,8 +277,9 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     if d.has_tag(tag::POKEMON_VMAX) || d.has_tag(tag::POKEMON_VUNION) {
         extra += 2;
     }
-    if let Effect::KnockOut { prize_count, .. } = g.e_mut(id) {
+    if let Effect::KnockOut { prize_count, prize_base, .. } = g.e_mut(id) {
         *prize_count += extra;
+        *prize_base += extra;
     }
     // Prize denial / extra prizes: not modeled.
     // Little Grudge: Mist-blockable DiscardCardsEffect attributed to the arming attack.

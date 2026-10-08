@@ -117,7 +117,7 @@ pub enum Effect {
     Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, barrage_used: bool },
     /// `defer_removal`: the Check State step announces every Knock Out first and takes the
     /// Pokémon out of play later (`game_effect::complete_knock_out`).
-    KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
+    KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
     Heal { p: u8, target: SlotRef, damage: i32 },
     Evolve { p: u8, target: SlotRef, card: CardId },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },

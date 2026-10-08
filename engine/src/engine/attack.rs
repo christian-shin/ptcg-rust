@@ -655,7 +655,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
                 crate::bail!("ILLEGAL_ACTION");
             }
-            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: Some(b.attack), defer_removal: false })?;
+            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, prize_destination: None, attack: Some(b.attack), defer_removal: false })?;
             if !prevented {
                 let pc = match ko {
                     Effect::KnockOut { prize_count, .. } => prize_count,
@@ -676,7 +676,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
                 crate::bail!("ILLEGAL_ACTION");
             }
-            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: Some(b.attack), defer_removal: false })?;
+            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, prize_destination: None, attack: Some(b.attack), defer_removal: false })?;
             if !prevented {
                 let pc = match ko {
                     Effect::KnockOut { prize_count, .. } => prize_count,
