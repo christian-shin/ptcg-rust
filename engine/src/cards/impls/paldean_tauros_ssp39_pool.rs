@@ -1,114 +1,25 @@
 //! Paldean Tauros (SSP 39): Upthrusting Horns — 30; you may put 2 Energy
 //! attached to your opponent's Active Stage 2 Pokémon into their hand.
 //! Jet Headbutt — 100.
-//!
-//! Twinleaf: nothing unless the Defending Pokémon is Stage 2 and provides
-//! Energy (CheckProvidedEnergyEffect on the opponent's Active); then a
-//! ConfirmPrompt (WANT_TO_USE_ABILITY) and a non-cancellable ChooseEnergyPrompt
-//! over that map for min(2, entries) [C]; MOVE_CARDS Active -> hand.
-//!
-//! Fixed (phase 4b, R2): the Energy was taken in the attack handler, before
-//! the damage (Spiky Energy on the Defending Pokémon was gone); it now runs in
-//! AfterAttackEffect.
-//!
-//! Fixed (phase 4b, R7F-8; ruling 1843): the Energy was moved with a plain
-//! MOVE_CARDS, so Mist Energy (or any effect that prevents the effects of
-//! attacks) on the Defending Pokémon did not stop it; it is now a
-//! CardsToHandEffect built from a fresh AttackEffect's data.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "PaldeanTaurosSSP39Pool", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "PaldeanTaurosSSP39Pool",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::May(MaySpec {
+            asker: Who::Me,
+            // Only against a Stage 2 Pokémon that has Energy to take.
+            when: Cond::All(&[
+                Cond::Slot(OPP_ACTIVE, SlotPred::Top(Pred::StageIs(crate::types::Stage::Stage2))),
+                Cond::Cmp(Num::EnergyOn(SlotSel::One(OPP_ACTIVE), EnergyUnit::ProvidedUnits), CmpOp::Gt, Num::Lit(0)),
+            ]),
+            msg: "WANT_TO_USE_ABILITY",
+            yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: OPP_ACTIVE, selection: EnergySelection::ChooseToHand { count: 2, ty: crate::types::ct::COLORLESS, up_to: true } }))],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let (p, o) = match *g.e(e) {
-        Effect::AfterAttack { p, opp, .. } => (p as usize, opp as usize),
-        _ => return Ok(()),
-    };
-    let target = match g.st.active_pokemon(o) {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    if g.st.cdef(target).stage != Stage::Stage2 as u8 {
-        return Ok(());
-    }
-    let a = g.st.players[o].active;
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: o as u8, source: SlotRef::new(o, a), energy_map: SVec::new() })?;
-    let energy = match pe {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    };
-    if energy.is_empty() {
-        return Ok(());
-    }
-    let count = energy.len().min(2);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = o as i32;
-    f.a[2] = count as i32;
-    f.e[0] = e;
-    g.retain_fx(e);
-    // The energy map is recomputed unchanged: nothing can alter the Defending
-    // Pokémon between the Confirm prompt and its answer.
-    confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let o = f.a[1] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                g.release_fx(f.e[0]);
-                return Ok(());
-            }
-            let a = g.st.players[o].active;
-            let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: o as u8, source: SlotRef::new(o, a), energy_map: SVec::new() })?;
-            let energy = match pe {
-                Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-                _ => SVec::new(),
-            };
-            let mut cost = SVec::new();
-            for _ in 0..f.a[2] {
-                cost.push(ct::COLORLESS);
-            }
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            nf.a[1] = o as i32;
-            nf.e[0] = f.e[0];
-            let id = g.player_id(p);
-            g.prompt(id, "CHOOSE_ENERGIES_TO_HAND", PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            let cards: Vec<CardId> = match first {
-                Res::Energy(c) => c.as_slice().to_vec(),
-                _ => Vec::new(),
-            };
-            let r = (|| -> R {
-                if cards.is_empty() {
-                    return Ok(());
-                }
-                let (p2, opp, attack, source) = match attack_data(g, f.e[0]) {
-                    Some(d) => d,
-                    None => return Ok(()),
-                };
-                let a = g.st.players[o].active;
-                let b = AtkBase { attack_effect: f.e[0], player: p2, opponent: opp, attack, source, target: SlotRef::new(o, a) };
-                let mut list = SVec::new();
-                for c in cards.iter() {
-                    list.push(*c);
-                }
-                g.run_fx(Effect::CardsToHand { b, cards: list })?;
-                Ok(())
-            })();
-            g.release_fx(f.e[0]);
-            r
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

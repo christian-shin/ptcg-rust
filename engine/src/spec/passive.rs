@@ -84,6 +84,9 @@ pub enum Side {
     /// Only the card's owner (the attacking player, or the damaged player).
     Owner,
     Any,
+    // --- S3 agent 3 appends ---
+    /// Only the card owner's opponent.
+    Opponent,
 }
 
 /// The effects that do not stack: only the first reduction per effect applies.
@@ -407,7 +410,19 @@ pub struct PrizeAdjustSpec {
     pub by_own_attack: Option<&'static str>,
     pub guard: Cond,
 }
-pub struct CheckupDamageSpec {}
+/// "During Pokémon Checkup, put N more damage counters on each Poisoned Pokémon ..." (Perilous
+/// Jungle, Pecharunt): added to the Poison damage of the Active Pokémon of the player whose
+/// Checkup it is.
+pub struct CheckupDamageSpec {
+    /// More damage, in HP (10 per counter).
+    pub amount: i32,
+    /// The checked Pokémon.
+    pub victim: SlotPred,
+    /// Only the Checkup of the card owner's opponent.
+    pub opponent_only: bool,
+    /// The card's own Pokémon.
+    pub holder: SlotPred,
+}
 /// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
 /// (Relicanth's Memory Dive).
 pub struct GrantAttacksSpec {}
@@ -454,6 +469,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         },
         Modifier::DamageTaken(_) => mask(&[k::PUT_DAMAGE]),
         Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
+        Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
         Modifier::BlockUse(b) => match b.what {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
@@ -565,6 +581,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::HpBonus(n) => hp_mod(g, me, e, ps.origin, *n, &SlotPred::Holder, &Cond::True),
         Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
         Modifier::SurviveOnTen(s) => survive_on_ten(g, me, e, ps.origin, s),
+        Modifier::CheckupDamage(c) => checkup_damage(g, me, e, ps.origin, c),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
@@ -892,7 +909,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
         _ => return Ok(()),
     };
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if c.side == Side::Owner && at.owner != p {
+    if (c.side == Side::Owner && at.owner != p) || (c.side == Side::Opponent && at.owner == p) {
         return Ok(());
     }
     let mut matched = None;
@@ -1446,6 +1463,33 @@ fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: 
                 }
             }
         }
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Checkup damage (S3 agent 3)
+
+fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &CheckupDamageSpec) -> R {
+    let p = match *g.e(e) {
+        Effect::BetweenTurns { p, .. } => p as usize,
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if c.opponent_only && at.owner == p {
+        return Ok(());
+    }
+    if let Some(held) = at.held {
+        if !slot_pred_m(g, me, held, &c.holder)? {
+            return Ok(());
+        }
+    }
+    let victim = SlotRef::new(p, g.st.players[p].active);
+    if blocked(g, me, origin, at, Some(victim)) || !slot_pred_m(g, me, victim, &c.victim)? {
+        return Ok(());
+    }
+    if let Effect::BetweenTurns { poison_damage, .. } = g.e_mut(e) {
+        *poison_damage += c.amount;
     }
     Ok(())
 }

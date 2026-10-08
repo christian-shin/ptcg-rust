@@ -89,6 +89,8 @@ pub enum Num {
     /// The cost of the attack being used, as the game checks it now (after cost effects):
     /// a checked read (`num_m`).
     CostNow,
+    /// The [C] in the player's Active Pokémon's Retreat Cost as the game checks it: a checked read.
+    RetreatCostColorless(Who),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -298,6 +300,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::CoinHeads => f.heads() as i32,
         Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
         Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
+        Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::HandOthers(w) => g.st.players[f.who(*w)].hand.iter().filter(|c| *c != me).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
@@ -753,6 +756,15 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
             }
             total
         }
+        Num::RetreatCostColorless(w) => {
+            let o = f.who(*w);
+            let cost = crate::engine::retreat::check_retreat_cost_base(g, o);
+            let (re, _) = g.run_fx(Effect::CheckRetreatCost { p: o as u8, cost, no_cost: false, reduction: 0 })?;
+            match re {
+                Effect::CheckRetreatCost { cost, .. } => cost.iter().filter(|t| **t == ct::COLORLESS).count() as i32,
+                _ => 0,
+            }
+        }
         Num::CostNow => {
             let Some((p, _, attack, _)) = crate::prefabs::attack_data(g, f.eff) else { return Ok(0) };
             let mut cost: crate::effects::Cost = SVec::new();
@@ -837,7 +849,7 @@ pub fn slot_pred_pure(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> bool {
 /// Does the number need a checked read (`num_m`)?
 pub fn num_is_checked(n: &Num) -> bool {
     match n {
-        Num::SlotCount(..) | Num::EnergyOn(..) | Num::CostNow => true,
+        Num::SlotCount(..) | Num::EnergyOn(..) | Num::CostNow | Num::RetreatCostColorless(_) => true,
         Num::Add(a, b) | Num::Sub(a, b) | Num::Mul(a, b) | Num::Min(a, b) | Num::Max(a, b) => num_is_checked(a) || num_is_checked(b),
         Num::If(_, a, b) => num_is_checked(a) || num_is_checked(b),
         _ => false,

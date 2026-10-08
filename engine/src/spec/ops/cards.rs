@@ -278,6 +278,13 @@ pub enum EnergySelection {
     /// prompt (not cancellable, 0 allowed). The attack's damage becomes `damage_per` times the
     /// number of cards discarded (0 when nothing is discarded).
     Among(AmongSpec),
+    /// "Shuffle all Energy from this Pokémon into your deck": every Energy card of the Pokémon goes
+    /// to the deck, which is then shuffled (both after the damage of an attack).
+    AllIntoDeck,
+    /// Like `Choose`, but the cards go to the hand of the Pokémon's owner (a CardsToHand effect
+    /// of the attack); with `up_to` the payment is at most `count` (fewer when the Pokémon
+    /// provides fewer Energy).
+    ChooseToHand { count: u8, ty: CardType, up_to: bool },
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct AmongSpec {
@@ -446,8 +453,18 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let Some(slot) = slot_of(g, me, f, d.target) else { return Ok(Flow::Next) };
             let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(Flow::Next) };
             match d.selection {
-                EnergySelection::Choose { count, ty } => return discard_choose_exec(g, me, f, slot, count, ty),
+                EnergySelection::Choose { count, ty } => return discard_choose_exec(g, me, f, slot, count, ty, false, false),
+                EnergySelection::ChooseToHand { count, ty, up_to } => return discard_choose_exec(g, me, f, slot, count, ty, up_to, true),
                 EnergySelection::Among(a) => return among_exec(g, me, f, slot, &a),
+                EnergySelection::AllIntoDeck => {
+                    let (p, s) = (slot.p as usize, slot.s);
+                    let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
+                    if !energies.is_empty() {
+                        move_cards_after_damage(g, f.eff, ListRef::Slot(p as u8, s), ListRef::Deck(p as u8), &energies, me)?;
+                    }
+                    shuffle_deck_after_damage(g, f.eff, p);
+                    return Ok(Flow::Next);
+                }
                 EnergySelection::AllProvided => {
                     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: slot.p, source: slot, energy_map: SVec::new() })?;
                     let mut cards: SVec<CardId, 64> = SVec::new();
@@ -979,7 +996,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             }
             if let Some(slot) = slot_of(g, me, f, d.target) {
                 if let Res::Energy(c) = first {
-                    discard_chosen(g, f, slot, c.as_slice())?;
+                    discard_chosen(g, f, slot, c.as_slice(), matches!(d.selection, EnergySelection::ChooseToHand { .. }))?;
                 }
             }
             Ok(Flow::Next)
@@ -1018,9 +1035,13 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Next)
         }
         Op::DiscardEnergy(d) => {
-            let EnergySelection::Choose { count, ty } = d.selection else { return Ok(Flow::Next) };
+            let (count, ty, up_to) = match d.selection {
+                EnergySelection::Choose { count, ty } => (count, ty, false),
+                EnergySelection::ChooseToHand { count, ty, up_to } => (count, ty, up_to),
+                _ => return Ok(Flow::Next),
+            };
             let Some(slot) = slot_of(g, me, f, d.target) else { return Ok(Flow::Next) };
-            if discard_choose_prompt(g, me, f, slot, count, ty)? {
+            if discard_choose_prompt(g, me, f, slot, count, ty, up_to)? {
                 return Ok(Flow::Suspend);
             }
             f.record(g, me, CHOICE_NONE);
@@ -1119,7 +1140,7 @@ fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) ->
 
 /// Open the ChooseEnergy prompt for `count` Energy of `ty` among the Energy the Pokémon provides.
 /// Returns false (no prompt) when there is nothing to pay with.
-fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, count: u8, ty: CardType) -> R<bool> {
+fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, count: u8, ty: CardType, up_to: bool) -> R<bool> {
     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: slot.p, source: slot, energy_map: SVec::new() })?;
     let energy = match pe {
         Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
@@ -1129,7 +1150,8 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
         return Ok(false);
     }
     let mut cost = SVec::new();
-    for _ in 0..count {
+    let n = if up_to { (count as usize).min(energy.len()) } else { count as usize };
+    for _ in 0..n {
         cost.push(ty);
     }
     let id = g.player_id(f.p as usize);
@@ -1137,14 +1159,14 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
     Ok(true)
 }
 
-fn discard_choose_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, count: u8, ty: CardType) -> R<Flow> {
+fn discard_choose_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, count: u8, ty: CardType, up_to: bool, to_hand: bool) -> R<Flow> {
     if let Some(c) = f.recorded_choice(g, me) {
         if c.answer == CHOICE_YES {
-            discard_chosen(g, f, slot, &c.items[..c.len as usize])?;
+            discard_chosen(g, f, slot, &c.items[..c.len as usize], to_hand)?;
         }
         return Ok(Flow::Next);
     }
-    if discard_choose_prompt(g, me, f, slot, count, ty)? {
+    if discard_choose_prompt(g, me, f, slot, count, ty, up_to)? {
         Ok(Flow::Suspend)
     } else {
         Ok(Flow::Next)
@@ -1152,14 +1174,18 @@ fn discard_choose_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, c
 }
 
 /// A DiscardCards effect of the attack on the Pokémon.
-fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId]) -> R {
+fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId], to_hand: bool) -> R {
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     let mut cs: SVec<CardId, 64> = SVec::new();
     for c in cards {
         cs.push(*c);
     }
     let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: slot };
-    g.run_fx(Effect::DiscardCards { b, cards: cs })?;
+    if to_hand {
+        g.run_fx(Effect::CardsToHand { b, cards: cs })?;
+    } else {
+        g.run_fx(Effect::DiscardCards { b, cards: cs })?;
+    }
     Ok(())
 }
 
