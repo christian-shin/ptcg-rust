@@ -305,10 +305,15 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
 /// `state = checkState(store, state); if (store.hasPrompts()) yield waitPrompt`
 /// (twice), then `ConfirmPrompt(WANT_TO_USE_ABILITY)`.
 fn barrage_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
+    let below = g.waits.len();
     crate::engine::check::check_state(g, crate::game::OnComplete::None)?;
     if g.has_prompts() {
         f.stage = stage;
-        g.wait_prompt(Cont::UseAttack(f));
+        // The attack resumes after the check's own continuations (its remaining prize and new-Active
+        // prompts, then the next check), not before them. Twinleaf pops the waits last-in first-out, so the
+        // attack continued while the check was half done: the Prize for the Defending Pokemon went unasked
+        // and, once the turn ended, a stale prompt asked for a second new Active (ILLEGAL_ACTION).
+        g.waits.insert(below, Cont::UseAttack(f));
         return Ok(());
     }
     barrage_after_check(g, f, stage)

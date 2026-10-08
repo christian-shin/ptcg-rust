@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Festival Grounds PRE 108",
+   "4 Spiky Energy JTG 159",
+   "44 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Festival Grounds PRE 108",
+   "4 Spiky Energy JTG 159",
+   "44 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Applin PRE 9",
+   "Dipplin PRE 10"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "active_damage": 70,
+  "bench": [
+   {
+    "card": "Applin PRE 9"
+   },
+   {
+    "card": "Applin PRE 9"
+   }
+  ],
+  "stadium": "Festival Grounds PRE 108"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Applin PRE 9",
+  "active_damage": 60,
+  "active_energy": [
+   "Spiky Energy JTG 159"
+  ],
+  "bench": [
+   {
+    "card": "Applin PRE 9"
+   },
+   {
+    "card": "Applin PRE 9"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Do the Wave"
+  }
+ ],
+ "expect": [
+  {"at": "turn_end", "who": "me", "bench_count": 1, "cite": "Festival Lead: no second attack when the attacker is Knocked Out too (Spiky Energy); each player promotes one new Active, asked once"},
+  {"at": "turn_end", "who": "opp", "bench_count": 1, "cite": "attack flow chart: Knock Outs, then the Knocked Out player promotes a new Active"},
+  {"at": "turn_end", "who": "me", "zone": "prizes", "count": 5, "cite": "the Defending Applin was Knocked Out by the attack: 1 Prize"},
+  {"at": "turn_end", "who": "opp", "zone": "prizes", "count": 5, "cite": "Dipplin was Knocked Out by Spiky Energy: the opponent takes 1 Prize"},
+  {"winner": null, "cite": "both players still have Prize cards and Pokemon"}
+]
+}
