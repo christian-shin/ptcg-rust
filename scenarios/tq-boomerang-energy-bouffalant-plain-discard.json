@@ -38,7 +38,7 @@
     "ChooseEnergy",
     "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; final attack-choice rule 2026-10-07: the Energy to discard is chosen at step D, before the damage"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08): the Energy to discard is chosen at step D, before the damage"
   },
   {
    "at": "turn_end",

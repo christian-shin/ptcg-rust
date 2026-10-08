@@ -46,7 +46,7 @@
     "AttachEnergy",
     "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; FINAL attack-choice rule (2026-10-07): the Energy to move is chosen at step D, before the damage, and moved after it"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08): the Energy to move is chosen at step D, before the damage, and moved after it"
   },
   {
    "at": "turn_end",

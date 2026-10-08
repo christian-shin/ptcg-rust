@@ -36,7 +36,7 @@
     "ChooseAttack",
     "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; FINAL attack-choice rule (2026-10-07): the attack to lock is chosen at step D, before the damage (the attack animation Wait comes after the choice)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; attack-choice rule (step D, 2026-10-08): the attack to lock is chosen at step D, before the damage (the attack animation Wait comes after the choice)"
   },
   {
    "at": "turn_end",
