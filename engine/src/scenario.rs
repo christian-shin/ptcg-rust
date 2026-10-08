@@ -70,7 +70,7 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
     for n in names(energy) {
         mv(g, p, n, ListRef::Slot(pu, s))?;
     }
-    if let Some(n) = tool.as_str() {
+    for n in stack(tool) {
         let c = mv(g, p, n, ListRef::Slot(pu, s))?;
         let slot = &mut g.st.players[p].slots[s as usize];
         slot.cards.remove(c);
