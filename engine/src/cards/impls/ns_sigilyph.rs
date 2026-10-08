@@ -2,20 +2,21 @@
 //! attack when you have exactly 1 Prize card remaining, you win this game.
 //!
 //! Twinleaf: `endGame` with the winner chosen by `state.activePlayer`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "NsSigilyph", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "NsSigilyph",
+    attacks: &[AttackSpec {
+        index: 1,
+        steps: &[
+            Step::before_damage(Op::If(IfSpec {
+                cond: Cond::Cmp(Num::PrizesLeft(Who::Me), CmpOp::Eq, Num::Lit(1)),
+                yes: &[Step::new(Op::EndGame(EndGameSpec { winner: Who::Me }))],
+                no: &[],
+            })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].prize_left() == 1 {
-            let owner = g.st.active_player;
-            crate::engine::phase::end_game(g, if owner == 0 { WINNER_P1 } else { WINNER_P2 });
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

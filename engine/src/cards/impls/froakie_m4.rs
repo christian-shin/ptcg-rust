@@ -1,13 +1,15 @@
 //! Froakie (CRI / M4): Collect — draw a card. Water Gun — 10.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Froakie@Froakie M4", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Froakie@Froakie M4",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(1)) })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            draw_cards(g, p as usize, 1)?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

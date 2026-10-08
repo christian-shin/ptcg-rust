@@ -5,46 +5,33 @@
 //! (no prompt, no shuffle); otherwise ChooseCardsPrompt (min 0,
 //! max min(empty, 2), no cancel), one PlayPokemonFromDeckEffect per card into
 //! the empty slots taken before the prompt, then a bare ShuffleDeckPrompt.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Swinub@JTG", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Swinub@JTG",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::after_damage(Op::If(IfSpec {
+                cond: Cond::BenchSpace(Who::Me),
+                yes: &[
+                    Step::new(Op::Search(SearchSpec {
+                        pick: PickSpec {
+                            chooser: Who::Me,
+                            from: ZoneRef(Who::Me, Zone::Deck),
+                            predicate: Pred::Basic,
+                            bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
+                        },
+                        destination: SearchDestination::Bench,
+                        msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH",
+                    })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                ],
+                no: &[],
+            })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let slots = empty_bench_slots(g, p);
-        let max = slots.len().min(2);
-        if max == 0 {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.l[0] = slots.as_slice()[0];
-        f.l[1] = if slots.len() > 1 { slots.as_slice()[1] } else { u8::MAX };
-        let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(Stage::Basic as u8), ..Filter::none() };
-        choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, max as u8, false), Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let cards: Vec<CardId> = results.first().copied().unwrap_or(Res::Null).cards().to_vec();
-    for (i, c) in cards.iter().enumerate().take(2) {
-        let s = f.l[i];
-        if s == u8::MAX {
-            break;
-        }
-        g.run_fx(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, s) })?;
-    }
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
