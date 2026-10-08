@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 // 3 times what is there is added.
                 yes: &[Step::new(Op::EachSlot(EachSlotSpec {
                     among: SlotSel::Pokemon(Who::Opp),
-                    choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Lit(2), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+                    choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
                     what: EachWhat::Counters(CounterCause::Effect),
                     per_damage: 3,
                     only_damaged: true,

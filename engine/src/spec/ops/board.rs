@@ -144,6 +144,9 @@ pub struct SpreadCountersSpec {
 }
 
 pub enum MoveCountersKind {
+    // --- S3-4 appends (below the original kinds) ---
+    /// All the damage counters on one chosen Pokémon move to a fixed Pokémon (nothing is asked for it).
+    AllToSlot { from: PickSlotSpec, to: SlotExpr },
     /// All the damage counters on one chosen Pokémon move to another chosen
     /// Pokémon. Both are asked at step D for an attack.
     AllFromOne { from: PickSlotSpec, to: PickSlotSpec },
@@ -154,9 +157,25 @@ pub enum MoveCountersKind {
 pub struct MoveCountersSpec {
     pub kind: MoveCountersKind,
 }
-pub struct EvolveSpec {}
-pub struct DevolveSpec {}
-pub struct SwapPokemonCardSpec {}
+/// Put the Pokémon card of a register onto the Pokémon of `chooser` it evolves from (the chooser picks
+/// among them), as the card text says: no evolving rules are checked (also on the turn the Pokémon was
+/// played), and no Evolve effect is dispatched (today's behavior of Salvatore).
+pub struct EvolveSpec {
+    pub chooser: Who,
+    pub card: u8,
+}
+/// Put Evolution cards the chooser picks from a Pokémon (a ChooseCards prompt over the cards of the stack, the
+/// Basic Pokémon not selectable) into the chooser's hand; the Pokémon is devolved down to the chosen card.
+pub struct DevolveSpec {
+    pub chooser: Who,
+    pub slot: SlotExpr,
+}
+/// Switch a Pokémon in play for a Pokémon card of a register (attached cards, damage and effects stay): the
+/// new card takes the old card's place at the bottom of the stack and the old one is discarded.
+pub struct SwapPokemonCardSpec {
+    pub slot: SlotExpr,
+    pub card: u8,
+}
 /// Put a Pokémon and all cards attached to it into a zone.
 pub struct RemoveFromPlaySpec {
     pub slot: SlotExpr,
@@ -426,7 +445,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
             MoveCountersKind::AnyAmong { who } => move_any_exec(g, me, f, *who),
+            MoveCountersKind::AllToSlot { .. } => move_to_exec(g, me, f, m),
         },
+        Op::Evolve(e) => evolve_exec(g, me, f, e),
+        Op::Devolve(d) => devolve_exec(g, me, f, d),
+        Op::SwapPokemonCard(s) => swap_exec(g, me, f, s),
         Op::PickSlot(p) => pick_slot_exec(g, me, f, p),
         Op::EachSlot(e) => each_exec(g, me, f, e),
         Op::ChoiceDamage(_) => Ok(Flow::Next),
@@ -465,7 +488,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 move_any_resume(g, f, *who, first)?;
                 Ok(Flow::Next)
             }
+            MoveCountersKind::AllToSlot { .. } => move_to_resume(g, me, f, m, first),
         },
+        Op::Evolve(e) => evolve_resume(g, me, f, e, first),
+        Op::Devolve(d) => devolve_resume(g, f, d, first),
         Op::PickSlot(_) => {
             f.slot = first.slots().first().map(|s| encode(*s)).unwrap_or(super::super::run::NONE);
             Ok(Flow::Next)
@@ -506,6 +532,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Suspend)
         }
         Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllFromOne { .. }) => move_all_exec(g, me, f, m),
+        Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllToSlot { .. }) => move_to_exec(g, me, f, m),
         Op::PickSlot(p) => {
             let cands = candidates(g, me, f, p)?;
             if cands.is_empty() {
@@ -537,6 +564,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllToSlot { .. }) => move_to_resume(g, me, f, m, first),
         Op::MoveCounters(m) => move_all_resume(g, me, f, m, first),
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) | Op::Switch(_) => {
             match first.slots().first().copied() {
@@ -1107,8 +1135,8 @@ fn each_ask(g: &mut Game, me: CardId, f: &mut Frame, e: &EachSlotSpec, choice: b
         }
         return Ok(Flow::Next);
     }
-    let max = num_m(g, me, f, &c.max)?.clamp(0, cands.len() as i32);
-    let min = num_m(g, me, f, &c.min)?.clamp(0, max);
+    let max = num_m(g, me, f, &c.max)?.clamp(0, 255);
+    let min = num_m(g, me, f, &c.min)?.clamp(0, max.min(cands.len() as i32));
     ask_range(g, me, f, &each_pick(e, c), cands.as_slice(), min as u8, max as u8, 1);
     Ok(Flow::Suspend)
 }
@@ -1186,4 +1214,171 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
         }
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// S3-4 appends: MoveCounters to a fixed Pokémon, Evolve, Devolve, SwapPokemonCard
+
+/// The source is asked (or read from the step-D answer); the destination is fixed.
+fn move_to_exec(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveCountersSpec) -> R<Flow> {
+    let MoveCountersKind::AllToSlot { from, .. } = &m.kind else { return Ok(Flow::Next) };
+    if let Some(c) = f.recorded_choice(g, me) {
+        if c.answer != CHOICE_NONE && c.len >= 2 {
+            move_all_act(g, f, decode(c.items[0]), decode(c.items[1]))?;
+        }
+        return Ok(Flow::Next);
+    }
+    let cands = candidates(g, me, f, from)?;
+    if cands.is_empty() {
+        if f.phase == Phase::Choices {
+            f.record(g, me, CHOICE_NONE);
+        }
+        return Ok(Flow::Next);
+    }
+    ask(g, me, f, from, cands.as_slice(), 1);
+    Ok(Flow::Suspend)
+}
+
+fn move_to_resume(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveCountersSpec, first: Res) -> R<Flow> {
+    let MoveCountersKind::AllToSlot { to, .. } = &m.kind else { return Ok(Flow::Next) };
+    let Some(src) = first.slots().first().copied() else { return Ok(Flow::Next) };
+    let Some(dst) = slot_of(g, me, f, *to) else { return Ok(Flow::Next) };
+    if f.phase == Phase::Choices {
+        f.record_items(g, me, CHOICE_YES, &[encode(src), encode(dst)]);
+    } else {
+        move_all_act(g, f, src, dst)?;
+    }
+    Ok(Flow::Next)
+}
+
+fn evolve_exec(g: &mut Game, me: CardId, f: &mut Frame, e: &EvolveSpec) -> R<Flow> {
+    let Some(evo) = reg_list(g, f, e.card).first().copied() else { return Ok(Flow::Next) };
+    let from = g.st.cdef(evo).evolves_from;
+    let owner = f.who(e.chooser);
+    let cands: Vec<SlotRef> = for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().filter(|(_, c, _)| g.st.cdef(*c).name == from).map(|(s, _, _)| SlotRef::new(owner, *s)).collect();
+    if cands.is_empty() {
+        return Ok(Flow::Next);
+    }
+    let pick = PickSlotSpec { chooser: e.chooser, among: SlotSel::Pokemon(Who::Me), msg: "CHOOSE_POKEMON_TO_EVOLVE" };
+    ask(g, me, f, &pick, &cands, 1);
+    Ok(Flow::Suspend)
+}
+
+fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, e: &EvolveSpec, first: Res) -> R<Flow> {
+    let Some(t) = first.slots().first().copied() else { return Ok(Flow::Next) };
+    let Some(evo) = reg_list(g, f, e.card).first().copied() else { return Ok(Flow::Next) };
+    if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
+        return Ok(Flow::Next);
+    }
+    if let Some(src) = g.st.locate(evo) {
+        move_cards(g, src, t.list(), &[evo], me)?;
+    }
+    let turn = g.st.turn;
+    let slot = &mut g.st.players[t.p as usize].slots[t.s as usize];
+    crate::engine::game_effect::clear_effects(slot);
+    slot.pokemon_played_turn = turn;
+    Ok(Flow::Next)
+}
+
+fn devolve_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DevolveSpec) -> R<Flow> {
+    let Some(t) = slot_of(g, me, f, d.slot) else { return Ok(Flow::Next) };
+    let (tp, ts) = (t.p as usize, t.s);
+    let stack = g.st.slot_pokemons(tp, ts);
+    if stack.is_empty() {
+        return Ok(Flow::Next);
+    }
+    // The Basic can't be put into the hand: it is blocked by index.
+    let basic = stack.get(0).copied();
+    let mut opts = ChooseCardsOpts::new(1, 1, false);
+    for (i, c) in g.st.slot(tp, ts).cards.iter().enumerate() {
+        if Some(c) == basic {
+            opts.blocked.push(i as u8);
+        }
+    }
+    let chooser = f.who(d.chooser);
+    choose_cards(g, chooser, "CHOOSE_POKEMON_TO_PICK_UP", crate::state::ListRef::Slot(t.p, t.s), Filter::super_type(SuperType::Pokemon), opts, f.cont(me, 0x80 | encode(t)));
+    Ok(Flow::Suspend)
+}
+
+fn devolve_resume(g: &mut Game, f: &Frame, d: &DevolveSpec, first: Res) -> R<Flow> {
+    let t = decode(f.sub & 0x7F);
+    let Some(sel) = first.cards().first().copied() else { return Ok(Flow::Next) };
+    let pokemons = g.st.slot_pokemons(t.p as usize, t.s);
+    let idx = pokemons.iter().position(|c| *c == sel);
+    if idx == Some(0) {
+        crate::bail!("INVALID_PROMPT_RESULT");
+    }
+    let dest = crate::state::ListRef::Hand(f.who(d.chooser) as u8);
+    if let Some(i) = idx {
+        for _ in 0..(pokemons.len() - i) {
+            devolve_pokemon(g, t, dest)?;
+        }
+    }
+    Ok(Flow::Next)
+}
+
+/// `DEVOLVE_POKEMON(store, state, target, destination)`.
+pub fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: crate::state::ListRef) -> R {
+    let (tp, ts) = (t.p as usize, t.s);
+    let pokemons = g.st.slot_pokemons(tp, ts);
+    let top = g.st.slot_pokemon(tp, ts);
+    let top_def = top.map(|c| g.st.cdef(c));
+    if let (Some(_), Some(d)) = (top, top_def) {
+        if d.has_tag(tag::POKEMON_LV_X) {
+            if pokemons.len() == 2 && pokemons.iter().any(|c| g.st.cdef(*c).stage == Stage::Basic as u8) {
+                return Ok(());
+            }
+            let cards: Vec<CardId> = pokemons.iter().copied().filter(|c| g.st.cdef(*c).name == d.name).collect();
+            move_cards(g, t.list(), dest, &cards, NO_CARD)?;
+            let turn = g.st.turn;
+            let slot = &mut g.st.players[tp].slots[ts as usize];
+            crate::engine::game_effect::clear_effects(slot);
+            slot.pokemon_played_turn = turn;
+            return Ok(());
+        }
+    }
+    // CardTag.LEGEND is TAG_NAMES index 30.
+    let special = top_def.map(|d| d.has_tag(tag::POKEMON_VUNION) || d.has_tag(30)).unwrap_or(false);
+    if pokemons.len() > 1 && !special {
+        if let Some(top) = top {
+            // MOVE_CARD_TO: findCardList(card).moveCardTo(card, destination).
+            if let Some(src) = g.st.locate(top) {
+                g.move_card_to(src, top, dest);
+            }
+        }
+        let turn = g.st.turn;
+        let slot = &mut g.st.players[tp].slots[ts as usize];
+        crate::engine::game_effect::clear_effects(slot);
+        slot.pokemon_played_turn = turn;
+    }
+    Ok(())
+}
+
+fn swap_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCardSpec) -> R<Flow> {
+    let Some(t) = slot_of(g, me, f, s.slot) else { return Ok(Flow::Next) };
+    let Some(chosen) = reg_list(g, f, s.card).first().copied() else { return Ok(Flow::Next) };
+    let (tp, ts) = (t.p as usize, t.s);
+    let owner = chosen_owner(g, chosen, tp);
+    let list = t.list();
+    let old = if g.st.slot_pokemon(tp, ts).is_some() { g.st.slot(tp, ts).cards.get(0) } else { None };
+    let Some(src) = g.st.locate(chosen) else { return Ok(Flow::Next) };
+    if let Some(old) = old {
+        // The new card goes onto the slot first and the old one is discarded after, so the slot is never
+        // empty (that would discard its attachments and reset it).
+        move_cards(g, src, list, &[chosen], me)?;
+        move_cards(g, list, crate::state::ListRef::Discard(owner as u8), &[old], me)?;
+        // The new card takes the old card's place at the bottom of the stack.
+        let mut order: Vec<CardId> = vec![chosen];
+        order.extend(g.st.slot(tp, ts).cards.iter().filter(|c| *c != chosen));
+        g.st.players[tp].slots[ts as usize].cards = List::from_slice(&order);
+        // State kept on the card object moves with the Pokémon (ruling 1840).
+        transfer_pokemon_card_state(g, f.p as usize, old, chosen);
+    } else {
+        move_cards(g, src, list, &[chosen], me)?;
+    }
+    Ok(Flow::Next)
+}
+
+fn chosen_owner(g: &Game, chosen: CardId, fallback: usize) -> usize {
+    g.st.locate(chosen).and_then(|l| l.owner()).unwrap_or(fallback)
 }

@@ -83,6 +83,8 @@ pub enum Num {
     EnergyCardsOn(SlotExpr),
     /// All the cards of the Pokémon's stack (Pokémon, Energy, Tools).
     CardsOn(SlotExpr),
+    /// Pokémon Tools attached to the Pokémon in play, both sides'.
+    ToolsInPlay,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -162,6 +164,8 @@ pub enum Cond {
     HasEvolutionInPool(Who),
     /// This Stadium's effect is blocked on the Pokémon (the lock probe). A checked read.
     StadiumBlocked(SlotExpr),
+    /// The player has a Prize card that is still face down.
+    PrizeFaceDown(Who),
 }
 
 /// A card predicate.
@@ -304,6 +308,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,
+        Num::ToolsInPlay => (0..2usize).map(|q| for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().map(|(s, _, _)| g.st.slot(q, *s).tools.len() as i32).sum::<i32>()).sum(),
         Num::CardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.len() as i32).unwrap_or(0),
         Num::EnergyCardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count() as i32).unwrap_or(0),
         Num::DistinctTypes(z, p) => {
@@ -412,6 +417,10 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::PrizeFaceDown(w) => {
+            let pl = &g.st.players[f.who(*w)];
+            (0..pl.prize_count).any(|i| !pl.prizes[i as usize].is_empty() && !pl.prize_face_up[i as usize])
+        }
         Cond::StadiumIs(name) => g.st.stadium_card().map(|s| g.st.cdef(s).name == *name).unwrap_or(false),
         Cond::StadiumInPlay => g.st.stadium_card().is_some(),
         Cond::AbilityBlocked(_) | Cond::StadiumBlocked(_) => panic!("Cond::AbilityBlocked / StadiumBlocked need a checked read (cond_m)"),
