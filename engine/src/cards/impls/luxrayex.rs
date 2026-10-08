@@ -10,47 +10,13 @@
 //!
 //! Fixed (phase 4b, W4): the prompt was min 0, so the attacker could discard
 //! nothing; the card says "Discard a card you find there".
-use super::galvantulaex::discard_all_active_energy;
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Luxrayex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Luxrayex",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Opp, Zone::Hand), predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
+            Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT }))] }, AttackSpec { index: 1, steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::AllProvided }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        if g.st.players[o].hand.is_empty() {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_DECK", ListRef::Hand(o as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
-        return Ok(());
-    }
-    if was_attack_used(g, e, 1, me) {
-        discard_all_active_energy(g, e)?;
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let o = 1 - p;
-    let picked: Option<CardId> = match results.first() {
-        Some(Res::Cards(c)) => c.iter().next(),
-        _ => None,
-    };
-    let c = match picked {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    move_cards(g, ListRef::Hand(o as u8), ListRef::Discard(o as u8), &[c], me)?;
-    move_cards(g, ListRef::Supporter(p as u8), ListRef::Discard(p as u8), &[me], me)?;
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

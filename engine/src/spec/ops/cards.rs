@@ -79,6 +79,8 @@ pub struct PickSpec {
     pub distinct_types: bool,
     /// Prompt message (empty: a generic one).
     pub msg: &'static str,
+    /// Nothing to choose does not make a Trainer unplayable (another step still has an effect).
+    pub soft: bool,
 }
 impl PickSpec {
     pub const DEFAULT: PickSpec = PickSpec {
@@ -91,6 +93,7 @@ impl PickSpec {
         caps: &[],
         distinct_types: false,
         msg: "",
+        soft: false,
     };
 }
 pub struct Cap {
@@ -379,7 +382,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let cards: Vec<CardId> = reg_list(g, f, pz.cards).to_vec();
             let open = empty_bench_slots(g, p);
             for (c, s) in cards.iter().zip(open.iter()) {
-                if let Some(src) = g.st.locate(*c) {
+                let in_reg = f.cards.iter().filter(|r| **r != NONE).map(|r| ListRef::Temp(*r)).find(|l| g.lst(*l).contains(c));
+                if let Some(src) = g.st.locate(*c).or(in_reg) {
                     move_cards(g, src, ListRef::Slot(p as u8, *s), &[*c], me)?;
                     g.st.players[p].slots[*s as usize].pokemon_played_turn = g.st.turn;
                 }
@@ -963,6 +967,9 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
 /// A Trainer or Ability that only chooses cards needs something to choose: a deck
 /// that holds a card, or enough eligible cards of a known zone (a Pokémon needs room).
 fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) -> bool {
+    if pick.soft || zone_is_unset(f, pick.from) {
+        return true;
+    }
     let cards = zone_cards(g, me, f, pick.from);
     if room <= 0 {
         return false;

@@ -10,58 +10,29 @@
 //! Opens an AttachEnergyPrompt (0..2, no cancel) and, without waiting for it, a
 //! ShuffleDeckPrompt whose callback applies the order (no trailing wait). The
 //! attach callback shuffles again (SHUFFLE_DECK) when nothing was attached.
-use crate::cards::prelude::*;
+//!
+//! Spec: the shuffle comes first (Twinleaf opens its shuffle before the attach answer, which the replay's shuffle tape matches by deck size).
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Smoochum", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Smoochum",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })), Step::new(Op::Attach(AttachSpec {
+                chooser: Who::Me,
+                from: ZoneRef(Who::Me, Zone::Deck),
+                predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Psychic Energy")]),
+                slots: AttachSlots::Bench,
+                target: Pred::Any,
+                scan: TargetScan::InPlay,
+                bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
+                same_target: true,
+                different_targets: false,
+                valid_types: &[],
+                max_per_type: 0,
+                cancel: false,
+                route: AttachRoute::Move,
+                none_shuffles: true,
+            }))], no: &[] }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() {
-            return Ok(());
-        }
-        let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
-        o.allow_cancel = false;
-        o.min = 0;
-        o.max = 2;
-        o.same_target = true;
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Psychic Energy"), ..Filter::none() };
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "ATTACH_ENERGY_TO_BENCH",
-            PromptKind::AttachEnergy { cards: ListRef::Deck(p as u8), player_type: PlayerType::BottomPlayer, slots, filter, o },
-            Cont::Card { card: me, frame: f },
-        );
-        g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first().copied().unwrap_or(Res::Null) {
-        Res::Attach(t) => t,
-        _ => SVec::new(),
-    };
-    if transfers.is_empty() {
-        shuffle_deck(g, p);
-        return Ok(());
-    }
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        move_cards(g, ListRef::Deck(p as u8), target.list(), &[c], me)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

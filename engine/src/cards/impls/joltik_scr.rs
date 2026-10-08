@@ -8,61 +8,28 @@
 //! early return was fixed, but the card allows 2 of each). No transfer
 //! → SHUFFLE_DECK; otherwise a MOVE_CARDS per transfer, then a
 //! ShuffleDeckPrompt.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Joltik@SCR", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Joltik@SCR",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Attach(AttachSpec {
+                chooser: Who::Me,
+                from: ZoneRef(Who::Me, Zone::Deck),
+                predicate: Pred::BasicEnergy,
+                slots: AttachSlots::BenchActive,
+                target: Pred::Any,
+                scan: TargetScan::InPlay,
+                bounds: Bounds { min: Num::Lit(0), max: Num::Lit(4) },
+                same_target: false,
+                different_targets: false,
+                valid_types: &[crate::types::ct::GRASS, crate::types::ct::LIGHTNING],
+                max_per_type: 2,
+                cancel: true,
+                route: AttachRoute::Move,
+                none_shuffles: false,
+            })),
+            Step::after_damage(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let e = real_attack(g, e);
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
-    o.allow_cancel = true;
-    o.min = 0;
-    o.max = 4;
-    let mut vt = SVec::new();
-    vt.push(ct::GRASS);
-    vt.push(ct::LIGHTNING);
-    o.valid_card_types = Some(vt);
-    o.max_per_type = Some(2);
-    let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    slots.push(SlotType::Active as u8);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "ATTACH_ENERGY_CARDS",
-        PromptKind::AttachEnergy { cards: ListRef::Deck(p as u8), player_type: PlayerType::BottomPlayer, slots, filter, o },
-        Cont::Card { card: me, frame: f },
-    );
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    if transfers.is_empty() {
-        shuffle_deck(g, p);
-        return Ok(());
-    }
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        move_cards(g, ListRef::Deck(p as u8), target.list(), &[c], me)?;
-    }
-    shuffle_deck(g, p);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
