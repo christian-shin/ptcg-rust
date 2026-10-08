@@ -26,6 +26,7 @@ pub mod rng;
 pub mod expect;
 pub mod scenario;
 pub mod search;
+pub mod selfplay;
 pub mod state;
 pub mod types;
 

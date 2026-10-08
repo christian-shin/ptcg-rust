@@ -19,6 +19,23 @@ thread_local! {
     static TAPE: std::cell::RefCell<Option<Vec<Draw>>> = const { std::cell::RefCell::new(None) };
 }
 
+thread_local! {
+    /// Outcomes drawn by recording generators ([`Rng::record`]) on this thread, in draw order:
+    /// a Rust-recorded trace's chance events (`selfplay`).
+    static RECORDED: std::cell::RefCell<Vec<Draw>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Take the outcomes recorded on this thread since the last call.
+pub fn take_recorded() -> Vec<Draw> {
+    RECORDED.with(|c| std::mem::take(&mut *c.borrow_mut()))
+}
+
+fn record(rec: bool, d: impl FnOnce() -> Draw) {
+    if rec {
+        RECORDED.with(|c| c.borrow_mut().push(d()));
+    }
+}
+
 /// Set (or clear, with `None`) the replay tape for this thread.
 pub fn set_tape(t: Option<Vec<Draw>>) {
     TAPE.with(|c| *c.borrow_mut() = t);
@@ -40,6 +57,9 @@ pub struct Rng {
     /// before the real stream: the oracle's `Chance.force`.
     forced: u32,
     nforced: u8,
+    /// Record every real outcome ([`take_recorded`]). Only the game's own generator records, so a
+    /// policy's picks and legality trials (the fixed generator) stay out of the trace.
+    rec: bool,
 }
 
 impl Rng {
@@ -53,7 +73,13 @@ impl Rng {
             z = (z ^ (z >> 13)).wrapping_mul(0xc2b2_ae35);
             *v = z ^ (z >> 16);
         }
-        Rng { s, forced: 0, nforced: 0 }
+        Rng { s, forced: 0, nforced: 0, rec: false }
+    }
+
+    /// This generator with outcome recording on.
+    pub fn record(mut self) -> Rng {
+        self.rec = true;
+        self
     }
 
     /// Force the next real coin flips (up to 32).
@@ -72,7 +98,7 @@ impl Rng {
     /// Legality trials use it in both engines (the oracle's `Chance.trial` /
     /// `FixedSource`), so whether an option is legal never depends on chance.
     pub const fn zero() -> Rng {
-        Rng { s: [0; 4], forced: 0, nforced: 0 }
+        Rng { s: [0; 4], forced: 0, nforced: 0, rec: false }
     }
 
     pub fn next_u32(&mut self) -> u32 {
@@ -111,6 +137,12 @@ impl Rng {
         if self.is_fixed() {
             return false;
         }
+        let v = self.coin_inner();
+        record(self.rec, || Draw::Coin(v));
+        v
+    }
+
+    fn coin_inner(&mut self) -> bool {
         if let Some(Draw::Coin(v)) = take_from_tape(|d| matches!(d, Draw::Coin(_))) {
             // The recording already holds a forced coin's result.
             if self.nforced > 0 {
@@ -138,23 +170,27 @@ impl Rng {
         }
         if let Some(Draw::Shuffle(v)) = take_from_tape(|d| matches!(d, Draw::Shuffle(v) if v.len() == n)) {
             out[..n].copy_from_slice(&v);
-            return;
+        } else {
+            let mut i = n;
+            while i > 1 {
+                i -= 1;
+                let j = self.below(i as u32 + 1) as usize;
+                out.swap(i, j);
+            }
         }
-        let mut i = n;
-        while i > 1 {
-            i -= 1;
-            let j = self.below(i as u32 + 1) as usize;
-            out.swap(i, j);
-        }
+        record(self.rec, || Draw::Shuffle(out[..n].to_vec()));
     }
 
     pub fn index(&mut self, n: usize) -> usize {
-        if !self.is_fixed() {
-            if let Some(Draw::Index(_, v)) = take_from_tape(|d| matches!(d, Draw::Index(m, _) if *m == n)) {
-                return v;
-            }
+        if self.is_fixed() {
+            return self.below(n as u32) as usize;
         }
-        self.below(n as u32) as usize
+        let v = match take_from_tape(|d| matches!(d, Draw::Index(m, _) if *m == n)) {
+            Some(Draw::Index(_, v)) => v,
+            _ => self.below(n as u32) as usize,
+        };
+        record(self.rec, || Draw::Index(n, v));
+        v
     }
 }
 
