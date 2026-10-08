@@ -8,52 +8,24 @@
 //! old loop repeated the splice and left an empty cost). The self-damage
 //! is a DealDamageEffect targeting the player's Active (not necessarily this
 //! Pokémon).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Azumarill", mask: mask(&[k::CHECK_ATTACK_COST, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Azumarill",
+    // Glistening Bubbles: with any Tera Pokémon in play, you can use Double-Edge for [P].
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::AttackCost(AttackCostSpec {
+            change: CostChange::SetCost(&[ct::PSYCHIC]),
+            attack: Some(0),
+            side: Side::Owner,
+            guard: Cond::InPlay(Who::Me, PlayScope::All, Pred::Tag(crate::types::tag::POKEMON_TERA)),
+            ..AttackCostSpec::DEFAULT
+        }),
+    }],
+    // Double-Edge: 50 damage to itself.
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(self_damage(50))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::CheckAttackCost { p, attack, .. } = *g.e(e) {
-        if attack != my_attack(g, me, 0) {
-            return Ok(());
-        }
-        let p = p as usize;
-        let tera = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| g.st.cdef(*c).has_tag(tag::POKEMON_TERA));
-        if tera {
-            if is_ability_blocked(g, p, me, None) {
-                return Ok(());
-            }
-            if let Effect::CheckAttackCost { cost, set_cost, .. } = g.e_mut(e) {
-                let mut v: Vec<CardType> = cost.iter().copied().collect();
-                if !v.contains(&ct::PSYCHIC) {
-                    return Ok(());
-                }
-                if let Some(i) = v.iter().position(|t| *t == ct::PSYCHIC) {
-                    let end = (i + 3).min(v.len());
-                    v.drain(i..end);
-                }
-                cost.clear();
-                for t in v {
-                    cost.push(t);
-                }
-                // "can use the Double-Edge attack for [P]": a cost that is set is
-                // not increased or decreased (R7F-11).
-                let mut c: crate::effects::Cost = SVec::new();
-                c.push(ct::PSYCHIC);
-                *set_cost = Some(c);
-            }
-        }
-        return Ok(());
-    }
-    if was_attack_used(g, e, 0, me) {
-        let (p, opp, attack, source) = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let pu = p as usize;
-        let target = SlotRef::new(pu, g.st.players[pu].active);
-        let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-        g.run_fx(Effect::DealDamage { b, damage: 50 })?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

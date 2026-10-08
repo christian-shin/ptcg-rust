@@ -98,6 +98,8 @@ pub enum Lasting {
     /// During the opponent's next turn, whenever they try to use a Trainer from
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
+    /// During the opponent's next turn this Pokémon has no Weakness.
+    NoWeakness,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -246,6 +248,11 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
         Lasting::CoinFlipCancelTrainer => {
             if let Some(b) = attack_base(g, atk, source) {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
+            }
+        }
+        Lasting::NoWeakness => {
+            if let Some(b) = attack_base(g, atk, source) {
+                g.run_fx(Effect::ThisPokemonHasNoWeakness { b })?;
             }
         }
     }

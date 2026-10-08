@@ -422,6 +422,15 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             ask(g, me, f, pick, cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
+        Op::SpreadDamage(s) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                if c.answer != CHOICE_NONE {
+                    spread_damage_carry_out(g, f, s, &c.items[..c.len as usize])?;
+                }
+                return Ok(Flow::Next);
+            }
+            Ok(if spread_damage_prompt(g, me, f, s)? { Flow::Suspend } else { Flow::Next })
+        }
         Op::SpreadCounters(s) => spread_exec(g, me, f, s),
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
@@ -450,6 +459,11 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         }
         Op::PickSlot(_) => {
             f.slot = first.slots().first().map_or(NONE, |s| encode(*s));
+            Ok(Flow::Next)
+        }
+        Op::SpreadDamage(s) => {
+            let items = spread_damage_items(g, f, s, first)?;
+            spread_damage_carry_out(g, f, s, &items)?;
             Ok(Flow::Next)
         }
         Op::Conditions(c) => {
@@ -507,6 +521,13 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             ask(g, me, f, pick, cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
+        Op::SpreadDamage(s) => {
+            if spread_damage_prompt(g, me, f, s)? {
+                return Ok(Flow::Suspend);
+            }
+            f.record(g, me, CHOICE_NONE);
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -515,6 +536,11 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
         Op::MoveCounters(m) => move_all_resume(g, me, f, m, first),
+        Op::SpreadDamage(s) => {
+            let items = spread_damage_items(g, f, s, first)?;
+            f.record_items(g, me, CHOICE_YES, &items);
+            Ok(Flow::Next)
+        }
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) | Op::Switch(_) | Op::PickSlot(_) => {
             match first.slots().first().copied() {
                 Some(s) => f.record_items(g, me, CHOICE_YES, &[encode(s)]),
@@ -733,8 +759,10 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
     Ok(Flow::Suspend)
 }
 
-fn switch_act(g: &mut Game, _me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRef) -> R {
+fn switch_act(g: &mut Game, _me: CardId, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
     let side = f.who(s.side);
+    // The Pokémon that leaves the Active Spot is the picked slot afterwards (for effects on it).
+    f.slot = encode(SlotRef::new(side, g.st.players[side].active));
     // The switch only acts on the side's own Bench.
     if slot.p as usize != side {
         return Ok(());
@@ -958,4 +986,105 @@ pub const fn more_damage_if(hp: i32, when: Cond) -> Op {
 /// The attack's damage is this number (N times, or set to a value).
 pub const fn damage_is(hp: Num) -> Op {
     Op::Damage(DamageSpec { op: DamageOp::Set, hp, when: Cond::True })
+}
+
+// ---------------------------------------------------------------------------
+// S3 appends: spreading damage
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SpreadApply {
+    /// PutCountersEffect on each target (an effect of the attack).
+    Counters,
+    /// Damage to each target (Deal for the Active, Put for the Bench), no Weakness for the Bench.
+    Damage,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SpreadSlots {
+    Bench,
+    Pokemon,
+}
+
+/// "Put N damage counters / do N damage ... to your opponent's Pokémon in any way you like":
+/// one allocation prompt (no cancel, no partial answer), asked at step D for an attack and
+/// carried out after the damage.
+pub struct SpreadDamageSpec {
+    pub chooser: Who,
+    /// Whose Pokémon receive it.
+    pub side: Who,
+    pub slots: SpreadSlots,
+    pub total_hp: i32,
+    /// The allocation moves in steps of this many HP.
+    pub unit_hp: i32,
+    /// Each Pokémon takes at most its printed HP plus this much (None: no cap).
+    pub cap_bonus_hp: Option<i32>,
+    pub apply: SpreadApply,
+}
+
+/// Ask for the allocation; false when there is nobody to put it on.
+fn spread_damage_prompt(g: &mut Game, me: CardId, f: &Frame, s: &SpreadDamageSpec) -> R<bool> {
+    let chooser = f.who(s.chooser);
+    let side = f.who(s.side);
+    let pl = &g.st.players[side];
+    let has_target = match s.slots {
+        SpreadSlots::Bench => pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()),
+        SpreadSlots::Pokemon => !pl.in_play().is_empty(),
+    };
+    if !has_target {
+        return Ok(false);
+    }
+    let player_type = if side == chooser { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
+    let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
+    for (_, c, t) in for_each_pokemon(g, side, player_type).iter().copied() {
+        let cap = match s.cap_bonus_hp {
+            Some(b) => g.st.cdef(c).hp + b,
+            None => 9999,
+        };
+        max_allowed.push((t, cap));
+    }
+    let mut slots = SVec::new();
+    if s.slots == SpreadSlots::Pokemon {
+        slots.push(SlotType::Active as u8);
+    }
+    slots.push(SlotType::Bench as u8);
+    let id = g.player_id(chooser);
+    g.prompt(
+        id,
+        "CHOOSE_POKEMON_TO_DAMAGE",
+        PromptKind::PutDamage { player_type, slots, damage: s.total_hp, max_allowed, allow_cancel: false, blocked: SVec::new(), allow_partial: false, damage_multiple: s.unit_hp },
+        f.cont(me, 1),
+    );
+    Ok(true)
+}
+
+/// The answer as (slot, units of `unit_hp`) bytes.
+fn spread_damage_items(g: &Game, f: &Frame, s: &SpreadDamageSpec, first: Res) -> R<Vec<u8>> {
+    let chooser = f.who(s.chooser);
+    let map: SVec<(CardTarget, i32), 16> = match first {
+        Res::DamageMap(m) => m,
+        _ => SVec::new(),
+    };
+    let mut out = Vec::new();
+    for (t, damage) in map.iter() {
+        let slot = get_target(&g.st, chooser, *t)?;
+        out.push(encode(slot));
+        out.push((*damage / s.unit_hp.max(1)).clamp(0, 255) as u8);
+    }
+    Ok(out)
+}
+
+fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items: &[u8]) -> R {
+    for pair in items.chunks(2).filter(|c| c.len() == 2) {
+        let slot = decode(pair[0]);
+        let damage = pair[1] as i32 * s.unit_hp;
+        match s.apply {
+            SpreadApply::Damage => deal_or_put_damage(g, f.eff, damage, slot)?,
+            SpreadApply::Counters => {
+                if let Some(b) = atk_base(g, f, slot) {
+                    g.run_fx(Effect::PutCounters { b, damage })?;
+                }
+            }
+        }
+    }
+    Ok(())
 }

@@ -271,6 +271,9 @@ pub enum Op {
     // S3 appends
     // ops/cards.rs
     PlayAsPokemon(PlayAsPokemonSpec),
+    MoveEnergyOwn(MoveEnergyOwnSpec),
+    // ops/board.rs
+    SpreadDamage(SpreadDamageSpec),
 }
 
 /// Everything a spec card file needs.

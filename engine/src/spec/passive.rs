@@ -237,6 +237,9 @@ impl PreventAttackEffectsSpec {
 pub enum PreventWhat {
     /// Damage counters can't be moved (to other Pokémon).
     CounterMoves,
+    /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
+    /// and Abilities, and no moving of counters by the player whose turn it is not.
+    BenchCounters,
     /// The opponent's Active Pokémon can't be healed. Today's behavior kept (A-PC8): only `Heal`,
     /// not `HealTarget`.
     HealOppActive,
@@ -323,6 +326,8 @@ pub enum CostChange {
     Free,
     /// Ignore all [C] in the cost, those added later included (attack).
     IgnoreColorless,
+    /// "Can use this attack for ...": the cost is set to exactly these types (attack).
+    SetCost(&'static [CardType]),
 }
 
 /// A change of the cost of the attacks of a Pokémon (vocabulary P8).
@@ -440,7 +445,12 @@ pub struct ConditionImmunitySpec {
 pub struct AttachGuardSpec {
     pub allow: SlotPred,
 }
-pub struct BenchSizeSpec {}
+/// Each player whose `guard` holds can have this many Benched Pokémon (the Stadium's rule); the
+/// others keep the usual 5.
+pub struct BenchSizeSpec {
+    pub size: u8,
+    pub guard: Cond,
+}
 
 /// +/- HP to the Pokémon matching `subject` while the card is in place.
 pub struct HpModSpec {
@@ -475,6 +485,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::AbilityLock(_) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::Prevent(p) => match p.what {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
+            PreventWhat::BenchCounters => mask(&[k::MOVE_DAMAGE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
         },
@@ -485,6 +496,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
+        Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -593,6 +605,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
         Modifier::SurviveOnTen(d) => survive_on_ten(g, me, e, d),
+        Modifier::BenchSize(d) => bench_size(g, me, e, ps.origin, d),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -873,7 +886,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
             _ => 0,
         }
     };
-    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, .. } = g.e_mut(e) {
+    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, set_cost, .. } = g.e_mut(e) {
         match &c.change {
             // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
             CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
@@ -887,6 +900,14 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
                 cost.retain(|t| *t != ct::COLORLESS);
                 // ...also the [C] that other effects add (R7F-11, rulings 252, 1552).
                 *ignore_colorless = true;
+            }
+            CostChange::SetCost(set) => {
+                let mut v: crate::effects::Cost = SVec::new();
+                for t in set.iter() {
+                    v.push(*t);
+                }
+                // A cost that is set is not increased or decreased (R7F-11).
+                *set_cost = Some(v);
             }
         }
     }
@@ -938,6 +959,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
                 *no_cost = true;
             }
             CostChange::IgnoreColorless => cost.retain(|t| *t != ct::COLORLESS),
+            CostChange::SetCost(_) => {}
         }
     }
     Ok(())
@@ -1125,6 +1147,26 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
         (PreventWhat::CounterMoves, Effect::MoveDamageCounters { .. } | Effect::MoveCounters { .. }) => {
             if !blocked(g, me, origin, at, None) {
                 g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::BenchCounters, Effect::MoveDamageCounters { p }) => {
+            if p as usize == 1 - g.st.active_player as usize {
+                g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::BenchCounters, Effect::PutCounters { b, .. }) => {
+            if bench_target_prevented(g, me, b.source.p as usize, b.target) {
+                g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::BenchCounters, Effect::PlaceDamageCounters { target, source, .. }) => {
+            if source == NO_CARD {
+                return Ok(());
+            }
+            if let Some((owner, _)) = g.st.find_pokemon_slot(source) {
+                if bench_target_prevented(g, me, owner, target) {
+                    g.set_prevent(e, true);
+                }
             }
         }
         (PreventWhat::HealOppActive, Effect::Heal { target, .. }) => {
@@ -1459,4 +1501,30 @@ pub fn survive_on_ten_if_full_hp(g: &mut Game, me: CardId, e: EffId) -> R {
 fn guard_ok_m(g: &mut Game, me: CardId, owner: usize, guard: &Cond) -> R<bool> {
     let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, owner);
     cond_m(g, me, &f, guard)
+}
+
+/// A Benched Pokémon whose counters come from the opponent's Pokémon (Battle Cage).
+fn bench_target_prevented(g: &mut Game, me: CardId, source_owner: usize, t: SlotRef) -> bool {
+    let owner = t.p as usize;
+    if source_owner != 1 - owner || t.s == g.st.players[owner].active {
+        return false;
+    }
+    !is_stadium_effect_blocked(g, owner, t, me)
+}
+
+fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchSizeSpec) -> R {
+    let Effect::CheckTableState { bench_sizes } = *g.e(e) else { return Ok(()) };
+    if locate(g, me, origin).is_none() {
+        return Ok(());
+    }
+    let mut sizes = bench_sizes;
+    for (p, size) in sizes.iter_mut().enumerate() {
+        if guard_ok(g, me, p, &d.guard) {
+            *size = d.size;
+        }
+    }
+    if let Effect::CheckTableState { bench_sizes } = g.e_mut(e) {
+        *bench_sizes = sizes;
+    }
+    Ok(())
 }

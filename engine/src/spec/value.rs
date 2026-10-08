@@ -482,6 +482,8 @@ pub enum SlotPred {
     // --- S3 appends ---
     /// The Pokémon carries the marker `name` set by this card.
     MarkerFromThis(&'static str),
+    /// The Pokémon is affected by this Special Condition.
+    HasSpecificCondition(SpecialCondition),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -493,6 +495,8 @@ pub enum EnergyUnit {
     Provided(CardType),
     /// Every `provides` entry of every Energy card (CheckProvidedEnergy).
     ProvidedUnits,
+    /// Energy cards (map entries) that provide the type, or every type (CheckProvidedEnergy).
+    MatchingEntries(CardType),
 }
 
 /// Printed cost length of the attack being used.
@@ -583,6 +587,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::HasSpecificCondition(c) => slot.special_conditions.contains(&(*c as u8)),
         SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
@@ -698,13 +703,14 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
                             d.is_energy() && d.energy_type == EnergyType::Special as u8
                         })
                         .count() as i32,
-                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits => {
+                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::MatchingEntries(_) => {
                         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: *s, energy_map: SVec::new() })?;
                         let mut k = 0;
                         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
                             for em in energy_map.iter() {
                                 k += match unit {
                                     EnergyUnit::Provided(t) => em.provides.iter().filter(|x| **x == *t || **x == ct::ANY).count() as i32,
+                                    EnergyUnit::MatchingEntries(t) => em.provides.iter().any(|x| *x == *t || *x == ct::ANY) as i32,
                                     _ => em.provides.len() as i32,
                                 };
                             }
