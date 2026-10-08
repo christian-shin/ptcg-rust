@@ -166,6 +166,14 @@ pub struct EvolveSpec {
     pub then_stage: Option<Stage>,
 }
 
+/// Put `counters` damage counters, in any way the attacker likes, on the opponent's Pokémon in `among`
+/// (a PutDamage prompt over `among`'s slot types, each Pokémon of the opponent allowed any number).
+pub struct PlaceCountersAnyWaySpec {
+    pub among: SlotSel,
+    pub counters: i32,
+    pub msg: &'static str,
+}
+
 /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
 pub struct SwitchWithActiveSpec {
     pub target: SlotExpr,
@@ -468,6 +476,21 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             Ok(Flow::Next)
         }
+        Op::PlaceCountersAnyWay(c) => {
+            if let Some(ch) = f.recorded_choice(g, me) {
+                if ch.answer != CHOICE_NONE {
+                    for pair in ch.items[..ch.len as usize].chunks(2) {
+                        any_way_put(g, f, decode(pair[0]), pair[1] as i32 * 10)?;
+                    }
+                }
+                return Ok(Flow::Next);
+            }
+            if any_way_ask(g, me, f, c) {
+                Ok(Flow::Suspend)
+            } else {
+                Ok(Flow::Next)
+            }
+        }
         Op::Evolve(e) => {
             let p = f.who(e.chooser);
             let (_, blocked) = evolve_targets(g, p)?;
@@ -526,6 +549,16 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             Ok(Flow::Next)
         }
         Op::Evolve(e) => evolve_resume(g, me, f, e, first),
+        Op::PlaceCountersAnyWay(_) => {
+            if let Res::DamageMap(map) = first {
+                let p = f.p as usize;
+                for (t, damage) in map.iter() {
+                    let slot = get_target(&g.st, p, *t)?;
+                    any_way_put(g, f, slot, *damage)?;
+                }
+            }
+            Ok(Flow::Next)
+        }
         Op::RemovePicked(_) => {
             if let Some(s) = first.slots().first().copied() {
                 remove_picked(g, me, f, s)?;
@@ -576,6 +609,14 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 Ok(Flow::Next)
             }
         }
+        Op::PlaceCountersAnyWay(c) => {
+            if any_way_ask(g, me, f, c) {
+                Ok(Flow::Suspend)
+            } else {
+                f.record(g, me, CHOICE_NONE);
+                Ok(Flow::Next)
+            }
+        }
         Op::RemovePicked(r) => {
             let d = DamageChosenSpec { among: r.among_clone(), count: 1, hp: Num::Lit(0), calc: DamageCalc::Auto, msg: r.msg };
             if chosen_ask(g, me, f, &d)? {
@@ -616,6 +657,24 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::PlaceCountersAnyWay(_) => {
+            let p = f.p as usize;
+            let mut items: Vec<u8> = Vec::new();
+            if let Res::DamageMap(map) = first {
+                for (t, damage) in map.iter() {
+                    if let Ok(slot) = get_target(&g.st, p, *t) {
+                        items.push(encode(slot));
+                        items.push((*damage / 10).clamp(0, 255) as u8);
+                    }
+                }
+            }
+            if items.is_empty() {
+                f.record(g, me, CHOICE_NONE);
+            } else {
+                f.record_items(g, me, CHOICE_YES, &items);
+            }
+            Ok(Flow::Next)
+        }
         Op::DamageChosen(_) | Op::RemovePicked(_) => {
             let items: Vec<u8> = first.slots().iter().map(|s| encode(*s)).collect();
             if items.is_empty() {
@@ -1266,4 +1325,39 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, e: &EvolveSpec, first:
             Ok(Flow::Next)
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// PlaceCountersAnyWay
+
+/// Open the allocation prompt (resumed at 1); false when there is no Pokémon to put counters on.
+fn any_way_ask(g: &mut Game, me: CardId, f: &Frame, c: &PlaceCountersAnyWaySpec) -> bool {
+    let owner = sel_owner(&c.among, f);
+    let player_type = if owner == f.p as usize { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
+    let slots = sel_types(&c.among);
+    let pl = &g.st.players[owner];
+    let any = (slots.contains(&(SlotType::Bench as u8)) && pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()))
+        || (slots.contains(&(SlotType::Active as u8)) && !pl.slots[pl.active as usize].cards.is_empty());
+    if !any {
+        return false;
+    }
+    let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
+    for t in slot_targets(&g.st, f.p as usize, player_type, &[SlotType::Active as u8, SlotType::Bench as u8]) {
+        max_allowed.push((t, 9999));
+    }
+    let id = g.player_id(f.p as usize);
+    g.prompt(
+        id,
+        c.msg,
+        PromptKind::PutDamage { player_type, slots, damage: c.counters * 10, max_allowed, allow_cancel: false, blocked: SVec::new(), allow_partial: false, damage_multiple: 10 },
+        f.cont(me, 1),
+    );
+    true
+}
+
+fn any_way_put(g: &mut Game, f: &Frame, slot: SlotRef, damage: i32) -> R {
+    let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: slot };
+    g.run_fx(Effect::PutCounters { b, damage })?;
+    Ok(())
 }

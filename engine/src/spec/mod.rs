@@ -290,6 +290,9 @@ pub enum Op {
     /// The player may move any number of Energy from their Benched Pokémon to their Active Pokémon
     /// (a MoveEnergy prompt); nothing without Energy on the Bench.
     MoveBenchEnergyToActive(MoveBenchEnergyToActiveSpec),
+    /// The attacker puts `counters` damage counters on the Pokémon in `among` in any way they like (a PutDamage
+    /// prompt, asked at step D).
+    PlaceCountersAnyWay(PlaceCountersAnyWaySpec),
     /// The attacker picks one of the Pokémon in `among` and puts it with all its attached cards into
     /// its owner's deck (unless effects of attacks on it are prevented).
     RemovePicked(RemovePickedSpec),

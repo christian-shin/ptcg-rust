@@ -74,6 +74,20 @@ pub enum Modifier {
     PlayedTurnReset(PlayedTurnResetSpec),
     /// The Weakness of the opponent's Pokémon matching `subject` is `weakness` (Fairy Zone).
     WeaknessOverride(WeaknessOverrideSpec),
+    /// An Ability lock that applies while this Pokémon is in the Active Spot, with the Ability lockers'
+    /// activation order (a lock that was in effect first suppresses a later one).
+    ActiveLock(ActiveLock),
+}
+
+/// The Active-Spot Ability locks.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ActiveLock {
+    /// Flutter Mane's Midnight Fluttering: your opponent's Active Pokémon has no Abilities, except for
+    /// Midnight Fluttering ("Hide 'n' Sneak" takes precedence).
+    MidnightFluttering,
+    /// Iron Thorns ex's Initialization: while it is in either Active Spot, Pokémon with a Rule Box (yours and
+    /// your opponent's) have no Abilities, except Future Pokémon.
+    Initialization,
 }
 
 pub struct WeaknessOverrideSpec {
@@ -499,6 +513,8 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
         Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
         Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
+        Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
+        Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::EFFECT_OF_ABILITY]),
         Modifier::PlayedTurnReset(_) => mask(&[k::PLAY_POKEMON]),
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
@@ -629,6 +645,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             Ok(())
         }
         Modifier::PlayedTurnReset(r) => played_turn_reset(g, me, e, ps.origin, r),
+        Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
         Modifier::WeaknessOverride(w) => {
             let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
             let player = target.p as usize;
@@ -1549,6 +1566,162 @@ fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: 
         if of_type {
             g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn as i32 - 1;
         }
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Active-Spot Ability locks (Midnight Fluttering, Initialization)
+
+fn lock_order(g: &Game, c: CardId) -> i32 {
+    match g.st.locate(c) {
+        Some(ListRef::Slot(p, s)) => g.st.slot(p as usize, s).ability_lock_activation_order,
+        _ => 0,
+    }
+}
+
+fn is_turn_players_card(g: &Game, c: CardId) -> bool {
+    match g.st.locate(c).and_then(|l| l.owner()) {
+        Some(o) => g.st.active_player as usize == o,
+        None => false,
+    }
+}
+
+/// `CAN_SUPPRESS_ABILITY_LOCKER(state, suppressor, target)`.
+fn can_suppress(g: &Game, suppressor: CardId, target: CardId) -> bool {
+    let s = lock_order(g, suppressor);
+    let t = lock_order(g, target);
+    if s == 0 && t == 0 {
+        return is_turn_players_card(g, suppressor);
+    }
+    if s == 0 {
+        return false;
+    }
+    if t == 0 {
+        return true;
+    }
+    if s < t {
+        return true;
+    }
+    if s > t {
+        return false;
+    }
+    is_turn_players_card(g, suppressor)
+}
+
+/// `IS_POWER_SUBJECT_TO_ABILITY_LOCK` with the lock's options.
+fn active_lock_subject(g: &Game, l: ActiveLock, power: crate::effects::PowerRef, probe: bool) -> bool {
+    if power.index == PROBE_GENERIC {
+        return true;
+    }
+    let d = &g.st.cdef(power.card).powers[power.index as usize];
+    if d.power_type != PowerType::Ability as u8 || d.exempt_from_ability_lock {
+        return false;
+    }
+    match l {
+        ActiveLock::MidnightFluttering => probe || d.name != "Midnight Fluttering",
+        ActiveLock::Initialization => !d.exempt_from_initialize && !d.use_from_hand && !d.use_from_discard,
+    }
+}
+
+/// The `HANDLE_ABILITY_LOCK` callback: is `card`'s Ability locked by `me`? `player` is the player of the
+/// effect being checked, `power_effect` whether it is a use of an Ability.
+fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, card: CardId, power_effect: bool) -> R<bool> {
+    let own = crate::effects::PowerRef { card: me, index: 0 };
+    match l {
+        ActiveLock::MidnightFluttering => {
+            let Some(my_list) = g.st.locate(me) else { crate::bail!("INVALID_GAME_STATE") };
+            let Some(owner) = my_list.owner() else { crate::bail!("INVALID_GAME_STATE") };
+            if g.st.active_pokemon(owner) != Some(me) {
+                return Ok(false);
+            }
+            let opponent = 1 - owner;
+            let Some(target_list) = g.st.locate(card) else { crate::bail!("INVALID_GAME_STATE") };
+            if target_list != ListRef::Slot(opponent as u8, g.st.players[opponent].active) {
+                return Ok(false);
+            }
+            // Hide 'n' Sneak takes precedence over Midnight Fluttering.
+            if g.st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
+                return Ok(false);
+            }
+            // LOCKER_ABILITY_APPLIES
+            let lock_card = g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock);
+            if lock_card && !can_suppress(g, me, card) {
+                return Ok(false);
+            }
+            Ok(g.run_fx(Effect::Power { p: owner as u8, power: own, card: me, target: None, probe: false }).is_ok())
+        }
+        ActiveLock::Initialization => {
+            if g.st.active_pokemon(player) != Some(me) && g.st.active_pokemon(1 - player) != Some(me) {
+                return Ok(false);
+            }
+            // A Pokémon still in the hand is being played (benched / evolved): it is in play, so locked too.
+            let slot = match g.st.locate(card) {
+                Some(ListRef::Slot(q, s)) => Some(SlotRef::new(q as usize, s)),
+                Some(ListRef::Hand(_)) => None,
+                _ => return Ok(false),
+            };
+            let d = g.st.cdef(card);
+            if d.has_tag(tag::FUTURE) || !d.has_rule_box() {
+                return Ok(false);
+            }
+            let locker_owner = if g.st.active_pokemon(player) == Some(me) { player } else { 1 - player };
+            // LOCKER_ABILITY_APPLIES
+            let lock_card = g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock);
+            if lock_card && !can_suppress(g, me, card) {
+                return Ok(false);
+            }
+            if g.run_fx(Effect::Power { p: locker_owner as u8, power: own, card: me, target: None, probe: false }).is_err() {
+                return Ok(false);
+            }
+            if power_effect {
+                // CAN_APPLY_LOCK_TO_TARGET (a card in the hand is not on a Pokémon slot: true)
+                let Some(slot) = slot else { return Ok(true) };
+                return Ok(match g.run_fx(Effect::EffectOfAbility { p: locker_owner as u8, power: own, card: me, target: Some(slot) }) {
+                    Ok((Effect::EffectOfAbility { target, .. }, _)) => target.is_some(),
+                    _ => false,
+                });
+            }
+            Ok(true)
+        }
+    }
+}
+
+fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
+    // Initialization can't change the effect of its own Ability on a Future Pokémon.
+    if l == ActiveLock::Initialization {
+        if let Effect::EffectOfAbility { power, card, target: Some(t), .. } = *g.e(e) {
+            if card == me && power == (crate::effects::PowerRef { card: me, index: 0 }) {
+                if let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) {
+                    if g.st.cdef(c).has_tag(tag::FUTURE) {
+                        if let Effect::EffectOfAbility { target, .. } = g.e_mut(e) {
+                            *target = None;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    match *g.e(e) {
+        Effect::CheckPokemonPowers { p, target, powers } => {
+            if active_lock_applies(g, me, l, p as usize, target, false)? {
+                let mut out = SVec::new();
+                for pw in powers.iter() {
+                    if !active_lock_subject(g, l, *pw, false) {
+                        out.push(*pw);
+                    }
+                }
+                if let Effect::CheckPokemonPowers { powers, .. } = g.e_mut(e) {
+                    *powers = out;
+                }
+            }
+        }
+        Effect::Power { p, power, card, probe, .. } => {
+            if active_lock_subject(g, l, power, probe) && active_lock_applies(g, me, l, p as usize, card, true)? {
+                crate::bail!("BLOCKED_BY_ABILITY");
+            }
+        }
+        _ => {}
     }
     Ok(())
 }
