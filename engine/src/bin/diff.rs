@@ -377,7 +377,16 @@ fn replay_obs(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
             Pending::Decision(pi) => {
                 let pr = g.prompts.as_slice()[pi];
                 let rd = g.describe_prompt(&pr);
-                let k = queue.iter().position(|&i| steps[i]["d"]["player"] == rd["player"] && steps[i]["d"]["cls"] == rd["cls"]);
+                // Same player and class; one with the same descriptor first, so an oracle prompt Rust
+                // doesn't ask (a search of an empty deck, with nothing to choose) is skipped rather
+                // than matched with the next prompt of its class.
+                let cands: Vec<usize> = (0..queue.len()).filter(|&k| steps[queue[k]]["d"]["player"] == rd["player"] && steps[queue[k]]["d"]["cls"] == rd["cls"]).collect();
+                let same = |k: usize| {
+                    let od = norm_prompt(&steps[queue[k]]["d"]);
+                    let rn = norm_prompt(&rd);
+                    canon(&rn) == canon(&od) || canon(&card_set(&rn)) == canon(&card_set(&od))
+                };
+                let k = cands.iter().copied().find(|&k| same(k)).or(cands.first().copied());
                 let Some(k) = k else {
                     dump_state(&g, -1);
                     return Outcome::Diverged { step: -1, what: "extra-prompt".into(), detail: format!("rust asks {}", canon(&norm_prompt(&rd))) };
