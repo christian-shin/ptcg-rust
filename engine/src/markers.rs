@@ -23,13 +23,27 @@ markers! {
 
 static EXTRA: std::sync::Mutex<Vec<&'static str>> = std::sync::Mutex::new(Vec::new());
 
+thread_local! {
+    /// Per-thread copies, so lookups don't contend on `EXTRA`: interned ids by
+    /// the name's address and length, and the interned names by id.
+    static IDS: std::cell::RefCell<Vec<(usize, usize, MarkerName)>> = const { std::cell::RefCell::new(Vec::new()) };
+    static NAMES: std::cell::RefCell<Vec<&'static str>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
 /// Name of a marker id (built-in or interned).
 pub fn marker_name(id: MarkerName) -> &'static str {
     let i = id as usize;
     if i < MARKER_NAMES.len() {
         return MARKER_NAMES[i];
     }
-    EXTRA.lock().unwrap()[i - MARKER_NAMES.len()]
+    let j = i - MARKER_NAMES.len();
+    NAMES.with(|n| {
+        let mut n = n.borrow_mut();
+        if j >= n.len() {
+            *n = EXTRA.lock().unwrap().clone();
+        }
+        n[j]
+    })
 }
 
 pub fn marker_id(name: &str) -> Option<MarkerName> {
@@ -42,12 +56,27 @@ pub fn marker_id(name: &str) -> Option<MarkerName> {
 /// Id for a marker name, registering it on first use. Ids are process-local;
 /// the canonical state writes names.
 pub fn intern(name: &'static str) -> MarkerName {
-    if let Some(id) = marker_id(name) {
+    let key = (name.as_ptr() as usize, name.len());
+    if let Some(id) = IDS.with(|t| t.borrow().iter().find(|e| (e.0, e.1) == key).map(|e| e.2)) {
         return id;
     }
-    let mut v = EXTRA.lock().unwrap();
-    v.push(name);
-    (MARKER_NAMES.len() + v.len() - 1) as MarkerName
+    let id = match MARKER_NAMES.iter().position(|n| *n == name) {
+        Some(i) => i as MarkerName,
+        None => {
+            // Find or register under one lock, so every thread gets one id per name.
+            let mut v = EXTRA.lock().unwrap();
+            let i = match v.iter().position(|n| *n == name) {
+                Some(i) => i,
+                None => {
+                    v.push(name);
+                    v.len() - 1
+                }
+            };
+            (MARKER_NAMES.len() + i) as MarkerName
+        }
+    };
+    IDS.with(|t| t.borrow_mut().push((key.0, key.1, id)));
+    id
 }
 
 /// `marker!("NAME")`: cached interned marker id.
