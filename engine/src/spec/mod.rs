@@ -206,6 +206,9 @@ pub enum RuleStep {
     Use,
 }
 
+/// Most items one step-D answer can record.
+pub const SPEC_CHOICE_ITEMS: usize = 64;
+
 /// An attack choice made at step D (before the damage) and carried out after
 /// it: the step it belongs to and the answer.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -215,8 +218,9 @@ pub struct SpecChoice {
     pub key: u64,
     pub answer: u8,
     /// The chosen items (card ids, slots as `p << 4 | slot`, counts), as the
-    /// op encodes them; `len` of them are used.
-    pub items: [u8; 16],
+    /// op encodes them; `len` of them are used. A hand can hold most of a
+    /// deck, so this holds up to `SPEC_CHOICE_ITEMS`.
+    pub items: [u8; SPEC_CHOICE_ITEMS],
     pub len: u8,
 }
 

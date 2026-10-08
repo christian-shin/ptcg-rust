@@ -2631,7 +2631,7 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec, fi
             }
             let hand_card = g.st.players[o].hand.as_slice()[g.rng.index(n)];
             g.spec_choices.retain(|x| !(x.card == me && x.key == BOTHER_STASH));
-            let mut ch = SpecChoice { card: me, key: BOTHER_STASH, answer: 0, items: [0; 16], len: 2 };
+            let mut ch = SpecChoice { card: me, key: BOTHER_STASH, answer: 0, items: [0; SPEC_CHOICE_ITEMS], len: 2 };
             ch.items[0] = idx;
             ch.items[1] = hand_card;
             g.spec_choices.push(ch);

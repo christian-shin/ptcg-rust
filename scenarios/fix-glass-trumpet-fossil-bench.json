@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Terapagos ex ASC 179",
+   "4 Glass Trumpet ASC 189",
+   "4 Duraludon PRE 69",
+   "4 Antique Root Fossil SCR 130",
+   "22 Psychic Energy MEE 5",
+   "22 Metal Energy MEE 8"
+  ],
+  [
+   "4 Terapagos ex ASC 179",
+   "4 Glass Trumpet ASC 189",
+   "4 Duraludon PRE 69",
+   "4 Antique Root Fossil SCR 130",
+   "22 Psychic Energy MEE 5",
+   "22 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Terapagos ex ASC 179",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Antique Root Fossil SCR 130"
+   }
+  ],
+  "hand": [
+   "Glass Trumpet ASC 189"
+  ],
+  "discard": [
+   "4 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Glass Trumpet ASC 189"
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 1
+    },
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "who": "me",
+   "bench": 1,
+   "card": "Antique Root Fossil SCR 130",
+   "energy": [
+    "Psychic Energy MEE 5"
+   ],
+   "cite": "rulings 1880, 1101: a Fossil in play is a Basic [C] Pokemon, so Glass Trumpet can attach to it",
+   "n": 1
+  }
+ ]
+}

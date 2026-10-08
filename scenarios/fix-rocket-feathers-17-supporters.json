@@ -1,0 +1,97 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Team Rocket's Honchkrow ASC 127",
+   "4 Team Rocket's Archer ASC 201",
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Team Rocket's Petrel ASC 207",
+   "4 Team Rocket's Proton ASC 208",
+   "32 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Murkrow ASC 126",
+   "4 Team Rocket's Honchkrow ASC 127",
+   "4 Team Rocket's Archer ASC 201",
+   "4 Team Rocket's Ariana ASC 202",
+   "4 Team Rocket's Giovanni ASC 204",
+   "4 Team Rocket's Petrel ASC 207",
+   "4 Team Rocket's Proton ASC 208",
+   "32 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Murkrow ASC 126",
+   "Team Rocket's Honchkrow ASC 127"
+  ],
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "hand": [
+   "Team Rocket's Archer ASC 201",
+   "Team Rocket's Archer ASC 201",
+   "Team Rocket's Archer ASC 201",
+   "Team Rocket's Archer ASC 201",
+   "Team Rocket's Ariana ASC 202",
+   "Team Rocket's Ariana ASC 202",
+   "Team Rocket's Ariana ASC 202",
+   "Team Rocket's Ariana ASC 202",
+   "Team Rocket's Giovanni ASC 204",
+   "Team Rocket's Giovanni ASC 204",
+   "Team Rocket's Giovanni ASC 204",
+   "Team Rocket's Giovanni ASC 204",
+   "Team Rocket's Petrel ASC 207",
+   "Team Rocket's Petrel ASC 207",
+   "Team Rocket's Petrel ASC 207",
+   "Team Rocket's Petrel ASC 207",
+   "Team Rocket's Proton ASC 208"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Murkrow ASC 126",
+  "bench": [
+   {
+    "card": "Team Rocket's Murkrow ASC 126"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rocket Feathers"
+  },
+  [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 17,
+   "cite": "Rocket Feathers text: discard any number of Team Rocket's Supporters from your hand (all 17 chosen are discarded)"
+  }
+ ]
+}

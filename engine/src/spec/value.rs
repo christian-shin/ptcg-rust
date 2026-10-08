@@ -536,16 +536,24 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
     }
 }
 
+/// The Fossil is the Pokémon of one of its owner's slots.
+fn fossil_in_play(g: &Game, c: CardId) -> bool {
+    let p = g.st.owner(c);
+    g.st.players[p].in_play().iter().any(|s| g.st.slot_pokemon(p, *s) == Some(c))
+}
+
 pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
     let d = g.st.cdef(c);
+    // A Fossil in play is a Basic Pokémon (its card data carries the stage, type and HP).
+    let mon = d.is_pokemon() || (d.fossil_doll && fossil_in_play(g, c));
     match p {
         Pred::Any => true,
         Pred::False => false,
         Pred::Not(p) => !pred(g, c, p),
         Pred::All(ps) => ps.iter().all(|p| pred(g, c, p)),
         Pred::OneOf(ps) => ps.iter().any(|p| pred(g, c, p)),
-        Pred::Pokemon => d.is_pokemon(),
-        Pred::Basic => d.is_pokemon() && d.stage == Stage::Basic as u8,
+        Pred::Pokemon => mon,
+        Pred::Basic => mon && d.stage == Stage::Basic as u8,
         Pred::Energy => d.is_energy(),
         Pred::BasicEnergy => d.is_energy() && d.energy_type == EnergyType::Basic as u8,
         Pred::Trainer => d.is_trainer(),
@@ -554,28 +562,28 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Tool => d.is_trainer() && d.trainer_type == TrainerType::Tool as u8,
         Pred::Stadium => d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8,
         Pred::Name(n) => d.name == *n,
-        Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
+        Pred::HpAtMost(n) => mon && d.hp <= *n,
         Pred::Tag(t) => d.has_tag(*t),
-        Pred::HasAttacks => d.is_pokemon() && !d.attacks.is_empty(),
-        Pred::Stage(st) => d.is_pokemon() && d.stage == *st,
+        Pred::HasAttacks => mon && !d.attacks.is_empty(),
+        Pred::Stage(st) => mon && d.stage == *st,
         Pred::NameContains(n) => d.name.contains(*n),
-        Pred::HasAbilityNamed(n) => d.is_pokemon() && d.powers.iter().any(|p| p.power_type == PowerType::Ability as u8 && p.name == *n),
+        Pred::HasAbilityNamed(n) => mon && d.powers.iter().any(|p| p.power_type == PowerType::Ability as u8 && p.name == *n),
         Pred::HasAttackNamed(n) => d.attacks.iter().any(|a| a.name == *n),
         Pred::ProvidesType(t) => d.provides.contains(t),
-        Pred::StageIs(st) => d.is_pokemon() && d.stage == *st as u8,
-        Pred::PrintedType(t) => d.is_pokemon() && d.card_type.contains(t),
-        Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
+        Pred::StageIs(st) => mon && d.stage == *st as u8,
+        Pred::PrintedType(t) => mon && d.card_type.contains(t),
+        Pred::PokemonType(t) => mon && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
         Pred::RuleBox => d.has_rule_box(),
-        Pred::EvolvesFrom(n) => d.is_pokemon() && d.evolves_from == *n,
+        Pred::EvolvesFrom(n) => mon && d.evolves_from == *n,
         Pred::SpecialEnergy => d.is_energy() && d.energy_type == EnergyType::Special as u8,
         Pred::EvolvesFromOwnInPlay => {
-            d.is_pokemon() && {
+            mon && {
                 let owner = g.st.owner(c);
                 for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(_, top, _)| g.st.cdef(*top).name == d.evolves_from)
             }
         }
-        Pred::PrintsAbility => d.is_pokemon() && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
+        Pred::PrintsAbility => mon && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
     }
 }
 

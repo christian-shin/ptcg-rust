@@ -223,12 +223,13 @@ impl Frame {
     }
 
     /// Record the step-D answer of the current step with the chosen items
-    /// (at most 16 bytes, encoded by the op).
+    /// (at most `SPEC_CHOICE_ITEMS` bytes, encoded by the op).
     pub(crate) fn record_items(&self, g: &mut Game, me: CardId, answer: u8, items: &[u8]) {
         let key = self.key();
         g.spec_choices.retain(|c| !(c.card == me && c.key == key));
-        let mut c = SpecChoice { card: me, key, answer, items: [0; 16], len: items.len().min(16) as u8 };
-        c.items[..c.len as usize].copy_from_slice(&items[..c.len as usize]);
+        assert!(items.len() <= SPEC_CHOICE_ITEMS, "step-D answer with {} items", items.len());
+        let mut c = SpecChoice { card: me, key, answer, items: [0; SPEC_CHOICE_ITEMS], len: items.len() as u8 };
+        c.items[..items.len()].copy_from_slice(items);
         g.spec_choices.push(c);
     }
 
