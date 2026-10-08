@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mr. Mime TEF 63",
+   "4 Judge POR 76",
+   "4 Hop's Snorlax JTG 117",
+   "4 Cyrano SSP 170",
+   "44 Psychic Energy MEE"
+  ],
+  [
+   "4 Mr. Mime TEF 63",
+   "4 Judge POR 76",
+   "4 Hop's Snorlax JTG 117",
+   "4 Cyrano SSP 170",
+   "44 Psychic Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mr. Mime TEF 63",
+  "active_energy": [
+   "Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Judge POR 76",
+   "Hop's Snorlax JTG 117"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Look-Alike Show"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "zone": "hand", "count": 4, "cite": "ruling 1844 (the Supporter's effect is used, not played) and card text: the copied Judge is still in the opponent's hand, so it is shuffled into the deck with the rest of that hand before the 4 draws"},
+  {"at": "turn_end", "who": "me", "zone": "hand", "count": 4, "cite": "Judge text: each player draws 4 cards"}
+]
+}
