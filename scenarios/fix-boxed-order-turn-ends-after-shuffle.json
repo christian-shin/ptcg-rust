@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Boxed Order TEF 143",
+   "4 Hop's Snorlax JTG 117",
+   "4 Poké Ball POR 80",
+   "4 Ultra Ball 30C 128",
+   "44 Fighting Energy MEE"
+  ],
+  [
+   "4 Boxed Order TEF 143",
+   "4 Hop's Snorlax JTG 117",
+   "4 Poké Ball POR 80",
+   "4 Ultra Ball 30C 128",
+   "44 Fighting Energy MEE"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Boxed Order TEF 143"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Boxed Order TEF 143"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "Boxed Order text: search, reveal, put them into your hand, then shuffle your deck; then your turn ends (planned change A-PC3, user 2026-10-08)"
+  }
+ ]
+}

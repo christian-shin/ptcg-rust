@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Smoliv DRI 21",
+   "4 Dolliv DRI 22",
+   "4 Antique Cover Fossil SCR",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Smoliv DRI 21",
+   "4 Dolliv DRI 22",
+   "4 Antique Cover Fossil SCR",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Smoliv DRI 21",
+   "Dolliv DRI 22"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Antique Cover Fossil SCR",
+    "damage": 30
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Smoliv DRI 21"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nutrients"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Antique Cover Fossil SCR",
+   "damage": 0,
+   "cite": "Antique Cover Fossil text: Protective Cover prevents effects of attacks used by your OPPONENT's Pokemon, so your own Dolliv's Nutrients heals it (user 2026-10-08: as the text)"
+  }
+ ]
+}

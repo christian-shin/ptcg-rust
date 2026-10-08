@@ -11,10 +11,11 @@
 //! Fossil), via one MoveCardsEffect of the whole slot. On its
 //! own PlayItemEffect the card reduces a PlayPokemonEffect into the first
 //! empty Bench slot; a RetreatEffect with it Active throws. Every attack
-//! effect (AbstractAttackEffect) aimed at a slot holding this card as its top
-//! Pokémon, with an attacking Pokémon present, is prevented after a lock
-//! probe for the owner, except Weakness/Resistance, Put Damage and Deal
-//! Damage. Fixed: it can't be affected by Special Conditions (printed text):
+//! effect (AbstractAttackEffect) of an attack used by the opponent's Pokémon,
+//! aimed at a slot holding this card as its top Pokémon, is prevented after a
+//! lock probe for the owner, except Weakness/Resistance, Put Damage and Deal
+//! Damage. Fixed (user 2026-10-08, as the text): the owner's own attacks are
+//! no longer blocked. Fixed: it can't be affected by Special Conditions (printed text):
 //! adding them is prevented and any added directly are cleared at the next
 //! table check, as for Antique Root Fossil.
 use crate::spec::prelude::*;

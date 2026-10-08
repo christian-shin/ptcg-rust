@@ -1,10 +1,8 @@
 //! Boxed Order (TEF): search your deck for up to 2 Item cards, reveal them,
 //! and put them into your hand. Then, shuffle your deck. Your turn ends.
 //!
-//! Twinleaf quirk kept: the search prompt (min 0, max 2) is queued without
-//! waiting and the EndTurnEffect is reduced immediately, before the answer.
-//! When the answer arrives the cards move deck→hand, the reveal is queued
-//! (when cards were chosen) and then a wait-less shuffle.
+//! Fixed (A-PC3): the turn ends after the search, reveal and shuffle, in the
+//! printed order (Twinleaf ended it before the search was answered).
 //! Fixed (phase 4b): the deck is shuffled after the reveal (the shuffle was
 //! only reached when no card was chosen). Fixed (R3): min is 0 (it was 1 when
 //! the deck held an Item); a search may find fewer cards, even none
