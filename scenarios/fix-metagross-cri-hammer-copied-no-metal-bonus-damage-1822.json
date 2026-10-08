@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Metagross CRI 61",
+   "4 Mega Manectric ex MEG 50",
+   "4 Electrike MEG 49",
+   "20 Psychic Energy MEE",
+   "20 Metal Energy MEE 8"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Metagross CRI 61",
+   "4 Mega Manectric ex MEG 50",
+   "4 Electrike MEG 49",
+   "20 Psychic Energy MEE",
+   "20 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Slowpoke SCR 57",
+   "Slowking SCR 58"
+  ],
+  "active_energy": [
+   "2 Psychic Energy MEE"
+  ],
+  "deck_top": [
+   "Metagross CRI 61"
+  ],
+  "prizes": [
+   "6 Psychic Energy MEE"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Seek Inspiration"
+  },
+  {
+   "index": 0,
+   "attack": "Metallic Hammer"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 300,
+   "hp_left": 30,
+   "cite": "ruling 1822"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Psychic Energy MEE",
+    "Psychic Energy MEE"
+   ],
+   "cite": "ruling 1822"
+  }
+ ]
+}

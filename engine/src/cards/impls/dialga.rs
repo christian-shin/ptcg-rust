@@ -2,8 +2,10 @@
 //! Energy attached to this Pokémon into your deck and have this attack do 80
 //! more damage.
 //!
-//! Twinleaf: no prompt when the Active's CheckProvidedEnergy map is empty;
-//! otherwise a ConfirmPrompt, then one MOVE_CARDS per mapped card (captured
+//! Fixed (ruling 1822): Twinleaf asked nothing when the Active had no Energy, so
+//! the 80 more damage was unreachable; the ConfirmPrompt is now always asked and
+//! yes adds 80 (with no Energy nothing moves and the deck is not shuffled).
+//! Twinleaf: a ConfirmPrompt, then one MOVE_CARDS per mapped card (captured
 //! before the prompt; Active to deck), SHUFFLE_DECK and `effect.damage += 80`
 //! (after the shuffle prompt is opened, before it resolves).
 //! R7A (rulings 1580, 1846): the Energy goes back into the deck, and the deck is shuffled, after the damage (`move_cards_after_damage`, `shuffle_deck_after_damage`).
@@ -24,9 +26,6 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             for m in energy_map.iter() {
                 cards.push(m.card);
             }
-        }
-        if cards.is_empty() {
-            return Ok(());
         }
         let temp = g.alloc_temp(cards.as_slice());
         g.retain_fx(e);
@@ -55,10 +54,12 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         }
         let slot = SlotRef::new(p, f.l[0]);
         let cards: Vec<CardId> = g.lst(ListRef::Temp(f.l[1])).to_vec();
-        for c in cards {
+        for c in cards.iter().copied() {
             move_cards_after_damage(g, atk, slot.list(), ListRef::Deck(p as u8), &[c], me)?;
         }
-        shuffle_deck_after_damage(g, atk, p);
+        if !cards.is_empty() {
+            shuffle_deck_after_damage(g, atk, p);
+        }
         if let Effect::Attack { damage, .. } = g.e_mut(atk) {
             *damage += 80;
         }
