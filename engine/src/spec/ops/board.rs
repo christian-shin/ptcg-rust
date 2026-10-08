@@ -974,8 +974,8 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
 fn switch_among(s: &SwitchSpec) -> SlotSel {
     match (s.kind, s.side) {
         // Blocked: a Pokémon that is not Basic (a slot without a Pokémon card, a Fossil, is not).
-        (SwitchKind::PlainBasic, Who::Me) => SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Not(&SlotPred::Top(Pred::Not(&Pred::Basic)))),
-        (SwitchKind::PlainBasic, Who::Opp) => SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Not(&SlotPred::Top(Pred::Not(&Pred::Basic)))),
+        (SwitchKind::PlainBasic, Who::Me) => SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Basic),
+        (SwitchKind::PlainBasic, Who::Opp) => SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Basic),
         _ => SlotSel::Bench(s.side),
     }
 }

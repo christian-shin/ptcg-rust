@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "LisiasAppeal",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Top(Pred::Basic))],
+        needs: &[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Basic)],
         steps: &[
             Step::new(Op::Switch(SwitchSpec { side: Who::Opp, chooser: Who::Me, kind: SwitchKind::PlainBasic, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false })),
             Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Active(Who::Opp), change: ConditionChange::Add(&[SpecialCondition::Confused]), cause: Cause::Direct, gate: Gate::TrainerTarget, when: Cond::True })),
