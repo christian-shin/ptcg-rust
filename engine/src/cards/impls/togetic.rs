@@ -2,17 +2,19 @@
 //!
 //! Twinleaf: `new HealEffect(player, player.active, 30)` (a HealEffect, not
 //! the attack-side HealTargetEffect).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Togetic@SSP|ASC", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Togetic@SSP|ASC",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(heal_active(30, HealVia::Effect)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let (p, a) = match *g.e(e) {
-            Effect::Attack { p, .. } => (p, g.st.players[p as usize].active),
-            _ => return Ok(()),
-        };
-        g.run_fx(Effect::Heal { p, target: SlotRef::new(p as usize, a), damage: 30 })?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

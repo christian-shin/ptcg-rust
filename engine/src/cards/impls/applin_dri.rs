@@ -2,19 +2,26 @@
 //!
 //! Twinleaf: a HealTargetEffect on `player.active`. Two `Applin` classes
 //! exist; this port is bound to DRI.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Applin@DRI", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Applin@DRI",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(heal_active(10, HealVia::Attack)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    heal_this_pokemon(g, e, 10)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
 
-/// `HEAL_X_DAMAGE_FROM_THIS_POKEMON`: a HealTargetEffect on `player.active`.
-pub fn heal_this_pokemon(g: &mut Game, e: EffId, damage: i32) -> R {
+// Still called by Alolan Exeggutor until it is converted.
+pub fn heal_this_pokemon(g: &mut crate::game::Game, e: crate::effects::EffId, damage: i32) -> crate::game::R {
+    use crate::effects::{AtkBase, Effect, SlotRef};
     let (p, opp, attack, source) = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
         _ => return Ok(()),

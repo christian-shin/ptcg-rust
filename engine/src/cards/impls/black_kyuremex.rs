@@ -2,29 +2,25 @@
 //! [N] Pokémon (printed type), it is now Paralyzed. Black Frost — 250; this
 //! Pokémon also does 30 damage to itself (a DealDamageEffect aimed at
 //! `player.active`).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "BlackKyuremex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "BlackKyuremex",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Paralyzed]), cause: Cause::Attack, gate: Gate::None, when: Cond::Slot(OPP_ACTIVE, SlotPred::PrintedTypeIs(ct::DRAGON)) })),
+            ],
+        },
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::after_damage(self_damage(30)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let opp = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[opp].active;
-        if let Some(c) = g.st.slot_pokemon(opp, a) {
-            if g.st.cdef(c).card_type.contains(&ct::DRAGON) {
-                add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Paralyzed])?;
-            }
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { p, opp, attack, source, .. } = *g.e(e) {
-            let target = SlotRef::new(p as usize, g.st.players[p as usize].active);
-            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-            g.run_fx(Effect::DealDamage { b, damage: 30 })?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

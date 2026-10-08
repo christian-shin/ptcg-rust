@@ -1,11 +1,17 @@
 //! Fuecoco (SSP): Heat Burn — 20; the opponent's Active Pokémon is now Burned.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Fuecoco", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Fuecoco",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(inflict(&[SpecialCondition::Burned], Cause::Attack)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Burned])?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

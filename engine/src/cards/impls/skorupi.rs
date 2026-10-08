@@ -2,13 +2,19 @@
 //! Poisoned (YOUR_OPPPONENTS_ACTIVE_POKEMON_IS_NOW_POISIONED: an
 //! AddSpecialConditionsEffect; fixed in phase 4b, R4: it was an Ability-style
 //! AddSpecialConditionsPowerEffect via ADD_POISON_TO_PLAYER_ACTIVE).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Skorupi", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Skorupi",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(inflict(&[SpecialCondition::Poisoned], Cause::Attack)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Poisoned])?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

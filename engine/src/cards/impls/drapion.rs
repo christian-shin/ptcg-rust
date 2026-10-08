@@ -7,15 +7,21 @@
 //! first. Fixed in phase 4b (R4): they were AddSpecialConditionsPowerEffects
 //! (ADD_POISON / ADD_PARALYZED_TO_PLAYER_ACTIVE), an Ability-style effect that
 //! Mist Energy and effect prevention don't stop.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Drapion", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Drapion",
+    attacks: &[
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::after_damage(self_damage(70)),
+                Step::after_damage(inflict(&[SpecialCondition::Poisoned], Cause::Attack)),
+                Step::after_damage(inflict(&[SpecialCondition::Paralyzed], Cause::Attack)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        super::tapu_bulu::this_pokemon_does_damage_to_itself(g, e, 70)?;
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Poisoned])?;
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Paralyzed])?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
