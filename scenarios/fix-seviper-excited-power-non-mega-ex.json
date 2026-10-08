@@ -6,38 +6,38 @@
    "4 Gastly ASC 123",
    "4 Haunter ASC 124",
    "4 Mega Gengar ex ASC 125",
-   "4 Okidogi ex SFA",
-   "40 Darkness Energy MEE"
+   "4 Okidogi ex SFA 36",
+   "40 Darkness Energy MEE 7"
   ],
   [
    "4 Seviper PFL 62",
    "4 Gastly ASC 123",
    "4 Haunter ASC 124",
    "4 Mega Gengar ex ASC 125",
-   "4 Okidogi ex SFA",
-   "40 Darkness Energy MEE"
+   "4 Okidogi ex SFA 36",
+   "40 Darkness Energy MEE 7"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Seviper PFL 62",
   "active_energy": [
-   "3 Darkness Energy MEE"
+   "3 Darkness Energy MEE 7"
   ],
   "bench": [
    {
-    "card": "Okidogi ex SFA"
+    "card": "Okidogi ex SFA 36"
    }
   ]
  },
  "opp": {
   "reset": true,
-  "active": "Okidogi ex SFA"
+  "active": "Okidogi ex SFA 36"
  },
  "answers": [
   {
    "a": "attack",
-   "name": "Jet Black Fang"
+   "name": "Pitch-Black Fangs"
   }
  ]
 }

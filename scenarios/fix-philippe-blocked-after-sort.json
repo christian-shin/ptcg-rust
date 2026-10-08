@@ -6,20 +6,20 @@
       "4 Duraludon PRE 69",
       "4 Bronzor PRE 66",
       "4 Hop's Snorlax JTG 117",
-      "12 Fire Energy MEE",
-      "12 Water Energy MEE",
-      "12 Metal Energy MEE",
-      "8 Lightning Energy MEE"
+      "12 Fire Energy MEE 2",
+      "12 Water Energy MEE 3",
+      "12 Metal Energy MEE 8",
+      "8 Lightning Energy MEE 4"
     ],
     [
       "4 Philippe CRI 79",
       "4 Duraludon PRE 69",
       "4 Bronzor PRE 66",
       "4 Hop's Snorlax JTG 117",
-      "12 Fire Energy MEE",
-      "12 Water Energy MEE",
-      "12 Metal Energy MEE",
-      "8 Lightning Energy MEE"
+      "12 Fire Energy MEE 2",
+      "12 Water Energy MEE 3",
+      "12 Metal Energy MEE 8",
+      "8 Lightning Energy MEE 4"
     ]
   ],
   "me": {
@@ -37,13 +37,13 @@
       "Philippe CRI 79"
     ],
     "discard": [
-      "Water Energy MEE",
-      "Metal Energy MEE",
-      "Fire Energy MEE",
-      "Lightning Energy MEE",
-      "Metal Energy MEE",
-      "Water Energy MEE",
-      "Metal Energy MEE"
+      "Water Energy MEE 3",
+      "Metal Energy MEE 8",
+      "Fire Energy MEE 2",
+      "Lightning Energy MEE 4",
+      "Metal Energy MEE 8",
+      "Water Energy MEE 3",
+      "Metal Energy MEE 8"
     ]
   },
   "opp": {

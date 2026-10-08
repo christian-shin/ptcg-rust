@@ -2,14 +2,14 @@
  "turn": 2,
  "decks": [
   [
-   "4 Antique Cover Fossil SCR",
+   "4 Antique Cover Fossil SCR 129",
    "4 Duraludon PRE 69",
    "4 Cofagrigus WHT 40",
    "4 Yamask PLF 55",
    "44 Psychic Energy MEE 5"
   ],
   [
-   "4 Antique Cover Fossil SCR",
+   "4 Antique Cover Fossil SCR 129",
    "4 Duraludon PRE 69",
    "4 Cofagrigus WHT 40",
    "4 Yamask PLF 55",
@@ -18,13 +18,13 @@
  ],
  "me": {
   "reset": true,
-  "active": "Antique Cover Fossil SCR",
+  "active": "Antique Cover Fossil SCR 129",
   "bench": [
    {
     "card": "Duraludon PRE 69"
    },
    {
-    "card": "Antique Cover Fossil SCR"
+    "card": "Antique Cover Fossil SCR 129"
    }
   ]
  },

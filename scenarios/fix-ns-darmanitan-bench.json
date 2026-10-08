@@ -4,12 +4,12 @@
   [
    "4 N's Darumaka ASC 32",
    "4 N's Darmanitan ASC 33",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ],
   [
    "4 N's Darumaka ASC 32",
    "4 N's Darmanitan ASC 33",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ]
  ],
  "me": {
@@ -19,7 +19,7 @@
    "N's Darmanitan ASC 33"
   ],
   "active_energy": [
-   "3 Fire Energy MEE"
+   "3 Fire Energy MEE 2"
   ]
  },
  "opp": {
@@ -34,7 +34,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Darman-i-cannon"
+   "name": "Flamebody Cannon"
   }
  ]
 }

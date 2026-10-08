@@ -6,27 +6,27 @@
    "4 Crustle DRI 12",
    "4 Dwebble DRI 11",
    "4 Spiky Energy JTG 159",
-   "16 Grass Energy MEE",
-   "16 Lightning Energy MEE",
-   "12 Metal Energy MEE"
+   "16 Grass Energy MEE 1",
+   "16 Lightning Energy MEE 4",
+   "12 Metal Energy MEE 8"
   ],
   [
    "4 Pikachu ex ASC 57",
    "4 Crustle DRI 12",
    "4 Dwebble DRI 11",
    "4 Spiky Energy JTG 159",
-   "16 Grass Energy MEE",
-   "16 Lightning Energy MEE",
-   "12 Metal Energy MEE"
+   "16 Grass Energy MEE 1",
+   "16 Lightning Energy MEE 4",
+   "12 Metal Energy MEE 8"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Pikachu ex ASC 57",
   "active_energy": [
-   "Grass Energy MEE",
-   "Lightning Energy MEE",
-   "Metal Energy MEE"
+   "Grass Energy MEE 1",
+   "Lightning Energy MEE 4",
+   "Metal Energy MEE 8"
   ],
   "bench": [
    {

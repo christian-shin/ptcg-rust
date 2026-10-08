@@ -7,10 +7,10 @@
       "4 Philippe CRI 79",
       "4 Crispin PRE 105",
       "4 Bronzor PRE 66",
-      "4 Ultra Ball SVI",
-      "10 Fire Energy MEE",
-      "10 Metal Energy MEE",
-      "16 Water Energy MEE"
+      "4 Ultra Ball SVI 196",
+      "10 Fire Energy MEE 2",
+      "10 Metal Energy MEE 8",
+      "16 Water Energy MEE 3"
     ],
     [
       "4 Larry's Skill PRE 115",
@@ -18,10 +18,10 @@
       "4 Philippe CRI 79",
       "4 Crispin PRE 105",
       "4 Bronzor PRE 66",
-      "4 Ultra Ball SVI",
-      "10 Fire Energy MEE",
-      "10 Metal Energy MEE",
-      "16 Water Energy MEE"
+      "4 Ultra Ball SVI 196",
+      "10 Fire Energy MEE 2",
+      "10 Metal Energy MEE 8",
+      "16 Water Energy MEE 3"
     ]
   ],
   "me": {
@@ -29,7 +29,7 @@
     "active": "Duraludon PRE 69",
     "hand": [
       "Larry's Skill PRE 115",
-      "Fire Energy MEE"
+      "Fire Energy MEE 2"
     ]
   },
   "opp": {

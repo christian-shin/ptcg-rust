@@ -3,30 +3,30 @@
   "decks": [
     [
       "4 Fuecoco SSP 29",
-      "4 Crocalor SVP",
+      "4 Crocalor SVP 80",
       "4 Skeledirge SSP 31",
       "4 Gastrodon SSP 107",
       "4 Marnie's Grimmsnarl ex ASC 287",
       "4 Hop's Snorlax JTG 117",
-      "18 Fire Energy MEE",
-      "18 Darkness Energy MEE"
+      "18 Fire Energy MEE 2",
+      "18 Darkness Energy MEE 7"
     ],
     [
       "4 Fuecoco SSP 29",
-      "4 Crocalor SVP",
+      "4 Crocalor SVP 80",
       "4 Skeledirge SSP 31",
       "4 Gastrodon SSP 107",
       "4 Marnie's Grimmsnarl ex ASC 287",
       "4 Hop's Snorlax JTG 117",
-      "18 Fire Energy MEE",
-      "18 Darkness Energy MEE"
+      "18 Fire Energy MEE 2",
+      "18 Darkness Energy MEE 7"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Marnie's Grimmsnarl ex ASC 287",
     "active_energy": [
-      "2 Darkness Energy MEE"
+      "2 Darkness Energy MEE 7"
     ],
     "bench": [
       {
@@ -41,7 +41,7 @@
       {
         "card": [
           "Fuecoco SSP 29",
-          "Crocalor SVP",
+          "Crocalor SVP 80",
           "Skeledirge SSP 31"
         ]
       }

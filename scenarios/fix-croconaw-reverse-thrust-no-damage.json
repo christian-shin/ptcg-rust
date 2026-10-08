@@ -2,18 +2,18 @@
  "turn": 2,
  "decks": [
   [
-   "4 Totodile TEF",
-   "4 Croconaw TEF",
-   "4 Dratini M2a",
-   "4 Dragonair M2a",
+   "4 Totodile TEF 39",
+   "4 Croconaw TEF 40",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
    "4 Thick Scale ASC 211",
    "40 Water Energy MEE 3"
   ],
   [
-   "4 Totodile TEF",
-   "4 Croconaw TEF",
-   "4 Dratini M2a",
-   "4 Dragonair M2a",
+   "4 Totodile TEF 39",
+   "4 Croconaw TEF 40",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
    "4 Thick Scale ASC 211",
    "40 Water Energy MEE 3"
   ]
@@ -21,31 +21,31 @@
  "me": {
   "reset": true,
   "active": [
-   "Totodile TEF",
-   "Croconaw TEF"
+   "Totodile TEF 39",
+   "Croconaw TEF 40"
   ],
   "active_energy": [
    "Water Energy MEE 3"
   ],
   "bench": [
    {
-    "card": "Totodile TEF"
+    "card": "Totodile TEF 39"
    },
    {
-    "card": "Totodile TEF"
+    "card": "Totodile TEF 39"
    }
   ]
  },
  "opp": {
   "reset": true,
   "active": [
-   "Dratini M2a",
-   "Dragonair M2a"
+   "Dratini ASC 150",
+   "Dragonair ASC 151"
   ],
   "active_tool": "Thick Scale ASC 211",
   "bench": [
    {
-    "card": "Dratini M2a"
+    "card": "Dratini ASC 150"
    }
   ]
  },

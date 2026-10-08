@@ -4,25 +4,25 @@
   [
    "4 Eevee ex PRE 75",
    "4 Sylveon PRE 40",
-   "4 Sylveon ex SSP",
-   "48 Psychic Energy MEE"
+   "4 Sylveon ex PRE 41",
+   "48 Psychic Energy MEE 5"
   ],
   [
    "4 Eevee ex PRE 75",
    "4 Sylveon PRE 40",
-   "4 Sylveon ex SSP",
-   "48 Psychic Energy MEE"
+   "4 Sylveon ex PRE 41",
+   "48 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Eevee ex PRE 75",
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "hand": [
    "Sylveon PRE 40",
-   "Sylveon ex SSP"
+   "Sylveon ex PRE 41"
   ]
  },
  "opp": {

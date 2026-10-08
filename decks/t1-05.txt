@@ -1,7 +1,7 @@
-4 Bayleef MC
-2 Chikorita M1S
-21 Fire Energy MEE
-4 Froakie FLI
-22 Grass Energy MEE
-4 Scatterbug M3
-3 Sizzlipede SSP
+4 Bayleef ASC 9
+2 Chikorita MEG 8
+21 Fire Energy MEE 2
+4 Froakie FLI 22
+22 Grass Energy MEE 1
+4 Scatterbug POR 7
+3 Sizzlipede SSP 27

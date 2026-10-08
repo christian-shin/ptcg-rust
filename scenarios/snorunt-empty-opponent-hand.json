@@ -1,17 +1,17 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Snorunt TWM", "4 Finizen TWM", "52 Water Energy MEE"],
-    ["4 Snorunt TWM", "4 Finizen TWM", "52 Water Energy MEE"]
+    ["4 Snorunt TWM 51", "4 Finizen TWM 59", "52 Water Energy MEE 3"],
+    ["4 Snorunt TWM 51", "4 Finizen TWM 59", "52 Water Energy MEE 3"]
   ],
   "me": {
     "reset": true,
-    "active": "Snorunt TWM",
-    "active_energy": ["Water Energy MEE", "Water Energy MEE"]
+    "active": "Snorunt TWM 51",
+    "active_energy": ["Water Energy MEE 3", "Water Energy MEE 3"]
   },
   "opp": {
     "reset": true,
-    "active": "Finizen TWM",
+    "active": "Finizen TWM 59",
     "active_damage": 50
   },
   "answers": [{"a": "attack", "name": "Astonish"}]

@@ -5,20 +5,20 @@
    "4 Mew ex 30C 66",
    "4 Hisuian Growlithe TWM 99",
    "4 Drilbur PBL 46",
-   "48 Psychic Energy MEE"
+   "48 Psychic Energy MEE 5"
   ],
   [
    "4 Mew ex 30C 66",
    "4 Hisuian Growlithe TWM 99",
    "4 Drilbur PBL 46",
-   "48 Psychic Energy MEE"
+   "48 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "2 Psychic Energy MEE"
+   "2 Psychic Energy MEE 5"
   ],
   "active_conditions": [
    "ASLEEP"
@@ -27,7 +27,7 @@
    {
     "card": "Drilbur PBL 46",
     "energy": [
-     "Psychic Energy MEE"
+     "Psychic Energy MEE 5"
     ]
    },
    {

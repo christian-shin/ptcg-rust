@@ -6,16 +6,16 @@
    "4 Mega Froslass ex ASC 47",
    "4 Koraidon ex ASC 121",
    "4 Mist Energy TEF 161",
-   "24 Water Energy MEE",
-   "20 Fighting Energy MEE"
+   "24 Water Energy MEE 3",
+   "20 Fighting Energy MEE 6"
   ],
   [
    "4 Snorunt ASC 46",
    "4 Mega Froslass ex ASC 47",
    "4 Koraidon ex ASC 121",
    "4 Mist Energy TEF 161",
-   "24 Water Energy MEE",
-   "20 Fighting Energy MEE"
+   "24 Water Energy MEE 3",
+   "20 Fighting Energy MEE 6"
   ]
  ],
  "me": {
@@ -25,7 +25,7 @@
    "Mega Froslass ex ASC 47"
   ],
   "active_energy": [
-   "3 Water Energy MEE"
+   "3 Water Energy MEE 3"
   ]
  },
  "opp": {

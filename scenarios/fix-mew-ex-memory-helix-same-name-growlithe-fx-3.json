@@ -6,27 +6,27 @@
    "4 Hisuian Growlithe TWM 99",
    "4 Team Rocket's Tarountula ASC 18",
    "4 Drilbur PBL 46",
-   "14 Psychic Energy MEE",
-   "14 Fighting Energy MEE",
-   "16 Grass Energy MEE"
+   "14 Psychic Energy MEE 5",
+   "14 Fighting Energy MEE 6",
+   "16 Grass Energy MEE 1"
   ],
   [
    "4 Mew ex 30C 66",
    "4 Hisuian Growlithe TWM 99",
    "4 Team Rocket's Tarountula ASC 18",
    "4 Drilbur PBL 46",
-   "14 Psychic Energy MEE",
-   "14 Fighting Energy MEE",
-   "16 Grass Energy MEE"
+   "14 Psychic Energy MEE 5",
+   "14 Fighting Energy MEE 6",
+   "16 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "Psychic Energy MEE",
-   "Fighting Energy MEE",
-   "Grass Energy MEE"
+   "Psychic Energy MEE 5",
+   "Fighting Energy MEE 6",
+   "Grass Energy MEE 1"
   ],
   "bench": [
    {
@@ -48,7 +48,7 @@
   {
    "a": "attack",
    "name": "Take Down",
-   "from": "Hisuian Growlithe TWM"
+   "from": "Hisuian Growlithe TWM 99"
   }
  ],
  "expect": [
@@ -57,7 +57,7 @@
    "who": "me",
    "legal": "attack",
    "name": "Take Down",
-   "from": "Hisuian Growlithe TWM",
+   "from": "Hisuian Growlithe TWM 99",
    "cite": "both Benched Pokemon's Take Down are Mew ex's attack options (Memory Helix; user decision 2026-10-07)"
   },
   {
@@ -65,7 +65,7 @@
    "who": "me",
    "legal": "attack",
    "name": "Take Down",
-   "from": "Team Rocket's Tarountula ASC",
+   "from": "Team Rocket's Tarountula ASC 18",
    "cite": "both Benched Pokemon's Take Down are Mew ex's attack options (Memory Helix; user decision 2026-10-07)"
   },
   {
@@ -73,7 +73,7 @@
    "who": "me",
    "legal": "attack",
    "name": "Teleportation Burst",
-   "from": "Mew ex 30C",
+   "from": "Mew ex 30C 66",
    "cite": "a Benched Mew ex's attack with the same name as Mew ex's own is offered too"
   },
   {

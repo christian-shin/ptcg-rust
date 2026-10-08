@@ -7,7 +7,7 @@
    "4 Mist Energy TEF 161",
    "4 Handheld Fan TWM 150",
    "4 Sacred Charm PFL 93",
-   "40 Fire Energy MEE"
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Minccino TEF 136",
@@ -15,14 +15,14 @@
    "4 Mist Energy TEF 161",
    "4 Handheld Fan TWM 150",
    "4 Sacred Charm PFL 93",
-   "40 Fire Energy MEE"
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Minccino TEF 136",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ]
  },
  "opp": {

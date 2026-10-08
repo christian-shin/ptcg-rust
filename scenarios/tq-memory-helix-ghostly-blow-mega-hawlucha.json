@@ -4,33 +4,33 @@
   [
    "4 Mew ex 30C 66",
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
    "4 Mega Hawlucha ex ASC 116",
    "4 Zeraora DRI 78",
-   "36 Psychic Energy MEE"
+   "36 Psychic Energy MEE 5"
   ],
   [
    "4 Mew ex 30C 66",
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
    "4 Mega Hawlucha ex ASC 116",
    "4 Zeraora DRI 78",
-   "36 Psychic Energy MEE"
+   "36 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "2 Psychic Energy MEE"
+   "2 Psychic Energy MEE 5"
   ],
   "bench": [
    {
     "card": [
      "Mankey SSP 98",
-     "Primeape M5",
+     "Primeape PBL 43",
      "Annihilape PBL 41"
     ]
    }
@@ -50,7 +50,7 @@
   {
    "a": "attack",
    "name": "Ghostly Blow",
-   "from": "Annihilape M5"
+   "from": "Annihilape PBL 41"
   }
  ],
  "coins": [

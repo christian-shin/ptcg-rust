@@ -3,21 +3,21 @@
   "decks": [
     [
       "4 Foongus SIT 11",
-      "4 Amoongus SV11B",
+      "4 Amoonguss BLK 11",
       "4 Dreepy ASC 158",
-      "48 Grass Energy MEE"
+      "48 Grass Energy MEE 1"
     ],
     [
       "4 Foongus SIT 11",
-      "4 Amoongus SV11B",
+      "4 Amoonguss BLK 11",
       "4 Dreepy ASC 158",
-      "48 Grass Energy MEE"
+      "48 Grass Energy MEE 1"
     ]
   ],
   "me": {
     "reset": true,
-    "active": ["Foongus SIT 11", "Amoongus SV11B"],
-    "active_energy": ["Grass Energy MEE"]
+    "active": ["Foongus SIT 11", "Amoonguss BLK 11"],
+    "active_energy": ["Grass Energy MEE 1"]
   },
   "opp": {
     "reset": true,

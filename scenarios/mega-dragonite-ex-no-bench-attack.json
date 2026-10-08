@@ -2,32 +2,32 @@
   "turn": 2,
   "decks": [
     [
-      "4 Dratini M2a",
+      "4 Dratini ASC 150",
       "4 Dragonair ASC 151",
       "4 Mega Dragonite ex ASC 152",
       "4 Hop's Snorlax JTG 117",
-      "16 Water Energy MEE",
-      "28 Lightning Energy MEE"
+      "16 Water Energy MEE 3",
+      "28 Lightning Energy MEE 4"
     ],
     [
-      "4 Dratini M2a",
+      "4 Dratini ASC 150",
       "4 Dragonair ASC 151",
       "4 Mega Dragonite ex ASC 152",
       "4 Hop's Snorlax JTG 117",
-      "16 Water Energy MEE",
-      "28 Lightning Energy MEE"
+      "16 Water Energy MEE 3",
+      "28 Lightning Energy MEE 4"
     ]
   ],
   "me": {
     "reset": true,
     "active": [
-      "Dratini M2a",
+      "Dratini ASC 150",
       "Dragonair ASC 151",
       "Mega Dragonite ex ASC 152"
     ],
     "active_energy": [
-      "1 Water Energy MEE",
-      "2 Lightning Energy MEE"
+      "1 Water Energy MEE 3",
+      "2 Lightning Energy MEE 4"
     ]
   },
   "opp": {

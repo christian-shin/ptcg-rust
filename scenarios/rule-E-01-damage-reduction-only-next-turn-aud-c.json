@@ -5,20 +5,20 @@
    "4 Scizor ex TEF 111",
    "4 Regigigas PRE 86",
    "4 Snorunt TWM 51",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ],
   [
    "4 Scizor ex TEF 111",
    "4 Regigigas PRE 86",
    "4 Snorunt TWM 51",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Scizor ex TEF 111",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -30,7 +30,7 @@
   "reset": true,
   "active": "Regigigas PRE 86",
   "active_energy": [
-   "4 Fire Energy MEE"
+   "4 Fire Energy MEE 2"
   ]
  },
  "answers": [

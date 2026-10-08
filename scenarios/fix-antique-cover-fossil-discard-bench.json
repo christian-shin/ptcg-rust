@@ -2,14 +2,14 @@
  "turn": 2,
  "decks": [
   [
-   "4 Antique Cover Fossil SCR",
+   "4 Antique Cover Fossil SCR 129",
    "4 Mankey SSP 98",
    "4 Air Balloon ASC 181",
    "4 Mist Energy TEF 161",
    "44 Fire Energy MEE 2"
   ],
   [
-   "4 Antique Cover Fossil SCR",
+   "4 Antique Cover Fossil SCR 129",
    "4 Mankey SSP 98",
    "4 Air Balloon ASC 181",
    "4 Mist Energy TEF 161",
@@ -24,7 +24,7 @@
   ],
   "bench": [
    {
-    "card": "Antique Cover Fossil SCR",
+    "card": "Antique Cover Fossil SCR 129",
     "energy": [
      "Fire Energy MEE 2",
      "Mist Energy TEF 161"

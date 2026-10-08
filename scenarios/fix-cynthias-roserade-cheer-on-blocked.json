@@ -2,28 +2,28 @@
  "turn": 2,
  "decks": [
   [
-   "4 Cynthia's Roselia DRI",
+   "4 Cynthia's Roselia DRI 7",
    "4 Cynthia's Roserade DRI 8",
    "4 Flutter Mane PRE 43",
    "4 Shinx FST 91",
-   "44 Grass Energy MEE"
+   "44 Grass Energy MEE 1"
   ],
   [
-   "4 Cynthia's Roselia DRI",
+   "4 Cynthia's Roselia DRI 7",
    "4 Cynthia's Roserade DRI 8",
    "4 Flutter Mane PRE 43",
    "4 Shinx FST 91",
-   "44 Grass Energy MEE"
+   "44 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": [
-   "Cynthia's Roselia DRI",
+   "Cynthia's Roselia DRI 7",
    "Cynthia's Roserade DRI 8"
   ],
   "active_energy": [
-   "3 Grass Energy MEE"
+   "3 Grass Energy MEE 1"
   ]
  },
  "opp": {
@@ -33,7 +33,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Leaf Steps"
+   "name": "Leaf Step"
   }
  ]
 }

@@ -5,20 +5,20 @@
    "2 Koraidon ex ASC 121",
    "3 Ethan's Pinsir DRI 1",
    "2 Gastly ASC 123",
-   "53 Fighting Energy MEE"
+   "53 Fighting Energy MEE 6"
   ],
   [
    "2 Koraidon ex ASC 121",
    "3 Ethan's Pinsir DRI 1",
    "2 Gastly ASC 123",
-   "53 Fighting Energy MEE"
+   "53 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Koraidon ex ASC 121",
   "active_energy": [
-   "3 Fighting Energy MEE"
+   "3 Fighting Energy MEE 6"
   ]
  },
  "opp": {
@@ -28,9 +28,9 @@
    {
     "card": "Ethan's Pinsir DRI 1",
     "energy": [
-     "Fighting Energy MEE",
-     "Fighting Energy MEE",
-     "Fighting Energy MEE"
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6"
     ]
    }
   ]
@@ -42,7 +42,7 @@
   },
   {
    "a": "attack",
-   "name": "One-Point Return"
+   "name": "Rallying Horn"
   }
  ],
  "expect": [

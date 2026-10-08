@@ -5,13 +5,13 @@
    "4 Snorunt TWM 51",
    "4 Pikachu ex ASC 57",
    "4 Powerglass SFA 63",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ],
   [
    "4 Snorunt TWM 51",
    "4 Pikachu ex ASC 57",
    "4 Powerglass SFA 63",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ]
  ],
  "me": {
@@ -19,7 +19,7 @@
   "active": "Snorunt TWM 51",
   "active_tool": "Powerglass SFA 63",
   "discard": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ]
  },
  "opp": {
@@ -47,7 +47,7 @@
    "who": "me",
    "slot": "active",
    "energy": [
-    "Fire Energy MEE"
+    "Fire Energy MEE 2"
    ],
    "cite": "Advanced Rulebook E-21 (the wording says \"after your attack\", but the end of turn still happens and the effect still activates when the player ends the turn without attacking)"
   },

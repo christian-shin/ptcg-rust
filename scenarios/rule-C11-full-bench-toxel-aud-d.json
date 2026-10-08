@@ -6,30 +6,30 @@
    "4 Hop's Snorlax JTG 117",
    "4 Duraludon PRE 69",
    "4 Pikachu ex ASC 57",
-   "40 Fire Energy MEE",
-   "1 Darkness Energy MEE",
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Psychic Energy MEE"
+   "40 Fire Energy MEE 2",
+   "1 Darkness Energy MEE 7",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5"
   ],
   [
    "4 Toxel PFL 67",
    "4 Hop's Snorlax JTG 117",
    "4 Duraludon PRE 69",
    "4 Pikachu ex ASC 57",
-   "40 Fire Energy MEE",
-   "1 Darkness Energy MEE",
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Psychic Energy MEE"
+   "40 Fire Energy MEE 2",
+   "1 Darkness Energy MEE 7",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Toxel PFL 67",
   "active_energy": [
-   "1 Darkness Energy MEE",
-   "1 Fire Energy MEE"
+   "1 Darkness Energy MEE 7",
+   "1 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -49,17 +49,17 @@
    }
   ],
   "deck_top": [
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Psychic Energy MEE"
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5"
   ],
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ]
  },
  "opp": {
@@ -69,7 +69,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Call For Family"
+   "name": "Call for Family"
   }
  ],
  "expect": [
@@ -84,9 +84,9 @@
    "who": "me",
    "zone": "deck",
    "top": [
-    "Water Energy MEE",
-    "Grass Energy MEE",
-    "Psychic Energy MEE"
+    "Water Energy MEE 3",
+    "Grass Energy MEE 1",
+    "Psychic Energy MEE 5"
    ],
    "cite": "Advanced Rulebook C-11 (the attack ends before you search the deck) and E-19 (no look, no shuffle)"
   }

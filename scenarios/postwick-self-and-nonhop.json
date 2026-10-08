@@ -5,33 +5,33 @@
       "4 Hop's Snorlax JTG 117",
       "4 Postwick JTG 154",
       "4 Miraidon ex TEF 122",
-      "4 Lightning Energy MEE",
-      "4 Psychic Energy MEE",
-      "40 Fighting Energy MEE"
+      "4 Lightning Energy MEE 4",
+      "4 Psychic Energy MEE 5",
+      "40 Fighting Energy MEE 6"
     ],
     [
       "4 Hop's Snorlax JTG 117",
       "4 Postwick JTG 154",
       "4 Miraidon ex TEF 122",
-      "4 Lightning Energy MEE",
-      "4 Psychic Energy MEE",
-      "40 Fighting Energy MEE"
+      "4 Lightning Energy MEE 4",
+      "4 Psychic Energy MEE 5",
+      "40 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
-    "stadium": "Postwick JTG",
-    "active": "Hop's Snorlax JTG",
+    "stadium": "Postwick JTG 154",
+    "active": "Hop's Snorlax JTG 117",
     "active_energy": [
-      "3 Fighting Energy MEE"
+      "3 Fighting Energy MEE 6"
     ]
   },
   "opp": {
     "reset": true,
-    "active": "Miraidon ex TEF",
+    "active": "Miraidon ex TEF 122",
     "active_energy": [
-      "Lightning Energy MEE",
-      "Psychic Energy MEE"
+      "Lightning Energy MEE 4",
+      "Psychic Energy MEE 5"
     ]
   },
   "answers": [

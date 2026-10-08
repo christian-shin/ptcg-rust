@@ -3,30 +3,30 @@
  "decks": [
   [
    "2 Mankey SSP 98",
-   "2 Primeape M5",
+   "2 Primeape PBL 43",
    "2 Annihilape SSP 100",
    "2 Terrakion WHT 54",
    "2 Dwebble DRI 11",
-   "50 Fighting Energy MEE"
+   "50 Fighting Energy MEE 6"
   ],
   [
    "2 Mankey SSP 98",
-   "2 Primeape M5",
+   "2 Primeape PBL 43",
    "2 Annihilape SSP 100",
    "2 Terrakion WHT 54",
    "2 Dwebble DRI 11",
-   "50 Fighting Energy MEE"
+   "50 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": [
    "Mankey SSP 98",
-   "Primeape M5",
+   "Primeape PBL 43",
    "Annihilape SSP 100"
   ],
   "active_energy": [
-   "2 Fighting Energy MEE"
+   "2 Fighting Energy MEE 6"
   ],
   "bench": [
    {
@@ -41,8 +41,8 @@
    {
     "card": "Terrakion WHT 54",
     "energy": [
-     "Fighting Energy MEE",
-     "Fighting Energy MEE"
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6"
     ]
    }
   ]

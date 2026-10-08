@@ -5,27 +5,27 @@
    "2 Koraidon ex ASC 121",
    "2 Gastly ASC 123",
    "2 Lillie's Pearl JTG 151",
-   "54 Fighting Energy MEE"
+   "54 Fighting Energy MEE 6"
   ],
   [
    "2 Koraidon ex ASC 121",
    "2 Gastly ASC 123",
    "2 Lillie's Pearl JTG 151",
-   "54 Fighting Energy MEE"
+   "54 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Koraidon ex ASC 121",
   "active_energy": [
-   "3 Fighting Energy MEE"
+   "3 Fighting Energy MEE 6"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Gastly ASC 123",
   "active_energy": [
-   "Fighting Energy MEE"
+   "Fighting Energy MEE 6"
   ],
   "active_tool": "Lillie's Pearl JTG 151",
   "bench": [
@@ -48,7 +48,7 @@
    "count": 3,
    "contains": [
     "Gastly ASC 123",
-    "Fighting Energy MEE",
+    "Fighting Energy MEE 6",
     "Lillie's Pearl JTG 151"
    ],
    "cite": "Advanced Rulebook I-D step 3 (the Knocked Out Pokemon and all attached cards are discarded)"

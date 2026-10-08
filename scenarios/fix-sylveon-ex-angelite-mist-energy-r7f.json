@@ -5,26 +5,26 @@
    "4 Sylveon ex PRE 41",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "16 Water Energy MEE",
-   "16 Lightning Energy MEE",
-   "16 Psychic Energy MEE"
+   "16 Water Energy MEE 3",
+   "16 Lightning Energy MEE 4",
+   "16 Psychic Energy MEE 5"
   ],
   [
    "4 Sylveon ex PRE 41",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "16 Water Energy MEE",
-   "16 Lightning Energy MEE",
-   "16 Psychic Energy MEE"
+   "16 Water Energy MEE 3",
+   "16 Lightning Energy MEE 4",
+   "16 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Sylveon ex PRE 41",
   "active_energy": [
-   "Water Energy MEE",
-   "Lightning Energy MEE",
-   "Psychic Energy MEE"
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
   ]
  },
  "opp": {

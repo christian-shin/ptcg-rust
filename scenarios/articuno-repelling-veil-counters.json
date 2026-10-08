@@ -6,16 +6,16 @@
       "4 Kadabra MEG 55",
       "4 Alakazam MEG 56",
       "4 Team Rocket's Articuno DRI 51",
-      "24 Psychic Energy MEE",
-      "20 Water Energy MEE"
+      "24 Psychic Energy MEE 5",
+      "20 Water Energy MEE 3"
     ],
     [
       "4 Abra MEG 54",
       "4 Kadabra MEG 55",
       "4 Alakazam MEG 56",
       "4 Team Rocket's Articuno DRI 51",
-      "24 Psychic Energy MEE",
-      "20 Water Energy MEE"
+      "24 Psychic Energy MEE 5",
+      "20 Water Energy MEE 3"
     ]
   ],
   "me": {
@@ -26,7 +26,7 @@
       "Alakazam MEG 56"
     ],
     "active_energy": [
-      "1 Psychic Energy MEE"
+      "1 Psychic Energy MEE 5"
     ]
   },
   "opp": {
@@ -36,7 +36,7 @@
   "answers": [
     {
       "a": "attack",
-      "name": "Hand Power"
+      "name": "Powerful Hand"
     }
   ]
 }

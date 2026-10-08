@@ -5,15 +5,15 @@
    "4 Gimmighoul SSP 97",
    "4 Gholdengo SSP 131",
    "4 Mega Lucario ex ASC 113",
-   "8 Metal Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Gimmighoul SSP 97",
    "4 Gholdengo SSP 131",
    "4 Mega Lucario ex ASC 113",
-   "8 Metal Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
@@ -23,7 +23,7 @@
    "Gholdengo SSP 131"
   ],
   "active_energy": [
-   "Metal Energy MEE"
+   "Metal Energy MEE 8"
   ]
  },
  "opp": {

@@ -5,15 +5,15 @@
    "4 Joltik SCR 50",
    "4 Galvantula SFA 2",
    "4 Tapu Bulu SFA 6",
-   "24 Grass Energy MEE",
-   "24 Lightning Energy MEE"
+   "24 Grass Energy MEE 1",
+   "24 Lightning Energy MEE 4"
   ],
   [
    "4 Joltik SCR 50",
    "4 Galvantula SFA 2",
    "4 Tapu Bulu SFA 6",
-   "24 Grass Energy MEE",
-   "24 Lightning Energy MEE"
+   "24 Grass Energy MEE 1",
+   "24 Lightning Energy MEE 4"
   ]
  ],
  "me": {
@@ -23,8 +23,8 @@
    "Galvantula SFA 2"
   ],
   "active_energy": [
-   "Grass Energy MEE",
-   "2 Lightning Energy MEE"
+   "Grass Energy MEE 1",
+   "2 Lightning Energy MEE 4"
   ]
  },
  "opp": {

@@ -2,22 +2,22 @@
  "turn": 3,
  "decks": [
   [
-   "4 Tympole EVS",
-   "4 Palpitoad OBF",
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
    "4 Seismitoad 30C 84",
    "4 Rare Candy MEG 125",
    "4 Bronzor TEF 68",
    "4 Bronzong TEF 69",
-   "36 Psychic Energy MEE"
+   "36 Psychic Energy MEE 5"
   ],
   [
-   "4 Tympole EVS",
-   "4 Palpitoad OBF",
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
    "4 Seismitoad 30C 84",
    "4 Rare Candy MEG 125",
    "4 Bronzor TEF 68",
    "4 Bronzong TEF 69",
-   "36 Psychic Energy MEE"
+   "36 Psychic Energy MEE 5"
   ]
  ],
  "me": {
@@ -27,7 +27,7 @@
    "Bronzong TEF 69"
   ],
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ]
  },
  "opp": {
@@ -35,7 +35,7 @@
   "active": "Bronzor TEF 68",
   "bench": [
    {
-    "card": "Tympole EVS"
+    "card": "Tympole EVS 42"
    }
   ],
   "hand": [

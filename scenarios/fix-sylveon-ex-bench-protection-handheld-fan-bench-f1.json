@@ -7,7 +7,7 @@
    "4 Rillaboom TWM 16",
    "4 Handheld Fan TWM 150",
    "4 Lively Stadium SSP 180",
-   "40 Fighting Energy MEE"
+   "40 Fighting Energy MEE 6"
   ],
   [
    "4 Ting-Lu TWM 110",
@@ -15,14 +15,14 @@
    "4 Rillaboom TWM 16",
    "4 Handheld Fan TWM 150",
    "4 Lively Stadium SSP 180",
-   "40 Fighting Energy MEE"
+   "40 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Ting-Lu TWM 110",
   "active_energy": [
-   "Fighting Energy MEE"
+   "Fighting Energy MEE 6"
   ]
  },
  "opp": {
@@ -42,7 +42,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Ground Crack"
+   "name": "Ground Crasher"
   }
  ]
 }

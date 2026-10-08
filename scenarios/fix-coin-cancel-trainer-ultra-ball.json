@@ -2,37 +2,37 @@
  "turn": 2,
  "decks": [
   [
-   "4 Tympole EVS",
-   "4 Palpitoad OBF",
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
    "4 Seismitoad 30C 84",
    "4 Duraludon PRE 69",
    "4 Team Rocket's Giovanni ASC 204",
    "4 Wondrous Patch POR 117",
    "4 Potion POR 83",
    "4 Ultra Ball 30C 128",
-   "28 Fighting Energy MEE"
+   "28 Fighting Energy MEE 6"
   ],
   [
-   "4 Tympole EVS",
-   "4 Palpitoad OBF",
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
    "4 Seismitoad 30C 84",
    "4 Duraludon PRE 69",
    "4 Team Rocket's Giovanni ASC 204",
    "4 Wondrous Patch POR 117",
    "4 Potion POR 83",
    "4 Ultra Ball 30C 128",
-   "28 Fighting Energy MEE"
+   "28 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": [
-   "Tympole EVS",
-   "Palpitoad OBF",
+   "Tympole EVS 42",
+   "Palpitoad OBF 51",
    "Seismitoad 30C 84"
   ],
   "active_energy": [
-   "Fighting Energy MEE"
+   "Fighting Energy MEE 6"
   ]
  },
  "opp": {

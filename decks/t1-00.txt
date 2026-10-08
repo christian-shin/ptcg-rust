@@ -1,5 +1,5 @@
-3 Charcadet SSP
-3 Cufant SFA
-26 Fire Energy MEE
-3 Magnemite M1S
-25 Metal Energy MEE
+3 Charcadet SSP 32
+3 Cufant SFA 41
+26 Fire Energy MEE 2
+3 Magnemite MEG 45
+25 Metal Energy MEE 8

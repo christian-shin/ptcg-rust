@@ -2,27 +2,27 @@
  "turn": 3,
  "decks": [
   [
-   "1 Grass Energy MEE",
+   "1 Grass Energy MEE 1",
    "1 Rowlet POR 10",
    "1 Air Balloon ASC 181",
    "1 Minccino JTG 125",
    "1 Gravity Gemstone SCR 137",
-   "55 Water Energy MEE"
+   "55 Water Energy MEE 3"
   ],
   [
-   "1 Grass Energy MEE",
+   "1 Grass Energy MEE 1",
    "1 Rowlet POR 10",
    "1 Air Balloon ASC 181",
    "1 Minccino JTG 125",
    "1 Gravity Gemstone SCR 137",
-   "55 Water Energy MEE"
+   "55 Water Energy MEE 3"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Rowlet POR 10",
   "active_energy": [
-   "Grass Energy MEE"
+   "Grass Energy MEE 1"
   ],
   "active_tool": "Air Balloon ASC 181",
   "bench": [
@@ -53,7 +53,7 @@
    "cite": "Advanced Rulebook D-11, D-12 (effects that make the Retreat Cost more and less stack and are calculated together): 2 + 1 - 2 = 1 Energy discarded",
    "count": 1,
    "contains": [
-    "Grass Energy MEE"
+    "Grass Energy MEE 1"
    ]
   }
  ]

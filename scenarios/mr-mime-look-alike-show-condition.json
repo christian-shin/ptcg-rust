@@ -1,15 +1,15 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Mr. Mime TEF", "4 Smoochum SSP", "52 Psychic Energy MEE"],
-    ["4 Mr. Mime TEF", "4 Smoochum SSP", "52 Psychic Energy MEE"]
+    ["4 Mr. Mime TEF 63", "4 Smoochum SSP 75", "52 Psychic Energy MEE 5"],
+    ["4 Mr. Mime TEF 63", "4 Smoochum SSP 75", "52 Psychic Energy MEE 5"]
   ],
   "me": {
     "reset": true,
-    "active": "Mr. Mime TEF",
-    "active_energy": ["2 Psychic Energy MEE"],
+    "active": "Mr. Mime TEF 63",
+    "active_energy": ["2 Psychic Energy MEE 5"],
     "active_conditions": ["POISONED"],
-    "hand": ["Smoochum SSP"]
+    "hand": ["Smoochum SSP 75"]
   },
-  "opp": {"reset": true, "active": "Smoochum SSP", "hand": ["Mr. Mime TEF"]}
+  "opp": {"reset": true, "active": "Smoochum SSP 75", "hand": ["Mr. Mime TEF 63"]}
 }

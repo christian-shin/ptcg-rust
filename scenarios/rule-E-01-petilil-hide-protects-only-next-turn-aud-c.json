@@ -5,22 +5,22 @@
    "4 Petilil BLK 6",
    "4 Mega Lucario ex ASC 113",
    "4 Snorunt TWM 51",
-   "8 Fighting Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Fighting Energy MEE 6",
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Petilil BLK 6",
    "4 Mega Lucario ex ASC 113",
    "4 Snorunt TWM 51",
-   "8 Fighting Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Fighting Energy MEE 6",
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Petilil BLK 6",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -32,7 +32,7 @@
   "reset": true,
   "active": "Mega Lucario ex ASC 113",
   "active_energy": [
-   "2 Fighting Energy MEE"
+   "2 Fighting Energy MEE 6"
   ]
  },
  "coins": [

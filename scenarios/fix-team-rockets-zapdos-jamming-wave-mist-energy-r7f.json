@@ -5,22 +5,22 @@
    "4 Team Rocket's Zapdos DRI 70",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "24 Lightning Energy MEE",
-   "24 Fighting Energy MEE"
+   "24 Lightning Energy MEE 4",
+   "24 Fighting Energy MEE 6"
   ],
   [
    "4 Team Rocket's Zapdos DRI 70",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "24 Lightning Energy MEE",
-   "24 Fighting Energy MEE"
+   "24 Lightning Energy MEE 4",
+   "24 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Team Rocket's Zapdos DRI 70",
   "active_energy": [
-   "2 Lightning Energy MEE"
+   "2 Lightning Energy MEE 4"
   ]
  },
  "opp": {
@@ -28,7 +28,7 @@
   "active": "Dwebble DRI 11",
   "active_energy": [
    "Mist Energy TEF 161",
-   "Fighting Energy MEE"
+   "Fighting Energy MEE 6"
   ],
   "bench": [
    {
@@ -39,7 +39,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Jamming Wave"
+   "name": "Jamming Wing"
   }
  ]
 }

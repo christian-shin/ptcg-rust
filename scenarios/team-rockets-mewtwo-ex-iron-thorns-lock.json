@@ -3,32 +3,32 @@
  "decks": [
   [
    "4 Team Rocket's Mewtwo ex ASC 79",
-   "4 Team Rocket's Houndour DRI",
+   "4 Team Rocket's Houndour DRI 37",
    "4 Iron Thorns ex PRE 32",
-   "48 Psychic Energy MEE"
+   "48 Psychic Energy MEE 5"
   ],
   [
    "4 Team Rocket's Mewtwo ex ASC 79",
-   "4 Team Rocket's Houndour DRI",
+   "4 Team Rocket's Houndour DRI 37",
    "4 Iron Thorns ex PRE 32",
-   "48 Psychic Energy MEE"
+   "48 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Team Rocket's Mewtwo ex ASC 79",
   "active_energy": [
-   "3 Psychic Energy MEE"
+   "3 Psychic Energy MEE 5"
   ],
   "bench": [
    {
-    "card": "Team Rocket's Houndour DRI"
+    "card": "Team Rocket's Houndour DRI 37"
    },
    {
-    "card": "Team Rocket's Houndour DRI"
+    "card": "Team Rocket's Houndour DRI 37"
    },
    {
-    "card": "Team Rocket's Houndour DRI"
+    "card": "Team Rocket's Houndour DRI 37"
    }
   ]
  },

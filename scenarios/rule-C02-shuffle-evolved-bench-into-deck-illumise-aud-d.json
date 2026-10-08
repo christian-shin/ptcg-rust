@@ -7,7 +7,7 @@
    "4 Lampent PBL 37",
    "4 Air Balloon ASC 181",
    "4 Hop's Snorlax JTG 117",
-   "40 Fire Energy MEE"
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Illumise TWM 10",
@@ -15,22 +15,22 @@
    "4 Lampent PBL 37",
    "4 Air Balloon ASC 181",
    "4 Hop's Snorlax JTG 117",
-   "40 Fire Energy MEE"
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Illumise TWM 10",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ]
  },
  "opp": {
@@ -43,25 +43,25 @@
      "Lampent PBL 37"
     ],
     "energy": [
-     "Fire Energy MEE"
+     "Fire Energy MEE 2"
     ],
     "tool": "Air Balloon ASC 181",
     "damage": 30
    }
   ],
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ]
  },
  "answers": [
   {
    "a": "attack",
-   "name": "Slowing Perfume "
+   "name": "Slowing Perfume"
   }
  ],
  "expect": [
@@ -85,7 +85,7 @@
    "contains": [
     "Litwick TWM 36",
     "Lampent PBL 37",
-    "Fire Energy MEE",
+    "Fire Energy MEE 2",
     "Air Balloon ASC 181"
    ],
    "cite": "Advanced Rulebook C-02: previous Evolutions and attached cards go with the Pokemon"

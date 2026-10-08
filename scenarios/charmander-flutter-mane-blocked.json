@@ -6,16 +6,16 @@
       "4 Charmeleon PFL 12",
       "4 Flutter Mane PRE 43",
       "4 Hop's Snorlax JTG 117",
-      "20 Fire Energy MEE",
-      "24 Psychic Energy MEE"
+      "20 Fire Energy MEE 2",
+      "24 Psychic Energy MEE 5"
     ],
     [
       "4 Charmander PFL 11",
       "4 Charmeleon PFL 12",
       "4 Flutter Mane PRE 43",
       "4 Hop's Snorlax JTG 117",
-      "20 Fire Energy MEE",
-      "24 Psychic Energy MEE"
+      "20 Fire Energy MEE 2",
+      "24 Psychic Energy MEE 5"
     ]
   ],
   "me": {
@@ -31,7 +31,7 @@
     "reset": true,
     "active": "Flutter Mane PRE 43",
     "active_energy": [
-      "3 Psychic Energy MEE"
+      "3 Psychic Energy MEE 5"
     ]
   }
 }

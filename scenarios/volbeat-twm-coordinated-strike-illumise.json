@@ -1,13 +1,13 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "52 Grass Energy MEE"],
-    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "52 Grass Energy MEE"]
+    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "52 Grass Energy MEE 1"],
+    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "52 Grass Energy MEE 1"]
   ],
   "me": {
     "reset": true,
     "active": "Volbeat TWM 9",
-    "active_energy": ["2 Grass Energy MEE"],
+    "active_energy": ["2 Grass Energy MEE 1"],
     "bench": [{"card": "Illumise TWM 10"}]
   },
   "opp": {

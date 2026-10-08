@@ -4,19 +4,19 @@
   [
    "4 Volcanion ex JTG 31",
    "4 Zeraora DRI 78",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ],
   [
    "4 Volcanion ex JTG 31",
    "4 Zeraora DRI 78",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Volcanion ex JTG 31",
   "active_energy": [
-   "3 Fire Energy MEE"
+   "3 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -36,7 +36,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Heat Cyclone"
+   "name": "Scorching Cyclone"
   }
  ]
 }

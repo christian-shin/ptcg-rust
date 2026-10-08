@@ -2,14 +2,14 @@
  "turn": 2,
  "decks": [
   [
-   "4 Bagon EVS",
-   "4 Shelgon JTG",
+   "4 Bagon EVS 107",
+   "4 Shelgon JTG 113",
    "4 Duraludon PRE 69",
    "48 Water Energy MEE 3"
   ],
   [
-   "4 Bagon EVS",
-   "4 Shelgon JTG",
+   "4 Bagon EVS 107",
+   "4 Shelgon JTG 113",
    "4 Duraludon PRE 69",
    "48 Water Energy MEE 3"
   ]
@@ -17,8 +17,8 @@
  "me": {
   "reset": true,
   "active": [
-   "Bagon EVS",
-   "Shelgon JTG"
+   "Bagon EVS 107",
+   "Shelgon JTG 113"
   ],
   "active_energy": [
    "2 Water Energy MEE 3"

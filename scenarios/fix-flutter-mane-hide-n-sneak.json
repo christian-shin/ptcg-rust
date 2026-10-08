@@ -6,14 +6,14 @@
    "4 Munkidori ASC 99",
    "4 Shuppet PBL 33",
    "24 Darkness Energy MEE 7",
-   "24 Psychic Energy MEE"
+   "24 Psychic Energy MEE 5"
   ],
   [
    "4 Flutter Mane PRE 43",
    "4 Munkidori ASC 99",
    "4 Shuppet PBL 33",
    "24 Darkness Energy MEE 7",
-   "24 Psychic Energy MEE"
+   "24 Psychic Energy MEE 5"
   ]
  ],
  "me": {
@@ -21,7 +21,7 @@
   "active": "Flutter Mane PRE 43",
   "active_damage": 30,
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "bench": [
    {

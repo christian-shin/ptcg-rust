@@ -5,23 +5,23 @@
    "4 Team Rocket's Wobbuffet DRI 82",
    "4 Patrat CRI 70",
    "4 Dwebble DRI 11",
-   "24 Psychic Energy MEE",
-   "24 Fighting Energy MEE"
+   "24 Psychic Energy MEE 5",
+   "24 Fighting Energy MEE 6"
   ],
   [
    "4 Team Rocket's Wobbuffet DRI 82",
    "4 Patrat CRI 70",
    "4 Dwebble DRI 11",
-   "24 Psychic Energy MEE",
-   "24 Fighting Energy MEE"
+   "24 Psychic Energy MEE 5",
+   "24 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Team Rocket's Wobbuffet DRI 82",
   "active_energy": [
-   "Psychic Energy MEE",
-   "Fighting Energy MEE"
+   "Psychic Energy MEE 5",
+   "Fighting Energy MEE 6"
   ],
   "bench": [
    {
@@ -38,7 +38,7 @@
   "reset": true,
   "active": "Dwebble DRI 11",
   "active_energy": [
-   "Fighting Energy MEE"
+   "Fighting Energy MEE 6"
   ],
   "bench": [
    {

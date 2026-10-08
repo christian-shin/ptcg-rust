@@ -2,19 +2,19 @@
  "turn": 2,
  "decks": [
   [
-   "4 Teal Mask Ogerpon ex TWM",
+   "4 Teal Mask Ogerpon ex TWM 25",
    "4 Hop's Snorlax JTG 117",
    "52 Grass Energy MEE 1"
   ],
   [
-   "4 Teal Mask Ogerpon ex TWM",
+   "4 Teal Mask Ogerpon ex TWM 25",
    "4 Hop's Snorlax JTG 117",
    "52 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
-  "active": "Teal Mask Ogerpon ex TWM",
+  "active": "Teal Mask Ogerpon ex TWM 25",
   "active_energy": [
    "Grass Energy MEE 1"
   ],

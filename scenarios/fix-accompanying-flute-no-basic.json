@@ -4,12 +4,12 @@
   [
    "4 Accompanying Flute TWM 142",
    "4 Zeraora DRI 78",
-   "52 Lightning Energy MEE"
+   "52 Lightning Energy MEE 4"
   ],
   [
    "4 Accompanying Flute TWM 142",
    "4 Zeraora DRI 78",
-   "52 Lightning Energy MEE"
+   "52 Lightning Energy MEE 4"
   ]
  ],
  "me": {
@@ -23,11 +23,11 @@
   "reset": true,
   "active": "Zeraora DRI 78",
   "deck_top": [
-   "Lightning Energy MEE",
-   "Lightning Energy MEE",
-   "Lightning Energy MEE",
-   "Lightning Energy MEE",
-   "Lightning Energy MEE"
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
   ]
  }
 }

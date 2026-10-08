@@ -5,23 +5,23 @@
    "4 Eternatus SSP 141",
    "4 Pikachu ex ASC 57",
    "4 Lively Stadium SSP 180",
-   "24 Fire Energy MEE",
-   "24 Darkness Energy MEE"
+   "24 Fire Energy MEE 2",
+   "24 Darkness Energy MEE 7"
   ],
   [
    "4 Eternatus SSP 141",
    "4 Pikachu ex ASC 57",
    "4 Lively Stadium SSP 180",
-   "24 Fire Energy MEE",
-   "24 Darkness Energy MEE"
+   "24 Fire Energy MEE 2",
+   "24 Darkness Energy MEE 7"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Eternatus SSP 141",
   "active_energy": [
-   "Fire Energy MEE",
-   "2 Darkness Energy MEE"
+   "Fire Energy MEE 2",
+   "2 Darkness Energy MEE 7"
   ]
  },
  "opp": {
@@ -37,7 +37,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "World's End"
+   "name": "World Ender"
   }
  ],
  "expect": [

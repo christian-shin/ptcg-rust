@@ -4,22 +4,22 @@
   [
    "2 N's Sigilyph JTG 64",
    "2 Gastly ASC 123",
-   "10 Fighting Energy MEE",
-   "46 Psychic Energy MEE"
+   "10 Fighting Energy MEE 6",
+   "46 Psychic Energy MEE 5"
   ],
   [
    "2 N's Sigilyph JTG 64",
    "2 Gastly ASC 123",
-   "10 Fighting Energy MEE",
-   "46 Psychic Energy MEE"
+   "10 Fighting Energy MEE 6",
+   "46 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "N's Sigilyph JTG 64",
   "active_energy": [
-   "1 Psychic Energy MEE",
-   "2 Fighting Energy MEE"
+   "1 Psychic Energy MEE 5",
+   "2 Fighting Energy MEE 6"
   ],
   "prizes_left": 2
  },

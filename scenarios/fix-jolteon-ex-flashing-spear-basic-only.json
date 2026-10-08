@@ -5,25 +5,25 @@
       "4 Eevee PRE 74",
       "4 Jolteon ex PRE 30",
       "4 Mist Energy TEF 161",
-      "26 Lightning Energy MEE",
-      "22 Water Energy MEE"
+      "26 Lightning Energy MEE 4",
+      "22 Water Energy MEE 3"
     ],
     [
       "4 Eevee PRE 74",
       "4 Jolteon ex PRE 30",
       "4 Mist Energy TEF 161",
-      "26 Lightning Energy MEE",
-      "22 Water Energy MEE"
+      "26 Lightning Energy MEE 4",
+      "22 Water Energy MEE 3"
     ]
   ],
   "me": {
     "reset": true,
     "active": ["Eevee PRE 74", "Jolteon ex PRE 30"],
-    "active_energy": ["Lightning Energy MEE", "Lightning Energy MEE", "Lightning Energy MEE"],
+    "active_energy": ["Lightning Energy MEE 4", "Lightning Energy MEE 4", "Lightning Energy MEE 4"],
     "bench": [
       {
         "card": "Eevee PRE 74",
-        "energy": ["Mist Energy TEF 161", "Lightning Energy MEE"]
+        "energy": ["Mist Energy TEF 161", "Lightning Energy MEE 4"]
       }
     ]
   },

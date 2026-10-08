@@ -4,18 +4,18 @@
     [
       "4 Ethan's Sudowoodo DRI 93",
       "4 Dreepy ASC 158",
-      "52 Fighting Energy MEE"
+      "52 Fighting Energy MEE 6"
     ],
     [
       "4 Ethan's Sudowoodo DRI 93",
       "4 Dreepy ASC 158",
-      "52 Fighting Energy MEE"
+      "52 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Ethan's Sudowoodo DRI 93",
-    "active_energy": ["Fighting Energy MEE"]
+    "active_energy": ["Fighting Energy MEE 6"]
   },
   "opp": {
     "reset": true,

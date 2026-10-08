@@ -7,7 +7,7 @@
    "4 Seaking PRE 21",
    "4 Festival Grounds PRE 108",
    "40 Water Energy MEE 3",
-   "4 Psychic Energy MEE"
+   "4 Psychic Energy MEE 5"
   ],
   [
    "4 Mew ex 30C 66",
@@ -15,14 +15,14 @@
    "4 Seaking PRE 21",
    "4 Festival Grounds PRE 108",
    "40 Water Energy MEE 3",
-   "4 Psychic Energy MEE"
+   "4 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "2 Psychic Energy MEE",
+   "2 Psychic Energy MEE 5",
    "2 Water Energy MEE 3"
   ],
   "bench": [
@@ -52,7 +52,7 @@
   {
    "a": "attack",
    "name": "Rapid Draw",
-   "from": "Seaking PRE"
+   "from": "Seaking PRE 21"
   }
  ],
  "expect": [

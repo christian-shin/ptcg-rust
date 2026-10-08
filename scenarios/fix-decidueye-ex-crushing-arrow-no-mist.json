@@ -6,16 +6,16 @@
    "4 Dartrix POR 11",
    "4 Decidueye ex POR 12",
    "4 Salamence ex JTG 114",
-   "40 Grass Energy MEE",
-   "4 Fire Energy MEE"
+   "40 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2"
   ],
   [
    "4 Rowlet POR 10",
    "4 Dartrix POR 11",
    "4 Decidueye ex POR 12",
    "4 Salamence ex JTG 114",
-   "40 Grass Energy MEE",
-   "4 Fire Energy MEE"
+   "40 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2"
   ]
  ],
  "me": {
@@ -26,15 +26,15 @@
    "Decidueye ex POR 12"
   ],
   "active_energy": [
-   "4 Grass Energy MEE"
+   "4 Grass Energy MEE 1"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Salamence ex JTG 114",
   "active_energy": [
-   "Fire Energy MEE",
-   "Grass Energy MEE"
+   "Fire Energy MEE 2",
+   "Grass Energy MEE 1"
   ]
  },
  "answers": [

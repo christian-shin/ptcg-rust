@@ -8,7 +8,7 @@
    "2 Gastly ASC 123",
    "2 Haunter ASC 124",
    "2 Mega Gengar ex ASC 125",
-   "48 Fighting Energy MEE"
+   "48 Fighting Energy MEE 6"
   ],
   [
    "2 Koraidon ex ASC 121",
@@ -17,14 +17,14 @@
    "2 Gastly ASC 123",
    "2 Haunter ASC 124",
    "2 Mega Gengar ex ASC 125",
-   "48 Fighting Energy MEE"
+   "48 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Koraidon ex ASC 121",
   "active_energy": [
-   "3 Fighting Energy MEE"
+   "3 Fighting Energy MEE 6"
   ]
  },
  "opp": {

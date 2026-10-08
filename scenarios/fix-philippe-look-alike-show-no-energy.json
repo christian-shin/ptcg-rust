@@ -2,23 +2,23 @@
   "turn": 2,
   "decks": [
     [
-      "4 Mr. Mime TEF",
+      "4 Mr. Mime TEF 63",
       "4 Philippe CRI 79",
       "4 Duraludon PRE 69",
-      "48 Psychic Energy MEE"
+      "48 Psychic Energy MEE 5"
     ],
     [
-      "4 Mr. Mime TEF",
+      "4 Mr. Mime TEF 63",
       "4 Philippe CRI 79",
       "4 Duraludon PRE 69",
-      "48 Psychic Energy MEE"
+      "48 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
-    "active": "Mr. Mime TEF",
+    "active": "Mr. Mime TEF 63",
     "active_energy": [
-      "Psychic Energy MEE"
+      "Psychic Energy MEE 5"
     ],
     "bench": [
       {

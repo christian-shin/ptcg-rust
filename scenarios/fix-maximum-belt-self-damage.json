@@ -4,19 +4,19 @@
   [
    "4 Zekrom ex BLK 34",
    "1 Maximum Belt PRE 117",
-   "55 Lightning Energy MEE"
+   "55 Lightning Energy MEE 4"
   ],
   [
    "4 Zekrom ex BLK 34",
    "1 Maximum Belt PRE 117",
-   "55 Lightning Energy MEE"
+   "55 Lightning Energy MEE 4"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Zekrom ex BLK 34",
   "active_energy": [
-   "3 Lightning Energy MEE"
+   "3 Lightning Energy MEE 4"
   ],
   "active_tool": "Maximum Belt PRE 117"
  },

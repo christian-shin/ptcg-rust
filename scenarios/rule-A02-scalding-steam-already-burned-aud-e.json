@@ -4,12 +4,12 @@
   [
    "1 Volcanion ex JTG 31",
    "1 Minccino JTG 125",
-   "58 Water Energy MEE"
+   "58 Water Energy MEE 3"
   ],
   [
    "1 Volcanion ex JTG 31",
    "1 Minccino JTG 125",
-   "58 Water Energy MEE"
+   "58 Water Energy MEE 3"
   ]
  ],
  "me": {
@@ -28,7 +28,7 @@
    "at": "start",
    "who": "me",
    "legal": "ability",
-   "name": "Scorching Steam",
+   "name": "Scalding Steam",
    "is": false,
    "cite": "rulings 962, 1565 (a card or Ability that would only put Special Conditions the Pokemon already has can not be used); Advanced Rulebook B-01"
   }

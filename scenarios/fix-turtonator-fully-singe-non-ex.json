@@ -4,26 +4,26 @@
   [
    "4 Turtonator SSP 137",
    "4 Pikachu ex ASC 57",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ],
   [
    "4 Turtonator SSP 137",
    "4 Pikachu ex ASC 57",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Turtonator SSP 137",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Turtonator SSP 137",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ]
  },
  "answers": [

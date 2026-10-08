@@ -4,23 +4,23 @@
     [
       "4 Iono's Kilowattrel ASC 72",
       "4 Iono's Wattrel ASC 71",
-      "52 Lightning Energy MEE"
+      "52 Lightning Energy MEE 4"
     ],
     [
       "4 Iono's Kilowattrel ASC 72",
       "4 Iono's Wattrel ASC 71",
-      "52 Lightning Energy MEE"
+      "52 Lightning Energy MEE 4"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Iono's Kilowattrel ASC 72",
     "active_energy": [
-      "Lightning Energy MEE"
+      "Lightning Energy MEE 4"
     ],
     "hand": [
       "Iono's Wattrel ASC 71",
-      "Lightning Energy MEE"
+      "Lightning Energy MEE 4"
     ]
   },
   "opp": {

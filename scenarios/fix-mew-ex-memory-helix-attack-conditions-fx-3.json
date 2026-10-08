@@ -3,33 +3,33 @@
  "decks": [
   [
    "4 Mew ex 30C 66",
-   "4 Riolu M1L",
+   "4 Riolu MEG 76",
    "4 Hisuian Growlithe TWM 99",
    "4 Drilbur PBL 46",
    "2 Illumise TWM 10",
-   "21 Psychic Energy MEE",
-   "21 Fighting Energy MEE"
+   "21 Psychic Energy MEE 5",
+   "21 Fighting Energy MEE 6"
   ],
   [
    "4 Mew ex 30C 66",
-   "4 Riolu M1L",
+   "4 Riolu MEG 76",
    "4 Hisuian Growlithe TWM 99",
    "4 Drilbur PBL 46",
    "2 Illumise TWM 10",
-   "21 Psychic Energy MEE",
-   "21 Fighting Energy MEE"
+   "21 Psychic Energy MEE 5",
+   "21 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "Psychic Energy MEE",
-   "2 Fighting Energy MEE"
+   "Psychic Energy MEE 5",
+   "2 Fighting Energy MEE 6"
   ],
   "bench": [
    {
-    "card": "Riolu M1L"
+    "card": "Riolu MEG 76"
    },
    {
     "card": "Illumise TWM 10"
@@ -41,7 +41,7 @@
   "active": "Drilbur PBL 46",
   "bench": [
    {
-    "card": "Riolu M1L"
+    "card": "Riolu MEG 76"
    }
   ]
  },
@@ -50,7 +50,7 @@
    "at": "start",
    "who": "me",
    "legal": "attack",
-   "name": "Slowing Perfume ",
+   "name": "Slowing Perfume",
    "is": false,
    "cite": "Slowing Perfume text: only if you go second, during your first turn (turn 2 only); Memory Helix still needs the attack's own conditions met"
   },

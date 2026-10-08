@@ -2,38 +2,38 @@
  "turn": 2,
  "decks": [
   [
-   "4 Spiritomb M5",
-   "4 Shuppet M5",
-   "4 Banette M5",
-   "4 Poltchageist M5",
-   "4 Sinistcha M5",
-   "40 Psychic Energy MEE"
+   "4 Spiritomb PBL 35",
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "4 Poltchageist PBL 5",
+   "4 Sinistcha PBL 6",
+   "40 Psychic Energy MEE 5"
   ],
   [
-   "4 Spiritomb M5",
-   "4 Shuppet M5",
-   "4 Banette M5",
-   "4 Poltchageist M5",
-   "4 Sinistcha M5",
-   "40 Psychic Energy MEE"
+   "4 Spiritomb PBL 35",
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "4 Poltchageist PBL 5",
+   "4 Sinistcha PBL 6",
+   "40 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
-  "active": "Spiritomb M5",
+  "active": "Spiritomb PBL 35",
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "discard": [
-   "4 Shuppet M5",
-   "4 Banette M5",
-   "4 Poltchageist M5",
-   "1 Sinistcha M5"
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "4 Poltchageist PBL 5",
+   "1 Sinistcha PBL 6"
   ]
  },
  "opp": {
   "reset": true,
-  "active": "Shuppet M5",
+  "active": "Shuppet PBL 33",
   "active_damage": 30
  },
  "answers": [

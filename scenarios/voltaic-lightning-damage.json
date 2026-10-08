@@ -4,20 +4,20 @@
     [
       "4 Zeraora DRI 78",
       "4 Dreepy ASC 158",
-      "4 Bolty [L] Energy M5",
-      "48 Lightning Energy MEE"
+      "4 Voltaic Lightning Energy PBL 84",
+      "48 Lightning Energy MEE 4"
     ],
     [
       "4 Zeraora DRI 78",
       "4 Dreepy ASC 158",
-      "4 Bolty [L] Energy M5",
-      "48 Lightning Energy MEE"
+      "4 Voltaic Lightning Energy PBL 84",
+      "48 Lightning Energy MEE 4"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Zeraora DRI 78",
-    "active_energy": ["Bolty [L] Energy M5"]
+    "active_energy": ["Voltaic Lightning Energy PBL 84"]
   },
   "opp": {
     "reset": true,

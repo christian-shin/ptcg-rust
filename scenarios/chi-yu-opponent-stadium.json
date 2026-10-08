@@ -4,25 +4,25 @@
     [
       "4 Chi-Yu MEG 31",
       "4 Dreepy ASC 158",
-      "4 Prism Tower M4",
-      "48 Fire Energy MEE"
+      "4 Prism Tower CRI 80",
+      "48 Fire Energy MEE 2"
     ],
     [
       "4 Chi-Yu MEG 31",
       "4 Dreepy ASC 158",
-      "4 Prism Tower M4",
-      "48 Fire Energy MEE"
+      "4 Prism Tower CRI 80",
+      "48 Fire Energy MEE 2"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Chi-Yu MEG 31",
-    "active_energy": ["Fire Energy MEE"]
+    "active_energy": ["Fire Energy MEE 2"]
   },
   "opp": {
     "reset": true,
     "active": "Dreepy ASC 158",
-    "stadium": "Prism Tower M4"
+    "stadium": "Prism Tower CRI 80"
   },
   "answers": [
     { "a": "attack", "name": "Scorching Earth" }

@@ -1,7 +1,7 @@
-3 Bayleef MC
-2 Beldum M4
-3 Charcadet SSP
-2 Chikorita M1S
-23 Fire Energy MEE
-24 Grass Energy MEE
-3 Pupitar PRE
+3 Bayleef ASC 9
+2 Beldum CRI 59
+3 Charcadet SSP 32
+2 Chikorita MEG 8
+23 Fire Energy MEE 2
+24 Grass Energy MEE 1
+3 Pupitar PRE 48

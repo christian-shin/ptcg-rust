@@ -7,7 +7,7 @@
    "3 Okidogi ex SFA 36",
    "2 Punk Helmet PFL 92",
    "2 Lucky Helmet TWM 158",
-   "3 Jamming Tower TWM",
+   "3 Jamming Tower TWM 153",
    "2 Boomerang Energy TWM 166",
    "21 Fire Energy MEE 2",
    "21 Darkness Energy MEE 7"
@@ -18,7 +18,7 @@
    "3 Okidogi ex SFA 36",
    "2 Punk Helmet PFL 92",
    "2 Lucky Helmet TWM 158",
-   "3 Jamming Tower TWM",
+   "3 Jamming Tower TWM 153",
    "2 Boomerang Energy TWM 166",
    "21 Fire Energy MEE 2",
    "21 Darkness Energy MEE 7"
@@ -45,7 +45,7 @@
   "reset": true,
   "active": "Okidogi ex SFA 36",
   "active_tool": "Lucky Helmet TWM 158",
-  "stadium": "Jamming Tower TWM",
+  "stadium": "Jamming Tower TWM 153",
   "bench": [
    {
     "card": "Okidogi ex SFA 36"
@@ -55,7 +55,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Darman-i-cannon"
+   "name": "Flamebody Cannon"
   }
  ]
 }

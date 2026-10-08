@@ -6,21 +6,21 @@
       "4 Hop's Snorlax JTG 117",
       "4 Babiri Berry SSP 163",
       "4 Jamming Tower ASC 261",
-      "44 Metal Energy MEE"
+      "44 Metal Energy MEE 8"
     ],
     [
       "4 Tinkatink MEG 96",
       "4 Hop's Snorlax JTG 117",
       "4 Babiri Berry SSP 163",
       "4 Jamming Tower ASC 261",
-      "44 Metal Energy MEE"
+      "44 Metal Energy MEE 8"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Tinkatink MEG 96",
     "active_energy": [
-      "Metal Energy MEE"
+      "Metal Energy MEE 8"
     ],
     "stadium": "Jamming Tower ASC 261"
   },

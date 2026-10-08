@@ -4,28 +4,28 @@
   [
    "4 Mega Manectric ex MEG 50",
    "4 Zekrom ex BLK 34",
-   "5 Lightning Energy MEE",
-   "47 Fire Energy MEE"
+   "5 Lightning Energy MEE 4",
+   "47 Fire Energy MEE 2"
   ],
   [
    "4 Mega Manectric ex MEG 50",
    "4 Zekrom ex BLK 34",
-   "5 Lightning Energy MEE",
-   "47 Fire Energy MEE"
+   "5 Lightning Energy MEE 4",
+   "47 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mega Manectric ex MEG 50",
   "active_energy": [
-   "2 Lightning Energy MEE"
+   "2 Lightning Energy MEE 4"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Zekrom ex BLK 34",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ]
  },
  "answers": [

@@ -4,31 +4,31 @@
   [
    "4 Walrein SSP 45",
    "4 Beldum TEF 113",
-   "8 Metal Energy MEE",
-   "8 Water Energy MEE",
-   "36 Fire Energy MEE"
+   "8 Metal Energy MEE 8",
+   "8 Water Energy MEE 3",
+   "36 Fire Energy MEE 2"
   ],
   [
    "4 Walrein SSP 45",
    "4 Beldum TEF 113",
-   "8 Metal Energy MEE",
-   "8 Water Energy MEE",
-   "36 Fire Energy MEE"
+   "8 Metal Energy MEE 8",
+   "8 Water Energy MEE 3",
+   "36 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Walrein SSP 45",
   "active_energy": [
-   "Water Energy MEE"
+   "Water Energy MEE 3"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Beldum TEF 113",
   "active_energy": [
-   "Metal Energy MEE",
-   "Fire Energy MEE"
+   "Metal Energy MEE 8",
+   "Fire Energy MEE 2"
   ]
  },
  "answers": [

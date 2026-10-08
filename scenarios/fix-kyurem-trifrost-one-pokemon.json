@@ -5,20 +5,20 @@
    "4 Kyurem SFA 47",
    "4 Shinx FST 91",
    "24 Metal Energy MEE 8",
-   "28 Water Energy MEE"
+   "28 Water Energy MEE 3"
   ],
   [
    "4 Kyurem SFA 47",
    "4 Shinx FST 91",
    "24 Metal Energy MEE 8",
-   "28 Water Energy MEE"
+   "28 Water Energy MEE 3"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Kyurem SFA 47",
   "active_energy": [
-   "3 Water Energy MEE",
+   "3 Water Energy MEE 3",
    "2 Metal Energy MEE 8"
   ]
  },

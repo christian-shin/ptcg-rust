@@ -5,20 +5,20 @@
    "4 Zeraora DRI 78",
    "4 Miraidon ex TEF 122",
    "4 Duraludon PRE 69",
-   "48 Lightning Energy MEE"
+   "48 Lightning Energy MEE 4"
   ],
   [
    "4 Zeraora DRI 78",
    "4 Miraidon ex TEF 122",
    "4 Duraludon PRE 69",
-   "48 Lightning Energy MEE"
+   "48 Lightning Energy MEE 4"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Zeraora DRI 78",
   "active_energy": [
-   "3 Lightning Energy MEE"
+   "3 Lightning Energy MEE 4"
   ]
  },
  "opp": {
@@ -36,7 +36,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Thunder Blitz"
+   "name": "Thunder Raid"
   }
  ]
 }

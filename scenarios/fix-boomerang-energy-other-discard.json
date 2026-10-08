@@ -5,20 +5,20 @@
    "4 Turtonator SSP 137",
    "4 Pikachu ex ASC 57",
    "4 Boomerang Energy TWM 166",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ],
   [
    "4 Turtonator SSP 137",
    "4 Pikachu ex ASC 57",
    "4 Boomerang Energy TWM 166",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Turtonator SSP 137",
   "active_energy": [
-   "Fire Energy MEE",
+   "Fire Energy MEE 2",
    "Boomerang Energy TWM 166"
   ]
  },
@@ -26,7 +26,7 @@
   "reset": true,
   "active": "Pikachu ex ASC 57",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {

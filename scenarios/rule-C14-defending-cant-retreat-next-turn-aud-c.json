@@ -4,28 +4,28 @@
   [
    "4 Bulbasaur MEG 1",
    "4 Snorunt TWM 51",
-   "8 Grass Energy MEE",
-   "44 Fire Energy MEE"
+   "8 Grass Energy MEE 1",
+   "44 Fire Energy MEE 2"
   ],
   [
    "4 Bulbasaur MEG 1",
    "4 Snorunt TWM 51",
-   "8 Grass Energy MEE",
-   "44 Fire Energy MEE"
+   "8 Grass Energy MEE 1",
+   "44 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Bulbasaur MEG 1",
   "active_energy": [
-   "Grass Energy MEE"
+   "Grass Energy MEE 1"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Snorunt TWM 51",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {

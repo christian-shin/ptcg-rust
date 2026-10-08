@@ -4,19 +4,19 @@
     [
       "4 Larvitar JTG 80",
       "4 Spiky Energy JTG 159",
-      "52 Fighting Energy MEE"
+      "52 Fighting Energy MEE 6"
     ],
     [
       "4 Larvitar JTG 80",
       "4 Spiky Energy JTG 159",
-      "52 Fighting Energy MEE"
+      "52 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Larvitar JTG 80",
     "active_energy": [
-      "2 Fighting Energy MEE"
+      "2 Fighting Energy MEE 6"
     ]
   },
   "opp": {
@@ -24,7 +24,7 @@
     "active": "Larvitar JTG 80",
     "active_energy": [
       "Spiky Energy JTG 159",
-      "Fighting Energy MEE"
+      "Fighting Energy MEE 6"
     ]
   },
   "coins": [

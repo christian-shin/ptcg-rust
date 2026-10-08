@@ -2,26 +2,26 @@
  "turn": 2,
  "decks": [
   [
-   "4 Luxray ex TWM",
+   "4 Luxray ex TWM 68",
    "4 Luxio FST 92",
    "4 Shinx FST 91",
-   "4 Buddy-Buddy Poffin TEF",
-   "4 Ultra Ball SVI",
-   "40 Lightning Energy MEE"
+   "4 Buddy-Buddy Poffin TEF 144",
+   "4 Ultra Ball SVI 196",
+   "40 Lightning Energy MEE 4"
   ],
   [
-   "4 Luxray ex TWM",
+   "4 Luxray ex TWM 68",
    "4 Luxio FST 92",
    "4 Shinx FST 91",
-   "4 Buddy-Buddy Poffin TEF",
-   "4 Ultra Ball SVI",
-   "40 Lightning Energy MEE"
+   "4 Buddy-Buddy Poffin TEF 144",
+   "4 Ultra Ball SVI 196",
+   "40 Lightning Energy MEE 4"
   ]
  ],
  "me": {
-  "active": "Luxray ex TWM",
+  "active": "Luxray ex TWM 68",
   "active_energy": [
-   "3 Lightning Energy MEE"
+   "3 Lightning Energy MEE 4"
   ]
  },
  "opp": {

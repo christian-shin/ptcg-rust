@@ -5,22 +5,22 @@
    "4 Metagross CRI 61",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "24 Metal Energy MEE",
-   "24 Grass Energy MEE"
+   "24 Metal Energy MEE 8",
+   "24 Grass Energy MEE 1"
   ],
   [
    "4 Metagross CRI 61",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "24 Metal Energy MEE",
-   "24 Grass Energy MEE"
+   "24 Metal Energy MEE 8",
+   "24 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Metagross CRI 61",
   "active_energy": [
-   "4 Metal Energy MEE"
+   "4 Metal Energy MEE 8"
   ]
  },
  "opp": {

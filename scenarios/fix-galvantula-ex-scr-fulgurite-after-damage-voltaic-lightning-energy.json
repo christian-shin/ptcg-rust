@@ -5,15 +5,15 @@
       "4 Galvantula ex SCR 51",
       "4 Joltik SCR 50",
       "4 Voltaic Lightning Energy PBL 84",
-      "24 Grass Energy MEE",
-      "24 Fighting Energy MEE"
+      "24 Grass Energy MEE 1",
+      "24 Fighting Energy MEE 6"
     ],
     [
       "4 Galvantula ex SCR 51",
       "4 Joltik SCR 50",
       "4 Voltaic Lightning Energy PBL 84",
-      "24 Grass Energy MEE",
-      "24 Fighting Energy MEE"
+      "24 Grass Energy MEE 1",
+      "24 Fighting Energy MEE 6"
     ]
   ],
   "me": {
@@ -24,8 +24,8 @@
     ],
     "active_energy": [
       "Voltaic Lightning Energy PBL 84",
-      "Grass Energy MEE",
-      "Fighting Energy MEE"
+      "Grass Energy MEE 1",
+      "Fighting Energy MEE 6"
     ]
   },
   "opp": {

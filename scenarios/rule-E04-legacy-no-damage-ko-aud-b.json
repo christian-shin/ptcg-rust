@@ -3,34 +3,34 @@
  "decks": [
   [
    "2 Mankey SSP 98",
-   "2 Primeape M5",
+   "2 Primeape PBL 43",
    "2 Annihilape SSP 100",
    "2 Munkidori ex SFA 37",
    "2 Pecharunt ex PRE 163",
    "2 Dwebble DRI 11",
    "1 Legacy Energy TWM 167",
-   "47 Fighting Energy MEE"
+   "47 Fighting Energy MEE 6"
   ],
   [
    "2 Mankey SSP 98",
-   "2 Primeape M5",
+   "2 Primeape PBL 43",
    "2 Annihilape SSP 100",
    "2 Munkidori ex SFA 37",
    "2 Pecharunt ex PRE 163",
    "2 Dwebble DRI 11",
    "1 Legacy Energy TWM 167",
-   "47 Fighting Energy MEE"
+   "47 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": [
    "Mankey SSP 98",
-   "Primeape M5",
+   "Primeape PBL 43",
    "Annihilape SSP 100"
   ],
   "active_energy": [
-   "2 Fighting Energy MEE"
+   "2 Fighting Energy MEE 6"
   ],
   "bench": [
    {

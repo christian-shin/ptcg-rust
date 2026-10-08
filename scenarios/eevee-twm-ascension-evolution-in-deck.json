@@ -1,13 +1,13 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Eevee TWM 135", "2 Jolteon ex PRE 30", "2 Flareon ex PRE 14", "2 Umbreon ex PRE 60", "50 Lightning Energy MEE"],
-    ["4 Eevee TWM 135", "2 Jolteon ex PRE 30", "2 Flareon ex PRE 14", "2 Umbreon ex PRE 60", "50 Lightning Energy MEE"]
+    ["4 Eevee TWM 135", "2 Jolteon ex PRE 30", "2 Flareon ex PRE 14", "2 Umbreon ex PRE 60", "50 Lightning Energy MEE 4"],
+    ["4 Eevee TWM 135", "2 Jolteon ex PRE 30", "2 Flareon ex PRE 14", "2 Umbreon ex PRE 60", "50 Lightning Energy MEE 4"]
   ],
   "me": {
     "reset": true,
     "active": "Eevee TWM 135",
-    "active_energy": ["Lightning Energy MEE"],
+    "active_energy": ["Lightning Energy MEE 4"],
     "deck_top": ["Jolteon ex PRE 30", "Flareon ex PRE 14"]
   },
   "opp": {

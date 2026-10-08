@@ -5,13 +5,13 @@
       "4 Petilil BLK 6",
       "4 Air Balloon ASC 181",
       "4 Jamming Tower ASC 261",
-      "48 Grass Energy MEE"
+      "48 Grass Energy MEE 1"
     ],
     [
       "4 Petilil BLK 6",
       "4 Air Balloon ASC 181",
       "4 Jamming Tower ASC 261",
-      "48 Grass Energy MEE"
+      "48 Grass Energy MEE 1"
     ]
   ],
   "me": {
@@ -19,7 +19,7 @@
     "active": "Petilil BLK 6",
     "active_tool": "Air Balloon ASC 181",
     "active_energy": [
-      "Grass Energy MEE"
+      "Grass Energy MEE 1"
     ],
     "bench": [
       {

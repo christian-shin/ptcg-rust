@@ -5,20 +5,20 @@
    "4 Ting-Lu TWM 110",
    "4 Dwebble DRI 11",
    "4 Lively Stadium SSP 180",
-   "48 Fighting Energy MEE"
+   "48 Fighting Energy MEE 6"
   ],
   [
    "4 Ting-Lu TWM 110",
    "4 Dwebble DRI 11",
    "4 Lively Stadium SSP 180",
-   "48 Fighting Energy MEE"
+   "48 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Ting-Lu TWM 110",
   "active_energy": [
-   "Fighting Energy MEE"
+   "Fighting Energy MEE 6"
   ]
  },
  "opp": {
@@ -38,7 +38,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Ground Crack"
+   "name": "Ground Crasher"
   }
  ]
 }

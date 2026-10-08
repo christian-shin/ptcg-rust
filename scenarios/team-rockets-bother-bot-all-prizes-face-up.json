@@ -6,23 +6,23 @@
       "4 Galarian Obstagoon ASC 132",
       "1 Team Rocket's Bother-Bot DRI 172",
       "4 Dreepy ASC 158",
-      "47 Psychic Energy MEE"
+      "47 Psychic Energy MEE 5"
     ],
     [
       "4 Cresselia SFA 21",
       "4 Galarian Obstagoon ASC 132",
       "1 Team Rocket's Bother-Bot DRI 172",
       "4 Dreepy ASC 158",
-      "47 Psychic Energy MEE"
+      "47 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Cresselia SFA 21",
     "active_energy": [
-      "Psychic Energy MEE",
-      "Psychic Energy MEE",
-      "Psychic Energy MEE"
+      "Psychic Energy MEE 5",
+      "Psychic Energy MEE 5",
+      "Psychic Energy MEE 5"
     ],
     "hand_to_deck": true
   },

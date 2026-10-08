@@ -1,7 +1,7 @@
-21 Grass Energy MEE
-20 Lightning Energy MEE
-4 Magnemite SSP
-4 Petilil JTG
-3 Pupitar PRE
-4 Staryu M3
-4 Toedscool JTG
+21 Grass Energy MEE 1
+20 Lightning Energy MEE 4
+4 Magnemite SSP 58
+4 Petilil JTG 6
+3 Pupitar PRE 48
+4 Staryu POR 20
+4 Toedscool JTG 88

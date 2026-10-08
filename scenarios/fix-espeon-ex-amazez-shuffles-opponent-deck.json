@@ -5,26 +5,26 @@
    "4 Espeon ex PRE 34",
    "4 Shinx FST 91",
    "4 Luxio FST 92",
-   "10 Grass Energy MEE",
-   "10 Darkness Energy MEE",
-   "28 Psychic Energy MEE"
+   "10 Grass Energy MEE 1",
+   "10 Darkness Energy MEE 7",
+   "28 Psychic Energy MEE 5"
   ],
   [
    "4 Espeon ex PRE 34",
    "4 Shinx FST 91",
    "4 Luxio FST 92",
-   "10 Grass Energy MEE",
-   "10 Darkness Energy MEE",
-   "28 Psychic Energy MEE"
+   "10 Grass Energy MEE 1",
+   "10 Darkness Energy MEE 7",
+   "28 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Espeon ex PRE 34",
   "active_energy": [
-   "Grass Energy MEE",
-   "Psychic Energy MEE",
-   "Darkness Energy MEE"
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5",
+   "Darkness Energy MEE 7"
   ]
  },
  "opp": {
@@ -45,7 +45,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Amethyst"
+   "name": "Amazez"
   }
  ]
 }
