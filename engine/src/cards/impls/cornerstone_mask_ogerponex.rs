@@ -10,51 +10,37 @@
 //! probe for this card's owner. The Tera bench protection sits after it and
 //! is skipped by its early returns (this card not the top card, no source
 //! Pokémon, own damage, outside the attack phase, or the ability blocked).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "CornerstoneMaskOgerponex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "CornerstoneMaskOgerponex",
+    // Demolish: not affected by Weakness, Resistance or effects on the Defending Pokémon.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true })),
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoResistance, value: true })),
+        ],
+    }],
+    passives: &[
+        // Cornerstone Stance: attacks from Pokémon that have an Ability.
+        Passive {
+            origin: RuleSource::Ability,
+            modifier: Modifier::PreventDamage(PreventDamageSpec {
+                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+                source: SlotPred::PrintsPower,
+                ..PreventDamageSpec::DEFAULT
+            }),
+        },
+        // Tera: no attack damage while Benched. Today's behavior kept (I-PC1): skipped when the
+        // Ability's own gates are.
+        Passive {
+            origin: RuleSource::Ability,
+            modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }),
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        // Demolish: not affected by Weakness, Resistance or effects on the Defending Pokémon.
-        if let Effect::Attack { ignore_defender_effects, ignore_weakness, ignore_resistance, .. } = g.e_mut(e) {
-            *ignore_defender_effects = true;
-            *ignore_weakness = true;
-            *ignore_resistance = true;
-        }
-    }
-
-    if let Effect::PutDamage { b, .. } = *g.e(e) {
-        if ignores_defender_effects(g, &b) {
-            return Ok(());
-        }
-        let t = b.target;
-        if g.st.slot(t.p as usize, t.s).cards.contains(me) {
-            let source_card = g.st.slot_pokemon(b.source.p as usize, b.source.s);
-            if g.st.slot_pokemon(t.p as usize, t.s) != Some(me) {
-                return Ok(());
-            }
-            let source_card = match source_card {
-                Some(c) => c,
-                None => return Ok(()),
-            };
-            if t.p == b.source.p {
-                return Ok(());
-            }
-            if g.st.phase != GamePhase::Attack {
-                return Ok(());
-            }
-            if !g.st.cdef(source_card).powers.is_empty() {
-                if is_ability_blocked(g, t.p as usize, me, None) {
-                    return Ok(());
-                }
-                g.set_prevent(e, true);
-            }
-        }
-    }
-
-    if let Effect::PutDamage { .. } = *g.e(e) {
-        tera_rule(g, e, me);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

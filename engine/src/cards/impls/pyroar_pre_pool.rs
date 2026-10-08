@@ -3,17 +3,12 @@
 //!
 //! Twinleaf: THIS_POKEMON_CANNOT_ATTACK_NEXT_TURN sets
 //! `cannotAttackNextTurnPending` on the player's Active.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "PyroarPREPool", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "PyroarPREPool",
+    attacks: &[AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let pl = &mut g.st.players[p as usize];
-            let a = pl.active;
-            pl.slots[a as usize].cannot_attack_next_turn_pending = true;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

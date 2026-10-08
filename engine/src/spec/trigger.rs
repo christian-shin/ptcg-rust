@@ -3,7 +3,7 @@
 //! effect in `fires`; the steps run as the card's trigger program.
 
 use super::*;
-use crate::effects::{EffId, KindMask};
+use crate::effects::{mask, EffId, Effect, KindMask};
 use crate::game::Game;
 use crate::list::CardId;
 
@@ -31,16 +31,46 @@ pub struct OnAttachSpec {}
 pub struct OnKnockOutSpec {}
 pub struct OnDamagedByAttackSpec {}
 pub struct OnCheckupSpec {}
-pub struct OnEndTurnSpec {}
 pub struct OnDiscardedSpec {}
 pub struct OnAfterAttackTriggersSpec {}
 
+/// Whose turn ending fires the trigger, relative to the card's owner.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Turn {
+    Owner,
+    Opp,
+    Any,
+}
+
+/// The end of a turn (any copy of the card, in any zone, as for the markers
+/// it clears).
+pub struct OnEndTurnSpec {
+    pub whose: Turn,
+}
+
 /// The effect kinds an event reacts to.
-pub const fn event_kinds(_e: &Event) -> KindMask {
-    KindMask::EMPTY
+pub const fn event_kinds(e: &Event) -> KindMask {
+    use crate::effects::k;
+    match e {
+        Event::OnEndTurn(_) => mask(&[k::END_TURN]),
+        _ => KindMask::EMPTY,
+    }
 }
 
 /// Does effect `e` fire trigger `t` of card `me`? Returns the program's player.
-pub(crate) fn fires(_g: &Game, _me: CardId, _e: EffId, _t: &Trigger) -> Option<usize> {
-    unimplemented!("spec trigger not implemented yet (trigger.rs)")
+pub(crate) fn fires(g: &Game, me: CardId, e: EffId, t: &Trigger) -> Option<usize> {
+    match &t.event {
+        Event::OnEndTurn(w) => {
+            let Effect::EndTurn { p } = *g.e(e) else { return None };
+            let p = p as usize;
+            let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            let ok = match w.whose {
+                Turn::Owner => p == owner,
+                Turn::Opp => p != owner,
+                Turn::Any => true,
+            };
+            ok.then_some(owner)
+        }
+        _ => unimplemented!("spec trigger not implemented yet (trigger.rs)"),
+    }
 }

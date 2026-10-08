@@ -9,37 +9,20 @@
 //!
 //! Fixed (phase 4b, W4): Twinleaf also doubled Special Energy providing [G]
 //! (e.g. Growing Grass Energy); the card says Basic [G] Energy only.
-use crate::cards::prelude::*;
-use crate::effects::EnergyEntry;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl { class: "Meganium", mask: mask(&[k::CHECK_PROVIDED_ENERGY]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Meganium",
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        // Each Basic [G] Energy attached to your Pokémon provides [G][G].
+        modifier: Modifier::ProvidesEnergyBoost(ProvidesEnergyBoostSpec {
+            energy: Pred::All(&[Pred::BasicEnergy, Pred::ProvidesType(ct::GRASS)]),
+            provides: &[ct::GRASS, ct::GRASS],
+        }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (p, source) = match *g.e(e) {
-        Effect::CheckProvidedEnergy { p, source, .. } => (p as usize, source),
-        _ => return Ok(()),
-    };
-    if !for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| *c == me) {
-        return Ok(());
-    }
-    if is_ability_blocked(g, p, me, None) {
-        return Ok(());
-    }
-    let cards: Vec<CardId> = g.st.slot(source.p as usize, source.s).cards.iter().collect();
-    for c in cards {
-        let d = g.st.cdef(c);
-        if !d.is_energy() || d.energy_type != EnergyType::Basic as u8 || !d.provides.contains(&ct::GRASS) {
-            continue;
-        }
-        if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-            if energy_map.iter().any(|m| m.card == c) {
-                continue;
-            }
-            let mut provides = SVec::new();
-            provides.push(ct::GRASS);
-            provides.push(ct::GRASS);
-            energy_map.push(EnergyEntry { card: c, provides });
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

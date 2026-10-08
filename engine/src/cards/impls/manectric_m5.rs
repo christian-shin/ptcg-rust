@@ -7,22 +7,15 @@
 //! THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS (`ignoreDefenderEffects` on
 //! the AttackEffect; phase 4b R7B: it used to add the damage straight to the
 //! Active, skipping the attacker's effects too).
-use super::mega_lopunnyex::shred;
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Manectric@PBL", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Manectric@PBL",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Evolution) }))] },
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let filter = PreventFilter { source_stage: Some(PreventFilter::SOURCE_IS_EVOLUTION), ..Default::default() };
-        prevent_damage_filtered(g, e, filter)?;
-    }
-    if was_attack_used(g, e, 1, me) {
-        let d = match *g.e(e) {
-            Effect::Attack { damage, .. } => damage,
-            _ => return Ok(()),
-        };
-        shred(g, e, d)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

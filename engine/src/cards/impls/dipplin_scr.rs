@@ -6,13 +6,12 @@
 //!
 //! Fixed (phase 4b, W4): printed data only, Dipplin SCR is a Stage 1 that
 //! evolves from Applin (Twinleaf had it as a Basic).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::Stage;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Dipplin@SCR",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Stage(Stage::Basic)) }))] }],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Dipplin@SCR", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        prevent_damage_filtered(g, e, PreventFilter { source_stage: Some(Stage::Basic as u8), ..Default::default() })?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -8,36 +8,18 @@
 //! 'Eevee' could evolve it. Fixed (R1-4): a PlayPokemonEffect whose target
 //! holds this card as top Pokémon throws INVALID_TARGET when the played card
 //! evolves from 'Eevee' and is not a Pokémon ex (Sylveon PRE 40 no longer can).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::tag;
 
-pub static IMPL: CardImpl = CardImpl { class: "Eeveeex", mask: mask(&[k::CHECK_TABLE_STATE, k::PUT_DAMAGE, k::PLAY_POKEMON]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Eeveeex",
+    passives: &[
+        // Rainbow DNA: Pokémon ex that evolve from Eevee can evolve this Pokémon.
+        Passive { origin: RuleSource::Ability, modifier: Modifier::EvolveFrom(EvolveFromSpec { names: &["Eevee"], only: Pred::Tag(tag::POKEMON_EX_LOWER) }) },
+        // Tera.
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
+    ],
+    ..CardSpec::NONE
+};
 
-static EEVEE: &[&str] = &["Eevee"];
-static NONE: &[&str] = &[];
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::CheckTableState { .. } = *g.e(e) {
-        let v = match g.st.find_pokemon_slot(me) {
-            None => NONE,
-            Some((owner, _)) => {
-                if is_ability_blocked(g, owner, me, None) {
-                    NONE
-                } else {
-                    EEVEE
-                }
-            }
-        };
-        g.st.cards[me as usize].evolves_from_base = Some(v);
-    }
-    // Rainbow DNA: only a Pokémon ex that evolves from Eevee can evolve this Pokémon.
-    if let Effect::PlayPokemon { card, target, .. } = *g.e(e) {
-        if g.st.slot_pokemon(target.p as usize, target.s) == Some(me) {
-            let d = g.st.cdef(card);
-            if d.evolves_from == "Eevee" && !d.has_tag(tag::POKEMON_EX_LOWER) {
-                bail!("INVALID_TARGET");
-            }
-        }
-    }
-    tera_rule(g, e, me);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -5,22 +5,15 @@
 //! through the normal path (Weakness, Resistance and the effects on the
 //! attacker apply, the effects on the Defending Pokémon don't). It used to ignore
 //! Resistance on the AttackEffect and add the damage straight to the Active.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "NsZekrom", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "NsZekrom",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { ignore_defender_effects, .. } = g.e_mut(e) {
-            *ignore_defender_effects = true;
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let pl = &mut g.st.players[p as usize];
-            let a = pl.active;
-            pl.slots[a as usize].cannot_attack_next_turn_pending = true;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

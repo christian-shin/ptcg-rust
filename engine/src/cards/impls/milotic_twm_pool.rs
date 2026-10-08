@@ -7,38 +7,12 @@
 //! hand of its owner's opponent, the source slot must be one of that
 //! opponent's occupied Pokémon slots, and the owner's generic Ability probe
 //! must pass; then preventDefault.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "MiloticTWMPool", mask: mask(&[k::MOVE_CARDS]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "MiloticTWMPool",
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::MoveToHandFromOppPlay }) }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (source, destination) = match *g.e(e) {
-        Effect::MoveCards { source, destination, .. } => (source, destination),
-        _ => return Ok(()),
-    };
-    let (sq, ss) = match source {
-        ListRef::Slot(q, s) => (q as usize, s),
-        _ => return Ok(()),
-    };
-    let (mp, ms) = match g.st.locate(me) {
-        Some(ListRef::Slot(q, s)) => (q as usize, s),
-        _ => return Ok(()),
-    };
-    if g.st.slot_pokemon(mp, ms) != Some(me) {
-        return Ok(());
-    }
-    let owner = mp;
-    let opp = 1 - owner;
-    if destination != ListRef::Hand(opp as u8) {
-        return Ok(());
-    }
-    let from_opponents_play = sq == opp && g.st.slot_pokemon(opp, ss).is_some();
-    if !from_opponents_play {
-        return Ok(());
-    }
-    if is_ability_blocked(g, owner, me, None) {
-        return Ok(());
-    }
-    g.set_prevent(e, true);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

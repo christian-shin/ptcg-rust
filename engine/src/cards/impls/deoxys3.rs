@@ -3,14 +3,12 @@
 //! an Ability.
 //!
 //! Twinleaf: PREVENT_DAMAGE with `{ sourceHasAbility: true }` (damage only).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Deoxys3", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Deoxys3",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::HasAbility) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let filter = PreventFilter { source_has_ability: true, ..Default::default() };
-        prevent_damage_filtered(g, e, filter)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

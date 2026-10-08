@@ -9,45 +9,16 @@
 //! prevented unless it is ApplyWeakness / PutDamage / DealDamage, when the
 //! source slot holds a Pokémon. Iron Feathers sets
 //! `player.active.damageReductionNextTurn = 60` directly.
-use super::shuppet::HIDE_N_SNEAK_KINDS;
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Empoleonex",
-    mask: mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::ATTACK])),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(60) }))] }],
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { probe_for_attacker: true, ..PreventAttackEffectsSpec::DEFAULT }),
+    }],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].damage_reduction_next_turn = 60;
-        }
-    }
-    let b = match g.e(e).atk_base() {
-        Some(b) => *b,
-        None => return Ok(()),
-    };
-    let t = b.target;
-    if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
-        return Ok(());
-    }
-    if is_ability_blocked(g, b.player as usize, me, None) {
-        return Ok(());
-    }
-    if b.source.p == t.p {
-        return Ok(());
-    }
-    if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_some() {
-        if matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. }) {
-            return Ok(());
-        }
-        g.set_prevent(e, true);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

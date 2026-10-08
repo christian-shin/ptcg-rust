@@ -13,61 +13,12 @@
 //!   (the Active could use the previous-Evolution attacks of Benched Pokémon,
 //!   and a Basic Active those of a Benched evolved one). Each Relicanth in
 //!   play still adds them again.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Relicanth@TEF",
-    mask: mask(&[k::CHECK_TABLE_STATE, k::CHECK_POKEMON_ATTACKS]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::GrantAttacks(GrantAttacksSpec {}) }],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::CheckTableState { .. } => {
-            if g.st.locate(me).is_none() {
-                bail!("INVALID_GAME_STATE");
-            }
-        }
-        Effect::CheckPokemonAttacks { p, .. } => {
-            let owner = match g.st.locate(me) {
-                None => bail!("INVALID_GAME_STATE"),
-                Some(l) => l.owner(),
-            };
-            let p = p as usize;
-            if owner != Some(p) {
-                return Ok(());
-            }
-            let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer);
-            if !in_play.iter().any(|(_, c, _)| *c == me) {
-                return Ok(());
-            }
-            if is_ability_blocked(g, p, me, None) {
-                return Ok(());
-            }
-            let mut add: SVec<AttackRef, 32> = SVec::new();
-            let active = g.st.players[p].active;
-            if let Some(top) = g.st.slot_pokemon(p, active) {
-                if g.st.cdef(top).stage != Stage::Basic as u8 {
-                    for c in g.st.slot(p, active).cards.iter() {
-                        let d = g.st.cdef(c);
-                        if d.is_pokemon() && c != top {
-                            for i in 0..d.attacks.len() {
-                                add.push(AttackRef { card: c, index: i as u8 });
-                            }
-                        }
-                    }
-                }
-            }
-            if let Effect::CheckPokemonAttacks { attacks, .. } = g.e_mut(e) {
-                for a in add.iter() {
-                    attacks.push(*a);
-                }
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

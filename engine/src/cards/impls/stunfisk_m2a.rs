@@ -5,22 +5,18 @@
 //! Twinleaf: DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_YOUR_NEXT_TURN(100)
 //! (a DefendingPokemonTakesMoreDamageDuringAttackerNextTurnEffect on the
 //! opponent's Active), then BLOCK_RETREAT (PreventRetreatEffect).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Stunfisk@ASC", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Stunfisk@ASC",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesMoreDamage(100) })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let b = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => {
-                let o = opp as usize;
-                let target = SlotRef::new(o, g.st.players[o].active);
-                AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target }
-            }
-            _ => return Ok(()),
-        };
-        g.run_fx(Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus: 100 })?;
-        block_retreat(g, e)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

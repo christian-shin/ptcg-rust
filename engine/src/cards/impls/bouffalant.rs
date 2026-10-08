@@ -13,54 +13,27 @@
 //!
 //! Fixed (phase 4b, W4): Boundless Power's lock was missing, and Curly Wall
 //! also reduced the owner's own attacks (self-damage).
-use crate::cards::prelude::*;
-use crate::game::fx_flag;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl { class: "Bouffalant", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Bouffalant",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] }],
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        // Each of your Basic [C] Pokémon takes 60 less damage while you have another Bouffalant in play;
+        // only 1 Curly Wall applies. Today's behavior kept (B-PC-16): every copy, in any zone, reacts.
+        modifier: Modifier::DamageTaken(DamageTakenSpec {
+            amount: 60,
+            subject: SlotPred::All(&[SlotPred::Basic, SlotPred::PrintedTypeIs(ct::COLORLESS)]),
+            side: Side::Owner,
+            guard: Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Named("Bouffalant")), CmpOp::Ge, Num::Lit(2)),
+            nonstacking: Some(NonStack::CurlyWall),
+            anywhere: true,
+            ..DamageTakenSpec::DEFAULT
+        }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    // Boundless Power
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].cannot_attack_next_turn_pending = true;
-        }
-    }
-    let b = match *g.e(e) {
-        Effect::PutDamage { b, .. } => b,
-        _ => return Ok(()),
-    };
-    if ignores_defender_effects(g, &b) {
-        return Ok(());
-    }
-    let owner = match g.st.locate(me).and_then(|l| l.owner()) {
-        Some(o) => o,
-        None => return Ok(()),
-    };
-    let count = for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().filter(|(_, c, _)| g.st.cdef(*c).name == "Bouffalant").count();
-    if count < 2 {
-        return Ok(());
-    }
-    // Only attacks from the opponent's Pokémon
-    if b.player as usize == owner {
-        return Ok(());
-    }
-    if is_ability_blocked(g, owner, me, None) {
-        return Ok(());
-    }
-    let t = b.target;
-    if let Some(tc) = g.st.slot_pokemon(t.p as usize, t.s) {
-        let d = g.st.cdef(tc);
-        if d.card_type.contains(&ct::COLORLESS) && d.stage == Stage::Basic as u8 && t.p as usize == owner {
-            if g.fx_flags(e) & fx_flag::CURLY_WALL != 0 {
-                return Ok(());
-            }
-            if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-                *damage = *damage - 60;
-            }
-            g.set_fx_flag(e, fx_flag::CURLY_WALL);
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

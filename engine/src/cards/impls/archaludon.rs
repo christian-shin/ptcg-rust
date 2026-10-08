@@ -3,14 +3,12 @@
 //! Pokémon.
 //!
 //! Twinleaf: PREVENT_DAMAGE with `{ sourceStage: BASIC }`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::Stage;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Archaludon@Archaludon M2",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Stage(Stage::Basic)) }))] }],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Archaludon@Archaludon M2", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let filter = PreventFilter { source_stage: Some(Stage::Basic as u8), source_card_types: None, source_has_ability: false };
-        prevent_damage_filtered(g, e, filter)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

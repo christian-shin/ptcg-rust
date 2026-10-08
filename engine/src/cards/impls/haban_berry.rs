@@ -4,10 +4,16 @@
 //!
 //! Twinleaf: same shape as Payapa Berry (see `payapa_berry_scr_pool`), keyed
 //! on the attacker's type being Dragon (the printed [N]).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl { class: "HabanBerry", mask: mask(&[k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "HabanBerry",
+    passives: &[Passive {
+        origin: RuleSource::Tool,
+        modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 60, subject: SlotPred::Holder, source: SlotPred::TypeIs(ct::DRAGON), then_discard: true, ..DamageTakenSpec::DEFAULT }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    super::payapa_berry_scr_pool::berry_reduce(g, me, e, ct::DRAGON)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
