@@ -161,7 +161,7 @@ pub struct LastAttack {
     /// Opponent's Pokémon damaged by the attack while in the Active Spot.
     pub damaged_active: SVec<SlotRef, 4>,
     /// Every Pokémon (any zone) that took damage, not counters, from the attack (`RECORD_DAMAGED`).
-    pub damaged: SVec<SlotRef, 8>,
+    pub damaged: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -266,7 +266,7 @@ pub struct Game {
     /// Step 7 triggers waiting for the end of the attack (`attackTriggers`).
     pub triggers: SVec<AtkTrig, 16>,
     /// Pokémon that survived this attack's damage with "remaining HP becomes 10" (`survive-on-ten.ts`).
-    pub ten_hp: SVec<SlotRef, 8>,
+    pub ten_hp: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
     /// Pokémon (and the owner who flips) whose Tenacious Body / Durable Body coin waits for all the attack's damage
     /// (ruling 1770; `survive-on-ten.ts`).
     pub ten_hp_coin: SVec<(SlotRef, u8), 8>,
@@ -1193,9 +1193,9 @@ impl Game {
         };
         if let (PromptKind::ChoosePokemon { .. }, Res::Slots(sel)) = (pr.kind, res) {
             let o = 1 - tp;
-            let mut out: SVec<SlotRef, 8> = SVec::new();
-            let mut blocked: SVec<SlotRef, 8> = SVec::new();
-            let mut seen: SVec<SlotRef, 8> = SVec::new();
+            let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
+            let mut blocked: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
+            let mut seen: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
             for s in sel.iter() {
                 if s.p == o && !seen.contains(s) {
                     seen.push(*s);

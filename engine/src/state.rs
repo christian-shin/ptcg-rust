@@ -12,6 +12,8 @@ use crate::types::*;
 
 pub const MAX_CARDS: usize = 120;
 pub const MAX_SLOTS: usize = 9;
+/// Pokémon references from both players at once (damaged lists, multi-Pokémon answers).
+pub const MAX_SLOT_REFS: usize = 2 * MAX_SLOTS;
 pub const MAX_BENCH: usize = 8;
 
 /// Zone lists hold up to 120: Twinleaf can duplicate cards (energies of a

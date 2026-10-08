@@ -30,7 +30,7 @@ pub struct PrizeGroup {
 pub struct CheckFrame {
     pub stage: CheckStage,
     pub oc: OnComplete,
-    pub kos: SVec<SlotRef, 16>,
+    pub kos: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>,
     /// The Pokémon whose Knock Out was announced in this round (a prevented one stays at 0 HP and is not a new Knock Out).
     pub announced: SVec<CardId, 16>,
     pub idx: u8,
@@ -100,7 +100,7 @@ pub fn hp_of(g: &Game, p: usize, s: SlotId, card: Option<CardId>) -> i32 {
     }
 }
 
-fn find_ko_pokemons(g: &mut Game) -> R<SVec<SlotRef, 16>> {
+fn find_ko_pokemons(g: &mut Game) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
     let mut out = SVec::new();
     for p in 0..2 {
         for s in g.st.players[p].in_play().iter() {
@@ -599,7 +599,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
 /// and drop them and the empty slots from the Bench.
 pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
     let pu = p as usize;
-    let chosen: SVec<SlotRef, 8> = match res {
+    let chosen: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = match res {
         Res::Slots(s) => s,
         _ => SVec::new(),
     };

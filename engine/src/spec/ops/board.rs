@@ -401,7 +401,7 @@ fn guard(g: &mut Game, me: CardId, f: &Frame, op: &Op) -> R<bool> {
 }
 
 /// The Pokémon the player may pick.
-pub(crate) fn candidates(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec) -> R<SVec<SlotRef, 9>> {
+pub(crate) fn candidates(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
     slots_m(g, me, f, &pick.among)
 }
 
