@@ -475,11 +475,11 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
 
 /// Where this copy of the card is, when it is in place for its origin.
 #[derive(Clone, Copy)]
-struct Located {
+pub(crate) struct Located {
     /// The player whose lock probe applies.
-    owner: usize,
+    pub(crate) owner: usize,
     /// The Pokémon the card is part of or attached to.
-    held: Option<SlotRef>,
+    pub(crate) held: Option<SlotRef>,
 }
 
 fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> Option<SlotRef> {
@@ -493,7 +493,7 @@ fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> O
     None
 }
 
-fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
     match origin {
         RuleSource::Tool => slot_where(g, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
         RuleSource::Energy => slot_where(g, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
@@ -515,7 +515,7 @@ fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
 
 /// Is the card's effect off: the lock probe derived from its origin. `affected`
 /// is the Pokémon the effect is about (a Stadium's probe is per Pokémon).
-fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
+pub(crate) fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
     match origin {
         RuleSource::Ability => is_ability_blocked(g, at.owner, me, None),
         RuleSource::Tool => is_tool_blocked(g, at.owner, me),

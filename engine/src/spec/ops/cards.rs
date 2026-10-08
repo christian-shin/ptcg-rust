@@ -220,6 +220,8 @@ pub enum AttachSlots {
     // --- S3 agent 3 appends ---
     /// The Active Pokémon, then the Bench (the prompt lists the slot types in this order).
     ActiveBench,
+    /// The Active Pokémon only.
+    ActiveOnly,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TargetScan {
@@ -346,8 +348,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Draw(d) => {
             let p = f.who(d.who);
             let n = match &d.amount {
-                DrawAmount::Count(n) => num(g, me, f, n),
-                DrawAmount::UntilHandSize(n) => num(g, me, f, n) - g.st.players[p].hand.len() as i32,
+                DrawAmount::Count(n) => num_m(g, me, f, n)?,
+                DrawAmount::UntilHandSize(n) => num_m(g, me, f, n)? - g.st.players[p].hand.len() as i32,
                 DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32,
             };
             if n > 0 {
@@ -680,6 +682,10 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
 
 fn attach_slots(a: &AttachSpec) -> SVec<u8, 3> {
     let mut slots = SVec::new();
+    if a.slots == AttachSlots::ActiveOnly {
+        slots.push(SlotType::Active as u8);
+        return slots;
+    }
     if a.slots == AttachSlots::ActiveBench {
         slots.push(SlotType::Active as u8);
         slots.push(SlotType::Bench as u8);
@@ -1014,7 +1020,9 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
 pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
     match op {
         Op::Draw(d) => match &d.amount {
-            DrawAmount::Count(n) => num_uses_reg(n) || num(g, me, f, n) > 0,
+            DrawAmount::Count(n) => num_uses_reg(n) || num_is_checked(n) || num(g, me, f, n) > 0,
+            // A checked count can't be read here: assumed possible.
+            DrawAmount::UntilHandSize(n) if num_is_checked(n) => true,
             DrawAmount::UntilHandSize(n) => num(g, me, f, n) - g.st.players[f.who(d.who)].hand.len() as i32 > 0,
             // The card's own steps make room to draw (Naveen discards first): its `needs` decide.
             DrawAmount::UntilHandSizeOthers(_) => true,

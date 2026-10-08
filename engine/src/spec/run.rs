@@ -341,8 +341,10 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, t) in spec.triggers.iter().enumerate() {
-        if let Some(p) = trigger::fires(g, me, e, t) {
-            run(g, me, Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p))?;
+        if let Some((p, slot)) = trigger::fires(g, me, e, t) {
+            let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            f.slot = slot;
+            run(g, me, f)?;
         }
     }
     Ok(())

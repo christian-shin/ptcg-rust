@@ -827,3 +827,13 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
 pub fn slot_pred_pure(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> bool {
     slot_pred(g, me, s, sp).unwrap_or(false)
 }
+
+/// Does the number need a checked read (`num_m`)?
+pub fn num_is_checked(n: &Num) -> bool {
+    match n {
+        Num::SlotCount(..) | Num::EnergyOn(..) | Num::CostNow => true,
+        Num::Add(a, b) | Num::Sub(a, b) | Num::Mul(a, b) | Num::Min(a, b) | Num::Max(a, b) => num_is_checked(a) || num_is_checked(b),
+        Num::If(_, a, b) => num_is_checked(a) || num_is_checked(b),
+        _ => false,
+    }
+}

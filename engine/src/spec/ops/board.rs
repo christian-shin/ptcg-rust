@@ -101,6 +101,9 @@ pub enum DamageCalc {
     Deal,
     /// A PutDamageEffect (no Weakness or Resistance).
     Put,
+    // --- S3 agent 3 appends ---
+    /// The damage is written on the Pokémon directly (no effect, no Knock Out check).
+    Direct,
 }
 
 /// Damage the attack does to a Pokémon other than the Defending one (or to
@@ -555,6 +558,7 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
             match d.calc {
                 DamageCalc::Auto => deal_or_put_damage(g, f.eff, n, slot)?,
                 DamageCalc::Put => put_damage(g, f.eff, n, slot)?,
+                DamageCalc::Direct => g.st.players[slot.p as usize].slots[slot.s as usize].damage += n,
                 DamageCalc::Deal => {
                     if let Some(b) = atk_base(g, f, slot) {
                         g.run_fx(Effect::DealDamage { b, damage: n })?;
