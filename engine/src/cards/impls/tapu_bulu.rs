@@ -2,26 +2,26 @@
 //!
 //! Twinleaf: a DealDamageEffect (Weakness/Resistance path) on the player's
 //! Active, reduced from the AttackEffect handler (before the main damage).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TapuBulu", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TapuBulu",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(self_damage(30)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let b = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => {
-                let target = SlotRef::new(p as usize, g.st.players[p as usize].active);
-                AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target }
-            }
-            _ => return Ok(()),
-        };
-        g.run_fx(Effect::DealDamage { b, damage: 30 })?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
 
-/// `THIS_POKEMON_DOES_DAMAGE_TO_ITSELF(store, state, effect, amount)`: target = effect.source.
-pub fn this_pokemon_does_damage_to_itself(g: &mut Game, e: EffId, amount: i32) -> R {
+// Still called by Hariyama and Walrein until they are converted.
+pub fn this_pokemon_does_damage_to_itself(g: &mut crate::game::Game, e: crate::effects::EffId, amount: i32) -> crate::game::R {
+    use crate::effects::{AtkBase, Effect};
     let b = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: source },
         _ => return Ok(()),

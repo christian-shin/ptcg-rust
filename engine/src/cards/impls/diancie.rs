@@ -3,29 +3,19 @@
 //!
 //! Twinleaf counts Special Energy cards in `cards` of every opponent slot
 //! (bench, then Active) and sets `effect.damage = 40 * count`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Diancie", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Diancie",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::EnergyOn(SlotSel::Pokemon(Who::Opp), EnergyUnit::SpecialEnergyCards), &Num::Lit(40)), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let opp = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let pl = &g.st.players[opp];
-        let mut n = 0;
-        for &s in pl.bench.iter().chain(std::iter::once(&pl.active)) {
-            for c in pl.slots[s as usize].cards.iter() {
-                let d = g.st.cdef(c);
-                if d.is_energy() && d.energy_type == EnergyType::Special as u8 {
-                    n += 1;
-                }
-            }
-        }
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = 40 * n;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

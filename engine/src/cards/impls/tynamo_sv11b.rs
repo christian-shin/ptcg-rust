@@ -1,12 +1,26 @@
 //! Tynamo (SV11B): Hold Still — heal 10 damage from this Pokémon.
 //!
 //! Twinleaf: a HealTargetEffect(effect, 10) targeting the player's Active.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Tynamo@BLK|ASC", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Tynamo@BLK|ASC",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(heal_active(10, HealVia::Attack)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-/// `new HealTargetEffect(effect, amount)` with `target = player.active`.
-pub fn heal_own_active(g: &mut Game, e: EffId, amount: i32) -> R {
+pub static IMPL: CardImpl = SPEC.card_impl();
+
+// Still called by Zarude (SSP) until it is converted.
+pub fn heal_own_active(g: &mut crate::game::Game, e: crate::effects::EffId, amount: i32) -> crate::game::R {
+    use crate::effects::{AtkBase, Effect, SlotRef};
     let b = match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => {
             let target = SlotRef::new(p as usize, g.st.players[p as usize].active);
@@ -15,12 +29,5 @@ pub fn heal_own_active(g: &mut Game, e: EffId, amount: i32) -> R {
         _ => return Ok(()),
     };
     g.run_fx(Effect::HealTarget { b, damage: amount })?;
-    Ok(())
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        heal_own_active(g, e, 10)?;
-    }
     Ok(())
 }

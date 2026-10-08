@@ -1,13 +1,19 @@
 //! Exeggcute (30C): Hypnosis — your opponent's Active Pokémon is now Asleep.
 //!
 //! Twinleaf has two `Exeggcute` classes; this port is bound to 30C.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Exeggcute@30C", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Exeggcute@30C",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(inflict(&[SpecialCondition::Asleep], Cause::Attack)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Asleep])?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

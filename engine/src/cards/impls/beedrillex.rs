@@ -1,26 +1,18 @@
 //! Beedrill ex (CRI / M4): Rumbling Bees — 110× the number of your Beedrill
 //! and Beedrill ex in play.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Beedrillex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Beedrillex",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Top(Pred::OneOf(&[Pred::Name("Beedrill"), Pred::Name("Beedrill ex")]))), &Num::Lit(110)), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let n = for_each_pokemon(g, p, PlayerType::BottomPlayer)
-        .iter()
-        .filter(|(_, c, _)| {
-            let name = g.st.cdef(*c).name;
-            name == "Beedrill" || name == "Beedrill ex"
-        })
-        .count() as i32;
-    if let Effect::Attack { damage, .. } = g.e_mut(e) {
-        *damage = 110 * n;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

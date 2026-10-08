@@ -2,30 +2,19 @@
 //! Special Energy cards attached to this Pokémon.
 //!
 //! Twinleaf counts the Special Energy cards in the attacker's `player.active`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Cinccino", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Cinccino",
+    attacks: &[
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::SpecialEnergyCards), &Num::Lit(70)), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        let n = g
-            .st
-            .slot(p, a)
-            .cards
-            .iter()
-            .filter(|c| {
-                let d = g.st.cdef(*c);
-                d.is_energy() && d.energy_type == EnergyType::Special as u8
-            })
-            .count() as i32;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = n * 70;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

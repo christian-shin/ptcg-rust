@@ -4,8 +4,8 @@
 //! Evaluation reads the game and never changes it.
 
 use super::run::Frame;
-use crate::effects::SlotRef;
-use crate::game::Game;
+use crate::effects::{Effect, SlotRef};
+use crate::game::{Game, R};
 use crate::list::*;
 use crate::prefabs::*;
 use crate::state::*;
@@ -54,6 +54,14 @@ pub enum Num {
     If(&'static Cond, &'static Num, &'static Num),
     /// Cards with this name in the player's discard pile and on their board.
     KnownCopies(Who, &'static str),
+    // --- F-board appends ---
+    /// Pokémon selected by the selector that satisfy the slot predicate.
+    SlotCount(SlotSel, SlotPred),
+    /// Energy on the selected Pokémon (summed). Needs a checked read: only ops
+    /// that evaluate with `num_m` can use it.
+    EnergyOn(SlotSel, EnergyUnit),
+    /// Length of the printed cost of the attack being used.
+    PrintedCost,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -78,6 +86,17 @@ pub enum Cond {
     BenchSpace(Who),
     /// The Pokémon is its player's Active Pokémon.
     IsActive(SlotExpr),
+    // --- F-board appends ---
+    /// The Pokémon satisfies the slot predicate.
+    Slot(SlotExpr, SlotPred),
+    /// Some selected Pokémon satisfies the predicate.
+    AnySlot(SlotSel, SlotPred),
+    /// There is at least one selected Pokémon, and every one satisfies the predicate.
+    AllSlots(SlotSel, SlotPred),
+    /// Adding these Special Conditions would change the Pokémon.
+    WouldChangeConditions(SlotExpr, &'static [SpecialCondition]),
+    /// A printed type (of a top Pokémon card) is held by a Pokémon in each selection.
+    TypesShared(SlotSel, SlotSel),
 }
 
 /// A card predicate.
@@ -102,6 +121,11 @@ pub enum Pred {
     Tag(u32),
     /// A Pokémon with at least one attack.
     HasAttacks,
+    // --- F-board appends ---
+    Stage(u8),
+    NameContains(&'static str),
+    HasAbilityNamed(&'static str),
+    HasAttackNamed(&'static str),
 }
 
 impl Frame {
@@ -181,6 +205,9 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
             }
             n as i32
         }
+        Num::SlotCount(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, f, **s, sp).expect("checked read: evaluate with num_m")).count() as i32,
+        Num::EnergyOn(..) => panic!("Num::EnergyOn needs a checked read (num_m)"),
+        Num::PrintedCost => printed_cost(g, f),
     }
 }
 
@@ -205,6 +232,36 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::Nonempty(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| pred(g, *c, p)),
         Cond::BenchSpace(w) => !empty_bench_slots(g, f.who(*w)).is_empty(),
         Cond::IsActive(s) => slot_of(g, me, f, *s).map(|s| g.st.players[s.p as usize].active == s.s).unwrap_or(false),
+        Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
+            Some(s) => slot_pred(g, me, f, s, sp).expect("checked read: evaluate with cond_m"),
+            None => false,
+        },
+        Cond::AnySlot(sel, sp) => slots_of(g, me, f, sel).iter().any(|s| slot_pred(g, me, f, *s, sp).expect("checked read: evaluate with cond_m")),
+        Cond::AllSlots(sel, sp) => {
+            let v = slots_of(g, me, f, sel);
+            !v.is_empty() && v.iter().all(|s| slot_pred(g, me, f, *s, sp).expect("checked read: evaluate with cond_m"))
+        }
+        Cond::WouldChangeConditions(e, cs) => match slot_of(g, me, f, *e) {
+            Some(s) => crate::engine::phase::would_change_special_conditions(g.st.slot(s.p as usize, s.s), cs),
+            None => false,
+        },
+        Cond::TypesShared(a, b) => {
+            let printed = |sel: &SlotSel| -> Vec<CardType> {
+                let mut out: Vec<CardType> = Vec::new();
+                for s in slots_of(g, me, f, sel).iter() {
+                    if let Some(c) = g.st.slot_pokemon(s.p as usize, s.s) {
+                        for t in g.st.cdef(c).card_type {
+                            if !out.contains(t) {
+                                out.push(*t);
+                            }
+                        }
+                    }
+                }
+                out
+            };
+            let (x, y) = (printed(a), printed(b));
+            x.iter().any(|t| y.contains(t))
+        }
     }
 }
 
@@ -229,5 +286,303 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
         Pred::Tag(t) => d.has_tag(*t),
         Pred::HasAttacks => d.is_pokemon() && !d.attacks.is_empty(),
+        Pred::Stage(st) => d.is_pokemon() && d.stage == *st,
+        Pred::NameContains(n) => d.name.contains(*n),
+        Pred::HasAbilityNamed(n) => d.is_pokemon() && d.powers.iter().any(|p| p.power_type == PowerType::Ability as u8 && p.name == *n),
+        Pred::HasAttackNamed(n) => d.attacks.iter().any(|a| a.name == *n),
     }
+}
+
+// ---------------------------------------------------------------------------
+// F-board appends: slot selectors, slot predicates, checked reads
+
+/// A collection of Pokémon in play.
+pub enum SlotSel {
+    One(SlotExpr),
+    /// The occupied Bench slots of a player.
+    Bench(Who),
+    /// Every Pokémon of a player: the Active, then the Bench.
+    Pokemon(Who),
+    Filtered(&'static SlotSel, SlotPred),
+    /// Every Pokémon of a player; a prompt lists the Bench before the Active Spot.
+    PokemonBenchFirst(Who),
+}
+
+/// A predicate on a Pokémon in play.
+pub enum SlotPred {
+    Any,
+    Not(&'static SlotPred),
+    All(&'static [SlotPred]),
+    OneOf(&'static [SlotPred]),
+    /// Has at least one damage counter.
+    Damaged,
+    IsActive,
+    IsBench,
+    /// The top Pokémon card satisfies the card predicate.
+    Top(Pred),
+    /// Is affected by any Special Condition.
+    HasCondition,
+    /// The type of the Pokémon as the game checks it (Energy and Stadiums can
+    /// change it): a checked read.
+    TypeIs(CardType),
+    /// The printed type of the top Pokémon card.
+    PrintedTypeIs(CardType),
+    /// The Pokémon card directly under this card in the stack has this name.
+    CardBelowThis(&'static str),
+    /// The Pokémon was played (or evolved) this turn.
+    PlayedThisTurn,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum EnergyUnit {
+    /// Attached Special Energy cards. Pure.
+    SpecialEnergyCards,
+    /// Provided Energy: the `provides` entries equal to the type or to ANY
+    /// (CheckProvidedEnergy).
+    Provided(CardType),
+    /// Every `provides` entry of every Energy card (CheckProvidedEnergy).
+    ProvidedUnits,
+}
+
+/// Printed cost length of the attack being used.
+fn printed_cost(g: &Game, f: &Frame) -> i32 {
+    match crate::prefabs::attack_data(g, f.eff) {
+        Some((_, _, a, _)) => crate::engine::attack::attack_def(g, a).cost.len() as i32,
+        None => 0,
+    }
+}
+
+pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef, 9> {
+    let mut out: SVec<SlotRef, 9> = SVec::new();
+    match sel {
+        SlotSel::One(e) => {
+            if let Some(s) = slot_of(g, me, f, *e) {
+                if !g.st.slot(s.p as usize, s.s).cards.is_empty() {
+                    out.push(s);
+                }
+            }
+        }
+        SlotSel::Bench(w) => {
+            let p = f.who(*w);
+            let pl = &g.st.players[p];
+            for b in pl.bench.iter() {
+                if !pl.slots[*b as usize].cards.is_empty() {
+                    out.push(SlotRef::new(p, *b));
+                }
+            }
+        }
+        SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => {
+            let p = f.who(*w);
+            for s in g.st.players[p].in_play().iter() {
+                out.push(SlotRef::new(p, *s));
+            }
+        }
+        SlotSel::Filtered(inner, sp) => {
+            for s in slots_of(g, me, f, inner).iter() {
+                if slot_pred(g, me, f, *s, sp).unwrap_or(true) {
+                    out.push(*s);
+                }
+            }
+        }
+    }
+    out
+}
+
+/// The pure reading of a slot predicate; `None` when it needs a checked read.
+pub fn slot_pred(g: &Game, me: CardId, f: &Frame, s: SlotRef, sp: &SlotPred) -> Option<bool> {
+    let (p, id) = (s.p as usize, s.s);
+    let slot = g.st.slot(p, id);
+    Some(match sp {
+        SlotPred::Any => true,
+        SlotPred::Not(q) => !slot_pred(g, me, f, s, q)?,
+        SlotPred::All(qs) => {
+            let mut r = true;
+            for q in qs.iter() {
+                r &= slot_pred(g, me, f, s, q)?;
+            }
+            r
+        }
+        SlotPred::OneOf(qs) => {
+            let mut r = false;
+            for q in qs.iter() {
+                r |= slot_pred(g, me, f, s, q)?;
+            }
+            r
+        }
+        SlotPred::Damaged => slot.damage > 0,
+        SlotPred::IsActive => g.st.players[p].active == id,
+        SlotPred::IsBench => g.st.players[p].active != id,
+        SlotPred::Top(q) => g.st.slot_pokemon(p, id).map(|c| pred(g, c, q)).unwrap_or(false),
+        SlotPred::HasCondition => !slot.special_conditions.is_empty(),
+        SlotPred::TypeIs(_) => return None,
+        SlotPred::PrintedTypeIs(t) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).card_type.contains(t)).unwrap_or(false),
+        SlotPred::CardBelowThis(name) => {
+            let stack = g.st.slot_pokemons(p, id);
+            stack.iter().position(|c| *c == me).and_then(|i| i.checked_sub(1)).map_or(false, |i| g.st.cdef(stack.as_slice()[i]).name == *name)
+        }
+        SlotPred::PlayedThisTurn => slot.pokemon_played_turn == g.st.turn as i32,
+    })
+}
+
+/// Slot predicate with checked reads.
+pub fn slot_pred_m(g: &mut Game, me: CardId, f: &Frame, s: SlotRef, sp: &SlotPred) -> R<bool> {
+    Ok(match sp {
+        SlotPred::Not(q) => !slot_pred_m(g, me, f, s, q)?,
+        SlotPred::All(qs) => {
+            for q in qs.iter() {
+                if !slot_pred_m(g, me, f, s, q)? {
+                    return Ok(false);
+                }
+            }
+            true
+        }
+        SlotPred::OneOf(qs) => {
+            for q in qs.iter() {
+                if slot_pred_m(g, me, f, s, q)? {
+                    return Ok(true);
+                }
+            }
+            false
+        }
+        SlotPred::TypeIs(t) => {
+            let types = crate::engine::game_effect::pokemon_types(g, s);
+            let (e, _) = g.run_fx(Effect::CheckPokemonType { target: s, card_types: types })?;
+            matches!(e, Effect::CheckPokemonType { card_types, .. } if card_types.contains(t))
+        }
+        _ => slot_pred(g, me, f, s, sp).expect("pure slot predicate"),
+    })
+}
+
+/// The selected Pokémon, with checked reads in the filters.
+pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<SlotRef, 9>> {
+    match sel {
+        SlotSel::Filtered(inner, sp) => {
+            let mut out: SVec<SlotRef, 9> = SVec::new();
+            for s in slots_m(g, me, f, inner)?.iter() {
+                if slot_pred_m(g, me, f, *s, sp)? {
+                    out.push(*s);
+                }
+            }
+            Ok(out)
+        }
+        _ => Ok(slots_of(g, me, f, sel)),
+    }
+}
+
+/// `num` with checked reads (CheckProvidedEnergy, CheckPokemonType).
+pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
+    Ok(match n {
+        Num::Add(a, b) => num_m(g, me, f, a)? + num_m(g, me, f, b)?,
+        Num::Sub(a, b) => num_m(g, me, f, a)? - num_m(g, me, f, b)?,
+        Num::Mul(a, b) => num_m(g, me, f, a)? * num_m(g, me, f, b)?,
+        Num::Min(a, b) => num_m(g, me, f, a)?.min(num_m(g, me, f, b)?),
+        Num::Max(a, b) => num_m(g, me, f, a)?.max(num_m(g, me, f, b)?),
+        Num::If(c, a, b) => {
+            if cond_m(g, me, f, c)? {
+                num_m(g, me, f, a)?
+            } else {
+                num_m(g, me, f, b)?
+            }
+        }
+        Num::SlotCount(sel, sp) => {
+            let mut n = 0;
+            for s in slots_m(g, me, f, sel)?.iter() {
+                if slot_pred_m(g, me, f, *s, sp)? {
+                    n += 1;
+                }
+            }
+            n
+        }
+        Num::EnergyOn(sel, unit) => {
+            let mut total = 0;
+            for s in slots_m(g, me, f, sel)?.iter() {
+                total += match unit {
+                    EnergyUnit::SpecialEnergyCards => g
+                        .st
+                        .slot(s.p as usize, s.s)
+                        .cards
+                        .iter()
+                        .filter(|c| {
+                            let d = g.st.cdef(*c);
+                            d.is_energy() && d.energy_type == EnergyType::Special as u8
+                        })
+                        .count() as i32,
+                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits => {
+                        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: *s, energy_map: SVec::new() })?;
+                        let mut k = 0;
+                        if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
+                            for em in energy_map.iter() {
+                                k += match unit {
+                                    EnergyUnit::Provided(t) => em.provides.iter().filter(|x| **x == *t || **x == ct::ANY).count() as i32,
+                                    _ => em.provides.len() as i32,
+                                };
+                            }
+                        }
+                        k
+                    }
+                };
+            }
+            total
+        }
+        _ => num(g, me, f, n),
+    })
+}
+
+/// `cond` with checked reads.
+pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
+    Ok(match c {
+        Cond::Not(c) => !cond_m(g, me, f, c)?,
+        Cond::All(cs) => {
+            for c in cs.iter() {
+                if !cond_m(g, me, f, c)? {
+                    return Ok(false);
+                }
+            }
+            true
+        }
+        Cond::Any(cs) => {
+            for c in cs.iter() {
+                if cond_m(g, me, f, c)? {
+                    return Ok(true);
+                }
+            }
+            false
+        }
+        Cond::Cmp(a, op, b) => {
+            let (a, b) = (num_m(g, me, f, a)?, num_m(g, me, f, b)?);
+            match op {
+                CmpOp::Lt => a < b,
+                CmpOp::Le => a <= b,
+                CmpOp::Eq => a == b,
+                CmpOp::Ne => a != b,
+                CmpOp::Ge => a >= b,
+                CmpOp::Gt => a > b,
+            }
+        }
+        Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
+            Some(s) => slot_pred_m(g, me, f, s, sp)?,
+            None => false,
+        },
+        Cond::AnySlot(sel, sp) => {
+            for s in slots_m(g, me, f, sel)?.iter() {
+                if slot_pred_m(g, me, f, *s, sp)? {
+                    return Ok(true);
+                }
+            }
+            false
+        }
+        Cond::AllSlots(sel, sp) => {
+            let v = slots_m(g, me, f, sel)?;
+            if v.is_empty() {
+                return Ok(false);
+            }
+            for s in v.iter() {
+                if !slot_pred_m(g, me, f, *s, sp)? {
+                    return Ok(false);
+                }
+            }
+            true
+        }
+        _ => cond(g, me, f, c),
+    })
 }
