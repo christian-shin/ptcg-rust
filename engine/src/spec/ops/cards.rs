@@ -223,6 +223,9 @@ pub enum TargetScan {
     /// Benched Pokémon whose current type (Special-condition-proof `CheckPokemonType`)
     /// is not the `Pred::PokemonType` of `target` are blocked.
     BenchEffectiveType,
+    // --- S3-4 appends ---
+    /// Every Pokémon in play (Active first) whose current type is none of these is blocked.
+    EffectiveTypes(&'static [CardType]),
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum AttachRoute {
@@ -277,6 +280,11 @@ fn set_reg(g: &mut Game, f: &mut Frame, r: u8, cards: &[CardId]) {
     }
 }
 
+/// Cards in the player's hand, not counting the resolving card (a Trainer is out of the hand while it resolves).
+fn hand_len_without(g: &Game, p: usize, me: CardId) -> i32 {
+    g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32
+}
+
 fn zone_is_unset(f: &Frame, z: ZoneRef) -> bool {
     matches!(z.1, Zone::Scratch(r) if f.cards[r as usize] == NONE)
 }
@@ -324,7 +332,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.who(d.who);
             let n = match &d.amount {
                 DrawAmount::Count(n) => num(g, me, f, n),
-                DrawAmount::UntilHandSize(n) => num(g, me, f, n) - g.st.players[p].hand.len() as i32,
+                DrawAmount::UntilHandSize(n) => num(g, me, f, n) - hand_len_without(g, p, me),
             };
             if n > 0 {
                 draw_cards(g, p, n as usize)?;
@@ -682,6 +690,17 @@ fn blocked_to(g: &mut Game, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> 
                 }
             }
         }
+        TargetScan::EffectiveTypes(types) => {
+            for (slot, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                let target = SlotRef::new(p, slot);
+                let now = crate::engine::game_effect::pokemon_types(g, target);
+                let (te, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: now })?;
+                let ok = matches!(te, Effect::CheckPokemonType { card_types, .. } if types.iter().any(|x| card_types.contains(x)));
+                if !ok {
+                    out.push(t);
+                }
+            }
+        }
         TargetScan::BenchEffectiveType => {
             let want = match a.target {
                 Pred::PokemonType(t) => t,
@@ -864,6 +883,8 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             let from = zone_ref(f, a.from);
             for (to, c) in ts.iter().copied() {
                 let target = get_target(&g.st, p, to)?;
+                // The Pokémon that received the cards is the slot register's.
+                f.slot = super::board::encode(target);
                 match a.route {
                     AttachRoute::Move => move_cards(g, from, target.list(), &[c], me)?,
                     AttachRoute::Effect => {
@@ -958,7 +979,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
     match op {
         Op::Draw(d) => match &d.amount {
             DrawAmount::Count(n) => num_uses_reg(n) || num(g, me, f, n) > 0,
-            DrawAmount::UntilHandSize(n) => num(g, me, f, n) - g.st.players[f.who(d.who)].hand.len() as i32 > 0,
+            DrawAmount::UntilHandSize(n) => num(g, me, f, n) - hand_len_without(g, f.who(d.who), me) > 0,
         },
         Op::Pick(p) => pick_possible(g, me, f, p, i32::MAX),
         Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)),
@@ -1018,8 +1039,9 @@ pub enum PromptScope {
 
 /// How the Energy is chosen.
 pub enum EnergyHow {
-    /// A ChooseCards prompt over the Pokémon's cards (Energy only): between `min` and `max` cards.
-    Cards { min: Num, max: Num, kind: EnergyKind, cancel: bool },
+    /// A ChooseCards prompt over the Pokémon's cards (Energy only): between `min` and `max` cards;
+    /// with `energies_only` the prompt lists only its Energy cards.
+    Cards { min: Num, max: Num, kind: EnergyKind, cancel: bool, energies_only: bool },
     /// A DiscardEnergy prompt over the owner's Active or Benched Pokémon; with `clamp` the numbers
     /// are limited to the Energy cards available.
     Prompt { scope: PromptScope, min: Num, max: Num, kind: EnergyKind, clamp: bool },
@@ -1153,20 +1175,21 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &EnergyChoiceSpec, src:
     };
     let (p, s) = (src.p as usize, src.s);
     match &e.how {
-        EnergyHow::Cards { min, max, kind, cancel } => {
+        EnergyHow::Cards { min, max, kind, cancel, energies_only } => {
             let eligible = ec_energy_cards(g, src, *kind)?;
             if eligible.is_empty() {
                 return none(g, f);
             }
-            let max = num_m(g, me, f, max)?.clamp(0, eligible.len() as i32);
-            let min = num_m(g, me, f, min)?.clamp(0, max);
+            let max = num_m(g, me, f, max)?.clamp(0, 255);
+            let min = num_m(g, me, f, min)?.clamp(0, max.min(eligible.len() as i32));
             let mut opts = ChooseCardsOpts::new(to_u8(min), to_u8(max), *cancel);
-            for (i, c) in g.st.slot(p, s).cards.iter().enumerate() {
+            let list = if *energies_only { ListRef::SlotEnergies(p as u8, s) } else { ListRef::Slot(p as u8, s) };
+            for (i, c) in g.lst(list).iter().enumerate() {
                 if !eligible.contains(&c) {
                     opts.blocked.push(i as u8);
                 }
             }
-            choose_cards(g, chooser, "CHOOSE_CARD_TO_DISCARD", ListRef::Slot(p as u8, s), Filter::super_type(SuperType::Energy), opts, f.cont(me, sub));
+            choose_cards(g, chooser, "CHOOSE_CARD_TO_DISCARD", list, Filter::super_type(SuperType::Energy), opts, f.cont(me, sub));
             Ok(Flow::Suspend)
         }
         EnergyHow::Cost { n, ty } => {

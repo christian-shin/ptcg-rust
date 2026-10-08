@@ -71,6 +71,12 @@ pub struct EndGameSpec {
     pub winner: Who,
 }
 pub struct CustomSpec {}
+/// Choose 1 of the attacks of the Pokémon cards in a register (still in the discard pile) and use it
+/// as this attack, as a copy session: no cancel, `retries` attempts when a chosen attack can't be used.
+pub struct CopyFromRegSpec {
+    pub reg: u8,
+    pub retries: u8,
+}
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
@@ -127,6 +133,23 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 }
             }
             Ok(Flow::Suspend)
+        }
+        Op::CopyFromReg(c) => {
+            let p = f.p as usize;
+            // The Pokémon cards of the register that are still in the discard pile.
+            let cards: Vec<CardId> = reg_list(g, f, c.reg).iter().copied().filter(|x| g.lst(crate::state::ListRef::Discard(p as u8)).contains(x)).collect();
+            if cards.is_empty() {
+                return Ok(Flow::Next);
+            }
+            // Nothing is chosen when every attack of those Pokémon is locked for the Active.
+            let a = g.st.players[p].active;
+            let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
+            let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.tl_name)));
+            if !any_free {
+                return Ok(Flow::Next);
+            }
+            crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+            Ok(Flow::Next)
         }
         Op::Fail(x) => {
             if cond_m(g, me, f, &x.when)? {

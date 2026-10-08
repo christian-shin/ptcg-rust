@@ -27,7 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec {
                 from: SlotTarget::Slot(OPP_ACTIVE),
-                how: EnergyHow::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false },
+                how: EnergyHow::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: false },
                 ..EnergyChoiceSpec::DEFAULT
             }))],
         },

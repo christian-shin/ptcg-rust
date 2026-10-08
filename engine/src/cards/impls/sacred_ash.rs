@@ -3,56 +3,35 @@
 //! Twinleaf: `min = max = min(5, Pokémon in discard)`, cancellable (a cancel
 //! ends the effect; the card is still cleaned up as played); the final
 //! ShuffleDeckPrompt has no trailing wait.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "SacredAsh@FLF", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "SacredAsh@FLF",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            // Exactly min(5, Pokémon in the discard pile); the choice can be cancelled.
+            Step::new(Op::Pick(PickSpec {
+                from: ZoneRef(Who::Me, Zone::Discard),
+                predicate: Pred::Pokemon,
+                bounds: Bounds { min: Num::Min(&Num::Lit(5), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::Pokemon)), max: Num::Min(&Num::Lit(5), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::Pokemon)) },
+                into: 0,
+                cancel: true,
+                msg: "CHOOSE_CARD_TO_DECK",
+                ..PickSpec::DEFAULT
+            })),
+            Step::new(Op::If(IfSpec {
+                cond: Cond::Chosen(0),
+                yes: &[
+                    Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Discard), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                ],
+                no: &[],
+            })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let n = g.st.players[p].discard.iter().filter(|c| g.st.cdef(*c).is_pokemon()).count();
-    if n == 0 {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    g.set_prevent(e, true);
-    let max = n.min(5) as u8;
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    choose_cards(
-        g,
-        p,
-        "CHOOSE_CARD_TO_DECK",
-        ListRef::Discard(p as u8),
-        Filter::super_type(SuperType::Pokemon),
-        ChooseCardsOpts::new(max, max, true),
-        Cont::Card { card: me, frame: f },
-    );
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    match f.stage {
-        1 => {
-            let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-            if cards.is_empty() {
-                return Ok(());
-            }
-            move_cards(g, ListRef::Discard(p as u8), ListRef::Deck(p as u8), &cards, me)?;
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            let id = g.player_id(p);
-            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            if let Some(Res::Order(o)) = results.first() {
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

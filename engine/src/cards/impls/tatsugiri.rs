@@ -6,114 +6,31 @@
 //! Fixed (phase 4b): the prompt cannot be cancelled (`min: 0` already allows
 //! taking nothing; cancelling moved every looked-at card into the hand and
 //! crashed), and the deck is shuffled after the reveal as well.
-use crate::cards::prelude::*;
-use crate::marker;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Tatsugiri",
-    mask: mask(&[k::PLAY_POKEMON, k::POWER, k::END_TURN]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    powers: &[PowerSpec {
+        index: 0,
+        once: Once::PerTurn("CROWD_PULLER_MARKER"),
+        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::IsActive(SlotExpr::This)],
+        // Look at the top 6 cards of your deck, reveal a Supporter there and put it into your hand; shuffle the rest back.
+        steps: &[
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(6)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec {
+                from: ZoneRef(Who::Me, Zone::Scratch(0)),
+                predicate: Pred::Supporter,
+                bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
+                into: 1,
+                msg: "CHOOSE_CARD_TO_HAND",
+                ..PickSpec::DEFAULT
+            })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }],
+    ..CardSpec::NONE
 };
 
-fn crowd_puller() -> crate::markers::MarkerName {
-    marker!("CROWD_PULLER_MARKER")
-}
-
-fn mv(g: &mut Game, src: ListRef, dst: ListRef, cards: Option<&[CardId]>, count: Option<i32>, me: CardId) -> R {
-    g.run_fx(Effect::MoveCards {
-        source: src,
-        destination: dst,
-        cards: cards.map(List::from_slice),
-        count,
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card: me,
-    })?;
-    Ok(())
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            g.st.players[p as usize].marker.remove_from(crowd_puller(), me);
-            return Ok(());
-        }
-    }
-
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() {
-            bail!("CANNOT_USE_POWER");
-        }
-        if g.st.players[p].marker.has_from(crowd_puller(), me) {
-            bail!("POWER_ALREADY_USED");
-        }
-        let a = g.st.players[p].active;
-        if g.st.slot(p, a).cards.get(0) != Some(me) {
-            bail!("CANNOT_USE_POWER");
-        }
-        let top = g.alloc_temp(&[]);
-        mv(g, ListRef::Deck(p as u8), top, None, Some(6), me)?;
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.l[0] = match top {
-            ListRef::Temp(i) => i,
-            _ => unreachable!(),
-        };
-        let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Supporter as u8), ..Filter::none() };
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "CHOOSE_CARD_TO_HAND",
-            PromptKind::ChooseCards { cards: top, filter, opts: ChooseCardsOpts::new(0, 1, false) },
-            Cont::Card { card: me, frame: f },
-        );
-        return Ok(());
-    }
-
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let m = &mut g.st.players[p as usize].marker;
-        if m.has_from(crowd_puller(), me) {
-            m.remove_from(crowd_puller(), me);
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    match f.stage {
-        1 => {
-            let top = ListRef::Temp(f.l[0]);
-            g.st.players[p].marker.add(crowd_puller(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-            ability_used(g, p, me);
-            let selected: Vec<CardId> = match results.first().copied().unwrap_or(Res::Null) {
-                Res::Cards(c) => c.as_slice().to_vec(),
-                _ => Vec::new(),
-            };
-            mv(g, top, ListRef::Hand(p as u8), Some(&selected), None, me)?;
-            mv(g, top, ListRef::Deck(p as u8), None, None, me)?;
-            if !selected.is_empty() {
-                let oid = g.player_id(1 - p);
-                g.prompt(oid, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
-            }
-            let id = g.player_id(p);
-            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: CardFrame { stage: 2, ..f } });
-            Ok(())
-        }
-        2 => {
-            if let Some(Res::Order(o)) = results.first().copied() {
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

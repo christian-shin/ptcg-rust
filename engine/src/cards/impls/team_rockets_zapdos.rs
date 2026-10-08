@@ -16,120 +16,30 @@
 //! Mist Energy (or any effect that prevents the effects of attacks) on the
 //! Defending Pokémon did not stop it; it is now a MoveOpponentEnergyEffect
 //! (target = the Defending Pokémon), like Elgyem's Slight Shift.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsZapdos", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TeamRocketsZapdos",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            // You may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.
+            steps: &[Step::after_damage(Op::May(MaySpec {
+                asker: Who::Me,
+                when: Cond::All(&[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any), Cond::Slot(OPP_ACTIVE, SlotPred::HasEnergy)]),
+                msg: "WANT_TO_USE_ABILITY",
+                yes: &[Step::new(Op::EnergyChoice(EnergyChoiceSpec {
+                    from: SlotTarget::Slot(OPP_ACTIVE),
+                    how: EnergyHow::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: true },
+                    to: EnergyDest::Stay,
+                    ..EnergyChoiceSpec::DEFAULT
+                }))],
+                no: &[],
+            }))],
+        },
+        AttackSpec { index: 1, steps: &[Step::before_damage(more_damage_if(60, Cond::Slot(MY_ACTIVE, SlotPred::HasEnergyNamed("Team Rocket's Energy"))))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.a[1] = o as i32;
-        f.e[0] = e;
-        g.retain_fx(e);
-        confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
-    }
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        let has = g.st.slot(p, a).cards.iter().any(|c| {
-            let d = g.st.cdef(c);
-            d.is_energy() && d.name == "Team Rocket's Energy"
-        });
-        if has {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 60;
-            }
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let atk = f.e[0];
-    // Stage 1 hands the retained AttackEffect to the Energy prompt of stage 2.
-    let opened = f.stage == 1 && {
-        let o = f.a[1] as usize;
-        let pl = &g.st.players[o];
-        results.first().copied().unwrap_or(Res::Null).as_bool()
-            && pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty())
-            && pl.slots[pl.active as usize].cards.iter().any(|c| g.st.cdef(c).is_energy())
-    };
-    let r = resume_inner(g, me, f, results);
-    if !opened || r.is_err() {
-        g.release_fx(atk);
-    }
-    r
-}
-
-fn resume_inner(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let o = f.a[1] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                return Ok(());
-            }
-            let pl = &g.st.players[o];
-            if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-                return Ok(());
-            }
-            let a = pl.active;
-            if !pl.slots[a as usize].cards.iter().any(|c| g.st.cdef(c).is_energy()) {
-                return Ok(());
-            }
-            let n = g.st.slot(o, a).cards.len() as u8;
-            let mut opts = AttachOpts::new(n);
-            opts.allow_cancel = false;
-            opts.min = 1;
-            opts.max = 1;
-            let mut slots = SVec::new();
-            slots.push(SlotType::Bench as u8);
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            nf.a[1] = o as i32;
-            nf.e[0] = f.e[0];
-            let id = g.player_id(p);
-            g.prompt(
-                id,
-                "ATTACH_ENERGY_TO_BENCH",
-                PromptKind::AttachEnergy {
-                    cards: ListRef::Slot(o as u8, a),
-                    player_type: PlayerType::TopPlayer,
-                    slots,
-                    filter: Filter::super_type(SuperType::Energy),
-                    o: opts,
-                },
-                Cont::Card { card: me, frame: nf },
-            );
-            Ok(())
-        }
-        2 => {
-            let transfers: SVec<(CardTarget, CardId), 64> = match first {
-                Res::Attach(t) => t,
-                _ => SVec::new(),
-            };
-            let (opp, attack, source) = match *g.e(f.e[0]) {
-                Effect::Attack { opp, attack, source, .. } => (opp, attack, source),
-                _ => return Ok(()),
-            };
-            let active = SlotRef::new(o, g.st.players[o].active);
-            for (to, c) in transfers.iter().copied() {
-                let target = get_target(&g.st, p, to)?;
-                let b = AtkBase { attack_effect: f.e[0], player: p as u8, opponent: opp, attack, source, target: active };
-                g.run_fx(Effect::MoveOpponentEnergy { b, card: c, destination: target })?;
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

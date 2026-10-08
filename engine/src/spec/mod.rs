@@ -274,6 +274,8 @@ pub enum Op {
     // S3-4 appends (ops/cards.rs)
     EnergyChoice(EnergyChoiceSpec),
     MoveToSlot(MoveToSlotSpec),
+    // S3-4 appends (ops/flow.rs)
+    CopyFromReg(CopyFromRegSpec),
 }
 
 /// Everything a spec card file needs.

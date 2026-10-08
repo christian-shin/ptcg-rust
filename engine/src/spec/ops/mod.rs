@@ -36,7 +36,7 @@ fn family(op: &Op) -> Family {
         PickSlot(_) | Switch(_) | Heal(_) | Damage(_) | DamageSlot(_) | PlaceCounters(_) | SpreadCounters(_) | MoveCounters(_) | Evolve(_)
         | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) | EachSlot(_) | ChoiceDamage(_) => Family::Board,
         Coin(_) | May(_) | If(_) | Choose(_) | ForEach(_) | Repeat(_) | Parallel(_) | Fail(_) | PickAttack(_) | CopyAttack(_) | EndTurn(_)
-        | EndGame(_) | Custom(_) => Family::Flow,
+        | EndGame(_) | Custom(_) | CopyFromReg(_) => Family::Flow,
         AttackFlag(_) | SetMarker(_) | ClearMarker(_) | Arm(_) => Family::State,
     }
 }

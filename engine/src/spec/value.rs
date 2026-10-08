@@ -79,6 +79,10 @@ pub enum Num {
     // --- S3-4 appends ---
     /// Heads of the coins just flipped (a `Coin` with several flips; valid in its `then` steps).
     Heads,
+    /// Energy cards attached to the Pokémon.
+    EnergyCardsOn(SlotExpr),
+    /// All the cards of the Pokémon's stack (Pokémon, Energy, Tools).
+    CardsOn(SlotExpr),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -300,6 +304,8 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,
+        Num::CardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.len() as i32).unwrap_or(0),
+        Num::EnergyCardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count() as i32).unwrap_or(0),
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -553,6 +559,10 @@ pub enum SlotPred {
     HasEnergyNamed(&'static str),
     /// The Pokémon is evolved (`PokemonCardList.isEvolved()`).
     Evolved,
+    /// A Pokémon Tool is attached.
+    HasTool,
+    /// The Pokémon is on the side of the player who owns this card.
+    OnMySide,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -659,6 +669,11 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
             let d = g.st.cdef(c);
             d.is_energy() && d.name == *n
         }),
+        SlotPred::HasTool => !slot.tools.is_empty(),
+        SlotPred::OnMySide => {
+            let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            p == owner
+        }
         SlotPred::Evolved => {
             let stack = g.st.slot_pokemons(p, id);
             if stack.len() <= 1 {
