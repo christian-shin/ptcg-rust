@@ -3,29 +3,20 @@
 //!
 //! Twinleaf: a bench slot counts when any card in its `cards` list has the
 //! Cynthia's tag; `effect.damage` is set to the summed slot damage.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "CynthiasSpiritomb", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "CynthiasSpiritomb",
+    // Raging Curse: 10 damage for each damage counter on all your Benched Cynthia's Pokémon; not
+    // affected by Weakness.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
+            Step::before_damage(damage_is(Num::DamageSum(SlotSel::Bench(Who::Me), SlotPred::AnyCardTag(crate::types::tag::CYNTHIAS)))),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let pl = &g.st.players[p];
-    let mut total = 0;
-    for &b in pl.bench.iter() {
-        let slot = &pl.slots[b as usize];
-        if slot.cards.iter().any(|c| g.st.cdef(c).has_tag(tag::CYNTHIAS)) {
-            total += slot.damage;
-        }
-    }
-    if let Effect::Attack { damage, ignore_weakness, .. } = g.e_mut(e) {
-        *damage = total;
-        *ignore_weakness = true;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -33,6 +33,10 @@ pub enum EnterMethod {
     Evolve,
     /// "When you play this Pokémon from your hand onto your Bench" (any Play effect of this card).
     Play,
+    /// A Pokémon is put onto an empty Bench spot (from the hand, deck or discard pile) during its
+    /// owner's turn, whoever's it is; the program runs for that player with the Pokémon's slot
+    /// as the picked slot (Risky Ruins).
+    PutOnBench { basic: bool, not_type: Option<crate::types::CardType> },
 }
 
 pub struct OnEnterPlaySpec {
@@ -72,6 +76,7 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::OnEnterPlay(w) => match w.method {
             EnterMethod::Evolve => mask(&[k::EVOLVE]),
             EnterMethod::Play => mask(&[k::PLAY_POKEMON]),
+            EnterMethod::PutOnBench { .. } => mask(&[k::PLAY_POKEMON, k::PLAY_POKEMON_FROM_DECK, k::PLAY_POKEMON_FROM_DISCARD]),
         },
         Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
@@ -93,6 +98,26 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<u
                 Turn::Any => true,
             };
             ok.then_some(owner)
+        }
+        Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::PutOnBench { basic, not_type } }) => {
+            let (p, card, target) = match *g.e(e) {
+                Effect::PlayPokemon { p, card, target, .. } | Effect::PlayPokemonFromDeck { p, card, target } | Effect::PlayPokemonFromDiscard { p, card, target } => {
+                    (p as usize, card, target)
+                }
+                _ => return None,
+            };
+            let tp = target.p as usize;
+            if !g.st.slot(tp, target.s).cards.is_empty() || !g.st.players[p].bench.contains(&target.s) || g.st.active_player as usize != p {
+                return None;
+            }
+            let d = g.st.cdef(card);
+            if (*basic && d.stage != crate::types::Stage::Basic as u8) || not_type.map_or(false, |t| d.card_type.contains(&t)) {
+                return None;
+            }
+            if t.origin == RuleSource::Stadium && (g.st.stadium_card() != Some(me) || crate::prefabs::is_stadium_effect_blocked(g, p, target, me)) {
+                return None;
+            }
+            Some(p)
         }
         Event::OnEnterPlay(w) => {
             let p = match (w.method, *g.e(e)) {
@@ -126,5 +151,17 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<u
             _ => None,
         },
         _ => unimplemented!("spec trigger not implemented yet (trigger.rs)"),
+    }
+}
+
+/// The Pokémon slot an event is about (player << 4 | slot), or NONE: the slot register at the
+/// start of the trigger's program.
+pub(crate) fn event_slot(g: &Game, e: EffId, t: &Trigger) -> u8 {
+    match (&t.event, *g.e(e)) {
+        (
+            Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::PutOnBench { .. } }),
+            Effect::PlayPokemon { target, .. } | Effect::PlayPokemonFromDeck { target, .. } | Effect::PlayPokemonFromDiscard { target, .. },
+        ) => target.p << 4 | target.s,
+        _ => super::run::NONE,
     }
 }

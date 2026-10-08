@@ -67,6 +67,7 @@ pub enum Locked {
     Item,
     Supporter,
     Evolve,
+    Stadium,
 }
 
 /// A lasting attack effect (vocabulary v1 `Lasting`). The core owns the
@@ -242,6 +243,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 Locked::Item => crate::effects::play_lock::ITEM,
                 Locked::Supporter => crate::effects::play_lock::SUPPORTER,
                 Locked::Evolve => crate::effects::play_lock::EVOLVE,
+                Locked::Stadium => crate::effects::play_lock::STADIUM,
             };
             opponent_cannot_play_cards(g, atk, locks)?;
         }

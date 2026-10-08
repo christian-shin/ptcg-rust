@@ -78,11 +78,13 @@ pub struct Frame {
     pub(crate) heads: u8,
     /// The Pokémon picked by the last `PickSlot` (player << 4 | slot), or NONE.
     pub(crate) slot: u8,
+    /// The Prize card pile picked by the last `PickPrize`, or NONE.
+    pub(crate) prize: u8,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE }
     }
 
     fn prog_code(&self) -> u32 {
@@ -99,7 +101,7 @@ impl Frame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
         f.a[0] = (self.prog_code() | ((self.depth as u32) | (self.heads as u32) << 4) << 16 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
-        f.a[2] = self.p as i32;
+        f.a[2] = self.p as i32 | (self.prize as i32) << 8;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
         f.e[1] = self.slot;
@@ -137,6 +139,7 @@ impl Frame {
             eff: f.e[0],
             slot: f.e[1],
             p: f.a[2] as u8,
+            prize: ((f.a[2] >> 8) & 0xFF) as u8,
             cards: f.l,
         })
     }
@@ -284,8 +287,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 crate::bail!("SUPPORTER_ALREADY_PLAYED");
             }
             let f = Frame::new(Prog::Play, Phase::Use, e, p);
-            // Used through an attack (Look-Alike Show) a Trainer does what it can.
-            if !trainer_via_attack(g, e) && !usable(g, me, &f, play.needs, play.steps)? {
+            if !usable(g, me, &f, play.needs, play.steps)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
             }
             run(g, me, f)?;
@@ -329,7 +331,9 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     for (i, t) in spec.triggers.iter().enumerate() {
         if let Some(p) = trigger::fires(g, me, e, t) {
-            run(g, me, Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p))?;
+            let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            f.slot = trigger::event_slot(g, e, t);
+            run(g, me, f)?;
         }
     }
     Ok(())

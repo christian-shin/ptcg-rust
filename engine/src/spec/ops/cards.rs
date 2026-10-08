@@ -178,7 +178,10 @@ pub struct SnapshotSpec {
     pub predicate: Pred,
     pub into: u8,
 }
-pub struct OrderSpec {}
+/// The player puts the cards of register `reg` in an order (an OrderCards prompt).
+pub struct OrderSpec {
+    pub reg: u8,
+}
 /// Attach Energy chosen from a zone to Pokémon in play (an AttachEnergy prompt).
 pub struct AttachSpec {
     pub chooser: Who,
@@ -271,11 +274,19 @@ pub struct PlayFromZoneSpec {
     pub cards: u8,
     pub who: Who,
 }
-pub struct PickPrizeSpec {}
+/// The player chooses one of their Prize cards (face down only when asked); its position is
+/// kept for `PrizeVisibility`.
+pub struct PickPrizeSpec {
+    pub chooser: Who,
+    pub face_down_only: bool,
+}
 /// The resolving Trainer (a Fossil) is played from the hand as a Basic Pokémon on the first
 /// open Bench slot; it can't be played without room.
 pub struct PlayAsPokemonSpec {}
-pub struct PrizeVisibilitySpec {}
+/// Turn the picked Prize card face up (visible to both players).
+pub struct PrizeVisibilitySpec {
+    pub owner: Who,
+}
 pub struct TakePrizeSpec {}
 /// Shuffle a hand into its deck, then draw (the resolving card is not part
 /// of the hand).
@@ -307,7 +318,7 @@ fn zone_cards(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
     if zone_is_unset(f, z) {
         return Vec::new();
     }
-    let mut v = g.lst(zone_ref(f, z)).to_vec();
+    let mut v = zone_cards_of(g, me, f, z);
     if z.1 == Zone::Hand {
         v.retain(|c| *c != me);
     }
@@ -397,6 +408,32 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(Flow::Next)
             }
+        }
+        Op::Order(o) => {
+            if reg_list(g, f, o.reg).is_empty() {
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(f.p as usize);
+            g.prompt(id, "CHOOSE_CARDS_ORDER", PromptKind::OrderCards { cards: ListRef::Temp(f.cards[o.reg as usize]), allow_cancel: false }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::PickPrize(pp) => {
+            let id = g.player_id(f.who(pp.chooser));
+            g.prompt(
+                id,
+                "CHOOSE_POKEMON",
+                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: pp.face_down_only },
+                f.cont(me, 1),
+            );
+            Ok(Flow::Suspend)
+        }
+        Op::PrizeVisibility(pv) => {
+            if f.prize != NONE {
+                let (p, i) = (f.who(pv.owner), f.prize as usize);
+                g.st.players[p].prize_public[i] = true;
+                g.st.players[p].prize_face_up[i] = true;
+            }
+            Ok(Flow::Next)
         }
         Op::PlayAsPokemon(_) => {
             let p = f.p as usize;
@@ -543,7 +580,10 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
                 CardSel::This => zc.into_iter().filter(|c| *c == me).collect(),
                 CardSel::Tools(_) => unreachable!(),
             };
-            (zone_ref(f, m.from), cards)
+            match zone_list(g, me, f, m.from, true) {
+                Some(l) => (l, cards),
+                None => return Ok(()),
+            }
         }
     };
     if m.shuffle_first && !cards.is_empty() {
@@ -638,7 +678,14 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
         }
     }
     // A hand's prompt lists it without the resolving card.
-    let list = if pick.from.1 == Zone::Hand && g.lst(zone_ref(f, pick.from)).contains(&me) { g.alloc_temp(&cards) } else { zone_ref(f, pick.from) };
+    let list = if pick.from.1 == Zone::Hand && g.lst(zone_ref(f, pick.from)).contains(&me) {
+        g.alloc_temp(&cards)
+    } else {
+        match zone_list(g, me, f, pick.from, false) {
+            Some(l) => l,
+            None => return false,
+        }
+    };
     choose_cards(g, p, msg, list, Filter::none(), opts, f.cont(me, sub));
     true
 }
@@ -934,6 +981,19 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                     }
                 }
             }
+            Ok(Flow::Next)
+        }
+        Op::Order(o) => {
+            if let Res::Order(ord) = first {
+                crate::game::apply_order(&mut g.temps[f.cards[o.reg as usize] as usize], ord.as_slice());
+            }
+            Ok(Flow::Next)
+        }
+        Op::PickPrize(_) => {
+            f.prize = match first {
+                Res::Prizes(v) => v.get(0).copied().unwrap_or(NONE),
+                _ => NONE,
+            };
             Ok(Flow::Next)
         }
         Op::DiscardEnergy(d) => {

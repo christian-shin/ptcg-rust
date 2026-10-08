@@ -7,40 +7,34 @@
 //! this card is the player's Active and it has any Special Condition. R7F-11
 //! (rulings 252, 1552): the cost is also marked as set, so an increase (Rillaboom's
 //! Drum Beating, ...) no longer adds a [C] back.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Conkeldurr", mask: mask(&[k::ATTACK, k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Conkeldurr",
+    // Tantrum: this Pokémon is now Confused.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::Conditions(ConditionsSpec {
+            target: MY_ACTIVE,
+            change: ConditionChange::Add(&[SpecialCondition::Confused]),
+            cause: Cause::Attack,
+            gate: Gate::None,
+            when: Cond::True,
+        }))],
+    }],
+    // Gutsy Swing: if this Pokémon is affected by a Special Condition, ignore all Energy in this
+    // attack's cost.
+    passives: &[Passive {
+        origin: RuleSource::CardRule,
+        modifier: Modifier::AttackCost(AttackCostSpec {
+            change: CostChange::SetCost(&[]),
+            attack: Some(1),
+            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon, SlotPred::HasCondition]),
+            side: Side::Owner,
+            guard: Cond::True,
+        }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let (p, opp, attack, source) = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p as usize].active;
-        let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: SlotRef::new(p as usize, a) };
-        let mut cs = SVec::new();
-        cs.push(SpecialCondition::Confused as u8);
-        g.run_fx(Effect::AddSpecialConditions { b, conditions: cs, poison_damage: None, burn_damage: None, confusion_damage: None })?;
-        return Ok(());
-    }
-    if let Effect::CheckAttackCost { p, attack, .. } = *g.e(e) {
-        if attack != my_attack(g, me, 1) {
-            return Ok(());
-        }
-        let p = p as usize;
-        let a = g.st.players[p].active;
-        if g.st.slot_pokemon(p, a) != Some(me) {
-            return Ok(());
-        }
-        if !g.st.slot(p, a).special_conditions.is_empty() {
-            if let Effect::CheckAttackCost { cost, set_cost, .. } = g.e_mut(e) {
-                cost.clear();
-                // "Ignore all Energy in this attack's cost": nothing is added to it
-                // later (R7F-11, ruling 252).
-                *set_cost = Some(SVec::new());
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

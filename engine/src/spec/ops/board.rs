@@ -120,6 +120,9 @@ pub enum CounterCause {
     Attack,
     /// PlaceDamageCountersEffect (Ability or card effect).
     Effect,
+    /// Written on the slot without an effect (nothing can prevent it); the slot can still be
+    /// empty (a Pokémon about to be put there).
+    Direct,
 }
 
 pub struct PlaceCountersSpec {
@@ -355,7 +358,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                         return Ok(Flow::Next);
                     }
                     if let Some(s) = slot_of(g, me, f, *e) {
-                        if occupied(g, s) {
+                        let direct = matches!(op, Op::PlaceCounters(PlaceCountersSpec { cause: CounterCause::Direct, .. }));
+                        if occupied(g, s) || direct {
                             act(g, me, f, op, s)?;
                         }
                     }
@@ -559,7 +563,8 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             SlotTarget::Pick(p) => !slots_of(g, me, f, &p.among).is_empty(),
             SlotTarget::Slot(_) => true,
         },
-        Op::Switch(s) => !s.required || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
+        // Used through an attack (Look-Alike Show) a Trainer's switch does nothing when it can't.
+        Op::Switch(s) => !s.required || trainer_via_attack(g, f.eff) || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
         _ => true,
     }
 }
@@ -605,6 +610,9 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
             match c.cause {
                 CounterCause::Effect => {
                     g.run_fx(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me })?;
+                }
+                CounterCause::Direct => {
+                    g.st.players[slot.p as usize].slots[slot.s as usize].damage += n;
                 }
                 CounterCause::Attack => {
                     if let Some(b) = atk_base(g, f, slot) {

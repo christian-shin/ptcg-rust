@@ -221,7 +221,7 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
 pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     if let Op::ForEach(fe) = op {
         let pass = f.pass() as usize;
-        let list = slots_of(g, me, f, &fe.over);
+        let list = slots_m(g, me, f, &fe.over).unwrap_or_default();
         return match list.as_slice().get(pass) {
             Some(s) => {
                 f.slot = s.p << 4 | s.s;

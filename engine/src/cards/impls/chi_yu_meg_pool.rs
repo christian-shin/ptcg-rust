@@ -11,32 +11,30 @@
 //! attack it now happens in AfterAttackEffect (after the damage, before the
 //! Knock Out check), and the play lock is built from a fresh AttackEffect's
 //! data like the other AfterAttackEffect handlers do.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "ChiYuMEGPool", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let o = match *g.e(e) {
-        Effect::AfterAttack { opp, .. } => opp as usize,
-        _ => return Ok(()),
-    };
-    let stadium = match g.st.stadium_card() {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    let owner = match g.st.players.iter().position(|pl| pl.stadium.contains(stadium)) {
-        Some(i) => i,
-        None => return Ok(()),
-    };
-    if owner != o {
-        return Ok(());
-    }
-    move_cards(g, ListRef::Stadium(owner as u8), ListRef::Discard(owner as u8), &[stadium], me)?;
-    if g.st.stadium_card() != Some(stadium) {
-        return opponent_cannot_play_cards(g, e, crate::effects::play_lock::STADIUM);
-    }
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "ChiYuMEGPool",
+    // Scorching Earth: if your opponent has a Stadium in play, discard it. If you do, your opponent
+    // can't play any Stadium cards from their hand during their next turn.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::If(IfSpec {
+            cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
+            yes: &[
+                Step::new(Op::Move(MoveSpec { from: OPP_STADIUM, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+                Step::new(Op::If(IfSpec {
+                    cond: Cond::Not(&Cond::Nonempty(OPP_STADIUM, Pred::Any)),
+                    yes: &[Step::new(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Stadium) }))],
+                    no: &[],
+                })),
+            ],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();
