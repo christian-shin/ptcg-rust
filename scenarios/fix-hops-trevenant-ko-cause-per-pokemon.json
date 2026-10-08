@@ -1,0 +1,102 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dreepy ASC 158",
+   "4 Drakloak ASC 159",
+   "4 Dragapult ex ASC 160",
+   "4 Dwebble DRI 11",
+   "4 Ethan's Pichu DRI 71",
+   "4 Ethan's Pinsir DRI 1",
+   "4 Hop's Wooloo JTG 135",
+   "2 Hop's Phantump ASC 95",
+   "2 Hop's Trevenant ASC 96",
+   "8 Psychic Energy MEE 5",
+   "20 Fire Energy MEE 2"
+  ],
+  [
+   "4 Dreepy ASC 158",
+   "4 Drakloak ASC 159",
+   "4 Dragapult ex ASC 160",
+   "4 Dwebble DRI 11",
+   "4 Ethan's Pichu DRI 71",
+   "4 Ethan's Pinsir DRI 1",
+   "4 Hop's Wooloo JTG 135",
+   "2 Hop's Phantump ASC 95",
+   "2 Hop's Trevenant ASC 96",
+   "8 Psychic Energy MEE 5",
+   "20 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Dreepy ASC 158",
+   "Drakloak ASC 159",
+   "Dragapult ex ASC 160"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Hop's Wooloo JTG 135",
+    "damage": 20
+   },
+   {
+    "card": [
+     "Hop's Phantump ASC 95",
+     "Hop's Trevenant ASC 96"
+    ],
+    "energy": [
+     "Fire Energy MEE 2"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Phantom Dive"
+  },
+  [
+   {
+    "target": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "damage": 60
+   }
+  ],
+  [
+   0,
+   1
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 1
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Horrifying Revenge"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 30,
+   "cite": "Card text: an Ethan's/Hop's Pokemon itself must have been Knocked Out by damage from an attack; here the Ethan's/Hop's Pokemon was Knocked Out by damage counters and a different Pokemon by attack damage (planned change B-PC-4)"
+  }
+ ]
+}

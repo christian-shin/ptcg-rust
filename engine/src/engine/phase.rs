@@ -301,6 +301,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     g.st.players[p].pokemon_knocked_out_during_opponents_last_turn = false;
     g.st.players[p].pokemon_knocked_out_by_attack_during_opponents_last_turn = false;
     g.st.players[p].pokemon_knocked_out_last_turn_entries.clear();
+    g.st.players[p].pokemon_knocked_out_last_turn_by_attack.clear();
 
     for s in g.st.players[o].in_play().iter() {
         let slot = &mut g.st.players[o].slots[*s as usize];
