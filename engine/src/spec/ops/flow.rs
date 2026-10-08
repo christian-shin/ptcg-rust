@@ -60,14 +60,14 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     _ => Flow::Next,
                 });
             }
-            if !cond(g, me, f, &m.when) {
+            if !cond_m(g, me, f, &m.when)? {
                 return Ok(Flow::Next);
             }
             confirmation_prompt(g, f.who(m.asker), m.msg, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
         Op::If(i) => {
-            if cond(g, me, f, &i.cond) {
+            if cond_m(g, me, f, &i.cond)? {
                 Ok(if i.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
             } else {
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
@@ -110,7 +110,7 @@ pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, result
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
         Op::May(m) => {
-            if !cond(g, me, f, &m.when) {
+            if !cond_m(g, me, f, &m.when)? {
                 // Nothing to decide: the effect is not carried out.
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);

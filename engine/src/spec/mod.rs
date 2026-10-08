@@ -48,12 +48,15 @@ pub struct CardSpec {
     pub attacks: &'static [AttackSpec],
     pub powers: &'static [PowerSpec],
     pub play: Option<PlaySpec>,
+    /// A Stadium's "once during each player's turn, that player may ..."
+    /// (played with the board's use-Stadium action).
+    pub use_stadium: Option<PlaySpec>,
     pub passives: &'static [Passive],
     pub triggers: &'static [Trigger],
 }
 
 impl CardSpec {
-    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, passives: &[], triggers: &[] };
+    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[] };
 
     /// The registry entry: the shared interpreter, subscribed to exactly the
     /// effect kinds this spec reacts to.
@@ -80,6 +83,17 @@ impl CardSpec {
         }
         if !self.powers.is_empty() {
             m = with(m, k::POWER);
+        }
+        let mut i = 0;
+        while i < self.powers.len() {
+            if let Once::PerTurn(_) = self.powers[i].once {
+                // The once-per-turn marker is cleared at the end of the turn.
+                m = with(m, k::END_TURN);
+            }
+            i += 1;
+        }
+        if self.use_stadium.is_some() {
+            m = with(m, k::USE_STADIUM);
         }
         if self.play.is_some() {
             m = with(m, k::TRAINER);
@@ -149,6 +163,9 @@ pub struct PowerSpec {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Once {
     No,
+    /// Once during your turn, per copy: the named player marker, set by this
+    /// card when the Ability is used and cleared at the end of the turn.
+    PerTurn(&'static str),
 }
 
 pub struct Step {

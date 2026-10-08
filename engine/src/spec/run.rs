@@ -39,6 +39,8 @@ pub(crate) enum Prog {
     Power(u8),
     /// Position in `spec.triggers`.
     Trigger(u8),
+    /// `spec.use_stadium`.
+    UseStadium,
 }
 
 /// Which top-level steps a run executes.
@@ -85,6 +87,7 @@ impl Frame {
             Prog::Play => 0x100,
             Prog::Power(i) => 0x200 | i as u32,
             Prog::Trigger(i) => 0x300 | i as u32,
+            Prog::UseStadium => 0x400,
         }
     }
 
@@ -115,7 +118,8 @@ impl Frame {
             0 => Prog::Attack((code & 0xFF) as u8),
             1 => Prog::Play,
             2 => Prog::Power((code & 0xFF) as u8),
-            _ => Prog::Trigger((code & 0xFF) as u8),
+            3 => Prog::Trigger((code & 0xFF) as u8),
+            _ => Prog::UseStadium,
         };
         Some(Frame {
             prog,
@@ -231,6 +235,7 @@ fn program(spec: &'static CardSpec, prog: Prog) -> &'static [Step] {
         Prog::Play => spec.play.as_ref().map(|p| p.steps).unwrap_or(&[]),
         Prog::Power(i) => spec.powers[i as usize].steps,
         Prog::Trigger(i) => spec.triggers[i as usize].steps,
+        Prog::UseStadium => spec.use_stadium.as_ref().map(|p| p.steps).unwrap_or(&[]),
     }
 }
 
@@ -272,23 +277,46 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 crate::bail!("SUPPORTER_ALREADY_PLAYED");
             }
             let f = Frame::new(Prog::Play, Phase::Use, e, p);
-            if !usable(g, me, &f, play.needs, play.steps) {
+            if !usable(g, me, &f, play.needs, play.steps)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
             }
             run(g, me, f)?;
         }
     }
     for (i, pw) in spec.powers.iter().enumerate() {
+        if let Once::PerTurn(name) = pw.once {
+            remove_marker_at_end_of_turn(g, e, crate::markers::intern(name), me);
+        }
         if was_power_used(g, e, pw.index, me) {
             let p = match *g.e(e) {
                 Effect::Power { p, .. } => p as usize,
                 _ => continue,
             };
             let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
-            if !usable(g, me, &f, pw.needs, pw.steps) {
+            if let Once::PerTurn(name) = pw.once {
+                if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
+                    crate::bail!("POWER_ALREADY_USED");
+                }
+            }
+            if !usable(g, me, &f, pw.needs, pw.steps)? {
                 crate::bail!("CANNOT_USE_POWER");
             }
+            if let Once::PerTurn(name) = pw.once {
+                use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
+                ability_used(g, p, me);
+            }
             run(g, me, f)?;
+        }
+    }
+    if let Some(us) = &spec.use_stadium {
+        if let Effect::UseStadium { p, stadium } = *g.e(e) {
+            if stadium == me {
+                let f = Frame::new(Prog::UseStadium, Phase::Use, e, p as usize);
+                if !usable(g, me, &f, us.needs, us.steps)? {
+                    crate::bail!("CANNOT_USE_STADIUM");
+                }
+                run(g, me, f)?;
+            }
         }
     }
     for (i, t) in spec.triggers.iter().enumerate() {
@@ -299,10 +327,16 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-/// A Trainer or Ability can be used when its declared needs and the
-/// preconditions its top-level ops imply hold.
-fn usable(g: &Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -> bool {
-    needs.iter().all(|c| cond(g, me, f, c)) && steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op))
+/// A Trainer, Ability or Stadium can be used when its declared needs (read
+/// as the game checks them: types, provided Energy) and the preconditions its
+/// top-level ops imply hold.
+fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -> R<bool> {
+    for c in needs {
+        if !cond_m(g, me, f, c)? {
+            return Ok(false);
+        }
+    }
+    Ok(steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op)))
 }
 
 /// `CardImpl::resume` of every spec card.
