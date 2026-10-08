@@ -76,11 +76,6 @@ stamps, because more lock cards will come.
 
 ## Not yet implemented (2026-10-08)
 
-- On-play triggers check locks while the card is still in the hand, so
-  Watchtower doesn't stop Meowth ex (scenario
-  `meowth-ex-last-ditch-catch-watchtower`, expected to fail until fixed).
-- Iron Thorns ex's Initialization strips Abilities from hand cards, which lets
-  a Rule Box Pokémon with an Ability be played past Potent Glare.
 - Lock precedence gets rules 2 and 4 wrong: take-hold order is applied to
   one-way pairs too, ties go to whoever's turn it currently is, and stamps are
   set only when a Pokémon becomes Active.

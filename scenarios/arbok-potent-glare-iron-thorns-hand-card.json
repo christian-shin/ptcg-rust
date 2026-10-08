@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Meowth ex POR 62",
+   "4 Iron Thorns ex PRE 32",
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Tatsugiri TWM 131",
+   "40 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Meowth ex POR 62",
+   "4 Iron Thorns ex PRE 32",
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Tatsugiri TWM 131",
+   "40 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "hand": [
+   "Meowth ex POR 62"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Meowth ex POR 62",
+   "is": false,
+   "cite": "ruling id2147 / n1662: a card in the hand is judged by its printed Abilities, so Iron Thorns ex's Initialization doesn't let a Rule Box Pokémon with an Ability past Potent Glare"
+  }
+ ]
+}

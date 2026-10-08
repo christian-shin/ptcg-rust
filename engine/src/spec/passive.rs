@@ -2014,10 +2014,9 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
             if g.st.active_pokemon(player) != Some(me) && g.st.active_pokemon(1 - player) != Some(me) {
                 return Ok(false);
             }
-            // A Pokémon still in the hand is being played (benched / evolved): it is in play, so locked too.
+            // A card in the hand is judged by its printed data (RULES.md): only Pokémon in play are locked.
             let slot = match g.st.locate(card) {
-                Some(ListRef::Slot(q, s)) => Some(SlotRef::new(q as usize, s)),
-                Some(ListRef::Hand(_)) => None,
+                Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
                 _ => return Ok(false),
             };
             let d = g.st.cdef(card);
@@ -2034,8 +2033,7 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
                 return Ok(false);
             }
             if power_effect {
-                // CAN_APPLY_LOCK_TO_TARGET (a card in the hand is not on a Pokémon slot: true)
-                let Some(slot) = slot else { return Ok(true) };
+                // CAN_APPLY_LOCK_TO_TARGET
                 return Ok(match g.run_fx(Effect::EffectOfAbility { p: locker_owner as u8, power: own, card: me, target: Some(slot) }) {
                     Ok((Effect::EffectOfAbility { target, .. }, _)) => target.is_some(),
                     _ => false,
@@ -2292,15 +2290,8 @@ fn block_ability_pokemon(g: &mut Game, me: CardId, e: EffId, except_tag: u32) ->
     if g.st.slot_pokemon(o, a) != Some(me) || is_ability_blocked(g, o, me, None) {
         return Ok(());
     }
-    let mut powers = SVec::new();
-    for i in 0..g.st.cdef(card).powers.len() {
-        powers.push(crate::effects::PowerRef { card, index: i as u8 });
-    }
-    let (pe, _) = g.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: card, powers })?;
-    let has_ability = match pe {
-        Effect::CheckPokemonPowers { powers, .. } => powers.iter().any(|r| power_type_of(g, *r) == PowerType::Ability as u8),
-        _ => false,
-    };
+    // The card is in the hand: its printed Abilities decide (in-play locks don't reach it).
+    let has_ability = g.st.cdef(card).powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8);
     if has_ability && !g.st.cdef(card).has_tag(except_tag) {
         crate::bail!("BLOCKED_BY_ABILITY");
     }

@@ -173,7 +173,9 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 (EnterMethod::Play, Effect::PlayPokemon { p, card, .. }) | (EnterMethod::Evolve, Effect::Evolve { p, card, .. }) if card == me => p as usize,
                 _ => return None,
             };
-            if super::passive::blocked(g, me, t.origin, super::passive::Located { owner: p, held: None }, None) {
+            // The card is on the board by now: its slot's locks apply as for any Ability.
+            let at = super::passive::locate(g, me, t.origin)?;
+            if super::passive::blocked(g, me, t.origin, at, at.held) {
                 return None;
             }
             Some((p, None))
@@ -303,6 +305,11 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             _ => None,
         },
     }
+}
+
+/// Triggers of the card's own entering that run once it is on the board.
+pub(crate) fn runs_after_play(t: &Trigger) -> bool {
+    matches!(t.event, Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play | EnterMethod::Evolve }))
 }
 
 /// The effect stays alive while the trigger's program is suspended (a Knock Out of the opponent's Active
