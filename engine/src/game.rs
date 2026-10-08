@@ -1155,6 +1155,7 @@ impl Game {
         crate::engine::game_effect::reducer(self, id)?;
         attack::reducer(self, id)?;
         check::check_state_reducer(self, id)?;
+        crate::spec::run::after_enter_play(self, id)?;
         Ok(())
     }
 

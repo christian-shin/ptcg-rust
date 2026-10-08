@@ -374,6 +374,10 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, t) in spec.triggers.iter().enumerate() {
+        // "When you play this Pokémon" runs once the card is on the board (`after_enter_play`).
+        if trigger::runs_after_play(t) {
+            continue;
+        }
         if let Some((p, slot)) = trigger::fires(g, me, e, t) {
             let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
             f.slot = slot;
@@ -381,6 +385,28 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 g.retain_fx(e);
             }
             run(g, me, f)?;
+        }
+    }
+    Ok(())
+}
+
+/// The triggers of a Pokémon that was just played or evolved ("when you play this Pokémon from your
+/// hand onto your Bench / to evolve"): the card is on the board now, so the ordinary in-play locks at its
+/// slot decide whether its Ability triggers (RULES.md, On-play Abilities).
+pub fn after_enter_play(g: &mut Game, e: EffId) -> R {
+    let card = match *g.e(e) {
+        Effect::PlayPokemon { card, .. } | Effect::Evolve { card, .. } => card,
+        _ => return Ok(()),
+    };
+    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return Ok(()) };
+    for (i, t) in spec.triggers.iter().enumerate() {
+        if !trigger::runs_after_play(t) {
+            continue;
+        }
+        if let Some((p, slot)) = trigger::fires(g, card, e, t) {
+            let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            f.slot = slot;
+            run(g, card, f)?;
         }
     }
     Ok(())
