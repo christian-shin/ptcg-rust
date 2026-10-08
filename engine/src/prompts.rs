@@ -327,7 +327,7 @@ pub enum Res {
     Bool(bool),
     Int(i32),
     Cards(List<120>),
-    Slots(SVec<SlotRef, 8>),
+    Slots(SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>),
     /// Chosen energy entries, by card.
     Energy(SVec<CardId, 64>),
     /// Indices into the owning player's `prizes` array.
@@ -688,7 +688,7 @@ impl Game {
                 }
             }
             PromptKind::ChoosePokemon { min, max, blocked, .. } => {
-                let mut out: SVec<SlotRef, 8> = SVec::new();
+                let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
                 for v in raw.as_array().ok_or(invalid)? {
                     let t = target_from_json(v).ok_or(invalid)?;
                     let q = if t.player == PlayerType::BottomPlayer { p } else { 1 - p };

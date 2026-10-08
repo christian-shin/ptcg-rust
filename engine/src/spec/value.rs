@@ -702,8 +702,8 @@ fn printed_cost(g: &Game, f: &Frame) -> i32 {
     }
 }
 
-pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef, 9> {
-    let mut out: SVec<SlotRef, 9> = SVec::new();
+pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> {
+    let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
     match sel {
         SlotSel::One(e) => {
             if let Some(s) = slot_of(g, me, f, *e) {
@@ -872,10 +872,10 @@ pub fn slot_pred_m(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<boo
 }
 
 /// The selected Pokémon, with checked reads in the filters.
-pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<SlotRef, 9>> {
+pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
     match sel {
         SlotSel::Filtered(inner, sp) => {
-            let mut out: SVec<SlotRef, 9> = SVec::new();
+            let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
             for s in slots_m(g, me, f, inner)?.iter() {
                 if slot_pred_m(g, me, *s, sp)? {
                     out.push(*s);
