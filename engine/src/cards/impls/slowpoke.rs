@@ -8,58 +8,21 @@
 //! discard pile to the hand are revealed). Phase 4b (R7E, ruling 1790): an attack
 //! can be used even if its effect can't be carried out, so with no Pokémon in the
 //! discard pile it is usable and does nothing (it used to be unusable).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Slowpoke@Slowpoke SCR",
-    mask: mask(&[k::AFTER_ATTACK]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::Search(SearchSpec {
+            pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+            destination: SearchDestination::Hand { reveal: true },
+            msg: "CHOOSE_CARD_TO_HAND",
+            cancel: false,
+            shuffle_first: false,
+        }))],
+    }],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if !g.st.players[p].discard.iter().any(|c| g.st.cdef(c).super_type == SuperType::Pokemon as u8) {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        choose_cards(
-            g,
-            p,
-            "CHOOSE_CARD_TO_HAND",
-            ListRef::Discard(p as u8),
-            Filter::super_type(SuperType::Pokemon),
-            ChooseCardsOpts::new(1, 1, false),
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let selected: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    show_cards_to_player(g, 1 - p, selected.len());
-    g.run_fx(Effect::MoveCards {
-        source: ListRef::Discard(p as u8),
-        destination: ListRef::Hand(p as u8),
-        cards: Some(List::from_slice(&selected)),
-        count: None,
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card: NO_CARD,
-    })?;
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

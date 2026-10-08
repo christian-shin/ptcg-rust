@@ -9,11 +9,11 @@ use super::super::run::{Flow, Frame};
 use super::super::*;
 use crate::effects::{AtkBase, Effect, SlotRef};
 use crate::game::{Game, R};
-use crate::list::CardId;
+use crate::list::{CardId, SVec};
 use crate::markers::{MarkerName, SourceType, TargetScope};
 use crate::prefabs::*;
 use crate::prompts::Res;
-use crate::types::Stage;
+use crate::types::{ct, Stage};
 
 // ---------------------------------------------------------------------------
 // AttackFlag
@@ -50,6 +50,9 @@ pub enum DamageSource {
     Stage(Stage),
     Evolution,
     HasAbility,
+    // --- S3-4 appends ---
+    /// Basic Pokémon that are not [C] (Crown Opal).
+    BasicNonColorless,
 }
 
 impl DamageSource {
@@ -60,6 +63,14 @@ impl DamageSource {
             DamageSource::Stage(s) => f.source_stage = Some(s as u8),
             DamageSource::Evolution => f.source_stage = Some(crate::state::PreventFilter::SOURCE_IS_EVOLUTION),
             DamageSource::HasAbility => f.source_has_ability = true,
+            DamageSource::BasicNonColorless => {
+                f.source_stage = Some(Stage::Basic as u8);
+                let mut types = SVec::new();
+                for t in [ct::GRASS, ct::FIRE, ct::WATER, ct::LIGHTNING, ct::PSYCHIC, ct::FIGHTING, ct::DARK, ct::METAL, ct::FAIRY, ct::DRAGON] {
+                    types.push(t);
+                }
+                f.source_card_types = Some(types);
+            }
         }
         Some(f)
     }
@@ -115,6 +126,10 @@ pub enum Lasting {
     /// During the opponent's next turn, if this Pokémon is Knocked Out by damage from an attack,
     /// the attacker's controller discards an Energy attached to the Attacking Pokémon (Little Grudge).
     DiscardAttackerEnergyIfKnockedOut,
+    /// This Pokémon can't retreat during your next turn.
+    SelfCannotRetreat,
+    /// During the opponent's next turn, Pokémon with this many Energy or fewer can't attack.
+    OppSmallEnergyCannotAttack(i32),
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -291,12 +306,26 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
             }
         }
         Lasting::PreventAttackEffects => prevent_effects_of_attacks(g, atk)?,
+        Lasting::SelfCannotRetreat => block_self_retreat(g, atk)?,
+        Lasting::OppSmallEnergyCannotAttack(n) => opponent_pokemon_with_x_or_less_energy_cannot_attack(g, atk, n)?,
     }
     Ok(())
 }
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
+        Op::AttackFlag(a) if a.flag == AttackFlagKind::Barrage => {
+            // Festival Lead: the attack may be used twice (read by the core's attack use).
+            crate::copy_attack::write_barrage(g, me, |b, shown| {
+                if a.value {
+                    *b |= 1;
+                } else {
+                    *b &= !1;
+                }
+                *shown |= 1;
+            });
+            Ok(Flow::Next)
+        }
         Op::AttackFlag(a) => {
             if let Effect::Attack { ignore_weakness, ignore_resistance, ignore_defender_effects, .. } = g.e_mut(f.eff) {
                 match a.flag {

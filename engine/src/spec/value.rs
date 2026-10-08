@@ -102,6 +102,12 @@ pub enum Num {
     OthersCount(ZoneRef, Pred),
     /// Cards the program's last discard moved (a discard of chosen Energy).
     Last,
+    /// Energy cards attached to the Pokémon.
+    EnergyCardsOn(SlotExpr),
+    /// All the cards of the Pokémon's stack (Pokémon, Energy, Tools).
+    CardsOn(SlotExpr),
+    /// Pokémon Tools attached to the Pokémon in play, both sides'.
+    ToolsInPlay,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -197,6 +203,12 @@ pub enum Cond {
     CanEvolveBasic(Who),
     /// This Tool's effect is blocked for the player the program runs for (a checked read).
     ToolBlocked,
+    /// This Stadium's effect is blocked on the Pokémon (the lock probe). A checked read.
+    StadiumBlocked(SlotExpr),
+    /// The player played a Team Rocket's Supporter from their hand this turn.
+    RocketSupporterPlayed(Who),
+    /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
+    HasEvolutionInPool(Who),
 }
 
 /// A card predicate.
@@ -244,6 +256,10 @@ pub enum Pred {
     /// A Pokémon that evolves from the named Pokémon.
     EvolvesFrom(&'static str),
     SpecialEnergy,
+    /// The Pokémon evolves from a Pokémon its owner has in play.
+    EvolvesFromOwnInPlay,
+    /// The Pokémon card prints an Ability.
+    PrintsAbility,
 }
 
 impl Frame {
@@ -358,6 +374,9 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::DamageSum(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, **s, sp).unwrap_or(false)).map(|s| g.st.slot(s.p as usize, s.s).damage).sum(),
         Num::Last => f.last,
         Num::OthersCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
+        Num::ToolsInPlay => (0..2usize).map(|q| for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().map(|(s, _, _)| g.st.slot(q, *s).tools.len() as i32).sum::<i32>()).sum(),
+        Num::CardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.len() as i32).unwrap_or(0),
+        Num::EnergyCardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count() as i32).unwrap_or(0),
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -508,6 +527,18 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             };
             in_play(g, f.who(*names_of), PlayScope::All).iter().all(|(_, top, _)| known(g.st.cdef(*top).name) >= 4)
         }
+        Cond::StadiumBlocked(_) => panic!("Cond::StadiumBlocked needs a checked read (cond_m)"),
+        Cond::RocketSupporterPlayed(w) => g.st.players[f.who(*w)].rocket_supporter,
+        Cond::HasEvolutionInPool(w) => {
+            let p = f.who(*w);
+            for (_, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                let base = g.st.cdef(c).name;
+                if crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == base) {
+                    return true;
+                }
+            }
+            false
+        }
     }
 }
 
@@ -544,6 +575,13 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::RuleBox => d.has_rule_box(),
         Pred::EvolvesFrom(n) => d.is_pokemon() && d.evolves_from == *n,
         Pred::SpecialEnergy => d.is_energy() && d.energy_type == EnergyType::Special as u8,
+        Pred::EvolvesFromOwnInPlay => {
+            d.is_pokemon() && {
+                let owner = g.st.owner(c);
+                for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(_, top, _)| g.st.cdef(*top).name == d.evolves_from)
+            }
+        }
+        Pred::PrintsAbility => d.is_pokemon() && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
     }
 }
 
@@ -560,6 +598,9 @@ pub enum SlotSel {
     Filtered(&'static SlotSel, SlotPred),
     /// Every Pokémon of a player; a prompt lists the Bench before the Active Spot.
     PokemonBenchFirst(Who),
+    // --- S3-4 appends ---
+    /// The same Pokémon, but the prompt that chooses among them can be cancelled.
+    Cancelable(&'static SlotSel),
 }
 
 /// A predicate on a Pokémon in play.
@@ -628,6 +669,12 @@ pub enum SlotPred {
     HasSpecialEnergy,
     /// A Pokémon Tool attached to the slot matches the card predicate.
     AnyTool(Pred),
+    /// An Energy card with this name is attached.
+    HasEnergyNamed(&'static str),
+    /// The Pokémon is evolved (`PokemonCardList.isEvolved()`).
+    Evolved,
+    /// The Pokémon is on the side of the player who owns this card.
+    OnMySide,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -685,6 +732,7 @@ pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef,
                 }
             }
         }
+        SlotSel::Cancelable(inner) => return slots_of(g, me, f, inner),
     }
     out
 }
@@ -739,6 +787,28 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,
+        SlotPred::HasEnergyNamed(n) => slot.cards.iter().any(|c| {
+            let d = g.st.cdef(c);
+            d.is_energy() && d.name == *n
+        }),
+        SlotPred::OnMySide => {
+            let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            p == owner
+        }
+        SlotPred::Evolved => {
+            let stack = g.st.slot_pokemons(p, id);
+            if stack.len() <= 1 {
+                false
+            } else {
+                match g.st.slot_pokemon(p, id) {
+                    Some(top) => {
+                        let st = g.st.cdef(top).stage;
+                        !(st == Stage::Legend as u8 || st == Stage::Vunion as u8 || (st == Stage::LvX as u8 && stack.len() == 2))
+                    }
+                    None => true,
+                }
+            }
+        }
     })
 }
 
@@ -811,6 +881,7 @@ pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<Slo
             }
             Ok(out)
         }
+        SlotSel::Cancelable(inner) => slots_m(g, me, f, inner),
         _ => Ok(slots_of(g, me, f, sel)),
     }
 }
@@ -941,6 +1012,10 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
         Cond::ToolBlocked => is_tool_blocked(g, f.p as usize, me),
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
+            None => false,
+        },
+        Cond::StadiumBlocked(e) => match slot_of(g, me, f, *e) {
+            Some(s) => is_stadium_effect_blocked(g, s.p as usize, s, me),
             None => false,
         },
         Cond::AnySlot(sel, sp) => {

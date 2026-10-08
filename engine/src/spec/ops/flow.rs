@@ -89,7 +89,10 @@ pub struct FailSpec {
     pub unless: Cond,
     pub error: &'static str,
 }
-pub struct PickAttackSpec {}
+/// Choose 1 of the attacks of the Active Pokémon of `from`; it can't be used during that player's next turn.
+pub struct PickAttackSpec {
+    pub from: Who,
+}
 /// Choose an attack of `from`'s Active Pokémon (when its card matches
 /// `predicate` and has attacks) and use it as this attack, as a copy session
 /// (`copy_attack.rs`): no cancel, `retries` attempts when a chosen attack
@@ -122,6 +125,12 @@ pub struct EndGameSpec {
 pub struct CustomSpec {
     pub exec: fn(&mut Game, CardId, &mut Frame) -> R<Flow>,
     pub resume: fn(&mut Game, CardId, &mut Frame, &[Res]) -> R<Flow>,
+}
+/// Choose 1 of the attacks of the Pokémon cards in a register (still in the discard pile) and use it
+/// as this attack, as a copy session: no cancel, `retries` attempts when a chosen attack can't be used.
+pub struct CopyFromRegSpec {
+    pub reg: u8,
+    pub retries: u8,
 }
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
@@ -221,6 +230,32 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             crate::engine::phase::end_game(g, winner);
             Ok(Flow::Next)
         }
+        Op::CopyFromReg(c) => {
+            let p = f.p as usize;
+            // The Pokémon cards of the register that are still in the discard pile.
+            let cards: Vec<CardId> = reg_list(g, f, c.reg).iter().copied().filter(|x| g.lst(crate::state::ListRef::Discard(p as u8)).contains(x)).collect();
+            if cards.is_empty() {
+                return Ok(Flow::Next);
+            }
+            // Nothing is chosen when every attack of those Pokémon is locked for the Active.
+            let a = g.st.players[p].active;
+            let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
+            let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.tl_name)));
+            if !any_free {
+                return Ok(Flow::Next);
+            }
+            crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+            Ok(Flow::Next)
+        }
+        Op::PickAttack(a) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                if c.answer == CHOICE_YES && c.len >= 2 {
+                    pick_attack_apply(g, f, crate::state::AttackRef { card: c.items[0], index: c.items[1] })?;
+                }
+                return Ok(Flow::Next);
+            }
+            Ok(if pick_attack_ask(g, me, f, a) { Flow::Suspend } else { Flow::Next })
+        }
         _ => unimplemented!("spec op not implemented yet (ops/flow.rs)"),
     }
 }
@@ -263,6 +298,12 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 _ => crate::bail!("TypeError: Cannot read properties of undefined (reading 'action')"),
             }
         }
+        Op::PickAttack(_) => {
+            if let Res::Attack(a) = first {
+                pick_attack_apply(g, f, a)?;
+            }
+            Ok(Flow::Next)
+        }
         Op::May(m) => {
             if first.as_bool() {
                 Ok(if m.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
@@ -278,6 +319,13 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
 /// choices are made then too.
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
+        Op::PickAttack(a) => {
+            if pick_attack_ask(g, me, f, a) {
+                return Ok(Flow::Suspend);
+            }
+            f.record(g, me, CHOICE_NONE);
+            Ok(Flow::Next)
+        }
         Op::May(m) => {
             if !cond_m(g, me, f, &m.when)? {
                 // Nothing to decide: the effect is not carried out.
@@ -294,6 +342,13 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::PickAttack(_) => {
+            match first {
+                Res::Attack(a) => f.record_items(g, me, CHOICE_YES, &[a.card, a.index]),
+                _ => f.record(g, me, CHOICE_NONE),
+            }
+            Ok(Flow::Next)
+        }
         Op::May(m) => {
             let yes = first.as_bool();
             f.record(g, me, if yes { CHOICE_YES } else { CHOICE_NO });
@@ -346,4 +401,37 @@ pub(crate) fn coin_result(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, hea
     flips_done(g, f, c, heads as u8);
     let list = if heads { c.heads } else { c.tails };
     Ok(if list.is_empty() { Flow::Next } else { Flow::Enter(if heads { 0 } else { 1 }) })
+}
+
+// ---------------------------------------------------------------------------
+// S3-4 appends: PickAttack
+
+/// Ask for an attack of the Active Pokémon of `a.from`; false when it has none.
+fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> bool {
+    let p = f.who(a.from);
+    let Some(pc) = g.st.active_pokemon(p) else { return false };
+    if g.st.cdef(pc).attacks.is_empty() {
+        return false;
+    }
+    let mut cards = crate::list::SVec::new();
+    cards.push(pc);
+    let id = g.player_id(f.p as usize);
+    g.prompt(
+        id,
+        "CHOOSE_ATTACK_TO_DISABLE",
+        crate::prompts::PromptKind::ChooseAttack { cards, allow_cancel: false, blocked_message: "NOT_ENOUGH_ENERGY", blocked: crate::list::SVec::new() },
+        f.cont(me, 1),
+    );
+    true
+}
+
+/// "It can't be used during their next turn."
+fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
+    let name = g.st.cdef(a.card).attacks[a.index as usize].tl_name;
+    let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    let o = opp as usize;
+    let target = crate::effects::SlotRef::new(o, g.st.players[o].active);
+    let b = crate::effects::AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
+    g.run_fx(crate::effects::Effect::OpponentPokemonCannotUseAttack { b, name })?;
+    Ok(())
 }

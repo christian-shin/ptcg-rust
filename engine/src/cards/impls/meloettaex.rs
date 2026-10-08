@@ -6,7 +6,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Meloettaex",
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: true }) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: true, shred: None }) },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::NextTurnBonus(NextTurnBonusSpec { attack: "Echoed Voice", bonus: 80 }) },
     ],
     ..CardSpec::NONE

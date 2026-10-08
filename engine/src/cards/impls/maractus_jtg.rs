@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] }],
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnKnockOut(OnKnockOutSpec {}),
+        event: Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::ThisByAttack }),
         // 6 damage counters on the Attacking Pokémon, written straight onto it.
         steps: &[Step::new(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(60), target_damage_mul: 0, calc: DamageCalc::Direct, when: Cond::True }))],
     }],

@@ -5,26 +5,20 @@
 //! Twinleaf (mega-evolution file): sets ignoreWeakness/ignoreResistance, then
 //! looks for a Lunatone anywhere among your Pokémon in play (Active included,
 //! not only the Bench); none → damage 0.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Solrock@ASC", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Solrock@ASC",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoResistance, value: true })),
+            // Lunatone anywhere in play (the Active included), not only on the Bench.
+            Step::before_damage(Op::If(IfSpec { cond: Cond::InPlay(Who::Me, PlayScope::All, Pred::Name("Lunatone")), yes: &[], no: &[Step::new(damage_is(Num::Lit(0)))] })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if let Effect::Attack { ignore_weakness, ignore_resistance, .. } = g.e_mut(e) {
-            *ignore_resistance = true;
-            *ignore_weakness = true;
-        }
-        let has = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| g.st.cdef(*c).name == "Lunatone");
-        if !has {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage = 0;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

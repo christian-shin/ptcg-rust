@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[
         Trigger {
             origin: RuleSource::Ability,
-            event: Event::OnMoved(OnMovedSpec {}),
+            event: Event::OnMoved(OnMovedSpec { to: MovedTo::Bench }),
             steps: &[Step::new(Op::If(IfSpec {
                 cond: Cond::Not(&Cond::HasMarker { who: Who::Me, name: "ABILITY_USED_MARKER", from: MarkerFrom::This }),
                 yes: &[Step::new(Op::May(MaySpec {
@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
                             yes: &[
                                 Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Name("Palafin ex"), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_EVOLVE", ..PickSpec::DEFAULT })),
                                 // Nothing chosen: nothing to put onto it.
-                                Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::This, keep_index: false, into: ZoneRef(Who::Me, Zone::Deck) })),
+                                Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::This, keep_index: false, into: ZoneRef(Who::Me, Zone::Deck), bottom: false })),
                                 Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                             ],
                             no: &[],

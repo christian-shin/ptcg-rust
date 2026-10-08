@@ -51,13 +51,33 @@ pub enum EnterMethod {
 pub struct OnEnterPlaySpec {
     pub method: EnterMethod,
 }
-/// This Pokémon moved from the Active Spot to the Bench during its owner's turn.
-pub struct OnMovedSpec {}
-/// This Energy card is attached to a Pokémon, from any zone.
+/// This Pokémon moved between the Active Spot and the Bench during its owner's turn.
+pub struct OnMovedSpec {
+    pub to: MovedTo,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum MovedTo {
+    /// From the Active Spot to the Bench.
+    Bench,
+    /// From the Bench to the Active Spot.
+    Active,
+}
+/// This Energy card is attached to a Pokémon, from any zone (before it is attached); the Pokémon is the
+/// program's picked slot.
 pub struct OnAttachSpec {}
-/// This Pokémon, in the Active Spot, is Knocked Out by damage from an attack of the opponent's
-/// Pokémon. The Attacking Pokémon's slot is the program's picked slot (`SlotExpr::Picked`).
-pub struct OnKnockOutSpec {}
+/// Whose Knock Out.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum KoWhich {
+    /// This Pokémon, in the Active Spot, is Knocked Out by damage from an attack of the opponent's
+    /// Pokémon. The Attacking Pokémon's slot is the program's picked slot (`SlotExpr::Picked`).
+    ThisByAttack,
+    /// The Active Pokémon of the opponent of this card's owner (this card's Pokémon in play, Ability
+    /// working). The effect stays alive while the program is suspended (a Knock Out waits for a coin flip).
+    OppActive,
+}
+pub struct OnKnockOutSpec {
+    pub which: KoWhich,
+}
 /// The Pokémon this card is part of (an Ability) or attached to (a Tool), in the Active Spot, is damaged
 /// by an attack of the opponent's Pokémon (even if Knocked Out). The trigger resolves after the attack's
 /// own effects (step 7 of the attack flow), in the attack phase, unless the card's lock is on; the
@@ -109,7 +129,10 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         },
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
         Event::OnAttach(_) => mask(&[k::ATTACH_ENERGY]),
-        Event::OnMoved(_) => mask(&[k::MOVED_FROM_ACTIVE_TO_BENCH]),
+        Event::OnMoved(m) => match m.to {
+            MovedTo::Bench => mask(&[k::MOVED_FROM_ACTIVE_TO_BENCH]),
+            MovedTo::Active => mask(&[k::MOVED_TO_ACTIVE]),
+        },
         Event::OnDamagedByAttack(_) => mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
         Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
@@ -164,9 +187,22 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             if super::passive::blocked(g, me, t.origin, at, Some(target)) {
                 return None;
             }
-            Some((p as usize, None))
+            // The program works on the Pokémon the Energy is attached to.
+            Some((p as usize, Some(target.p << 4 | target.s)))
         }
-        Event::OnKnockOut(_) => {
+        Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::OppActive }) => {
+            let Effect::KnockOut { p, target, .. } = *g.e(e) else { return None };
+            let owner = p as usize;
+            if target.s != g.st.players[owner].active {
+                return None;
+            }
+            let at = super::passive::locate(g, me, t.origin)?;
+            if at.owner == owner || super::passive::blocked(g, me, t.origin, at, None) {
+                return None;
+            }
+            Some((at.owner, None))
+        }
+        Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::ThisByAttack }) => {
             let Effect::KnockOut { p, target, .. } = *g.e(e) else { return None };
             let (tp, ts) = (target.p as usize, target.s);
             if !g.st.slot(tp, ts).cards.contains(me) || g.prevented(e) || g.st.slot_pokemon(tp, ts) != Some(me) {
@@ -209,7 +245,7 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 _ => None,
             }
         }
-        Event::OnMoved(_) => {
+        Event::OnMoved(OnMovedSpec { to: MovedTo::Bench }) => {
             let Effect::MovedFromActiveToBench { p, card } = *g.e(e) else { return None };
             let p = p as usize;
             if card != me || g.st.active_player as usize != p || !g.st.players[p].moved_from_active_to_bench_this_turn.contains(&me) {
@@ -219,6 +255,11 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 return None;
             }
             Some((p, None))
+        }
+        Event::OnMoved(OnMovedSpec { to: MovedTo::Active }) => {
+            let Effect::MovedToActive { p, card } = *g.e(e) else { return None };
+            let p = p as usize;
+            (card == me && g.st.active_player as usize == p && g.st.players[p].moved_to_active_this_turn.contains(&me)).then_some((p, None))
         }
         Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::PutOnBench { basic, not_type } }) => {
             let (p, card, target) = match *g.e(e) {
@@ -262,4 +303,10 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             _ => None,
         },
     }
+}
+
+/// The effect stays alive while the trigger's program is suspended (a Knock Out of the opponent's Active
+/// waits for a coin flip).
+pub(crate) fn retains(t: &Trigger) -> bool {
+    matches!(t.event, Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::OppActive }))
 }

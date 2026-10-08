@@ -290,6 +290,16 @@ pub enum Op {
     /// Handheld Fan: the damaged Pokémon's owner moves an Energy from the Attacking Pokémon to another Benched
     /// Pokémon of the attacker's side (a trigger's context).
     MoveEnergyFromAttacker(MoveEnergyFromAttackerSpec),
+    // S3-4 appends (ops/board.rs)
+    EachSlot(EachSlotSpec),
+    ChoiceDamage(ChoiceDamageSpec),
+    // S3-4 appends (ops/cards.rs)
+    EnergyChoice(EnergyChoiceSpec),
+    MoveToSlot(MoveToSlotSpec),
+    PrizeBonus(PrizeBonusSpec),
+    BotherBot(BotherBotSpec),
+    // S3-4 appends (ops/flow.rs)
+    CopyFromReg(CopyFromRegSpec),
 }
 
 /// Everything a spec card file needs.

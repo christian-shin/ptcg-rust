@@ -8,100 +8,43 @@
 //! Twinleaf: ABILITY_USED and the once-per-turn marker are set in the prompt
 //! callback (so a cancelled prompt still uses the ability); SHUFFLE_DECK runs
 //! before the 20 damage is added directly (`target.damage += 20`).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Toxtricity",
-    mask: mask(&[k::PLAY_POKEMON, k::POWER, k::END_TURN]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    powers: &[PowerSpec {
+        index: 0,
+        once: Once::PerTurn("BAD_BOOST_MARKER"),
+        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::PrintedTypeIs(ct::DARK))],
+        // Attach a Basic [D] Energy from your deck to 1 of your Benched [D] Pokémon, then shuffle; put 2 damage counters on that Pokémon.
+        steps: &[
+            Step::new(Op::Attach(AttachSpec {
+                chooser: Who::Me,
+                from: ZoneRef(Who::Me, Zone::Deck),
+                predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]),
+                slots: AttachSlots::Bench,
+                target: Pred::PokemonType(ct::DARK),
+                scan: TargetScan::InPlay,
+                bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
+                same_target: false,
+                different_targets: false,
+                valid_types: &[],
+                max_per_type: 0,
+                cancel: true,
+                route: AttachRoute::Move,
+                none_shuffles: true,
+             different_types: false, })),
+            Step::new(Op::If(IfSpec {
+                cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any),
+                yes: &[
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                    Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2), cause: CounterCause::Effect })),
+                ],
+                no: &[],
+            })),
+        ],
+    }],
+    ..CardSpec::NONE
 };
 
-fn bad_boost() -> crate::markers::MarkerName {
-    crate::marker!("BAD_BOOST_MARKER")
-}
-
-fn dark_energy_filter() -> Filter {
-    Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Darkness Energy"), ..Filter::none() }
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            g.st.players[p as usize].marker.remove_from(bad_boost(), me);
-        }
-    }
-
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].marker.has_from(bad_boost(), me) {
-            bail!("POWER_ALREADY_USED");
-        }
-        // Phase 4b R7E (rulings 12, 244): an Ability can't be used for no effect: an empty deck or no
-        // Benched [D] Pokémon.
-        let benched_dark = for_each_pokemon(g, p, PlayerType::BottomPlayer)
-            .iter()
-            .any(|(_, c, t)| t.slot == SlotType::Bench && g.st.cdef(*c).card_type.contains(&ct::DARK));
-        if g.st.players[p].deck.is_empty() || !benched_dark {
-            bail!("CANNOT_USE_POWER");
-        }
-        let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
-        o.allow_cancel = true;
-        o.min = 0;
-        o.max = 1;
-        for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-            if !g.st.cdef(c).card_type.contains(&ct::DARK) {
-                o.blocked_to.push(t);
-            }
-        }
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "ATTACH_ENERGY_TO_BENCH",
-            PromptKind::AttachEnergy { cards: ListRef::Deck(p as u8), player_type: PlayerType::BottomPlayer, slots, filter: dark_energy_filter(), o },
-            Cont::Card { card: me, frame: f },
-        );
-        return Ok(());
-    }
-
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let m = &mut g.st.players[p as usize].marker;
-        if m.has_from(bad_boost(), me) {
-            m.remove_from(bad_boost(), me);
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    ability_used(g, p, me);
-    g.st.players[p].marker.add(bad_boost(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    if transfers.is_empty() {
-        shuffle_deck(g, p);
-        return Ok(());
-    }
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        move_cards(g, ListRef::Deck(p as u8), target.list(), &[c], me)?;
-        shuffle_deck(g, p);
-        g.st.players[target.p as usize].slots[target.s as usize].damage += 20;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

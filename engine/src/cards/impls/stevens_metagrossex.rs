@@ -19,96 +19,38 @@
 //! MOVE_CARDS (no AttachEnergyEffect), then SHUFFLE_DECK. No deck check, so
 //! an empty deck still uses the Ability. The marker is cleared at the end of
 //! the turn and on this card's PlayPokemonEffect.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "StevensMetagrossex",
-    mask: mask(&[k::POWER, k::END_TURN, k::PLAY_POKEMON]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    powers: &[PowerSpec {
+        index: 0,
+        once: Once::PerTurn("X_BOOT_MARKER"),
+        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        // Search your deck for a Basic [P] Energy, a Basic [M] Energy, or 1 of each and attach them to your [P] and [M]
+        // Pokémon in any way, then shuffle.
+        steps: &[
+            Step::new(Op::Attach(AttachSpec {
+                chooser: Who::Me,
+                from: ZoneRef(Who::Me, Zone::Deck),
+                predicate: Pred::BasicEnergy,
+                slots: AttachSlots::BenchActive,
+                target: Pred::Any,
+                scan: TargetScan::EffectiveTypes(&[ct::PSYCHIC, ct::METAL]),
+                bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
+                same_target: false,
+                different_targets: false,
+                valid_types: &[ct::PSYCHIC, ct::METAL],
+                different_types: true,
+                max_per_type: 0,
+                cancel: true,
+                route: AttachRoute::Move,
+                none_shuffles: true,
+            })),
+            Step::new(Op::If(IfSpec { cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
+        ],
+    }],
+    ..CardSpec::NONE
 };
 
-fn x_boot() -> crate::markers::MarkerName {
-    crate::marker!("X_BOOT_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].marker.has_from(x_boot(), me) {
-            bail!("POWER_ALREADY_USED");
-        }
-        if g.st.players[p].deck.is_empty() {
-            bail!("CANNOT_USE_POWER");
-        }
-        ability_used(g, p, me);
-        g.st.players[p].marker.add(x_boot(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        slots.push(SlotType::Active as u8);
-        let mut o = AttachOpts::new(g.st.players[p].deck.len().min(255) as u8);
-        o.allow_cancel = true;
-        o.min = 0;
-        o.max = 2;
-        o.different_types = true;
-        let mut vt = SVec::new();
-        vt.push(ct::PSYCHIC);
-        vt.push(ct::METAL);
-        o.valid_card_types = Some(vt);
-        // Only [P] Pokémon and [M] Pokémon can receive the Energy.
-        for (slot, _c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-            let sr = SlotRef::new(p, slot);
-            let types = crate::engine::game_effect::pokemon_types(g, sr);
-            let (te, _) = g.run_fx(Effect::CheckPokemonType { target: sr, card_types: types })?;
-            let ok = matches!(te, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::PSYCHIC) || card_types.contains(&ct::METAL));
-            if !ok {
-                o.blocked_to.push(t);
-            }
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "ATTACH_ENERGY_CARDS",
-            PromptKind::AttachEnergy {
-                cards: ListRef::Deck(p as u8),
-                player_type: PlayerType::BottomPlayer,
-                slots,
-                filter: Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() },
-                o,
-            },
-            Cont::Card { card: me, frame: f },
-        );
-        return Ok(());
-    }
-    remove_marker_at_end_of_turn(g, e, x_boot(), me);
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            g.st.players[p as usize].marker.remove_from(x_boot(), me);
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        move_cards(g, ListRef::Deck(p as u8), ListRef::Slot(target.p, target.s), &[c], me)?;
-    }
-    shuffle_deck(g, p);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

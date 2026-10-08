@@ -7,32 +7,21 @@
 //! Active) pay each printed cost slot in order ([C] with any unit, a typed
 //! slot with a matching unit, else with a rainbow unit); if the covered slots
 //! number at least cost length - 1 the cost becomes the covered units.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::tag;
 
-pub static IMPL: CardImpl = CardImpl { class: "SparklingCrystal", mask: mask(&[k::CHECK_ATTACK_COST]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "SparklingCrystal",
+    // The attacks of the Tera Pokémon this card is attached to cost 1 Energy less.
+    passives: &[Passive {
+        origin: RuleSource::Tool,
+        modifier: Modifier::AttackCost(AttackCostSpec {
+            change: CostChange::AnyOne,
+            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::Top(Pred::Tag(tag::POKEMON_TERA))]),
+            ..AttackCostSpec::DEFAULT
+        }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match *g.e(e) {
-        Effect::CheckAttackCost { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let a = g.st.players[p].active;
-    if !g.st.slot(p, a).tools.contains(me) {
-        return Ok(());
-    }
-    let pokemon = g.st.slot_pokemon(p, a);
-    if g.run_fx(Effect::Tool { p: p as u8, card: me }).is_err() {
-        return Ok(());
-    }
-    let c = match pokemon {
-        Some(c) if g.st.cdef(c).has_tag(tag::POKEMON_TERA) => c,
-        _ => return Ok(()),
-    };
-    let _ = c;
-    // "Costs 1 Energy less" (any type): applied by the core with the other cost changes after all handlers ran
-    // (check.rs), whatever the handler order (Advanced Rulebook D-11, D-12).
-    if let Effect::CheckAttackCost { any_reduction, .. } = g.e_mut(e) {
-        *any_reduction = true;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

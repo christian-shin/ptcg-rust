@@ -376,6 +376,9 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if let Some((p, slot)) = trigger::fires(g, me, e, t) {
             let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
             f.slot = slot;
+            if trigger::retains(t) {
+                g.retain_fx(e);
+            }
             run(g, me, f)?;
         }
     }
@@ -465,6 +468,11 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                 }
                 Phase::AfterDamage => g.spec_choices.retain(|c| c.card != me),
                 _ => {}
+            }
+            if let Prog::Trigger(i) = f.prog {
+                if trigger::retains(&spec.triggers[i as usize]) {
+                    g.release_fx(f.eff);
+                }
             }
             return Ok(());
         }

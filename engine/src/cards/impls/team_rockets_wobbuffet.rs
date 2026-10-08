@@ -12,91 +12,26 @@
 //! reduces a MoveCountersAttackEffect (source = the Benched Pokémon, target =
 //! the opponent's Active): the counters always leave the Benched Pokémon, and
 //! are placed only when the move was not prevented.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::tag;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsWobbuffet", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TeamRocketsWobbuffet",
+    attacks: &[AttackSpec {
+        index: 0,
+        // Rocket Mirror: move all damage counters from 1 of your Benched Team Rocket's Pokémon to your opponent's Active Pokémon.
+        steps: &[Step::after_damage(Op::MoveCounters(MoveCountersSpec {
+            kind: MoveCountersKind::AllFromOne {
+                from: PickSlotSpec {
+                    chooser: Who::Me,
+                    among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET)), SlotPred::Damaged])),
+                    msg: "CHOOSE_POKEMON_TO_DAMAGE",
+                },
+                to: SlotTarget::Slot(OPP_ACTIVE),
+            },
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let (p, opp) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp),
-            _ => return Ok(()),
-        };
-        let mut blocked: TargetList = SVec::new();
-        let mut any = false;
-        let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
-        for (i, s) in bench.iter().enumerate() {
-            let ok = !g.st.slot(p, *s).cards.is_empty()
-                && g.st.slot_pokemon(p, *s).map_or(false, |c| g.st.cdef(c).has_tag(tag::TEAM_ROCKET))
-                && g.st.slot(p, *s).damage > 0;
-            if ok {
-                any = true;
-            } else {
-                blocked.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8));
-            }
-        }
-        if !any {
-            return Ok(());
-        }
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.a[1] = opp as i32;
-        f.e[0] = e;
-        g.retain_fx(e);
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let r = (|| -> R {
-        let p = f.a[0] as usize;
-        let opp = f.a[1] as usize;
-        let src = match results.first().copied().unwrap_or(Res::Null).slots().first() {
-            Some(t) => *t,
-            None => return Ok(()),
-        };
-        let dmg = g.st.slot(src.p as usize, src.s).damage;
-        if dmg <= 0 {
-            return Ok(());
-        }
-        // "Damage counters can't be moved" cancels the whole move.
-        let (_, prevented) = g.run_fx(Effect::MoveDamageCounters { p: p as u8 })?;
-        if prevented {
-            return Ok(());
-        }
-        let attack = match *g.e(atk) {
-            Effect::Attack { attack, .. } => attack,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[opp].active;
-        let b = AtkBase { attack_effect: atk, player: p as u8, opponent: opp as u8, attack, source: SlotRef::new(src.p as usize, src.s), target: SlotRef::new(opp, a) };
-        let (fin, prevented) = g.run_fx(Effect::MoveCounters { b, damage: dmg })?;
-        if let Effect::MoveCounters { b, damage } = fin {
-            let s = &mut g.st.players[b.source.p as usize].slots[b.source.s as usize];
-            s.damage -= damage;
-            if s.damage < 0 {
-                s.damage = 0;
-            }
-            if !prevented {
-                g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
-            }
-        }
-        Ok(())
-    })();
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

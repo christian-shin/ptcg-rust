@@ -436,6 +436,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];
     pl.supporter_turn = 0;
+    pl.rocket_supporter = false;
     let a = pl.active;
     pl.slots[a as usize].attacks_this_turn = Some(0);
     pl.prizes_taken_last_turn = pl.prizes_taken_this_turn;

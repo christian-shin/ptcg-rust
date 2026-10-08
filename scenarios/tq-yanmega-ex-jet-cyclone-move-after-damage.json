@@ -43,10 +43,10 @@
   {
    "at": "turn_end",
    "prompts": [
-    "Wait",
-    "AttachEnergy"
+    "AttachEnergy",
+    "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): a choice that does not set the damage is asked after the damage (moving the attacker's own Energy to the Bench is an effect choice, asked after the damage)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; FINAL attack-choice rule (2026-10-07): the Energy to move is chosen at step D, before the damage, and moved after it"
   },
   {
    "at": "turn_end",
