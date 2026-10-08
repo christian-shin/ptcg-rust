@@ -3,59 +3,25 @@
 //!
 //! Twinleaf order: MOVE_CARDS (even with nothing chosen), then the reveal,
 //! then the ShuffleDeckPrompt.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "EnergySearch", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "EnergySearch",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::BasicEnergy, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    g.set_prevent(e, true);
-    let mut filter = Filter::super_type(SuperType::Energy);
-    filter.energy_type = Some(EnergyType::Basic as u8);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, 1, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn shuffle(g: &mut Game, me: CardId, p: usize) {
-    let mut f = CardFrame::at(3);
-    f.a[0] = p as i32;
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: f });
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-            if !cards.is_empty() {
-                let id = g.player_id(1 - p);
-                g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Card { card: me, frame: CardFrame { stage: 2, ..f } });
-                return Ok(());
-            }
-            shuffle(g, me, p);
-            Ok(())
-        }
-        2 => {
-            shuffle(g, me, p);
-            Ok(())
-        }
-        3 => {
-            if let Res::Order(o) = first {
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

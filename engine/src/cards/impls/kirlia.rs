@@ -4,40 +4,19 @@
 //! Twinleaf: a ChooseCardsPrompt over the deck (Pokémon, min 0, max 3, no
 //! cancel; nothing is revealed), MOVE_CARDS to the hand, then a bare
 //! ShuffleDeckPrompt (no trailing wait).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Kirlia@MEG|ASC", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Kirlia@MEG|ASC",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: false },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })),
+            Step::after_damage(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        choose_cards(
-            g,
-            p,
-            "CHOOSE_CARD_TO_HAND",
-            ListRef::Deck(p as u8),
-            Filter::super_type(SuperType::Pokemon),
-            ChooseCardsOpts::new(0, 3, false),
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

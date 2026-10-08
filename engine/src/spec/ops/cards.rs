@@ -141,6 +141,9 @@ pub struct SearchSpec {
     pub msg: &'static str,
     /// The prompt can be cancelled (`allowCancel`, as the oracle prompt has it).
     pub cancel: bool,
+    /// Shuffle the chooser's deck as soon as the prompt opens, before it is answered
+    /// (Twinleaf's order for Gimmighoul; the prompt then lists the shuffled deck).
+    pub shuffle_first: bool,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SearchDestination {
@@ -593,6 +596,9 @@ fn search_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec) -> R<Flo
         return Ok(Flow::Next);
     }
     if ask_pick(g, me, f, &s.pick, search_room(g, f, s), search_msg(s), 1, s.cancel) {
+        if s.shuffle_first {
+            open_shuffle(g, me, f, f.who(s.pick.chooser), 9);
+        }
         Ok(Flow::Suspend)
     } else {
         set_reg(g, f, s.pick.into, &[]);
@@ -786,6 +792,27 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::Pick(p) => {
             set_reg(g, f, p.into, first.cards());
             Ok(Flow::Next)
+        }
+        Op::Search(s) if f.sub == 9 => {
+            // The early shuffle's answer: apply it and keep waiting for the choice.
+            if let Res::Order(o) = first {
+                let p = f.who(s.pick.chooser);
+                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
+                // The open choice lists the reordered deck: its blocked positions follow the cards.
+                let deck: Vec<CardId> = g.st.players[p].deck.as_slice().to_vec();
+                let blocked: Vec<u8> = (0..deck.len()).filter(|i| !pred(g, deck[*i], &s.pick.predicate)).map(|i| i as u8).collect();
+                for pr in g.prompts.as_mut_slice().iter_mut() {
+                    if let PromptKind::ChooseCards { cards: ListRef::Deck(d), opts, .. } = &mut pr.kind {
+                        if *d as usize == p && pr.result.is_none() {
+                            opts.blocked = Blocked::default();
+                            for i in &blocked {
+                                opts.blocked.push(*i);
+                            }
+                        }
+                    }
+                }
+            }
+            Ok(Flow::Suspend)
         }
         Op::Search(s) => {
             let chosen: Vec<CardId> = first.cards().to_vec();
