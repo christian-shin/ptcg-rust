@@ -2,19 +2,16 @@
 //!
 //! Twinleaf has several `Hoothoot` classes; this port is bound to TEF. The
 //! ShowCardsPrompt goes to the attacker (even for an empty hand).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Hoothoot@TEF", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Hoothoot@TEF",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Reveal(RevealSpec {
+                cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)),
+                to: Who::Me,
+                when_empty: true,
+            }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let id = g.player_id(p);
-        g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

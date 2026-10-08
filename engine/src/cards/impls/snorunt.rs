@@ -2,25 +2,25 @@
 //! hand (`Chance.index`), your opponent reveals it (ShowCardsPrompt for the
 //! attacker) and shuffles it into their deck (MOVE_CARD_TO, no effect;
 //! SHUFFLE_DECK for the opponent).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Snorunt", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Snorunt",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec {
+                cond: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any),
+                yes: &[
+                    Step::new(Op::Move(MoveSpec {
+                        from: ZoneRef(Who::Opp, Zone::Hand),
+                        to: ZoneRef(Who::Opp, Zone::Deck),
+                        cards: CardSel::Random(Num::Lit(1)),
+                        reveal: Some(Who::Me),
+                        ..MoveSpec::DEFAULT
+                    })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck) })),
+                ],
+                no: &[],
+            }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        let n = g.st.players[o].hand.len();
-        if n > 0 {
-            let i = g.rng.index(n);
-            let c = g.st.players[o].hand.as_slice()[i];
-            show_cards_to_player(g, p, 1);
-            g.move_card_to(ListRef::Hand(o as u8), c, ListRef::Deck(o as u8));
-            shuffle_deck(g, o);
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

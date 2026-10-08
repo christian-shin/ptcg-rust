@@ -23,6 +23,8 @@ pub enum Zone {
     Deck,
     Hand,
     Discard,
+    /// Card register `r` (a scratch list: looked-at cards, chosen cards).
+    Scratch(u8),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -52,6 +54,19 @@ pub enum Num {
     Max(&'static Num, &'static Num),
     /// `if cond { a } else { b }`.
     If(&'static Cond, &'static Num, &'static Num),
+    /// Cards in card register `r`.
+    RegCount(u8),
+    /// Pokémon in play (top card matching the predicate).
+    InPlayCount(Who, PlayScope, Pred),
+    /// Distinct first provided types among the cards of a zone matching the predicate.
+    DistinctTypes(ZoneRef, Pred),
+}
+
+/// Which Pokémon in play a count or condition looks at.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PlayScope {
+    All,
+    Bench,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -74,6 +89,18 @@ pub enum Cond {
     /// The zone holds a card matching the predicate.
     Nonempty(ZoneRef, Pred),
     BenchSpace(Who),
+    /// Like `Nonempty`, not counting the resolving card.
+    NonemptyOther(ZoneRef, Pred),
+    /// Card register `r` holds cards.
+    Chosen(u8),
+    /// The player played an Ancient Supporter this turn.
+    AncientSupporterPlayed(Who),
+    /// At least `at_least` cards named `name` in the player's discard pile and in play.
+    KnownCopies { who: Who, name: &'static str, at_least: i32 },
+    /// A Pokémon in play whose top card matches.
+    InPlay(Who, PlayScope, Pred),
+    /// A Pokémon in play with any card of its stack matching.
+    InPlayAny(Who, PlayScope, Pred),
 }
 
 /// A card predicate.
@@ -94,6 +121,12 @@ pub enum Pred {
     Stadium,
     Name(&'static str),
     HpAtMost(i32),
+    /// Card tag (`types::tag`).
+    Tag(u32),
+    /// Printed Pokémon type.
+    PokemonType(u8),
+    /// Energy card that provides the type.
+    Provides(u8),
 }
 
 impl Frame {
@@ -111,6 +144,7 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
         Zone::Deck => ListRef::Deck(p),
         Zone::Hand => ListRef::Hand(p),
         Zone::Discard => ListRef::Discard(p),
+        Zone::Scratch(r) => ListRef::Temp(f.cards[r as usize]),
     }
 }
 
@@ -165,7 +199,45 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
                 num(g, me, f, b)
             }
         }
+        Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
+        Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
+        Num::DistinctTypes(z, p) => {
+            let mut types: Vec<u8> = Vec::new();
+            for c in g.lst(zone_ref(f, *z)).iter() {
+                let d = g.st.cdef(*c);
+                if pred(g, *c, p) {
+                    if let Some(t) = d.provides.first() {
+                        if !types.contains(t) {
+                            types.push(*t);
+                        }
+                    }
+                }
+            }
+            types.len() as i32
+        }
     }
+}
+
+/// The cards of card register `r` (empty while it is unset).
+pub fn reg_list<'a>(g: &'a Game, f: &Frame, r: u8) -> &'a [CardId] {
+    match f.cards[r as usize] {
+        super::run::NONE => &[],
+        i => g.lst(ListRef::Temp(i)),
+    }
+}
+
+/// Pokémon in play, Active first: (slot, top card, stack).
+pub fn in_play(g: &Game, p: usize, scope: PlayScope) -> Vec<(SlotId, CardId, Vec<CardId>)> {
+    let pl = &g.st.players[p];
+    let mut slots: Vec<SlotId> = Vec::new();
+    if scope == PlayScope::All {
+        slots.push(pl.active);
+    }
+    slots.extend(pl.bench.iter().copied());
+    slots
+        .into_iter()
+        .filter_map(|s| g.st.slot_pokemon(p, s).map(|top| (s, top, pl.slots[s as usize].cards.iter().collect::<Vec<_>>())))
+        .collect()
 }
 
 pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
@@ -188,6 +260,19 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::Nonempty(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| pred(g, *c, p)),
         Cond::BenchSpace(w) => !empty_bench_slots(g, f.who(*w)).is_empty(),
+        Cond::NonemptyOther(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| *c != me && pred(g, *c, p)),
+        Cond::Chosen(r) => !reg_list(g, f, *r).is_empty(),
+        Cond::AncientSupporterPlayed(w) => g.st.players[f.who(*w)].ancient_supporter,
+        Cond::KnownCopies { who, name, at_least } => {
+            let p = f.who(*who);
+            let mut n = g.lst(ListRef::Discard(p as u8)).iter().filter(|c| g.st.cdef(**c).name == *name).count() as i32;
+            for (_, _, stack) in in_play(g, p, PlayScope::All) {
+                n += stack.iter().filter(|c| g.st.cdef(**c).name == *name).count() as i32;
+            }
+            n >= *at_least
+        }
+        Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
+        Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
     }
 }
 
@@ -210,5 +295,8 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Stadium => d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8,
         Pred::Name(n) => d.name == *n,
         Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
+        Pred::Tag(t) => d.has_tag(*t),
+        Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
+        Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
     }
 }

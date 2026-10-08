@@ -1,21 +1,18 @@
 //! Vullaby (RCL): Pluck — 10; before doing damage, discard all Pokémon Tools
 //! from your opponent's Active Pokémon (one MOVE_CARDS per Tool).
-use crate::cards::prelude::*;
+//!
+//! Spec: a plain move per Tool (today's behavior; making it an attack effect that Mist Energy stops is planned change B-PC-13).
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Vullaby", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Vullaby",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Move(MoveSpec {
+                from: ZoneRef(Who::Opp, Zone::Deck),
+                to: ZoneRef(Who::Opp, Zone::Discard),
+                cards: CardSel::Tools(SlotExpr::Active(Who::Opp)),
+                ..MoveSpec::DEFAULT
+            }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let o = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[o].active;
-        let tools: Vec<CardId> = g.st.slot(o, a).tools.iter().collect();
-        for t in tools {
-            let a = g.st.players[o].active;
-            move_cards(g, ListRef::Slot(o as u8, a), ListRef::Discard(o as u8), &[t], me)?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -3,27 +3,19 @@
 //!
 //! Twinleaf: one MOVE_CARDS deck→hand with `count`; since phase 4b the card is
 //! unplayable with no Ancient Pokémon in play or an empty deck (rulings 851/1733).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "DrumsOfAwakening", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "DrumsOfAwakening",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        steps: &[Step::new(Op::Draw(DrawSpec {
+            who: Who::Me,
+            amount: DrawAmount::Count(Num::InPlayCount(Who::Me, PlayScope::All, Pred::Tag(crate::types::tag::ANCIENT))),
+        }))],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let pl = &g.st.players[p];
-    let mut n = 0;
-    for s in pl.all_slots().iter() {
-        if let Some(c) = g.st.slot_pokemon(p, *s) {
-            if g.st.cdef(c).has_tag(tag::ANCIENT) {
-                n += 1;
-            }
-        }
-    }
-    // Fixed (phase 4b, rulings 851/1733): no Ancient Pokémon in play or an empty deck is obviously no effect.
-    if n == 0 || g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    move_count_from(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), n, me)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
