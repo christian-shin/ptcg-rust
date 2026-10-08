@@ -7,12 +7,9 @@
 //! while the Ability is blocked the flag is written `false` (it used to be
 //! left as an earlier use set it, so a blocked Dipplin could still attack
 //! twice). The damage is only recomputed when the opponent's Active holds a
-//! Pokémon. (Goldeen and Seaking share `festival_lead` and keep the old
-//! behavior.)
+//! Pokémon.
 use crate::spec::prelude::*;
 
-// Still called by Goldeen and Seaking until they are converted.
-pub use crate::spec::festival_lead;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Dipplin@Dipplin TWM1|Dipplin PRE",

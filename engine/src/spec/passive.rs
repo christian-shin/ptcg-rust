@@ -1392,11 +1392,6 @@ pub const DAMP: AbilityLockSpec = AbilityLockSpec {
     probe: LockerProbe::OwnPower(0),
 };
 
-/// The handler of a card that has Damp (also called by Golduck's own handler).
-pub fn reduce_damp(g: &mut Game, me: CardId, e: EffId) -> R {
-    apply(g, me, e, &Passive { origin: RuleSource::Ability, modifier: Modifier::AbilityLock(DAMP) })
-}
-
 // ---------------------------------------------------------------------------
 // Prevent
 
@@ -1614,23 +1609,6 @@ pub const HIDE_N_SNEAK_ATTACKS: PreventAttackEffectsSpec = PreventAttackEffectsS
     side: Side::Any,
     damage_too: false,
 };
-
-/// The handler of a Pokémon with Hide 'n' Sneak (Shuppet, Banette, Poltchageist, ...).
-pub fn reduce_hide_n_sneak(g: &mut Game, me: CardId, e: EffId) -> R {
-    apply(g, me, e, &Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) })
-}
-
-/// `countHideNSneakPokemonInDiscard(player)`.
-pub fn count_hide_n_sneak_in_discard(g: &Game, p: usize) -> usize {
-    g.st.players[p]
-        .discard
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_pokemon() && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8 && pw.name == "Hide 'n' Sneak")
-        })
-        .count()
-}
 
 // ---------------------------------------------------------------------------
 // Prizes, evolution, attacks

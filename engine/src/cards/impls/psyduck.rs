@@ -10,11 +10,7 @@
 //! in a Pokémon slot (findCardList failures count as not locked), and a real
 //! PowerEffect for Damp by this card's owner doesn't throw. The generic
 //! lock probe is never subject (it has no knocksOutSelf).
-//! Shared with Golduck ([`reduce_damp`]).
 use crate::spec::prelude::*;
-
-// Golduck uses the same lock.
-pub use crate::spec::passive::reduce_damp;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Psyduck@ASC|MEP",

@@ -436,29 +436,6 @@ pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, _op: &Op, _resu
     Ok(Flow::Next)
 }
 
-/// Festival Lead: `this.attacks[0].barrage = stadium is 'Festival Grounds'` unless the Ability is
-/// blocked (then the flag is switched off). `pristine_has_key`: the printed attack object already
-/// has `barrage: false` (Dipplin), so only `true` differs from the printed card in the canonical
-/// state; otherwise any write does.
-pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool) {
-    if crate::prefabs::is_ability_blocked(g, p, me, None) {
-        return;
-    }
-    let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
-    crate::copy_attack::write_barrage(g, me, |b, shown| {
-        if fg {
-            *b |= 1;
-        } else {
-            *b &= !1;
-        }
-        if fg || !pristine_has_key {
-            *shown |= 1;
-        } else {
-            *shown &= !1;
-        }
-    });
-}
-
 /// The Ability of this Pokémon counts as used (the board effect shown on it), when the use
 /// succeeded rather than when it started. With `marker`, the player's marker named so is set by this
 /// card too (the Ability is refused when it already is); clear it with an end-of-turn trigger.

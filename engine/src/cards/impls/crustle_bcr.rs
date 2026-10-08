@@ -10,8 +10,6 @@
 //! damage used to Knock Out anyway).
 use crate::spec::prelude::*;
 
-// Still called by Pikachu ex until it is converted.
-
 pub static SPEC: CardSpec = CardSpec {
     class: "Crustle@BCR",
     // Sturdy: if this Pokémon has full HP and would be Knocked Out by damage from an attack, it is

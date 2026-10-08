@@ -20,33 +20,3 @@ pub static SPEC: CardSpec = CardSpec {
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
-
-// Still used by Mega Hawlucha ex until it is converted.
-pub use legacy::{discard_stadium};
-
-mod legacy {
-    use crate::cards::prelude::*;
-
-    /// `MOVE_CARDS(findCardList(stadium), findOwner(list).discard, { sourceCard })`.
-    pub fn discard_stadium(g: &mut Game, stadium: CardId, me: CardId) -> R {
-        let src = match g.st.locate(stadium) {
-            Some(l) => l,
-            None => bail!("INVALID_GAME_STATE"),
-        };
-        let owner = match src.owner() {
-            Some(o) => o,
-            None => bail!("INVALID_GAME_STATE"),
-        };
-        g.run_fx(Effect::MoveCards {
-            source: src,
-            destination: ListRef::Discard(owner as u8),
-            cards: None,
-            count: None,
-            to_top: false,
-            to_bottom: false,
-            skip_cleanup: false,
-            source_card: me,
-        })?;
-        Ok(())
-    }
-}

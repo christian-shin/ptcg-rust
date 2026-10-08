@@ -10,7 +10,4 @@ pub static SPEC: CardSpec = CardSpec {
     ..CardSpec::NONE
 };
 
-// Mega Lucario ex uses the same lock.
-pub use crate::spec::ops::state::push_cannot_use_attack as push_pending;
-
 pub static IMPL: CardImpl = SPEC.card_impl();

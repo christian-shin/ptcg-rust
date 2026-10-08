@@ -28,6 +28,3 @@ pub static SPEC: CardSpec = CardSpec {
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
-
-// Still called by Espeon ex until it is converted.
-pub use crate::spec::devolve_pokemon;

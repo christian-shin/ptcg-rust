@@ -26,36 +26,3 @@ pub static SPEC: CardSpec = CardSpec {
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
-
-// Still used by Team Rocket's Houndoom until it is converted.
-pub use legacy::{discard_transfers_as_effects};
-
-mod legacy {
-    use crate::cards::prelude::*;
-
-    /// `discardTransfersAsEffects`: one DiscardCardsEffect per source slot, in
-    /// first-seen order.
-    pub fn discard_transfers_as_effects(g: &mut Game, p: usize, e: EffId, transfers: &[(CardTarget, CardId)]) -> R {
-        let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
-        for (from, c) in transfers.iter() {
-            let s = get_target(&g.st, p, *from)?;
-            match groups.iter_mut().find(|(t, _)| *t == s) {
-                Some((_, v)) => v.push(*c),
-                None => {
-                    let mut v = SVec::new();
-                    v.push(*c);
-                    groups.push((s, v));
-                }
-            }
-        }
-        let (opp, attack, source) = match *g.e(e) {
-            Effect::Attack { opp, attack, source, .. } => (opp, attack, source),
-            _ => return Ok(()),
-        };
-        for (target, cards) in groups {
-            let b = AtkBase { attack_effect: e, player: p as u8, opponent: opp, attack, source, target };
-            g.run_fx(Effect::DiscardCards { b, cards })?;
-        }
-        Ok(())
-    }
-}

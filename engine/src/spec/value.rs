@@ -1037,11 +1037,6 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
 }
 
 
-/// A slot predicate read without running effects: the checked ones are false.
-pub fn slot_pred_pure(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> bool {
-    slot_pred(g, me, s, sp).unwrap_or(false)
-}
-
 /// Does the number need a checked read (`num_m`)?
 pub fn num_is_checked(n: &Num) -> bool {
     match n {
