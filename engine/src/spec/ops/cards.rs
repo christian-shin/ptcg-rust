@@ -282,7 +282,10 @@ pub enum MoveEnergyMode {
     // --- S3 agent 3 appends ---
     /// Up to `max` Energy cards of the Benched Pokémon move to the Active Pokémon (N's Plot: at
     /// least 1, or 0 when the Trainer is used as the effect of an attack).
-    BenchToActive { max: Option<u8>, required: bool },
+    /// `ability`: an Ability's version (Iron Leaves ex) of the same rule as a Supporter's (N's Plan), as the
+    /// game plays it: the Active Pokémon is blocked as a source in the prompt's `blockedFrom` list (otherwise
+    /// as a `blockedMap` entry holding all its cards), and the cards move one source at a time.
+    BenchToActive { max: Option<u8>, required: bool, ability: bool },
 }
 pub struct DiscardEnergySpec {
     pub target: SlotExpr,
@@ -1216,6 +1219,24 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::MoveEnergy(m) if m.mode != MoveEnergyMode::Effect => {
             let Res::Transfers(ts) = first else { return Ok(Flow::Next) };
             let p = f.p as usize;
+            if let MoveEnergyMode::BenchToActive { ability: true, .. } = m.mode {
+                // One source after the other, the chosen cards of each in the order chosen.
+                let dst = ListRef::Slot(p as u8, g.st.players[p].active);
+                let mut done: Vec<SlotRef> = Vec::new();
+                for (from, _, _) in ts.iter() {
+                    let src = get_target(&g.st, p, *from)?;
+                    if done.contains(&src) {
+                        continue;
+                    }
+                    done.push(src);
+                    for (_, _, card) in ts.iter() {
+                        if g.lst(src.list()).contains(card) {
+                            move_cards(g, src.list(), dst, &[*card], me)?;
+                        }
+                    }
+                }
+                return Ok(Flow::Next);
+            }
             for (from, to, card) in ts.iter() {
                 let src = get_target(&g.st, p, *from)?;
                 let dst = match m.mode {
@@ -1446,7 +1467,7 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
     let mut slots = SVec::new();
     let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
     let filter = match m.mode {
-        MoveEnergyMode::BenchToActive { max, required } => {
+        MoveEnergyMode::BenchToActive { max, required, ability } => {
             let has = pokemon.iter().any(|(s, _, t)| t.slot == SlotType::Bench && g.st.slot(owner, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()));
             if !has || pokemon.len() <= 1 {
                 return false;
@@ -1455,7 +1476,9 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
             o.min = if required && !f.via_attack { 1 } else { 0 };
             o.max = max;
             for (s, _, t) in pokemon.iter() {
-                if t.slot == SlotType::Active {
+                if t.slot == SlotType::Active && ability {
+                    o.blocked_from.push(*t);
+                } else if t.slot == SlotType::Active {
                     let mut b = Blocked::default();
                     for i in 0..g.st.slot(owner, *s).cards.len() {
                         b.push(i as u8);
