@@ -285,6 +285,11 @@ pub enum Op {
     /// Handheld Fan: the damaged Pokémon's owner moves an Energy from the Attacking Pokémon to another Benched
     /// Pokémon of the attacker's side (a trigger's context).
     MoveEnergyFromAttacker(MoveEnergyFromAttackerSpec),
+    /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
+    SwitchWithActive(SwitchWithActiveSpec),
+    /// The player may move any number of Energy from their Benched Pokémon to their Active Pokémon
+    /// (a MoveEnergy prompt); nothing without Energy on the Bench.
+    MoveBenchEnergyToActive(MoveBenchEnergyToActiveSpec),
     /// The attacker picks one of the Pokémon in `among` and puts it with all its attached cards into
     /// its owner's deck (unless effects of attacks on it are prevented).
     RemovePicked(RemovePickedSpec),

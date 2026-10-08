@@ -231,6 +231,8 @@ impl AttachSpec {
 pub enum AttachSlots {
     Bench,
     BenchActive,
+    /// Active, then Bench (the order the prompt lists them).
+    ActiveBench,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TargetScan {
@@ -357,6 +359,9 @@ fn num_uses_reg(n: &Num) -> bool {
 pub struct MoveEnergyFromAttackerSpec {
     pub msg: &'static str,
 }
+
+/// The player may move any number of Energy from their Benched Pokémon to their Active Pokémon.
+pub struct MoveBenchEnergyToActiveSpec {}
 
 /// Discard the Stadium in play to its owner's discard pile (nothing without one).
 pub struct DiscardStadiumSpec {}
@@ -552,6 +557,33 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             let id = g.player_id(f.p as usize);
             g.prompt(id, m.msg, PromptKind::AttachEnergy { cards: list, player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::MoveBenchEnergyToActive(_) => {
+            let p = f.p as usize;
+            let active = g.st.players[p].active;
+            let mut blocked_from = SVec::new();
+            let mut blocked_to = SVec::new();
+            let mut has_energy_on_bench = false;
+            for s in g.st.players[p].in_play().iter() {
+                if *s == active {
+                    blocked_from.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0));
+                    continue;
+                }
+                blocked_to.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, g.st.players[p].bench_index_of(*s).unwrap() as u8));
+                if g.st.slot(p, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()) {
+                    has_energy_on_bench = true;
+                }
+            }
+            if !has_energy_on_bench {
+                return Ok(Flow::Next);
+            }
+            let mut slots = SVec::new();
+            slots.push(SlotType::Bench as u8);
+            slots.push(SlotType::Active as u8);
+            let o = MoveOpts { allow_cancel: false, blocked_from, blocked_to, ..Default::default() };
+            let id = g.player_id(p);
+            g.prompt(id, "MOVE_ENERGY_CARDS", PromptKind::MoveEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o }, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
         Op::DiscardStadium(_) => {
@@ -875,6 +907,9 @@ fn search_attach_prompt(g: &mut Game, me: CardId, f: &Frame, s: &SearchSpec) -> 
 
 fn attach_slots(a: &AttachSpec) -> SVec<u8, 3> {
     let mut slots = SVec::new();
+    if a.slots == AttachSlots::ActiveBench {
+        slots.push(SlotType::Active as u8);
+    }
     slots.push(SlotType::Bench as u8);
     if a.slots == AttachSlots::BenchActive {
         slots.push(SlotType::Active as u8);
@@ -1078,6 +1113,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 Res::Attach(t) => t,
                 _ => SVec::new(),
             };
+            f.last = ts.len() as i32;
             if ts.is_empty() {
                 if a.none_shuffles && !g.st.players[p].deck.is_empty() {
                     open_shuffle(g, me, f, p, 2);
@@ -1088,6 +1124,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             let from = zone_list(g, f, a.from);
             for (to, c) in ts.iter().copied() {
                 let target = get_target(&g.st, p, to)?;
+                f.ctx = (target.p as u16) << 4 | target.s as u16;
                 match a.route {
                     AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
                     AttachRoute::Effect => {
@@ -1119,6 +1156,19 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             let cards = energy_chosen(f, first);
             discard_cards_from_slots(g, me, f, &cards)?;
             f.last = cards.len() as i32;
+            Ok(Flow::Next)
+        }
+        Op::MoveBenchEnergyToActive(_) => {
+            let p = f.p as usize;
+            if let Res::Transfers(transfers) = first {
+                for (from, _, _) in transfers.iter() {
+                    let target = ListRef::Slot(p as u8, g.st.players[p].active);
+                    let source = get_target(&g.st, p, *from)?;
+                    for (_, _, card) in transfers.iter() {
+                        move_cards(g, source.list(), target, &[*card], me)?;
+                    }
+                }
+            }
             Ok(Flow::Next)
         }
         Op::MoveEnergyFromAttacker(_) => {

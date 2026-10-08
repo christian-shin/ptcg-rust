@@ -17,6 +17,7 @@ use crate::game::{Game, R};
 use crate::list::*;
 use crate::prefabs::*;
 use crate::prompts::*;
+use crate::state::{ListRef, SlotId};
 use crate::types::*;
 
 /// Card files name Special Conditions and Pokémon types through the prelude.
@@ -156,7 +157,19 @@ pub enum MoveCountersKind {
 pub struct MoveCountersSpec {
     pub kind: MoveCountersKind,
 }
-pub struct EvolveSpec {}
+/// A Pokémon evolves with a card from the deck (a ChoosePokemon prompt over the Basic Pokémon that can evolve
+/// now, then a ChooseCards prompt over the deck for a `stage` card that evolves from it, cancellable); with
+/// `then_stage` a second card evolving from the first is offered. The deck is not shuffled here.
+pub struct EvolveSpec {
+    pub chooser: Who,
+    pub stage: Stage,
+    pub then_stage: Option<Stage>,
+}
+
+/// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
+pub struct SwitchWithActiveSpec {
+    pub target: SlotExpr,
+}
 pub struct DevolveSpec {}
 pub struct SwapPokemonCardSpec {}
 /// Put a Pokémon and all cards attached to it into a zone.
@@ -277,6 +290,7 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
         SlotSel::One(SlotExpr::This) => f.p as usize,
         SlotSel::One(SlotExpr::Attacker) => (f.ctx >> 4 & 1) as usize,
+        SlotSel::One(SlotExpr::Attached) => (f.ctx >> 4 & 1) as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
     }
 }
@@ -445,6 +459,25 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
+        Op::SwitchWithActive(w) => {
+            if let Some(s) = slot_of(g, me, f, w.target) {
+                let p = s.p as usize;
+                if g.st.players[p].bench_index_of(s.s).is_some() {
+                    crate::engine::turn::switch_pokemon(g, p, s.s)?;
+                }
+            }
+            Ok(Flow::Next)
+        }
+        Op::Evolve(e) => {
+            let p = f.who(e.chooser);
+            let (_, blocked) = evolve_targets(g, p)?;
+            let mut slots = SVec::new();
+            slots.push(SlotType::Bench as u8);
+            slots.push(SlotType::Active as u8);
+            let id = g.player_id(p);
+            g.prompt(id, "CHOOSE_POKEMON_TO_EVOLVE", PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
         Op::RemovePicked(r) => {
             let d = DamageChosenSpec { among: r.among_clone(), count: 1, hp: Num::Lit(0), calc: DamageCalc::Auto, msg: r.msg };
             if let Some(c) = f.recorded_choice(g, me) {
@@ -492,6 +525,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             }
             Ok(Flow::Next)
         }
+        Op::Evolve(e) => evolve_resume(g, me, f, e, first),
         Op::RemovePicked(_) => {
             if let Some(s) = first.slots().first().copied() {
                 remove_picked(g, me, f, s)?;
@@ -1124,4 +1158,112 @@ fn remove_picked(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef) -> R {
         }
     }
     move_pokemon_off_board(g, slot, crate::state::ListRef::Deck(o as u8), me)
+}
+
+// ---------------------------------------------------------------------------
+// Evolve (Grand Tree)
+
+/// `CheckPokemonPlayedTurnEffect`: (pokemonPlayedTurn, canEvolveOnFirstTurn).
+fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<(i32, bool)> {
+    let target = SlotRef::new(p, s);
+    let played = g.st.slot(p, s).pokemon_played_turn;
+    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
+    Ok(match e {
+        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
+        _ => (played, false),
+    })
+}
+
+/// A Pokémon can't be evolved during its owner's first turn (the PlayPokemonEffect test), unless it has its own exception.
+fn first_turn_blocked(g: &Game, p: usize, can_evolve_on_first_turn: bool) -> bool {
+    g.st.turn <= 2 && !g.st.players[p].can_evolve && !can_evolve_on_first_turn
+}
+
+fn evolves_from_any(name: &str) -> bool {
+    crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == name)
+}
+
+/// Whether some Basic Pokémon of `p` can evolve now (not put into play this turn, not in the first turn)
+/// into a card the game knows, and the Pokémon prompt's blocked targets.
+pub(crate) fn evolve_targets(g: &mut Game, p: usize) -> R<(bool, TargetList)> {
+    let turn = g.st.turn as i32;
+    let mut any = false;
+    let mut blocked: TargetList = SVec::new();
+    for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        if g.st.cdef(c).stage != Stage::Basic as u8 {
+            blocked.push(t);
+            continue;
+        }
+        let (played, first_ok) = played_turn(g, p, s)?;
+        if played == turn || first_turn_blocked(g, p, first_ok) {
+            blocked.push(t);
+            continue;
+        }
+        if evolves_from_any(g.st.cdef(c).name) {
+            any = true;
+        }
+    }
+    Ok((any, blocked))
+}
+
+/// Deck prompt for an evolution of `from` (`stage`), blocking deck Pokémon that evolve from something else.
+fn evolution_prompt(g: &mut Game, p: usize, from: &'static str, stage: Stage, cont: crate::game::Cont) {
+    let mut blocked = Blocked::default();
+    for (i, c) in g.st.players[p].deck.iter().enumerate() {
+        let d = g.st.cdef(c);
+        if d.is_pokemon() && d.evolves_from != from {
+            blocked.push(i as u8);
+        }
+    }
+    let mut opts = ChooseCardsOpts::new(1, 1, true);
+    opts.blocked = blocked;
+    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(stage as u8), evolves_from: Some(from), ..Filter::none() };
+    choose_cards(g, p, "CHOOSE_CARD_TO_EVOLVE", ListRef::Deck(p as u8), filter, opts, cont);
+}
+
+fn evolve_with(g: &mut Game, me: CardId, p: usize, t: SlotRef, card: CardId) -> R {
+    move_cards(g, ListRef::Deck(p as u8), t.list(), &[card], me)?;
+    let turn = g.st.turn;
+    let slot = &mut g.st.players[t.p as usize].slots[t.s as usize];
+    crate::engine::game_effect::clear_effects(slot);
+    slot.pokemon_played_turn = turn;
+    Ok(())
+}
+
+fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, e: &EvolveSpec, first: Res) -> R<Flow> {
+    let p = f.who(e.chooser);
+    match f.sub & 0xF0 {
+        0x00 => {
+            // The Pokémon was chosen.
+            let Some(t) = first.slots().first().copied() else { return Ok(Flow::Next) };
+            let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(Flow::Next) };
+            let (played, first_ok) = played_turn(g, p, t.s)?;
+            if g.st.cdef(c).stage != Stage::Basic as u8 || played == g.st.turn as i32 || first_turn_blocked(g, p, first_ok) {
+                return Ok(Flow::Next);
+            }
+            let name = g.st.cdef(c).name;
+            evolution_prompt(g, p, name, e.stage, f.cont(me, 0x20 | t.s));
+            Ok(Flow::Suspend)
+        }
+        0x20 => {
+            let t = SlotRef::new(p, f.sub & 0x0F);
+            let Some(evo) = first.cards().first().copied() else { return Ok(Flow::Next) };
+            evolve_with(g, me, p, t, evo)?;
+            let name = g.st.cdef(evo).name;
+            if let Some(st2) = e.then_stage {
+                if evolves_from_any(name) {
+                    evolution_prompt(g, p, name, st2, f.cont(me, 0x30 | t.s));
+                    return Ok(Flow::Suspend);
+                }
+            }
+            Ok(Flow::Next)
+        }
+        _ => {
+            let t = SlotRef::new(p, f.sub & 0x0F);
+            if let Some(c) = first.cards().first().copied() {
+                evolve_with(g, me, p, t, c)?;
+            }
+            Ok(Flow::Next)
+        }
+    }
 }

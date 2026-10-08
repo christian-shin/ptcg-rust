@@ -40,6 +40,8 @@ pub enum SlotExpr {
     Active(Who),
     /// The Pokémon that used the attack a trigger is about (S3).
     Attacker,
+    /// The Pokémon the program's last attachment went to.
+    Attached,
 }
 
 pub enum Num {
@@ -166,6 +168,8 @@ pub enum Cond {
     AbilityBlocked,
     /// The Pokémon that used the attack is still the Pokémon in its slot (a trigger's context).
     AttackerInPlay,
+    /// Some Basic Pokémon the player has in play can evolve now into a card in the game (a checked read).
+    CanEvolveBasic(Who),
     /// This Tool's effect is blocked for the player the program runs for (a checked read).
     ToolBlocked,
 }
@@ -247,7 +251,7 @@ pub fn zone_list(g: &Game, f: &Frame, z: ZoneRef) -> ListRef {
 
 pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> {
     match s {
-        SlotExpr::Attacker => Some(SlotRef::new((f.ctx >> 4 & 1) as usize, (f.ctx & 15) as u8)),
+        SlotExpr::Attacker | SlotExpr::Attached => Some(SlotRef::new((f.ctx >> 4 & 1) as usize, (f.ctx & 15) as u8)),
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
@@ -424,6 +428,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::ViaAttack => matches!(*g.e(f.eff), Effect::Trainer { via_attack: true, .. }),
         Cond::StadiumInPlay(p) => g.st.stadium_card().map(|c| pred(g, c, p)).unwrap_or(false),
         Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
+        Cond::CanEvolveBasic(_) => panic!("Cond::CanEvolveBasic needs a checked read (cond_m)"),
         Cond::ToolBlocked => panic!("Cond::ToolBlocked needs a checked read (cond_m)"),
         Cond::AttackerInPlay => f.ctx & 0x100 != 0,
         Cond::OtherAncientAttackedLastTurn => {
@@ -858,6 +863,7 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
             }
         }
         Cond::AbilityBlocked => is_ability_blocked(g, f.p as usize, me, None),
+        Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w))?.0,
         Cond::ToolBlocked => is_tool_blocked(g, f.p as usize, me),
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,

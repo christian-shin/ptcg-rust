@@ -18,160 +18,17 @@
 //! from the chosen Stage 1. Evolving is MOVE_CARDS deck→slot + clearEffects
 //! + pokemonPlayedTurn = turn (no EvolveEffect). The deck is shuffled at
 //! every exit after the Pokémon prompt.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::Stage;
 
-pub static IMPL: CardImpl = CardImpl { class: "GreatTree", mask: mask(&[k::USE_STADIUM]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "GreatTree",
+    use_stadium: Some(PlaySpec {
+        kind: PlayKind::Stadium,
+        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::CanEvolveBasic(Who::Me)],
+        steps: &[Step::new(Op::Evolve(EvolveSpec { chooser: Who::Me, stage: Stage::Stage1, then_stage: Some(Stage::Stage2) })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))],
+    }),
+    ..CardSpec::NONE
+};
 
-/// `CheckPokemonPlayedTurnEffect`: (pokemonPlayedTurn, canEvolveOnFirstTurn).
-fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<(i32, bool)> {
-    let target = SlotRef::new(p, s);
-    let played = g.st.slot(p, s).pokemon_played_turn;
-    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
-    Ok(match e {
-        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
-        _ => (played, false),
-    })
-}
-
-/// `firstTurnBlocked`: players can't evolve a Pokémon during their first turn
-/// (the PlayPokemonEffect test), unless the Pokémon has its own exception.
-fn first_turn_blocked(g: &Game, p: usize, can_evolve_on_first_turn: bool) -> bool {
-    g.st.turn <= 2 && !g.st.players[p].can_evolve && !can_evolve_on_first_turn
-}
-
-fn evolves_from_any(name: &str) -> bool {
-    crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == name)
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match *g.e(e) {
-        Effect::UseStadium { p, .. } if g.st.stadium_card() == Some(me) => p as usize,
-        _ => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let turn = g.st.turn as i32;
-    let mut any = false;
-    for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        let (played, first_ok) = played_turn(g, p, s)?;
-        let d = g.st.cdef(c);
-        if d.stage != Stage::Basic as u8 || played == turn || first_turn_blocked(g, p, first_ok) {
-            continue;
-        }
-        if evolves_from_any(d.name) {
-            any = true;
-        }
-    }
-    if !any {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let mut blocked = SVec::new();
-    for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if g.st.cdef(c).stage != Stage::Basic as u8 {
-            blocked.push(t);
-            continue;
-        }
-        let (played, first_ok) = played_turn(g, p, s)?;
-        if played == turn || first_turn_blocked(g, p, first_ok) {
-            blocked.push(t);
-        }
-    }
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    slots.push(SlotType::Active as u8);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_POKEMON_TO_EVOLVE",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
-        Cont::Card { card: me, frame: f },
-    );
-    Ok(())
-}
-
-/// Deck prompt for an evolution of `from` (`stage`), blocking deck Pokémon
-/// that evolve from something else.
-fn evolution_prompt(g: &mut Game, me: CardId, p: usize, from: &'static str, stage: Stage, frame: CardFrame) {
-    let mut blocked = Blocked::default();
-    for (i, c) in g.st.players[p].deck.iter().enumerate() {
-        let d = g.st.cdef(c);
-        if d.is_pokemon() && d.evolves_from != from {
-            blocked.push(i as u8);
-        }
-    }
-    let mut opts = ChooseCardsOpts::new(1, 1, true);
-    opts.blocked = blocked;
-    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(stage as u8), evolves_from: Some(from), ..Filter::none() };
-    choose_cards(g, p, "CHOOSE_CARD_TO_EVOLVE", ListRef::Deck(p as u8), filter, opts, Cont::Card { card: me, frame });
-}
-
-fn evolve(g: &mut Game, me: CardId, p: usize, t: SlotRef, card: CardId) -> R {
-    move_cards(g, ListRef::Deck(p as u8), t.list(), &[card], me)?;
-    let turn = g.st.turn;
-    let slot = &mut g.st.players[t.p as usize].slots[t.s as usize];
-    crate::engine::game_effect::clear_effects(slot);
-    slot.pokemon_played_turn = turn;
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            let t = match first.slots().first().copied() {
-                Some(t) => t,
-                None => {
-                    shuffle_deck(g, p);
-                    return Ok(());
-                }
-            };
-            let c = match g.st.slot_pokemon(t.p as usize, t.s) {
-                Some(c) => c,
-                None => return Ok(()),
-            };
-            let (played, first_ok) = played_turn(g, p, t.s)?;
-            if g.st.cdef(c).stage != Stage::Basic as u8 || played == g.st.turn as i32 || first_turn_blocked(g, p, first_ok) {
-                return Ok(());
-            }
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            nf.a[1] = t.p as i32;
-            nf.a[2] = t.s as i32;
-            evolution_prompt(g, me, p, g.st.cdef(c).name, Stage::Stage1, nf);
-            Ok(())
-        }
-        2 => {
-            let t = SlotRef { p: f.a[1] as u8, s: f.a[2] as SlotId };
-            let evo = match first.cards().first().copied() {
-                Some(c) => c,
-                None => {
-                    shuffle_deck(g, p);
-                    return Ok(());
-                }
-            };
-            evolve(g, me, p, t, evo)?;
-            let name = g.st.cdef(evo).name;
-            if evolves_from_any(name) {
-                let mut nf = f;
-                nf.stage = 3;
-                evolution_prompt(g, me, p, name, Stage::Stage2, nf);
-                return Ok(());
-            }
-            shuffle_deck(g, p);
-            Ok(())
-        }
-        3 => {
-            let t = SlotRef { p: f.a[1] as u8, s: f.a[2] as SlotId };
-            if let Some(c) = first.cards().first().copied() {
-                evolve(g, me, p, t, c)?;
-            }
-            shuffle_deck(g, p);
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
