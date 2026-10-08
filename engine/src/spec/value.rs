@@ -73,6 +73,9 @@ pub enum Num {
     InPlayCount(Who, PlayScope, Pred),
     /// Distinct first provided types among the cards of a zone matching the predicate.
     DistinctTypes(ZoneRef, Pred),
+    // --- S3 appends ---
+    /// Heads of the coin sequence the program last flipped.
+    Heads,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -261,6 +264,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
+        Num::Heads => f.heads as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {

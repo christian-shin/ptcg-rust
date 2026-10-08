@@ -95,3 +95,8 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
 pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     flow::again(g, me, f, op)
 }
+
+/// A coin flip of `op` came up heads or tails.
+pub(crate) fn resume_coin(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    flow::resume_coin(g, me, f, op, heads)
+}

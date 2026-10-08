@@ -24,6 +24,8 @@ const MAX_DEPTH: usize = 4;
 const SEL_SHIFT: u8 = 5;
 const INDEX_MASK: u8 = 0x1F;
 pub(crate) const NONE: u8 = 0xFF;
+/// Resume point of an op waiting for a coin sequence (its results arrive in the frame).
+pub(crate) const SUB_COIN_SEQ: u8 = 0xC1;
 
 pub(crate) const CHOICE_NO: u8 = 0;
 pub(crate) const CHOICE_YES: u8 = 1;
@@ -74,11 +76,13 @@ pub struct Frame {
     pub(crate) p: u8,
     /// Card registers: temp list indices, or NONE.
     pub(crate) cards: [u8; 2],
+    /// Heads of the last coin sequence the program flipped.
+    pub(crate) heads: u8,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2] }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0 }
     }
 
     fn prog_code(&self) -> u32 {
@@ -93,11 +97,12 @@ impl Frame {
 
     fn encode(&self) -> CardFrame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
-        f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.sub as u32) << 24) as i32;
+        // The player rides in bit 20: a coin sequence overwrites `a[2]` and `a[3]`.
+        f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.p as u32 & 1) << 20 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
-        f.a[2] = self.p as i32;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
+        f.e[1] = self.heads;
         f.l = self.cards;
         f
     }
@@ -121,16 +126,20 @@ impl Frame {
             3 => Prog::Trigger((code & 0xFF) as u8),
             _ => Prog::UseStadium,
         };
+        let sub = ((a0 >> 24) & 0xFF) as u8;
+        // A finished coin sequence put its results in `a[2]` and its length in `a[3]`.
+        let seq = sub == SUB_COIN_SEQ;
         Some(Frame {
             prog,
             phase,
             path: f.a[1].to_le_bytes(),
-            depth: ((a0 >> 16) & 0xFF) as u8,
-            iter: f.a[3].to_le_bytes(),
-            sub: ((a0 >> 24) & 0xFF) as u8,
+            depth: ((a0 >> 16) & 0xF) as u8,
+            iter: if seq { [0; MAX_DEPTH] } else { f.a[3].to_le_bytes() },
+            sub,
             eff: f.e[0],
-            p: f.a[2] as u8,
+            p: ((a0 >> 20) & 1) as u8,
             cards: f.l,
+            heads: if seq { (f.a[2] as u32).count_ones() as u8 } else { f.e[1] },
         })
     }
 
@@ -346,6 +355,19 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let op = &list_at(spec, &f)[f.index()].op;
     let flow = if f.phase == Phase::Choices { ops::resume_choice(g, me, &mut f, op, results)? } else { ops::resume(g, me, &mut f, op, results)? };
     match flow {
+        Flow::Next => f.advance(),
+        Flow::Enter(sel) => f.enter(sel),
+        Flow::Suspend => return Ok(()),
+    }
+    run(g, me, f)
+}
+
+/// `CardImpl::coin` of every spec card: a single coin flip came up `heads`.
+pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
+    let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
+    let spec = spec_of(g, me);
+    let op = &list_at(spec, &f)[f.index()].op;
+    match ops::resume_coin(g, me, &mut f, op, heads)? {
         Flow::Next => f.advance(),
         Flow::Enter(sel) => f.enter(sel),
         Flow::Suspend => return Ok(()),

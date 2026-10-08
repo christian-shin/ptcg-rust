@@ -5,10 +5,11 @@
 //! for each selector, and `again` decides whether a finished list runs again
 //! (loops count passes in `Frame::iter`).
 
-use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES};
+use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES, SUB_COIN_SEQ};
 use super::super::*;
 use crate::game::{Game, R};
 use crate::list::CardId;
+use crate::game::CoinCb;
 use crate::prefabs::*;
 use crate::prompts::Res;
 use crate::types::*;
@@ -27,7 +28,30 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-pub struct CoinSpec {}
+/// How many coins are flipped.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CoinMode {
+    /// One coin: `heads` or `tails` runs.
+    One,
+    /// This many coins in a row (a sequence prompt); `then` runs afterwards and
+    /// reads the heads with `Num::Heads`.
+    Count(u8),
+    /// Flip until tails; `then` runs afterwards (`Num::Heads` counts the heads).
+    UntilTails,
+}
+
+/// Flip coin(s) (`flipper`), when `before` holds (otherwise nothing is flipped).
+pub struct CoinSpec {
+    pub flipper: Who,
+    pub mode: CoinMode,
+    pub before: Cond,
+    pub heads: &'static [Step],
+    pub tails: &'static [Step],
+    pub then: &'static [Step],
+}
+impl CoinSpec {
+    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, mode: CoinMode::One, before: Cond::True, heads: &[], tails: &[], then: &[] };
+}
 pub struct ChooseSpec {}
 pub struct ForEachSpec {}
 pub struct RepeatSpec {}
@@ -73,6 +97,20 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
         }
+        Op::Coin(c) => {
+            if !cond_m(g, me, f, &c.before)? {
+                return Ok(Flow::Next);
+            }
+            let p = f.who(c.flipper);
+            match c.mode {
+                CoinMode::One => {
+                    g.coin_flip(p, CoinCb::Card { card: me, frame: f.frame_at(1) })?;
+                }
+                CoinMode::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(SUB_COIN_SEQ) })?,
+                CoinMode::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(SUB_COIN_SEQ) })?,
+            }
+            Ok(Flow::Suspend)
+        }
         Op::CopyAttack(c) => {
             let p = f.who(c.from);
             let Some(card) = g.st.active_pokemon(p) else { return Ok(Flow::Next) };
@@ -91,9 +129,22 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
     }
 }
 
-pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+/// A single coin flip came up heads or tails.
+pub(crate) fn resume_coin(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    match op {
+        Op::Coin(c) => {
+            let list = if heads { c.heads } else { c.tails };
+            Ok(if list.is_empty() { Flow::Next } else { Flow::Enter(if heads { 0 } else { 1 }) })
+        }
+        _ => Ok(Flow::Next),
+    }
+}
+
+pub(crate) fn resume(_g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        // A coin sequence finished (the frame carries the heads).
+        Op::Coin(c) if f.sub == SUB_COIN_SEQ => Ok(if c.then.is_empty() { Flow::Next } else { Flow::Enter(2) }),
         Op::May(m) => {
             if first.as_bool() {
                 Ok(if m.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
@@ -144,6 +195,9 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::May(m), _) => m.no,
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
+        (Op::Coin(c), 0) => c.heads,
+        (Op::Coin(c), 1) => c.tails,
+        (Op::Coin(c), _) => c.then,
         _ => &[],
     }
 }
