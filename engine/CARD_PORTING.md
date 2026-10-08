@@ -637,6 +637,8 @@ what you think is missing.
 
 ## Rules
 
+* Rules decisions (Ability locks, on-play Abilities, ...) are recorded in
+  `engine/RULES.md`; follow them and add new ones there with their ruling.
 * Do not modify the Twinleaf checkout. If a card can't be verified because of
   the oracle (e.g. Twinleaf crashes), report it.
 * Do not change existing card ports owned by others unless the fix is needed and

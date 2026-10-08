@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Meowth ex POR 62",
+   "4 Boss's Orders ASC 183",
+   "4 Tatsugiri TWM 131",
+   "4 Iron Thorns ex PRE 32",
+   "4 Team Rocket's Watchtower ASC 210",
+   "40 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Meowth ex POR 62",
+   "4 Boss's Orders ASC 183",
+   "4 Tatsugiri TWM 131",
+   "4 Iron Thorns ex PRE 32",
+   "4 Team Rocket's Watchtower ASC 210",
+   "40 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Tatsugiri TWM 131",
+  "hand": [
+   "Meowth ex POR 62"
+  ],
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Tatsugiri TWM 131"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Meowth ex POR 62"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "ruling id2334 / n1808: with Team Rocket's Watchtower in play Meowth ex has no Ability when it comes into play"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Boss's Orders ASC 183"
+   ],
+   "cite": "ruling id2334 / n1808: with Team Rocket's Watchtower in play Meowth ex has no Ability when it comes into play"
+  }
+ ]
+}
