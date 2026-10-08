@@ -40,6 +40,13 @@
    "name": "Inferno Legs"
   },
   [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  [
    0
   ]
  ],

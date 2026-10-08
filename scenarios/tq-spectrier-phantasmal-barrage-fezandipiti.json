@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Spectrier ASC 98",
+   "4 Fezandipiti PRE 45",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Spectrier ASC 98",
+   "4 Fezandipiti PRE 45",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Spectrier ASC 98",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Phantasmal Barrage"
+  }
+ ],
+ "coins": [
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "ChoosePokemon"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: the Pokemon for the damage counters is chosen when the effect resolves, after the damage step (the attack animation Wait comes first)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "Phantasmal Barrage: discard all Energy from this Pokemon"
+  }
+ ]
+}

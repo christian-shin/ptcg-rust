@@ -42,16 +42,16 @@
    "name": "Explosion Y"
   },
   [
-   0,
-   1,
-   2
-  ],
-  [
    {
     "player": 1,
     "slot": 1,
     "index": 0
    }
+  ],
+  [
+   0,
+   1,
+   2
   ]
  ],
  "expect": [

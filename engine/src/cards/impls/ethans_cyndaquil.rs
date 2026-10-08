@@ -2,10 +2,11 @@
 use crate::cards::prelude::*;
 use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon};
 
-pub static IMPL: CardImpl = CardImpl { class: "EthansCyndaquil", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "EthansCyndaquil", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
+    if after_attack_used(g, e, 0, me) {
+        let e = real_attack(g, e);
         discard_x_energy_from_this_pokemon(g, me, e, 1, 1)?;
     }
     Ok(())

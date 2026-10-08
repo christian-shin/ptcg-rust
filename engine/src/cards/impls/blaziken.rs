@@ -3,12 +3,16 @@
 use crate::cards::prelude::*;
 use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon};
 
-pub static IMPL: CardImpl = CardImpl { class: "Blaziken", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Blaziken", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 1, me) {
-        discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
         damage_1_opponent_pokemon(g, e, 120, true);
+    }
+    // "Discard 2 Energy from this Pokémon": the damage is fixed, so the choice is asked after it
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
+        discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
     }
     Ok(())
 }
