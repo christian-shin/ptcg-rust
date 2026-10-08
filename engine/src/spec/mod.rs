@@ -316,6 +316,16 @@ pub enum Modifier {
     HpBonus(i32),
 }
 
+/// An attack choice made at step D (before the damage) and carried out after
+/// it: the step it belongs to and the answer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SpecChoice {
+    pub card: crate::list::CardId,
+    /// Program and path of the step (`run.rs`).
+    pub key: u64,
+    pub answer: u8,
+}
+
 /// Everything a spec card file needs.
 pub mod prelude {
     pub use super::*;

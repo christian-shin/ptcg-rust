@@ -38,6 +38,12 @@ enum Phase {
     BeforeDamage = 0,
     AfterDamage = 1,
     Use = 2,
+    /// Step D of an attack (FINAL attack-choice rule, user 2026-10-07): the
+    /// choices of the after-damage steps are made now, before the damage, and
+    /// recorded in `Game::spec_choices`; the after-damage run carries them out.
+    /// Searches and choices nested under conditions, coins or loops are still
+    /// made after the damage, when their options exist.
+    Choices = 3,
 }
 
 /// A program's position and registers, round-tripped through `CardFrame`.
@@ -86,6 +92,7 @@ impl Frame {
         let phase = match f.stage & 0x0F {
             0 => Phase::BeforeDamage,
             1 => Phase::AfterDamage,
+            3 => Phase::Choices,
             _ => Phase::Use,
         };
         let code = f.a[0] & 0xFFFF;
@@ -120,6 +127,16 @@ impl Frame {
         self.depth += 1;
         self.path[self.depth as usize] = selector << 6;
         self.sub = 0;
+    }
+
+    /// Identifies the current step among this card's programs.
+    fn key(&self) -> u64 {
+        let prog: u64 = match self.prog {
+            Prog::Attack(i) => i as u64,
+            Prog::Play => 0x100,
+            Prog::Power(i) => 0x200 | i as u64,
+        };
+        prog << 40 | (self.depth as u64) << 32 | u32::from_le_bytes(self.path) as u64
     }
 
     fn opp(&self) -> usize {
@@ -190,6 +207,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     for (i, a) in spec.attacks.iter().enumerate() {
         if was_attack_used(g, e, a.index, me) {
             if let Some((p, ..)) = attack_data(g, e) {
+                g.spec_choices.retain(|c| c.card != me);
                 run(g, me, Frame::new(Prog::Attack(i as u8), Phase::BeforeDamage, e, p as usize))?;
             }
         } else if after_attack_used(g, e, a.index, me) {
@@ -232,7 +250,8 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
-    match resume_op(g, me, &mut f, op, results)? {
+    let flow = if f.phase == Phase::Choices { resume_choice(g, me, &mut f, op, results)? } else { resume_op(g, me, &mut f, op, results)? };
+    match flow {
         Flow::Next => f.advance(),
         Flow::Enter(sel) => f.enter(sel),
         Flow::Suspend => return Ok(()),
@@ -246,19 +265,33 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
         let list = list_at(spec, &f);
         let i = f.index();
         if i >= list.len() {
-            if f.depth == 0 {
-                return Ok(());
+            if f.depth > 0 {
+                f.depth -= 1;
+                f.advance();
+                continue;
             }
-            f.depth -= 1;
-            f.advance();
-            continue;
+            match f.phase {
+                // Step D follows the attack's before-damage text.
+                Phase::BeforeDamage => {
+                    f.phase = Phase::Choices;
+                    f.path = [0; MAX_DEPTH];
+                    f.sub = 0;
+                    continue;
+                }
+                Phase::AfterDamage => {
+                    g.spec_choices.retain(|c| c.card != me);
+                }
+                _ => {}
+            }
+            return Ok(());
         }
         let step = &list[i];
         if f.depth == 0 && !runs_in(step.at, f.phase) {
             f.advance();
             continue;
         }
-        match exec(g, me, &mut f, &step.op)? {
+        let flow = if f.phase == Phase::Choices { exec_choice(g, me, &mut f, &step.op)? } else { exec(g, me, &mut f, &step.op)? };
+        match flow {
             Flow::Next => f.advance(),
             Flow::Enter(sel) => f.enter(sel),
             Flow::Suspend => return Ok(()),
@@ -269,9 +302,61 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
 fn runs_in(at: RuleStep, phase: Phase) -> bool {
     matches!(
         (at, phase),
-        (RuleStep::BeforeDamage, Phase::BeforeDamage) | (RuleStep::AfterDamage, Phase::AfterDamage) | (RuleStep::Use, Phase::Use)
+        (RuleStep::BeforeDamage, Phase::BeforeDamage)
+            | (RuleStep::AfterDamage, Phase::AfterDamage)
+            | (RuleStep::AfterDamage, Phase::Choices)
+            | (RuleStep::Use, Phase::Use)
     )
 }
+
+// ---------------------------------------------------------------------------
+// Step D: choices of the after-damage steps
+
+fn record(g: &mut Game, me: CardId, f: &Frame, answer: u8) {
+    let key = f.key();
+    g.spec_choices.retain(|c| !(c.card == me && c.key == key));
+    g.spec_choices.push(SpecChoice { card: me, key, answer });
+}
+
+fn recorded(g: &Game, me: CardId, f: &Frame) -> Option<u8> {
+    let key = f.key();
+    g.spec_choices.iter().find(|c| c.card == me && c.key == key).map(|c| c.answer)
+}
+
+/// The step-D half of an op: ask its question and record the answer. Ops
+/// without a step-D choice do nothing now.
+fn exec_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
+    match op {
+        Op::May(m) => {
+            if !cond(g, me, f, &m.when) {
+                // Nothing to decide: the effect is not carried out.
+                record(g, me, f, CHOICE_NONE);
+                return Ok(Flow::Next);
+            }
+            confirmation_prompt(g, f.who(m.asker), m.msg, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        _ => Ok(Flow::Next),
+    }
+}
+
+fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+    let first = results.first().copied().unwrap_or(Res::Null);
+    match op {
+        Op::May(m) => {
+            let yes = first.as_bool();
+            record(g, me, f, if yes { CHOICE_YES } else { CHOICE_NO });
+            // The yes branch's own choices are made now too.
+            Ok(if yes && !m.yes.is_empty() { Flow::Enter(0) } else { Flow::Next })
+        }
+        _ => Ok(Flow::Next),
+    }
+}
+
+const CHOICE_NO: u8 = 0;
+const CHOICE_YES: u8 = 1;
+/// Nothing was asked (no possible effect at step D).
+const CHOICE_NONE: u8 = 2;
 
 // ---------------------------------------------------------------------------
 // Ops
@@ -290,6 +375,15 @@ fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
             Ok(Flow::Next)
         }
         Op::May(m) => {
+            if f.phase == Phase::AfterDamage {
+                if let Some(a) = recorded(g, me, f) {
+                    return Ok(match a {
+                        CHOICE_YES if !m.yes.is_empty() => Flow::Enter(0),
+                        CHOICE_NO if !m.no.is_empty() => Flow::Enter(1),
+                        _ => Flow::Next,
+                    });
+                }
+            }
             if !cond(g, me, f, &m.when) {
                 return Ok(Flow::Next);
             }

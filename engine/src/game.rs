@@ -269,6 +269,9 @@ pub struct Game {
     pub ten_hp_coin: SVec<(SlotRef, u8), 8>,
     /// `last-attack.ts`: the attack in progress / the last attack, for the Knock Out check.
     pub last_attack: Option<LastAttack>,
+    /// Attack choices made at step D, before the damage, by spec cards
+    /// (PLAN.md 8.5): read when the effects are carried out after the damage.
+    pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
 }
 
 /// Prompt constructor work Twinleaf does in the prompt class itself:
@@ -317,7 +320,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack,
+                resolving_trainer, probing_stadium, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
             } = src;
             f!((*d).st).write(*st);
             f!((*d).rng).write(*rng);
@@ -340,6 +343,7 @@ impl Game {
             triggers.copy_live_to(f!((*d).triggers));
             ten_hp.copy_live_to(f!((*d).ten_hp));
             ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
+            spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
         }
     }
@@ -370,6 +374,7 @@ impl Game {
             ten_hp: SVec::new(),
             ten_hp_coin: SVec::new(),
             last_attack: None,
+            spec_choices: SVec::new(),
         }
     }
 
