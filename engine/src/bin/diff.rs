@@ -217,9 +217,9 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
 }
 
 /// A prompt descriptor without plumbing (PLAN.md 8.5): no message names or
-/// filters, and a card choice reduced to the cards that can really be chosen
-/// (`selectable` minus `options.blocked`). Select prompts keep only how many
-/// values they offer.
+/// filters, a card choice reduced to the cards that can really be chosen
+/// (`selectable` minus `options.blocked`), and no per-kind caps that `max`
+/// already implies. Select prompts keep only how many values they offer.
 fn norm_prompt(d: &Value) -> Value {
     let mut o = d.as_object().cloned().unwrap_or_default();
     o.remove("message");
@@ -228,6 +228,11 @@ fn norm_prompt(d: &Value) -> Value {
     let blocked: Vec<u64> = o.get("options").and_then(|x| x.get("blocked")).and_then(|b| b.as_array()).map(|b| b.iter().filter_map(|v| v.as_u64()).collect()).unwrap_or_default();
     if let Some(opts) = o.get_mut("options").and_then(|x| x.as_object_mut()) {
         opts.remove("blocked");
+        // A per-kind cap (`maxPokemons`, ...) no smaller than `max` can't
+        // constrain the choice.
+        if let Some(max) = opts.get("max").and_then(|m| m.as_i64()) {
+            opts.retain(|k, v| !(k.starts_with("max") && k != "max" && v.as_i64().is_some_and(|c| c >= max)));
+        }
     }
     if let (Some(cards), Some(sel)) = (o.get("cards").and_then(|c| c.as_array()).cloned(), o.get("selectable").and_then(|c| c.as_array()).cloned()) {
         let pick: Vec<Value> = cards

@@ -1,5 +1,6 @@
 //! Registers every card port in `src/cards/impls/*.rs` (each defines
-//! `pub static IMPL: CardImpl`), so ports never edit a shared file.
+//! `pub static IMPL: CardImpl`, and converted cards also `pub static SPEC:
+//! CardSpec`), so ports never edit a shared file.
 use std::fs;
 use std::path::Path;
 
@@ -24,6 +25,15 @@ fn main() {
     out.push_str("pub static IMPLS: &[&crate::cards::CardImpl] = &[\n");
     for n in &names {
         out.push_str(&format!("    &{}::IMPL,\n", n));
+    }
+    out.push_str("];\n");
+    // Converted cards (PLAN.md 8.5) also define `pub static SPEC: CardSpec`.
+    out.push_str("pub static SPECS: &[&crate::spec::CardSpec] = &[\n");
+    for n in &names {
+        let text = fs::read_to_string(dir.join(format!("{}.rs", n))).unwrap_or_default();
+        if text.contains("pub static SPEC:") {
+            out.push_str(&format!("    &{}::SPEC,\n", n));
+        }
     }
     out.push_str("];\n");
     let dest = Path::new(&std::env::var("OUT_DIR").unwrap()).join("card_impls.rs");
