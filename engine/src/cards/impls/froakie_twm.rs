@@ -4,34 +4,33 @@
 //! Twinleaf: same shape as Chatot's A Capella (no empty-deck check; with a full
 //! Bench the attack does nothing, with no search and no shuffle: phase 4b R7E,
 //! ruling 337; also with all 4 Froakie in known zones, ruling 336; the prompt max is min(empty bench slots, 2)), with a name filter.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Froakie@Froakie TWM", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Froakie@Froakie TWM",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::after_damage(Op::If(IfSpec {
+                cond: Cond::All(&[Cond::BenchSpace(Who::Me), Cond::Cmp(Num::KnownCopies(Who::Me, "Froakie"), CmpOp::Lt, Num::Lit(4))]),
+                yes: &[
+                    Step::new(Op::Search(SearchSpec {
+                        pick: PickSpec {
+                            chooser: Who::Me,
+                            from: ZoneRef(Who::Me, Zone::Deck),
+                            predicate: Pred::All(&[Pred::Basic, Pred::Name("Froakie")]),
+                            bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
+                        },
+                        destination: SearchDestination::Bench,
+                        msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH",
+                    })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                ],
+                no: &[],
+            })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let open = empty_bench_slots(g, p);
-        let max = open.len().min(2) as u8;
-        if max == 0 || super::lampent::known_copies(g, p, "Froakie") >= 4 {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        for (i, s) in open.iter().enumerate().take(3) {
-            f.a[1 + i] = *s as i32;
-        }
-        f.l[0] = open.len() as u8;
-        let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(Stage::Basic as u8), name: Some("Froakie"), ..Filter::none() };
-        choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, max, false), Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    super::chatot::bench_search_resume(g, f, results)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -11,6 +11,7 @@ use crate::game::{Game, R};
 use crate::list::CardId;
 use crate::prefabs::*;
 use crate::prompts::Res;
+use crate::types::*;
 
 /// "You may": ask `asker` when `when` holds (otherwise nothing is asked and
 /// nothing happens); on yes run `yes`, on no run `no`.
@@ -33,9 +34,20 @@ pub struct RepeatSpec {}
 pub struct ParallelSpec {}
 pub struct FailSpec {}
 pub struct PickAttackSpec {}
-pub struct CopyAttackSpec {}
+/// Choose an attack of `from`'s Active Pokémon (when its card matches
+/// `predicate` and has attacks) and use it as this attack, as a copy session
+/// (`copy_attack.rs`): no cancel, `retries` attempts when a chosen attack
+/// can't be used. Runs before the damage, with the attack itself.
+pub struct CopyAttackSpec {
+    pub from: Who,
+    pub predicate: Pred,
+    pub retries: u8,
+}
 pub struct EndTurnSpec {}
-pub struct EndGameSpec {}
+/// The game ends and `winner` wins.
+pub struct EndGameSpec {
+    pub winner: Who,
+}
 pub struct CustomSpec {}
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
@@ -60,6 +72,20 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
+        }
+        Op::CopyAttack(c) => {
+            let p = f.who(c.from);
+            let Some(card) = g.st.active_pokemon(p) else { return Ok(Flow::Next) };
+            if !(pred(g, card, &Pred::HasAttacks) && pred(g, card, &c.predicate)) {
+                return Ok(Flow::Next);
+            }
+            crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &[card], false, c.retries)?;
+            Ok(Flow::Next)
+        }
+        Op::EndGame(e) => {
+            let winner = if f.who(e.winner) == 0 { WINNER_P1 } else { WINNER_P2 };
+            crate::engine::phase::end_game(g, winner);
+            Ok(Flow::Next)
         }
         _ => unimplemented!("spec op not implemented yet (ops/flow.rs)"),
     }

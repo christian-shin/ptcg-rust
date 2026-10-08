@@ -52,6 +52,8 @@ pub enum Num {
     Max(&'static Num, &'static Num),
     /// `if cond { a } else { b }`.
     If(&'static Cond, &'static Num, &'static Num),
+    /// Cards with this name in the player's discard pile and on their board.
+    KnownCopies(Who, &'static str),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -74,6 +76,8 @@ pub enum Cond {
     /// The zone holds a card matching the predicate.
     Nonempty(ZoneRef, Pred),
     BenchSpace(Who),
+    /// The Pokémon is its player's Active Pokémon.
+    IsActive(SlotExpr),
 }
 
 /// A card predicate.
@@ -94,6 +98,10 @@ pub enum Pred {
     Stadium,
     Name(&'static str),
     HpAtMost(i32),
+    /// The card has this card tag (`types::tag`).
+    Tag(u32),
+    /// A Pokémon with at least one attack.
+    HasAttacks,
 }
 
 impl Frame {
@@ -165,6 +173,14 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
                 num(g, me, f, b)
             }
         }
+        Num::KnownCopies(w, name) => {
+            let p = f.who(*w);
+            let mut n = g.st.players[p].discard.iter().filter(|c| g.st.cdef(*c).name == *name).count();
+            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
+                n += g.st.slot(p, *s).cards.iter().filter(|c| g.st.cdef(*c).name == *name).count();
+            }
+            n as i32
+        }
     }
 }
 
@@ -188,6 +204,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::Nonempty(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| pred(g, *c, p)),
         Cond::BenchSpace(w) => !empty_bench_slots(g, f.who(*w)).is_empty(),
+        Cond::IsActive(s) => slot_of(g, me, f, *s).map(|s| g.st.players[s.p as usize].active == s.s).unwrap_or(false),
     }
 }
 
@@ -210,5 +227,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Stadium => d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8,
         Pred::Name(n) => d.name == *n,
         Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
+        Pred::Tag(t) => d.has_tag(*t),
+        Pred::HasAttacks => d.is_pokemon() && !d.attacks.is_empty(),
     }
 }
