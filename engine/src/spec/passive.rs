@@ -415,6 +415,28 @@ pub struct PrizeAdjustSpec {
     /// (Unown's Mysterious Signal): the card's own last attack of the turn.
     pub by_own_attack: Option<&'static str>,
     pub guard: Cond,
+    // --- S3 agent 3 appends ---
+    /// The Pokémon that used the attack (by Knock Out by attack damage), where it is now.
+    pub attacker: SlotPred,
+    /// Applies once per Knocked Out Pokémon: this marker (a slot marker, by name) is set on it.
+    pub nonstacking: Option<&'static str>,
+    /// Only a Knock Out of the card owner's Pokémon.
+    pub owner_only: bool,
+    /// The lock probe is made for the owner's opponent (today's behavior of Mega Gengar ex).
+    pub probe_opponent: bool,
+}
+impl PrizeAdjustSpec {
+    pub const DEFAULT: PrizeAdjustSpec = PrizeAdjustSpec {
+        delta: 0,
+        subject: SlotPred::Any,
+        by_attack_damage: false,
+        by_own_attack: None,
+        guard: Cond::True,
+        attacker: SlotPred::Any,
+        nonstacking: None,
+        owner_only: false,
+        probe_opponent: false,
+    };
 }
 /// "During Pokémon Checkup, put N more damage counters on each Poisoned Pokémon ..." (Perilous
 /// Jungle, Pecharunt): added to the Poison damage of the Active Pokémon of the player whose
@@ -1356,14 +1378,31 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
         }
     }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if blocked(g, me, origin, at, Some(target)) {
+    if d.owner_only && at.owner != p {
         return Ok(());
     }
-    if d.by_attack_damage && g.knocked_out_by_attack_damage(p, target).is_none() {
+    let probe_at = if d.probe_opponent { Located { owner: 1 - p, ..at } } else { at };
+    if blocked(g, me, origin, probe_at, Some(target)) {
         return Ok(());
+    }
+    let by_damage = g.knocked_out_by_attack_damage(p, target);
+    if d.by_attack_damage && by_damage.is_none() {
+        return Ok(());
+    }
+    if let Some((_, Some(src))) = by_damage {
+        if !slot_pred_m(g, me, src, &d.attacker)? {
+            return Ok(());
+        }
     }
     if !guard_ok(g, me, at.owner, &d.guard) {
         return Ok(());
+    }
+    if let Some(name) = d.nonstacking {
+        let id = crate::markers::intern(name);
+        if g.st.slot(target.p as usize, target.s).marker.has(id) {
+            return Ok(());
+        }
+        g.st.players[target.p as usize].slots[target.s as usize].marker.add(id, me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
     }
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
         *prize_count += d.delta;

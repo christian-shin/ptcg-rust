@@ -23,6 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
             by_attack_damage: true,
             by_own_attack: None,
             guard: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Named("Pecharunt ex")),
+            ..PrizeAdjustSpec::DEFAULT
         }),
     }],
     ..CardSpec::NONE
