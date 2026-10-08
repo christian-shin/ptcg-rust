@@ -655,7 +655,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::HandShuffleDraw(h) => {
             let p = f.who(h.who);
             let n = num(g, me, f, &h.draw).max(0) as u8;
-            shuffle_hand_into_deck_then_draw_ex(g, p, me, NO_CARD, n, Some((me, f.frame_at(1))))?;
+            // The resolving card is excluded only from its own player's hand (it is not there when
+            // played); a Supporter used through Mr. Mime's attack is still in the opponent's hand
+            // and is shuffled in with it (Twinleaf Judge: excludeCard on the player's side only).
+            let exclude = if matches!(h.who, Who::Me) { me } else { NO_CARD };
+            shuffle_hand_into_deck_then_draw_ex(g, p, exclude, NO_CARD, n, Some((me, f.frame_at(1))))?;
             Ok(Flow::Suspend)
         }
         Op::Order(o) => {
