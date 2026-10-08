@@ -52,6 +52,11 @@ pub enum Num {
     Max(&'static Num, &'static Num),
     /// `if cond { a } else { b }`.
     If(&'static Cond, &'static Num, &'static Num),
+    // Appended by F-passive.
+    /// Pokémon of the player matching a (pure) slot predicate.
+    SlotCount(Who, SlotPred),
+    /// Prize cards the player has taken.
+    PrizesTaken(Who),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -74,6 +79,15 @@ pub enum Cond {
     /// The zone holds a card matching the predicate.
     Nonempty(ZoneRef, Pred),
     BenchSpace(Who),
+    // Appended by F-passive.
+    /// The player's marker `name` is set (by this card for `MarkerFrom::This`).
+    HasMarker { who: Who, name: &'static str, from: super::ops::state::MarkerFrom },
+    /// One of the player's Pokémon matches the slot predicate (pure predicates only).
+    AnySlot(Who, SlotPred),
+    /// Exactly `n` cards are in the zone.
+    ZoneIs(ZoneRef, i32),
+    /// Every card in the player's hand is this card (or the hand is empty).
+    LastCardInHand(Who),
 }
 
 /// A card predicate.
@@ -165,6 +179,11 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
                 num(g, me, f, b)
             }
         }
+        Num::SlotCount(w, sp) => {
+            let p = f.who(*w);
+            g.st.players[p].in_play().iter().filter(|s| slot_pred_pure(g, me, SlotRef::new(p, **s), sp)).count() as i32
+        }
+        Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
     }
 }
 
@@ -188,6 +207,13 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::Nonempty(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| pred(g, *c, p)),
         Cond::BenchSpace(w) => !empty_bench_slots(g, f.who(*w)).is_empty(),
+        Cond::HasMarker { who, name, from } => super::ops::state::has_marker(g, me, f.who(*who), name, *from),
+        Cond::AnySlot(w, sp) => {
+            let p = f.who(*w);
+            g.st.players[p].in_play().iter().any(|s| slot_pred_pure(g, me, SlotRef::new(p, *s), sp))
+        }
+        Cond::ZoneIs(z, n) => g.lst(zone_ref(f, *z)).len() as i32 == *n,
+        Cond::LastCardInHand(w) => g.st.players[f.who(*w)].hand.iter().all(|c| c == me),
     }
 }
 
@@ -211,4 +237,142 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Name(n) => d.name == *n,
         Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
     }
+}
+
+// ---------------------------------------------------------------------------
+// Slot predicates (appended by F-passive)
+
+/// A predicate on a Pokémon in play (and what is attached to it).
+pub enum SlotPred {
+    Any,
+    /// The slot this card is part of (the Pokémon it is, or the one it is attached to).
+    Holder,
+    Not(&'static SlotPred),
+    All(&'static [SlotPred]),
+    OneOf(&'static [SlotPred]),
+    /// The top Pokémon carries the tag.
+    Tag(u32),
+    /// Some card of the slot has a Rule Box.
+    RuleBox,
+    /// The Pokémon's current type includes the type (effects applied).
+    TypeIs(CardType),
+    /// The Pokémon's printed type includes the type.
+    PrintedTypeIs(CardType),
+    /// The Pokémon's Energy provides the type (any-type Energy counts).
+    Provides(CardType),
+    /// The top card is a Basic Pokémon.
+    Basic,
+    /// The top card is of this Stage.
+    StageIs(Stage),
+    /// The top Pokémon evolves from another (an empty slot counts as one).
+    Evolution,
+    /// The Pokémon has an Ability after effects.
+    HasAbility,
+    /// The Pokémon prints a power of any kind.
+    PrintsPower,
+    IsActive,
+    IsBench,
+    /// The top Pokémon is this card.
+    IsThisPokemon,
+    /// The top Pokémon has this name.
+    Named(&'static str),
+}
+
+fn holds(g: &Game, me: CardId, s: SlotRef) -> bool {
+    let sl = g.st.slot(s.p as usize, s.s);
+    sl.cards.contains(me) || sl.tools.contains(me)
+}
+
+/// Evaluate the predicate when it needs no effect run (`None` otherwise).
+fn slot_pred_ref(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool> {
+    let (p, sid) = (s.p as usize, s.s);
+    let top = g.st.slot_pokemon(p, sid);
+    Some(match sp {
+        SlotPred::Any => true,
+        SlotPred::Holder => holds(g, me, s),
+        SlotPred::Not(x) => !slot_pred_ref(g, me, s, x)?,
+        SlotPred::All(xs) => {
+            for x in xs.iter() {
+                if !slot_pred_ref(g, me, s, x)? {
+                    return Some(false);
+                }
+            }
+            true
+        }
+        SlotPred::OneOf(xs) => {
+            for x in xs.iter() {
+                if slot_pred_ref(g, me, s, x)? {
+                    return Some(true);
+                }
+            }
+            false
+        }
+        SlotPred::Tag(t) => top.map(|c| g.st.cdef(c).has_tag(*t)).unwrap_or(false),
+        SlotPred::RuleBox => g.st.slot(p, sid).cards.iter().any(|c| g.st.cdef(c).has_rule_box()),
+        SlotPred::PrintedTypeIs(t) => top.map(|c| g.st.cdef(c).card_type.contains(t)).unwrap_or(false),
+        SlotPred::Basic => top.map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false),
+        SlotPred::StageIs(st) => top.map(|c| g.st.cdef(c).stage == *st as u8).unwrap_or(false),
+        SlotPred::Evolution => top.map(|c| !g.st.cdef(c).evolves_from.is_empty()).unwrap_or(true),
+        SlotPred::PrintsPower => top.map(|c| !g.st.cdef(c).powers.is_empty()).unwrap_or(false),
+        SlotPred::IsActive => g.st.players[p].active == sid,
+        SlotPred::IsBench => g.st.players[p].active != sid,
+        SlotPred::IsThisPokemon => top == Some(me),
+        SlotPred::Named(n) => top.map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
+        SlotPred::TypeIs(_) | SlotPred::Provides(_) | SlotPred::HasAbility => return None,
+    })
+}
+
+/// A predicate that needs no effect run; the effect-reading ones are false.
+pub fn slot_pred_pure(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> bool {
+    slot_pred_ref(g, me, s, sp).unwrap_or(false)
+}
+
+/// Evaluate a slot predicate, running the effects it reads (current types,
+/// provided Energy, Abilities after effects).
+pub fn slot_pred(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> crate::game::R<bool> {
+    use crate::effects::Effect;
+    if let Some(v) = slot_pred_ref(g, me, s, sp) {
+        return Ok(v);
+    }
+    Ok(match sp {
+        SlotPred::Not(x) => !slot_pred(g, me, s, x)?,
+        SlotPred::All(xs) => {
+            for x in xs.iter() {
+                if !slot_pred(g, me, s, x)? {
+                    return Ok(false);
+                }
+            }
+            true
+        }
+        SlotPred::OneOf(xs) => {
+            for x in xs.iter() {
+                if slot_pred(g, me, s, x)? {
+                    return Ok(true);
+                }
+            }
+            false
+        }
+        SlotPred::TypeIs(t) => {
+            let types = crate::engine::game_effect::pokemon_types(g, s);
+            let (e, _) = g.run_fx(Effect::CheckPokemonType { target: s, card_types: types })?;
+            matches!(e, Effect::CheckPokemonType { card_types, .. } if card_types.contains(t))
+        }
+        SlotPred::Provides(t) => {
+            let (e, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: s, energy_map: SVec::new() })?;
+            matches!(e, Effect::CheckProvidedEnergy { energy_map, .. } if energy_map.iter().any(|m| m.provides.contains(t) || m.provides.contains(&crate::types::ct::ANY)))
+        }
+        SlotPred::HasAbility => {
+            let Some(src) = g.st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
+            let mut powers = SVec::new();
+            for i in 0..g.st.cdef(src).powers.len() {
+                powers.push(crate::effects::PowerRef { card: src, index: i as u8 });
+            }
+            let (e, _) = g.run_fx(Effect::CheckPokemonPowers { p: s.p, target: src, powers })?;
+            match e {
+                Effect::CheckPokemonPowers { powers, .. } => powers.iter().any(|r| g.st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8),
+                _ => false,
+            }
+        }
+        _ => false,
+    })
 }

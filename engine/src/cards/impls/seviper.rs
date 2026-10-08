@@ -7,29 +7,25 @@
 //!
 //! Twinleaf: any AttackEffect whose source slot holds this card gets +120
 //! when its damage is above 0 (checked after the ability-lock probe).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::{ct, tag};
 
-pub static IMPL: CardImpl = CardImpl { class: "Seviper", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Seviper",
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::DamageDealt(DamageDealtSpec {
+            stage: DamageStage::Attack,
+            amount: 120,
+            attacker: SlotPred::Holder,
+            side: Side::Any,
+            needs_damage: true,
+            // A [D] Mega Evolution Pokémon ex in play.
+            guard: Cond::AnySlot(Who::Me, SlotPred::All(&[SlotPred::PrintedTypeIs(ct::DARK), SlotPred::Tag(tag::POKEMON_EX_LOWER), SlotPred::Tag(tag::POKEMON_SV_MEGA)])),
+            ..DamageDealtSpec::DEFAULT
+        }),
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (p, source) = match *g.e(e) {
-        Effect::Attack { p, source, .. } => (p as usize, source),
-        _ => return Ok(()),
-    };
-    if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
-        return Ok(());
-    }
-    if is_ability_blocked(g, p, me, None) {
-        return Ok(());
-    }
-    let has = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| {
-        let d = g.st.cdef(*c);
-        d.card_type.contains(&ct::DARK) && d.has_tag(tag::POKEMON_EX_LOWER) && d.has_tag(tag::POKEMON_SV_MEGA)
-    });
-    if let Effect::Attack { damage, .. } = g.e_mut(e) {
-        if has && *damage > 0 {
-            *damage += 120;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
