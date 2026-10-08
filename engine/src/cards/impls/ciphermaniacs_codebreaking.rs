@@ -23,8 +23,8 @@ pub static SPEC: CardSpec = CardSpec {
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::Move(MoveSpec { from: DECK, to: ZoneRef(Who::Me, Zone::Scratch(1)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
-            Step::new(Op::Order(OrderSpec { reg: 1 })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
+            Step::new(Op::Order(OrderSpec { who: Who::Me, zone: ZoneRef(Who::Me, Zone::Scratch(1)), msg: "CHOOSE_CARDS_ORDER" })),
             Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(1)), to: DECK, cards: CardSel::All, place: Place::Top, ..MoveSpec::DEFAULT })),
         ],
     }),

@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[
-            Step::before_damage(more_damage_if(140, Cond::StadiumInPlay)),
+            Step::before_damage(more_damage_if(140, Cond::StadiumInPlay(Pred::Any))),
             // The Stadium is discarded after the damage.
             Step::after_damage(DISCARD_STADIUM),
         ],

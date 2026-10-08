@@ -37,7 +37,7 @@ pub static SPEC: CardSpec = CardSpec {
                         ],
                         no: &[],
                     })),
-                    Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
                 ],
                 no: &[],
             }))],

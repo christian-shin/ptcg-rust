@@ -25,7 +25,7 @@ pub static SPEC: CardSpec = CardSpec {
                                 Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Name("Palafin ex"), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_EVOLVE", ..PickSpec::DEFAULT })),
                                 // Nothing chosen: nothing to put onto it.
                                 Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::This, keep_index: false, into: ZoneRef(Who::Me, Zone::Deck) })),
-                                Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                                Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                             ],
                             no: &[],
                         })),

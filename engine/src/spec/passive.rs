@@ -15,6 +15,7 @@ use crate::effects::{mask, AtkBase, EffId, Effect, EnergyEntry, KindMask, SlotRe
 use crate::game::{fx_flag, Game, R};
 use crate::list::*;
 use crate::prefabs::*;
+use crate::prompts::{get_target, AttachOpts, Filter, PromptKind};
 use crate::state::{AttackRef, ListRef};
 use crate::types::*;
 
@@ -64,9 +65,59 @@ pub enum Modifier {
     /// +/- HP to the Pokémon matching a predicate (`HpBonus` with a subject and a guard).
     HpMod(HpModSpec),
     ProvidesEnergyBoost(ProvidesEnergyBoostSpec),
-    // --- S3 agent 3 appends ---
+    // Appended by S3.
     NextTurnBonus(NextTurnBonusSpec),
     BenchAttacks(BenchAttacksSpec),
+    /// `PrizeAdjust`, once per game for the Knocked Out Pokémon's player (Legacy Energy).
+    PrizeAdjustOnce(PrizeAdjustSpec),
+    /// The Pokémon matching `subject` has exactly these types (the game's type check).
+    TypeOverride(TypeOverrideSpec),
+    /// A Stadium: when a Pokémon of the type is played, each of the player's Pokémon of that type counts as
+    /// having been played the turn before (Forest of Vitality).
+    PlayedTurnReset(PlayedTurnResetSpec),
+    /// The Weakness of the opponent's Pokémon matching `subject` is `weakness` (Fairy Zone).
+    WeaknessOverride(WeaknessOverrideSpec),
+    /// An Ability lock that applies while this Pokémon is in the Active Spot, with the Ability lockers'
+    /// activation order (a lock that was in effect first suppresses a later one).
+    ActiveLock(ActiveLock),
+    /// Heavy Baton: when the Active Pokémon this Tool is attached to, with a Retreat Cost of exactly
+    /// `retreat_cost`, is Knocked Out by damage from an attack from the opponent's Pokémon, its owner moves up
+    /// to `max` Basic Energy cards from it to their Benched Pokémon in any way they like.
+    HeavyBaton(HeavyBatonSpec),
+}
+
+pub struct HeavyBatonSpec {
+    pub retreat_cost: usize,
+    pub max: u8,
+}
+
+/// `CardFrame::stage` of Heavy Baton's prompt.
+pub(crate) const HEAVY_BATON_STAGE: u8 = 0xB1;
+
+/// The Active-Spot Ability locks.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ActiveLock {
+    /// Flutter Mane's Midnight Fluttering: your opponent's Active Pokémon has no Abilities, except for
+    /// Midnight Fluttering ("Hide 'n' Sneak" takes precedence).
+    MidnightFluttering,
+    /// Iron Thorns ex's Initialization: while it is in either Active Spot, Pokémon with a Rule Box (yours and
+    /// your opponent's) have no Abilities, except Future Pokémon.
+    Initialization,
+}
+
+pub struct WeaknessOverrideSpec {
+    /// The Pokémon whose Weakness changes (checked on the opponent's side only).
+    pub subject: SlotPred,
+    pub weakness: CardType,
+}
+
+pub struct TypeOverrideSpec {
+    pub subject: SlotPred,
+    pub set: &'static [CardType],
+}
+
+pub struct PlayedTurnResetSpec {
+    pub card_type: CardType,
 }
 /// While this Pokémon is Active, it can use the attacks of any of the owner's Benched Pokémon
 /// (Mew ex's Memory Helix): they are offered as copied attacks.
@@ -126,6 +177,8 @@ pub struct DamageDealtSpec {
     /// The attack's printed damage is above 0.
     pub needs_printed_damage: bool,
     pub guard: Cond,
+    /// Doesn't stack: only the first bonus of this kind per damage effect applies (Hop's Snorlax).
+    pub nonstacking: bool,
 }
 
 impl DamageDealtSpec {
@@ -139,6 +192,7 @@ impl DamageDealtSpec {
         needs_damage: false,
         needs_printed_damage: false,
         guard: Cond::True,
+        nonstacking: false,
     };
 }
 
@@ -185,6 +239,8 @@ pub enum PreventHow {
     Zero,
     /// Tera: damage put on this Pokémon while it is on the Bench.
     Tera,
+    /// "Flip a coin; if heads, prevent that damage" (the card's owner flips; no flip without damage).
+    CoinFlip,
 }
 
 /// "Prevent all damage done to ... by attacks from ..." (vocabulary P3).
@@ -258,6 +314,9 @@ pub enum PreventWhat {
     /// This card can't be put into its owner's hand or deck from the discard pile (the move
     /// takes the other cards, or is prevented when nothing is left).
     ThisCardFromDiscard,
+    /// Pokémon Tools have no effect (a Stadium): every Tool effect throws unless the Stadium's
+    /// effect is blocked on the Pokémon holding it.
+    ToolEffects,
 }
 
 /// A prohibition on the opponent's or everyone's effects (vocabulary P5).
@@ -278,6 +337,9 @@ pub enum BlockWhat {
     AceSpecOfOpponent,
     /// This Pokémon can't retreat while it is the Active Pokémon (Fossils).
     RetreatThisActive,
+    /// The opponent can't play Item cards or attach Pokémon Tools while this Pokémon is your
+    /// Active Pokémon (Oceanic Curse): BLOCKED_BY_ABILITY unless the Ability is blocked.
+    ItemAndToolOfOpponent,
 }
 
 pub struct BlockUseSpec {
@@ -465,6 +527,8 @@ pub struct CheckupDamageSpec {
     pub opponent_only: bool,
     /// The card's own Pokémon.
     pub holder: SlotPred,
+    /// The damage is Burn damage (otherwise Poison damage).
+    pub burn: bool,
 }
 /// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
 /// (Relicanth's Memory Dive).
@@ -540,6 +604,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
             BlockWhat::AceSpecOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL, k::ATTACH_ENERGY, k::PLAY_STADIUM]),
             BlockWhat::RetreatThisActive => mask(&[k::RETREAT]),
+            BlockWhat::ItemAndToolOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL]),
         },
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
@@ -555,9 +620,16 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
             PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
+            PreventWhat::ToolEffects => mask(&[k::TOOL]),
         },
         Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
-        Modifier::PrizeAdjust(_) => mask(&[k::KNOCK_OUT]),
+        Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
+        Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
+        Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
+        Modifier::HeavyBaton(_) => mask(&[k::KNOCK_OUT, k::PUT_DAMAGE]),
+        Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
+        Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::EFFECT_OF_ABILITY]),
+        Modifier::PlayedTurnReset(_) => mask(&[k::PLAY_POKEMON]),
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
@@ -662,6 +734,13 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
             (BlockWhat::AceSpecOfOpponent, _) => ace_spec_of_opponent(g, me, e),
             (BlockWhat::RetreatThisActive, Effect::Retreat { p, .. }) if g.st.active_pokemon(p as usize) == Some(me) => crate::bail!("CANNOT_RETREAT"),
+            (BlockWhat::ItemAndToolOfOpponent, Effect::PlayItem { p, .. } | Effect::AttachPokemonTool { p, .. }) => {
+                let opp = 1 - p as usize;
+                if g.st.active_pokemon(opp) == Some(me) && !is_ability_blocked(g, opp, me, None) {
+                    crate::bail!("BLOCKED_BY_ABILITY");
+                }
+                Ok(())
+            }
             _ => Ok(()),
         },
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
@@ -672,7 +751,60 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::PreventAttackEffects(d) => prevent_attack_effects(g, me, e, ps.origin, d),
+        Modifier::TypeOverride(t) => {
+            let Effect::CheckPokemonType { target, .. } = *g.e(e) else { return Ok(()) };
+            let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
+            if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, ps.origin, at, Some(target)) {
+                return Ok(());
+            }
+            if let Effect::CheckPokemonType { card_types, .. } = g.e_mut(e) {
+                card_types.clear();
+                for ty in t.set.iter() {
+                    card_types.push(*ty);
+                }
+            }
+            Ok(())
+        }
+        Modifier::PlayedTurnReset(r) => played_turn_reset(g, me, e, ps.origin, r),
+        Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
+        Modifier::HeavyBaton(h) => heavy_baton(g, me, e, h),
+        Modifier::WeaknessOverride(w) => {
+            let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
+            let player = target.p as usize;
+            // Today's behavior: the Ability's lock probe is made for the checked Pokémon's owner, first.
+            if is_ability_blocked(g, player, me, None) {
+                return Ok(());
+            }
+            let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
+            if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
+                return Ok(());
+            }
+            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: at.owner as u8, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(target) })?;
+            if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
+                if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(e) {
+                    weakness.clear();
+                    weakness.push(crate::effects::WeaknessV { card_type: w.weakness, value: None });
+                }
+            }
+            Ok(())
+        }
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
+        Modifier::PrizeAdjustOnce(d) => {
+            let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
+            let p = p as usize;
+            if g.st.players[p].legacy_energy_used {
+                return Ok(());
+            }
+            let before = match *g.e(e) {
+                Effect::KnockOut { prize_count, .. } => prize_count,
+                _ => 0,
+            };
+            prize_adjust(g, me, e, ps.origin, d)?;
+            if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
+                g.st.players[p].legacy_energy_used = true;
+            }
+            Ok(())
+        }
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
         Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
@@ -733,9 +865,15 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
             return Ok(());
         }
     }
+    if d.nonstacking && g.fx_flags(e) & fx_flag::DAMAGE_INCREASED != 0 {
+        return Ok(());
+    }
     match g.e_mut(e) {
         Effect::DealDamage { damage, .. } | Effect::Attack { damage, .. } => *damage += d.amount,
         _ => {}
+    }
+    if d.nonstacking {
+        g.set_fx_flag(e, fx_flag::DAMAGE_INCREASED);
     }
     Ok(())
 }
@@ -831,12 +969,28 @@ fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Pr
         }
         return Ok(());
     }
-    if d.how == PreventHow::Prevent && !matches!(*g.e(e), Effect::PutDamage { .. }) {
+    if (d.how == PreventHow::Prevent || d.how == PreventHow::CoinFlip) && !matches!(*g.e(e), Effect::PutDamage { .. }) {
         return Ok(());
     }
-    let Some((..)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false, false)? else { return Ok(()) };
+    let Some((_, at)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false, false)? else { return Ok(()) };
+    if d.how == PreventHow::CoinFlip {
+        let damage = match *g.e(e) {
+            Effect::PutDamage { damage, .. } => damage,
+            _ => 0,
+        };
+        if damage <= 0 {
+            return Ok(());
+        }
+        let (c, _) = g.run_fx(Effect::CoinFlip { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+        if let Effect::CoinFlip { result: Some(false), .. } = c {
+            return Ok(());
+        }
+        g.set_prevent(e, true);
+        return Ok(());
+    }
     match d.how {
         PreventHow::Prevent => g.set_prevent(e, true),
+        PreventHow::CoinFlip | PreventHow::Tera => {}
         _ => match g.e_mut(e) {
             Effect::DealDamage { damage, .. } | Effect::PutDamage { damage, .. } => *damage = 0,
             _ => {}
@@ -1288,6 +1442,21 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
                 }
             }
         }
+        (PreventWhat::ToolEffects, Effect::Tool { p, card }) => {
+            let p = p as usize;
+            let mut target: Option<SlotRef> = None;
+            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                if g.st.slot(p, s).tools.contains(card) {
+                    target = Some(SlotRef::new(p, s));
+                }
+            }
+            if let Some(t) = target {
+                if is_stadium_effect_blocked(g, p, t, NO_CARD) {
+                    return Ok(());
+                }
+            }
+            crate::bail!("CANNOT_USE_POWER")
+        }
         _ => {}
     }
     Ok(())
@@ -1632,8 +1801,39 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
     if blocked(g, me, origin, at, Some(victim)) || !slot_pred_m(g, me, victim, &c.victim)? {
         return Ok(());
     }
-    if let Effect::BetweenTurns { poison_damage, .. } = g.e_mut(e) {
+    if c.burn {
+        if let Effect::BetweenTurns { burn_damage, .. } = g.e_mut(e) {
+            *burn_damage += c.amount;
+        }
+    } else if let Effect::BetweenTurns { poison_damage, .. } = g.e_mut(e) {
         *poison_damage += c.amount;
+    }
+    Ok(())
+}
+
+fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: &PlayedTurnResetSpec) -> R {
+    let (p, card, target) = match *g.e(e) {
+        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    // Not during a player's first turn; only when a Pokémon of the type is played.
+    if g.st.turn <= 2 || !g.st.cdef(card).card_type.contains(&r.card_type) || blocked(g, me, origin, at, Some(target)) {
+        return Ok(());
+    }
+    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        let sr = SlotRef::new(p, s);
+        if blocked(g, me, origin, at, Some(sr)) {
+            continue;
+        }
+        let (t, _) = g.run_fx(Effect::CheckPokemonType { target: sr, card_types: crate::engine::game_effect::pokemon_types(g, sr) })?;
+        let of_type = match t {
+            Effect::CheckPokemonType { card_types, .. } => card_types.contains(&r.card_type),
+            _ => false,
+        };
+        if of_type {
+            g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn as i32 - 1;
+        }
     }
     Ok(())
 }
@@ -1711,6 +1911,162 @@ fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
     Ok(())
 }
 
+
+// Active-Spot Ability locks (Midnight Fluttering, Initialization)
+
+fn lock_order(g: &Game, c: CardId) -> i32 {
+    match g.st.locate(c) {
+        Some(ListRef::Slot(p, s)) => g.st.slot(p as usize, s).ability_lock_activation_order,
+        _ => 0,
+    }
+}
+
+fn is_turn_players_card(g: &Game, c: CardId) -> bool {
+    match g.st.locate(c).and_then(|l| l.owner()) {
+        Some(o) => g.st.active_player as usize == o,
+        None => false,
+    }
+}
+
+/// `CAN_SUPPRESS_ABILITY_LOCKER(state, suppressor, target)`.
+fn can_suppress(g: &Game, suppressor: CardId, target: CardId) -> bool {
+    let s = lock_order(g, suppressor);
+    let t = lock_order(g, target);
+    if s == 0 && t == 0 {
+        return is_turn_players_card(g, suppressor);
+    }
+    if s == 0 {
+        return false;
+    }
+    if t == 0 {
+        return true;
+    }
+    if s < t {
+        return true;
+    }
+    if s > t {
+        return false;
+    }
+    is_turn_players_card(g, suppressor)
+}
+
+/// `IS_POWER_SUBJECT_TO_ABILITY_LOCK` with the lock's options.
+fn active_lock_subject(g: &Game, l: ActiveLock, power: crate::effects::PowerRef, probe: bool) -> bool {
+    if power.index == PROBE_GENERIC {
+        return true;
+    }
+    let d = &g.st.cdef(power.card).powers[power.index as usize];
+    if d.power_type != PowerType::Ability as u8 || d.exempt_from_ability_lock {
+        return false;
+    }
+    match l {
+        ActiveLock::MidnightFluttering => probe || d.name != "Midnight Fluttering",
+        ActiveLock::Initialization => !d.exempt_from_initialize && !d.use_from_hand && !d.use_from_discard,
+    }
+}
+
+/// The `HANDLE_ABILITY_LOCK` callback: is `card`'s Ability locked by `me`? `player` is the player of the
+/// effect being checked, `power_effect` whether it is a use of an Ability.
+fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, card: CardId, power_effect: bool) -> R<bool> {
+    let own = crate::effects::PowerRef { card: me, index: 0 };
+    match l {
+        ActiveLock::MidnightFluttering => {
+            let Some(my_list) = g.st.locate(me) else { crate::bail!("INVALID_GAME_STATE") };
+            let Some(owner) = my_list.owner() else { crate::bail!("INVALID_GAME_STATE") };
+            if g.st.active_pokemon(owner) != Some(me) {
+                return Ok(false);
+            }
+            let opponent = 1 - owner;
+            let Some(target_list) = g.st.locate(card) else { crate::bail!("INVALID_GAME_STATE") };
+            if target_list != ListRef::Slot(opponent as u8, g.st.players[opponent].active) {
+                return Ok(false);
+            }
+            // Hide 'n' Sneak takes precedence over Midnight Fluttering.
+            if g.st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
+                return Ok(false);
+            }
+            // LOCKER_ABILITY_APPLIES
+            let lock_card = g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock);
+            if lock_card && !can_suppress(g, me, card) {
+                return Ok(false);
+            }
+            Ok(g.run_fx(Effect::Power { p: owner as u8, power: own, card: me, target: None, probe: false }).is_ok())
+        }
+        ActiveLock::Initialization => {
+            if g.st.active_pokemon(player) != Some(me) && g.st.active_pokemon(1 - player) != Some(me) {
+                return Ok(false);
+            }
+            // A Pokémon still in the hand is being played (benched / evolved): it is in play, so locked too.
+            let slot = match g.st.locate(card) {
+                Some(ListRef::Slot(q, s)) => Some(SlotRef::new(q as usize, s)),
+                Some(ListRef::Hand(_)) => None,
+                _ => return Ok(false),
+            };
+            let d = g.st.cdef(card);
+            if d.has_tag(tag::FUTURE) || !d.has_rule_box() {
+                return Ok(false);
+            }
+            let locker_owner = if g.st.active_pokemon(player) == Some(me) { player } else { 1 - player };
+            // LOCKER_ABILITY_APPLIES
+            let lock_card = g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock);
+            if lock_card && !can_suppress(g, me, card) {
+                return Ok(false);
+            }
+            if g.run_fx(Effect::Power { p: locker_owner as u8, power: own, card: me, target: None, probe: false }).is_err() {
+                return Ok(false);
+            }
+            if power_effect {
+                // CAN_APPLY_LOCK_TO_TARGET (a card in the hand is not on a Pokémon slot: true)
+                let Some(slot) = slot else { return Ok(true) };
+                return Ok(match g.run_fx(Effect::EffectOfAbility { p: locker_owner as u8, power: own, card: me, target: Some(slot) }) {
+                    Ok((Effect::EffectOfAbility { target, .. }, _)) => target.is_some(),
+                    _ => false,
+                });
+            }
+            Ok(true)
+        }
+    }
+}
+
+fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
+    // Initialization can't change the effect of its own Ability on a Future Pokémon.
+    if l == ActiveLock::Initialization {
+        if let Effect::EffectOfAbility { power, card, target: Some(t), .. } = *g.e(e) {
+            if card == me && power == (crate::effects::PowerRef { card: me, index: 0 }) {
+                if let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) {
+                    if g.st.cdef(c).has_tag(tag::FUTURE) {
+                        if let Effect::EffectOfAbility { target, .. } = g.e_mut(e) {
+                            *target = None;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    match *g.e(e) {
+        Effect::CheckPokemonPowers { p, target, powers } => {
+            if active_lock_applies(g, me, l, p as usize, target, false)? {
+                let mut out = SVec::new();
+                for pw in powers.iter() {
+                    if !active_lock_subject(g, l, *pw, false) {
+                        out.push(*pw);
+                    }
+                }
+                if let Effect::CheckPokemonPowers { powers, .. } = g.e_mut(e) {
+                    *powers = out;
+                }
+            }
+        }
+        Effect::Power { p, power, card, probe, .. } => {
+            if active_lock_subject(g, l, power, probe) && active_lock_applies(g, me, l, p as usize, card, true)? {
+                crate::bail!("BLOCKED_BY_ABILITY");
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 /// A guard evaluated with checked reads (Energy provided, types as the game checks them).
 fn guard_ok_m(g: &mut Game, me: CardId, owner: usize, guard: &Cond) -> R<bool> {
     let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, owner);
@@ -1753,6 +2109,113 @@ fn allow_evolve(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Allo
     if let Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } = g.e_mut(e) {
         *pokemon_played_turn = turn - 1;
         *can_evolve_on_first_turn = true;
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Heavy Baton
+
+fn heavy_baton(g: &mut Game, me: CardId, e: EffId, h: &HeavyBatonSpec) -> R {
+    use crate::markers::{intern, SourceType, TargetScope};
+    let baton = intern("HEAVY_BATON_MARKER");
+    let active_marker = intern("HEAVY_BATON_ACTIVE_MARKER");
+    // The criteria are checked when the damage is dealt (ruling 1547): an attack that moves the Pokémon to the
+    // Bench before the Knock Out is checked doesn't stop Heavy Baton. The latest damage from an opponent's
+    // attack decides; the marker is consumed by the Knock Out.
+    if let Effect::PutDamage { b, damage, .. } = *g.e(e) {
+        let t = b.target;
+        if g.st.slot(t.p as usize, t.s).tools.contains(me) {
+            let owner = t.p as usize;
+            if g.st.phase == GamePhase::Attack && b.player as usize != owner {
+                g.st.players[owner].slots[t.s as usize].marker.remove_from(active_marker, me);
+                if g.st.players[owner].active == t.s && !g.prevented(e) && damage > 0 && !is_tool_blocked(g, owner, me) {
+                    let cost = crate::engine::retreat::check_retreat_cost_base(g, owner);
+                    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: owner as u8, cost, no_cost: false, reduction: 0 })?;
+                    if matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == h.retreat_cost) {
+                        // A Trainer's effect on the Pokémon: it stays when the Pokémon moves to the Bench.
+                        g.st.players[owner].slots[t.s as usize].marker.add(active_marker, me, SourceType::Trainer, TargetScope::Pokemon);
+                    }
+                }
+            }
+        }
+        return Ok(());
+    }
+    let (p, t) = match *g.e(e) {
+        Effect::KnockOut { p, target, .. } => (p as usize, target),
+        _ => return Ok(()),
+    };
+    if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
+        return Ok(());
+    }
+    let opponent = 1 - p;
+    if is_tool_blocked(g, p, me) {
+        return Ok(());
+    }
+    if g.st.phase != GamePhase::Attack || g.st.active_player as usize != opponent {
+        return Ok(());
+    }
+    if g.st.slot(t.p as usize, t.s).marker.has(baton) {
+        return Ok(());
+    }
+    // Only when it was damaged by an attack while in the Active Spot with the Retreat Cost and Knocked Out by
+    // damage from an attack.
+    let was_active = g.st.slot(t.p as usize, t.s).marker.has_from(active_marker, me);
+    g.st.players[t.p as usize].slots[t.s as usize].marker.remove_from(active_marker, me);
+    if !was_active || !g.st.players[p].marker.has(crate::markers::DAMAGE_DEALT_MARKER) {
+        return Ok(());
+    }
+    if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
+        return Ok(());
+    }
+    let energy: Vec<CardId> = g
+        .st
+        .slot(t.p as usize, t.s)
+        .cards
+        .iter()
+        .filter(|c| {
+            let d = g.st.cdef(*c);
+            d.is_energy() && d.energy_type == EnergyType::Basic as u8
+        })
+        .collect();
+    if energy.is_empty() {
+        return Ok(());
+    }
+    // Nothing to move the Energy to without a Benched Pokémon.
+    if !g.st.players[p].bench.iter().any(|&b| !g.st.players[p].slots[b as usize].cards.is_empty()) {
+        return Ok(());
+    }
+    g.st.players[t.p as usize].slots[t.s as usize].marker.add(baton, me, SourceType::None, TargetScope::None);
+    let temp = g.alloc_temp(&energy);
+    let mut o = AttachOpts::new(energy.len() as u8);
+    // "up to" from a public zone: at least 1, no cancel (rulings 1607/1778/1853)
+    o.allow_cancel = false;
+    o.min = 1;
+    o.max = h.max;
+    let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
+    let mut slots = SVec::new();
+    slots.push(SlotType::Bench as u8);
+    let mut f = crate::cards::CardFrame::at(HEAVY_BATON_STAGE);
+    f.a[0] = p as i32;
+    f.a[1] = t.s as i32;
+    let id = g.player_id(p);
+    g.prompt(id, "ATTACH_ENERGY_TO_BENCH", PromptKind::AttachEnergy { cards: temp, player_type: PlayerType::BottomPlayer, slots, filter, o }, crate::game::Cont::Card { card: me, frame: f });
+    Ok(())
+}
+
+/// The answer of Heavy Baton's prompt: the Energy moves from the owner's discard pile (the Knock Out has
+/// already discarded the Pokémon) to the chosen Benched Pokémon.
+pub(crate) fn heavy_baton_resume(g: &mut Game, f: crate::cards::CardFrame, results: &[crate::prompts::Res]) -> R {
+    let p = f.a[0] as usize;
+    let s = f.a[1] as crate::state::SlotId;
+    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
+        Some(crate::prompts::Res::Attach(t)) => *t,
+        _ => SVec::new(),
+    };
+    g.st.players[p].slots[s as usize].marker.remove(crate::markers::intern("HEAVY_BATON_MARKER"));
+    for (to, c) in transfers.iter().copied() {
+        let target = get_target(&g.st, p, to)?;
+        move_cards(g, ListRef::Discard(p as u8), target.list(), &[c], NO_CARD)?;
     }
     Ok(())
 }

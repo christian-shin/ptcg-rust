@@ -7,29 +7,18 @@
 //! DiscardAttackerEnergyIfKnockedOut EffectOfAttack (resolved in the
 //! KnockOutEffect reducer); Nightmare flips on AFTER_ATTACK and applies an
 //! AddSpecialConditionsPowerEffect.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Gastly@EVO",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::DiscardAttackerEnergyIfKnockedOut })),
+        ] },
+        AttackSpec { index: 1, steps: &[
+            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Asleep], Cause::Ability))], ..CoinSpec::DEFAULT })),
+        ] },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Gastly@EVO", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        return discard_attacker_energy_if_knocked_out(g, e, me);
-    }
-    if after_attack_used(g, e, 1, me) {
-        let (p, o) = match *g.e(e) {
-            Effect::AfterAttack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        let mut f = CardFrame::at(1);
-        f.a[0] = o as i32;
-        g.coin_flip(p, CoinCb::Card { card: me, frame: f })?;
-    }
-    Ok(())
-}
-
-fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
-    if f.stage == 1 && heads {
-        add_special_conditions_to_player_active(g, f.a[0] as usize, me, &[SpecialCondition::Asleep])?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

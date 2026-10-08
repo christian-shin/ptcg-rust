@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
                 ..CoinSpec::DEFAULT
             })),
             // Today's behavior kept: the deck is shuffled on tails too.
-            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
     }),
     ..CardSpec::NONE

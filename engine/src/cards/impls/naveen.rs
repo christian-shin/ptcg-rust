@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Hand),
                 // A hand of 5 or more must discard enough to draw at least one card.
-                bounds: Bounds { min: Num::Max(&Num::Lit(0), &Num::Sub(&Num::HandOthers(Who::Me), &Num::Lit(4))), max: Num::HandOthers(Who::Me) },
+                bounds: Bounds { min: Num::Max(&Num::Lit(0), &Num::Sub(&Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), &Num::Lit(4))), max: Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any) },
                 into: 0,
                 soft: true,
                 msg: "CHOOSE_CARD_TO_DISCARD",

@@ -13,48 +13,22 @@
 //! opponent's Active was a Basic Pokémon; "If your opponent's Active Pokémon
 //! is an Evolution Pokémon, this attack does 140 more damage, and discard all
 //! Energy from this Pokémon" makes both parts depend on the condition.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "HearthflameMaskOgerponex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::before_damage(damage_is(Num::Mul(&Num::DamageOn(SlotExpr::This), &Num::Lit(2)))),
+        ] },
+        AttackSpec { index: 1, steps: &[
+            Step::before_damage(more_damage_if(140, Cond::Not(&Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Basic)))),
+            Step::after_damage(Op::If(IfSpec { cond: Cond::Not(&Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Basic)), yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::AllProvided }))], no: &[] })),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) }
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "HearthflameMaskOgerponex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        let d = g.st.players[p].slots[a as usize].damage * 2;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = d;
-        }
-        return Ok(());
-    }
-    if was_attack_used(g, e, 1, me) {
-        let (p, opp, attack, source) = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let pu = p as usize;
-        let o = opp as usize;
-        let oa = g.st.players[o].active;
-        let basic = g.st.slot_pokemon(o, oa).map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false);
-        if !basic {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 140;
-            }
-            let active = SlotRef::new(pu, g.st.players[pu].active);
-            let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
-            let mut cards: SVec<CardId, 64> = SVec::new();
-            if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-                for m in energy_map.iter() {
-                    cards.push(m.card);
-                }
-            }
-            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: active };
-            g.run_fx(Effect::DiscardCards { b, cards })?;
-        }
-    }
-    tera_rule(g, e, me);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -39,7 +39,7 @@ pub static SPEC: CardSpec = CardSpec {
                     Step::new(Op::Move(MoveSpec { from: ATTACHED, to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
                     Step::new(Op::If(IfSpec {
                         cond: Cond::Chosen(0),
-                        yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))],
+                        yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))],
                         no: &[],
                     })),
                 ],

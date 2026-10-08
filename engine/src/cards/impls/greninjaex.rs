@@ -11,105 +11,28 @@
 //! phase 4b: min used to be 1) → DAMAGE_OPPONENT_POKEMON(120) and
 //! only then the DiscardCardsEffect of the chosen energy (target Active).
 //! The Tera rule prevents PutDamageEffects on this Pokémon on the Bench.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Greninjaex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::May(MaySpec { asker: Who::Me, when: Cond::True, msg: "SEARCH_DECK_FOR_CARD", yes: &[Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: false },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] }))], no: &[] })),
+        ] },
+        AttackSpec { index: 1, steps: &[
+            Step::after_damage(Op::DamageChosen(DamageChosenSpec { among: SlotSel::Pokemon(Who::Opp), count: 2, hp: Num::Lit(120), calc: DamageCalc::Auto, msg: "CHOOSE_POKEMON_TO_DAMAGE" })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS } })),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Greninjaex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        confirmation_prompt(g, p, "SEARCH_DECK_FOR_CARD", Cont::Card { card: me, frame: f });
-    }
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        g.retain_fx(e);
-        let mut f = CardFrame::at(4);
-        f.a[0] = p as i32;
-        f.e[0] = e;
-        let mut slots = SVec::new();
-        slots.push(SlotType::Active as u8);
-        slots.push(SlotType::Bench as u8);
-        let id = g.player_id(p);
-        let o = 1 - p;
-        let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
-        let max = (1 + benched).min(2) as u8;
-        g.prompt(
-            id,
-            "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: max, max, allow_cancel: false, blocked: SVec::new() },
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    // "Discard 2 Energy from this Pokémon": the damage is fixed, so the choice is asked after it
-    if after_attack_used(g, e, 1, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
-        let energy = match pe {
-            Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-            _ => SVec::new(),
-        };
-        let mut cost = SVec::new();
-        cost.push(ct::COLORLESS);
-        cost.push(ct::COLORLESS);
-        g.retain_fx(e);
-        let mut f = CardFrame::at(3);
-        f.a[0] = p as i32;
-        f.e[0] = e;
-        let id = g.player_id(p);
-        g.prompt(id, "CHOOSE_ENERGIES_TO_DISCARD", PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Cont::Card { card: me, frame: f });
-    }
-    tera_rule(g, e, me);
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                return Ok(());
-            }
-            let mut nf = f;
-            nf.stage = 2;
-            choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-            let id = g.player_id(p);
-            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-            Ok(())
-        }
-        3 => super::slither_wing::discard_energy_chosen(g, f, results),
-        4 => {
-            let atk = f.e[0];
-            let r = (|| -> R {
-                let targets: Vec<SlotRef> = first.slots().to_vec();
-                damage_opponent_pokemon(g, atk, 120, &targets)?;
-                Ok(())
-            })();
-            g.release_fx(atk);
-            r
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

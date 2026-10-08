@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 shuffle_first: false,
             })),
-            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
         ],
     }),
     ..CardSpec::NONE

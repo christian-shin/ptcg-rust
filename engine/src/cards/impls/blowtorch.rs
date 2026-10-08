@@ -16,7 +16,7 @@ const FIRE_ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Fire Energy
 const OPP_POKEMON: SlotSel = SlotSel::Pokemon(Who::Opp);
 const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);
 const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
-const HAS_TOOL: Cond = Cond::AnySlot(OPP_POKEMON, SlotPred::HasTool);
+const HAS_TOOL: Cond = Cond::AnySlot(OPP_POKEMON, SlotPred::AnyTool(Pred::Any));
 const HAS_SPECIAL: Cond = Cond::AnySlot(OPP_POKEMON, SlotPred::HasSpecialEnergy);
 const STADIUM_IN_PLAY: Cond = Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]);
 const ATTACHED: ZoneRef = ZoneRef(Who::Opp, Zone::Attached(SlotExpr::Picked));
@@ -41,7 +41,7 @@ pub static SPEC: CardSpec = CardSpec {
                         body: &[
                             Step::new(Op::PickSlot(PickSlotSpec {
                                 chooser: Who::Me,
-                                among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::HasTool),
+                                among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::AnyTool(Pred::Any)),
                                 msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS",
                             })),
                             Step::new(Op::Move(MoveSpec {

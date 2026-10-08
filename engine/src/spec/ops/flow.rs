@@ -28,12 +28,14 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-/// "Flip a coin(s)": the flipper flips, then the branch for the result runs. One flip runs `heads` or
+/// "Flip a coin(s)": the flipper flips (when `before` holds, otherwise nothing is flipped), then the branch
+/// for the result runs. One flip runs `heads` or
 /// `tails`. A sequence (`Count`, `UntilTails`) applies `per_heads` to the attack's damage, then runs
 /// `then` once; `Num::Heads` reads the number of heads (also after a single flip).
 pub struct CoinSpec {
     pub flipper: Who,
     pub flips: Flips,
+    pub before: Cond,
     pub per_heads: PerHeads,
     pub heads: &'static [Step],
     pub tails: &'static [Step],
@@ -41,7 +43,7 @@ pub struct CoinSpec {
     pub then: &'static [Step],
 }
 impl CoinSpec {
-    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, flips: Flips::One, per_heads: PerHeads::Nothing, heads: &[], tails: &[], then: &[] };
+    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, flips: Flips::One, before: Cond::True, per_heads: PerHeads::Nothing, heads: &[], tails: &[], then: &[] };
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Flips {
@@ -82,7 +84,11 @@ pub struct ForEachSpec {
 }
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
-pub struct FailSpec {}
+/// The use fails (`error`) unless the condition holds (an attack that can't be used, say).
+pub struct FailSpec {
+    pub unless: Cond,
+    pub error: &'static str,
+}
 pub struct PickAttackSpec {}
 /// Choose an attack of `from`'s Active Pokémon (when its card matches
 /// `predicate` and has attacks) and use it as this attack, as a copy session
@@ -173,6 +179,9 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
         }
         Op::Coin(c) => {
+            if !cond_m(g, me, f, &c.before)? {
+                return Ok(Flow::Next);
+            }
             let p = f.who(c.flipper);
             match c.flips {
                 Flips::One => {
@@ -183,6 +192,12 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) })?,
             }
             Ok(Flow::Suspend)
+        }
+        Op::Fail(x) => {
+            if !cond_m(g, me, f, &x.unless)? {
+                crate::bail!(x.error);
+            }
+            Ok(Flow::Next)
         }
         Op::CopyAttack(c) => {
             let p = f.who(c.from);
@@ -296,10 +311,10 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
     match (op, sel) {
         (Op::May(m), 0) => m.yes,
         (Op::May(m), _) => m.no,
+        (Op::Choose(c), sel) => c.options.get(sel as usize).map(|o| o.body).unwrap_or(&[]),
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
         (Op::ForEach(fe), _) => fe.body,
-        (Op::Choose(c), i) => c.options[i as usize].body,
         (Op::Coin(c), 0) => c.heads,
         (Op::Coin(c), 1) => c.tails,
         (Op::Coin(c), _) => c.then,

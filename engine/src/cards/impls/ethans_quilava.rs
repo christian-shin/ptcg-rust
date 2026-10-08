@@ -31,11 +31,11 @@ pub static SPEC: CardSpec = CardSpec {
                 cond: Cond::Chosen(0),
                 yes: &[
                     Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BOUND, source: RuleSource::Ability })),
-                    Step::new(Op::AbilityUsed(AbilityUsedSpec {})),
+                    Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: None })),
                 ],
                 no: &[],
             })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
     }],
     triggers: &[Trigger {

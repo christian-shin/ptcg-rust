@@ -28,7 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 shuffle_first: false,
             })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
             Step::new(Op::EndTurn(EndTurnSpec { who: Who::Me })),
         ],
     }),

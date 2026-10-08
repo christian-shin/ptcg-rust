@@ -17,8 +17,8 @@
 //!   (conditions re-checked): declining finishes the original callback, and
 //!   accepting reruns the whole sequence with the skip flags set.
 //! The coin session of the Badge is the one rule kept as code in this file (`Op::Custom`): the
-//! frame carries its state (`cards` = callback and mode, `slot` = the player, `prize`/`attached` =
-//! the results and flip count of a finished sequence).
+//! frame carries its state (`cards` = callback and mode, `slot` = the player, `last` = the results, `iter[0]` =
+//! the flip count of a finished sequence).
 use crate::effects::{k, EffId, Effect};
 use crate::game::{CoinCb, Game, R};
 use crate::list::{CardId, CardList};
@@ -120,8 +120,8 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
         // Sequence finished (the core passes the results and the flip count).
         10 => {
             let p = f.slot as usize;
-            f.prize = first.as_int() as u8;
-            f.attached = results.get(1).map_or(0, |r| r.as_int()) as u8;
+            f.last = first.as_int();
+            f.iter[0] = results.get(1).map_or(0, |r| r.as_int()) as u8;
             if g.st.phase == GamePhase::Attack && !g.st.players[p].marker.has(COIN_REFLIP_AGAIN_USED) && can_offer(g, me, p) {
                 confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", f.cont(me, 11));
                 return Ok(Flow::Suspend);
@@ -142,8 +142,8 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
 }
 
 fn finish(g: &mut Game, f: &Frame) -> R<Flow> {
-    let n = f.attached;
-    let results = f.prize as u32;
+    let n = f.iter[0];
+    let results = f.last as u32;
     let last = n > 0 && (results >> (n - 1)) & 1 == 1;
     g.finish_coin_sequence(f.cards[0], results, n, last)?;
     Ok(Flow::Next)

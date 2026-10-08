@@ -13,6 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
                 victim: SlotPred::Not(&SlotPred::TypeIs(crate::types::ct::DARK)),
                 opponent_only: false,
                 holder: SlotPred::Any,
+                burn: false,
             }),
         },
     ],

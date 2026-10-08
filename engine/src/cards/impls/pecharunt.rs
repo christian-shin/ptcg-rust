@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::CheckupDamage(CheckupDamageSpec { amount: 50, victim: SlotPred::Condition(SpecialCondition::Poisoned), opponent_only: true, holder: SlotPred::IsActive }),
+        modifier: Modifier::CheckupDamage(CheckupDamageSpec { amount: 50, victim: SlotPred::Condition(SpecialCondition::Poisoned), opponent_only: true, holder: SlotPred::IsActive, burn: false }),
     }],
     ..CardSpec::NONE
 };

@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::No,
         needs: &[],
-        steps: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Discard) }))],
+        steps: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Discard), effect_of_attack: false }))],
     }],
     passives: &[
         // Protective Cover: prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon.

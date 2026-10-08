@@ -11,52 +11,24 @@
 //! Fixed (phase 4b, R2): the Energy was discarded in the attack handler,
 //! before the damage (Voltaic Lightning Energy's +20 was lost); it is now
 //! discarded in AfterAttackEffect. The Item lock stays in the attack handler.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::tag;
 
-pub static IMPL: CardImpl = CardImpl { class: "Galvantulaex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Galvantulaex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::before_damage(more_damage_if(110, Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::OneOf(&[SlotPred::Tag(tag::POKEMON_V), SlotPred::Tag(tag::POKEMON_VSTAR), SlotPred::Tag(tag::POKEMON_VMAX), SlotPred::Tag(tag::POKEMON_EX_LOWER)])))),
+        ] },
+        AttackSpec { index: 1, steps: &[
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::AllProvided })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Item) })),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) }
+    ],
+    ..CardSpec::NONE
+};
 
-/// CheckProvidedEnergyEffect(player) on the Active, then a DiscardCardsEffect
-/// of every mapped card with `target = player.active`.
-pub fn discard_all_active_energy(g: &mut Game, e: EffId) -> R {
-    let (p, opp, attack, source) = match *g.e(e) {
-        Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-        // `new AttackEffect(player, opponent, attack)`: its source is the Active.
-        Effect::AfterAttack { p, opp, attack, .. } => (p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active)),
-        _ => return Ok(()),
-    };
-    let active = SlotRef::new(p as usize, g.st.players[p as usize].active);
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: active, energy_map: SVec::new() })?;
-    let mut cards: SVec<CardId, 64> = SVec::new();
-    if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-        for em in energy_map.iter() {
-            cards.push(em.card);
-        }
-    }
-    g.run_fx(Effect::DiscardCards { b: AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: active }, cards })?;
-    Ok(())
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let o = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        if let Some(c) = g.st.active_pokemon(o) {
-            let d = g.st.cdef(c);
-            if d.has_tag(tag::POKEMON_V) || d.has_tag(tag::POKEMON_VSTAR) || d.has_tag(tag::POKEMON_VMAX) || d.has_tag(tag::POKEMON_EX_LOWER) {
-                if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                    *damage += 110;
-                }
-            }
-        }
-    }
-    if after_attack_used(g, e, 1, me) {
-        discard_all_active_energy(g, e)?;
-    }
-    if was_attack_used(g, e, 1, me) {
-        return opponent_cannot_play_cards(g, e, crate::effects::play_lock::ITEM);
-    }
-    tera_rule(g, e, me);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

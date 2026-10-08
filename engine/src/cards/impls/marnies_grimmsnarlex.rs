@@ -35,7 +35,7 @@ pub static SPEC: CardSpec = CardSpec {
                         cancel: true,
                         ..AttachSpec::DEFAULT
                     })),
-                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                 ],
                 no: &[],
             }))],

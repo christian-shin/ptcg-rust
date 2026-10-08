@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "PunkHelmet",
     triggers: &[Trigger {
         origin: RuleSource::Tool,
-        event: Event::OnDamagedByAttack(OnDamagedByAttackSpec {}),
+        event: Event::OnDamagedByAttack(OnDamagedByAttackSpec::DEFAULT),
         steps: &[Step::new(Op::If(IfSpec {
             // 4 damage counters on the Attacking Pokémon, if the holder is a [D] Pokémon.
             cond: Cond::Slot(SlotExpr::This, SlotPred::TypeIs(crate::types::ct::DARK)),

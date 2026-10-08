@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::HasEnergy)],
-        steps: &[Step::new(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Me, mode: MoveEnergyMode::BenchToActive { max: 2 } }))],
+        steps: &[Step::new(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Me, mode: MoveEnergyMode::BenchToActive { max: Some(2), required: true } }))],
     }),
     ..CardSpec::NONE
 };

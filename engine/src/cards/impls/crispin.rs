@@ -37,7 +37,7 @@ pub static SPEC: CardSpec = CardSpec {
             })),
             Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), to: Who::Opp, when_empty: true })),
             Step::new(Op::Move(MoveSpec { from: DECK, to: HELD, cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Cmp(Num::RegCount(1), CmpOp::Eq, Num::Lit(2)),
                 yes: &[Step::new(Op::Attach(AttachSpec {

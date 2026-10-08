@@ -6,7 +6,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MegatonBlower",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Any(&[Cond::StadiumInPlay, Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::OneOf(&[SlotPred::HasTool, SlotPred::HasCard(Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]))]))])],
+        needs: &[Cond::Any(&[Cond::StadiumInPlay(Pred::Any), Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::OneOf(&[SlotPred::AnyTool(Pred::Any), SlotPred::HasCard(Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]))]))])],
         steps: &[
             Step::new(DISCARD_STADIUM),
             Step::new(Op::ForEach(ForEachSpec {

@@ -34,7 +34,7 @@ pub static SPEC: CardSpec = CardSpec {
                     over: SlotSel::Pokemon(Who::Opp),
                     body: &[Step::new(Op::Devolve(DevolveSpec { slot: SlotExpr::Picked, destination: ZoneRef(Who::Opp, Zone::Deck) }))],
                 })),
-                Step::after_damage(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck) })),
+                Step::after_damage(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck), wait: true })),
             ],
         },
     ],

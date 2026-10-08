@@ -17,6 +17,7 @@ use crate::game::{Game, R};
 use crate::list::*;
 use crate::prefabs::*;
 use crate::prompts::*;
+use crate::state::{ListRef, SlotId};
 use crate::types::*;
 
 /// Card files name Special Conditions and Pokémon types through the prelude.
@@ -42,6 +43,11 @@ pub enum SwitchKind {
     Plain,
     /// `switchPokemon(target)` without dispatching movement effects.
     Silent,
+    /// `Plain`, with only the side's Benched Basic Pokémon to choose from (S3).
+    PlainBasic,
+    /// An effect of this card's Ability (EffectOfAbility probe, power 0), then `Silent` if the target
+    /// survives it (Sumo Catcher).
+    SilentAbilityEffect,
     /// Gust: a GustOpponentBenchEffect (preventable by attack effect protection).
     Gust,
     /// Switch out the opponent's Active: a SwitchOutOpponentsActiveEffect probe
@@ -176,6 +182,11 @@ pub enum EvolveHow {
     /// Put the card of register `card` onto the Pokémon as an evolution by an effect (no Evolve
     /// effect: the slot loses its effects and counts as played this turn).
     PutOnto { slot: SlotExpr, card: u8 },
+    /// Grand Tree: a Pokémon evolves with a card from the deck (a ChoosePokemon prompt over the Basic Pokémon
+    /// that can evolve now, then a ChooseCards prompt over the deck for a `stage` card that evolves from it,
+    /// cancellable); with `then_stage` a second card evolving from the first is offered. The deck is not
+    /// shuffled here.
+    FromDeck { chooser: Who, stage: Stage, then_stage: Option<Stage> },
 }
 /// Devolve the Pokémon (when it has an evolution card): the top card goes to `destination`.
 /// An effect of the attack that effect protection can stop.
@@ -193,10 +204,16 @@ pub struct SwapPokemonCardSpec {
     /// The new card takes the old card's place in the stack.
     pub keep_index: bool,
 }
+/// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
+pub struct SwitchWithActiveSpec {
+    pub target: SlotExpr,
+}
 /// Put a Pokémon and all cards attached to it into a zone.
 pub struct RemoveFromPlaySpec {
     pub slot: SlotExpr,
     pub destination: ZoneRef,
+    /// An effect of the attack being used: effect protection on the Pokémon (Mist Energy and the like) stops it.
+    pub effect_of_attack: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -249,10 +266,20 @@ pub struct KnockOutSpec {
     pub when: Cond,
 }
 
+/// The attacker picks `count` of the Pokémon in `among` (all of them when fewer; none when none),
+/// asked at step D, and the attack does `hp` damage to each, in the order they were picked.
+pub struct DamageChosenSpec {
+    pub among: SlotSel,
+    pub count: i32,
+    pub hp: Num,
+    pub calc: DamageCalc,
+    pub msg: &'static str,
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 
-fn encode(s: SlotRef) -> u8 {
+pub(crate) fn encode(s: SlotRef) -> u8 {
     s.p << 4 | s.s
 }
 
@@ -294,6 +321,7 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
         SlotSel::One(SlotExpr::This) => f.p as usize,
         SlotSel::One(SlotExpr::Picked) => (f.slot >> 4) as usize,
+        SlotSel::One(SlotExpr::Attached) => (f.attached_to >> 4) as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
     }
 }
@@ -371,6 +399,16 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
     match op {
         Op::RemoveFromPlay(r) => {
             if let Some(slot) = slot_of(g, me, f, r.slot) {
+                if !occupied(g, slot) {
+                    return Ok(Flow::Next);
+                }
+                if r.effect_of_attack {
+                    if let Some((_, _, attack, _)) = attack_data(g, f.eff) {
+                        if attack_effect_prevented_on(g, f.p as usize, slot.p as usize, pack_attack(attack), slot)? {
+                            return Ok(Flow::Next);
+                        }
+                    }
+                }
                 let dst = zone_ref(f, r.destination);
                 move_pokemon_off_board(g, slot, dst, me)?;
             }
@@ -555,6 +593,40 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             Ok(if spread_damage_prompt(g, me, f, s)? { Flow::Suspend } else { Flow::Next })
         }
+        Op::SwitchWithActive(w) => {
+            if let Some(s) = slot_of(g, me, f, w.target) {
+                let p = s.p as usize;
+                if g.st.players[p].bench_index_of(s.s).is_some() {
+                    crate::engine::turn::switch_pokemon(g, p, s.s)?;
+                }
+            }
+            Ok(Flow::Next)
+        }
+        Op::Evolve(EvolveSpec { how: EvolveHow::FromDeck { chooser, .. } }) => {
+            let p = f.who(*chooser);
+            let (_, blocked) = evolve_targets(g, p)?;
+            let mut slots = SVec::new();
+            slots.push(SlotType::Bench as u8);
+            slots.push(SlotType::Active as u8);
+            let id = g.player_id(p);
+            g.prompt(id, "CHOOSE_POKEMON_TO_EVOLVE", PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::DamageChosen(d) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                if c.answer != CHOICE_NONE {
+                    for b in c.items[..c.len as usize].to_vec() {
+                        chosen_hit(g, me, f, d, decode(b))?;
+                    }
+                }
+                return Ok(Flow::Next);
+            }
+            if chosen_ask(g, me, f, d)? {
+                Ok(Flow::Suspend)
+            } else {
+                Ok(Flow::Next)
+            }
+        }
         Op::SpreadCounters(s) => spread_exec(g, me, f, s),
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
@@ -568,6 +640,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
 pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::DamageChosen(d) => {
+            for s in first.slots().to_vec() {
+                chosen_hit(g, me, f, d, s)?;
+            }
+            Ok(Flow::Next)
+        }
+        Op::Evolve(EvolveSpec { how: EvolveHow::FromDeck { chooser, stage, then_stage } }) => evolve_resume(g, me, f, *chooser, *stage, *then_stage, first),
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) => {
             if let Some(s) = first.slots().first().copied() {
                 if occupied(g, s) {
@@ -643,6 +722,14 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
 /// Step D: the choice of an attack effect, asked before the damage.
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
+        Op::DamageChosen(d) => {
+            if chosen_ask(g, me, f, d)? {
+                Ok(Flow::Suspend)
+            } else {
+                f.record(g, me, CHOICE_NONE);
+                Ok(Flow::Next)
+            }
+        }
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) => {
             let Some(pick) = target_of(op).and_then(target_pick) else { return Ok(Flow::Next) };
             if !guard(g, me, f, op)? {
@@ -658,7 +745,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Suspend)
         }
         Op::Switch(s) => {
-            let cands = slots_of(g, me, f, &SlotSel::Bench(s.side));
+            let cands = slots_of(g, me, f, &switch_among(s));
             if cands.is_empty() || switch_prevented(g, f, s)? {
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
@@ -694,6 +781,15 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::DamageChosen(_) => {
+            let items: Vec<u8> = first.slots().iter().map(|s| encode(*s)).collect();
+            if items.is_empty() {
+                f.record(g, me, CHOICE_NONE);
+            } else {
+                f.record_items(g, me, CHOICE_YES, &items);
+            }
+            Ok(Flow::Next)
+        }
         Op::MoveCounters(m) => move_all_resume(g, me, f, m, first),
         Op::SpreadDamage(s) => {
             let items = spread_damage_items(g, f, s, first)?;
@@ -719,7 +815,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             SlotTarget::Slot(_) => true,
         },
         // Used through an attack (Look-Alike Show) a Trainer's switch does nothing when it can't.
-        Op::Switch(s) => !s.required || f.via_attack || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
+        Op::Switch(s) => !s.required || f.via_attack || !slots_of(g, me, f, &switch_among(s)).is_empty(),
         _ => true,
     }
 }
@@ -750,16 +846,7 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
             if d.target_damage_mul != 0 {
                 n += d.target_damage_mul * g.st.slot(slot.p as usize, slot.s).damage;
             }
-            match d.calc {
-                DamageCalc::Auto => deal_or_put_damage(g, f.eff, n, slot)?,
-                DamageCalc::Put => put_damage(g, f.eff, n, slot)?,
-                DamageCalc::Direct => g.st.players[slot.p as usize].slots[slot.s as usize].damage += n,
-                DamageCalc::Deal => {
-                    if let Some(b) = atk_base(g, f, slot) {
-                        g.run_fx(Effect::DealDamage { b, damage: n })?;
-                    }
-                }
-            }
+            damage_by(g, f, d.calc, n, slot)?;
         }
         Op::PlaceCounters(c) => {
             let n = num_m(g, me, f, &c.counters)? * 10;
@@ -869,8 +956,18 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
 // ---------------------------------------------------------------------------
 // Switching
 
+/// The Pokémon a switch can bring to the Active Spot.
+fn switch_among(s: &SwitchSpec) -> SlotSel {
+    match (s.kind, s.side) {
+        // Blocked: a Pokémon that is not Basic (a slot without a Pokémon card, a Fossil, is not).
+        (SwitchKind::PlainBasic, Who::Me) => SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Not(&SlotPred::Top(Pred::Not(&Pred::Basic)))),
+        (SwitchKind::PlainBasic, Who::Opp) => SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Not(&SlotPred::Top(Pred::Not(&Pred::Basic)))),
+        _ => SlotSel::Bench(s.side),
+    }
+}
+
 fn switch_pick(s: &SwitchSpec) -> PickSlotSpec {
-    PickSlotSpec { chooser: s.chooser, among: SlotSel::Bench(s.side), msg: s.msg }
+    PickSlotSpec { chooser: s.chooser, among: switch_among(s), msg: s.msg }
 }
 
 /// A fresh attack effect for the attack in use (Gust and switch-out effects
@@ -923,7 +1020,7 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
         }
         return Ok(Flow::Next);
     }
-    let cands = slots_of(g, me, f, &SlotSel::Bench(s.side));
+    let cands = slots_of(g, me, f, &switch_among(s));
     if cands.is_empty() || switch_prevented(g, f, s)? {
         return Ok(Flow::Next);
     }
@@ -931,7 +1028,7 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
     Ok(Flow::Suspend)
 }
 
-fn switch_act(g: &mut Game, _me: CardId, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
+fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
     let side = f.who(s.side);
     // The Pokémon that leaves the Active Spot is the picked slot afterwards (for effects on it).
     f.slot = encode(SlotRef::new(side, g.st.players[side].active));
@@ -940,7 +1037,16 @@ fn switch_act(g: &mut Game, _me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Sl
         return Ok(());
     }
     match s.kind {
-        SwitchKind::Plain => crate::engine::turn::switch_pokemon(g, side, slot.s),
+        SwitchKind::Plain | SwitchKind::PlainBasic => crate::engine::turn::switch_pokemon(g, side, slot.s),
+        SwitchKind::SilentAbilityEffect => {
+            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot) })?;
+            if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
+                let a = g.st.players[side].active;
+                crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
+                crate::engine::turn::switch_pokemon_silent(g, side, slot.s)?;
+            }
+            Ok(())
+        }
         SwitchKind::Silent | SwitchKind::Picked => {
             let a = g.st.players[side].active;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
@@ -1330,14 +1436,167 @@ pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
     }).collect()
 }
 
-fn candy_played_turn(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
+/// Ask the attacker to pick the Pokémon (resumed at 1); false when there is nobody to pick.
+fn chosen_ask(g: &mut Game, me: CardId, f: &Frame, d: &DamageChosenSpec) -> R<bool> {
+    let cands = slots_m(g, me, f, &d.among)?;
+    let k = (d.count.max(0) as usize).min(cands.len());
+    if k == 0 {
+        return Ok(false);
+    }
+    let owner = sel_owner(&d.among, f);
+    let player_type = if owner == f.p as usize { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
+    let slots = sel_types(&d.among);
+    let mut blocked: TargetList = SVec::new();
+    let pl = &g.st.players[owner];
+    if slots.contains(&(SlotType::Active as u8)) && !cands.iter().any(|c| c.s == pl.active) {
+        blocked.push(CardTarget::new(player_type, SlotType::Active, 0));
+    }
+    if slots.contains(&(SlotType::Bench as u8)) {
+        for (i, b) in pl.bench.iter().enumerate() {
+            if !cands.iter().any(|c| c.s == *b) {
+                blocked.push(CardTarget::new(player_type, SlotType::Bench, i as u8));
+            }
+        }
+    }
+    let id = g.player_id(f.p as usize);
+    g.prompt(id, d.msg, PromptKind::ChoosePokemon { player_type, slots, min: k as u8, max: k as u8, allow_cancel: false, blocked }, f.cont(me, 1));
+    Ok(true)
+}
+
+fn chosen_hit(g: &mut Game, me: CardId, f: &Frame, d: &DamageChosenSpec, slot: SlotRef) -> R {
+    if !occupied(g, slot) {
+        return Ok(());
+    }
+    let n = num_m(g, me, f, &d.hp)?;
+    damage_by(g, f, d.calc, n, slot)
+}
+
+/// `n` damage to the Pokémon the way `calc` says.
+fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -> R {
+    match calc {
+        DamageCalc::Auto => deal_or_put_damage(g, f.eff, n, slot)?,
+        DamageCalc::Put => put_damage(g, f.eff, n, slot)?,
+        DamageCalc::Direct => g.st.players[slot.p as usize].slots[slot.s as usize].damage += n,
+        DamageCalc::Deal => {
+            if let Some(b) = atk_base(g, f, slot) {
+                g.run_fx(Effect::DealDamage { b, damage: n })?;
+            }
+        }
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Evolve (Grand Tree)
+
+/// `CheckPokemonPlayedTurnEffect`: (pokemonPlayedTurn, canEvolveOnFirstTurn).
+fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<(i32, bool)> {
     let target = SlotRef::new(p, s);
     let played = g.st.slot(p, s).pokemon_played_turn;
     let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
     Ok(match e {
-        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, .. } => pokemon_played_turn,
-        _ => played,
+        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
+        _ => (played, false),
     })
+}
+
+/// A Pokémon can't be evolved during its owner's first turn (the PlayPokemonEffect test), unless it has its own exception.
+fn first_turn_blocked(g: &Game, p: usize, can_evolve_on_first_turn: bool) -> bool {
+    g.st.turn <= 2 && !g.st.players[p].can_evolve && !can_evolve_on_first_turn
+}
+
+fn evolves_from_any(name: &str) -> bool {
+    crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == name)
+}
+
+/// Whether some Basic Pokémon of `p` can evolve now (not put into play this turn, not in the first turn)
+/// into a card the game knows, and the Pokémon prompt's blocked targets.
+pub(crate) fn evolve_targets(g: &mut Game, p: usize) -> R<(bool, TargetList)> {
+    let turn = g.st.turn as i32;
+    let mut any = false;
+    let mut blocked: TargetList = SVec::new();
+    for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        if g.st.cdef(c).stage != Stage::Basic as u8 {
+            blocked.push(t);
+            continue;
+        }
+        let (played, first_ok) = played_turn(g, p, s)?;
+        if played == turn || first_turn_blocked(g, p, first_ok) {
+            blocked.push(t);
+            continue;
+        }
+        if evolves_from_any(g.st.cdef(c).name) {
+            any = true;
+        }
+    }
+    Ok((any, blocked))
+}
+
+/// Deck prompt for an evolution of `from` (`stage`), blocking deck Pokémon that evolve from something else.
+fn evolution_prompt(g: &mut Game, p: usize, from: &'static str, stage: Stage, cont: crate::game::Cont) {
+    let mut blocked = Blocked::default();
+    for (i, c) in g.st.players[p].deck.iter().enumerate() {
+        let d = g.st.cdef(c);
+        if d.is_pokemon() && d.evolves_from != from {
+            blocked.push(i as u8);
+        }
+    }
+    let mut opts = ChooseCardsOpts::new(1, 1, true);
+    opts.blocked = blocked;
+    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(stage as u8), evolves_from: Some(from), ..Filter::none() };
+    choose_cards(g, p, "CHOOSE_CARD_TO_EVOLVE", ListRef::Deck(p as u8), filter, opts, cont);
+}
+
+fn evolve_with(g: &mut Game, me: CardId, p: usize, t: SlotRef, card: CardId) -> R {
+    move_cards(g, ListRef::Deck(p as u8), t.list(), &[card], me)?;
+    let turn = g.st.turn;
+    let slot = &mut g.st.players[t.p as usize].slots[t.s as usize];
+    crate::engine::game_effect::clear_effects(slot);
+    slot.pokemon_played_turn = turn;
+    Ok(())
+}
+
+fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: Stage, then_stage: Option<Stage>, first: Res) -> R<Flow> {
+    let p = f.who(chooser);
+    match f.sub & 0xF0 {
+        0x00 => {
+            // The Pokémon was chosen.
+            let Some(t) = first.slots().first().copied() else { return Ok(Flow::Next) };
+            let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(Flow::Next) };
+            let (played, first_ok) = played_turn(g, p, t.s)?;
+            if g.st.cdef(c).stage != Stage::Basic as u8 || played == g.st.turn as i32 || first_turn_blocked(g, p, first_ok) {
+                return Ok(Flow::Next);
+            }
+            let name = g.st.cdef(c).name;
+            evolution_prompt(g, p, name, stage, f.cont(me, 0x20 | t.s));
+            Ok(Flow::Suspend)
+        }
+        0x20 => {
+            let t = SlotRef::new(p, f.sub & 0x0F);
+            let Some(evo) = first.cards().first().copied() else { return Ok(Flow::Next) };
+            evolve_with(g, me, p, t, evo)?;
+            let name = g.st.cdef(evo).name;
+            if let Some(st2) = then_stage {
+                if evolves_from_any(name) {
+                    evolution_prompt(g, p, name, st2, f.cont(me, 0x30 | t.s));
+                    return Ok(Flow::Suspend);
+                }
+            }
+            Ok(Flow::Next)
+        }
+        _ => {
+            let t = SlotRef::new(p, f.sub & 0x0F);
+            if let Some(c) = first.cards().first().copied() {
+                evolve_with(g, me, p, t, c)?;
+            }
+            Ok(Flow::Next)
+        }
+    }
+}
+
+/// `CheckPokemonPlayedTurnEffect` pokemonPlayedTurn, as Rare Candy reads it.
+fn candy_played_turn(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
+    Ok(played_turn(g, p, s)?.0)
 }
 
 /// `canUseRareCandy`.

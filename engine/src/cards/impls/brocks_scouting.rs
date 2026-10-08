@@ -33,7 +33,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 shuffle_first: false,
             })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
         ],
     }),
     ..CardSpec::NONE

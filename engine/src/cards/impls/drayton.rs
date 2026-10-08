@@ -37,7 +37,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Move(MoveSpec { from: LOOKED_AT, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
             Step::new(Op::Move(MoveSpec { from: LOOKED_AT, to: DECK, cards: CardSel::All, ..MoveSpec::DEFAULT })),
             Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), to: Who::Opp, when_empty: false })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
         ],
     }),
     ..CardSpec::NONE

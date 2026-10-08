@@ -6,61 +6,21 @@
 //! a PlayPokemonFromDeckEffect into the i-th empty slot; SHUFFLE_DECK follows.
 //! Phase 4b R7E (ruling 336): with all 4 Lampent in known zones (discard pile,
 //! in play) the attack is usable and fails without searching.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Lampent",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::BenchSpace(Who::Me), Cond::Not(&Cond::KnownCopies { who: Who::Me, name: "Lampent", at_least: 4 })]), yes: &[Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::All(&[Pred::Pokemon, Pred::Name("Lampent")]), bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::OpenBench(Who::Me), &Num::Lit(3)) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Bench,
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
+        ] },
+    ],
+    ..CardSpec::NONE
+};
 
-/// Cards named `name` in `p`'s discard pile and in play (known zones).
-pub fn known_copies(g: &Game, p: usize, name: &str) -> usize {
-    let mut n = g.st.players[p].discard.iter().filter(|c| g.st.cdef(*c).name == name).count();
-    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
-        n += g.st.slot(p, *s).cards.iter().filter(|c| g.st.cdef(*c).name == name).count();
-    }
-    n
-}
-
-pub static IMPL: CardImpl = CardImpl { class: "Lampent", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let slots = empty_bench_slots(g, p);
-        let max_put = slots.len().min(3);
-        if g.st.players[p].deck.is_empty() || max_put == 0 || known_copies(g, p, "Lampent") >= 4 {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        let filter = Filter { super_type: Some(SuperType::Pokemon as u8), name: Some("Lampent"), ..Default::default() };
-        choose_cards(
-            g,
-            p,
-            "CHOOSE_CARD_TO_PUT_ONTO_BENCH",
-            ListRef::Deck(p as u8),
-            filter,
-            ChooseCardsOpts::new(0, max_put as u8, false),
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    // Nothing can change the Bench between the attack and the answer.
-    let slots = empty_bench_slots(g, p);
-    let first = results.first().copied().unwrap_or(Res::Null);
-    let cards: Vec<CardId> = first.cards().to_vec();
-    for (i, c) in cards.iter().enumerate() {
-        if let Some(&s) = slots.get(i) {
-            g.run_fx(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, s) })?;
-        }
-    }
-    shuffle_deck(g, p);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

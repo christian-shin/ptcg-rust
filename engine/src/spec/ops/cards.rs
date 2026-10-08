@@ -8,6 +8,7 @@
 //! (`choice` / `resume_choice`) and recorded as card ids.
 
 use super::super::run::{Flow, Frame, CHOICE_NONE, CHOICE_YES, NONE};
+use super::board::encode;
 use super::super::*;
 use crate::effects::{AtkBase, Effect, SlotRef};
 use crate::game::{Cont, Game, R};
@@ -56,7 +57,7 @@ pub enum CardSel {
     Chosen(u8),
     /// The Pokémon Tools attached to the Pokémon (`from` is ignored); one move per Tool.
     Tools(SlotExpr),
-    /// The resolving card itself, when it is in the `from` zone.
+    /// This card itself, from wherever it is (`from` is ignored).
     This,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -85,6 +86,8 @@ pub struct PickSpec {
     pub msg: &'static str,
     /// Nothing to choose does not make a Trainer unplayable (another step still has an effect).
     pub soft: bool,
+    /// Only cards named like one of the Pokémon in play of this player (Love Ball).
+    pub same_name_as: Option<Who>,
 }
 impl PickSpec {
     pub const DEFAULT: PickSpec = PickSpec {
@@ -98,6 +101,7 @@ impl PickSpec {
         distinct_types: false,
         msg: "",
         soft: false,
+        same_name_as: None,
     };
 }
 pub struct Cap {
@@ -135,6 +139,8 @@ pub enum DrawAmount {
 }
 pub struct ShuffleSpec {
     pub zone: ZoneRef,
+    /// Wait for the answer of the shuffle prompt (otherwise the next step runs while it is still open).
+    pub wait: bool,
 }
 /// Show cards to a player (an information screen, not a decision).
 pub struct RevealSpec {
@@ -171,6 +177,12 @@ pub enum SearchDestination {
     Discard { reveal: bool },
     /// Onto the bottom of the chooser's deck.
     Deck { reveal: bool },
+    /// Attached to one of the chooser's Pokémon, picked after the cards are (a ChoosePokemon prompt;
+    /// nothing is asked when no card was chosen).
+    AttachToPicked,
+    /// Attached to this Pokémon as a Pokémon Tool (a Tool found by Impromptu Carrier): the card moves to
+    /// the slot's Tools directly.
+    AttachToolToThis,
 }
 pub struct Bounds {
     pub min: Num,
@@ -182,9 +194,11 @@ pub struct SnapshotSpec {
     pub predicate: Pred,
     pub into: u8,
 }
-/// The player puts the cards of register `reg` in an order (an OrderCards prompt).
+/// Put the cards of a register in the order `who` picks (an OrderCards prompt).
 pub struct OrderSpec {
-    pub reg: u8,
+    pub who: Who,
+    pub zone: ZoneRef,
+    pub msg: &'static str,
 }
 /// Attach Energy chosen from a zone to Pokémon in play (an AttachEnergy prompt).
 pub struct AttachSpec {
@@ -249,6 +263,9 @@ pub enum AttachRoute {
     Move,
     /// The attachment effect (attached from hand by an Ability).
     Effect,
+    /// `Move`; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
+    /// (Janine's Secret Art).
+    MovePoisonActive,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
 /// effect that effect-prevention can stop.
@@ -265,22 +282,22 @@ pub enum MoveEnergyMode {
     // --- S3 agent 3 appends ---
     /// Up to `max` Energy cards of the Benched Pokémon move to the Active Pokémon (N's Plot: at
     /// least 1, or 0 when the Trainer is used as the effect of an attack).
-    BenchToActive { max: u8 },
+    BenchToActive { max: Option<u8>, required: bool },
 }
 pub struct DiscardEnergySpec {
     pub target: SlotExpr,
     pub selection: EnergySelection,
 }
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EnergySelection {
     /// Every card providing Energy to the Pokémon.
     AllProvided,
     /// Every card providing Energy of this type (or every type) to the Pokémon.
     Provides(CardType),
-    /// A DiscardEnergy prompt over the Pokémon's Energy (Energy that does not provide `ty` is
-    /// blocked, up to `max`, none required); the cards go to register `into` and are discarded
-    /// by a DiscardCardsEffect of the attack.
-    Prompt { ty: CardType, max: u8, into: u8 },
+    /// A DiscardEnergy prompt over the Pokémon's Energy: `min..=max` cards, the cards go to register `into`
+    /// when given. With a type, Energy that does not provide `ty` is blocked and the bounds are as written
+    /// (an attack's text before the damage); without, the bounds are limited by what is attached and
+    /// nothing is asked without Energy.
+    Prompt { ty: Option<CardType>, min: u8, max: u8, into: Option<u8> },
     /// The Energy cards of register `r` (chosen earlier), as a DiscardCardsEffect of the attack.
     Register(u8),
     /// Every Special Energy card attached to the Pokémon (an effect of the attack that Mist
@@ -305,6 +322,16 @@ pub enum EnergySelection {
     /// prompt over the Tools in play; each chosen Tool is checked against an effect that prevents
     /// the attack's effects on its Pokémon (Mist Energy) before it is discarded.
     OppTools { max: u8 },
+    /// Exactly one card of the Pokémon matching the predicate, picked in a ChooseCards prompt
+    /// (nothing is asked without such a card).
+    Chosen { pred: Pred },
+    /// Up to `max` Energy cards matching the predicate attached to the owner's Benched Pokémon
+    /// (a DiscardEnergy prompt over the Bench; nothing is asked without one). `Num::Last` counts the cards.
+    FromBench { max: i32, pred: Pred },
+    /// An Ability's cost: one card of the Pokémon matching the predicate. With exactly one it is
+    /// discarded without asking; with more a cancellable ChooseCards prompt (up to 1) asks. `Num::Last`
+    /// counts the cards discarded (0 when declined).
+    CostOne { pred: Pred },
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct AmongSpec {
@@ -354,7 +381,11 @@ pub enum PrizeAction {
     /// cards are the given player's.
     FaceUp(Who),
 }
-pub struct TakePrizeSpec {}
+/// `who` takes `count` Prize cards into their hand (chosen by them when there are more left).
+pub struct TakePrizeSpec {
+    pub who: Who,
+    pub count: Num,
+}
 /// Shuffle a hand into its deck, then draw (the resolving card is not part
 /// of the hand).
 pub struct HandShuffleDrawSpec {
@@ -408,6 +439,25 @@ fn num_uses_reg(n: &Num) -> bool {
         Num::If(_, a, b) => num_uses_reg(a) || num_uses_reg(b),
         _ => false,
     }
+}
+
+/// A trigger's step: the player the program runs for picks an Energy on the Attacking Pokémon and one of the
+/// attacker's other Benched Pokémon; the Energy moves there. Nothing happens when the attacker left play,
+/// has no Energy or has no other Benched Pokémon.
+pub struct MoveEnergyFromAttackerSpec {
+    pub msg: &'static str,
+}
+
+/// Does the card satisfy the pick's predicate (and name restriction)?
+fn pick_ok(g: &Game, f: &Frame, pick: &PickSpec, c: CardId) -> bool {
+    pred(g, c, &pick.predicate)
+        && match pick.same_name_as {
+            None => true,
+            Some(w) => {
+                let name = g.st.cdef(c).name;
+                in_play(g, f.who(w), PlayScope::All).iter().any(|(_, top, _)| g.st.cdef(*top).name == name)
+            }
+        }
 }
 
 fn open_shuffle(g: &mut Game, me: CardId, f: &Frame, p: usize, sub: u8) {
@@ -468,6 +518,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Search(s) => search_exec(g, me, f, s),
         Op::Shuffle(s) => {
             let p = f.who(s.zone.0);
+            if !s.wait {
+                shuffle_deck(g, p);
+                return Ok(Flow::Next);
+            }
             open_shuffle(g, me, f, p, 1);
             Ok(Flow::Suspend)
         }
@@ -477,14 +531,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(Flow::Next)
             }
-        }
-        Op::Order(o) => {
-            if reg_list(g, f, o.reg).is_empty() {
-                return Ok(Flow::Next);
-            }
-            let id = g.player_id(f.p as usize);
-            g.prompt(id, "CHOOSE_CARDS_ORDER", PromptKind::OrderCards { cards: ListRef::Temp(f.cards[o.reg as usize]), allow_cancel: false }, f.cont(me, 1));
-            Ok(Flow::Suspend)
         }
         Op::PickPrize(pp) => {
             let id = g.player_id(f.who(pp.chooser));
@@ -519,79 +565,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             Ok(Flow::Next)
         }
-        Op::DiscardEnergy(d) => {
-            let Some(slot) = slot_of(g, me, f, d.target) else { return Ok(Flow::Next) };
-            match d.selection {
-                EnergySelection::Choose { count, ty } => return discard_choose_exec(g, me, f, slot, count, ty, false, false),
-                EnergySelection::ChooseToHand { count, ty, up_to } => return discard_choose_exec(g, me, f, slot, count, ty, up_to, true),
-                EnergySelection::Among(a) => return among_exec(g, me, f, slot, &a),
-                EnergySelection::OppTools { max } => return opp_tools_exec(g, me, f, max),
-                EnergySelection::AllIntoDeck => {
-                    let (p, s) = (slot.p as usize, slot.s);
-                    let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
-                    if !energies.is_empty() {
-                        move_cards_after_damage(g, f.eff, ListRef::Slot(p as u8, s), ListRef::Deck(p as u8), &energies, me)?;
-                    }
-                    shuffle_deck_after_damage(g, f.eff, p);
-                    return Ok(Flow::Next);
-                }
-                EnergySelection::AllProvided | EnergySelection::Provides(_) => {
-                    let map = provided_energy(g, slot)?;
-                    let mut cards: SVec<CardId, 64> = SVec::new();
-                    for m in map.iter() {
-                        let hit = match d.selection {
-                            EnergySelection::Provides(t) => m.provides.iter().any(|x| *x == t || *x == ct::ANY),
-                            _ => true,
-                        };
-                        if hit && !cards.contains(&m.card) {
-                            cards.push(m.card);
-                        }
-                    }
-                    discard_chosen(g, f, slot, cards.as_slice(), false)?;
-                }
-                EnergySelection::Prompt { ty, max, .. } => {
-                    let mut o = MoveOpts { allow_cancel: false, min: 0, max: Some(max), ..Default::default() };
-                    if let Some(b) = blocked_non_type_energy(g, slot.p as usize, slot.s, ty)? {
-                        o.blocked_map.push((CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0), b));
-                    }
-                    let mut slots = SVec::new();
-                    slots.push(SlotType::Active as u8);
-                    let id = g.player_id(f.p as usize);
-                    g.prompt(
-                        id,
-                        "CHOOSE_ENERGIES_TO_DISCARD",
-                        PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
-                        f.cont(me, 1),
-                    );
-                    return Ok(Flow::Suspend);
-                }
-                EnergySelection::Register(r) => {
-                    let mut cards: SVec<CardId, 64> = SVec::new();
-                    for c in reg_list(g, f, r) {
-                        cards.push(*c);
-                    }
-                    if !cards.is_empty() {
-                        discard_chosen(g, f, slot, cards.as_slice(), false)?;
-                    }
-                }
-                EnergySelection::Special => {
-                    let cards: SVec<CardId, 64> = {
-                        let mut v = SVec::new();
-                        for c in g.st.slot(slot.p as usize, slot.s).cards.iter() {
-                            let d = g.st.cdef(c);
-                            if d.is_energy() && d.energy_type == EnergyType::Special as u8 {
-                                v.push(c);
-                            }
-                        }
-                        v
-                    };
-                    if !cards.is_empty() {
-                        discard_chosen(g, f, slot, cards.as_slice(), false)?;
-                    }
-                }
-            }
-            Ok(Flow::Next)
-        }
+        Op::DiscardEnergy(d) => de_exec(g, me, f, d),
         Op::MoveEnergyOwn(m) => Ok(if move_energy_own_prompt(g, me, f, m) { Flow::Suspend } else { Flow::Next }),
         Op::MoveEnergy(m) => {
             if m.mode != MoveEnergyMode::Effect {
@@ -628,6 +602,68 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             shuffle_hand_into_deck_then_draw_ex(g, p, me, NO_CARD, n, Some((me, f.frame_at(1))))?;
             Ok(Flow::Suspend)
         }
+        Op::MoveEnergyFromAttacker(m) => {
+            let src = slot_of(g, me, f, SlotExpr::Picked).unwrap();
+            let pl = &g.st.players[src.p as usize];
+            let bench_index = pl.bench.iter().position(|b| *b == src.s);
+            let has_bench = pl.bench.iter().any(|b| *b != src.s && !pl.slots[*b as usize].cards.is_empty());
+            let has_energy = g.st.slot(src.p as usize, src.s).cards.iter().any(|c| g.st.cdef(c).is_energy());
+            if !has_bench || !has_energy {
+                return Ok(Flow::Next);
+            }
+            let mut slots = SVec::new();
+            slots.push(SlotType::Bench as u8);
+            let list = src.list();
+            let mut o = AttachOpts::new(g.lst(list).len().min(255) as u8);
+            o.allow_cancel = false;
+            o.min = 1;
+            o.max = 1;
+            if let Some(i) = bench_index {
+                o.blocked_to.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
+            }
+            let id = g.player_id(f.p as usize);
+            g.prompt(id, m.msg, PromptKind::AttachEnergy { cards: list, player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::Order(o) => {
+            if zone_is_unset(f, o.zone) {
+                return Ok(Flow::Next);
+            }
+            let list = zone_ref(f, o.zone);
+            if g.lst(list).is_empty() {
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(f.who(o.who));
+            g.prompt(id, o.msg, PromptKind::OrderCards { cards: list, allow_cancel: false }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::TakePrize(t) => {
+            let p = f.who(t.who);
+            let n = num(g, me, f, &t.count);
+            let left = g.st.players[p].prize_left() as i32;
+            let take = n.min(left);
+            if take <= 0 {
+                return Ok(Flow::Next);
+            }
+            if n >= left {
+                let mut ix: SVec<u8, 6> = SVec::new();
+                for i in 0..g.st.players[p].prize_count {
+                    if !g.st.players[p].prizes[i as usize].is_empty() && (ix.len() as i32) < take {
+                        ix.push(i);
+                    }
+                }
+                crate::engine::check::take_specific_prizes(g, p, ix.as_slice(), ListRef::Hand(p as u8), false)?;
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(p);
+            g.prompt(
+                id,
+                "CHOOSE_PRIZE_CARD",
+                PromptKind::ChoosePrize { count: take as u8, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: false },
+                f.cont(me, 1),
+            );
+            Ok(Flow::Suspend)
+        }
         _ => unimplemented!("spec op not implemented yet (ops/cards.rs)"),
     }
 }
@@ -649,6 +685,10 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
     let (src, mut cards): (ListRef, Vec<CardId>) = match &m.cards {
         CardSel::Tools(s) => match slot_of(g, me, f, *s) {
             Some(slot) => (slot.list(), g.st.slot(slot.p as usize, slot.s).tools.iter().collect()),
+            None => return Ok(()),
+        },
+        CardSel::This => match g.st.locate(me) {
+            Some(l) => (l, vec![me]),
             None => return Ok(()),
         },
         sel => {
@@ -677,8 +717,7 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
                     out
                 }
                 CardSel::Chosen(r) => reg_list(g, f, *r).to_vec(),
-                CardSel::This => zc.into_iter().filter(|c| *c == me).collect(),
-                CardSel::Tools(_) => unreachable!(),
+                CardSel::Tools(_) | CardSel::This => unreachable!(),
             };
             match zone_list(g, me, f, m.from, true) {
                 Some(l) => (l, cards),
@@ -748,7 +787,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
     if cards.is_empty() {
         return false;
     }
-    let eligible = cards.iter().filter(|c| pred(g, **c, &pick.predicate)).count();
+    let eligible = cards.iter().filter(|c| pick_ok(g, f, pick, **c)).count();
     let hidden = pick.from.1 == Zone::Deck;
     let max = num(g, me, f, &pick.bounds.max).min(max_cap).max(0);
     let min = num(g, me, f, &pick.bounds.min).min(max).max(0);
@@ -757,7 +796,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
     }
     let mut opts = ChooseCardsOpts::new(to_u8(min), to_u8(max), pick.cancel || cancel);
     for (i, c) in cards.iter().enumerate() {
-        if !pred(g, *c, &pick.predicate) {
+        if !pick_ok(g, f, pick, *c) {
             opts.blocked.push(i as u8);
         }
     }
@@ -811,6 +850,7 @@ fn search_msg(s: &SearchSpec) -> &'static str {
         SearchDestination::Hand { .. } => "CHOOSE_CARD_TO_HAND",
         SearchDestination::Discard { .. } => "CHOOSE_CARD_TO_DISCARD",
         SearchDestination::Deck { .. } => "CHOOSE_CARD_TO_DECK",
+        SearchDestination::AttachToPicked | SearchDestination::AttachToolToThis => "CHOOSE_CARD_TO_HAND",
     }
 }
 
@@ -864,8 +904,45 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
             reveal(g, r);
             move_cards(g, from, ListRef::Deck(p as u8), chosen, me)?;
         }
+        // The cards wait in the pick's register for the target (`search_attach_prompt`).
+        SearchDestination::AttachToPicked => {}
+        SearchDestination::AttachToolToThis => {
+            let mut bench_idx = 0usize;
+            for (i, &b) in g.st.players[p].bench.iter().enumerate() {
+                if g.st.slot_pokemon(p, b) == Some(me) {
+                    bench_idx = i;
+                }
+            }
+            for c in chosen {
+                if g.st.cdef(*c).is_trainer() {
+                    let s = g.st.players[p].bench.as_slice()[bench_idx];
+                    move_cards(g, from, ListRef::Slot(p as u8, s), &[*c], me)?;
+                    g.st.players[p].slots[s as usize].cards.remove(*c);
+                    g.st.players[p].slots[s as usize].tools.push(*c);
+                }
+            }
+        }
     }
     Ok(())
+}
+
+/// Ask where the searched cards go (resumed at 2); false when no card was chosen.
+fn search_attach_prompt(g: &mut Game, me: CardId, f: &Frame, s: &SearchSpec) -> bool {
+    if reg_list(g, f, s.pick.into).is_empty() {
+        return false;
+    }
+    let p = f.who(s.pick.chooser);
+    let mut slots = SVec::new();
+    slots.push(SlotType::Active as u8);
+    slots.push(SlotType::Bench as u8);
+    let id = g.player_id(p);
+    g.prompt(
+        id,
+        "CHOOSE_POKEMON_TO_ATTACH_CARDS",
+        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
+        f.cont(me, 2),
+    );
+    true
 }
 
 // ---------------------------------------------------------------------------
@@ -1048,9 +1125,22 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             }
             Ok(Flow::Suspend)
         }
+        Op::Search(s) if f.sub == 2 => {
+            // The target of searched cards that are attached: they leave the deck for that Pokémon.
+            if let Some(t) = first.slots().first().copied() {
+                let cards: Vec<CardId> = reg_list(g, f, s.pick.into).to_vec();
+                let from = zone_ref(f, s.pick.from);
+                let source_card = g.st.slot_pokemon(f.p as usize, g.st.players[f.p as usize].active).unwrap_or(me);
+                move_cards(g, from, t.list(), &cards, source_card)?;
+            }
+            Ok(Flow::Next)
+        }
         Op::Search(s) => {
             let chosen: Vec<CardId> = first.cards().to_vec();
             finish_search(g, me, f, s, &chosen)?;
+            if s.destination == SearchDestination::AttachToPicked && search_attach_prompt(g, me, f, s) {
+                return Ok(Flow::Suspend);
+            }
             Ok(Flow::Next)
         }
         Op::Shuffle(s) => {
@@ -1062,7 +1152,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         }
         Op::Attach(a) => {
             let p = f.who(a.chooser);
-            f.attached = 0;
+            f.attached_to = NONE;
             if f.sub == 2 {
                 if let Res::Order(o) = first {
                     crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
@@ -1073,6 +1163,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 Res::Attach(t) => t,
                 _ => SVec::new(),
             };
+            f.last = ts.len() as i32;
             if ts.is_empty() {
                 if a.none_shuffles && !g.st.players[p].deck.is_empty() {
                     open_shuffle(g, me, f, p, 2);
@@ -1080,22 +1171,19 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 }
                 return Ok(Flow::Next);
             }
-            f.attached = 1;
             let Some(from) = zone_list(g, me, f, a.from, true) else { return Ok(Flow::Next) };
             for (to, c) in ts.iter().copied() {
                 let target = get_target(&g.st, p, to)?;
+                f.attached_to = encode(target);
                 match a.route {
-                    AttachRoute::Move => move_cards(g, from, target.list(), &[c], me)?,
+                    AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
                     AttachRoute::Effect => {
                         g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
                     }
                 }
-            }
-            Ok(Flow::Next)
-        }
-        Op::Order(o) => {
-            if let Res::Order(ord) = first {
-                crate::game::apply_order(&mut g.temps[f.cards[o.reg as usize] as usize], ord.as_slice());
+                if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
+                    crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);
+                }
             }
             Ok(Flow::Next)
         }
@@ -1153,35 +1241,34 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             carry_out_transfers(g, f, &ts)?;
             Ok(Flow::Next)
         }
-        Op::DiscardEnergy(d) => {
-            if let EnergySelection::Among(a) = d.selection {
-                among_resume(g, me, f, &a, first)?;
-                return Ok(Flow::Next);
-            }
-            if let EnergySelection::OppTools { .. } = d.selection {
-                if let Res::CardsFrom(ts) = first {
-                    let items = opp_tools_items(g, f, ts.as_slice());
-                    opp_tools_carry_out(g, me, f, &items)?;
-                }
-                return Ok(Flow::Next);
-            }
-            if let Some(slot) = slot_of(g, me, f, d.target) {
-                if let Res::Energy(c) = first {
-                    discard_chosen(g, f, slot, c.as_slice(), matches!(d.selection, EnergySelection::ChooseToHand { .. }))?;
-                }
-                if let (Res::CardsFrom(t), EnergySelection::Prompt { into, .. }) = (first, d.selection) {
-                    let mut cards: SVec<CardId, 64> = SVec::new();
-                    for (_, x) in t.iter() {
-                        cards.push(*x);
-                    }
-                    set_reg(g, f, into, cards.as_slice());
-                    discard_chosen(g, f, slot, cards.as_slice(), false)?;
+        Op::DiscardEnergy(d) => de_resume(g, me, f, d, first),
+        // Resumed after the prefab's draw.
+        Op::HandShuffleDraw(_) => Ok(Flow::Next),
+        Op::MoveEnergyFromAttacker(_) => {
+            let src = slot_of(g, me, f, SlotExpr::Picked).unwrap();
+            if let Res::Attach(ts) = first {
+                for (to, c) in ts.iter() {
+                    let target = get_target(&g.st, f.p as usize, *to)?;
+                    move_cards(g, src.list(), target.list(), &[*c], me)?;
                 }
             }
             Ok(Flow::Next)
         }
-        // Resumed after the prefab's draw.
-        Op::HandShuffleDraw(_) => Ok(Flow::Next),
+        Op::Order(o) => {
+            if let Res::Order(ord) = first {
+                if let ListRef::Temp(i) = zone_ref(f, o.zone) {
+                    crate::game::apply_order(&mut g.temps[i as usize], ord.as_slice());
+                }
+            }
+            Ok(Flow::Next)
+        }
+        Op::TakePrize(t) => {
+            let p = f.who(t.who);
+            if let Res::Prizes(ix) = first {
+                crate::engine::check::take_specific_prizes(g, p, ix.as_slice(), ListRef::Hand(p as u8), false)?;
+            }
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -1213,26 +1300,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             f.record(g, me, CHOICE_NONE);
             Ok(Flow::Next)
         }
-        Op::DiscardEnergy(d) => {
-            if let EnergySelection::OppTools { max } = d.selection {
-                if opp_tools_prompt(g, me, f, max) {
-                    return Ok(Flow::Suspend);
-                }
-                f.record(g, me, CHOICE_NONE);
-                return Ok(Flow::Next);
-            }
-            let (count, ty, up_to) = match d.selection {
-                EnergySelection::Choose { count, ty } => (count, ty, false),
-                EnergySelection::ChooseToHand { count, ty, up_to } => (count, ty, up_to),
-                _ => return Ok(Flow::Next),
-            };
-            let Some(slot) = slot_of(g, me, f, d.target) else { return Ok(Flow::Next) };
-            if discard_choose_prompt(g, me, f, slot, count, ty, up_to)? {
-                return Ok(Flow::Suspend);
-            }
-            f.record(g, me, CHOICE_NONE);
-            Ok(Flow::Next)
-        }
+        Op::DiscardEnergy(d) => de_choice(g, me, f, d),
         _ => Ok(Flow::Next),
     }
 }
@@ -1258,23 +1326,7 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
             f.record_items(g, me, CHOICE_YES, &items);
             Ok(Flow::Next)
         }
-        Op::DiscardEnergy(d) => {
-            if let EnergySelection::OppTools { .. } = d.selection {
-                match first {
-                    Res::CardsFrom(ts) => {
-                        let items = opp_tools_items(g, f, ts.as_slice());
-                        f.record_items(g, me, CHOICE_YES, &items);
-                    }
-                    _ => f.record(g, me, CHOICE_NONE),
-                }
-                return Ok(Flow::Next);
-            }
-            match first {
-                Res::Energy(c) => f.record_items(g, me, CHOICE_YES, c.as_slice()),
-                _ => f.record(g, me, CHOICE_NONE),
-            }
-            Ok(Flow::Next)
-        }
+        Op::DiscardEnergy(d) => de_resume_choice(g, me, f, d, first),
         _ => Ok(Flow::Next),
     }
 }
@@ -1296,8 +1348,8 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)),
         Op::Move(m) => match &m.cards {
             CardSel::Chosen(_) => true,
-            CardSel::Tools(_) => true,
-            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) | CardSel::This => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
+            CardSel::Tools(_) | CardSel::This => true,
+            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
         },
         Op::Attach(a) => {
             let cards = zone_cards(g, me, f, a.from);
@@ -1327,7 +1379,7 @@ fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) ->
     if pick.from.1 == Zone::Deck {
         return !cards.is_empty();
     }
-    let eligible = cards.iter().filter(|c| pred(g, **c, &pick.predicate)).count() as i32;
+    let eligible = cards.iter().filter(|c| pick_ok(g, f, pick, **c)).count() as i32;
     let min = num(g, me, f, &pick.bounds.min).max(1).min(room);
     eligible >= min
 }
@@ -1366,20 +1418,6 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
     Ok(true)
 }
 
-fn discard_choose_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, count: u8, ty: CardType, up_to: bool, to_hand: bool) -> R<Flow> {
-    if let Some(c) = f.recorded_choice(g, me) {
-        if c.answer == CHOICE_YES {
-            discard_chosen(g, f, slot, &c.items[..c.len as usize], to_hand)?;
-        }
-        return Ok(Flow::Next);
-    }
-    if discard_choose_prompt(g, me, f, slot, count, ty, up_to)? {
-        Ok(Flow::Suspend)
-    } else {
-        Ok(Flow::Next)
-    }
-}
-
 /// A DiscardCards effect of the attack on the Pokémon.
 fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId], to_hand: bool) -> R {
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
@@ -1408,13 +1446,14 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
     let mut slots = SVec::new();
     let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
     let filter = match m.mode {
-        MoveEnergyMode::BenchToActive { max } => {
+        MoveEnergyMode::BenchToActive { max, required } => {
             let has = pokemon.iter().any(|(s, _, t)| t.slot == SlotType::Bench && g.st.slot(owner, *s).cards.iter().any(|c| g.st.cdef(c).is_energy()));
             if !has || pokemon.len() <= 1 {
                 return false;
             }
-            o.min = if f.via_attack { 0 } else { 1 };
-            o.max = Some(max);
+            // At least 1, unless the Trainer is used as the effect of an attack.
+            o.min = if required && !f.via_attack { 1 } else { 0 };
+            o.max = max;
             for (s, _, t) in pokemon.iter() {
                 if t.slot == SlotType::Active {
                     let mut b = Blocked::default();
@@ -1527,6 +1566,127 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
     }
     Ok(())
 }
+// DiscardEnergy: choosing and discarding
+
+fn energy_cards(g: &Game, slot: SlotRef) -> Vec<CardId> {
+    g.st.slot(slot.p as usize, slot.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect()
+}
+
+/// Open the prompt of a choosing selection (resumed at `sub`); false when there is nothing to choose.
+fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub: u8) -> R<bool> {
+    let Some(slot) = slot_of(g, me, f, d.target) else { return Ok(false) };
+    let chooser = f.p as usize;
+    let id = g.player_id(chooser);
+    match &d.selection {
+        EnergySelection::Prompt { ty, min, max, .. } => {
+            let available = energy_cards(g, slot).len() as i32;
+            let (prompt_min, prompt_max) = match ty {
+                // An attack's text before the damage: the bounds as written.
+                Some(_) => (*min as i32, *max as i32),
+                // Limited by what is attached; nothing is asked without Energy.
+                None => {
+                    if *max == 0 || available == 0 {
+                        return Ok(false);
+                    }
+                    let m = (*max as i32).min(available);
+                    ((*min as i32).min(m), m)
+                }
+            };
+            let mut slots = SVec::new();
+            slots.push(SlotType::Active as u8);
+            let mut o = MoveOpts { allow_cancel: false, min: prompt_min as u8, max: Some(prompt_max as u8), ..Default::default() };
+            if let Some(t) = ty {
+                if let Some(b) = blocked_non_type_energy(g, slot.p as usize, slot.s, *t)? {
+                    o.blocked_map.push((CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0), b));
+                }
+            }
+            g.prompt(
+                id,
+                "CHOOSE_ENERGIES_TO_DISCARD",
+                PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+                f.cont(me, sub),
+            );
+            Ok(true)
+        }
+        EnergySelection::Chosen { pred: pr } => {
+            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards.iter().collect();
+            if !cards.iter().any(|c| pred(g, *c, pr)) {
+                return Ok(false);
+            }
+            let mut opts = ChooseCardsOpts::new(1, 1, false);
+            for (i, c) in cards.iter().enumerate() {
+                if !pred(g, *c, pr) {
+                    opts.blocked.push(i as u8);
+                }
+            }
+            choose_cards(g, chooser, "CHOOSE_CARD_TO_DISCARD", slot.list(), Filter::none(), opts, f.cont(me, sub));
+            Ok(true)
+        }
+        EnergySelection::FromBench { max, pred: pr } => {
+            let p = slot.p as usize;
+            let mut available = 0i32;
+            let pl = &g.st.players[p];
+            for b in pl.bench.iter() {
+                available += pl.slots[*b as usize].cards.iter().filter(|c| pred(g, *c, pr)).count() as i32;
+            }
+            if available == 0 {
+                return Ok(false);
+            }
+            let mut slots = SVec::new();
+            slots.push(SlotType::Bench as u8);
+            let o = MoveOpts { allow_cancel: false, min: 0, max: Some(available.min(*max) as u8), ..Default::default() };
+            g.prompt(
+                id,
+                "CHOOSE_ENERGIES_TO_DISCARD",
+                PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+                f.cont(me, sub),
+            );
+            Ok(true)
+        }
+        _ => Ok(false),
+    }
+}
+
+/// The cards a choosing prompt answered.
+fn energy_chosen(_f: &Frame, first: Res) -> Vec<CardId> {
+    match first {
+        Res::CardsFrom(t) => t.iter().map(|(_, c)| *c).collect(),
+        Res::Energy(c) => c.iter().copied().collect(),
+        other => other.cards().to_vec(),
+    }
+}
+
+/// One DiscardCards effect per Pokémon the cards are on (first seen first).
+fn discard_cards_from_slots(g: &mut Game, me: CardId, f: &Frame, cards: &[CardId]) -> R {
+    let attack = if matches!(f.prog, crate::spec::run::Prog::Attack(_)) { attack_data(g, f.eff) } else { None };
+    let Some((p, opp, attack, source)) = attack else {
+        // An Ability's cost: the cards move to the discard pile.
+        for c in cards {
+            if let Some(src) = g.st.locate(*c) {
+                move_cards(g, src, ListRef::Discard(f.p), &[*c], me)?;
+            }
+        }
+        return Ok(());
+    };
+    let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
+    for c in cards {
+        let Some(ListRef::Slot(q, s)) = g.st.locate(*c) else { continue };
+        let t = SlotRef::new(q as usize, s);
+        match groups.iter_mut().find(|(x, _)| *x == t) {
+            Some((_, v)) => v.push(*c),
+            None => {
+                let mut v = SVec::new();
+                v.push(*c);
+                groups.push((t, v));
+            }
+        }
+    }
+    for (target, cards) in groups {
+        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
+        g.run_fx(Effect::DiscardCards { b, cards })?;
+    }
+    Ok(())
+}
 
 // ---------------------------------------------------------------------------
 // DiscardEnergy::OppTools (S3 agent 3)
@@ -1549,16 +1709,6 @@ fn opp_tools_prompt(g: &mut Game, me: CardId, f: &Frame, max: u8) -> bool {
     let id = g.player_id(p);
     g.prompt(id, "CHOOSE_CARD_TO_DISCARD", PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter, o: opts }, f.cont(me, 1));
     true
-}
-
-fn opp_tools_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow> {
-    if let Some(c) = f.recorded_choice(g, me) {
-        if c.answer == CHOICE_YES {
-            opp_tools_carry_out(g, me, f, &c.items[..c.len as usize])?;
-        }
-        return Ok(Flow::Next);
-    }
-    Ok(if opp_tools_prompt(g, me, f, max) { Flow::Suspend } else { Flow::Next })
 }
 
 /// (slot byte, card) pairs of the answer.
@@ -1695,3 +1845,179 @@ pub const DISCARD_STADIUM: Op = Op::If(IfSpec {
         no: &[],
     }))],
 });
+
+// ---------------------------------------------------------------------------
+// DiscardEnergy: one entry per phase
+
+/// Cards of the Pokémon go back to their owner's hand as an effect of the attack.
+fn to_hand_of(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId]) -> R {
+    discard_chosen(g, f, slot, cards, true)
+}
+
+fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<Flow> {
+    // The choice made at step D, carried out now.
+    if let Some(c) = f.recorded_choice(g, me) {
+        if c.answer == CHOICE_YES {
+            de_carry_out(g, me, f, d, &c.items[..c.len as usize])?;
+        }
+        return Ok(Flow::Next);
+    }
+    let Some(slot) = slot_of(g, me, f, d.target) else { return Ok(Flow::Next) };
+    match &d.selection {
+        EnergySelection::AllProvided | EnergySelection::Provides(_) => {
+            let map = provided_energy(g, slot)?;
+            let mut cards: Vec<CardId> = Vec::new();
+            for m in map.iter() {
+                let hit = match &d.selection {
+                    EnergySelection::Provides(t) => m.provides.iter().any(|x| *x == *t || *x == ct::ANY),
+                    _ => true,
+                };
+                if hit && !cards.contains(&m.card) {
+                    cards.push(m.card);
+                }
+            }
+            discard_cards_from_slots(g, me, f, &cards)?;
+        }
+        EnergySelection::Register(r) => {
+            let cards: Vec<CardId> = reg_list(g, f, *r).to_vec();
+            if !cards.is_empty() {
+                discard_cards_from_slots(g, me, f, &cards)?;
+            }
+        }
+        EnergySelection::Special => {
+            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards.iter().filter(|c| {
+                let d = g.st.cdef(*c);
+                d.is_energy() && d.energy_type == EnergyType::Special as u8
+            }).collect();
+            if !cards.is_empty() {
+                discard_cards_from_slots(g, me, f, &cards)?;
+            }
+        }
+        EnergySelection::AllIntoDeck => {
+            let (p, s) = (slot.p as usize, slot.s);
+            let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
+            if !energies.is_empty() {
+                move_cards_after_damage(g, f.eff, ListRef::Slot(p as u8, s), ListRef::Deck(p as u8), &energies, me)?;
+            }
+            shuffle_deck_after_damage(g, f.eff, p);
+        }
+        EnergySelection::Among(a) => return among_exec(g, me, f, slot, a),
+        EnergySelection::OppTools { max } => return Ok(if opp_tools_prompt(g, me, f, *max) { Flow::Suspend } else { Flow::Next }),
+        EnergySelection::Choose { count, ty } => {
+            return Ok(if discard_choose_prompt(g, me, f, slot, *count, *ty, false)? { Flow::Suspend } else { Flow::Next });
+        }
+        EnergySelection::ChooseToHand { count, ty, up_to } => {
+            return Ok(if discard_choose_prompt(g, me, f, slot, *count, *ty, *up_to)? { Flow::Suspend } else { Flow::Next });
+        }
+        EnergySelection::Prompt { .. } | EnergySelection::Chosen { .. } | EnergySelection::FromBench { .. } => {
+            return Ok(if energy_prompt(g, me, f, d, 1)? { Flow::Suspend } else { Flow::Next });
+        }
+        EnergySelection::CostOne { pred: pr } => {
+            let cards: Vec<CardId> = g.st.slot(slot.p as usize, slot.s).cards.iter().collect();
+            let matching: Vec<CardId> = cards.iter().copied().filter(|c| pred(g, *c, pr)).collect();
+            f.last = 0;
+            match matching.len() {
+                0 => {}
+                1 => {
+                    discard_cards_from_slots(g, me, f, &matching)?;
+                    f.last = 1;
+                }
+                _ => {
+                    let mut opts = ChooseCardsOpts::new(0, 1, true);
+                    for (i, c) in cards.iter().enumerate() {
+                        if !pred(g, *c, pr) {
+                            opts.blocked.push(i as u8);
+                        }
+                    }
+                    choose_cards(g, f.p as usize, "CHOOSE_CARD_TO_DISCARD", slot.list(), Filter::none(), opts, f.cont(me, 1));
+                    return Ok(Flow::Suspend);
+                }
+            }
+        }
+    }
+    Ok(Flow::Next)
+}
+
+/// Carry out an answer (the chosen cards, or slot and card pairs for `OppTools`).
+fn de_carry_out(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec, items: &[u8]) -> R {
+    match &d.selection {
+        EnergySelection::OppTools { .. } => opp_tools_carry_out(g, me, f, items),
+        EnergySelection::ChooseToHand { .. } => {
+            if let Some(slot) = slot_of(g, me, f, d.target) {
+                to_hand_of(g, f, slot, items)?;
+            }
+            Ok(())
+        }
+        _ => {
+            discard_cards_from_slots(g, me, f, items)?;
+            f.last = items.len() as i32;
+            Ok(())
+        }
+    }
+}
+
+fn de_resume(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec, first: Res) -> R<Flow> {
+    match &d.selection {
+        EnergySelection::Among(a) => among_resume(g, me, f, a, first)?,
+        EnergySelection::OppTools { .. } => {
+            if let Res::CardsFrom(ts) = first {
+                let items = opp_tools_items(g, f, ts.as_slice());
+                opp_tools_carry_out(g, me, f, &items)?;
+            }
+        }
+        EnergySelection::Prompt { into, .. } => {
+            let cards = energy_chosen(f, first);
+            if let Some(r) = into {
+                set_reg(g, f, *r, &cards);
+            }
+            de_carry_out(g, me, f, d, &cards)?;
+        }
+        _ => {
+            let cards = energy_chosen(f, first);
+            de_carry_out(g, me, f, d, &cards)?;
+        }
+    }
+    Ok(Flow::Next)
+}
+
+/// Step D: ask now what the effect will discard after the damage.
+fn de_choice(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<Flow> {
+    let asked = match &d.selection {
+        EnergySelection::OppTools { max } => opp_tools_prompt(g, me, f, *max),
+        EnergySelection::Choose { count, ty } => match slot_of(g, me, f, d.target) {
+            Some(slot) => discard_choose_prompt(g, me, f, slot, *count, *ty, false)?,
+            None => return Ok(Flow::Next),
+        },
+        EnergySelection::ChooseToHand { count, ty, up_to } => match slot_of(g, me, f, d.target) {
+            Some(slot) => discard_choose_prompt(g, me, f, slot, *count, *ty, *up_to)?,
+            None => return Ok(Flow::Next),
+        },
+        EnergySelection::Prompt { ty: None, .. } | EnergySelection::Chosen { .. } | EnergySelection::FromBench { .. } => energy_prompt(g, me, f, d, 1)?,
+        _ => return Ok(Flow::Next),
+    };
+    if asked {
+        return Ok(Flow::Suspend);
+    }
+    f.record(g, me, CHOICE_NONE);
+    Ok(Flow::Next)
+}
+
+fn de_resume_choice(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec, first: Res) -> R<Flow> {
+    if let EnergySelection::OppTools { .. } = d.selection {
+        match first {
+            Res::CardsFrom(ts) => {
+                let items = opp_tools_items(g, f, ts.as_slice());
+                f.record_items(g, me, CHOICE_YES, &items);
+            }
+            _ => f.record(g, me, CHOICE_NONE),
+        }
+        return Ok(Flow::Next);
+    }
+    let cards = energy_chosen(f, first);
+    if cards.is_empty() {
+        f.record(g, me, CHOICE_NONE);
+    } else {
+        f.record_items(g, me, CHOICE_YES, &cards);
+    }
+    Ok(Flow::Next)
+}

@@ -64,10 +64,12 @@ pub(crate) enum Phase {
 /// Layout (`CardFrame { a: [i32; 4], e: [u8; 2], l: [u8; 2] }`):
 /// - `a[0]`: bits 0-15 program code, 16-19 depth, 20-23 heads, 24-31 resume point (`sub`);
 /// - `a[1]`: the path, one byte per level;
-/// - `a[2]`: bits 0-7 player `p`, 8-15 prize pile, 16-23 attached flag, 24 `via_attack`;
+/// - `a[2]`: bit 0 player `p`, 1-4 prize pile (15: none), 5 `via_attack`,
+///   8-15 `attached_to`, 16-31 `last`;
 /// - `a[3]`: the loop counters, one byte per level;
 /// - `e[0]`: the effect; `e[1]`: the picked slot (`p << 4 | slot`);
 /// - `l`: the two card registers.
+/// A finished coin sequence passes its results as resume values, so nothing here is overwritten.
 #[derive(Clone, Copy, Debug)]
 pub struct Frame {
     pub(crate) prog: Prog,
@@ -84,21 +86,24 @@ pub struct Frame {
     pub(crate) p: u8,
     /// Card registers: temp list indices, or NONE.
     pub(crate) cards: [u8; 2],
-    /// Heads of the last finished coin sequence (`Num::Heads`).
+    /// Heads of the last finished coin sequence or single flip (`Num::Heads`).
     pub(crate) heads: u8,
-    /// The Pokémon picked by the last `PickSlot` (player << 4 | slot), or NONE.
+    /// The Pokémon picked by the last `PickSlot`, or the one an event is about (a trigger's
+    /// attacking Pokémon), as `p << 4 | slot`; NONE when there is none.
     pub(crate) slot: u8,
     /// The Prize card pile picked by the last `PickPrize`, or NONE.
     pub(crate) prize: u8,
-    /// 1 when the last `Attach` attached at least one card.
-    pub(crate) attached: u8,
+    /// The Pokémon the last `Attach` attached cards to (`p << 4 | slot`), or NONE.
+    pub(crate) attached_to: u8,
+    /// Cards the last discard of the program moved (`Num::Last`, 16 bits).
+    pub(crate) last: i32,
     /// The Trainer is used as the effect of an attack (Look-Alike Show); fixed when it starts.
     pub(crate) via_attack: bool,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached: 0, via_attack: false }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false }
     }
 
     fn prog_code(&self) -> u32 {
@@ -115,7 +120,11 @@ impl Frame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
         f.a[0] = (self.prog_code() | ((self.depth as u32) | (self.heads as u32) << 4) << 16 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
-        f.a[2] = self.p as i32 | (self.prize as i32) << 8 | (self.attached as i32) << 16 | (self.via_attack as i32) << 24;
+        f.a[2] = (self.p as i32 & 1)
+            | ((self.prize & 15) as i32) << 1
+            | (self.via_attack as i32) << 5
+            | (self.attached_to as i32) << 8
+            | ((self.last & 0xFFFF) << 16);
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
         f.e[1] = self.slot;
@@ -152,10 +161,14 @@ impl Frame {
             sub: ((a0 >> 24) & 0xFF) as u8,
             eff: f.e[0],
             slot: f.e[1],
-            p: f.a[2] as u8,
-            prize: ((f.a[2] >> 8) & 0xFF) as u8,
-            attached: ((f.a[2] >> 16) & 0xFF) as u8,
-            via_attack: (f.a[2] >> 24) & 1 != 0,
+            p: (f.a[2] & 1) as u8,
+            prize: match (f.a[2] >> 1) & 15 {
+                15 => NONE,
+                n => n as u8,
+            },
+            via_attack: (f.a[2] >> 5) & 1 != 0,
+            attached_to: ((f.a[2] >> 8) & 0xFF) as u8,
+            last: (f.a[2] >> 16) as i16 as i32,
             cards: f.l,
         })
     }
@@ -311,7 +324,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, pw) in spec.powers.iter().enumerate() {
-        if let Once::PerTurn(name) = pw.once {
+        if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
             remove_marker_at_end_of_turn(g, e, crate::markers::intern(name), me);
             if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
                 if card == me {
@@ -325,15 +338,23 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 _ => continue,
             };
             let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
-            if let Once::PerTurn(name) = pw.once {
-                if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
-                    crate::bail!("POWER_ALREADY_USED");
+            match pw.once {
+                Once::PerTurn(name) => {
+                    if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
+                        crate::bail!("POWER_ALREADY_USED");
+                    }
                 }
+                Once::PerTurnShared(name) => {
+                    if g.st.players[p].marker.has(crate::markers::intern(name)) {
+                        crate::bail!("POWER_ALREADY_USED");
+                    }
+                }
+                Once::No => {}
             }
             if !usable(g, me, &f, pw.needs, pw.steps)? {
                 crate::bail!("CANNOT_USE_POWER");
             }
-            if let Once::PerTurn(name) = pw.once {
+            if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
                 use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
                 ability_used(g, p, me);
             }
@@ -375,6 +396,9 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
 
 /// `CardImpl::resume` of every spec card.
 pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
+    if cf.stage == passive::HEAVY_BATON_STAGE {
+        return passive::heavy_baton_resume(g, cf, results);
+    }
     let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;

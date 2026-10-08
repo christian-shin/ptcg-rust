@@ -27,8 +27,9 @@ pub enum AttackFlagKind {
     PreventDamage,
     Barrage,
     FirstTurnAllowed,
-    /// Festival Lead (Dipplin): this attack's Barrage flag is "Festival Grounds is in play", and
-    /// is switched off while the Ability is blocked. The attack's printed flag is `false`.
+    /// Festival Lead: this attack's Barrage flag is "Festival Grounds is in play", and is switched
+    /// off while the Ability is blocked. `value`: the printed attack has a `barrage: false` key
+    /// (Dipplin), so the flag only shows in the card while it is on; otherwise any write shows.
     FestivalLead,
 }
 
@@ -111,6 +112,9 @@ pub enum Lasting {
     NoWeakness,
     /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
     PreventAttackEffects,
+    /// During the opponent's next turn, if this Pokémon is Knocked Out by damage from an attack,
+    /// the attacker's controller discards an Energy attached to the Attacking Pokémon (Little Grudge).
+    DiscardAttackerEnergyIfKnockedOut,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -257,6 +261,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
             };
             opponent_cannot_play_cards(g, atk, locks)?;
         }
+        Lasting::DiscardAttackerEnergyIfKnockedOut => discard_attacker_energy_if_knocked_out(g, atk, me)?,
         Lasting::CoinFlipCancelTrainer => {
             if let Some(b) = attack_base(g, atk, source) {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
@@ -303,15 +308,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 }
             }
             if a.flag == AttackFlagKind::FestivalLead {
-                if crate::prefabs::is_ability_blocked(g, f.p as usize, me, None) {
-                    // Blocked: the flag is switched off (printed `barrage: false`).
-                    crate::copy_attack::write_barrage(g, me, |b, shown| {
-                        *b &= !1;
-                        *shown &= !1;
-                    });
-                } else {
-                    festival_lead(g, f.p as usize, me, true);
-                }
+                festival_lead_flag(g, f, me, a.value);
             }
             Ok(Flow::Next)
         }
@@ -319,7 +316,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             arm(g, me, f, a.what)?;
             Ok(Flow::Next)
         }
-        Op::AbilityUsed(_) => {
+        Op::AbilityUsed(a) => {
+            if let Some(marker) = a.marker {
+                // A once-per-turn Ability that counts as used from here (after its cost or choice).
+                use_ability_once_per_turn(g, f.p as usize, marker_of(marker), me)?;
+            }
             ability_used(g, f.p as usize, me);
             Ok(Flow::Next)
         }
@@ -430,8 +431,11 @@ pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool)
 }
 
 /// The Ability of this Pokémon counts as used (the board effect shown on it), when the use
-/// succeeded rather than when it started.
-pub struct AbilityUsedSpec {}
+/// succeeded rather than when it started. With `marker`, the player's marker named so is set by this
+/// card too (the Ability is refused when it already is); clear it with an end-of-turn trigger.
+pub struct AbilityUsedSpec {
+    pub marker: Option<&'static str>,
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum PlayerFlag {
@@ -444,4 +448,26 @@ pub struct SetFlagSpec {
     pub who: Who,
     pub flag: PlayerFlag,
     pub value: bool,
+}
+
+/// The Barrage flag of the attack being used (Festival Lead): on while Festival Grounds is in play
+/// and the Ability isn't blocked.
+fn festival_lead_flag(g: &mut Game, f: &Frame, me: CardId, pristine_has_key: bool) {
+    let idx = match *g.e(f.eff) {
+        Effect::Attack { attack, .. } => attack.idx(),
+        _ => return,
+    };
+    let on = !crate::prefabs::is_ability_blocked(g, f.p as usize, me, None) && g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
+    crate::copy_attack::write_barrage(g, me, |b, shown| {
+        if on {
+            *b |= 1 << idx;
+        } else {
+            *b &= !(1 << idx);
+        }
+        if on || !pristine_has_key {
+            *shown |= 1 << idx;
+        } else {
+            *shown &= !(1 << idx);
+        }
+    });
 }

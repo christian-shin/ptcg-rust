@@ -28,7 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
                     ..PickSpec::DEFAULT
                 })),
                 Step::new(Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { slot: MY_ACTIVE, card: 0 } })),
-                Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+                Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
             ],
             no: &[],
         }))],
