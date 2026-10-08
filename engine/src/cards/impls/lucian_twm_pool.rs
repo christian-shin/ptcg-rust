@@ -11,59 +11,20 @@
 //! both draw afterwards (player first). Note the coin flips happen even though
 //! the text only requires them when cards were moved; the throw above makes
 //! that always true.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "LucianTWMPool",
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[Cond::Any(&[Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any), Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any)])],
+        steps: &[
+            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT }))], no: &[] })),
+            Step::new(Op::Coin(CoinSpec { heads: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(6)) }))], tails: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) }))], ..CoinSpec::DEFAULT })),
+            Step::new(Op::Coin(CoinSpec { flipper: Who::Opp, heads: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(6)) }))], tails: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) }))], ..CoinSpec::DEFAULT })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "LucianTWMPool", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: Some(coin), can_play: None };
-
-fn shuffled(g: &mut Game, cards: &[CardId]) -> Vec<CardId> {
-    let n = cards.len();
-    let mut perm = [0u8; 120];
-    g.rng.shuffle(n, &mut perm);
-    (0..n).map(|i| cards[perm[i] as usize]).collect()
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let o = 1 - p;
-    if g.st.players[p].supporter_turn > 0 {
-        bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    let player_cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();
-    let opponent_cards: Vec<CardId> = g.st.players[o].hand.iter().collect();
-    if player_cards.is_empty() && opponent_cards.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    if !player_cards.is_empty() {
-        let s = shuffled(g, &player_cards);
-        move_cards(g, ListRef::Hand(p as u8), ListRef::Deck(p as u8), &s, me)?;
-    }
-    if !opponent_cards.is_empty() {
-        let s = shuffled(g, &opponent_cards);
-        move_cards(g, ListRef::Hand(o as u8), ListRef::Deck(o as u8), &s, me)?;
-    }
-    let mut f = CardFrame::at(0);
-    f.a[0] = p as i32;
-    g.coin_flip(p, CoinCb::Card { card: me, frame: f })?;
-    Ok(())
-}
-
-fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
-    let p = f.a[0] as usize;
-    match f.stage {
-        0 => {
-            let mut nf = CardFrame::at(1);
-            nf.a[0] = p as i32;
-            nf.a[1] = heads as i32;
-            g.coin_flip(1 - p, CoinCb::Card { card: me, frame: nf })?;
-            Ok(())
-        }
-        _ => {
-            let player_heads = f.a[1] != 0;
-            draw_cards(g, p, if player_heads { 6 } else { 3 })?;
-            draw_cards(g, 1 - p, if heads { 6 } else { 3 })
-        }
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

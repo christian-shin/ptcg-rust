@@ -76,6 +76,9 @@ pub enum Num {
     // --- S3 appends ---
     /// Heads of the coin sequence the program last flipped.
     Heads,
+    /// Cards of the zone matching the predicate, not counting the resolving card
+    /// (a Trainer sits in its player's hand while it is checked, and is not in it when used by an attack).
+    OthersCount(ZoneRef, Pred),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -137,6 +140,15 @@ pub enum Cond {
     InPlay(Who, PlayScope, Pred),
     /// A Pokémon in play with any card of its stack matching.
     InPlayAny(Who, PlayScope, Pred),
+    // --- S3 appends ---
+    /// The Trainer's effect is used as the effect of an attack (Mr. Mime's Look-Alike Show).
+    ViaAttack,
+    /// During the opponent's last turn the player's Pokémon were Knocked Out (`by_attack`: by damage
+    /// from an attack; `tag`: one of the Knocked Out Pokémon carries the tag).
+    KnockedOutLastTurn { who: Who, by_attack: bool, tag: Option<u32> },
+    /// Every name among the Pokémon in play of `names_of` has all 4 copies in zones the owner knows
+    /// (own hand, discard pile, Lost Zone and Pokémon in play), so a search for it can't find any.
+    AllNamesKnown { names_of: Who },
 }
 
 /// A card predicate.
@@ -178,6 +190,9 @@ pub enum Pred {
     PokemonType(u8),
     /// Energy card that provides the type.
     Provides(u8),
+    // --- S3 appends ---
+    /// The card has a Rule Box.
+    RuleBox,
 }
 
 impl Frame {
@@ -265,6 +280,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,
+        Num::OthersCount(z, p) => g.lst(zone_ref(f, *z)).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -371,6 +387,31 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::ViaAttack => matches!(*g.e(f.eff), Effect::Trainer { via_attack: true, .. }),
+        Cond::KnockedOutLastTurn { who, by_attack, tag } => {
+            let pl = &g.st.players[f.who(*who)];
+            let any = if *by_attack { pl.pokemon_knocked_out_by_attack_during_opponents_last_turn } else { pl.pokemon_knocked_out_during_opponents_last_turn };
+            any && match tag {
+                Some(t) => pl.pokemon_knocked_out_last_turn_entries.iter().any(|d| crate::carddb::def(*d).has_tag(*t)),
+                None => true,
+            }
+        }
+        Cond::AllNamesKnown { names_of } => {
+            let p = f.who(Who::Me);
+            let pl = &g.st.players[p];
+            let known = |name: &str| -> usize {
+                let named = |c: CardId| {
+                    let d = g.st.cdef(c);
+                    d.is_pokemon() && d.name == name
+                };
+                let mut n = pl.hand.iter().filter(|c| named(*c)).count() + pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
+                for s in pl.in_play().iter() {
+                    n += pl.slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+                }
+                n
+            };
+            in_play(g, f.who(*names_of), PlayScope::All).iter().all(|(_, top, _)| known(g.st.cdef(*top).name) >= 4)
+        }
     }
 }
 
@@ -404,6 +445,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PrintedType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
+        Pred::RuleBox => d.has_rule_box(),
     }
 }
 
@@ -487,6 +529,11 @@ pub enum EnergyUnit {
     Provided(CardType),
     /// Every `provides` entry of every Energy card (CheckProvidedEnergy).
     ProvidedUnits,
+    // --- S3 appends ---
+    /// The Energy cards providing Energy (the entries of the Energy map).
+    ProvidedCards,
+    /// The Energy cards providing the type or every type.
+    ProvidedCardsOf(CardType),
 }
 
 /// Printed cost length of the attack being used.
@@ -691,13 +738,15 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
                             d.is_energy() && d.energy_type == EnergyType::Special as u8
                         })
                         .count() as i32,
-                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits => {
+                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::ProvidedCards | EnergyUnit::ProvidedCardsOf(_) => {
                         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: *s, energy_map: SVec::new() })?;
                         let mut k = 0;
                         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
                             for em in energy_map.iter() {
                                 k += match unit {
                                     EnergyUnit::Provided(t) => em.provides.iter().filter(|x| **x == *t || **x == ct::ANY).count() as i32,
+                                    EnergyUnit::ProvidedCards => 1,
+                                    EnergyUnit::ProvidedCardsOf(t) => em.provides.iter().any(|x| *x == *t || *x == ct::ANY) as i32,
                                     _ => em.provides.len() as i32,
                                 };
                             }

@@ -81,6 +81,8 @@ pub struct PickSpec {
     pub msg: &'static str,
     /// Nothing to choose does not make a Trainer unplayable (another step still has an effect).
     pub soft: bool,
+    /// Only cards named like one of the Pokémon in play of this player (Love Ball).
+    pub same_name_as: Option<Who>,
 }
 impl PickSpec {
     pub const DEFAULT: PickSpec = PickSpec {
@@ -94,6 +96,7 @@ impl PickSpec {
         distinct_types: false,
         msg: "",
         soft: false,
+        same_name_as: None,
     };
 }
 pub struct Cap {
@@ -170,7 +173,12 @@ pub struct SnapshotSpec {
     pub predicate: Pred,
     pub into: u8,
 }
-pub struct OrderSpec {}
+/// Put the cards of a register in the order `who` picks (an OrderCards prompt).
+pub struct OrderSpec {
+    pub who: Who,
+    pub zone: ZoneRef,
+    pub msg: &'static str,
+}
 /// Attach Energy chosen from a zone to Pokémon in play (an AttachEnergy prompt).
 pub struct AttachSpec {
     pub chooser: Who,
@@ -230,6 +238,9 @@ pub enum AttachRoute {
     Move,
     /// The attachment effect (attached from hand by an Ability).
     Effect,
+    /// `Move`; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
+    /// (Janine's Secret Art).
+    MovePoisonActive,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
 /// effect that effect-prevention can stop.
@@ -255,7 +266,11 @@ pub struct PlayFromZoneSpec {
 }
 pub struct PickPrizeSpec {}
 pub struct PrizeVisibilitySpec {}
-pub struct TakePrizeSpec {}
+/// `who` takes `count` Prize cards into their hand (chosen by them when there are more left).
+pub struct TakePrizeSpec {
+    pub who: Who,
+    pub count: Num,
+}
 /// Shuffle a hand into its deck, then draw (the resolving card is not part
 /// of the hand).
 pub struct HandShuffleDrawSpec {
@@ -308,6 +323,18 @@ fn num_uses_reg(n: &Num) -> bool {
         Num::If(_, a, b) => num_uses_reg(a) || num_uses_reg(b),
         _ => false,
     }
+}
+
+/// Does the card satisfy the pick's predicate (and name restriction)?
+fn pick_ok(g: &Game, f: &Frame, pick: &PickSpec, c: CardId) -> bool {
+    pred(g, c, &pick.predicate)
+        && match pick.same_name_as {
+            None => true,
+            Some(w) => {
+                let name = g.st.cdef(c).name;
+                in_play(g, f.who(w), PlayScope::All).iter().any(|(_, top, _)| g.st.cdef(*top).name == name)
+            }
+        }
 }
 
 fn open_shuffle(g: &mut Game, me: CardId, f: &Frame, p: usize, sub: u8) {
@@ -427,6 +454,44 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             shuffle_hand_into_deck_then_draw_ex(g, p, me, NO_CARD, n, Some((me, f.frame_at(1))))?;
             Ok(Flow::Suspend)
         }
+        Op::ShuffleQueued(sh) => {
+            let p = f.who(sh.zone.0);
+            shuffle_deck(g, p);
+            Ok(Flow::Next)
+        }
+        Op::Order(o) => {
+            let list = zone_ref(f, o.zone);
+            let id = g.player_id(f.who(o.who));
+            g.prompt(id, o.msg, PromptKind::OrderCards { cards: list, allow_cancel: false }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::TakePrize(t) => {
+            let p = f.who(t.who);
+            let n = num(g, me, f, &t.count);
+            let left = g.st.players[p].prize_left() as i32;
+            let take = n.min(left);
+            if take <= 0 {
+                return Ok(Flow::Next);
+            }
+            if n >= left {
+                let mut ix: SVec<u8, 6> = SVec::new();
+                for i in 0..g.st.players[p].prize_count {
+                    if !g.st.players[p].prizes[i as usize].is_empty() && (ix.len() as i32) < take {
+                        ix.push(i);
+                    }
+                }
+                crate::engine::check::take_specific_prizes(g, p, ix.as_slice(), ListRef::Hand(p as u8), false)?;
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(p);
+            g.prompt(
+                id,
+                "CHOOSE_PRIZE_CARD",
+                PromptKind::ChoosePrize { count: take as u8, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: false },
+                f.cont(me, 1),
+            );
+            Ok(Flow::Suspend)
+        }
         _ => unimplemented!("spec op not implemented yet (ops/cards.rs)"),
     }
 }
@@ -538,7 +603,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
     if cards.is_empty() {
         return false;
     }
-    let eligible = cards.iter().filter(|c| pred(g, **c, &pick.predicate)).count();
+    let eligible = cards.iter().filter(|c| pick_ok(g, f, pick, **c)).count();
     let hidden = pick.from.1 == Zone::Deck;
     let max = num(g, me, f, &pick.bounds.max).min(max_cap).max(0);
     let min = num(g, me, f, &pick.bounds.min).min(max).max(0);
@@ -547,7 +612,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
     }
     let mut opts = ChooseCardsOpts::new(to_u8(min), to_u8(max), pick.cancel || cancel);
     for (i, c) in cards.iter().enumerate() {
-        if !pred(g, *c, &pick.predicate) {
+        if !pick_ok(g, f, pick, *c) {
             opts.blocked.push(i as u8);
         }
     }
@@ -853,10 +918,13 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             for (to, c) in ts.iter().copied() {
                 let target = get_target(&g.st, p, to)?;
                 match a.route {
-                    AttachRoute::Move => move_cards(g, from, target.list(), &[c], me)?,
+                    AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
                     AttachRoute::Effect => {
                         g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
                     }
+                }
+                if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
+                    crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);
                 }
             }
             Ok(Flow::Next)
@@ -876,6 +944,21 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         }
         // Resumed after the prefab's draw.
         Op::HandShuffleDraw(_) => Ok(Flow::Next),
+        Op::Order(o) => {
+            if let Res::Order(ord) = first {
+                if let ListRef::Temp(i) = zone_ref(f, o.zone) {
+                    crate::game::apply_order(&mut g.temps[i as usize], ord.as_slice());
+                }
+            }
+            Ok(Flow::Next)
+        }
+        Op::TakePrize(t) => {
+            let p = f.who(t.who);
+            if let Res::Prizes(ix) = first {
+                crate::engine::check::take_specific_prizes(g, p, ix.as_slice(), ListRef::Hand(p as u8), false)?;
+            }
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -977,7 +1060,7 @@ fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) ->
     if pick.from.1 == Zone::Deck {
         return !cards.is_empty();
     }
-    let eligible = cards.iter().filter(|c| pred(g, **c, &pick.predicate)).count() as i32;
+    let eligible = cards.iter().filter(|c| pick_ok(g, f, pick, **c)).count() as i32;
     let min = num(g, me, f, &pick.bounds.min).max(1).min(room);
     eligible >= min
 }

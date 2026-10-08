@@ -268,6 +268,10 @@ pub enum Op {
     SetMarker(SetMarkerSpec),
     ClearMarker(ClearMarkerSpec),
     Arm(ArmSpec),
+    // S3 appends
+    /// `Shuffle` without waiting for the answer: the next step runs while the shuffle prompt is
+    /// still open (Harlequin's draw comes before its shuffle is applied, as today).
+    ShuffleQueued(ShuffleSpec),
 }
 
 /// Everything a spec card file needs.

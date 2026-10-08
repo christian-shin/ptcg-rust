@@ -12,78 +12,20 @@
 //! the bottom (aud-d fix; Twinleaf's ShuffleDeckPrompt used to be applied to nothing). The Supporter pile → discard move
 //! runs before the prompt answers, and the new Pokémon gets
 //! `pokemonPlayedTurn = turn` (no PlayPokemonEffect).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "GrimsleysGambit",
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2)), Cond::BenchSpace(Who::Me)],
+        steps: &[
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(7)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), predicate: Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::DARK)]), bounds: Bounds { min: Num::If(&Cond::All(&[Cond::Not(&Cond::ViaAttack), Cond::Nonempty(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::DARK)]))]), &Num::Lit(1), &Num::Lit(0)), max: Num::Lit(1) }, into: 1, msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ..PickSpec::DEFAULT })),
+            Step::new(Op::PlayFromZone(PlayFromZoneSpec { cards: 1, who: Who::Me })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "GrimsleysGambit", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].supporter_turn > 0 {
-        bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let open = empty_bench_slots(g, p);
-    if open.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    if g.st.turn == 1 || g.st.turn == 2 {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    // Played from the hand (not through Mr. Mime's Look-Alike Show; the card is still in the hand here).
-    let played_from_hand = !trainer_via_attack(g, e);
-    let top = g.alloc_temp(&[]);
-    move_count(g, ListRef::Deck(p as u8), top, 7)?;
-    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), card_type: Some(ct::DARK), card_type_list: true, ..Filter::none() };
-    // Fixed (phase 4b, rulings 1778/1853): the top 7 cards are looked at, not searched for, so a [D] Pokémon found
-    // there must be put onto the Bench when played from the hand; through an attack it may be skipped (ruling 1844).
-    let must_put = played_from_hand && g.lst(top).to_vec().iter().any(|c| filter.matches(g.st.cdef(*c)));
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.l[0] = match top {
-        ListRef::Temp(i) => i,
-        _ => 0,
-    };
-    f.l[1] = open.as_slice()[0];
-    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", top, filter, ChooseCardsOpts::new(if must_put { 1 } else { 0 }, 1, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let top = ListRef::Temp(f.l[0]);
-    let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    for c in cards.iter() {
-        let slot = f.l[1];
-        move_cards(g, top, ListRef::Slot(p as u8, slot), &[*c], NO_CARD)?;
-        g.st.players[p].slots[slot as usize].pokemon_played_turn = g.st.turn;
-    }
-    // Audit aud-d (Advanced Rulebook E-35): "Shuffle the other cards" shuffles the looked-at cards (`Chance.shuffle`) before they
-    // go to the bottom; the old ShuffleDeckPrompt was applied to nothing.
-    let rest: Vec<CardId> = g.lst(top).to_vec();
-    if !rest.is_empty() {
-        let mut perm = [0u8; 120];
-        g.rng.shuffle(rest.len(), &mut perm);
-        let shuffled: Vec<CardId> = (0..rest.len()).map(|i| rest[perm[i] as usize]).collect();
-        g.lst_mut(top).set_from(&shuffled);
-    }
-    g.run_fx(Effect::MoveCards {
-        source: top,
-        destination: ListRef::Deck(p as u8),
-        cards: None,
-        count: None,
-        to_top: false,
-        to_bottom: true,
-        skip_cleanup: false,
-        source_card: NO_CARD,
-    })?;
-    move_cards(g, ListRef::Supporter(p as u8), ListRef::Discard(p as u8), &[me], NO_CARD)?;
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

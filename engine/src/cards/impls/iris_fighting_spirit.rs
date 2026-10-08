@@ -12,44 +12,19 @@
 //!
 //! R7C: unplayable when it would draw nothing (empty deck, or 7 or more other cards in
 //! the hand so that 6 are left after discarding one; rulings 851, 959, 1037).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "IrisFightingSpirit",
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Ge, Num::Lit(1)), Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Lt, Num::Lit(7)), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        steps: &[
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(6)) }))], no: &[] })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "IrisFightingSpirit", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Some(p) = trainer_played(g, e, me) {
-        if g.st.players[p].supporter_turn > 0 {
-            bail!("SUPPORTER_ALREADY_PLAYED");
-        }
-        if !g.st.players[p].hand.iter().any(|c| c != me) {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
-        // "Draw cards until you have 6 cards in your hand": a card that would draw nothing (empty
-        // deck, or 6 or more cards left after discarding another one) can't be played (rulings 851, 959, 1037).
-        if g.st.players[p].deck.is_empty() || g.st.players[p].hand.iter().filter(|c| *c != me).count() >= 7 {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    if cards.is_empty() {
-        return Ok(());
-    }
-    move_cards(g, ListRef::Hand(p as u8), ListRef::Discard(p as u8), &cards, me)?;
-    if g.st.players[p].hand.len() >= 6 {
-        return Ok(());
-    }
-    let n = 6 - g.st.players[p].hand.len();
-    g.move_to(ListRef::Deck(p as u8), ListRef::Hand(p as u8), Some(n));
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

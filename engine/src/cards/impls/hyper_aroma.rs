@@ -2,17 +2,26 @@
 //! Pokémon, reveal them, and put them into your hand. Then, shuffle.
 //!
 //! Same flow as Master Ball (reveal before MOVE_CARDS).
-use super::master_ball::{resume, search};
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::Stage;
 
-pub static IMPL: CardImpl = CardImpl { class: "HyperAroma", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "HyperAroma",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::StageIs(Stage::Stage1), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let mut filter = Filter::super_type(SuperType::Pokemon);
-    filter.stage = Some(Stage::Stage1 as u8);
-    search(g, me, e, p, filter, 3)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

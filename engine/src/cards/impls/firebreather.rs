@@ -4,30 +4,24 @@
 //! Twinleaf: the empty-deck check comes before the Supporter-played check;
 //! the filter is Basic Energy named "Fire Energy"; ShowCards only when
 //! something was taken; the final shuffle prompt has no wait.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Firebreather",
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fire Energy")]), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(7) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Firebreather", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    if g.st.players[p].supporter_turn > 0 {
-        bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-    g.set_prevent(e, true);
-    let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), name: Some("Fire Energy"), ..Filter::none() };
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, 7, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    super::hilda::reveal_then_shuffle_resume(g, me, f, results)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

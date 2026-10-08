@@ -33,6 +33,8 @@ pub struct PickSlotSpec {
 pub enum SlotTarget {
     Slot(SlotExpr),
     Pick(PickSlotSpec),
+    /// Each of the selected Pokémon, in order (S3).
+    Each(SlotSel),
 }
 
 /// How a switch is carried out.
@@ -42,6 +44,8 @@ pub enum SwitchKind {
     Plain,
     /// `switchPokemon(target)` without dispatching movement effects.
     Silent,
+    /// `Plain`, with only the side's Benched Basic Pokémon to choose from (S3).
+    PlainBasic,
     /// Gust: a GustOpponentBenchEffect (preventable by attack effect protection).
     Gust,
     /// Switch out the opponent's Active: a SwitchOutOpponentsActiveEffect probe
@@ -286,7 +290,7 @@ fn ask(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRe
 fn target_pick(t: &SlotTarget) -> Option<&PickSlotSpec> {
     match t {
         SlotTarget::Pick(p) => Some(p),
-        SlotTarget::Slot(_) => None,
+        SlotTarget::Slot(_) | SlotTarget::Each(_) => None,
     }
 }
 
@@ -357,6 +361,17 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     if let Some(s) = slot_of(g, me, f, *e) {
                         if occupied(g, s) {
                             act(g, me, f, op, s)?;
+                        }
+                    }
+                    Ok(Flow::Next)
+                }
+                SlotTarget::Each(sel) => {
+                    if !guard(g, me, f, op)? {
+                        return Ok(Flow::Next);
+                    }
+                    for s in slots_m(g, me, f, sel)?.iter() {
+                        if occupied(g, *s) {
+                            act(g, me, f, op, *s)?;
                         }
                     }
                     Ok(Flow::Next)
@@ -472,7 +487,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Suspend)
         }
         Op::Switch(s) => {
-            let cands = slots_of(g, me, f, &SlotSel::Bench(s.side));
+            let cands = slots_of(g, me, f, &switch_among(s));
             if cands.is_empty() || switch_prevented(g, f, s)? {
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
@@ -505,9 +520,9 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Heal(h) => match &h.target {
             // A pick needs a Pokémon to choose; checked filters are assumed possible.
             SlotTarget::Pick(p) => !slots_of(g, me, f, &p.among).is_empty(),
-            SlotTarget::Slot(_) => true,
+            SlotTarget::Slot(_) | SlotTarget::Each(_) => true,
         },
-        Op::Switch(s) => !s.required || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
+        Op::Switch(s) => !s.required || !slots_of(g, me, f, &switch_among(s)).is_empty(),
         _ => true,
     }
 }
@@ -653,8 +668,18 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
 // ---------------------------------------------------------------------------
 // Switching
 
+/// The Pokémon a switch can bring to the Active Spot.
+fn switch_among(s: &SwitchSpec) -> SlotSel {
+    match (s.kind, s.side) {
+        // Blocked: a Pokémon that is not Basic (a slot without a Pokémon card, a Fossil, is not).
+        (SwitchKind::PlainBasic, Who::Me) => SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Not(&SlotPred::Top(Pred::Not(&Pred::Basic)))),
+        (SwitchKind::PlainBasic, Who::Opp) => SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Not(&SlotPred::Top(Pred::Not(&Pred::Basic)))),
+        _ => SlotSel::Bench(s.side),
+    }
+}
+
 fn switch_pick(s: &SwitchSpec) -> PickSlotSpec {
-    PickSlotSpec { chooser: s.chooser, among: SlotSel::Bench(s.side), msg: s.msg }
+    PickSlotSpec { chooser: s.chooser, among: switch_among(s), msg: s.msg }
 }
 
 /// A fresh attack effect for the attack in use (Gust and switch-out effects
@@ -699,7 +724,7 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
         }
         return Ok(Flow::Next);
     }
-    let cands = slots_of(g, me, f, &SlotSel::Bench(s.side));
+    let cands = slots_of(g, me, f, &switch_among(s));
     if cands.is_empty() || switch_prevented(g, f, s)? {
         return Ok(Flow::Next);
     }
@@ -714,7 +739,7 @@ fn switch_act(g: &mut Game, _me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRe
         return Ok(());
     }
     match s.kind {
-        SwitchKind::Plain => crate::engine::turn::switch_pokemon(g, side, slot.s),
+        SwitchKind::Plain | SwitchKind::PlainBasic => crate::engine::turn::switch_pokemon(g, side, slot.s),
         SwitchKind::Silent => {
             let a = g.st.players[side].active;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
