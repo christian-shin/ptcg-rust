@@ -1,0 +1,41 @@
+{
+  "turn": 2,
+  "decks": [
+    [
+      "4 Eevee PRE 74",
+      "4 Jolteon ex PRE 30",
+      "4 Mist Energy TEF 161",
+      "26 Lightning Energy MEE",
+      "22 Water Energy MEE"
+    ],
+    [
+      "4 Eevee PRE 74",
+      "4 Jolteon ex PRE 30",
+      "4 Mist Energy TEF 161",
+      "26 Lightning Energy MEE",
+      "22 Water Energy MEE"
+    ]
+  ],
+  "me": {
+    "reset": true,
+    "active": ["Eevee PRE 74", "Jolteon ex PRE 30"],
+    "active_energy": ["Lightning Energy MEE", "Lightning Energy MEE", "Lightning Energy MEE"],
+    "bench": [
+      {
+        "card": "Eevee PRE 74",
+        "energy": ["Mist Energy TEF 161", "Lightning Energy MEE"]
+      }
+    ]
+  },
+  "opp": {
+    "reset": true,
+    "active": "Eevee PRE 74"
+  },
+  "answers": [
+    {"a": "attack", "name": "Flashing Spear"}
+  ],
+  "expect": [
+    {"at": "turn_end", "who": "me", "zone": "discard", "not_contains": ["Mist Energy TEF 161"],
+     "cite": "card text: discard up to 2 Basic Energy from Benched Pokemon; Mist Energy is a Special Energy and is never offered"}
+  ]
+}
