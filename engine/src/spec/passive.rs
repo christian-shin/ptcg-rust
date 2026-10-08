@@ -67,6 +67,20 @@ pub enum Modifier {
     // Appended by S3.
     /// `PrizeAdjust`, once per game for the Knocked Out Pokémon's player (Legacy Energy).
     PrizeAdjustOnce(PrizeAdjustSpec),
+    /// The Pokémon matching `subject` has exactly these types (the game's type check).
+    TypeOverride(TypeOverrideSpec),
+    /// A Stadium: when a Pokémon of the type is played, each of the player's Pokémon of that type counts as
+    /// having been played the turn before (Forest of Vitality).
+    PlayedTurnReset(PlayedTurnResetSpec),
+}
+
+pub struct TypeOverrideSpec {
+    pub subject: SlotPred,
+    pub set: &'static [CardType],
+}
+
+pub struct PlayedTurnResetSpec {
+    pub card_type: CardType,
 }
 
 // ---------------------------------------------------------------------------
@@ -121,6 +135,8 @@ pub struct DamageDealtSpec {
     /// The attack's printed damage is above 0.
     pub needs_printed_damage: bool,
     pub guard: Cond,
+    /// Doesn't stack: only the first bonus of this kind per damage effect applies (Hop's Snorlax).
+    pub nonstacking: bool,
 }
 
 impl DamageDealtSpec {
@@ -134,6 +150,7 @@ impl DamageDealtSpec {
         needs_damage: false,
         needs_printed_damage: false,
         guard: Cond::True,
+        nonstacking: false,
     };
 }
 
@@ -180,6 +197,8 @@ pub enum PreventHow {
     Zero,
     /// Tera: damage put on this Pokémon while it is on the Bench.
     Tera,
+    /// "Flip a coin; if heads, prevent that damage" (the card's owner flips; no flip without damage).
+    CoinFlip,
 }
 
 /// "Prevent all damage done to ... by attacks from ..." (vocabulary P3).
@@ -232,6 +251,9 @@ pub enum PreventWhat {
     HealOppActive,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
+    /// Pokémon Tools have no effect (a Stadium): every Tool effect throws unless the Stadium's
+    /// effect is blocked on the Pokémon holding it.
+    ToolEffects,
 }
 
 /// A prohibition on the opponent's or everyone's effects (vocabulary P5).
@@ -250,6 +272,9 @@ pub enum BlockWhat {
     /// the Pokémon has a Tool attached. Today's behavior kept (A-PC6): from any zone, and the
     /// lock probe is made for the playing player.
     AceSpecOfOpponent,
+    /// The opponent can't play Item cards or attach Pokémon Tools while this Pokémon is your
+    /// Active Pokémon (Oceanic Curse): BLOCKED_BY_ABILITY unless the Ability is blocked.
+    ItemAndToolOfOpponent,
 }
 
 pub struct BlockUseSpec {
@@ -392,7 +417,10 @@ pub struct PrizeAdjustSpec {
     pub by_own_attack: Option<&'static str>,
     pub guard: Cond,
 }
-pub struct CheckupDamageSpec {}
+/// Pokémon Checkup: the opponent's Burned Active Pokémon takes `burn_extra` more Burn damage.
+pub struct CheckupDamageSpec {
+    pub burn_extra: i32,
+}
 /// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
 /// (Relicanth's Memory Dive).
 pub struct GrantAttacksSpec {}
@@ -442,6 +470,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
             BlockWhat::AceSpecOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL, k::ATTACH_ENERGY, k::PLAY_STADIUM]),
+            BlockWhat::ItemAndToolOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL]),
         },
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
@@ -455,9 +484,13 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
+            PreventWhat::ToolEffects => mask(&[k::TOOL]),
         },
         Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
+        Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
+        Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
+        Modifier::PlayedTurnReset(_) => mask(&[k::PLAY_POKEMON]),
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
@@ -554,6 +587,13 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             (BlockWhat::UseStadium, Effect::UseStadium { .. }) if g.st.stadium_card() == Some(me) => crate::bail!("CANNOT_USE_STADIUM"),
             (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
             (BlockWhat::AceSpecOfOpponent, _) => ace_spec_of_opponent(g, me, e),
+            (BlockWhat::ItemAndToolOfOpponent, Effect::PlayItem { p, .. } | Effect::AttachPokemonTool { p, .. }) => {
+                let opp = 1 - p as usize;
+                if g.st.active_pokemon(opp) == Some(me) && !is_ability_blocked(g, opp, me, None) {
+                    crate::bail!("BLOCKED_BY_ABILITY");
+                }
+                Ok(())
+            }
             _ => Ok(()),
         },
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
@@ -564,6 +604,22 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::PreventAttackEffects(d) => prevent_attack_effects(g, me, e, ps.origin, d),
+        Modifier::CheckupDamage(c) => checkup_damage(g, me, e, ps.origin, c),
+        Modifier::TypeOverride(t) => {
+            let Effect::CheckPokemonType { target, .. } = *g.e(e) else { return Ok(()) };
+            let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
+            if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, ps.origin, at, Some(target)) {
+                return Ok(());
+            }
+            if let Effect::CheckPokemonType { card_types, .. } = g.e_mut(e) {
+                card_types.clear();
+                for ty in t.set.iter() {
+                    card_types.push(*ty);
+                }
+            }
+            Ok(())
+        }
+        Modifier::PlayedTurnReset(r) => played_turn_reset(g, me, e, ps.origin, r),
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
         Modifier::PrizeAdjustOnce(d) => {
             let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
@@ -639,9 +695,15 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
             return Ok(());
         }
     }
+    if d.nonstacking && g.fx_flags(e) & fx_flag::DAMAGE_INCREASED != 0 {
+        return Ok(());
+    }
     match g.e_mut(e) {
         Effect::DealDamage { damage, .. } | Effect::Attack { damage, .. } => *damage += d.amount,
         _ => {}
+    }
+    if d.nonstacking {
+        g.set_fx_flag(e, fx_flag::DAMAGE_INCREASED);
     }
     Ok(())
 }
@@ -737,12 +799,28 @@ fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Pr
         }
         return Ok(());
     }
-    if d.how == PreventHow::Prevent && !matches!(*g.e(e), Effect::PutDamage { .. }) {
+    if (d.how == PreventHow::Prevent || d.how == PreventHow::CoinFlip) && !matches!(*g.e(e), Effect::PutDamage { .. }) {
         return Ok(());
     }
-    let Some((..)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false, false)? else { return Ok(()) };
+    let Some((_, at)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false, false)? else { return Ok(()) };
+    if d.how == PreventHow::CoinFlip {
+        let damage = match *g.e(e) {
+            Effect::PutDamage { damage, .. } => damage,
+            _ => 0,
+        };
+        if damage <= 0 {
+            return Ok(());
+        }
+        let (c, _) = g.run_fx(Effect::CoinFlip { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+        if let Effect::CoinFlip { result: Some(false), .. } = c {
+            return Ok(());
+        }
+        g.set_prevent(e, true);
+        return Ok(());
+    }
     match d.how {
         PreventHow::Prevent => g.set_prevent(e, true),
+        PreventHow::CoinFlip | PreventHow::Tera => {}
         _ => match g.e_mut(e) {
             Effect::DealDamage { damage, .. } | Effect::PutDamage { damage, .. } => *damage = 0,
             _ => {}
@@ -1140,6 +1218,21 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
                 g.set_prevent(e, true);
             }
         }
+        (PreventWhat::ToolEffects, Effect::Tool { p, card }) => {
+            let p = p as usize;
+            let mut target: Option<SlotRef> = None;
+            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                if g.st.slot(p, s).tools.contains(card) {
+                    target = Some(SlotRef::new(p, s));
+                }
+            }
+            if let Some(t) = target {
+                if is_stadium_effect_blocked(g, p, t, NO_CARD) {
+                    return Ok(());
+                }
+            }
+            crate::bail!("CANNOT_USE_POWER")
+        }
         _ => {}
     }
     Ok(())
@@ -1383,4 +1476,50 @@ fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     crate::bail!("BLOCKED_BY_EFFECT")
+}
+
+fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &CheckupDamageSpec) -> R {
+    let current = match *g.e(e) {
+        Effect::BetweenTurns { p, .. } => p as usize,
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if blocked(g, me, origin, at, None) {
+        return Ok(());
+    }
+    let victim = 1 - at.owner;
+    let va = g.st.players[victim].active;
+    if current == victim && g.st.slot(victim, va).special_conditions.contains(&(SpecialCondition::Burned as u8)) {
+        if let Effect::BetweenTurns { burn_damage, .. } = g.e_mut(e) {
+            *burn_damage += c.burn_extra;
+        }
+    }
+    Ok(())
+}
+
+fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: &PlayedTurnResetSpec) -> R {
+    let (p, card, target) = match *g.e(e) {
+        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    // Not during a player's first turn; only when a Pokémon of the type is played.
+    if g.st.turn <= 2 || !g.st.cdef(card).card_type.contains(&r.card_type) || blocked(g, me, origin, at, Some(target)) {
+        return Ok(());
+    }
+    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        let sr = SlotRef::new(p, s);
+        if blocked(g, me, origin, at, Some(sr)) {
+            continue;
+        }
+        let (t, _) = g.run_fx(Effect::CheckPokemonType { target: sr, card_types: crate::engine::game_effect::pokemon_types(g, sr) })?;
+        let of_type = match t {
+            Effect::CheckPokemonType { card_types, .. } => card_types.contains(&r.card_type),
+            _ => false,
+        };
+        if of_type {
+            g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn as i32 - 1;
+        }
+    }
+    Ok(())
 }

@@ -8,49 +8,14 @@
 //! Pokémon's opponent (any KO then, not only from damage), unless the
 //! special energy is blocked, `prizeCount -= 1` once per game
 //! (`player.legacyEnergyUsed`).
-use crate::cards::prelude::*;
-use crate::effects::EnergyEntry;
-
-pub static IMPL: CardImpl = CardImpl {
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
     class: "LegacyEnergy",
-    mask: mask(&[k::CHECK_PROVIDED_ENERGY, k::KNOCK_OUT]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::ANY])], probe: false }) },
+        Passive { origin: RuleSource::Energy, modifier: Modifier::PrizeAdjustOnce(PrizeAdjustSpec { delta: -1, subject: SlotPred::Holder, by_attack_damage: true, by_own_attack: None, guard: Cond::True }) },
+    ],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::CheckProvidedEnergy { source, .. } => {
-            if g.st.slot(source.p as usize, source.s).cards.contains(me) {
-                let mut provides = SVec::new();
-                provides.push(ct::ANY);
-                if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-                    energy_map.push(EnergyEntry { card: me, provides });
-                }
-            }
-        }
-        Effect::KnockOut { p, target, .. } => {
-            if !g.st.slot(target.p as usize, target.s).cards.contains(me) {
-                return Ok(());
-            }
-            let p = p as usize;
-            // "Knocked Out by damage from an attack from your opponent's Pokémon" (E-04; rulings 648, 674, 1745)
-            if g.knocked_out_by_attack_damage(p, target).is_none() {
-                return Ok(());
-            }
-            if is_special_energy_blocked(g, p, me, target, false) {
-                return Ok(());
-            }
-            if !g.st.players[p].legacy_energy_used {
-                if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
-                    *prize_count -= 1;
-                }
-                g.st.players[p].legacy_energy_used = true;
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -86,7 +86,7 @@ impl CardSpec {
         }
         let mut i = 0;
         while i < self.powers.len() {
-            if let Once::PerTurn(_) = self.powers[i].once {
+            if matches!(self.powers[i].once, Once::PerTurn(_) | Once::PerTurnShared(_)) {
                 // The once-per-turn marker is cleared at the end of the turn.
                 m = with(m, k::END_TURN);
             }
@@ -166,6 +166,9 @@ pub enum Once {
     /// Once during your turn, per copy: the named player marker, set by this
     /// card when the Ability is used and cleared at the end of the turn.
     PerTurn(&'static str),
+    /// Once during your turn for all copies together ("1 X per turn"): refused while any copy's
+    /// marker named so is set; set by this card, cleared at the end of the turn.
+    PerTurnShared(&'static str),
 }
 
 pub struct Step {
@@ -277,6 +280,11 @@ pub enum Op {
     DamageChosen(DamageChosenSpec),
     /// Discard the Stadium in play.
     DiscardStadium(DiscardStadiumSpec),
+    /// An Ability that counts as used only from this step on (after its cost or choice).
+    UseAbility(UseAbilitySpec),
+    /// The attacker picks one of the Pokémon in `among` and puts it with all its attached cards into
+    /// its owner's deck (unless effects of attacks on it are prevented).
+    RemovePicked(RemovePickedSpec),
 }
 
 /// Everything a spec card file needs.

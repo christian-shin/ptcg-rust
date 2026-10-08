@@ -84,6 +84,8 @@ pub enum Num {
     OthersCount(ZoneRef, Pred),
     /// Cards the program's last discard moved (a discard of chosen Energy).
     Last,
+    /// Length of the cost of the attack being used, as the game checks it (a checked read).
+    CheckedCost,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -156,6 +158,10 @@ pub enum Cond {
     AllNamesKnown { names_of: Who },
     /// During the player's last turn another Ancient Pokémon than this one used an attack.
     OtherAncientAttackedLastTurn,
+    /// The Stadium in play matches the predicate.
+    StadiumInPlay(Pred),
+    /// The Ability of this card is blocked for the player the program runs for (a checked read).
+    AbilityBlocked,
 }
 
 /// A card predicate.
@@ -300,6 +306,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,
         Num::Last => f.last,
+        Num::CheckedCost => panic!("Num::CheckedCost needs a checked read (num_m)"),
         Num::OthersCount(z, p) => g.lst(zone_ref(f, *z)).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
@@ -408,6 +415,8 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
         Cond::ViaAttack => matches!(*g.e(f.eff), Effect::Trainer { via_attack: true, .. }),
+        Cond::StadiumInPlay(p) => g.st.stadium_card().map(|c| pred(g, c, p)).unwrap_or(false),
+        Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
         Cond::OtherAncientAttackedLastTurn => {
             let p = f.who(Who::Me);
             g.st.players[p].ancient_pokemon_attacked_last_turn
@@ -546,6 +555,11 @@ pub enum SlotPred {
     HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much: a checked read.
     RemainingHpAtMost(i32),
+    // --- S3 appends ---
+    /// Some card of the slot (Pokémon, Energy, ...) matches the card predicate.
+    AnyCard(Pred),
+    /// A Pokémon Tool attached to the slot matches the card predicate.
+    AnyTool(Pred),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -652,6 +666,8 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::AnyCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
+        SlotPred::AnyTool(q) => slot.tools.iter().any(|c| pred(g, c, q)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }
@@ -752,6 +768,18 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
             }
             n
         }
+        Num::CheckedCost => {
+            let Some((p, _, attack, _)) = crate::prefabs::attack_data(g, f.eff) else { return Ok(0) };
+            let mut cost: crate::effects::Cost = SVec::new();
+            for &c in crate::engine::attack::attack_def(g, attack).cost {
+                cost.push(c);
+            }
+            let (ce, _) = g.run_fx(Effect::CheckAttackCost { p, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
+            match ce {
+                Effect::CheckAttackCost { cost, .. } => cost.len() as i32,
+                _ => 0,
+            }
+        }
         Num::EnergyOn(sel, unit) => {
             let mut total = 0;
             for s in slots_m(g, me, f, sel)?.iter() {
@@ -820,6 +848,7 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
                 CmpOp::Gt => a > b,
             }
         }
+        Cond::AbilityBlocked => is_ability_blocked(g, f.p as usize, me, None),
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
             None => false,

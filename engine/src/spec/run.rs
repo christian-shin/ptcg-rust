@@ -297,7 +297,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, pw) in spec.powers.iter().enumerate() {
-        if let Once::PerTurn(name) = pw.once {
+        if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
             remove_marker_at_end_of_turn(g, e, crate::markers::intern(name), me);
         }
         if was_power_used(g, e, pw.index, me) {
@@ -306,15 +306,23 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 _ => continue,
             };
             let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
-            if let Once::PerTurn(name) = pw.once {
-                if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
-                    crate::bail!("POWER_ALREADY_USED");
+            match pw.once {
+                Once::PerTurn(name) => {
+                    if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
+                        crate::bail!("POWER_ALREADY_USED");
+                    }
                 }
+                Once::PerTurnShared(name) => {
+                    if g.st.players[p].marker.has(crate::markers::intern(name)) {
+                        crate::bail!("POWER_ALREADY_USED");
+                    }
+                }
+                Once::No => {}
             }
             if !usable(g, me, &f, pw.needs, pw.steps)? {
                 crate::bail!("CANNOT_USE_POWER");
             }
-            if let Once::PerTurn(name) = pw.once {
+            if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
                 use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
                 ability_used(g, p, me);
             }

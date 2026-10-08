@@ -5,55 +5,18 @@
 //! Twinleaf: the extra Energy sums the provided Energy of the Active minus the
 //! checked attack cost. The lock throws BLOCKED_BY_ABILITY when the
 //! ability probe for the *opponent of the player* passes (i.e. the Ability is not blocked).
-use crate::cards::prelude::*;
-use crate::effects::Cost;
-
-pub static IMPL: CardImpl = CardImpl {
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
     class: "Jellicentex",
-    mask: mask(&[k::ATTACK, k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::before_damage(more_damage_if(80, Cond::Cmp(Num::Sub(&Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::ProvidedUnits), &Num::CheckedCost), CmpOp::Ge, Num::Lit(2)))),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::ItemAndToolOfOpponent }) },
+    ],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p,
-            _ => return Ok(()),
-        };
-        let attack = my_attack(g, me, 0);
-        let mut cost: Cost = SVec::new();
-        for &c in crate::engine::attack::attack_def(g, attack).cost {
-            cost.push(c);
-        }
-        let (ce, _) = g.run_fx(Effect::CheckAttackCost { p, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
-        let cost_len = match ce {
-            Effect::CheckAttackCost { cost, .. } => cost.len() as i32,
-            _ => 0,
-        };
-        let pu = p as usize;
-        let src = SlotRef::new(pu, g.st.players[pu].active);
-        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: src, energy_map: SVec::new() })?;
-        let total: i32 = match pe {
-            Effect::CheckProvidedEnergy { energy_map, .. } => energy_map.iter().map(|m| m.provides.len() as i32).sum(),
-            _ => 0,
-        };
-        if total - cost_len >= 2 {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 80;
-            }
-        }
-    }
-
-    let p = match *g.e(e) {
-        Effect::PlayItem { p, .. } | Effect::AttachPokemonTool { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let opp = 1 - p;
-    if g.st.active_pokemon(opp) == Some(me) && !is_ability_blocked(g, opp, me, None) {
-        bail!("BLOCKED_BY_ABILITY");
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

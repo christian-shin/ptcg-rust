@@ -110,6 +110,14 @@ pub struct ArmSpec {
     pub what: Lasting,
 }
 
+/// The Ability counts as used from here: the player's marker `marker` is set by this card (refused
+/// when it already is) and the Pokémon shows the Ability as used. A once-per-turn Ability with a
+/// cost or a choice that may be declined uses it, so a declined use doesn't use it up; clear the
+/// marker with an end-of-turn trigger.
+pub struct UseAbilitySpec {
+    pub marker: &'static str,
+}
+
 // ---------------------------------------------------------------------------
 // Markers
 
@@ -256,6 +264,27 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
+        Op::UseAbility(u) => {
+            use_ability_once_per_turn(g, f.p as usize, marker_of(u.marker), me)?;
+            ability_used(g, f.p as usize, me);
+            Ok(Flow::Next)
+        }
+        Op::AttackFlag(a) if a.flag == AttackFlagKind::Barrage => {
+            // A runtime write of the attack's `barrage` flag (Festival Lead), true or false.
+            let idx = match *g.e(f.eff) {
+                Effect::Attack { attack, .. } => attack.idx(),
+                _ => return Ok(Flow::Next),
+            };
+            crate::copy_attack::write_barrage(g, me, |b, shown| {
+                if a.value {
+                    *b |= 1 << idx;
+                } else {
+                    *b &= !(1 << idx);
+                }
+                *shown |= 1 << idx;
+            });
+            Ok(Flow::Next)
+        }
         Op::AttackFlag(a) => {
             if let Effect::Attack { ignore_weakness, ignore_resistance, ignore_defender_effects, .. } = g.e_mut(f.eff) {
                 match a.flag {

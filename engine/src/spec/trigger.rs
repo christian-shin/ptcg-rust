@@ -25,11 +25,19 @@ pub enum Event {
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
 }
 
-pub struct OnEnterPlaySpec {}
+/// This card is played from the hand: put into play (`evolved: false`: PlayPokemon, onto the Bench) or
+/// evolving a Pokémon (`evolved: true`: Evolve, however the card got there, Rare Candy included). The steps
+/// run when the effect is reduced, before the card is placed.
+pub struct OnEnterPlaySpec {
+    pub evolved: bool,
+}
 pub struct OnMovedSpec {}
+/// This Energy card is attached (to any Pokémon, by any effect); the steps run before it is placed.
 pub struct OnAttachSpec {}
 pub struct OnKnockOutSpec {}
 pub struct OnDamagedByAttackSpec {}
+/// Pokémon Checkup (between turns), for every copy of the card in any zone; the program's player is the
+/// player being checked.
 pub struct OnCheckupSpec {}
 pub struct OnDiscardedSpec {}
 pub struct OnAfterAttackTriggersSpec {}
@@ -53,6 +61,15 @@ pub const fn event_kinds(e: &Event) -> KindMask {
     use crate::effects::k;
     match e {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
+        Event::OnEnterPlay(s) => {
+            if s.evolved {
+                mask(&[k::EVOLVE])
+            } else {
+                mask(&[k::PLAY_POKEMON])
+            }
+        }
+        Event::OnAttach(_) => mask(&[k::ATTACH_ENERGY]),
+        Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
         _ => KindMask::EMPTY,
     }
 }
@@ -71,6 +88,19 @@ pub(crate) fn fires(g: &Game, me: CardId, e: EffId, t: &Trigger) -> Option<usize
             };
             ok.then_some(owner)
         }
+        Event::OnEnterPlay(s) => match *g.e(e) {
+            Effect::PlayPokemon { p, card, .. } if !s.evolved && card == me => Some(p as usize),
+            Effect::Evolve { p, card, .. } if s.evolved && card == me => Some(p as usize),
+            _ => None,
+        },
+        Event::OnAttach(_) => match *g.e(e) {
+            Effect::AttachEnergy { p, card, .. } if card == me => Some(p as usize),
+            _ => None,
+        },
+        Event::OnCheckup(_) => match *g.e(e) {
+            Effect::BetweenTurns { p, .. } if g.st.phase == crate::types::GamePhase::BetweenTurns => Some(p as usize),
+            _ => None,
+        },
         _ => unimplemented!("spec trigger not implemented yet (trigger.rs)"),
     }
 }

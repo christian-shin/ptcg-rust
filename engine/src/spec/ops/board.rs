@@ -46,6 +46,9 @@ pub enum SwitchKind {
     Silent,
     /// `Plain`, with only the side's Benched Basic Pokémon to choose from (S3).
     PlainBasic,
+    /// An effect of this card's Ability (EffectOfAbility probe, power 0), then `Silent` if the target
+    /// survives it (Sumo Catcher).
+    SilentAbilityEffect,
     /// Gust: a GustOpponentBenchEffect (preventable by attack effect protection).
     Gust,
     /// Switch out the opponent's Active: a SwitchOutOpponentsActiveEffect probe
@@ -210,6 +213,13 @@ pub struct KnockOutSpec {
     pub target: SlotExpr,
     pub mode: KnockOutMode,
     pub when: Cond,
+}
+
+/// The attacker picks one of the Pokémon in `among` (asked at step D); after the damage it goes with
+/// all its attached cards into its owner's deck, unless effects of attacks on it are prevented.
+pub struct RemovePickedSpec {
+    pub among: SlotSel,
+    pub msg: &'static str,
 }
 
 /// The attacker picks `count` of the Pokémon in `among` (all of them when fewer; none when none),
@@ -434,6 +444,20 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
+        Op::RemovePicked(r) => {
+            let d = DamageChosenSpec { among: r.among_clone(), count: 1, hp: Num::Lit(0), calc: DamageCalc::Auto, msg: r.msg };
+            if let Some(c) = f.recorded_choice(g, me) {
+                if c.answer != CHOICE_NONE && c.len > 0 {
+                    remove_picked(g, me, f, decode(c.items[0]))?;
+                }
+                return Ok(Flow::Next);
+            }
+            if chosen_ask(g, me, f, &d)? {
+                Ok(Flow::Suspend)
+            } else {
+                Ok(Flow::Next)
+            }
+        }
         Op::DamageChosen(d) => {
             if let Some(c) = f.recorded_choice(g, me) {
                 if c.answer != CHOICE_NONE {
@@ -464,6 +488,12 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::DamageChosen(d) => {
             for s in first.slots().to_vec() {
                 chosen_hit(g, me, f, d, s)?;
+            }
+            Ok(Flow::Next)
+        }
+        Op::RemovePicked(_) => {
+            if let Some(s) = first.slots().first().copied() {
+                remove_picked(g, me, f, s)?;
             }
             Ok(Flow::Next)
         }
@@ -511,6 +541,15 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
                 Ok(Flow::Next)
             }
         }
+        Op::RemovePicked(r) => {
+            let d = DamageChosenSpec { among: r.among_clone(), count: 1, hp: Num::Lit(0), calc: DamageCalc::Auto, msg: r.msg };
+            if chosen_ask(g, me, f, &d)? {
+                Ok(Flow::Suspend)
+            } else {
+                f.record(g, me, CHOICE_NONE);
+                Ok(Flow::Next)
+            }
+        }
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) => {
             let Some(pick) = target_of(op).and_then(target_pick) else { return Ok(Flow::Next) };
             if !guard(g, me, f, op)? {
@@ -542,7 +581,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
-        Op::DamageChosen(_) => {
+        Op::DamageChosen(_) | Op::RemovePicked(_) => {
             let items: Vec<u8> = first.slots().iter().map(|s| encode(*s)).collect();
             if items.is_empty() {
                 f.record(g, me, CHOICE_NONE);
@@ -780,7 +819,7 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
     Ok(Flow::Suspend)
 }
 
-fn switch_act(g: &mut Game, _me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRef) -> R {
+fn switch_act(g: &mut Game, me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRef) -> R {
     let side = f.who(s.side);
     // The switch only acts on the side's own Bench.
     if slot.p as usize != side {
@@ -788,6 +827,13 @@ fn switch_act(g: &mut Game, _me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRe
     }
     match s.kind {
         SwitchKind::Plain | SwitchKind::PlainBasic => crate::engine::turn::switch_pokemon(g, side, slot.s),
+        SwitchKind::SilentAbilityEffect => {
+            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot) })?;
+            if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
+                crate::engine::turn::switch_pokemon_silent(g, side, slot.s)?;
+            }
+            Ok(())
+        }
         SwitchKind::Silent => {
             let a = g.st.players[side].active;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
@@ -1052,4 +1098,29 @@ fn chosen_hit(g: &mut Game, me: CardId, f: &Frame, d: &DamageChosenSpec, slot: S
             Ok(())
         }
     }
+}
+
+impl RemovePickedSpec {
+    /// The candidate selector by value (the selectors are plain data).
+    fn among_clone(&self) -> SlotSel {
+        match &self.among {
+            SlotSel::Bench(w) => SlotSel::Bench(*w),
+            SlotSel::Pokemon(w) => SlotSel::Pokemon(*w),
+            _ => unimplemented!("RemovePicked among: Bench or Pokemon only"),
+        }
+    }
+}
+
+fn remove_picked(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef) -> R {
+    if !occupied(g, slot) {
+        return Ok(());
+    }
+    let (p, o) = (f.p as usize, slot.p as usize);
+    if let Some((_, _, attack, _)) = attack_data(g, f.eff) {
+        // An effect of the attack on that Pokémon: Mist Energy and the like prevent it.
+        if attack_effect_prevented_on(g, p, o, pack_attack(attack), slot)? {
+            return Ok(());
+        }
+    }
+    move_pokemon_off_board(g, slot, crate::state::ListRef::Deck(o as u8), me)
 }

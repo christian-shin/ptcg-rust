@@ -9,9 +9,11 @@ use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES, SUB_COI
 use super::super::*;
 use crate::game::{Game, R};
 use crate::list::CardId;
+use crate::effects::Effect;
 use crate::game::CoinCb;
+use crate::list::SVec;
 use crate::prefabs::*;
-use crate::prompts::Res;
+use crate::prompts::{PromptKind, Res, SelectValues};
 use crate::types::*;
 
 /// "You may": ask `asker` when `when` holds (otherwise nothing is asked and
@@ -52,7 +54,19 @@ pub struct CoinSpec {
 impl CoinSpec {
     pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, mode: CoinMode::One, before: Cond::True, heads: &[], tails: &[], then: &[] };
 }
-pub struct ChooseSpec {}
+/// A choice among options (a Select prompt over the available ones' labels); the chosen option's
+/// steps run.
+pub struct ChooseSpec {
+    pub chooser: Who,
+    pub msg: &'static str,
+    pub options: &'static [ChoiceBranch],
+}
+pub struct ChoiceBranch {
+    pub label: &'static str,
+    /// The option is offered only when this holds (checked when asked).
+    pub available: Cond,
+    pub body: &'static [Step],
+}
 pub struct ForEachSpec {}
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
@@ -115,6 +129,24 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             Ok(Flow::Suspend)
         }
+        Op::Choose(c) => {
+            let mut labels: SVec<&'static str, 8> = SVec::new();
+            for o in c.options {
+                if cond_m(g, me, f, &o.available)? {
+                    labels.push(o.label);
+                }
+            }
+            if labels.is_empty() {
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(f.who(c.chooser));
+            g.prompt(id, c.msg, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, f.cont(me, 1));
+            Ok(Flow::Suspend)
+        }
+        Op::EndTurn(_) => {
+            g.run_fx(Effect::EndTurn { p: f.p })?;
+            Ok(Flow::Next)
+        }
         Op::Fail(x) => {
             if !cond_m(g, me, f, &x.unless)? {
                 crate::bail!(x.error);
@@ -150,9 +182,24 @@ pub(crate) fn resume_coin(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, h
     }
 }
 
-pub(crate) fn resume(_g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::Choose(c) => {
+            let mut available: Vec<u8> = Vec::new();
+            for (i, o) in c.options.iter().enumerate() {
+                if cond_m(g, me, f, &o.available)? {
+                    available.push(i as u8);
+                }
+            }
+            let i = first.as_int();
+            // An answer outside the offered options is a thrown error, as in `options[choice].action()`.
+            if i < 0 || i as usize >= available.len() {
+                crate::bail!("TypeError: option is undefined");
+            }
+            let sel = available[i as usize];
+            Ok(if c.options[sel as usize].body.is_empty() { Flow::Next } else { Flow::Enter(sel) })
+        }
         // A coin sequence finished (the frame carries the heads).
         Op::Coin(c) if f.sub == SUB_COIN_SEQ => Ok(if c.then.is_empty() { Flow::Next } else { Flow::Enter(2) }),
         Op::May(m) => {
@@ -203,6 +250,7 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
     match (op, sel) {
         (Op::May(m), 0) => m.yes,
         (Op::May(m), _) => m.no,
+        (Op::Choose(c), sel) => c.options.get(sel as usize).map(|o| o.body).unwrap_or(&[]),
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
         (Op::Coin(c), 0) => c.heads,

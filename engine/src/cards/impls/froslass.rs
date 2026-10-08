@@ -15,74 +15,14 @@
 //! with the literal 'Freezing Shroud'; it read `this.powers[0].name`, which
 //! threw at every EndTurn for a copycat without Abilities that had copied
 //! Frost Smash (Zoroark's Foul Play) while a Froslass was in play.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Froslass",
+    triggers: &[
+        Trigger { origin: RuleSource::Ability, event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Any }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Cmp(Num::InPlayCount(Who::Me, PlayScope::All, Pred::All(&[Pred::Name("Froslass"), Pred::HasAbilityNamed("Freezing Shroud")])), CmpOp::Gt, Num::Lit(0)), Cond::Not(&Cond::HasMarker { who: Who::Me, name: "CHILLING_CURTAIN_MARKER", from: MarkerFrom::Any })]), yes: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "CHILLING_CURTAIN_MARKER", source: RuleSource::Ability }))], no: &[] })), Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Cmp(Num::InPlayCount(Who::Opp, PlayScope::All, Pred::All(&[Pred::Name("Froslass"), Pred::HasAbilityNamed("Freezing Shroud")])), CmpOp::Gt, Num::Lit(0)), Cond::Not(&Cond::HasMarker { who: Who::Opp, name: "CHILLING_CURTAIN_MARKER", from: MarkerFrom::Any })]), yes: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Opp), name: "CHILLING_CURTAIN_MARKER", source: RuleSource::Ability }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Ability, event: Event::OnCheckup(OnCheckupSpec {}), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::HasMarker { who: Who::Me, name: "CHILLING_CURTAIN_MARKER", from: MarkerFrom::This }, Cond::Not(&Cond::AbilityBlocked)]), yes: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Each(SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Not(&SlotPred::Named("Froslass")), SlotPred::HasAbility]))), counters: Num::InPlayCount(Who::Me, PlayScope::All, Pred::All(&[Pred::Name("Froslass"), Pred::HasAbilityNamed("Freezing Shroud")])), cause: CounterCause::Effect })), Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Each(SlotSel::Filtered(&SlotSel::Pokemon(Who::Opp), SlotPred::All(&[SlotPred::Not(&SlotPred::Named("Froslass")), SlotPred::HasAbility]))), counters: Num::InPlayCount(Who::Me, PlayScope::All, Pred::All(&[Pred::Name("Froslass"), Pred::HasAbilityNamed("Freezing Shroud")])), cause: CounterCause::Effect })), Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "CHILLING_CURTAIN_MARKER", from: MarkerFrom::This }))], no: &[] }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Froslass", mask: mask(&[k::BETWEEN_TURNS, k::END_TURN]), reduce, resume: None, coin: None, can_play: None };
-
-fn chilling() -> crate::markers::MarkerName {
-    crate::marker!("CHILLING_CURTAIN_MARKER")
-}
-
-fn count_froslass(g: &Game, p: usize) -> i32 {
-    let mut n = 0;
-    for (_, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        let d = g.st.cdef(c);
-        if d.name == "Froslass" && d.powers.iter().any(|pw| pw.name == "Freezing Shroud") {
-            n += 1;
-        }
-    }
-    n
-}
-
-fn has_ability(g: &mut Game, p: usize, c: CardId) -> R<bool> {
-    let mut powers = SVec::new();
-    for i in 0..g.st.cdef(c).powers.len() {
-        powers.push(PowerRef { card: c, index: i as u8 });
-    }
-    let (e, _) = g.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: c, powers })?;
-    Ok(match e {
-        Effect::CheckPokemonPowers { powers, .. } => {
-            powers.iter().any(|r| g.st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
-        }
-        _ => false,
-    })
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::BetweenTurns { p, .. } = *g.e(e) {
-        let p = p as usize;
-        if !g.st.players[p].marker.has_from(chilling(), me) {
-            return Ok(());
-        }
-        if g.st.phase != GamePhase::BetweenTurns {
-            return Ok(());
-        }
-        if is_ability_blocked(g, p, me, None) {
-            return Ok(());
-        }
-        let o = 1 - p;
-        let n = count_froslass(g, p);
-        for q in [p, o] {
-            for (s, c, _) in for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().copied() {
-                if g.st.cdef(c).name == "Froslass" {
-                    continue;
-                }
-                if has_ability(g, q, c)? {
-                    g.run_fx(Effect::PlaceDamageCounters { p: p as u8, target: SlotRef::new(q, s), damage: 10 * n, source: me })?;
-                }
-            }
-        }
-        g.st.players[p].marker.remove_from(chilling(), me);
-        return Ok(());
-    }
-
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let p = p as usize;
-        for q in [p, 1 - p] {
-            if count_froslass(g, q) > 0 && !g.st.players[q].marker.has(chilling()) {
-                g.st.players[q].marker.add(chilling(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
