@@ -5,7 +5,7 @@
 use super::*;
 use crate::effects::{mask, EffId, Effect, KindMask};
 use crate::game::Game;
-use crate::list::CardId;
+use crate::list::{CardId, CardList};
 
 pub struct Trigger {
     pub origin: RuleSource,
@@ -31,6 +31,8 @@ pub enum EnterMethod {
     /// "When you play this Pokémon from your hand to evolve" (any Evolve effect of this card,
     /// Rare Candy included).
     Evolve,
+    /// "When you play this Pokémon from your hand onto your Bench" (any Play effect of this card).
+    Play,
 }
 
 pub struct OnEnterPlaySpec {
@@ -40,8 +42,12 @@ pub struct OnMovedSpec {}
 pub struct OnAttachSpec {}
 pub struct OnKnockOutSpec {}
 pub struct OnDamagedByAttackSpec {}
+/// Between turns (Pokémon Checkup), once per turn change for the card's owner.
 pub struct OnCheckupSpec {}
+/// This card is discarded by an effect of an attack of the Pokémon it is attached to (that
+/// player's Active Pokémon).
 pub struct OnDiscardedSpec {}
+/// The attack's after-attack triggers of the player run (step 7 window).
 pub struct OnAfterAttackTriggersSpec {}
 
 /// Whose turn ending fires the trigger, relative to the card's owner.
@@ -63,7 +69,13 @@ pub const fn event_kinds(e: &Event) -> KindMask {
     use crate::effects::k;
     match e {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
-        Event::OnEnterPlay(_) => mask(&[k::EVOLVE]),
+        Event::OnEnterPlay(w) => match w.method {
+            EnterMethod::Evolve => mask(&[k::EVOLVE]),
+            EnterMethod::Play => mask(&[k::PLAY_POKEMON]),
+        },
+        Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
+        Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
+        Event::OnAfterAttackTriggers(_) => mask(&[k::AFTER_ATTACK_TRIGGERS]),
         _ => KindMask::EMPTY,
     }
 }
@@ -85,6 +97,7 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<u
         Event::OnEnterPlay(w) => {
             let p = match (w.method, *g.e(e)) {
                 (EnterMethod::Evolve, Effect::Evolve { p, card, .. }) if card == me => p as usize,
+                (EnterMethod::Play, Effect::PlayPokemon { p, card, .. }) if card == me => p as usize,
                 _ => return None,
             };
             if t.origin == RuleSource::Ability && crate::prefabs::is_ability_blocked(g, p, me, None) {
@@ -92,6 +105,26 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<u
             }
             Some(p)
         }
+        Event::OnDiscarded(_) => {
+            let Effect::DiscardCards { b, ref cards } = *g.e(e) else { return None };
+            let pu = b.player as usize;
+            let (sp, ss) = (b.source.p as usize, b.source.s);
+            if !(cards.contains(&me) && g.st.slot(sp, ss).cards.contains(me) && g.st.players[pu].active == ss && sp == pu) {
+                return None;
+            }
+            if t.origin == RuleSource::Energy && crate::prefabs::is_special_energy_blocked(g, pu, me, b.source, false) {
+                return None;
+            }
+            Some(pu)
+        }
+        Event::OnCheckup(_) => match *g.e(e) {
+            Effect::BetweenTurns { .. } => Some(g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me))),
+            _ => None,
+        },
+        Event::OnAfterAttackTriggers(_) => match *g.e(e) {
+            Effect::AfterAttackTriggers { p, .. } => Some(p as usize),
+            _ => None,
+        },
         _ => unimplemented!("spec trigger not implemented yet (trigger.rs)"),
     }
 }

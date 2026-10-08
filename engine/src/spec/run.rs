@@ -284,7 +284,8 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 crate::bail!("SUPPORTER_ALREADY_PLAYED");
             }
             let f = Frame::new(Prog::Play, Phase::Use, e, p);
-            if !usable(g, me, &f, play.needs, play.steps)? {
+            // Used through an attack (Look-Alike Show) a Trainer does what it can.
+            if !trainer_via_attack(g, e) && !usable(g, me, &f, play.needs, play.steps)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
             }
             run(g, me, f)?;

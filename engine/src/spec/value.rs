@@ -139,6 +139,10 @@ pub enum Cond {
     InPlay(Who, PlayScope, Pred),
     /// A Pokémon in play with any card of its stack matching.
     InPlayAny(Who, PlayScope, Pred),
+    // --- S3 appends ---
+    /// A Pokémon of the player is being Knocked Out by an attack of the other player's Pokémon
+    /// and that attacking Pokémon card matches.
+    AttackerOfKnockOut { who: Who, pred: Pred },
 }
 
 /// A card predicate.
@@ -374,6 +378,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::AttackerOfKnockOut { who, pred: q } => g.attacker_of_knock_out(f.who(*who)).and_then(|(c, _)| c).map_or(false, |c| pred(g, c, q)),
     }
 }
 

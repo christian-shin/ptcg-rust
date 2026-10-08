@@ -51,7 +51,13 @@ impl CoinSpec {
     pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, mode: CoinMode::Single, heads: &[], tails: &[], then: &[] };
 }
 pub struct ChooseSpec {}
-pub struct ForEachSpec {}
+/// Run `body` once for each selected Pokémon, in order; inside the body the Pokémon is the
+/// picked slot (`SlotExpr::Picked`). The list is read when the loop starts and again at each
+/// pass by position.
+pub struct ForEachSpec {
+    pub over: SlotSel,
+    pub body: &'static [Step],
+}
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
 pub struct FailSpec {}
@@ -93,6 +99,16 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 Ok(if i.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
             } else {
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
+            }
+        }
+        Op::ForEach(fe) => {
+            let slots = slots_m(g, me, f, &fe.over)?;
+            match slots.as_slice().first() {
+                Some(s) => {
+                    f.slot = s.p << 4 | s.s;
+                    Ok(Flow::Enter(0))
+                }
+                None => Ok(Flow::Next),
             }
         }
         Op::Coin(c) => {
@@ -194,6 +210,7 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::May(m), _) => m.no,
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
+        (Op::ForEach(fe), _) => fe.body,
         (Op::Coin(c), 0) => c.heads,
         (Op::Coin(c), 1) => c.tails,
         (Op::Coin(c), _) => c.then,
@@ -201,7 +218,21 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
     }
 }
 
-pub(crate) fn again(_g: &mut Game, _me: CardId, _f: &mut Frame, _op: &Op) -> bool {
+pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
+    if let Op::ForEach(fe) = op {
+        let pass = f.pass() as usize;
+        let list = slots_of(g, me, f, &fe.over);
+        return match list.as_slice().get(pass) {
+            Some(s) => {
+                f.slot = s.p << 4 | s.s;
+                true
+            }
+            None => {
+                f.slot = super::super::run::NONE;
+                false
+            }
+        };
+    }
     false
 }
 

@@ -56,12 +56,16 @@ pub enum CardSel {
     Chosen(u8),
     /// The Pokémon Tools attached to the Pokémon (`from` is ignored); one move per Tool.
     Tools(SlotExpr),
+    /// The resolving card itself, when it is in the `from` zone.
+    This,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Place {
     /// Appended to the destination (the bottom of a deck).
     End,
     Top,
+    /// Attached to this Pokémon (`to` is ignored).
+    AttachTo(SlotExpr),
 }
 
 /// Choose cards of a zone without moving them.
@@ -110,6 +114,10 @@ pub enum CapKind {
     Item,
     Stadium,
     Supporter,
+    /// Basic Pokémon.
+    Basic,
+    /// Evolution Pokémon (Stage 1 or Stage 2).
+    Evolution,
 }
 
 pub struct DrawSpec {
@@ -250,6 +258,9 @@ pub enum EnergySelection {
     AllProvided,
     /// Every card providing Energy of this type (or every type) to the Pokémon.
     Provides(CardType),
+    /// Every Special Energy card attached to the Pokémon (an effect of the attack that Mist
+    /// Energy and the like can prevent).
+    Special,
     /// "Discard N Energy": the player chooses Energy units of `ty` (ruling 1652: never more
     /// cards than N), nothing is asked when the Pokémon provides none. An attack asks at step D.
     Choose { count: u8, ty: CardType },
@@ -427,6 +438,21 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     }
                     discard_energy_cards(g, f, slot, cards)?;
                 }
+                EnergySelection::Special => {
+                    let cards: SVec<CardId, 64> = {
+                        let mut v = SVec::new();
+                        for c in g.st.slot(slot.p as usize, slot.s).cards.iter() {
+                            let d = g.st.cdef(c);
+                            if d.is_energy() && d.energy_type == EnergyType::Special as u8 {
+                                v.push(c);
+                            }
+                        }
+                        v
+                    };
+                    if !cards.is_empty() {
+                        discard_energy_cards(g, f, slot, cards)?;
+                    }
+                }
                 EnergySelection::Choose { count, ty } => {
                     if let Some(c) = f.recorded_choice(g, me) {
                         if c.answer == CHOICE_YES {
@@ -514,6 +540,7 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
                     out
                 }
                 CardSel::Chosen(r) => reg_list(g, f, *r).to_vec(),
+                CardSel::This => zc.into_iter().filter(|c| *c == me).collect(),
                 CardSel::Tools(_) => unreachable!(),
             };
             (zone_ref(f, m.from), cards)
@@ -546,7 +573,12 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
         }
         return Ok(());
     }
+    if let Place::AttachTo(e) = m.place {
+        let Some(slot) = slot_of(g, me, f, e) else { return Ok(()) };
+        return move_cards(g, src, slot.list(), &cards, me);
+    }
     match m.place {
+        Place::AttachTo(_) => unreachable!(),
         Place::End => move_cards(g, src, dst, &cards, me),
         Place::Top => {
             g.run_fx(Effect::MoveCards {
@@ -601,6 +633,8 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
             CapKind::Item => opts.max_items = v,
             CapKind::Stadium => opts.max_stadiums = v,
             CapKind::Supporter => opts.max_supporters = v,
+            CapKind::Basic => opts.max_basics = v,
+            CapKind::Evolution => opts.max_evolutions = v,
         }
     }
     // A hand's prompt lists it without the resolving card.
@@ -1039,7 +1073,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Move(m) => match &m.cards {
             CardSel::Chosen(_) => true,
             CardSel::Tools(_) => true,
-            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
+            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) | CardSel::This => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
         },
         Op::Attach(a) => {
             let cards = zone_cards(g, me, f, a.from);
