@@ -32,7 +32,7 @@ fn family(op: &Op) -> Family {
     use Op::*;
     match op {
         Move(_) | Pick(_) | Draw(_) | Shuffle(_) | Reveal(_) | Search(_) | Snapshot(_) | Order(_) | Attach(_) | MoveEnergy(_) | DiscardEnergy(_)
-        | PlayFromZone(_) | PickPrize(_) | PrizeVisibility(_) | TakePrize(_) | HandShuffleDraw(_) | ShuffleQueued(_) | DiscardStadium(_) => Family::Cards,
+        | PlayFromZone(_) | PickPrize(_) | PrizeVisibility(_) | TakePrize(_) | HandShuffleDraw(_) | ShuffleQueued(_) | DiscardStadium(_) | MoveEnergyFromAttacker(_) => Family::Cards,
         PickSlot(_) | Switch(_) | Heal(_) | Damage(_) | DamageSlot(_) | PlaceCounters(_) | SpreadCounters(_) | MoveCounters(_) | Evolve(_)
         | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) | DamageChosen(_) | RemovePicked(_) => Family::Board,
         Coin(_) | May(_) | If(_) | Choose(_) | ForEach(_) | Repeat(_) | Parallel(_) | Fail(_) | PickAttack(_) | CopyAttack(_) | EndTurn(_)

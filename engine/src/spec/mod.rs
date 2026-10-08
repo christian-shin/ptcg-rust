@@ -282,6 +282,9 @@ pub enum Op {
     DiscardStadium(DiscardStadiumSpec),
     /// An Ability that counts as used only from this step on (after its cost or choice).
     UseAbility(UseAbilitySpec),
+    /// Handheld Fan: the damaged Pokémon's owner moves an Energy from the Attacking Pokémon to another Benched
+    /// Pokémon of the attacker's side (a trigger's context).
+    MoveEnergyFromAttacker(MoveEnergyFromAttackerSpec),
     /// The attacker picks one of the Pokémon in `among` and puts it with all its attached cards into
     /// its owner's deck (unless effects of attacks on it are prevented).
     RemovePicked(RemovePickedSpec),

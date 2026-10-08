@@ -72,6 +72,14 @@ pub enum Modifier {
     /// A Stadium: when a Pokémon of the type is played, each of the player's Pokémon of that type counts as
     /// having been played the turn before (Forest of Vitality).
     PlayedTurnReset(PlayedTurnResetSpec),
+    /// The Weakness of the opponent's Pokémon matching `subject` is `weakness` (Fairy Zone).
+    WeaknessOverride(WeaknessOverrideSpec),
+}
+
+pub struct WeaknessOverrideSpec {
+    /// The Pokémon whose Weakness changes (checked on the opponent's side only).
+    pub subject: SlotPred,
+    pub weakness: CardType,
 }
 
 pub struct TypeOverrideSpec {
@@ -490,6 +498,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
         Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
+        Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
         Modifier::PlayedTurnReset(_) => mask(&[k::PLAY_POKEMON]),
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
@@ -620,6 +629,26 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             Ok(())
         }
         Modifier::PlayedTurnReset(r) => played_turn_reset(g, me, e, ps.origin, r),
+        Modifier::WeaknessOverride(w) => {
+            let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
+            let player = target.p as usize;
+            // Today's behavior: the Ability's lock probe is made for the checked Pokémon's owner, first.
+            if is_ability_blocked(g, player, me, None) {
+                return Ok(());
+            }
+            let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
+            if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
+                return Ok(());
+            }
+            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: at.owner as u8, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(target) })?;
+            if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
+                if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(e) {
+                    weakness.clear();
+                    weakness.push(crate::effects::WeaknessV { card_type: w.weakness, value: None });
+                }
+            }
+            Ok(())
+        }
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
         Modifier::PrizeAdjustOnce(d) => {
             let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };

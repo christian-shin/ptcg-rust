@@ -78,13 +78,16 @@ pub struct Frame {
     pub(crate) cards: [u8; 2],
     /// Heads of the last coin sequence the program flipped.
     pub(crate) heads: u8,
-    /// Cards the last discard of the program moved (`Num::Last`).
+    /// Cards the last discard of the program moved (`Num::Last`, 16 bits).
     pub(crate) last: i32,
+    /// What a trigger knows about the event (`trigger::context`): the attacking Pokémon's slot
+    /// (`p << 4 | s`) in the low byte, flags above.
+    pub(crate) ctx: u16,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, last: 0 }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, last: 0, ctx: 0 }
     }
 
     fn prog_code(&self) -> u32 {
@@ -102,7 +105,7 @@ impl Frame {
         // The player rides in bit 20: a coin sequence overwrites `a[2]` and `a[3]`.
         f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.p as u32 & 1) << 20 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
-        f.a[2] = self.last;
+        f.a[2] = (self.ctx as i32) << 16 | (self.last & 0xFFFF);
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
         f.e[1] = self.heads;
@@ -143,7 +146,8 @@ impl Frame {
             p: ((a0 >> 20) & 1) as u8,
             cards: f.l,
             heads: if seq { (f.a[2] as u32).count_ones() as u8 } else { f.e[1] },
-            last: if seq { 0 } else { f.a[2] },
+            last: if seq { 0 } else { f.a[2] as i16 as i32 },
+            ctx: if seq { 0 } else { ((f.a[2] as u32) >> 16) as u16 },
         })
     }
 
@@ -341,8 +345,11 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, t) in spec.triggers.iter().enumerate() {
+        trigger::prepare(g, me, e, t)?;
         if let Some(p) = trigger::fires(g, me, e, t) {
-            run(g, me, Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p))?;
+            let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            f.ctx = trigger::context(g, e);
+            run(g, me, f)?;
         }
     }
     Ok(())

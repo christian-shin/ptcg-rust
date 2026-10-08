@@ -351,6 +351,13 @@ fn num_uses_reg(n: &Num) -> bool {
     }
 }
 
+/// A trigger's step: the player the program runs for picks an Energy on the Attacking Pokémon and one of the
+/// attacker's other Benched Pokémon; the Energy moves there. Nothing happens when the attacker left play,
+/// has no Energy or has no other Benched Pokémon.
+pub struct MoveEnergyFromAttackerSpec {
+    pub msg: &'static str,
+}
+
 /// Discard the Stadium in play to its owner's discard pile (nothing without one).
 pub struct DiscardStadiumSpec {}
 
@@ -522,6 +529,29 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.who(h.who);
             let n = num(g, me, f, &h.draw).max(0) as u8;
             shuffle_hand_into_deck_then_draw_ex(g, p, me, NO_CARD, n, Some((me, f.frame_at(1))))?;
+            Ok(Flow::Suspend)
+        }
+        Op::MoveEnergyFromAttacker(m) => {
+            let src = slot_of(g, me, f, SlotExpr::Attacker).unwrap();
+            let pl = &g.st.players[src.p as usize];
+            let bench_index = pl.bench.iter().position(|b| *b == src.s);
+            let has_bench = pl.bench.iter().any(|b| *b != src.s && !pl.slots[*b as usize].cards.is_empty());
+            let has_energy = g.st.slot(src.p as usize, src.s).cards.iter().any(|c| g.st.cdef(c).is_energy());
+            if !has_bench || !has_energy {
+                return Ok(Flow::Next);
+            }
+            let mut slots = SVec::new();
+            slots.push(SlotType::Bench as u8);
+            let list = src.list();
+            let mut o = AttachOpts::new(g.lst(list).len().min(255) as u8);
+            o.allow_cancel = false;
+            o.min = 1;
+            o.max = 1;
+            if let Some(i) = bench_index {
+                o.blocked_to.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
+            }
+            let id = g.player_id(f.p as usize);
+            g.prompt(id, m.msg, PromptKind::AttachEnergy { cards: list, player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o }, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
         Op::DiscardStadium(_) => {
@@ -1089,6 +1119,16 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             let cards = energy_chosen(f, first);
             discard_cards_from_slots(g, me, f, &cards)?;
             f.last = cards.len() as i32;
+            Ok(Flow::Next)
+        }
+        Op::MoveEnergyFromAttacker(_) => {
+            let src = slot_of(g, me, f, SlotExpr::Attacker).unwrap();
+            if let Res::Attach(ts) = first {
+                for (to, c) in ts.iter() {
+                    let target = get_target(&g.st, f.p as usize, *to)?;
+                    move_cards(g, src.list(), target.list(), &[*c], me)?;
+                }
+            }
             Ok(Flow::Next)
         }
         Op::Order(o) => {

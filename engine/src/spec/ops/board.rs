@@ -276,6 +276,7 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     match sel {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
         SlotSel::One(SlotExpr::This) => f.p as usize,
+        SlotSel::One(SlotExpr::Attacker) => (f.ctx >> 4 & 1) as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
     }
 }

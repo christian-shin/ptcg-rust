@@ -5,7 +5,7 @@
 use super::*;
 use crate::effects::{mask, EffId, Effect, KindMask};
 use crate::game::Game;
-use crate::list::CardId;
+use crate::list::*;
 
 pub struct Trigger {
     pub origin: RuleSource,
@@ -35,7 +35,17 @@ pub struct OnMovedSpec {}
 /// This Energy card is attached (to any Pokémon, by any effect); the steps run before it is placed.
 pub struct OnAttachSpec {}
 pub struct OnKnockOutSpec {}
-pub struct OnDamagedByAttackSpec {}
+/// The Pokémon this card is part of (an Ability) or attached to (a Tool) is damaged by an attack of the
+/// opponent's Pokémon while it is Active (even if it is Knocked Out); the effect resolves in step 7 of the
+/// attack, after the attack's own effects. The program's player is the attacking player (`as_attacker`: the
+/// lock probes then are the attacker's, as today for Heatran and Lucky Helmet) or the damaged Pokémon's
+/// owner. `SlotExpr::Attacker` is the Pokémon that used the attack.
+pub struct OnDamagedByAttackSpec {
+    pub as_attacker: bool,
+    /// The effect may take an Energy off the Attacking Pokémon (Handheld Fan): it resolves before the effects
+    /// that could be blocked by it.
+    pub removes_attacker_energy: bool,
+}
 /// Pokémon Checkup (between turns), for every copy of the card in any zone; the program's player is the
 /// player being checked.
 pub struct OnCheckupSpec {}
@@ -69,8 +79,35 @@ pub const fn event_kinds(e: &Event) -> KindMask {
             }
         }
         Event::OnAttach(_) => mask(&[k::ATTACH_ENERGY]),
+        Event::OnDamagedByAttack(_) => mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
         _ => KindMask::EMPTY,
+    }
+}
+
+/// Schedule what a trigger records before its effect resolves: the damage of an attack opens a step 7
+/// trigger (`Game::attack_trigger`).
+pub(crate) fn prepare(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> crate::game::R {
+    if let Event::OnDamagedByAttack(d) = &t.event {
+        if let Effect::AfterDamage { b, damage } = *g.e(e) {
+            let target = b.target;
+            let holds = match t.origin {
+                RuleSource::Tool => g.st.slot(target.p as usize, target.s).tools.contains(me),
+                _ => g.st.slot(target.p as usize, target.s).cards.contains(me),
+            };
+            if holds && damage > 0 && b.player != target.p && g.st.players[target.p as usize].active == target.s {
+                g.attack_trigger(b, damage, me, None, d.removes_attacker_energy)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// What the program of a trigger knows about its event (`Frame::ctx`).
+pub(crate) fn context(g: &Game, e: EffId) -> u16 {
+    match *g.e(e) {
+        Effect::AttackTrigger { source, source_in_play, .. } => (source.p as u16) << 4 | source.s as u16 | (source_in_play as u16) << 8,
+        _ => 0,
     }
 }
 
@@ -91,6 +128,16 @@ pub(crate) fn fires(g: &Game, me: CardId, e: EffId, t: &Trigger) -> Option<usize
         Event::OnEnterPlay(s) => match *g.e(e) {
             Effect::PlayPokemon { p, card, .. } if !s.evolved && card == me => Some(p as usize),
             Effect::Evolve { p, card, .. } if s.evolved && card == me => Some(p as usize),
+            _ => None,
+        },
+        Event::OnDamagedByAttack(d) => match *g.e(e) {
+            Effect::AttackTrigger { p, opp, card, target, retaliate: None, .. } if card == me => {
+                let holds = match t.origin {
+                    RuleSource::Tool => g.st.slot(target.p as usize, target.s).tools.contains(me),
+                    _ => g.st.slot(target.p as usize, target.s).cards.contains(me),
+                };
+                (holds && g.st.phase == crate::types::GamePhase::Attack).then_some(if d.as_attacker { p as usize } else { opp as usize })
+            }
             _ => None,
         },
         Event::OnAttach(_) => match *g.e(e) {
