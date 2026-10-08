@@ -112,6 +112,11 @@ pub struct ArmSpec {
 pub enum MarkerScope {
     /// A marker on a player (`Who::Me` = the player the program runs for).
     Player(Who),
+    /// A marker on a Pokémon (a Trainer effect when the source is `TrainerEffect`: it stays on
+    /// the Pokémon when it moves or evolves).
+    Slot(SlotExpr),
+    /// A marker on every Pokémon of a player.
+    EveryPokemon(Who),
 }
 
 /// Which markers of a name count: only the one set by this card, or any.
@@ -265,7 +270,23 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::SetMarker(m) => {
-            let MarkerScope::Player(w) = m.scope;
+            let w = match m.scope {
+                MarkerScope::Player(w) => w,
+                MarkerScope::Slot(e) => {
+                    if let Some(t) = slot_of(g, me, f, e) {
+                        let source = if m.source == RuleSource::TrainerEffect { SourceType::Trainer } else { SourceType::None };
+                        g.st.players[t.p as usize].slots[t.s as usize].marker.add(marker_of(m.name), me, source, TargetScope::Pokemon);
+                    }
+                    return Ok(Flow::Next);
+                }
+                MarkerScope::EveryPokemon(w) => {
+                    let p = f.who(w);
+                    for s in g.st.players[p].in_play().iter().copied().collect::<Vec<_>>() {
+                        g.st.players[p].slots[s as usize].marker.add(marker_of(m.name), me, SourceType::Trainer, TargetScope::Pokemon);
+                    }
+                    return Ok(Flow::Next);
+                }
+            };
             let p = f.who(w);
             let source = match m.source {
                 RuleSource::Ability => SourceType::Ability,
@@ -279,7 +300,31 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::ClearMarker(m) => {
-            let MarkerScope::Player(w) = m.scope;
+            let w = match m.scope {
+                MarkerScope::Player(w) => w,
+                MarkerScope::EveryPokemon(w) => {
+                    let p = f.who(w);
+                    let id = marker_of(m.name);
+                    for s in g.st.players[p].in_play().iter().copied().collect::<Vec<_>>() {
+                        let mk = &mut g.st.players[p].slots[s as usize].marker;
+                        match m.from {
+                            MarkerFrom::This => mk.remove_from(id, me),
+                            MarkerFrom::Any => mk.remove(id),
+                        }
+                    }
+                    return Ok(Flow::Next);
+                }
+                MarkerScope::Slot(e) => {
+                    if let Some(t) = slot_of(g, me, f, e) {
+                        let mk = &mut g.st.players[t.p as usize].slots[t.s as usize].marker;
+                        match m.from {
+                            MarkerFrom::This => mk.remove_from(marker_of(m.name), me),
+                            MarkerFrom::Any => mk.remove(marker_of(m.name)),
+                        }
+                    }
+                    return Ok(Flow::Next);
+                }
+            };
             let p = f.who(w);
             let id = marker_of(m.name);
             match m.from {

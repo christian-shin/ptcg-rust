@@ -32,7 +32,7 @@ fn family(op: &Op) -> Family {
     use Op::*;
     match op {
         Move(_) | Pick(_) | Draw(_) | Shuffle(_) | Reveal(_) | Search(_) | Snapshot(_) | Order(_) | Attach(_) | MoveEnergy(_) | DiscardEnergy(_)
-        | PlayFromZone(_) | PickPrize(_) | PrizeVisibility(_) | TakePrize(_) | HandShuffleDraw(_) => Family::Cards,
+        | PlayFromZone(_) | PickPrize(_) | PrizeVisibility(_) | TakePrize(_) | HandShuffleDraw(_) | PlayAsPokemon(_) => Family::Cards,
         PickSlot(_) | Switch(_) | Heal(_) | Damage(_) | DamageSlot(_) | PlaceCounters(_) | SpreadCounters(_) | MoveCounters(_) | Evolve(_)
         | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) => Family::Board,
         Coin(_) | May(_) | If(_) | Choose(_) | ForEach(_) | Repeat(_) | Parallel(_) | Fail(_) | PickAttack(_) | CopyAttack(_) | EndTurn(_)
@@ -94,4 +94,9 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
 /// After a nested list of `op` ends: run it again (a loop's next pass)?
 pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     flow::again(g, me, f, op)
+}
+
+/// A flip of a `Coin` op came up `heads` (or tails): which list to run next.
+pub(crate) fn coin_result(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    flow::coin_result(g, me, f, op, heads)
 }

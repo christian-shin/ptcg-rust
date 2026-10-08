@@ -27,7 +27,29 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-pub struct CoinSpec {}
+/// How many coins are flipped.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CoinMode {
+    /// One flip: `heads` or `tails` runs.
+    Single,
+    /// This many flips, then `then` runs (`Num::Heads` counts the heads).
+    Count(u8),
+    /// Flip until tails, then `then` runs.
+    UntilTails,
+}
+
+/// "Flip a coin(s)": the flipper flips, then the branch for the result runs.
+pub struct CoinSpec {
+    pub flipper: Who,
+    pub mode: CoinMode,
+    pub heads: &'static [Step],
+    pub tails: &'static [Step],
+    /// After the flips of a sequence.
+    pub then: &'static [Step],
+}
+impl CoinSpec {
+    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, mode: CoinMode::Single, heads: &[], tails: &[], then: &[] };
+}
 pub struct ChooseSpec {}
 pub struct ForEachSpec {}
 pub struct RepeatSpec {}
@@ -73,6 +95,23 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
         }
+        Op::Coin(c) => {
+            let p = f.who(c.flipper);
+            match c.mode {
+                CoinMode::Single => {
+                    g.coin_flip(p, crate::game::CoinCb::Card { card: me, frame: f.frame_at(1) })?;
+                }
+                CoinMode::Count(n) => {
+                    // The sequence callback overwrites the frame's player and loop counters: the
+                    // player rides in the resume point.
+                    coin_flip_sequence(g, p, n, crate::game::CoinCb::SequenceCard { card: me, frame: f.frame_at(2 + p as u8) })?;
+                }
+                CoinMode::UntilTails => {
+                    coin_flip_sequence(g, p, 0, crate::game::CoinCb::SequenceCard { card: me, frame: f.frame_at(2 + p as u8) })?;
+                }
+            }
+            Ok(Flow::Suspend)
+        }
         Op::CopyAttack(c) => {
             let p = f.who(c.from);
             let Some(card) = g.st.active_pokemon(p) else { return Ok(Flow::Next) };
@@ -91,9 +130,20 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
     }
 }
 
-pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+pub(crate) fn resume(_g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::Coin(c) => {
+            // A finished sequence: the core wrote the results (bit i = flip i heads) and the flip
+            // count over the frame's player and loop counters.
+            let n = f.iter[0];
+            let results = f.p;
+            f.p = f.sub - 2;
+            f.iter = [0; 4];
+            let flips = if n >= 8 { 0xFF } else { (1u8 << n) - 1 };
+            f.heads = (results & flips).count_ones() as u8;
+            Ok(if c.then.is_empty() { Flow::Next } else { Flow::Enter(2) })
+        }
         Op::May(m) => {
             if first.as_bool() {
                 Ok(if m.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
@@ -144,10 +194,20 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::May(m), _) => m.no,
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
+        (Op::Coin(c), 0) => c.heads,
+        (Op::Coin(c), 1) => c.tails,
+        (Op::Coin(c), _) => c.then,
         _ => &[],
     }
 }
 
 pub(crate) fn again(_g: &mut Game, _me: CardId, _f: &mut Frame, _op: &Op) -> bool {
     false
+}
+
+/// A single flip came up: run the heads or tails list.
+pub(crate) fn coin_result(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    let Op::Coin(c) = op else { return Ok(Flow::Next) };
+    let list = if heads { c.heads } else { c.tails };
+    Ok(if list.is_empty() { Flow::Next } else { Flow::Enter(if heads { 0 } else { 1 }) })
 }

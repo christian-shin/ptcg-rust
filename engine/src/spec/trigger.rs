@@ -25,7 +25,17 @@ pub enum Event {
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
 }
 
-pub struct OnEnterPlaySpec {}
+/// How a Pokémon came into play.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum EnterMethod {
+    /// "When you play this Pokémon from your hand to evolve" (any Evolve effect of this card,
+    /// Rare Candy included).
+    Evolve,
+}
+
+pub struct OnEnterPlaySpec {
+    pub method: EnterMethod,
+}
 pub struct OnMovedSpec {}
 pub struct OnAttachSpec {}
 pub struct OnKnockOutSpec {}
@@ -53,12 +63,13 @@ pub const fn event_kinds(e: &Event) -> KindMask {
     use crate::effects::k;
     match e {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
+        Event::OnEnterPlay(_) => mask(&[k::EVOLVE]),
         _ => KindMask::EMPTY,
     }
 }
 
 /// Does effect `e` fire trigger `t` of card `me`? Returns the program's player.
-pub(crate) fn fires(g: &Game, me: CardId, e: EffId, t: &Trigger) -> Option<usize> {
+pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<usize> {
     match &t.event {
         Event::OnEndTurn(w) => {
             let Effect::EndTurn { p } = *g.e(e) else { return None };
@@ -70,6 +81,16 @@ pub(crate) fn fires(g: &Game, me: CardId, e: EffId, t: &Trigger) -> Option<usize
                 Turn::Any => true,
             };
             ok.then_some(owner)
+        }
+        Event::OnEnterPlay(w) => {
+            let p = match (w.method, *g.e(e)) {
+                (EnterMethod::Evolve, Effect::Evolve { p, card, .. }) if card == me => p as usize,
+                _ => return None,
+            };
+            if t.origin == RuleSource::Ability && crate::prefabs::is_ability_blocked(g, p, me, None) {
+                return None;
+            }
+            Some(p)
         }
         _ => unimplemented!("spec trigger not implemented yet (trigger.rs)"),
     }

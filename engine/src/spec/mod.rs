@@ -61,7 +61,7 @@ impl CardSpec {
     /// The registry entry: the shared interpreter, subscribed to exactly the
     /// effect kinds this spec reacts to.
     pub const fn card_impl(&'static self) -> CardImpl {
-        CardImpl { class: self.class, mask: self.mask(), reduce: run::reduce, resume: Some(run::resume), coin: None, can_play: None }
+        CardImpl { class: self.class, mask: self.mask(), reduce: run::reduce, resume: Some(run::resume), coin: Some(run::coin), can_play: None }
     }
 
     const fn mask(&self) -> KindMask {
@@ -268,6 +268,9 @@ pub enum Op {
     SetMarker(SetMarkerSpec),
     ClearMarker(ClearMarkerSpec),
     Arm(ArmSpec),
+    // S3 appends
+    // ops/cards.rs
+    PlayAsPokemon(PlayAsPokemonSpec),
 }
 
 /// Everything a spec card file needs.

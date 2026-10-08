@@ -74,11 +74,15 @@ pub struct Frame {
     pub(crate) p: u8,
     /// Card registers: temp list indices, or NONE.
     pub(crate) cards: [u8; 2],
+    /// Heads of the last finished coin sequence (`Num::Heads`).
+    pub(crate) heads: u8,
+    /// The Pokémon picked by the last `PickSlot` (player << 4 | slot), or NONE.
+    pub(crate) slot: u8,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2] }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE }
     }
 
     fn prog_code(&self) -> u32 {
@@ -93,11 +97,12 @@ impl Frame {
 
     fn encode(&self) -> CardFrame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
-        f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.sub as u32) << 24) as i32;
+        f.a[0] = (self.prog_code() | ((self.depth as u32) | (self.heads as u32) << 4) << 16 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
         f.a[2] = self.p as i32;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
+        f.e[1] = self.slot;
         f.l = self.cards;
         f
     }
@@ -125,10 +130,12 @@ impl Frame {
             prog,
             phase,
             path: f.a[1].to_le_bytes(),
-            depth: ((a0 >> 16) & 0xFF) as u8,
+            depth: ((a0 >> 16) & 0x0F) as u8,
+            heads: ((a0 >> 20) & 0x0F) as u8,
             iter: f.a[3].to_le_bytes(),
             sub: ((a0 >> 24) & 0xFF) as u8,
             eff: f.e[0],
+            slot: f.e[1],
             p: f.a[2] as u8,
             cards: f.l,
         })
@@ -337,6 +344,19 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
         }
     }
     Ok(steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op)))
+}
+
+/// `CardImpl::coin` of every spec card: a flip of a `Coin` op is done.
+pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
+    let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
+    let spec = spec_of(g, me);
+    let op = &list_at(spec, &f)[f.index()].op;
+    match ops::coin_result(g, me, &mut f, op, heads)? {
+        Flow::Next => f.advance(),
+        Flow::Enter(sel) => f.enter(sel),
+        Flow::Suspend => return Ok(()),
+    }
+    run(g, me, f)
 }
 
 /// `CardImpl::resume` of every spec card.

@@ -254,6 +254,9 @@ pub struct PlayFromZoneSpec {
     pub who: Who,
 }
 pub struct PickPrizeSpec {}
+/// The resolving Trainer (a Fossil) is played from the hand as a Basic Pokémon on the first
+/// open Bench slot; it can't be played without room.
+pub struct PlayAsPokemonSpec {}
 pub struct PrizeVisibilitySpec {}
 pub struct TakePrizeSpec {}
 /// Shuffle a hand into its deck, then draw (the resolving card is not part
@@ -376,6 +379,16 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(Flow::Next)
             }
+        }
+        Op::PlayAsPokemon(_) => {
+            let p = f.p as usize;
+            let Some(s) = empty_bench_slots(g, p).as_slice().first().copied() else { crate::bail!("CANNOT_PLAY_THIS_CARD") };
+            // An Item resolving sits in the supporter pile; the Pokémon play takes it from the hand.
+            if g.st.players[p].supporter.contains(me) {
+                g.move_card_to(ListRef::Supporter(p as u8), me, ListRef::Hand(p as u8));
+            }
+            g.run_fx(Effect::PlayPokemon { p: p as u8, card: me, target: SlotRef::new(p, s), slot: SlotType::Board, index: 0 })?;
+            Ok(Flow::Next)
         }
         Op::PlayFromZone(pz) => {
             let p = f.who(pz.who);
@@ -960,6 +973,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             (if hidden { !cards.is_empty() } else { eligible >= min }) && attach_targets_exist(g, f, a)
         }
         Op::PlayFromZone(pz) => !empty_bench_slots(g, f.who(pz.who)).is_empty(),
+        Op::PlayAsPokemon(_) => !empty_bench_slots(g, f.p as usize).is_empty(),
         _ => true,
     }
 }

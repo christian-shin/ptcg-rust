@@ -84,6 +84,8 @@ pub enum Side {
     /// Only the card's owner (the attacking player, or the damaged player).
     Owner,
     Any,
+    /// Only the owner's opponent.
+    Opponent,
 }
 
 /// The effects that do not stack: only the first reduction per effect applies.
@@ -212,11 +214,22 @@ pub struct PreventAttackEffectsSpec {
     pub probe_for_attacker: bool,
     /// Nothing is prevented when the attack's source slot holds no Pokémon.
     pub needs_source_pokemon: bool,
+    /// Only attacks of Pokémon matching this predicate (the attacking Pokémon).
+    pub attacker: SlotPred,
+    /// The damage steps are prevented too, unless the attack ignores effects on the
+    /// Defending Pokémon (Shred): "prevent all damage from and effects of attacks".
+    pub damage_too: bool,
 }
 
 impl PreventAttackEffectsSpec {
-    pub const DEFAULT: PreventAttackEffectsSpec =
-        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true };
+    pub const DEFAULT: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
+        subject: SlotPred::Holder,
+        abilities: false,
+        probe_for_attacker: false,
+        needs_source_pokemon: true,
+        attacker: SlotPred::Any,
+        damage_too: false,
+    };
 }
 
 /// What a `Prevent` passive stops.
@@ -247,6 +260,8 @@ pub enum BlockWhat {
     /// the Pokémon has a Tool attached. Today's behavior kept (A-PC6): from any zone, and the
     /// lock probe is made for the playing player.
     AceSpecOfOpponent,
+    /// This Pokémon can't retreat while it is the Active Pokémon (Fossils).
+    RetreatThisActive,
 }
 
 pub struct BlockUseSpec {
@@ -348,7 +363,18 @@ pub struct RetreatCostSpec {
 impl RetreatCostSpec {
     pub const DEFAULT: RetreatCostSpec = RetreatCostSpec { change: CostChange::Free, which: RetreatWhich::Mine, subject: SlotPred::Holder, side: Side::Any, guard: Cond::True };
 }
-pub struct SurviveOnTenSpec {}
+/// "If this Pokémon would be Knocked Out by damage from an attack, it is not and its remaining HP
+/// becomes 10", under a condition.
+pub struct SurviveOnTenSpec {
+    pub how: SurviveHow,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SurviveHow {
+    /// A coin flip decides (heads: it survives).
+    Coin,
+    /// The Pokémon has full HP.
+    FullHp,
+}
 /// What the Energy provides, as one entry of the Energy map.
 pub struct ProvidesEnergySpec {
     /// One Energy map entry per element whose condition holds for the Pokémon.
@@ -437,6 +463,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
             BlockWhat::AceSpecOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL, k::ATTACH_ENERGY, k::PLAY_STADIUM]),
+            BlockWhat::RetreatThisActive => mask(&[k::RETREAT]),
         },
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
@@ -457,6 +484,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
+        Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -549,6 +577,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             (BlockWhat::UseStadium, Effect::UseStadium { .. }) if g.st.stadium_card() == Some(me) => crate::bail!("CANNOT_USE_STADIUM"),
             (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
             (BlockWhat::AceSpecOfOpponent, _) => ace_spec_of_opponent(g, me, e),
+            (BlockWhat::RetreatThisActive, Effect::Retreat { p, .. }) if g.st.active_pokemon(p as usize) == Some(me) => crate::bail!("CANNOT_RETREAT"),
             _ => Ok(()),
         },
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
@@ -563,6 +592,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
         Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
+        Modifier::SurviveOnTen(d) => survive_on_ten(g, me, e, d),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -573,7 +603,7 @@ fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subjec
         _ => return Ok(()),
     };
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok(g, me, at.owner, guard) {
+    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, at.owner, guard)? {
         return Ok(());
     }
     // HP is only changed for a Pokémon actually being checked (`effect.hp += n` writes only then).
@@ -826,7 +856,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
         }
     }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if c.side == Side::Owner && at.owner != p {
+    if c.side == Side::Owner && at.owner != p || c.side == Side::Opponent && at.owner == p {
         return Ok(());
     }
     let active = SlotRef::new(p, g.st.players[p].active);
@@ -1176,7 +1206,14 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
         if attacker == t.p {
             return Ok(());
         }
-        if matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. }) {
+        let damage_step = matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. });
+        if damage_step && !d.damage_too {
+            return Ok(());
+        }
+        if d.damage_too && (damage_step || matches!(*g.e(e), Effect::AfterDamage { .. })) && ignores_defender_effects(g, &b) {
+            return Ok(());
+        }
+        if !matches!(d.attacker, SlotPred::Any) && !slot_pred_m(g, me, b.source, &d.attacker)? {
             return Ok(());
         }
         if d.needs_source_pokemon && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
@@ -1211,6 +1248,19 @@ pub const HIDE_N_SNEAK: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
     abilities: true,
     probe_for_attacker: false,
     needs_source_pokemon: false,
+    attacker: SlotPred::Any,
+    damage_too: false,
+};
+
+/// "Prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon" (a Fossil's
+/// Protective Cover): Hide 'n' Sneak without the Abilities part.
+pub const HIDE_N_SNEAK_ATTACKS: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
+    subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+    abilities: false,
+    probe_for_attacker: false,
+    needs_source_pokemon: true,
+    attacker: SlotPred::Any,
+    damage_too: false,
 };
 
 /// The handler of a Pokémon with Hide 'n' Sneak (Shuppet, Banette, Poltchageist, ...).
@@ -1353,4 +1403,60 @@ fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     crate::bail!("BLOCKED_BY_EFFECT")
+}
+
+// ---------------------------------------------------------------------------
+// S3 appends
+
+fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, d: &SurviveOnTenSpec) -> R {
+    let (t, _) = match *g.e(e) {
+        Effect::PutDamage { b, damage, .. } => (b.target, damage),
+        _ => return Ok(()),
+    };
+    let owner = t.p as usize;
+    if !g.st.slot(owner, t.s).cards.contains(me) {
+        return Ok(());
+    }
+    match d.how {
+        SurviveHow::Coin => {
+            if g.st.slot_pokemon(owner, t.s) != Some(me) || is_ability_blocked(g, owner, me, None) {
+                return Ok(());
+            }
+            survive_on_ten_on_coin_flip(g, e, owner)
+        }
+        SurviveHow::FullHp => survive_on_ten_if_full_hp(g, me, e),
+    }
+}
+
+/// SURVIVE_ON_TEN_IF_FULL_HP: on any PutDamageEffect whose target slot holds this card (not
+/// necessarily on top), unless the Ability is blocked for the slot's owner, when the slot has no
+/// damage and the damage reaches its HP, the Pokémon survives with 10 HP.
+pub fn survive_on_ten_if_full_hp(g: &mut Game, me: CardId, e: EffId) -> R {
+    let (t, damage) = match *g.e(e) {
+        Effect::PutDamage { b, damage, .. } => (b.target, damage),
+        _ => return Ok(()),
+    };
+    let owner = t.p as usize;
+    if !g.st.slot(owner, t.s).cards.contains(me) {
+        return Ok(());
+    }
+    if is_ability_blocked(g, owner, me, None) {
+        return Ok(());
+    }
+    if g.st.slot(owner, t.s).damage != 0 {
+        return Ok(());
+    }
+    let hp = crate::engine::check::check_hp(g, owner, t.s)?;
+    if damage >= hp {
+        if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
+            *survive_on_ten_hp = true;
+        }
+    }
+    Ok(())
+}
+
+/// A guard evaluated with checked reads (Energy provided, types as the game checks them).
+fn guard_ok_m(g: &mut Game, me: CardId, owner: usize, guard: &Cond) -> R<bool> {
+    let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, owner);
+    cond_m(g, me, &f, guard)
 }

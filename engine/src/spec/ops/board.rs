@@ -10,7 +10,7 @@
 //! The ops evaluate their numbers and guards with `num_m` / `cond_m`
 //! (checked reads: Energy provided, types as the game checks them).
 
-use super::super::run::{Flow, Frame, Phase, CHOICE_NONE, CHOICE_YES};
+use super::super::run::{Flow, Frame, Phase, CHOICE_NONE, CHOICE_YES, NONE};
 use super::super::*;
 use crate::effects::{AtkBase, Effect, SlotRef};
 use crate::game::{Game, R};
@@ -251,7 +251,7 @@ fn sel_types(sel: &SlotSel) -> SVec<u8, 3> {
 fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     match sel {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
-        SlotSel::One(SlotExpr::This) => f.p as usize,
+        SlotSel::One(SlotExpr::This) | SlotSel::One(SlotExpr::Picked) => f.p as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
     }
 }
@@ -409,6 +409,19 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
+        Op::PickSlot(pick) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                f.slot = if c.answer == CHOICE_NONE || c.len == 0 { NONE } else { c.items[0] };
+                return Ok(Flow::Next);
+            }
+            let cands = candidates(g, me, f, pick)?;
+            if cands.is_empty() {
+                f.slot = NONE;
+                return Ok(Flow::Next);
+            }
+            ask(g, me, f, pick, cands.as_slice(), 1);
+            Ok(Flow::Suspend)
+        }
         Op::SpreadCounters(s) => spread_exec(g, me, f, s),
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
@@ -433,6 +446,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             if let Some(slot) = first.slots().first().copied() {
                 switch_act(g, me, f, s, slot)?;
             }
+            Ok(Flow::Next)
+        }
+        Op::PickSlot(_) => {
+            f.slot = first.slots().first().map_or(NONE, |s| encode(*s));
             Ok(Flow::Next)
         }
         Op::Conditions(c) => {
@@ -481,6 +498,15 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Suspend)
         }
         Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllFromOne { .. }) => move_all_exec(g, me, f, m),
+        Op::PickSlot(pick) => {
+            let cands = candidates(g, me, f, pick)?;
+            if cands.is_empty() {
+                f.record(g, me, CHOICE_NONE);
+                return Ok(Flow::Next);
+            }
+            ask(g, me, f, pick, cands.as_slice(), 1);
+            Ok(Flow::Suspend)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -489,7 +515,7 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
         Op::MoveCounters(m) => move_all_resume(g, me, f, m, first),
-        Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) | Op::Switch(_) => {
+        Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) | Op::Switch(_) | Op::PickSlot(_) => {
             match first.slots().first().copied() {
                 Some(s) => f.record_items(g, me, CHOICE_YES, &[encode(s)]),
                 None => f.record(g, me, CHOICE_NONE),

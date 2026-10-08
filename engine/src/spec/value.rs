@@ -35,6 +35,8 @@ pub enum SlotExpr {
     /// The Pokémon this card is (or is attached to).
     This,
     Active(Who),
+    /// The Pokémon the last `PickSlot` chose (none when there was nothing to pick).
+    Picked,
 }
 
 pub enum Num {
@@ -73,6 +75,9 @@ pub enum Num {
     InPlayCount(Who, PlayScope, Pred),
     /// Distinct first provided types among the cards of a zone matching the predicate.
     DistinctTypes(ZoneRef, Pred),
+    // --- S3 appends ---
+    /// Heads of the last finished coin sequence.
+    Heads,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -198,6 +203,7 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
 
 pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> {
     match s {
+        SlotExpr::Picked => (f.slot != super::run::NONE).then(|| SlotRef::new((f.slot >> 4) as usize, f.slot & 15)),
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
@@ -261,6 +267,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
+        Num::Heads => f.heads as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -472,6 +479,9 @@ pub enum SlotPred {
     HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much: a checked read.
     RemainingHpAtMost(i32),
+    // --- S3 appends ---
+    /// The Pokémon carries the marker `name` set by this card.
+    MarkerFromThis(&'static str),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -573,6 +583,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }
