@@ -155,6 +155,8 @@ pub enum Cond {
     ThisMovedToActive,
     /// The resolving Trainer's effect is used as the effect of an attack (Mr. Mime's Look-Alike Show).
     ViaAttack,
+    /// A Stadium is in play.
+    StadiumInPlay,
 }
 
 /// A card predicate.
@@ -405,6 +407,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
         Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
         Cond::ViaAttack => f.via_attack,
+        Cond::StadiumInPlay => g.st.stadium_card().is_some(),
     }
 }
 
@@ -514,6 +517,8 @@ pub enum SlotPred {
     // --- S3 agent 3 appends ---
     /// Some card of the slot (the Pokémon, attached Energy) matches the predicate.
     HasCard(Pred),
+    /// The Pokémon is affected by this Special Condition.
+    Condition(SpecialCondition),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -616,6 +621,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
         SlotPred::HasCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
+        SlotPred::Condition(c) => slot.special_conditions.contains(&(*c as u8)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }

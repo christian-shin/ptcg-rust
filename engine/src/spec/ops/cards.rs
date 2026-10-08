@@ -56,6 +56,9 @@ pub enum CardSel {
     Chosen(u8),
     /// The Pokémon Tools attached to the Pokémon (`from` is ignored); one move per Tool.
     Tools(SlotExpr),
+    // --- S3 agent 3 appends ---
+    /// The Stadium in play, from the zone it is in to its owner's discard pile (`from` and `to` are ignored).
+    Stadium,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Place {
@@ -271,6 +274,29 @@ pub enum EnergySelection {
     /// Energy the Pokémon provides (a ChooseEnergy prompt, no cancel; never more cards than `count`).
     /// With a type other than [C], nothing happens when no Energy provides it.
     Choose { count: u8, ty: CardType },
+    /// "Discard any amount / up to N Energy ...; N damage for each card discarded": a DiscardEnergy
+    /// prompt (not cancellable, 0 allowed). The attack's damage becomes `damage_per` times the
+    /// number of cards discarded (0 when nothing is discarded).
+    Among(AmongSpec),
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct AmongSpec {
+    /// Energy of all the player's Pokémon (otherwise the Active Pokémon's only).
+    pub all_pokemon: bool,
+    pub which: AmongWhich,
+    /// At most this many cards (otherwise as many as there are to choose).
+    pub max: Option<u8>,
+    pub damage_per: i32,
+    /// The Energy leaves after the damage, one move per card (otherwise one DiscardCards effect
+    /// per Pokémon, at once).
+    pub after_damage: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum AmongWhich {
+    Any,
+    Basic,
+    /// Energy that provides the type as it is provided now (Legacy Energy counts).
+    Provides(CardType),
 }
 /// Put the cards of a register onto a player's Bench, as played from where they are
 /// (effect placement: the placed turn is set).
@@ -421,6 +447,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(Flow::Next) };
             match d.selection {
                 EnergySelection::Choose { count, ty } => return discard_choose_exec(g, me, f, slot, count, ty),
+                EnergySelection::Among(a) => return among_exec(g, me, f, slot, &a),
                 EnergySelection::AllProvided => {
                     let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: slot.p, source: slot, energy_map: SVec::new() })?;
                     let mut cards: SVec<CardId, 64> = SVec::new();
@@ -474,6 +501,23 @@ fn p_msg(p: &PickSpec, fallback: &'static str) -> &'static str {
 }
 
 fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
+    if matches!(m.cards, CardSel::Stadium) {
+        // `MOVE_CARDS(findCardList(stadium), findOwner(list).discard, { sourceCard })`.
+        let Some(stadium) = g.st.stadium_card() else { return Ok(()) };
+        let Some(src) = g.st.locate(stadium) else { return Ok(()) };
+        let Some(owner) = src.owner() else { return Ok(()) };
+        g.run_fx(Effect::MoveCards {
+            source: src,
+            destination: ListRef::Discard(owner as u8),
+            cards: None,
+            count: None,
+            to_top: false,
+            to_bottom: false,
+            skip_cleanup: false,
+            source_card: me,
+        })?;
+        return Ok(());
+    }
     // Where the cards come from and which of them move.
     let (src, mut cards): (ListRef, Vec<CardId>) = match &m.cards {
         CardSel::Tools(s) => match slot_of(g, me, f, *s) {
@@ -506,7 +550,7 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
                     out
                 }
                 CardSel::Chosen(r) => reg_list(g, f, *r).to_vec(),
-                CardSel::Tools(_) => unreachable!(),
+                CardSel::Tools(_) | CardSel::Stadium => unreachable!(),
             };
             (zone_ref(f, m.from), cards)
         }
@@ -929,6 +973,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             Ok(Flow::Next)
         }
         Op::DiscardEnergy(d) => {
+            if let EnergySelection::Among(a) = d.selection {
+                among_resume(g, me, f, &a, first)?;
+                return Ok(Flow::Next);
+            }
             if let Some(slot) = slot_of(g, me, f, d.target) {
                 if let Res::Energy(c) = first {
                     discard_chosen(g, f, slot, c.as_slice())?;
@@ -1032,6 +1080,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Move(m) => match &m.cards {
             CardSel::Chosen(_) => true,
             CardSel::Tools(_) => true,
+            CardSel::Stadium => g.st.stadium_card().is_some(),
             CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
         },
         Op::Attach(a) => {
@@ -1039,7 +1088,8 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             let eligible = cards.iter().filter(|c| pred(g, **c, &a.predicate)).count() as i32;
             let min = num(g, me, f, &a.bounds.min).max(1);
             let hidden = a.from.1 == Zone::Deck;
-            (if hidden { !cards.is_empty() } else { eligible >= min }) && attach_targets_exist(g, f, a)
+            // A register filled by an earlier step can't be judged yet.
+            (zone_is_unset(f, a.from) || if hidden { !cards.is_empty() } else { eligible >= min }) && attach_targets_exist(g, f, a)
         }
         Op::PlayFromZone(pz) => !empty_bench_slots(g, f.who(pz.who)).is_empty(),
         _ => true,
@@ -1165,4 +1215,95 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
     let id = g.player_id(chooser);
     g.prompt(id, "MOVE_ENERGY_CARDS", PromptKind::MoveEnergy { player_type, slots, filter, o }, f.cont(me, 1));
     true
+}
+
+// ---------------------------------------------------------------------------
+// DiscardEnergy::Among (S3 agent 3)
+
+fn among_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, a: &AmongSpec) -> R<Flow> {
+    let p = f.p as usize;
+    if a.damage_per != 0 {
+        if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
+            *damage = 0;
+        }
+    }
+    let slots_in_scope: Vec<SlotId> = if a.all_pokemon { for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().map(|(s, _, _)| *s).collect() } else { vec![slot.s] };
+    let mut o = MoveOpts { allow_cancel: false, min: 0, max: None, ..Default::default() };
+    let mut total = 0usize;
+    for s in &slots_in_scope {
+        match a.which {
+            AmongWhich::Any => total += g.st.slot(p, *s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count(),
+            AmongWhich::Basic => {
+                total += g.st.slot(p, *s).cards.iter().filter(|c| {
+                    let d = g.st.cdef(*c);
+                    d.is_energy() && d.energy_type == EnergyType::Basic as u8
+                }).count()
+            }
+            AmongWhich::Provides(ty) => total += energy_cards_that_provide_type(g, p, *s, ty)?.len(),
+        }
+    }
+    if let AmongWhich::Provides(ty) = a.which {
+        for (s, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+            if slots_in_scope.contains(&s) {
+                if let Some(b) = blocked_non_type_energy(g, p, s, ty)? {
+                    o.blocked_map.push((t, b));
+                }
+            }
+        }
+    }
+    if total == 0 && a.max.is_none() {
+        return Ok(Flow::Next);
+    }
+    o.max = Some(a.max.unwrap_or(total.min(255) as u8));
+    let mut slots = SVec::new();
+    slots.push(SlotType::Active as u8);
+    if a.all_pokemon {
+        slots.push(SlotType::Bench as u8);
+    }
+    let filter = if a.which == AmongWhich::Basic {
+        Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() }
+    } else {
+        Filter::super_type(SuperType::Energy)
+    };
+    let id = g.player_id(p);
+    g.prompt(id, "CHOOSE_ENERGIES_TO_DISCARD", PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, f.cont(me, 1));
+    Ok(Flow::Suspend)
+}
+
+fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) -> R {
+    let p = f.p as usize;
+    let Res::CardsFrom(transfers) = first else { return Ok(()) };
+    if transfers.is_empty() {
+        return Ok(());
+    }
+    if a.damage_per != 0 {
+        if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
+            *damage = transfers.len() as i32 * a.damage_per;
+        }
+    }
+    if a.after_damage {
+        for (from, c) in transfers.iter().copied() {
+            let s = get_target(&g.st, p, from)?;
+            move_cards_after_damage(g, f.eff, s.list(), ListRef::Discard(p as u8), &[c], me)?;
+        }
+        return Ok(());
+    }
+    let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
+    for (from, c) in transfers.iter() {
+        let s = get_target(&g.st, p, *from)?;
+        match groups.iter_mut().find(|(t, _)| *t == s) {
+            Some((_, v)) => v.push(*c),
+            None => {
+                let mut v = SVec::new();
+                v.push(*c);
+                groups.push((s, v));
+            }
+        }
+    }
+    let Some((_, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    for (target, cards) in groups {
+        let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source, target };
+        g.run_fx(Effect::DiscardCards { b, cards })?;
+    }
+    Ok(())
 }

@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MistEnergy",
     passives: &[Passive {
         origin: RuleSource::Energy,
-        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: true, needs_source_pokemon: true }),
+        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: true, needs_source_pokemon: true, ..PreventAttackEffectsSpec::DEFAULT }),
     }],
     ..CardSpec::NONE
 };

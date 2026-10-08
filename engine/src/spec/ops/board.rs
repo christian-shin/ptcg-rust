@@ -415,6 +415,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Switch(s) => switch_exec(g, me, f, s),
         Op::PickSlot(pick) => {
             let cands = candidates(g, me, f, pick)?;
+            // A fixed Pokémon is just selected (nothing to ask).
+            if matches!(pick.among, SlotSel::One(_)) {
+                f.slot = cands.as_slice().first().map(|s| encode(*s)).unwrap_or(super::super::run::NONE);
+                return Ok(Flow::Next);
+            }
             if cands.is_empty() {
                 f.slot = super::super::run::NONE;
                 return Ok(Flow::Next);

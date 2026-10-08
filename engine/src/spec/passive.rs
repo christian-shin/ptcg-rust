@@ -212,11 +212,16 @@ pub struct PreventAttackEffectsSpec {
     pub probe_for_attacker: bool,
     /// Nothing is prevented when the attack's source slot holds no Pokémon.
     pub needs_source_pokemon: bool,
+    // --- S3 agent 3 appends ---
+    /// The Attacking Pokémon.
+    pub source: SlotPred,
+    /// Only Pokémon of the card's owner are protected (`Side::Owner`).
+    pub side: Side,
 }
 
 impl PreventAttackEffectsSpec {
     pub const DEFAULT: PreventAttackEffectsSpec =
-        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true };
+        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true, source: SlotPred::Any, side: Side::Any };
 }
 
 /// What a `Prevent` passive stops.
@@ -352,7 +357,18 @@ pub struct RetreatCostSpec {
 impl RetreatCostSpec {
     pub const DEFAULT: RetreatCostSpec = RetreatCostSpec { change: CostChange::Free, which: RetreatWhich::Mine, subject: SlotPred::Holder, side: Side::Any, guard: Cond::True };
 }
-pub struct SurviveOnTenSpec {}
+/// "If this Pokémon would be Knocked Out by damage from an attack, it survives with 10 HP left"
+/// (Tenacious Body / Tenacious Heart), under a condition.
+pub struct SurviveOnTenSpec {
+    pub kind: SurviveKind,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SurviveKind {
+    /// A coin flip decides (flipped once the attack's damage is all done).
+    OnCoin,
+    /// Only while the Pokémon has no damage counters (full HP).
+    IfFullHp,
+}
 /// What the Energy provides, as one entry of the Energy map.
 pub struct ProvidesEnergySpec {
     /// One Energy map entry per element whose condition holds for the Pokémon.
@@ -437,6 +453,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             DamageStage::Attack => mask(&[k::ATTACK]),
         },
         Modifier::DamageTaken(_) => mask(&[k::PUT_DAMAGE]),
+        Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
         Modifier::BlockUse(b) => match b.what {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
@@ -547,6 +564,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
     match &ps.modifier {
         Modifier::HpBonus(n) => hp_mod(g, me, e, ps.origin, *n, &SlotPred::Holder, &Cond::True),
         Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
+        Modifier::SurviveOnTen(s) => survive_on_ten(g, me, e, ps.origin, s),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
@@ -1204,7 +1222,7 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
     if let Some(b) = g.e(e).atk_base().copied() {
         let t = b.target;
         let Some(at) = locate(g, me, origin) else { return Ok(()) };
-        if !slot_pred_m(g, me, t, &d.subject)? {
+        if !slot_pred_m(g, me, t, &d.subject)? || (d.side == Side::Owner && at.owner != t.p as usize) {
             return Ok(());
         }
         let probe_as = if d.probe_for_attacker { Located { owner: b.player as usize, ..at } } else { at };
@@ -1219,6 +1237,9 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
             return Ok(());
         }
         if d.needs_source_pokemon && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
+            return Ok(());
+        }
+        if !slot_pred_m(g, me, b.source, &d.source)? {
             return Ok(());
         }
         g.set_prevent(e, true);
@@ -1250,6 +1271,8 @@ pub const HIDE_N_SNEAK: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
     abilities: true,
     probe_for_attacker: false,
     needs_source_pokemon: false,
+    source: SlotPred::Any,
+    side: Side::Any,
 };
 
 /// The handler of a Pokémon with Hide 'n' Sneak (Shuppet, Banette, Poltchageist, ...).
@@ -1392,4 +1415,37 @@ fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     crate::bail!("BLOCKED_BY_EFFECT")
+}
+
+// ---------------------------------------------------------------------------
+// Survive on 10 (S3 agent 3)
+
+fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: &SurviveOnTenSpec) -> R {
+    let (t, damage) = match *g.e(e) {
+        Effect::PutDamage { b, damage, .. } => (b.target, damage),
+        _ => return Ok(()),
+    };
+    let owner = t.p as usize;
+    if !g.st.slot(owner, t.s).cards.contains(me) {
+        return Ok(());
+    }
+    let at = Located { owner, held: Some(t) };
+    if blocked(g, me, origin, at, Some(t)) {
+        return Ok(());
+    }
+    match spec.kind {
+        SurviveKind::OnCoin => survive_on_ten_on_coin_flip(g, e, owner)?,
+        SurviveKind::IfFullHp => {
+            if g.st.slot(owner, t.s).damage != 0 {
+                return Ok(());
+            }
+            let hp = crate::engine::check::check_hp(g, owner, t.s)?;
+            if damage >= hp {
+                if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
+                    *survive_on_ten_hp = true;
+                }
+            }
+        }
+    }
+    Ok(())
 }
