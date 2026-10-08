@@ -309,6 +309,9 @@ impl Game {
             }
             None => Box::new(*self),
         };
+        let mut b = b;
+        // A trial's draws are not the game's: they never go into a recorded trace.
+        b.rng.set_record(false);
         Fork(Some(b))
     }
 
@@ -326,7 +329,11 @@ impl Game {
                 resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
             } = src;
             f!((*d).st).write(*st);
+            // The destination keeps its own recording flag (restoring the live game from a backup
+            // fork must not turn its recording off).
+            let rec = (*d).rng.recording();
             f!((*d).rng).write(*rng);
+            (*d).rng.set_record(rec);
             prompts.copy_live_to(f!((*d).prompts));
             f!((*d).last_prompt_id).write(*last_prompt_id);
             items.copy_live_to(f!((*d).items));

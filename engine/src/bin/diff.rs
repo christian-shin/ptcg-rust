@@ -545,12 +545,15 @@ fn main() {
         match a.as_str() {
             "--dump" => dump = it.next().map(PathBuf::from),
             "--quiet" => quiet = true,
-            "--obs" | "--strict" => {}
+            "--obs" | "--strict" | "--full" => {}
+            "--threads" => {
+                it.next();
+            }
             _ => {
                 let p = PathBuf::from(a);
                 if p.is_dir() {
                     let mut v: Vec<PathBuf> =
-                        std::fs::read_dir(&p).unwrap().filter_map(|e| e.ok().map(|e| e.path())).filter(|p| p.extension().map(|e| e == "json").unwrap_or(false)).collect();
+                        std::fs::read_dir(&p).unwrap().filter_map(|e| e.ok().map(|e| e.path())).filter(|p| p.extension().map(|e| e == "json").unwrap_or(false) && p.file_name().is_some_and(|n| n.to_string_lossy().starts_with('g'))).collect();
                     v.sort();
                     files.extend(v);
                 } else {
@@ -567,31 +570,58 @@ fn main() {
     // an assertion's check point was never reached (the game ended first: not checked, not passed).
     let (mut exp_checked, mut exp_failed, mut exp_unchecked) = (0usize, 0usize, 0usize);
     let mut firsts: std::collections::BTreeMap<String, usize> = Default::default();
-    for f in &files {
-        let text = std::fs::read_to_string(f).unwrap();
-        let trace: Value = serde_json::from_str(&text).unwrap();
-        let name = f.file_stem().unwrap().to_string_lossy().to_string();
-        // A panic (e.g. a fixed-capacity list overflowing on a Twinleaf state
-        // with duplicated cards) fails this trace instead of the whole run.
-        PANIC_STEP.with(|c| c.set(-1));
-        ptcg::expect::take();
-        ptcg::rng::set_tape(None);
-        let mut out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            if obs && trace["start"]["o"].is_string() {
-                let out = replay_obs(&trace, dump.as_deref(), &name);
+    // Replay on worker threads (the expect hooks, RNG tape and panic step are thread-local), then report
+    // in file order.
+    let threads = ptcg::selfplay::threads_from_args(&args);
+    ptcg::selfplay::lower_priority(&args);
+    let next = std::sync::atomic::AtomicUsize::new(0);
+    let results: std::sync::Mutex<Vec<Option<(Outcome, Option<ptcg::expect::Run>)>>> = std::sync::Mutex::new((0..files.len()).map(|_| None).collect());
+    std::thread::scope(|s| {
+        for _ in 0..threads.min(files.len()).max(1) {
+            s.spawn(|| loop {
+                let i = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                if i >= files.len() {
+                    break;
+                }
+                let f = &files[i];
+                let name = f.file_stem().unwrap().to_string_lossy().to_string();
+                let trace: Value = match std::fs::read_to_string(f).map_err(|e| e.to_string()).and_then(|t| serde_json::from_str(&t).map_err(|e| e.to_string())) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        results.lock().unwrap()[i] = Some((Outcome::Unsupported(format!("unreadable: {}", e)), None));
+                        continue;
+                    }
+                };
+
+                // A panic (e.g. a fixed-capacity list overflowing on a Twinleaf state
+                // with duplicated cards) fails this trace instead of the whole run.
+                PANIC_STEP.with(|c| c.set(-1));
+                ptcg::expect::take();
                 ptcg::rng::set_tape(None);
-                out
-            } else {
-                replay(&trace, dump.as_deref(), &name)
-            }
-        })) {
-            Ok(o) => o,
-            Err(e) => {
-                let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
-                Outcome::Diverged { step: PANIC_STEP.with(|c| c.get()), what: "panic".into(), detail: msg }
-            }
-        };
-        let run = ptcg::expect::take();
+                let out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    if obs && trace["start"]["o"].is_string() {
+                        let out = replay_obs(&trace, dump.as_deref(), &name);
+                        ptcg::rng::set_tape(None);
+                        out
+                    } else {
+                        replay(&trace, dump.as_deref(), &name)
+                    }
+                })) {
+                    Ok(o) => o,
+                    Err(e) => {
+                        let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
+                        Outcome::Diverged { step: PANIC_STEP.with(|c| c.get()), what: "panic".into(), detail: msg }
+                    }
+                };
+                let run = ptcg::expect::take();
+                results.lock().unwrap()[i] = Some((out, run));
+            });
+        }
+    });
+    let results = results.into_inner().unwrap();
+    for (f, r) in files.iter().zip(results) {
+        let name = f.file_stem().unwrap().to_string_lossy().to_string();
+        let (mut out, run) = r.unwrap();
         if let (Outcome::Pass { .. }, Some(run)) = (&out, &run) {
             let mut failures: Vec<String> = Vec::new();
             for fl in &run.failures {
