@@ -289,6 +289,10 @@ pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
             if g.st.players[pu].cannot_play_supporter_cards {
                 crate::bail!("BLOCKED_BY_EFFECT");
             }
+            // One Supporter card per turn (basic rule), for every Supporter.
+            if g.st.players[pu].supporter_turn > 0 {
+                crate::bail!("SUPPORTER_ALREADY_PLAYED");
+            }
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Supporter, p, card, target)
         }
         Effect::PlayStadium { p, card } => {

@@ -247,6 +247,10 @@ fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
 /// did, prompts included, is over (rulings 1625, 1650, 1651).
 fn attack_triggers(g: &mut Game, f: AttackFrame) -> R {
     let p = f.p as usize;
+    // Damage done by the attack's after-damage effects (spec cards: Bench
+    // damage after the damage step) gets its Tenacious Body coin here, once
+    // all of the attack's damage is done (ruling 1770).
+    crate::prefabs::resolve_survive_coin_flips(g)?;
     g.run_fx(Effect::AfterAttackTriggers { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
     attack_triggers_loop(g, f)
 }

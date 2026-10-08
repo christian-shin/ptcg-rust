@@ -214,8 +214,15 @@ pub(crate) enum Flow {
     Suspend,
 }
 
+/// The spec being run for `me`: its own, or, while a copied attack runs the
+/// source card's text as the copycat's (`copy_attack.rs` delegation), the
+/// source's.
 fn spec_of(g: &Game, me: CardId) -> &'static CardSpec {
-    crate::cards::spec_for(g.st.cards[me as usize].def).expect("spec card without a spec")
+    let card = match g.deleg {
+        Some(d) if d.copycat == me => d.source,
+        _ => me,
+    };
+    crate::cards::spec_for(g.st.cards[card as usize].def).expect("spec card without a spec")
 }
 
 fn program(spec: &'static CardSpec, prog: Prog) -> &'static [Step] {
