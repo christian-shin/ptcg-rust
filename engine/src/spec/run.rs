@@ -74,11 +74,15 @@ pub struct Frame {
     pub(crate) p: u8,
     /// Card registers: temp list indices, or NONE.
     pub(crate) cards: [u8; 2],
+    /// The slot register (`PickSlot`): player << 4 | slot, or NONE.
+    pub(crate) slot: u8,
+    /// Heads of the last coin flips, for `Num::Heads` (not kept across a prompt).
+    pub(crate) heads: u8,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2] }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], slot: NONE, heads: 0 }
     }
 
     fn prog_code(&self) -> u32 {
@@ -98,6 +102,7 @@ impl Frame {
         f.a[2] = self.p as i32;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
+        f.e[1] = self.slot;
         f.l = self.cards;
         f
     }
@@ -131,6 +136,8 @@ impl Frame {
             eff: f.e[0],
             p: f.a[2] as u8,
             cards: f.l,
+            slot: f.e[1],
+            heads: 0,
         })
     }
 
@@ -346,6 +353,19 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let op = &list_at(spec, &f)[f.index()].op;
     let flow = if f.phase == Phase::Choices { ops::resume_choice(g, me, &mut f, op, results)? } else { ops::resume(g, me, &mut f, op, results)? };
     match flow {
+        Flow::Next => f.advance(),
+        Flow::Enter(sel) => f.enter(sel),
+        Flow::Suspend => return Ok(()),
+    }
+    run(g, me, f)
+}
+
+/// `CardImpl::coin` of every spec card: a single coin flip came up `heads`.
+pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
+    let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
+    let spec = spec_of(g, me);
+    let op = &list_at(spec, &f)[f.index()].op;
+    match ops::coin(g, me, &mut f, op, heads)? {
         Flow::Next => f.advance(),
         Flow::Enter(sel) => f.enter(sel),
         Flow::Suspend => return Ok(()),

@@ -98,6 +98,11 @@ pub enum Lasting {
     /// During the opponent's next turn, whenever they try to use a Trainer from
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
+    // --- S3-4 appends ---
+    /// This Pokémon can't retreat during your next turn.
+    SelfCannotRetreat,
+    /// During the opponent's next turn, Pokémon with this many Energy or fewer can't attack.
+    OppSmallEnergyCannotAttack(i32),
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -243,6 +248,8 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
             }
         }
+        Lasting::SelfCannotRetreat => block_self_retreat(g, atk)?,
+        Lasting::OppSmallEnergyCannotAttack(n) => opponent_pokemon_with_x_or_less_energy_cannot_attack(g, atk, n)?,
     }
     Ok(())
 }

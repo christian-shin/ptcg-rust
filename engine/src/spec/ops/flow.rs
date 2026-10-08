@@ -7,7 +7,7 @@
 
 use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES};
 use super::super::*;
-use crate::game::{Game, R};
+use crate::game::{CoinCb, Game, R};
 use crate::list::CardId;
 use crate::prefabs::*;
 use crate::prompts::Res;
@@ -27,12 +27,34 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-pub struct CoinSpec {}
+/// How many coins a `Coin` flips.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CoinMode {
+    /// One flip: `heads` or `tails` runs.
+    One,
+    /// This many flips, then `then` runs (`Num::Heads` counts the heads).
+    Fixed(u8),
+    /// Flip until tails, then `then` runs.
+    UntilTails,
+}
+pub struct CoinSpec {
+    pub mode: CoinMode,
+    pub heads: &'static [Step],
+    pub tails: &'static [Step],
+    pub then: &'static [Step],
+}
+impl CoinSpec {
+    pub const DEFAULT: CoinSpec = CoinSpec { mode: CoinMode::One, heads: &[], tails: &[], then: &[] };
+}
 pub struct ChooseSpec {}
 pub struct ForEachSpec {}
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
-pub struct FailSpec {}
+/// The card can't be used (an attack can't be declared, a Trainer can't be played) when `when` holds.
+pub struct FailSpec {
+    pub when: Cond,
+    pub error: &'static str,
+}
 pub struct PickAttackSpec {}
 /// Choose an attack of `from`'s Active Pokémon (when its card matches
 /// `predicate` and has attacks) and use it as this attack, as a copy session
@@ -87,13 +109,70 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             crate::engine::phase::end_game(g, winner);
             Ok(Flow::Next)
         }
+        Op::Coin(c) => {
+            let p = f.p as usize;
+            match c.mode {
+                CoinMode::One => {
+                    g.coin_flip(p, CoinCb::Card { card: me, frame: f.frame_at(1) })?;
+                }
+                CoinMode::Fixed(_) | CoinMode::UntilTails => {
+                    // The sequence's result overwrites the frame's player and loop counters:
+                    // keep them on the side.
+                    g.spec_choices.retain(|x| !(x.card == me && x.key == COIN_STASH));
+                    let mut ch = SpecChoice { card: me, key: COIN_STASH, answer: f.p, items: [0; 16], len: 4 };
+                    ch.items[..4].copy_from_slice(&f.iter);
+                    g.spec_choices.push(ch);
+                    let n = if let CoinMode::Fixed(n) = c.mode { n } else { 0 };
+                    coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(1) })?;
+                }
+            }
+            Ok(Flow::Suspend)
+        }
+        Op::Fail(x) => {
+            if cond_m(g, me, f, &x.when)? {
+                crate::bail!(x.error);
+            }
+            Ok(Flow::Next)
+        }
         _ => unimplemented!("spec op not implemented yet (ops/flow.rs)"),
     }
 }
 
-pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+/// Key of the side copy of a frame kept across a coin sequence.
+const COIN_STASH: u64 = u64::MAX;
+
+/// A single coin flip of `op` came up `heads`.
+pub(crate) fn coin(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    match op {
+        Op::Coin(c) => Ok(if heads {
+            if c.heads.is_empty() {
+                Flow::Next
+            } else {
+                Flow::Enter(0)
+            }
+        } else if c.tails.is_empty() {
+            Flow::Next
+        } else {
+            Flow::Enter(1)
+        }),
+        _ => Ok(Flow::Next),
+    }
+}
+
+pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::Coin(c) => {
+            // A flip sequence is over: its results replaced the frame's player (low byte) and counters.
+            let heads = f.p.count_ones() as u8;
+            if let Some(i) = g.spec_choices.iter().position(|x| x.card == me && x.key == COIN_STASH) {
+                let st = g.spec_choices.remove_at(i);
+                f.p = st.answer;
+                f.iter.copy_from_slice(&st.items[..4]);
+            }
+            f.heads = heads;
+            Ok(if c.then.is_empty() { Flow::Next } else { Flow::Enter(2) })
+        }
         Op::May(m) => {
             if first.as_bool() {
                 Ok(if m.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
@@ -144,6 +223,9 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::May(m), _) => m.no,
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
+        (Op::Coin(c), 0) => c.heads,
+        (Op::Coin(c), 1) => c.tails,
+        (Op::Coin(c), _) => c.then,
         _ => &[],
     }
 }

@@ -95,3 +95,8 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
 pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     flow::again(g, me, f, op)
 }
+
+/// A single coin flip of `op` came up `heads` (flow ops only).
+pub(crate) fn coin(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    flow::coin(g, me, f, op, heads)
+}

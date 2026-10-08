@@ -73,6 +73,9 @@ pub enum Num {
     InPlayCount(Who, PlayScope, Pred),
     /// Distinct first provided types among the cards of a zone matching the predicate.
     DistinctTypes(ZoneRef, Pred),
+    // --- S3-4 appends ---
+    /// Heads of the coins just flipped (a `Coin` with several flips; valid in its `then` steps).
+    Heads,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -134,6 +137,10 @@ pub enum Cond {
     InPlay(Who, PlayScope, Pred),
     /// A Pokémon in play with any card of its stack matching.
     InPlayAny(Who, PlayScope, Pred),
+    // --- S3-4 appends ---
+    /// Some of the player's Pokémon were Knocked Out during the opponent's last turn (K2): by
+    /// damage from an attack when `by_attack`; only Pokémon with the tag when `tag` is set.
+    KnockedOutLastTurn { who: Who, tag: Option<u32>, by_attack: bool },
 }
 
 /// A card predicate.
@@ -261,6 +268,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
+        Num::Heads => f.heads as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -367,6 +375,17 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::KnockedOutLastTurn { who, tag, by_attack } => {
+            let pl = &g.st.players[f.who(*who)];
+            if *by_attack {
+                pl.pokemon_knocked_out_by_attack_during_opponents_last_turn
+            } else {
+                match tag {
+                    None => pl.pokemon_knocked_out_during_opponents_last_turn,
+                    Some(t) => pl.pokemon_knocked_out_last_turn_entries.iter().any(|d| crate::carddb::cards()[*d as usize].has_tag(*t)),
+                }
+            }
+        }
     }
 }
 
