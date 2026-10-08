@@ -192,6 +192,10 @@ pub struct SpecChoice {
     /// Program and path of the step (`run.rs`).
     pub key: u64,
     pub answer: u8,
+    /// The chosen items (card ids, slots as `p << 4 | slot`, counts), as the
+    /// op encodes them; `len` of them are used.
+    pub items: [u8; 16],
+    pub len: u8,
 }
 
 /// Every op of vocabulary v1. Record types live in the family files.

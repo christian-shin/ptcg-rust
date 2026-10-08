@@ -176,19 +176,33 @@ impl Frame {
 
     /// Record the step-D answer of the current step.
     pub(crate) fn record(&self, g: &mut Game, me: CardId, answer: u8) {
+        self.record_items(g, me, answer, &[]);
+    }
+
+    /// Record the step-D answer of the current step with the chosen items
+    /// (at most 16 bytes, encoded by the op).
+    pub(crate) fn record_items(&self, g: &mut Game, me: CardId, answer: u8, items: &[u8]) {
         let key = self.key();
         g.spec_choices.retain(|c| !(c.card == me && c.key == key));
-        g.spec_choices.push(SpecChoice { card: me, key, answer });
+        let mut c = SpecChoice { card: me, key, answer, items: [0; 16], len: items.len().min(16) as u8 };
+        c.items[..c.len as usize].copy_from_slice(&items[..c.len as usize]);
+        g.spec_choices.push(c);
     }
 
     /// The step-D answer of the current step, when carrying out an attack's
     /// effects after the damage.
     pub(crate) fn recorded(&self, g: &Game, me: CardId) -> Option<u8> {
+        self.recorded_choice(g, me).map(|c| c.answer)
+    }
+
+    /// The step-D choice of the current step (answer and items), when
+    /// carrying out an attack's effects after the damage.
+    pub(crate) fn recorded_choice(&self, g: &Game, me: CardId) -> Option<SpecChoice> {
         if self.phase != Phase::AfterDamage {
             return None;
         }
         let key = self.key();
-        g.spec_choices.iter().find(|c| c.card == me && c.key == key).map(|c| c.answer)
+        g.spec_choices.iter().find(|c| c.card == me && c.key == key).copied()
     }
 }
 
