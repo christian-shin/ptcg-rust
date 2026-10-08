@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Walking Wake ex TEF 50",
+   "4 Iron Thorns ex TWM 77",
+   "4 Mist Energy TEF 161",
+   "20 Water Energy MEE 3",
+   "28 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Walking Wake ex TEF 50",
+   "4 Iron Thorns ex TWM 77",
+   "4 Mist Energy TEF 161",
+   "20 Water Energy MEE 3",
+   "28 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Walking Wake ex TEF 50",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "2 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex TWM 77",
+  "active_conditions": [
+   "BURNED"
+  ],
+  "bench": [
+   {
+    "card": "Iron Thorns ex TWM 77"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Catharsis Roar"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 2,
+   "cite": "Catharsis Roar's +120 is attack text: Iron Thorns ex' Initialization removes only Azure Seas, so 120 + 120 = 240 Knocks Out Iron Thorns ex (230 HP) (planned change B-PC-19)"
+  }
+ ]
+}
