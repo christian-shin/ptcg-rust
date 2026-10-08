@@ -1,23 +1,24 @@
 //! Poké Pad (ASC / MC): search your deck for a Pokémon that doesn't have a
 //! Rule Box, reveal it, put it into your hand, then shuffle.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "PokePad", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "PokePad",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::All(&[Pred::Pokemon, Pred::Not(&Pred::RuleBox)]), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: true,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-    g.set_prevent(e, true);
-    let mut opts = ChooseCardsOpts::new(0, 1, true);
-    for (i, c) in g.st.players[p].deck.iter().enumerate() {
-        let d = g.st.cdef(c);
-        if !d.is_pokemon() || d.has_rule_box() {
-            opts.blocked.push(i as u8);
-        }
-    }
-    search_deck_for_pokemon_to_hand(g, p, Filter::none(), opts)
-}
-
+pub static IMPL: CardImpl = SPEC.card_impl();

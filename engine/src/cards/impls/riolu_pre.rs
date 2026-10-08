@@ -1,13 +1,21 @@
 //! Riolu (PRE): Quick Attack — 10+; flip a coin, if heads 20 more damage.
-//!
-//! FLIP_A_COIN_IF_HEADS_DEAL_MORE_DAMAGE (a CoinFlipEffect whose callback
-//! adds to the attack's damage after the flip's wait prompt).
+use crate::spec::prelude::*;
+
+pub static SPEC: CardSpec = CardSpec {
+    class: "Riolu@PRE",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::before_damage(Op::Coin(CoinSpec { heads: &[Step::new(more_damage_if(20, Cond::True))], ..CoinSpec::DEFAULT }))],
+    }],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();
+
+// Helpers still imported by hand-written cards (Bronzor, Comfey, Crustle, Eevee, Ion's Wattrel);
+// delete when their conversions land.
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Riolu@PRE", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
-
-/// FLIP_A_COIN_IF_HEADS_DEAL_MORE_DAMAGE(store, state, effect, amount): the
-/// card's `coin` fn must call [`coin_more_damage`].
 pub fn flip_more_damage(g: &mut Game, me: CardId, e: EffId, amount: i32) -> R {
     let p = match *g.e(e) {
         Effect::Attack { p, .. } => p as usize,
@@ -33,15 +41,4 @@ pub fn coin_more_damage(g: &mut Game, f: CardFrame, heads: bool) -> R {
     }
     g.release_fx(atk);
     Ok(())
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        flip_more_damage(g, me, e, 20)?;
-    }
-    Ok(())
-}
-
-fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
-    coin_more_damage(g, f, heads)
 }

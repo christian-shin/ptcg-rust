@@ -229,6 +229,10 @@ pub enum PreventWhat {
     HealOppActive,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
+    // --- S3 agent 3 appends ---
+    /// This card can't be put into its owner's hand or deck from the discard pile (the move
+    /// takes the other cards, or is prevented when nothing is left).
+    ThisCardFromDiscard,
 }
 
 /// A prohibition on the opponent's or everyone's effects (vocabulary P5).
@@ -450,6 +454,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
+            PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
         },
         Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
         Modifier::PrizeAdjust(_) => mask(&[k::KNOCK_OUT]),
@@ -1108,6 +1113,40 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
             let (sq, opp) = (sq as usize, 1 - at.owner);
             if destination == ListRef::Hand(opp as u8) && sq == opp && g.st.slot_pokemon(opp, ss).is_some() && !blocked(g, me, origin, at, None) {
                 g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::ThisCardFromDiscard, Effect::MoveCards { source, destination, cards, count, .. }) => {
+            // Runs for any discard pile holding this card (no in-play check).
+            for q in 0..2usize {
+                if source != ListRef::Discard(q as u8) || !g.st.players[q].discard.iter().any(|c| c == me) {
+                    continue;
+                }
+                if destination != ListRef::Hand(q as u8) && destination != ListRef::Deck(q as u8) {
+                    continue;
+                }
+                let v: Vec<CardId>;
+                let new_count;
+                if let Some(cs) = cards {
+                    if !cs.iter().any(|c| c == me) {
+                        continue;
+                    }
+                    v = cs.iter().filter(|c| *c != me).collect();
+                    new_count = count;
+                } else if let Some(n) = count {
+                    v = g.st.players[q].discard.iter().filter(|c| *c != me).take(n.max(0) as usize).collect();
+                    new_count = None;
+                } else {
+                    v = g.st.players[q].discard.iter().filter(|c| *c != me).collect();
+                    new_count = None;
+                }
+                let prevent = v.is_empty();
+                if let Effect::MoveCards { cards, count, .. } = g.e_mut(e) {
+                    *cards = Some(List::from_slice(&v));
+                    *count = new_count;
+                }
+                if prevent {
+                    g.set_prevent(e, true);
+                }
             }
         }
         _ => {}

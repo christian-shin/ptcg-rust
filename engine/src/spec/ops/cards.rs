@@ -120,6 +120,8 @@ pub enum DrawAmount {
     Count(Num),
     /// Draw until the hand has this many cards (no draw if it has as many).
     UntilHandSize(Num),
+    /// Like `UntilHandSize`, not counting the resolving card (a Supporter still in hand).
+    UntilHandSizeOthers(Num),
 }
 pub struct ShuffleSpec {
     pub zone: ZoneRef,
@@ -325,6 +327,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let n = match &d.amount {
                 DrawAmount::Count(n) => num(g, me, f, n),
                 DrawAmount::UntilHandSize(n) => num(g, me, f, n) - g.st.players[p].hand.len() as i32,
+                DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32,
             };
             if n > 0 {
                 draw_cards(g, p, n as usize)?;
@@ -944,6 +947,8 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Draw(d) => match &d.amount {
             DrawAmount::Count(n) => num_uses_reg(n) || num(g, me, f, n) > 0,
             DrawAmount::UntilHandSize(n) => num(g, me, f, n) - g.st.players[f.who(d.who)].hand.len() as i32 > 0,
+            // The card's own steps make room to draw (Naveen discards first): its `needs` decide.
+            DrawAmount::UntilHandSizeOthers(_) => true,
         },
         Op::Pick(p) => pick_possible(g, me, f, p, i32::MAX),
         Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)),

@@ -73,6 +73,11 @@ pub enum Num {
     InPlayCount(Who, PlayScope, Pred),
     /// Distinct first provided types among the cards of a zone matching the predicate.
     DistinctTypes(ZoneRef, Pred),
+    // --- S3 agent 3 appends ---
+    /// Heads of the last coin op.
+    CoinHeads,
+    /// Cards in the player's hand other than the resolving card.
+    HandOthers(Who),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -175,6 +180,9 @@ pub enum Pred {
     PokemonType(u8),
     /// Energy card that provides the type.
     Provides(u8),
+    // --- S3 agent 3 appends ---
+    /// The card has a Rule Box.
+    RuleBox,
 }
 
 impl Frame {
@@ -261,6 +269,8 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
+        Num::CoinHeads => f.heads() as i32,
+        Num::HandOthers(w) => g.st.players[f.who(*w)].hand.iter().filter(|c| *c != me).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -400,6 +410,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PrintedType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
+        Pred::RuleBox => d.has_rule_box(),
     }
 }
 

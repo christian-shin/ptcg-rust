@@ -98,6 +98,9 @@ pub enum Lasting {
     /// During the opponent's next turn, whenever they try to use a Trainer from
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
+    // --- S3 agent 3 appends ---
+    /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
+    PreventEffects,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -243,6 +246,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
             }
         }
+        Lasting::PreventEffects => prevent_effects_of_attacks(g, atk)?,
     }
     Ok(())
 }

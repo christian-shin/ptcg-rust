@@ -24,6 +24,8 @@ const MAX_DEPTH: usize = 4;
 const SEL_SHIFT: u8 = 5;
 const INDEX_MASK: u8 = 0x1F;
 pub(crate) const NONE: u8 = 0xFF;
+/// Resume point of a coin sequence (`CoinCb::SequenceCard`).
+pub(crate) const COIN_SEQUENCE: u8 = 0x7E;
 
 pub(crate) const CHOICE_NO: u8 = 0;
 pub(crate) const CHOICE_YES: u8 = 1;
@@ -95,9 +97,10 @@ impl Frame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
         f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
-        f.a[2] = self.p as i32;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
+        // The player rides in e[1]: a coin sequence's callback overwrites a[2] and a[3].
+        f.e[1] = self.p;
         f.l = self.cards;
         f
     }
@@ -129,9 +132,18 @@ impl Frame {
             iter: f.a[3].to_le_bytes(),
             sub: ((a0 >> 24) & 0xFF) as u8,
             eff: f.e[0],
-            p: f.a[2] as u8,
+            p: f.e[1],
             cards: f.l,
         })
+    }
+
+    /// Heads of the last coin op (kept in the unused fourth loop counter).
+    pub(crate) fn heads(&self) -> u8 {
+        self.iter[MAX_DEPTH - 1]
+    }
+
+    pub(crate) fn set_heads(&mut self, n: u8) {
+        self.iter[MAX_DEPTH - 1] = n;
     }
 
     pub(crate) fn index(&self) -> usize {
@@ -344,7 +356,29 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
-    let flow = if f.phase == Phase::Choices { ops::resume_choice(g, me, &mut f, op, results)? } else { ops::resume(g, me, &mut f, op, results)? };
+    let flow = if f.sub == COIN_SEQUENCE {
+        // A coin sequence's callback: bit i of a[2] = flip i was heads, a[3] = the flip count
+        // (it overwrote the loop counters of the frame).
+        f.iter = [0; MAX_DEPTH];
+        ops::resume_coin(g, me, &mut f, op, cf.a[2] as u32, cf.a[3] as u8)?
+    } else if f.phase == Phase::Choices {
+        ops::resume_choice(g, me, &mut f, op, results)?
+    } else {
+        ops::resume(g, me, &mut f, op, results)?
+    };
+    proceed(g, me, f, flow)
+}
+
+/// `CardImpl::coin` of every spec card: a single coin flip's result.
+pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
+    let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
+    let spec = spec_of(g, me);
+    let op = &list_at(spec, &f)[f.index()].op;
+    let flow = ops::resume_coin(g, me, &mut f, op, heads as u32, 1)?;
+    proceed(g, me, f, flow)
+}
+
+fn proceed(g: &mut Game, me: CardId, mut f: Frame, flow: Flow) -> R {
     match flow {
         Flow::Next => f.advance(),
         Flow::Enter(sel) => f.enter(sel),

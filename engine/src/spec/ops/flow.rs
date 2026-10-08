@@ -7,7 +7,8 @@
 
 use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES};
 use super::super::*;
-use crate::game::{Game, R};
+use crate::effects::Effect;
+use crate::game::{CoinCb, Game, R};
 use crate::list::CardId;
 use crate::prefabs::*;
 use crate::prompts::Res;
@@ -27,7 +28,34 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-pub struct CoinSpec {}
+/// Flip coins (the player the program runs for). One flip runs `heads` or `tails`; counted
+/// flips (`Count`, `UntilTails`) apply `per_heads` to the attack's damage and then run `heads`
+/// once (it can read the number of heads with `Num::CoinHeads`).
+pub struct CoinSpec {
+    pub flips: Flips,
+    pub per_heads: PerHeads,
+    pub heads: &'static [Step],
+    pub tails: &'static [Step],
+}
+impl CoinSpec {
+    pub const DEFAULT: CoinSpec = CoinSpec { flips: Flips::One, per_heads: PerHeads::Nothing, heads: &[], tails: &[] };
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Flips {
+    One,
+    /// A fixed number of flips (a MULTIPLE_COIN_FLIPS prompt).
+    Count(u8),
+    /// Flip until tails; the number of heads is what counts.
+    UntilTails,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PerHeads {
+    Nothing,
+    /// "N damage for each heads": the attack's damage is N times the heads.
+    DamageIs(i32),
+    /// "N more damage for each heads".
+    DamageAdd(i32),
+}
 pub struct ChooseSpec {}
 pub struct ForEachSpec {}
 pub struct RepeatSpec {}
@@ -87,8 +115,41 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             crate::engine::phase::end_game(g, winner);
             Ok(Flow::Next)
         }
+        Op::Coin(c) => {
+            let p = f.p as usize;
+            let frame = f.frame_at(if c.flips == Flips::One { 1 } else { super::super::run::COIN_SEQUENCE });
+            match c.flips {
+                Flips::One => {
+                    g.coin_flip(p, CoinCb::Card { card: me, frame })?;
+                }
+                Flips::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame })?,
+                Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame })?,
+            }
+            Ok(Flow::Suspend)
+        }
         _ => unimplemented!("spec op not implemented yet (ops/flow.rs)"),
     }
+}
+
+/// The result of a coin op: `bits` (bit i = flip i was heads) of `n` flips.
+pub(crate) fn resume_coin(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, bits: u32, n: u8) -> R<Flow> {
+    let Op::Coin(c) = op else { return Ok(Flow::Next) };
+    let heads = (bits & ((1u64 << n) - 1) as u32).count_ones() as i32;
+    f.set_heads(heads as u8);
+    if c.per_heads != PerHeads::Nothing {
+        if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
+            match c.per_heads {
+                PerHeads::Nothing => {}
+                PerHeads::DamageIs(k) => *damage = k * heads,
+                PerHeads::DamageAdd(k) => *damage += k * heads,
+            }
+        }
+    }
+    Ok(match c.flips {
+        Flips::One if heads > 0 => if c.heads.is_empty() { Flow::Next } else { Flow::Enter(0) },
+        Flips::One => if c.tails.is_empty() { Flow::Next } else { Flow::Enter(1) },
+        _ => if c.heads.is_empty() { Flow::Next } else { Flow::Enter(0) },
+    })
 }
 
 pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
@@ -144,6 +205,8 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::May(m), _) => m.no,
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
+        (Op::Coin(c), 0) => c.heads,
+        (Op::Coin(c), _) => c.tails,
         _ => &[],
     }
 }
