@@ -82,7 +82,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     let mut attacking = SlotRef::new(p, active);
     for &b in g.st.players[p].bench.iter() {
         if let Some(c) = g.st.slot_pokemon(p, b) {
-            if g.st.cdef(c).attacks.iter().any(|a| a.tl_name == ad.tl_name && a.use_on_bench) {
+            if g.st.cdef(c).attacks.iter().any(|a| a.name == ad.name && a.use_on_bench) {
                 attacking = SlotRef::new(p, b);
             }
         }
@@ -105,13 +105,13 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
             }
         }
     }
-    if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.tl_name) {
+    if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.name) {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
-    if g.st.slot(p, attacking.s).blocked_attack_name_next_turn == Some(ad.tl_name) {
+    if g.st.slot(p, attacking.s).blocked_attack_name_next_turn == Some(ad.name) {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
-    if g.st.slot(p, attacking.s).blocked_attack_name_until_leaves_active == Some(ad.tl_name) {
+    if g.st.slot(p, attacking.s).blocked_attack_name_until_leaves_active == Some(ad.name) {
         crate::bail!("CANNOT_USE_ATTACK");
     }
     // cannotAttackMaxEnergy / other blocked attack names /
@@ -350,7 +350,7 @@ fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
     let mut attacking = SlotRef::new(p, active);
     for &b in g.st.players[p].bench.iter() {
         if let Some(c) = g.st.slot_pokemon(p, b) {
-            if g.st.cdef(c).attacks.iter().any(|a| a.tl_name == ad.tl_name && a.use_on_bench) {
+            if g.st.cdef(c).attacks.iter().any(|a| a.name == ad.name && a.use_on_bench) {
                 attacking = SlotRef::new(p, b);
             }
         }

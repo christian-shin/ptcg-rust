@@ -216,9 +216,9 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             let attacks = available_attacks(g, p)?;
             // `from` names the Benched Pokemon of an attack copied by Memory Helix.
             let found = attacks.iter().find(|r| {
-                g.st.cdef(r.0.card).attacks[r.0.index as usize].tl_name == name
+                g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name
                     && match from {
-                        Some(f) => r.1 && g.st.cdef(r.0.card).tl_full_name == f,
+                        Some(f) => r.1 && g.st.cdef(r.0.card).full_name == f,
                         None => true,
                     }
             });
@@ -256,7 +256,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                     Effect::CheckPokemonPowers { powers, .. } => powers,
                     _ => SVec::new(),
                 };
-                let power = match powers.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].tl_name == name) {
+                let power = match powers.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
                     Some(r) => *r,
                     None => crate::bail!("UNKNOWN_POWER"),
                 };

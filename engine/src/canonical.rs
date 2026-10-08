@@ -108,7 +108,7 @@ impl Game {
         let attack_json = |a: AttackRef| -> Value {
             let ad = &self.st.cdef(a.card).attacks[a.idx()];
             let mut ao = Map::new();
-            ao.insert("name".into(), json!(ad.tl_name));
+            ao.insert("name".into(), json!(ad.name));
             ao.insert("cost".into(), json!(ad.cost));
             ao.insert("damage".into(), json!(ad.damage));
             ao.insert("text".into(), json!(ad.text));
@@ -311,7 +311,7 @@ impl Game {
                     .enumerate()
                     .map(|(i, a)| {
                         let mut o = Map::new();
-                        o.insert("name".into(), json!(a.tl_name));
+                        o.insert("name".into(), json!(a.name));
                         o.insert("cost".into(), json!(a.cost));
                         o.insert("damage".into(), json!(a.damage));
                         o.insert("text".into(), json!(a.text));
@@ -381,14 +381,14 @@ impl Game {
             o.insert("skipOpponentTurn".into(), json!(true));
         }
         if let Some(a) = st.last_attack {
-            o.insert("lastAttack".into(), json!(st.cdef(a.card).attacks[a.idx()].tl_name));
+            o.insert("lastAttack".into(), json!(st.cdef(a.card).attacks[a.idx()].name));
         }
         let mut pla = Map::new();
         for p in 0..2 {
             if let Some((a, src)) = st.player_last_attack[p] {
                 pla.insert(
                     st.players[p].id.to_string(),
-                    json!({ "attack": st.cdef(a.card).attacks[a.idx()].tl_name, "sourceCard": self.card_ref(src) }),
+                    json!({ "attack": st.cdef(a.card).attacks[a.idx()].name, "sourceCard": self.card_ref(src) }),
                 );
             }
         }

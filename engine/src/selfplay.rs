@@ -100,12 +100,12 @@ pub fn expand_deck(lines: &Value) -> Result<Vec<DefId>, String> {
 }
 
 fn tl(name: &str) -> Result<String, String> {
-    def_by_full_name(name).map(|d| def(d).tl_full_name.to_string()).ok_or_else(|| format!("unknown card {}", name))
+    def_by_full_name(name).map(|d| def(d).full_name.to_string()).ok_or_else(|| format!("unknown card {}", name))
 }
 
-/// The scenario with every card name mapped to its Twinleaf full name and move names in scripted
-/// answers to Twinleaf's, which the turn option descriptors and `scenario::apply` use (as
-/// `check_cards.py` `load_scenario` does for the oracle).
+/// The scenario with every card name mapped to its official full name (international key) and move
+/// names in scripted answers to official names, as the turn option descriptors use them. Old Twinleaf
+/// names are still accepted as input.
 pub fn load_scenario(sc: &Value) -> Result<Value, String> {
     let mut sc = sc.clone();
     let mut seen: Vec<DefId> = Vec::new();
@@ -113,14 +113,14 @@ pub fn load_scenario(sc: &Value) -> Result<Value, String> {
         if let Some(s) = v.as_str() {
             let d = def_by_full_name(s).ok_or_else(|| format!("unknown card {}", s))?;
             seen.push(d);
-            *v = Value::from(def(d).tl_full_name);
+            *v = Value::from(def(d).full_name);
         }
         Ok(())
     }
     fn many(v: &mut Value, seen: &mut Vec<DefId>) -> Result<(), String> {
         let ds = expand_deck(v)?;
         seen.extend(ds.iter().copied());
-        *v = Value::Array(ds.iter().map(|d| Value::from(def(*d).tl_full_name)).collect());
+        *v = Value::Array(ds.iter().map(|d| Value::from(def(*d).full_name)).collect());
         Ok(())
     }
     fn stack(v: &mut Value, seen: &mut Vec<DefId>) -> Result<(), String> {
@@ -165,14 +165,14 @@ pub fn load_scenario(sc: &Value) -> Result<Value, String> {
         }
     }
     // Move names: official or Twinleaf, among the cards the scenario mentions.
-    let move_tl = |name: &str| -> String {
+    let move_name = |name: &str| -> String {
         for d in &seen {
             let c = def(*d);
             if let Some(a) = c.attacks.iter().find(|a| a.name == name || a.tl_name == name) {
-                return a.tl_name.to_string();
+                return a.name.to_string();
             }
             if let Some(p) = c.powers.iter().find(|p| p.name == name || p.tl_name == name) {
-                return p.tl_name.to_string();
+                return p.name.to_string();
             }
         }
         name.to_string()
@@ -188,7 +188,7 @@ pub fn load_scenario(sc: &Value) -> Result<Value, String> {
         }
         if ["attack", "ability", "trainerAbility"].contains(&kind.as_str()) {
             if let Some(n) = o.get("name").and_then(|x| x.as_str()).map(|s| s.to_string()) {
-                o.insert("name".into(), Value::from(move_tl(&n)));
+                o.insert("name".into(), Value::from(move_name(&n)));
             }
         }
         if kind == "attack" {
@@ -197,7 +197,7 @@ pub fn load_scenario(sc: &Value) -> Result<Value, String> {
             }
         }
         if let Some(n) = o.get("attack").and_then(|x| x.as_str()).map(|s| s.to_string()) {
-            o.insert("attack".into(), Value::from(move_tl(&n)));
+            o.insert("attack".into(), Value::from(move_name(&n)));
         }
     }
     if sc.get("answers").is_some() {
@@ -369,7 +369,7 @@ pub fn play(o: &Opts) -> Played {
             End::Fail(m) => ("error", Some(m.clone())),
             End::Broken(m) => ("error", Some(m.clone())),
         };
-        let deck_names = |p: usize| -> Vec<&str> { o.decks[p].iter().map(|d| def(*d).tl_full_name).collect() };
+        let deck_names = |p: usize| -> Vec<&str> { o.decks[p].iter().map(|d| def(*d).full_name).collect() };
         let mut t = json!({
             "header": {
                 "seed": o.seed,

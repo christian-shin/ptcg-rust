@@ -227,13 +227,13 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     Ok(())
 }
 
-/// An offered attack (Twinleaf name `n`) is the one a scenario calls `want`: by its Twinleaf or official name.
+/// An offered attack (official name `n`) is the one a scenario calls `want`: by its official or old Twinleaf name.
 fn attack_named(g: &Game, p: usize, n: &str, want: &str) -> bool {
     n == want
         || g.st.players[p]
             .all_slots()
             .iter()
-            .any(|s| g.st.slot_pokemon(p, *s).map_or(false, |c| g.st.cdef(c).attacks.iter().any(|a| a.tl_name == n && a.name == want)))
+            .any(|s| g.st.slot_pokemon(p, *s).map_or(false, |c| g.st.cdef(c).attacks.iter().any(|a| a.name == n && a.tl_name == want)))
 }
 
 /// `legal`: whether a turn action is among the legal options of the player to move (the same
@@ -259,7 +259,7 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
         }
         ("ability", Action::UseAbility { name: n, target }) => {
             let src = crate::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
-            (name.is_empty() || n == name || src.map_or(false, |c| g.st.cdef(c).powers.iter().any(|pw| pw.tl_name == n && pw.name == name))) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
+            (name.is_empty() || n == name || src.map_or(false, |c| g.st.cdef(c).powers.iter().any(|pw| pw.name == n && pw.tl_name == name))) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
         }
         ("play", Action::PlayCard { hand_index, target }) => {
             names_eq(g.st.players[p].hand.as_slice()[hand_index as usize], g, name)
