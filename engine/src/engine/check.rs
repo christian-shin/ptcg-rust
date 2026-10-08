@@ -164,7 +164,7 @@ fn add_prize(f: &mut CheckFrame, taker: usize, destination: ListRef, count: i32)
 fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
     while (f.idx as usize) < f.kos.len() {
         let t = *f.kos.get(f.idx as usize).unwrap();
-        let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_destination: None, attack: None, defer_removal: true });
+        let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, prize_destination: None, attack: None, defer_removal: true });
         g.reduce_effect(id)?;
         f.ko_fx = id;
         if g.has_prompts() {

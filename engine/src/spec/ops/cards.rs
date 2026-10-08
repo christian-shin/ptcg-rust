@@ -677,8 +677,12 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::BotherBot(b) => bother_exec(g, me, f, b),
         Op::PrizeBonus(pb) => {
             // The Knock Out (a trigger's effect) takes `n` more Prize cards.
-            if let Effect::KnockOut { prize_count, .. } = g.e_mut(f.eff) {
-                *prize_count += pb.n;
+            // "Take 1 more Prize card" needs a Prize card to take (ruling 336): the Knock Out's count
+            // before modifiers (Legacy Energy, Lillie's Pearl, ...) must be positive.
+            if let Effect::KnockOut { prize_count, prize_base, .. } = g.e_mut(f.eff) {
+                if prize_bonus_applies(*prize_base) {
+                    *prize_count += pb.n;
+                }
             }
             Ok(Flow::Next)
         }
@@ -693,6 +697,24 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             tp_begin(g, me, f, t, false)
         }
         _ => unimplemented!("spec op not implemented yet (ops/cards.rs)"),
+    }
+}
+
+/// An extra Prize card is taken only when the Knock Out awards a positive number of Prize cards
+/// before modifiers (ruling 336).
+pub(crate) fn prize_bonus_applies(prize_base: i32) -> bool {
+    prize_base > 0
+}
+
+#[cfg(test)]
+mod prize_bonus_tests {
+    use super::prize_bonus_applies;
+
+    #[test]
+    fn extra_prize_needs_a_positive_base() {
+        assert!(prize_bonus_applies(1));
+        assert!(prize_bonus_applies(3));
+        assert!(!prize_bonus_applies(0));
     }
 }
 
