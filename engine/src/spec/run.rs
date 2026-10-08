@@ -369,6 +369,9 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
 
 /// `CardImpl::resume` of every spec card.
 pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
+    if cf.stage == passive::HEAVY_BATON_STAGE {
+        return passive::heavy_baton_resume(g, cf, results);
+    }
     let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
