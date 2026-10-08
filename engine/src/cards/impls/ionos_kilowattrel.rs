@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), CmpOp::Lt, Num::Lit(6)), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Not(&Cond::HasMarker { who: Who::Me, name: "RUMBLING_ENGINE_MARKER", from: MarkerFrom::This }), Cond::AnySlot(SlotSel::One(SlotExpr::This), SlotPred::HasCard(Pred::All(&[Pred::BasicEnergy, Pred::Name("Lightning Energy")])))],
         steps: &[
-            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::This, selection: EnergySelection::CostOne { pred: Pred::All(&[Pred::BasicEnergy, Pred::Name("Lightning Energy")]) } })),
+            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::This), selection: EnergySelection::CostOne { pred: Pred::All(&[Pred::BasicEnergy, Pred::Name("Lightning Energy")]) }, ..DiscardEnergySpec::DEFAULT })),
             Step::new(Op::If(IfSpec { cond: Cond::Cmp(Num::Last, CmpOp::Gt, Num::Lit(0)), yes: &[Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("RUMBLING_ENGINE_MARKER") })), Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(6)) }))], no: &[] })),
         ],
     }],

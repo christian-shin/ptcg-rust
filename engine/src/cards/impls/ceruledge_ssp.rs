@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 0,
             steps: &[Step::after_damage(Op::ForEach(ForEachSpec {
                 over: SlotSel::Pokemon(Who::Opp),
-                body: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Picked, selection: EnergySelection::Special }))],
+                body: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::Special, ..DiscardEnergySpec::DEFAULT }))],
             }))],
         },
         // Amethyst Rage: during your next turn, this Pokémon can't attack.

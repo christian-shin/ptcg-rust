@@ -66,16 +66,12 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         // Jet Cyclone: move 3 Energy from this Pokémon to 1 of your Benched Pokémon (all of them when it has fewer).
-        steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec {
-            how: EnergyHow::ToBench {
-                min: Num::Min(&Num::Lit(3), &Num::EnergyCardsOn(MY_ACTIVE)),
-                max: Num::Min(&Num::Lit(3), &Num::EnergyCardsOn(MY_ACTIVE)),
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::ToBench {
+                min: Num::Min(&Num::Lit(3), &Num::CardCount(ZoneRef(Who::Me, Zone::Attached(MY_ACTIVE)), Pred::Energy)),
+                max: Num::Min(&Num::Lit(3), &Num::CardCount(ZoneRef(Who::Me, Zone::Attached(MY_ACTIVE)), Pred::Energy)),
                 same_target: true,
                 via_effect: false,
-            },
-            to: EnergyDest::Stay,
-            ..EnergyChoiceSpec::DEFAULT
-        }))],
+            }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

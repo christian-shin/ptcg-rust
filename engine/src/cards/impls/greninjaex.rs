@@ -25,8 +25,8 @@ pub static SPEC: CardSpec = CardSpec {
             })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] }))], no: &[] })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::DamageChosen(DamageChosenSpec { among: SlotSel::Pokemon(Who::Opp), count: 2, hp: Num::Lit(120), calc: DamageCalc::Auto, msg: "CHOOSE_POKEMON_TO_DAMAGE" })),
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS } })),
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), what: EachWhat::Damage(DamageCalc::Auto), amount: Num::Lit(120), ..EachSlotSpec::DEFAULT })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT })),
         ] },
     ],
     passives: &[

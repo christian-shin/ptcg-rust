@@ -284,22 +284,17 @@ pub enum Op {
     SetFlag(SetFlagSpec),
     /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
     /// `count` and the Pokémon to pick from).
-    DamageChosen(DamageChosenSpec),
     /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
     SwitchWithActive(SwitchWithActiveSpec),
     /// Handheld Fan: the damaged Pokémon's owner moves an Energy from the Attacking Pokémon to another Benched
     /// Pokémon of the attacker's side (a trigger's context).
-    MoveEnergyFromAttacker(MoveEnergyFromAttackerSpec),
     // S3-4 appends (ops/board.rs)
     EachSlot(EachSlotSpec),
     ChoiceDamage(ChoiceDamageSpec),
     // S3-4 appends (ops/cards.rs)
-    EnergyChoice(EnergyChoiceSpec),
-    MoveToSlot(MoveToSlotSpec),
     PrizeBonus(PrizeBonusSpec),
     BotherBot(BotherBotSpec),
     // S3-4 appends (ops/flow.rs)
-    CopyFromReg(CopyFromRegSpec),
 }
 
 /// Everything a spec card file needs.

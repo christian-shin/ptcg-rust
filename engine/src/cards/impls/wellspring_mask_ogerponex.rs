@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
                 when: Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any),
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[
-                    Step::new(Op::EnergyChoice(EnergyChoiceSpec { how: EnergyHow::Cost { n: Num::Lit(3), ty: ct::COLORLESS }, to: EnergyDest::Deck, ..EnergyChoiceSpec::DEFAULT })),
+                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(3), ty: ct::COLORLESS }, to: EnergyDest::Deck, ..DiscardEnergySpec::DEFAULT })),
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                     Step::new(Op::DamageSlot(DamageSlotSpec {
                         target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),

@@ -12,11 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::Cmp(Num::ToolsInPlay, CmpOp::Gt, Num::Lit(0))],
         // Choose up to 2 Pokémon Tools attached to Pokémon in play (yours or your opponent's) and discard them.
-        steps: &[Step::new(Op::EnergyChoice(EnergyChoiceSpec {
-            how: EnergyHow::Tools { min: Num::Lit(1), max: Num::Min(&Num::Lit(2), &Num::ToolsInPlay) },
-            to: EnergyDest::Discard,
-            ..EnergyChoiceSpec::DEFAULT
-        }))],
+        steps: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Tools { min: Num::Lit(1), max: Num::Min(&Num::Lit(2), &Num::ToolsInPlay) }, to: EnergyDest::Discard, ..DiscardEnergySpec::DEFAULT }))],
     }),
     ..CardSpec::NONE
 };

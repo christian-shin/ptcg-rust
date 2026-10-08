@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         // Great Swing: discard an Energy from this Pokémon (priced as [C]).
-        steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec { how: EnergyHow::Cost { n: Num::Lit(1), ty: ct::COLORLESS }, ..EnergyChoiceSpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(1), ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

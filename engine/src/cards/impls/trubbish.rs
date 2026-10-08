@@ -10,11 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::Coin(CoinSpec {
-            heads: &[Step::new(Op::EnergyChoice(EnergyChoiceSpec {
-                from: SlotTarget::Slot(OPP_ACTIVE),
-                how: EnergyHow::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: false },
-                ..EnergyChoiceSpec::DEFAULT
-            }))],
+            heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: false }, ..DiscardEnergySpec::DEFAULT }))],
             ..CoinSpec::DEFAULT
         }))],
     }],

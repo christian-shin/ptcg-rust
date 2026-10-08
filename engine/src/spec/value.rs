@@ -102,10 +102,6 @@ pub enum Num {
     OthersCount(ZoneRef, Pred),
     /// Cards the program's last discard moved (a discard of chosen Energy).
     Last,
-    /// Energy cards attached to the Pokémon.
-    EnergyCardsOn(SlotExpr),
-    /// All the cards of the Pokémon's stack (Pokémon, Energy, Tools).
-    CardsOn(SlotExpr),
     /// Pokémon Tools attached to the Pokémon in play, both sides'.
     ToolsInPlay,
 }
@@ -375,8 +371,6 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::Last => f.last,
         Num::OthersCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
         Num::ToolsInPlay => (0..2usize).map(|q| for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().map(|(s, _, _)| g.st.slot(q, *s).tools.len() as i32).sum::<i32>()).sum(),
-        Num::CardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.len() as i32).unwrap_or(0),
-        Num::EnergyCardsOn(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).count() as i32).unwrap_or(0),
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {

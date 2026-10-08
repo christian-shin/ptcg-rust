@@ -22,10 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         },
         AttackSpec {
             index: 1,
-            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec {
-                target: SlotExpr::Active(Who::Me),
-                selection: EnergySelection::AllProvided,
-            }))],
+            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT }))],
         },
     ],
     ..CardSpec::NONE

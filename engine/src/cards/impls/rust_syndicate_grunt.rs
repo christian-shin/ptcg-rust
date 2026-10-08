@@ -13,11 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: false, tag: None }, Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::HasEnergy)],
-        steps: &[Step::new(Op::EnergyChoice(EnergyChoiceSpec {
-            from: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Opp), SlotPred::HasEnergy), msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS" }),
-            how: EnergyHow::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: true },
-            ..EnergyChoiceSpec::DEFAULT
-        }))],
+        steps: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Opp), SlotPred::HasEnergy), msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS" }), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: true }, ..DiscardEnergySpec::DEFAULT }))],
     }),
     ..CardSpec::NONE
 };

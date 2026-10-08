@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 when: Cond::True,
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[
-                    Step::new(Op::EnergyChoice(EnergyChoiceSpec { how: EnergyHow::All { provided: true }, to: EnergyDest::Hand, ..EnergyChoiceSpec::DEFAULT })),
+                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::All { provided: true }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT })),
                     Step::new(Op::ChoiceDamage(ChoiceDamageSpec { reg: None, op: DamageOp::Add, per: 80 })),
                 ],
                 no: &[],

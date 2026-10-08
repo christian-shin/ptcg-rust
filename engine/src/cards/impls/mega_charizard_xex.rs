@@ -6,10 +6,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MegaCharizardXex@Mega Charizard X ex M2",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec {
-            target: MY_ACTIVE,
-            selection: EnergySelection::Among(AmongSpec { all_pokemon: true, which: AmongWhich::Provides(crate::types::ct::FIRE), max: None, damage_per: 90, after_damage: true }),
-        }))],
+        steps: &[Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Among(AmongSpec { all_pokemon: true, which: AmongWhich::Provides(crate::types::ct::FIRE), max: None, damage_per: 90, after_damage: true }), ..DiscardEnergySpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

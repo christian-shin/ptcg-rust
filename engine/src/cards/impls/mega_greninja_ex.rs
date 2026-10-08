@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
             // The 80 more damage is done whether or not a [W] Energy could be taken (ruling 1822).
             yes: &[
                 Step::new(more_damage_if(80, Cond::True)),
-                Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::ChooseToHand { count: 1, ty: crate::types::ct::WATER, up_to: false } })),
+                Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::ChooseToHand { count: 1, ty: crate::types::ct::WATER, up_to: false }, ..DiscardEnergySpec::DEFAULT })),
             ],
             no: &[],
         }))],

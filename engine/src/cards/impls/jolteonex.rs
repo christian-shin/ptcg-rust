@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Jolteonex",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::FromBench { max: 2, pred: Pred::BasicEnergy } })),
+            Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::FromBench { max: 2, pred: Pred::BasicEnergy }, ..DiscardEnergySpec::DEFAULT })),
             Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::Last, &Num::Lit(90)), when: Cond::True })),
         ] },
         AttackSpec { index: 1, steps: &[

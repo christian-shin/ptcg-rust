@@ -28,12 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
                 asker: Who::Me,
                 when: Cond::All(&[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any), Cond::Slot(OPP_ACTIVE, SlotPred::HasEnergy)]),
                 msg: "WANT_TO_USE_ABILITY",
-                yes: &[Step::new(Op::EnergyChoice(EnergyChoiceSpec {
-                    from: SlotTarget::Slot(OPP_ACTIVE),
-                    how: EnergyHow::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: true },
-                    to: EnergyDest::Stay,
-                    ..EnergyChoiceSpec::DEFAULT
-                }))],
+                yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: true }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))],
                 no: &[],
             }))],
         },

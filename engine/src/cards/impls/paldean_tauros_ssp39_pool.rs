@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Cond::Cmp(Num::EnergyOn(SlotSel::One(OPP_ACTIVE), EnergyUnit::ProvidedUnits), CmpOp::Gt, Num::Lit(0)),
             ]),
             msg: "WANT_TO_USE_ABILITY",
-            yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: OPP_ACTIVE, selection: EnergySelection::ChooseToHand { count: 2, ty: crate::types::ct::COLORLESS, up_to: true } }))],
+            yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::ChooseToHand { count: 2, ty: crate::types::ct::COLORLESS, up_to: true }, ..DiscardEnergySpec::DEFAULT }))],
             no: &[],
         }))],
     }],

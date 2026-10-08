@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
                 calc: DamageCalc::Auto,
                 when: Cond::True,
             })),
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS } })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT })),
         ],
     }],
     ..CardSpec::NONE

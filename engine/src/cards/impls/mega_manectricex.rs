@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "WANT_TO_DISCARD_ENERGY",
                 yes: &[
                     Step::new(more_damage_if(130, Cond::True)),
-                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::This, selection: EnergySelection::AllProvided })),
+                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::This), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
                 ],
                 no: &[],
             }))],

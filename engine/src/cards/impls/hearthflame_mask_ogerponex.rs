@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
         AttackSpec { index: 1, steps: &[
             Step::before_damage(more_damage_if(140, Cond::Not(&Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Basic)))),
-            Step::after_damage(Op::If(IfSpec { cond: Cond::Not(&Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Basic)), yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::AllProvided }))], no: &[] })),
+            Step::after_damage(Op::If(IfSpec { cond: Cond::Not(&Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Basic)), yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT }))], no: &[] })),
         ] },
     ],
     passives: &[

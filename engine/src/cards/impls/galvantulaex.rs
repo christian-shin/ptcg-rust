@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(more_damage_if(110, Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::OneOf(&[SlotPred::Tag(tag::POKEMON_V), SlotPred::Tag(tag::POKEMON_VSTAR), SlotPred::Tag(tag::POKEMON_VMAX), SlotPred::Tag(tag::POKEMON_EX_LOWER)])))),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::AllProvided })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Item) })),
         ] },
     ],

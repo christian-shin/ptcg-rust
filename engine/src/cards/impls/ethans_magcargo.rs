@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[
-            Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::Prompt { ty: Some(ct::FIRE), min: 0, max: 5, into: Some(0) } })),
+            Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Prompt { ty: Some(ct::FIRE), min: 0, max: 5, into: Some(0) }, ..DiscardEnergySpec::DEFAULT })),
             Step::before_damage(damage_is(Num::Mul(&Num::RegCount(0), &Num::Lit(70)))),
         ],
     }],

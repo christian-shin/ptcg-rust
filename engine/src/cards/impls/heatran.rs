@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::Sub(&Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::MatchingEntries(ct::METAL)), &Num::Lit(1)), &Num::Lit(50)), when: Cond::True })),
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Me), selection: EnergySelection::Provides(ct::METAL) })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::Provides(ct::METAL), ..DiscardEnergySpec::DEFAULT })),
         ] },
     ],
     triggers: &[

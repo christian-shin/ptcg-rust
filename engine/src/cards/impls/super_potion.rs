@@ -19,12 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
                 among: SlotSel::Cancelable(&SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Damaged, SlotPred::HasEnergy]))),
                 msg: "CHOOSE_POKEMON_TO_HEAL",
             })),
-            Step::new(Op::EnergyChoice(EnergyChoiceSpec {
-                from: SlotTarget::Slot(SlotExpr::Picked),
-                how: EnergyHow::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: true, energies_only: false },
-                into: Some(0),
-                ..EnergyChoiceSpec::DEFAULT
-            })),
+            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: true, energies_only: false }, into: Some(0), ..DiscardEnergySpec::DEFAULT })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
                 yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(40), via: HealVia::Effect, clear_conditions: false }))],

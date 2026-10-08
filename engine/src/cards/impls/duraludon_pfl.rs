@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_DISCARD",
                 ..PickSpec::DEFAULT
             })),
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: OPP_ACTIVE, selection: EnergySelection::Register(0) })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Register(0), ..DiscardEnergySpec::DEFAULT })),
         ],
     }],
     ..CardSpec::NONE

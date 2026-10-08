@@ -278,16 +278,6 @@ pub struct KnockOutSpec {
     pub when: Cond,
 }
 
-/// The attacker picks `count` of the Pokémon in `among` (all of them when fewer; none when none),
-/// asked at step D, and the attack does `hp` damage to each, in the order they were picked.
-pub struct DamageChosenSpec {
-    pub among: SlotSel,
-    pub count: i32,
-    pub hp: Num,
-    pub calc: DamageCalc,
-    pub msg: &'static str,
-}
-
 // ---------------------------------------------------------------------------
 // Helpers
 
@@ -638,21 +628,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             g.prompt(id, "CHOOSE_POKEMON_TO_EVOLVE", PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked }, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
-        Op::DamageChosen(d) => {
-            if let Some(c) = f.recorded_choice(g, me) {
-                if c.answer != CHOICE_NONE {
-                    for b in c.items[..c.len as usize].to_vec() {
-                        chosen_hit(g, me, f, d, decode(b))?;
-                    }
-                }
-                return Ok(Flow::Next);
-            }
-            if chosen_ask(g, me, f, d)? {
-                Ok(Flow::Suspend)
-            } else {
-                Ok(Flow::Next)
-            }
-        }
         Op::SpreadCounters(s) => spread_exec(g, me, f, s),
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
@@ -668,12 +643,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
 pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
-        Op::DamageChosen(d) => {
-            for s in first.slots().to_vec() {
-                chosen_hit(g, me, f, d, s)?;
-            }
-            Ok(Flow::Next)
-        }
         Op::Evolve(EvolveSpec { how: EvolveHow::FromDeck { chooser, stage, then_stage } }) => evolve_resume(g, me, f, *chooser, *stage, *then_stage, first),
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) => {
             if let Some(s) = first.slots().first().copied() {
@@ -757,14 +726,6 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
 /// Step D: the choice of an attack effect, asked before the damage.
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
-        Op::DamageChosen(d) => {
-            if chosen_ask(g, me, f, d)? {
-                Ok(Flow::Suspend)
-            } else {
-                f.record(g, me, CHOICE_NONE);
-                Ok(Flow::Next)
-            }
-        }
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) => {
             let Some(pick) = target_of(op).and_then(target_pick) else { return Ok(Flow::Next) };
             if !guard(g, me, f, op)? {
@@ -830,15 +791,6 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
-        Op::DamageChosen(_) => {
-            let items: Vec<u8> = first.slots().iter().map(|s| encode(*s)).collect();
-            if items.is_empty() {
-                f.record(g, me, CHOICE_NONE);
-            } else {
-                f.record_items(g, me, CHOICE_YES, &items);
-            }
-            Ok(Flow::Next)
-        }
         Op::EachSlot(_) => {
             let items: Vec<u8> = first.slots().iter().map(|s| encode(*s)).collect();
             f.record_items(g, me, CHOICE_YES, &items);
@@ -1505,41 +1457,6 @@ pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
         let d = g.st.cdef(*c);
         d.is_pokemon() && d.stage == Stage::Stage2 as u8
     }).collect()
-}
-
-/// Ask the attacker to pick the Pokémon (resumed at 1); false when there is nobody to pick.
-fn chosen_ask(g: &mut Game, me: CardId, f: &Frame, d: &DamageChosenSpec) -> R<bool> {
-    let cands = slots_m(g, me, f, &d.among)?;
-    let k = (d.count.max(0) as usize).min(cands.len());
-    if k == 0 {
-        return Ok(false);
-    }
-    let owner = sel_owner(&d.among, f);
-    let player_type = if owner == f.p as usize { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
-    let slots = sel_types(&d.among);
-    let mut blocked: TargetList = SVec::new();
-    let pl = &g.st.players[owner];
-    if slots.contains(&(SlotType::Active as u8)) && !cands.iter().any(|c| c.s == pl.active) {
-        blocked.push(CardTarget::new(player_type, SlotType::Active, 0));
-    }
-    if slots.contains(&(SlotType::Bench as u8)) {
-        for (i, b) in pl.bench.iter().enumerate() {
-            if !cands.iter().any(|c| c.s == *b) {
-                blocked.push(CardTarget::new(player_type, SlotType::Bench, i as u8));
-            }
-        }
-    }
-    let id = g.player_id(f.p as usize);
-    g.prompt(id, d.msg, PromptKind::ChoosePokemon { player_type, slots, min: k as u8, max: k as u8, allow_cancel: false, blocked }, f.cont(me, 1));
-    Ok(true)
-}
-
-fn chosen_hit(g: &mut Game, me: CardId, f: &Frame, d: &DamageChosenSpec, slot: SlotRef) -> R {
-    if !occupied(g, slot) {
-        return Ok(());
-    }
-    let n = num_m(g, me, f, &d.hp)?;
-    damage_by(g, f, d.calc, n, slot)
 }
 
 /// `n` damage to the Pokémon the way `calc` says.

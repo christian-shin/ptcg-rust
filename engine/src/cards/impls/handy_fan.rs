@@ -31,7 +31,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HandyFan",
     triggers: &[
-        Trigger { origin: RuleSource::Tool, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: false, removes_attacker_energy: true, attacker_required: true }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::ToolBlocked)]), yes: &[Step::new(Op::MoveEnergyFromAttacker(MoveEnergyFromAttackerSpec { msg: "ATTACH_ENERGY_TO_BENCH" }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Tool, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: false, removes_attacker_energy: true, attacker_required: true }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::ToolBlocked)]), yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: false }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))], no: &[] }))] },
     ],
     ..CardSpec::NONE
 };

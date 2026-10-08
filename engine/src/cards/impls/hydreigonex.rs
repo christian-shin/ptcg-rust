@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Deck), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Top(Num::Lit(3)), ..MoveSpec::DEFAULT })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::DamageChosen(DamageChosenSpec { among: SlotSel::Bench(Who::Opp), count: 2, hp: Num::Lit(130), calc: DamageCalc::Put, msg: "CHOOSE_POKEMON_TO_DAMAGE" })),
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Bench(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Bench(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Bench(Who::Opp), SlotPred::Any)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), what: EachWhat::Damage(DamageCalc::Put), amount: Num::Lit(130), ..EachSlotSpec::DEFAULT })),
         ] },
     ],
     passives: &[

@@ -23,11 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         // Heat Cyclone: move an Energy from this Pokémon to 1 of your Benched Pokémon.
-        steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec {
-            how: EnergyHow::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: false },
-            to: EnergyDest::Stay,
-            ..EnergyChoiceSpec::DEFAULT
-        }))],
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: false }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

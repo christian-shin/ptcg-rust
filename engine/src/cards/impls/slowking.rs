@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Top(Num::Lit(1)), into: Some(0), ..MoveSpec::DEFAULT })),
                 Step::new(Op::If(IfSpec {
                     cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::All(&[Pred::Pokemon, Pred::Not(&Pred::RuleBox)])),
-                    yes: &[Step::new(Op::CopyFromReg(CopyFromRegSpec { reg: 0, retries: 1 }))],
+                    yes: &[Step::new(Op::CopyAttack(CopyAttackSpec { from: Who::Me, predicate: Pred::Any, retries: 1, scope: CopyScope::Register(0) }))],
                     no: &[],
                 })),
             ],

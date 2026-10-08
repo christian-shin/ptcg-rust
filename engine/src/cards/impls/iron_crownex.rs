@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true })),
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoResistance, value: true })),
-            Step::after_damage(Op::DamageChosen(DamageChosenSpec { among: SlotSel::Pokemon(Who::Opp), count: 2, hp: Num::Lit(50), calc: DamageCalc::Deal, msg: "CHOOSE_POKEMON_TO_DAMAGE" })),
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), what: EachWhat::Damage(DamageCalc::Deal), amount: Num::Lit(50), ..EachSlotSpec::DEFAULT })),
         ] },
     ],
     passives: &[

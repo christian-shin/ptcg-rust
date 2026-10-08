@@ -17,11 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         },
         AttackSpec {
             index: 1,
-            steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec {
-                how: EnergyHow::Cost { n: Num::Lit(2), ty: ct::COLORLESS },
-                when: Cond::Slot(MY_ACTIVE, SlotPred::HasEnergy),
-                ..EnergyChoiceSpec::DEFAULT
-            }))],
+            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(2), ty: ct::COLORLESS }, when: Cond::Slot(MY_ACTIVE, SlotPred::HasEnergy), ..DiscardEnergySpec::DEFAULT }))],
         },
     ],
     ..CardSpec::NONE

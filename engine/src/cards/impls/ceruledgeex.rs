@@ -23,7 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Amethyst Rage: discard all Energy from this Pokémon.
         AttackSpec {
             index: 1,
-            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::AllProvided }))],
+            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT }))],
         },
     ],
     // Tera: no attack damage while Benched.

@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Zapdos",
     attacks: &[
         AttackSpec { index: 0, steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed], Cause::Attack))], ..CoinSpec::DEFAULT }))] },
-        AttackSpec { index: 1, steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::AllProvided }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT }))] },
     ],
     ..CardSpec::NONE
 };

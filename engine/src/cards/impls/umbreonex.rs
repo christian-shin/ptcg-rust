@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             // Onyx: discard all Energy from this Pokémon and take a Prize card.
             steps: &[
-                Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::AllProvided })),
+                Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
                 Step::after_damage(Op::TakePrize(TakePrizeSpec { who: Who::Me, count: Num::Lit(1) })),
             ],
         },

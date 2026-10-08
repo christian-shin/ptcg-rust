@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_POKEMON_TO_HEAL",
             })),
             Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::DamageOn(SlotExpr::Picked), via: HealVia::Effect, clear_conditions: false })),
-            Step::new(Op::EnergyChoice(EnergyChoiceSpec { from: SlotTarget::Slot(SlotExpr::Picked), how: EnergyHow::All { provided: false }, to: EnergyDest::Hand, ..EnergyChoiceSpec::DEFAULT })),
+            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::All { provided: false }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

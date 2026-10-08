@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Attach a Basic Energy from your discard pile to this Pokémon.
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::BasicEnergy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_ATTACH", ..PickSpec::DEFAULT })),
-            Step::new(Op::MoveToSlot(MoveToSlotSpec { cards: 0, to: SlotExpr::This })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Discard), to: ZoneRef(Who::Me, Zone::Attached(SlotExpr::This)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
         ],
     }],
     attacks: &[AttackSpec {

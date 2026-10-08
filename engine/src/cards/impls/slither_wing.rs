@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             // Discard 2 Energy from this Pokémon (priced as [C][C]).
-            steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec { how: EnergyHow::Cost { n: Num::Lit(2), ty: ct::COLORLESS }, ..EnergyChoiceSpec::DEFAULT }))],
+            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(2), ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],
         },
     ],
     ..CardSpec::NONE

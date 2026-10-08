@@ -6,7 +6,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Minccino@TEF",
     attacks: &[
         AttackSpec { index: 0, steps: &[] },
-        AttackSpec { index: 1, steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: OPP_ACTIVE, selection: EnergySelection::OppTools { max: 2 } }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::OppTools { max: 2 }, ..DiscardEnergySpec::DEFAULT }))] },
     ],
     ..CardSpec::NONE
 };

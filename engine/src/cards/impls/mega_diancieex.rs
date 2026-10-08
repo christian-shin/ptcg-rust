@@ -8,10 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MegaDiancieex",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec {
-            target: MY_ACTIVE,
-            selection: EnergySelection::Among(AmongSpec { all_pokemon: false, which: AmongWhich::Any, max: Some(2), damage_per: 120, after_damage: true }),
-        }))],
+        steps: &[Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Among(AmongSpec { all_pokemon: false, which: AmongWhich::Any, max: Some(2), damage_per: 120, after_damage: true }), ..DiscardEnergySpec::DEFAULT }))],
     }],
     passives: &[Passive {
         origin: RuleSource::Ability,

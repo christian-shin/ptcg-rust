@@ -17,10 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             // Discard an Energy from this Pokémon.
-            steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec {
-                how: EnergyHow::Prompt { scope: PromptScope::Active, min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, clamp: true },
-                ..EnergyChoiceSpec::DEFAULT
-            }))],
+            steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Scoped { scope: PromptScope::Active, min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, clamp: true }, ..DiscardEnergySpec::DEFAULT }))],
         },
     ],
     ..CardSpec::NONE

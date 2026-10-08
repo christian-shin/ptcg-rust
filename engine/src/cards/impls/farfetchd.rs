@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Farfetchd",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Opp), selection: EnergySelection::Chosen { pred: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]) } })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Opp)), selection: EnergySelection::Chosen { pred: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]) }, ..DiscardEnergySpec::DEFAULT })),
         ] },
     ],
     triggers: &[

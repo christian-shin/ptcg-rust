@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::FestivalLead, value: false })),
-            Step::after_damage(Op::Coin(CoinSpec { before: Cond::AnySlot(SlotSel::One(SlotExpr::Active(Who::Opp)), SlotPred::HasEnergy), heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::Active(Who::Opp), selection: EnergySelection::Chosen { pred: Pred::Energy } }))], ..CoinSpec::DEFAULT })),
+            Step::after_damage(Op::Coin(CoinSpec { before: Cond::AnySlot(SlotSel::One(SlotExpr::Active(Who::Opp)), SlotPred::HasEnergy), heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Opp)), selection: EnergySelection::Chosen { pred: Pred::Energy }, ..DiscardEnergySpec::DEFAULT }))], ..CoinSpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE

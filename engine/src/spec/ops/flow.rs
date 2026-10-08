@@ -110,6 +110,9 @@ pub enum CopyScope {
     // --- S3 agent 3 appends ---
     /// The attacks of the Benched Pokémon matching `predicate` (chosen among them; N's Zoroark ex).
     Bench,
+    /// The attacks of the Pokémon cards of this register that are still in the discard pile (`from` and
+    /// `predicate` are not used): nothing is chosen when every attack of those Pokémon is locked for the Active.
+    Register(u8),
 }
 /// The player's turn ends (an EndTurnEffect).
 pub struct EndTurnSpec {
@@ -126,13 +129,6 @@ pub struct CustomSpec {
     pub exec: fn(&mut Game, CardId, &mut Frame) -> R<Flow>,
     pub resume: fn(&mut Game, CardId, &mut Frame, &[Res]) -> R<Flow>,
 }
-/// Choose 1 of the attacks of the Pokémon cards in a register (still in the discard pile) and use it
-/// as this attack, as a copy session: no cancel, `retries` attempts when a chosen attack can't be used.
-pub struct CopyFromRegSpec {
-    pub reg: u8,
-    pub retries: u8,
-}
-
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
         Op::May(m) => {
@@ -209,6 +205,23 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::CopyAttack(c) => {
+            if let CopyScope::Register(reg) = c.scope {
+                let p = f.p as usize;
+                // The Pokémon cards of the register that are still in the discard pile.
+                let cards: Vec<CardId> = reg_list(g, f, reg).iter().copied().filter(|x| g.lst(crate::state::ListRef::Discard(p as u8)).contains(x)).collect();
+                if cards.is_empty() {
+                    return Ok(Flow::Next);
+                }
+                // Nothing is chosen when every attack of those Pokémon is locked for the Active.
+                let a = g.st.players[p].active;
+                let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
+                let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.tl_name)));
+                if !any_free {
+                    return Ok(Flow::Next);
+                }
+                crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+                return Ok(Flow::Next);
+            }
             let p = f.who(c.from);
             if c.scope == CopyScope::Bench {
                 let cards: Vec<CardId> = g.st.players[p].bench.iter().filter_map(|b| g.st.slot_pokemon(p, *b)).filter(|c0| pred(g, *c0, &c.predicate)).collect();
@@ -228,23 +241,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::EndGame(e) => {
             let winner = if f.who(e.winner) == 0 { WINNER_P1 } else { WINNER_P2 };
             crate::engine::phase::end_game(g, winner);
-            Ok(Flow::Next)
-        }
-        Op::CopyFromReg(c) => {
-            let p = f.p as usize;
-            // The Pokémon cards of the register that are still in the discard pile.
-            let cards: Vec<CardId> = reg_list(g, f, c.reg).iter().copied().filter(|x| g.lst(crate::state::ListRef::Discard(p as u8)).contains(x)).collect();
-            if cards.is_empty() {
-                return Ok(Flow::Next);
-            }
-            // Nothing is chosen when every attack of those Pokémon is locked for the Active.
-            let a = g.st.players[p].active;
-            let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
-            let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.tl_name)));
-            if !any_free {
-                return Ok(Flow::Next);
-            }
-            crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
             Ok(Flow::Next)
         }
         Op::PickAttack(a) => {

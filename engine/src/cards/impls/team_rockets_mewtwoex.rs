@@ -26,11 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         // Erasure Ball: discard up to 2 Energy from your Benched Pokémon; 60 more damage for each.
         steps: &[
-            Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec {
-                how: EnergyHow::Prompt { scope: PromptScope::Bench, min: Num::Lit(0), max: Num::Lit(2), kind: EnergyKind::Any, clamp: false },
-                into: Some(0),
-                ..EnergyChoiceSpec::DEFAULT
-            })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Scoped { scope: PromptScope::Bench, min: Num::Lit(0), max: Num::Lit(2), kind: EnergyKind::Any, clamp: false }, into: Some(0), ..DiscardEnergySpec::DEFAULT })),
             Step::after_damage(Op::ChoiceDamage(ChoiceDamageSpec { reg: Some(0), op: DamageOp::Add, per: 60 })),
         ],
     }],
