@@ -6,7 +6,8 @@ Pushes the current commit to the `ci/<NAME>` branch (default: the current
 branch name), which starts the `rust` workflow (.github/workflows/rust.yml):
 build, `cargo test`, every scenario, and `tools/fuzz.py` split across K
 runners (default 4 x 25,000 games). With --games/--shards it dispatches the
-workflow on that branch instead of relying on the push. Then it waits for the
+workflow on that branch instead of relying on the push (dispatch needs the
+workflow file on the default branch). Then it waits for the
 run, prints each job's result and, on failure, downloads the failing games'
 traces to corpus/ci/<run id>/ (replay them with engine/target/release/diff)
 and prints the failed steps' log tail. Exit status 0 only when the run passed.
@@ -30,10 +31,11 @@ def sh(*cmd, check=True, capture=True):
 
 def find_run(branch, sha, since):
     for _ in range(60):
-        r = sh('gh', 'run', 'list', '--workflow', WORKFLOW, '--branch', branch, '--limit', '10',
-               '--json', 'databaseId,headSha,createdAt,status,event')
+        # Not `--workflow`: gh resolves it on the default branch, which may not have the file yet.
+        r = sh('gh', 'run', 'list', '--branch', branch, '--limit', '20',
+               '--json', 'databaseId,headSha,createdAt,status,event,workflowName')
         for run in json.loads(r.stdout or '[]'):
-            if run['headSha'] == sha and run['createdAt'] >= since:
+            if run['workflowName'] == 'rust' and run['headSha'] == sha and run['createdAt'] >= since:
                 return run['databaseId']
         time.sleep(5)
     sys.exit('no %s run appeared for %s on %s' % (WORKFLOW, sha[:9], branch))
@@ -65,9 +67,9 @@ def main():
         time.sleep(3)
     run = find_run(branch, sha, since)
     if a.games or a.shards:
-        r = sh('gh', 'run', 'list', '--workflow', WORKFLOW, '--branch', branch, '--event', 'workflow_dispatch',
-               '--limit', '5', '--json', 'databaseId,headSha')
-        runs = [x['databaseId'] for x in json.loads(r.stdout or '[]') if x['headSha'] == sha]
+        r = sh('gh', 'run', 'list', '--branch', branch, '--event', 'workflow_dispatch',
+               '--limit', '5', '--json', 'databaseId,headSha,workflowName')
+        runs = [x['databaseId'] for x in json.loads(r.stdout or '[]') if x['headSha'] == sha and x['workflowName'] == 'rust']
         run = runs[0] if runs else run
     url = sh('gh', 'run', 'view', str(run), '--json', 'url', '-q', '.url').stdout.strip()
     print('run %s: %s' % (run, url))
