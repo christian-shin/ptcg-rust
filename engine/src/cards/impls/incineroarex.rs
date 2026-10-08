@@ -6,31 +6,18 @@
 //! attack cost check while this is the Active) and does
 //! `cost.splice(cost.indexOf(C), benched)`; with no [C] in the cost,
 //! `indexOf` is -1 and `splice(-1, n)` removes the last element.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Incineroarex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(inflict(&[SpecialCondition::Burned], Cause::Attack)),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::Ability, modifier: Modifier::AttackCost(AttackCostSpec { change: CostChange::Reduce(Num::BenchCount(Who::Opp)), attack: None, subject: SlotPred::Holder, ..AttackCostSpec::DEFAULT }) }
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Incineroarex", mask: mask(&[k::CHECK_ATTACK_COST, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::CheckAttackCost { p, .. } = *g.e(e) {
-        let p = p as usize;
-        let a = g.st.players[p].active;
-        if g.st.slot_pokemon(p, a) != Some(me) {
-            return Ok(());
-        }
-        if is_ability_blocked(g, p, me, Some(0)) {
-            return Ok(());
-        }
-        let o = 1 - p;
-        let benched = g.st.players[o].bench.iter().filter(|s| !g.st.players[o].slots[**s as usize].cards.is_empty()).count();
-        // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
-        if let Effect::CheckAttackCost { reduction, .. } = g.e_mut(e) {
-            *reduction = reduction.saturating_add(benched as u8);
-        }
-        return Ok(());
-    }
-
-    if was_attack_used(g, e, 0, me) {
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Burned])?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

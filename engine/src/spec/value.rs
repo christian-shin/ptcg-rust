@@ -25,6 +25,9 @@ pub enum Zone {
     Discard,
     /// Card register `r` (a scratch list: looked-at cards, chosen cards).
     Scratch(u8),
+    // --- S3 appends ---
+    /// The cards of the player's Active Pokémon (the slot's stack, Energy and all). Read it with `zone_list`.
+    Active,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -79,6 +82,8 @@ pub enum Num {
     /// Cards of the zone matching the predicate, not counting the resolving card
     /// (a Trainer sits in its player's hand while it is checked, and is not in it when used by an attack).
     OthersCount(ZoneRef, Pred),
+    /// Cards the program's last discard moved (a discard of chosen Energy).
+    Last,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -149,6 +154,8 @@ pub enum Cond {
     /// Every name among the Pokémon in play of `names_of` has all 4 copies in zones the owner knows
     /// (own hand, discard pile, Lost Zone and Pokémon in play), so a search for it can't find any.
     AllNamesKnown { names_of: Who },
+    /// During the player's last turn another Ancient Pokémon than this one used an attack.
+    OtherAncientAttackedLastTurn,
 }
 
 /// A card predicate.
@@ -211,6 +218,18 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
         Zone::Hand => ListRef::Hand(p),
         Zone::Discard => ListRef::Discard(p),
         Zone::Scratch(r) => ListRef::Temp(f.cards[r as usize]),
+        Zone::Active => panic!("Zone::Active needs zone_list"),
+    }
+}
+
+/// `zone_ref` for every zone, the ones that depend on the board included.
+pub fn zone_list(g: &Game, f: &Frame, z: ZoneRef) -> ListRef {
+    match z.1 {
+        Zone::Active => {
+            let p = f.who(z.0);
+            ListRef::Slot(p as u8, g.st.players[p].active)
+        }
+        _ => zone_ref(f, z),
     }
 }
 
@@ -280,6 +299,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::Heads => f.heads as i32,
+        Num::Last => f.last,
         Num::OthersCount(z, p) => g.lst(zone_ref(f, *z)).iter().filter(|c| **c != me && pred(g, **c, p)).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
@@ -388,6 +408,14 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
         Cond::ViaAttack => matches!(*g.e(f.eff), Effect::Trainer { via_attack: true, .. }),
+        Cond::OtherAncientAttackedLastTurn => {
+            let p = f.who(Who::Me);
+            g.st.players[p].ancient_pokemon_attacked_last_turn
+                && match g.st.player_last_attack[p] {
+                    Some((_, src)) => src != me && g.st.cdef(src).has_tag(tag::ANCIENT),
+                    None => false,
+                }
+        }
         Cond::KnockedOutLastTurn { who, by_attack, tag } => {
             let pl = &g.st.players[f.who(*who)];
             let any = if *by_attack { pl.pokemon_knocked_out_by_attack_during_opponents_last_turn } else { pl.pokemon_knocked_out_during_opponents_last_turn };
@@ -746,7 +774,7 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
                                 k += match unit {
                                     EnergyUnit::Provided(t) => em.provides.iter().filter(|x| **x == *t || **x == ct::ANY).count() as i32,
                                     EnergyUnit::ProvidedCards => 1,
-                                    EnergyUnit::ProvidedCardsOf(t) => em.provides.iter().any(|x| *x == *t || *x == ct::ANY) as i32,
+                                    EnergyUnit::ProvidedCardsOf(t) => (g.st.cdef(em.card).is_energy() && em.provides.iter().any(|x| *x == *t || *x == ct::ANY)) as i32,
                                     _ => em.provides.len() as i32,
                                 };
                             }

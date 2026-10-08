@@ -4,22 +4,21 @@
 //! Twinleaf: returns without effect when the deck is empty or the Bench is
 //! full (no throw); else SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH
 //! ({ stage: BASIC }, { min: 0, max: 1 }).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "FidoughSCRPool",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::BenchSpace(Who::Me)]), yes: &[Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Basic, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Bench,
+                msg: "",
+                cancel: true,
+                shuffle_first: false,
+            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))], no: &[] })),
+        ] },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "FidoughSCRPool", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() || empty_bench_slots(g, p).is_empty() {
-            return Ok(());
-        }
-        let filter = Filter { stage: Some(Stage::Basic as u8), ..Filter::none() };
-        search_deck_for_pokemon_to_bench(g, p, filter, ChooseCardsOpts::new(0, 1, true))?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

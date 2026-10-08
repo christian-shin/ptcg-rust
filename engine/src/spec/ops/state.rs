@@ -98,6 +98,11 @@ pub enum Lasting {
     /// During the opponent's next turn, whenever they try to use a Trainer from
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
+    /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
+    PreventEffects,
+    /// During the opponent's next turn, if this Pokémon is Knocked Out by damage from an attack,
+    /// the attacker's controller discards an Energy attached to the Attacking Pokémon (Little Grudge).
+    DiscardAttackerEnergyIfKnockedOut,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -238,6 +243,8 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
             };
             opponent_cannot_play_cards(g, atk, locks)?;
         }
+        Lasting::PreventEffects => prevent_effects_of_attacks(g, atk)?,
+        Lasting::DiscardAttackerEnergyIfKnockedOut => discard_attacker_energy_if_knocked_out(g, atk, me)?,
         Lasting::CoinFlipCancelTrainer => {
             if let Some(b) = attack_base(g, atk, source) {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;

@@ -56,7 +56,11 @@ pub struct ChooseSpec {}
 pub struct ForEachSpec {}
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
-pub struct FailSpec {}
+/// The use fails (`error`) unless the condition holds (an attack that can't be used, say).
+pub struct FailSpec {
+    pub unless: Cond,
+    pub error: &'static str,
+}
 pub struct PickAttackSpec {}
 /// Choose an attack of `from`'s Active Pokémon (when its card matches
 /// `predicate` and has attacks) and use it as this attack, as a copy session
@@ -110,6 +114,12 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 CoinMode::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(SUB_COIN_SEQ) })?,
             }
             Ok(Flow::Suspend)
+        }
+        Op::Fail(x) => {
+            if !cond_m(g, me, f, &x.unless)? {
+                crate::bail!(x.error);
+            }
+            Ok(Flow::Next)
         }
         Op::CopyAttack(c) => {
             let p = f.who(c.from);

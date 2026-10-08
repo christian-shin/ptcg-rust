@@ -64,6 +64,9 @@ pub enum Modifier {
     /// +/- HP to the Pokémon matching a predicate (`HpBonus` with a subject and a guard).
     HpMod(HpModSpec),
     ProvidesEnergyBoost(ProvidesEnergyBoostSpec),
+    // Appended by S3.
+    /// `PrizeAdjust`, once per game for the Knocked Out Pokémon's player (Legacy Energy).
+    PrizeAdjustOnce(PrizeAdjustSpec),
 }
 
 // ---------------------------------------------------------------------------
@@ -308,6 +311,8 @@ pub enum CostChange {
     Free,
     /// Ignore all [C] in the cost, those added later included (attack).
     IgnoreColorless,
+    /// The cost is exactly this (attack); a set cost is not increased or decreased.
+    SetTo(&'static [CardType]),
 }
 
 /// A change of the cost of the attacks of a Pokémon (vocabulary P8).
@@ -452,7 +457,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
         },
         Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
-        Modifier::PrizeAdjust(_) => mask(&[k::KNOCK_OUT]),
+        Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
@@ -560,6 +565,22 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::PreventAttackEffects(d) => prevent_attack_effects(g, me, e, ps.origin, d),
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
+        Modifier::PrizeAdjustOnce(d) => {
+            let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
+            let p = p as usize;
+            if g.st.players[p].legacy_energy_used {
+                return Ok(());
+            }
+            let before = match *g.e(e) {
+                Effect::KnockOut { prize_count, .. } => prize_count,
+                _ => 0,
+            };
+            prize_adjust(g, me, e, ps.origin, d)?;
+            if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
+                g.st.players[p].legacy_energy_used = true;
+            }
+            Ok(())
+        }
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
         Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
@@ -843,7 +864,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
             _ => 0,
         }
     };
-    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, .. } = g.e_mut(e) {
+    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, set_cost, .. } = g.e_mut(e) {
         match &c.change {
             // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
             CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
@@ -857,6 +878,13 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
                 cost.retain(|t| *t != ct::COLORLESS);
                 // ...also the [C] that other effects add (R7F-11, rulings 252, 1552).
                 *ignore_colorless = true;
+            }
+            CostChange::SetTo(types) => {
+                let mut c: crate::effects::Cost = SVec::new();
+                for t in types.iter() {
+                    c.push(*t);
+                }
+                *set_cost = Some(c);
             }
         }
     }
@@ -908,6 +936,8 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
                 *no_cost = true;
             }
             CostChange::IgnoreColorless => cost.retain(|t| *t != ct::COLORLESS),
+            // Not a retreat cost change.
+            CostChange::SetTo(_) => {}
         }
     }
     Ok(())

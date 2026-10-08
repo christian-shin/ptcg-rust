@@ -272,6 +272,11 @@ pub enum Op {
     /// `Shuffle` without waiting for the answer: the next step runs while the shuffle prompt is
     /// still open (Harlequin's draw comes before its shuffle is applied, as today).
     ShuffleQueued(ShuffleSpec),
+    /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
+    /// `count` and the Pokémon to pick from).
+    DamageChosen(DamageChosenSpec),
+    /// Discard the Stadium in play.
+    DiscardStadium(DiscardStadiumSpec),
 }
 
 /// Everything a spec card file needs.
