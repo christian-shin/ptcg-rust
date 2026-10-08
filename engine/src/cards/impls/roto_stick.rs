@@ -5,69 +5,22 @@
 //! Twinleaf: the chosen cards are moved, the rest put back, then (if any
 //! were chosen) a ShowCards prompt is awaited before the final shuffle,
 //! which has no animation wait.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "RotoStick", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "RotoStick",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(4)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Me, Zone::Scratch(0)), predicate: Pred::Supporter, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(4) }, into: 1, ..PickSpec::DEFAULT })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    g.set_prevent(e, true);
-    let top = g.alloc_temp(&[]);
-    move_count_from(g, ListRef::Deck(p as u8), top, 4, me)?;
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.l[0] = match top {
-        ListRef::Temp(i) => i,
-        _ => unreachable!(),
-    };
-    let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Supporter as u8), ..Default::default() };
-    let id = g.player_id(p);
-    g.prompt(id, "CHOOSE_CARD_TO_HAND", PromptKind::ChooseCards { cards: top, filter, opts: ChooseCardsOpts::new(0, 4, false) }, Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn shuffle(g: &mut Game, p: usize) {
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    match f.stage {
-        1 => {
-            let top = ListRef::Temp(f.l[0]);
-            let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-            move_cards(g, top, ListRef::Hand(p as u8), &cards, me)?;
-            g.run_fx(Effect::MoveCards {
-                source: top,
-                destination: ListRef::Deck(p as u8),
-                cards: None,
-                count: None,
-                to_top: false,
-                to_bottom: false,
-                skip_cleanup: false,
-                source_card: me,
-            })?;
-            if !cards.is_empty() {
-                let mut nf = CardFrame::at(2);
-                nf.a[0] = p as i32;
-                let oid = g.player_id(1 - p);
-                g.prompt(oid, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Card { card: me, frame: nf });
-                return Ok(());
-            }
-            shuffle(g, p);
-            Ok(())
-        }
-        2 => {
-            shuffle(g, p);
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

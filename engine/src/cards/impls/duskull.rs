@@ -6,56 +6,18 @@
 //! 1778), so the prompt is `min: 0`; an attack that can do nothing (no Duskull in
 //! the discard pile, no empty Bench slot) is still used and opens no prompt (ruling
 //! 1790). It used to throw CANNOT_USE_POWER there and ask for at least 1.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Duskull@Duskull SFA|Duskull PRE", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Duskull@Duskull SFA|Duskull PRE",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::All(&[Pred::Pokemon, Pred::Name("Duskull")]), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Bench,
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let e = real_attack(g, e);
-    let (p, source) = match *g.e(e) {
-        Effect::Attack { p, source, .. } => (p as usize, source),
-        _ => return Ok(()),
-    };
-    let slots = empty_bench_slots(g, p);
-    let max = slots.len().min(3) as u8;
-    let has_duskull = g.st.players[p].discard.iter().any(|c| {
-        let d = g.st.cdef(c);
-        d.is_pokemon() && d.name == "Duskull"
-    });
-    // An attack can be used when it does nothing (ruling 1790); no prompt without a valid choice.
-    if !has_duskull || slots.is_empty() {
-        return Ok(());
-    }
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = g.st.slot_pokemon(source.p as usize, source.s).map(|c| c as i32).unwrap_or(-1);
-    f.a[2] = slots.len() as i32;
-    let mut packed = 0i32;
-    for (i, s) in slots.iter().take(3).enumerate() {
-        packed |= (*s as i32) << (8 * i);
-    }
-    f.a[3] = packed;
-    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), name: Some("Duskull"), ..Filter::none() };
-    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Discard(p as u8), filter, ChooseCardsOpts::new(0, max, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let source_card = if f.a[1] < 0 { NO_CARD } else { f.a[1] as CardId };
-    let n_slots = f.a[2] as usize;
-    let mut cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    cards.truncate(n_slots);
-    for (i, c) in cards.iter().enumerate() {
-        let s = ((f.a[3] >> (8 * i)) & 0xff) as SlotId;
-        move_cards(g, ListRef::Discard(p as u8), ListRef::Slot(p as u8, s), &[*c], source_card)?;
-        g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

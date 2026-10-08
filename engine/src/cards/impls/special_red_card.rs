@@ -4,41 +4,19 @@
 //!
 //! Phase 4b (ruling n=1833): can't be played when the opponent has no cards in
 //! hand. Audit aud-d (Advanced Rulebook E-35): the hand is shuffled (`Chance.shuffle`) before it goes to the bottom.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "SpecialRedCard", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "SpecialRedCard",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Le, Num::Lit(3))],
+        steps: &[
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT })),
+            Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn move_all(g: &mut Game, src: ListRef, dst: ListRef, me: CardId) -> R {
-    g.run_fx(Effect::MoveCards { source: src, destination: dst, cards: None, count: None, to_top: false, to_bottom: false, skip_cleanup: false, source_card: me })?;
-    Ok(())
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let o = 1 - p;
-    let op = &g.st.players[o];
-    let prizes = op.prizes[..op.prize_count as usize].iter().filter(|l| !l.is_empty()).count();
-    if prizes > 3 {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    if g.st.players[o].hand.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    {
-        // "Your opponent shuffles their hand": permute the hand in place (`Chance.shuffle(hand.length)`).
-        let hand: Vec<CardId> = g.st.players[o].hand.iter().collect();
-        let mut perm = [0u8; 120];
-        g.rng.shuffle(hand.len(), &mut perm);
-        let shuffled: Vec<CardId> = (0..hand.len()).map(|i| hand[perm[i] as usize]).collect();
-        g.st.players[o].hand.set_from(&shuffled);
-        let temp = g.alloc_temp(&[]);
-        move_all(g, ListRef::Hand(o as u8), temp, me)?;
-        move_all(g, temp, ListRef::Deck(o as u8), me)?;
-        let n = 3.min(g.st.players[o].deck.len());
-        draw_cards(g, o, n)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -5,38 +5,33 @@
 //! ChooseCardsPrompt (before it is answered), with no trailing wait; the
 //! ShowCards info prompt (only when any cards were chosen) is created in the
 //! choose callback.
-use crate::cards::prelude::*;
+//!
+//! Spec: the search shuffles right after its prompt opens, as Twinleaf does
+//! (the replay's shuffle tape matches by deck size).
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Gimmighoul", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Gimmighoul",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::If(IfSpec {
+            cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
+            yes: &[Step::new(Op::Search(SearchSpec {
+                pick: PickSpec {
+                    from: ZoneRef(Who::Me, Zone::Deck),
+                    predicate: Pred::BasicEnergy,
+                    bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) },
+                    ..PickSpec::DEFAULT
+                },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: false,
+                shuffle_first: true,
+            }))],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Default::default() };
-        choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: f });
-        let id = g.player_id(p);
-        g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    let cards: Vec<CardId> = first.cards().to_vec();
-    show_cards_to_player(g, 1 - p, cards.len());
-    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

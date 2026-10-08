@@ -2,20 +2,12 @@
 //!
 //! Twinleaf: returns early with an empty deck, otherwise MOVE_CARDS
 //! (count 1, sourceCard) from deck to hand.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Rellor@SSP|Rellor DRI", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Rellor@SSP|Rellor DRI",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(1)) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        return Ok(());
-    }
-    move_count_from(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), 1, me)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

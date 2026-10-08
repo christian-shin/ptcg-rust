@@ -7,79 +7,33 @@
 //! non-Future Pokémon blocked); unplayable with no Future Pokémon in play
 //! (phase 4b). Each transfer is a plain MOVE_CARDS discard→slot (no
 //! AttachEnergyEffect) followed by a MOVE_CARDS of the card supporter→discard.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "RebootPod", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "RebootPod",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Attach(AttachSpec {
+                chooser: Who::Me,
+                from: ZoneRef(Who::Me, Zone::Discard),
+                predicate: Pred::BasicEnergy,
+                slots: AttachSlots::BenchActive,
+                target: Pred::Tag(crate::types::tag::FUTURE),
+                scan: TargetScan::InPlay,
+                bounds: Bounds { min: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy), &Num::InPlayCount(Who::Me, PlayScope::All, Pred::Tag(crate::types::tag::FUTURE))), max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy), &Num::InPlayCount(Who::Me, PlayScope::All, Pred::Tag(crate::types::tag::FUTURE))) },
+                same_target: false,
+                different_targets: true,
+                valid_types: &[],
+                max_per_type: 0,
+                cancel: false,
+                route: AttachRoute::Move,
+                none_shuffles: false,
+            })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let n = g.st.players[p]
-        .discard
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_energy() && d.energy_type == EnergyType::Basic as u8
-        })
-        .count();
-    if n == 0 {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let mut blocked_to = SVec::new();
-    let mut future = 0usize;
-    for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if !g.st.cdef(c).has_tag(tag::FUTURE) {
-            blocked_to.push(t);
-        } else {
-            future += 1;
-        }
-    }
-    if future == 0 {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let attach = n.min(future);
-    g.set_prevent(e, true);
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    slots.push(SlotType::Active as u8);
-    let mut o = AttachOpts::new(attach as u8);
-    o.allow_cancel = false;
-    o.min = attach as u8;
-    o.max = attach as u8;
-    o.blocked_to = blocked_to;
-    o.different_targets = true;
-    let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "ATTACH_ENERGY_TO_ACTIVE",
-        PromptKind::AttachEnergy { cards: ListRef::Discard(p as u8), player_type: PlayerType::BottomPlayer, slots, filter, o },
-        Cont::Card { card: me, frame: f },
-    );
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    if transfers.is_empty() {
-        move_cards(g, ListRef::Supporter(p as u8), ListRef::Discard(p as u8), &[me], me)?;
-        return Ok(());
-    }
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        move_cards(g, ListRef::Discard(p as u8), target.list(), &[c], me)?;
-        move_cards(g, ListRef::Supporter(p as u8), ListRef::Discard(p as u8), &[me], me)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

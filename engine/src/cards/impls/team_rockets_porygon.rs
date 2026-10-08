@@ -3,43 +3,14 @@
 //!
 //! Twinleaf: nothing happens with an empty hand; the opponent chooses their
 //! own card (only if their hand is non-empty).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsPorygon", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TeamRocketsPorygon",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, ..PickSpec::DEFAULT })),
+            Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::after_damage(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Pick(PickSpec { chooser: Who::Opp, from: ZoneRef(Who::Opp, Zone::Hand), predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 1, ..PickSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(1), ..MoveSpec::DEFAULT }))], no: &[] }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let e = real_attack(g, e);
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    if g.st.players[p].hand.is_empty() {
-        return Ok(());
-    }
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let o = 1 - p;
-    let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    match f.stage {
-        1 => {
-            move_cards(g, ListRef::Hand(p as u8), ListRef::Discard(p as u8), &cards, me)?;
-            if !g.st.players[o].hand.is_empty() {
-                let mut nf = CardFrame::at(2);
-                nf.a[0] = p as i32;
-                choose_cards(g, o, "CHOOSE_CARD_TO_DISCARD", ListRef::Hand(o as u8), Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: nf });
-            }
-            Ok(())
-        }
-        2 => move_cards(g, ListRef::Hand(o as u8), ListRef::Discard(o as u8), &cards, me),
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

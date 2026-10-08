@@ -1,15 +1,10 @@
 //! Deino (SSP): Stomp Off — discard the top card of your opponent's deck.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Deino", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Deino",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Deck), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Top(Num::Lit(1)), ..MoveSpec::DEFAULT }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let o = match *g.e(e) {
-        Effect::Attack { opp, .. } => opp as usize,
-        _ => return Ok(()),
-    };
-    move_count_from(g, ListRef::Deck(o as u8), ListRef::Discard(o as u8), 1, me)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
