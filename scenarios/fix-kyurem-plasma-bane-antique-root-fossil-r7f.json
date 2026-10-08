@@ -5,22 +5,22 @@
    "4 Kyurem SFA 47",
    "4 Antique Root Fossil SCR 130",
    "4 Colress's Tenacity SFA 57",
-   "24 Water Energy MEE",
-   "24 Metal Energy MEE"
+   "24 Water Energy MEE 3",
+   "24 Metal Energy MEE 8"
   ],
   [
    "4 Kyurem SFA 47",
    "4 Antique Root Fossil SCR 130",
    "4 Colress's Tenacity SFA 57",
-   "24 Water Energy MEE",
-   "24 Metal Energy MEE"
+   "24 Water Energy MEE 3",
+   "24 Metal Energy MEE 8"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Kyurem SFA 47",
   "active_energy": [
-   "Water Energy MEE"
+   "Water Energy MEE 3"
   ],
   "bench": [
    {

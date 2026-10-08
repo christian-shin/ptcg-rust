@@ -7,8 +7,8 @@
    "4 Sacred Charm PFL 93",
    "4 Snorunt TWM 51",
    "4 Strange Timepiece MEG 128",
-   "5 Psychic Energy MEE",
-   "35 Fire Energy MEE"
+   "5 Psychic Energy MEE 5",
+   "35 Fire Energy MEE 2"
   ],
   [
    "4 Bronzor TEF 68",
@@ -16,8 +16,8 @@
    "4 Sacred Charm PFL 93",
    "4 Snorunt TWM 51",
    "4 Strange Timepiece MEG 128",
-   "5 Psychic Energy MEE",
-   "35 Fire Energy MEE"
+   "5 Psychic Energy MEE 5",
+   "35 Fire Energy MEE 2"
   ]
  ],
  "me": {
@@ -27,7 +27,7 @@
    "Bronzong TEF 69"
   ],
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "active_tool": "Sacred Charm PFL 93",
   "active_damage": 20,

@@ -1,7 +1,7 @@
-2 Beldum M4
-3 Grookey TWM
-4 Makuhita M1L
-23 Metal Energy MEE
-2 Piloswine JTG
-4 Staryu M3
-22 Water Energy MEE
+2 Beldum CRI 59
+3 Grookey TWM 14
+4 Makuhita MEG 72
+23 Metal Energy MEE 8
+2 Piloswine JTG 78
+4 Staryu POR 20
+22 Water Energy MEE 3

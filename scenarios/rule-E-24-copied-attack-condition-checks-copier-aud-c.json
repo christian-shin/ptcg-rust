@@ -5,23 +5,23 @@
    "4 Zorua WHT 61",
    "4 Gholdengo SSP 131",
    "4 Zoroark WHT 62",
-   "5 Metal Energy MEE",
-   "43 Fire Energy MEE"
+   "5 Metal Energy MEE 8",
+   "43 Fire Energy MEE 2"
   ],
   [
    "4 Zorua WHT 61",
    "4 Gholdengo SSP 131",
    "4 Zoroark WHT 62",
-   "5 Metal Energy MEE",
-   "43 Fire Energy MEE"
+   "5 Metal Energy MEE 8",
+   "43 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Zorua WHT 61",
   "active_energy": [
-   "Metal Energy MEE",
-   "2 Fire Energy MEE"
+   "Metal Energy MEE 8",
+   "2 Fire Energy MEE 2"
   ],
   "hand": [
    "Zoroark WHT 62"

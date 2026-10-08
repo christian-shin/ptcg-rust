@@ -1,19 +1,19 @@
 {
   "turn": 3,
   "decks": [
-    ["4 Feebas SSP", "4 Milotic ex SSP", "4 Terapagos ex SCR", "4 Finizen TWM", "44 Water Energy MEE"],
-    ["4 Feebas SSP", "4 Milotic ex SSP", "4 Terapagos ex SCR", "4 Finizen TWM", "44 Water Energy MEE"]
+    ["4 Feebas SSP 41", "4 Milotic ex SSP 42", "4 Terapagos ex SCR 128", "4 Finizen TWM 59", "44 Water Energy MEE 3"],
+    ["4 Feebas SSP 41", "4 Milotic ex SSP 42", "4 Terapagos ex SCR 128", "4 Finizen TWM 59", "44 Water Energy MEE 3"]
   ],
   "me": {
     "reset": true,
-    "active": ["Feebas SSP", "Milotic ex SSP"],
-    "bench": [{"card": "Feebas SSP"}]
+    "active": ["Feebas SSP 41", "Milotic ex SSP 42"],
+    "bench": [{"card": "Feebas SSP 41"}]
   },
   "opp": {
     "reset": true,
-    "active": "Terapagos ex SCR",
-    "active_energy": ["Water Energy MEE", "Water Energy MEE"],
-    "bench": [{"card": "Finizen TWM"}, {"card": "Finizen TWM"}]
+    "active": "Terapagos ex SCR 128",
+    "active_energy": ["Water Energy MEE 3", "Water Energy MEE 3"],
+    "bench": [{"card": "Finizen TWM 59"}, {"card": "Finizen TWM 59"}]
   },
   "answers": [
     {"a": "pass"},

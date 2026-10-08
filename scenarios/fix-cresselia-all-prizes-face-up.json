@@ -5,20 +5,20 @@
       "4 Cresselia SFA 21",
       "4 Steven's Metagross ex ASC 289",
       "4 Dreepy ASC 158",
-      "48 Psychic Energy MEE"
+      "48 Psychic Energy MEE 5"
     ],
     [
       "4 Cresselia SFA 21",
       "4 Steven's Metagross ex ASC 289",
       "4 Dreepy ASC 158",
-      "48 Psychic Energy MEE"
+      "48 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Cresselia SFA 21",
     "active_energy": [
-      "3 Psychic Energy MEE"
+      "3 Psychic Energy MEE 5"
     ],
     "hand_to_deck": true,
     "prizes_left": 2

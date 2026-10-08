@@ -1,7 +1,7 @@
-4 Applin SCR
-3 Beldum M4
-2 Charmeleon M2
-3 Combusken JTG
-22 Fire Energy MEE
-22 Metal Energy MEE
-4 Torchic JTG
+4 Applin SCR 12
+3 Beldum CRI 59
+2 Charmeleon PFL 12
+3 Combusken JTG 23
+22 Fire Energy MEE 2
+22 Metal Energy MEE 8
+4 Torchic JTG 22

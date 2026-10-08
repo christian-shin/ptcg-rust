@@ -3,34 +3,34 @@
   "decks": [
     [
       "4 Mankey SSP 98",
-      "4 Primeape M5",
+      "4 Primeape PBL 43",
       "4 Annihilape PBL 41",
       "4 Marnie's Grimmsnarl ex ASC 287",
       "4 Gastrodon SSP 107",
       "4 Hop's Snorlax JTG 117",
-      "18 Darkness Energy MEE",
-      "18 Psychic Energy MEE"
+      "18 Darkness Energy MEE 7",
+      "18 Psychic Energy MEE 5"
     ],
     [
       "4 Mankey SSP 98",
-      "4 Primeape M5",
+      "4 Primeape PBL 43",
       "4 Annihilape PBL 41",
       "4 Marnie's Grimmsnarl ex ASC 287",
       "4 Gastrodon SSP 107",
       "4 Hop's Snorlax JTG 117",
-      "18 Darkness Energy MEE",
-      "18 Psychic Energy MEE"
+      "18 Darkness Energy MEE 7",
+      "18 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
     "active": [
       "Mankey SSP 98",
-      "Primeape M5",
+      "Primeape PBL 43",
       "Annihilape PBL 41"
     ],
     "active_energy": [
-      "2 Psychic Energy MEE"
+      "2 Psychic Energy MEE 5"
     ]
   },
   "opp": {

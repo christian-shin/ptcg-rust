@@ -5,20 +5,20 @@
    "2 Terrakion WHT 54",
    "2 Mega Mawile ex MEG 94",
    "2 Brave Bangle PBL 104",
-   "54 Fighting Energy MEE"
+   "54 Fighting Energy MEE 6"
   ],
   [
    "2 Terrakion WHT 54",
    "2 Mega Mawile ex MEG 94",
    "2 Brave Bangle PBL 104",
-   "54 Fighting Energy MEE"
+   "54 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Terrakion WHT 54",
   "active_energy": [
-   "3 Fighting Energy MEE"
+   "3 Fighting Energy MEE 6"
   ],
   "active_tool": "Brave Bangle PBL 104"
  },

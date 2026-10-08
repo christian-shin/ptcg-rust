@@ -9,8 +9,8 @@
    "4 Rillaboom TWM 16",
    "4 Handheld Fan TWM 150",
    "4 Boomerang Energy TWM 166",
-   "16 Fire Energy MEE",
-   "16 Grass Energy MEE"
+   "16 Fire Energy MEE 2",
+   "16 Grass Energy MEE 1"
   ],
   [
    "4 N's Darumaka ASC 32",
@@ -20,8 +20,8 @@
    "4 Rillaboom TWM 16",
    "4 Handheld Fan TWM 150",
    "4 Boomerang Energy TWM 166",
-   "16 Fire Energy MEE",
-   "16 Grass Energy MEE"
+   "16 Fire Energy MEE 2",
+   "16 Grass Energy MEE 1"
   ]
  ],
  "me": {
@@ -32,7 +32,7 @@
   ],
   "active_energy": [
    "Boomerang Energy TWM 166",
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -53,7 +53,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Darman-i-cannon"
+   "name": "Flamebody Cannon"
   }
  ]
 }

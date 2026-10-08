@@ -4,21 +4,21 @@
   [
    "4 Stunfisk ASC 62",
    "4 Mega Lucario ex ASC 113",
-   "8 Lightning Energy MEE",
-   "44 Fire Energy MEE"
+   "8 Lightning Energy MEE 4",
+   "44 Fire Energy MEE 2"
   ],
   [
    "4 Stunfisk ASC 62",
    "4 Mega Lucario ex ASC 113",
-   "8 Lightning Energy MEE",
-   "44 Fire Energy MEE"
+   "8 Lightning Energy MEE 4",
+   "44 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Stunfisk ASC 62",
   "active_energy": [
-   "Lightning Energy MEE"
+   "Lightning Energy MEE 4"
   ]
  },
  "opp": {

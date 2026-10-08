@@ -1,13 +1,13 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Litwick TWM 36", "4 Lampent TWM 37", "4 Chandelure TWM 38", "48 Fire Energy MEE"],
-    ["4 Litwick TWM 36", "4 Lampent TWM 37", "4 Chandelure TWM 38", "48 Fire Energy MEE"]
+    ["4 Litwick TWM 36", "4 Lampent TWM 37", "4 Chandelure TWM 38", "48 Fire Energy MEE 2"],
+    ["4 Litwick TWM 36", "4 Lampent TWM 37", "4 Chandelure TWM 38", "48 Fire Energy MEE 2"]
   ],
   "me": {
     "reset": true,
     "active": ["Litwick TWM 36", "Lampent TWM 37", "Chandelure TWM 38"],
-    "active_energy": ["Fire Energy MEE"]
+    "active_energy": ["Fire Energy MEE 2"]
   },
   "opp": {
     "reset": true,

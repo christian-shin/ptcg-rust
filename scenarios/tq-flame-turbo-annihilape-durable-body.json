@@ -2,28 +2,28 @@
  "turn": 2,
  "decks": [
   [
-   "4 Cinderace M1L",
+   "4 Cinderace MEG 28",
    "4 Hop's Snorlax JTG 117",
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
-   "16 Fire Energy MEE",
-   "24 Psychic Energy MEE"
+   "16 Fire Energy MEE 2",
+   "24 Psychic Energy MEE 5"
   ],
   [
-   "4 Cinderace M1L",
+   "4 Cinderace MEG 28",
    "4 Hop's Snorlax JTG 117",
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
-   "16 Fire Energy MEE",
-   "24 Psychic Energy MEE"
+   "16 Fire Energy MEE 2",
+   "24 Psychic Energy MEE 5"
   ]
  ],
  "me": {
-  "active": "Cinderace M1L",
+  "active": "Cinderace MEG 28",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -35,7 +35,7 @@
  "opp": {
   "active": [
    "Mankey SSP 98",
-   "Primeape M5",
+   "Primeape PBL 43",
    "Annihilape PBL 41"
   ],
   "active_damage": 120,
@@ -44,7 +44,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Flame Turbo"
+   "name": "Turbo Flare"
   }
  ],
  "coins": [

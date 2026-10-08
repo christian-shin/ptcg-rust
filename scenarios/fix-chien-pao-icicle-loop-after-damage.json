@@ -4,22 +4,22 @@
   [
    "4 Chien-Pao SSP 56",
    "4 Charcadet SSP 33",
-   "26 Water Energy MEE",
-   "26 Grass Energy MEE"
+   "26 Water Energy MEE 3",
+   "26 Grass Energy MEE 1"
   ],
   [
    "4 Chien-Pao SSP 56",
    "4 Charcadet SSP 33",
-   "26 Water Energy MEE",
-   "26 Grass Energy MEE"
+   "26 Water Energy MEE 3",
+   "26 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Chien-Pao SSP 56",
   "active_energy": [
-   "2 Water Energy MEE",
-   "Grass Energy MEE"
+   "2 Water Energy MEE 3",
+   "Grass Energy MEE 1"
   ]
  },
  "opp": {

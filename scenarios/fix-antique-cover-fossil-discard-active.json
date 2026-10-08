@@ -2,14 +2,14 @@
  "turn": 2,
  "decks": [
   [
-   "4 Antique Cover Fossil SCR",
+   "4 Antique Cover Fossil SCR 129",
    "4 Mankey SSP 98",
    "4 Air Balloon ASC 181",
    "4 Mist Energy TEF 161",
    "44 Fire Energy MEE 2"
   ],
   [
-   "4 Antique Cover Fossil SCR",
+   "4 Antique Cover Fossil SCR 129",
    "4 Mankey SSP 98",
    "4 Air Balloon ASC 181",
    "4 Mist Energy TEF 161",
@@ -18,7 +18,7 @@
  ],
  "me": {
   "reset": true,
-  "active": "Antique Cover Fossil SCR",
+  "active": "Antique Cover Fossil SCR 129",
   "active_energy": [
    "Fire Energy MEE 2",
    "Mist Energy TEF 161"

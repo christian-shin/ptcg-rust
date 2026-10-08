@@ -1,7 +1,7 @@
-21 Fire Energy MEE
-4 Gimmighoul M1L
-21 Grass Energy MEE
-4 Makuhita M1L
-3 N's Darumaka JTG
-3 Smoliv DRI
-4 Toedscool JTG
+21 Fire Energy MEE 2
+4 Gimmighoul MEG 67
+21 Grass Energy MEE 1
+4 Makuhita MEG 72
+3 N's Darumaka JTG 26
+3 Smoliv DRI 21
+4 Toedscool JTG 88

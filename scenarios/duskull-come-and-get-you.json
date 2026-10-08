@@ -3,18 +3,18 @@
  "decks": [
   [
    "4 Duskull PRE 35",
-   "56 Psychic Energy MEE"
+   "56 Psychic Energy MEE 5"
   ],
   [
    "4 Duskull PRE 35",
-   "56 Psychic Energy MEE"
+   "56 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Duskull PRE 35",
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "hand": [
    "Duskull PRE 35"

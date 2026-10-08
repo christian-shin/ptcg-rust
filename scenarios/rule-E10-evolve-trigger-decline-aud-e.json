@@ -5,13 +5,13 @@
    "1 Kadabra MEG 55",
    "1 Abra MEG 54",
    "1 Minccino JTG 125",
-   "57 Water Energy MEE"
+   "57 Water Energy MEE 3"
   ],
   [
    "1 Kadabra MEG 55",
    "1 Abra MEG 54",
    "1 Minccino JTG 125",
-   "57 Water Energy MEE"
+   "57 Water Energy MEE 3"
   ]
  ],
  "me": {
@@ -28,7 +28,7 @@
  "answers": [
   {
    "a": "play",
-   "name": "Kadabra M1S",
+   "name": "Kadabra MEG 55",
    "target": {
     "player": 2,
     "slot": 1,

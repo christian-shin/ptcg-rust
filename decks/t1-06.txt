@@ -1,6 +1,6 @@
 2 Bronzor LOR 125
-25 Darkness Energy MEE
-2 Ethan's Slugma DRI
-25 Metal Energy MEE
-4 N's Darumaka JTG
-2 Shroodle SSP
+25 Darkness Energy MEE 7
+2 Ethan's Slugma DRI 35
+25 Metal Energy MEE 8
+4 N's Darumaka JTG 26
+2 Shroodle SSP 120

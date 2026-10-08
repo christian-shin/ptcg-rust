@@ -4,22 +4,22 @@
   [
    "4 Walking Wake TWM 63",
    "4 Dwebble DRI 11",
-   "26 Water Energy MEE",
-   "26 Grass Energy MEE"
+   "26 Water Energy MEE 3",
+   "26 Grass Energy MEE 1"
   ],
   [
    "4 Walking Wake TWM 63",
    "4 Dwebble DRI 11",
-   "26 Water Energy MEE",
-   "26 Grass Energy MEE"
+   "26 Water Energy MEE 3",
+   "26 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Walking Wake TWM 63",
   "active_energy": [
-   "2 Water Energy MEE",
-   "Grass Energy MEE"
+   "2 Water Energy MEE 3",
+   "Grass Energy MEE 1"
   ],
   "active_damage": 60,
   "prizes_left": 1

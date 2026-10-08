@@ -8,7 +8,7 @@
    "1 Togetic ASC 81",
    "1 Togekiss ASC 82",
    "1 Legacy Energy TWM 167",
-   "52 Fighting Energy MEE"
+   "52 Fighting Energy MEE 6"
   ],
   [
    "2 Terrakion WHT 54",
@@ -17,14 +17,14 @@
    "1 Togetic ASC 81",
    "1 Togekiss ASC 82",
    "1 Legacy Energy TWM 167",
-   "52 Fighting Energy MEE"
+   "52 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Terrakion WHT 54",
   "active_energy": [
-   "3 Fighting Energy MEE"
+   "3 Fighting Energy MEE 6"
   ],
   "bench": [
    {

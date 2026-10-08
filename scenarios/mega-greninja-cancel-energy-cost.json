@@ -1,17 +1,17 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Froakie M4", "4 Frogadier SCR", "4 Mega Greninja ex M4", "4 Finizen TWM", "44 Water Energy MEE"],
-    ["4 Froakie M4", "4 Frogadier SCR", "4 Mega Greninja ex M4", "4 Finizen TWM", "44 Water Energy MEE"]
+    ["4 Froakie CRI 20", "4 Frogadier SCR 40", "4 Mega Greninja ex CRI 22", "4 Finizen TWM 59", "44 Water Energy MEE 3"],
+    ["4 Froakie CRI 20", "4 Frogadier SCR 40", "4 Mega Greninja ex CRI 22", "4 Finizen TWM 59", "44 Water Energy MEE 3"]
   ],
   "me": {
     "reset": true,
-    "active": ["Froakie M4", "Frogadier SCR", "Mega Greninja ex M4"],
-    "hand": ["Water Energy MEE"]
+    "active": ["Froakie CRI 20", "Frogadier SCR 40", "Mega Greninja ex CRI 22"],
+    "hand": ["Water Energy MEE 3"]
   },
   "opp": {
     "reset": true,
-    "active": "Finizen TWM"
+    "active": "Finizen TWM 59"
   },
   "answers": [
     {"a": "ability", "name": "Mortal Shuriken", "source": {"player": 2, "slot": 1, "index": 0}},

@@ -2,21 +2,21 @@
  "turn": 2,
  "decks": [
   [
-   "4 Cinderace M1L",
+   "4 Cinderace MEG 28",
    "4 Hop's Snorlax JTG 117",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ],
   [
-   "4 Cinderace M1L",
+   "4 Cinderace MEG 28",
    "4 Hop's Snorlax JTG 117",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
-  "active": "Cinderace M1L",
+  "active": "Cinderace MEG 28",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -31,7 +31,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Flame Turbo"
+   "name": "Turbo Flare"
   }
  ]
 }

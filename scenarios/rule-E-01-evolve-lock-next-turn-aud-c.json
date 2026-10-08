@@ -5,22 +5,22 @@
    "4 Bronzong TEF 69",
    "4 Beldum TEF 113",
    "4 Metang TEF 114",
-   "8 Psychic Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Psychic Energy MEE 5",
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Bronzong TEF 69",
    "4 Beldum TEF 113",
    "4 Metang TEF 114",
-   "8 Psychic Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Psychic Energy MEE 5",
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Bronzong TEF 69",
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ]
  },
  "opp": {

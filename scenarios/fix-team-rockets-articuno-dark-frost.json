@@ -5,14 +5,14 @@
    "4 Team Rocket's Articuno DRI 51",
    "4 Duraludon PRE 69",
    "4 Team Rocket's Energy ASC 217",
-   "24 Water Energy MEE",
+   "24 Water Energy MEE 3",
    "24 Metal Energy MEE 8"
   ],
   [
    "4 Team Rocket's Articuno DRI 51",
    "4 Duraludon PRE 69",
    "4 Team Rocket's Energy ASC 217",
-   "24 Water Energy MEE",
+   "24 Water Energy MEE 3",
    "24 Metal Energy MEE 8"
   ]
  ],
@@ -20,7 +20,7 @@
   "reset": true,
   "active": "Team Rocket's Articuno DRI 51",
   "active_energy": [
-   "Water Energy MEE",
+   "Water Energy MEE 3",
    "Team Rocket's Energy ASC 217"
   ]
  },

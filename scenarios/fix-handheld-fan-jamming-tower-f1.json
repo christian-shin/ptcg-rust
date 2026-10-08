@@ -6,20 +6,20 @@
    "4 N's Darmanitan ASC 33",
    "4 Rillaboom TWM 16",
    "4 Handheld Fan TWM 150",
-   "4 Jamming Tower TWM",
+   "4 Jamming Tower TWM 153",
    "4 Boomerang Energy TWM 166",
-   "16 Fire Energy MEE",
-   "20 Grass Energy MEE"
+   "16 Fire Energy MEE 2",
+   "20 Grass Energy MEE 1"
   ],
   [
    "4 N's Darumaka ASC 32",
    "4 N's Darmanitan ASC 33",
    "4 Rillaboom TWM 16",
    "4 Handheld Fan TWM 150",
-   "4 Jamming Tower TWM",
+   "4 Jamming Tower TWM 153",
    "4 Boomerang Energy TWM 166",
-   "16 Fire Energy MEE",
-   "20 Grass Energy MEE"
+   "16 Fire Energy MEE 2",
+   "20 Grass Energy MEE 1"
   ]
  ],
  "me": {
@@ -29,8 +29,8 @@
    "N's Darmanitan ASC 33"
   ],
   "active_energy": [
-   "2 Fire Energy MEE",
-   "Fire Energy MEE"
+   "2 Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -42,7 +42,7 @@
   "reset": true,
   "active": "Rillaboom TWM 16",
   "active_tool": "Handheld Fan TWM 150",
-  "stadium": "Jamming Tower TWM",
+  "stadium": "Jamming Tower TWM 153",
   "bench": [
    {
     "card": "Rillaboom TWM 16"
@@ -52,7 +52,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Darman-i-cannon"
+   "name": "Flamebody Cannon"
   }
  ]
 }

@@ -6,21 +6,21 @@
       "4 Dreepy ASC 158",
       "4 Thick Scale ASC 211",
       "4 Jamming Tower ASC 261",
-      "44 Grass Energy MEE"
+      "44 Grass Energy MEE 1"
     ],
     [
       "4 Petilil BLK 6",
       "4 Dreepy ASC 158",
       "4 Thick Scale ASC 211",
       "4 Jamming Tower ASC 261",
-      "44 Grass Energy MEE"
+      "44 Grass Energy MEE 1"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Petilil BLK 6",
     "active_energy": [
-      "Grass Energy MEE"
+      "Grass Energy MEE 1"
     ],
     "stadium": "Jamming Tower ASC 261"
   },

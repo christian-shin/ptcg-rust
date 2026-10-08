@@ -6,16 +6,16 @@
    "4 Slowking SCR 58",
    "4 Metagross CRI 61",
    "4 Dwebble DRI 11",
-   "22 Psychic Energy MEE",
-   "22 Fire Energy MEE"
+   "22 Psychic Energy MEE 5",
+   "22 Fire Energy MEE 2"
   ],
   [
    "4 Slowpoke SCR 57",
    "4 Slowking SCR 58",
    "4 Metagross CRI 61",
    "4 Dwebble DRI 11",
-   "22 Psychic Energy MEE",
-   "22 Fire Energy MEE"
+   "22 Psychic Energy MEE 5",
+   "22 Fire Energy MEE 2"
   ]
  ],
  "me": {
@@ -25,8 +25,8 @@
    "Slowking SCR 58"
   ],
   "active_energy": [
-   "Psychic Energy MEE",
-   "Fire Energy MEE"
+   "Psychic Energy MEE 5",
+   "Fire Energy MEE 2"
   ],
   "deck_top": [
    "Metagross CRI 61",

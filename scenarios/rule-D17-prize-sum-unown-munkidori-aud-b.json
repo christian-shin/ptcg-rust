@@ -5,20 +5,20 @@
    "2 Unown 30C 72",
    "2 Munkidori ex SFA 37",
    "2 Pecharunt ex PRE 163",
-   "54 Psychic Energy MEE"
+   "54 Psychic Energy MEE 5"
   ],
   [
    "2 Unown 30C 72",
    "2 Munkidori ex SFA 37",
    "2 Pecharunt ex PRE 163",
-   "54 Psychic Energy MEE"
+   "54 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Unown 30C 72",
   "active_energy": [
-   "2 Psychic Energy MEE"
+   "2 Psychic Energy MEE 5"
   ]
  },
  "opp": {

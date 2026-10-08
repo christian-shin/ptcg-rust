@@ -7,7 +7,7 @@
    "4 Metagross CRI 61",
    "4 Mega Manectric ex MEG 50",
    "4 Electrike MEG 49",
-   "20 Psychic Energy MEE",
+   "20 Psychic Energy MEE 5",
    "20 Metal Energy MEE 8"
   ],
   [
@@ -16,7 +16,7 @@
    "4 Metagross CRI 61",
    "4 Mega Manectric ex MEG 50",
    "4 Electrike MEG 49",
-   "20 Psychic Energy MEE",
+   "20 Psychic Energy MEE 5",
    "20 Metal Energy MEE 8"
   ]
  ],
@@ -27,13 +27,13 @@
    "Slowking SCR 58"
   ],
   "active_energy": [
-   "2 Psychic Energy MEE"
+   "2 Psychic Energy MEE 5"
   ],
   "deck_top": [
    "Metagross CRI 61"
   ],
   "prizes": [
-   "6 Psychic Energy MEE"
+   "6 Psychic Energy MEE 5"
   ]
  },
  "opp": {
@@ -68,8 +68,8 @@
    "who": "me",
    "slot": "active",
    "energy": [
-    "Psychic Energy MEE",
-    "Psychic Energy MEE"
+    "Psychic Energy MEE 5",
+    "Psychic Energy MEE 5"
    ],
    "cite": "ruling 1822"
   }

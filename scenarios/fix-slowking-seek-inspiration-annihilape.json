@@ -5,22 +5,22 @@
    "4 Slowpoke SCR 57",
    "4 Slowking SCR 58",
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
    "4 Duraludon PRE 69",
-   "24 Psychic Energy MEE",
-   "6 Fighting Energy MEE",
+   "24 Psychic Energy MEE 5",
+   "6 Fighting Energy MEE 6",
    "6 Metal Energy MEE 8"
   ],
   [
    "4 Slowpoke SCR 57",
    "4 Slowking SCR 58",
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
    "4 Duraludon PRE 69",
-   "24 Psychic Energy MEE",
-   "6 Fighting Energy MEE",
+   "24 Psychic Energy MEE 5",
+   "6 Fighting Energy MEE 6",
    "6 Metal Energy MEE 8"
   ]
  ],
@@ -31,13 +31,13 @@
    "Slowking SCR 58"
   ],
   "active_energy": [
-   "2 Psychic Energy MEE"
+   "2 Psychic Energy MEE 5"
   ],
   "deck_top": [
    "Annihilape PBL 41"
   ],
   "prizes": [
-   "6 Fighting Energy MEE"
+   "6 Fighting Energy MEE 6"
   ]
  },
  "opp": {

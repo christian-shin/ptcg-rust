@@ -7,8 +7,8 @@
    "4 Espeon ex PRE 34",
    "4 Jolteon ex PRE 30",
    "4 Swablu SSP 148",
-   "20 Psychic Energy MEE",
-   "20 Water Energy MEE"
+   "20 Psychic Energy MEE 5",
+   "20 Water Energy MEE 3"
   ],
   [
    "4 Enamorus TWM 93",
@@ -16,16 +16,16 @@
    "4 Espeon ex PRE 34",
    "4 Jolteon ex PRE 30",
    "4 Swablu SSP 148",
-   "20 Psychic Energy MEE",
-   "20 Water Energy MEE"
+   "20 Psychic Energy MEE 5",
+   "20 Water Energy MEE 3"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Enamorus TWM 93",
   "active_energy": [
-   "Psychic Energy MEE",
-   "2 Water Energy MEE"
+   "Psychic Energy MEE 5",
+   "2 Water Energy MEE 3"
   ],
   "bench": [
    {

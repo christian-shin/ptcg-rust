@@ -1,6 +1,6 @@
-4 Applin SCR
-4 Beldum M4
-23 Grass Energy MEE
-23 Metal Energy MEE
-3 Shellos SSP
-3 Smoliv DRI
+4 Applin SCR 12
+4 Beldum CRI 59
+23 Grass Energy MEE 1
+23 Metal Energy MEE 8
+3 Shellos SSP 46
+3 Smoliv DRI 21

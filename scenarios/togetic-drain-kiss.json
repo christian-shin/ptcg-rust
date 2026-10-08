@@ -4,19 +4,19 @@
     [
       "4 Togetic ASC 81",
       "4 Hop's Snorlax JTG 117",
-      "52 Fighting Energy MEE"
+      "52 Fighting Energy MEE 6"
     ],
     [
       "4 Togetic ASC 81",
       "4 Hop's Snorlax JTG 117",
-      "52 Fighting Energy MEE"
+      "52 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Togetic ASC 81",
     "active_energy": [
-      "2 Fighting Energy MEE"
+      "2 Fighting Energy MEE 6"
     ],
     "active_damage": 50
   },
@@ -27,7 +27,7 @@
   "answers": [
     {
       "a": "attack",
-      "name": "Drain Kiss"
+      "name": "Draining Kiss"
     }
   ]
 }

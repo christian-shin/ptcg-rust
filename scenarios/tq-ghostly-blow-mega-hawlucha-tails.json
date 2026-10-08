@@ -3,29 +3,29 @@
  "decks": [
   [
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
    "4 Mega Hawlucha ex ASC 116",
    "4 Zeraora DRI 78",
-   "40 Psychic Energy MEE"
+   "40 Psychic Energy MEE 5"
   ],
   [
    "4 Mankey SSP 98",
-   "4 Primeape M5",
+   "4 Primeape PBL 43",
    "4 Annihilape PBL 41",
    "4 Mega Hawlucha ex ASC 116",
    "4 Zeraora DRI 78",
-   "40 Psychic Energy MEE"
+   "40 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "active": [
    "Mankey SSP 98",
-   "Primeape M5",
+   "Primeape PBL 43",
    "Annihilape PBL 41"
   ],
   "active_energy": [
-   "2 Psychic Energy MEE"
+   "2 Psychic Energy MEE 5"
   ],
   "reset": true
  },

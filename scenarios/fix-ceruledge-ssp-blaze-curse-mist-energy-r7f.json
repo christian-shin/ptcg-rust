@@ -7,8 +7,8 @@
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
    "4 Boomerang Energy TWM 166",
-   "22 Fire Energy MEE",
-   "18 Psychic Energy MEE"
+   "22 Fire Energy MEE 2",
+   "18 Psychic Energy MEE 5"
   ],
   [
    "4 Charcadet SSP 32",
@@ -16,8 +16,8 @@
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
    "4 Boomerang Energy TWM 166",
-   "22 Fire Energy MEE",
-   "18 Psychic Energy MEE"
+   "22 Fire Energy MEE 2",
+   "18 Psychic Energy MEE 5"
   ]
  ],
  "me": {
@@ -27,7 +27,7 @@
    "Ceruledge SSP 35"
   ],
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ]
  },
  "opp": {
@@ -56,7 +56,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Blaze Curse"
+   "name": "Cursed Edge"
   }
  ]
 }

@@ -1,7 +1,7 @@
-2 Bronzor PRE
-4 Goldeen M5
-22 Metal Energy MEE
-3 Scatterbug M3
-4 Smoliv DRI
-4 Steven's Beldum DRI
-21 Water Energy MEE
+2 Bronzor PRE 66
+4 Goldeen PBL 13
+22 Metal Energy MEE 8
+3 Scatterbug POR 7
+4 Smoliv DRI 21
+4 Steven's Beldum DRI 143
+21 Water Energy MEE 3

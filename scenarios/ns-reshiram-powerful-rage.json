@@ -4,22 +4,22 @@
     [
       "4 N's Reshiram ASC 154",
       "4 Hop's Snorlax JTG 117",
-      "26 Fire Energy MEE",
-      "26 Lightning Energy MEE"
+      "26 Fire Energy MEE 2",
+      "26 Lightning Energy MEE 4"
     ],
     [
       "4 N's Reshiram ASC 154",
       "4 Hop's Snorlax JTG 117",
-      "26 Fire Energy MEE",
-      "26 Lightning Energy MEE"
+      "26 Fire Energy MEE 2",
+      "26 Lightning Energy MEE 4"
     ]
   ],
   "me": {
     "reset": true,
     "active": "N's Reshiram ASC 154",
     "active_energy": [
-      "Fire Energy MEE",
-      "Lightning Energy MEE"
+      "Fire Energy MEE 2",
+      "Lightning Energy MEE 4"
     ],
     "active_damage": 60
   },

@@ -4,21 +4,21 @@
   [
    "1 Minccino JTG 125",
    "1 Prism Tower CRI 80",
-   "58 Water Energy MEE"
+   "58 Water Energy MEE 3"
   ],
   [
    "1 Minccino JTG 125",
    "1 Prism Tower CRI 80",
-   "58 Water Energy MEE"
+   "58 Water Energy MEE 3"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Minccino JTG 125",
   "hand": [
-   "Water Energy MEE",
-   "Water Energy MEE",
-   "Water Energy MEE"
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
   ],
   "stadium": "Prism Tower CRI 80"
  },

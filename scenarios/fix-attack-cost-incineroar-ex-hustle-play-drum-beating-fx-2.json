@@ -6,7 +6,7 @@
    "4 Thwackey TWM 15",
    "4 Rillaboom TWM 16",
    "4 Litten TEF 32",
-   "4 Torracat TEF",
+   "4 Torracat TEF 33",
    "4 Incineroar ex TEF 34",
    "4 Hoothoot SCR 114",
    "4 Charmander PFL 11",
@@ -18,7 +18,7 @@
    "4 Thwackey TWM 15",
    "4 Rillaboom TWM 16",
    "4 Litten TEF 32",
-   "4 Torracat TEF",
+   "4 Torracat TEF 33",
    "4 Incineroar ex TEF 34",
    "4 Hoothoot SCR 114",
    "4 Charmander PFL 11",
@@ -58,7 +58,7 @@
   "reset": true,
   "active": [
    "Litten TEF 32",
-   "Torracat TEF",
+   "Torracat TEF 33",
    "Incineroar ex TEF 34"
   ],
   "active_energy": [

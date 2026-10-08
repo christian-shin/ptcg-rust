@@ -6,14 +6,14 @@
    "4 Munkidori ASC 99",
    "4 Abra MEG 54",
    "4 Terrakion WHT 54",
-   "44 Psychic Energy MEE"
+   "44 Psychic Energy MEE 5"
   ],
   [
    "4 Jacinthe POR 75",
    "4 Munkidori ASC 99",
    "4 Abra MEG 54",
    "4 Terrakion WHT 54",
-   "44 Psychic Energy MEE"
+   "44 Psychic Energy MEE 5"
   ]
  ],
  "me": {
@@ -21,7 +21,7 @@
   "active": "Munkidori ASC 99",
   "active_damage": 60,
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "bench": [
    {

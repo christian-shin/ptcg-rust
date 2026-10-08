@@ -3,25 +3,25 @@
  "decks": [
   [
    "4 Bouffalant SCR 119",
-   "56 Fire Energy MEE"
+   "56 Fire Energy MEE 2"
   ],
   [
    "4 Bouffalant SCR 119",
-   "56 Fire Energy MEE"
+   "56 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Bouffalant SCR 119",
   "active_energy": [
-   "3 Fire Energy MEE"
+   "3 Fire Energy MEE 2"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Bouffalant SCR 119",
   "active_energy": [
-   "3 Fire Energy MEE"
+   "3 Fire Energy MEE 2"
   ]
  },
  "answers": [

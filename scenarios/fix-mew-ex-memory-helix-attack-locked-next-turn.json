@@ -3,26 +3,26 @@
  "decks": [
   [
    "4 Mew ex 30C 66",
-   "4 Riolu M1L",
+   "4 Riolu MEG 76",
    "4 Drilbur PBL 46",
-   "48 Fighting Energy MEE"
+   "48 Fighting Energy MEE 6"
   ],
   [
    "4 Mew ex 30C 66",
-   "4 Riolu M1L",
+   "4 Riolu MEG 76",
    "4 Drilbur PBL 46",
-   "48 Fighting Energy MEE"
+   "48 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Mew ex 30C 66",
   "active_energy": [
-   "2 Fighting Energy MEE"
+   "2 Fighting Energy MEE 6"
   ],
   "bench": [
    {
-    "card": "Riolu M1L"
+    "card": "Riolu MEG 76"
    },
    {
     "card": "Drilbur PBL 46"
@@ -37,7 +37,7 @@
   {
    "a": "attack",
    "name": "Accelerating Stab",
-   "from": "Riolu M1L"
+   "from": "Riolu MEG 76"
   },
   {
    "a": "pass"
@@ -49,7 +49,7 @@
    "who": "me",
    "legal": "attack",
    "name": "Accelerating Stab",
-   "from": "Riolu M1L",
+   "from": "Riolu MEG 76",
    "cite": "Advanced Rulebook I-A-02 (a passive Ability is automatic, never announced); Memory Helix card text"
   },
   {
@@ -75,7 +75,7 @@
    "who": "me",
    "legal": "attack",
    "name": "Call for Family",
-   "from": "Drilbur M5",
+   "from": "Drilbur PBL 46",
    "cite": "only Accelerating Stab is locked; Mew ex still has Energy for Drilbur's [C] attack"
   }
  ]

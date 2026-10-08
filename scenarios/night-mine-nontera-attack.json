@@ -5,26 +5,26 @@
       "4 Hop's Snorlax JTG 117",
       "4 Eevee ex PRE 75",
       "4 Nighttime Mine ASC 197",
-      "48 Fighting Energy MEE"
+      "48 Fighting Energy MEE 6"
     ],
     [
       "4 Hop's Snorlax JTG 117",
       "4 Eevee ex PRE 75",
       "4 Nighttime Mine ASC 197",
-      "48 Fighting Energy MEE"
+      "48 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
-    "stadium": "Night Mine M2a",
-    "active": "Hop's Snorlax JTG",
+    "stadium": "Nighttime Mine ASC 197",
+    "active": "Hop's Snorlax JTG 117",
     "active_energy": [
-      "4 Fighting Energy MEE"
+      "4 Fighting Energy MEE 6"
     ]
   },
   "opp": {
     "reset": true,
-    "active": "Eevee ex PRE"
+    "active": "Eevee ex PRE 75"
   },
   "answers": [
     {

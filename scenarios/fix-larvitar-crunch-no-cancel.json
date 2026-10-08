@@ -3,25 +3,25 @@
   "decks": [
     [
       "4 Larvitar JTG 80",
-      "56 Fighting Energy MEE"
+      "56 Fighting Energy MEE 6"
     ],
     [
       "4 Larvitar JTG 80",
-      "56 Fighting Energy MEE"
+      "56 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Larvitar JTG 80",
     "active_energy": [
-      "2 Fighting Energy MEE"
+      "2 Fighting Energy MEE 6"
     ]
   },
   "opp": {
     "reset": true,
     "active": "Larvitar JTG 80",
     "active_energy": [
-      "2 Fighting Energy MEE"
+      "2 Fighting Energy MEE 6"
     ]
   },
   "coins": [

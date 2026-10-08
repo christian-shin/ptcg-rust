@@ -2,14 +2,14 @@
  "turn": 2,
  "decks": [
   [
-   "4 Crabrawler SCR",
-   "4 Crabominable SCR",
+   "4 Crabrawler SCR 87",
+   "4 Crabominable SCR 42",
    "4 Ignition Energy PFL 124",
    "48 Water Energy MEE 3"
   ],
   [
-   "4 Crabrawler SCR",
-   "4 Crabominable SCR",
+   "4 Crabrawler SCR 87",
+   "4 Crabominable SCR 42",
    "4 Ignition Energy PFL 124",
    "48 Water Energy MEE 3"
   ]
@@ -17,8 +17,8 @@
  "me": {
   "reset": true,
   "active": [
-   "Crabrawler SCR",
-   "Crabominable SCR"
+   "Crabrawler SCR 87",
+   "Crabominable SCR 42"
   ],
   "active_energy": [
    "Ignition Energy PFL 124",
@@ -27,13 +27,13 @@
   ],
   "bench": [
    {
-    "card": "Crabrawler SCR"
+    "card": "Crabrawler SCR 87"
    }
   ]
  },
  "opp": {
   "reset": true,
-  "active": "Crabrawler SCR"
+  "active": "Crabrawler SCR 87"
  },
  "answers": [
   {

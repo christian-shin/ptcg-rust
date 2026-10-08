@@ -6,23 +6,23 @@
    "4 Beldum TEF 113",
    "4 Mist Energy TEF 161",
    "4 Snorunt TWM 51",
-   "5 Psychic Energy MEE",
-   "39 Fire Energy MEE"
+   "5 Psychic Energy MEE 5",
+   "39 Fire Energy MEE 2"
   ],
   [
    "4 Clefairy POR 30",
    "4 Beldum TEF 113",
    "4 Mist Energy TEF 161",
    "4 Snorunt TWM 51",
-   "5 Psychic Energy MEE",
-   "39 Fire Energy MEE"
+   "5 Psychic Energy MEE 5",
+   "39 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Clefairy POR 30",
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ]
  },
  "opp": {

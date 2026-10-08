@@ -5,20 +5,20 @@
    "2 Koraidon ex ASC 121",
    "2 Terrakion WHT 54",
    "2 Gastly ASC 123",
-   "54 Fighting Energy MEE"
+   "54 Fighting Energy MEE 6"
   ],
   [
    "2 Koraidon ex ASC 121",
    "2 Terrakion WHT 54",
    "2 Gastly ASC 123",
-   "54 Fighting Energy MEE"
+   "54 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Koraidon ex ASC 121",
   "active_energy": [
-   "3 Fighting Energy MEE"
+   "3 Fighting Energy MEE 6"
   ]
  },
  "opp": {
@@ -28,8 +28,8 @@
    {
     "card": "Terrakion WHT 54",
     "energy": [
-     "Fighting Energy MEE",
-     "Fighting Energy MEE"
+     "Fighting Energy MEE 6",
+     "Fighting Energy MEE 6"
     ]
    }
   ]

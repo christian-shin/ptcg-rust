@@ -2,34 +2,34 @@
  "turn": 2,
  "decks": [
   [
-   "4 Exeggcute SSP",
+   "4 Exeggcute SSP 1",
    "4 Alolan Exeggutor ex SSP 133",
    "4 Luxio FST 92",
    "4 Shinx FST 91",
-   "10 Water Energy MEE",
-   "10 Fighting Energy MEE",
-   "24 Grass Energy MEE"
+   "10 Water Energy MEE 3",
+   "10 Fighting Energy MEE 6",
+   "24 Grass Energy MEE 1"
   ],
   [
-   "4 Exeggcute SSP",
+   "4 Exeggcute SSP 1",
    "4 Alolan Exeggutor ex SSP 133",
    "4 Luxio FST 92",
    "4 Shinx FST 91",
-   "10 Water Energy MEE",
-   "10 Fighting Energy MEE",
-   "24 Grass Energy MEE"
+   "10 Water Energy MEE 3",
+   "10 Fighting Energy MEE 6",
+   "24 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": [
-   "Exeggcute SSP",
+   "Exeggcute SSP 1",
    "Alolan Exeggutor ex SSP 133"
   ],
   "active_energy": [
-   "Grass Energy MEE",
-   "Water Energy MEE",
-   "Fighting Energy MEE"
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Fighting Energy MEE 6"
   ]
  },
  "opp": {

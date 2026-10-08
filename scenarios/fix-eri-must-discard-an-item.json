@@ -6,21 +6,21 @@
    "4 Eri PRE 136",
    "4 Boxed Order TEF 143",
    "4 Dusk Ball SSP 175",
-   "44 Psychic Energy MEE"
+   "44 Psychic Energy MEE 5"
   ],
   [
    "4 Slowpoke SCR 57",
    "4 Eri PRE 136",
    "4 Boxed Order TEF 143",
    "4 Dusk Ball SSP 175",
-   "44 Psychic Energy MEE"
+   "44 Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Slowpoke SCR 57",
   "active_energy": [
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ],
   "hand": [
    "Eri PRE 136"
@@ -32,7 +32,7 @@
   "hand": [
    "Boxed Order TEF 143",
    "Dusk Ball SSP 175",
-   "Psychic Energy MEE"
+   "Psychic Energy MEE 5"
   ]
  }
 }

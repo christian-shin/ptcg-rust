@@ -5,20 +5,20 @@
    "4 Bulbasaur MEG 1",
    "4 Chikorita MEG 8",
    "4 Snorunt TWM 51",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ],
   [
    "4 Bulbasaur MEG 1",
    "4 Chikorita MEG 8",
    "4 Snorunt TWM 51",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Bulbasaur MEG 1",
   "active_energy": [
-   "3 Fire Energy MEE"
+   "3 Fire Energy MEE 2"
   ],
   "active_conditions": [
    "ASLEEP"

@@ -5,31 +5,31 @@
    "4 Rillaboom TWM 16",
    "4 Beldum TEF 113",
    "4 Snorunt TWM 51",
-   "8 Grass Energy MEE",
-   "8 Metal Energy MEE",
-   "32 Fire Energy MEE"
+   "8 Grass Energy MEE 1",
+   "8 Metal Energy MEE 8",
+   "32 Fire Energy MEE 2"
   ],
   [
    "4 Rillaboom TWM 16",
    "4 Beldum TEF 113",
    "4 Snorunt TWM 51",
-   "8 Grass Energy MEE",
-   "8 Metal Energy MEE",
-   "32 Fire Energy MEE"
+   "8 Grass Energy MEE 1",
+   "8 Metal Energy MEE 8",
+   "32 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Rillaboom TWM 16",
   "active_energy": [
-   "Grass Energy MEE"
+   "Grass Energy MEE 1"
   ]
  },
  "opp": {
   "reset": true,
   "active": "Beldum TEF 113",
   "active_energy": [
-   "Metal Energy MEE"
+   "Metal Energy MEE 8"
   ],
   "bench": [
    {

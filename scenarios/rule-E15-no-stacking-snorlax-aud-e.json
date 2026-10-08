@@ -5,22 +5,22 @@
    "1 Hop's Wooloo JTG 135",
    "2 Hop's Snorlax JTG 117",
    "1 Regigigas PRE 86",
-   "56 Water Energy MEE"
+   "56 Water Energy MEE 3"
   ],
   [
    "1 Hop's Wooloo JTG 135",
    "2 Hop's Snorlax JTG 117",
    "1 Regigigas PRE 86",
-   "56 Water Energy MEE"
+   "56 Water Energy MEE 3"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Hop's Wooloo JTG 135",
   "active_energy": [
-   "Water Energy MEE",
-   "Water Energy MEE",
-   "Water Energy MEE"
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
   ],
   "bench": [
    {

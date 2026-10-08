@@ -6,21 +6,21 @@
    "4 Buneary PFL 83",
    "4 Mega Lopunny ex PFL 84",
    "4 Mega Lucario ex ASC 113",
-   "44 Fire Energy MEE"
+   "44 Fire Energy MEE 2"
   ],
   [
    "4 Beldum TEF 113",
    "4 Buneary PFL 83",
    "4 Mega Lopunny ex PFL 84",
    "4 Mega Lucario ex ASC 113",
-   "44 Fire Energy MEE"
+   "44 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Beldum TEF 113",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -29,7 +29,7 @@
      "Mega Lopunny ex PFL 84"
     ],
     "energy": [
-     "Fire Energy MEE"
+     "Fire Energy MEE 2"
     ]
    }
   ]

@@ -3,11 +3,11 @@
  "decks": [
   [
    "4 Smoochum SSP 75",
-   "56 Psychic Energy MEE"
+   "56 Psychic Energy MEE 5"
   ],
   [
    "4 Smoochum SSP 75",
-   "56 Psychic Energy MEE"
+   "56 Psychic Energy MEE 5"
   ]
  ],
  "me": {
@@ -29,7 +29,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Happy Kiss"
+   "name": "Delightful Kiss"
   }
  ]
 }

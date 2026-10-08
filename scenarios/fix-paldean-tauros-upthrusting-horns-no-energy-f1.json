@@ -7,8 +7,8 @@
    "4 Thwackey TWM 15",
    "4 Rillaboom TWM 16",
    "4 Mist Energy TEF 161",
-   "20 Water Energy MEE",
-   "20 Grass Energy MEE"
+   "20 Water Energy MEE 3",
+   "20 Grass Energy MEE 1"
   ],
   [
    "4 Paldean Tauros SSP 39",
@@ -16,15 +16,15 @@
    "4 Thwackey TWM 15",
    "4 Rillaboom TWM 16",
    "4 Mist Energy TEF 161",
-   "20 Water Energy MEE",
-   "20 Grass Energy MEE"
+   "20 Water Energy MEE 3",
+   "20 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Paldean Tauros SSP 39",
   "active_energy": [
-   "2 Water Energy MEE"
+   "2 Water Energy MEE 3"
   ]
  },
  "opp": {

@@ -1,19 +1,19 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Paldean Tauros SSP 39", "3 Feebas TWM 49", "3 Milotic TWM 50", "3 Litwick TWM 36", "3 Lampent TWM 37", "3 Chandelure TWM 38", "26 Water Energy MEE", "15 Fire Energy MEE"],
-    ["4 Paldean Tauros SSP 39", "3 Feebas TWM 49", "3 Milotic TWM 50", "3 Litwick TWM 36", "3 Lampent TWM 37", "3 Chandelure TWM 38", "26 Water Energy MEE", "15 Fire Energy MEE"]
+    ["4 Paldean Tauros SSP 39", "3 Feebas TWM 49", "3 Milotic TWM 50", "3 Litwick TWM 36", "3 Lampent TWM 37", "3 Chandelure TWM 38", "26 Water Energy MEE 3", "15 Fire Energy MEE 2"],
+    ["4 Paldean Tauros SSP 39", "3 Feebas TWM 49", "3 Milotic TWM 50", "3 Litwick TWM 36", "3 Lampent TWM 37", "3 Chandelure TWM 38", "26 Water Energy MEE 3", "15 Fire Energy MEE 2"]
   ],
   "me": {
     "reset": true,
     "active": "Paldean Tauros SSP 39",
-    "active_energy": ["2 Water Energy MEE"],
+    "active_energy": ["2 Water Energy MEE 3"],
     "bench": [{"card": ["Feebas TWM 49", "Milotic TWM 50"]}]
   },
   "opp": {
     "reset": true,
     "active": ["Litwick TWM 36", "Lampent TWM 37", "Chandelure TWM 38"],
-    "active_energy": ["3 Fire Energy MEE"]
+    "active_energy": ["3 Fire Energy MEE 2"]
   },
   "answers": [
     {"a": "attack", "name": "Upthrusting Horns"}

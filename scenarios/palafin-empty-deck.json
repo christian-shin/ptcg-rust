@@ -1,19 +1,19 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Finizen TWM", "4 Palafin TWM", "52 Water Energy MEE"],
-    ["4 Finizen TWM", "4 Palafin TWM", "52 Water Energy MEE"]
+    ["4 Finizen TWM 59", "4 Palafin TWM 60", "52 Water Energy MEE 3"],
+    ["4 Finizen TWM 59", "4 Palafin TWM 60", "52 Water Energy MEE 3"]
   ],
   "me": {
     "reset": true,
-    "discard": ["2 Finizen TWM", "3 Palafin TWM", "51 Water Energy MEE"],
-    "active": ["Finizen TWM", "Palafin TWM"],
-    "active_energy": ["Water Energy MEE"],
-    "bench": [{"card": "Finizen TWM"}]
+    "discard": ["2 Finizen TWM 59", "3 Palafin TWM 60", "51 Water Energy MEE 3"],
+    "active": ["Finizen TWM 59", "Palafin TWM 60"],
+    "active_energy": ["Water Energy MEE 3"],
+    "bench": [{"card": "Finizen TWM 59"}]
   },
   "opp": {
     "reset": true,
-    "active": "Finizen TWM"
+    "active": "Finizen TWM 59"
   },
   "answers": [
     {"a": "retreat", "bench": 0},

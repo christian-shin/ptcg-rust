@@ -1,19 +1,19 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Crabominable SCR", "4 Crabrawler SCR", "4 Kofu SCR", "4 Finizen TWM", "44 Water Energy MEE"],
-    ["4 Crabominable SCR", "4 Crabrawler SCR", "4 Kofu SCR", "4 Finizen TWM", "44 Water Energy MEE"]
+    ["4 Crabominable SCR 42", "4 Crabrawler SCR 87", "4 Kofu SCR 138", "4 Finizen TWM 59", "44 Water Energy MEE 3"],
+    ["4 Crabominable SCR 42", "4 Crabrawler SCR 87", "4 Kofu SCR 138", "4 Finizen TWM 59", "44 Water Energy MEE 3"]
   ],
   "me": {
     "reset": true,
-    "discard": ["4 Kofu SCR"],
-    "active": ["Crabrawler SCR", "Crabominable SCR"],
-    "active_energy": ["Water Energy MEE"],
-    "bench": [{"card": "Crabrawler SCR"}]
+    "discard": ["4 Kofu SCR 138"],
+    "active": ["Crabrawler SCR 87", "Crabominable SCR 42"],
+    "active_energy": ["Water Energy MEE 3"],
+    "bench": [{"card": "Crabrawler SCR 87"}]
   },
   "opp": {
     "reset": true,
-    "active": "Finizen TWM"
+    "active": "Finizen TWM 59"
   },
   "answers": [{"a": "attack", "name": "Haymaker"}]
 }

@@ -5,23 +5,23 @@
    "4 Beldum TEF 113",
    "4 Metang TEF 114",
    "4 Pikachu ex ASC 57",
-   "8 Metal Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Beldum TEF 113",
    "4 Metang TEF 114",
    "4 Pikachu ex ASC 57",
-   "8 Metal Energy MEE",
-   "40 Fire Energy MEE"
+   "8 Metal Energy MEE 8",
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Beldum TEF 113",
   "active_energy": [
-   "Metal Energy MEE",
-   "2 Fire Energy MEE"
+   "Metal Energy MEE 8",
+   "2 Fire Energy MEE 2"
   ],
   "hand": [
    "Metang TEF 114"

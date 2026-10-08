@@ -6,21 +6,21 @@
       "4 Dreepy ASC 158",
       "4 Payapa Berry SCR 141",
       "4 Jamming Tower ASC 261",
-      "44 Psychic Energy MEE"
+      "44 Psychic Energy MEE 5"
     ],
     [
       "4 Flittle SSP 94",
       "4 Dreepy ASC 158",
       "4 Payapa Berry SCR 141",
       "4 Jamming Tower ASC 261",
-      "44 Psychic Energy MEE"
+      "44 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Flittle SSP 94",
     "active_energy": [
-      "Psychic Energy MEE"
+      "Psychic Energy MEE 5"
     ],
     "stadium": "Jamming Tower ASC 261"
   },

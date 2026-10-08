@@ -4,30 +4,30 @@
   [
    "4 Energy Recycler POR 108",
    "4 Hop's Snorlax JTG 117",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ],
   [
    "4 Energy Recycler POR 108",
    "4 Hop's Snorlax JTG 117",
-   "52 Fire Energy MEE"
+   "52 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Hop's Snorlax JTG 117",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "hand": [
    "Energy Recycler POR 108"
   ],
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ],
   "discard": []
  },
@@ -35,12 +35,12 @@
   "reset": true,
   "active": "Hop's Snorlax JTG 117",
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ]
  },
  "expect": [

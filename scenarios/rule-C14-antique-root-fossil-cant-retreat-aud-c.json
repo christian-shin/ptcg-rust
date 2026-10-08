@@ -5,20 +5,20 @@
    "4 Antique Root Fossil SCR 130",
    "4 Regigigas PRE 86",
    "4 Snorunt TWM 51",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ],
   [
    "4 Antique Root Fossil SCR 130",
    "4 Regigigas PRE 86",
    "4 Snorunt TWM 51",
-   "48 Fire Energy MEE"
+   "48 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Antique Root Fossil SCR 130",
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -30,7 +30,7 @@
   "reset": true,
   "active": "Regigigas PRE 86",
   "active_energy": [
-   "4 Fire Energy MEE"
+   "4 Fire Energy MEE 2"
   ]
  },
  "expect": [

@@ -11,7 +11,7 @@
    "1 Dwebble DRI 11",
    "1 Gimmighoul MEG 67",
    "1 Minccino JTG 125",
-   "51 Water Energy MEE"
+   "51 Water Energy MEE 3"
   ],
   [
    "1 Slowpoke PRE 18",
@@ -23,7 +23,7 @@
    "1 Dwebble DRI 11",
    "1 Gimmighoul MEG 67",
    "1 Minccino JTG 125",
-   "51 Water Energy MEE"
+   "51 Water Energy MEE 3"
   ]
  ],
  "me": {
@@ -31,7 +31,7 @@
   "active": "Teal Mask Ogerpon ex PRE 12",
   "hand": [
    "Slowpoke PRE 18",
-   "Water Energy MEE"
+   "Water Energy MEE 3"
   ],
   "bench": [
    {
@@ -59,7 +59,7 @@
  "answers": [
   {
    "a": "play",
-   "name": "Water Energy MEE",
+   "name": "Water Energy MEE 3",
    "target": {
     "player": 2,
     "slot": 1,

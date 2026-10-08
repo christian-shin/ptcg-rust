@@ -7,7 +7,7 @@
    "4 Mega Lopunny ex PFL 84",
    "4 Zoroark WHT 62",
    "4 Zorua WHT 61",
-   "40 Fire Energy MEE"
+   "40 Fire Energy MEE 2"
   ],
   [
    "4 Beldum TEF 113",
@@ -15,14 +15,14 @@
    "4 Mega Lopunny ex PFL 84",
    "4 Zoroark WHT 62",
    "4 Zorua WHT 61",
-   "40 Fire Energy MEE"
+   "40 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Beldum TEF 113",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -31,7 +31,7 @@
      "Zoroark WHT 62"
     ],
     "energy": [
-     "3 Fire Energy MEE"
+     "3 Fire Energy MEE 2"
     ]
    }
   ]
@@ -43,7 +43,7 @@
    "Mega Lopunny ex PFL 84"
   ],
   "active_energy": [
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ]
  },
  "answers": [

@@ -3,22 +3,22 @@
  "decks": [
   [
    "4 Zoroark WHT 62",
-   "4 Zorua SFA",
+   "4 Zorua SFA 31",
    "4 Riolu ASC 112",
-   "48 Darkness Energy MEE"
+   "48 Darkness Energy MEE 7"
   ],
   [
    "4 Zoroark WHT 62",
-   "4 Zorua SFA",
+   "4 Zorua SFA 31",
    "4 Riolu ASC 112",
-   "48 Darkness Energy MEE"
+   "48 Darkness Energy MEE 7"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Zoroark WHT 62",
   "active_energy": [
-   "3 Darkness Energy MEE"
+   "3 Darkness Energy MEE 7"
   ]
  },
  "opp": {

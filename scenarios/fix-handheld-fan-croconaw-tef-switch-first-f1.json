@@ -6,16 +6,16 @@
    "4 Croconaw TEF 40",
    "4 Abra MEG 54",
    "4 Handheld Fan TWM 150",
-   "20 Psychic Energy MEE",
-   "24 Water Energy MEE"
+   "20 Psychic Energy MEE 5",
+   "24 Water Energy MEE 3"
   ],
   [
    "4 Totodile TEF 39",
    "4 Croconaw TEF 40",
    "4 Abra MEG 54",
    "4 Handheld Fan TWM 150",
-   "20 Psychic Energy MEE",
-   "24 Water Energy MEE"
+   "20 Psychic Energy MEE 5",
+   "24 Water Energy MEE 3"
   ]
  ],
  "me": {
@@ -25,9 +25,9 @@
    "Croconaw TEF 40"
   ],
   "active_energy": [
-   "Water Energy MEE",
-   "Water Energy MEE",
-   "Water Energy MEE"
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
   ],
   "bench": [
    {
@@ -75,8 +75,8 @@
    "bench": 0,
    "card": "Croconaw TEF 40",
    "energy": [
-    "Water Energy MEE",
-    "Water Energy MEE"
+    "Water Energy MEE 3",
+    "Water Energy MEE 3"
    ],
    "cite": "rulings 1625, 1651 (Handheld Fan resolves after the attack's own effects: Croconaw has already switched to the Bench)"
   },
@@ -86,7 +86,7 @@
    "bench": 1,
    "card": "Totodile TEF 39",
    "energy": [
-    "Water Energy MEE"
+    "Water Energy MEE 3"
    ],
    "cite": "rulings 1625, 1651 (Handheld Fan resolves after the attack's own effects: Croconaw has already switched to the Bench); the Energy goes to the other Benched Pokemon"
   },

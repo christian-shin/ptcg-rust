@@ -6,29 +6,29 @@
    "4 Beldum TEF 113",
    "4 Metang TEF 114",
    "4 Snorunt TWM 51",
-   "5 Darkness Energy MEE",
-   "5 Grass Energy MEE",
-   "5 Psychic Energy MEE",
-   "29 Fire Energy MEE"
+   "5 Darkness Energy MEE 7",
+   "5 Grass Energy MEE 1",
+   "5 Psychic Energy MEE 5",
+   "29 Fire Energy MEE 2"
   ],
   [
    "4 Espeon ex PRE 34",
    "4 Beldum TEF 113",
    "4 Metang TEF 114",
    "4 Snorunt TWM 51",
-   "5 Darkness Energy MEE",
-   "5 Grass Energy MEE",
-   "5 Psychic Energy MEE",
-   "29 Fire Energy MEE"
+   "5 Darkness Energy MEE 7",
+   "5 Grass Energy MEE 1",
+   "5 Psychic Energy MEE 5",
+   "29 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Espeon ex PRE 34",
   "active_energy": [
-   "Grass Energy MEE",
-   "Psychic Energy MEE",
-   "Darkness Energy MEE"
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5",
+   "Darkness Energy MEE 7"
   ]
  },
  "opp": {
@@ -47,7 +47,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Amethyst"
+   "name": "Amazez"
   }
  ],
  "expect": [

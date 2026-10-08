@@ -6,30 +6,30 @@
    "4 Hop's Snorlax JTG 117",
    "4 Duraludon PRE 69",
    "4 Pikachu ex ASC 57",
-   "40 Fire Energy MEE",
-   "1 Psychic Energy MEE",
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Lightning Energy MEE"
+   "40 Fire Energy MEE 2",
+   "1 Psychic Energy MEE 5",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Lightning Energy MEE 4"
   ],
   [
    "4 Duskull PRE 35",
    "4 Hop's Snorlax JTG 117",
    "4 Duraludon PRE 69",
    "4 Pikachu ex ASC 57",
-   "40 Fire Energy MEE",
-   "1 Psychic Energy MEE",
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Lightning Energy MEE"
+   "40 Fire Energy MEE 2",
+   "1 Psychic Energy MEE 5",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Lightning Energy MEE 4"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Duskull PRE 35",
   "active_energy": [
-   "1 Psychic Energy MEE",
-   "1 Fire Energy MEE"
+   "1 Psychic Energy MEE 5",
+   "1 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -49,17 +49,17 @@
    }
   ],
   "deck_top": [
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Lightning Energy MEE"
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Lightning Energy MEE 4"
   ],
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ],
   "discard": [
    "Duskull PRE 35"

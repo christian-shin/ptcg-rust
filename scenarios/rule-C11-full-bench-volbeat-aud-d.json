@@ -6,27 +6,27 @@
    "4 Hop's Snorlax JTG 117",
    "4 Duraludon PRE 69",
    "4 Pikachu ex ASC 57",
-   "41 Fire Energy MEE",
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Psychic Energy MEE"
+   "41 Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5"
   ],
   [
    "4 Volbeat TWM 9",
    "4 Hop's Snorlax JTG 117",
    "4 Duraludon PRE 69",
    "4 Pikachu ex ASC 57",
-   "41 Fire Energy MEE",
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Psychic Energy MEE"
+   "41 Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Volbeat TWM 9",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ],
   "bench": [
    {
@@ -46,17 +46,17 @@
    }
   ],
   "deck_top": [
-   "Water Energy MEE",
-   "Grass Energy MEE",
-   "Psychic Energy MEE"
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Psychic Energy MEE 5"
   ],
   "prizes": [
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
   ]
  },
  "opp": {
@@ -81,9 +81,9 @@
    "who": "me",
    "zone": "deck",
    "top": [
-    "Water Energy MEE",
-    "Grass Energy MEE",
-    "Psychic Energy MEE"
+    "Water Energy MEE 3",
+    "Grass Energy MEE 1",
+    "Psychic Energy MEE 5"
    ],
    "cite": "Advanced Rulebook C-11 (the attack ends before you search the deck) and E-19 (no look, no shuffle)"
   }

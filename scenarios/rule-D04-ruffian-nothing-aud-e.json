@@ -4,12 +4,12 @@
   [
    "1 Ruffian JTG 157",
    "1 Minccino JTG 125",
-   "58 Water Energy MEE"
+   "58 Water Energy MEE 3"
   ],
   [
    "1 Ruffian JTG 157",
    "1 Minccino JTG 125",
-   "58 Water Energy MEE"
+   "58 Water Energy MEE 3"
   ]
  ],
  "me": {
@@ -23,7 +23,7 @@
   "reset": true,
   "active": "Minccino JTG 125",
   "active_energy": [
-   "Water Energy MEE"
+   "Water Energy MEE 3"
   ]
  },
  "expect": [

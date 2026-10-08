@@ -5,29 +5,29 @@
    "4 Oricorio ex PFL 18",
    "4 Charmander PFL 11",
    "4 Charmeleon PFL 12",
-   "4 Mega Charizard X ex M2",
-   "44 Fire Energy MEE"
+   "4 Mega Charizard X ex PFL 13",
+   "44 Fire Energy MEE 2"
   ],
   [
    "4 Oricorio ex PFL 18",
    "4 Charmander PFL 11",
    "4 Charmeleon PFL 12",
-   "4 Mega Charizard X ex M2",
-   "44 Fire Energy MEE"
+   "4 Mega Charizard X ex PFL 13",
+   "44 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Oricorio ex PFL 18",
   "hand": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ],
   "bench": [
    {
     "card": [
      "Charmander PFL 11",
      "Charmeleon PFL 12",
-     "Mega Charizard X ex M2"
+     "Mega Charizard X ex PFL 13"
     ]
    }
   ]

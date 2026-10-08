@@ -1,13 +1,13 @@
 {
   "turn": 2,
   "decks": [
-    ["4 Bloodmoon Ursaluna PRE 54", "56 Fighting Energy MEE"],
-    ["4 Bloodmoon Ursaluna PRE 54", "56 Fighting Energy MEE"]
+    ["4 Bloodmoon Ursaluna PRE 54", "56 Fighting Energy MEE 6"],
+    ["4 Bloodmoon Ursaluna PRE 54", "56 Fighting Energy MEE 6"]
   ],
   "me": {
     "reset": true,
     "active": "Bloodmoon Ursaluna PRE 54",
-    "hand": ["Bloodmoon Ursaluna PRE 54", "2 Fighting Energy MEE"],
+    "hand": ["Bloodmoon Ursaluna PRE 54", "2 Fighting Energy MEE 6"],
     "energy_attached": true
   },
   "opp": {

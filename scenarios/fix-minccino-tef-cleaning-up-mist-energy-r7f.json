@@ -6,21 +6,21 @@
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
    "4 Handheld Fan TWM 150",
-   "44 Fire Energy MEE"
+   "44 Fire Energy MEE 2"
   ],
   [
    "4 Minccino TEF 136",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
    "4 Handheld Fan TWM 150",
-   "44 Fire Energy MEE"
+   "44 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Minccino TEF 136",
   "active_energy": [
-   "2 Fire Energy MEE"
+   "2 Fire Energy MEE 2"
   ]
  },
  "opp": {

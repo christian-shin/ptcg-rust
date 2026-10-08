@@ -7,9 +7,9 @@
    "4 Duraludon PRE 69",
    "4 Bronzor TEF 68",
    "4 Bronzong TEF 69",
-   "14 Grass Energy MEE",
-   "13 Water Energy MEE",
-   "13 Fighting Energy MEE"
+   "14 Grass Energy MEE 1",
+   "13 Water Energy MEE 3",
+   "13 Fighting Energy MEE 6"
   ],
   [
    "4 Exeggcute 30C 1",
@@ -17,9 +17,9 @@
    "4 Duraludon PRE 69",
    "4 Bronzor TEF 68",
    "4 Bronzong TEF 69",
-   "14 Grass Energy MEE",
-   "13 Water Energy MEE",
-   "13 Fighting Energy MEE"
+   "14 Grass Energy MEE 1",
+   "13 Water Energy MEE 3",
+   "13 Fighting Energy MEE 6"
   ]
  ],
  "me": {
@@ -29,9 +29,9 @@
    "Alolan Exeggutor ex SSP 133"
   ],
   "active_energy": [
-   "Grass Energy MEE",
-   "Water Energy MEE",
-   "Fighting Energy MEE"
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Fighting Energy MEE 6"
   ]
  },
  "opp": {

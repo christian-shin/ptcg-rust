@@ -5,20 +5,20 @@
       "4 Hoothoot SCR 114",
       "4 Dunsparce PRE 79",
       "4 Backtrack Badge PBL 74",
-      "48 Fighting Energy MEE"
+      "48 Fighting Energy MEE 6"
     ],
     [
       "4 Hoothoot SCR 114",
       "4 Dunsparce PRE 79",
       "4 Backtrack Badge PBL 74",
-      "48 Fighting Energy MEE"
+      "48 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Hoothoot SCR 114",
     "active_energy": [
-      "Fighting Energy MEE"
+      "Fighting Energy MEE 6"
     ],
     "active_tool": "Backtrack Badge PBL 74"
   },

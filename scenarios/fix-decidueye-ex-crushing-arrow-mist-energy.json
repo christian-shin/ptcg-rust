@@ -7,7 +7,7 @@
    "4 Decidueye ex POR 12",
    "4 Salamence ex JTG 114",
    "4 Mist Energy TEF 161",
-   "40 Grass Energy MEE"
+   "40 Grass Energy MEE 1"
   ],
   [
    "4 Rowlet POR 10",
@@ -15,7 +15,7 @@
    "4 Decidueye ex POR 12",
    "4 Salamence ex JTG 114",
    "4 Mist Energy TEF 161",
-   "40 Grass Energy MEE"
+   "40 Grass Energy MEE 1"
   ]
  ],
  "me": {
@@ -26,7 +26,7 @@
    "Decidueye ex POR 12"
   ],
   "active_energy": [
-   "4 Grass Energy MEE"
+   "4 Grass Energy MEE 1"
   ]
  },
  "opp": {
@@ -34,7 +34,7 @@
   "active": "Salamence ex JTG 114",
   "active_energy": [
    "Mist Energy TEF 161",
-   "Grass Energy MEE"
+   "Grass Energy MEE 1"
   ]
  },
  "answers": [

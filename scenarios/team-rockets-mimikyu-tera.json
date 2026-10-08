@@ -4,20 +4,20 @@
     [
       "4 Team Rocket's Mimikyu ASC 97",
       "4 Terapagos ex ASC 179",
-      "52 Psychic Energy MEE"
+      "52 Psychic Energy MEE 5"
     ],
     [
       "4 Team Rocket's Mimikyu ASC 97",
       "4 Terapagos ex ASC 179",
-      "52 Psychic Energy MEE"
+      "52 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
     "active": "Team Rocket's Mimikyu ASC 97",
     "active_energy": [
-      "Psychic Energy MEE",
-      "Psychic Energy MEE"
+      "Psychic Energy MEE 5",
+      "Psychic Energy MEE 5"
     ]
   },
   "opp": {
@@ -27,7 +27,7 @@
   "answers": [
     {
       "a": "attack",
-      "name": "Gemstone Hunt"
+      "name": "Gemstone Mimicry"
     },
     {
       "index": 0,

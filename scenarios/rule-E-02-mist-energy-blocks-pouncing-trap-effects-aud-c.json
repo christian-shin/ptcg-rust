@@ -6,23 +6,23 @@
    "4 Mega Lucario ex ASC 113",
    "4 Mist Energy TEF 161",
    "4 Snorunt TWM 51",
-   "5 Lightning Energy MEE",
-   "39 Fire Energy MEE"
+   "5 Lightning Energy MEE 4",
+   "39 Fire Energy MEE 2"
   ],
   [
    "4 Stunfisk ASC 62",
    "4 Mega Lucario ex ASC 113",
    "4 Mist Energy TEF 161",
    "4 Snorunt TWM 51",
-   "5 Lightning Energy MEE",
-   "39 Fire Energy MEE"
+   "5 Lightning Energy MEE 4",
+   "39 Fire Energy MEE 2"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Stunfisk ASC 62",
   "active_energy": [
-   "Lightning Energy MEE"
+   "Lightning Energy MEE 4"
   ]
  },
  "opp": {
@@ -30,7 +30,7 @@
   "active": "Mega Lucario ex ASC 113",
   "active_energy": [
    "Mist Energy TEF 161",
-   "Fire Energy MEE"
+   "Fire Energy MEE 2"
   ],
   "bench": [
    {

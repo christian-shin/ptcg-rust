@@ -5,13 +5,13 @@
       "4 Rowlet POR 10",
       "4 Rescue Board PRE 126",
       "1 Gravity Gemstone SCR 137",
-      "51 Grass Energy MEE"
+      "51 Grass Energy MEE 1"
     ],
     [
       "4 Rowlet POR 10",
       "4 Rescue Board PRE 126",
       "1 Gravity Gemstone SCR 137",
-      "51 Grass Energy MEE"
+      "51 Grass Energy MEE 1"
     ]
   ],
   "me": {
@@ -19,7 +19,7 @@
     "active": "Rowlet POR 10",
     "active_tool": "Rescue Board PRE 126",
     "active_energy": [
-      "Grass Energy MEE"
+      "Grass Energy MEE 1"
     ],
     "active_damage": 60,
     "bench": [

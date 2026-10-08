@@ -3,12 +3,12 @@
  "decks": [
   [
    "4 Duraludon PRE 69",
-   "4 DraytonSAR PRE",
+   "4 Drayton PRE 172",
    "52 Metal Energy MEE 8"
   ],
   [
    "4 Duraludon PRE 69",
-   "4 DraytonSAR PRE",
+   "4 Drayton PRE 172",
    "52 Metal Energy MEE 8"
   ]
  ],
@@ -16,7 +16,7 @@
   "reset": true,
   "active": "Duraludon PRE 69",
   "hand": [
-   "DraytonSAR PRE"
+   "Drayton PRE 172"
   ],
   "supporter_played": true
  },

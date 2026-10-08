@@ -5,20 +5,20 @@
    "4 Illumise TWM 10",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "48 Grass Energy MEE"
+   "48 Grass Energy MEE 1"
   ],
   [
    "4 Illumise TWM 10",
    "4 Dwebble DRI 11",
    "4 Mist Energy TEF 161",
-   "48 Grass Energy MEE"
+   "48 Grass Energy MEE 1"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Illumise TWM 10",
   "active_energy": [
-   "Grass Energy MEE"
+   "Grass Energy MEE 1"
   ]
  },
  "opp": {
@@ -36,7 +36,7 @@
  "answers": [
   {
    "a": "attack",
-   "name": "Slowing Perfume "
+   "name": "Slowing Perfume"
   }
  ]
 }

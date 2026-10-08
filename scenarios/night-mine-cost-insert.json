@@ -5,34 +5,34 @@
       "4 Eevee ex PRE 75",
       "4 Koraidon ex ASC 121",
       "4 Nighttime Mine ASC 197",
-      "4 Fire Energy MEE",
-      "4 Water Energy MEE",
-      "4 Lightning Energy MEE",
-      "4 Fighting Energy MEE",
-      "32 Psychic Energy MEE"
+      "4 Fire Energy MEE 2",
+      "4 Water Energy MEE 3",
+      "4 Lightning Energy MEE 4",
+      "4 Fighting Energy MEE 6",
+      "32 Psychic Energy MEE 5"
     ],
     [
       "4 Eevee ex PRE 75",
       "4 Koraidon ex ASC 121",
       "4 Nighttime Mine ASC 197",
-      "4 Fire Energy MEE",
-      "4 Water Energy MEE",
-      "4 Lightning Energy MEE",
-      "4 Fighting Energy MEE",
-      "32 Psychic Energy MEE"
+      "4 Fire Energy MEE 2",
+      "4 Water Energy MEE 3",
+      "4 Lightning Energy MEE 4",
+      "4 Fighting Energy MEE 6",
+      "32 Psychic Energy MEE 5"
     ]
   ],
   "me": {
     "reset": true,
-    "stadium": "Night Mine M2a",
-    "active": "Koraidon ex ASC",
+    "stadium": "Nighttime Mine ASC 197",
+    "active": "Koraidon ex ASC 121",
     "active_energy": [
-      "3 Fighting Energy MEE"
+      "3 Fighting Energy MEE 6"
     ]
   },
   "opp": {
     "reset": true,
-    "active": "Eevee ex PRE"
+    "active": "Eevee ex PRE 75"
   },
   "answers": [
     {

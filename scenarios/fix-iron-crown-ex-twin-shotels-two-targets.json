@@ -6,24 +6,24 @@
    "4 Koraidon ex ASC 121",
    "4 Swablu SSP 148",
    "4 Eevee TWM 135",
-   "22 Psychic Energy MEE",
-   "22 Fighting Energy MEE"
+   "22 Psychic Energy MEE 5",
+   "22 Fighting Energy MEE 6"
   ],
   [
    "4 Iron Crown ex PRE 158",
    "4 Koraidon ex ASC 121",
    "4 Swablu SSP 148",
    "4 Eevee TWM 135",
-   "22 Psychic Energy MEE",
-   "22 Fighting Energy MEE"
+   "22 Psychic Energy MEE 5",
+   "22 Fighting Energy MEE 6"
   ]
  ],
  "me": {
   "reset": true,
   "active": "Iron Crown ex PRE 158",
   "active_energy": [
-   "Psychic Energy MEE",
-   "2 Fighting Energy MEE"
+   "Psychic Energy MEE 5",
+   "2 Fighting Energy MEE 6"
   ]
  },
  "opp": {

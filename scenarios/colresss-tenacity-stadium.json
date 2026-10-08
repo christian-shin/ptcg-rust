@@ -5,24 +5,24 @@
       "4 Colress's Tenacity SFA 57",
       "4 Postwick JTG 154",
       "4 Hop's Snorlax JTG 117",
-      "48 Fighting Energy MEE"
+      "48 Fighting Energy MEE 6"
     ],
     [
       "4 Colress's Tenacity SFA 57",
       "4 Postwick JTG 154",
       "4 Hop's Snorlax JTG 117",
-      "48 Fighting Energy MEE"
+      "48 Fighting Energy MEE 6"
     ]
   ],
   "me": {
     "reset": true,
-    "active": "Hop's Snorlax JTG",
+    "active": "Hop's Snorlax JTG 117",
     "hand": [
-      "Colress's Tenacity SFA"
+      "Colress's Tenacity SFA 57"
     ]
   },
   "opp": {
     "reset": true,
-    "active": "Hop's Snorlax JTG"
+    "active": "Hop's Snorlax JTG 117"
   }
 }
