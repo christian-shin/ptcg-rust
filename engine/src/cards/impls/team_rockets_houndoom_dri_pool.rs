@@ -11,7 +11,7 @@
 use crate::cards::prelude::*;
 use super::jolteonex::discard_transfers_as_effects;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsHoundoomDRIPool", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsHoundoomDRIPool", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 /// `DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(store, state, effect, max, {}, min)`.
 /// The continuation is `resume` stage `stage` through [`discard_up_to_chosen`].
@@ -70,7 +70,8 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 0, me) {
         add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Burned, SpecialCondition::Confused])?;
     }
-    if was_attack_used(g, e, 1, me) {
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         discard_up_to_x_energy_from_this_pokemon(g, me, e, 1, 1, 1)?;
     }
     Ok(())

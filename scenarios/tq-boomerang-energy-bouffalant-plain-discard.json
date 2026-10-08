@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bouffalant SSP 151",
+   "4 Boomerang Energy TWM 166",
+   "4 Mega Hawlucha ex ASC 116",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Bouffalant SSP 151",
+   "4 Boomerang Energy TWM 166",
+   "4 Mega Hawlucha ex ASC 116",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Bouffalant SSP 151",
+  "active_energy": [
+   "4 Boomerang Energy TWM 166"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Smashing Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Wait",
+    "ChooseEnergy"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): a choice that does not set the damage is asked after the damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Boomerang Energy TWM 166",
+    "Boomerang Energy TWM 166",
+    "Boomerang Energy TWM 166",
+    "Boomerang Energy TWM 166"
+   ],
+   "cite": "Boomerang Energy: if discarded by an attack of the Pokemon it is attached to, it is attached again after attacking (ruling 1650); the 2 discarded copies come back after the choice that is asked after the damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 150,
+   "cite": "Smashing Headbutt: 150 damage"
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Greninja ex TWM 106",
+   "4 Mega Hawlucha ex ASC 116",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Froakie TWM 56",
+   "4 Frogadier TWM 57",
+   "4 Greninja ex TWM 106",
+   "4 Mega Hawlucha ex ASC 116",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Froakie TWM 56",
+   "Frogadier TWM 57",
+   "Greninja ex TWM 106"
+  ],
+  "active_energy": [
+   "4 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "bench": [
+   {
+    "card": "Mega Hawlucha ex ASC 116"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mirage Barrage"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChoosePokemon",
+    "Wait",
+    "ChooseEnergy"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): the damage targets are chosen before the damage, the 2 Energy to discard (a plain discard, the damage is fixed) after it"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "Mirage Barrage: discard 2 Energy from this Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "Mirage Barrage: 120 damage to 2 of the opponent's Pokemon (all of them with 2 in play)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 120,
+   "cite": "Mirage Barrage: 120 damage to 2 of the opponent's Pokemon"
+  }
+ ]
+}

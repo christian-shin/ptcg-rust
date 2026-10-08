@@ -34,6 +34,31 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
         };
+        g.retain_fx(e);
+        let mut f = CardFrame::at(4);
+        f.a[0] = p as i32;
+        f.e[0] = e;
+        let mut slots = SVec::new();
+        slots.push(SlotType::Active as u8);
+        slots.push(SlotType::Bench as u8);
+        let id = g.player_id(p);
+        let o = 1 - p;
+        let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
+        let max = (1 + benched).min(2) as u8;
+        g.prompt(
+            id,
+            "CHOOSE_POKEMON_TO_DAMAGE",
+            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: max, max, allow_cancel: false, blocked: SVec::new() },
+            Cont::Card { card: me, frame: f },
+        );
+    }
+    // "Discard 2 Energy from this Pokémon": the damage is fixed, so the choice is asked after it
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
+        let p = match *g.e(e) {
+            Effect::Attack { p, .. } => p as usize,
+            _ => return Ok(()),
+        };
         let a = g.st.players[p].active;
         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, a), energy_map: SVec::new() })?;
         let energy = match pe {
@@ -74,48 +99,12 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
             g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
             Ok(())
         }
-        3 => {
-            // Energy chosen (at most 2 cards for [C][C]): keep them for after the damage.
-            let mut nf = f;
-            nf.stage = 4;
-            nf.a[1] = -1;
-            nf.a[2] = -1;
-            if let Res::Energy(c) = first {
-                for (i, x) in c.iter().enumerate().take(2) {
-                    nf.a[1 + i] = *x as i32;
-                }
-            }
-            let mut slots = SVec::new();
-            slots.push(SlotType::Active as u8);
-            slots.push(SlotType::Bench as u8);
-            let id = g.player_id(p);
-            let o = 1 - p;
-            let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
-            let max = (1 + benched).min(2) as u8;
-            g.prompt(
-                id,
-                "CHOOSE_POKEMON_TO_DAMAGE",
-                PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: max, max, allow_cancel: false, blocked: SVec::new() },
-                Cont::Card { card: me, frame: nf },
-            );
-            Ok(())
-        }
+        3 => super::slither_wing::discard_energy_chosen(g, f, results),
         4 => {
             let atk = f.e[0];
             let r = (|| -> R {
                 let targets: Vec<SlotRef> = first.slots().to_vec();
                 damage_opponent_pokemon(g, atk, 120, &targets)?;
-                let mut cards = SVec::new();
-                for &c in &f.a[1..3] {
-                    if c >= 0 {
-                        cards.push(c as CardId);
-                    }
-                }
-                if let Effect::Attack { p: ap, opp, attack, source, .. } = *g.e(atk) {
-                    let pp = ap as usize;
-                    let target = SlotRef::new(pp, g.st.players[pp].active);
-                    g.run_fx(Effect::DiscardCards { b: AtkBase { attack_effect: atk, player: ap, opponent: opp, attack, source, target }, cards })?;
-                }
                 Ok(())
             })();
             g.release_fx(atk);

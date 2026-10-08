@@ -4,14 +4,20 @@
 //!
 //! Twinleaf: DISCARD_ALL_ENERGY_FROM_POKEMON (one DiscardCardsEffect with the
 //! Active's CheckProvidedEnergy map), then a non-cancellable ChoosePokemonPrompt
-//! whose callback reduces a PutCountersEffect (120) on the chosen Pokémon.
+//! whose callback reduces a PutCountersEffect (120) on the chosen Pokémon. The
+//! Energy discard is queued with the attack; the Pokémon is chosen in
+//! AfterAttack (after the damage; user rule 2026-10-07).
 use crate::cards::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Spectrier", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static IMPL: CardImpl = CardImpl { class: "Spectrier", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
 
 fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if was_attack_used(g, e, 1, me) {
         super::zapdos::discard_all_energy_from_active(g, e)?;
+    }
+    // "Place 12 damage counters on 1 of your opponent's Pokémon": the Pokémon is chosen after the damage (C-07)
+    if after_attack_used(g, e, 1, me) {
+        let e = real_attack(g, e);
         let p = match *g.e(e) {
             Effect::Attack { p, .. } => p as usize,
             _ => return Ok(()),
