@@ -76,11 +76,16 @@ pub struct Frame {
     pub(crate) p: u8,
     /// Card registers: temp list indices, or NONE.
     pub(crate) cards: [u8; 2],
+    /// The Pokémon chosen by `PickSlot` (`p << 4 | slot`), or NONE.
+    pub(crate) slot: u8,
+    /// A Trainer used as the effect of an attack (Mr. Mime's Look-Alike Show); read at the
+    /// start, while the Trainer effect is alive.
+    pub(crate) via_attack: bool,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2] }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], slot: NONE, via_attack: false }
     }
 
     fn prog_code(&self) -> u32 {
@@ -97,6 +102,7 @@ impl Frame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
         f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
+        f.a[2] = self.slot as i32 | (self.via_attack as i32) << 8;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
         // The player rides in e[1]: a coin sequence's callback overwrites a[2] and a[3].
@@ -134,6 +140,8 @@ impl Frame {
             eff: f.e[0],
             p: f.e[1],
             cards: f.l,
+            slot: f.a[2] as u8,
+            via_attack: (f.a[2] >> 8) & 1 != 0,
         })
     }
 
@@ -288,7 +296,8 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             if play.kind == PlayKind::Supporter && g.st.players[p].supporter_turn > 0 {
                 crate::bail!("SUPPORTER_ALREADY_PLAYED");
             }
-            let f = Frame::new(Prog::Play, Phase::Use, e, p);
+            let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
+            f.via_attack = matches!(*g.e(e), Effect::Trainer { via_attack: true, .. });
             if !usable(g, me, &f, play.needs, play.steps)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
             }
@@ -360,6 +369,8 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
         // A coin sequence's callback: bit i of a[2] = flip i was heads, a[3] = the flip count
         // (it overwrote the loop counters of the frame).
         f.iter = [0; MAX_DEPTH];
+        f.slot = NONE;
+        f.via_attack = false;
         ops::resume_coin(g, me, &mut f, op, cf.a[2] as u32, cf.a[3] as u8)?
     } else if f.phase == Phase::Choices {
         ops::resume_choice(g, me, &mut f, op, results)?

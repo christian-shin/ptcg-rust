@@ -252,6 +252,7 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     match sel {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
         SlotSel::One(SlotExpr::This) => f.p as usize,
+        SlotSel::One(SlotExpr::Picked) => (f.slot >> 4) as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
     }
 }
@@ -409,6 +410,15 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
+        Op::PickSlot(pick) => {
+            let cands = candidates(g, me, f, pick)?;
+            if cands.is_empty() {
+                f.slot = super::super::run::NONE;
+                return Ok(Flow::Next);
+            }
+            ask(g, me, f, pick, cands.as_slice(), 1);
+            Ok(Flow::Suspend)
+        }
         Op::SpreadCounters(s) => spread_exec(g, me, f, s),
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
@@ -433,6 +443,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             if let Some(slot) = first.slots().first().copied() {
                 switch_act(g, me, f, s, slot)?;
             }
+            Ok(Flow::Next)
+        }
+        Op::PickSlot(_) => {
+            f.slot = first.slots().first().map(|s| encode(*s)).unwrap_or(super::super::run::NONE);
             Ok(Flow::Next)
         }
         Op::Conditions(c) => {

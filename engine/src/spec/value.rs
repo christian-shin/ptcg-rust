@@ -25,6 +25,9 @@ pub enum Zone {
     Discard,
     /// Card register `r` (a scratch list: looked-at cards, chosen cards).
     Scratch(u8),
+    // --- S3 agent 3 appends ---
+    /// The cards of the Pokémon chosen by `PickSlot` (its stack, Energy included).
+    PickedSlot,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -35,6 +38,9 @@ pub enum SlotExpr {
     /// The Pokémon this card is (or is attached to).
     This,
     Active(Who),
+    // --- S3 agent 3 appends ---
+    /// The Pokémon chosen by the last `PickSlot`.
+    Picked,
 }
 
 pub enum Num {
@@ -78,6 +84,11 @@ pub enum Num {
     CoinHeads,
     /// Cards in the player's hand other than the resolving card.
     HandOthers(Who),
+    /// Damage the Pokémon took during the opponent's last turn (the top card's counter).
+    DamageTakenLastTurn(SlotExpr),
+    /// The cost of the attack being used, as the game checks it now (after cost effects):
+    /// a checked read (`num_m`).
+    CostNow,
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -139,6 +150,11 @@ pub enum Cond {
     InPlay(Who, PlayScope, Pred),
     /// A Pokémon in play with any card of its stack matching.
     InPlayAny(Who, PlayScope, Pred),
+    // --- S3 agent 3 appends ---
+    /// This card's Pokémon moved from the Bench to the Active Spot this turn.
+    ThisMovedToActive,
+    /// The resolving Trainer's effect is used as the effect of an attack (Mr. Mime's Look-Alike Show).
+    ViaAttack,
 }
 
 /// A card predicate.
@@ -201,6 +217,7 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
         Zone::Hand => ListRef::Hand(p),
         Zone::Discard => ListRef::Discard(p),
         Zone::Scratch(r) => ListRef::Temp(f.cards[r as usize]),
+        Zone::PickedSlot => ListRef::Slot(f.slot >> 4, f.slot & 15),
     }
 }
 
@@ -209,6 +226,13 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
+        }
+        SlotExpr::Picked => {
+            if f.slot == super::run::NONE {
+                None
+            } else {
+                Some(SlotRef::new((f.slot >> 4) as usize, f.slot & 15))
+            }
         }
         SlotExpr::This => {
             for p in 0..2 {
@@ -270,6 +294,8 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
         Num::CoinHeads => f.heads() as i32,
+        Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
+        Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
         Num::HandOthers(w) => g.st.players[f.who(*w)].hand.iter().filter(|c| *c != me).count() as i32,
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
@@ -377,6 +403,8 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
+        Cond::ViaAttack => f.via_attack,
     }
 }
 
@@ -483,6 +511,9 @@ pub enum SlotPred {
     HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much: a checked read.
     RemainingHpAtMost(i32),
+    // --- S3 agent 3 appends ---
+    /// Some card of the slot (the Pokémon, attached Energy) matches the predicate.
+    HasCard(Pred),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -584,6 +615,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::HasCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }
@@ -714,6 +746,18 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
                 };
             }
             total
+        }
+        Num::CostNow => {
+            let Some((p, _, attack, _)) = crate::prefabs::attack_data(g, f.eff) else { return Ok(0) };
+            let mut cost: crate::effects::Cost = SVec::new();
+            for &c in crate::engine::attack::attack_def(g, attack).cost {
+                cost.push(c);
+            }
+            let (ce, _) = g.run_fx(Effect::CheckAttackCost { p, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
+            match ce {
+                Effect::CheckAttackCost { cost, .. } => cost.len() as i32,
+                _ => 0,
+            }
         }
         _ => num(g, me, f, n),
     })
