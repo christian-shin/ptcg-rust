@@ -9,123 +9,23 @@
 //! AttachEnergyPrompt targets your own Benched Pokémon (phase 4b fix: it
 //! used `PlayerType.TOP_PLAYER`, so it offered the opponent's Bench, moved
 //! the Energy there, and got stuck when that Bench was empty).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Volcanionex", mask: mask(&[k::PLAY_POKEMON, k::POWER, k::ATTACK, k::AFTER_ATTACK, k::END_TURN]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Volcanionex",
+    powers: &[PowerSpec {
+        index: 0,
+        once: Once::PerTurn("SCORCHING_STEAM"),
+        // If this Pokémon is in the Active Spot, your opponent's Active Pokémon is now Burned (not when it already is).
+        needs: &[Cond::IsActive(SlotExpr::This), Cond::WouldChangeConditions(OPP_ACTIVE, &[SpecialCondition::Burned])],
+        steps: &[Step::new(inflict(&[SpecialCondition::Burned], Cause::Ability))],
+    }],
+    attacks: &[AttackSpec {
+        index: 0,
+        // Heat Cyclone: move an Energy from this Pokémon to 1 of your Benched Pokémon.
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: false }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn steam() -> crate::markers::MarkerName {
-    crate::marker!("SCORCHING_STEAM")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            let m = &mut g.st.players[p as usize].marker;
-            if m.has_from(steam(), me) {
-                m.remove_from(steam(), me);
-            }
-        }
-    }
-
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let o = 1 - p;
-        let a = g.st.players[p].active;
-        if g.st.slot_pokemon(p, a) != Some(me) {
-            bail!("CANNOT_USE_POWER");
-        }
-        if g.st.players[p].marker.has_from(steam(), me) {
-            bail!("CANNOT_USE_POWER");
-        }
-        let target = SlotRef::new(o, g.st.players[o].active);
-        // Can't be used when the Defending Pokémon is already Burned (Advanced Rulebook A-02, ruling 1565).
-        if !crate::engine::phase::would_change_special_conditions(g.st.slot(o, target.s), &[SpecialCondition::Burned]) {
-            bail!("CANNOT_USE_POWER");
-        }
-        let mut cs = SVec::new();
-        cs.push(SpecialCondition::Burned as u8);
-        let id = g.new_fx(Effect::AddSpecialConditionsPower {
-            p: o as u8,
-            source: me,
-            target,
-            conditions: cs,
-            poison_damage: 10,
-            burn_damage: 20,
-            sleep_flips: 1,
-            confusion_damage: 30,
-        });
-        if let Err(err) = g.reduce_effect(id) {
-            g.release_fx(id);
-            return Err(err);
-        }
-        g.st.players[p].marker.add(steam(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-        let r = g.reduce_effect(id);
-        g.release_fx(id);
-        return r;
-    }
-
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let has_bench = g.st.players[p].bench.iter().any(|s| !g.st.players[p].slots[*s as usize].cards.is_empty());
-        if !has_bench {
-            return Ok(());
-        }
-        let a = g.st.players[p].active;
-        let mut o = AttachOpts::new(g.st.slot(p, a).cards.len() as u8);
-        o.allow_cancel = false;
-        o.min = 1;
-        o.max = 1;
-        let filter = Filter::super_type(SuperType::Energy);
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.e[0] = e;
-        g.retain_fx(e);
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "ATTACH_ENERGY_TO_BENCH",
-            PromptKind::AttachEnergy { cards: ListRef::Slot(p as u8, a), player_type: PlayerType::BottomPlayer, slots, filter, o },
-            Cont::Card { card: me, frame: f },
-        );
-        return Ok(());
-    }
-
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let m = &mut g.st.players[p as usize].marker;
-        if m.has_from(steam(), me) {
-            m.remove_from(steam(), me);
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    let atk = f.e[0];
-    let r = (|| -> R {
-        for (to, c) in transfers.iter().copied() {
-            let target = get_target(&g.st, p, to)?;
-            let a = g.st.players[p].active;
-            move_cards_after_damage(g, atk, ListRef::Slot(p as u8, a), target.list(), &[c], me)?;
-        }
-        Ok(())
-    })();
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

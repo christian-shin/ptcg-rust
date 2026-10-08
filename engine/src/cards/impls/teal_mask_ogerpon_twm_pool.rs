@@ -5,29 +5,32 @@
 //!
 //! Twinleaf: SEARCH_DECK_FOR_CARDS_TO_HAND with a { superType: ENERGY,
 //! energyType: BASIC } filter (shown to the opponent), min 0, max 2, no cancel.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TealMaskOgerponTWMPool", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TealMaskOgerponTWMPool",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[Step::after_damage(Op::If(IfSpec {
+                cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
+                yes: &[
+                    Step::new(Op::Search(SearchSpec {
+                        pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::BasicEnergy, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, ..PickSpec::DEFAULT },
+                        destination: SearchDestination::Hand { reveal: true },
+                        msg: "",
+                        cancel: false,
+                        shuffle_first: false,
+                    })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                ],
+                no: &[],
+            }))],
+        },
+        // Ogre Comeback: 20 more damage for each of the opponent's Benched Pokémon.
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::BenchCount(Who::Opp), &Num::Lit(20)), when: Cond::True }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
-        search_deck_for_cards_to_hand(g, p, me, filter, ChooseCardsOpts::new(0, 2, false));
-    }
-    if was_attack_used(g, e, 1, me) {
-        let o = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let benched = g.st.players[o].bench.iter().filter(|b| !g.st.slot(o, **b).cards.is_empty()).count() as i32;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage += 20 * benched;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

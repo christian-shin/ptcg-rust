@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Top(Pred::All(&[Pred::Pokemon, Pred::Tag(crate::types::tag::POKEMON_EX_LOWER), Pred::NameContains("Ogerpon")]))), msg: "CHOOSE_POKEMON_TO_SWITCH" })),
-            Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: true })),
+            Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: true, bottom: false })),
         ],
     }),
     ..CardSpec::NONE

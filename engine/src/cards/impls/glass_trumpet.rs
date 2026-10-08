@@ -31,7 +31,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 route: AttachRoute::Move,
                 none_shuffles: false,
-            })),
+             different_types: false, })),
         ],
     }),
     ..CardSpec::NONE

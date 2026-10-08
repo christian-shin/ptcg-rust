@@ -8,25 +8,22 @@
 //! to apply, despite the text) and sets `ignoreDefenderEffects` (phase 4b R7B:
 //! the damage used to be added straight to the Active, skipping the effects on
 //! the attacker too).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Jirachiex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::Lit(7)) }))] },
+        // Swift: not affected by Weakness, Resistance or effects on the Defending Pokémon.
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true })),
+                Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
+                Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoResistance, value: true })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Jirachiex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let n = 7usize.saturating_sub(g.st.players[p].hand.len());
-        g.move_to(ListRef::Deck(p as u8), ListRef::Hand(p as u8), Some(n));
-    }
-    if was_attack_used(g, e, 1, me) {
-        let dmg = match *g.e(e) {
-            Effect::Attack { damage, .. } => damage,
-            _ => return Ok(()),
-        };
-        super::mega_lopunnyex::shred_ex(g, e, dmg, true)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

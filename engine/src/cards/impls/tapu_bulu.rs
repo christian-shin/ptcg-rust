@@ -18,14 +18,3 @@ pub static SPEC: CardSpec = CardSpec {
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
-
-// Still called by Hariyama and Walrein until they are converted.
-pub fn this_pokemon_does_damage_to_itself(g: &mut crate::game::Game, e: crate::effects::EffId, amount: i32) -> crate::game::R {
-    use crate::effects::{AtkBase, Effect};
-    let b = match *g.e(e) {
-        Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: source },
-        _ => return Ok(()),
-    };
-    g.run_fx(Effect::DealDamage { b, damage: amount })?;
-    Ok(())
-}

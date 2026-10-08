@@ -5,56 +5,18 @@
 //! Twinleaf: no prompt without a Benched Pokémon; ChoosePokemonPrompt (bench,
 //! no cancel) then a PutDamageEffect of 30. Brave Slash pushes its name onto
 //! the Active's `cannotUseAttacksNextTurnPending` if missing.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "HopsZacianex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), hp: Num::Lit(30), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::True })),
+        ] },
+        AttackSpec { index: 1, steps: &[
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn })),
+        ] },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "HopsZacianex", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let o = 1 - p;
-        let pl = &g.st.players[o];
-        if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-            return Ok(());
-        }
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.e[0] = e;
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
-            Cont::Card { card: me, frame: f },
-        );
-        return Ok(());
-    }
-    if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            let pending = &mut g.st.players[p].slots[a as usize].cannot_use_attacks_next_turn_pending;
-            if !pending.iter().any(|n| *n == "Brave Slash") {
-                pending.push("Brave Slash");
-            }
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let sel = results.first().copied().unwrap_or(Res::Null);
-    let sel = sel.slots();
-    let r = if sel.is_empty() { Ok(()) } else { put_damage(g, atk, 30, sel[0]) };
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

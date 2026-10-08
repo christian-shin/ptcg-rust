@@ -6,36 +6,32 @@
 //! Twinleaf: Quick Sign does nothing (no shuffle) with an empty deck or a full
 //! Bench; else SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH({ stage: BASIC },
 //! { min: 0, max: min(2, open slots) }) (cancellable).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "VolbeatTWMPool", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "VolbeatTWMPool",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[Step::after_damage(Op::If(IfSpec {
+                cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::BenchSpace(Who::Me)]),
+                yes: &[
+                    Step::new(Op::Search(SearchSpec {
+                        pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Basic, bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::Lit(2), &Num::OpenBench(Who::Me)) }, ..PickSpec::DEFAULT },
+                        destination: SearchDestination::Bench,
+                        msg: "",
+                        cancel: true,
+                        shuffle_first: false,
+                    })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                ],
+                no: &[],
+            }))],
+        },
+        // Coordinated Strike: 60 more damage if Illumise is on your Bench.
+        AttackSpec { index: 1, steps: &[Step::before_damage(more_damage_if(60, Cond::InPlay(Who::Me, PlayScope::Bench, Pred::Name("Illumise"))))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let open = empty_bench_slots(g, p).len();
-        if g.st.players[p].deck.is_empty() || open == 0 {
-            return Ok(());
-        }
-        let filter = Filter { stage: Some(Stage::Basic as u8), ..Filter::none() };
-        return search_deck_for_pokemon_to_bench(g, p, filter, ChooseCardsOpts::new(0, open.min(2) as u8, true));
-    }
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
-        let has = bench.iter().any(|b| g.st.slot_pokemon(p, *b).map(|c| g.st.cdef(c).name == "Illumise").unwrap_or(false));
-        if has {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 60;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

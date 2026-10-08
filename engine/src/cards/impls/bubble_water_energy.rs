@@ -12,67 +12,22 @@
 //! Fixed (phase 4b, W4): there was no [W] type check anywhere (the
 //! CheckPokemonType on attach was computed and ignored), so any Pokémon
 //! holding the card was immune.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "BubbleWaterEnergy",
-    mask: mask(&[k::ATTACH_ENERGY, k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER, k::CHECK_TABLE_STATE]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    // The [W] Pokémon this card is attached to recovers from all Special Conditions and can't be
+    // affected by any Special Conditions.
+    passives: &[Passive {
+        origin: RuleSource::Energy,
+        modifier: Modifier::ConditionImmunity(ConditionImmunitySpec {
+            conds: &[],
+            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::WATER)]),
+            prevent: true,
+            sweep: true,
+        }),
+    }],
+    ..CardSpec::NONE
 };
 
-fn clear_all(g: &mut Game, t: SlotRef) {
-    let sc = &mut g.st.players[t.p as usize].slots[t.s as usize].special_conditions;
-    for c in [SpecialCondition::Poisoned, SpecialCondition::Asleep, SpecialCondition::Burned, SpecialCondition::Confused, SpecialCondition::Paralyzed] {
-        sc.retain(|x| *x != c as u8);
-    }
-}
-
-fn is_water(g: &mut Game, t: SlotRef) -> bool {
-    let types = crate::engine::game_effect::pokemon_types(g, t);
-    match g.run_fx(Effect::CheckPokemonType { target: t, card_types: types }) {
-        Ok((Effect::CheckPokemonType { card_types, .. }, _)) => card_types.contains(&ct::WATER),
-        _ => false,
-    }
-}
-
-fn should_apply(g: &mut Game, me: CardId, t: SlotRef) -> bool {
-    g.st.slot(t.p as usize, t.s).cards.contains(me) && !is_special_energy_blocked(g, t.p as usize, me, t, false) && is_water(g, t)
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::AttachEnergy { p, card, target } if card == me => {
-            if is_special_energy_blocked(g, p as usize, me, target, false) {
-                return Ok(());
-            }
-            if is_water(g, target) {
-                clear_all(g, target);
-            }
-        }
-        Effect::AddSpecialConditions { b, .. } => {
-            if should_apply(g, me, b.target) {
-                g.set_prevent(e, true);
-            }
-        }
-        Effect::AddSpecialConditionsPower { target, .. } => {
-            if should_apply(g, me, target) {
-                g.set_prevent(e, true);
-            }
-        }
-        Effect::CheckTableState { .. } => {
-            for p in 0..2usize {
-                for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                    let t = SlotRef::new(p, s);
-                    if !g.st.slot(p, s).special_conditions.is_empty() && should_apply(g, me, t) {
-                        clear_all(g, t);
-                    }
-                }
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

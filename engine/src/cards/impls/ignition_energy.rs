@@ -8,65 +8,19 @@
 //! (the marker stays if the card is no longer in play). No Special Energy
 //! block probe anywhere. Stage is read from the slot's top Pokémon; not
 //! Basic and not Restored gives [C][C][C].
-use crate::cards::prelude::*;
-use crate::effects::EnergyEntry;
-use crate::marker;
+use crate::spec::prelude::*;
+use crate::types::Stage;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "IgnitionEnergy",
-    mask: mask(&[k::ATTACH_ENERGY, k::CHECK_PROVIDED_ENERGY, k::BETWEEN_TURNS]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry { when: SlotPred::Basic, provides: &[ct::COLORLESS] }, ProvidedEntry { when: SlotPred::All(&[SlotPred::Top(Pred::Pokemon), SlotPred::Not(&SlotPred::Basic), SlotPred::Not(&SlotPred::StageIs(Stage::Restored))]), provides: &[ct::COLORLESS, ct::COLORLESS, ct::COLORLESS] }], probe: false }) },
+    ],
+    triggers: &[
+        Trigger { origin: RuleSource::Energy, event: Event::OnAttach(OnAttachSpec {}), steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "IGNITION_ENERGY_MARKER", source: RuleSource::Energy }))] },
+        Trigger { origin: RuleSource::Energy, event: Event::OnCheckup(OnCheckupSpec {}), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::HasMarker { who: Who::Me, name: "IGNITION_ENERGY_MARKER", from: MarkerFrom::This }, Cond::AnySlot(SlotSel::One(SlotExpr::This), SlotPred::Any)]), yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, ..MoveSpec::DEFAULT })), Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "IGNITION_ENERGY_MARKER", from: MarkerFrom::This }))], no: &[] }))] },
+    ],
+    ..CardSpec::NONE
 };
 
-fn ignition() -> crate::markers::MarkerName {
-    marker!("IGNITION_ENERGY_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::AttachEnergy { p, card, .. } => {
-            if card == me {
-                g.st.players[p as usize].marker.add(ignition(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-            }
-        }
-        Effect::CheckProvidedEnergy { source, .. } => {
-            if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
-                return Ok(());
-            }
-            let stage = match g.st.slot_pokemon(source.p as usize, source.s) {
-                Some(c) => g.st.cdef(c).stage,
-                None => return Ok(()),
-            };
-            let mut provides = SVec::new();
-            if stage == Stage::Basic as u8 {
-                provides.push(ct::COLORLESS);
-            } else if stage != Stage::Restored as u8 {
-                provides.push(ct::COLORLESS);
-                provides.push(ct::COLORLESS);
-                provides.push(ct::COLORLESS);
-            } else {
-                return Ok(());
-            }
-            if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-                energy_map.push(EnergyEntry { card: me, provides });
-            }
-        }
-        Effect::BetweenTurns { p, .. } => {
-            let p = p as usize;
-            if !g.st.players[p].marker.has_from(ignition(), me) {
-                return Ok(());
-            }
-            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if g.st.slot(p, s).cards.contains(me) {
-                    move_cards(g, ListRef::Slot(p as u8, s), ListRef::Discard(p as u8), &[me], me)?;
-                    g.st.players[p].marker.remove_from(ignition(), me);
-                }
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

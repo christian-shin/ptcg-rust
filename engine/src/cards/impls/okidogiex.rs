@@ -24,12 +24,12 @@ pub static SPEC: CardSpec = CardSpec {
                     Step::new(Op::If(IfSpec {
                         cond: Cond::Chosen(0),
                         yes: &[
-                            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::PickedSlot), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
                             Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), cause: Cause::Attack, gate: Gate::None, when: Cond::True })),
                         ],
                         no: &[],
                     })),
-                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                 ],
                 no: &[],
             }))],

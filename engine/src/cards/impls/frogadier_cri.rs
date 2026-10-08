@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "",
                 cancel: false,
                 shuffle_first: false,
-            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))], no: &[] }))] }],
+            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] }))] }],
     ..CardSpec::NONE
 };
 

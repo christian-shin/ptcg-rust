@@ -6,56 +6,30 @@
 //! a ChooseCardsPrompt on the Active then a DiscardCardsEffect.
 //!
 //! Fixed (phase 4b, W4): printed data only, Resistance is Fighting -30 (was -20).
-use crate::cards::prelude::*;
-use super::trubbish::{discard_an_energy_from_opponents_active, discard_chosen};
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Yveltal@SFA", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: Some(coin), can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Yveltal@SFA",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            // Corrosive Winds: 2 damage counters on each of your opponent's Pokémon that has any damage counters.
+            steps: &[Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), what: EachWhat::Counters(CounterCause::Attack), amount: Num::Lit(2), only_damaged: true, ..EachSlotSpec::DEFAULT }))],
+        },
+        AttackSpec {
+            index: 1,
+            // Destructive Beam: flip a coin; if heads, discard an Energy from the opponent's Active Pokémon (no flip without one).
+            steps: &[Step::after_damage(Op::If(IfSpec {
+                cond: Cond::Slot(OPP_ACTIVE, SlotPred::HasEnergy),
+                yes: &[Step::new(Op::Coin(CoinSpec {
+                    heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: false }, ..DiscardEnergySpec::DEFAULT }))],
+                    ..CoinSpec::DEFAULT
+                }))],
+                no: &[],
+            }))],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, opp, attack, source, .. } = *g.e(e) {
-            let o = opp as usize;
-            for (s, _, _) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
-                if g.st.slot(o, s).damage > 0 {
-                    let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: SlotRef::new(o, s) };
-                    g.run_fx(Effect::PutCounters { b, damage: 20 })?;
-                }
-            }
-        }
-    }
-    if after_attack_used(g, e, 1, me) {
-        let e = real_attack(g, e);
-        let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        let a = g.st.players[o].active;
-        if !g.st.slot(o, a).cards.iter().any(|c| g.st.cdef(c).is_energy()) {
-            return Ok(());
-        }
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.e[0] = e;
-        if let Err(err) = g.coin_flip(p, CoinCb::Card { card: me, frame: f }) {
-            g.release_fx(e);
-            return Err(err);
-        }
-    }
-    Ok(())
-}
-
-fn coin(g: &mut Game, me: CardId, f: CardFrame, heads: bool) -> R {
-    let atk = f.e[0];
-    if !heads {
-        g.release_fx(atk);
-        return Ok(());
-    }
-    discard_an_energy_from_opponents_active(g, me, atk, 2)
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage == 2 {
-        return discard_chosen(g, f, results);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -14,85 +14,23 @@
 //! and Weakness/Resistance ignored on the attack (phase 4b R7B: it used to add
 //! the 50 straight to the Pokémon, skipping the attacker's effects, e.g.
 //! Maximum Belt on the Active ex, and the survive-on-10 effects).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::tag;
 
-pub static IMPL: CardImpl = CardImpl { class: "IronCrownex", mask: mask(&[k::ATTACK, k::DEAL_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "IronCrownex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true })),
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoResistance, value: true })),
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Pokemon(Who::Opp), SlotPred::Any)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), what: EachWhat::Damage(DamageCalc::Deal), amount: Num::Lit(50), ..EachSlotSpec::DEFAULT })),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::Ability, modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 20, attacker: SlotPred::All(&[SlotPred::Tag(tag::FUTURE), SlotPred::Not(&SlotPred::Named("Iron Crown ex"))]), needs_damage: true, ..DamageDealtSpec::DEFAULT }) }
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let mut slots = SVec::new();
-        slots.push(SlotType::Active as u8);
-        slots.push(SlotType::Bench as u8);
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.e[0] = e;
-        let id = g.player_id(p);
-        let o = 1 - p;
-        let benched = g.st.players[o].bench.iter().filter(|b| !g.st.players[o].slots[**b as usize].cards.is_empty()).count();
-        let max = (1 + benched).min(2) as u8;
-        g.prompt(
-            id,
-            "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: max, max, allow_cancel: false, blocked: SVec::new() },
-            Cont::Card { card: me, frame: f },
-        );
-    }
-
-    if let Effect::DealDamage { b, damage } = *g.e(e) {
-        let player = b.player as usize;
-        let in_play = for_each_pokemon(g, player, PlayerType::BottomPlayer).iter().any(|x| x.1 == me);
-        if in_play && g.st.phase == GamePhase::Attack {
-            let opponent = 1 - player;
-            let source = match g.st.slot_pokemon(b.source.p as usize, b.source.s) {
-                Some(c) => c,
-                None => bail!("TypeError: Cannot read properties of undefined"),
-            };
-            let d = g.st.cdef(source);
-            if d.has_tag(tag::FUTURE)
-                && d.name != "Iron Crown ex"
-                && b.target.p as usize == opponent
-                && b.target.s == g.st.players[opponent].active
-                && damage > 0
-                && !is_ability_blocked(g, player, me, None)
-            {
-                if let Effect::DealDamage { damage, .. } = g.e_mut(e) {
-                    *damage += 20;
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let targets: Vec<SlotRef> = results.first().map(|r| r.slots().to_vec()).unwrap_or_default();
-    let r = (|| -> R {
-        let (p, opp, attack, source) = match *g.e(atk) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        // Not affected by Weakness or Resistance, or by any effects on those Pokémon (rulings 1490,
-        // 1629, 1875); effects on the attacker (Maximum Belt on the Active ex, ...) apply.
-        if let Effect::Attack { ignore_defender_effects, ignore_weakness, ignore_resistance, .. } = g.e_mut(atk) {
-            *ignore_defender_effects = true;
-            *ignore_weakness = true;
-            *ignore_resistance = true;
-        }
-        for t in targets {
-            let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: t };
-            g.run_fx(Effect::DealDamage { b, damage: 50 })?;
-        }
-        Ok(())
-    })();
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Pikachuex@SSP|ASC",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::COLORLESS } }))],
+        steps: &[Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT }))],
     }],
     passives: &[
         Passive { origin: RuleSource::Ability, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::IfFullHp }) },

@@ -9,51 +9,26 @@
 //! USE_ABILITY_ONCE_PER_TURN call) and adds 50 damage to the slot holding
 //! this card without any check for Knock Out. Giant Wave pushes its name onto
 //! the player's Active `cannotUseAttacksNextTurnPending` if missing.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Feraligatr",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn })),
+        ] },
+    ],
+    powers: &[PowerSpec {
+        index: 0,
+        once: Once::PerTurn("TORRENTIAL_HEART_MARKER"),
+        needs: &[],
+        steps: &[
+            Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::This), counters: Num::Lit(5), cause: CounterCause::Effect })),
+        ],
+    }],
+    passives: &[
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::DamageDealt(DamageDealtSpec { stage: DamageStage::Attack, amount: 120, attacker: SlotPred::Holder, opp_active_only: false, guard: Cond::HasMarker { who: Who::Me, name: "TORRENTIAL_HEART_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Feraligatr", mask: mask(&[k::END_TURN, k::ATTACK, k::POWER]), reduce, resume: None, coin: None, can_play: None };
-
-fn heart() -> crate::markers::MarkerName {
-    crate::marker!("TORRENTIAL_HEART_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    remove_marker_at_end_of_turn(g, e, heart(), me);
-
-    if let Effect::Attack { p, source, .. } = *g.e(e) {
-        if g.st.slot(source.p as usize, source.s).cards.contains(me) && g.st.players[p as usize].marker.has_from(heart(), me) {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 120;
-            }
-        }
-    }
-
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            let pending = &mut g.st.players[p].slots[a as usize].cannot_use_attacks_next_turn_pending;
-            if !pending.iter().any(|n| *n == "Giant Wave") {
-                pending.push("Giant Wave");
-            }
-        }
-    }
-
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].marker.has_from(heart(), me) {
-            bail!("BLOCKED_BY_EFFECT");
-        }
-        let slot = match g.st.players[p].in_play().iter().copied().find(|s| g.st.slot(p, *s).cards.contains(me)) {
-            Some(s) => s,
-            None => return Ok(()),
-        };
-        g.st.players[p].slots[slot as usize].damage += 50;
-        g.st.players[p].marker.add(heart(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-        ability_used(g, p, me);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

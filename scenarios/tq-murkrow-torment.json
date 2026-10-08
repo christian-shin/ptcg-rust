@@ -33,10 +33,10 @@
   {
    "at": "turn_end",
    "prompts": [
-    "Wait",
-    "ChooseAttack"
+    "ChooseAttack",
+    "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage (the attack to lock is chosen after the animation and the damage)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; attack-choice rule (step D, 2026-10-08): the attack to lock is chosen at step D, before the damage (the attack animation Wait comes after the choice)"
   },
   {
    "at": "turn_end",

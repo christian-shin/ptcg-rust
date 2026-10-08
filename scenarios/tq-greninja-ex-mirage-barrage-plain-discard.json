@@ -47,10 +47,10 @@
    "at": "turn_end",
    "prompts": [
     "ChoosePokemon",
-    "Wait",
-    "ChooseEnergy"
+    "ChooseEnergy",
+    "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): the damage targets are chosen before the damage, the 2 Energy to discard (a plain discard, the damage is fixed) after it"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08): every choice the attack needs, the damage targets and the 2 Energy to discard, is made before the damage and carried out after it"
   },
   {
    "at": "turn_end",

@@ -15,88 +15,24 @@
 //! PokemonCard)` is always empty (bench entries are card lists); the allowed
 //! names are now the top Pokémon's name of every Pokémon the opponent has in
 //! play (forEachPokemon).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "LoveBall",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[Cond::Not(&Cond::AllNamesKnown { names_of: Who::Opp })],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, same_name_as: Some(Who::Opp), ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: true,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "LoveBall", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let o = 1 - p;
-    let allowed: Vec<&'static str> =
-        for_each_pokemon(g, o, PlayerType::TopPlayer).iter().map(|(_, c, _)| g.st.cdef(*c).name).collect();
-    // Fixed (phase 4b, rulings 336/1285): a deck holds at most 4 cards with the same name; when all 4 of every possible
-    // name are in zones both players know (own hand, discard pile, Lost Zone, Pokémon in play), it is public knowledge
-    // that the search finds nothing, so the deck can't be searched.
-    let known = |name: &str| -> usize {
-        let pl = &g.st.players[p];
-        let named = |c: CardId| {
-            let d = g.st.cdef(c);
-            d.is_pokemon() && d.name == name
-        };
-        let mut n = pl.hand.iter().filter(|c| named(*c)).count()
-            + pl.discard.iter().filter(|c| named(*c)).count()
-            + pl.lostzone.iter().filter(|c| named(*c)).count();
-        for s in pl.in_play().iter() {
-            n += pl.slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
-        }
-        n
-    };
-    if allowed.iter().all(|name| known(name) >= 4) {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let mut blocked = Blocked::default();
-    for (i, c) in g.st.players[p].deck.iter().enumerate() {
-        let d = g.st.cdef(c);
-        if d.is_pokemon() && !allowed.contains(&d.name) {
-            blocked.push(i as u8);
-        }
-    }
-    let mut opts = ChooseCardsOpts::new(1, 1, true);
-    opts.blocked = blocked;
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), Filter::super_type(SuperType::Pokemon), opts, Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn shuffle(g: &mut Game, me: CardId, p: usize) {
-    let mut f = CardFrame::at(3);
-    f.a[0] = p as i32;
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: f });
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-            if !cards.is_empty() {
-                let id = g.player_id(1 - p);
-                g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Card { card: me, frame: CardFrame { stage: 2, ..f } });
-                return Ok(());
-            }
-            shuffle(g, me, p);
-            Ok(())
-        }
-        2 => {
-            shuffle(g, me, p);
-            Ok(())
-        }
-        3 => {
-            if let Res::Order(o) = first {
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

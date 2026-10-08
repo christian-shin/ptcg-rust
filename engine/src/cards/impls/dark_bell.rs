@@ -6,56 +6,38 @@
 //! also resets poison/burn/sleep values to the defaults). `canPlay` is UI only.
 //! Phase 4b (R6): throws CANNOT_PLAY_THIS_CARD when neither Active Pokémon is a
 //! non-[D] Pokémon (it used to be playable with no effect).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "DarkBell", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
+const MY_NON_DARK: Cond = Cond::Not(&Cond::Slot(MY_ACTIVE, SlotPred::TypeIs(ct::DARK)));
+const OPP_NON_DARK: Cond = Cond::Not(&Cond::Slot(OPP_ACTIVE, SlotPred::TypeIs(ct::DARK)));
 
-fn confuse_target(g: &mut Game, me: CardId, q: usize) -> R {
-    let a = g.st.players[q].active;
-    if g.st.slot(q, a).cards.is_empty() {
-        return Ok(());
-    }
-    let target = SlotRef::new(q, a);
-    let types = crate::engine::game_effect::pokemon_types(g, target);
-    let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
-    let dark = matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::DARK));
-    if !dark {
-        add_special_conditions_to_player_active(g, q, me, &[SpecialCondition::Confused])?;
-    }
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "DarkBell",
+    // Both Active non-[D] Pokémon are now Confused (it can't be played when neither would change).
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[Cond::Any(&[
+            Cond::All(&[MY_NON_DARK, Cond::WouldChangeConditions(MY_ACTIVE, &[SpecialCondition::Confused])]),
+            Cond::All(&[OPP_NON_DARK, Cond::WouldChangeConditions(OPP_ACTIVE, &[SpecialCondition::Confused])]),
+        ])],
+        steps: &[
+            Step::new(Op::Conditions(ConditionsSpec {
+                target: MY_ACTIVE,
+                change: ConditionChange::Add(&[SpecialCondition::Confused]),
+                cause: Cause::Ability,
+                gate: Gate::None,
+                when: MY_NON_DARK,
+            })),
+            Step::new(Op::Conditions(ConditionsSpec {
+                target: OPP_ACTIVE,
+                change: ConditionChange::Add(&[SpecialCondition::Confused]),
+                cause: Cause::Ability,
+                gate: Gate::TrainerTarget,
+                when: OPP_NON_DARK,
+            })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let o = 1 - p;
-    let mut has_non_dark = false;
-    for q in [p, o] {
-        let a = g.st.players[q].active;
-        if g.st.slot(q, a).cards.is_empty() {
-            continue;
-        }
-        let target = SlotRef::new(q, a);
-        let types = crate::engine::game_effect::pokemon_types(g, target);
-        let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
-        if !matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::DARK))
-            && crate::engine::phase::would_change_special_conditions(g.st.slot(q, a), &[SpecialCondition::Confused])
-        {
-            has_non_dark = true;
-            break;
-        }
-    }
-    if !has_non_dark {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    confuse_target(g, me, p)?;
-    let target = SlotRef::new(o, g.st.players[o].active);
-    let (t, prevented) = g.run_fx(Effect::TrainerTarget { p: p as u8, card: me, target: Some(target) })?;
-    let blocked = prevented || matches!(t, Effect::TrainerTarget { target: None, .. });
-    if !blocked {
-        confuse_target(g, me, o)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

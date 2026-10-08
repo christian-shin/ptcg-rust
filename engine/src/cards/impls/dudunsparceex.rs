@@ -2,23 +2,20 @@
 //! play. Destructive Drill — 150, not affected by effects on your opponent's
 //! Active Pokémon (`ignoreDefenderEffects`; phase 4b R7B: it used to add the
 //! damage straight to the Active).
-use super::mega_lopunnyex::shred;
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Dudunsparceex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Dudunsparceex",
+    attacks: &[
+        // Tenacious Tail: 60 damage for each of your opponent's Pokémon ex in play.
+        AttackSpec {
+            index: 0,
+            steps: &[Step::before_damage(damage_is(Num::Mul(&Num::InPlayCount(Who::Opp, PlayScope::All, Pred::Tag(crate::types::tag::POKEMON_EX_LOWER)), &Num::Lit(60))))],
+        },
+        // Destructive Drill: not affected by any effects on your opponent's Active Pokémon.
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let o = 1 - p as usize;
-            let n = for_each_pokemon(g, o, PlayerType::TopPlayer).iter().filter(|(_, c, _)| g.st.cdef(*c).has_tag(tag::POKEMON_EX_LOWER)).count() as i32;
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage = n * 60;
-            }
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        shred(g, e, 150)?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

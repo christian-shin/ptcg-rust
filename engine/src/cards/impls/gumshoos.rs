@@ -5,66 +5,22 @@
 //! with the marker, then a cancellable ChooseCardsPrompt on the hand. On a
 //! pick: MOVE_CARDS deck→hand (count 1), then the picked card is spliced out
 //! of the hand and unshifted onto the deck directly, marker + ABILITY_USED.
-use crate::cards::prelude::*;
-
-pub static IMPL: CardImpl = CardImpl {
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
     class: "Gumshoos",
-    mask: mask(&[k::PLAY_POKEMON, k::POWER, k::END_TURN]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    powers: &[PowerSpec {
+        index: 0,
+        once: Once::No,
+        needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "GATHER_EVIDENCE_MARKER", from: MarkerFrom::This }), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::Any)],
+        steps: &[
+            Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, msg: "CHOOSE_CARD_TO_DECK", ..PickSpec::DEFAULT })),
+            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Top(Num::Lit(1)), ..MoveSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Chosen(0), place: Place::Top, ..MoveSpec::DEFAULT })), Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("GATHER_EVIDENCE_MARKER") }))], no: &[] })),
+        ],
+    }],
+    triggers: &[
+        Trigger { origin: RuleSource::Ability, event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }), steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "GATHER_EVIDENCE_MARKER", from: MarkerFrom::This }))] },
+    ],
+    ..CardSpec::NONE
 };
 
-fn gather() -> crate::markers::MarkerName {
-    crate::marker!("GATHER_EVIDENCE_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            g.st.players[p as usize].marker.remove_from(gather(), me);
-        }
-    }
-    if was_power_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Power { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() || g.st.players[p].hand.is_empty() {
-            bail!("CANNOT_USE_POWER");
-        }
-        if g.st.players[p].marker.has_from(gather(), me) {
-            bail!("POWER_ALREADY_USED");
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_DECK", ListRef::Hand(p as u8), Filter::none(), ChooseCardsOpts::new(1, 1, true), Cont::Card { card: me, frame: f });
-        return Ok(());
-    }
-    if let Effect::EndTurn { p } = *g.e(e) {
-        g.st.players[p as usize].marker.remove_from(gather(), me);
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let picked = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    if picked.is_empty() {
-        return Ok(());
-    }
-    move_count_from(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), 1, me)?;
-    let c = picked[0];
-    let pl = &mut g.st.players[p];
-    if let Some(i) = pl.hand.index_of(c) {
-        pl.hand.remove_at(i);
-        pl.deck.insert(0, c);
-    }
-    g.st.players[p].marker.add(gather(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    ability_used(g, p, me);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -42,7 +42,7 @@
     "Wait",
     "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; question timing decision 2026-10-07 (revised): a choice that does not set the damage is asked after the damage (the coin flip is shown with a Wait, after the damage)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08): a choice that depends on a coin result is asked after the coin, which is flipped after the damage (the coin flip is shown with a Wait, after the damage)"
   },
   {
    "at": "turn_end",

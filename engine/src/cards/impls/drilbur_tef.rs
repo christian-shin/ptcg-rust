@@ -8,54 +8,39 @@
 //! named "Fighting Energy"); MOVE_CARDS deck→discard when any was chosen, then
 //! a bare ShuffleDeckPrompt (phase 4b: choosing nothing used to skip the
 //! shuffle).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Drilbur@TEF", mask: mask(&[k::PLAY_POKEMON]), reduce, resume: Some(resume), coin: None, can_play: None };
+const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card != me {
-            return Ok(());
-        }
-        let p = p as usize;
-        if g.st.players[p].deck.is_empty() {
-            return Ok(());
-        }
-        if is_ability_blocked(g, p, me, None) {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "Drilbur@TEF",
+    // Dig Dig Dig: when you play this Pokémon from your hand onto your Bench, you may search your
+    // deck for up to 3 Basic [F] Energy cards and discard them, then shuffle.
+    triggers: &[Trigger {
+        origin: RuleSource::Ability,
+        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        steps: &[Step::new(Op::May(MaySpec {
+            asker: Who::Me,
+            when: Cond::Nonempty(DECK, Pred::Any),
+            msg: "WANT_TO_USE_ABILITY",
+            yes: &[
+                Step::new(Op::Search(SearchSpec {
+                    pick: PickSpec {
+                        predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]),
+                        bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) },
+                        ..PickSpec::DEFAULT
+                    },
+                    destination: SearchDestination::Discard { reveal: false },
+                    msg: "CHOOSE_CARD_TO_HAND",
+                    cancel: false,
+                    shuffle_first: false,
+                })),
+                Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
+            ],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                return Ok(());
-            }
-            let mut filter = Filter::super_type(SuperType::Energy);
-            filter.energy_type = Some(EnergyType::Basic as u8);
-            filter.name = Some("Fighting Energy");
-            let mut nf = f;
-            nf.stage = 2;
-            choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, 3, false), Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            if !cards.is_empty() {
-                move_cards(g, ListRef::Deck(p as u8), ListRef::Discard(p as u8), &cards, me)?;
-            }
-            let id = g.player_id(p);
-            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

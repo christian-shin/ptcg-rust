@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 // Offered even without 3 [M] Energy (ruling 1822): as many as there are are discarded.
                 yes: &[
                     Step::new(more_damage_if(150, Cond::True)),
-                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::METAL } })),
+                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 3, ty: crate::types::ct::METAL }, ..DiscardEnergySpec::DEFAULT })),
                 ],
                 no: &[],
             }))],

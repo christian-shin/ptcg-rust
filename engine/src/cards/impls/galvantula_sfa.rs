@@ -7,52 +7,18 @@
 //! check). Fixed (phase 4b, R3): Shocking Web sets the damage to 50, +80
 //! once if any provided-energy entry is an Energy card printing [L] in
 //! `provides` (it used to add 80 per such entry).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Galvantula@SFA",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::before_damage(more_damage_if(80, Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::MatchingEntries(ct::LIGHTNING)), CmpOp::Gt, Num::Lit(0)))),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::Ability, modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 50, attacker: SlotPred::IsThisPokemon, opp_active_only: false, guard: Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::PrintsPower), ..DamageDealtSpec::DEFAULT }) }
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Galvantula@SFA", mask: mask(&[k::DEAL_DAMAGE, k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::DealDamage { b, .. } = *g.e(e) {
-        if b.attack != my_attack(g, me, 0) {
-            return Ok(());
-        }
-        let p = b.player as usize;
-        let o = 1 - p;
-        let opp_active = g.st.slot_pokemon(o, g.st.players[o].active);
-        if is_ability_blocked(g, p, me, None) {
-            return Ok(());
-        }
-        if let Some(c) = opp_active {
-            if !g.st.cdef(c).powers.is_empty() {
-                if let Effect::DealDamage { damage, .. } = g.e_mut(e) {
-                    *damage += 50;
-                }
-            }
-        }
-        return Ok(());
-    }
-
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let source = SlotRef::new(p, g.st.players[p].active);
-        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, energy_map: SVec::new() })?;
-        let mut damage = 50;
-        if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-            // Energy that provides every type counts as a [L] Energy (Advanced Rulebook D-08).
-            let has_lightning = energy_map.iter().any(|em| {
-                let d = g.st.cdef(em.card);
-                d.is_energy() && (em.provides.contains(&ct::LIGHTNING) || em.provides.contains(&ct::ANY))
-            });
-            if has_lightning {
-                damage += 80;
-            }
-        }
-        if let Effect::Attack { damage: d, .. } = g.e_mut(e) {
-            *d = damage;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

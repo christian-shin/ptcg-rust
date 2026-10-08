@@ -17,36 +17,18 @@
 //! after every effect of the attack's own text and its prompts (AttackTrigger): it needs this card to be still
 //! attached to the damaged Pokémon (an attack that discards it stops it, ruling 1649), the Special Energy not
 //! blocked, and the Attacking Pokémon still in play, wherever it is (rulings 530, 1839).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "SpikyEnergy", mask: mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "SpikyEnergy",
+    // When the Pokémon this is attached to, in the Active Spot, is damaged by an attack from your opponent's Pokémon
+    // (even if Knocked Out), put 2 damage counters on the Attacking Pokémon.
+    triggers: &[Trigger {
+        origin: RuleSource::Energy,
+        event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, removes_attacker_energy: false, attacker_required: true }),
+        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2), cause: CounterCause::Attack }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::AfterDamage { b, damage } => {
-            let t = b.target;
-            if !g.st.slot(t.p as usize, t.s).cards.contains(me) || g.st.phase != GamePhase::Attack {
-                return Ok(());
-            }
-            if t.p == b.player || g.st.players[t.p as usize].active != t.s {
-                return Ok(());
-            }
-            g.attack_trigger(b, damage, me, None, false)
-        }
-        Effect::AttackTrigger { attack_effect, p, opp, attack, card, target, source, source_in_play, retaliate: None, .. } if card == me => {
-            if !g.st.slot(target.p as usize, target.s).cards.contains(me) {
-                return Ok(());
-            }
-            if is_special_energy_blocked(g, p as usize, me, target, false) {
-                return Ok(());
-            }
-            if !source_in_play {
-                return Ok(());
-            }
-            let pb = AtkBase { attack_effect, player: p, opponent: opp, attack, source, target: source };
-            g.run_fx(Effect::PutCounters { b: pb, damage: 20 })?;
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

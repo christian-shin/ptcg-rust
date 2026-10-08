@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
             Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::HasCard(Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]))),
             Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Any), CmpOp::Ge, Num::Lit(2)),
         ],
-        steps: &[Step::new(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Me, mode: MoveEnergyMode::BasicNamed { name: "Grass Energy" } }))],
+        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: None, energy: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), cancel: false, used_always: false }))],
     }],
     ..CardSpec::NONE
 };

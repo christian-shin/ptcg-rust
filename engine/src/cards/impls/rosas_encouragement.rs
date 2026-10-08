@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             slots: AttachSlots::ActiveBench,
             target: Pred::StageIs(crate::types::Stage::Stage2),
             // "Up to 2" takes at least 1 when played from the hand; through an attack it may be 0.
-            bounds: Bounds { min: Num::If(&Cond::ViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Min(&Num::Lit(2), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy)) },
+            bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Min(&Num::Lit(2), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy)) },
             same_target: true,
             ..AttachSpec::DEFAULT
         }))],

@@ -9,69 +9,42 @@
 //! AttachEnergyEffect, whose reducer only moves cards out of the HAND. A card
 //! chosen from the deck therefore stays in the deck while being listed in the
 //! slot's `energies` (Twinleaf bug kept). Then SHUFFLE_DECK.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "ZacianexSVPPool", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "ZacianexSVPPool",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            // Steel Armament: search your deck for a Basic [M] Energy card and attach it to this Pokémon, then shuffle.
+            steps: &[Step::after_damage(Op::If(IfSpec {
+                cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
+                yes: &[
+                    Step::new(Op::Attach(AttachSpec {
+                        chooser: Who::Me,
+                        from: ZoneRef(Who::Me, Zone::Deck),
+                        predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Metal Energy")]),
+                        slots: AttachSlots::ActiveOnly,
+                        target: Pred::Any,
+                        scan: TargetScan::InPlay,
+                        bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
+                        same_target: false,
+                        different_targets: false,
+                        valid_types: &[],
+                        max_per_type: 0,
+                        cancel: false,
+                        // Twinleaf quirk kept: an AttachEnergyEffect only moves cards out of the hand, so the card stays in the deck.
+                        route: AttachRoute::Effect,
+                        none_shuffles: false,
+                     different_types: false, })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                ],
+                no: &[],
+            }))],
+        },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].deck.is_empty() {
-            return Ok(());
-        }
-        let mut o = AttachOpts::new(g.st.players[p].deck.len() as u8);
-        o.allow_cancel = false;
-        o.min = 0;
-        o.max = 1;
-        let filter = Filter {
-            super_type: Some(SuperType::Energy as u8),
-            energy_type: Some(EnergyType::Basic as u8),
-            name: Some("Metal Energy"),
-            ..Filter::none()
-        };
-        let mut slots = SVec::new();
-        slots.push(SlotType::Active as u8);
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "ATTACH_ENERGY_CARDS",
-            PromptKind::AttachEnergy { cards: ListRef::Deck(p as u8), player_type: PlayerType::BottomPlayer, slots, filter, o },
-            Cont::Card { card: me, frame: f },
-        );
-        return Ok(());
-    }
-    if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            let pending = &mut g.st.players[p].slots[a as usize].cannot_use_attacks_next_turn_pending;
-            if !pending.iter().any(|n| *n == "Slashing Strike") {
-                pending.push("Slashing Strike");
-            }
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
-    }
-    shuffle_deck(g, p);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

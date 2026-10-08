@@ -7,28 +7,15 @@
 //! used during that turn (`playerLastAttack.turn`); a turn that ended without
 //! an attack used to keep the previous Ancient attack's flag alive, and a
 //! failed attack attempt while Confused (tails) voids the stamp (ruling n=1621).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Koraidon@SSP",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::before_damage(more_damage_if(150, Cond::OtherAncientAttackedLastTurn)),
+        ] },
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Koraidon@SSP", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if !g.st.players[p].ancient_pokemon_attacked_last_turn {
-            return Ok(());
-        }
-        let boost = match g.st.player_last_attack[p] {
-            Some((_, src)) => src != me && g.st.cdef(src).has_tag(tag::ANCIENT),
-            None => false,
-        };
-        if boost {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 150;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

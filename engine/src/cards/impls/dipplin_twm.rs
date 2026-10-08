@@ -7,63 +7,22 @@
 //! while the Ability is blocked the flag is written `false` (it used to be
 //! left as an earlier use set it, so a blocked Dipplin could still attack
 //! twice). The damage is only recomputed when the opponent's Active holds a
-//! Pokémon. (Goldeen and Seaking share `festival_lead` and keep the old
-//! behavior.)
-use crate::cards::prelude::*;
+//! Pokémon.
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Dipplin@Dipplin TWM1|Dipplin PRE", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
 
-/// Festival Lead: `this.attacks[0].barrage = stadium is 'Festival Grounds'`
-/// unless the Ability is blocked. `pristine_has_key`: the printed attack
-/// object already has `barrage: false` (Dipplin), so only `true` differs
-/// from the printed card in the canonical state; otherwise any write does.
-pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool) {
-    if is_ability_blocked(g, p, me, None) {
-        return;
-    }
-    set_festival_flag(g, me, pristine_has_key);
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "Dipplin@Dipplin TWM1|Dipplin PRE",
+    // Festival Lead: if Festival Grounds is in play, this Pokémon may use an attack twice. Do the
+    // Wave: 20 damage for each of your Benched Pokémon.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::before_damage(damage_is(Num::Mul(&Num::BenchCount(Who::Me), &Num::Lit(20)))),
+            Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::FestivalLead, value: true })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-/// The write of `festival_lead` once the Ability is known not to be blocked.
-fn set_festival_flag(g: &mut Game, me: CardId, pristine_has_key: bool) {
-    let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
-    crate::copy_attack::write_barrage(g, me, |b, shown| {
-        if fg {
-            *b |= 1;
-        } else {
-            *b &= !1;
-        }
-        if fg || !pristine_has_key {
-            *shown |= 1;
-        } else {
-            *shown &= !1;
-        }
-    });
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let (p, opp) = match *g.e(e) {
-        Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-        _ => return Ok(()),
-    };
-    if g.st.active_pokemon(opp).is_some() {
-        let pl = &g.st.players[p];
-        let benched = pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count() as i32;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = benched * 20;
-        }
-    }
-    if is_ability_blocked(g, p, me, None) {
-        // Blocked: the flag is switched off (printed `barrage: false`).
-        crate::copy_attack::write_barrage(g, me, |b, shown| {
-            *b &= !1;
-            *shown &= !1;
-        });
-    } else {
-        set_festival_flag(g, me, true);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -60,10 +60,10 @@
   {
    "at": "turn_end",
    "prompts": [
-    "Wait",
-    "ChoosePokemon"
+    "ChoosePokemon",
+    "Wait"
    ],
-   "cite": "ruling 1770; Advanced Rulebook A-01 steps 3-5, C-07: a copied attack follows the copied attack (Memory Helix, ruling 1628): the Tenacious Body coin comes after the damage and before the counter placement"
+   "cite": "ruling 1770; Advanced Rulebook A-01 steps 3-5, C-07: a copied attack follows the copied attack (Memory Helix, ruling 1628): the Tenacious Body coin comes after the damage; attack-choice rule (step D, 2026-10-08): the counter target is chosen at step D, before the damage"
   },
   {
    "at": "turn_end",

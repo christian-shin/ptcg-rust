@@ -10,77 +10,16 @@
 //!   card is still in play) on a Benched Pokémon from its owner's opponent
 //!   is prevented unless the stadium effect is blocked for that target.
 //!   Using the stadium is not allowed (CANNOT_USE_STADIUM, Advanced Rulebook B-04).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "BattleColosseum",
-    mask: mask(&[k::MOVE_DAMAGE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS, k::USE_STADIUM]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[
+        // Automatically active: it can't be announced and used.
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::BenchCounters }) },
+    ],
+    ..CardSpec::NONE
 };
 
-/// `StateUtils.findPokemonSlot(state, card)`: owner of the in-play slot
-/// holding `card` (cards, energies or tools).
-fn find_slot_owner(g: &Game, card: CardId) -> Option<usize> {
-    for p in 0..2usize {
-        let pl = &g.st.players[p];
-        for s in std::iter::once(pl.active).chain(pl.bench.iter().copied()) {
-            let slot = g.st.slot(p, s);
-            if slot.cards.contains(card) || slot.energies.contains(card) || slot.tools.contains(card) {
-                return Some(p);
-            }
-        }
-    }
-    None
-}
-
-fn bench_target_prevented(g: &mut Game, me: CardId, source_owner: usize, t: SlotRef) -> bool {
-    let owner = t.p as usize;
-    if source_owner != 1 - owner {
-        return false;
-    }
-    // `target !== targetOpponent.active` always holds (slot ids are per player).
-    if t.s == g.st.players[owner].active {
-        return false;
-    }
-    !is_stadium_effect_blocked(g, owner, t, me)
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    // Automatically active: a Stadium without "that player may" can't be announced and used (Advanced Rulebook B-04).
-    if let Effect::UseStadium { .. } = *g.e(e) {
-        if g.st.stadium_card() == Some(me) {
-            bail!("CANNOT_USE_STADIUM");
-        }
-    }
-    if g.st.stadium_card() != Some(me) {
-        return Ok(());
-    }
-    match *g.e(e) {
-        Effect::MoveDamageCounters { p } => {
-            let active = g.st.active_player as usize;
-            if p as usize == 1 - active {
-                g.set_prevent(e, true);
-            }
-        }
-        Effect::PutCounters { b, .. } => {
-            if bench_target_prevented(g, me, b.source.p as usize, b.target) {
-                g.set_prevent(e, true);
-            }
-        }
-        Effect::PlaceDamageCounters { target, source, .. } => {
-            if source == NO_CARD {
-                return Ok(());
-            }
-            if let Some(so) = find_slot_owner(g, source) {
-                if bench_target_prevented(g, me, so, target) {
-                    g.set_prevent(e, true);
-                }
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

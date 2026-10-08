@@ -6,11 +6,11 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Meowthex",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: MY_ACTIVE, destination: ZoneRef(Who::Me, Zone::Hand) }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: MY_ACTIVE, destination: ZoneRef(Who::Me, Zone::Hand), effect_of_attack: false }))] }],
     triggers: &[
         Trigger {
             origin: RuleSource::Ability,
-            event: Event::OnEnterPlay(OnEnterPlaySpec { how: EnterBy::PlayedFromHand }),
+            event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
             steps: &[Step::new(Op::If(IfSpec {
                 // Only one "Last-Ditch" Ability per turn (the state marker); it needs a card in the deck.
                 cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Not(&Cond::HasMarker { who: Who::Me, name: "TRUMP_CARD_MARKER", from: MarkerFrom::Any })]),
@@ -27,7 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
                             cancel: false,
                             shuffle_first: false,
                         })),
-                        Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                        Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                     ],
                     no: &[],
                 }))],

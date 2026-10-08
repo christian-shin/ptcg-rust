@@ -3,69 +3,32 @@
 //!
 //! Fixed (phase 4b): the search is for min(2, deck size) cards (min 2 was
 //! unanswerable with a single card in the deck).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "CiphermaniacsCodebreaking", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].supporter_turn > 0 {
-        bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-    g.set_prevent(e, true);
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let temp = g.alloc_temp(&[]);
-    let t = match temp {
-        ListRef::Temp(i) => i,
-        _ => unreachable!(),
-    };
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = t as i32;
-    let n = g.st.players[p].deck.len().min(2) as u8;
-    choose_cards(g, p, "CHOOSE_CARDS", ListRef::Deck(p as u8), Filter::none(), ChooseCardsOpts::new(n, n, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "CiphermaniacsCodebreaking",
+    // Search your deck for 2 cards, shuffle your deck, then put those cards on top of it in any
+    // order (2 cards, or the whole deck when it is smaller).
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Pick(PickSpec {
+                from: DECK,
+                bounds: Bounds { min: Num::Min(&Num::Lit(2), &Num::ZoneSize(DECK)), max: Num::Min(&Num::Lit(2), &Num::ZoneSize(DECK)) },
+                into: 0,
+                msg: "CHOOSE_CARDS",
+                ..PickSpec::DEFAULT
+            })),
+            Step::new(Op::Move(MoveSpec { from: DECK, to: ZoneRef(Who::Me, Zone::Scratch(1)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
+            Step::new(Op::Order(OrderSpec { who: Who::Me, zone: ZoneRef(Who::Me, Zone::Scratch(1)), msg: "CHOOSE_CARDS_ORDER" })),
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(1)), to: DECK, cards: CardSel::All, place: Place::Top, ..MoveSpec::DEFAULT })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let temp = ListRef::Temp(f.a[1] as u8);
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            move_cards(g, ListRef::Deck(p as u8), temp, &cards, me)?;
-            let id = g.player_id(p);
-            let mut nf = f;
-            nf.stage = 2;
-            g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            if let Res::Order(o) = first {
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-            }
-            let id = g.player_id(p);
-            let mut nf = f;
-            nf.stage = 3;
-            g.prompt(id, "CHOOSE_CARDS_ORDER", PromptKind::OrderCards { cards: temp, allow_cancel: false }, Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        3 => {
-            let o = match first {
-                Res::Order(o) => o,
-                _ => return Ok(()),
-            };
-            crate::game::apply_order(&mut g.temps[f.a[1] as usize], o.as_slice());
-            g.move_to_top_of_destination(temp, ListRef::Deck(p as u8));
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

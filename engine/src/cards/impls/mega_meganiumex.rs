@@ -20,16 +20,3 @@ pub static SPEC: CardSpec = CardSpec {
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
-
-// Still called by Alolan Exeggutor and Genesect (PFL) until they are converted.
-pub fn grass_energy_count(g: &mut crate::game::Game, p: usize, s: crate::state::SlotId) -> crate::game::R<i32> {
-    use crate::effects::{Effect, SlotRef};
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, s), energy_map: crate::list::SVec::new() })?;
-    let mut count = 0;
-    if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-        for em in energy_map.iter() {
-            count += em.provides.iter().filter(|t| **t == ct::GRASS || **t == ct::ANY).count() as i32;
-        }
-    }
-    Ok(count)
-}

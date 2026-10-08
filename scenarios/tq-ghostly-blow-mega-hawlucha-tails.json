@@ -56,7 +56,7 @@
     "Wait",
     "ChoosePokemon"
    ],
-   "cite": "ruling 1770 (the coin and the 10 HP restore come after all the damage); Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage"
+   "cite": "ruling 1770 (the coin and the 10 HP restore come after all the damage); Advanced Rulebook A-01 steps 3-5, C-07; attack-choice rule (step D, 2026-10-08): the Pokemon is chosen only on tails, and the coin comes after the damage, so the choice is asked after it"
   },
   {
    "at": "turn_end",

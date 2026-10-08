@@ -11,56 +11,23 @@
 //! cards (the effect of the attack on that Pokémon), and a prevented one keeps
 //! its Special Energy.
 //! R7A + R7F: the probe comes first, then the deferred discard of the Energy of the Pokémon that is not protected.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Ceruledge@SSP", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Ceruledge@SSP",
+    attacks: &[
+        // Blaze Curse: discard all Special Energy from each of your opponent's Pokémon.
+        AttackSpec {
+            index: 0,
+            steps: &[Step::after_damage(Op::ForEach(ForEachSpec {
+                over: SlotSel::Pokemon(Who::Opp),
+                body: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::Special, ..DiscardEnergySpec::DEFAULT }))],
+            }))],
+        },
+        // Amethyst Rage: during your next turn, this Pokémon can't attack.
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn discard_special(g: &mut Game, e: EffId, o: usize, s: SlotId) -> R {
-    let cards: Vec<CardId> = g
-        .st
-        .slot(o, s)
-        .cards
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_energy() && d.energy_type == EnergyType::Special as u8
-        })
-        .collect();
-    let (opp, attack, source) = match *g.e(e) {
-        Effect::Attack { opp, attack, source, .. } => (opp, attack, source),
-        _ => return Ok(()),
-    };
-    let player = 1 - o as u8;
-    let b = AtkBase { attack_effect: e, player: if player == opp { 1 - opp } else { player }, opponent: opp, attack, source, target: SlotRef::new(o, s) };
-    let (_, prevented) = g.run_fx(Effect::DiscardCards { b, cards: SVec::new() })?;
-    if prevented {
-        return Ok(());
-    }
-    if !cards.is_empty() {
-        move_cards_after_damage(g, e, ListRef::Slot(o as u8, s), ListRef::Discard(o as u8), &cards, NO_CARD)?;
-    }
-    Ok(())
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let o = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[o].active;
-        discard_special(g, e, o, a)?;
-        let bench: Vec<SlotId> = g.st.players[o].bench.iter().copied().collect();
-        for s in bench {
-            discard_special(g, e, o, s)?;
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].cannot_attack_next_turn_pending = true;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

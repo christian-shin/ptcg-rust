@@ -15,48 +15,19 @@
 //! `player.canEvolve = true` on every CheckTableStateEffect while the active
 //! player's Active `cards[0]` was this card (even after it evolved), letting
 //! every Pokémon of that player evolve on the first turn.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Eevee@SSP|Eevee PRE",
-    mask: mask(&[k::ATTACK, k::END_TURN, k::PLAY_POKEMON, k::CHECK_POKEMON_PLAYED_TURN]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    // Boosted Evolution: as long as this Pokémon is in the Active Spot, it can evolve during your
+    // first turn or the turn you play it.
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::AllowEvolve(AllowEvolveSpec { subject: SlotPred::All(&[SlotPred::IsActive, SlotPred::IsThisPokemon]) }),
+    }],
+    // Reckless Charge: this Pokémon also does 10 damage to itself.
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(self_damage(10))] }],
+    ..CardSpec::NONE
 };
 
-fn marker() -> crate::markers::MarkerName {
-    crate::marker!("EVOLUTIONARY_ADVANTAGE_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, opp, attack, source, .. } = *g.e(e) {
-            let target = SlotRef::new(p as usize, g.st.players[p as usize].active);
-            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-            g.run_fx(Effect::DealDamage { b, damage: 10 })?;
-        }
-        return Ok(());
-    }
-    if let Effect::EndTurn { p } = *g.e(e) {
-        g.st.players[p as usize].marker.remove_from(marker(), me);
-    }
-    if let Effect::PlayPokemon { p, .. } = *g.e(e) {
-        g.st.players[p as usize].marker.add(marker(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    }
-    if let Effect::CheckPokemonPlayedTurn { p, target, .. } = *g.e(e) {
-        let owner = p as usize;
-        if target.p as usize == owner && target.s == g.st.players[owner].active && g.st.slot_pokemon(target.p as usize, target.s) == Some(me) {
-            if is_ability_blocked(g, owner, me, None) {
-                return Ok(());
-            }
-            let turn = g.st.turn as i32;
-            if let Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } = g.e_mut(e) {
-                *pokemon_played_turn = turn - 1;
-                *can_evolve_on_first_turn = true;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::MoveCounters(MoveCountersSpec { kind: MoveCountersKind::AllFromOne { from: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Damaged), msg: "CHOOSE_POKEMON" }, to: PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" } } })),
+                Step::after_damage(Op::MoveCounters(MoveCountersSpec { kind: MoveCountersKind::AllFromOne { from: PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Damaged), msg: "CHOOSE_POKEMON" }, to: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }) } })),
             ],
         },
         AttackSpec {

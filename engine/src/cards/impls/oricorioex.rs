@@ -41,7 +41,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 route: AttachRoute::Effect,
                 none_shuffles: false,
-            }))],
+             different_types: false, }))],
     }],
     ..CardSpec::NONE
 };

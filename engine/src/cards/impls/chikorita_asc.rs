@@ -11,7 +11,4 @@ pub static SPEC: CardSpec = CardSpec {
     ..CardSpec::NONE
 };
 
-// Sylveon ex uses the same effect.
-pub use crate::spec::ops::state::defending_pokemon_does_less_damage;
-
 pub static IMPL: CardImpl = SPEC.card_impl();

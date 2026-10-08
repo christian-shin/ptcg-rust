@@ -14,9 +14,6 @@
 //! PutDamageCountersEffect branches: no ported card emits them yet.)
 use crate::spec::prelude::*;
 
-// The other Hide 'n' Sneak Pokémon share these.
-pub use crate::spec::passive::{count_hide_n_sneak_in_discard, reduce_hide_n_sneak, HIDE_N_SNEAK_KINDS};
-
 pub static SPEC: CardSpec = CardSpec {
     class: "Shuppet",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) }],

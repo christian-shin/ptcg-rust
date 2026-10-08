@@ -241,6 +241,11 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
     match kind {
         TrainerPlayKind::Supporter => {
             g.run_fx(Effect::Trainer { p, card, target, via_attack: false })?;
+            // `rocketSupporter` (read by Team Rocket's Factory and Kangaskhan ex): a Team Rocket's
+            // Supporter played from the hand (K1; a Supporter's effect used by an attack never gets here).
+            if g.st.cdef(card).has_tag(tag::TEAM_ROCKET) {
+                g.st.players[pu].rocket_supporter = true;
+            }
             restore_played_trainer(g, pu, card);
             let keep = g.st.rules.supporter_cleanup_at_end_turn;
             finalize_trainer_cleanup(g, pu, card, keep);

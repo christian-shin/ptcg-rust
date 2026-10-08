@@ -3,23 +3,26 @@
 //!
 //! Twinleaf: DISCARD_AN_ENERGY_FROM_OPPONENTS_ACTIVE_POKEMON (no prompt when
 //! the Active has no Energy card).
-use crate::cards::prelude::*;
-use super::trubbish::{discard_an_energy_from_opponents_active, discard_chosen};
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Duraludon@PFL", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Duraludon@PFL",
+    // Hyper Beam: discard an Energy from your opponent's Active Pokémon.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::after_damage(Op::Pick(PickSpec {
+                from: ZoneRef(Who::Opp, Zone::Attached(OPP_ACTIVE)),
+                predicate: Pred::Energy,
+                bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
+                into: 0,
+                msg: "CHOOSE_CARD_TO_DISCARD",
+                ..PickSpec::DEFAULT
+            })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Register(0), ..DiscardEnergySpec::DEFAULT })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        g.retain_fx(e);
-        return discard_an_energy_from_opponents_active(g, me, e, 1);
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage == 1 {
-        return discard_chosen(g, f, results);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

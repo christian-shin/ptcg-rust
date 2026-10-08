@@ -7,55 +7,36 @@
 //! DealDamageEffect of a marked player whose target is the opponent's Active
 //! Pokémon ex (phase 4b: it also applied to the player's own Active Pokémon ex,
 //! e.g. recoil damage to itself).
-use crate::cards::prelude::*;
-use crate::marker;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+const TRAINING: &str = "BLACK_BELTS_TRAINING_MARKER";
+
+pub static SPEC: CardSpec = CardSpec {
     class: "BlackBeltsTraining",
-    mask: mask(&[k::TRAINER, k::DEAL_DAMAGE, k::END_TURN]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[],
+        steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: TRAINING, source: RuleSource::TrainerEffect }))],
+    }),
+    // During this turn, attacks used by your Pokémon do 40 more damage to your opponent's Active
+    // Pokémon ex (before Weakness and Resistance).
+    passives: &[Passive {
+        origin: RuleSource::TrainerEffect,
+        modifier: Modifier::DamageDealt(DamageDealtSpec {
+            stage: DamageStage::Deal,
+            amount: 40,
+            target: SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER),
+            needs_damage: true,
+            guard: Cond::HasMarker { who: Who::Me, name: TRAINING, from: MarkerFrom::This },
+            ..DamageDealtSpec::DEFAULT
+        }),
+    }],
+    triggers: &[Trigger {
+        origin: RuleSource::TrainerEffect,
+        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+        steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: TRAINING, from: MarkerFrom::This }))],
+    }],
+    ..CardSpec::NONE
 };
 
-fn bbt() -> crate::markers::MarkerName {
-    marker!("BLACK_BELTS_TRAINING_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Some(p) = trainer_played(g, e, me) {
-        if g.st.players[p].supporter_turn > 0 {
-            bail!("SUPPORTER_ALREADY_PLAYED");
-        }
-        move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-        g.st.players[p].marker.add(bbt(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    }
-
-    if let Effect::DealDamage { b, damage } = *g.e(e) {
-        let p = b.player as usize;
-        if g.st.players[p].marker.has_from(bbt(), me) && damage > 0 {
-            let t = b.target;
-            if let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) {
-                if g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER) {
-                    let o = 1 - p;
-                    let is_opp_active = t.p as usize == o && t.s == g.st.players[o].active;
-                    if !is_opp_active {
-                        return Ok(());
-                    }
-                    if let Effect::DealDamage { damage, .. } = g.e_mut(e) {
-                        *damage += 40;
-                    }
-                }
-            }
-        }
-    }
-
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let m = &mut g.st.players[p as usize].marker;
-        if m.has_from(bbt(), me) {
-            m.remove_from(bbt(), me);
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

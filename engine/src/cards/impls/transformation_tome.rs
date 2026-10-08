@@ -15,105 +15,34 @@
 //! at the bottom of the stack and gets its `damageTakenLastTurn` and
 //! `movedToActiveThisTurn` (card flag and the player's id lists). The second copy
 //! is discarded from hand.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TransformationTome", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TransformationTome",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        // Play 2 at once: a second copy in the hand, a Basic Pokémon in play and one in the discard pile.
+        needs: &[
+            Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Name("Transformation Tome")),
+            Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Basic),
+            Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::Pokemon, Pred::Basic])),
+        ],
+        steps: &[
+            Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Basic), msg: "CHOOSE_POKEMON_TO_SWITCH" })),
+            Step::new(Op::Pick(PickSpec {
+                from: ZoneRef(Who::Me, Zone::Discard),
+                predicate: Pred::All(&[Pred::Pokemon, Pred::Basic]),
+                bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
+                into: 0,
+                msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH",
+                ..PickSpec::DEFAULT
+            })),
+            Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: false, bottom: true })),
+            // The second copy is discarded from your hand.
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::First(Pred::Name("Transformation Tome")), ..MoveSpec::DEFAULT })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-/// `c instanceof PokemonCard && c.stage === Stage.BASIC` (the discard check).
-fn is_basic_mon(g: &Game, c: CardId) -> bool {
-    let d = g.st.cdef(c);
-    d.is_pokemon() && d.stage == Stage::Basic as u8
-}
-
-/// `card.stage === Stage.BASIC` for the top card of a slot in play: no
-/// `instanceof` check, so a Fossil (a Trainer played as a Basic Pokémon) counts.
-fn is_basic_in_play(g: &Game, c: CardId) -> bool {
-    g.st.cdef(c).stage == Stage::Basic as u8
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let name = g.st.cdef(me).name;
-    let second = match g.st.players[p].hand.iter().find(|c| *c != me && g.st.cdef(*c).name == name) {
-        Some(c) => c,
-        None => bail!("CANNOT_PLAY_THIS_CARD"),
-    };
-    let pl = &g.st.players[p];
-    let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|(_, c, _)| is_basic_in_play(g, *c));
-    let in_discard = pl.discard.iter().any(|c| is_basic_mon(g, c));
-    if !in_play || !in_discard {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    g.set_prevent(e, true);
-    let mut blocked = TargetList::new();
-    for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter() {
-        if g.st.cdef(*c).stage != Stage::Basic as u8 {
-            blocked.push(*t);
-        }
-    }
-    let mut slots = SVec::new();
-    slots.push(SlotType::Active as u8);
-    slots.push(SlotType::Bench as u8);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = second as i32;
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_POKEMON_TO_SWITCH",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
-        Cont::Card { card: me, frame: f },
-    );
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let pu = p as u8;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            let t = match first.slots().first() {
-                Some(t) => *t,
-                None => return Ok(()),
-            };
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = f.a[0];
-            nf.a[1] = f.a[1];
-            nf.a[2] = t.p as i32;
-            nf.a[3] = t.s as i32;
-            let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(Stage::Basic as u8), ..Filter::none() };
-            choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Discard(pu), filter, ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            let chosen = match first.cards().first() {
-                Some(c) => *c,
-                None => return Ok(()),
-            };
-            let (tp, ts) = (f.a[2] as usize, f.a[3] as SlotId);
-            let list = ListRef::Slot(tp as u8, ts);
-            let old = if g.st.slot_pokemon(tp, ts).is_some() { g.st.slot(tp, ts).cards.get(0) } else { None };
-            if let Some(old) = old {
-                // The new card goes onto the slot first and the old one is discarded after, so
-                // the slot is never empty (that would discard its attachments and reset it).
-                move_cards(g, ListRef::Discard(pu), list, &[chosen], me)?;
-                move_cards(g, list, ListRef::Discard(pu), &[old], me)?;
-                // The new card takes the old card's place at the bottom of the stack.
-                let mut order: Vec<CardId> = vec![chosen];
-                order.extend(g.st.slot(tp, ts).cards.iter().filter(|c| *c != chosen));
-                g.st.players[tp].slots[ts as usize].cards = List::from_slice(&order);
-                // State kept on the card object moves with the Pokémon (ruling 1840).
-                transfer_pokemon_card_state(g, p, old, chosen);
-            } else {
-                move_cards(g, ListRef::Discard(pu), list, &[chosen], me)?;
-            }
-            move_cards(g, ListRef::Hand(pu), ListRef::Discard(pu), &[f.a[1] as CardId], me)?;
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

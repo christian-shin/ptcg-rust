@@ -4,34 +4,37 @@
 //! Twinleaf: AFTER_ATTACK opens a ConfirmPrompt (WANT_TO_DRAW_CARDS); on yes
 //! with a non-empty deck, SEARCH_DECK_FOR_CARDS_TO_HAND with no filter
 //! (min 1, max 1, no cancel; no reveal).
-use super::shuppet::{reduce_hide_n_sneak, HIDE_N_SNEAK_KINDS};
-use crate::cards::prelude::*;
-use crate::effects::KindMask;
+use crate::spec::prelude::*;
 
-const MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::AFTER_ATTACK]));
+pub static SPEC: CardSpec = CardSpec {
+    class: "Banette",
+    // Hide 'n' Sneak.
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) }],
+    // Puppet Pull: you may search your deck for a card and put it into your hand, then shuffle.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::May(MaySpec {
+            asker: Who::Me,
+            when: Cond::True,
+            msg: "WANT_TO_DRAW_CARDS",
+            yes: &[Step::new(Op::If(IfSpec {
+                cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
+                yes: &[
+                    Step::new(Op::Search(SearchSpec {
+                        pick: PickSpec { bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                        destination: SearchDestination::Hand { reveal: false },
+                        msg: "",
+                        cancel: false,
+                        shuffle_first: false,
+                    })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                ],
+                no: &[],
+            }))],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Banette", mask: MASK, reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    reduce_hide_n_sneak(g, me, e)?;
-    if after_attack_used(g, e, 0, me) {
-        if let Effect::AfterAttack { p, .. } = *g.e(e) {
-            let mut f = CardFrame::at(1);
-            f.a[0] = p as i32;
-            confirmation_prompt(g, p as usize, "WANT_TO_DRAW_CARDS", Cont::Card { card: me, frame: f });
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let yes = results.first().map(|r| r.as_bool()).unwrap_or(false);
-    if yes && !g.st.players[p].deck.is_empty() {
-        search_deck_for_cards_to_hand(g, p, me, Filter::none(), ChooseCardsOpts::new(1, 1, false));
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

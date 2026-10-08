@@ -1,21 +1,18 @@
 //! Centiskorch (SSP): Billowing Heat Wave — 130; also 30 damage to each of
 //! your Benched Pokémon (PutDamageEffect, no Weakness/Resistance). Heat Blast — 80.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Centiskorch", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Centiskorch",
+    // Billowing Heat Wave: also 30 damage to each of your Benched Pokémon (no Weakness or Resistance).
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::ForEach(ForEachSpec {
+            over: SlotSel::Bench(Who::Me),
+            body: &[Step::new(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(30), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::True }))],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let active = g.st.players[p].active;
-        for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-            if s != active {
-                put_damage(g, e, 30, SlotRef::new(p, s))?;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

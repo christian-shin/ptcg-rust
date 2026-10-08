@@ -1,25 +1,25 @@
 //! Blaziken (DRI): Heat Blast — 70. Inferno Legs — 120; discard 2 Energy from
 //! this Pokémon, and 120 damage to 1 of your opponent's Benched Pokémon.
-use crate::cards::prelude::*;
-use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon};
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Blaziken", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Blaziken",
+    // Inferno Legs: discard 2 Energy from this Pokémon, and 120 damage to 1 of your opponent's
+    // Benched Pokémon (the damage target is chosen before the Energy to discard).
+    attacks: &[AttackSpec {
+        index: 1,
+        steps: &[
+            Step::after_damage(Op::DamageSlot(DamageSlotSpec {
+                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+                hp: Num::Lit(120),
+                target_damage_mul: 0,
+                calc: DamageCalc::Auto,
+                when: Cond::True,
+            })),
+            Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Choose { count: 2, ty: ct::COLORLESS }, ..DiscardEnergySpec::DEFAULT })),
+        ],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        damage_1_opponent_pokemon(g, e, 120, true);
-    }
-    // "Discard 2 Energy from this Pokémon": the damage is fixed, so the choice is asked after it
-    if after_attack_used(g, e, 1, me) {
-        let e = real_attack(g, e);
-        discard_x_energy_from_this_pokemon(g, me, e, 2, 1)?;
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage == 1 {
-        return discard_energy_chosen(g, f, results);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

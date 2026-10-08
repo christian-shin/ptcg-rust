@@ -15,10 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         },
         AttackSpec {
             index: 1,
-            steps: &[Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec {
-                target: MY_ACTIVE,
-                selection: EnergySelection::Among(AmongSpec { all_pokemon: true, which: AmongWhich::Basic, max: None, damage_per: 70, after_damage: false }),
-            }))],
+            steps: &[Step::before_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::Among(AmongSpec { all_pokemon: true, which: AmongWhich::Basic, max: None, damage_per: 70, after_damage: false }), ..DiscardEnergySpec::DEFAULT }))],
         },
     ],
     ..CardSpec::NONE

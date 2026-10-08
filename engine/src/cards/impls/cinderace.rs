@@ -16,7 +16,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Cinderace",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Cmp(Num::BenchCount(Who::Me), CmpOp::Gt, Num::Lit(0))]), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })), Step::new(Op::Attach(AttachSpec {
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec { cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Cmp(Num::BenchCount(Who::Me), CmpOp::Gt, Num::Lit(0))]), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })), Step::new(Op::Attach(AttachSpec {
                 chooser: Who::Me,
                 from: ZoneRef(Who::Me, Zone::Deck),
                 predicate: Pred::BasicEnergy,
@@ -31,7 +31,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 route: AttachRoute::Move,
                 none_shuffles: true,
-            }))], no: &[] }))] }],
+             different_types: false, }))], no: &[] }))] }],
     ..CardSpec::NONE
 };
 

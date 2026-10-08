@@ -27,88 +27,13 @@
 //! (`Game::attack_trigger`) and it resolves after the attack's own effects and the prompts they opened (the
 //! AttackTrigger effect). The attacker is the Pokémon that used the attack wherever it is then (it can have been
 //! switched to the Bench); it moves the Energy to one of the attacking player's other Benched Pokémon.
-use crate::cards::prelude::*;
-
-pub static IMPL: CardImpl = CardImpl {
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
     class: "HandyFan",
-    mask: mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    triggers: &[
+        Trigger { origin: RuleSource::Tool, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: false, removes_attacker_energy: true, attacker_required: true }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::ToolBlocked)]), yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(1), same_target: false, via_effect: false }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))], no: &[] }))] },
+    ],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::AfterDamage { b, damage } => {
-            let t = b.target;
-            if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
-                return Ok(());
-            }
-            if damage <= 0 || b.player == t.p || g.st.players[t.p as usize].active != t.s {
-                return Ok(());
-            }
-            g.attack_trigger(b, damage, me, None, true)?;
-        }
-        Effect::AttackTrigger { p, opp, card, target: t, source: attacker, source_in_play, retaliate: None, .. } if card == me => {
-            if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
-                return Ok(());
-            }
-            if g.run_fx(Effect::Tool { p: opp, card: me }).is_err() {
-                return Ok(());
-            }
-            if g.st.phase != GamePhase::Attack || !source_in_play {
-                return Ok(());
-            }
-            let p = p as usize;
-            let o = opp as usize;
-            let s = attacker.s;
-            let pl = &g.st.players[p];
-            let bench_index = pl.bench.iter().position(|b| *b == s);
-            let has_bench = pl.bench.iter().any(|b| *b != s && !pl.slots[*b as usize].cards.is_empty());
-            let has_energy = g.st.slot(p, s).cards.iter().any(|c| g.st.cdef(c).is_energy());
-            if !has_bench || !has_energy {
-                return Ok(());
-            }
-            let mut slots = SVec::new();
-            slots.push(SlotType::Bench as u8);
-            let src = ListRef::Slot(p as u8, s);
-            let n = g.lst(src).len().min(255) as u8;
-            let mut o_opts = AttachOpts::new(n);
-            o_opts.allow_cancel = false;
-            o_opts.min = 1;
-            o_opts.max = 1;
-            if let Some(i) = bench_index {
-                o_opts.blocked_to.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
-            }
-            let mut f = CardFrame::at(1);
-            f.a[0] = p as i32;
-            f.a[1] = s as i32;
-            let id = g.player_id(o);
-            g.prompt(
-                id,
-                "ATTACH_ENERGY_TO_BENCH",
-                PromptKind::AttachEnergy { cards: src, player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o: o_opts },
-                Cont::Card { card: me, frame: f },
-            );
-        }
-        _ => {}
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let s = f.a[1] as SlotId;
-    let o = 1 - p;
-    if let Some(Res::Attach(ts)) = results.first() {
-        for (to, c) in ts.iter() {
-            let target = get_target(&g.st, o, *to)?;
-            move_cards(g, ListRef::Slot(p as u8, s), target.list(), &[*c], me)?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -86,7 +86,7 @@ impl CardSpec {
         }
         let mut i = 0;
         while i < self.powers.len() {
-            if let Once::PerTurn(_) = self.powers[i].once {
+            if matches!(self.powers[i].once, Once::PerTurn(_) | Once::PerTurnShared(_)) {
                 // The once-per-turn marker is cleared at the end of the turn, and when
                 // the card is played again (a new Pokémon).
                 m = with(m, k::END_TURN);
@@ -168,6 +168,9 @@ pub enum Once {
     /// Once during your turn, per copy: the named player marker, set by this
     /// card when the Ability is used and cleared at the end of the turn.
     PerTurn(&'static str),
+    /// Once during your turn for all copies together ("1 X per turn"): refused while any copy's
+    /// marker named so is set; set by this card, cleared at the end of the turn.
+    PerTurnShared(&'static str),
 }
 
 pub struct Step {
@@ -270,6 +273,28 @@ pub enum Op {
     SetMarker(SetMarkerSpec),
     ClearMarker(ClearMarkerSpec),
     Arm(ArmSpec),
+    // S3 appends
+    // ops/cards.rs
+    PlayAsPokemon(PlayAsPokemonSpec),
+    MoveEnergyOwn(MoveEnergyOwnSpec),
+    // ops/board.rs
+    SpreadDamage(SpreadDamageSpec),
+    // ops/state.rs
+    AbilityUsed(AbilityUsedSpec),
+    SetFlag(SetFlagSpec),
+    /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
+    /// `count` and the Pokémon to pick from).
+    /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
+    SwitchWithActive(SwitchWithActiveSpec),
+    /// Handheld Fan: the damaged Pokémon's owner moves an Energy from the Attacking Pokémon to another Benched
+    /// Pokémon of the attacker's side (a trigger's context).
+    // S3-4 appends (ops/board.rs)
+    EachSlot(EachSlotSpec),
+    ChoiceDamage(ChoiceDamageSpec),
+    // S3-4 appends (ops/cards.rs)
+    PrizeBonus(PrizeBonusSpec),
+    BotherBot(BotherBotSpec),
+    // S3-4 appends (ops/flow.rs)
 }
 
 /// Everything a spec card file needs.

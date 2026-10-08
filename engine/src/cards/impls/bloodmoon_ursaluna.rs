@@ -7,77 +7,41 @@
 //! (no prompt); it used to ask, then throw CANNOT_USE_POWER in the callback.
 //! Otherwise a ConfirmPrompt, then a cancel-free ChooseCardsPrompt (1-2: phase 4b
 //! R7E, "up to 2" in an Ability takes at least 1, rulings 1853/1778; it was 0-2).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "BloodmoonUrsaluna", mask: mask(&[k::PLAY_POKEMON, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+const FIGHTING_ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]);
 
-fn fighting_filter() -> Filter {
-    let mut filter = Filter::super_type(SuperType::Energy);
-    filter.energy_type = Some(EnergyType::Basic as u8);
-    filter.name = Some("Fighting Energy");
-    filter
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "BloodmoonUrsaluna",
+    // Battle-Hardened: when you play this Pokémon from your hand onto your Bench, you may attach
+    // up to 2 Basic [F] Energy from your hand to it.
+    triggers: &[Trigger {
+        origin: RuleSource::Ability,
+        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        steps: &[Step::new(Op::May(MaySpec {
+            asker: Who::Me,
+            when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), FIGHTING_ENERGY),
+            msg: "WANT_TO_USE_ABILITY",
+            yes: &[
+                Step::new(Op::Pick(PickSpec {
+                    from: ZoneRef(Who::Me, Zone::Hand),
+                    predicate: FIGHTING_ENERGY,
+                    bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) },
+                    into: 0,
+                    msg: "CHOOSE_CARD_TO_ATTACH",
+                    ..PickSpec::DEFAULT
+                })),
+                Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), place: Place::AttachTo(SlotExpr::This), ..MoveSpec::DEFAULT })),
+            ],
+            no: &[],
+        }))],
+    }],
+    // Mad Bite: 30 more damage for each damage counter on your opponent's Active Pokémon.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::DamageOn(OPP_ACTIVE), &Num::Lit(3)), when: Cond::True }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            let p = p as usize;
-            if is_ability_blocked(g, p, me, None) {
-                return Ok(());
-            }
-            let has = g.st.players[p].hand.iter().any(|c| {
-                let d = g.st.cdef(c);
-                d.is_energy() && d.energy_type == EnergyType::Basic as u8 && d.provides.contains(&ct::FIGHTING)
-            });
-            if !has {
-                return Ok(());
-            }
-            let mut f = CardFrame::at(1);
-            f.a[0] = p as i32;
-            confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
-        }
-    }
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { opp, .. } = *g.e(e) {
-            let o = opp as usize;
-            let a = g.st.players[o].active;
-            let d = g.st.slot(o, a).damage;
-            if d > 0 {
-                if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                    *damage = 100 + d * 3;
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                return Ok(());
-            }
-            let (sp, s) = match g.st.locate(me) {
-                Some(ListRef::Slot(sp, s)) => (sp, s),
-                _ => return Ok(()),
-            };
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            nf.l[0] = sp;
-            nf.l[1] = s;
-            choose_cards(g, p, "CHOOSE_CARD_TO_ATTACH", ListRef::Hand(p as u8), fighting_filter(), ChooseCardsOpts::new(1, 2, false), Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            if !cards.is_empty() {
-                move_cards(g, ListRef::Hand(p as u8), ListRef::Slot(f.l[0], f.l[1]), &cards, me)?;
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

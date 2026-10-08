@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Noctowl",
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnEnterPlay(OnEnterPlaySpec { how: EnterBy::PlayedFromHand }),
+        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
         steps: &[Step::new(Op::If(IfSpec {
             // It needs a card in the deck and a Tera Pokémon in play.
             cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::InPlay(Who::Me, PlayScope::All, Pred::Tag(crate::types::tag::POKEMON_TERA))]),
@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
                         cancel: false,
                         shuffle_first: false,
                     })),
-                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                 ],
                 no: &[],
             }))],

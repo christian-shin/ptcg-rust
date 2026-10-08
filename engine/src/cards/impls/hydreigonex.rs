@@ -6,59 +6,21 @@
 //! min = max = min(2, benched). `AttackEffect.target` is never set, so the
 //! `effect.target === effect.opponent.active` branch never fires and every
 //! target gets a PutDamageEffect.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+pub static SPEC: CardSpec = CardSpec {
+    class: "Hydreigonex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[
+            Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Deck), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Top(Num::Lit(3)), ..MoveSpec::DEFAULT })),
+        ] },
+        AttackSpec { index: 1, steps: &[
+            Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Bench(Who::Opp), choose: Some(ChooseN { chooser: Who::Me, min: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Bench(Who::Opp), SlotPred::Any)), max: Num::Min(&Num::Lit(2), &Num::SlotCount(SlotSel::Bench(Who::Opp), SlotPred::Any)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), what: EachWhat::Damage(DamageCalc::Put), amount: Num::Lit(130), ..EachSlotSpec::DEFAULT })),
+        ] },
+    ],
+    passives: &[
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) }
+    ],
+    ..CardSpec::NONE
+};
 
-pub static IMPL: CardImpl = CardImpl { class: "Hydreigonex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    tera_rule(g, e, me);
-    if was_attack_used(g, e, 0, me) {
-        let o = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        move_count_from(g, ListRef::Deck(o as u8), ListRef::Discard(o as u8), 3, me)?;
-    }
-    if was_attack_used(g, e, 1, me) {
-        let (p, o) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        let pl = &g.st.players[o];
-        let benched = pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count();
-        if benched == 0 {
-            return Ok(());
-        }
-        let n = benched.min(2) as u8;
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.e[0] = e;
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: n, max: n, allow_cancel: false, blocked: SVec::new() },
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let targets: Vec<SlotRef> = results.first().map(|r| r.slots().to_vec()).unwrap_or_default();
-    let mut r = Ok(());
-    for t in targets {
-        r = put_damage(g, atk, 130, t);
-        if r.is_err() {
-            break;
-        }
-    }
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

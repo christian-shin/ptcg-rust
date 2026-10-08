@@ -5,13 +5,13 @@
 //! for each selector, and `again` decides whether a finished list runs again
 //! (loops count passes in `Frame::iter`).
 
-use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES};
+use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES, COIN_SEQUENCE};
 use super::super::*;
 use crate::effects::Effect;
 use crate::game::{CoinCb, Game, R};
-use crate::list::CardId;
+use crate::list::{CardId, SVec};
 use crate::prefabs::*;
-use crate::prompts::Res;
+use crate::prompts::{PromptKind, Res, SelectValues};
 use crate::types::*;
 
 /// "You may": ask `asker` when `when` holds (otherwise nothing is asked and
@@ -28,17 +28,22 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-/// Flip coins (the player the program runs for). One flip runs `heads` or `tails`; counted
-/// flips (`Count`, `UntilTails`) apply `per_heads` to the attack's damage and then run `heads`
-/// once (it can read the number of heads with `Num::CoinHeads`).
+/// "Flip a coin(s)": the flipper flips (when `before` holds, otherwise nothing is flipped), then the branch
+/// for the result runs. One flip runs `heads` or
+/// `tails`. A sequence (`Count`, `UntilTails`) applies `per_heads` to the attack's damage, then runs
+/// `then` once; `Num::Heads` reads the number of heads (also after a single flip).
 pub struct CoinSpec {
+    pub flipper: Who,
     pub flips: Flips,
+    pub before: Cond,
     pub per_heads: PerHeads,
     pub heads: &'static [Step],
     pub tails: &'static [Step],
+    /// After the flips of a sequence.
+    pub then: &'static [Step],
 }
 impl CoinSpec {
-    pub const DEFAULT: CoinSpec = CoinSpec { flips: Flips::One, per_heads: PerHeads::Nothing, heads: &[], tails: &[] };
+    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, flips: Flips::One, before: Cond::True, per_heads: PerHeads::Nothing, heads: &[], tails: &[], then: &[] };
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Flips {
@@ -56,17 +61,38 @@ pub enum PerHeads {
     /// "N more damage for each heads".
     DamageAdd(i32),
 }
-pub struct ChooseSpec {}
-/// Run `body` once for each Pokémon of the selection, in order, with that Pokémon as the picked slot
-/// (`SlotExpr::Picked`).
+/// One option of a `Choose`: shown when `avail` holds; `body` runs when it is chosen.
+pub struct ChoiceBranch {
+    pub label: &'static str,
+    pub avail: Cond,
+    pub body: &'static [Step],
+}
+
+/// The chooser picks one of the available options (a Select prompt; nothing happens when none is
+/// available). At most 7 options.
+pub struct ChooseSpec {
+    pub chooser: Who,
+    pub msg: &'static str,
+    pub options: &'static [ChoiceBranch],
+}
+/// Run `body` once for each selected Pokémon, in order; inside the body the Pokémon is the
+/// picked slot (`SlotExpr::Picked`). The list is read when the loop starts and again at each
+/// pass by position.
 pub struct ForEachSpec {
     pub over: SlotSel,
     pub body: &'static [Step],
 }
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
-pub struct FailSpec {}
-pub struct PickAttackSpec {}
+/// The use fails (`error`) unless the condition holds (an attack that can't be used, say).
+pub struct FailSpec {
+    pub unless: Cond,
+    pub error: &'static str,
+}
+/// Choose 1 of the attacks of the Active Pokémon of `from`; it can't be used during that player's next turn.
+pub struct PickAttackSpec {
+    pub from: Who,
+}
 /// Choose an attack of `from`'s Active Pokémon (when its card matches
 /// `predicate` and has attacks) and use it as this attack, as a copy session
 /// (`copy_attack.rs`): no cancel, `retries` attempts when a chosen attack
@@ -84,19 +110,25 @@ pub enum CopyScope {
     // --- S3 agent 3 appends ---
     /// The attacks of the Benched Pokémon matching `predicate` (chosen among them; N's Zoroark ex).
     Bench,
+    /// The attacks of the Pokémon cards of this register that are still in the discard pile (`from` and
+    /// `predicate` are not used): nothing is chosen when every attack of those Pokémon is locked for the Active.
+    Register(u8),
 }
-pub struct EndTurnSpec {}
+/// The player's turn ends (an EndTurnEffect).
+pub struct EndTurnSpec {
+    pub who: Who,
+}
 /// The game ends and `winner` wins.
 pub struct EndGameSpec {
     pub winner: Who,
 }
-/// A card's own steps, for the cards whose text no vocabulary item expresses (Mr. Mime, Backtrack
-/// Badge): `exec` runs the step, `resume` continues after the prompt it opened (`Frame::cont`).
+/// Code kept in a card file for a rule no op expresses (Mr. Mime, Backtrack Badge): the card's own
+/// exec and resume functions, run as one op of a program (`resume` continues after the prompt it
+/// opened, `Frame::cont`). The state a suspended program needs travels in the frame.
 pub struct CustomSpec {
     pub exec: fn(&mut Game, CardId, &mut Frame) -> R<Flow>,
     pub resume: fn(&mut Game, CardId, &mut Frame, &[Res]) -> R<Flow>,
 }
-
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
         Op::May(m) => {
@@ -120,7 +152,76 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
         }
+        Op::Custom(c) => (c.exec)(g, me, f),
+        Op::Choose(c) => {
+            let mut mask = 0u8;
+            let mut labels: SVec<&'static str, 8> = SVec::new();
+            for (i, b) in c.options.iter().enumerate() {
+                if cond_m(g, me, f, &b.avail)? {
+                    mask |= 1 << i;
+                    labels.push(b.label);
+                }
+            }
+            if labels.is_empty() {
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(f.who(c.chooser));
+            g.prompt(id, c.msg, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, f.cont(me, 0x80 | mask));
+            Ok(Flow::Suspend)
+        }
+        Op::EndTurn(t) => {
+            g.run_fx(crate::effects::Effect::EndTurn { p: f.who(t.who) as u8 })?;
+            Ok(Flow::Next)
+        }
+        Op::ForEach(fe) => {
+            let slots = slots_m(g, me, f, &fe.over)?;
+            match slots.as_slice().first() {
+                Some(s) => {
+                    f.slot = s.p << 4 | s.s;
+                    Ok(Flow::Enter(0))
+                }
+                None => Ok(Flow::Next),
+            }
+        }
+        Op::Coin(c) => {
+            if !cond_m(g, me, f, &c.before)? {
+                return Ok(Flow::Next);
+            }
+            let p = f.who(c.flipper);
+            match c.flips {
+                Flips::One => {
+                    g.coin_flip(p, CoinCb::Card { card: me, frame: f.frame_at(1) })?;
+                }
+                // The sequence's callback leaves the frame as it is and passes the results.
+                Flips::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) })?,
+                Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) })?,
+            }
+            Ok(Flow::Suspend)
+        }
+        Op::Fail(x) => {
+            if !cond_m(g, me, f, &x.unless)? {
+                crate::bail!(x.error);
+            }
+            Ok(Flow::Next)
+        }
         Op::CopyAttack(c) => {
+            if let CopyScope::Register(reg) = c.scope {
+                let p = f.p as usize;
+                // The Pokémon cards of the register that are still in the discard pile.
+                let cards: Vec<CardId> = reg_list(g, f, reg).iter().copied().filter(|x| g.lst(crate::state::ListRef::Discard(p as u8)).contains(x)).collect();
+                if cards.is_empty() {
+                    return Ok(Flow::Next);
+                }
+                // Nothing is chosen when every attack of those Pokémon is locked for the Active.
+                let a = g.st.players[p].active;
+                let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
+                let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.tl_name)));
+                if !any_free {
+                    return Ok(Flow::Next);
+                }
+                crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+                return Ok(Flow::Next);
+            }
             let p = f.who(c.from);
             if c.scope == CopyScope::Bench {
                 let cards: Vec<CardId> = g.st.players[p].bench.iter().filter_map(|b| g.st.slot_pokemon(p, *b)).filter(|c0| pred(g, *c0, &c.predicate)).collect();
@@ -142,54 +243,63 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             crate::engine::phase::end_game(g, winner);
             Ok(Flow::Next)
         }
-        Op::Custom(c) => (c.exec)(g, me, f),
-        Op::ForEach(fe) => {
-            let v = slots_of(g, me, f, &fe.over);
-            let Some(first) = v.as_slice().first() else { return Ok(Flow::Next) };
-            f.slot = first.p << 4 | first.s;
-            Ok(if fe.body.is_empty() { Flow::Next } else { Flow::Enter(0) })
-        }
-        Op::Coin(c) => {
-            let p = f.p as usize;
-            let frame = f.frame_at(if c.flips == Flips::One { 1 } else { super::super::run::COIN_SEQUENCE });
-            match c.flips {
-                Flips::One => {
-                    g.coin_flip(p, CoinCb::Card { card: me, frame })?;
+        Op::PickAttack(a) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                if c.answer == CHOICE_YES && c.len >= 2 {
+                    pick_attack_apply(g, f, crate::state::AttackRef { card: c.items[0], index: c.items[1] })?;
                 }
-                Flips::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame })?,
-                Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame })?,
+                return Ok(Flow::Next);
             }
-            Ok(Flow::Suspend)
+            Ok(if pick_attack_ask(g, me, f, a) { Flow::Suspend } else { Flow::Next })
         }
         _ => unimplemented!("spec op not implemented yet (ops/flow.rs)"),
     }
 }
 
-/// The result of a coin op: `bits` (bit i = flip i was heads) of `n` flips.
-pub(crate) fn resume_coin(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, bits: u32, n: u8) -> R<Flow> {
+/// A finished coin sequence (`results` are the bits, bit i = flip i was heads, and the flip count):
+/// `per_heads` changes the damage, then `then` runs.
+pub(crate) fn resume_coin(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let Op::Coin(c) = op else { return Ok(Flow::Next) };
-    let heads = (bits & ((1u64 << n) - 1) as u32).count_ones() as i32;
-    f.set_heads(heads as u8);
+    let bits = results.first().map_or(0, |r| r.as_int()) as u32;
+    let n = results.get(1).map_or(0, |r| r.as_int()) as u32;
+    let heads = (bits & (((1u64 << n) - 1) as u32)).count_ones() as u8;
+    flips_done(g, f, c, heads);
+    Ok(if c.then.is_empty() { Flow::Next } else { Flow::Enter(2) })
+}
+
+/// The flips are done with `heads` of them heads.
+fn flips_done(g: &mut Game, f: &mut Frame, c: &CoinSpec, heads: u8) {
+    f.heads = heads;
     if c.per_heads != PerHeads::Nothing {
         if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
             match c.per_heads {
                 PerHeads::Nothing => {}
-                PerHeads::DamageIs(k) => *damage = k * heads,
-                PerHeads::DamageAdd(k) => *damage += k * heads,
+                PerHeads::DamageIs(k) => *damage = k * heads as i32,
+                PerHeads::DamageAdd(k) => *damage += k * heads as i32,
             }
         }
     }
-    Ok(match c.flips {
-        Flips::One if heads > 0 => if c.heads.is_empty() { Flow::Next } else { Flow::Enter(0) },
-        Flips::One => if c.tails.is_empty() { Flow::Next } else { Flow::Enter(1) },
-        _ => if c.heads.is_empty() { Flow::Next } else { Flow::Enter(0) },
-    })
 }
 
 pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
         Op::Custom(c) => (c.resume)(g, me, f, results),
+        Op::Choose(c) => {
+            let idx = first.as_int();
+            let mask = f.sub & 0x7F;
+            let branch = (0..c.options.len()).filter(|i| mask & (1 << i) != 0).nth(idx.max(0) as usize);
+            match branch {
+                Some(i) if idx >= 0 => Ok(if c.options[i].body.is_empty() { Flow::Next } else { Flow::Enter(i as u8) }),
+                _ => crate::bail!("TypeError: Cannot read properties of undefined (reading 'action')"),
+            }
+        }
+        Op::PickAttack(_) => {
+            if let Res::Attack(a) = first {
+                pick_attack_apply(g, f, a)?;
+            }
+            Ok(Flow::Next)
+        }
         Op::May(m) => {
             if first.as_bool() {
                 Ok(if m.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
@@ -205,6 +315,13 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
 /// choices are made then too.
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
+        Op::PickAttack(a) => {
+            if pick_attack_ask(g, me, f, a) {
+                return Ok(Flow::Suspend);
+            }
+            f.record(g, me, CHOICE_NONE);
+            Ok(Flow::Next)
+        }
         Op::May(m) => {
             if !cond_m(g, me, f, &m.when)? {
                 // Nothing to decide: the effect is not carried out.
@@ -221,6 +338,13 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
 pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::PickAttack(_) => {
+            match first {
+                Res::Attack(a) => f.record_items(g, me, CHOICE_YES, &[a.card, a.index]),
+                _ => f.record(g, me, CHOICE_NONE),
+            }
+            Ok(Flow::Next)
+        }
         Op::May(m) => {
             let yes = first.as_bool();
             f.record(g, me, if yes { CHOICE_YES } else { CHOICE_NO });
@@ -238,23 +362,72 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
     match (op, sel) {
         (Op::May(m), 0) => m.yes,
         (Op::May(m), _) => m.no,
+        (Op::Choose(c), sel) => c.options.get(sel as usize).map(|o| o.body).unwrap_or(&[]),
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
         (Op::ForEach(fe), _) => fe.body,
         (Op::Coin(c), 0) => c.heads,
-        (Op::Coin(c), _) => c.tails,
+        (Op::Coin(c), 1) => c.tails,
+        (Op::Coin(c), _) => c.then,
         _ => &[],
     }
 }
 
 pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     if let Op::ForEach(fe) = op {
-        let k = f.pass() as usize;
-        let v = slots_of(g, me, f, &fe.over);
-        if let Some(s) = v.as_slice().get(k) {
-            f.slot = s.p << 4 | s.s;
-            return true;
-        }
+        let pass = f.pass() as usize;
+        let list = slots_m(g, me, f, &fe.over).unwrap_or_default();
+        return match list.as_slice().get(pass) {
+            Some(s) => {
+                f.slot = s.p << 4 | s.s;
+                true
+            }
+            None => {
+                f.slot = super::super::run::NONE;
+                false
+            }
+        };
     }
     false
+}
+
+/// A single flip came up: `per_heads` changes the damage, then the heads or tails list runs.
+pub(crate) fn coin_result(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    let Op::Coin(c) = op else { return Ok(Flow::Next) };
+    flips_done(g, f, c, heads as u8);
+    let list = if heads { c.heads } else { c.tails };
+    Ok(if list.is_empty() { Flow::Next } else { Flow::Enter(if heads { 0 } else { 1 }) })
+}
+
+// ---------------------------------------------------------------------------
+// S3-4 appends: PickAttack
+
+/// Ask for an attack of the Active Pokémon of `a.from`; false when it has none.
+fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> bool {
+    let p = f.who(a.from);
+    let Some(pc) = g.st.active_pokemon(p) else { return false };
+    if g.st.cdef(pc).attacks.is_empty() {
+        return false;
+    }
+    let mut cards = crate::list::SVec::new();
+    cards.push(pc);
+    let id = g.player_id(f.p as usize);
+    g.prompt(
+        id,
+        "CHOOSE_ATTACK_TO_DISABLE",
+        crate::prompts::PromptKind::ChooseAttack { cards, allow_cancel: false, blocked_message: "NOT_ENOUGH_ENERGY", blocked: crate::list::SVec::new() },
+        f.cont(me, 1),
+    );
+    true
+}
+
+/// "It can't be used during their next turn."
+fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
+    let name = g.st.cdef(a.card).attacks[a.index as usize].tl_name;
+    let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    let o = opp as usize;
+    let target = crate::effects::SlotRef::new(o, g.st.players[o].active);
+    let b = crate::effects::AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
+    g.run_fx(crate::effects::Effect::OpponentPokemonCannotUseAttack { b, name })?;
+    Ok(())
 }

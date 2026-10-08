@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[
                 Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::One(MY_ACTIVE), msg: "" })),
                 Step::new(Op::Attach(AttachSpec {
-                    from: ZoneRef(Who::Me, Zone::PickedSlot),
+                    from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)),
                     predicate: Pred::Energy,
                     slots: AttachSlots::Bench,
                     bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
