@@ -6,7 +6,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsEkans",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed], Cause::Ability))], ..CoinSpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed], Cause::Attack))], ..CoinSpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

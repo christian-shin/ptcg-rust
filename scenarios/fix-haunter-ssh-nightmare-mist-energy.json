@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble DRI 11",
+   "4 Gastly EVO 47",
+   "4 Haunter SSH 84",
+   "4 Mist Energy TEF 161",
+   "24 Psychic Energy MEE 5",
+   "20 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Dwebble DRI 11",
+   "4 Gastly EVO 47",
+   "4 Haunter SSH 84",
+   "4 Mist Energy TEF 161",
+   "24 Psychic Energy MEE 5",
+   "20 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Gastly EVO 47",
+   "Haunter SSH 84"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nightmare"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [],
+   "cite": "Mist Energy: prevents all effects of attacks from the opponent's Pokemon; a Special Condition inflicted by an attack's text is an effect of the attack (same pattern as the Strange Hacking and Ghostly Blow Mist Energy scenarios)"
+  }
+ ]
+}
