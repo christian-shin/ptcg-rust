@@ -1,27 +1,18 @@
 //! Team Rocket's Porygon2 (DRI): R Command — 20 damage for each Supporter
 //! with "Team Rocket" in its name in your discard pile.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsPorygon2", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TeamRocketsPorygon2",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::Supporter, Pred::NameContains("Team Rocket")])), &Num::Lit(20)), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let n = g.st.players[p]
-        .discard
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_trainer() && d.name.contains("Team Rocket") && d.trainer_type == TrainerType::Supporter as u8
-        })
-        .count() as i32;
-    if let Effect::Attack { damage, .. } = g.e_mut(e) {
-        *damage = 20 * n;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

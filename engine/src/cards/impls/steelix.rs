@@ -1,20 +1,18 @@
 //! Steelix (M1L / MEG 93): Welcoming Tail — 40+; 200 more if you have exactly
 //! 6 Prize cards remaining. Skull Bash — 140.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Steelix", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Steelix",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Lit(200), when: Cond::Cmp(Num::PrizesLeft(Who::Me), CmpOp::Eq, Num::Lit(6)) })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        if g.st.players[p].prize_left() == 6 {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 200;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

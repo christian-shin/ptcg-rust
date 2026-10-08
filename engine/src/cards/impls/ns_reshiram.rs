@@ -3,21 +3,19 @@
 //!
 //! Twinleaf: `effect.damage = player.active.damage * 2` (the Active of the
 //! attacking player).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "NsReshiram", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "NsReshiram",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::DamageOn(MY_ACTIVE), &Num::Lit(2)), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        let d = g.st.players[p].slots[a as usize].damage * 2;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = d;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

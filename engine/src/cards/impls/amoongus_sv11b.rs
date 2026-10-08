@@ -1,22 +1,19 @@
 //! Amoongus (SV11B / BLK 11): Dangerous Reaction — 30+; 120 more damage if
 //! the opponent's Active Pokémon is affected by a Special Condition.
 //! Seed Bomb — 60.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Amoongus", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Amoongus",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Lit(120), when: Cond::Slot(OPP_ACTIVE, SlotPred::HasCondition) })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let opp = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[opp].active;
-        if !g.st.slot(opp, a).special_conditions.is_empty() {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 120;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

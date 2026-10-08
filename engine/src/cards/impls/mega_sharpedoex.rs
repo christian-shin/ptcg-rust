@@ -5,28 +5,25 @@
 //! now: up to 2, MOVE_CARDS count without sourceCard), and the Hungry Jaws
 //! branch tested attack index 0 after a block that always returned, so it
 //! never applied; it is now on attack 1.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "MegaSharpedoex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "MegaSharpedoex",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(2)) })),
+            ],
+        },
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Lit(150), when: Cond::Slot(MY_ACTIVE, SlotPred::Damaged) })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        draw_cards(g, p, 2)?;
-    }
-    if was_attack_used(g, e, 1, me) {
-        let (p, a) = match *g.e(e) {
-            Effect::Attack { p, .. } => (p as usize, g.st.players[p as usize].active),
-            _ => return Ok(()),
-        };
-        if g.st.slot(p, a).damage > 0 {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage += 150;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -1,27 +1,18 @@
 //! Dartrix (SFA): United Wings — 20× the number of Pokémon in your discard
 //! pile with the United Wings attack. Cutting Wind — 30.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Dartrix@SFA", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Dartrix@SFA",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::HasAttackNamed("United Wings")), &Num::Lit(20)), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    let n = g.st.players[p]
-        .discard
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_pokemon() && d.attacks.iter().any(|a| a.name == "United Wings")
-        })
-        .count() as i32;
-    if let Effect::Attack { damage, .. } = g.e_mut(e) {
-        *damage = n * 20;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

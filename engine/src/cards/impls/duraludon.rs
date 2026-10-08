@@ -3,21 +3,19 @@
 //!
 //! Twinleaf adds `player.active.damage` (the Active slot, not this card's own
 //! slot) to the damage.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Duraludon@SCR|PRE", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Duraludon@SCR|PRE",
+    attacks: &[
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::DamageOn(MY_ACTIVE), when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        let d = g.st.slot(p, a).damage;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage += d;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

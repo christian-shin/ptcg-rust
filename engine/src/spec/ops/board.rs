@@ -238,6 +238,10 @@ fn sel_types(sel: &SlotSel) -> SVec<u8, 3> {
             v.push(SlotType::Active as u8);
             v.push(SlotType::Bench as u8);
         }
+        SlotSel::PokemonBenchFirst(_) => {
+            v.push(SlotType::Bench as u8);
+            v.push(SlotType::Active as u8);
+        }
         SlotSel::Filtered(inner, _) => return sel_types(inner),
     }
     v
@@ -246,7 +250,7 @@ fn sel_types(sel: &SlotSel) -> SVec<u8, 3> {
 /// The owner of the Pokémon a selector ranges over.
 fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     match sel {
-        SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) => f.who(*w),
+        SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
         SlotSel::One(SlotExpr::This) => f.p as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
     }

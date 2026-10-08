@@ -4,24 +4,20 @@
 //!
 //! Twinleaf: counts `6 - opponent.getPrizeLeft()` and reduces a
 //! DealDamageEffect of 30 aimed at `player.active`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Zekromex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Zekromex",
+    attacks: &[
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::Sub(&Num::Lit(6), &Num::PrizesLeft(Who::Opp)), &Num::Lit(50)), when: Cond::True })),
+                Step::after_damage(self_damage(30)),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        let (p, opp, attack, source) = match *g.e(e) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let taken = 6 - g.st.players[opp as usize].prize_left() as i32;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage += 50 * taken;
-        }
-        let pu = p as usize;
-        let target = SlotRef::new(pu, g.st.players[pu].active);
-        let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target };
-        g.run_fx(Effect::DealDamage { b, damage: 30 })?;
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

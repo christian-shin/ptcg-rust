@@ -3,50 +3,19 @@
 //!
 //! Twinleaf: a PutDamageEffect of `target.damage * 2` (read when the prompt
 //! resolves) on the chosen Benched Pokémon.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "TeamRocketsSneasel", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "TeamRocketsSneasel",
+    attacks: &[
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), hp: Num::Lit(0), target_damage_mul: 2, calc: DamageCalc::Put, when: Cond::True })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        let (p, opp) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        let pl = &g.st.players[opp];
-        if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-            return Ok(());
-        }
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.e[0] = e;
-        let mut slots = SVec::new();
-        slots.push(SlotType::Bench as u8);
-        let id = g.player_id(p);
-        g.prompt(
-            id,
-            "CHOOSE_POKEMON_TO_DAMAGE",
-            PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
-            Cont::Card { card: me, frame: f },
-        );
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let t = match results.first().copied().unwrap_or(Res::Null).slots().first() {
-        Some(t) => *t,
-        None => {
-            g.release_fx(atk);
-            bail!("TypeError: Cannot read properties of undefined");
-        }
-    };
-    let dmg = g.st.slot(t.p as usize, t.s).damage * 2;
-    let r = put_damage(g, atk, dmg, t);
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

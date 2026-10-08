@@ -287,6 +287,8 @@ pub enum SlotSel {
     /// Every Pokémon of a player: the Active, then the Bench.
     Pokemon(Who),
     Filtered(&'static SlotSel, SlotPred),
+    /// Every Pokémon of a player; a prompt lists the Bench before the Active Spot.
+    PokemonBenchFirst(Who),
 }
 
 /// A predicate on a Pokémon in play.
@@ -352,7 +354,7 @@ pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef,
                 }
             }
         }
-        SlotSel::Pokemon(w) => {
+        SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => {
             let p = f.who(*w);
             for s in g.st.players[p].in_play().iter() {
                 out.push(SlotRef::new(p, *s));

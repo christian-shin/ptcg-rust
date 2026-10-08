@@ -1,21 +1,18 @@
 //! Hop's Cramorant (JTG): Fickle Spitting — 120; if your opponent doesn't
 //! have exactly 3 or 4 Prize cards remaining, this attack does nothing.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "HopsCramorant", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "HopsCramorant",
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Lit(0), when: Cond::Not(&Cond::Any(&[Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Eq, Num::Lit(3)), Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Eq, Num::Lit(4))])) })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let opp = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let left = g.st.players[opp].prize_left();
-        if left != 3 && left != 4 {
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage = 0;
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
