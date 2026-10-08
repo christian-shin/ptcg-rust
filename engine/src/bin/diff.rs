@@ -250,6 +250,43 @@ fn norm_prompt(d: &Value) -> Value {
     Value::Object(o)
 }
 
+/// A normalized prompt with its card lists as sets (sorted).
+fn card_set(d: &Value) -> Value {
+    let mut o = d.clone();
+    for k in ["cards", "selectableCards"] {
+        if let Some(a) = o.get_mut(k).and_then(|a| a.as_array_mut()) {
+            a.sort_by_key(|c| c.to_string());
+        }
+    }
+    o
+}
+
+/// An answer given against the card list `from`, rewritten for the same cards listed as `to`:
+/// card indices (`[i, ...]`, or `{"index": i, ...}` entries) follow their card.
+fn remap_answer(a: &Value, from: &Value, to: &Value) -> Value {
+    let (Some(from), Some(to)) = (from.as_array(), to.as_array()) else { return a.clone() };
+    let map = |i: u64| -> Value {
+        let pos = from.get(i as usize).and_then(|c| to.iter().position(|t| t == c));
+        Value::from(pos.map_or(i, |p| p as u64))
+    };
+    let Some(arr) = a.as_array() else { return a.clone() };
+    Value::Array(
+        arr.iter()
+            .map(|v| match v {
+                Value::Number(n) => n.as_u64().map_or(v.clone(), map),
+                Value::Object(o) => {
+                    let mut o = o.clone();
+                    if let Some(i) = o.get("index").and_then(|x| x.as_u64()) {
+                        o.insert("index".into(), map(i));
+                    }
+                    Value::Object(o)
+                }
+                _ => v.clone(),
+            })
+            .collect(),
+    )
+}
+
 /// The oracle's recorded chance outcomes as a replay tape (ptcg::rng).
 fn tape_of(events: &[Value]) -> Vec<ptcg::rng::Draw> {
     use ptcg::rng::Draw;
@@ -347,7 +384,12 @@ fn replay_obs(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
                 };
                 let si = queue.remove(k);
                 let od = &steps[si]["d"];
-                if canon(&norm_prompt(&rd)) != canon(&norm_prompt(od)) {
+                let mut answer = steps[si]["a"].clone();
+                if canon(&norm_prompt(&rd)) != canon(&norm_prompt(od)) && canon(&card_set(&norm_prompt(&rd))) == canon(&card_set(&norm_prompt(od))) {
+                    // Same cards in another order (a discard pile's order is not observable):
+                    // apply the oracle's answer to the same cards.
+                    answer = remap_answer(&answer, &od["cards"], &rd["cards"]);
+                } else if canon(&norm_prompt(&rd)) != canon(&norm_prompt(od)) {
                     dump_state(&g, si as isize);
                     return Outcome::Diverged {
                         step: si as isize,
@@ -355,9 +397,9 @@ fn replay_obs(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
                         detail: format!("rust {}\noracle {}", canon(&norm_prompt(&rd)), canon(&norm_prompt(od))),
                     };
                 }
-                match g.decode_answer(&pr, &steps[si]["a"]) {
+                match g.decode_answer(&pr, &answer) {
                     Ok(res) => g.resolve(pi, res),
-                    Err(e) => return Outcome::Diverged { step: si as isize, what: "decode".into(), detail: format!("{:?} for {}", e, canon(&steps[si]["a"])) },
+                    Err(e) => return Outcome::Diverged { step: si as isize, what: "decode".into(), detail: format!("{:?} for {}", e, canon(&answer)) },
                 }
             }
             Pending::Turn(_) => {
