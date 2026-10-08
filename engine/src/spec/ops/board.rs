@@ -158,7 +158,12 @@ pub struct EvolveSpec {
     pub slot: SlotExpr,
     pub card: u8,
 }
-pub struct DevolveSpec {}
+/// Devolve the Pokémon (when it has an evolution card): the top card goes to `destination`.
+/// An effect of the attack that effect protection can stop.
+pub struct DevolveSpec {
+    pub slot: SlotExpr,
+    pub destination: ZoneRef,
+}
 pub struct SwapPokemonCardSpec {}
 /// Put a Pokémon and all cards attached to it into a zone.
 pub struct RemoveFromPlaySpec {
@@ -431,6 +436,19 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             ask(g, me, f, pick, cands.as_slice(), 1);
             Ok(Flow::Suspend)
         }
+        Op::Devolve(dv) => {
+            let Some(slot) = slot_of(g, me, f, dv.slot) else { return Ok(Flow::Next) };
+            let (p, s) = (slot.p as usize, slot.s);
+            if occupied(g, slot) && g.st.slot_pokemons(p, s).len() > 1 {
+                if let Some(b) = atk_base(g, f, slot) {
+                    let (_, prevented) = g.run_fx(Effect::Devolve { b })?;
+                    if !prevented {
+                        devolve_pokemon(g, slot, zone_ref(f, dv.destination))?;
+                    }
+                }
+            }
+            Ok(Flow::Next)
+        }
         Op::Evolve(ev) => {
             let (Some(slot), Some(&card)) = (slot_of(g, me, f, ev.slot), reg_list(g, f, ev.card).first()) else { return Ok(Flow::Next) };
             let (p, s) = (slot.p as usize, slot.s);
@@ -581,7 +599,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             SlotTarget::Slot(_) => true,
         },
         // Used through an attack (Look-Alike Show) a Trainer's switch does nothing when it can't.
-        Op::Switch(s) => !s.required || trainer_via_attack(g, f.eff) || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
+        Op::Switch(s) => !s.required || f.via_attack || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
         _ => true,
     }
 }
@@ -1110,6 +1128,43 @@ fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items:
                 }
             }
         }
+    }
+    Ok(())
+}
+
+/// `DEVOLVE_POKEMON(store, state, target, destination)`.
+pub fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: crate::state::ListRef) -> R {
+    let (tp, ts) = (t.p as usize, t.s);
+    let pokemons = g.st.slot_pokemons(tp, ts);
+    let top = g.st.slot_pokemon(tp, ts);
+    let top_def = top.map(|c| g.st.cdef(c));
+    if let (Some(_), Some(d)) = (top, top_def) {
+        if d.has_tag(tag::POKEMON_LV_X) {
+            if pokemons.len() == 2 && pokemons.iter().any(|c| g.st.cdef(*c).stage == Stage::Basic as u8) {
+                return Ok(());
+            }
+            let cards: Vec<CardId> = pokemons.iter().copied().filter(|c| g.st.cdef(*c).name == d.name).collect();
+            crate::prefabs::move_cards(g, t.list(), dest, &cards, NO_CARD)?;
+            let turn = g.st.turn;
+            let slot = &mut g.st.players[tp].slots[ts as usize];
+            crate::engine::game_effect::clear_effects(slot);
+            slot.pokemon_played_turn = turn;
+            return Ok(());
+        }
+    }
+    // CardTag.LEGEND is TAG_NAMES index 30.
+    let special = top_def.map(|d| d.has_tag(tag::POKEMON_VUNION) || d.has_tag(30)).unwrap_or(false);
+    if pokemons.len() > 1 && !special {
+        if let Some(top) = top {
+            // MOVE_CARD_TO: findCardList(card).moveCardTo(card, destination).
+            if let Some(src) = g.st.locate(top) {
+                g.move_card_to(src, top, dest);
+            }
+        }
+        let turn = g.st.turn;
+        let slot = &mut g.st.players[tp].slots[ts as usize];
+        crate::engine::game_effect::clear_effects(slot);
+        slot.pokemon_played_turn = turn;
     }
     Ok(())
 }

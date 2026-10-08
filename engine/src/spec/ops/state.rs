@@ -296,6 +296,17 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             arm(g, me, f, a.what)?;
             Ok(Flow::Next)
         }
+        Op::AbilityUsed(_) => {
+            ability_used(g, f.p as usize, me);
+            Ok(Flow::Next)
+        }
+        Op::SetFlag(s) => {
+            let p = f.who(s.who);
+            match s.flag {
+                PlayerFlag::AncientSupporter => g.st.players[p].ancient_supporter = s.value,
+            }
+            Ok(Flow::Next)
+        }
         Op::SetMarker(m) => {
             let w = match m.scope {
                 MarkerScope::Player(w) => w,
@@ -393,4 +404,21 @@ pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool)
             *shown &= !1;
         }
     });
+}
+
+/// The Ability of this Pokémon counts as used (the board effect shown on it), when the use
+/// succeeded rather than when it started.
+pub struct AbilityUsedSpec {}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PlayerFlag {
+    /// "The player played an Ancient Supporter this turn."
+    AncientSupporter,
+}
+
+/// Set or clear a flag of a player.
+pub struct SetFlagSpec {
+    pub who: Who,
+    pub flag: PlayerFlag,
+    pub value: bool,
 }

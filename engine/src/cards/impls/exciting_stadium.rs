@@ -3,32 +3,17 @@
 //!
 //! Twinleaf: CheckHpEffect while this is the stadium in play, unless the
 //! stadium effect is blocked for the target's owner; the stadium can't be used.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "ExcitingStadium",
-    mask: mask(&[k::CHECK_HP, k::USE_STADIUM]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[
+        // Automatically active: it can't be announced and used.
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        // Each Basic Pokémon in play (both yours and your opponent's) gets +30 HP.
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::HpMod(HpModSpec { amount: 30, subject: SlotPred::Basic, guard: Cond::True }) },
+    ],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::CheckHp { target, card, .. } if g.st.stadium_card() == Some(me) => {
-            let owner = target.p as usize;
-            if is_stadium_effect_blocked(g, owner, target, me) {
-                return Ok(());
-            }
-            let basic = g.st.slot_pokemon(owner, target.s).map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false);
-            // `effect.hp += 30`: the setter writes hpBonus only when a Pokémon was captured.
-            if basic && card.is_some() {
-                g.st.players[owner].slots[target.s as usize].hp_bonus += 30;
-            }
-            Ok(())
-        }
-        Effect::UseStadium { .. } if g.st.stadium_card() == Some(me) => bail!("CANNOT_USE_STADIUM"),
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

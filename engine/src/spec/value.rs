@@ -155,6 +155,13 @@ pub enum Cond {
     SupporterPlayed(Who),
     /// The player has a Prize card that is still face down and secret.
     FaceDownPrize(Who),
+    /// The Trainer being resolved is used as the effect of an attack (Look-Alike Show).
+    TrainerViaAttack,
+    /// The last Attach op attached at least one card.
+    Attached,
+    /// During the last turn of the player's opponent, Pokémon of the player were Knocked Out
+    /// (by damage from an attack when `by_attack_damage`), one of them carrying `tag`.
+    KnockedOutLastTurn { who: Who, by_attack_damage: bool, tag: Option<u32> },
 }
 
 /// A card predicate.
@@ -199,6 +206,7 @@ pub enum Pred {
     // --- S3 appends ---
     /// A Pokémon that evolves from the named Pokémon.
     EvolvesFrom(&'static str),
+    SpecialEnergy,
 }
 
 impl Frame {
@@ -412,6 +420,13 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::TrainerViaAttack => f.via_attack,
+        Cond::Attached => f.attached != 0,
+        Cond::KnockedOutLastTurn { who, by_attack_damage, tag } => {
+            let pl = &g.st.players[f.who(*who)];
+            (!*by_attack_damage || pl.pokemon_knocked_out_by_attack_during_opponents_last_turn)
+                && pl.pokemon_knocked_out_last_turn_entries.iter().any(|d| tag.map_or(true, |t| crate::carddb::def(*d).has_tag(t)))
+        }
         Cond::SupporterPlayed(w) => g.st.players[f.who(*w)].supporter_turn > 0,
         Cond::FaceDownPrize(w) => {
             let pl = &g.st.players[f.who(*w)];
@@ -452,6 +467,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
         Pred::EvolvesFrom(n) => d.is_pokemon() && d.evolves_from == *n,
+        Pred::SpecialEnergy => d.is_energy() && d.energy_type == EnergyType::Special as u8,
     }
 }
 
@@ -531,6 +547,8 @@ pub enum SlotPred {
     HasSpecificCondition(SpecialCondition),
     /// The Stadium in play still has effect on this Pokémon (a checked read: effects can block it).
     StadiumEffectActive,
+    /// The Pokémon has a Special Energy card attached.
+    HasSpecialEnergy,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -634,6 +652,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::HasSpecificCondition(c) => slot.special_conditions.contains(&(*c as u8)),
         SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,

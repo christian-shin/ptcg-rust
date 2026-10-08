@@ -430,7 +430,11 @@ pub struct EvolveFromSpec {
     pub names: &'static [&'static str],
     pub only: Pred,
 }
-pub struct AllowEvolveSpec {}
+/// "Can evolve during your first turn or the turn you play it": the Pokémon's played turn is the
+/// turn before, and it may evolve on the first turn, while it satisfies `subject`.
+pub struct AllowEvolveSpec {
+    pub subject: SlotPred,
+}
 /// "Can't be affected by Special Conditions" (vocabulary P20).
 pub struct ConditionImmunitySpec {
     /// The conditions (empty: all of them).
@@ -497,6 +501,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
         Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
+        Modifier::AllowEvolve(_) => mask(&[k::CHECK_POKEMON_PLAYED_TURN]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -606,6 +611,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
         Modifier::SurviveOnTen(d) => survive_on_ten(g, me, e, d),
         Modifier::BenchSize(d) => bench_size(g, me, e, ps.origin, d),
+        Modifier::AllowEvolve(d) => allow_evolve(g, me, e, ps.origin, d),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -1525,6 +1531,20 @@ fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchS
     }
     if let Effect::CheckTableState { bench_sizes } = g.e_mut(e) {
         *bench_sizes = sizes;
+    }
+    Ok(())
+}
+
+fn allow_evolve(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &AllowEvolveSpec) -> R {
+    let Effect::CheckPokemonPlayedTurn { p, target, .. } = *g.e(e) else { return Ok(()) };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if target.p as usize != p as usize || at.owner != p as usize || !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
+        return Ok(());
+    }
+    let turn = g.st.turn as i32;
+    if let Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } = g.e_mut(e) {
+        *pokemon_played_turn = turn - 1;
+        *can_evolve_on_first_turn = true;
     }
     Ok(())
 }

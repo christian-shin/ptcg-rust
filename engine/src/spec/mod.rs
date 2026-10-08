@@ -274,6 +274,9 @@ pub enum Op {
     MoveEnergyOwn(MoveEnergyOwnSpec),
     // ops/board.rs
     SpreadDamage(SpreadDamageSpec),
+    // ops/state.rs
+    AbilityUsed(AbilityUsedSpec),
+    SetFlag(SetFlagSpec),
 }
 
 /// Everything a spec card file needs.

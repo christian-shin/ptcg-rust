@@ -12,59 +12,41 @@
 //! discard pile.
 //!
 //! R7C: `ancient_supporter` is not set when used as the effect of an attack (ruling 1727).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "ExplorersGuidance", mask: mask(&[k::END_TURN, k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+const LOOKED_AT: ZoneRef = ZoneRef(Who::Me, Zone::Scratch(1));
 
-fn move_all(g: &mut Game, src: ListRef, dst: ListRef, me: CardId) -> R {
-    g.run_fx(Effect::MoveCards { source: src, destination: dst, cards: None, count: None, to_top: false, to_bottom: false, skip_cleanup: false, source_card: me })?;
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "ExplorersGuidance",
+    // Look at the top 6 cards of your deck and put 2 of them into your hand. Discard the other cards.
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: LOOKED_AT, cards: CardSel::Top(Num::Lit(6)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec {
+                from: LOOKED_AT,
+                bounds: Bounds { min: Num::Min(&Num::Lit(2), &Num::ZoneSize(LOOKED_AT)), max: Num::Lit(2) },
+                into: 0,
+                msg: "CHOOSE_CARD_TO_HAND",
+                ..PickSpec::DEFAULT
+            })),
+            // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
+            Step::new(Op::If(IfSpec {
+                cond: Cond::Not(&Cond::TrainerViaAttack),
+                yes: &[Step::new(Op::SetFlag(SetFlagSpec { who: Who::Me, flag: PlayerFlag::AncientSupporter, value: true }))],
+                no: &[],
+            })),
+            Step::new(Op::Move(MoveSpec { from: LOOKED_AT, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Move(MoveSpec { from: LOOKED_AT, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+        ],
+    }),
+    triggers: &[Trigger {
+        origin: RuleSource::TrainerEffect,
+        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+        steps: &[Step::new(Op::SetFlag(SetFlagSpec { who: Who::Me, flag: PlayerFlag::AncientSupporter, value: false }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::EndTurn { p } = *g.e(e) {
-        if g.st.players[p as usize].ancient_supporter {
-            g.st.players[p as usize].ancient_supporter = false;
-        }
-    }
-
-    if let Some(p) = trainer_played(g, e, me) {
-        if g.st.players[p].supporter_turn > 0 {
-            bail!("SUPPORTER_ALREADY_PLAYED");
-        }
-        move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-        g.set_prevent(e, true);
-        if g.st.players[p].deck.is_empty() {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
-        let temp = g.alloc_temp(&[]);
-        move_count_from(g, ListRef::Deck(p as u8), temp, 6, me)?;
-        let looked = g.lst(temp).len();
-        let min = looked.min(2);
-        let t = match temp {
-            ListRef::Temp(i) => i,
-            _ => unreachable!(),
-        };
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.a[1] = t as i32;
-        f.a[2] = trainer_via_attack(g, e) as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_HAND", temp, Filter::none(), ChooseCardsOpts::new(min as u8, 2, false), Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let temp = ListRef::Temp(f.a[1] as u8);
-    let chosen: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
-    if f.a[2] == 0 {
-        g.st.players[p].ancient_supporter = true;
-    }
-    move_cards(g, temp, ListRef::Hand(p as u8), &chosen, me)?;
-    move_all(g, temp, ListRef::Discard(p as u8), me)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

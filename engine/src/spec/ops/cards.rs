@@ -263,6 +263,10 @@ pub enum EnergySelection {
     AllProvided,
     /// Every card providing Energy of this type (or every type) to the Pokémon.
     Provides(CardType),
+    /// A DiscardEnergy prompt over the Pokémon's Energy (Energy that does not provide `ty` is
+    /// blocked, up to `max`, none required); the cards go to register `into` and are discarded
+    /// by a DiscardCardsEffect of the attack.
+    Prompt { ty: CardType, max: u8, into: u8 },
     /// The Energy cards of register `r` (chosen earlier), as a DiscardCardsEffect of the attack.
     Register(u8),
     /// Every Special Energy card attached to the Pokémon (an effect of the attack that Mist
@@ -323,7 +327,8 @@ fn zone_cards(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
         return Vec::new();
     }
     let mut v = zone_cards_of(g, me, f, z);
-    if z.1 == Zone::Hand {
+    // A Trainer used through an attack stays in the hand it was copied from.
+    if z.1 == Zone::Hand && !f.via_attack {
         v.retain(|c| *c != me);
     }
     v
@@ -478,6 +483,22 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                         }
                     }
                     discard_energy_cards(g, f, slot, cards)?;
+                }
+                EnergySelection::Prompt { ty, max, .. } => {
+                    let mut o = MoveOpts { allow_cancel: false, min: 0, max: Some(max), ..Default::default() };
+                    if let Some(b) = blocked_non_type_energy(g, slot.p as usize, slot.s, ty)? {
+                        o.blocked_map.push((CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0), b));
+                    }
+                    let mut slots = SVec::new();
+                    slots.push(SlotType::Active as u8);
+                    let id = g.player_id(f.p as usize);
+                    g.prompt(
+                        id,
+                        "CHOOSE_ENERGIES_TO_DISCARD",
+                        PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
+                        f.cont(me, 1),
+                    );
+                    return Ok(Flow::Suspend);
                 }
                 EnergySelection::Register(r) => {
                     let mut cards: SVec<CardId, 64> = SVec::new();
@@ -693,7 +714,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
         }
     }
     // A hand's prompt lists it without the resolving card.
-    let list = if pick.from.1 == Zone::Hand && g.lst(zone_ref(f, pick.from)).contains(&me) {
+    let list = if pick.from.1 == Zone::Hand && !f.via_attack && g.lst(zone_ref(f, pick.from)).contains(&me) {
         g.alloc_temp(&cards)
     } else {
         match zone_list(g, me, f, pick.from, false) {
@@ -969,6 +990,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         }
         Op::Attach(a) => {
             let p = f.who(a.chooser);
+            f.attached = 0;
             if f.sub == 2 {
                 if let Res::Order(o) = first {
                     crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
@@ -986,6 +1008,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 }
                 return Ok(Flow::Next);
             }
+            f.attached = 1;
             let from = zone_ref(f, a.from);
             for (to, c) in ts.iter().copied() {
                 let target = get_target(&g.st, p, to)?;
@@ -1017,6 +1040,14 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 for x in c.iter() {
                     cards.push(*x);
                 }
+                discard_energy_cards(g, f, slot, cards)?;
+            }
+            if let (Some(slot), Res::CardsFrom(t), EnergySelection::Prompt { into, .. }) = (slot_of(g, me, f, d.target), first, d.selection) {
+                let mut cards: SVec<CardId, 64> = SVec::new();
+                for (_, x) in t.iter() {
+                    cards.push(*x);
+                }
+                set_reg(g, f, into, cards.as_slice());
                 discard_energy_cards(g, f, slot, cards)?;
             }
             Ok(Flow::Next)

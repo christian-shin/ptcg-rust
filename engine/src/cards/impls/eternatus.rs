@@ -6,38 +6,40 @@
 //! attack handler, before the damage (a Stadium that raises the target's HP
 //! or reduces damage was already gone); it is now discarded in
 //! AfterAttackEffect, after the damage and before the Knock Out check.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Eternatus", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);
+const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
+const STADIUM_IN_PLAY: Cond = Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]);
 
-fn move_pokemon_off_board_list(g: &mut Game, src: ListRef, dst: ListRef, source_card: CardId) -> R {
-    g.run_fx(Effect::MoveCards { source: src, destination: dst, cards: None, count: None, to_top: false, to_bottom: false, skip_cleanup: false, source_card })?;
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "Eternatus",
+    attacks: &[
+        // Dynablast: 80 more damage if your opponent's Active Pokémon is a Pokémon ex.
+        AttackSpec {
+            index: 0,
+            steps: &[Step::before_damage(more_damage_if(80, Cond::Slot(OPP_ACTIVE, SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER))))],
+        },
+        // World's End: discard a Stadium in play (to its owner's discard pile); with no Stadium the
+        // damage is 0.
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(damage_is(Num::If(&STADIUM_IN_PLAY, &Num::Lit(230), &Num::Lit(0)))),
+                Step::after_damage(Op::If(IfSpec {
+                    cond: Cond::Nonempty(MY_STADIUM, Pred::Any),
+                    yes: &[Step::new(Op::Move(MoveSpec { from: MY_STADIUM, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    no: &[],
+                })),
+                Step::after_damage(Op::If(IfSpec {
+                    cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
+                    yes: &[Step::new(Op::Move(MoveSpec { from: OPP_STADIUM, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    no: &[],
+                })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { opp, .. } = *g.e(e) {
-            if let Some(c) = g.st.active_pokemon(opp as usize) {
-                if g.st.cdef(c).has_tag(tag::POKEMON_EX_LOWER) {
-                    if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                        *damage += 80;
-                    }
-                }
-            }
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        let has_stadium = (0..2usize).any(|q| !g.st.players[q].stadium.is_empty());
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = if has_stadium { 230 } else { 0 };
-        }
-    }
-    if after_attack_used(g, e, 1, me) {
-        if let Some(q) = (0..2usize).find(|q| !g.st.players[*q].stadium.is_empty()) {
-            // MOVE_CARDS(store, state, cardList, owner.discard, { sourceCard }): whole list.
-            move_pokemon_off_board_list(g, ListRef::Stadium(q as u8), ListRef::Discard(q as u8), me)?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
