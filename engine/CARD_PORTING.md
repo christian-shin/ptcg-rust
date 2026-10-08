@@ -294,8 +294,12 @@ docstring for the rest.
    intended rules change, re-record the same seeds and review which games
    changed; each change must be explained by the ruling you applied.
 
-CI (`.github/workflows/rust.yml`) runs the tests, every scenario and a fuzz
-run.
+CI (`.github/workflows/rust.yml`) runs the tests, every scenario and 100,000
+fuzz games split across four runners, in about five minutes, on every push to
+`main` or to a `ci/**` branch. Run the heavy checks there rather than on your
+machine: commit, then `python3 tools/ci.py`. It pushes your commit to
+`ci/<branch>`, waits, prints each job's result and downloads failing games'
+traces to `corpus/ci/<run>/` for `diff`.
 
 Card status in a report: **verified** (check passes, the card acted, every
 reachable branch has a scenario that ran it in at least 3 games), **partial**
