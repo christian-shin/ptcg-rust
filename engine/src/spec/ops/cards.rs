@@ -2259,7 +2259,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             Ok(Flow::Next)
         }
         EnergySelection::ToBench { min, max, same_target, .. } => {
-            let bench = slots_of(g, me, f, &SlotSel::Bench(if p == f.p as usize { Who::Me } else { Who::Opp }));
+            let bench: Vec<SlotRef> = slots_of(g, me, f, &SlotSel::Bench(if p == f.p as usize { Who::Me } else { Who::Opp })).iter().copied().filter(|b| *b != src).collect();
             let cards = ec_energy_cards(g, src, EnergyKind::Any)?;
             if bench.is_empty() || cards.is_empty() {
                 return none(g, f);
@@ -2273,6 +2273,10 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);
             let ptype = ec_ptype(g, f, e, p);
+            // A Benched source (the attacker switched itself out) is not a place to move to.
+            if let Some(i) = g.st.players[p].bench.iter().position(|b| *b == s) {
+                o.blocked_to.push(CardTarget::new(ptype, SlotType::Bench, i as u8));
+            }
             let id = g.player_id(chooser);
             g.prompt(
                 id,
