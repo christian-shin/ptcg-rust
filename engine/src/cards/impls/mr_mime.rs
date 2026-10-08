@@ -2,91 +2,66 @@
 //! use the effect of a Supporter card you find there as the effect of this
 //! attack. Eerie Wave — 20; your opponent's Active Pokémon is now Confused.
 //!
-//! Twinleaf: Look-Alike Show throws CANNOT_USE_POWER when this Pokémon is not
-//! the Active, then opens a ChooseCardsPrompt on the opponent's hand
-//! (Supporters, 0..1, no cancel); the callback reduces a TrainerEffect for the
-//! chosen card with the attacker as player.
-//! Fixed (phase 4b): a Special Condition no longer stops the attack (it threw
-//! CANNOT_USE_POWER, ending the game after a heads Confusion flip); using the
-//! effect of a Supporter is not playing it, so `supporterTurn` is bypassed
-//! (SUPPORTER_ALREADY_PLAYED); a Supporter whose effect throws is blocked in
-//! the prompt, which is re-issued (CANNOT_PLAY_THIS_CARD).
-//!
-//! R7C: the TrainerEffect carries `via_attack` (Twinleaf `usedAsAttackEffect`): the
-//! Supporter's "up to" prompts may choose zero and the played-from-hand trackers
-//! (`rocketSupporter`, `ancientSupporter`) are not set (rulings 1727, 1844, 1853).
+//! The one choice no vocabulary item expresses (a card chosen from the opponent's hand whose effect
+//! is then run as this attack's, re-asking when that effect can't be used): the card's own steps,
+//! a Custom op. The Supporter's effect is not "playing" it: the one-Supporter rule is bypassed
+//! (rulings 1727, 1844, 1853); a Supporter whose effect can't be used right now is blocked in the
+//! prompt, which is asked again.
 use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::spec::run::{Flow, Frame, NONE};
 
-pub static IMPL: CardImpl = CardImpl { class: "MrMime", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "MrMime",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Custom(CustomSpec { exec: choose_supporter, resume: copy_effect }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused], Cause::Attack))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            let p = p as usize;
-            match g.st.locate(me) {
-                Some(ListRef::Slot(q, s)) => {
-                    if !(q as usize == p && s == g.st.players[p].active) {
-                        bail!("CANNOT_USE_POWER");
-                    }
-                }
-                _ => bail!("CANNOT_USE_POWER"),
+pub static IMPL: CardImpl = SPEC.card_impl();
+
+/// The choice among the Supporters in the opponent's hand (none is also an answer).
+fn choose_supporter(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
+    let p = f.p as usize;
+    let opp = 1 - p;
+    let mut filter = Filter::super_type(SuperType::Trainer);
+    filter.trainer_type = Some(TrainerType::Supporter as u8);
+    let mut opts = ChooseCardsOpts::new(0, 1, false);
+    if f.cards[0] != NONE {
+        let tried: Vec<CardId> = g.lst(ListRef::Temp(f.cards[0])).to_vec();
+        for (i, c) in g.st.players[opp].hand.iter().enumerate() {
+            if tried.contains(&c) {
+                opts.blocked.push(i as u8);
             }
         }
     }
-
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let (p, opp) = match *g.e(e) {
-            Effect::Attack { p, opp, .. } => (p as usize, opp as usize),
-            _ => return Ok(()),
-        };
-        return choose_supporter(g, me, p, opp, Blocked::default());
-    }
-
-    if was_attack_used(g, e, 1, me) {
-        add_special_conditions_to_opponent_active(g, e, &[SpecialCondition::Confused])?;
-    }
-    Ok(())
+    choose_cards(g, p, "CHOOSE_CARD_TO_COPY_EFFECT", ListRef::Hand(opp as u8), filter, opts, f.cont(me, 1));
+    Ok(Flow::Suspend)
 }
 
-/// `chooseSupporter(blocked)`: the ChooseCardsPrompt on the opponent's hand.
-fn choose_supporter(g: &mut Game, me: CardId, p: usize, opp: usize, blocked: Blocked) -> R {
-    let mut filter = Filter::super_type(SuperType::Trainer);
-    filter.trainer_type = Some(TrainerType::Supporter as u8);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = (blocked.0 & 0xFFFF_FFFF) as u32 as i32;
-    f.a[2] = (blocked.0 >> 32) as u32 as i32;
-    let mut opts = ChooseCardsOpts::new(0, 1, false);
-    opts.blocked = blocked;
-    choose_cards(g, p, "CHOOSE_CARD_TO_COPY_EFFECT", ListRef::Hand(opp as u8), filter, opts, Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let card = match results.first().and_then(|r| r.cards().first()) {
-        Some(c) => *c,
-        None => return Ok(()),
-    };
-    // Using the effect of a Supporter is not playing it: bypass `supporterTurn`.
+fn copy_effect(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
+    let p = f.p as usize;
+    let Some(card) = results.first().and_then(|r| r.cards().first().copied()) else { return Ok(Flow::Next) };
     let supporter_turn = g.st.players[p].supporter_turn;
     g.st.players[p].supporter_turn = 0;
     let r = g.run_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: true });
     g.st.players[p].supporter_turn = supporter_turn;
     match r {
-        Ok(_) => Ok(()),
-        // `catch (error)`: a GameError (not a TypeError) means this Supporter's
-        // effect can't be used right now: choose another one.
+        Ok(_) => Ok(Flow::Next),
+        // A GameError (not a TypeError) means this Supporter's effect can't be used now: choose another.
         Err(e) if !e.0.starts_with("TypeError") => {
-            let opp = 1 - p;
-            let mut blocked = Blocked(f.a[1] as u32 as u64 | ((f.a[2] as u32 as u64) << 32));
-            let index = g.st.players[opp].hand.iter().position(|c| c == card).unwrap_or(0) as u8;
-            blocked.push(index);
-            choose_supporter(g, me, p, opp, blocked)
+            if f.cards[0] == NONE {
+                if let ListRef::Temp(i) = g.alloc_temp(&[]) {
+                    f.cards[0] = i;
+                }
+            }
+            let list = ListRef::Temp(f.cards[0]);
+            let mut tried: Vec<CardId> = g.lst(list).to_vec();
+            tried.push(card);
+            g.lst_mut(list).set_from(&tried);
+            choose_supporter(g, me, f)
         }
         Err(e) => Err(e),
     }

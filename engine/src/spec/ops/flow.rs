@@ -57,7 +57,12 @@ pub enum PerHeads {
     DamageAdd(i32),
 }
 pub struct ChooseSpec {}
-pub struct ForEachSpec {}
+/// Run `body` once for each Pokémon of the selection, in order, with that Pokémon as the picked slot
+/// (`SlotExpr::Picked`).
+pub struct ForEachSpec {
+    pub over: SlotSel,
+    pub body: &'static [Step],
+}
 pub struct RepeatSpec {}
 pub struct ParallelSpec {}
 pub struct FailSpec {}
@@ -85,7 +90,12 @@ pub struct EndTurnSpec {}
 pub struct EndGameSpec {
     pub winner: Who,
 }
-pub struct CustomSpec {}
+/// A card's own steps, for the cards whose text no vocabulary item expresses (Mr. Mime, Backtrack
+/// Badge): `exec` runs the step, `resume` continues after the prompt it opened (`Frame::cont`).
+pub struct CustomSpec {
+    pub exec: fn(&mut Game, CardId, &mut Frame) -> R<Flow>,
+    pub resume: fn(&mut Game, CardId, &mut Frame, &[Res]) -> R<Flow>,
+}
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
@@ -132,6 +142,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             crate::engine::phase::end_game(g, winner);
             Ok(Flow::Next)
         }
+        Op::Custom(c) => (c.exec)(g, me, f),
+        Op::ForEach(fe) => {
+            let v = slots_of(g, me, f, &fe.over);
+            let Some(first) = v.as_slice().first() else { return Ok(Flow::Next) };
+            f.slot = first.p << 4 | first.s;
+            Ok(if fe.body.is_empty() { Flow::Next } else { Flow::Enter(0) })
+        }
         Op::Coin(c) => {
             let p = f.p as usize;
             let frame = f.frame_at(if c.flips == Flips::One { 1 } else { super::super::run::COIN_SEQUENCE });
@@ -169,9 +186,10 @@ pub(crate) fn resume_coin(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, bit
     })
 }
 
-pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::Custom(c) => (c.resume)(g, me, f, results),
         Op::May(m) => {
             if first.as_bool() {
                 Ok(if m.yes.is_empty() { Flow::Next } else { Flow::Enter(0) })
@@ -222,12 +240,21 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::May(m), _) => m.no,
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
+        (Op::ForEach(fe), _) => fe.body,
         (Op::Coin(c), 0) => c.heads,
         (Op::Coin(c), _) => c.tails,
         _ => &[],
     }
 }
 
-pub(crate) fn again(_g: &mut Game, _me: CardId, _f: &mut Frame, _op: &Op) -> bool {
+pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
+    if let Op::ForEach(fe) = op {
+        let k = f.pass() as usize;
+        let v = slots_of(g, me, f, &fe.over);
+        if let Some(s) = v.as_slice().get(k) {
+            f.slot = s.p << 4 | s.s;
+            return true;
+        }
+    }
     false
 }

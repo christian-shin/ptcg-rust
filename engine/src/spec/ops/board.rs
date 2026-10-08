@@ -160,13 +160,27 @@ pub enum MoveCountersKind {
 pub struct MoveCountersSpec {
     pub kind: MoveCountersKind,
 }
-pub struct EvolveSpec {}
+/// Evolve one of the player's Pokémon with a card from the hand.
+pub struct EvolveSpec {
+    pub how: EvolveHow,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum EvolveHow {
+    /// Rare Candy: a Basic Pokémon (in play before this turn) is evolved into the Stage 2 card of
+    /// its line in the hand, skipping the Stage 1; the player chooses the Pokémon, then the card
+    /// (`Cond::RareCandyUsable` says whether it can be done).
+    RareCandy,
+}
 pub struct DevolveSpec {}
 /// Put the Pokémon card in card register `cards` onto this card's Pokémon (as it is, evolution state
 /// kept) and this card into `into`.
 pub struct SwapPokemonCardSpec {
     pub cards: u8,
+    /// The Pokémon whose top card is replaced.
+    pub slot: SlotExpr,
     pub into: ZoneRef,
+    /// The new card takes the old card's place in the stack.
+    pub keep_index: bool,
 }
 /// Put a Pokémon and all cards attached to it into a zone.
 pub struct RemoveFromPlaySpec {
@@ -426,18 +440,54 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
+        Op::Evolve(ev) => {
+            let EvolveHow::RareCandy = ev.how;
+            let p = f.p as usize;
+            let stage2 = stage2_in_hand(g, p);
+            let mut blocked: TargetList = SVec::new();
+            for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                if g.st.cdef(c).stage == Stage::Basic as u8 && stage2.iter().any(|s2| matching_stage2(g, c, *s2)) && candy_played_turn(g, p, s)? < g.st.turn {
+                    continue;
+                }
+                blocked.push(t);
+            }
+            let mut slots = SVec::new();
+            slots.push(SlotType::Active as u8);
+            slots.push(SlotType::Bench as u8);
+            let id = g.player_id(p);
+            g.prompt(
+                id,
+                "CHOOSE_POKEMON_TO_EVOLVE",
+                PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked },
+                f.cont(me, 1),
+            );
+            Ok(Flow::Suspend)
+        }
         Op::SwapPokemonCard(sw) => {
             // The chosen card goes onto this Pokémon's slot, this card leaves for `into`; it is the
             // same Pokémon (ruling 1840): the state kept on the card moves to the new card.
             let new = reg_list(g, f, sw.cards).first().copied();
-            let slot = slot_of(g, me, f, SlotExpr::This);
+            let slot = slot_of(g, me, f, sw.slot);
             if let (Some(new), Some(slot)) = (new, slot) {
-                let p = slot.p as usize;
+                let (p, s) = (slot.p as usize, slot.s);
+                let Some(old) = g.st.slot_pokemon(p, s) else { return Ok(Flow::Next) };
                 if let Some(src) = g.st.locate(new) {
-                    move_cards(g, src, crate::state::ListRef::Slot(slot.p, slot.s), &[new], me)?;
+                    let list = crate::state::ListRef::Slot(slot.p, slot.s);
+                    let old_index = g.st.slot(p, s).cards.index_of(old);
+                    move_cards(g, src, list, &[new], me)?;
                     let dst = zone_ref(f, sw.into);
-                    move_cards(g, crate::state::ListRef::Slot(slot.p, slot.s), dst, &[me], me)?;
-                    transfer_pokemon_card_state(g, p, me, new);
+                    move_cards(g, list, dst, &[old], me)?;
+                    if sw.keep_index {
+                        let slot = &mut g.st.players[p].slots[s as usize];
+                        if let (Some(ni), Some(oi)) = (slot.cards.index_of(new), old_index) {
+                            if ni != oi {
+                                slot.cards.remove_at(ni);
+                                let at = oi.min(slot.cards.len());
+                                slot.cards.insert(at, new);
+                            }
+                        }
+                    }
+                    transfer_pokemon_card_state(g, p, old, new);
                 }
             }
             Ok(Flow::Next)
@@ -485,6 +535,32 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         }
         Op::PickSlot(_) => {
             f.slot = first.slots().first().map(|s| encode(*s)).unwrap_or(super::super::run::NONE);
+            Ok(Flow::Next)
+        }
+        Op::Evolve(_) => {
+            let p = f.p as usize;
+            if f.sub == 1 {
+                let Some(target) = first.slots().first().copied() else { return Ok(Flow::Next) };
+                let Some(base) = g.st.slot_pokemon(target.p as usize, target.s) else { return Ok(Flow::Next) };
+                f.slot = encode(target);
+                let mut opts = ChooseCardsOpts::new(1, 1, false);
+                let hand: Vec<CardId> = g.st.players[p].hand.iter().collect();
+                for (i, c) in hand.iter().enumerate() {
+                    let d = g.st.cdef(*c);
+                    if d.is_pokemon() && d.stage == Stage::Stage2 as u8 && !matching_stage2(g, base, *c) {
+                        opts.blocked.push(i as u8);
+                    }
+                }
+                let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(Stage::Stage2 as u8), ..Filter::none() };
+                choose_cards(g, p, "CHOOSE_CARD_TO_EVOLVE", crate::state::ListRef::Hand(p as u8), filter, opts, f.cont(me, 2));
+                return Ok(Flow::Suspend);
+            }
+            if let Some(c) = first.cards().first().copied() {
+                let target = decode(f.slot);
+                g.run_fx(Effect::Evolve { p: p as u8, target, card: c })?;
+                // It counts as evolving (ruling 1045): the Pokémon loses its Special Conditions and other effects.
+                crate::engine::play::finish_evolution(g, p, target)?;
+            }
             Ok(Flow::Next)
         }
         Op::Conditions(c) => {
@@ -1050,4 +1126,54 @@ fn mine_to_opp_resume(g: &mut Game, me: CardId, f: &Frame, max: u8, first: Res) 
         }
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Rare Candy (S3 agent 3)
+
+/// `isMatchingStage2(stage1, basic, stage2)`.
+pub fn matching_stage2(g: &Game, basic: CardId, stage2: CardId) -> bool {
+    let b = g.st.cdef(basic).name;
+    let s2 = g.st.cdef(stage2).evolves_from;
+    crate::gen::stage1::ALL_STAGE1.iter().any(|(n, from)| *n == s2 && *from == b)
+}
+
+pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
+    g.st.players[p].hand.iter().filter(|c| {
+        let d = g.st.cdef(*c);
+        d.is_pokemon() && d.stage == Stage::Stage2 as u8
+    }).collect()
+}
+
+fn candy_played_turn(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
+    let target = SlotRef::new(p, s);
+    let played = g.st.slot(p, s).pokemon_played_turn;
+    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
+    Ok(match e {
+        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, .. } => pokemon_played_turn,
+        _ => played,
+    })
+}
+
+/// `canUseRareCandy`.
+pub fn rare_candy_usable(g: &mut Game, p: usize) -> R<bool> {
+    // A player's first turn is turn 1 or 2 (R7F-14, ruling 689).
+    if g.st.turn == 1 || g.st.turn == 2 {
+        return Ok(false);
+    }
+    let stage2 = stage2_in_hand(g, p);
+    // Evolution Jammer (Bronzong TEF): the player can't evolve.
+    if stage2.is_empty() || g.st.players[p].cannot_evolve_pokemon_cards {
+        return Ok(false);
+    }
+    let mut ok = false;
+    for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+        if g.st.cdef(c).stage != Stage::Basic as u8 || !stage2.iter().any(|s2| matching_stage2(g, c, *s2)) {
+            continue;
+        }
+        if candy_played_turn(g, p, s)? < g.st.turn {
+            ok = true;
+        }
+    }
+    Ok(ok)
 }

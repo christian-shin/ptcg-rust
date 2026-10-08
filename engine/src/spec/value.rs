@@ -91,6 +91,8 @@ pub enum Num {
     CostNow,
     /// The [C] in the player's Active Pokémon's Retreat Cost as the game checks it: a checked read.
     RetreatCostColorless(Who),
+    /// Pokémon Tools attached to the Pokémon.
+    ToolCount(SlotExpr),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -159,6 +161,10 @@ pub enum Cond {
     ViaAttack,
     /// A Stadium is in play.
     StadiumInPlay,
+    /// The Pokémon is not protected from this Trainer's effect (a TrainerTarget probe): a checked read.
+    TrainerTargetOk(SlotExpr),
+    /// Rare Candy can be used by the player (a checked read).
+    RareCandyUsable,
 }
 
 /// A card predicate.
@@ -300,6 +306,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::CoinHeads => f.heads() as i32,
         Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
         Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
+        Num::ToolCount(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).tools.len() as i32).unwrap_or(0),
         Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::HandOthers(w) => g.st.players[f.who(*w)].hand.iter().filter(|c| *c != me).count() as i32,
         Num::DistinctTypes(z, p) => {
@@ -411,6 +418,8 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
         Cond::ViaAttack => f.via_attack,
         Cond::StadiumInPlay => g.st.stadium_card().is_some(),
+        Cond::TrainerTargetOk(_) => panic!("Cond::TrainerTargetOk needs a checked read (cond_m)"),
+        Cond::RareCandyUsable => panic!("Cond::RareCandyUsable needs a checked read (cond_m)"),
     }
 }
 
@@ -522,6 +531,8 @@ pub enum SlotPred {
     HasCard(Pred),
     /// The Pokémon is affected by this Special Condition.
     Condition(SpecialCondition),
+    /// A Pokémon Tool is attached.
+    HasTool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -625,6 +636,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::HasEnergy => !slot.energies.is_empty(),
         SlotPred::HasCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
         SlotPred::Condition(c) => slot.special_conditions.contains(&(*c as u8)),
+        SlotPred::HasTool => !slot.tools.is_empty(),
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }
@@ -812,6 +824,14 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
                 CmpOp::Gt => a > b,
             }
         }
+        Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, f.p as usize)?,
+        Cond::TrainerTargetOk(e) => match slot_of(g, me, f, *e) {
+            Some(slot) => {
+                let (t, prevented) = g.run_fx(Effect::TrainerTarget { p: f.p, card: me, target: Some(slot) })?;
+                !(prevented || matches!(t, Effect::TrainerTarget { target: None, .. }))
+            }
+            None => false,
+        },
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
             None => false,

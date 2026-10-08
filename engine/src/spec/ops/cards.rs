@@ -316,7 +316,16 @@ pub struct PlayFromZoneSpec {
     pub who: Who,
 }
 pub struct PickPrizeSpec {}
-pub struct PrizeVisibilitySpec {}
+pub struct PrizeVisibilitySpec {
+    pub action: PrizeAction,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PrizeAction {
+    /// Redeemable Ticket: the player's Prize cards are shuffled (game RNG, no prompt) and put on
+    /// the bottom of the deck, then that many cards from the top of the deck become the Prize
+    /// cards, all face down.
+    RedealThroughDeck,
+}
 pub struct TakePrizeSpec {}
 /// Shuffle a hand into its deck, then draw (the resolving card is not part
 /// of the hand).
@@ -499,6 +508,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(Flow::Next)
             }
+        }
+        Op::PrizeVisibility(pv) => {
+            let PrizeAction::RedealThroughDeck = pv.action;
+            redeal_prizes(g, f.p as usize);
+            Ok(Flow::Next)
         }
         Op::HandShuffleDraw(h) => {
             let p = f.who(h.who);
@@ -1130,7 +1144,8 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Move(m) => match &m.cards {
             CardSel::Chosen(_) => true,
             CardSel::Tools(_) => true,
-            CardSel::Stadium => g.st.stadium_card().is_some(),
+            // Nothing to discard is not a reason to refuse: the card's own `needs` decide.
+            CardSel::Stadium => true,
             CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
         },
         Op::Attach(a) => {
@@ -1421,4 +1436,43 @@ fn opp_tools_carry_out(g: &mut Game, me: CardId, f: &Frame, items: &[u8]) -> R {
         move_cards(g, ListRef::Slot(owner as u8, t.s), ListRef::Discard(owner as u8), &[pair[1]], source_card)?;
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// PrizeVisibility::RedealThroughDeck (S3 agent 3)
+
+fn redeal_prizes(g: &mut Game, p: usize) {
+    let pc = g.st.players[p].prize_count as usize;
+    let mut all: Vec<CardId> = Vec::new();
+    for i in 0..pc {
+        all.extend(g.st.players[p].prizes[i].iter());
+    }
+    let count = all.len();
+    let mut perm = [0u8; 120];
+    g.rng.shuffle(all.len(), &mut perm);
+    let copy = all.clone();
+    for i in 0..all.len() {
+        all[i] = copy[perm[i] as usize];
+    }
+    // Each goes onto the bottom of the deck, in that order.
+    let mut deck: Vec<CardId> = g.st.players[p].deck.iter().collect();
+    deck.extend(all.iter().copied());
+    for i in 0..pc {
+        g.st.players[p].prizes[i].set_from(&[]);
+    }
+    // The new Prizes come from the top of the deck, into the first empty Prize slots.
+    for _ in 0..count {
+        if deck.is_empty() {
+            continue;
+        }
+        let c = deck.remove(0);
+        match (0..pc).find(|i| g.st.players[p].prizes[*i].is_empty()) {
+            Some(i) => g.st.players[p].prizes[i].set_from(&[c]),
+            None => deck.insert(0, c),
+        }
+    }
+    g.st.players[p].deck.set_from(&deck);
+    // The new Prizes are face down.
+    g.st.players[p].prize_public = [false; 6];
+    g.st.players[p].prize_face_up = [false; 6];
 }
