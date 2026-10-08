@@ -152,7 +152,12 @@ pub enum MoveCountersKind {
 pub struct MoveCountersSpec {
     pub kind: MoveCountersKind,
 }
-pub struct EvolveSpec {}
+/// Put the card of register `card` onto the Pokémon as an evolution by an effect (no Evolve
+/// effect: the slot loses its effects and counts as played this turn).
+pub struct EvolveSpec {
+    pub slot: SlotExpr,
+    pub card: u8,
+}
 pub struct DevolveSpec {}
 pub struct SwapPokemonCardSpec {}
 /// Put a Pokémon and all cards attached to it into a zone.
@@ -425,6 +430,18 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             ask(g, me, f, pick, cands.as_slice(), 1);
             Ok(Flow::Suspend)
+        }
+        Op::Evolve(ev) => {
+            let (Some(slot), Some(&card)) = (slot_of(g, me, f, ev.slot), reg_list(g, f, ev.card).first()) else { return Ok(Flow::Next) };
+            let (p, s) = (slot.p as usize, slot.s);
+            let source_card = g.st.slot_pokemon(p, s).unwrap_or(NO_CARD);
+            let Some(from) = g.st.locate(card) else { return Ok(Flow::Next) };
+            move_cards(g, from, crate::state::ListRef::Slot(p as u8, s), &[card], source_card)?;
+            let turn = g.st.turn;
+            let sl = &mut g.st.players[p].slots[s as usize];
+            crate::engine::game_effect::clear_effects(sl);
+            sl.pokemon_played_turn = turn;
+            Ok(Flow::Next)
         }
         Op::SpreadDamage(s) => {
             if let Some(c) = f.recorded_choice(g, me) {

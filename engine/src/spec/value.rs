@@ -196,6 +196,9 @@ pub enum Pred {
     PokemonType(u8),
     /// Energy card that provides the type.
     Provides(u8),
+    // --- S3 appends ---
+    /// A Pokémon that evolves from the named Pokémon.
+    EvolvesFrom(&'static str),
 }
 
 impl Frame {
@@ -448,6 +451,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PrintedType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
+        Pred::EvolvesFrom(n) => d.is_pokemon() && d.evolves_from == *n,
     }
 }
 

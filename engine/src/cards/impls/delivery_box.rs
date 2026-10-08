@@ -9,38 +9,30 @@
 //! only reached when no card was chosen). Fixed (R3): min is 0 (it was 1 when
 //! the deck held an Item); a search may find fewer cards, even none
 //! (Rulings Compendium 780), and it is unplayable with an empty deck (779).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "DeliveryBox", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Item as u8), ..Filter::none() };
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, ChooseCardsOpts::new(0, 2, false), Cont::Card { card: me, frame: f });
-    g.run_fx(Effect::EndTurn { p: p as u8 })?;
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "DeliveryBox",
+    // Search your deck for up to 2 Item cards, reveal them, and put them into your hand. Then,
+    // shuffle your deck. Your turn ends.
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { predicate: Pred::Item, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+            Step::new(Op::EndTurn(EndTurnSpec { who: Who::Me })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let cards: Vec<CardId> = results.first().map(|r| r.cards().to_vec()).unwrap_or_default();
-    move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-    if !cards.is_empty() {
-        let id = g.player_id(1 - p);
-        g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
-    }
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

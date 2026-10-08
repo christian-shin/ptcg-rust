@@ -62,11 +62,11 @@
   {
    "at": "turn_end",
    "prompts": [
+    "PutDamage",
     "Wait",
-    "Wait",
-    "PutDamage"
+    "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage (attack animation, then the Adrena-Pheromone coin, then the counter placement)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; final attack-choice rule 2026-10-07: the counters are allocated at step D, before the damage (then the attack animation and the Adrena-Pheromone coin)"
   },
   {
    "at": "turn_end",

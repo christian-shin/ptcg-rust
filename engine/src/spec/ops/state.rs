@@ -27,6 +27,9 @@ pub enum AttackFlagKind {
     PreventDamage,
     Barrage,
     FirstTurnAllowed,
+    /// Festival Lead (Dipplin): this attack's Barrage flag is "Festival Grounds is in play", and
+    /// is switched off while the Ability is blocked. The attack's printed flag is `false`.
+    FestivalLead,
 }
 
 /// Write a flag of the attack being used (text that runs before the damage).
@@ -101,6 +104,8 @@ pub enum Lasting {
     CoinFlipCancelTrainer,
     /// During the opponent's next turn this Pokémon has no Weakness.
     NoWeakness,
+    /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
+    PreventAttackEffects,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -257,6 +262,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 g.run_fx(Effect::ThisPokemonHasNoWeakness { b })?;
             }
         }
+        Lasting::PreventAttackEffects => prevent_effects_of_attacks(g, atk)?,
     }
     Ok(())
 }
@@ -269,7 +275,19 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     AttackFlagKind::NoWeakness => *ignore_weakness = a.value,
                     AttackFlagKind::NoResistance => *ignore_resistance = a.value,
                     AttackFlagKind::IgnoreDefenderEffects => *ignore_defender_effects = a.value,
+                    AttackFlagKind::FestivalLead => {}
                     _ => unimplemented!("spec attack flag not implemented yet (ops/state.rs)"),
+                }
+            }
+            if a.flag == AttackFlagKind::FestivalLead {
+                if crate::prefabs::is_ability_blocked(g, f.p as usize, me, None) {
+                    // Blocked: the flag is switched off (printed `barrage: false`).
+                    crate::copy_attack::write_barrage(g, me, |b, shown| {
+                        *b &= !1;
+                        *shown &= !1;
+                    });
+                } else {
+                    festival_lead(g, f.p as usize, me, true);
                 }
             }
             Ok(Flow::Next)
@@ -352,4 +370,27 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
 
 pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, _op: &Op, _results: &[Res]) -> R<Flow> {
     Ok(Flow::Next)
+}
+
+/// Festival Lead: `this.attacks[0].barrage = stadium is 'Festival Grounds'` unless the Ability is
+/// blocked (then the flag is switched off). `pristine_has_key`: the printed attack object already
+/// has `barrage: false` (Dipplin), so only `true` differs from the printed card in the canonical
+/// state; otherwise any write does.
+pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool) {
+    if crate::prefabs::is_ability_blocked(g, p, me, None) {
+        return;
+    }
+    let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
+    crate::copy_attack::write_barrage(g, me, |b, shown| {
+        if fg {
+            *b |= 1;
+        } else {
+            *b &= !1;
+        }
+        if fg || !pristine_has_key {
+            *shown |= 1;
+        } else {
+            *shown &= !1;
+        }
+    });
 }

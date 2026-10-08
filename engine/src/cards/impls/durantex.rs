@@ -6,47 +6,31 @@
 //! Twinleaf: any PlayPokemonEffect for this card asks (ConfirmPrompt) unless
 //! the Ability is blocked or the opposing deck is empty (aud-e); Vengeful Crush
 //! sets `effect.damage = attack.damage + opponent.prizesTaken * 30`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Durantex", mask: mask(&[k::PLAY_POKEMON, k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Durantex",
+    // Sudden Shearing: when you play this Pokémon from your hand onto your Bench, you may discard
+    // the top card of your opponent's deck.
+    triggers: &[Trigger {
+        origin: RuleSource::Ability,
+        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        steps: &[Step::new(Op::May(MaySpec {
+            asker: Who::Me,
+            when: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Deck), Pred::Any),
+            msg: "WANT_TO_USE_ABILITY",
+            yes: &[Step::new(Op::Move(MoveSpec {
+                from: ZoneRef(Who::Opp, Zone::Deck),
+                to: ZoneRef(Who::Opp, Zone::Discard),
+                cards: CardSel::Top(Num::Lit(1)),
+                ..MoveSpec::DEFAULT
+            }))],
+            no: &[],
+        }))],
+    }],
+    // Vengeful Crush: 30 more damage for each Prize card your opponent has taken.
+    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::PrizesTaken(Who::Opp), &Num::Lit(30)), when: Cond::True }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card == me {
-            let p = p as usize;
-            if is_ability_blocked(g, p, me, None) {
-                return Ok(());
-            }
-            // An Ability can't be used for no effect: the number of cards in a deck is public (Advanced Rulebook E-06,
-            // rulings 244, 782).
-            if g.st.players[1 - p].deck.is_empty() {
-                return Ok(());
-            }
-            let mut f = CardFrame::at(1);
-            f.a[0] = p as i32;
-            confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
-            return Ok(());
-        }
-    }
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { opp, attack, .. } = *g.e(e) {
-            let base = crate::engine::attack::attack_def(g, attack).damage;
-            let taken = g.st.players[opp as usize].prizes_taken;
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage = base + taken * 30;
-            }
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    if !results.first().copied().unwrap_or(Res::Null).as_bool() {
-        return Ok(());
-    }
-    let o = 1 - f.a[0] as usize;
-    move_count_from(g, ListRef::Deck(o as u8), ListRef::Discard(o as u8), 1, me)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

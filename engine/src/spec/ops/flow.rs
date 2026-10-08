@@ -71,7 +71,10 @@ pub struct CopyAttackSpec {
     pub predicate: Pred,
     pub retries: u8,
 }
-pub struct EndTurnSpec {}
+/// The player's turn ends (an EndTurnEffect).
+pub struct EndTurnSpec {
+    pub who: Who,
+}
 /// The game ends and `winner` wins.
 pub struct EndGameSpec {
     pub winner: Who,
@@ -100,6 +103,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
+        }
+        Op::EndTurn(t) => {
+            g.run_fx(crate::effects::Effect::EndTurn { p: f.who(t.who) as u8 })?;
+            Ok(Flow::Next)
         }
         Op::ForEach(fe) => {
             let slots = slots_m(g, me, f, &fe.over)?;

@@ -118,6 +118,8 @@ pub enum CapKind {
     Basic,
     /// Evolution Pokémon (Stage 1 or Stage 2).
     Evolution,
+    Stage1,
+    Stage2,
 }
 
 pub struct DrawSpec {
@@ -261,6 +263,8 @@ pub enum EnergySelection {
     AllProvided,
     /// Every card providing Energy of this type (or every type) to the Pokémon.
     Provides(CardType),
+    /// The Energy cards of register `r` (chosen earlier), as a DiscardCardsEffect of the attack.
+    Register(u8),
     /// Every Special Energy card attached to the Pokémon (an effect of the attack that Mist
     /// Energy and the like can prevent).
     Special,
@@ -475,6 +479,15 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     }
                     discard_energy_cards(g, f, slot, cards)?;
                 }
+                EnergySelection::Register(r) => {
+                    let mut cards: SVec<CardId, 64> = SVec::new();
+                    for c in reg_list(g, f, r) {
+                        cards.push(*c);
+                    }
+                    if !cards.is_empty() {
+                        discard_energy_cards(g, f, slot, cards)?;
+                    }
+                }
                 EnergySelection::Special => {
                     let cards: SVec<CardId, 64> = {
                         let mut v = SVec::new();
@@ -675,6 +688,8 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
             CapKind::Supporter => opts.max_supporters = v,
             CapKind::Basic => opts.max_basics = v,
             CapKind::Evolution => opts.max_evolutions = v,
+            CapKind::Stage1 => opts.max_stage1 = v,
+            CapKind::Stage2 => opts.max_stage2 = v,
         }
     }
     // A hand's prompt lists it without the resolving card.
