@@ -292,12 +292,6 @@ fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
     g.st.cdef(source).attacks.iter().position(|x| x.tl_name == name).map(|i| i as u8)
 }
 
-/// `COPY_ATTACK_FROM_POKEMON_LIST(store, state, effect, pokemonCards, { allowCancel })`
-/// (disallowCopycatAttack, maxRetries 1, no extra blocked attacks).
-pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool) -> R {
-    copy_attack_from_pokemon_list_retries(g, atk, cards, allow_cancel, 1)
-}
-
 /// `COPY_ATTACK_FROM_POKEMON_LIST` with `maxRetries`: a locked attack or an
 /// error in the delegated attack re-issues the prompt until the attempts run out.
 pub fn copy_attack_from_pokemon_list_retries(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool, max_retries: u8) -> R {
@@ -359,86 +353,6 @@ fn attack_locked_next_turn(g: &Game, p: usize, a: AttackRef) -> bool {
     g.st.slot(p, act).cannot_use_attacks_next_turn.iter().any(|n| *n == name)
 }
 
-/// `COPY_OPPONENT_ACTIVE_ATTACK_WITH_RETRY(store, state, effect)`
-/// (allowCancel false, maxRetries 3).
-pub fn copy_opponent_active_attack_with_retry(g: &mut Game, atk: EffId) -> R {
-    let opp = match *g.e(atk) {
-        Effect::Attack { opp, .. } => opp as usize,
-        _ => return Ok(()),
-    };
-    let oa = g.st.players[opp].active;
-    let pokemon = match g.st.slot_pokemon(opp, oa) {
-        Some(c) if !g.st.cdef(c).attacks.is_empty() => c,
-        _ => return Ok(()),
-    };
-    copy_attack_from_pokemon_list_retries(g, atk, &[pokemon], false, 3)
-}
-
-/// `COPY_OPPONENT_ACTIVE_ATTACK(store, state, effect)` (allowCancel false,
-/// disallowCopycatAttack; an error in the delegated attack ends the copy
-/// silently, like COPY_ATTACK_FROM_POKEMON_LIST with one try).
-pub fn copy_opponent_active_attack(g: &mut Game, atk: EffId) -> R {
-    let (p, opp, source) = match *g.e(atk) {
-        Effect::Attack { p, opp, source, .. } => (p as usize, opp as usize, source),
-        _ => return Ok(()),
-    };
-    let oa = g.st.players[opp].active;
-    let pokemon = match g.st.slot_pokemon(opp, oa) {
-        Some(c) if !g.st.cdef(c).attacks.is_empty() => c,
-        _ => return Ok(()),
-    };
-    // `effect.source.getPokemonCard()` is read after the prompt in Twinleaf;
-    // nothing can change it in between.
-    let copycat = match g.st.slot_pokemon(source.p as usize, source.s) {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
-    f.catch = true;
-    f.cards.push(pokemon);
-    let mut pc: SVec<CardId, 64> = SVec::new();
-    pc.push(pokemon);
-    let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
-    if no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
-        return Ok(());
-    }
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_ATTACK_TO_COPY",
-        PromptKind::ChooseAttack { cards: pc, allow_cancel: false, blocked_message: "NOT_ENOUGH_ENERGY", blocked },
-        Cont::CopyAttack(f),
-    );
-    Ok(())
-}
-
-/// The checks `useAttack` makes before running an attack, so an Ability that
-/// uses another Pokémon's attack does not offer an attack that would throw once
-/// chosen (`cannotUseAttackNow`). Energy is checked separately.
-fn cannot_use_attack_now(g: &Game, p: usize, a: AttackRef, energy_count: i32) -> bool {
-    let ad = attack::attack_def(g, a);
-    let first_turn_ok = g.st.cards[a.card as usize].attack_first_turn & (1u8 << a.idx()) != 0;
-    if g.st.turn == 1 && !ad.can_use_on_first_turn && !first_turn_ok && !g.st.rules.attack_first_turn {
-        return true;
-    }
-    let active = g.st.players[p].active;
-    let slot = g.st.slot(p, active);
-    if slot.special_conditions.contains(&(SpecialCondition::Paralyzed as u8)) || slot.special_conditions.contains(&(SpecialCondition::Asleep as u8)) {
-        return true;
-    }
-    if slot.cannot_attack_next_turn || g.st.players[p].cannot_attack_turns_remaining > 0 {
-        return true;
-    }
-    if g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 {
-        if let Some(max) = g.st.players[p].cannot_attack_max_energy {
-            if energy_count <= max {
-                return true;
-            }
-        }
-    }
-    slot.blocked_attack_name_next_turn == Some(ad.tl_name) || slot.blocked_attack_name_until_leaves_active == Some(ad.tl_name)
-}
-
 /// Push onto a blocked list of at most 16 entries (a full list can only miss a
 /// blocked attack, which is then caught like any attack that throws).
 fn push_blocked(v: &mut SVec<(u8, u8), 16>, e: (u8, u8)) {
@@ -457,68 +371,6 @@ fn prompt_ability(g: &mut Game, f: CopyFrame) -> R {
         Cont::CopyAttack(f),
     );
     Ok(())
-}
-
-/// `COPY_ATTACK_VIA_ABILITY(store, state, effect, { copycatCard, filter: cardList !== player.active })`
-/// (allowCancel, requireActiveCopycat, own in-play Pokémon only).
-pub fn copy_attack_via_ability(g: &mut Game, p: usize, copycat: CardId) -> R {
-    let active = g.st.players[p].active;
-    if g.st.slot_pokemon(p, active) != Some(copycat) {
-        crate::bail!("CANNOT_USE_POWER");
-    }
-    // buildAttackListWithEnergyBlocking.
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, active), energy_map: SVec::new() })?;
-    let emap = match pe {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    };
-    let energy_count: i32 = emap.iter().map(|m| m.provides.len() as i32).sum();
-    let locked = g.st.slot(p, active).cannot_use_attacks_next_turn;
-    let mut cards: SVec<CardId, 64> = SVec::new();
-    let mut blocked: SVec<(u8, u8), 16> = SVec::new();
-    for (s, c, _) in crate::prefabs::for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if s == active {
-            continue;
-        }
-        let n = g.st.cdef(c).attacks.len();
-        let mut affordable = [false; 8];
-        for i in 0..n {
-            let a = AttackRef { card: c, index: i as u8 };
-            let mut cost: Cost = SVec::new();
-            for &t in g.st.cdef(c).attacks[i].cost {
-                cost.push(t);
-            }
-            let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack: a, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
-            let cost = match ce {
-                Effect::CheckAttackCost { cost, .. } => cost,
-                _ => SVec::new(),
-            };
-            affordable[i] = crate::energy::check_enough_energy(emap.as_slice(), cost.as_slice());
-        }
-        let index = cards.len() as u8;
-        cards.push(c);
-        for i in 0..n {
-            let a = AttackRef { card: c, index: i as u8 };
-            let name = g.st.cdef(c).attacks[i].tl_name;
-            if !affordable[i] || locked.iter().any(|l| *l == name) || cannot_use_attack_now(g, p, a, energy_count) {
-                push_blocked(&mut blocked, (index, i as u8));
-            }
-        }
-    }
-    if cards.is_empty() {
-        crate::bail!("CANNOT_USE_POWER");
-    }
-    // No attack can be used right now (no Energy, first turn, ...): the Ability would do nothing.
-    let usable = cards.iter().enumerate().any(|(ci, c)| (0..g.st.cdef(*c).attacks.len()).any(|i| !blocked.iter().any(|b| b.0 as usize == ci && b.1 as usize == i)));
-    if !usable {
-        crate::bail!("CANNOT_USE_POWER");
-    }
-    let mut f = CopyFrame::new(CopyStage::AbilityChosen, p, copycat, SlotRef::new(p, active));
-    for c in cards.iter() {
-        f.cards.push(*c);
-    }
-    f.blocked = blocked;
-    prompt_ability(g, f)
 }
 
 /// useAttack's `delegateFrom` branch: `runDelegatedCopiedAttackGenerator`

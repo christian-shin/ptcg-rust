@@ -392,11 +392,6 @@ fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, cr
     g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after }));
 }
 
-/// `SHUFFLE_HAND_INTO_DECK_THEN_DRAW(store, state, player, { excludeCard, drawCount })`.
-pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId, draw: u8) -> R {
-    shuffle_hand_into_deck_then_draw_ex(g, p, exclude, NO_CARD, draw, None)
-}
-
 /// `SHUFFLE_HAND_INTO_DECK_THEN_DRAW` with `sourceCard` and an `afterDraw`
 /// callback (a card continuation resumed with no results after the draw).
 pub fn shuffle_hand_into_deck_then_draw_ex(
@@ -429,41 +424,6 @@ pub fn shuffle_hand_into_deck_then_draw_ex(
     }
     shuffle_then_draw(g, p, draw, after);
     Ok(())
-}
-
-/// `SWITCH_IN_OPPONENT_BENCHED_POKEMON(store, state, player, { allowCancel })`.
-pub fn switch_in_opponent_benched_pokemon(g: &mut Game, p: usize, allow_cancel: bool) {
-    let o = 1 - p;
-    let pl = &g.st.players[o];
-    if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-        return;
-    }
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_POKEMON_TO_SWITCH",
-        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel, blocked: SVec::new() },
-        Cont::Prefab(PrefabCont::SwitchInOpponent { p: p as u8 }),
-    );
-}
-
-/// `SWITCH_ACTIVE_WITH_BENCHED(store, state, player)`.
-pub fn switch_active_with_benched(g: &mut Game, p: usize) {
-    let pl = &g.st.players[p];
-    if !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty()) {
-        return;
-    }
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_NEW_ACTIVE_POKEMON",
-        PromptKind::ChoosePokemon { player_type: PlayerType::BottomPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
-        Cont::Prefab(PrefabCont::SwitchActiveWithBenched { p: p as u8 }),
-    );
 }
 
 /// `MOVE_POKEMON_OFF_BOARD(store, state, slot, { pokemonDestination, sourceCard })`
@@ -635,51 +595,11 @@ pub fn deal_or_put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef
     Ok(())
 }
 
-/// `DAMAGE_OPPONENT_POKEMON(store, state, effect, damage, targets)`.
-pub fn damage_opponent_pokemon(g: &mut Game, atk: EffId, damage: i32, targets: &[SlotRef]) -> R {
-    for t in targets {
-        deal_or_put_damage(g, atk, damage, *t)?;
-    }
-    Ok(())
-}
-
 /// `PutDamageEffect(effect, damage)` on `target` (no Weakness for the Bench).
 pub fn put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef) -> R {
     let b = atk_base_for(g, atk, target);
     g.run_fx(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
     Ok(())
-}
-
-/// `THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_YOUR_OPPONENTS_BENCHED_POKEMON` (bench_only)
-/// and `..._TO_1_OF_YOUR_OPPONENTS_POKEMON`.
-pub fn damage_1_opponent_pokemon(g: &mut Game, atk: EffId, damage: i32, bench_only: bool) {
-    let p = match *g.e(atk) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return,
-    };
-    let o = 1 - p;
-    let pl = &g.st.players[o];
-    let has = if bench_only {
-        pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty())
-    } else {
-        !pl.in_play().is_empty()
-    };
-    if !has {
-        return;
-    }
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    if !bench_only {
-        slots.push(SlotType::Active as u8);
-    }
-    g.retain_fx(atk);
-    let id = g.player_id(p);
-    g.prompt(
-        id,
-        "CHOOSE_POKEMON_TO_DAMAGE",
-        PromptKind::ChoosePokemon { player_type: PlayerType::TopPlayer, slots, min: 1, max: 1, allow_cancel: false, blocked: SVec::new() },
-        Cont::Prefab(PrefabCont::DamageChosen { atk, damage }),
-    );
 }
 
 // ---------------------------------------------------------------------------
@@ -694,35 +614,6 @@ pub fn show_cards_to_player(g: &mut Game, p: usize, n_cards: usize) {
     g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
 }
 
-/// `SEARCH_DECK_FOR_CARDS_TO_HAND(store, state, player, sourceCard, filter, options)`.
-pub fn search_deck_for_cards_to_hand(g: &mut Game, p: usize, source: CardId, filter: Filter, opts: ChooseCardsOpts) {
-    search_deck_for_cards_to_hand_reveal(g, p, source, filter, opts, None)
-}
-
-/// `SEARCH_DECK_FOR_CARDS_TO_HAND(..., sourceEffect, reveal)`: `reveal` overrides the default
-/// (cards are shown only when a filter is given; added in phase 4b for Celebi, whose filter is empty).
-pub fn search_deck_for_cards_to_hand_reveal(g: &mut Game, p: usize, source: CardId, filter: Filter, opts: ChooseCardsOpts, reveal: Option<bool>) {
-    if g.st.players[p].deck.is_empty() {
-        return;
-    }
-    let show = reveal.unwrap_or(filter != Filter::none());
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchToHand { p: p as u8, source, show }));
-}
-
-/// `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND(store, state, player, filter, options)`.
-pub fn search_deck_for_pokemon_to_hand(g: &mut Game, p: usize, mut filter: Filter, opts: ChooseCardsOpts) -> R {
-    // An attack can be used even when the deck is empty; the search then fails (rulings 336, 779, 1790).
-    if g.st.phase == GamePhase::Attack && g.st.players[p].deck.is_empty() {
-        return Ok(());
-    }
-    if g.st.players[p].deck.is_empty() {
-        crate::bail!("NO_CARDS_IN_DECK");
-    }
-    filter.super_type = Some(SuperType::Pokemon as u8);
-    choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchPokemonToHand { p: p as u8 }));
-    Ok(())
-}
-
 /// `GET_PLAYER_BENCH_SLOTS`: empty bench slots in order.
 pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
     let pl = &g.st.players[p];
@@ -733,28 +624,6 @@ pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
         }
     }
     v
-}
-
-/// `SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH(store, state, player, filter, options)`.
-pub fn search_deck_for_pokemon_to_bench(g: &mut Game, p: usize, mut filter: Filter, mut opts: ChooseCardsOpts) -> R {
-    // An attack can be used even when its search can't be carried out; an empty deck or a full Bench is
-    // public knowledge, so the effect then fails without searching (rulings 336, 337, 1790).
-    if g.st.phase == GamePhase::Attack && (g.st.players[p].deck.is_empty() || empty_bench_slots(g, p).is_empty()) {
-        return Ok(());
-    }
-    if g.st.players[p].deck.is_empty() {
-        crate::bail!("NO_CARDS_IN_DECK");
-    }
-    let slots = empty_bench_slots(g, p);
-    if slots.is_empty() {
-        crate::bail!("NO_BENCH_SLOTS_AVAILABLE");
-    }
-    filter.super_type = Some(SuperType::Pokemon as u8);
-    // Only as many Pokémon as there are empty Bench spaces can be put onto the Bench.
-    opts.max = opts.max.min(slots.len() as u8);
-    opts.min = opts.min.min(slots.len() as u8);
-    choose_cards(g, p, "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ListRef::Deck(p as u8), filter, opts, Cont::Prefab(PrefabCont::SearchToBench { p: p as u8, slots }));
-    Ok(())
 }
 
 /// `MULTIPLE_COIN_FLIPS_PROMPT` / `FLIP_UNTIL_TAILS` (`mode` 0 = until tails):
@@ -864,22 +733,6 @@ pub fn discard_attacker_energy_if_knocked_out(g: &mut Game, atk: EffId, source_c
     };
     let b = atk_base_for(g, atk, source);
     g.run_fx(Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card })?;
-    Ok(())
-}
-
-/// `new AddSpecialConditionsEffect(effect, conditions)` on the opponent's Active.
-pub fn add_special_conditions_to_opponent_active(g: &mut Game, atk: EffId, conditions: &[SpecialCondition]) -> R {
-    let o = match *g.e(atk) {
-        Effect::Attack { opp, .. } => opp as usize,
-        _ => return Ok(()),
-    };
-    let target = SlotRef::new(o, g.st.players[o].active);
-    let b = atk_base_for(g, atk, target);
-    let mut cs = SVec::new();
-    for c in conditions {
-        cs.push(*c as u8);
-    }
-    g.run_fx(Effect::AddSpecialConditions { b, conditions: cs, poison_damage: None, burn_damage: None, confusion_damage: None })?;
     Ok(())
 }
 

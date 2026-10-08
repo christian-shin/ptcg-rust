@@ -3,7 +3,6 @@
 
 use crate::effects::*;
 use crate::energy;
-use crate::engine::game_effect::stats_effect;
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::markers::*;
@@ -884,10 +883,4 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         _ => Ok(()),
     }
-}
-
-/// Stats for a slot (used by cards).
-pub fn check_stats(g: &mut Game, s: SlotRef) -> R<Effect> {
-    let e = stats_effect(g, s);
-    Ok(g.run_fx(e)?.0)
 }
