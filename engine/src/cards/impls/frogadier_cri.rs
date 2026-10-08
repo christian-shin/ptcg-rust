@@ -11,7 +11,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Frogadier@Frogadier M4",
+    class: "Frogadier@CRI",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Pokemon), &Num::Lit(3)) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: true },

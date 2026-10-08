@@ -12,7 +12,7 @@ use crate::spec::prelude::*;
 
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Dipplin@Dipplin TWM1|Dipplin PRE",
+    class: "Dipplin@TWM|PRE",
     // Festival Lead: if Festival Grounds is in play, this Pokémon may use an attack twice. Do the
     // Wave: 20 damage for each of your Benched Pokémon.
     attacks: &[AttackSpec {

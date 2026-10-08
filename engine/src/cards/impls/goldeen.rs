@@ -7,7 +7,7 @@
 //! the no-Energy return. The coin flip is still skipped without Energy.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Goldeen@Goldeen TWM|Goldeen PRE",
+    class: "Goldeen@TWM|PRE",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::FestivalLead, value: false })),

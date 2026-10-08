@@ -7,7 +7,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Charmander@Charmander M2",
+    class: "Charmander@PFL",
     passives: &[Passive {
         origin: RuleSource::Ability,
         // No Energy attached: no Retreat Cost.

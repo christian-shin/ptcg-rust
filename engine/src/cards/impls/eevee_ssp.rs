@@ -18,7 +18,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Eevee@SSP|Eevee PRE",
+    class: "Eevee@SSP|PRE",
     // Boosted Evolution: as long as this Pokémon is in the Active Spot, it can evolve during your
     // first turn or the turn you play it.
     passives: &[Passive {

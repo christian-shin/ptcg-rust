@@ -33,8 +33,8 @@ pub type CoinFn = fn(&mut Game, CardId, CardFrame, bool) -> R;
 pub type CanPlayFn = fn(&mut Game, CardId, usize) -> bool;
 
 pub struct CardImpl {
-    /// Twinleaf behavior class name, or `Class@Full Name` to bind one card
-    /// only (for distinct Twinleaf classes that share a name).
+    /// Behavior class name, or `Class@SET` / `Class@Full Name` to bind one
+    /// printing only (for distinct classes that share a name).
     pub class: &'static str,
     /// Effect kinds the handler reacts to (bit = `Effect::kind()`).
     pub mask: KindMask,
@@ -75,14 +75,14 @@ fn table() -> &'static Vec<Option<&'static CardImpl>> {
     })
 }
 
-/// `class` is the Twinleaf class name, optionally qualified as `Class@SET`
-/// when two Twinleaf files define classes with the same name (e.g.
-/// `Koraidonex` in both ASC and TEF).
+/// `class` is the behavior class name, optionally qualified as `Class@SET`
+/// when two cards define classes with the same name (e.g. `Koraidonex` in
+/// both ASC and TEF).
 fn class_matches(class: &str, d: &crate::carddb::CardDef) -> bool {
     match class.split_once('@') {
         // `Class@SET` or `Class@Full Name` pins a port to one printing;
         // `Class@A|B` to several (e.g. an old printing and its reprint).
-        Some((c, q)) => c == d.behavior && q.split('|').any(|q| q == d.tl_set || q == d.tl_full_name),
+        Some((c, q)) => c == d.behavior && q.split('|').any(|q| q == d.set || q == d.full_name),
         None => class == d.behavior,
     }
 }
@@ -109,7 +109,7 @@ pub fn spec_for(d: DefId) -> Option<&'static crate::spec::CardSpec> {
     })[d as usize]
 }
 
-/// Cards whose Twinleaf class has logic but no port yet.
+/// Cards whose behavior class has logic but no port yet.
 pub fn missing_behavior(d: DefId) -> bool {
     !all_defs()[d as usize].behavior.is_empty() && impl_for(d).is_none()
 }

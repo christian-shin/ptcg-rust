@@ -1,1476 +1,1265 @@
 [
  {
-  "fullName": "Boss's Orders ASC",
   "key": "Boss's Orders ASC 183",
   "weighted": 91.93,
   "decks": 17,
   "tier": "short"
  },
  {
-  "fullName": "Ultra Ball 30C",
   "key": "Ultra Ball 30C 128",
   "weighted": 86.71,
   "decks": 16,
   "tier": "short"
  },
  {
-  "fullName": "Night Stretcher ASC",
   "key": "Night Stretcher ASC 196",
   "weighted": 85.11,
   "decks": 16,
   "tier": "custom"
  },
  {
-  "fullName": "Fezandipiti ex ASC",
   "key": "Fezandipiti ex ASC 142",
   "weighted": 79.11,
   "decks": 12,
   "tier": "custom"
  },
  {
-  "fullName": "Lillie's Determination ASC",
   "key": "Lillie's Determination ASC 192",
   "weighted": 76.86,
   "decks": 16,
   "tier": "custom"
  },
  {
-  "fullName": "Poké Pad 30C",
   "key": "Poké Pad 30C 126",
   "weighted": 76.56,
   "decks": 14,
   "tier": "custom"
  },
  {
-  "fullName": "Meowth ex M3",
   "key": "Meowth ex POR 62",
   "weighted": 71.06,
   "decks": 9,
   "tier": "custom"
  },
  {
-  "fullName": "Psychic Energy MEE",
   "key": "Psychic Energy MEE 5",
   "weighted": 68.53,
   "decks": 9,
   "tier": "data"
  },
  {
-  "fullName": "Buddy-Buddy Poffin ASC",
   "key": "Buddy-Buddy Poffin ASC 184",
   "weighted": 65.68,
   "decks": 10,
   "tier": "custom"
  },
  {
-  "fullName": "Budew ASC",
   "key": "Budew ASC 16",
   "weighted": 54.69,
   "decks": 5,
   "tier": "short"
  },
  {
-  "fullName": "Crispin PRE",
   "key": "Crispin PRE 105",
   "weighted": 48.7,
   "decks": 4,
   "tier": "custom"
  },
  {
-  "fullName": "Munkidori ASC",
   "key": "Munkidori ASC 99",
   "weighted": 46.0,
   "decks": 5,
   "tier": "custom"
  },
  {
-  "fullName": "Darkness Energy MEE",
   "key": "Darkness Energy MEE 7",
   "weighted": 46.0,
   "decks": 5,
   "tier": "data"
  },
  {
-  "fullName": "Unfair Stamp TWM",
   "key": "Unfair Stamp TWM 165",
   "weighted": 45.72,
   "decks": 8,
   "tier": "custom"
  },
  {
-  "fullName": "Judge POR",
   "key": "Judge POR 76",
   "weighted": 44.83,
   "decks": 6,
   "tier": "custom"
  },
  {
-  "fullName": "Special Red Card M4",
   "key": "Special Red Card CRI 82",
   "weighted": 38.36,
   "decks": 9,
   "tier": "custom"
  },
  {
-  "fullName": "Dunsparce JTG",
   "key": "Dunsparce JTG 120",
   "weighted": 37.85,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Dudunsparce PRE",
   "key": "Dudunsparce PRE 80",
   "weighted": 37.85,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Fire Energy MEE",
   "key": "Fire Energy MEE 2",
   "weighted": 37.17,
   "decks": 2,
   "tier": "data"
  },
  {
-  "fullName": "Dreepy ASC",
   "key": "Dreepy ASC 158",
   "weighted": 35.53,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Drakloak ASC",
   "key": "Drakloak ASC 159",
   "weighted": 35.53,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Dragapult ex ASC",
   "key": "Dragapult ex ASC 160",
   "weighted": 35.53,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Moltres M2",
   "key": "Moltres PFL 14",
   "weighted": 35.53,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Rosa's Encouragement M3",
   "key": "Rosa's Encouragement POR 84",
   "weighted": 35.53,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Crushing Hammer FA PBL",
   "key": "Crushing Hammer PBL 105",
   "weighted": 35.53,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Risky Ruins MEG",
   "key": "Risky Ruins MEG 127",
   "weighted": 35.53,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mega Kangaskhan ex M1S",
   "key": "Mega Kangaskhan ex MEG 104",
   "weighted": 26.38,
   "decks": 6,
   "tier": "custom"
  },
  {
-  "fullName": "Latias ex SSP",
   "key": "Latias ex SSP 76",
   "weighted": 25.52,
   "decks": 6,
   "tier": "custom"
  },
  {
-  "fullName": "Switch 30C",
   "key": "Switch 30C 127",
   "weighted": 24.71,
   "decks": 7,
   "tier": "short"
  },
  {
-  "fullName": "Grass Energy MEE",
   "key": "Grass Energy MEE 1",
   "weighted": 23.82,
   "decks": 7,
   "tier": "data"
  },
  {
-  "fullName": "Lillie's Clefairy ex ASC",
   "key": "Lillie's Clefairy ex ASC 76",
   "weighted": 23.02,
   "decks": 6,
   "tier": "custom"
  },
  {
-  "fullName": "Ciphermaniac's Codebreaking PRE",
   "key": "Ciphermaniac's Codebreaking PRE 104",
   "weighted": 22.59,
   "decks": 5,
   "tier": "short"
  },
  {
-  "fullName": "Cyrano SSP",
   "key": "Cyrano SSP 170",
   "weighted": 21.99,
   "decks": 5,
   "tier": "short"
  },
  {
-  "fullName": "Telepath [P] Energy M3",
   "key": "Telepathic Psychic Energy POR 88",
   "weighted": 21.11,
   "decks": 5,
   "tier": "custom"
  },
  {
-  "fullName": "Hero's Cape TEF",
   "key": "Hero's Cape TEF 152",
   "weighted": 17.13,
   "decks": 3,
   "tier": "short"
  },
  {
-  "fullName": "Fighting Energy MEE",
   "key": "Fighting Energy MEE 6",
   "weighted": 16.17,
   "decks": 5,
   "tier": "data"
  },
  {
-  "fullName": "Teal Mask Ogerpon ex PRE",
   "key": "Teal Mask Ogerpon ex PRE 12",
   "weighted": 15.42,
   "decks": 4,
   "tier": "custom"
  },
  {
-  "fullName": "Energy Switch FA PBL",
   "key": "Energy Switch PBL 107",
   "weighted": 15.18,
   "decks": 6,
   "tier": "short"
  },
  {
-  "fullName": "Prime Catcher PRE",
   "key": "Prime Catcher PRE 119",
   "weighted": 14.29,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Secret Box TWM",
   "key": "Secret Box TWM 163",
   "weighted": 13.61,
   "decks": 4,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Petrel ASC",
   "key": "Team Rocket's Petrel ASC 207",
   "weighted": 13.31,
   "decks": 8,
   "tier": "short"
  },
  {
-  "fullName": "Chien-Pao SSP",
   "key": "Chien-Pao SSP 56",
   "weighted": 13.17,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Iron Leaves exUR PRE",
   "key": "Iron Leaves ex PRE 176",
   "weighted": 13.17,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Wellspring Mask Ogerpon ex PRE",
   "key": "Wellspring Mask Ogerpon ex PRE 27",
   "weighted": 13.17,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Area Zero Underdepths PRE",
   "key": "Area Zero Underdepths PRE 94",
   "weighted": 13.17,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Water Energy MEE",
   "key": "Water Energy MEE 3",
   "weighted": 13.17,
   "decks": 3,
   "tier": "data"
  },
  {
-  "fullName": "Hilda SV11W",
   "key": "Hilda WHT 84",
   "weighted": 13.16,
   "decks": 3,
   "tier": "short"
  },
  {
-  "fullName": "Rare Candy SVI",
   "key": "Rare Candy MEG 125",
   "weighted": 12.08,
   "decks": 4,
   "tier": "short"
  },
  {
-  "fullName": "Raging Bolt exSAR PRE",
   "key": "Raging Bolt ex PRE 166",
   "weighted": 11.53,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Glass Trumpet ASC",
   "key": "Glass Trumpet ASC 189",
   "weighted": 11.53,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Lightning Energy MEE",
   "key": "Lightning Energy MEE 4",
   "weighted": 11.53,
   "decks": 2,
   "tier": "data"
  },
  {
-  "fullName": "Festival Grounds PRE",
   "key": "Festival Grounds PRE 108",
   "weighted": 10.9,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Metagross M4",
   "key": "Metagross CRI 61",
   "weighted": 10.81,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Gwynn M5",
   "key": "Gwynn PBL 78",
   "weighted": 10.66,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Enamorus TWM",
   "key": "Enamorus TWM 93",
   "weighted": 10.31,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Iron Crown exSAR PRE",
   "key": "Iron Crown ex PRE 158",
   "weighted": 10.31,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Yveltal M1L",
   "key": "Yveltal MEG 88",
   "weighted": 10.04,
   "decks": 3,
   "tier": "short"
  },
  {
-  "fullName": "Tatsugiri TWM",
   "key": "Tatsugiri TWM 131",
   "weighted": 10.04,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Duskull PRE",
   "key": "Duskull PRE 35",
   "weighted": 9.98,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Dusclops PRE",
   "key": "Dusclops PRE 36",
   "weighted": 9.98,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Dusknoir PRE",
   "key": "Dusknoir PRE 37",
   "weighted": 9.98,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Shaymin DRI",
   "key": "Shaymin DRI 10",
   "weighted": 9.67,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Air Balloon ASC",
   "key": "Air Balloon ASC 181",
   "weighted": 9.61,
   "decks": 5,
   "tier": "short"
  },
  {
-  "fullName": "Pecharunt exSAR PRE",
   "key": "Pecharunt ex PRE 163",
   "weighted": 9.25,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Binding Mochi PRE",
   "key": "Binding Mochi PRE 95",
   "weighted": 8.82,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Kieran PRE",
   "key": "Kieran PRE 113",
   "weighted": 8.5,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Grow [G] Energy M3",
   "key": "Growing Grass Energy POR 86",
   "weighted": 8.04,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "N's Zorua ASC",
   "key": "N's Zorua ASC 136",
   "weighted": 7.96,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "N's Zoroark ex ASC",
   "key": "N's Zoroark ex ASC 137",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "N's Zekrom M2a",
   "key": "N's Zekrom ASC 155",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "N's Darumaka ASC",
   "key": "N's Darumaka ASC 32",
   "weighted": 7.96,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "N's Darmanitan ASC",
   "key": "N's Darmanitan ASC 33",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Black Belt's Training ASC",
   "key": "Black Belt's Training ASC 255",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Book of Transformation M4",
   "key": "Transformation Tome CRI 83",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "N's PP Up ASC",
   "key": "N's PP Up ASC 195",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "N's Castle JTG",
   "key": "N's Castle JTG 152",
   "weighted": 7.96,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Lumioise City M3",
   "key": "Lumiose City POR 77",
   "weighted": 7.25,
   "decks": 3,
   "tier": "short"
  },
  {
-  "fullName": "Slowpoke SCR",
   "key": "Slowpoke SCR 57",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Slowking SCR",
   "key": "Slowking SCR 58",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Kyurem SFA",
   "key": "Kyurem SFA 47",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Unown 30C",
   "key": "Unown 30C 72",
   "weighted": 7.17,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Zeraora DRI",
   "key": "Zeraora DRI 78",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Wondrous Patch FA POR",
   "key": "Wondrous Patch POR 117",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Academy at Night SFA",
   "key": "Academy at Night SFA 54",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Boomerang Energy TWM",
   "key": "Boomerang Energy TWM 166",
   "weighted": 7.17,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Abra M1S",
   "key": "Abra MEG 54",
   "weighted": 7.12,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Abra TWM",
   "key": "Abra TWM 80",
   "weighted": 7.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Kadabra M1S",
   "key": "Kadabra MEG 55",
   "weighted": 7.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Alakazam M1S",
   "key": "Alakazam MEG 56",
   "weighted": 7.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Dawn M2",
   "key": "Dawn PFL 87",
   "weighted": 7.12,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Strange Timepiece MEG",
   "key": "Strange Timepiece MEG 128",
   "weighted": 7.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Sacred Ash FA POR",
   "key": "Sacred Ash POR 115",
   "weighted": 7.12,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Applin TWM1",
   "key": "Applin TWM 17",
   "weighted": 7.11,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Dipplin PRE",
   "key": "Dipplin PRE 10",
   "weighted": 7.11,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Lana's Aid TWM",
   "key": "Lana's Aid TWM 155",
   "weighted": 7.11,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Forest of Vitality FA POR",
   "key": "Forest of Vitality POR 109",
   "weighted": 7.11,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Jumbo Ice Cream FA CRI",
   "key": "Jumbo Ice Cream CRI 109",
   "weighted": 6.82,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Brave Bangle FA PBL",
   "key": "Brave Bangle PBL 104",
   "weighted": 5.22,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Applin TWM2",
   "key": "Applin TWM 126",
   "weighted": 4.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Grookey TWM",
   "key": "Grookey TWM 14",
   "weighted": 4.86,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Thwackey TWM",
   "key": "Thwackey TWM 15",
   "weighted": 4.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Goldeen PRE",
   "key": "Goldeen PRE 20",
   "weighted": 4.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Seaking PRE",
   "key": "Seaking PRE 21",
   "weighted": 4.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Rellor TEF",
   "key": "Rellor TEF 23",
   "weighted": 4.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Rabsca TEF",
   "key": "Rabsca TEF 24",
   "weighted": 4.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Gladion's Decisive Battle M5",
   "key": "Gladion's Final Battle PBL 77",
   "weighted": 4.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Pokemon Catcher POR",
   "key": "Pokémon Catcher POR 82",
   "weighted": 4.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Tool Scrapper FA CRI",
   "key": "Tool Scrapper CRI 115",
   "weighted": 4.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Pokegear 3.0 SV11W",
   "key": "Pokégear 3.0 BLK 84",
   "weighted": 4.85,
   "decks": 4,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Factory ASC",
   "key": "Team Rocket's Factory ASC 203",
   "weighted": 4.52,
   "decks": 3,
   "tier": "custom"
  },
  {
-  "fullName": "Energy Recycler FA POR",
   "key": "Energy Recycler POR 108",
   "weighted": 4.07,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Beldum M4",
   "key": "Beldum CRI 59",
   "weighted": 3.64,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Metang TEF",
   "key": "Metang TEF 114",
   "weighted": 3.64,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Drilbur M5",
   "key": "Drilbur PBL 46",
   "weighted": 3.64,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mega Excadrill ex M5",
   "key": "Mega Excadrill ex PBL 65",
   "weighted": 3.64,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Genesect ex SV11B",
   "key": "Genesect ex BLK 67",
   "weighted": 3.64,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Mega Skarmory ex M3",
   "key": "Mega Skarmory ex POR 55",
   "weighted": 3.64,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Brock's Scouting JTG",
   "key": "Brock's Scouting JTG 146",
   "weighted": 3.64,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Metal Energy MEE",
   "key": "Metal Energy MEE 8",
   "weighted": 3.64,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Dwebble DRI",
   "key": "Dwebble DRI 11",
   "weighted": 3.18,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Crustle DRI",
   "key": "Crustle DRI 12",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "EriFA PRE",
   "key": "Eri PRE 136",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Xerosic's Machinations SFA",
   "key": "Xerosic's Machinations SFA 64",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Pokémon Center Lady FLF",
   "key": "Pokémon Center Lady MEG 123",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Enhanced Hammer TWM",
   "key": "Enhanced Hammer TWM 148",
   "weighted": 3.18,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Handheld Fan TWM",
   "key": "Handheld Fan TWM 150",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Mist Energy TEF",
   "key": "Mist Energy TEF 161",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Spiky Energy JTG",
   "key": "Spiky Energy JTG 159",
   "weighted": 3.18,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Fighting Gong M1L",
   "key": "Fighting Gong ASC 187",
   "weighted": 3.0,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Premium Power Pro ASC",
   "key": "Premium Power Pro ASC 199",
   "weighted": 3.0,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Bronzor TEF",
   "key": "Bronzor TEF 68",
   "weighted": 2.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Bronzong TEF",
   "key": "Bronzong TEF 69",
   "weighted": 2.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Buneary M2",
   "key": "Buneary PFL 83",
   "weighted": 2.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mega Lopunny ex M2",
   "key": "Mega Lopunny ex PFL 84",
   "weighted": 2.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Bloodmoon Ursaluna exSAR PRE",
   "key": "Bloodmoon Ursaluna ex PRE 168",
   "weighted": 2.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Wally's Compassion M1S",
   "key": "Wally's Compassion MEG 132",
   "weighted": 2.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Salvatore TEF",
   "key": "Salvatore TEF 160",
   "weighted": 2.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Rich Energy SSP",
   "key": "Enriching Energy SSP 191",
   "weighted": 2.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Prism Tower M4",
   "key": "Prism Tower CRI 80",
   "weighted": 2.68,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Bug Catching Set PRE",
   "key": "Bug Catching Set PRE 102",
   "weighted": 2.61,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Shuppet M5",
   "key": "Shuppet PBL 33",
   "weighted": 2.32,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Banette M5",
   "key": "Banette PBL 34",
   "weighted": 2.32,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Poltchageist M5",
   "key": "Poltchageist PBL 5",
   "weighted": 2.32,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Sinistcha M5",
   "key": "Sinistcha PBL 6",
   "weighted": 2.32,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Dhelmise M5",
   "key": "Dhelmise PBL 39",
   "weighted": 2.32,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Spiritomb M5",
   "key": "Spiritomb PBL 35",
   "weighted": 2.32,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Explorers Guidance PRE",
   "key": "Explorer's Guidance PRE 107",
   "weighted": 2.32,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Legacy Energy TWM",
   "key": "Legacy Energy TWM 167",
   "weighted": 2.32,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Chikorita MC",
   "key": "Chikorita ASC 8",
   "weighted": 2.25,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Bayleef M1S",
   "key": "Bayleef MEG 9",
   "weighted": 2.25,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Meganium M1S",
   "key": "Meganium MEG 10",
   "weighted": 2.25,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Hydrapple ex PRE",
   "key": "Hydrapple ex PRE 11",
   "weighted": 2.25,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Celebi MEG 12",
   "key": "Celebi MEG 12",
   "weighted": 2.25,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Tapu Bulu SFA",
   "key": "Tapu Bulu SFA 6",
   "weighted": 2.25,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Briar PRE",
   "key": "Briar PRE 100",
   "weighted": 2.25,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Riolu ASC",
   "key": "Riolu ASC 112",
   "weighted": 2.12,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mega Lucario ex ASC",
   "key": "Mega Lucario ex ASC 113",
   "weighted": 2.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Solrock ASC",
   "key": "Solrock ASC 106",
   "weighted": 2.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Makuhita M1L",
   "key": "Makuhita MEG 72",
   "weighted": 2.12,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Hariyama M1L",
   "key": "Hariyama MEG 73",
   "weighted": 2.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Lunatone ASC",
   "key": "Lunatone ASC 105",
   "weighted": 2.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Gravity Mountain SSP",
   "key": "Gravity Mountain SSP 177",
   "weighted": 2.12,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Paldean Tauros SSP",
   "key": "Paldean Tauros SSP 18",
   "weighted": 1.64,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mew ex 30C",
   "key": "Mew ex 30C 66",
   "weighted": 1.64,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Passimian SSP",
   "key": "Passimian SSP 111",
   "weighted": 1.64,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Lillie's Pearl JTG",
   "key": "Lillie's Pearl JTG 151",
   "weighted": 1.64,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Prism Energy ASC",
   "key": "Prism Energy ASC 216",
   "weighted": 1.64,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Articuno DRI",
   "key": "Team Rocket's Articuno DRI 51",
   "weighted": 1.34,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Ariana ASC",
   "key": "Team Rocket's Ariana ASC 202",
   "weighted": 1.34,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Proton ASC",
   "key": "Team Rocket's Proton ASC 208",
   "weighted": 1.34,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Giovanni ASC",
   "key": "Team Rocket's Giovanni ASC 204",
   "weighted": 1.34,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Transceiver ASC",
   "key": "Team Rocket's Transceiver ASC 209",
   "weighted": 1.34,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Energy ASC",
   "key": "Team Rocket's Energy ASC 217",
   "weighted": 1.34,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Toxel M2",
   "key": "Toxel PFL 67",
   "weighted": 1.29,
   "decks": 2,
   "tier": "short"
  },
  {
-  "fullName": "Toxtricity M2",
   "key": "Toxtricity PFL 68",
   "weighted": 1.29,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Watchtower ASC",
   "key": "Team Rocket's Watchtower ASC 210",
   "weighted": 1.29,
   "decks": 2,
   "tier": "custom"
  },
  {
-  "fullName": "Marnie's Impidimp DRI",
   "key": "Marnie's Impidimp DRI 134",
   "weighted": 1.22,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Marnie's Morgrem DRI",
   "key": "Marnie's Morgrem DRI 135",
   "weighted": 1.22,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Marnie's Grimmsnarl ex ASC",
   "key": "Marnie's Grimmsnarl ex ASC 287",
   "weighted": 1.22,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Snorunt M2a",
   "key": "Snorunt ASC 46",
   "weighted": 1.22,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Froslass TWM",
   "key": "Froslass TWM 53",
   "weighted": 1.22,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Spikemuth Gym DRI",
   "key": "Spikemuth Gym DRI 169",
   "weighted": 1.22,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Murkrow ASC",
   "key": "Team Rocket's Murkrow ASC 126",
   "weighted": 0.98,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Honchkrow M2a",
   "key": "Team Rocket's Honchkrow ASC 127",
   "weighted": 0.98,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Porygon DRI",
   "key": "Team Rocket's Porygon DRI 153",
   "weighted": 0.98,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Porygon2 DRI",
   "key": "Team Rocket's Porygon2 DRI 154",
   "weighted": 0.98,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Archer ASC",
   "key": "Team Rocket's Archer ASC 201",
   "weighted": 0.98,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Roto-Stick PRE",
   "key": "Roto-Stick PRE 127",
   "weighted": 0.98,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Miraculous Intercom SSP",
   "key": "Miracle Headset SSP 183",
   "weighted": 0.98,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Ignition Energy PFL",
   "key": "Ignition Energy PFL 124",
   "weighted": 0.98,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Cynthia's Roselia DRI",
   "key": "Cynthia's Roselia DRI 7",
   "weighted": 0.88,
   "decks": 1,
   "tier": "data"
  },
  {
-  "fullName": "Cynthia's Roserade DRI",
   "key": "Cynthia's Roserade DRI 8",
   "weighted": 0.88,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Cynthia's Gible ASC",
   "key": "Cynthia's Gible ASC 109",
   "weighted": 0.88,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Cynthia's Gabite ASC",
   "key": "Cynthia's Gabite ASC 110",
   "weighted": 0.88,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Cynthia's Garchomp ex ASC",
   "key": "Cynthia's Garchomp ex ASC 111",
   "weighted": 0.88,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Cynthia's Spiritomb ASC",
   "key": "Cynthia's Spiritomb ASC 133",
   "weighted": 0.88,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Cynthia's Power Weight DRI",
   "key": "Cynthia's Power Weight DRI 162",
   "weighted": 0.88,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Rock Fighting Energy M3",
   "key": "Rocky Fighting Energy POR 87",
   "weighted": 0.88,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Carvanha M2",
   "key": "Carvanha PFL 60",
   "weighted": 0.86,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mega Sharpedo ex M2",
   "key": "Mega Sharpedo ex PFL 61",
   "weighted": 0.86,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Chi-Yu M5",
   "key": "Chi-Yu PBL 59",
   "weighted": 0.43,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "PecharuntIR SVP",
   "key": "Pecharunt SVP 129",
   "weighted": 0.43,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Brute Bonnet TWM",
   "key": "Brute Bonnet TWM 118",
   "weighted": 0.43,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Mega Absol ex M1L",
   "key": "Mega Absol ex MEG 86",
   "weighted": 0.43,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Morty's Conviction TEF",
   "key": "Morty's Conviction TEF 155",
   "weighted": 0.43,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Tarountula ASC",
   "key": "Team Rocket's Tarountula ASC 18",
   "weighted": 0.36,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Team Rocket's Spidops ASC",
   "key": "Team Rocket's Spidops ASC 19",
   "weighted": 0.36,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Mewtwo ex ASC",
   "key": "Team Rocket's Mewtwo ex ASC 79",
   "weighted": 0.36,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Team Rocket's Mimikyu ASC",
   "key": "Team Rocket's Mimikyu ASC 97",
   "weighted": 0.36,
   "decks": 1,
   "tier": "custom"
  },
  {
-  "fullName": "Energy Search POR",
   "key": "Energy Search POR 72",
   "weighted": 0.36,
   "decks": 1,
   "tier": "short"
  },
  {
-  "fullName": "Lucky Helmet TWM",
   "key": "Lucky Helmet TWM 158",
   "weighted": 0.36,
   "decks": 1,

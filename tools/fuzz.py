@@ -30,11 +30,11 @@ def random_decks(count, rng):
     their evolutions (pool or support cards), up to 14 Trainers, and Energy
     for the Pokémon's types (Special Energy included). 60 cards, max 4 copies
     of a name, at most one ACE SPEC and one Radiant."""
-    cards = {c['fullName']: c for c in json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))}
+    cards = json.load(open(os.path.join(ROOT, 'data/cards.json')))
     pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
-    support = [r['fullName'] for r in json.load(open(os.path.join(ROOT, 'data/support_cards.json')))]
+    support = [r['key'] for r in json.load(open(os.path.join(ROOT, 'data/support_cards.json')))]
     ok = ported()
-    names = sorted({r['fullName'] for r in pool if r.get('fullName') in cards and (r.get('tier') == 'data' or r['fullName'] in ok)})
+    names = sorted({r['key'] for r in pool if r['key'] in cards and (r.get('tier') == 'data' or r['key'] in ok)})
     usable = names + [s for s in support if s in cards and s not in names]
     mons = [n for n in usable if cards[n]['superType'] == 1]
     basics = [n for n in names if n in mons and cards[n]['stage'] == 2]
@@ -44,13 +44,14 @@ def random_decks(count, rng):
             evos_of[cards[n]['evolvesFrom']].append(n)
     trainers = [n for n in names if cards[n]['superType'] == 2]
     special = [n for n in names if cards[n]['superType'] == 3 and cards[n].get('energyType') != 0]
-    basic_energy = sorted(n for n, c in cards.items() if n.endswith(' MEE') and c['superType'] == 3 and c.get('energyType') == 0)
+    # one basic Energy per type: the first printings of the Mega Evolution set (MEE 1-8)
+    basic_energy = sorted(n for n, c in cards.items() if c['set'] == 'MEE' and int(c['setNumber']) <= 8 and c['superType'] == 3 and c.get('energyType') == 0)
 
     def is_ace(n):
-        return 'Ace Spec' in (cards[n].get('_tags') or [])
+        return 'Ace Spec' in (cards[n].get('tags') or [])
 
     def is_radiant(n):
-        return 'Radiant' in (cards[n].get('_tags') or []) or cards[n]['name'].startswith('Radiant ')
+        return 'Radiant' in (cards[n].get('tags') or []) or cards[n]['name'].startswith('Radiant ')
 
     out = []
     for k in range(count):
@@ -106,7 +107,7 @@ def random_decks(count, rng):
 
 
 def build_spec(seed, n_random):
-    meta = json.load(open(os.path.join(ROOT, 'decks/meta-tl/playable.corpus.json')))['decks']
+    meta = json.load(open(os.path.join(ROOT, 'decks/meta/playable.corpus.json')))['decks']
     rng = random.Random(seed)
     decks = [dict(d, name='meta-' + d['name']) for d in meta] + random_decks(n_random, rng)
     rng.shuffle(decks)

@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Archaludon@Archaludon SCR|Archaludon PRE",
+    class: "Archaludon@SCR|PRE",
 attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] }],
     passives: &[Passive {
         origin: RuleSource::Ability,

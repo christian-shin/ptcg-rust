@@ -2,15 +2,14 @@
 
 usage: status.py [--md]
 
-Ported = the card has no Twinleaf logic or has a Rust port (engine `diff
+Ported = the card has no card logic or has a Rust port (engine `diff
 --list-ported`). Verified = listed in data/verified.json (international card key ->
-{status, note, twinleaf = Twinleaf fullName}; matched by key, else by twinleaf) after passing check_cards.py with coverage (any status:
+{status, note}) after passing check_cards.py with coverage (any status:
 verified / partial / blocked, as before); "needs-reverify" entries (the pool row was remapped to another
-printing by tools/map_prints.py) are counted separately. The print-match table
-counts pool.json `print_match` (exact Twinleaf printing found or not).
+printing) are counted separately. The print-match table counts pool.json
+`print_match` (whether the card data is that exact printing).
 """
 import json, os, subprocess, sys, collections
-from names import english
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _bins = [os.path.join(ROOT, 'engine/target', p, 'diff') for p in ('release', 'iter')]
@@ -23,7 +22,6 @@ def main():
     ported = set(subprocess.run([DIFF, '--list-ported'], capture_output=True, text=True).stdout.split('\n'))
     vpath = os.path.join(ROOT, 'data/verified.json')
     verified = json.load(open(vpath)) if os.path.exists(vpath) else {}
-    by_tl = {e['twinleaf']: e for e in verified.values() if e.get('twinleaf')}   # fallback: Twinleaf name
     tiers = collections.Counter()
     done = collections.Counter()
     ver = collections.Counter()
@@ -32,9 +30,9 @@ def main():
     for r in pool:
         t = r.get('tier', 'absent')
         tiers[t] += 1
-        if r.get('fullName') in ported:
+        if r['key'] in ported:
             done[t] += 1
-        st = (verified.get(r.get('key')) or by_tl.get(r.get('fullName')) or {}).get('status')
+        st = (verified.get(r['key']) or {}).get('status')
         if st == 'needs-reverify':
             rev[t] += 1
         elif st:
@@ -60,8 +58,7 @@ def main():
     byk = {(r['set'], r['number']): r for r in pool}
     byname = collections.defaultdict(list)
     for r in pool:
-        if r.get('fullName'):
-            byname[r['name']].append(r)
+        byname[r['name']].append(r)
     print('\n## Meta decks\n' if md else '\nMeta decks')
     if md:
         print('| archetype | share | cards ported | playable |')
@@ -70,14 +67,14 @@ def main():
         need, have, missing = 0, 0, []
         for c in a['cards']:
             r = byk.get((c['set'], str(c['number'])))
-            if not r or not r.get('fullName'):
+            if not r:
                 cand = byname.get(c['name'], [])
                 r = cand[0] if cand else None
             need += 1
-            if r and r.get('fullName') in ported:
+            if r and r['key'] in ported:
                 have += 1
             else:
-                missing.append(english(r['fullName']) if r else c['name'] + ' (not in Twinleaf)')
+                missing.append(r['key'] if r else c['name'] + ' (not in the pool)')
         ok = have == need
         share = a.get('share') or 0
         if md:

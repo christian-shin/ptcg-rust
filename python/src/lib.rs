@@ -336,7 +336,7 @@ impl VecEnv {
     }
 
     /// Submit env `i`'s picks. `Ok(false)`: no valid answer exists (the game
-    /// is stuck, as Twinleaf would be) and the caller must end it.
+    /// is stuck) and the caller must end it.
     fn submit(&mut self, i: usize) -> PyResult<bool> {
         self.views.lock().unwrap()[i] = None;
         let e = &mut self.envs[i];
@@ -426,7 +426,7 @@ impl VecEnv {
         self.invalid
     }
 
-    /// Games ended early because a prompt had no valid answer (Twinleaf stuck).
+    /// Games ended early because a prompt had no valid answer (stuck).
     #[getter]
     fn stuck_games(&self) -> u64 {
         self.stuck

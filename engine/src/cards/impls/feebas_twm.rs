@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Feebas@Feebas TWM",
+    class: "Feebas@TWM",
     attacks: &[
         AttackSpec {
             index: 0,

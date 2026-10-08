@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Zeraora@Zeraora DRI",
+    class: "Zeraora@DRI",
     attacks: &[
         AttackSpec {
             index: 1,

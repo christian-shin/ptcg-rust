@@ -359,7 +359,7 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
     let pool: Value = serde_json::from_str(&std::fs::read_to_string("data/pool.json").unwrap()).unwrap();
     let mut trainers: Vec<DefId> = vec![];
     for c in pool.as_array().unwrap() {
-        if let Some(id) = def_by_full_name(c["fullName"].as_str().unwrap()) {
+        if let Some(id) = def_by_full_name(c["key"].as_str().unwrap()) {
             let d = def(id);
             if d.is_trainer() && !d.has_tag(ptcg::types::tag::ACE_SPEC) && cards_impl(id) {
                 trainers.push(id);
@@ -370,7 +370,7 @@ fn random_mode(n: usize, seed0: u32, only_pokemon: bool) {
         .as_array()
         .unwrap()
         .iter()
-        .filter_map(|c| def_by_full_name(c["fullName"].as_str().unwrap()))
+        .filter_map(|c| def_by_full_name(c["key"].as_str().unwrap()))
         .filter(|d| def(*d).is_pokemon() && def(*d).powers.iter().any(|p| p.power_type == PowerType::Ability as u8) && cards_impl(*d))
         .collect();
     let mut stats: std::collections::BTreeMap<String, (u32, u32, String)> = Default::default();
@@ -566,7 +566,7 @@ fn attack_prompts() {
     let pool: Value = serde_json::from_str(&std::fs::read_to_string("data/pool.json").unwrap()).unwrap();
     let types = ["Grass Energy MEE", "Fire Energy MEE", "Water Energy MEE", "Lightning Energy MEE", "Psychic Energy MEE", "Fighting Energy MEE", "Darkness Energy MEE", "Metal Energy MEE"];
     for c in pool.as_array().unwrap() {
-        let id = match def_by_full_name(c["fullName"].as_str().unwrap()) {
+        let id = match def_by_full_name(c["key"].as_str().unwrap()) {
             Some(i) => i,
             None => continue,
         };
@@ -741,7 +741,7 @@ fn main() {
     let pool: Value = serde_json::from_str(&std::fs::read_to_string("data/pool.json").unwrap()).unwrap();
     let mut targets: Vec<DefId> = vec![];
     for c in pool.as_array().unwrap() {
-        let tw = c["fullName"].as_str().unwrap();
+        let tw = c["key"].as_str().unwrap();
         let id = match def_by_full_name(tw) {
             Some(i) => i,
             None => continue,

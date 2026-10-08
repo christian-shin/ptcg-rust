@@ -2,7 +2,7 @@
 oracle freeze of 2026-10-08).
 
 usage: check_cards.py "Card A" ["Card B" ...]   (international key such as
-                      "Growing Grass Energy POR 86", or Twinleaf full name)
+                      "Growing Grass Energy POR 86", or "Name SET" when unique)
                       [--games N] [--seed S] [--out DIR] [--tag TAG] [--keep]
                       [--scenario JSON] [--no-scenarios] [--threads T]
 
@@ -23,7 +23,6 @@ Output goes to corpus/cards/<tag>/ (default tag: first target, slugified).
 Exit status 1 on any failure.
 """
 import argparse, collections, glob, json, os, random, re, subprocess, sys
-import names  # tools/names.py: English keys <-> Twinleaf full names
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -42,10 +41,18 @@ FUZZ = _bin('fuzz')
 SCEN = _bin('scen')
 SCOUT = _bin('scout')
 
-cards = {c['fullName']: c for c in json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))}
+cards = json.load(open(os.path.join(ROOT, 'data/cards.json')))
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
-BASIC_ENERGY = {1: 'Grass Energy MEE', 2: 'Fire Energy MEE', 3: 'Water Energy MEE', 4: 'Lightning Energy MEE',
-                5: 'Psychic Energy MEE', 6: 'Fighting Energy MEE', 7: 'Darkness Energy MEE', 8: 'Metal Energy MEE'}
+BASIC_ENERGY = {1: 'Grass Energy MEE 1', 2: 'Fire Energy MEE 2', 3: 'Water Energy MEE 3', 4: 'Lightning Energy MEE 4',
+                5: 'Psychic Energy MEE 5', 6: 'Fighting Energy MEE 6', 7: 'Darkness Energy MEE 7', 8: 'Metal Energy MEE 8'}
+
+
+def resolve(name):
+    """A card key, or "Name SET" when exactly one card has it; None if unknown."""
+    if name in cards:
+        return name
+    hits = [k for k in cards if k.rsplit(' ', 1)[0] == name]
+    return hits[0] if len(hits) == 1 else None
 
 
 def ported_names():
@@ -70,7 +77,7 @@ def build_deck(targets, support, rng):
         if c['superType'] == 3 and c.get('energyType') == 0:
             deck[n] += q
             return
-        ace = 'Ace Spec' in (c.get('_tags') or [])
+        ace = 'Ace Spec' in (c.get('tags') or [])
         lim = 1 if ace else 4
         if ace and by_name['<ace>'] > 0:
             return  # one ACE SPEC per deck
@@ -127,13 +134,11 @@ def build_deck(targets, support, rng):
 
 
 def scenarios_mentioning(targets):
-    """Scenario files that name a target (English key, Twinleaf full name, or the card name with its set)."""
+    """Scenario files that name a target (its key, or the card name with its set)."""
     keys = set()
     for t in targets:
         keys.add(t)
-        e = names.english(t)
-        keys.add(e)
-        keys.add(e.rsplit(' ', 1)[0])  # "Name SET" without the number
+        keys.add(t.rsplit(' ', 1)[0])  # "Name SET" without the number
     out = []
     for f in sorted(glob.glob(os.path.join(ROOT, 'scenarios', '*.json'))):
         text = open(f).read()
@@ -162,11 +167,12 @@ def main():
     args = ap.parse_args()
     if args.remote:
         print('note: --remote is ignored (the oracle is frozen; everything runs in Rust)')
-    args.targets = [names.twinleaf(t) for t in args.targets]   # English keys work too
-    for t in args.targets:
-        if t not in cards:
+    targets = [resolve(t) for t in args.targets]
+    for t, k in zip(args.targets, targets):
+        if k is None:
             sys.exit('unknown card: %s' % t)
-    print('targets: ' + '; '.join(names.label(t) for t in args.targets))   # English key (Twinleaf name)
+    args.targets = targets
+    print('targets: ' + '; '.join(args.targets))
     threads = ['--threads', str(args.threads)] if args.threads else []
     failed = False
     if args.scenario:
@@ -183,7 +189,7 @@ def main():
             shutil.rmtree(fp)
         else:
             os.remove(fp)
-    data = {r['fullName'] for r in pool if r.get('tier') == 'data'}
+    data = {r['key'] for r in pool if r.get('tier') == 'data'}
     support = (data | ported_names()) - set(args.targets)
     rng = random.Random(args.seed)
     decks = [{'name': '%s-%d' % (tag, k), 'cards': build_deck(args.targets, support, rng)} for k in range(6)]

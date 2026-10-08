@@ -142,7 +142,7 @@ fn names_eq(c: CardId, g: &Game, name: &str) -> bool {
 
 fn names_eq_def(d: crate::carddb::DefId, name: &str) -> bool {
     let cd = crate::carddb::def(d);
-    en_key(d) == name || cd.full_name == name || cd.tl_full_name == name || crate::carddb::en_name(d) == name || cd.tl_name == name
+    cd.full_name == name || cd.name == name
 }
 
 fn label(g: &Game, c: CardId) -> String {
@@ -227,15 +227,6 @@ fn check_zone(g: &Game, a: &Value, p: usize) -> Result<(), String> {
     Ok(())
 }
 
-/// An offered attack (official name `n`) is the one a scenario calls `want`: by its official or old Twinleaf name.
-fn attack_named(g: &Game, p: usize, n: &str, want: &str) -> bool {
-    n == want
-        || g.st.players[p]
-            .all_slots()
-            .iter()
-            .any(|s| g.st.slot_pokemon(p, *s).map_or(false, |c| g.st.cdef(c).attacks.iter().any(|a| a.name == n && a.tl_name == want)))
-}
-
 /// `legal`: whether a turn action is among the legal options of the player to move (the same
 /// trial dispatch as the interface). `is` (default true) is the expected answer.
 /// `legal` is `play` (a card in hand, `name`; `on`: "active" or a Bench index narrows it to that target),
@@ -255,11 +246,11 @@ fn check_legal(g: &Game, a: &Value, p: usize) -> Result<(), String> {
         ("retreat", Action::Retreat { bench_index }) => a["on"].as_u64().map_or(true, |b| b == bench_index as u64),
         ("stadium", Action::UseStadium) => true,
         ("attack", Action::Attack { name: n, from }) => {
-            attack_named(g, p, n, name) && a["from"].as_str().map_or(true, |w| from.map_or(false, |f| crate::carddb::def_by_full_name(f).map_or(false, |d| names_eq_def(d, w))))
+            n == name && a["from"].as_str().map_or(true, |w| from.map_or(false, |f| crate::carddb::def_by_full_name(f).map_or(false, |d| names_eq_def(d, w))))
         }
         ("ability", Action::UseAbility { name: n, target }) => {
             let src = crate::prompts::get_target(&g.st, p, target).ok().and_then(|t| g.st.slot_pokemon(t.p as usize, t.s));
-            (name.is_empty() || n == name || src.map_or(false, |c| g.st.cdef(c).powers.iter().any(|pw| pw.name == n && pw.tl_name == name))) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
+            (name.is_empty() || n == name) && card.map_or(true, |w| src.map_or(false, |c| names_eq(c, g, w)))
         }
         ("play", Action::PlayCard { hand_index, target }) => {
             names_eq(g.st.players[p].hand.as_slice()[hand_index as usize], g, name)
@@ -651,9 +642,7 @@ mod tests {
         let mut g = Game::new(7);
         g.start([&deck, &deck]).unwrap();
         g.settle().ok();
-        // Scenario edits take Twinleaf full names (tools/check_cards.py maps English keys).
-        let tw = |n: &str| crate::carddb::def(crate::carddb::def_by_full_name(n).unwrap()).tl_full_name;
-        let (pika, fire) = (tw("Pikachu ex ASC 57"), tw("Fire Energy MEE"));
+        let (pika, fire) = ("Pikachu ex ASC 57", "Fire Energy MEE 2");
         let sc = json!({
             "me": {"reset": true, "active": pika, "active_energy": [fire, fire], "active_damage": 30,
                    "active_conditions": ["POISONED"], "discard": [fire],
@@ -671,7 +660,7 @@ mod tests {
         let ok = |v: Value| ev(&g, me, v);
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","damage":30,"hp_left":170,"card":"Pikachu ex ASC 57"})).is_ok());
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","energy":2})).is_ok());
-        assert!(ok(json!({"cite":"c","who":"me","slot":"active","energy":["Fire Energy MEE","Fire Energy MEE"]})).is_ok());
+        assert!(ok(json!({"cite":"c","who":"me","slot":"active","energy":["Fire Energy MEE 2","Fire Energy MEE 2"]})).is_ok());
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","tool":null,"conditions":["POISONED"]})).is_ok());
         assert!(ok(json!({"cite":"c","who":"opp","slot":"active","damage":0,"conditions":[]})).is_ok());
         assert!(ok(json!({"cite":"c","who":"me","bench":0,"damage":50})).is_ok());
@@ -685,7 +674,7 @@ mod tests {
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","hp_left":100})).is_err());
         let e = ok(json!({"cite":"c","who":"me","slot":"active","energy":1})).unwrap_err();
         assert!(e.contains("energy: expected 1, actual 2"), "{}", e);
-        assert!(ok(json!({"cite":"c","who":"me","slot":"active","energy":["Fire Energy MEE"]})).is_err());
+        assert!(ok(json!({"cite":"c","who":"me","slot":"active","energy":["Fire Energy MEE 2"]})).is_err());
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","tool":"Punk Helmet"})).is_err());
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","conditions":[]})).is_err());
         assert!(ok(json!({"cite":"c","who":"me","slot":"active","card":"Eternatus SSP 141"})).is_err());
@@ -698,11 +687,11 @@ mod tests {
     fn evaluates_zones_prizes_winner_active() {
         let mut g = board();
         let me = g.st.active_player as usize;
-        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","count":1,"contains":["Fire Energy MEE"]})).is_ok());
+        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","count":1,"contains":["Fire Energy MEE 2"]})).is_ok());
         assert!(ev(&g, me, json!({"cite":"c","who":"opp","zone":"discard","count":0})).is_ok());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","count":2})).is_err());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","contains":["Pikachu ex ASC 57"]})).is_err());
-        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","not_contains":["Fire Energy MEE"]})).is_err());
+        assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"discard","not_contains":["Fire Energy MEE 2"]})).is_err());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"prizes","count":6})).is_ok());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"lost_zone","count":0})).is_ok());
         assert!(ev(&g, me, json!({"cite":"c","who":"me","zone":"hand","count":g.st.players[me].hand.len()})).is_ok());

@@ -8,7 +8,7 @@
 //! uses nothing.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Lunatone@Lunatone M1L|Lunatone ASC",
+    class: "Lunatone@MEG|ASC",
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,

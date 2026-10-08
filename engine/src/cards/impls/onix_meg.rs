@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Onix@Onix M1L",
+    class: "Onix@MEG",
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed], Cause::Ability))], ..CoinSpec::DEFAULT }))],

@@ -19,8 +19,8 @@ the rulebooks, and `engine/RULES.md` (decisions already made, with citations).
 | Conditions, numbers, predicates, selectors | `engine/src/spec/value.rs` (`Cond`, `Num`, `Pred`, `SlotPred`, `SlotSel`) |
 | Spec types (`CardSpec`, `Step`, `Op`, `Once`) | `engine/src/spec/mod.rs` |
 | Core rules | `engine/src/engine/*.rs`, store in `engine/src/game.rs`, effects in `effects.rs`, prompts in `prompts.rs`, state in `state.rs` |
-| Card database (generated, never edit) | `engine/src/gen/cards.rs`, from `data/pool.json` and `data/official_text.json` by `tools/gen_carddb.py` |
-| Pre-evolutions outside the pool | `data/support_cards.json` (`tools/support_cards.py`, then `tools/gen_carddb.py`) |
+| Card data | `data/cards.json`: every card's printed fields, keyed by its international key (`"<Name> <SET> <NUM>"`); the file's order is the card ids, so append new cards at the end. `data/pool.json` lists the pool (a row per card, with its key); `data/support_cards.json` the pre-evolutions outside the pool |
+| Card database (generated, never edit) | `engine/src/gen/*.rs`, from `data/cards.json` and `data/evolutions.json` by `tools/gen_carddb.py` |
 | Scenarios | `scenarios/*.json`, run by `engine/src/bin/scen.rs` |
 | Rules decisions | `engine/RULES.md` |
 | Vocabulary reference | the doc comments in `engine/src/spec/*.rs`; the files of real cards are the best examples |
@@ -168,8 +168,8 @@ behavior class, so one unpinned spec covers them all. Pin a spec to one
 printing only when two different cards share a class name: `class:
 "Class@SET"`, `"Class@Full Name"` or `"Class@A|B"` (see `class_matches` in
 `engine/src/cards/mod.rs`; the set and name are the card database's
-`tl_set` / `tl_full_name`). Pins exist today, for example `Minccino@SSH`,
-`Hoothoot@TEF`.
+`set` / `full_name`, e.g. `Class@PFL` or `Class@Hoothoot SCR 114`). Pins
+exist today, for example `Minccino@SSH`, `Hoothoot@TEF`.
 
 ### Names
 
@@ -177,10 +177,11 @@ The engine speaks official English names: `CardDef.full_name` is the
 international key (`"<Name> <SET> <NUM>"`, as in `data/pool.json`),
 `CardDef.name` / `AttackDef.name` / `PowerDef.name` are the official names.
 Rules wording ("a card named X") compares `name`; write official names in
-literals. The `tl_*` fields (the Twinleaf spelling) still exist in the card
-database; they keep old traces and scripted answers working and are not for
-new code. Tools accept the international key, "Name SET" when unique, or the
-old full name.
+literals. Every input names cards by the key (decks, scenarios, scripted
+answers, tools); `"Name SET"` also works when only one card has it. Attacks
+and Abilities are named by their printed names. Cards outside the pool (older
+printings, support pre-evolutions) have keys built the same way from their
+set and number.
 
 ## Rules that shape every spec
 
@@ -270,7 +271,7 @@ docstring for the rest.
    (use `--profile iter` for faster rebuilds while editing), then
    `cargo test --release`.
 2. **The card itself**: `python3 tools/check_cards.py "<key>" [--games N]`
-   (the key is `"<Name> <SET> <NUM>"`, see `card-pool.tsv`; a Stage 1/2 card
+   (the key is `"<Name> <SET> <NUM>"`, see `data/pool.json`; a Stage 1/2 card
    needs its pre-evolution among the targets). It builds decks containing the
    card, plays them with `engine/target/release/fuzz` (engine errors, stuck
    prompts, turns with no options, invariant violations and panics fail), prints
@@ -455,8 +456,9 @@ rules say with an optional top-level `expect` list, evaluated by the replay.
 * **Other**: `{"who", "prizes_taken": N}` (Prizes taken so far by Knock
   Outs); `{"winner": "me"|"opp"|"draw"|null}` (null = game still going);
   `{"who", "active": "Name"}` (the Active Pokémon's name).
-* **Names** (cards, attacks, Abilities): official names are preferred; the
-  old Twinleaf names are still accepted for now.
+* **Names** (cards, attacks, Abilities): official English names; cards by
+  their key (`"<Name> <SET> <NUM>"`), or `"Name SET"` when only one card has
+  it. See "Names" above.
 * **Legal actions**: `{"who", "legal": KIND, "is": false}` asserts that an
   action is (not) among the legal turn options of the player to move (`who`
   must be that player; `is` defaults to true). KIND is `play` (a card in hand,

@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Charcadet@Charcadet M2",
+    class: "Charcadet@PFL",
     // Gather Power: search your deck for up to 2 Basic Energy cards and put them into your hand
     // (revealed), then shuffle.
     attacks: &[AttackSpec {
