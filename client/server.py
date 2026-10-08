@@ -2,7 +2,7 @@
 """Local web client for playing the Rust engine. Run: python client/server.py
 
 Endpoints (JSON):
-  GET  /api/decks                      available decks (decks/meta-tl)
+  GET  /api/decks                      available decks (decks/meta/playable.corpus.json)
   GET  /api/deck?id=ID                 decklist (international names)
   POST /api/new    {deckA, deckB, seed?, bot?}   start a game (you are player 0)
   GET  /api/state?log=N                filtered state for player 0 (+ choice, log lines from N)

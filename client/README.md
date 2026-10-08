@@ -13,8 +13,8 @@ cd ..
 ```
 
 The server needs `import ptcg` to work (`ptcg._ptcg` is the compiled module, git-ignored; in a worktree, copy
-`python/ptcg/_ptcg*.so` from a checkout that has it). It also reads `data/pool.json`, `data/twinleaf-cards.json`,
-and `decks/meta-tl/*.txt`. No extra Python dependencies (stdlib `http.server`).
+`python/ptcg/_ptcg*.so` from a checkout that has it). It also reads `data/cards.json` and
+`decks/meta/playable.corpus.json`. No extra Python dependencies (stdlib `http.server`).
 
 ## Run
 

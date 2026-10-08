@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Yveltal@Yveltal M1L",
+    class: "Yveltal@MEG",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] }],
     ..CardSpec::NONE
 };

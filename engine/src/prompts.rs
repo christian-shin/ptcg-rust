@@ -766,7 +766,7 @@ impl Game {
                     return Err(invalid);
                 }
                 let c = *cards.get(i as usize).unwrap();
-                let ai = self.st.cdef(c).attacks.iter().position(|a| crate::carddb::attack_is(a, name)).ok_or(invalid)?;
+                let ai = self.st.cdef(c).attacks.iter().position(|a| a.name == name).ok_or(invalid)?;
                 // validate: blocked attacks are rejected (matched by object identity).
                 if blocked.iter().any(|(bi, ba)| *bi as usize == i as usize && *ba as usize == ai) {
                     return Err(invalid);

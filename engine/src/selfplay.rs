@@ -84,7 +84,7 @@ pub struct Played {
     pub winner: i8,
 }
 
-/// Deck lines (`"4 Name"` or `"Name"`; English keys, official or Twinleaf names) to card ids.
+/// Deck lines (`"4 Key"` or `"Key"`: international keys, or "Name SET" when unique) to card ids.
 pub fn expand_deck(lines: &Value) -> Result<Vec<DefId>, String> {
     let mut out = Vec::new();
     for l in lines.as_array().ok_or("deck: not a list")? {
@@ -104,8 +104,7 @@ fn tl(name: &str) -> Result<String, String> {
 }
 
 /// The scenario with every card name mapped to its official full name (international key) and move
-/// names in scripted answers to official names, as the turn option descriptors use them. Old Twinleaf
-/// names are still accepted as input.
+/// names in scripted answers to the official names the turn option descriptors use.
 pub fn load_scenario(sc: &Value) -> Result<Value, String> {
     let mut sc = sc.clone();
     let mut seen: Vec<DefId> = Vec::new();
@@ -164,14 +163,14 @@ pub fn load_scenario(sc: &Value) -> Result<Value, String> {
             seen.extend(expand_deck(d)?);
         }
     }
-    // Move names: official or Twinleaf, among the cards the scenario mentions.
+    // Move names, among the cards the scenario mentions.
     let move_name = |name: &str| -> String {
         for d in &seen {
             let c = def(*d);
-            if let Some(a) = c.attacks.iter().find(|a| a.name == name || a.tl_name == name) {
+            if let Some(a) = c.attacks.iter().find(|a| a.name == name) {
                 return a.name.to_string();
             }
-            if let Some(p) = c.powers.iter().find(|p| p.name == name || p.tl_name == name) {
+            if let Some(p) = c.powers.iter().find(|p| p.name == name) {
                 return p.name.to_string();
             }
         }
@@ -244,7 +243,7 @@ fn find_by_card(g: &Game, opts: &[TurnOption], scripted: &Value) -> Option<usize
         let Action::PlayCard { hand_index, .. } = o.action else { return false };
         let Some(c) = g.st.players[p].hand.get(hand_index as usize) else { return false };
         let d = g.st.cdef(c);
-        let named = want_def == Some(g.st.cards[c as usize].def) || crate::carddb::card_is(d, name) || d.name == name || d.tl_name == name;
+        let named = want_def == Some(g.st.cards[c as usize].def) || crate::carddb::card_is(d, name) || d.name == name;
         named && want_target.as_ref().map_or(true, |t| stable(&o.desc["target"]) == *t)
     })
 }

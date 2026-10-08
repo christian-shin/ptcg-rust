@@ -1,4 +1,4 @@
-"""Pokémon TCG engine with Twinleaf parity: Python interface.
+"""Pokémon TCG rules engine: Python interface.
 
     env = ptcg.Env(deck_a, deck_b, seed=0)
     sel = env.select()            # cabt-style dict: type, context, minCount, maxCount, option

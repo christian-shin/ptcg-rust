@@ -6,15 +6,15 @@ import json, os, random, sys, collections
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tiers = sys.argv[1].split(','); prefix = sys.argv[2]; count = int(sys.argv[3]); rng = random.Random(int(sys.argv[4]))
 pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
-cards = {c['fullName']: c for c in json.load(open(os.path.join(ROOT, 'data/twinleaf-cards.json')))}
+cards = json.load(open(os.path.join(ROOT, 'data/cards.json')))
 rows = [r for r in pool if r.get('tier') in tiers]
-names = sorted({r['fullName'] for r in rows})
+names = sorted({r['key'] for r in rows})
 mons = [n for n in names if cards[n]['superType'] == 1]
 basics = [n for n in mons if cards[n]['stage'] == 2]
 evos = [n for n in mons if cards[n]['stage'] != 2]
 trainers = [n for n in names if cards[n]['superType'] == 2]
 energies = [n for n in names if cards[n]['superType'] == 3 and cards[n].get('energyType') == 0]
-all_basic_energy = [n for n, c in cards.items() if n.endswith(' MEE') and c['superType'] == 3 and c.get('energyType') == 0]
+all_basic_energy = [n for n, c in cards.items() if c['set'] == 'MEE' and int(c['setNumber']) <= 8 and c['superType'] == 3 and c.get('energyType') == 0]
 decks = []
 for k in range(count):
     deck = collections.Counter(); by_name = collections.Counter()

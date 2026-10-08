@@ -1,4 +1,4 @@
-# Decklist cards not found in card-pool.tsv by (set, number). 84 entries: 84 matched by name, 0 not in pool.
+# Decklist cards not found in data/pool.json by (set, number). 84 entries: 84 matched by name, 0 not in pool.
 # columns: SET NUMBER	name	resolution
 MEG 114	Boss's Orders	NAME-MATCH other set -> ASC 183
 MEG 131	Ultra Ball	NAME-MATCH other set -> 30C 128

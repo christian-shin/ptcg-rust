@@ -6,7 +6,7 @@
 use crate::spec::prelude::*;
 use crate::types::Stage;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Archaludon@Archaludon M2",
+    class: "Archaludon@PFL",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Stage(Stage::Basic)) }))] }],
     ..CardSpec::NONE
 };

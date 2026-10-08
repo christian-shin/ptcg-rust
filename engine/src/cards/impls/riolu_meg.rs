@@ -5,7 +5,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Riolu@Riolu M1L|Riolu ASC",
+    class: "Riolu@MEG|ASC",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn }))] }],
     ..CardSpec::NONE
 };

@@ -11,7 +11,6 @@ sys.path.insert(0, os.path.join(ROOT, "python"))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import ptcg  # noqa: E402
-from names import english  # noqa: E402
 
 from policies import make_policy  # noqa: E402
 
@@ -51,19 +50,13 @@ def _load(path):
 
 
 class CardDB:
-    """Printed card data by engine ref ("SET-NUMBER", Twinleaf set/number)."""
+    """Printed card data (data/cards.json) by engine ref ("SET-NUMBER")."""
 
     def __init__(self):
-        raw = _load("data/twinleaf-cards.json")
-        self.by_full = {}
+        self.by_full = _load("data/cards.json")   # card key -> printed data
         self.by_setnum = {}
-        for c in raw:
-            self.by_full.setdefault(c["fullName"], c)
+        for c in self.by_full.values():
             self.by_setnum.setdefault("%s-%s" % (c["set"], c["setNumber"]), c)
-        self.pool = {}  # ref -> pool row
-        for r in _load("data/pool.json"):
-            if r.get("fullName"):
-                self.pool["%s-%s" % (r["twinleaf_set"], r["twinleaf_number"])] = r
         self.cache = {}
 
     def card(self, ref):
@@ -73,24 +66,15 @@ class CardDB:
         return c
 
     def raw(self, ref):
-        p = self.pool.get(ref)
-        if p and p["fullName"] in self.by_full:
-            return self.by_full[p["fullName"]]
         return self.by_setnum.get(ref)
 
     def _build(self, ref):
         raw = self.raw(ref)
-        pool = self.pool.get(ref)
         if raw is None:
             return {"ref": ref, "name": ref, "super": "unknown"}
-        if pool:
-            name = pool.get("en_name") or english(raw["fullName"])
-            set_, number = pool["set"], pool["number"]
-        else:
-            name, set_, number = raw["name"], raw["set"], raw["setNumber"]
+        name, set_, number = raw["name"], raw["set"], raw["setNumber"]
         sup = {1: "pokemon", 2: "trainer", 3: "energy"}.get(raw["superType"], "unknown")
-        d = {"ref": ref, "name": name, "set": set_, "number": number, "super": sup,
-             "tlName": raw["fullName"]}
+        d = {"ref": ref, "name": name, "set": set_, "number": number, "super": sup}
         if set_ and number:
             num = number.zfill(3) if number.isdigit() else number
             d["image"] = "https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/tpci/%s/%s_%s_R_EN_%%s.png" % (set_, set_, num)
@@ -123,18 +107,20 @@ def _pretty(slug):
     return " ".join("ex" if w == "Ex" else w for w in t.split(" "))
 
 
+def _playable():
+    """The playable meta decks (tools/meta_decks.py): {id: [card key per copy]}."""
+    return {d["name"]: d["cards"] for d in _load("decks/meta/playable.corpus.json")["decks"]}
+
+
 def list_decks():
-    out = []
-    for p in sorted(glob.glob(os.path.join(ROOT, "decks", "meta-tl", "*.txt"))):
-        out.append({"id": os.path.basename(p)[:-4], "name": _pretty(os.path.basename(p)[:-4]),
-                    "count": len(ptcg.read_deck(p))})
-    return out
+    return [{"id": i, "name": _pretty(i), "count": len(cards)} for i, cards in sorted(_playable().items())]
 
 
 def read_deck(deck_id):
-    if not deck_id or "/" in deck_id or "\\" in deck_id or deck_id.startswith("."):
+    cards = _playable().get(deck_id)
+    if cards is None:
         raise ValueError("bad deck id")
-    return ptcg.read_deck(os.path.join(ROOT, "decks", "meta-tl", deck_id + ".txt"))
+    return list(cards)
 
 
 def deck_listing(deck_id, db=None):
@@ -144,7 +130,7 @@ def deck_listing(deck_id, db=None):
         cards[n] = cards.get(n, 0) + 1
     out = []
     for n, c in cards.items():
-        row = {"count": c, "name": english(n)}
+        row = {"count": c, "name": n}
         raw = db.by_full.get(n) if db else None
         if raw:
             row["card"] = db.card("%s-%s" % (raw["set"], raw["setNumber"]))
@@ -220,8 +206,8 @@ class GameSession:
 
     @staticmethod
     def _dead_end(env):
-        """True when `env` waits on a decision nobody can legally answer (Twinleaf
-        bugs such as Glass Trumpet with no Benched Colorless Pokémon)."""
+        """True when `env` waits on a decision nobody can legally answer (a card
+        with no legal choice, such as Glass Trumpet with no Benched Colorless Pokémon)."""
         if env.done or env.select() is None:
             return False
         probe = env.clone()

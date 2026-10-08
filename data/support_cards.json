@@ -1,142 +1,142 @@
 [
  {
-  "fullName": "Galarian Linoone FST",
-  "for": "Galarian Obstagoon ASC",
+  "key": "Galarian Linoone FST 160",
+  "for": "Galarian Obstagoon ASC 132",
   "vanilla": true
  },
  {
-  "fullName": "Foongus SIT 11",
-  "for": "Amoongus SV11B",
+  "key": "Foongus SIT 11",
+  "for": "Amoonguss BLK 11",
   "vanilla": true
  },
  {
-  "fullName": "Pawmo MEE",
-  "for": "Pawmot PFL",
+  "key": "Pawmo J-MEE 4",
+  "for": "Pawmot PFL 34",
   "vanilla": true
  },
  {
-  "fullName": "Litleo M4",
-  "for": "Pyroar PRE",
+  "key": "Litleo CRI 14",
+  "for": "Pyroar PRE 16",
   "vanilla": true
  },
  {
-  "fullName": "Yamask PLF 55",
-  "for": "Cofagrigus WHT",
+  "key": "Yamask PLF 55",
+  "for": "Cofagrigus WHT 40",
   "vanilla": true
  },
  {
-  "fullName": "Palpitoad OBF",
-  "for": "Seismitoad 30C",
+  "key": "Palpitoad OBF 51",
+  "for": "Seismitoad 30C 84",
   "vanilla": true
  },
  {
-  "fullName": "Dratini M2a",
-  "for": "Dragonair M2a",
+  "key": "Dratini ASC 150",
+  "for": "Dragonair ASC 151",
   "vanilla": true
  },
  {
-  "fullName": "Magmar BRS 19",
-  "for": "Magmortar JTG",
+  "key": "Magmar BRS 19",
+  "for": "Magmortar JTG 21",
   "vanilla": true
  },
  {
-  "fullName": "Shelgon JTG",
-  "for": "Salamence ex JTG",
+  "key": "Shelgon JTG 113",
+  "for": "Salamence ex JTG 114",
   "vanilla": false
  },
  {
-  "fullName": "Primeape M5",
-  "for": "Annihilape M5",
+  "key": "Primeape PBL 43",
+  "for": "Annihilape PBL 41",
   "vanilla": true
  },
  {
-  "fullName": "Prinplup BRS 36",
-  "for": "Empoleon ex PFL",
+  "key": "Prinplup BRS 36",
+  "for": "Empoleon ex PFL 70",
   "vanilla": true
  },
  {
-  "fullName": "Crabrawler SCR",
-  "for": "Crabominable SCR",
+  "key": "Crabrawler SCR 87",
+  "for": "Crabominable SCR 42",
   "vanilla": true
  },
  {
-  "fullName": "Fraxure BRS 111",
-  "for": "Haxorus SFA",
+  "key": "Fraxure BRS 111",
+  "for": "Haxorus SFA 46",
   "vanilla": true
  },
  {
-  "fullName": "Crocalor SVP",
-  "for": "Skeledirge SSP",
+  "key": "Crocalor SVP 80",
+  "for": "Skeledirge SSP 31",
   "vanilla": true
  },
  {
-  "fullName": "Sealeo SSP",
-  "for": "Walrein SSP",
+  "key": "Sealeo SSP 44",
+  "for": "Walrein SSP 45",
   "vanilla": true
  },
  {
-  "fullName": "Vigoroth SSP",
-  "for": "Slaking ex SSP",
+  "key": "Vigoroth SSP 146",
+  "for": "Slaking ex SSP 147",
   "vanilla": true
  },
  {
-  "fullName": "Torracat TEF",
-  "for": "Incineroar ex TEF",
+  "key": "Torracat TEF 33",
+  "for": "Incineroar ex TEF 34",
   "vanilla": false
  },
  {
-  "fullName": "Luxio FST 92",
-  "for": "Luxray ex TWM",
+  "key": "Luxio FST 92",
+  "for": "Luxray ex TWM 68",
   "vanilla": true
  },
  {
-  "fullName": "Antique Cover Fossil SCR",
-  "for": "Tirtouga SV11B",
+  "key": "Antique Cover Fossil SCR 129",
+  "for": "Tirtouga BLK 22",
   "vanilla": false
  },
  {
-  "fullName": "RabootIR SCR",
-  "for": "Cinderace M1L",
+  "key": "Raboot SCR 147",
+  "for": "Cinderace MEG 28",
   "vanilla": true
  },
  {
-  "fullName": "Galarian Zigzagoon FST 159",
-  "for": "Galarian Linoone FST",
+  "key": "Galarian Zigzagoon FST 159",
+  "for": "Galarian Linoone FST 160",
   "vanilla": false
  },
  {
-  "fullName": "PawmiFA PAF",
-  "for": "Pawmo MEE",
+  "key": "Pawmi PAF 226",
+  "for": "Pawmo J-MEE 4",
   "vanilla": true
  },
  {
-  "fullName": "Tympole EVS",
-  "for": "Palpitoad OBF",
+  "key": "Tympole EVS 42",
+  "for": "Palpitoad OBF 51",
   "vanilla": true
  },
  {
-  "fullName": "Bagon EVS",
-  "for": "Shelgon JTG",
+  "key": "Bagon EVS 107",
+  "for": "Shelgon JTG 113",
   "vanilla": true
  },
  {
-  "fullName": "Axew SFA",
+  "key": "Axew SFA 44",
   "for": "Fraxure BRS 111",
   "vanilla": true
  },
  {
-  "fullName": "Spheal CRE",
-  "for": "Sealeo SSP",
+  "key": "Spheal CRE 37",
+  "for": "Sealeo SSP 44",
   "vanilla": true
  },
  {
-  "fullName": "Shinx FST 91",
+  "key": "Shinx FST 91",
   "for": "Luxio FST 92",
   "vanilla": true
  },
  {
-  "fullName": "Scorbunny CRE",
-  "for": "RabootIR SCR",
+  "key": "Scorbunny CRE 26",
+  "for": "Raboot SCR 147",
   "vanilla": true
  }
 ]

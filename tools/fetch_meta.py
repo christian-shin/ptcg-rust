@@ -7,7 +7,7 @@ Outputs (all under data/meta/):
                     tournament, country, placement, cards[{count,name,set,number}]
   card_usage.json   "SET NUMBER" -> {name, decks, weighted}, sorted by weighted desc
   port_order.json   cards to port, most valuable first (see below)
-  unmatched.txt     decklist cards whose (set, number) is not in card-pool.tsv
+  unmatched.txt     decklist cards whose (set, number) is not in data/pool.json
 
 Sources (the same filter the old hand-built file used; it reproduces the old shares):
   https://limitlesstcg.com/decks?format=standard&time=3months
@@ -24,7 +24,7 @@ division (the "(SR)"/"(JR)" sections are skipped). Indonesia Premier Ball League
 non-Japanese events count. All card codes are Limitless' international set codes.
 
 List choice: candidates are sorted by placement (1st first), ties broken by the most recent
-tournament. The first list whose every card is in card-pool.tsv is used; "in the pool"
+tournament. The first list whose every card is in data/pool.json is used; "in the pool"
 means (set, number) is a pool row, or the card name is in the pool under another printing
 (the same fallback status.py and meta_decks.py use). Lists with a card outside the pool
 are skipped and the next one is tried.
@@ -41,15 +41,15 @@ card_usage.json
 
 port_order.json
   Each decklist card is resolved to a pool row (exact set+number, else the first pool row
-  with the same name that has a Twinleaf fullName). Rows are merged per resolved card:
+  with the same name). Rows are merged per resolved card:
   weighted = sum of the shares of the archetypes whose list contains it (an archetype is
   counted once even if two printings appear), decks = how many archetypes. Sorted by
   weighted desc (ties: first seen in share order). Entry:
-    {fullName (Twinleaf name, null if none), key (pool.json `key`, international name +
-     set + number), weighted, decks, tier (pool.json tier)}
+    {key (pool.json `key`, international name + set + number), weighted, decks,
+     tier (pool.json tier)}
   Port the top of the list first: the cards with the highest share-weighted coverage.
 """
-import argparse, collections, csv, datetime, hashlib, html, json, os, re, sys, tempfile, time
+import argparse, collections, datetime, hashlib, html, json, os, re, sys, tempfile, time
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -151,17 +151,15 @@ def parse_list(page):
 
 
 def load_pool():
-    tsv = list(csv.DictReader(open(os.path.join(ROOT, 'card-pool.tsv'), encoding='utf-8'), delimiter='\t'))
-    keys = {(r['set'], r['number']) for r in tsv}
-    names = collections.defaultdict(list)
-    for r in tsv:
-        names[r['name']].append((r['set'], r['number']))
     pool = json.load(open(os.path.join(ROOT, 'data/pool.json')))
+    keys = {(r['set'], r['number']) for r in pool}
+    names = collections.defaultdict(list)
+    for r in pool:
+        names[r['name']].append((r['set'], r['number']))
     byk = {(r['set'], r['number']): r for r in pool}
     byname = collections.defaultdict(list)
     for r in pool:
-        if r.get('fullName'):
-            byname[r['name']].append(r)
+        byname[r['name']].append(r)
     return keys, names, byk, byname
 
 
@@ -172,7 +170,7 @@ def in_pool(c, keys, names):
 def resolve(c, byk, byname):
     """Pool row for a decklist card, as status.py / meta_decks.py do."""
     r = byk.get((c['set'], c['number']))
-    if not r or not r.get('fullName'):
+    if not r:
         cand = byname.get(c['name'], [])
         r = cand[0] if cand else r
     return r
@@ -247,7 +245,7 @@ def main():
             if mk in seen:
                 continue
             seen.add(mk)
-            e = merged.setdefault(mk, {'fullName': r.get('fullName') if r else None, 'key': mk, 'weighted': 0.0,
+            e = merged.setdefault(mk, {'key': mk, 'weighted': 0.0,
                                        'decks': 0, 'tier': r.get('tier') if r else None})
             e['weighted'] += ar['share']
             e['decks'] += 1
@@ -270,7 +268,7 @@ def main():
             nnone += 1
             lines.append('%s\t%s\tNOT IN POOL (decks=%d, weighted=%s)' % (k, u['name'], u['decks'], u['weighted']))
     with open(os.path.join(meta, 'unmatched.txt'), 'w', encoding='utf-8') as f:
-        f.write('# Decklist cards not found in card-pool.tsv by (set, number). %d entries: %d matched by name, %d not in pool.\n'
+        f.write('# Decklist cards not found in data/pool.json by (set, number). %d entries: %d matched by name, %d not in pool.\n'
                 % (len(lines), nname, nnone))
         f.write('# columns: SET NUMBER\tname\tresolution\n')
         f.write(''.join(l + '\n' for l in lines))

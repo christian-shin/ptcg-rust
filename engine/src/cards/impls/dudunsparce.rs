@@ -3,7 +3,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Dudunsparce@Dudunsparce TEF|Dudunsparce PRE",
+    class: "Dudunsparce@TEF|PRE",
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,

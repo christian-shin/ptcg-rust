@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 const HAS_COUNTERS: Op = Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(6), cause: CounterCause::Attack });
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Cofagrigus@Cofagrigus SSP",
+    class: "Cofagrigus@SSP",
     // Law of the Underworld: put 6 damage counters on each Pokémon that has an Ability (yours
     // first, then your opponent's).
     attacks: &[AttackSpec {

@@ -52,10 +52,9 @@ fn sorted_set(v: &[Value]) -> Vec<String> {
     s
 }
 
-/// English key, with the Twinleaf full name in parentheses when it differs.
+/// The card's key ("Name SET NUM").
 fn card_label(d: u16) -> String {
-    let (en, tl) = (ptcg::carddb::en_key(d), ptcg::carddb::def(d).tl_full_name);
-    if en == tl { en.to_string() } else { format!("{} ({})", en, tl) }
+    ptcg::carddb::en_key(d).to_string()
 }
 
 fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
@@ -532,10 +531,10 @@ fn main() {
     // equality, which older traces without them always get.
     let obs = !args.iter().any(|a| a == "--strict") && std::env::var("PTCG_OBS").map_or(true, |v| v != "0");
     if args.iter().any(|a| a == "--list-ported") {
-        // Twinleaf full names: the tools key the oracle's card dump by them.
+        // Card keys ("Name SET NUM"), as in data/cards.json.
         for (i, d) in ptcg::carddb::cards().iter().enumerate() {
             if d.behavior.is_empty() || ptcg::cards::impl_for(i as u16).is_some() {
-                println!("{}", d.tl_full_name);
+                println!("{}", d.full_name);
             }
         }
         return;
@@ -593,7 +592,7 @@ fn main() {
                     }
                 };
 
-                // A panic (e.g. a fixed-capacity list overflowing on a Twinleaf state
+                // A panic (e.g. a fixed-capacity list overflowing on a recorded state
                 // with duplicated cards) fails this trace instead of the whole run.
                 PANIC_STEP.with(|c| c.set(-1));
                 ptcg::expect::take();

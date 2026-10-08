@@ -4,7 +4,7 @@
 //! your deck (deck -> scratch CardList -> discard, two MOVE_CARDS).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
-    class: "Haxorus@Haxorus SFA",
+    class: "Haxorus@SFA",
     attacks: &[
         AttackSpec { index: 0, steps: &[
             Step::after_damage(Op::KnockOut(KnockOutSpec { target: SlotExpr::Active(Who::Opp), mode: KnockOutMode::Opponent, when: Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Opp)), EnergyUnit::SpecialEnergyCards), CmpOp::Gt, Num::Lit(0)) })),

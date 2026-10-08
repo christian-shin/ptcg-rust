@@ -8,7 +8,7 @@
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
-    class: "Dunsparce@TEF|Dunsparce PRE",
+    class: "Dunsparce@TEF|PRE",
     // Dig: flip a coin, if heads, during your opponent's next turn, prevent all damage from and
     // effects of attacks done to this Pokémon.
     attacks: &[AttackSpec {
