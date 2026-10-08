@@ -870,6 +870,8 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         },
         // Used through an attack (Look-Alike Show) a Trainer's switch does nothing when it can't.
         Op::Switch(s) => !s.required || f.via_attack || !slots_of(g, me, f, &switch_among(s)).is_empty(),
+        // A pick needs a Pokémon to choose.
+        Op::PickSlot(p) => !slots_of(g, me, f, &p.among).is_empty(),
         _ => true,
     }
 }

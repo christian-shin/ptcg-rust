@@ -35,10 +35,10 @@ pub static SPEC: CardSpec = CardSpec {
                 none_shuffles: true,
              different_types: false, })),
             Step::new(Op::If(IfSpec {
-                cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any),
+                cond: Cond::Slot(SlotExpr::Attached, SlotPred::Any),
                 yes: &[
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
-                    Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2), cause: CounterCause::Effect })),
+                    Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Attached), counters: Num::Lit(2), cause: CounterCause::Effect })),
                 ],
                 no: &[],
             })),

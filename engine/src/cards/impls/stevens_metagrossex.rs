@@ -47,7 +47,7 @@ pub static SPEC: CardSpec = CardSpec {
                 route: AttachRoute::Move,
                 none_shuffles: true,
             })),
-            Step::new(Op::If(IfSpec { cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Slot(SlotExpr::Attached, SlotPred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
         ],
     }],
     ..CardSpec::NONE

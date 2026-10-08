@@ -37,7 +37,7 @@ pub static SPEC: CardSpec = CardSpec {
                         none_shuffles: false,
                      different_types: false, })),
                     // With nothing attached the deck is not shuffled (Twinleaf).
-                    Step::new(Op::If(IfSpec { cond: Cond::Slot(SlotExpr::Picked, SlotPred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
+                    Step::new(Op::If(IfSpec { cond: Cond::Slot(SlotExpr::Attached, SlotPred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
                 ],
                 no: &[],
             }))],
