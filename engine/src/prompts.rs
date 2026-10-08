@@ -130,10 +130,10 @@ impl Filter {
             m.insert("tags".into(), json!([TAG_NAMES[v as usize]]));
         }
         if let Some(v) = self.name {
-            m.insert("name".into(), json!(crate::carddb::tl_card_name(v)));
+            m.insert("name".into(), json!(v));
         }
         if let Some(v) = self.evolves_from {
-            m.insert("evolvesFrom".into(), json!(crate::carddb::tl_card_name(v)));
+            m.insert("evolvesFrom".into(), json!(v));
         }
         Value::Object(m)
     }
@@ -515,7 +515,7 @@ fn blocked_slots(st: &State, p: usize, blocked: &[CardTarget]) -> Vec<SlotRef> {
 impl Game {
     pub fn card_ref(&self, c: CardId) -> String {
         let d = self.st.cdef(c);
-        format!("{}-{}#{}", d.tl_set, d.tl_set_number, c)
+        format!("{}-{}#{}", d.set, d.set_number, c)
     }
 
     fn refs(&self, cards: &[CardId]) -> Value {
@@ -1029,12 +1029,12 @@ impl Game {
                 base.insert("cards".into(), Value::Array(cards.iter().map(|c| json!(self.card_ref(*c))).collect()));
                 base.insert(
                     "attacks".into(),
-                    Value::Array(cards.iter().map(|c| json!(self.st.cdef(*c).attacks.iter().map(|a| a.tl_name).collect::<Vec<_>>())).collect()),
+                    Value::Array(cards.iter().map(|c| json!(self.st.cdef(*c).attacks.iter().map(|a| a.name).collect::<Vec<_>>())).collect()),
                 );
                 base.insert(
                     "options".into(),
                     json!({ "allowCancel": allow_cancel, "blockedMessage": blocked_message,
-                            "blocked": blocked.iter().map(|(i, a)| json!({ "index": i, "attack": self.st.cdef(*cards.get(*i as usize).unwrap()).attacks[*a as usize].tl_name })).collect::<Vec<_>>() }),
+                            "blocked": blocked.iter().map(|(i, a)| json!({ "index": i, "attack": self.st.cdef(*cards.get(*i as usize).unwrap()).attacks[*a as usize].name })).collect::<Vec<_>>() }),
                 );
             }
             _ => return false,

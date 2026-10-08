@@ -1630,7 +1630,7 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
             return Ok(());
         }
         match g.st.player_last_attack[attacker] {
-            Some((a, src)) if src == me && crate::engine::attack::attack_def(g, a).tl_name == name => {}
+            Some((a, src)) if src == me && crate::engine::attack::attack_def(g, a).name == name => {}
             _ => return Ok(()),
         }
     }
@@ -1864,8 +1864,8 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) ->
     if g.st.slot_pokemon(source.p as usize, source.s) != Some(me) {
         return Ok(());
     }
-    let full_name = g.st.cdef(me).tl_full_name;
-    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].tl_name;
+    let full_name = g.st.cdef(me).full_name;
+    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].name;
     let slot = &g.st.players[source.p as usize].slots[source.s as usize];
     let armed = match slot.next_turn_attack_damage_bonus {
         Some(a) if a.source_card_name == full_name && (a.attack_name == "*" || a.attack_name == attack_name) => a.bonus_damage,

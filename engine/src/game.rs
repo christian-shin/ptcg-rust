@@ -565,7 +565,7 @@ impl Game {
         if idx.len() >= 2 && self.trigger_order_matters(idx.as_slice()) {
             let mut names: SVec<&'static str, 8> = SVec::new();
             for &i in idx.iter() {
-                names.push(self.st.cdef(self.triggers.as_slice()[i].card).tl_full_name);
+                names.push(self.st.cdef(self.triggers.as_slice()[i].card).full_name);
             }
             let opp = match *self.e(atk) {
                 Effect::Attack { opp, .. } => opp as usize,

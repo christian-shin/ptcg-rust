@@ -219,7 +219,7 @@ pub fn defending_pokemon_does_less_damage(g: &mut Game, atk: crate::effects::Eff
 
 fn this_attack_name(g: &Game, atk: crate::effects::EffId) -> &'static str {
     match *g.e(atk) {
-        Effect::Attack { attack, .. } => crate::engine::attack::attack_def(g, attack).tl_name,
+        Effect::Attack { attack, .. } => crate::engine::attack::attack_def(g, attack).name,
         _ => "",
     }
 }

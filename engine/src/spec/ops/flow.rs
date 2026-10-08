@@ -215,7 +215,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 // Nothing is chosen when every attack of those Pokémon is locked for the Active.
                 let a = g.st.players[p].active;
                 let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
-                let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.tl_name)));
+                let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.name)));
                 if !any_free {
                     return Ok(Flow::Next);
                 }
@@ -423,7 +423,7 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
 
 /// "It can't be used during their next turn."
 fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
-    let name = g.st.cdef(a.card).attacks[a.index as usize].tl_name;
+    let name = g.st.cdef(a.card).attacks[a.index as usize].name;
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     let o = opp as usize;
     let target = crate::effects::SlotRef::new(o, g.st.players[o].active);
