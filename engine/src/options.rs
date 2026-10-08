@@ -180,6 +180,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
 
 /// Legal turn options (deduplicated, in candidate order).
 pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
+    let mut ctx = Pass::default();
     let mut seen: Vec<String> = Vec::new();
     let mut out = Vec::new();
     for c in turn_candidates(g) {
@@ -188,7 +189,7 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
             continue;
         }
         seen.push(key);
-        if is_legal(g, c.action) {
+        if legal_in(g, c.action, &mut ctx) {
             out.push(c);
         }
     }
@@ -198,14 +199,35 @@ pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
 /// Legality of one turn action: fast answers where they are certain,
 /// otherwise a trial on a copy of the game.
 pub fn is_legal(g: &Game, a: Action) -> bool {
-    let fast = if a == Action::Pass {
+    legal_in(g, a, &mut Pass::default())
+}
+
+/// What one pass over a decision's candidates learns for the next ones.
+#[derive(Default)]
+struct Pass {
+    /// A retreat failed paying its cost, which doesn't depend on the Benched
+    /// Pokémon chosen: every other retreat fails the same way.
+    retreat_cost_unpaid: bool,
+}
+
+fn legal_in(g: &Game, a: Action, ctx: &mut Pass) -> bool {
+    let fast = match a {
         // Ending the turn is always possible.
-        true
-    } else {
-        !rejects(g, a) && trial_legal(g, a, true)
+        Action::Pass => true,
+        Action::Retreat { .. } if ctx.retreat_cost_unpaid => false,
+        _ if rejects(g, a) => false,
+        _ => match trial(g, a, true) {
+            Ok(()) => true,
+            Err(e) => {
+                if matches!(a, Action::Retreat { .. }) && e.0 == "NOT_ENOUGH_ENERGY" {
+                    ctx.retreat_cost_unpaid = true;
+                }
+                false
+            }
+        },
     };
     if verify_legal() {
-        assert_eq!(fast, trial_legal(g, a, false), "fast legality differs from the full trial: {:?}", a);
+        assert_eq!(fast, trial(g, a, false).is_ok(), "fast legality differs from the full trial: {:?}", a);
     }
     fast
 }
@@ -255,13 +277,11 @@ fn rejects(g: &Game, a: Action) -> bool {
 }
 
 /// Play the action on a copy; `fast` skips work that can't change the answer.
-fn trial_legal(g: &Game, a: Action, fast: bool) -> bool {
+fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
     let mut trial = g.fork();
     trial.trial = fast;
     trial.rng = crate::rng::Rng::zero();
-    if trial.act_trial(a).is_err() {
-        return false;
-    }
+    trial.act_trial(a)?;
     // Resolve info prompts (an ability's animation wait) so checks that run
     // after them count toward legality; stop at chance prompts (except the
     // Confusion flip, see below) and decisions.
@@ -275,9 +295,7 @@ fn trial_legal(g: &Game, a: Action, fast: bool) -> bool {
         }
         match trial.pending() {
             crate::game::Pending::Info(i) => {
-                if trial.resolve(i, crate::prompts::Res::True).is_err() {
-                    return false;
-                }
+                trial.resolve(i, crate::prompts::Res::True)?;
             }
             // The Confusion flip's heads branch runs the attack: resolve it as
             // heads so an attack that throws is not offered to a Confused attacker.
@@ -285,24 +303,23 @@ fn trial_legal(g: &Game, a: Action, fast: bool) -> bool {
                 if trial.prompts.as_slice()[i].message == "FLIP_CONFUSION"
                     && matches!(trial.prompts.as_slice()[i].kind, crate::prompts::PromptKind::CoinFlip) =>
             {
-                if trial.resolve(i, crate::prompts::Res::Bool(true)).is_err() {
-                    return false;
-                }
+                trial.resolve(i, crate::prompts::Res::Bool(true))?;
             }
             _ => break,
         }
     }
-    true
+    Ok(())
 }
 
 /// Legal actions without descriptors (fast path for the select interface).
 pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
+    let mut ctx = Pass::default();
     let mut out: Vec<TurnOption> = Vec::new();
     for c in turn_candidates_fast(g) {
         if out.iter().any(|o| o.action == c) {
             continue;
         }
-        if is_legal(g, c) {
+        if legal_in(g, c, &mut ctx) {
             out.push(TurnOption { desc: Value::Null, action: c });
         }
     }

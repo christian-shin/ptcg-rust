@@ -1273,7 +1273,7 @@ impl Game {
         if self.prompts.iter().any(|p| p.result.is_none()) {
             bail!("ACTION_IN_PROGRESS");
         }
-        let backup = *self;
+        let backup = self.fork();
         self.items.clear();
         let r = (|| {
             turn::play_card_reducer(self, action)?;
@@ -1281,7 +1281,7 @@ impl Game {
             self.after_dispatch()
         })();
         if r.is_err() {
-            *self = backup;
+            self.copy_from(&backup);
         }
         r
     }
