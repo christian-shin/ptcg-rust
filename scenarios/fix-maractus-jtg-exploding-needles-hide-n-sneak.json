@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Maractus JTG 8",
+   "4 Shuppet PBL 33",
+   "4 Dwebble DRI 11",
+   "20 Psychic Energy MEE 5",
+   "28 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Maractus JTG 8",
+   "4 Shuppet PBL 33",
+   "4 Dwebble DRI 11",
+   "20 Psychic Energy MEE 5",
+   "28 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Shuppet PBL 33",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Maractus JTG 8",
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hang Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Shuppet PBL 33",
+   "damage": 0,
+   "cite": "Exploding Needles is an Ability of the opponent's Pokemon: Hide 'n' Sneak prevents all effects of the opponent's Pokemon's Abilities done to Shuppet (damage counters placed by an Ability are an effect)"
+  }
+ ]
+}

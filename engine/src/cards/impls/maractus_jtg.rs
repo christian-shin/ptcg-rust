@@ -10,8 +10,9 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[Trigger {
         origin: RuleSource::Ability,
         event: Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::ThisByAttack }),
-        // 6 damage counters on the Attacking Pokémon, written straight onto it.
-        steps: &[Step::new(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(60), target_damage_mul: 0, calc: DamageCalc::Direct, when: Cond::True }))],
+        // 6 damage counters on the Attacking Pokémon, placed by the Ability (not damage): effects of
+        // the opponent's Abilities on the target are prevented by Hide 'n' Sneak and the like.
+        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(6), cause: CounterCause::Effect }))],
     }],
     ..CardSpec::NONE
 };
