@@ -6,54 +6,24 @@
 //! On every CheckRetreatCostEffect, if the player's Active holds this card
 //! and the special energy isn't blocked, a CheckPokemonTypeEffect on the
 //! Active decides: [M] → `cost = []`.
-use crate::cards::prelude::*;
-use crate::effects::EnergyEntry;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "MagnetMetalEnergy",
-    mask: mask(&[k::CHECK_PROVIDED_ENERGY, k::CHECK_RETREAT_COST]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::METAL])], probe: true }) },
+        // On a [M] Pokémon: no Retreat Cost.
+        Passive {
+            origin: RuleSource::Energy,
+            modifier: Modifier::RetreatCost(RetreatCostSpec {
+                change: CostChange::Free,
+                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::TypeIs(ct::METAL)]),
+                ..RetreatCostSpec::DEFAULT
+            }),
+        },
+    ],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    match *g.e(e) {
-        Effect::CheckProvidedEnergy { p, source, .. } => {
-            if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
-                return Ok(());
-            }
-            if g.run_fx(Effect::Energy { p, card: me }).is_err() {
-                return Ok(());
-            }
-            let mut provides = SVec::new();
-            provides.push(ct::METAL);
-            if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-                energy_map.push(EnergyEntry { card: me, provides });
-            }
-        }
-        Effect::CheckRetreatCost { p, .. } => {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            let slot = g.st.slot(p, a);
-            if !slot.cards.contains(me) && !slot.energies.contains(me) {
-                return Ok(());
-            }
-            let t = SlotRef::new(p, a);
-            if is_special_energy_blocked(g, p, me, t, false) {
-                return Ok(());
-            }
-            let types = crate::engine::game_effect::pokemon_types(g, t);
-            let (ct_e, _) = g.run_fx(Effect::CheckPokemonType { target: t, card_types: types })?;
-            if matches!(ct_e, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&ct::METAL)) {
-                if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
-                    cost.clear();
-                    *no_cost = true;
-                }
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

@@ -63,6 +63,7 @@ pub enum Modifier {
     // Appended by F-passive.
     /// +/- HP to the Pokémon matching a predicate (`HpBonus` with a subject and a guard).
     HpMod(HpModSpec),
+    ProvidesEnergyBoost(ProvidesEnergyBoostSpec),
 }
 
 // ---------------------------------------------------------------------------
@@ -206,20 +207,91 @@ pub struct PreventSpec {}
 pub enum BlockWhat {
     /// The Stadium in play can't be used (it has no use text of its own).
     UseStadium,
+    /// This Pokémon can't be put into play by evolving (Palafin ex: only by Zero to Hero).
+    /// No Ability-lock probe, as today (I-HD-palafin).
+    EvolveIntoThis,
 }
 
 pub struct BlockUseSpec {
     pub what: BlockWhat,
 }
 pub struct AbilityLockSpec {}
-pub struct AttackCostSpec {}
-pub struct RetreatCostSpec {}
+/// A change of an attack's or a retreat's cost.
+pub enum CostChange {
+    /// Costs this much [C] less (the reductions add up and apply once, with the increases).
+    Reduce(Num),
+    /// Costs [C] more.
+    Add(i32),
+    /// No cost at all (retreat).
+    Free,
+    /// Ignore all [C] in the cost, those added later included (attack).
+    IgnoreColorless,
+}
+
+/// A change of the cost of the attacks of a Pokémon (vocabulary P8).
+pub struct AttackCostSpec {
+    pub change: CostChange,
+    /// Only this attack of the card (otherwise any attack of the Pokémon).
+    pub attack: Option<u8>,
+    /// The attacking player's Active Pokémon.
+    pub subject: SlotPred,
+    /// The attacking player is the card's owner.
+    pub side: Side,
+    pub guard: Cond,
+}
+
+impl AttackCostSpec {
+    pub const DEFAULT: AttackCostSpec = AttackCostSpec { change: CostChange::Free, attack: None, subject: SlotPred::Holder, side: Side::Any, guard: Cond::True };
+}
+
+/// Which Active Pokémon a retreat cost change looks at.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RetreatWhich {
+    /// The retreating player's Active Pokémon.
+    Mine,
+    /// Either player's Active Pokémon (the change applies when one matches).
+    Either,
+}
+
+/// A change of a retreat cost (vocabulary P9).
+pub struct RetreatCostSpec {
+    pub change: CostChange,
+    pub which: RetreatWhich,
+    pub subject: SlotPred,
+    /// The retreating player is the card's owner.
+    pub side: Side,
+    pub guard: Cond,
+}
+
+impl RetreatCostSpec {
+    pub const DEFAULT: RetreatCostSpec = RetreatCostSpec { change: CostChange::Free, which: RetreatWhich::Mine, subject: SlotPred::Holder, side: Side::Any, guard: Cond::True };
+}
 pub struct SurviveOnTenSpec {}
 /// What the Energy provides, as one entry of the Energy map.
 pub struct ProvidesEnergySpec {
-    pub provides: &'static [CardType],
+    /// One Energy map entry per element whose condition holds for the Pokémon.
+    pub entries: &'static [ProvidedEntry],
     /// Skip when a Special Energy lock probe fails (otherwise pushed unconditionally).
     pub probe: bool,
+}
+
+/// An entry of the Energy map: the types of one unit of Energy provided.
+pub struct ProvidedEntry {
+    pub when: SlotPred,
+    pub provides: &'static [CardType],
+}
+
+impl ProvidedEntry {
+    pub const fn always(provides: &'static [CardType]) -> ProvidedEntry {
+        ProvidedEntry { when: SlotPred::Any, provides }
+    }
+}
+
+/// Each attached Energy card matching `energy` that provides nothing yet provides `provides`
+/// (Meganium's Wild Growth).
+pub struct ProvidesEnergyBoostSpec {
+    pub energy: Pred,
+    pub provides: &'static [CardType],
 }
 pub struct PrizeAdjustSpec {}
 pub struct CheckupDamageSpec {}
@@ -229,7 +301,10 @@ pub struct StatOverrideSpec {}
 pub struct EvolveFromSpec {}
 pub struct AllowEvolveSpec {}
 pub struct ConditionImmunitySpec {}
-pub struct AttachGuardSpec {}
+/// The Energy can only be attached to a matching Pokémon (and is discarded from any other).
+pub struct AttachGuardSpec {
+    pub allow: SlotPred,
+}
 pub struct BenchSizeSpec {}
 
 /// +/- HP to the Pokémon matching `subject` while the card is in place.
@@ -249,8 +324,14 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             DamageStage::Attack => mask(&[k::ATTACK]),
         },
         Modifier::DamageTaken(_) => mask(&[k::PUT_DAMAGE]),
-        Modifier::BlockUse(_) => mask(&[k::USE_STADIUM]),
-        Modifier::ProvidesEnergy(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
+        Modifier::BlockUse(b) => match b.what {
+            BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
+            BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
+        },
+        Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
+        Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
+        Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
+        Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -341,28 +422,14 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
         Modifier::BlockUse(b) => match (b.what, *g.e(e)) {
             (BlockWhat::UseStadium, Effect::UseStadium { .. }) if g.st.stadium_card() == Some(me) => crate::bail!("CANNOT_USE_STADIUM"),
+            (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
             _ => Ok(()),
         },
-        Modifier::ProvidesEnergy(pe) => {
-            let (p, source) = match *g.e(e) {
-                Effect::CheckProvidedEnergy { p, source, .. } => (p, source),
-                _ => return Ok(()),
-            };
-            if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
-                return Ok(());
-            }
-            if pe.probe && g.run_fx(Effect::Energy { p, card: me }).is_err() {
-                return Ok(());
-            }
-            let mut provides = SVec::new();
-            for t in pe.provides {
-                provides.push(*t);
-            }
-            if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-                energy_map.push(EnergyEntry { card: me, provides });
-            }
-            Ok(())
-        }
+        Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
+        Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
+        Modifier::AttachGuard(a) => attach_guard(g, me, e, a),
+        Modifier::AttackCost(c) => attack_cost(g, me, e, ps.origin, c),
+        Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -530,5 +597,185 @@ fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Pr
     Ok(())
 }
 
-#[allow(dead_code)]
-fn unused(_: EnergyEntry) {}
+// ---------------------------------------------------------------------------
+// Energy
+
+fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) -> R {
+    let (p, source) = match *g.e(e) {
+        Effect::CheckProvidedEnergy { p, source, .. } => (p, source),
+        _ => return Ok(()),
+    };
+    if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
+        return Ok(());
+    }
+    if pe.probe && g.run_fx(Effect::Energy { p, card: me }).is_err() {
+        return Ok(());
+    }
+    for entry in pe.entries {
+        if !slot_pred(g, me, source, &entry.when)? {
+            continue;
+        }
+        let mut provides = SVec::new();
+        for t in entry.provides {
+            provides.push(*t);
+        }
+        if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
+            energy_map.push(EnergyEntry { card: me, provides });
+        }
+    }
+    Ok(())
+}
+
+fn provides_energy_boost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &ProvidesEnergyBoostSpec) -> R {
+    let (p, source) = match *g.e(e) {
+        Effect::CheckProvidedEnergy { p, source, .. } => (p as usize, source),
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if at.owner != p || blocked(g, me, origin, at, Some(source)) {
+        return Ok(());
+    }
+    let cards: Vec<CardId> = g.st.slot(source.p as usize, source.s).cards.iter().collect();
+    for c in cards {
+        if !pred(g, c, &b.energy) {
+            continue;
+        }
+        if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
+            if energy_map.iter().any(|m| m.card == c) {
+                continue;
+            }
+            let mut provides = SVec::new();
+            for t in b.provides {
+                provides.push(*t);
+            }
+            energy_map.push(EnergyEntry { card: c, provides });
+        }
+    }
+    Ok(())
+}
+
+fn attach_guard(g: &mut Game, me: CardId, e: EffId, a: &AttachGuardSpec) -> R {
+    match *g.e(e) {
+        Effect::AttachEnergy { card, target, .. } if card == me => {
+            if !slot_pred(g, me, target, &a.allow)? {
+                crate::bail!("CANNOT_PLAY_THIS_CARD");
+            }
+        }
+        Effect::CheckTableState { .. } => {
+            for p in 0..2usize {
+                for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                    let t = SlotRef::new(p, s);
+                    if !g.st.slot(p, s).cards.contains(me) || is_special_energy_blocked(g, p, me, t, false) {
+                        continue;
+                    }
+                    if g.st.slot_pokemon(p, s).is_some() && !slot_pred(g, me, t, &a.allow)? {
+                        move_cards(g, t.list(), ListRef::Discard(p as u8), &[me], me)?;
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Costs
+
+fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &AttackCostSpec) -> R {
+    let (p, attack) = match *g.e(e) {
+        Effect::CheckAttackCost { p, attack, .. } => (p as usize, attack),
+        _ => return Ok(()),
+    };
+    if let Some(i) = c.attack {
+        if attack != my_attack(g, me, i) {
+            return Ok(());
+        }
+    }
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if c.side == Side::Owner && at.owner != p {
+        return Ok(());
+    }
+    let active = SlotRef::new(p, g.st.players[p].active);
+    if !slot_pred(g, me, active, &c.subject)? || blocked(g, me, origin, at, Some(active)) {
+        return Ok(());
+    }
+    let n = {
+        let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, at.owner);
+        if !cond(g, me, &f, &c.guard) {
+            return Ok(());
+        }
+        match &c.change {
+            CostChange::Reduce(n) => num(g, me, &f, n),
+            _ => 0,
+        }
+    };
+    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, .. } = g.e_mut(e) {
+        match &c.change {
+            // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
+            CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
+            CostChange::Add(k) => {
+                for _ in 0..*k {
+                    cost.push(ct::COLORLESS);
+                }
+            }
+            CostChange::Free => cost.clear(),
+            CostChange::IgnoreColorless => {
+                cost.retain(|t| *t != ct::COLORLESS);
+                // ...also the [C] that other effects add (R7F-11, rulings 252, 1552).
+                *ignore_colorless = true;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RetreatCostSpec) -> R {
+    let p = match *g.e(e) {
+        Effect::CheckRetreatCost { p, .. } => p as usize,
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if c.side == Side::Owner && at.owner != p {
+        return Ok(());
+    }
+    let mut matched = None;
+    let sides: &[usize] = if c.which == RetreatWhich::Mine { &[p] } else { &[p, 1 - p] };
+    for q in sides {
+        let active = SlotRef::new(*q, g.st.players[*q].active);
+        if slot_pred(g, me, active, &c.subject)? {
+            matched = Some(active);
+            break;
+        }
+    }
+    let Some(slot) = matched else { return Ok(()) };
+    if blocked(g, me, origin, at, Some(slot)) {
+        return Ok(());
+    }
+    let n = {
+        let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, at.owner);
+        if !cond(g, me, &f, &c.guard) {
+            return Ok(());
+        }
+        match &c.change {
+            CostChange::Reduce(n) => num(g, me, &f, n),
+            _ => 0,
+        }
+    };
+    if let Effect::CheckRetreatCost { cost, no_cost, reduction, .. } = g.e_mut(e) {
+        match &c.change {
+            CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
+            CostChange::Add(k) => {
+                for _ in 0..*k {
+                    cost.push(ct::COLORLESS);
+                }
+            }
+            CostChange::Free => {
+                cost.clear();
+                *no_cost = true;
+            }
+            CostChange::IgnoreColorless => cost.retain(|t| *t != ct::COLORLESS),
+        }
+    }
+    Ok(())
+}

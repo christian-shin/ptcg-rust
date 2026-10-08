@@ -108,6 +108,9 @@ pub enum Pred {
     Stadium,
     Name(&'static str),
     HpAtMost(i32),
+    // Appended by F-passive.
+    /// The card prints that it provides the type of Energy.
+    ProvidesType(CardType),
 }
 
 impl Frame {
@@ -236,6 +239,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Stadium => d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8,
         Pred::Name(n) => d.name == *n,
         Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
+        Pred::ProvidesType(t) => d.provides.contains(t),
     }
 }
 
@@ -276,6 +280,10 @@ pub enum SlotPred {
     IsThisPokemon,
     /// The top Pokémon has this name.
     Named(&'static str),
+    /// The Pokémon's Energy provides nothing.
+    NoEnergyProvided,
+    /// The Pokémon's remaining HP (with effects) is at most this much.
+    RemainingHpAtMost(i32),
 }
 
 fn holds(g: &Game, me: CardId, s: SlotRef) -> bool {
@@ -318,7 +326,7 @@ fn slot_pred_ref(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::IsBench => g.st.players[p].active != sid,
         SlotPred::IsThisPokemon => top == Some(me),
         SlotPred::Named(n) => top.map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
-        SlotPred::TypeIs(_) | SlotPred::Provides(_) | SlotPred::HasAbility => return None,
+        SlotPred::TypeIs(_) | SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }
 
@@ -360,6 +368,17 @@ pub fn slot_pred(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> crate::
         SlotPred::Provides(t) => {
             let (e, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: s, energy_map: SVec::new() })?;
             matches!(e, Effect::CheckProvidedEnergy { energy_map, .. } if energy_map.iter().any(|m| m.provides.contains(t) || m.provides.contains(&crate::types::ct::ANY)))
+        }
+        SlotPred::NoEnergyProvided => {
+            let (e, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: s, energy_map: SVec::new() })?;
+            matches!(e, Effect::CheckProvidedEnergy { energy_map, .. } if energy_map.is_empty())
+        }
+        SlotPred::RemainingHpAtMost(n) => {
+            if g.st.slot_pokemon(s.p as usize, s.s).is_none() {
+                return Ok(false);
+            }
+            let hp = crate::engine::check::check_hp(g, s.p as usize, s.s)?;
+            hp - g.st.slot(s.p as usize, s.s).damage <= *n
         }
         SlotPred::HasAbility => {
             let Some(src) = g.st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };

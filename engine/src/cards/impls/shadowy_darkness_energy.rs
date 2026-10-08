@@ -13,7 +13,7 @@ use crate::types::ct;
 pub static SPEC: CardSpec = CardSpec {
     class: "ShadowyDarknessEnergy",
     passives: &[
-        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { provides: &[ct::DARK], probe: true }) },
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::DARK])], probe: true }) },
         // Prevent all damage done by your opponent's attacks to the Benched [D] Pokémon this is attached to.
         Passive {
             origin: RuleSource::Energy,
