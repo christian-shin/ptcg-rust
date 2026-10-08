@@ -2,23 +2,16 @@
 //! opponent's Benched Pokémon. Foul Play — choose 1 of your opponent's Active
 //! Pokémon's attacks and use it as this attack (COPY_OPPONENT_ACTIVE_ATTACK,
 //! see `copy_attack.rs`).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Zoroark", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Zoroark",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::before_damage(damage_is(Num::Mul(&Num::BenchCount(Who::Opp), &Num::Lit(30))))] },
+        // Foul Play: choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Any, retries: 1 }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { opp, .. } = *g.e(e) {
-            let o = opp as usize;
-            let a = g.st.players[o].active;
-            let benched = for_each_pokemon(g, o, PlayerType::BottomPlayer).iter().filter(|(s, _, _)| *s != a).count() as i32;
-            if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                *damage = benched * 30;
-            }
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        return crate::copy_attack::copy_opponent_active_attack(g, e);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

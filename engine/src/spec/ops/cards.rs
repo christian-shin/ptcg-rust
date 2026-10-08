@@ -56,6 +56,9 @@ pub enum CardSel {
     Chosen(u8),
     /// The Pokémon Tools attached to the Pokémon (`from` is ignored); one move per Tool.
     Tools(SlotExpr),
+    // --- S3-4 appends ---
+    /// The Stadium in play, wherever it is (`from` is ignored); it goes to its owner's discard pile.
+    Stadium,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Place {
@@ -215,6 +218,9 @@ impl AttachSpec {
 pub enum AttachSlots {
     Bench,
     BenchActive,
+    // --- S3-4 appends ---
+    /// Only the Active Pokémon.
+    Active,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TargetScan {
@@ -258,7 +264,10 @@ pub struct PlayFromZoneSpec {
 }
 pub struct PickPrizeSpec {}
 pub struct PrizeVisibilitySpec {}
-pub struct TakePrizeSpec {}
+/// The player takes 1 of their Prize cards (chosen when more than 1 is left; an attack's choice is made at step D).
+pub struct TakePrizeSpec {
+    pub who: Who,
+}
 /// Shuffle a hand into its deck, then draw (the resolving card is not part
 /// of the hand).
 pub struct HandShuffleDrawSpec {
@@ -436,6 +445,16 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Suspend)
         }
         Op::EnergyChoice(e) => ec_exec(g, me, f, e),
+        Op::TakePrize(t) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                if c.answer == CHOICE_YES && c.len > 0 {
+                    let p = f.who(t.who);
+                    crate::engine::check::take_specific_prizes(g, p, &[c.items[0]], ListRef::Hand(p as u8), false)?;
+                }
+                return Ok(Flow::Next);
+            }
+            tp_begin(g, me, f, t, false)
+        }
         Op::MoveToSlot(m) => {
             if let Some(dst) = slot_of(g, me, f, m.to) {
                 let cards: Vec<CardId> = reg_list(g, f, m.cards).to_vec();
@@ -466,6 +485,14 @@ fn p_msg(p: &PickSpec, fallback: &'static str) -> &'static str {
 fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
     // Where the cards come from and which of them move.
     let (src, mut cards): (ListRef, Vec<CardId>) = match &m.cards {
+        CardSel::Stadium => match g.st.stadium_card().and_then(|c| g.st.locate(c).map(|l| (l, c))) {
+            Some((l, c)) => {
+                let owner = l.owner().unwrap_or(0);
+                move_cards(g, l, ListRef::Discard(owner as u8), &[c], me)?;
+                return Ok(());
+            }
+            None => return Ok(()),
+        },
         CardSel::Tools(s) => match slot_of(g, me, f, *s) {
             Some(slot) => (slot.list(), g.st.slot(slot.p as usize, slot.s).tools.iter().collect()),
             None => return Ok(()),
@@ -496,7 +523,7 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
                     out
                 }
                 CardSel::Chosen(r) => reg_list(g, f, *r).to_vec(),
-                CardSel::Tools(_) => unreachable!(),
+                CardSel::Tools(_) | CardSel::Stadium => unreachable!(),
             };
             (zone_ref(f, m.from), cards)
         }
@@ -672,6 +699,10 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
 
 fn attach_slots(a: &AttachSpec) -> SVec<u8, 3> {
     let mut slots = SVec::new();
+    if a.slots == AttachSlots::Active {
+        slots.push(SlotType::Active as u8);
+        return slots;
+    }
     slots.push(SlotType::Bench as u8);
     if a.slots == AttachSlots::BenchActive {
         slots.push(SlotType::Active as u8);
@@ -910,6 +941,15 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         // Resumed after the prefab's draw.
         Op::HandShuffleDraw(_) => Ok(Flow::Next),
         Op::EnergyChoice(e) => ec_resume(g, me, f, e, results, false),
+        Op::TakePrize(t) => {
+            if let Res::Prizes(ix) = first {
+                if let Some(i) = ix.as_slice().first() {
+                    let p = f.who(t.who);
+                    crate::engine::check::take_specific_prizes(g, p, &[*i], ListRef::Hand(p as u8), false)?;
+                }
+            }
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -942,6 +982,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Next)
         }
         Op::EnergyChoice(e) => ec_begin(g, me, f, e, true),
+        Op::TakePrize(t) => tp_begin(g, me, f, t, true),
         _ => Ok(Flow::Next),
     }
 }
@@ -968,6 +1009,13 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
             Ok(Flow::Next)
         }
         Op::EnergyChoice(e) => ec_resume(g, me, f, e, results, true),
+        Op::TakePrize(_) => {
+            match first {
+                Res::Prizes(ix) if !ix.is_empty() => f.record_items(g, me, CHOICE_YES, &[ix.as_slice()[0]]),
+                _ => f.record(g, me, CHOICE_NONE),
+            }
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -985,7 +1033,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)),
         Op::Move(m) => match &m.cards {
             CardSel::Chosen(_) => true,
-            CardSel::Tools(_) => true,
+            CardSel::Tools(_) | CardSel::Stadium => true,
             CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
         },
         Op::Attach(a) => {
@@ -1465,4 +1513,36 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &EnergyChoiceSpec, ts: &
         }
     }
     Ok(())
+}
+
+/// `TAKE_X_PRIZES(1)`: the only Prize card left is taken at once, otherwise the player chooses.
+fn tp_begin(g: &mut Game, me: CardId, f: &mut Frame, t: &TakePrizeSpec, record: bool) -> R<Flow> {
+    let p = f.who(t.who);
+    let left = g.st.players[p].prize_left();
+    if left == 0 {
+        if record {
+            f.record(g, me, CHOICE_NONE);
+        }
+        return Ok(Flow::Next);
+    }
+    if left <= 1 {
+        let pl = &g.st.players[p];
+        let first = (0..pl.prize_count).find(|i| !pl.prizes[*i as usize].is_empty());
+        if let Some(i) = first {
+            if record {
+                f.record_items(g, me, CHOICE_YES, &[i]);
+            } else {
+                crate::engine::check::take_specific_prizes(g, p, &[i], ListRef::Hand(p as u8), false)?;
+            }
+        }
+        return Ok(Flow::Next);
+    }
+    let id = g.player_id(p);
+    g.prompt(
+        id,
+        "CHOOSE_PRIZE_CARD",
+        PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: false },
+        f.cont(me, 1),
+    );
+    Ok(Flow::Suspend)
 }
