@@ -215,7 +215,13 @@ pub(crate) enum Flow {
 }
 
 fn spec_of(g: &Game, me: CardId) -> &'static CardSpec {
-    crate::cards::spec_for(g.st.cards[me as usize].def).expect("spec card without a spec")
+    // A copied attack runs the source card's handler for the copycat (`me`):
+    // the program is the source's.
+    let owner = match g.deleg {
+        Some(d) if d.copycat == me => d.source,
+        _ => me,
+    };
+    crate::cards::spec_for(g.st.cards[owner as usize].def).expect("spec card without a spec")
 }
 
 fn program(spec: &'static CardSpec, prog: Prog) -> &'static [Step] {

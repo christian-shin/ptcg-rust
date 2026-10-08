@@ -5,16 +5,12 @@
 //! Twinleaf: THIS_POKEMON_RETALIATES_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN
 //! arms `retaliateOnDamageNextTurnPending = { damage: 120, attack, sourceCard,
 //! attackerPlayerId }` on the attacker's Active (see `attack.rs`, AfterDamage).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "MegaSlowbroex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "MegaSlowbroex",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Retaliate(120) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, opp, attack, source, .. } = *g.e(e) {
-            let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: source };
-            g.run_fx(Effect::RetaliateOnDamage { b, damage: 120, source_card: me })?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

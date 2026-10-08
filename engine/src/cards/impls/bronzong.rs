@@ -3,13 +3,12 @@
 //!
 //! Twinleaf: OPPONENT_CANNOT_EVOLVE_POKEMON is a PlayLockEffect with the
 //! `evolve` flag (player-level).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Bronzong", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Bronzong",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Evolve) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        return opponent_cannot_play_cards(g, e, crate::effects::play_lock::EVOLVE);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

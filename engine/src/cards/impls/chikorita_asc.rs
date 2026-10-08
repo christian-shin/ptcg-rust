@@ -3,26 +3,15 @@
 //!
 //! DEFENDING_POKEMON_DOES_LESS_DAMAGE: a ReduceDamageEffect setting the
 //! opponent Active's `attackDamageReductionNextTurn`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Chikorita", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Chikorita",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::DealsLessDamage(20) }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        return defending_pokemon_does_less_damage(g, e, 20);
-    }
-    Ok(())
-}
+// Sylveon ex uses the same effect.
+pub use crate::spec::ops::state::defending_pokemon_does_less_damage;
 
-/// `DEFENDING_POKEMON_DOES_LESS_DAMAGE(store, state, effect, source, reduction)`.
-pub fn defending_pokemon_does_less_damage(g: &mut Game, atk: EffId, reduction: i32) -> R {
-    let b = match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => {
-            let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-            AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target }
-        }
-        _ => return Ok(()),
-    };
-    g.run_fx(Effect::ReduceDamage { b, reduction })?;
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
