@@ -6,27 +6,36 @@
 //! other card blocked. Fixed in phase 4b (R4): the cards are revealed (the
 //! prefab only revealed with a non-empty filter; Celebi now passes
 //! `reveal = true`).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Celebi", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let mut opts = ChooseCardsOpts::new(0, 3, false);
-        for (i, c) in g.st.players[p].deck.iter().enumerate() {
-            let d = g.st.cdef(c);
-            let grass = d.is_pokemon() && d.card_type.contains(&ct::GRASS);
-            let stadium = d.is_trainer() && d.trainer_type == TrainerType::Stadium as u8;
-            if !grass && !stadium {
-                opts.blocked.push(i as u8);
-            }
-        }
-        search_deck_for_cards_to_hand_reveal(g, p, me, Filter::none(), opts, Some(true));
-    }
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "Celebi",
+    // Traverse Time: search your deck for up to 3 in any combination of [G] Pokémon and Stadium
+    // cards, reveal them, and put them into your hand; then shuffle.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::If(IfSpec {
+            cond: Cond::Nonempty(DECK, Pred::Any),
+            yes: &[
+                Step::new(Op::Search(SearchSpec {
+                    pick: PickSpec {
+                        predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PrintedType(ct::GRASS)]), Pred::Stadium]),
+                        bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) },
+                        ..PickSpec::DEFAULT
+                    },
+                    destination: SearchDestination::Hand { reveal: true },
+                    msg: "",
+                    cancel: false,
+                    shuffle_first: false,
+                })),
+                Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
+            ],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();

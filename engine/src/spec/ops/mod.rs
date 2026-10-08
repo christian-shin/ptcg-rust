@@ -32,12 +32,12 @@ fn family(op: &Op) -> Family {
     use Op::*;
     match op {
         Move(_) | Pick(_) | Draw(_) | Shuffle(_) | Reveal(_) | Search(_) | Snapshot(_) | Order(_) | Attach(_) | MoveEnergy(_) | DiscardEnergy(_)
-        | PlayFromZone(_) | PickPrize(_) | PrizeVisibility(_) | TakePrize(_) | HandShuffleDraw(_) => Family::Cards,
+        | PlayFromZone(_) | PickPrize(_) | PrizeVisibility(_) | TakePrize(_) | HandShuffleDraw(_) | PlayAsPokemon(_) | MoveEnergyOwn(_) => Family::Cards,
         PickSlot(_) | Switch(_) | Heal(_) | Damage(_) | DamageSlot(_) | PlaceCounters(_) | SpreadCounters(_) | MoveCounters(_) | Evolve(_)
-        | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) => Family::Board,
+        | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) | SpreadDamage(_) => Family::Board,
         Coin(_) | May(_) | If(_) | Choose(_) | ForEach(_) | Repeat(_) | Parallel(_) | Fail(_) | PickAttack(_) | CopyAttack(_) | EndTurn(_)
         | EndGame(_) | Custom(_) => Family::Flow,
-        AttackFlag(_) | SetMarker(_) | ClearMarker(_) | Arm(_) => Family::State,
+        AttackFlag(_) | SetMarker(_) | ClearMarker(_) | Arm(_) | AbilityUsed(_) | SetFlag(_) => Family::State,
     }
 }
 
@@ -96,7 +96,13 @@ pub(crate) fn again(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> bool {
     flow::again(g, me, f, op)
 }
 
-/// A coin op's result (`bits`: bit i = flip i heads, of `n` flips).
-pub(crate) fn resume_coin(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, bits: u32, n: u8) -> R<Flow> {
-    flow::resume_coin(g, me, f, op, bits, n)
+/// A finished coin sequence of a `Coin` op: `results` are the bits (bit i = flip i heads) and
+/// the flip count.
+pub(crate) fn resume_coin(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+    flow::resume_coin(g, me, f, op, results)
+}
+
+/// A single flip of a `Coin` op came up `heads` (or tails).
+pub(crate) fn coin_result(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, heads: bool) -> R<Flow> {
+    flow::coin_result(g, me, f, op, heads)
 }

@@ -8,15 +8,15 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::Any(&[Cond::StadiumInPlay, Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::OneOf(&[SlotPred::HasTool, SlotPred::HasCard(Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]))]))])],
         steps: &[
-            Step::new(Op::Move(MoveSpec { cards: CardSel::Stadium, ..MoveSpec::DEFAULT })),
+            Step::new(DISCARD_STADIUM),
             Step::new(Op::ForEach(ForEachSpec {
                 over: SlotSel::Pokemon(Who::Opp),
                 body: &[Step::new(Op::If(IfSpec {
                     // A Pokémon protected from this Trainer's effect is skipped.
                     cond: Cond::TrainerTargetOk(SlotExpr::Picked),
                     yes: &[
-                        Step::new(Op::Snapshot(SnapshotSpec { zone: ZoneRef(Who::Me, Zone::PickedSlot), predicate: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]), into: 0 })),
-                        Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::PickedSlot), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                        Step::new(Op::Snapshot(SnapshotSpec { zone: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), predicate: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]), into: 0 })),
+                        Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
                         Step::new(Op::Move(MoveSpec { to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Tools(SlotExpr::Picked), ..MoveSpec::DEFAULT })),
                     ],
                     no: &[],

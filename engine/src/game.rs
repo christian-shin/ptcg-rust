@@ -962,15 +962,10 @@ impl Game {
     pub fn finish_coin_sequence(&mut self, callback: u8, results: u32, n: u8, result: bool) -> R {
         let fin = self.coin_callbacks.as_slice()[callback as usize];
         match fin {
-            CoinCb::SequenceCard { card, mut frame } => {
-                frame.a[2] = results as i32;
-                frame.a[3] = n as i32;
-                cards::resume(self, card, frame, &[])
-            }
-            CoinCb::DelegSequenceCard { card, source, serial, mut frame } => {
-                frame.a[2] = results as i32;
-                frame.a[3] = n as i32;
-                crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None)
+            // The frame stays as the card left it; the results come as `[bits, count]`.
+            CoinCb::SequenceCard { card, frame } => cards::resume(self, card, frame, &[Res::Int(results as i32), Res::Int(n as i32)]),
+            CoinCb::DelegSequenceCard { card, source, serial, frame } => {
+                crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[Res::Int(results as i32), Res::Int(n as i32)], None)
             }
             other => self.run_coin_cb(other, result),
         }

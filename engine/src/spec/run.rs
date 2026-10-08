@@ -24,7 +24,7 @@ const MAX_DEPTH: usize = 4;
 const SEL_SHIFT: u8 = 5;
 const INDEX_MASK: u8 = 0x1F;
 pub(crate) const NONE: u8 = 0xFF;
-/// Resume point of a coin sequence (`CoinCb::SequenceCard`).
+/// Resume point of a finished coin sequence (`CoinCb::SequenceCard`).
 pub(crate) const COIN_SEQUENCE: u8 = 0x7E;
 
 pub(crate) const CHOICE_NO: u8 = 0;
@@ -60,6 +60,14 @@ pub(crate) enum Phase {
 }
 
 /// A program's position and registers, round-tripped through `CardFrame`.
+///
+/// Layout (`CardFrame { a: [i32; 4], e: [u8; 2], l: [u8; 2] }`):
+/// - `a[0]`: bits 0-15 program code, 16-19 depth, 20-23 heads, 24-31 resume point (`sub`);
+/// - `a[1]`: the path, one byte per level;
+/// - `a[2]`: bits 0-7 player `p`, 8-15 prize pile, 16-23 attached flag, 24 `via_attack`;
+/// - `a[3]`: the loop counters, one byte per level;
+/// - `e[0]`: the effect; `e[1]`: the picked slot (`p << 4 | slot`);
+/// - `l`: the two card registers.
 #[derive(Clone, Copy, Debug)]
 pub struct Frame {
     pub(crate) prog: Prog,
@@ -76,16 +84,21 @@ pub struct Frame {
     pub(crate) p: u8,
     /// Card registers: temp list indices, or NONE.
     pub(crate) cards: [u8; 2],
-    /// The Pokémon chosen by `PickSlot` (`p << 4 | slot`), or NONE.
+    /// Heads of the last finished coin sequence (`Num::Heads`).
+    pub(crate) heads: u8,
+    /// The Pokémon picked by the last `PickSlot` (player << 4 | slot), or NONE.
     pub(crate) slot: u8,
-    /// A Trainer used as the effect of an attack (Mr. Mime's Look-Alike Show); read at the
-    /// start, while the Trainer effect is alive.
+    /// The Prize card pile picked by the last `PickPrize`, or NONE.
+    pub(crate) prize: u8,
+    /// 1 when the last `Attach` attached at least one card.
+    pub(crate) attached: u8,
+    /// The Trainer is used as the effect of an attack (Look-Alike Show); fixed when it starts.
     pub(crate) via_attack: bool,
 }
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], slot: NONE, via_attack: false }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached: 0, via_attack: false }
     }
 
     fn prog_code(&self) -> u32 {
@@ -100,13 +113,12 @@ impl Frame {
 
     fn encode(&self) -> CardFrame {
         let mut f = CardFrame::at(SPEC_STAGE | self.phase as u8);
-        f.a[0] = (self.prog_code() | (self.depth as u32) << 16 | (self.sub as u32) << 24) as i32;
+        f.a[0] = (self.prog_code() | ((self.depth as u32) | (self.heads as u32) << 4) << 16 | (self.sub as u32) << 24) as i32;
         f.a[1] = i32::from_le_bytes(self.path);
-        f.a[2] = self.slot as i32 | (self.via_attack as i32) << 8;
+        f.a[2] = self.p as i32 | (self.prize as i32) << 8 | (self.attached as i32) << 16 | (self.via_attack as i32) << 24;
         f.a[3] = i32::from_le_bytes(self.iter);
         f.e[0] = self.eff;
-        // The player rides in e[1]: a coin sequence's callback overwrites a[2] and a[3].
-        f.e[1] = self.p;
+        f.e[1] = self.slot;
         f.l = self.cards;
         f
     }
@@ -134,24 +146,18 @@ impl Frame {
             prog,
             phase,
             path: f.a[1].to_le_bytes(),
-            depth: ((a0 >> 16) & 0xFF) as u8,
+            depth: ((a0 >> 16) & 0x0F) as u8,
+            heads: ((a0 >> 20) & 0x0F) as u8,
             iter: f.a[3].to_le_bytes(),
             sub: ((a0 >> 24) & 0xFF) as u8,
             eff: f.e[0],
-            p: f.e[1],
+            slot: f.e[1],
+            p: f.a[2] as u8,
+            prize: ((f.a[2] >> 8) & 0xFF) as u8,
+            attached: ((f.a[2] >> 16) & 0xFF) as u8,
+            via_attack: (f.a[2] >> 24) & 1 != 0,
             cards: f.l,
-            slot: f.a[2] as u8,
-            via_attack: (f.a[2] >> 8) & 1 != 0,
         })
-    }
-
-    /// Heads of the last coin op (kept in the unused fourth loop counter).
-    pub(crate) fn heads(&self) -> u8 {
-        self.iter[MAX_DEPTH - 1]
-    }
-
-    pub(crate) fn set_heads(&mut self, n: u8) {
-        self.iter[MAX_DEPTH - 1] = n;
     }
 
     pub(crate) fn index(&self) -> usize {
@@ -297,7 +303,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 crate::bail!("SUPPORTER_ALREADY_PLAYED");
             }
             let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
-            f.via_attack = matches!(*g.e(e), Effect::Trainer { via_attack: true, .. });
+            f.via_attack = trainer_via_attack(g, e);
             if !usable(g, me, &f, play.needs, play.steps)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
             }
@@ -373,12 +379,9 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
     let flow = if f.sub == COIN_SEQUENCE {
-        // A coin sequence's callback: bit i of a[2] = flip i was heads, a[3] = the flip count
-        // (it overwrote the loop counters of the frame).
-        f.iter = [0; MAX_DEPTH];
-        f.slot = NONE;
-        f.via_attack = false;
-        ops::resume_coin(g, me, &mut f, op, cf.a[2] as u32, cf.a[3] as u8)?
+        // A finished coin sequence: the core passes the results (bit i = flip i was heads) and
+        // the flip count; the frame is as the op left it.
+        ops::resume_coin(g, me, &mut f, op, results)?
     } else if f.phase == Phase::Choices {
         ops::resume_choice(g, me, &mut f, op, results)?
     } else {
@@ -387,12 +390,12 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     proceed(g, me, f, flow)
 }
 
-/// `CardImpl::coin` of every spec card: a single coin flip's result.
+/// `CardImpl::coin` of every spec card: the result of a single flip.
 pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
     let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
-    let flow = ops::resume_coin(g, me, &mut f, op, heads as u32, 1)?;
+    let flow = ops::coin_result(g, me, &mut f, op, heads)?;
     proceed(g, me, f, flow)
 }
 

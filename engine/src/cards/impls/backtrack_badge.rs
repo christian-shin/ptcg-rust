@@ -16,18 +16,23 @@
 //!   as a sequence of plain flips; when it completes the offer is made again
 //!   (conditions re-checked): declining finishes the original callback, and
 //!   accepting reruns the whole sequence with the skip flags set.
-use crate::cards::prelude::*;
+//! The coin session of the Badge is the one rule kept as code in this file (`Op::Custom`): the
+//! frame carries its state (`cards` = callback and mode, `slot` = the player, `prize`/`attached` =
+//! the results and flip count of a finished sequence).
+use crate::effects::{k, EffId, Effect};
+use crate::game::{CoinCb, Game, R};
+use crate::list::{CardId, CardList};
 use crate::markers::COIN_REFLIP_AGAIN_USED;
+use crate::prefabs::{confirmation_prompt, is_tool_blocked};
+use crate::prompts::{PromptKind, Res};
+use crate::spec::prelude::*;
+use crate::spec::run::{Flow, Frame};
+use crate::types::{ct, GamePhase};
 
-pub static IMPL: CardImpl = CardImpl {
-    class: "BacktrackBadge",
-    mask: mask(&[k::END_TURN, k::COIN_FLIP, k::COIN_FLIP_SEQUENCE]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
-};
+/// No callback.
+const NO_CALLBACK: u8 = 0xFF;
 
+/// The Active Pokémon of the attacking player holds this unblocked Tool and is a [C] Pokémon.
 fn can_offer(g: &mut Game, me: CardId, p: usize) -> bool {
     if g.st.phase != GamePhase::Attack || g.st.active_player as usize != p {
         return false;
@@ -45,99 +50,121 @@ fn can_offer(g: &mut Game, me: CardId, p: usize) -> bool {
     }
 }
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
+/// Does a coin flip (or a sequence of flips) of an attack fall under the Badge?
+fn fires(g: &mut Game, me: CardId, e: EffId) -> Option<usize> {
+    let (p, skip) = match *g.e(e) {
+        Effect::CoinFlip { p, skip_reflip_tool, .. } | Effect::CoinFlipSequence { p, skip_reflip_tool, .. } => (p as usize, skip_reflip_tool),
+        _ => return None,
+    };
+    if skip || g.st.phase != GamePhase::Attack || g.st.players[p].marker.has(COIN_REFLIP_AGAIN_USED) || !can_offer(g, me, p) {
+        return None;
+    }
+    Some(p)
+}
+
+fn exec(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
+    let e = f.eff;
+    let p = f.p as usize;
     match *g.e(e) {
-        Effect::EndTurn { p } => {
-            g.st.players[p as usize].marker.remove(COIN_REFLIP_AGAIN_USED);
-            Ok(())
-        }
-        Effect::CoinFlip { p, callback, skip_reflip_tool, .. } => {
-            let p = p as usize;
-            if skip_reflip_tool || g.st.phase != GamePhase::Attack || g.st.players[p].marker.has(COIN_REFLIP_AGAIN_USED) || !can_offer(g, me, p) {
-                return Ok(());
-            }
+        // A single flip is prevented and resolved here: the coin, a wait prompt, then the offer.
+        Effect::CoinFlip { callback, .. } => {
             g.set_prevent(e, true);
             let result = g.rng.coin();
             if let Effect::CoinFlip { result: r, .. } = g.e_mut(e) {
                 *r = Some(result);
             }
-            let mut f = CardFrame::at(1);
-            f.a[0] = callback.map(|k| k as i32).unwrap_or(-1);
-            f.a[2] = result as i32;
-            f.l[0] = p as u8;
+            f.cards = [callback.unwrap_or(NO_CALLBACK), result as u8];
+            f.slot = p as u8;
             let id = g.player_id(p);
-            g.prompt(id, "", PromptKind::Wait, Cont::Card { card: me, frame: f });
-            Ok(())
+            g.prompt(id, "", PromptKind::Wait, f.cont(me, 1));
+            Ok(Flow::Suspend)
         }
-        Effect::CoinFlipSequence { p, mode, callback, skip_reflip_tool, .. } => {
-            let p = p as usize;
-            if skip_reflip_tool || g.st.phase != GamePhase::Attack || g.st.players[p].marker.has(COIN_REFLIP_AGAIN_USED) || !can_offer(g, me, p) {
-                return Ok(());
-            }
+        // A sequence is prevented and run as a sequence of plain flips; the offer follows its end.
+        Effect::CoinFlipSequence { mode, callback, .. } => {
             g.set_prevent(e, true);
-            let mut f = CardFrame::at(10);
-            f.a[0] = callback as i32;
-            f.a[1] = mode as i32;
-            f.l[0] = p as u8;
-            g.coin_callbacks.push(CoinCb::SequenceCard { card: me, frame: f });
+            f.cards = [callback, mode];
+            f.slot = p as u8;
+            g.coin_callbacks.push(CoinCb::SequenceCard { card: me, frame: f.frame_at(10) });
             let k2 = (g.coin_callbacks.len() - 1) as u8;
             g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode, callback: k2, skip_reflip_stadium: true, skip_reflip_tool: true })?;
-            Ok(())
+            Ok(Flow::Suspend)
         }
-        _ => Ok(()),
+        _ => Ok(Flow::Next),
     }
 }
 
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.l[0] as usize;
+fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
+    match f.sub {
         // Single flip: the animation wait is done, offer the reflip.
         1 => {
-            let mut nf = f;
-            nf.stage = 2;
-            confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: nf });
-            Ok(())
+            confirmation_prompt(g, f.slot as usize, "WANT_TO_USE_ABILITY", f.cont(me, 2));
+            Ok(Flow::Suspend)
         }
         2 => {
-            let callback = if f.a[0] >= 0 { Some(f.a[0] as u8) } else { None };
-            let result = f.a[2] != 0;
+            let p = f.slot as usize;
+            let callback = if f.cards[0] != NO_CALLBACK { Some(f.cards[0]) } else { None };
+            let result = f.cards[1] != 0;
             if !first.as_bool() {
                 let cb = match callback {
                     Some(k) => g.coin_callbacks.as_slice()[k as usize],
                     None => CoinCb::None,
                 };
-                return g.run_coin_cb(cb, result);
+                g.run_coin_cb(cb, result)?;
+                return Ok(Flow::Next);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
             g.run_fx(Effect::CoinFlip { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
-            Ok(())
+            Ok(Flow::Next)
         }
-        // Sequence finished (core fills a[2] = results, a[3] = flips).
+        // Sequence finished (the core passes the results and the flip count).
         10 => {
+            let p = f.slot as usize;
+            f.prize = first.as_int() as u8;
+            f.attached = results.get(1).map_or(0, |r| r.as_int()) as u8;
             if g.st.phase == GamePhase::Attack && !g.st.players[p].marker.has(COIN_REFLIP_AGAIN_USED) && can_offer(g, me, p) {
-                let mut nf = f;
-                nf.stage = 11;
-                confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: nf });
-                return Ok(());
+                confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", f.cont(me, 11));
+                return Ok(Flow::Suspend);
             }
             finish(g, f)
         }
         11 => {
+            let p = f.slot as usize;
             if !first.as_bool() {
                 return finish(g, f);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode: f.a[1] as u8, callback: f.a[0] as u8, skip_reflip_stadium: true, skip_reflip_tool: true })?;
-            Ok(())
+            g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            Ok(Flow::Next)
         }
-        _ => Ok(()),
+        _ => Ok(Flow::Next),
     }
 }
 
-fn finish(g: &mut Game, f: CardFrame) -> R {
-    let n = f.a[3] as u8;
-    let results = f.a[2] as u32;
+fn finish(g: &mut Game, f: &Frame) -> R<Flow> {
+    let n = f.attached;
+    let results = f.prize as u32;
     let last = n > 0 && (results >> (n - 1)) & 1 == 1;
-    g.finish_coin_sequence(f.a[0] as u8, results, n, last)
+    g.finish_coin_sequence(f.cards[0], results, n, last)?;
+    Ok(Flow::Next)
 }
+
+pub static SPEC: CardSpec = CardSpec {
+    class: "BacktrackBadge",
+    triggers: &[
+        Trigger {
+            origin: RuleSource::Tool,
+            event: Event::Custom(CustomEventSpec { kinds: &[k::COIN_FLIP, k::COIN_FLIP_SEQUENCE], fires }),
+            steps: &[Step::new(Op::Custom(CustomSpec { exec, resume }))],
+        },
+        // The once-per-turn use ends with the turn.
+        Trigger {
+            origin: RuleSource::Tool,
+            event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+            steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "COIN_REFLIP_AGAIN_USED", from: MarkerFrom::Any }))],
+        },
+    ],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();

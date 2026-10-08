@@ -3,49 +3,29 @@
 //!
 //! Twinleaf: the ShowCardsPrompt to the opponent is created even when no
 //! card was chosen; the ShuffleDeckPrompt follows with no trailing wait.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Applin@Applin TWM2", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Applin@Applin TWM2",
+    // Find a Friend: search your deck for a Pokémon, reveal it, put it into your hand, then shuffle.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::If(IfSpec {
+            cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
+            yes: &[
+                Step::new(Op::Search(SearchSpec {
+                    pick: PickSpec { predicate: Pred::Pokemon, ..PickSpec::DEFAULT },
+                    destination: SearchDestination::Hand { reveal: true },
+                    msg: "",
+                    cancel: false,
+                    shuffle_first: false,
+                })),
+                Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+            ],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let e = real_attack(g, e);
-    let (p, source) = match *g.e(e) {
-        Effect::Attack { p, source, .. } => (p as usize, source),
-        _ => return Ok(()),
-    };
-    let src = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(NO_CARD);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = src as i32;
-    choose_cards(
-        g,
-        p,
-        "CHOOSE_CARD_TO_HAND",
-        ListRef::Deck(p as u8),
-        Filter::super_type(SuperType::Pokemon),
-        ChooseCardsOpts::new(0, 1, false),
-        Cont::Card { card: me, frame: f },
-    );
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let p = f.a[0] as usize;
-    let src = f.a[1] as CardId;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    let cards: Vec<CardId> = first.cards().to_vec();
-    for c in &cards {
-        move_cards(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), &[*c], src)?;
-    }
-    let oid = g.player_id(1 - p);
-    g.prompt(oid, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p: p as u8 });
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

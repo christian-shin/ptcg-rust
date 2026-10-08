@@ -6,26 +6,26 @@
 //! had made it playable with an empty deck, phase 4b reverted that); the other hand
 //! cards go to the discard pile in one MOVE_CARDS (no source card, only when
 //! there are any), then DRAW_CARDS 5.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Carmine", mask: mask(&[k::TRAINER]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Carmine",
+    // Discard your hand and draw 5 cards (discarding the hand is a cost: nothing can be drawn from
+    // an empty deck, ruling 1037).
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        steps: &[
+            // An empty hand with a non-empty deck is playable (ruling 1038).
+            Step::new(Op::If(IfSpec {
+                cond: Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any),
+                yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                no: &[],
+            })),
+            Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(5)) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    if g.st.players[p].supporter_turn > 0 {
-        bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();
-    // Discarding the hand is a cost, not the effect: nothing can be drawn from an empty deck (ruling 1037); an empty
-    // hand with a non-empty deck is playable (ruling 1038).
-    if g.st.players[p].deck.is_empty() {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    if !cards.is_empty() {
-        move_cards(g, ListRef::Hand(p as u8), ListRef::Discard(p as u8), &cards, NO_CARD)?;
-    }
-    draw_cards(g, p, 5)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

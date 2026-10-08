@@ -8,6 +8,7 @@
 //! DEVOLVE_POKEMON (which sets `pokemonPlayedTurn` but not
 //! `cannotEvolveNextTurn`).
 use crate::cards::prelude::*;
+use crate::spec::devolve_pokemon;
 
 pub static IMPL: CardImpl = CardImpl { class: "StrangeTimepiece", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
 
@@ -119,42 +120,4 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
         }
         _ => Ok(()),
     }
-}
-
-/// `DEVOLVE_POKEMON(store, state, target, destination)`.
-pub fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: ListRef) -> R {
-    let (tp, ts) = (t.p as usize, t.s);
-    let pokemons = g.st.slot_pokemons(tp, ts);
-    let top = g.st.slot_pokemon(tp, ts);
-    let top_def = top.map(|c| g.st.cdef(c));
-    if let (Some(top), Some(d)) = (top, top_def) {
-        if d.has_tag(tag::POKEMON_LV_X) {
-            if pokemons.len() == 2 && pokemons.iter().any(|c| g.st.cdef(*c).stage == Stage::Basic as u8) {
-                return Ok(());
-            }
-            let cards: Vec<CardId> = pokemons.iter().copied().filter(|c| g.st.cdef(*c).name == d.name).collect();
-            move_cards(g, t.list(), dest, &cards, NO_CARD)?;
-            let turn = g.st.turn;
-            let slot = &mut g.st.players[tp].slots[ts as usize];
-            crate::engine::game_effect::clear_effects(slot);
-            slot.pokemon_played_turn = turn;
-            let _ = top;
-            return Ok(());
-        }
-    }
-    // CardTag.LEGEND is TAG_NAMES index 30.
-    let special = top_def.map(|d| d.has_tag(tag::POKEMON_VUNION) || d.has_tag(30)).unwrap_or(false);
-    if pokemons.len() > 1 && !special {
-        if let Some(top) = top {
-            // MOVE_CARD_TO: findCardList(card).moveCardTo(card, destination).
-            if let Some(src) = g.st.locate(top) {
-                g.move_card_to(src, top, dest);
-            }
-        }
-        let turn = g.st.turn;
-        let slot = &mut g.st.players[tp].slots[ts as usize];
-        crate::engine::game_effect::clear_effects(slot);
-        slot.pokemon_played_turn = turn;
-    }
-    Ok(())
 }

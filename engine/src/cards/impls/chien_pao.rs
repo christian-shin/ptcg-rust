@@ -8,86 +8,54 @@
 //! asked for energy covering [C][C] (up to 2 Energy went to the hand, and a
 //! lone 2-unit Special Energy could not be chosen); it now runs on the
 //! AfterAttackEffect and asks for exactly 1 attached Energy card.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);
+const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
+const ATTACHED: ZoneRef = ZoneRef(Who::Me, Zone::Attached(MY_ACTIVE));
+
+pub static SPEC: CardSpec = CardSpec {
     class: "ChienPao",
-    mask: mask(&[k::PLAY_POKEMON, k::AFTER_ATTACK]),
-    reduce,
-    resume: Some(resume),
-    coin: None,
-    can_play: None,
+    // Snow Sink: when you play this Pokémon from your hand onto your Bench, you may discard a
+    // Stadium in play.
+    triggers: &[Trigger {
+        origin: RuleSource::Ability,
+        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        steps: &[Step::new(Op::May(MaySpec {
+            asker: Who::Me,
+            when: Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]),
+            msg: "WANT_TO_USE_ABILITY",
+            yes: &[
+                Step::new(Op::If(IfSpec {
+                    cond: Cond::Nonempty(MY_STADIUM, Pred::Any),
+                    yes: &[Step::new(Op::Move(MoveSpec { from: MY_STADIUM, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    no: &[],
+                })),
+                Step::new(Op::If(IfSpec {
+                    cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
+                    yes: &[Step::new(Op::Move(MoveSpec { from: OPP_STADIUM, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    no: &[],
+                })),
+            ],
+            no: &[],
+        }))],
+    }],
+    // Icicle Loop: put an Energy attached to this Pokémon into your hand.
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[
+            Step::after_damage(Op::Pick(PickSpec {
+                from: ATTACHED,
+                predicate: Pred::Energy,
+                bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
+                into: 0,
+                msg: "CHOOSE_CARD_TO_HAND",
+                ..PickSpec::DEFAULT
+            })),
+            Step::after_damage(Op::Move(MoveSpec { from: ATTACHED, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+        ],
+    }],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
-        if card != me {
-            return Ok(());
-        }
-        let p = p as usize;
-        if is_ability_blocked(g, p, me, None) {
-            return Ok(());
-        }
-        if let Some(stadium) = g.st.stadium_card() {
-            let mut f = CardFrame::at(1);
-            f.a[0] = stadium as i32;
-            let id = g.player_id(p);
-            g.prompt(id, "WANT_TO_USE_ABILITY", PromptKind::Confirm, Cont::Card { card: me, frame: f });
-        }
-        return Ok(());
-    }
-
-    if after_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::AfterAttack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p].active;
-        if !g.st.slot(p, a).energies.iter().any(|c| g.st.cdef(c).is_energy()) {
-            return Ok(());
-        }
-        let mut f = CardFrame::at(2);
-        f.a[0] = p as i32;
-        choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Slot(p as u8, a), Filter::super_type(SuperType::Energy), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                return Ok(());
-            }
-            let stadium = f.a[0] as CardId;
-            let src = match g.st.locate(stadium) {
-                Some(l) => l,
-                None => bail!("TypeError: Cannot read properties of undefined"),
-            };
-            let owner = match src.owner() {
-                Some(o) => o,
-                None => bail!("TypeError: Cannot read properties of undefined"),
-            };
-            g.run_fx(Effect::MoveCards {
-                source: src,
-                destination: ListRef::Discard(owner as u8),
-                cards: None,
-                count: None,
-                to_top: false,
-                to_bottom: false,
-                skip_cleanup: false,
-                source_card: me,
-            })?;
-            Ok(())
-        }
-        2 => {
-            let p = f.a[0] as usize;
-            let cards: Vec<CardId> = first.cards().to_vec();
-            let a = g.st.players[p].active;
-            move_cards(g, ListRef::Slot(p as u8, a), ListRef::Hand(p as u8), &cards, me)?;
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

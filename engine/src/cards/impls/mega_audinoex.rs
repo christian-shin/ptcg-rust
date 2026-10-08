@@ -11,14 +11,14 @@ pub static SPEC: CardSpec = CardSpec {
             index: 0,
             steps: &[Step::after_damage(Op::Coin(CoinSpec {
                 flips: Flips::Count(3),
-                heads: &[
+                then: &[
                     Step::new(Op::If(IfSpec {
-                        cond: Cond::Cmp(Num::CoinHeads, CmpOp::Gt, Num::Lit(0)),
+                        cond: Cond::Cmp(Num::Heads, CmpOp::Gt, Num::Lit(0)),
                         yes: &[Step::new(Op::Attach(AttachSpec {
                             from: ZoneRef(Who::Me, Zone::Deck),
                             predicate: Pred::BasicEnergy,
                             slots: AttachSlots::ActiveBench,
-                            bounds: Bounds { min: Num::Lit(0), max: Num::Mul(&Num::CoinHeads, &Num::Lit(2)) },
+                            bounds: Bounds { min: Num::Lit(0), max: Num::Mul(&Num::Heads, &Num::Lit(2)) },
                             ..AttachSpec::DEFAULT
                         }))],
                         no: &[],

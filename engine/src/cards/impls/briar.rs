@@ -7,47 +7,39 @@
 //! Fixed in phase 4b (R4): the flag is cleared at every end of turn ("during
 //! this turn"); it used to survive until the next knock-out of an Active
 //! Pokémon, so it could apply on a later turn or to the opponent.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Briar", mask: mask(&[k::TRAINER, k::KNOCK_OUT, k::BETWEEN_TURNS]), reduce, resume: None, coin: None, can_play: None };
+const BRIAR: &str = "BRIAR_EXTRA_PRIZE_MARKER";
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::BetweenTurns { .. } = *g.e(e) {
-        g.st.cards[me as usize].extra_prizes = false;
-    }
-    if let Some(p) = trainer_played(g, e, me) {
-        let o = 1 - p;
-        if g.st.players[p].supporter_turn > 0 {
-            bail!("SUPPORTER_ALREADY_PLAYED");
-        }
-        move_cards(g, ListRef::Hand(p as u8), ListRef::Supporter(p as u8), &[me], me)?;
-        g.set_prevent(e, true);
-        if g.st.players[o].prize_left() != 2 {
-            bail!("CANNOT_PLAY_THIS_CARD");
-        }
-        g.st.cards[me as usize].extra_prizes = true;
-        return Ok(());
-    }
-    if let Effect::KnockOut { p, target, .. } = *g.e(e) {
-        let p = p as usize;
-        if target.p as usize != p || target.s != g.st.players[p].active {
-            return Ok(());
-        }
-        let o = 1 - p;
-        if g.st.phase != GamePhase::Attack || g.st.active_player as usize != o {
-            return Ok(());
-        }
-        // The Pokémon that used the attack, wherever it is by now (fixed in phase 4b, F1: it was the opponent's
-        // Active at the Knock Out check, another Pokémon after a switch).
-        let tera = g.knocked_out_by_attack_damage(p, target).and_then(|a| a.0).map(|c| g.st.cdef(c).has_tag(tag::POKEMON_TERA)).unwrap_or(false);
-        if tera && g.st.cards[me as usize].extra_prizes {
-            if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
-                *prize_count += 1;
-            }
-        }
-        g.st.cards[me as usize].extra_prizes = false;
-        // Moves this card from the knocked-out player's supporter pile (usually a no-op).
-        move_cards(g, ListRef::Supporter(p as u8), ListRef::Discard(p as u8), &[me], me)?;
-    }
-    Ok(())
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "Briar",
+    play: Some(PlaySpec {
+        kind: PlayKind::Supporter,
+        needs: &[Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Eq, Num::Lit(2))],
+        steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BRIAR, source: RuleSource::TrainerEffect }))],
+    }),
+    // This turn, if the opponent's Active Pokémon is Knocked Out by damage from an attack of your
+    // Tera Pokémon, take 1 more Prize card.
+    passives: &[Passive {
+        origin: RuleSource::TrainerEffect,
+        modifier: Modifier::PrizeAdjust(PrizeAdjustSpec {
+            delta: 1,
+            subject: SlotPred::IsActive,
+            by_attack_damage: true,
+            by_own_attack: None,
+            guard: Cond::All(&[
+                Cond::HasMarker { who: Who::Me, name: BRIAR, from: MarkerFrom::This },
+                Cond::AttackerOfKnockOut { who: Who::Opp, pred: Pred::Tag(crate::types::tag::POKEMON_TERA) },
+            ]),
+            ..PrizeAdjustSpec::DEFAULT
+        }),
+    }],
+    triggers: &[Trigger {
+        origin: RuleSource::TrainerEffect,
+        event: Event::OnCheckup(OnCheckupSpec {}),
+        steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BRIAR, from: MarkerFrom::This }))],
+    }],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();

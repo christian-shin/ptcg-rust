@@ -7,18 +7,16 @@
 //! read `this.powers[0].name`, which threw for a copycat without Abilities
 //! (Zoroark's Foul Play, Ethan's Sudowoodo's Try to Imitate) on the first
 //! effect its copy session delegated to this code.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "CrustleBLKPool", mask: mask(&[k::PUT_DAMAGE, k::ATTACK]), reduce, resume: None, coin: Some(coin), can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "CrustleBLKPool",
+    // Sturdy: if this Pokémon has full HP and would be Knocked Out by damage from an attack, it is
+    // not Knocked Out and its remaining HP becomes 10.
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::IfFullHp }) }],
+    // Stone Edge: flip a coin, if heads 60 more damage.
+    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Coin(CoinSpec { heads: &[Step::new(more_damage_if(60, Cond::True))], ..CoinSpec::DEFAULT }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    super::crustle_bcr::survive_on_ten_if_full_hp(g, me, e)?;
-    if was_attack_used(g, e, 0, me) {
-        super::riolu_pre::flip_more_damage(g, me, e, 60)?;
-    }
-    Ok(())
-}
-
-fn coin(g: &mut Game, _me: CardId, f: CardFrame, heads: bool) -> R {
-    super::riolu_pre::coin_more_damage(g, f, heads)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

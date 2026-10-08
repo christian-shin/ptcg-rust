@@ -8,81 +8,36 @@
 //! face-up Prize can't be picked (it used to throw CANNOT_USE_POWER) and
 //! cancelling can't crash (`chosenPrize[0]` on null). The chosen list gets
 //! isSecret = false, faceUpPrize = true.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Cresselia", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Cresselia",
+    attacks: &[
+        // Healing Pirouette: heal 20 damage from each of your Pokémon.
+        AttackSpec {
+            index: 0,
+            steps: &[Step::after_damage(Op::ForEach(ForEachSpec {
+                over: SlotSel::Pokemon(Who::Me),
+                body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(20), via: HealVia::Effect, clear_conditions: false }))],
+            }))],
+        },
+        // Crescent Purge: you may turn 1 of your face-down Prize cards face up for 80 more damage.
+        AttackSpec {
+            index: 1,
+            steps: &[Step::before_damage(Op::May(MaySpec {
+                asker: Who::Me,
+                when: Cond::FaceDownPrize(Who::Me),
+                msg: "WANT_TO_USE_ABILITY",
+                yes: &[
+                    Step::new(Op::PickPrize(PickPrizeSpec { chooser: Who::Me, face_down_only: true })),
+                    Step::new(Op::PrizeVisibility(PrizeVisibilitySpec { action: PrizeAction::FaceUp(Who::Me) })),
+                    Step::new(more_damage_if(80, Cond::True)),
+                ],
+                no: &[],
+            }))],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-            g.run_fx(Effect::Heal { p: p as u8, target: SlotRef::new(p, s), damage: 20 })?;
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let pl = &g.st.players[p];
-        let secret = (0..pl.prize_count as usize).filter(|i| !pl.prize_public[*i] && !pl.prize_face_up[*i] && !pl.prizes[*i].is_empty()).count();
-        if secret > 0 {
-            g.retain_fx(e);
-            let mut f = CardFrame::at(1);
-            f.a[0] = p as i32;
-            f.e[0] = e;
-            confirmation_prompt(g, p, "WANT_TO_USE_ABILITY", Cont::Card { card: me, frame: f });
-        }
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let atk = f.e[0];
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            if !first.as_bool() {
-                g.release_fx(atk);
-                return Ok(());
-            }
-            let mut nf = CardFrame::at(2);
-            nf.a[0] = p as i32;
-            nf.e[0] = atk;
-            let id = g.player_id(p);
-            g.prompt(
-                id,
-                "CHOOSE_POKEMON",
-                PromptKind::ChoosePrize { count: 1, blocked: SVec::new(), use_opponent_prizes: false, allow_cancel: false, is_secret: false, destination: None, face_down_only: true },
-                Cont::Card { card: me, frame: nf },
-            );
-            Ok(())
-        }
-        2 => {
-            let r = (|| -> R {
-                let idx = match first {
-                    Res::Prizes(v) => v.get(0).copied(),
-                    _ => None,
-                };
-                let i = match idx {
-                    Some(i) => i as usize,
-                    // Null / empty result (the prompt can't be cancelled): no bonus.
-                    None => return Ok(()),
-                };
-                g.st.players[p].prize_public[i] = true;
-                g.st.players[p].prize_face_up[i] = true;
-                if let Effect::Attack { damage, .. } = g.e_mut(atk) {
-                    *damage += 80;
-                }
-                Ok(())
-            })();
-            g.release_fx(atk);
-            r
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

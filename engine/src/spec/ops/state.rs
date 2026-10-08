@@ -27,6 +27,9 @@ pub enum AttackFlagKind {
     PreventDamage,
     Barrage,
     FirstTurnAllowed,
+    /// Festival Lead (Dipplin): this attack's Barrage flag is "Festival Grounds is in play", and
+    /// is switched off while the Ability is blocked. The attack's printed flag is `false`.
+    FestivalLead,
 }
 
 /// Write a flag of the attack being used (text that runs before the damage).
@@ -67,6 +70,7 @@ pub enum Locked {
     Item,
     Supporter,
     Evolve,
+    Stadium,
 }
 
 /// A lasting attack effect (vocabulary v1 `Lasting`). The core owns the
@@ -99,12 +103,14 @@ pub enum Lasting {
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
     // --- S3 agent 3 appends ---
-    /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
-    PreventEffects,
     /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
     IncreaseAttackCost,
     /// During the opponent's next turn, the Defending Pokémon's Retreat Cost is [C] more.
     IncreaseRetreatCost,
+    /// During the opponent's next turn this Pokémon has no Weakness.
+    NoWeakness,
+    /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
+    PreventAttackEffects,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -119,6 +125,11 @@ pub struct ArmSpec {
 pub enum MarkerScope {
     /// A marker on a player (`Who::Me` = the player the program runs for).
     Player(Who),
+    /// A marker on a Pokémon (a Trainer effect when the source is `TrainerEffect`: it stays on
+    /// the Pokémon when it moves or evolves).
+    Slot(SlotExpr),
+    /// A marker on every Pokémon of a player.
+    EveryPokemon(Who),
 }
 
 /// Which markers of a name count: only the one set by this card, or any.
@@ -242,6 +253,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 Locked::Item => crate::effects::play_lock::ITEM,
                 Locked::Supporter => crate::effects::play_lock::SUPPORTER,
                 Locked::Evolve => crate::effects::play_lock::EVOLVE,
+                Locked::Stadium => crate::effects::play_lock::STADIUM,
             };
             opponent_cannot_play_cards(g, atk, locks)?;
         }
@@ -250,7 +262,6 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
             }
         }
-        Lasting::PreventEffects => prevent_effects_of_attacks(g, atk)?,
         Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
             // The pending value is written first, so it survives a prevented effect (Twinleaf).
             let o = 1 - p;
@@ -269,6 +280,12 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 }
             }
         }
+        Lasting::NoWeakness => {
+            if let Some(b) = attack_base(g, atk, source) {
+                g.run_fx(Effect::ThisPokemonHasNoWeakness { b })?;
+            }
+        }
+        Lasting::PreventAttackEffects => prevent_effects_of_attacks(g, atk)?,
     }
     Ok(())
 }
@@ -281,7 +298,19 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     AttackFlagKind::NoWeakness => *ignore_weakness = a.value,
                     AttackFlagKind::NoResistance => *ignore_resistance = a.value,
                     AttackFlagKind::IgnoreDefenderEffects => *ignore_defender_effects = a.value,
+                    AttackFlagKind::FestivalLead => {}
                     _ => unimplemented!("spec attack flag not implemented yet (ops/state.rs)"),
+                }
+            }
+            if a.flag == AttackFlagKind::FestivalLead {
+                if crate::prefabs::is_ability_blocked(g, f.p as usize, me, None) {
+                    // Blocked: the flag is switched off (printed `barrage: false`).
+                    crate::copy_attack::write_barrage(g, me, |b, shown| {
+                        *b &= !1;
+                        *shown &= !1;
+                    });
+                } else {
+                    festival_lead(g, f.p as usize, me, true);
                 }
             }
             Ok(Flow::Next)
@@ -290,8 +319,35 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             arm(g, me, f, a.what)?;
             Ok(Flow::Next)
         }
+        Op::AbilityUsed(_) => {
+            ability_used(g, f.p as usize, me);
+            Ok(Flow::Next)
+        }
+        Op::SetFlag(s) => {
+            let p = f.who(s.who);
+            match s.flag {
+                PlayerFlag::AncientSupporter => g.st.players[p].ancient_supporter = s.value,
+            }
+            Ok(Flow::Next)
+        }
         Op::SetMarker(m) => {
-            let MarkerScope::Player(w) = m.scope;
+            let w = match m.scope {
+                MarkerScope::Player(w) => w,
+                MarkerScope::Slot(e) => {
+                    if let Some(t) = slot_of(g, me, f, e) {
+                        let source = if m.source == RuleSource::TrainerEffect { SourceType::Trainer } else { SourceType::None };
+                        g.st.players[t.p as usize].slots[t.s as usize].marker.add(marker_of(m.name), me, source, TargetScope::Pokemon);
+                    }
+                    return Ok(Flow::Next);
+                }
+                MarkerScope::EveryPokemon(w) => {
+                    let p = f.who(w);
+                    for s in g.st.players[p].in_play().iter().copied().collect::<Vec<_>>() {
+                        g.st.players[p].slots[s as usize].marker.add(marker_of(m.name), me, SourceType::Trainer, TargetScope::Pokemon);
+                    }
+                    return Ok(Flow::Next);
+                }
+            };
             let p = f.who(w);
             let source = match m.source {
                 RuleSource::Ability => SourceType::Ability,
@@ -305,7 +361,31 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::ClearMarker(m) => {
-            let MarkerScope::Player(w) = m.scope;
+            let w = match m.scope {
+                MarkerScope::Player(w) => w,
+                MarkerScope::EveryPokemon(w) => {
+                    let p = f.who(w);
+                    let id = marker_of(m.name);
+                    for s in g.st.players[p].in_play().iter().copied().collect::<Vec<_>>() {
+                        let mk = &mut g.st.players[p].slots[s as usize].marker;
+                        match m.from {
+                            MarkerFrom::This => mk.remove_from(id, me),
+                            MarkerFrom::Any => mk.remove(id),
+                        }
+                    }
+                    return Ok(Flow::Next);
+                }
+                MarkerScope::Slot(e) => {
+                    if let Some(t) = slot_of(g, me, f, e) {
+                        let mk = &mut g.st.players[t.p as usize].slots[t.s as usize].marker;
+                        match m.from {
+                            MarkerFrom::This => mk.remove_from(marker_of(m.name), me),
+                            MarkerFrom::Any => mk.remove(marker_of(m.name)),
+                        }
+                    }
+                    return Ok(Flow::Next);
+                }
+            };
             let p = f.who(w);
             let id = marker_of(m.name);
             match m.from {
@@ -324,4 +404,44 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
 
 pub(crate) fn resume(_g: &mut Game, _me: CardId, _f: &mut Frame, _op: &Op, _results: &[Res]) -> R<Flow> {
     Ok(Flow::Next)
+}
+
+/// Festival Lead: `this.attacks[0].barrage = stadium is 'Festival Grounds'` unless the Ability is
+/// blocked (then the flag is switched off). `pristine_has_key`: the printed attack object already
+/// has `barrage: false` (Dipplin), so only `true` differs from the printed card in the canonical
+/// state; otherwise any write does.
+pub fn festival_lead(g: &mut Game, p: usize, me: CardId, pristine_has_key: bool) {
+    if crate::prefabs::is_ability_blocked(g, p, me, None) {
+        return;
+    }
+    let fg = g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
+    crate::copy_attack::write_barrage(g, me, |b, shown| {
+        if fg {
+            *b |= 1;
+        } else {
+            *b &= !1;
+        }
+        if fg || !pristine_has_key {
+            *shown |= 1;
+        } else {
+            *shown &= !1;
+        }
+    });
+}
+
+/// The Ability of this Pokémon counts as used (the board effect shown on it), when the use
+/// succeeded rather than when it started.
+pub struct AbilityUsedSpec {}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PlayerFlag {
+    /// "The player played an Ancient Supporter this turn."
+    AncientSupporter,
+}
+
+/// Set or clear a flag of a player.
+pub struct SetFlagSpec {
+    pub who: Who,
+    pub flag: PlayerFlag,
+    pub value: bool,
 }

@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         Passive {
             origin: RuleSource::Ability,
-            modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), source: SlotPred::Tag(crate::types::tag::POKEMON_TERA), ..PreventAttackEffectsSpec::DEFAULT }),
+            modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), attacker: SlotPred::Tag(crate::types::tag::POKEMON_TERA), ..PreventAttackEffectsSpec::DEFAULT }),
         },
         Passive {
             origin: RuleSource::Ability,

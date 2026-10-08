@@ -5,66 +5,34 @@
 //! hand (phase 4b fix; the prompt was unanswerable); the hand card is
 //! chosen from a temporary copy of the hand (min 1, no cancel); the second
 //! prompt's max is min(2, Basic Energy counted before the discard), min 1.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "EnergyRetrieval@BS", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
+const HAND: ZoneRef = ZoneRef(Who::Me, Zone::Hand);
+const DISCARD: ZoneRef = ZoneRef(Who::Me, Zone::Discard);
 
-fn basic_energy() -> Filter {
-    Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() }
-}
+pub static SPEC: CardSpec = CardSpec {
+    class: "EnergyRetrieval@BS",
+    // Trade 1 of the other cards in your hand for up to 2 Basic Energy cards from your discard pile.
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[Cond::Nonempty(DISCARD, Pred::BasicEnergy), Cond::NonemptyOther(HAND, Pred::Any)],
+        steps: &[
+            // The Basic Energy available is counted before the discard.
+            Step::new(Op::Snapshot(SnapshotSpec { zone: DISCARD, predicate: Pred::BasicEnergy, into: 1 })),
+            Step::new(Op::Pick(PickSpec { from: HAND, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+            Step::new(Op::Move(MoveSpec { from: HAND, to: DISCARD, cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Pick(PickSpec {
+                from: DISCARD,
+                predicate: Pred::BasicEnergy,
+                bounds: Bounds { min: Num::Lit(1), max: Num::Min(&Num::Lit(2), &Num::RegCount(1)) },
+                into: 0,
+                msg: "CHOOSE_CARD_TO_HAND",
+                ..PickSpec::DEFAULT
+            })),
+            Step::new(Op::Move(MoveSpec { from: DISCARD, to: HAND, cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    let n = g.st.players[p]
-        .discard
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_energy() && d.energy_type == EnergyType::Basic as u8
-        })
-        .count();
-    if n == 0 {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    // No other card in hand to trade (phase 4b fix: the prompt was unanswerable).
-    if g.st.players[p].hand.iter().all(|c| c == me) {
-        bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    g.set_prevent(e, true);
-    let hand: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != me).collect();
-    let temp = g.alloc_temp(&hand);
-    let mut f = CardFrame::at(1);
-    f.a[0] = p as i32;
-    f.a[1] = n as i32;
-    choose_cards(g, p, "CHOOSE_CARD_TO_DISCARD", temp, Filter::none(), ChooseCardsOpts::new(1, 1, false), Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    let p = f.a[0] as usize;
-    let first = results.first().copied().unwrap_or(Res::Null);
-    match f.stage {
-        1 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            if cards.is_empty() {
-                return Ok(());
-            }
-            move_cards(g, ListRef::Hand(p as u8), ListRef::Discard(p as u8), &cards, me)?;
-            let max = (f.a[1] as u8).min(2);
-            let nf = CardFrame { stage: 2, ..f };
-            choose_cards(g, p, "CHOOSE_CARD_TO_HAND", ListRef::Discard(p as u8), basic_energy(), ChooseCardsOpts::new(1, max, false), Cont::Card { card: me, frame: nf });
-            Ok(())
-        }
-        2 => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            if !cards.is_empty() {
-                move_cards(g, ListRef::Discard(p as u8), ListRef::Hand(p as u8), &cards, me)?;
-            }
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

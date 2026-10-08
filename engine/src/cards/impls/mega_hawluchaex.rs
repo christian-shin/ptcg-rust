@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[
             Step::before_damage(more_damage_if(140, Cond::StadiumInPlay)),
             // The Stadium is discarded after the damage.
-            Step::after_damage(Op::Move(MoveSpec { cards: CardSel::Stadium, ..MoveSpec::DEFAULT })),
+            Step::after_damage(DISCARD_STADIUM),
         ],
     }],
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::SurviveOnTen(SurviveOnTenSpec { kind: SurviveKind::OnCoin }) }],

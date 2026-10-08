@@ -90,8 +90,7 @@ pub enum Side {
     /// Only the card's owner (the attacking player, or the damaged player).
     Owner,
     Any,
-    // --- S3 agent 3 appends ---
-    /// Only the card owner's opponent.
+    /// Only the owner's opponent.
     Opponent,
 }
 
@@ -221,16 +220,25 @@ pub struct PreventAttackEffectsSpec {
     pub probe_for_attacker: bool,
     /// Nothing is prevented when the attack's source slot holds no Pokémon.
     pub needs_source_pokemon: bool,
-    // --- S3 agent 3 appends ---
-    /// The Attacking Pokémon.
-    pub source: SlotPred,
+    /// Only attacks of Pokémon matching this predicate (the attacking Pokémon).
+    pub attacker: SlotPred,
     /// Only Pokémon of the card's owner are protected (`Side::Owner`).
     pub side: Side,
+    /// The damage steps are prevented too, unless the attack ignores effects on the
+    /// Defending Pokémon (Shred): "prevent all damage from and effects of attacks".
+    pub damage_too: bool,
 }
 
 impl PreventAttackEffectsSpec {
-    pub const DEFAULT: PreventAttackEffectsSpec =
-        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true, source: SlotPred::Any, side: Side::Any };
+    pub const DEFAULT: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
+        subject: SlotPred::Holder,
+        abilities: false,
+        probe_for_attacker: false,
+        needs_source_pokemon: true,
+        attacker: SlotPred::Any,
+        side: Side::Any,
+        damage_too: false,
+    };
 }
 
 /// What a `Prevent` passive stops.
@@ -238,6 +246,9 @@ impl PreventAttackEffectsSpec {
 pub enum PreventWhat {
     /// Damage counters can't be moved (to other Pokémon).
     CounterMoves,
+    /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
+    /// and Abilities, and no moving of counters by the player whose turn it is not.
+    BenchCounters,
     /// The opponent's Active Pokémon can't be healed. Today's behavior kept (A-PC8): only `Heal`,
     /// not `HealTarget`.
     HealOppActive,
@@ -265,6 +276,8 @@ pub enum BlockWhat {
     /// the Pokémon has a Tool attached. Today's behavior kept (A-PC6): from any zone, and the
     /// lock probe is made for the playing player.
     AceSpecOfOpponent,
+    /// This Pokémon can't retreat while it is the Active Pokémon (Fossils).
+    RetreatThisActive,
 }
 
 pub struct BlockUseSpec {
@@ -326,6 +339,8 @@ pub enum CostChange {
     Free,
     /// Ignore all [C] in the cost, those added later included (attack).
     IgnoreColorless,
+    /// "Can use this attack for ...": the cost is set to exactly these types (attack).
+    SetCost(&'static [CardType]),
 }
 
 /// A change of the cost of the attacks of a Pokémon (vocabulary P8).
@@ -472,7 +487,11 @@ pub struct EvolveFromSpec {
     pub names: &'static [&'static str],
     pub only: Pred,
 }
-pub struct AllowEvolveSpec {}
+/// "Can evolve during your first turn or the turn you play it": the Pokémon's played turn is the
+/// turn before, and it may evolve on the first turn, while it satisfies `subject`.
+pub struct AllowEvolveSpec {
+    pub subject: SlotPred,
+}
 /// "Can't be affected by Special Conditions" (vocabulary P20).
 pub struct ConditionImmunitySpec {
     /// The conditions (empty: all of them).
@@ -487,7 +506,12 @@ pub struct ConditionImmunitySpec {
 pub struct AttachGuardSpec {
     pub allow: SlotPred,
 }
-pub struct BenchSizeSpec {}
+/// Each player whose `guard` holds can have this many Benched Pokémon (the Stadium's rule); the
+/// others keep the usual 5.
+pub struct BenchSizeSpec {
+    pub size: u8,
+    pub guard: Cond,
+}
 
 /// +/- HP to the Pokémon matching `subject` while the card is in place.
 pub struct HpModSpec {
@@ -515,6 +539,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
             BlockWhat::AceSpecOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL, k::ATTACH_ENERGY, k::PLAY_STADIUM]),
+            BlockWhat::RetreatThisActive => mask(&[k::RETREAT]),
         },
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
@@ -526,6 +551,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::AbilityLock(_) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::Prevent(p) => match p.what {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
+            PreventWhat::BenchCounters => mask(&[k::MOVE_DAMAGE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
             PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
@@ -536,6 +562,8 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
+        Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
+        Modifier::AllowEvolve(_) => mask(&[k::CHECK_POKEMON_PLAYED_TURN]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -633,6 +661,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             (BlockWhat::UseStadium, Effect::UseStadium { .. }) if g.st.stadium_card() == Some(me) => crate::bail!("CANNOT_USE_STADIUM"),
             (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
             (BlockWhat::AceSpecOfOpponent, _) => ace_spec_of_opponent(g, me, e),
+            (BlockWhat::RetreatThisActive, Effect::Retreat { p, .. }) if g.st.active_pokemon(p as usize) == Some(me) => crate::bail!("CANNOT_RETREAT"),
             _ => Ok(()),
         },
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
@@ -647,6 +676,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
         Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
+        Modifier::BenchSize(d) => bench_size(g, me, e, ps.origin, d),
+        Modifier::AllowEvolve(d) => allow_evolve(g, me, e, ps.origin, d),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -657,7 +688,7 @@ fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subjec
         _ => return Ok(()),
     };
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok(g, me, at.owner, guard) {
+    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, at.owner, guard)? {
         return Ok(());
     }
     // HP is only changed for a Pokémon actually being checked (`effect.hp += n` writes only then).
@@ -910,7 +941,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
         }
     }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if c.side == Side::Owner && at.owner != p {
+    if c.side == Side::Owner && at.owner != p || c.side == Side::Opponent && at.owner == p {
         return Ok(());
     }
     let active = SlotRef::new(p, g.st.players[p].active);
@@ -927,7 +958,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
             _ => 0,
         }
     };
-    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, .. } = g.e_mut(e) {
+    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, set_cost, .. } = g.e_mut(e) {
         match &c.change {
             // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
             CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
@@ -941,6 +972,14 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
                 cost.retain(|t| *t != ct::COLORLESS);
                 // ...also the [C] that other effects add (R7F-11, rulings 252, 1552).
                 *ignore_colorless = true;
+            }
+            CostChange::SetCost(set) => {
+                let mut v: crate::effects::Cost = SVec::new();
+                for t in set.iter() {
+                    v.push(*t);
+                }
+                // A cost that is set is not increased or decreased (R7F-11).
+                *set_cost = Some(v);
             }
         }
     }
@@ -992,6 +1031,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
                 *no_cost = true;
             }
             CostChange::IgnoreColorless => cost.retain(|t| *t != ct::COLORLESS),
+            CostChange::SetCost(_) => {}
         }
     }
     Ok(())
@@ -1181,6 +1221,26 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
                 g.set_prevent(e, true);
             }
         }
+        (PreventWhat::BenchCounters, Effect::MoveDamageCounters { p }) => {
+            if p as usize == 1 - g.st.active_player as usize {
+                g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::BenchCounters, Effect::PutCounters { b, .. }) => {
+            if bench_target_prevented(g, me, b.source.p as usize, b.target) {
+                g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::BenchCounters, Effect::PlaceDamageCounters { target, source, .. }) => {
+            if source == NO_CARD {
+                return Ok(());
+            }
+            if let Some((owner, _)) = g.st.find_pokemon_slot(source) {
+                if bench_target_prevented(g, me, owner, target) {
+                    g.set_prevent(e, true);
+                }
+            }
+        }
         (PreventWhat::HealOppActive, Effect::Heal { target, .. }) => {
             let o = 1 - at.owner;
             if target.p as usize == o && target.s == g.st.players[o].active && !blocked(g, me, origin, at, None) {
@@ -1294,13 +1354,17 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
         if attacker == t.p {
             return Ok(());
         }
-        if matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. }) {
+        let damage_step = matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. });
+        if damage_step && !d.damage_too {
+            return Ok(());
+        }
+        if d.damage_too && (damage_step || matches!(*g.e(e), Effect::AfterDamage { .. })) && ignores_defender_effects(g, &b) {
+            return Ok(());
+        }
+        if !matches!(d.attacker, SlotPred::Any) && !slot_pred_m(g, me, b.source, &d.attacker)? {
             return Ok(());
         }
         if d.needs_source_pokemon && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
-            return Ok(());
-        }
-        if !slot_pred_m(g, me, b.source, &d.source)? {
             return Ok(());
         }
         g.set_prevent(e, true);
@@ -1332,8 +1396,21 @@ pub const HIDE_N_SNEAK: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
     abilities: true,
     probe_for_attacker: false,
     needs_source_pokemon: false,
-    source: SlotPred::Any,
+    attacker: SlotPred::Any,
     side: Side::Any,
+    damage_too: false,
+};
+
+/// "Prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon" (a Fossil's
+/// Protective Cover): Hide 'n' Sneak without the Abilities part.
+pub const HIDE_N_SNEAK_ATTACKS: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
+    subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+    abilities: false,
+    probe_for_attacker: false,
+    needs_source_pokemon: true,
+    attacker: SlotPred::Any,
+    side: Side::Any,
+    damage_too: false,
 };
 
 /// The handler of a Pokémon with Hide 'n' Sneak (Shuppet, Banette, Poltchageist, ...).
@@ -1512,7 +1589,13 @@ fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: 
         return Ok(());
     }
     match spec.kind {
-        SurviveKind::OnCoin => survive_on_ten_on_coin_flip(g, e, owner)?,
+        SurviveKind::OnCoin => {
+            // Only the Pokémon on top has the Ability.
+            if g.st.slot_pokemon(owner, t.s) != Some(me) {
+                return Ok(());
+            }
+            survive_on_ten_on_coin_flip(g, e, owner)?
+        }
         SurviveKind::IfFullHp => {
             if g.st.slot(owner, t.s).damage != 0 {
                 return Ok(());
@@ -1624,6 +1707,52 @@ fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
             attacks.push(*a);
             copied.push(*a);
         }
+    }
+    Ok(())
+}
+
+/// A guard evaluated with checked reads (Energy provided, types as the game checks them).
+fn guard_ok_m(g: &mut Game, me: CardId, owner: usize, guard: &Cond) -> R<bool> {
+    let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, owner);
+    cond_m(g, me, &f, guard)
+}
+
+/// A Benched Pokémon whose counters come from the opponent's Pokémon (Battle Cage).
+fn bench_target_prevented(g: &mut Game, me: CardId, source_owner: usize, t: SlotRef) -> bool {
+    let owner = t.p as usize;
+    if source_owner != 1 - owner || t.s == g.st.players[owner].active {
+        return false;
+    }
+    !is_stadium_effect_blocked(g, owner, t, me)
+}
+
+fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchSizeSpec) -> R {
+    let Effect::CheckTableState { bench_sizes } = *g.e(e) else { return Ok(()) };
+    if locate(g, me, origin).is_none() {
+        return Ok(());
+    }
+    let mut sizes = bench_sizes;
+    for (p, size) in sizes.iter_mut().enumerate() {
+        if guard_ok(g, me, p, &d.guard) {
+            *size = d.size;
+        }
+    }
+    if let Effect::CheckTableState { bench_sizes } = g.e_mut(e) {
+        *bench_sizes = sizes;
+    }
+    Ok(())
+}
+
+fn allow_evolve(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &AllowEvolveSpec) -> R {
+    let Effect::CheckPokemonPlayedTurn { p, target, .. } = *g.e(e) else { return Ok(()) };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if target.p as usize != p as usize || at.owner != p as usize || !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
+        return Ok(());
+    }
+    let turn = g.st.turn as i32;
+    if let Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } = g.e_mut(e) {
+        *pokemon_played_turn = turn - 1;
+        *can_evolve_on_first_turn = true;
     }
     Ok(())
 }

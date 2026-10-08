@@ -25,9 +25,12 @@ pub enum Zone {
     Discard,
     /// Card register `r` (a scratch list: looked-at cards, chosen cards).
     Scratch(u8),
-    // --- S3 agent 3 appends ---
-    /// The cards of the Pokémon chosen by `PickSlot` (its stack, Energy included).
-    PickedSlot,
+    /// The Stadium in play on the player's side.
+    Stadium,
+    /// The cards of the Pokémon's slot: the Pokémon, its Energy and Tools (the player is ignored).
+    Attached(SlotExpr),
+    /// The Energy cards attached to the Pokémon, as their own list (the player is ignored).
+    AttachedEnergy(SlotExpr),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -38,8 +41,7 @@ pub enum SlotExpr {
     /// The Pokémon this card is (or is attached to).
     This,
     Active(Who),
-    // --- S3 agent 3 appends ---
-    /// The Pokémon chosen by the last `PickSlot`.
+    /// The Pokémon the last `PickSlot` chose (none when there was nothing to pick).
     Picked,
 }
 
@@ -80,8 +82,6 @@ pub enum Num {
     /// Distinct first provided types among the cards of a zone matching the predicate.
     DistinctTypes(ZoneRef, Pred),
     // --- S3 agent 3 appends ---
-    /// Heads of the last coin op.
-    CoinHeads,
     /// Cards in the player's hand other than the resolving card.
     HandOthers(Who),
     /// Damage the Pokémon took during the opponent's last turn (the top card's counter).
@@ -93,6 +93,10 @@ pub enum Num {
     RetreatCostColorless(Who),
     /// Pokémon Tools attached to the Pokémon.
     ToolCount(SlotExpr),
+    /// Heads of the last finished coin sequence.
+    Heads,
+    /// Total damage (HP) on the selected Pokémon that satisfy the predicate.
+    DamageSum(SlotSel, SlotPred),
 }
 
 /// Which Pokémon in play a count or condition looks at.
@@ -157,14 +161,26 @@ pub enum Cond {
     // --- S3 agent 3 appends ---
     /// This card's Pokémon moved from the Bench to the Active Spot this turn.
     ThisMovedToActive,
-    /// The resolving Trainer's effect is used as the effect of an attack (Mr. Mime's Look-Alike Show).
-    ViaAttack,
     /// A Stadium is in play.
     StadiumInPlay,
     /// The Pokémon is not protected from this Trainer's effect (a TrainerTarget probe): a checked read.
     TrainerTargetOk(SlotExpr),
     /// Rare Candy can be used by the player (a checked read).
     RareCandyUsable,
+    /// A Pokémon of the player is being Knocked Out by an attack of the other player's Pokémon
+    /// and that attacking Pokémon card matches.
+    AttackerOfKnockOut { who: Who, pred: Pred },
+    /// The player has played a Supporter this turn.
+    SupporterPlayed(Who),
+    /// The player has a Prize card that is still face down and secret.
+    FaceDownPrize(Who),
+    /// The Trainer being resolved is used as the effect of an attack (Look-Alike Show).
+    TrainerViaAttack,
+    /// The last Attach op attached at least one card.
+    Attached,
+    /// During the last turn of the player's opponent, Pokémon of the player were Knocked Out
+    /// (by damage from an attack when `by_attack_damage`), one of them carrying `tag`.
+    KnockedOutLastTurn { who: Who, by_attack_damage: bool, tag: Option<u32> },
 }
 
 /// A card predicate.
@@ -209,6 +225,9 @@ pub enum Pred {
     // --- S3 agent 3 appends ---
     /// The card has a Rule Box.
     RuleBox,
+    /// A Pokémon that evolves from the named Pokémon.
+    EvolvesFrom(&'static str),
+    SpecialEnergy,
 }
 
 impl Frame {
@@ -227,22 +246,33 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
         Zone::Hand => ListRef::Hand(p),
         Zone::Discard => ListRef::Discard(p),
         Zone::Scratch(r) => ListRef::Temp(f.cards[r as usize]),
-        Zone::PickedSlot => ListRef::Slot(f.slot >> 4, f.slot & 15),
+        Zone::Stadium => ListRef::Stadium(p),
+        Zone::Attached(_) | Zone::AttachedEnergy(_) => panic!("Zone::Attached needs zone_list"),
     }
+}
+
+/// The list a zone names (`for_move`: the list cards move out of). None when it names no list
+/// (an unset register, a Pokémon that is not in play).
+pub fn zone_list(g: &Game, me: CardId, f: &Frame, z: ZoneRef, for_move: bool) -> Option<ListRef> {
+    match z.1 {
+        Zone::Attached(e) => slot_of(g, me, f, e).map(|s| ListRef::Slot(s.p, s.s)),
+        Zone::AttachedEnergy(e) => slot_of(g, me, f, e).map(|s| if for_move { ListRef::Slot(s.p, s.s) } else { ListRef::SlotEnergies(s.p, s.s) }),
+        Zone::Scratch(r) if f.cards[r as usize] == super::run::NONE => None,
+        _ => Some(zone_ref(f, z)),
+    }
+}
+
+/// The cards of a zone (empty when it names no list).
+pub fn zone_cards_of(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
+    zone_list(g, me, f, z, false).map(|l| g.lst(l).to_vec()).unwrap_or_default()
 }
 
 pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> {
     match s {
+        SlotExpr::Picked => (f.slot != super::run::NONE).then(|| SlotRef::new((f.slot >> 4) as usize, f.slot & 15)),
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
-        }
-        SlotExpr::Picked => {
-            if f.slot == super::run::NONE {
-                None
-            } else {
-                Some(SlotRef::new((f.slot >> 4) as usize, f.slot & 15))
-            }
         }
         SlotExpr::This => {
             for p in 0..2 {
@@ -267,8 +297,8 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
 pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
     match n {
         Num::Lit(v) => *v,
-        Num::ZoneSize(z) => g.lst(zone_ref(f, *z)).len() as i32,
-        Num::CardCount(z, p) => g.lst(zone_ref(f, *z)).iter().filter(|c| pred(g, **c, p)).count() as i32,
+        Num::ZoneSize(z) => zone_cards_of(g, me, f, *z).len() as i32,
+        Num::CardCount(z, p) => zone_cards_of(g, me, f, *z).iter().filter(|c| pred(g, **c, p)).count() as i32,
         Num::BenchCount(w) => {
             let pl = &g.st.players[f.who(*w)];
             pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count() as i32
@@ -303,12 +333,13 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
         Num::PrizesTaken(w) => 6 - g.st.players[f.who(*w)].prize_left() as i32,
         Num::RegCount(r) => reg_list(g, f, *r).len() as i32,
         Num::InPlayCount(w, scope, p) => in_play(g, f.who(*w), *scope).iter().filter(|(_, top, _)| pred(g, *top, p)).count() as i32,
-        Num::CoinHeads => f.heads() as i32,
+        Num::Heads => f.heads as i32,
         Num::DamageTakenLastTurn(s) => slot_of(g, me, f, *s).and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)).map(|c| g.st.cards[c as usize].damage_taken_last_turn).unwrap_or(0),
         Num::CostNow => panic!("Num::CostNow needs a checked read (num_m)"),
         Num::ToolCount(s) => slot_of(g, me, f, *s).map(|s| g.st.slot(s.p as usize, s.s).tools.len() as i32).unwrap_or(0),
         Num::RetreatCostColorless(_) => panic!("Num::RetreatCostColorless needs a checked read (num_m)"),
         Num::HandOthers(w) => g.st.players[f.who(*w)].hand.iter().filter(|c| *c != me).count() as i32,
+        Num::DamageSum(sel, sp) => slots_of(g, me, f, sel).iter().filter(|s| slot_pred(g, me, **s, sp).unwrap_or(false)).map(|s| g.st.slot(s.p as usize, s.s).damage).sum(),
         Num::DistinctTypes(z, p) => {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
@@ -366,7 +397,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                 CmpOp::Gt => a > b,
             }
         }
-        Cond::Nonempty(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| pred(g, *c, p)),
+        Cond::Nonempty(z, p) => zone_cards_of(g, me, f, *z).iter().any(|c| pred(g, *c, p)),
         Cond::BenchSpace(w) => !empty_bench_slots(g, f.who(*w)).is_empty(),
         Cond::IsActive(s) => slot_of(g, me, f, *s).map(|s| g.st.players[s.p as usize].active == s.s).unwrap_or(false),
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
@@ -383,7 +414,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             None => false,
         },
         Cond::HasMarker { who, name, from } => super::ops::state::has_marker(g, me, f.who(*who), name, *from),
-        Cond::ZoneIs(z, n) => g.lst(zone_ref(f, *z)).len() as i32 == *n,
+        Cond::ZoneIs(z, n) => zone_cards_of(g, me, f, *z).len() as i32 == *n,
         Cond::LastCardInHand(w) => g.st.players[f.who(*w)].hand.iter().all(|c| c == me),
         Cond::TypesShared(a, b) => {
             let printed = |sel: &SlotSel| -> Vec<CardType> {
@@ -402,7 +433,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             let (x, y) = (printed(a), printed(b));
             x.iter().any(|t| y.contains(t))
         }
-        Cond::NonemptyOther(z, p) => g.lst(zone_ref(f, *z)).iter().any(|c| *c != me && pred(g, *c, p)),
+        Cond::NonemptyOther(z, p) => zone_cards_of(g, me, f, *z).iter().any(|c| *c != me && pred(g, *c, p)),
         Cond::Chosen(r) => !reg_list(g, f, *r).is_empty(),
         Cond::AncientSupporterPlayed(w) => g.st.players[f.who(*w)].ancient_supporter,
         Cond::KnownCopies { who, name, at_least } => {
@@ -416,10 +447,22 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
         Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
-        Cond::ViaAttack => f.via_attack,
         Cond::StadiumInPlay => g.st.stadium_card().is_some(),
         Cond::TrainerTargetOk(_) => panic!("Cond::TrainerTargetOk needs a checked read (cond_m)"),
         Cond::RareCandyUsable => panic!("Cond::RareCandyUsable needs a checked read (cond_m)"),
+        Cond::TrainerViaAttack => f.via_attack,
+        Cond::Attached => f.attached != 0,
+        Cond::KnockedOutLastTurn { who, by_attack_damage, tag } => {
+            let pl = &g.st.players[f.who(*who)];
+            (!*by_attack_damage || pl.pokemon_knocked_out_by_attack_during_opponents_last_turn)
+                && pl.pokemon_knocked_out_last_turn_entries.iter().any(|d| tag.map_or(true, |t| crate::carddb::def(*d).has_tag(t)))
+        }
+        Cond::SupporterPlayed(w) => g.st.players[f.who(*w)].supporter_turn > 0,
+        Cond::FaceDownPrize(w) => {
+            let pl = &g.st.players[f.who(*w)];
+            (0..pl.prize_count as usize).any(|i| !pl.prize_public[i] && !pl.prize_face_up[i] && !pl.prizes[i].is_empty())
+        }
+        Cond::AttackerOfKnockOut { who, pred: q } => g.attacker_of_knock_out(f.who(*who)).and_then(|(c, _)| c).map_or(false, |c| pred(g, c, q)),
     }
 }
 
@@ -454,6 +497,8 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
         Pred::RuleBox => d.has_rule_box(),
+        Pred::EvolvesFrom(n) => d.is_pokemon() && d.evolves_from == *n,
+        Pred::SpecialEnergy => d.is_energy() && d.energy_type == EnergyType::Special as u8,
     }
 }
 
@@ -526,12 +571,17 @@ pub enum SlotPred {
     HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much: a checked read.
     RemainingHpAtMost(i32),
-    // --- S3 agent 3 appends ---
     /// Some card of the slot (the Pokémon, attached Energy) matches the predicate.
     HasCard(Pred),
     /// The Pokémon is affected by this Special Condition.
     Condition(SpecialCondition),
-    /// A Pokémon Tool is attached.
+    /// The Pokémon carries the marker `name` set by this card.
+    MarkerFromThis(&'static str),
+    /// The Stadium in play still has effect on this Pokémon (a checked read: effects can block it).
+    StadiumEffectActive,
+    /// The Pokémon has a Special Energy card attached.
+    HasSpecialEnergy,
+    /// The Pokémon has a Pokémon Tool attached.
     HasTool,
 }
 
@@ -544,6 +594,8 @@ pub enum EnergyUnit {
     Provided(CardType),
     /// Every `provides` entry of every Energy card (CheckProvidedEnergy).
     ProvidedUnits,
+    /// Energy cards (map entries) that provide the type, or every type (CheckProvidedEnergy).
+    MatchingEntries(CardType),
 }
 
 /// Printed cost length of the attack being used.
@@ -637,7 +689,9 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::HasCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
         SlotPred::Condition(c) => slot.special_conditions.contains(&(*c as u8)),
         SlotPred::HasTool => !slot.tools.is_empty(),
-        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
+        SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
+        SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
+        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,
     })
 }
 
@@ -661,6 +715,7 @@ pub fn slot_pred_m(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<boo
             }
             false
         }
+        SlotPred::StadiumEffectActive => !is_stadium_effect_blocked(g, s.p as usize, s, me),
         SlotPred::TypeIs(t) => {
             let types = crate::engine::game_effect::pokemon_types(g, s);
             let (e, _) = g.run_fx(Effect::CheckPokemonType { target: s, card_types: types })?;
@@ -751,13 +806,14 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
                             d.is_energy() && d.energy_type == EnergyType::Special as u8
                         })
                         .count() as i32,
-                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits => {
+                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::MatchingEntries(_) => {
                         let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: s.p, source: *s, energy_map: SVec::new() })?;
                         let mut k = 0;
                         if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
                             for em in energy_map.iter() {
                                 k += match unit {
                                     EnergyUnit::Provided(t) => em.provides.iter().filter(|x| **x == *t || **x == ct::ANY).count() as i32,
+                                    EnergyUnit::MatchingEntries(t) => em.provides.iter().any(|x| *x == *t || *x == ct::ANY) as i32,
                                     _ => em.provides.len() as i32,
                                 };
                             }

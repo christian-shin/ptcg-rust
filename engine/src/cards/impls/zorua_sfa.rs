@@ -21,12 +21,12 @@ fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, _results: &[Res]) -> R {
+fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
     if f.stage != 1 {
         return Ok(());
     }
     let atk = f.e[0];
-    let heads = (f.a[2] as u32).count_ones() as i32;
+    let heads = (results.first().map_or(0, |r| r.as_int()) as u32).count_ones() as i32;
     if let Effect::Attack { damage, .. } = g.e_mut(atk) {
         *damage = 20 * heads;
     }

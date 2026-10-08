@@ -17,43 +17,35 @@
 //! (Volt Strike, "discard all Energy") happened before the marker existed and
 //! the card was never re-attached. It is now armed directly by a
 //! DiscardCardsEffect from the Active holding this card that lists this card.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl {
+const DISCARDED: &str = "BOOMERANG_DISCARDED_MARKER";
+
+/// Attach this card from the discard pile to the Active Pokémon, once, when it was discarded by
+/// an effect of its Pokémon's attack.
+const REATTACH: &[Step] = &[Step::new(Op::If(IfSpec {
+    cond: Cond::HasMarker { who: Who::Me, name: DISCARDED, from: MarkerFrom::This },
+    yes: &[
+        Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: DISCARDED, from: MarkerFrom::This })),
+        Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, place: Place::AttachTo(MY_ACTIVE), ..MoveSpec::DEFAULT })),
+    ],
+    no: &[],
+}))];
+
+pub static SPEC: CardSpec = CardSpec {
     class: "BoomerangEnergy",
-    mask: mask(&[k::DISCARD_CARDS, k::END_TURN, k::AFTER_ATTACK_TRIGGERS]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    triggers: &[
+        Trigger {
+            origin: RuleSource::Energy,
+            event: Event::OnDiscarded(OnDiscardedSpec {}),
+            steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: DISCARDED, source: RuleSource::Energy }))],
+        },
+        // After the attack's effects (and the Energy choices they ask) are done; the end of the
+        // turn is the fallback for a discard no after-attack window followed.
+        Trigger { origin: RuleSource::Energy, event: Event::OnAfterAttackTriggers(OnAfterAttackTriggersSpec {}), steps: REATTACH },
+        Trigger { origin: RuleSource::Energy, event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }), steps: REATTACH },
+    ],
+    ..CardSpec::NONE
 };
 
-fn discarded() -> crate::markers::MarkerName {
-    crate::marker!("BOOMERANG_DISCARDED_MARKER")
-}
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::DiscardCards { b, ref cards } = *g.e(e) {
-        let pu = b.player as usize;
-        if cards.contains(&me) && g.st.slot(b.source.p as usize, b.source.s).cards.contains(me) && g.st.players[pu].active == b.source.s && b.source.p == b.player {
-            if is_special_energy_blocked(g, pu, me, b.source, false) {
-                return Ok(());
-            }
-            g.st.players[pu].marker.add(discarded(), me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-        }
-    }
-
-    let p = match *g.e(e) {
-        Effect::EndTurn { p } | Effect::AfterAttackTriggers { p, .. } => p,
-        _ => return Ok(()),
-    };
-    let pu = p as usize;
-    if g.st.players[pu].marker.has_from(discarded(), me) {
-        g.st.players[pu].marker.remove_from(discarded(), me);
-        if g.st.players[pu].discard.iter().any(|c| c == me) {
-            let a = g.st.players[pu].active;
-            move_cards(g, ListRef::Discard(p), ListRef::Slot(p, a), &[me], me)?;
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

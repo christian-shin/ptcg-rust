@@ -23,18 +23,33 @@ pub enum Event {
     OnEndTurn(OnEndTurnSpec),
     OnDiscarded(OnDiscardedSpec),
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
+    /// A rule no event expresses (Backtrack Badge): the card names the effect kinds it reacts to and
+    /// decides in its own function whether it fires (returning the program's player).
+    Custom(CustomEventSpec),
 }
 
-/// This card enters play (S3 agent 3).
-pub struct OnEnterPlaySpec {
-    pub how: EnterBy,
+pub struct CustomEventSpec {
+    pub kinds: &'static [u32],
+    pub fires: fn(&mut Game, CardId, EffId) -> Option<usize>,
 }
+
+/// How a Pokémon came into play.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum EnterBy {
-    /// Played from the hand as a Pokémon (PlayPokemon), not by evolving.
-    PlayedFromHand,
-    /// Evolved into, from the hand or by an effect (Evolve), Rare Candy included.
-    Evolved,
+pub enum EnterMethod {
+    /// "When you play this Pokémon from your hand to evolve" (any Evolve effect of this card,
+    /// Rare Candy included).
+    Evolve,
+    /// "When you play this Pokémon from your hand onto your Bench" (any Play effect of this card).
+    Play,
+    /// A Pokémon is put onto an empty Bench spot (from the hand, deck or discard pile) during its
+    /// owner's turn, whoever's it is; the program runs for that player with the Pokémon's slot
+    /// as the picked slot (Risky Ruins).
+    PutOnBench { basic: bool, not_type: Option<crate::types::CardType> },
+}
+
+/// This card enters play.
+pub struct OnEnterPlaySpec {
+    pub method: EnterMethod,
 }
 /// This Pokémon moved from the Active Spot to the Bench during its owner's turn.
 pub struct OnMovedSpec {}
@@ -49,8 +64,12 @@ pub struct OnKnockOutSpec {}
 /// runs only while that Pokémon is still in play, in the attack phase, and the Tool is attached
 /// and not blocked.
 pub struct OnDamagedByAttackSpec {}
+/// Between turns (Pokémon Checkup), once per turn change for the card's owner.
 pub struct OnCheckupSpec {}
+/// This card is discarded by an effect of an attack of the Pokémon it is attached to (that
+/// player's Active Pokémon).
 pub struct OnDiscardedSpec {}
+/// The attack's after-attack triggers of the player run (step 7 window).
 pub struct OnAfterAttackTriggersSpec {}
 
 /// Whose turn ending fires the trigger, relative to the card's owner.
@@ -72,22 +91,26 @@ pub const fn event_kinds(e: &Event) -> KindMask {
     use crate::effects::k;
     match e {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
-        Event::OnEnterPlay(s) => match s.how {
-            EnterBy::PlayedFromHand => mask(&[k::PLAY_POKEMON]),
-            EnterBy::Evolved => mask(&[k::EVOLVE]),
+        Event::OnEnterPlay(w) => match w.method {
+            EnterMethod::Evolve => mask(&[k::EVOLVE]),
+            EnterMethod::Play => mask(&[k::PLAY_POKEMON]),
+            EnterMethod::PutOnBench { .. } => mask(&[k::PLAY_POKEMON, k::PLAY_POKEMON_FROM_DECK, k::PLAY_POKEMON_FROM_DISCARD]),
         },
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
         Event::OnAttach(_) => mask(&[k::ATTACH_ENERGY]),
         Event::OnMoved(_) => mask(&[k::MOVED_FROM_ACTIVE_TO_BENCH]),
         Event::OnDamagedByAttack(_) => mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
-        _ => KindMask::EMPTY,
+        Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
+        Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
+        Event::Custom(c) => mask(c.kinds),
+        Event::OnAfterAttackTriggers(_) => mask(&[k::AFTER_ATTACK_TRIGGERS]),
     }
 }
 
-/// Does effect `e` fire trigger `t` of card `me`? Returns the program's player.
+/// Does effect `e` fire trigger `t` of card `me`? Returns the program's player and the event's slot
+/// (the program's picked slot, or NONE).
 pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, u8)> {
-    const NONE: u8 = 0xFF;
-    fires_in(g, me, e, t).map(|(p, slot)| (p, slot.unwrap_or(NONE)))
+    fires_in(g, me, e, t).map(|(p, slot)| (p, slot.unwrap_or(super::run::NONE)))
 }
 
 /// The program's player and, for events about a Pokémon, the slot (`p << 4 | slot`) it works on.
@@ -111,16 +134,16 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             };
             ok.then_some((owner, None))
         }
-        Event::OnEnterPlay(s) => match (s.how, *g.e(e)) {
-            (EnterBy::PlayedFromHand, Effect::PlayPokemon { p, card, .. }) | (EnterBy::Evolved, Effect::Evolve { p, card, .. }) if card == me => {
-                let p = p as usize;
-                if super::passive::blocked(g, me, t.origin, super::passive::Located { owner: p, held: None }, None) {
-                    return None;
-                }
-                Some((p, None))
+        Event::OnEnterPlay(OnEnterPlaySpec { method: m @ (EnterMethod::Play | EnterMethod::Evolve) }) => {
+            let p = match (m, *g.e(e)) {
+                (EnterMethod::Play, Effect::PlayPokemon { p, card, .. }) | (EnterMethod::Evolve, Effect::Evolve { p, card, .. }) if card == me => p as usize,
+                _ => return None,
+            };
+            if super::passive::blocked(g, me, t.origin, super::passive::Located { owner: p, held: None }, None) {
+                return None;
             }
-            _ => None,
-        },
+            Some((p, None))
+        }
         Event::OnAttach(_) => {
             let Effect::AttachEnergy { p, card, target } = *g.e(e) else { return None };
             if card != me {
@@ -179,6 +202,46 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             }
             Some((p, None))
         }
-        _ => unimplemented!("spec trigger not implemented yet (trigger.rs)"),
+        Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::PutOnBench { basic, not_type } }) => {
+            let (p, card, target) = match *g.e(e) {
+                Effect::PlayPokemon { p, card, target, .. } | Effect::PlayPokemonFromDeck { p, card, target } | Effect::PlayPokemonFromDiscard { p, card, target } => {
+                    (p as usize, card, target)
+                }
+                _ => return None,
+            };
+            let tp = target.p as usize;
+            if !g.st.slot(tp, target.s).cards.is_empty() || !g.st.players[p].bench.contains(&target.s) || g.st.active_player as usize != p {
+                return None;
+            }
+            let d = g.st.cdef(card);
+            if (*basic && d.stage != crate::types::Stage::Basic as u8) || not_type.map_or(false, |t| d.card_type.contains(&t)) {
+                return None;
+            }
+            if t.origin == RuleSource::Stadium && (g.st.stadium_card() != Some(me) || crate::prefabs::is_stadium_effect_blocked(g, p, target, me)) {
+                return None;
+            }
+            Some((p, Some(target.p << 4 | target.s)))
+        }
+        Event::OnDiscarded(_) => {
+            let Effect::DiscardCards { b, ref cards } = *g.e(e) else { return None };
+            let pu = b.player as usize;
+            let (sp, ss) = (b.source.p as usize, b.source.s);
+            if !(cards.contains(&me) && g.st.slot(sp, ss).cards.contains(me) && g.st.players[pu].active == ss && sp == pu) {
+                return None;
+            }
+            if t.origin == RuleSource::Energy && crate::prefabs::is_special_energy_blocked(g, pu, me, b.source, false) {
+                return None;
+            }
+            Some((pu, None))
+        }
+        Event::Custom(c) => (c.fires)(g, me, e).map(|p| (p, None)),
+        Event::OnCheckup(_) => match *g.e(e) {
+            Effect::BetweenTurns { .. } => Some((g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me)), None)),
+            _ => None,
+        },
+        Event::OnAfterAttackTriggers(_) => match *g.e(e) {
+            Effect::AfterAttackTriggers { p, .. } => Some((p as usize, None)),
+            _ => None,
+        },
     }
 }
