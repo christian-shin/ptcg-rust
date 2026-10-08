@@ -64,7 +64,13 @@ pub enum Modifier {
     /// +/- HP to the Pokémon matching a predicate (`HpBonus` with a subject and a guard).
     HpMod(HpModSpec),
     ProvidesEnergyBoost(ProvidesEnergyBoostSpec),
+    // --- S3 agent 3 appends ---
+    NextTurnBonus(NextTurnBonusSpec),
+    BenchAttacks(BenchAttacksSpec),
 }
+/// While this Pokémon is Active, it can use the attacks of any of the owner's Benched Pokémon
+/// (Mew ex's Memory Helix): they are offered as copied attacks.
+pub struct BenchAttacksSpec {}
 
 // ---------------------------------------------------------------------------
 // Records
@@ -426,7 +432,17 @@ pub struct CheckupDamageSpec {
 /// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
 /// (Relicanth's Memory Dive).
 pub struct GrantAttacksSpec {}
-pub struct AttackFlagsSpec {}
+/// Flags the card writes on attacks: "if you go first, this Pokémon can attack on your first turn".
+pub struct AttackFlagsSpec {
+    pub first_turn: bool,
+}
+/// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3):
+/// using the attack arms the bonus (it rolls over at the end of the turn), and every attack of
+/// the Pokémon applies an armed one.
+pub struct NextTurnBonusSpec {
+    pub attack: &'static str,
+    pub bonus: i32,
+}
 pub struct StatOverrideSpec {}
 /// The Pokémon also evolves from `names` (Eevee ex's Rainbow DNA); only a card matching `only`
 /// may be played onto it.
@@ -470,6 +486,9 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::DamageTaken(_) => mask(&[k::PUT_DAMAGE]),
         Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
         Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
+        Modifier::NextTurnBonus(_) => mask(&[k::ATTACK]),
+        Modifier::BenchAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
+        Modifier::AttackFlags(_) => mask(&[k::USE_ATTACK]),
         Modifier::BlockUse(b) => match b.what {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
@@ -582,6 +601,9 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
         Modifier::SurviveOnTen(s) => survive_on_ten(g, me, e, ps.origin, s),
         Modifier::CheckupDamage(c) => checkup_damage(g, me, e, ps.origin, c),
+        Modifier::NextTurnBonus(b) => next_turn_bonus(g, me, e, b),
+        Modifier::BenchAttacks(_) => bench_attacks(g, me, e, ps.origin),
+        Modifier::AttackFlags(a) => attack_flags(g, me, e, ps.origin, a),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
@@ -1490,6 +1512,79 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
     }
     if let Effect::BetweenTurns { poison_damage, .. } = g.e_mut(e) {
         *poison_damage += c.amount;
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Next-turn attack bonus and first-turn attacks (S3 agent 3)
+
+fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) -> R {
+    let (attack, source) = match *g.e(e) {
+        Effect::Attack { attack, source, .. } => (attack, source),
+        _ => return Ok(()),
+    };
+    if g.st.slot_pokemon(source.p as usize, source.s) != Some(me) {
+        return Ok(());
+    }
+    let full_name = g.st.cdef(me).tl_full_name;
+    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].tl_name;
+    let slot = &g.st.players[source.p as usize].slots[source.s as usize];
+    let armed = match slot.next_turn_attack_damage_bonus {
+        Some(a) if a.source_card_name == full_name && (a.attack_name == "*" || a.attack_name == attack_name) => a.bonus_damage,
+        _ => 0,
+    };
+    if armed != 0 {
+        if let Effect::Attack { damage, .. } = g.e_mut(e) {
+            *damage += armed;
+        }
+    }
+    if attack_name != b.attack {
+        return Ok(());
+    }
+    g.st.players[source.p as usize].slots[source.s as usize].next_turn_attack_damage_bonus_pending =
+        Some(crate::state::NextTurnAttackDamageBonus { attack_name: b.attack, bonus_damage: b.bonus, source_card_name: full_name });
+    Ok(())
+}
+
+fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &AttackFlagsSpec) -> R {
+    let Effect::UseAttack { p, attack, .. } = *g.e(e) else { return Ok(()) };
+    let p = p as usize;
+    let active = g.st.players[p].active;
+    if !a.first_turn || !g.st.slot(p, active).cards.contains(me) || g.st.turn != 1 {
+        return Ok(());
+    }
+    let at = Located { owner: p, held: None };
+    if blocked(g, me, origin, at, None) {
+        return Ok(());
+    }
+    // A copy-attack clone carries its own flag (nothing reads it).
+    if !attack.is_clone() {
+        g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
+    }
+    Ok(())
+}
+
+fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
+    let Effect::CheckPokemonAttacks { p, .. } = *g.e(e) else { return Ok(()) };
+    let p = p as usize;
+    if g.st.active_pokemon(p) != Some(me) || blocked(g, me, origin, Located { owner: p, held: None }, None) {
+        return Ok(());
+    }
+    let mut add: SVec<AttackRef, 32> = SVec::new();
+    let bench: Vec<crate::state::SlotId> = g.st.players[p].bench.iter().copied().collect();
+    for b in bench {
+        if let Some(c) = g.st.slot_pokemon(p, b) {
+            for i in 0..g.st.cdef(c).attacks.len() {
+                add.push(AttackRef { card: c, index: i as u8 });
+            }
+        }
+    }
+    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
+        for a in add.iter() {
+            attacks.push(*a);
+            copied.push(*a);
+        }
     }
     Ok(())
 }

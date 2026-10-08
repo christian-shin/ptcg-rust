@@ -285,6 +285,10 @@ pub enum EnergySelection {
     /// of the attack); with `up_to` the payment is at most `count` (fewer when the Pokémon
     /// provides fewer Energy).
     ChooseToHand { count: u8, ty: CardType, up_to: bool },
+    /// "Discard up to `max` Pokémon Tools from your opponent's Pokémon" (`target` is ignored): a
+    /// prompt over the Tools in play; each chosen Tool is checked against an effect that prevents
+    /// the attack's effects on its Pokémon (Mist Energy) before it is discarded.
+    OppTools { max: u8 },
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct AmongSpec {
@@ -456,6 +460,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 EnergySelection::Choose { count, ty } => return discard_choose_exec(g, me, f, slot, count, ty, false, false),
                 EnergySelection::ChooseToHand { count, ty, up_to } => return discard_choose_exec(g, me, f, slot, count, ty, up_to, true),
                 EnergySelection::Among(a) => return among_exec(g, me, f, slot, &a),
+                EnergySelection::OppTools { max } => return opp_tools_exec(g, me, f, max),
                 EnergySelection::AllIntoDeck => {
                     let (p, s) = (slot.p as usize, slot.s);
                     let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
@@ -994,6 +999,13 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 among_resume(g, me, f, &a, first)?;
                 return Ok(Flow::Next);
             }
+            if let EnergySelection::OppTools { .. } = d.selection {
+                if let Res::CardsFrom(ts) = first {
+                    let items = opp_tools_items(g, f, ts.as_slice());
+                    opp_tools_carry_out(g, me, f, &items)?;
+                }
+                return Ok(Flow::Next);
+            }
             if let Some(slot) = slot_of(g, me, f, d.target) {
                 if let Res::Energy(c) = first {
                     discard_chosen(g, f, slot, c.as_slice(), matches!(d.selection, EnergySelection::ChooseToHand { .. }))?;
@@ -1035,6 +1047,13 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Next)
         }
         Op::DiscardEnergy(d) => {
+            if let EnergySelection::OppTools { max } = d.selection {
+                if opp_tools_prompt(g, me, f, max) {
+                    return Ok(Flow::Suspend);
+                }
+                f.record(g, me, CHOICE_NONE);
+                return Ok(Flow::Next);
+            }
             let (count, ty, up_to) = match d.selection {
                 EnergySelection::Choose { count, ty } => (count, ty, false),
                 EnergySelection::ChooseToHand { count, ty, up_to } => (count, ty, up_to),
@@ -1072,7 +1091,17 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
             f.record_items(g, me, CHOICE_YES, &items);
             Ok(Flow::Next)
         }
-        Op::DiscardEnergy(_) => {
+        Op::DiscardEnergy(d) => {
+            if let EnergySelection::OppTools { .. } = d.selection {
+                match first {
+                    Res::CardsFrom(ts) => {
+                        let items = opp_tools_items(g, f, ts.as_slice());
+                        f.record_items(g, me, CHOICE_YES, &items);
+                    }
+                    _ => f.record(g, me, CHOICE_NONE),
+                }
+                return Ok(Flow::Next);
+            }
             match first {
                 Res::Energy(c) => f.record_items(g, me, CHOICE_YES, c.as_slice()),
                 _ => f.record(g, me, CHOICE_NONE),
@@ -1330,6 +1359,66 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
     for (target, cards) in groups {
         let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source, target };
         g.run_fx(Effect::DiscardCards { b, cards })?;
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// DiscardEnergy::OppTools (S3 agent 3)
+
+fn opp_tools_prompt(g: &mut Game, me: CardId, f: &Frame, max: u8) -> bool {
+    let p = f.p as usize;
+    let o = 1 - p;
+    let mut tools = 0usize;
+    for (s, _, _) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
+        tools += g.st.slot(o, s).tools.len();
+    }
+    if tools == 0 {
+        return false;
+    }
+    let mut slots = SVec::new();
+    slots.push(SlotType::Active as u8);
+    slots.push(SlotType::Bench as u8);
+    let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
+    let opts = MoveOpts { allow_cancel: false, min: 0, max: Some(tools.min(max as usize) as u8), ..Default::default() };
+    let id = g.player_id(p);
+    g.prompt(id, "CHOOSE_CARD_TO_DISCARD", PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter, o: opts }, f.cont(me, 1));
+    true
+}
+
+fn opp_tools_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow> {
+    if let Some(c) = f.recorded_choice(g, me) {
+        if c.answer == CHOICE_YES {
+            opp_tools_carry_out(g, me, f, &c.items[..c.len as usize])?;
+        }
+        return Ok(Flow::Next);
+    }
+    Ok(if opp_tools_prompt(g, me, f, max) { Flow::Suspend } else { Flow::Next })
+}
+
+/// (slot byte, card) pairs of the answer.
+fn opp_tools_items(g: &Game, f: &Frame, ts: &[(CardTarget, CardId)]) -> Vec<u8> {
+    let mut out = Vec::new();
+    for (from, c) in ts {
+        if let Ok(t) = get_target(&g.st, f.p as usize, *from) {
+            out.extend_from_slice(&[t.p << 4 | t.s, *c]);
+        }
+    }
+    out
+}
+
+fn opp_tools_carry_out(g: &mut Game, me: CardId, f: &Frame, items: &[u8]) -> R {
+    let p = f.p as usize;
+    let Some((_, _, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    let source_card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(me);
+    for pair in items.chunks(2).filter(|c| c.len() == 2) {
+        let t = SlotRef::new((pair[0] >> 4) as usize, pair[0] & 15);
+        let owner = t.p as usize;
+        // An effect of the attack on that Pokémon: Mist Energy and the like prevent it (ruling 1843).
+        if attack_effect_prevented_on(g, p, owner, pack_attack(attack), t)? {
+            continue;
+        }
+        move_cards(g, ListRef::Slot(owner as u8, t.s), ListRef::Discard(owner as u8), &[pair[1]], source_card)?;
     }
     Ok(())
 }

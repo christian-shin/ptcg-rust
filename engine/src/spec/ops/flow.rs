@@ -70,6 +70,15 @@ pub struct CopyAttackSpec {
     pub from: Who,
     pub predicate: Pred,
     pub retries: u8,
+    pub scope: CopyScope,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CopyScope {
+    /// The Active Pokémon's attacks.
+    Active,
+    // --- S3 agent 3 appends ---
+    /// The attacks of the Benched Pokémon matching `predicate` (chosen among them; N's Zoroark ex).
+    Bench,
 }
 pub struct EndTurnSpec {}
 /// The game ends and `winner` wins.
@@ -103,6 +112,14 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::CopyAttack(c) => {
             let p = f.who(c.from);
+            if c.scope == CopyScope::Bench {
+                let cards: Vec<CardId> = g.st.players[p].bench.iter().filter_map(|b| g.st.slot_pokemon(p, *b)).filter(|c0| pred(g, *c0, &c.predicate)).collect();
+                if cards.is_empty() {
+                    return Ok(Flow::Next);
+                }
+                crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
+                return Ok(Flow::Next);
+            }
             let Some(card) = g.st.active_pokemon(p) else { return Ok(Flow::Next) };
             if !(pred(g, card, &Pred::HasAttacks) && pred(g, card, &c.predicate)) {
                 return Ok(Flow::Next);

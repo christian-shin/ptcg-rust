@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[
-            Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Tag(crate::types::tag::POKEMON_TERA), retries: 1 })),
+            Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Tag(crate::types::tag::POKEMON_TERA), retries: 1, scope: CopyScope::Active })),
         ],
     }],
     ..CardSpec::NONE

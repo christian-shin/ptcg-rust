@@ -43,6 +43,11 @@ pub struct OnAttachSpec {}
 /// This Pokémon, in the Active Spot, is Knocked Out by damage from an attack of the opponent's
 /// Pokémon. The Attacking Pokémon's slot is the program's picked slot (`SlotExpr::Picked`).
 pub struct OnKnockOutSpec {}
+/// The Pokémon this card is attached to, in the Active Spot, is damaged by an attack of the
+/// opponent's Pokémon (even if Knocked Out). The trigger resolves after the attack's own effects
+/// (step 7 of the attack flow); the Attacking Pokémon's slot is the program's picked slot, and it
+/// runs only while that Pokémon is still in play, in the attack phase, and the Tool is attached
+/// and not blocked.
 pub struct OnDamagedByAttackSpec {}
 pub struct OnCheckupSpec {}
 pub struct OnDiscardedSpec {}
@@ -74,6 +79,7 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
         Event::OnAttach(_) => mask(&[k::ATTACH_ENERGY]),
         Event::OnMoved(_) => mask(&[k::MOVED_FROM_ACTIVE_TO_BENCH]),
+        Event::OnDamagedByAttack(_) => mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
         _ => KindMask::EMPTY,
     }
 }
@@ -140,6 +146,28 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             // The program works on the Attacking Pokémon.
             Some((p as usize, Some(src.p << 4 | src.s)))
         }
+        Event::OnDamagedByAttack(_) => match *g.e(e) {
+            Effect::AfterDamage { b, damage } => {
+                // Record the step 7 trigger; it resolves later as an AttackTrigger effect.
+                let t0 = b.target;
+                if g.st.slot(t0.p as usize, t0.s).tools.contains(me) && damage > 0 && b.player != t0.p && g.st.players[t0.p as usize].active == t0.s {
+                    let _ = g.attack_trigger(b, damage, me, None, false);
+                }
+                None
+            }
+            Effect::AttackTrigger { p, card, target, source, source_in_play, retaliate: None, .. } if card == me => {
+                if !g.st.slot(target.p as usize, target.s).tools.contains(me) {
+                    return None;
+                }
+                // The Tool lock probe is made for the attacking player.
+                let at = super::passive::Located { owner: p as usize, held: Some(target) };
+                if super::passive::blocked(g, me, t.origin, at, Some(target)) || g.st.phase != crate::types::GamePhase::Attack || !source_in_play {
+                    return None;
+                }
+                Some((target.p as usize, Some(source.p << 4 | source.s)))
+            }
+            _ => None,
+        },
         Event::OnMoved(_) => {
             let Effect::MovedFromActiveToBench { p, card } = *g.e(e) else { return None };
             let p = p as usize;

@@ -47,6 +47,10 @@ pub enum SwitchKind {
     /// Switch out the opponent's Active: a SwitchOutOpponentsActiveEffect probe
     /// before the new Active is chosen, and again with it.
     SwitchOut,
+    // --- S3 agent 3 appends ---
+    /// The Pokémon chosen by `PickSlot` (a Benched Pokémon of `side`) becomes Active, silently,
+    /// without asking.
+    Picked,
 }
 
 /// "Switch": the Pokémon in the Active Spot of `side` changes places with a
@@ -147,6 +151,10 @@ pub enum MoveCountersKind {
     AllFromOne { from: PickSlotSpec, to: PickSlotSpec },
     /// Any number of counters move between the Pokémon of one side.
     AnyAmong { who: Who },
+    // --- S3 agent 3 appends ---
+    /// Up to `max` damage counters move from 1 of the player's Pokémon to 1 of the opponent's
+    /// (Munkidori's Adrena-Brain); the counters move one at a time.
+    MineToOpp { max: u8 },
 }
 
 pub struct MoveCountersSpec {
@@ -154,7 +162,12 @@ pub struct MoveCountersSpec {
 }
 pub struct EvolveSpec {}
 pub struct DevolveSpec {}
-pub struct SwapPokemonCardSpec {}
+/// Put the Pokémon card in card register `cards` onto this card's Pokémon (as it is, evolution state
+/// kept) and this card into `into`.
+pub struct SwapPokemonCardSpec {
+    pub cards: u8,
+    pub into: ZoneRef,
+}
 /// Put a Pokémon and all cards attached to it into a zone.
 pub struct RemoveFromPlaySpec {
     pub slot: SlotExpr,
@@ -413,6 +426,22 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
+        Op::SwapPokemonCard(sw) => {
+            // The chosen card goes onto this Pokémon's slot, this card leaves for `into`; it is the
+            // same Pokémon (ruling 1840): the state kept on the card moves to the new card.
+            let new = reg_list(g, f, sw.cards).first().copied();
+            let slot = slot_of(g, me, f, SlotExpr::This);
+            if let (Some(new), Some(slot)) = (new, slot) {
+                let p = slot.p as usize;
+                if let Some(src) = g.st.locate(new) {
+                    move_cards(g, src, crate::state::ListRef::Slot(slot.p, slot.s), &[new], me)?;
+                    let dst = zone_ref(f, sw.into);
+                    move_cards(g, crate::state::ListRef::Slot(slot.p, slot.s), dst, &[me], me)?;
+                    transfer_pokemon_card_state(g, p, me, new);
+                }
+            }
+            Ok(Flow::Next)
+        }
         Op::PickSlot(pick) => {
             let cands = candidates(g, me, f, pick)?;
             // A fixed Pokémon is just selected (nothing to ask).
@@ -431,6 +460,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::MoveCounters(m) => match &m.kind {
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
             MoveCountersKind::AnyAmong { who } => move_any_exec(g, me, f, *who),
+            MoveCountersKind::MineToOpp { max } => mine_to_opp_exec(g, me, f, *max),
         },
         _ => unimplemented!("spec op not implemented yet (ops/board.rs)"),
     }
@@ -469,6 +499,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             MoveCountersKind::AllFromOne { .. } => move_all_resume(g, me, f, m, first),
             MoveCountersKind::AnyAmong { who } => {
                 move_any_resume(g, f, *who, first)?;
+                Ok(Flow::Next)
+            }
+            MoveCountersKind::MineToOpp { max } => {
+                mine_to_opp_resume(g, me, f, *max, first)?;
                 Ok(Flow::Next)
             }
         },
@@ -712,6 +746,14 @@ fn switch_prevented(g: &mut Game, f: &Frame, s: &SwitchSpec) -> R<bool> {
 }
 
 fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flow> {
+    if s.kind == SwitchKind::Picked {
+        if let Some(slot) = slot_of(g, me, f, SlotExpr::Picked) {
+            if occupied(g, slot) {
+                switch_act(g, me, f, s, slot)?;
+            }
+        }
+        return Ok(Flow::Next);
+    }
     if let Some(c) = f.recorded_choice(g, me) {
         if c.answer == CHOICE_NONE || c.len == 0 {
             return Ok(Flow::Next);
@@ -738,7 +780,7 @@ fn switch_act(g: &mut Game, _me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRe
     }
     match s.kind {
         SwitchKind::Plain => crate::engine::turn::switch_pokemon(g, side, slot.s),
-        SwitchKind::Silent => {
+        SwitchKind::Silent | SwitchKind::Picked => {
             let a = g.st.players[side].active;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
             crate::engine::turn::switch_pokemon_silent(g, side, slot.s)
@@ -955,4 +997,57 @@ pub const fn more_damage_if(hp: i32, when: Cond) -> Op {
 /// The attack's damage is this number (N times, or set to a value).
 pub const fn damage_is(hp: Num) -> Op {
     Op::Damage(DamageSpec { op: DamageOp::Set, hp, when: Cond::True })
+}
+
+// ---------------------------------------------------------------------------
+// MoveCounters::MineToOpp (S3 agent 3)
+
+fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow> {
+    let p = f.p as usize;
+    let o = 1 - p;
+    let mine = for_each_pokemon(g, p, PlayerType::BottomPlayer);
+    let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
+    for (s, _, t) in mine.iter().copied() {
+        let hp = crate::engine::check::check_hp(g, p, s)?;
+        max_allowed.push((t, hp));
+    }
+    let mut opts = MoveOpts { allow_cancel: false, min: 1, max: Some(max), ..Default::default() };
+    for (_, _, t) in mine.iter().copied() {
+        opts.blocked_to.push(t);
+    }
+    for (_, _, t) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
+        opts.blocked_from.push(t);
+    }
+    let mut slots = SVec::new();
+    slots.push(SlotType::Active as u8);
+    slots.push(SlotType::Bench as u8);
+    let id = g.player_id(p);
+    g.prompt(id, "MOVE_DAMAGE", PromptKind::RemoveDamage { player_type: PlayerType::Any, slots, max_allowed, o: opts, same_target: true }, f.cont(me, 1));
+    Ok(Flow::Suspend)
+}
+
+fn mine_to_opp_resume(g: &mut Game, me: CardId, f: &Frame, max: u8, first: Res) -> R {
+    let p = f.p as usize;
+    let Res::DamageTransfers(transfers) = first else { return Ok(()) };
+    let limit = max as i32 * 10;
+    let mut total = 0;
+    for (from, to) in damage_transfers(transfers.as_slice()) {
+        let source = get_target(&g.st, p, from)?;
+        let target = get_target(&g.st, p, to)?;
+        let src_damage = g.st.slot(source.p as usize, source.s).damage;
+        let damage_to_move = (limit - total).min(10.min(src_damage));
+        if damage_to_move > 0 {
+            let (_, prevented) = g.run_fx(Effect::MoveDamageCounters { p: p as u8 })?;
+            if prevented {
+                continue;
+            }
+            g.st.players[source.p as usize].slots[source.s as usize].damage -= damage_to_move;
+            g.run_fx(Effect::PlaceDamageCounters { p: p as u8, target, damage: damage_to_move, source: me })?;
+            total += damage_to_move;
+        }
+        if total >= limit {
+            break;
+        }
+    }
+    Ok(())
 }
