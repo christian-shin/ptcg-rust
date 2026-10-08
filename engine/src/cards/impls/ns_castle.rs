@@ -1,29 +1,16 @@
 //! N's Castle (JTG, stadium): each N's Pokémon in play has no Retreat Cost.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "NsCastle", mask: mask(&[k::CHECK_RETREAT_COST, k::USE_STADIUM]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "NsCastle",
+    passives: &[
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive {
+            origin: RuleSource::Stadium,
+            modifier: Modifier::RetreatCost(RetreatCostSpec { change: CostChange::Free, subject: SlotPred::Tag(crate::types::tag::NS), ..RetreatCostSpec::DEFAULT }),
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if g.st.stadium_card() != Some(me) {
-        return Ok(());
-    }
-    match *g.e(e) {
-        Effect::CheckRetreatCost { p, .. } => {
-            let p = p as usize;
-            let a = g.st.players[p].active;
-            if is_stadium_effect_blocked(g, p, SlotRef::new(p, a), me) {
-                return Ok(());
-            }
-            let ns = g.st.active_pokemon(p).map(|c| g.st.cdef(c).has_tag(tag::NS)).unwrap_or(false);
-            if ns {
-                if let Effect::CheckRetreatCost { cost, no_cost, .. } = g.e_mut(e) {
-                    cost.clear();
-                    *no_cost = true;
-                }
-            }
-            Ok(())
-        }
-        Effect::UseStadium { .. } => bail!("CANNOT_USE_STADIUM"),
-        _ => Ok(()),
-    }
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

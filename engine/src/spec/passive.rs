@@ -64,7 +64,13 @@ pub enum Modifier {
     /// +/- HP to the Pokémon matching a predicate (`HpBonus` with a subject and a guard).
     HpMod(HpModSpec),
     ProvidesEnergyBoost(ProvidesEnergyBoostSpec),
+    // --- S3 agent 3 appends ---
+    NextTurnBonus(NextTurnBonusSpec),
+    BenchAttacks(BenchAttacksSpec),
 }
+/// While this Pokémon is Active, it can use the attacks of any of the owner's Benched Pokémon
+/// (Mew ex's Memory Helix): they are offered as copied attacks.
+pub struct BenchAttacksSpec {}
 
 // ---------------------------------------------------------------------------
 // Records
@@ -84,6 +90,9 @@ pub enum Side {
     /// Only the card's owner (the attacking player, or the damaged player).
     Owner,
     Any,
+    // --- S3 agent 3 appends ---
+    /// Only the card owner's opponent.
+    Opponent,
 }
 
 /// The effects that do not stack: only the first reduction per effect applies.
@@ -212,11 +221,16 @@ pub struct PreventAttackEffectsSpec {
     pub probe_for_attacker: bool,
     /// Nothing is prevented when the attack's source slot holds no Pokémon.
     pub needs_source_pokemon: bool,
+    // --- S3 agent 3 appends ---
+    /// The Attacking Pokémon.
+    pub source: SlotPred,
+    /// Only Pokémon of the card's owner are protected (`Side::Owner`).
+    pub side: Side,
 }
 
 impl PreventAttackEffectsSpec {
     pub const DEFAULT: PreventAttackEffectsSpec =
-        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true };
+        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true, source: SlotPred::Any, side: Side::Any };
 }
 
 /// What a `Prevent` passive stops.
@@ -229,6 +243,10 @@ pub enum PreventWhat {
     HealOppActive,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
+    // --- S3 agent 3 appends ---
+    /// This card can't be put into its owner's hand or deck from the discard pile (the move
+    /// takes the other cards, or is prevented when nothing is left).
+    ThisCardFromDiscard,
 }
 
 /// A prohibition on the opponent's or everyone's effects (vocabulary P5).
@@ -348,7 +366,18 @@ pub struct RetreatCostSpec {
 impl RetreatCostSpec {
     pub const DEFAULT: RetreatCostSpec = RetreatCostSpec { change: CostChange::Free, which: RetreatWhich::Mine, subject: SlotPred::Holder, side: Side::Any, guard: Cond::True };
 }
-pub struct SurviveOnTenSpec {}
+/// "If this Pokémon would be Knocked Out by damage from an attack, it survives with 10 HP left"
+/// (Tenacious Body / Tenacious Heart), under a condition.
+pub struct SurviveOnTenSpec {
+    pub kind: SurviveKind,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SurviveKind {
+    /// A coin flip decides (flipped once the attack's damage is all done).
+    OnCoin,
+    /// Only while the Pokémon has no damage counters (full HP).
+    IfFullHp,
+}
 /// What the Energy provides, as one entry of the Energy map.
 pub struct ProvidesEnergySpec {
     /// One Energy map entry per element whose condition holds for the Pokémon.
@@ -386,12 +415,56 @@ pub struct PrizeAdjustSpec {
     /// (Unown's Mysterious Signal): the card's own last attack of the turn.
     pub by_own_attack: Option<&'static str>,
     pub guard: Cond,
+    // --- S3 agent 3 appends ---
+    /// The Pokémon that used the attack (by Knock Out by attack damage), where it is now.
+    pub attacker: SlotPred,
+    /// Applies once per Knocked Out Pokémon: this marker (a slot marker, by name) is set on it.
+    pub nonstacking: Option<&'static str>,
+    /// Only a Knock Out of the card owner's Pokémon.
+    pub owner_only: bool,
+    /// The lock probe is made for the owner's opponent (today's behavior of Mega Gengar ex).
+    pub probe_opponent: bool,
 }
-pub struct CheckupDamageSpec {}
+impl PrizeAdjustSpec {
+    pub const DEFAULT: PrizeAdjustSpec = PrizeAdjustSpec {
+        delta: 0,
+        subject: SlotPred::Any,
+        by_attack_damage: false,
+        by_own_attack: None,
+        guard: Cond::True,
+        attacker: SlotPred::Any,
+        nonstacking: None,
+        owner_only: false,
+        probe_opponent: false,
+    };
+}
+/// "During Pokémon Checkup, put N more damage counters on each Poisoned Pokémon ..." (Perilous
+/// Jungle, Pecharunt): added to the Poison damage of the Active Pokémon of the player whose
+/// Checkup it is.
+pub struct CheckupDamageSpec {
+    /// More damage, in HP (10 per counter).
+    pub amount: i32,
+    /// The checked Pokémon.
+    pub victim: SlotPred,
+    /// Only the Checkup of the card owner's opponent.
+    pub opponent_only: bool,
+    /// The card's own Pokémon.
+    pub holder: SlotPred,
+}
 /// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
 /// (Relicanth's Memory Dive).
 pub struct GrantAttacksSpec {}
-pub struct AttackFlagsSpec {}
+/// Flags the card writes on attacks: "if you go first, this Pokémon can attack on your first turn".
+pub struct AttackFlagsSpec {
+    pub first_turn: bool,
+}
+/// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3):
+/// using the attack arms the bonus (it rolls over at the end of the turn), and every attack of
+/// the Pokémon applies an armed one.
+pub struct NextTurnBonusSpec {
+    pub attack: &'static str,
+    pub bonus: i32,
+}
 pub struct StatOverrideSpec {}
 /// The Pokémon also evolves from `names` (Eevee ex's Rainbow DNA); only a card matching `only`
 /// may be played onto it.
@@ -433,6 +506,11 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             DamageStage::Attack => mask(&[k::ATTACK]),
         },
         Modifier::DamageTaken(_) => mask(&[k::PUT_DAMAGE]),
+        Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
+        Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
+        Modifier::NextTurnBonus(_) => mask(&[k::ATTACK]),
+        Modifier::BenchAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
+        Modifier::AttackFlags(_) => mask(&[k::USE_ATTACK]),
         Modifier::BlockUse(b) => match b.what {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
@@ -450,6 +528,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
+            PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
         },
         Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
         Modifier::PrizeAdjust(_) => mask(&[k::KNOCK_OUT]),
@@ -470,11 +549,11 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
 
 /// Where this copy of the card is, when it is in place for its origin.
 #[derive(Clone, Copy)]
-struct Located {
+pub(crate) struct Located {
     /// The player whose lock probe applies.
-    owner: usize,
+    pub(crate) owner: usize,
     /// The Pokémon the card is part of or attached to.
-    held: Option<SlotRef>,
+    pub(crate) held: Option<SlotRef>,
 }
 
 fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> Option<SlotRef> {
@@ -488,7 +567,7 @@ fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> O
     None
 }
 
-fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
     match origin {
         RuleSource::Tool => slot_where(g, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
         RuleSource::Energy => slot_where(g, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
@@ -510,7 +589,7 @@ fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
 
 /// Is the card's effect off: the lock probe derived from its origin. `affected`
 /// is the Pokémon the effect is about (a Stadium's probe is per Pokémon).
-fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
+pub(crate) fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
     match origin {
         RuleSource::Ability => is_ability_blocked(g, at.owner, me, None),
         RuleSource::Tool => is_tool_blocked(g, at.owner, me),
@@ -542,6 +621,11 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
     match &ps.modifier {
         Modifier::HpBonus(n) => hp_mod(g, me, e, ps.origin, *n, &SlotPred::Holder, &Cond::True),
         Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
+        Modifier::SurviveOnTen(s) => survive_on_ten(g, me, e, ps.origin, s),
+        Modifier::CheckupDamage(c) => checkup_damage(g, me, e, ps.origin, c),
+        Modifier::NextTurnBonus(b) => next_turn_bonus(g, me, e, b),
+        Modifier::BenchAttacks(_) => bench_attacks(g, me, e, ps.origin),
+        Modifier::AttackFlags(a) => attack_flags(g, me, e, ps.origin, a),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
@@ -869,7 +953,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
         _ => return Ok(()),
     };
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if c.side == Side::Owner && at.owner != p {
+    if (c.side == Side::Owner && at.owner != p) || (c.side == Side::Opponent && at.owner == p) {
         return Ok(());
     }
     let mut matched = None;
@@ -1110,6 +1194,40 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
                 g.set_prevent(e, true);
             }
         }
+        (PreventWhat::ThisCardFromDiscard, Effect::MoveCards { source, destination, cards, count, .. }) => {
+            // Runs for any discard pile holding this card (no in-play check).
+            for q in 0..2usize {
+                if source != ListRef::Discard(q as u8) || !g.st.players[q].discard.iter().any(|c| c == me) {
+                    continue;
+                }
+                if destination != ListRef::Hand(q as u8) && destination != ListRef::Deck(q as u8) {
+                    continue;
+                }
+                let v: Vec<CardId>;
+                let new_count;
+                if let Some(cs) = cards {
+                    if !cs.iter().any(|c| c == me) {
+                        continue;
+                    }
+                    v = cs.iter().filter(|c| *c != me).collect();
+                    new_count = count;
+                } else if let Some(n) = count {
+                    v = g.st.players[q].discard.iter().filter(|c| *c != me).take(n.max(0) as usize).collect();
+                    new_count = None;
+                } else {
+                    v = g.st.players[q].discard.iter().filter(|c| *c != me).collect();
+                    new_count = None;
+                }
+                let prevent = v.is_empty();
+                if let Effect::MoveCards { cards, count, .. } = g.e_mut(e) {
+                    *cards = Some(List::from_slice(&v));
+                    *count = new_count;
+                }
+                if prevent {
+                    g.set_prevent(e, true);
+                }
+            }
+        }
         _ => {}
     }
     Ok(())
@@ -1165,7 +1283,7 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
     if let Some(b) = g.e(e).atk_base().copied() {
         let t = b.target;
         let Some(at) = locate(g, me, origin) else { return Ok(()) };
-        if !slot_pred_m(g, me, t, &d.subject)? {
+        if !slot_pred_m(g, me, t, &d.subject)? || (d.side == Side::Owner && at.owner != t.p as usize) {
             return Ok(());
         }
         let probe_as = if d.probe_for_attacker { Located { owner: b.player as usize, ..at } } else { at };
@@ -1180,6 +1298,9 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
             return Ok(());
         }
         if d.needs_source_pokemon && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
+            return Ok(());
+        }
+        if !slot_pred_m(g, me, b.source, &d.source)? {
             return Ok(());
         }
         g.set_prevent(e, true);
@@ -1211,6 +1332,8 @@ pub const HIDE_N_SNEAK: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
     abilities: true,
     probe_for_attacker: false,
     needs_source_pokemon: false,
+    source: SlotPred::Any,
+    side: Side::Any,
 };
 
 /// The handler of a Pokémon with Hide 'n' Sneak (Shuppet, Banette, Poltchageist, ...).
@@ -1255,14 +1378,31 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
         }
     }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if blocked(g, me, origin, at, Some(target)) {
+    if d.owner_only && at.owner != p {
         return Ok(());
     }
-    if d.by_attack_damage && g.knocked_out_by_attack_damage(p, target).is_none() {
+    let probe_at = if d.probe_opponent { Located { owner: 1 - p, ..at } } else { at };
+    if blocked(g, me, origin, probe_at, Some(target)) {
         return Ok(());
+    }
+    let by_damage = g.knocked_out_by_attack_damage(p, target);
+    if d.by_attack_damage && by_damage.is_none() {
+        return Ok(());
+    }
+    if let Some((_, Some(src))) = by_damage {
+        if !slot_pred_m(g, me, src, &d.attacker)? {
+            return Ok(());
+        }
     }
     if !guard_ok(g, me, at.owner, &d.guard) {
         return Ok(());
+    }
+    if let Some(name) = d.nonstacking {
+        let id = crate::markers::intern(name);
+        if g.st.slot(target.p as usize, target.s).marker.has(id) {
+            return Ok(());
+        }
+        g.st.players[target.p as usize].slots[target.s as usize].marker.add(id, me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
     }
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
         *prize_count += d.delta;
@@ -1353,4 +1493,137 @@ fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
         return Ok(());
     }
     crate::bail!("BLOCKED_BY_EFFECT")
+}
+
+// ---------------------------------------------------------------------------
+// Survive on 10 (S3 agent 3)
+
+fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: &SurviveOnTenSpec) -> R {
+    let (t, damage) = match *g.e(e) {
+        Effect::PutDamage { b, damage, .. } => (b.target, damage),
+        _ => return Ok(()),
+    };
+    let owner = t.p as usize;
+    if !g.st.slot(owner, t.s).cards.contains(me) {
+        return Ok(());
+    }
+    let at = Located { owner, held: Some(t) };
+    if blocked(g, me, origin, at, Some(t)) {
+        return Ok(());
+    }
+    match spec.kind {
+        SurviveKind::OnCoin => survive_on_ten_on_coin_flip(g, e, owner)?,
+        SurviveKind::IfFullHp => {
+            if g.st.slot(owner, t.s).damage != 0 {
+                return Ok(());
+            }
+            let hp = crate::engine::check::check_hp(g, owner, t.s)?;
+            if damage >= hp {
+                if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
+                    *survive_on_ten_hp = true;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Checkup damage (S3 agent 3)
+
+fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &CheckupDamageSpec) -> R {
+    let p = match *g.e(e) {
+        Effect::BetweenTurns { p, .. } => p as usize,
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if c.opponent_only && at.owner == p {
+        return Ok(());
+    }
+    if let Some(held) = at.held {
+        if !slot_pred_m(g, me, held, &c.holder)? {
+            return Ok(());
+        }
+    }
+    let victim = SlotRef::new(p, g.st.players[p].active);
+    if blocked(g, me, origin, at, Some(victim)) || !slot_pred_m(g, me, victim, &c.victim)? {
+        return Ok(());
+    }
+    if let Effect::BetweenTurns { poison_damage, .. } = g.e_mut(e) {
+        *poison_damage += c.amount;
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Next-turn attack bonus and first-turn attacks (S3 agent 3)
+
+fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) -> R {
+    let (attack, source) = match *g.e(e) {
+        Effect::Attack { attack, source, .. } => (attack, source),
+        _ => return Ok(()),
+    };
+    if g.st.slot_pokemon(source.p as usize, source.s) != Some(me) {
+        return Ok(());
+    }
+    let full_name = g.st.cdef(me).tl_full_name;
+    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].tl_name;
+    let slot = &g.st.players[source.p as usize].slots[source.s as usize];
+    let armed = match slot.next_turn_attack_damage_bonus {
+        Some(a) if a.source_card_name == full_name && (a.attack_name == "*" || a.attack_name == attack_name) => a.bonus_damage,
+        _ => 0,
+    };
+    if armed != 0 {
+        if let Effect::Attack { damage, .. } = g.e_mut(e) {
+            *damage += armed;
+        }
+    }
+    if attack_name != b.attack {
+        return Ok(());
+    }
+    g.st.players[source.p as usize].slots[source.s as usize].next_turn_attack_damage_bonus_pending =
+        Some(crate::state::NextTurnAttackDamageBonus { attack_name: b.attack, bonus_damage: b.bonus, source_card_name: full_name });
+    Ok(())
+}
+
+fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &AttackFlagsSpec) -> R {
+    let Effect::UseAttack { p, attack, .. } = *g.e(e) else { return Ok(()) };
+    let p = p as usize;
+    let active = g.st.players[p].active;
+    if !a.first_turn || !g.st.slot(p, active).cards.contains(me) || g.st.turn != 1 {
+        return Ok(());
+    }
+    let at = Located { owner: p, held: None };
+    if blocked(g, me, origin, at, None) {
+        return Ok(());
+    }
+    // A copy-attack clone carries its own flag (nothing reads it).
+    if !attack.is_clone() {
+        g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
+    }
+    Ok(())
+}
+
+fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
+    let Effect::CheckPokemonAttacks { p, .. } = *g.e(e) else { return Ok(()) };
+    let p = p as usize;
+    if g.st.active_pokemon(p) != Some(me) || blocked(g, me, origin, Located { owner: p, held: None }, None) {
+        return Ok(());
+    }
+    let mut add: SVec<AttackRef, 32> = SVec::new();
+    let bench: Vec<crate::state::SlotId> = g.st.players[p].bench.iter().copied().collect();
+    for b in bench {
+        if let Some(c) = g.st.slot_pokemon(p, b) {
+            for i in 0..g.st.cdef(c).attacks.len() {
+                add.push(AttackRef { card: c, index: i as u8 });
+            }
+        }
+    }
+    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
+        for a in add.iter() {
+            attacks.push(*a);
+            copied.push(*a);
+        }
+    }
+    Ok(())
 }

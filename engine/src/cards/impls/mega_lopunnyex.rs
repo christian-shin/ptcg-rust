@@ -1,30 +1,21 @@
 //! Mega Lopunny ex (PFL / M2): Gale Thrust — 60+, 170 more if this Pokémon
 //! moved from your Bench to the Active Spot this turn. Spiky Hopper — 160,
 //! not affected by effects on your opponent's Active Pokémon.
-//!
-//! Twinleaf: Gale Thrust checks `player.movedToActiveThisTurn` for this
-//! card's id. Spiky Hopper sets `ignoreDefenderEffects` (phase 4b R7B: it used
-//! to add the damage straight to the Active, skipping the attacker's effects too;
-//! now the normal damage path skips only the effects on the Defending Pokémon).
+use crate::spec::prelude::*;
+
+pub static SPEC: CardSpec = CardSpec {
+    class: "MegaLopunnyex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::before_damage(more_damage_if(170, Cond::ThisMovedToActive))] },
+        AttackSpec { index: 1, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] },
+    ],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();
+
+// Kept for Walking Wake ex, Dudunsparce ex and Jirachi ex (still hand-written); delete with their conversions.
 use crate::cards::prelude::*;
-
-pub static IMPL: CardImpl = CardImpl { class: "MegaLopunnyex", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        if let Effect::Attack { p, .. } = *g.e(e) {
-            if g.st.players[p as usize].moved_to_active_this_turn.contains(&me) {
-                if let Effect::Attack { damage, .. } = g.e_mut(e) {
-                    *damage += 170;
-                }
-            }
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        shred(g, e, 160)?;
-    }
-    Ok(())
-}
 
 /// `THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS` without the Weakness/Resistance flag.
 pub fn shred(g: &mut Game, e: EffId, base: i32) -> R {

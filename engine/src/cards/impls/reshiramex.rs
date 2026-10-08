@@ -1,33 +1,21 @@
 //! Reshiram ex (SV11W): Slash — 50. Blaze Burst — 130+; 50 more damage for
 //! each Prize card your opponent has taken (6 - opponent.getPrizeLeft(), an
 //! opponent-side count as written in Twinleaf). Discard an Energy from this Pokémon.
-use crate::cards::prelude::*;
-use super::slither_wing::{discard_energy_chosen, discard_x_energy_from_this_pokemon};
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Reshiramex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Reshiramex",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[] },
+        AttackSpec {
+            index: 1,
+            steps: &[
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::PrizesTaken(Who::Opp), &Num::Lit(50)), when: Cond::True })),
+                Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: MY_ACTIVE, selection: EnergySelection::Choose { count: 1, ty: crate::types::ct::COLORLESS } })),
+            ],
+        },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 1, me) {
-        let opp = match *g.e(e) {
-            Effect::Attack { opp, .. } => opp as usize,
-            _ => return Ok(()),
-        };
-        let taken = 6 - g.st.players[opp].prize_left() as i32;
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage += 50 * taken;
-        }
-    }
-    // "Discard an Energy from this Pokémon": the damage is fixed, so the choice is asked after it
-    if after_attack_used(g, e, 1, me) {
-        let e = real_attack(g, e);
-        discard_x_energy_from_this_pokemon(g, me, e, 1, 1)?;
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage == 1 {
-        return discard_energy_chosen(g, f, results);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

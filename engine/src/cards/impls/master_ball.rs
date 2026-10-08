@@ -1,19 +1,30 @@
 //! Master Ball (TEF, ACE SPEC): search your deck for a Pokémon, reveal it,
 //! and put it into your hand. Then, shuffle your deck.
-//!
-//! Twinleaf order: the reveal (if any) comes before MOVE_CARDS, then the
-//! ShuffleDeckPrompt. Hyper Aroma shares this flow.
+use crate::spec::prelude::*;
+
+pub static SPEC: CardSpec = CardSpec {
+    class: "MasterBall",
+    play: Some(PlaySpec {
+        kind: PlayKind::Item,
+        needs: &[],
+        steps: &[
+            Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: false,
+                shuffle_first: false,
+            })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+        ],
+    }),
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();
+
+// Kept for Hyper Aroma (still hand-written); delete with its conversion.
 use crate::cards::prelude::*;
-
-pub static IMPL: CardImpl = CardImpl { class: "MasterBall", mask: mask(&[k::TRAINER]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let p = match trainer_played(g, e, me) {
-        Some(p) => p,
-        None => return Ok(()),
-    };
-    search(g, me, e, p, Filter::super_type(SuperType::Pokemon), 1)
-}
 
 /// Deck-empty check, preventDefault, then the choice (min 0, no cancel).
 pub(crate) fn search(g: &mut Game, me: CardId, e: EffId, p: usize, filter: Filter, max: u8) -> R {

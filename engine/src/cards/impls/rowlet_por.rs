@@ -1,22 +1,24 @@
 //! Rowlet (POR / M3): Find a Friend — search your deck for a Pokémon, reveal
 //! it, put it into your hand, then shuffle. Tackle — 30.
-//!
-//! Twinleaf: SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND with
-//! { min: 0, max: 1 }. The prefab throws on an empty deck, except during an
-//! attack (phase 4b R7E, rulings 779/1790: the attack is usable, the search
-//! just fails; it used to make the attack illegal).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Rowlet@POR", mask: mask(&[k::AFTER_ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Rowlet@POR",
+    attacks: &[AttackSpec {
+        index: 0,
+        steps: &[Step::after_damage(Op::If(IfSpec {
+            cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
+            yes: &[Step::new(Op::Search(SearchSpec {
+                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Pokemon, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
+                destination: SearchDestination::Hand { reveal: true },
+                msg: "",
+                cancel: true,
+                shuffle_first: false,
+            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) }))],
+            no: &[],
+        }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !after_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let e = real_attack(g, e);
-    let p = match *g.e(e) {
-        Effect::Attack { p, .. } => p as usize,
-        _ => return Ok(()),
-    };
-    search_deck_for_pokemon_to_hand(g, p, Filter::none(), ChooseCardsOpts::new(0, 1, true))
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

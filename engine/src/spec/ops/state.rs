@@ -98,6 +98,13 @@ pub enum Lasting {
     /// During the opponent's next turn, whenever they try to use a Trainer from
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
+    // --- S3 agent 3 appends ---
+    /// During the opponent's next turn, prevent all effects of attacks done to this Pokémon.
+    PreventEffects,
+    /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
+    IncreaseAttackCost,
+    /// During the opponent's next turn, the Defending Pokémon's Retreat Cost is [C] more.
+    IncreaseRetreatCost,
 }
 
 /// Arm a lasting effect of the attack being used.
@@ -241,6 +248,25 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
         Lasting::CoinFlipCancelTrainer => {
             if let Some(b) = attack_base(g, atk, source) {
                 g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
+            }
+        }
+        Lasting::PreventEffects => prevent_effects_of_attacks(g, atk)?,
+        Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
+            // The pending value is written first, so it survives a prevented effect (Twinleaf).
+            let o = 1 - p;
+            let a = g.st.players[o].active;
+            let slot = &mut g.st.players[o].slots[a as usize];
+            if what == Lasting::IncreaseAttackCost {
+                slot.attack_cost_increase_next_turn_pending = 1;
+            } else {
+                slot.retreat_cost_increase_next_turn_pending = 1;
+            }
+            if let Some(b) = attack_base(g, atk, SlotRef::new(o, a)) {
+                if what == Lasting::IncreaseAttackCost {
+                    g.run_fx(Effect::IncreaseAttackCostNextTurn { b })?;
+                } else {
+                    g.run_fx(Effect::IncreaseRetreatCostNextTurn { b })?;
+                }
             }
         }
     }

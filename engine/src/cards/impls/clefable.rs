@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         steps: &[
-            Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Any, retries: 3 })),
+            Step::before_damage(Op::CopyAttack(CopyAttackSpec { from: Who::Opp, predicate: Pred::Any, retries: 3, scope: CopyScope::Active })),
         ],
     }],
     ..CardSpec::NONE

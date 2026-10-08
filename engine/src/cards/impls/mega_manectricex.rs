@@ -2,34 +2,33 @@
 //! turn, prevent all damage done to this Pokémon by attacks from Basic
 //! Pokémon. Riotous Blasting — 200+; you may discard all Energy from this
 //! Pokémon for 130 more damage.
-//!
-//! Twinleaf: PREVENT_DAMAGE(..., { sourceStage: BASIC }). Riotous Blasting
-//! is a CONFIRMATION_PROMPT (WANT_TO_DISCARD_ENERGY) whose yes-callback adds
-//! 130, then DISCARD_ALL_ENERGY_FROM_POKEMON(this): INVALID_TARGET unless
-//! this card is in a Pokémon slot, CheckProvidedEnergyEffect(player) on the
-//! Active, DiscardCardsEffect on this card's slot.
+use crate::spec::prelude::*;
+
+pub static SPEC: CardSpec = CardSpec {
+    class: "MegaManectricEx",
+    attacks: &[
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Stage(crate::types::Stage::Basic)) }))] },
+        AttackSpec {
+            index: 1,
+            steps: &[Step::before_damage(Op::May(MaySpec {
+                asker: Who::Me,
+                when: Cond::True,
+                msg: "WANT_TO_DISCARD_ENERGY",
+                yes: &[
+                    Step::new(more_damage_if(130, Cond::True)),
+                    Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotExpr::This, selection: EnergySelection::AllProvided })),
+                ],
+                no: &[],
+            }))],
+        },
+    ],
+    ..CardSpec::NONE
+};
+
+pub static IMPL: CardImpl = SPEC.card_impl();
+
+// Kept for Ceruledge ex (still hand-written); delete with its conversion.
 use crate::cards::prelude::*;
-
-pub static IMPL: CardImpl = CardImpl { class: "MegaManectricEx", mask: mask(&[k::ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
-
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let filter = PreventFilter { source_stage: Some(Stage::Basic as u8), ..Default::default() };
-        prevent_damage_filtered(g, e, filter)?;
-    }
-    if was_attack_used(g, e, 1, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.a[0] = p as i32;
-        f.e[0] = e;
-        confirmation_prompt(g, p, "WANT_TO_DISCARD_ENERGY", Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
 
 /// `DISCARD_ALL_ENERGY_FROM_POKEMON(store, state, effect, card)`.
 pub fn discard_all_energy_from_pokemon(g: &mut Game, e: EffId, card: CardId) -> R {
@@ -55,21 +54,3 @@ pub fn discard_all_energy_from_pokemon(g: &mut Game, e: EffId, card: CardId) -> 
     Ok(())
 }
 
-fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let yes = results.first().map(|r| r.as_bool()).unwrap_or(false);
-    let r = (|| -> R {
-        if !yes {
-            return Ok(());
-        }
-        if let Effect::Attack { damage, .. } = g.e_mut(atk) {
-            *damage += 130;
-        }
-        discard_all_energy_from_pokemon(g, atk, me)
-    })();
-    g.release_fx(atk);
-    r
-}

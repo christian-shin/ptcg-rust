@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Elgyem",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Opp }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Opp, mode: MoveEnergyMode::Effect }))] }],
     ..CardSpec::NONE
 };
 

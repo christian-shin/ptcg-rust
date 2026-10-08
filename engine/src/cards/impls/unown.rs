@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[Passive {
         origin: RuleSource::CardRule,
         // Mysterious Signal: if the opponent's Pokémon is Knocked Out by damage from this attack, take 1 more Prize card.
-        modifier: Modifier::PrizeAdjust(PrizeAdjustSpec { delta: 1, subject: SlotPred::Any, by_attack_damage: true, by_own_attack: Some("Mysterious Signal"), guard: Cond::True }),
+        modifier: Modifier::PrizeAdjust(PrizeAdjustSpec { delta: 1, subject: SlotPred::Any, by_attack_damage: true, by_own_attack: Some("Mysterious Signal"), guard: Cond::True, ..PrizeAdjustSpec::DEFAULT }),
     }],
     ..CardSpec::NONE
 };

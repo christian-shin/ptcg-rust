@@ -18,6 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             by_attack_damage: true,
             by_own_attack: None,
             guard: Cond::True,
+            ..PrizeAdjustSpec::DEFAULT
         }),
     }],
     ..CardSpec::NONE
