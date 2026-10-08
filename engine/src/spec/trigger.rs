@@ -23,6 +23,14 @@ pub enum Event {
     OnEndTurn(OnEndTurnSpec),
     OnDiscarded(OnDiscardedSpec),
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
+    /// A rule no event expresses (Backtrack Badge): the card names the effect kinds it reacts to and
+    /// decides in its own function whether it fires (returning the program's player).
+    Custom(CustomEventSpec),
+}
+
+pub struct CustomEventSpec {
+    pub kinds: &'static [u32],
+    pub fires: fn(&mut Game, CardId, EffId) -> Option<usize>,
 }
 
 /// How a Pokémon came into play.
@@ -80,6 +88,7 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         },
         Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
+        Event::Custom(c) => mask(c.kinds),
         Event::OnAfterAttackTriggers(_) => mask(&[k::AFTER_ATTACK_TRIGGERS]),
         _ => KindMask::EMPTY,
     }
@@ -142,6 +151,7 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<u
             }
             Some(pu)
         }
+        Event::Custom(c) => (c.fires)(g, me, e),
         Event::OnCheckup(_) => match *g.e(e) {
             Effect::BetweenTurns { .. } => Some(g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me))),
             _ => None,

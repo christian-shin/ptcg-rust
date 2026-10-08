@@ -549,6 +549,8 @@ pub enum SlotPred {
     StadiumEffectActive,
     /// The Pokémon has a Special Energy card attached.
     HasSpecialEnergy,
+    /// The Pokémon has a Pokémon Tool attached.
+    HasTool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -652,6 +654,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::HasTool => !slot.tools.is_empty(),
         SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::HasSpecificCondition(c) => slot.special_conditions.contains(&(*c as u8)),
         SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),

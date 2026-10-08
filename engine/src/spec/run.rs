@@ -226,7 +226,7 @@ impl Frame {
     }
 }
 
-pub(crate) enum Flow {
+pub enum Flow {
     Next,
     /// Run nested list `sel` of the op (`ops::child`).
     Enter(u8),

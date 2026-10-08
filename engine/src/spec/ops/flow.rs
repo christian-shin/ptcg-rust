@@ -8,9 +8,9 @@
 use super::super::run::{Flow, Frame, CHOICE_NO, CHOICE_NONE, CHOICE_YES};
 use super::super::*;
 use crate::game::{Game, R};
-use crate::list::CardId;
+use crate::list::{CardId, SVec};
 use crate::prefabs::*;
-use crate::prompts::Res;
+use crate::prompts::{PromptKind, Res, SelectValues};
 use crate::types::*;
 
 /// "You may": ask `asker` when `when` holds (otherwise nothing is asked and
@@ -50,7 +50,20 @@ pub struct CoinSpec {
 impl CoinSpec {
     pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, mode: CoinMode::Single, heads: &[], tails: &[], then: &[] };
 }
-pub struct ChooseSpec {}
+/// One option of a `Choose`: shown when `avail` holds; `body` runs when it is chosen.
+pub struct ChoiceBranch {
+    pub label: &'static str,
+    pub avail: Cond,
+    pub body: &'static [Step],
+}
+
+/// The chooser picks one of the available options (a Select prompt; nothing happens when none is
+/// available). At most 7 options.
+pub struct ChooseSpec {
+    pub chooser: Who,
+    pub msg: &'static str,
+    pub options: &'static [ChoiceBranch],
+}
 /// Run `body` once for each selected Pokémon, in order; inside the body the Pokémon is the
 /// picked slot (`SlotExpr::Picked`). The list is read when the loop starts and again at each
 /// pass by position.
@@ -79,7 +92,13 @@ pub struct EndTurnSpec {
 pub struct EndGameSpec {
     pub winner: Who,
 }
-pub struct CustomSpec {}
+/// Code kept in a card file for a rule no op expresses (Mr. Mime, Backtrack Badge): the card's own
+/// exec and resume functions, run as one op of a program. The state a suspended program needs
+/// travels in the frame.
+pub struct CustomSpec {
+    pub exec: fn(&mut Game, CardId, &mut Frame) -> R<Flow>,
+    pub resume: fn(&mut Game, CardId, &mut Frame, &[Res]) -> R<Flow>,
+}
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
@@ -103,6 +122,23 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             } else {
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
+        }
+        Op::Custom(c) => (c.exec)(g, me, f),
+        Op::Choose(c) => {
+            let mut mask = 0u8;
+            let mut labels: SVec<&'static str, 8> = SVec::new();
+            for (i, b) in c.options.iter().enumerate() {
+                if cond_m(g, me, f, &b.avail)? {
+                    mask |= 1 << i;
+                    labels.push(b.label);
+                }
+            }
+            if labels.is_empty() {
+                return Ok(Flow::Next);
+            }
+            let id = g.player_id(f.who(c.chooser));
+            g.prompt(id, c.msg, PromptKind::Select { values: SelectValues::Dyn(labels), allow_cancel: false, default_value: 0 }, f.cont(me, 0x80 | mask));
+            Ok(Flow::Suspend)
         }
         Op::EndTurn(t) => {
             g.run_fx(crate::effects::Effect::EndTurn { p: f.who(t.who) as u8 })?;
@@ -156,6 +192,16 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
 pub(crate) fn resume(_g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::Custom(c) => (c.resume)(_g, _me, f, results),
+        Op::Choose(c) => {
+            let idx = first.as_int();
+            let mask = f.sub & 0x7F;
+            let branch = (0..c.options.len()).filter(|i| mask & (1 << i) != 0).nth(idx.max(0) as usize);
+            match branch {
+                Some(i) if idx >= 0 => Ok(if c.options[i].body.is_empty() { Flow::Next } else { Flow::Enter(i as u8) }),
+                _ => crate::bail!("TypeError: Cannot read properties of undefined (reading 'action')"),
+            }
+        }
         Op::Coin(c) => {
             // A finished sequence: the core wrote the results (bit i = flip i heads) and the flip
             // count over the frame's player and loop counters.
@@ -218,6 +264,7 @@ pub fn child(op: &Op, sel: u8) -> &'static [Step] {
         (Op::If(i), 0) => i.yes,
         (Op::If(i), _) => i.no,
         (Op::ForEach(fe), _) => fe.body,
+        (Op::Choose(c), i) => c.options[i as usize].body,
         (Op::Coin(c), 0) => c.heads,
         (Op::Coin(c), 1) => c.tails,
         (Op::Coin(c), _) => c.then,
