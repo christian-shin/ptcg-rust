@@ -1,9 +1,8 @@
 //! Haunter (SSH): Nightmare — 20; your opponent's Active Pokémon is now
 //! Asleep. Spooky Shot — 40.
 //!
-//! Twinleaf applies the sleep on AFTER_ATTACK via
-//! ADD_SLEEP_TO_PLAYER_ACTIVE (an AddSpecialConditionsPowerEffect, so it is
-//! not an attack effect).
+//! The Special Condition is an effect of the attack: Mist Energy and other
+//! attack-effect protection prevent it.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -12,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(inflict(&[SpecialCondition::Asleep], Cause::Ability)),
+                Step::after_damage(inflict(&[SpecialCondition::Asleep], Cause::Attack)),
             ],
         },
     ],

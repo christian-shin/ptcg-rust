@@ -5,8 +5,8 @@
 //!
 //! Twinleaf: Little Grudge arms the slot fields through a
 //! DiscardAttackerEnergyIfKnockedOut EffectOfAttack (resolved in the
-//! KnockOutEffect reducer); Nightmare flips on AFTER_ATTACK and applies an
-//! AddSpecialConditionsPowerEffect.
+//! KnockOutEffect reducer); Nightmare flips after the damage and the
+//! Special Condition is an effect of the attack (Mist Energy prevents it).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Gastly@EVO",
@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::DiscardAttackerEnergyIfKnockedOut })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Asleep], Cause::Ability))], ..CoinSpec::DEFAULT })),
+            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Asleep], Cause::Attack))], ..CoinSpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE
