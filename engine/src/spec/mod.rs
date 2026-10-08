@@ -274,6 +274,7 @@ pub enum Op {
     // S3-4 appends (ops/cards.rs)
     EnergyChoice(EnergyChoiceSpec),
     MoveToSlot(MoveToSlotSpec),
+    PrizeBonus(PrizeBonusSpec),
     // S3-4 appends (ops/flow.rs)
     CopyFromReg(CopyFromRegSpec),
 }

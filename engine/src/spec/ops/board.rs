@@ -248,6 +248,10 @@ pub(crate) fn occupied(g: &Game, s: SlotRef) -> bool {
 }
 
 pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
+    // A step 7 trigger acts for the attack it belongs to.
+    if let Effect::AttackTrigger { attack_effect, p, opp, attack, source, .. } = *g.e(f.eff) {
+        return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target });
+    }
     let (p, opp, attack, source) = attack_data(g, f.eff)?;
     Some(AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target })
 }

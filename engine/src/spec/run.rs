@@ -327,8 +327,13 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, t) in spec.triggers.iter().enumerate() {
-        if let Some(p) = trigger::fires(g, me, e, t) {
-            run(g, me, Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p))?;
+        if let Some(p) = trigger::fires(g, me, e, t)? {
+            let mut fr = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            trigger::bind(g, e, t, &mut fr);
+            if trigger::retains(t) {
+                g.retain_fx(e);
+            }
+            run(g, me, fr)?;
         }
     }
     Ok(())
@@ -406,6 +411,11 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
                 }
                 Phase::AfterDamage => g.spec_choices.retain(|c| c.card != me),
                 _ => {}
+            }
+            if let Prog::Trigger(i) = f.prog {
+                if trigger::retains(&spec.triggers[i as usize]) {
+                    g.release_fx(f.eff);
+                }
             }
             return Ok(());
         }

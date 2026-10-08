@@ -7,79 +7,26 @@
 //! VMAX / VSTAR / V-UNION in play or the ability is blocked. Great Swing
 //! prices the discard as [C] with a non-cancellable ChooseEnergyPrompt and
 //! reduces a DiscardCardsEffect on `player.active`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::tag;
 
-pub static IMPL: CardImpl = CardImpl { class: "Slakingex", mask: mask(&[k::ATTACK, k::AFTER_ATTACK]), reduce, resume: Some(resume), coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Slakingex",
+    // Born to Slack: if your opponent has no Pokémon ex or Pokémon V in play, this Pokémon can't attack.
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::BlockAttack(BlockAttackSpec {
+            on: AttackBlockOn::ActiveAttack,
+            unless: Cond::InPlay(Who::Opp, PlayScope::All, Pred::OneOf(&[Pred::Tag(tag::POKEMON_EX_LOWER), Pred::Tag(tag::POKEMON_V), Pred::Tag(tag::POKEMON_VMAX), Pred::Tag(tag::POKEMON_VSTAR), Pred::Tag(tag::POKEMON_VUNION)])),
+            error: "BLOCKED_BY_ABILITY",
+        }),
+    }],
+    attacks: &[AttackSpec {
+        index: 0,
+        // Great Swing: discard an Energy from this Pokémon (priced as [C]).
+        steps: &[Step::after_damage(Op::EnergyChoice(EnergyChoiceSpec { how: EnergyHow::Cost { n: Num::Lit(1), ty: ct::COLORLESS }, ..EnergyChoiceSpec::DEFAULT }))],
+    }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::Attack { p, .. } = *g.e(e) {
-        let p = p as usize;
-        if g.st.active_pokemon(p) == Some(me) {
-            let o = 1 - p;
-            let special = for_each_pokemon(g, o, PlayerType::TopPlayer).iter().any(|x| {
-                let d = g.st.cdef(x.1);
-                d.has_tag(tag::POKEMON_EX_LOWER)
-                    || d.has_tag(tag::POKEMON_V)
-                    || d.has_tag(tag::POKEMON_VMAX)
-                    || d.has_tag(tag::POKEMON_VSTAR)
-                    || d.has_tag(tag::POKEMON_VUNION)
-            });
-            if !is_ability_blocked(g, p, me, None) && !special {
-                bail!("BLOCKED_BY_ABILITY");
-            }
-        }
-    }
-    if after_attack_used(g, e, 0, me) {
-        let e = real_attack(g, e);
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let (sp, ss) = match g.st.find_pokemon_slot(me) {
-            Some(x) => x,
-            None => bail!("TypeError: findCardList"),
-        };
-        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(sp, ss), energy_map: SVec::new() })?;
-        let energy = match pe {
-            Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-            _ => SVec::new(),
-        };
-        let mut cost = SVec::new();
-        cost.push(ct::COLORLESS);
-        g.retain_fx(e);
-        let mut f = CardFrame::at(1);
-        f.e[0] = e;
-        let id = g.player_id(p);
-        g.prompt(id, "CHOOSE_ENERGIES_TO_DISCARD", PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, Cont::Card { card: me, frame: f });
-    }
-    Ok(())
-}
-
-fn resume(g: &mut Game, _me: CardId, f: CardFrame, results: &[Res]) -> R {
-    if f.stage != 1 {
-        return Ok(());
-    }
-    let atk = f.e[0];
-    let cards: SVec<CardId, 64> = match results.first() {
-        Some(Res::Energy(c)) => {
-            let mut v = SVec::new();
-            for x in c.as_slice() {
-                v.push(*x);
-            }
-            v
-        }
-        _ => SVec::new(),
-    };
-    let r = (|| -> R {
-        let (p, opp, attack, source) = match *g.e(atk) {
-            Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-            _ => return Ok(()),
-        };
-        let a = g.st.players[p as usize].active;
-        let b = AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: SlotRef::new(p as usize, a) };
-        g.run_fx(Effect::DiscardCards { b, cards })?;
-        Ok(())
-    })();
-    g.release_fx(atk);
-    r
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

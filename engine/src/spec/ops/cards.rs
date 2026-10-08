@@ -245,6 +245,10 @@ pub enum AttachRoute {
     Move,
     /// The attachment effect (attached from hand by an Ability).
     Effect,
+    // --- S3-4 appends ---
+    /// The cards move to the Pokémon, and the deck is shuffled after each one (today's behavior of
+    /// Yanmega ex's Buzz Boost).
+    MoveShufflePerCard,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
 /// effect that effect-prevention can stop.
@@ -456,6 +460,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::EnergyChoice(e) => ec_exec(g, me, f, e),
         Op::PickPrize(pp) => bother_exec(g, me, f, pp),
+        Op::PrizeBonus(pb) => {
+            // The Knock Out (a trigger's effect) takes `n` more Prize cards.
+            if let Effect::KnockOut { prize_count, .. } = g.e_mut(f.eff) {
+                *prize_count += pb.n;
+            }
+            Ok(Flow::Next)
+        }
         Op::TakePrize(t) => {
             if let Some(c) = f.recorded_choice(g, me) {
                 if c.answer == CHOICE_YES && c.len > 0 {
@@ -934,6 +945,10 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                     AttachRoute::Move => move_cards(g, from, target.list(), &[c], me)?,
                     AttachRoute::Effect => {
                         g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
+                    }
+                    AttachRoute::MoveShufflePerCard => {
+                        move_cards(g, from, target.list(), &[c], me)?;
+                        shuffle_deck(g, p);
                     }
                 }
             }
@@ -1688,4 +1703,9 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &PickPrizeSpec, fi
         }
         _ => Ok(Flow::Next),
     }
+}
+
+/// The Knock Out the trigger reacts to gives `n` more Prize cards.
+pub struct PrizeBonusSpec {
+    pub n: i32,
 }
