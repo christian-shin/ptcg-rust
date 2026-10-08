@@ -2,8 +2,8 @@
 //! Benched Pokémon has damage counters. Abyss Eye — if the opponent's Active
 //! is affected by a Special Condition, it is Knocked Out.
 //!
-//! Twinleaf clears the Active's Special Conditions before reducing the
-//! (Mist-blockable) KnockOutOpponentEffect.
+//! The Knock Out is the attack's only effect: when it is prevented (Mist
+//! Energy) the Special Conditions stay.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[
-                Step::after_damage(Op::If(IfSpec { cond: Cond::Slot(OPP_ACTIVE, SlotPred::HasCondition), yes: &[Step::new(Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::RemoveAll, cause: Cause::Direct, gate: Gate::None, when: Cond::True })), Step::new(Op::KnockOut(KnockOutSpec { target: OPP_ACTIVE, mode: KnockOutMode::Opponent, when: Cond::True }))], no: &[] })),
+                Step::after_damage(Op::If(IfSpec { cond: Cond::Slot(OPP_ACTIVE, SlotPred::HasCondition), yes: &[Step::new(Op::KnockOut(KnockOutSpec { target: OPP_ACTIVE, mode: KnockOutMode::Opponent, when: Cond::True }))], no: &[] })),
             ],
         },
     ],
