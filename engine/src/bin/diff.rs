@@ -1,7 +1,11 @@
 //! Replay oracle traces through the Rust engine and stop at the first
 //! divergence (PLAN.md 4.3).
 //!
-//!   diff <trace.json|dir>... [--dump <dir>] [--quiet]
+//!   diff <trace.json|dir>... [--dump <dir>] [--quiet] [--strict]
+//!
+//! Traces that record observable hashes (`o`) are replayed for observable
+//! parity (PLAN.md 8.5, `replay_obs`); `--strict` or PTCG_OBS=0 forces the
+//! lockstep state-hash replay below, which older traces always get.
 //!
 //! A scenario's `expect` assertions (CARD_PORTING.md "Scenarios") are checked
 //! here against the Rust state and reported as their own outcome, EXPECT FAILED,
@@ -86,6 +90,11 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     if g.state_hash() != start_h {
         dump_state(&g, -1);
         return Outcome::Diverged { step: -1, what: "hash".into(), detail: "start state".into() };
+    }
+    if let Some(o) = trace["start"]["o"].as_str() {
+        if g.observable_hash() != o {
+            return Outcome::Diverged { step: -1, what: "obs-hash".into(), detail: "start state: projections disagree".into() };
+        }
     }
     let steps = trace["steps"].as_array().unwrap();
     // Scenario edits (oracle scenario.ts): applied at the first turn decision
@@ -190,6 +199,13 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
             dump_state(&g, i as isize);
             return Outcome::Diverged { step: i as isize, what: "hash".into(), detail: String::new() };
         }
+        // Same canonical state, so the two projections must agree (checks
+        // `observable_json` against the oracle's `observableState`).
+        if let Some(o) = st["o"].as_str() {
+            if g.observable_hash() != o {
+                return Outcome::Diverged { step: i as isize, what: "obs-hash".into(), detail: "projections disagree".into() };
+            }
+        }
         if check_invariants() && matches!(g.pending(), Pending::Turn(_)) {
             if let Err(e) = ptcg::invariants::check(&g) {
                 dump_state(&g, i as isize);
@@ -198,6 +214,221 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
         }
     }
     Outcome::Pass { steps: steps.len() }
+}
+
+/// A prompt descriptor without plumbing (PLAN.md 8.5): no message names or
+/// filters, and a card choice reduced to the cards that can really be chosen
+/// (`selectable` minus `options.blocked`). Select prompts keep only how many
+/// values they offer.
+fn norm_prompt(d: &Value) -> Value {
+    let mut o = d.as_object().cloned().unwrap_or_default();
+    o.remove("message");
+    o.remove("filter");
+    o.remove("kind");
+    let blocked: Vec<u64> = o.get("options").and_then(|x| x.get("blocked")).and_then(|b| b.as_array()).map(|b| b.iter().filter_map(|v| v.as_u64()).collect()).unwrap_or_default();
+    if let Some(opts) = o.get_mut("options").and_then(|x| x.as_object_mut()) {
+        opts.remove("blocked");
+    }
+    if let (Some(cards), Some(sel)) = (o.get("cards").and_then(|c| c.as_array()).cloned(), o.get("selectable").and_then(|c| c.as_array()).cloned()) {
+        let pick: Vec<Value> = cards
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| sel.get(*i).and_then(|v| v.as_bool()).unwrap_or(false) && !blocked.contains(&(*i as u64)))
+            .map(|(_, c)| c.clone())
+            .collect();
+        o.remove("selectable");
+        o.insert("selectableCards".into(), Value::Array(pick));
+    }
+    if let Some(v) = o.get("values").and_then(|v| v.as_array()).map(|v| v.len()) {
+        o.insert("values".into(), Value::from(v));
+    }
+    Value::Object(o)
+}
+
+/// The oracle's recorded chance outcomes as a replay tape (ptcg::rng).
+fn tape_of(events: &[Value]) -> Vec<ptcg::rng::Draw> {
+    use ptcg::rng::Draw;
+    events
+        .iter()
+        .filter_map(|c| match c["k"].as_str()? {
+            "coin" => Some(Draw::Coin(c["v"].as_bool()?)),
+            "shuffle" => Some(Draw::Shuffle(c["v"].as_array()?.iter().filter_map(|x| x.as_u64().map(|x| x as u8)).collect())),
+            "index" => Some(Draw::Index(c["n"].as_u64()? as usize, c["v"].as_u64()? as usize)),
+            _ => None,
+        })
+        .collect()
+}
+
+/// Observable-parity replay (PLAN.md 8.5, `--obs`). The oracle's turn
+/// decisions split the trace into segments. At each turn decision Rust must
+/// reach the same player-observable state (`o`) and offer the same turn
+/// options. Inside a segment Rust's prompts are answered by the oracle prompt
+/// with the same player and prompt class (first unused one), whose plumbing-free
+/// descriptor must match; oracle prompts Rust never asks are allowed (a "you
+/// may" with no effect, say) because the next observable state still has to
+/// match. Chance comes from the segment's recorded outcomes by kind, through
+/// the RNG replay tape, so card code that draws directly is covered too.
+fn replay_obs(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
+    let header = &trace["header"];
+    let seed = header["seed"].as_u64().unwrap() as u32;
+    let mut decks: [Vec<u16>; 2] = [Vec::new(), Vec::new()];
+    for p in 0..2 {
+        for n in header["decks"][p].as_array().unwrap() {
+            let n = n.as_str().unwrap();
+            match def_by_full_name(n) {
+                Some(d) => decks[p].push(d),
+                None => return Outcome::Unsupported(format!("unknown card {}", n)),
+            }
+        }
+    }
+    for d in decks.iter().flatten() {
+        if ptcg::cards::missing_behavior(*d) {
+            return Outcome::Unsupported(format!("card not ported: {}", card_label(*d)));
+        }
+    }
+    if trace["start"]["o"].as_str().is_none() {
+        return Outcome::Unsupported("trace has no observable hashes (regenerate it)".into());
+    }
+    let steps = trace["steps"].as_array().unwrap();
+    let dump_state = |g: &Game, step: isize| {
+        if let Some(dir) = dump {
+            let path = dir.join(format!("{}.step{}.rust.json", name, step));
+            let _ = std::fs::write(&path, serde_json::to_string_pretty(&ptcg::canonical::observable_json(&g.canonical_json())).unwrap());
+        }
+    };
+    // Segment boundaries: indices of the oracle's turn steps.
+    let turns: Vec<usize> = steps.iter().enumerate().filter(|(_, s)| s["d"]["kind"] == "turn").map(|(i, _)| i).collect();
+    let segment = |from: usize| -> (Vec<usize>, Vec<Value>) {
+        let end = turns.iter().copied().find(|&t| t > from).unwrap_or(steps.len());
+        let prompts: Vec<usize> = (from..end).filter(|&i| steps[i]["d"]["kind"] == "prompt").collect();
+        let pool: Vec<Value> = (from..end).flat_map(|i| steps[i]["c"].as_array().cloned().unwrap_or_default()).collect();
+        (prompts, pool)
+    };
+    // Observable hash the oracle reached before step `i`.
+    let o_before = |i: usize| -> &str { if i == 0 { trace["start"]["o"].as_str().unwrap() } else { steps[i - 1]["o"].as_str().unwrap_or("") } };
+
+    let mut g = Game::new(seed);
+    let (mut queue, mut pool) = segment(0);
+    pool.splice(0..0, trace["start"]["c"].as_array().cloned().unwrap_or_default());
+    ptcg::rng::set_tape(Some(tape_of(&pool)));
+    if let Err(e) = g.start([&decks[0], &decks[1]]).and_then(|_| g.settle()) {
+        return Outcome::Diverged { step: -1, what: "error".into(), detail: format!("{:?}", e) };
+    }
+    let scenario = &header["scenario"];
+    let mut scenario_done = scenario.is_null();
+    let mut next_turn = 0usize; // index into `turns`
+    let mut decisions = 0usize;
+    let finish = |g: &Game, decisions: usize| -> Outcome {
+        let want = steps.last().and_then(|s| s["o"].as_str()).unwrap_or(trace["start"]["o"].as_str().unwrap());
+        if g.observable_hash() != want {
+            dump_state(g, steps.len() as isize);
+            return Outcome::Diverged { step: steps.len() as isize, what: "obs".into(), detail: "final state".into() };
+        }
+        Outcome::Pass { steps: decisions }
+    };
+    loop {
+        decisions += 1;
+        if decisions > 20_000 {
+            return Outcome::Diverged { step: -1, what: "loop".into(), detail: "too many decisions".into() };
+        }
+        let r = match g.pending() {
+            Pending::Decision(pi) => {
+                let pr = g.prompts.as_slice()[pi];
+                let rd = g.describe_prompt(&pr);
+                let k = queue.iter().position(|&i| steps[i]["d"]["player"] == rd["player"] && steps[i]["d"]["cls"] == rd["cls"]);
+                let Some(k) = k else {
+                    dump_state(&g, -1);
+                    return Outcome::Diverged { step: -1, what: "extra-prompt".into(), detail: format!("rust asks {}", canon(&norm_prompt(&rd))) };
+                };
+                let si = queue.remove(k);
+                let od = &steps[si]["d"];
+                if canon(&norm_prompt(&rd)) != canon(&norm_prompt(od)) {
+                    dump_state(&g, si as isize);
+                    return Outcome::Diverged {
+                        step: si as isize,
+                        what: "prompt".into(),
+                        detail: format!("rust {}\noracle {}", canon(&norm_prompt(&rd)), canon(&norm_prompt(od))),
+                    };
+                }
+                match g.decode_answer(&pr, &steps[si]["a"]) {
+                    Ok(res) => g.resolve(pi, res),
+                    Err(e) => return Outcome::Diverged { step: si as isize, what: "decode".into(), detail: format!("{:?} for {}", e, canon(&steps[si]["a"])) },
+                }
+            }
+            Pending::Turn(_) => {
+                let Some(&ti) = turns.get(next_turn) else {
+                    // The oracle game ended (or stopped) here; Rust wants another turn.
+                    let res = &trace["result"];
+                    if res["status"] != "finished" {
+                        return finish(&g, decisions);
+                    }
+                    dump_state(&g, steps.len() as isize);
+                    return Outcome::Diverged { step: steps.len() as isize, what: "obs".into(), detail: "rust continues after the oracle game ended".into() };
+                };
+                next_turn += 1;
+                ptcg::expect::on_turn_decision(&g);
+                if !scenario_done && g.st.turn >= ptcg::scenario::scenario_turn(scenario) {
+                    scenario_done = true;
+                    if let Err(e) = ptcg::scenario::apply(&mut g, scenario) {
+                        return Outcome::Diverged { step: ti as isize, what: "scenario".into(), detail: e };
+                    }
+                    match ptcg::expect::parse(scenario) {
+                        Ok(a) if !a.is_empty() => {
+                            ptcg::expect::arm(&g, a, dump.is_some());
+                            ptcg::expect::on_scenario_start(&g);
+                        }
+                        Ok(_) => {}
+                        Err(e) => return Outcome::ExpectFailed { failures: vec![format!("invalid expect: {}", e)] },
+                    }
+                    let at = &trace["scenario"];
+                    if at["step"].as_u64() != Some(ti as u64) || at["o"].as_str() != Some(g.observable_hash().as_str()) {
+                        dump_state(&g, ti as isize);
+                        return Outcome::Diverged { step: ti as isize, what: "scenario".into(), detail: format!("oracle applied at {}", at) };
+                    }
+                } else if g.observable_hash() != o_before(ti) {
+                    dump_state(&g, ti as isize);
+                    return Outcome::Diverged { step: ti as isize, what: "obs".into(), detail: format!("turn {} decision", g.st.turn) };
+                }
+                let d = &steps[ti]["d"];
+                let opts = legal_turn_options(&g);
+                let rust: Vec<Value> = opts.iter().map(|o| o.desc.clone()).collect();
+                let oracle = d["options"].as_array().unwrap();
+                if sorted_set(&rust) != sorted_set(oracle) {
+                    let rs = sorted_set(&rust);
+                    let os = sorted_set(oracle);
+                    let only_r: Vec<&String> = rs.iter().filter(|x| !os.contains(x)).collect();
+                    let only_o: Vec<&String> = os.iter().filter(|x| !rs.contains(x)).collect();
+                    dump_state(&g, ti as isize);
+                    return Outcome::Diverged { step: ti as isize, what: "options".into(), detail: format!("only rust {:?}\nonly oracle {:?}", only_r, only_o) };
+                }
+                if check_invariants() {
+                    if let Err(e) = ptcg::invariants::check(&g) {
+                        dump_state(&g, ti as isize);
+                        return Outcome::Diverged { step: ti as isize, what: "invariant".into(), detail: e };
+                    }
+                }
+                let want = canon(&steps[ti]["a"]);
+                let k = opts.iter().position(|o| canon(&o.desc) == want).unwrap();
+                let (q, pl) = segment(ti);
+                queue = q;
+                pool = pl;
+                ptcg::rng::set_tape(Some(tape_of(&pool)));
+                g.act(opts[k].action)
+            }
+            Pending::Finished => return finish(&g, decisions),
+            other => return Outcome::Diverged { step: -1, what: "pending".into(), detail: format!("rust {:?}", other) },
+        };
+        if let Err(e) = r.and_then(|_| g.settle()) {
+            // The oracle run stopped on the same GameError: parity holds if
+            // the observable state left behind matches.
+            let res = &trace["result"];
+            if res["status"] == "error" && res["message"].as_str() == Some(e.0) {
+                return finish(&g, decisions);
+            }
+            dump_state(&g, -1);
+            return Outcome::Diverged { step: -1, what: "error".into(), detail: format!("{:?}", e) };
+        }
+    }
 }
 
 /// An approved divergence from `divergences.toml` (PLAN.md 4.7): a trace
@@ -240,6 +471,10 @@ fn main() {
     let mut files: Vec<PathBuf> = Vec::new();
     let mut dump: Option<PathBuf> = None;
     let mut quiet = false;
+    // Observable-parity replay (PLAN.md 8.5) for every trace that records
+    // observable hashes; `--strict` (or PTCG_OBS=0) forces lockstep state
+    // equality, which older traces without them always get.
+    let obs = !args.iter().any(|a| a == "--strict") && std::env::var("PTCG_OBS").map_or(true, |v| v != "0");
     if args.iter().any(|a| a == "--list-ported") {
         // Twinleaf full names: the tools key the oracle's card dump by them.
         for (i, d) in ptcg::carddb::cards().iter().enumerate() {
@@ -254,6 +489,7 @@ fn main() {
         match a.as_str() {
             "--dump" => dump = it.next().map(PathBuf::from),
             "--quiet" => quiet = true,
+            "--obs" | "--strict" => {}
             _ => {
                 let p = PathBuf::from(a);
                 if p.is_dir() {
@@ -283,7 +519,16 @@ fn main() {
         // with duplicated cards) fails this trace instead of the whole run.
         PANIC_STEP.with(|c| c.set(-1));
         ptcg::expect::take();
-        let mut out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| replay(&trace, dump.as_deref(), &name))) {
+        ptcg::rng::set_tape(None);
+        let mut out = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            if obs && trace["start"]["o"].is_string() {
+                let out = replay_obs(&trace, dump.as_deref(), &name);
+                ptcg::rng::set_tape(None);
+                out
+            } else {
+                replay(&trace, dump.as_deref(), &name)
+            }
+        })) {
             Ok(o) => o,
             Err(e) => {
                 let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();

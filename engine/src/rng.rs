@@ -2,6 +2,37 @@
 //! both engines draw identical outcomes from the same seed when draws happen
 //! in the same order.
 
+/// One recorded chance outcome (the oracle's `ChanceEvent`).
+#[derive(Clone, Debug)]
+pub enum Draw {
+    Coin(bool),
+    Shuffle(Vec<u8>),
+    /// `(n, value)`: a uniform pick in `0..n`.
+    Index(usize, usize),
+}
+
+thread_local! {
+    /// Recorded outcomes a replay feeds back (PLAN.md 8.5, `diff`'s
+    /// observable mode). While set, every real draw takes the first outcome
+    /// of its kind and size instead of the seeded stream, so a change in when
+    /// a coin, shuffle or random pick happens does not shift the others.
+    static TAPE: std::cell::RefCell<Option<Vec<Draw>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// Set (or clear, with `None`) the replay tape for this thread.
+pub fn set_tape(t: Option<Vec<Draw>>) {
+    TAPE.with(|c| *c.borrow_mut() = t);
+}
+
+fn take_from_tape(want: impl Fn(&Draw) -> bool) -> Option<Draw> {
+    TAPE.with(|c| {
+        let mut t = c.borrow_mut();
+        let tape = t.as_mut()?;
+        let k = tape.iter().position(want)?;
+        Some(tape.remove(k))
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rng {
     s: [u32; 4],
@@ -80,6 +111,14 @@ impl Rng {
         if self.is_fixed() {
             return false;
         }
+        if let Some(Draw::Coin(v)) = take_from_tape(|d| matches!(d, Draw::Coin(_))) {
+            // The recording already holds a forced coin's result.
+            if self.nforced > 0 {
+                self.forced >>= 1;
+                self.nforced -= 1;
+            }
+            return v;
+        }
         if self.nforced > 0 {
             let v = self.forced & 1 == 1;
             self.forced >>= 1;
@@ -97,6 +136,10 @@ impl Rng {
         if self.is_fixed() {
             return;
         }
+        if let Some(Draw::Shuffle(v)) = take_from_tape(|d| matches!(d, Draw::Shuffle(v) if v.len() == n)) {
+            out[..n].copy_from_slice(&v);
+            return;
+        }
         let mut i = n;
         while i > 1 {
             i -= 1;
@@ -106,6 +149,11 @@ impl Rng {
     }
 
     pub fn index(&mut self, n: usize) -> usize {
+        if !self.is_fixed() {
+            if let Some(Draw::Index(_, v)) = take_from_tape(|d| matches!(d, Draw::Index(m, _) if *m == n)) {
+                return v;
+            }
+        }
         self.below(n as u32) as usize
     }
 }

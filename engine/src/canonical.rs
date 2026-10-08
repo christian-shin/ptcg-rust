@@ -418,6 +418,57 @@ impl Game {
     }
 }
 
+/// Slot fields a player can observe: the Pokémon, its attachments, damage and conditions.
+const OBSERVABLE_SLOT_KEYS: [&str; 7] = ["cards", "energies", "tools", "damage", "specialConditions", "poisonDamage", "burnDamage"];
+/// Player zones a player can observe (the deck as a set: its order is hidden).
+const OBSERVABLE_PLAYER_KEYS: [&str; 7] = ["hand", "discard", "lostzone", "stadium", "supporter", "prizes", "faceUpPrizes"];
+const OBSERVABLE_STATE_KEYS: [&str; 4] = ["phase", "turn", "activePlayer", "winner"];
+
+/// The player-observable projection of a canonical state (PLAN.md 8.5): what
+/// the observable comparator compares. Identical to the oracle's
+/// `observableState` in `oracle/canonical.ts`.
+pub fn observable_json(can: &Value) -> Value {
+    fn pick(src: &Value, keys: &[&str], out: &mut Map<String, Value>) {
+        for k in keys {
+            if let Some(v) = src.get(*k) {
+                out.insert((*k).into(), v.clone());
+            }
+        }
+    }
+    let slot = |s: &Value| {
+        let mut o = Map::new();
+        pick(s, &OBSERVABLE_SLOT_KEYS, &mut o);
+        Value::Object(o)
+    };
+    let mut out = Map::new();
+    pick(can, &OBSERVABLE_STATE_KEYS, &mut out);
+    let players: Vec<Value> = can["players"]
+        .as_array()
+        .map(|ps| {
+            ps.iter()
+                .map(|p| {
+                    let mut o = Map::new();
+                    let mut deck: Vec<String> = p["deck"].as_array().map(|d| d.iter().filter_map(|c| c.as_str().map(String::from)).collect()).unwrap_or_default();
+                    deck.sort();
+                    o.insert("deck".into(), json!(deck));
+                    o.insert("active".into(), slot(&p["active"]));
+                    o.insert("bench".into(), Value::Array(p["bench"].as_array().map(|b| b.iter().map(slot).collect()).unwrap_or_default()));
+                    pick(p, &OBSERVABLE_PLAYER_KEYS, &mut o);
+                    Value::Object(o)
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    out.insert("players".into(), Value::Array(players));
+    Value::Object(out)
+}
+
+impl Game {
+    pub fn observable_hash(&self) -> String {
+        fnv1a64(serde_json::to_string(&observable_json(&self.canonical_json())).unwrap().as_bytes())
+    }
+}
+
 pub fn fnv1a64(bytes: &[u8]) -> String {
     let mut h: u64 = 0xcbf2_9ce4_8422_2325;
     for &b in bytes {
