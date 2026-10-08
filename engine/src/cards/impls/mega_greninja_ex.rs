@@ -12,7 +12,7 @@
 //! no target comes back). The marker is also cleared when this card is
 //! played. Ninja Spinner: Confirm, then CheckProvidedEnergy + ChooseEnergy
 //! ([W], no cancel) and a CardsToHandEffect on the Active; the +80 is added
-//! whenever the prompt returned at least one card.
+//! whenever the player said yes, even when the prompt returned no card (ruling 1822: a copier without [W] Energy still does the 80 more damage; fixed in both engines).
 use crate::cards::prelude::*;
 
 pub static IMPL: CardImpl = CardImpl {
@@ -167,9 +167,10 @@ fn resume(g: &mut Game, me: CardId, f: CardFrame, results: &[Res]) -> R {
                     }
                     let b = AtkBase { attack_effect: atk, player: p as u8, opponent: opp, attack, source, target: SlotRef::new(p, a) };
                     g.run_fx(Effect::CardsToHand { b, cards: list })?;
-                    if let Effect::Attack { damage, .. } = g.e_mut(atk) {
-                        *damage += 80;
-                    }
+                }
+                // Ruling 1822: the bonus does not depend on a [W] Energy having moved.
+                if let Effect::Attack { damage, .. } = g.e_mut(atk) {
+                    *damage += 80;
                 }
                 Ok(())
             })();

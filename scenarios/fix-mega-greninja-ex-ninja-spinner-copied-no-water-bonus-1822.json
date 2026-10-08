@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Clefairy POR 30",
+   "4 Mega Greninja ex CRI 22",
+   "4 Frogadier CRI 21",
+   "4 Froakie CRI 20",
+   "40 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Clefairy POR 30",
+   "4 Mega Greninja ex CRI 22",
+   "4 Frogadier CRI 21",
+   "4 Froakie CRI 20",
+   "40 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Clefairy POR 30",
+   "Clefable ASC 75"
+  ],
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Froakie CRI 20",
+   "Frogadier CRI 21",
+   "Mega Greninja ex CRI 22"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Ninja Spinner"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 200,
+   "hp_left": 150,
+   "cite": "ruling 1822"
+  }
+ ]
+}
