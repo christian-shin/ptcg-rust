@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Dwebble DRI 11",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Electrike MEG 49",
+   "4 Mega Manectric ex MEG 50",
+   "4 Dwebble DRI 11",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "active_energy": [
+   "3 Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Electrike MEG 49",
+   "Mega Manectric ex MEG 50"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Riotous Blasting"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 3,
+   "cite": "ruling 1822"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "ruling 1822"
+  }
+ ]
+}
