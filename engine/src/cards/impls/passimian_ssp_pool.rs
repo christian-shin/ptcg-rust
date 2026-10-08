@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Top(Pred::Basic)), &Num::Lit(20)), when: Cond::True })),
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Set, hp: Num::Mul(&Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Basic), &Num::Lit(20)), when: Cond::True })),
             ],
         },
     ],

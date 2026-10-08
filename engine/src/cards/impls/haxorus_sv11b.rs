@@ -9,13 +9,13 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Lit(80), when: Cond::Slot(OPP_ACTIVE, SlotPred::Not(&SlotPred::Top(Pred::Basic))) })),
+                Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Lit(80), when: Cond::Slot(OPP_ACTIVE, SlotPred::Not(&SlotPred::Basic)) })),
             ],
         },
         AttackSpec {
             index: 1,
             steps: &[
-                Step::after_damage(Op::KnockOut(KnockOutSpec { target: OPP_ACTIVE, mode: KnockOutMode::Opponent, when: Cond::Slot(OPP_ACTIVE, SlotPred::Top(Pred::Basic)) })),
+                Step::after_damage(Op::KnockOut(KnockOutSpec { target: OPP_ACTIVE, mode: KnockOutMode::Opponent, when: Cond::Slot(OPP_ACTIVE, SlotPred::Basic) })),
             ],
         },
     ],

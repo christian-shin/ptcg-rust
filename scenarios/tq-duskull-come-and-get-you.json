@@ -36,10 +36,10 @@
   {
    "at": "turn_end",
    "prompts": [
-    "Wait",
-    "ChooseCards"
+    "ChooseCards",
+    "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: an effect question is asked after the damage (file-local helper)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; attack-choice rule (step D, 2026-10-08): the choice is made before the damage, carried out after"
   }
  ]
 }

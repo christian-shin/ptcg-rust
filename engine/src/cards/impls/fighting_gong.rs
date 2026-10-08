@@ -7,6 +7,10 @@
 //! was taken.
 use crate::spec::prelude::*;
 
+const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
+const POKEMON: Pred = Pred::All(&[Pred::Pokemon, Pred::Basic, Pred::PokemonType(crate::types::ct::FIGHTING)]);
+const ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]);
+
 pub static SPEC: CardSpec = CardSpec {
     class: "FightingGong",
     play: Some(PlaySpec {
@@ -14,13 +18,22 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             Step::new(Op::Search(SearchSpec {
-                pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::Basic, Pred::PokemonType(crate::types::ct::FIGHTING)]), Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")])]), bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::Basic, Pred::PokemonType(crate::types::ct::FIGHTING)]), Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")])])), &Num::Lit(1)) }, ..PickSpec::DEFAULT },
+                pick: PickSpec {
+                    from: DECK,
+                    predicate: Pred::OneOf(&[POKEMON, ENERGY]),
+                    bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::CardCount(DECK, Pred::OneOf(&[POKEMON, ENERGY])), &Num::Lit(1)) },
+                    caps: &[
+                        Cap { kind: CapKind::Pokemon, max: Num::Min(&Num::CardCount(DECK, POKEMON), &Num::Lit(1)) },
+                        Cap { kind: CapKind::Trainer, max: Num::Min(&Num::CardCount(DECK, ENERGY), &Num::Lit(1)) },
+                    ],
+                    ..PickSpec::DEFAULT
+                },
                 destination: SearchDestination::Hand { reveal: true },
                 msg: "",
                 cancel: false,
                 shuffle_first: false,
             })),
-            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck) })),
+            Step::new(Op::Shuffle(ShuffleSpec { zone: DECK })),
         ],
     }),
     ..CardSpec::NONE

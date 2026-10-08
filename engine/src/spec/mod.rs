@@ -87,8 +87,10 @@ impl CardSpec {
         let mut i = 0;
         while i < self.powers.len() {
             if let Once::PerTurn(_) = self.powers[i].once {
-                // The once-per-turn marker is cleared at the end of the turn.
+                // The once-per-turn marker is cleared at the end of the turn, and when
+                // the card is played again (a new Pokémon).
                 m = with(m, k::END_TURN);
+                m = with(m, k::PLAY_POKEMON);
             }
             i += 1;
         }
