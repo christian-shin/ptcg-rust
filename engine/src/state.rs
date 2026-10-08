@@ -357,6 +357,8 @@ pub struct Player {
     pub pokemon_knocked_out_during_opponents_last_turn: bool,
     pub pokemon_knocked_out_by_attack_during_opponents_last_turn: bool,
     pub pokemon_knocked_out_last_turn_entries: SVec<DefId, 8>,
+    /// Parallel to the entries: whether that Pokémon was Knocked Out by damage from an attack.
+    pub pokemon_knocked_out_last_turn_by_attack: SVec<bool, 8>,
     pub can_evolve: bool,
     pub ancient_pokemon_attacked_last_turn: bool,
     /// `Player.ancientSupporter` (Explorer's Guidance / Professor Sada's Vitality).
@@ -433,6 +435,7 @@ impl Player {
             pokemon_knocked_out_during_opponents_last_turn: false,
             pokemon_knocked_out_by_attack_during_opponents_last_turn: false,
             pokemon_knocked_out_last_turn_entries: SVec::new(),
+            pokemon_knocked_out_last_turn_by_attack: SVec::new(),
             can_evolve: false,
             ancient_pokemon_attacked_last_turn: false,
             ancient_supporter: false,

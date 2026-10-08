@@ -333,15 +333,14 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     let owner = p;
     let attacker = 1 - p;
     let during_opp_turn = matches!(g.st.phase, GamePhase::PlayerTurn | GamePhase::Attack) && g.st.active_player as usize == attacker;
+    let by_attack = g.st.phase == GamePhase::Attack && g.st.active_player as usize == attacker && g.knocked_out_by_attack_damage(owner, target).is_some();
     if during_opp_turn {
         g.st.players[owner].pokemon_knocked_out_during_opponents_last_turn = true;
         let def_id = g.st.cards[card as usize].def;
         g.st.players[owner].pokemon_knocked_out_last_turn_entries.push(def_id);
+        g.st.players[owner].pokemon_knocked_out_last_turn_by_attack.push(by_attack);
     }
-    if g.st.phase == GamePhase::Attack
-        && g.st.active_player as usize == attacker
-        && g.knocked_out_by_attack_damage(owner, target).is_some()
-    {
+    if by_attack {
         g.st.players[owner].pokemon_knocked_out_by_attack_during_opponents_last_turn = true;
     }
     // The Check State step takes the Pokémon out of play after every Knock Out was announced.

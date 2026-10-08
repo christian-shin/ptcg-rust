@@ -485,8 +485,11 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::Attached => f.attached_to != super::run::NONE,
         Cond::KnockedOutLastTurn { who, by_attack_damage, tag } => {
             let pl = &g.st.players[f.who(*who)];
-            (!*by_attack_damage || pl.pokemon_knocked_out_by_attack_during_opponents_last_turn)
-                && pl.pokemon_knocked_out_last_turn_entries.iter().any(|d| tag.map_or(true, |t| crate::carddb::def(*d).has_tag(t)))
+            // Each Pokémon's own cause counts: "any of your X Pokémon were Knocked Out by damage from an attack".
+            pl.pokemon_knocked_out_last_turn_entries.iter().enumerate().any(|(i, d)| {
+                (!*by_attack_damage || pl.pokemon_knocked_out_last_turn_by_attack.as_slice().get(i).copied().unwrap_or(false))
+                    && tag.map_or(true, |t| crate::carddb::def(*d).has_tag(t))
+            })
         }
         Cond::SupporterPlayed(w) => g.st.players[f.who(*w)].supporter_turn > 0,
         Cond::FaceDownPrize(w) => {
