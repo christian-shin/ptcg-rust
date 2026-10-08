@@ -14,7 +14,9 @@
 //! effect (AbstractAttackEffect) aimed at a slot holding this card as its top
 //! Pokémon, with an attacking Pokémon present, is prevented after a lock
 //! probe for the owner, except Weakness/Resistance, Put Damage and Deal
-//! Damage. No Special Condition handling (unlike Antique Root Fossil).
+//! Damage. Fixed: it can't be affected by Special Conditions (printed text):
+//! adding them is prevented and any added directly are cleared at the next
+//! table check, as for Antique Root Fossil.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -31,6 +33,16 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         // Protective Cover: prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon.
         Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK_ATTACKS) },
+        // It can't be affected by Special Conditions and can't retreat.
+        Passive {
+            origin: RuleSource::CardRule,
+            modifier: Modifier::ConditionImmunity(ConditionImmunitySpec {
+                conds: &[],
+                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+                prevent: true,
+                sweep: true,
+            }),
+        },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::RetreatThisActive }) },
     ],
     ..CardSpec::NONE

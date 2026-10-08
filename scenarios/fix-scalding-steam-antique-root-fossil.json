@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Volcanion ex JTG 31",
+   "4 Antique Root Fossil SCR 130",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Volcanion ex JTG 31",
+   "4 Antique Root Fossil SCR 130",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Volcanion ex JTG 31"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Antique Root Fossil SCR 130"
+ },
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Antique Root Fossil SCR 130",
+   "conditions": [],
+   "cite": "Antique Root Fossil text: this card can't be affected by any Special Conditions (Scalding Steam does not Burn it)"
+  }
+ ],
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Scorching Steam",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ]
+}

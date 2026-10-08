@@ -47,7 +47,8 @@ pub static SPEC: CardSpec = CardSpec {
                 conds: &[],
                 subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
                 prevent: true,
-                sweep: false,
+                // Conditions added directly (not through an effect) are cleared at the next check.
+                sweep: true,
             }),
         },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::RetreatThisActive }) },
