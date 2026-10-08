@@ -47,6 +47,11 @@ pub enum SwitchKind {
     /// Switch out the opponent's Active: a SwitchOutOpponentsActiveEffect probe
     /// before the new Active is chosen, and again with it.
     SwitchOut,
+    // --- S3-4 appends ---
+    /// With the Pokémon in the slot register (no question): `Plain` movement effects.
+    ChosenPlain,
+    /// With the Pokémon in the slot register (no question): `Silent`.
+    ChosenSilent,
 }
 
 /// "Switch": the Pokémon in the Active Spot of `side` changes places with a
@@ -211,19 +216,19 @@ pub struct KnockOutSpec {
 // ---------------------------------------------------------------------------
 // Helpers
 
-fn encode(s: SlotRef) -> u8 {
+pub(crate) fn encode(s: SlotRef) -> u8 {
     s.p << 4 | s.s
 }
 
-fn decode(b: u8) -> SlotRef {
+pub(crate) fn decode(b: u8) -> SlotRef {
     SlotRef::new((b >> 4) as usize, b & 15)
 }
 
-fn occupied(g: &Game, s: SlotRef) -> bool {
+pub(crate) fn occupied(g: &Game, s: SlotRef) -> bool {
     !g.st.slot(s.p as usize, s.s).cards.is_empty()
 }
 
-fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
+pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
     let (p, opp, attack, source) = attack_data(g, f.eff)?;
     Some(AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target })
 }
@@ -243,6 +248,7 @@ fn sel_types(sel: &SlotSel) -> SVec<u8, 3> {
             v.push(SlotType::Active as u8);
         }
         SlotSel::Filtered(inner, _) => return sel_types(inner),
+        SlotSel::Cancelable(inner) => return sel_types(inner),
     }
     v
 }
@@ -253,11 +259,18 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
         SlotSel::One(SlotExpr::This) => f.p as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
+        SlotSel::Cancelable(inner) => sel_owner(inner, f),
+        SlotSel::One(SlotExpr::Chosen) => if f.slot == super::super::run::NONE { f.p as usize } else { (f.slot >> 4) as usize },
     }
 }
 
 /// Ask the chooser to pick one of `cands` (resumed at `sub`).
-fn ask(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRef], sub: u8) {
+pub(crate) fn ask(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRef], sub: u8) {
+    ask_range(g, me, f, pick, cands, 1, 1, sub)
+}
+
+/// Ask the chooser to pick between `min` and `max` of `cands` (resumed at `sub`).
+pub(crate) fn ask_range(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRef], min: u8, max: u8, sub: u8) {
     let owner = sel_owner(&pick.among, f);
     let chooser = f.who(pick.chooser);
     let player_type = if owner == chooser { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
@@ -278,7 +291,7 @@ fn ask(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec, cands: &[SlotRe
     g.prompt(
         id,
         pick.msg,
-        PromptKind::ChoosePokemon { player_type, slots, min: 1, max: 1, allow_cancel: false, blocked },
+        PromptKind::ChoosePokemon { player_type, slots, min, max, allow_cancel: matches!(pick.among, SlotSel::Cancelable(_)), blocked },
         f.cont(me, sub),
     );
 }
@@ -318,7 +331,7 @@ fn guard(g: &mut Game, me: CardId, f: &Frame, op: &Op) -> R<bool> {
 }
 
 /// The Pokémon the player may pick.
-fn candidates(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec) -> R<SVec<SlotRef, 9>> {
+pub(crate) fn candidates(g: &mut Game, me: CardId, f: &Frame, pick: &PickSlotSpec) -> R<SVec<SlotRef, 9>> {
     slots_m(g, me, f, &pick.among)
 }
 
@@ -414,6 +427,9 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             MoveCountersKind::AllFromOne { .. } => move_all_exec(g, me, f, m),
             MoveCountersKind::AnyAmong { who } => move_any_exec(g, me, f, *who),
         },
+        Op::PickSlot(p) => pick_slot_exec(g, me, f, p),
+        Op::EachSlot(e) => each_exec(g, me, f, e),
+        Op::ChoiceDamage(_) => Ok(Flow::Next),
         _ => unimplemented!("spec op not implemented yet (ops/board.rs)"),
     }
 }
@@ -450,6 +466,15 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 Ok(Flow::Next)
             }
         },
+        Op::PickSlot(_) => {
+            f.slot = first.slots().first().map(|s| encode(*s)).unwrap_or(super::super::run::NONE);
+            Ok(Flow::Next)
+        }
+        Op::EachSlot(e) => {
+            let slots: Vec<SlotRef> = first.slots().to_vec();
+            each_act(g, me, f, e, &slots)?;
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -481,6 +506,30 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             Ok(Flow::Suspend)
         }
         Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllFromOne { .. }) => move_all_exec(g, me, f, m),
+        Op::PickSlot(p) => {
+            let cands = candidates(g, me, f, p)?;
+            if cands.is_empty() {
+                f.record(g, me, CHOICE_NONE);
+                f.slot = super::super::run::NONE;
+                return Ok(Flow::Next);
+            }
+            ask(g, me, f, p, cands.as_slice(), 1);
+            Ok(Flow::Suspend)
+        }
+        Op::EachSlot(e) if e.choose.is_some() => each_ask(g, me, f, e, true),
+        Op::ChoiceDamage(c) => {
+            let n = match c.reg {
+                Some(r) => reg_list(g, f, r).len() as i32,
+                None => 1,
+            };
+            if let Effect::Attack { damage, .. } = g.e_mut(f.eff) {
+                match c.op {
+                    DamageOp::Add => *damage += c.per * n,
+                    DamageOp::Set => *damage = c.per * n,
+                }
+            }
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -496,6 +545,24 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
             }
             Ok(Flow::Next)
         }
+        Op::PickSlot(_) => {
+            match first.slots().first().copied() {
+                Some(s) => {
+                    f.record_items(g, me, CHOICE_YES, &[encode(s)]);
+                    f.slot = encode(s);
+                }
+                None => {
+                    f.record(g, me, CHOICE_NONE);
+                    f.slot = super::super::run::NONE;
+                }
+            }
+            Ok(Flow::Next)
+        }
+        Op::EachSlot(_) => {
+            let items: Vec<u8> = first.slots().iter().map(|s| encode(*s)).collect();
+            f.record_items(g, me, CHOICE_YES, &items);
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -508,6 +575,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             SlotTarget::Slot(_) => true,
         },
         Op::Switch(s) => !s.required || !slots_of(g, me, f, &SlotSel::Bench(s.side)).is_empty(),
+        Op::PickSlot(p) => !slots_of(g, me, f, &p.among).is_empty(),
         _ => true,
     }
 }
@@ -689,6 +757,14 @@ fn switch_prevented(g: &mut Game, f: &Frame, s: &SwitchSpec) -> R<bool> {
 }
 
 fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flow> {
+    if matches!(s.kind, SwitchKind::ChosenPlain | SwitchKind::ChosenSilent) {
+        if let Some(slot) = slot_of(g, me, f, SlotExpr::Chosen) {
+            if occupied(g, slot) {
+                switch_act(g, me, f, s, slot)?;
+            }
+        }
+        return Ok(Flow::Next);
+    }
     if let Some(c) = f.recorded_choice(g, me) {
         if c.answer == CHOICE_NONE || c.len == 0 {
             return Ok(Flow::Next);
@@ -733,6 +809,8 @@ fn switch_act(g: &mut Game, _me: CardId, f: &Frame, s: &SwitchSpec, slot: SlotRe
             g.release_fx(atk);
             r.map(|_| ())
         }
+        SwitchKind::ChosenPlain => crate::engine::turn::switch_pokemon(g, side, slot.s),
+        SwitchKind::ChosenSilent => crate::engine::turn::switch_pokemon_silent(g, side, slot.s),
     }
 }
 
@@ -932,4 +1010,180 @@ pub const fn more_damage_if(hp: i32, when: Cond) -> Op {
 /// The attack's damage is this number (N times, or set to a value).
 pub const fn damage_is(hp: Num) -> Op {
     Op::Damage(DamageSpec { op: DamageOp::Set, hp, when: Cond::True })
+}
+
+// ---------------------------------------------------------------------------
+// S3-4 appends: PickSlot, EachSlot, ChoiceDamage
+
+/// Choose between `min` and `max` Pokémon first (an attack's choice is made at step D).
+pub struct ChooseN {
+    pub chooser: Who,
+    pub min: Num,
+    pub max: Num,
+    pub msg: &'static str,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum EachWhat {
+    /// Damage to each (by `calc`).
+    Damage(DamageCalc),
+    /// Damage counters on each.
+    Counters(CounterCause),
+    /// Each Pokémon and all cards attached to it are shuffled into its owner's deck (an
+    /// effect of the attack, which effect protection stops).
+    ShuffleIntoDeck,
+}
+
+/// Do the same to each of several Pokémon, all of a selection or the ones the chooser picks.
+pub struct EachSlotSpec {
+    pub among: SlotSel,
+    pub choose: Option<ChooseN>,
+    pub what: EachWhat,
+    /// HP of damage, or damage counters.
+    pub amount: Num,
+    /// Plus this many HP for each HP of damage already on the target.
+    pub per_damage: i32,
+    /// Skip Pokémon without damage counters.
+    pub only_damaged: bool,
+    pub when: Cond,
+}
+impl EachSlotSpec {
+    pub const DEFAULT: EachSlotSpec =
+        EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), choose: None, what: EachWhat::Damage(DamageCalc::Auto), amount: Num::Lit(0), per_damage: 0, only_damaged: false, when: Cond::True };
+}
+
+/// Step D: the attack's damage follows what was chosen just before (the cards of register
+/// `reg`, or a flat amount when there is none): "N for each card", "N more for each card".
+pub struct ChoiceDamageSpec {
+    pub reg: Option<u8>,
+    pub op: DamageOp,
+    pub per: i32,
+}
+
+fn pick_slot_exec(g: &mut Game, me: CardId, f: &mut Frame, p: &PickSlotSpec) -> R<Flow> {
+    if let Some(c) = f.recorded_choice(g, me) {
+        f.slot = if c.answer == CHOICE_NONE || c.len == 0 { super::super::run::NONE } else { c.items[0] };
+        return Ok(Flow::Next);
+    }
+    let cands = candidates(g, me, f, p)?;
+    if cands.is_empty() {
+        f.slot = super::super::run::NONE;
+        return Ok(Flow::Next);
+    }
+    ask(g, me, f, p, cands.as_slice(), 1);
+    Ok(Flow::Suspend)
+}
+
+/// The prompt of an `EachSlot` choice: the selection's side and slot kinds decide what is listed.
+fn each_pick(e: &EachSlotSpec, c: &ChooseN) -> PickSlotSpec {
+    PickSlotSpec { chooser: c.chooser, among: clone_sel(&e.among), msg: c.msg }
+}
+
+/// A selection that stands in for `sel` in a prompt (the same shape, never evaluated).
+fn clone_sel(sel: &SlotSel) -> SlotSel {
+    match sel {
+        SlotSel::One(e) => SlotSel::One(*e),
+        SlotSel::Bench(w) => SlotSel::Bench(*w),
+        SlotSel::Pokemon(w) => SlotSel::Pokemon(*w),
+        SlotSel::PokemonBenchFirst(w) => SlotSel::PokemonBenchFirst(*w),
+        SlotSel::Filtered(inner, _) => clone_sel(inner),
+        SlotSel::Cancelable(inner) => clone_sel(inner),
+    }
+}
+
+/// Ask for the Pokémon of an `EachSlot` with `choose` (resumed at 1).
+fn each_ask(g: &mut Game, me: CardId, f: &mut Frame, e: &EachSlotSpec, choice: bool) -> R<Flow> {
+    let Some(c) = &e.choose else { return Ok(Flow::Next) };
+    if !cond_m(g, me, f, &e.when)? {
+        if choice {
+            f.record(g, me, CHOICE_NONE);
+        }
+        return Ok(Flow::Next);
+    }
+    let cands = slots_m(g, me, f, &e.among)?;
+    if cands.is_empty() {
+        if choice {
+            f.record(g, me, CHOICE_NONE);
+        }
+        return Ok(Flow::Next);
+    }
+    let max = num_m(g, me, f, &c.max)?.clamp(0, cands.len() as i32);
+    let min = num_m(g, me, f, &c.min)?.clamp(0, max);
+    ask_range(g, me, f, &each_pick(e, c), cands.as_slice(), min as u8, max as u8, 1);
+    Ok(Flow::Suspend)
+}
+
+fn each_exec(g: &mut Game, me: CardId, f: &mut Frame, e: &EachSlotSpec) -> R<Flow> {
+    if let Some(c) = f.recorded_choice(g, me) {
+        if c.answer != CHOICE_NONE {
+            let slots: Vec<SlotRef> = c.items[..c.len as usize].iter().map(|b| decode(*b)).collect();
+            each_act(g, me, f, e, &slots)?;
+        }
+        return Ok(Flow::Next);
+    }
+    if e.choose.is_some() {
+        return each_ask(g, me, f, e, false);
+    }
+    if !cond_m(g, me, f, &e.when)? {
+        return Ok(Flow::Next);
+    }
+    let slots: Vec<SlotRef> = slots_m(g, me, f, &e.among)?.iter().copied().collect();
+    each_act(g, me, f, e, &slots)?;
+    Ok(Flow::Next)
+}
+
+fn damage_calc(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -> R {
+    match calc {
+        DamageCalc::Auto => deal_or_put_damage(g, f.eff, n, slot),
+        DamageCalc::Put => put_damage(g, f.eff, n, slot),
+        DamageCalc::Deal => {
+            if let Some(b) = atk_base(g, f, slot) {
+                g.run_fx(Effect::DealDamage { b, damage: n })?;
+            }
+            Ok(())
+        }
+    }
+}
+
+fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[SlotRef]) -> R {
+    for slot in slots {
+        let slot = *slot;
+        if !occupied(g, slot) {
+            continue;
+        }
+        let target_damage = g.st.slot(slot.p as usize, slot.s).damage;
+        if e.only_damaged && target_damage <= 0 {
+            continue;
+        }
+        match e.what {
+            EachWhat::Damage(calc) => {
+                let n = num_m(g, me, f, &e.amount)? + e.per_damage * target_damage;
+                damage_calc(g, f, calc, n, slot)?;
+            }
+            EachWhat::Counters(cause) => {
+                let n = num_m(g, me, f, &e.amount)? * 10 + e.per_damage * target_damage;
+                match cause {
+                    CounterCause::Effect => {
+                        g.run_fx(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me })?;
+                    }
+                    CounterCause::Attack => {
+                        if let Some(b) = atk_base(g, f, slot) {
+                            g.run_fx(Effect::PutCounters { b, damage: n })?;
+                        }
+                    }
+                }
+            }
+            EachWhat::ShuffleIntoDeck => {
+                let Some((p, opp, attack, _)) = attack_data(g, f.eff) else { continue };
+                // An effect of the attack on that Pokémon: Mist Energy and the like prevent it.
+                if attack_effect_prevented_on(g, p as usize, opp as usize, pack_attack(attack), slot)? {
+                    continue;
+                }
+                move_pokemon_off_board(g, slot, crate::state::ListRef::Deck(slot.p), me)?;
+                let id = g.player_id(slot.p as usize);
+                g.prompt(id, "", PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApplyNoWait { p: slot.p });
+            }
+        }
+    }
+    Ok(())
 }

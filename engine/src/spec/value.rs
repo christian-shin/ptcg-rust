@@ -35,6 +35,9 @@ pub enum SlotExpr {
     /// The Pokémon this card is (or is attached to).
     This,
     Active(Who),
+    // --- S3-4 appends ---
+    /// The Pokémon in the slot register (`Op::PickSlot`, or the target of the last Attach).
+    Chosen,
 }
 
 pub enum Num {
@@ -141,6 +144,20 @@ pub enum Cond {
     /// Some of the player's Pokémon were Knocked Out during the opponent's last turn (K2): by
     /// damage from an attack when `by_attack`; only Pokémon with the tag when `tag` is set.
     KnockedOutLastTurn { who: Who, tag: Option<u32>, by_attack: bool },
+    /// The Stadium in play has this name.
+    StadiumIs(&'static str),
+    /// A Stadium is in play.
+    StadiumInPlay,
+    /// The Pokémon's Ability is blocked (the lock probe). A checked read.
+    AbilityBlocked(SlotExpr),
+    /// The player played a Team Rocket's Supporter from their hand this turn.
+    RocketSupporterPlayed(Who),
+    /// The Trainer is being used as the effect of an attack (Look-Alike Show), not played from the hand.
+    ViaAttack,
+    /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
+    HasEvolutionInPool(Who),
+    /// This Stadium's effect is blocked on the Pokémon (the lock probe). A checked read.
+    StadiumBlocked(SlotExpr),
 }
 
 /// A card predicate.
@@ -182,6 +199,13 @@ pub enum Pred {
     PokemonType(u8),
     /// Energy card that provides the type.
     Provides(u8),
+    // --- S3-4 appends ---
+    /// The Pokémon evolves from a Pokémon its owner has in play.
+    EvolvesFromOwnInPlay,
+    /// The Pokémon card prints an Ability.
+    PrintsAbility,
+    /// The card has a Rule Box.
+    RuleBox,
 }
 
 impl Frame {
@@ -208,6 +232,13 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
+        }
+        SlotExpr::Chosen => {
+            if f.slot == super::run::NONE {
+                None
+            } else {
+                Some(SlotRef::new((f.slot >> 4) as usize, f.slot & 15))
+            }
         }
         SlotExpr::This => {
             for p in 0..2 {
@@ -375,6 +406,21 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
+        Cond::StadiumIs(name) => g.st.stadium_card().map(|s| g.st.cdef(s).name == *name).unwrap_or(false),
+        Cond::StadiumInPlay => g.st.stadium_card().is_some(),
+        Cond::AbilityBlocked(_) | Cond::StadiumBlocked(_) => panic!("Cond::AbilityBlocked / StadiumBlocked need a checked read (cond_m)"),
+        Cond::RocketSupporterPlayed(w) => g.st.players[f.who(*w)].rocket_supporter,
+        Cond::ViaAttack => trainer_via_attack(g, f.eff),
+        Cond::HasEvolutionInPool(w) => {
+            let p = f.who(*w);
+            for (_, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                let base = g.st.cdef(c).name;
+                if crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == base) {
+                    return true;
+                }
+            }
+            false
+        }
         Cond::KnockedOutLastTurn { who, tag, by_attack } => {
             let pl = &g.st.players[f.who(*who)];
             if *by_attack {
@@ -419,6 +465,14 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PrintedType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::PokemonType(t) => d.is_pokemon() && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
+        Pred::EvolvesFromOwnInPlay => {
+            d.is_pokemon() && {
+                let owner = g.st.owner(c);
+                for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(_, top, _)| g.st.cdef(*top).name == d.evolves_from)
+            }
+        }
+        Pred::PrintsAbility => d.is_pokemon() && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
+        Pred::RuleBox => d.has_rule_box(),
     }
 }
 
@@ -435,6 +489,9 @@ pub enum SlotSel {
     Filtered(&'static SlotSel, SlotPred),
     /// Every Pokémon of a player; a prompt lists the Bench before the Active Spot.
     PokemonBenchFirst(Who),
+    // --- S3-4 appends ---
+    /// The same Pokémon, but the prompt that chooses among them can be cancelled.
+    Cancelable(&'static SlotSel),
 }
 
 /// A predicate on a Pokémon in play.
@@ -491,6 +548,11 @@ pub enum SlotPred {
     HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much: a checked read.
     RemainingHpAtMost(i32),
+    // --- S3-4 appends ---
+    /// An Energy card with this name is attached.
+    HasEnergyNamed(&'static str),
+    /// The Pokémon is evolved (`PokemonCardList.isEvolved()`).
+    Evolved,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -544,6 +606,7 @@ pub fn slots_of(g: &Game, me: CardId, f: &Frame, sel: &SlotSel) -> SVec<SlotRef,
                 }
             }
         }
+        SlotSel::Cancelable(inner) => return slots_of(g, me, f, inner),
     }
     out
 }
@@ -592,6 +655,24 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
+        SlotPred::HasEnergyNamed(n) => slot.cards.iter().any(|c| {
+            let d = g.st.cdef(c);
+            d.is_energy() && d.name == *n
+        }),
+        SlotPred::Evolved => {
+            let stack = g.st.slot_pokemons(p, id);
+            if stack.len() <= 1 {
+                false
+            } else {
+                match g.st.slot_pokemon(p, id) {
+                    Some(top) => {
+                        let st = g.st.cdef(top).stage;
+                        !(st == Stage::Legend as u8 || st == Stage::Vunion as u8 || (st == Stage::LvX as u8 && stack.len() == 2))
+                    }
+                    None => true,
+                }
+            }
+        }
         SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
 }
@@ -664,6 +745,7 @@ pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<Slo
             }
             Ok(out)
         }
+        SlotSel::Cancelable(inner) => slots_m(g, me, f, inner),
         _ => Ok(slots_of(g, me, f, sel)),
     }
 }
@@ -760,6 +842,14 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
         }
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
+            None => false,
+        },
+        Cond::AbilityBlocked(e) => match slot_of(g, me, f, *e) {
+            Some(s) => is_ability_blocked(g, s.p as usize, me, None),
+            None => false,
+        },
+        Cond::StadiumBlocked(e) => match slot_of(g, me, f, *e) {
+            Some(s) => is_stadium_effect_blocked(g, s.p as usize, s, me),
             None => false,
         },
         Cond::AnySlot(sel, sp) => {

@@ -46,10 +46,10 @@
   {
    "at": "turn_end",
    "prompts": [
-    "Wait",
-    "ChoosePokemon"
+    "ChoosePokemon",
+    "Wait"
    ],
-   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; question timing decision 2026-10-07: the Pokemon for the damage counters is chosen when the effect resolves, after the damage step (the attack animation Wait comes first)"
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-07; FINAL attack-choice rule (2026-10-07): the Pokemon for the damage counters is chosen at step D, before the damage (the attack animation Wait comes after the choice)"
   },
   {
    "at": "turn_end",

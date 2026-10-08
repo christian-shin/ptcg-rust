@@ -6,33 +6,26 @@
 //! Twinleaf: Unified Beatdown throws CANNOT_USE_ATTACK whenever
 //! `state.turn <= 2` (either player). Crown Opal arms PREVENT_DAMAGE with
 //! `{ sourceStage: BASIC, sourceCardTypes: [every type but C] }`.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Terapagosex", mask: mask(&[k::ATTACK, k::PUT_DAMAGE]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Terapagosex",
+    passives: &[
+        // Tera: no attack damage while Benched.
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
+    ],
+    attacks: &[
+        AttackSpec {
+            index: 0,
+            steps: &[
+                // If you go second, you can't use it during your first turn.
+                Step::before_damage(Op::Fail(FailSpec { when: Cond::Cmp(Num::Turn, CmpOp::Le, Num::Lit(2)), error: "CANNOT_USE_ATTACK" })),
+                Step::before_damage(damage_is(Num::Mul(&Num::BenchCount(Who::Me), &Num::Lit(30)))),
+            ],
+        },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::BasicNonColorless) }))] },
+    ],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if was_attack_used(g, e, 0, me) {
-        let p = match *g.e(e) {
-            Effect::Attack { p, .. } => p as usize,
-            _ => return Ok(()),
-        };
-        let pl = &g.st.players[p];
-        let bench = pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count() as i32;
-        if g.st.turn <= 2 {
-            bail!("CANNOT_USE_ATTACK");
-        }
-        if let Effect::Attack { damage, .. } = g.e_mut(e) {
-            *damage = bench * 30;
-        }
-    }
-    if was_attack_used(g, e, 1, me) {
-        let mut types = SVec::new();
-        for t in [ct::GRASS, ct::FIRE, ct::WATER, ct::LIGHTNING, ct::PSYCHIC, ct::FIGHTING, ct::DARK, ct::METAL, ct::FAIRY, ct::DRAGON] {
-            types.push(t);
-        }
-        let filter = PreventFilter { source_stage: Some(Stage::Basic as u8), source_card_types: Some(types), source_has_ability: false };
-        prevent_damage_filtered(g, e, filter)?;
-    }
-    tera_rule(g, e, me);
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

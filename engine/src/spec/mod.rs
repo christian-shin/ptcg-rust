@@ -268,6 +268,12 @@ pub enum Op {
     SetMarker(SetMarkerSpec),
     ClearMarker(ClearMarkerSpec),
     Arm(ArmSpec),
+    // S3-4 appends (ops/board.rs)
+    EachSlot(EachSlotSpec),
+    ChoiceDamage(ChoiceDamageSpec),
+    // S3-4 appends (ops/cards.rs)
+    EnergyChoice(EnergyChoiceSpec),
+    MoveToSlot(MoveToSlotSpec),
 }
 
 /// Everything a spec card file needs.

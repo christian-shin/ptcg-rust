@@ -5,20 +5,12 @@
 //! `player.active`) then BLOCK_SELF_RETREAT (a SelfPreventRetreatEffect whose
 //! target is the attacker since phase 4b, so Mist Energy on the Defending
 //! Pokémon no longer blocks it).
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
 
-pub static IMPL: CardImpl = CardImpl { class: "Slakoth", mask: mask(&[k::ATTACK]), reduce, resume: None, coin: None, can_play: None };
+pub static SPEC: CardSpec = CardSpec {
+    class: "Slakoth",
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(60, HealVia::Attack)), Step::after_damage(Op::Arm(ArmSpec { what: Lasting::SelfCannotRetreat }))] }],
+    ..CardSpec::NONE
+};
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if !was_attack_used(g, e, 0, me) {
-        return Ok(());
-    }
-    let (p, opp, attack, source) = match *g.e(e) {
-        Effect::Attack { p, opp, attack, source, .. } => (p, opp, attack, source),
-        _ => return Ok(()),
-    };
-    let a = g.st.players[p as usize].active;
-    let b = AtkBase { attack_effect: e, player: p, opponent: opp, attack, source, target: SlotRef::new(p as usize, a) };
-    g.run_fx(Effect::HealTarget { b, damage: 60 })?;
-    block_self_retreat(g, e)
-}
+pub static IMPL: CardImpl = SPEC.card_impl();
