@@ -8,54 +8,24 @@
 //! unless it is ApplyWeakness / PutDamage / DealDamage, when its source slot
 //! belongs to the target owner's opponent and holds a Pokémon; the
 //! special-energy block probe runs first, for the target owner's opponent.
-use super::shuppet::HIDE_N_SNEAK_KINDS;
-use crate::cards::prelude::*;
-use crate::effects::EnergyEntry;
+use crate::spec::prelude::*;
+use crate::types::ct;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "RockFightingEnergy",
-    mask: mask(&HIDE_N_SNEAK_KINDS).or(mask(&[k::CHECK_PROVIDED_ENERGY])),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[
+        Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::FIGHTING])], probe: false }) },
+        // Prevent all effects of attacks used by your opponent's Pokémon done to the [F] Pokémon this is attached to.
+        Passive {
+            origin: RuleSource::Energy,
+            modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec {
+                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::PrintedTypeIs(ct::FIGHTING)]),
+                probe_for_attacker: true,
+                ..PreventAttackEffectsSpec::DEFAULT
+            }),
+        },
+    ],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    if let Effect::CheckProvidedEnergy { source, .. } = *g.e(e) {
-        if g.st.slot(source.p as usize, source.s).cards.contains(me) {
-            let mut provides = SVec::new();
-            provides.push(ct::FIGHTING);
-            if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-                energy_map.push(EnergyEntry { card: me, provides });
-            }
-        }
-        return Ok(());
-    }
-    let b = match g.e(e).atk_base() {
-        Some(b) => *b,
-        None => return Ok(()),
-    };
-    let t = b.target;
-    if !g.st.slot(t.p as usize, t.s).cards.contains(me) {
-        return Ok(());
-    }
-    let fighting = g.st.slot_pokemon(t.p as usize, t.s).map(|c| g.st.cdef(c).card_type.contains(&ct::FIGHTING)).unwrap_or(false);
-    if !fighting {
-        return Ok(());
-    }
-    let opponent = 1 - t.p as usize;
-    if is_special_energy_blocked(g, opponent, me, t, false) {
-        return Ok(());
-    }
-    if b.source.p as usize != opponent {
-        return Ok(());
-    }
-    if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_some() {
-        if matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. }) {
-            return Ok(());
-        }
-        g.set_prevent(e, true);
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

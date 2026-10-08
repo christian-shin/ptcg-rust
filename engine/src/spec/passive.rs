@@ -15,7 +15,7 @@ use crate::effects::{mask, AtkBase, EffId, Effect, EnergyEntry, KindMask, SlotRe
 use crate::game::{fx_flag, Game, R};
 use crate::list::*;
 use crate::prefabs::*;
-use crate::state::ListRef;
+use crate::state::{AttackRef, ListRef};
 use crate::types::*;
 
 /// A modifier that applies while its card is in place.
@@ -200,8 +200,41 @@ impl PreventDamageSpec {
     };
 }
 
-pub struct PreventAttackEffectsSpec {}
-pub struct PreventSpec {}
+/// "Prevent all effects of attacks done to this Pokémon" (vocabulary P4). The damage steps are not
+/// effects (Weakness, Resistance and damage itself are never prevented here).
+pub struct PreventAttackEffectsSpec {
+    /// The Pokémon the effects are done to.
+    pub subject: SlotPred,
+    /// Also the damage counters placed by the opponent's Abilities (Hide 'n' Sneak).
+    pub abilities: bool,
+    /// The lock probe is made for the attacking player (today's behavior of Empoleon ex),
+    /// not for the card's owner.
+    pub probe_for_attacker: bool,
+    /// Nothing is prevented when the attack's source slot holds no Pokémon.
+    pub needs_source_pokemon: bool,
+}
+
+impl PreventAttackEffectsSpec {
+    pub const DEFAULT: PreventAttackEffectsSpec =
+        PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: false, needs_source_pokemon: true };
+}
+
+/// What a `Prevent` passive stops.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PreventWhat {
+    /// Damage counters can't be moved (to other Pokémon).
+    CounterMoves,
+    /// The opponent's Active Pokémon can't be healed. Today's behavior kept (A-PC8): only `Heal`,
+    /// not `HealTarget`.
+    HealOppActive,
+    /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
+    MoveToHandFromOppPlay,
+}
+
+/// A prohibition on the opponent's or everyone's effects (vocabulary P5).
+pub struct PreventSpec {
+    pub what: PreventWhat,
+}
 /// What a blocker stops.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum BlockWhat {
@@ -210,12 +243,61 @@ pub enum BlockWhat {
     /// This Pokémon can't be put into play by evolving (Palafin ex: only by Zero to Hero).
     /// No Ability-lock probe, as today (I-HD-palafin).
     EvolveIntoThis,
+    /// The opponent can't play ACE SPEC cards from their hand (Genesect's Ace Canceller) while
+    /// the Pokémon has a Tool attached. Today's behavior kept (A-PC6): from any zone, and the
+    /// lock probe is made for the playing player.
+    AceSpecOfOpponent,
 }
 
 pub struct BlockUseSpec {
     pub what: BlockWhat,
 }
-pub struct AbilityLockSpec {}
+/// Where the locking card must be.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Locker {
+    /// The top Pokémon of a Benched slot of either player.
+    BenchOfEitherSide,
+    /// The top Pokémon of any slot in play, either player's.
+    InPlayEitherSide,
+    /// The Stadium in play.
+    StadiumInPlay,
+}
+
+/// The lock probe that decides whether the locking card's own effect applies.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LockerProbe {
+    /// The locker's Ability is not itself blocked.
+    Generic,
+    /// A real use of the locker's own power `n` is not blocked.
+    OwnPower(u8),
+    /// The Stadium's effect is not blocked on the checked Pokémon's slot.
+    StadiumOnSlot,
+}
+
+/// Which powers a lock strips.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct LockedPowers {
+    /// The plain Ability lock probe is subject too.
+    pub generic_probe: bool,
+    /// Only Abilities that require the Pokémon to Knock Out itself.
+    pub only_knocks_out_self: bool,
+    pub exempt_name: Option<&'static str>,
+}
+
+/// "Pokémon ... have no Abilities" (vocabulary P7): strips matching Abilities and blocks their use.
+pub struct AbilityLockSpec {
+    /// The error of a blocked use.
+    pub error: &'static str,
+    pub locker: Locker,
+    /// The card whose Abilities are checked.
+    pub card: Pred,
+    /// The Pokémon slot that card is in (a card in no Pokémon slot is never locked, unless `missing`).
+    pub slot: SlotPred,
+    /// A card in no list at all: locked when this holds (its printed data).
+    pub missing: Pred,
+    pub powers: LockedPowers,
+    pub probe: LockerProbe,
+}
 /// A change of an attack's or a retreat's cost.
 pub enum CostChange {
     /// Costs this much [C] less (the reductions add up and apply once, with the increases).
@@ -293,14 +375,41 @@ pub struct ProvidesEnergyBoostSpec {
     pub energy: Pred,
     pub provides: &'static [CardType],
 }
-pub struct PrizeAdjustSpec {}
+/// "Takes N fewer/more Prize cards" for a Knock Out (vocabulary P13).
+pub struct PrizeAdjustSpec {
+    pub delta: i32,
+    /// The Knocked Out Pokémon.
+    pub subject: SlotPred,
+    /// Only a Knock Out by damage from an attack.
+    pub by_attack_damage: bool,
+    /// The Knock Out is the owner's opponent's, by the attack named so of this very card
+    /// (Unown's Mysterious Signal): the card's own last attack of the turn.
+    pub by_own_attack: Option<&'static str>,
+    pub guard: Cond,
+}
 pub struct CheckupDamageSpec {}
+/// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
+/// (Relicanth's Memory Dive).
 pub struct GrantAttacksSpec {}
 pub struct AttackFlagsSpec {}
 pub struct StatOverrideSpec {}
-pub struct EvolveFromSpec {}
+/// The Pokémon also evolves from `names` (Eevee ex's Rainbow DNA); only a card matching `only`
+/// may be played onto it.
+pub struct EvolveFromSpec {
+    pub names: &'static [&'static str],
+    pub only: Pred,
+}
 pub struct AllowEvolveSpec {}
-pub struct ConditionImmunitySpec {}
+/// "Can't be affected by Special Conditions" (vocabulary P20).
+pub struct ConditionImmunitySpec {
+    /// The conditions (empty: all of them).
+    pub conds: &'static [SpecialCondition],
+    pub subject: SlotPred,
+    /// The conditions are removed from effects that would add them.
+    pub prevent: bool,
+    /// Cleared whenever the table state is checked (today's Festival Grounds, B-PC-38).
+    pub sweep: bool,
+}
 /// The Energy can only be attached to a matching Pokémon (and is discarded from any other).
 pub struct AttachGuardSpec {
     pub allow: SlotPred,
@@ -327,9 +436,25 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::BlockUse(b) => match b.what {
             BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
             BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
+            BlockWhat::AceSpecOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL, k::ATTACH_ENERGY, k::PLAY_STADIUM]),
         },
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
+        Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
+            (true, true) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER, k::CHECK_TABLE_STATE]),
+            (true, false) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER]),
+            _ => mask(&[k::CHECK_TABLE_STATE]),
+        },
+        Modifier::AbilityLock(_) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
+        Modifier::Prevent(p) => match p.what {
+            PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
+            PreventWhat::HealOppActive => mask(&[k::HEAL]),
+            PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
+        },
+        Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
+        Modifier::PrizeAdjust(_) => mask(&[k::KNOCK_OUT]),
+        Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
+        Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::PreventDamage(p) => match p.how {
@@ -423,12 +548,20 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::BlockUse(b) => match (b.what, *g.e(e)) {
             (BlockWhat::UseStadium, Effect::UseStadium { .. }) if g.st.stadium_card() == Some(me) => crate::bail!("CANNOT_USE_STADIUM"),
             (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
+            (BlockWhat::AceSpecOfOpponent, _) => ace_spec_of_opponent(g, me, e),
             _ => Ok(()),
         },
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
         Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
         Modifier::AttachGuard(a) => attach_guard(g, me, e, a),
         Modifier::AttackCost(c) => attack_cost(g, me, e, ps.origin, c),
+        Modifier::ConditionImmunity(c) => condition_immunity(g, me, e, ps.origin, c),
+        Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
+        Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
+        Modifier::PreventAttackEffects(d) => prevent_attack_effects(g, me, e, ps.origin, d),
+        Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
+        Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
+        Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
@@ -778,4 +911,446 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
         }
     }
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Special Conditions
+
+fn condition_immunity(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &ConditionImmunitySpec) -> R {
+    if c.prevent {
+        let (target, conditions) = match *g.e(e) {
+            Effect::AddSpecialConditions { b, conditions, .. } => (b.target, conditions),
+            Effect::AddSpecialConditionsPower { target, conditions, .. } => (target, conditions),
+            _ => (SlotRef::new(0, 0), SVec::new()),
+        };
+        if !conditions.is_empty() {
+            let Some(at) = locate(g, me, origin) else { return Ok(()) };
+            let hit = |x: &u8| c.conds.is_empty() || c.conds.iter().any(|y| *y as u8 == *x);
+            if conditions.iter().any(hit) && slot_pred(g, me, target, &c.subject)? && !blocked(g, me, origin, at, Some(target)) {
+                let mut remaining = conditions;
+                remaining.retain(|x| !hit(x));
+                if remaining.is_empty() {
+                    g.set_prevent(e, true);
+                } else {
+                    match g.e_mut(e) {
+                        Effect::AddSpecialConditions { conditions, .. } | Effect::AddSpecialConditionsPower { conditions, .. } => *conditions = remaining,
+                        _ => {}
+                    }
+                }
+            }
+            return Ok(());
+        }
+    }
+    if c.sweep && matches!(*g.e(e), Effect::CheckTableState { .. }) {
+        let Some(at) = locate(g, me, origin) else { return Ok(()) };
+        for p in 0..2usize {
+            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+                let t = SlotRef::new(p, s);
+                if g.st.slot(p, s).special_conditions.is_empty() || !slot_pred(g, me, t, &c.subject)? || blocked(g, me, origin, at, Some(t)) {
+                    continue;
+                }
+                // `clearAllSpecialConditions()`: removes the five conditions.
+                let sc = &mut g.st.players[p].slots[s as usize].special_conditions;
+                for x in [SpecialCondition::Poisoned, SpecialCondition::Asleep, SpecialCondition::Burned, SpecialCondition::Confused, SpecialCondition::Paralyzed] {
+                    if c.conds.is_empty() || c.conds.contains(&x) {
+                        sc.retain(|y| *y != x as u8);
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Ability locks
+
+fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -> bool {
+    if power.index == PROBE_GENERIC {
+        return lp.generic_probe;
+    }
+    let d = &g.st.cdef(power.card).powers[power.index as usize];
+    d.power_type == PowerType::Ability as u8
+        && !d.exempt_from_ability_lock
+        && (!lp.only_knocks_out_self || d.knocks_out_self)
+        && lp.exempt_name.map_or(true, |n| d.name != n)
+        && !d.use_from_hand
+        && !d.use_from_discard
+}
+
+/// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?
+fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<bool> {
+    let owner = match l.locker {
+        Locker::BenchOfEitherSide => {
+            let mut found = None;
+            for q in 0..2usize {
+                let pl = &g.st.players[q];
+                if pl.bench.iter().any(|b| g.st.slot_pokemon(q, *b) == Some(me)) {
+                    found = Some(q);
+                }
+            }
+            found
+        }
+        Locker::InPlayEitherSide => {
+            let in_play = (0..2usize).any(|q| g.st.players[q].in_play().iter().any(|s| g.st.slot_pokemon(q, *s) == Some(me)));
+            if in_play {
+                g.st.locate(me).and_then(|x| x.owner())
+            } else {
+                None
+            }
+        }
+        Locker::StadiumInPlay => (g.st.stadium_card() == Some(me)).then(|| g.st.locate(me).and_then(|x| x.owner()).unwrap_or_else(|| g.st.owner(me))),
+    };
+    let Some(owner) = owner else { return Ok(false) };
+    let slot = match g.st.locate(card) {
+        None => return Ok(pred(g, card, &l.missing)),
+        Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
+        Some(_) => return Ok(false),
+    };
+    if !pred(g, card, &l.card) {
+        return Ok(false);
+    }
+    match l.probe {
+        LockerProbe::Generic => {
+            if !slot_pred(g, me, slot, &l.slot)? || is_ability_blocked(g, owner, me, None) {
+                return Ok(false);
+            }
+        }
+        LockerProbe::OwnPower(i) => {
+            if !slot_pred(g, me, slot, &l.slot)? {
+                return Ok(false);
+            }
+            let power = crate::effects::PowerRef { card: me, index: i };
+            // CAN_APPLY_LOCKER_ABILITY: a real use of the locker's power must not be blocked.
+            if g.run_fx(Effect::Power { p: owner as u8, power, card: me, target: None, probe: false }).is_err() {
+                return Ok(false);
+            }
+        }
+        LockerProbe::StadiumOnSlot => {
+            if is_stadium_effect_blocked(g, slot.p as usize, slot, me) {
+                return Ok(false);
+            }
+            match slot_pred(g, me, slot, &l.slot) {
+                Ok(v) => {
+                    if !v {
+                        return Ok(false);
+                    }
+                }
+                // The type check failed: the printed data decides.
+                Err(_) => return Ok(pred(g, card, &l.missing)),
+            }
+        }
+    }
+    Ok(true)
+}
+
+fn ability_lock(g: &mut Game, me: CardId, e: EffId, l: &AbilityLockSpec) -> R {
+    match *g.e(e) {
+        Effect::CheckPokemonPowers { target, powers, .. } => {
+            if is_locked(g, me, target, l)? {
+                let mut out = SVec::new();
+                for pw in powers.iter() {
+                    if !power_subject(g, &l.powers, *pw) {
+                        out.push(*pw);
+                    }
+                }
+                if let Effect::CheckPokemonPowers { powers, .. } = g.e_mut(e) {
+                    *powers = out;
+                }
+            }
+        }
+        Effect::Power { power, card, .. } => {
+            if power_subject(g, &l.powers, power) && is_locked(g, me, card, l)? {
+                return Err(crate::game::GameError(l.error));
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+/// Damp (Psyduck, Golduck): Pokémon in play lose Abilities that require them to Knock Out
+/// themselves.
+pub const DAMP: AbilityLockSpec = AbilityLockSpec {
+    error: "BLOCKED_BY_ABILITY",
+    locker: Locker::InPlayEitherSide,
+    card: Pred::Any,
+    slot: SlotPred::Any,
+    missing: Pred::False,
+    powers: LockedPowers { generic_probe: false, only_knocks_out_self: true, exempt_name: Some("Damp") },
+    probe: LockerProbe::OwnPower(0),
+};
+
+/// The handler of a card that has Damp (also called by Golduck's own handler).
+pub fn reduce_damp(g: &mut Game, me: CardId, e: EffId) -> R {
+    apply(g, me, e, &Passive { origin: RuleSource::Ability, modifier: Modifier::AbilityLock(DAMP) })
+}
+
+// ---------------------------------------------------------------------------
+// Prevent
+
+fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    match (p.what, *g.e(e)) {
+        (PreventWhat::CounterMoves, Effect::MoveDamageCounters { .. } | Effect::MoveCounters { .. }) => {
+            if !blocked(g, me, origin, at, None) {
+                g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::HealOppActive, Effect::Heal { target, .. }) => {
+            let o = 1 - at.owner;
+            if target.p as usize == o && target.s == g.st.players[o].active && !blocked(g, me, origin, at, None) {
+                g.set_prevent(e, true);
+            }
+        }
+        (PreventWhat::MoveToHandFromOppPlay, Effect::MoveCards { source, destination, .. }) => {
+            let ListRef::Slot(sq, ss) = source else { return Ok(()) };
+            let (sq, opp) = (sq as usize, 1 - at.owner);
+            if destination == ListRef::Hand(opp as u8) && sq == opp && g.st.slot_pokemon(opp, ss).is_some() && !blocked(g, me, origin, at, None) {
+                g.set_prevent(e, true);
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Attack effects
+
+/// Every attack-effect kind (`AtkBase` effects) except the damage steps, plus the counters
+/// placed by Abilities: the effect kinds Hide 'n' Sneak and Mist Energy prevent.
+pub const HIDE_N_SNEAK_KINDS: [u32; 36] = [
+    crate::effects::k::SELF_PREVENT_RETREAT,
+    crate::effects::k::DISCARD_ATTACKER_ENERGY_IF_KO,
+    crate::effects::k::APPLY_WEAKNESS,
+    crate::effects::k::DEAL_DAMAGE,
+    crate::effects::k::PUT_DAMAGE,
+    crate::effects::k::AFTER_DAMAGE,
+    crate::effects::k::PUT_COUNTERS,
+    crate::effects::k::KNOCK_OUT_OPPONENT,
+    crate::effects::k::KNOCK_OUT_PLAYER,
+    crate::effects::k::RETALIATE_ON_DAMAGE,
+    crate::effects::k::RETALIATE_DAMAGE,
+    crate::effects::k::DISCARD_CARDS,
+    crate::effects::k::CARDS_TO_HAND,
+    crate::effects::k::GUST_OPPONENT_BENCH,
+    crate::effects::k::MOVE_OPPONENT_ENERGY,
+    crate::effects::k::ADD_MARKER,
+    crate::effects::k::ADD_SPECIAL_CONDITIONS,
+    crate::effects::k::REMOVE_SPECIAL_CONDITIONS,
+    crate::effects::k::HEAL_TARGET,
+    crate::effects::k::PLAY_LOCK,
+    crate::effects::k::PREVENT_RETREAT,
+    crate::effects::k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
+    crate::effects::k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE,
+    crate::effects::k::DEFENDING_POKEMON_TAKES_MORE_DAMAGE,
+    crate::effects::k::REDUCE_DAMAGE,
+    crate::effects::k::SWITCH_OUT_OPPONENTS_ACTIVE,
+    crate::effects::k::PLACE_DAMAGE_COUNTERS,
+    crate::effects::k::PREVENT_DAMAGE,
+    crate::effects::k::PREVENT_EFFECTS_OF_ATTACKS,
+    crate::effects::k::THIS_POKEMON_HAS_NO_WEAKNESS,
+    crate::effects::k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN,
+    crate::effects::k::INCREASE_ATTACK_COST_NEXT_TURN,
+    crate::effects::k::INCREASE_RETREAT_COST_NEXT_TURN,
+    crate::effects::k::COIN_FLIP_CANCEL_TRAINER_PLAY,
+    crate::effects::k::MOVE_COUNTERS,
+    crate::effects::k::DEVOLVE,
+];
+
+pub const HIDE_N_SNEAK_MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS);
+
+fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PreventAttackEffectsSpec) -> R {
+    if let Some(b) = g.e(e).atk_base().copied() {
+        let t = b.target;
+        let Some(at) = locate(g, me, origin) else { return Ok(()) };
+        if !slot_pred(g, me, t, &d.subject)? {
+            return Ok(());
+        }
+        let probe_as = if d.probe_for_attacker { Located { owner: b.player as usize, ..at } } else { at };
+        if blocked(g, me, origin, probe_as, Some(t)) {
+            return Ok(());
+        }
+        let attacker = if d.probe_for_attacker { b.source.p } else { b.player };
+        if attacker == t.p {
+            return Ok(());
+        }
+        if matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. }) {
+            return Ok(());
+        }
+        if d.needs_source_pokemon && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
+            return Ok(());
+        }
+        g.set_prevent(e, true);
+        return Ok(());
+    }
+    if d.abilities {
+        if let Effect::PlaceDamageCounters { p, target, source, .. } = *g.e(e) {
+            let Some(at) = locate(g, me, origin) else { return Ok(()) };
+            if !slot_pred(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
+                return Ok(());
+            }
+            if p as usize == target.p as usize || source == NO_CARD {
+                return Ok(());
+            }
+            match g.st.find_pokemon_slot(source) {
+                Some((q, _)) if q == p as usize => {}
+                _ => return Ok(()),
+            }
+            g.set_prevent(e, true);
+        }
+    }
+    Ok(())
+}
+
+/// Hide 'n' Sneak: prevent all effects of the opponent's Pokémon's attacks and Abilities done to
+/// this Pokémon (damage is not an effect).
+pub const HIDE_N_SNEAK: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
+    subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+    abilities: true,
+    probe_for_attacker: false,
+    needs_source_pokemon: false,
+};
+
+/// The handler of a Pokémon with Hide 'n' Sneak (Shuppet, Banette, Poltchageist, ...).
+pub fn reduce_hide_n_sneak(g: &mut Game, me: CardId, e: EffId) -> R {
+    apply(g, me, e, &Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) })
+}
+
+/// `countHideNSneakPokemonInDiscard(player)`.
+pub fn count_hide_n_sneak_in_discard(g: &Game, p: usize) -> usize {
+    g.st.players[p]
+        .discard
+        .iter()
+        .filter(|c| {
+            let d = g.st.cdef(*c);
+            d.is_pokemon() && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8 && pw.name == "Hide 'n' Sneak")
+        })
+        .count()
+}
+
+// ---------------------------------------------------------------------------
+// Prizes, evolution, attacks
+
+fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
+    let (p, target) = match *g.e(e) {
+        Effect::KnockOut { p, target, .. } => (p as usize, target),
+        _ => return Ok(()),
+    };
+    if !slot_pred(g, me, target, &d.subject)? {
+        return Ok(());
+    }
+    if let Some(name) = d.by_own_attack {
+        // The Knock Out happens in the attack phase of the opponent of the Knocked Out Pokémon's owner.
+        let attacker = 1 - p;
+        let pl = &g.st.players[p];
+        let defending = target.p as usize == p && (pl.active == target.s || pl.bench.iter().any(|b| *b == target.s));
+        if !defending || g.st.phase != GamePhase::Attack || g.st.active_player as usize != attacker {
+            return Ok(());
+        }
+        match g.st.player_last_attack[attacker] {
+            Some((a, src)) if src == me && crate::engine::attack::attack_def(g, a).tl_name == name => {}
+            _ => return Ok(()),
+        }
+    }
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if blocked(g, me, origin, at, Some(target)) {
+        return Ok(());
+    }
+    if d.by_attack_damage && g.knocked_out_by_attack_damage(p, target).is_none() {
+        return Ok(());
+    }
+    if !guard_ok(g, me, at.owner, &d.guard) {
+        return Ok(());
+    }
+    if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
+        *prize_count += d.delta;
+    }
+    Ok(())
+}
+
+fn evolve_from(g: &mut Game, me: CardId, e: EffId, d: &EvolveFromSpec) -> R {
+    static NONE: &[&str] = &[];
+    match *g.e(e) {
+        Effect::CheckTableState { .. } => {
+            let v = match g.st.find_pokemon_slot(me) {
+                None => NONE,
+                Some((owner, _)) => {
+                    if is_ability_blocked(g, owner, me, None) {
+                        NONE
+                    } else {
+                        d.names
+                    }
+                }
+            };
+            g.st.cards[me as usize].evolves_from_base = Some(v);
+        }
+        // Only a card matching `only` can evolve this Pokémon.
+        Effect::PlayPokemon { card, target, .. } => {
+            if g.st.slot_pokemon(target.p as usize, target.s) == Some(me) {
+                let def = g.st.cdef(card);
+                if d.names.iter().any(|n| *n == def.evolves_from) && !pred(g, card, &d.only) {
+                    crate::bail!("INVALID_TARGET");
+                }
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
+    let p = match *g.e(e) {
+        Effect::CheckPokemonAttacks { p, .. } => p as usize,
+        _ => return Ok(()),
+    };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if at.owner != p || blocked(g, me, origin, at, None) {
+        return Ok(());
+    }
+    let mut add: SVec<AttackRef, 32> = SVec::new();
+    let active = g.st.players[p].active;
+    if let Some(top) = g.st.slot_pokemon(p, active) {
+        if g.st.cdef(top).stage != Stage::Basic as u8 {
+            for c in g.st.slot(p, active).cards.iter() {
+                let d = g.st.cdef(c);
+                if d.is_pokemon() && c != top {
+                    for i in 0..d.attacks.len() {
+                        add.push(AttackRef { card: c, index: i as u8 });
+                    }
+                }
+            }
+        }
+    }
+    if let Effect::CheckPokemonAttacks { attacks, .. } = g.e_mut(e) {
+        for a in add.iter() {
+            attacks.push(*a);
+        }
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Blocked plays
+
+/// Genesect's Ace Canceller.
+fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
+    let (p, card) = match *g.e(e) {
+        Effect::PlayItem { p, card, .. } | Effect::AttachPokemonTool { p, card, .. } | Effect::AttachEnergy { p, card, .. } | Effect::PlayStadium { p, card } => (p as usize, card),
+        _ => return Ok(()),
+    };
+    if !g.st.cdef(card).has_tag(tag::ACE_SPEC) {
+        return Ok(());
+    }
+    let o = 1 - p;
+    let active = for_each_pokemon(g, o, PlayerType::TopPlayer).iter().any(|(s, c, _)| *c == me && !g.st.slot(o, *s).tools.is_empty());
+    if !active {
+        return Ok(());
+    }
+    // The lock probe is made for the playing player (today's behavior).
+    if is_ability_blocked(g, p, me, None) {
+        return Ok(());
+    }
+    crate::bail!("BLOCKED_BY_EFFECT")
 }

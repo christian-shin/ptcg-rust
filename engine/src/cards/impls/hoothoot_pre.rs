@@ -7,38 +7,21 @@
 //! prevented when it was the only condition) unless the Ability is blocked
 //! for the owner. It used to prevent every such effect, whatever its target,
 //! from any zone and without an Ability-lock check.
-use crate::cards::prelude::*;
+use crate::spec::prelude::*;
+use crate::types::SpecialCondition;
 
-pub static IMPL: CardImpl = CardImpl {
+pub static SPEC: CardSpec = CardSpec {
     class: "Hoothoot@PRE",
-    mask: mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER]),
-    reduce,
-    resume: None,
-    coin: None,
-    can_play: None,
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::ConditionImmunity(ConditionImmunitySpec {
+            conds: &[SpecialCondition::Asleep],
+            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+            prevent: true,
+            sweep: false,
+        }),
+    }],
+    ..CardSpec::NONE
 };
 
-fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (target, conditions) = match *g.e(e) {
-        Effect::AddSpecialConditions { b, conditions, .. } => (b.target, conditions),
-        Effect::AddSpecialConditionsPower { target, conditions, .. } => (target, conditions),
-        _ => return Ok(()),
-    };
-    let asleep = SpecialCondition::Asleep as u8;
-    if conditions.contains(&asleep) && g.st.slot_pokemon(target.p as usize, target.s) == Some(me) {
-        let owner = target.p as usize;
-        if !is_ability_blocked(g, owner, me, None) {
-            let mut remaining = conditions;
-            remaining.retain(|c| *c != asleep);
-            if remaining.is_empty() {
-                g.set_prevent(e, true);
-            } else {
-                match g.e_mut(e) {
-                    Effect::AddSpecialConditions { conditions, .. } | Effect::AddSpecialConditionsPower { conditions, .. } => *conditions = remaining,
-                    _ => {}
-                }
-            }
-        }
-    }
-    Ok(())
-}
+pub static IMPL: CardImpl = SPEC.card_impl();

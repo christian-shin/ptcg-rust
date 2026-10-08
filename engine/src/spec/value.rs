@@ -111,6 +111,12 @@ pub enum Pred {
     // Appended by F-passive.
     /// The card prints that it provides the type of Energy.
     ProvidesType(CardType),
+    /// The Pokémon card is of this Stage.
+    StageIs(Stage),
+    /// The Pokémon's printed type includes the type.
+    PrintedType(CardType),
+    /// The card carries the tag.
+    HasTag(u32),
 }
 
 impl Frame {
@@ -240,6 +246,9 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::Name(n) => d.name == *n,
         Pred::HpAtMost(n) => d.is_pokemon() && d.hp <= *n,
         Pred::ProvidesType(t) => d.provides.contains(t),
+        Pred::StageIs(st) => d.is_pokemon() && d.stage == *st as u8,
+        Pred::PrintedType(t) => d.is_pokemon() && d.card_type.contains(t),
+        Pred::HasTag(t) => d.has_tag(*t),
     }
 }
 
@@ -282,6 +291,10 @@ pub enum SlotPred {
     Named(&'static str),
     /// The Pokémon's Energy provides nothing.
     NoEnergyProvided,
+    /// Some card of the slot carries the tag.
+    AnyCardTag(u32),
+    /// The slot has an Energy card attached.
+    HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much.
     RemainingHpAtMost(i32),
 }
@@ -325,6 +338,8 @@ fn slot_pred_ref(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::IsActive => g.st.players[p].active == sid,
         SlotPred::IsBench => g.st.players[p].active != sid,
         SlotPred::IsThisPokemon => top == Some(me),
+        SlotPred::AnyCardTag(t) => g.st.slot(p, sid).cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
+        SlotPred::HasEnergy => !g.st.slot(p, sid).energies.is_empty(),
         SlotPred::Named(n) => top.map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::TypeIs(_) | SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) => return None,
     })
