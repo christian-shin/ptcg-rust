@@ -12,7 +12,7 @@ pub enum Draw {
 }
 
 thread_local! {
-    /// Recorded outcomes a replay feeds back (PLAN.md 8.5, `diff`'s
+    /// Recorded outcomes a replay feeds back (`diff`'s
     /// observable mode). While set, every real draw takes the first outcome
     /// of its kind and size instead of the seeded stream, so a change in when
     /// a coin, shuffle or random pick happens does not shift the others.

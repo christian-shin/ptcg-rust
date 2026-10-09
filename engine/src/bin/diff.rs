@@ -1,13 +1,13 @@
 //! Replay oracle traces through the Rust engine and stop at the first
-//! divergence (PLAN.md 4.3).
+//! divergence.
 //!
 //!   diff <trace.json|dir>... [--dump <dir>] [--quiet] [--strict]
 //!
 //! Traces that record observable hashes (`o`) are replayed for observable
-//! parity (PLAN.md 8.5, `replay_obs`); `--strict` or PTCG_OBS=0 forces the
+//! parity (`replay_obs`); `--strict` or PTCG_OBS=0 forces the
 //! lockstep state-hash replay below, which older traces always get.
 //!
-//! A scenario's `expect` assertions (CARD_PORTING.md "Scenarios") are checked
+//! A scenario's `expect` assertions (docs/ENGINE.md, "Scenarios and expect"; local) are checked
 //! here against the Rust state and reported as their own outcome, EXPECT FAILED,
 //! apart from divergence from the oracle.
 //!
@@ -28,7 +28,7 @@ thread_local! {
     static PANIC_STEP: std::cell::Cell<isize> = const { std::cell::Cell::new(-1) };
 }
 
-/// PLAN.md 4.6 invariants at every turn decision (`PTCG_NO_INVARIANTS=1` turns them off).
+/// invariants at every turn decision (`PTCG_NO_INVARIANTS=1` turns them off).
 fn check_invariants() -> bool {
     std::env::var("PTCG_NO_INVARIANTS").map_or(true, |v| v.is_empty() || v == "0")
 }
@@ -215,7 +215,7 @@ fn replay(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     Outcome::Pass { steps: steps.len() }
 }
 
-/// A prompt descriptor without plumbing (PLAN.md 8.5): no message names or
+/// A prompt descriptor without plumbing: no message names or
 /// filters, a card choice reduced to the cards that can really be chosen
 /// (`selectable` minus `options.blocked`), and no per-kind caps that `max`
 /// already implies. Select prompts keep only how many values they offer.
@@ -300,7 +300,7 @@ fn tape_of(events: &[Value]) -> Vec<ptcg::rng::Draw> {
         .collect()
 }
 
-/// Observable-parity replay (PLAN.md 8.5, `--obs`). The oracle's turn
+/// Observable-parity replay (`--obs`). The oracle's turn
 /// decisions split the trace into segments. At each turn decision Rust must
 /// reach the same player-observable state (`o`) and offer the same turn
 /// options. Inside a segment Rust's prompts are answered by the oracle prompt
@@ -486,7 +486,7 @@ fn replay_obs(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
     }
 }
 
-/// An approved divergence from `divergences.toml` (PLAN.md 4.7): a trace
+/// An approved divergence from `divergences.toml`: a trace
 /// whose first divergence has kind `what` and a detail containing
 /// `detail_contains` counts as approved, not diverged.
 struct Approved {
@@ -526,7 +526,7 @@ fn main() {
     let mut files: Vec<PathBuf> = Vec::new();
     let mut dump: Option<PathBuf> = None;
     let mut quiet = false;
-    // Observable-parity replay (PLAN.md 8.5) for every trace that records
+    // Observable-parity replay for every trace that records
     // observable hashes; `--strict` (or PTCG_OBS=0) forces lockstep state
     // equality, which older traces without them always get.
     let obs = !args.iter().any(|a| a == "--strict") && std::env::var("PTCG_OBS").map_or(true, |v| v != "0");

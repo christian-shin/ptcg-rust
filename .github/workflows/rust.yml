@@ -1,4 +1,4 @@
-# Rust engine checks (the oracle-free tier 4, PLAN.md 4.4), as separate jobs
+# Rust engine checks, as separate jobs
 # after one build: unit and integration tests, every scenario (`scen`: expect assertions, invariants,
 # stuck prompts, errors, panics) and fresh-seed self-play (`tools/fuzz.py`:
 # meta decks plus random legal pool decks) split across runners.

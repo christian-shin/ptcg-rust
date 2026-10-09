@@ -2,7 +2,7 @@
 //! Rust engine's state (the oracle ignores the key). Evaluated by `diff` at
 //! the end of the scenario turn (`turn_end`, after the attack and Knock Outs,
 //! before Pokémon Checkup) or at the first turn decision of the next turn
-//! (`next_turn`, after Checkup). Format: CARD_PORTING.md "Scenarios".
+//! (`next_turn`, after Checkup). Format: docs/ENGINE.md, "Scenarios and expect" (local).
 
 use crate::carddb::en_key;
 use crate::engine::check::hp_of;

@@ -6,19 +6,23 @@ Every ruling is tagged with topics such as "Trainers » Ultra Ball",
 "Abilities » Wild Growth" or "Trainers » *Trainers in General".
 
 usage: fetch_rulings.py [--refetch]
-writes data/rulings/all.json       every ruling: {id, topics, q, a, source}
-       data/rulings/cards.json     pool key -> ruling ids whose topic names the
+writes docs/rulings/compendium/all.json    every ruling: {id, topics, q, a, source}
+       docs/rulings/compendium/cards.json     pool key -> ruling ids whose topic names the
                                    card (Trainer/Energy name) or one of its
                                    attacks/Abilities (official names; an attack
                                    name shared by several cards matches all of them)
-       data/rulings/general.json   ruling ids of Meta-Rulings, Gameplay and the
+       docs/rulings/compendium/general.json   ruling ids of Meta-Rulings, Gameplay and the
                                    "*... in General" topics
-Pages are cached in data/rulings/cache/ (local, git-ignored).
+Pages are cached in docs/rulings/compendium/cache/. docs/ is local and not in git; it lives in the
+main checkout (worktrees use the main checkout's copy).
 """
-import html, json, os, re, sys, time, unicodedata, urllib.request
+import html, json, os, re, subprocess, sys, time, unicodedata, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, 'data/rulings')
+# docs/ is untracked: use the main checkout's, also from a worktree.
+_common = subprocess.run(['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+MAIN = os.path.dirname(_common) if _common else ROOT
+OUT = os.path.join(MAIN, 'docs/rulings/compendium')
 CACHE = os.path.join(OUT, 'cache')
 BASE = 'https://compendium.pokegym.net/category/%s/'
 CATEGORIES = ['1-errata', '2-meta-rulings', '3-attacks', '4-abilities', '5-trainers', '6-energy', '7-gameplay']

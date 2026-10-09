@@ -10,6 +10,5 @@ corpus/cards/
 python/target/
 *.so
 .claude/
-PLAN.md
+docs/
 AGENT_PLAN.md
-data/rulings/cache/

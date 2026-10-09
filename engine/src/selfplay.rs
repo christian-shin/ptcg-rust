@@ -5,7 +5,7 @@
 //! `diff` replays. Used by `scen` (scenarios) and `fuzz` (fresh-seed
 //! self-play, the oracle-free tier 4).
 //!
-//! Every game checks the PLAN.md 4.6 invariants at each turn decision and
+//! Every game checks the invariants at each turn decision and
 //! fails on engine errors, stuck prompts and turns without legal options.
 
 use crate::carddb::{def, def_by_full_name, DefId};
@@ -473,7 +473,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     return End::Fail(format!("no legal turn options at step {} (turn {})", step, g.st.turn));
                 }
                 // Scripted prompt answers left over: the oracle asked a prompt Rust doesn't (a "you may"
-                // with no possible effect, PLAN.md 8.5), so they have nothing to answer.
+                // with no possible effect), so they have nothing to answer.
                 while script.front().is_some_and(|v| !is_turn_answer(v)) {
                     script.pop_front();
                 }

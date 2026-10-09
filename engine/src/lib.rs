@@ -1,6 +1,6 @@
 //! Pokémon TCG rules engine with Twinleaf parity.
 //!
-//! See `PLAN.md` at the repository root. The engine mirrors Twinleaf's store
+//! See docs/ENGINE.md (local, not in git). The engine mirrors Twinleaf's store
 //! (effects propagated to cards, prompts with continuations) with plain-data
 //! state: a whole game, including pending prompts, is `Copy`.
 

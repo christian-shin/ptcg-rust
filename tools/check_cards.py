@@ -1,4 +1,4 @@
-"""Verify cards in the Rust engine (PLAN.md 4.8 loop; Rust-only since the
+"""Verify cards in the Rust engine (Rust-only since the
 oracle freeze of 2026-10-08).
 
 usage: check_cards.py "Card A" ["Card B" ...]   (international key such as

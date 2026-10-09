@@ -1,4 +1,4 @@
-//! Python bindings (PLAN.md 3.6): `Env` (single game) and `VecEnv` (N games
+//! Python bindings: `Env` (single game) and `VecEnv` (N games
 //! stepped in one call). Arrays cross the boundary as little-endian bytes and
 //! are wrapped with `numpy.frombuffer` by the pure-Python layer in `ptcg/`.
 

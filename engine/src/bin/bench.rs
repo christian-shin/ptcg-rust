@@ -1,4 +1,4 @@
-//! Throughput benchmark (PLAN.md 5): random-play games/s, steps/s, and
+//! Throughput benchmark: random-play games/s, steps/s, and
 //! state clone time.
 //!
 //!   bench <deckA.txt> <deckB.txt> [games] [max_threads]
