@@ -26,6 +26,7 @@
 //! rules, not Twinleaf's internal plumbing. An item that is declared but not
 //! implemented yet panics when a spec reaches it, so a replay reports it.
 
+pub mod event;
 pub mod ops;
 pub mod passive;
 pub mod run;
