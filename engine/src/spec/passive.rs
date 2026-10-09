@@ -2564,14 +2564,14 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
     let own = crate::effects::PowerRef { card: me, index: 0 };
     match l {
         ActiveLock::MidnightFluttering => {
-            let Some(my_list) = g.st.locate(me) else { crate::bail!("INVALID_GAME_STATE") };
-            let Some(owner) = my_list.owner() else { crate::bail!("INVALID_GAME_STATE") };
+            // Only a Flutter Mane in its owner's Active Spot locks, and only the opponent's Active Pokémon; a card
+            // anywhere else (a deck, a list of cards being looked at) is neither.
+            let Some(owner) = g.st.locate(me).and_then(|l| l.owner()) else { return Ok(false) };
             if g.st.active_pokemon(owner) != Some(me) {
                 return Ok(false);
             }
             let opponent = 1 - owner;
-            let Some(target_list) = g.st.locate(card) else { crate::bail!("INVALID_GAME_STATE") };
-            if target_list != ListRef::Slot(opponent as u8, g.st.players[opponent].active) {
+            if g.st.locate(card) != Some(ListRef::Slot(opponent as u8, g.st.players[opponent].active)) {
                 return Ok(false);
             }
             // Hide 'n' Sneak takes precedence over Midnight Fluttering.
