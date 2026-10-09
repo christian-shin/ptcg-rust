@@ -573,6 +573,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Search(s) => search_exec(g, me, f, s),
         Op::Shuffle(s) => {
             let p = f.who(s.zone.0);
+            // The Shuffle of a Search that was skipped because the deck is empty is skipped with it
+            // (ruling 840: an empty deck can't be searched; rulings 361/362: the whole effect fails).
+            if g.st.players[p].deck.is_empty() {
+                return Ok(Flow::Next);
+            }
             if !s.wait {
                 shuffle_deck(g, p);
                 return Ok(Flow::Next);
