@@ -203,6 +203,7 @@ fn main() {
         ef,
         eu
     );
+    ptcg::legal_stats::print_table();
     if bad > 0 {
         std::process::exit(1);
     }
