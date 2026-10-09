@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Antique Root Fossil SCR 130", "4 Hop's Snorlax JTG 117", "4 Switch 30C 127", "48 Fire Energy MEE 2"],
+  ["4 Antique Root Fossil SCR 130", "4 Hop's Snorlax JTG 117", "4 Switch 30C 127", "48 Fire Energy MEE 2"]
+ ],
+ "me": {"reset": true, "active": "Antique Root Fossil SCR 130", "active_energy": ["Fire Energy MEE 2"], "bench": [{"card": "Hop's Snorlax JTG 117"}], "hand": ["Switch 30C 127"]},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"},
+ "answers": [{"a": "play", "card": "Switch 30C 127"}, [{"player": 2, "slot": 2, "index": 0}]],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "retreat", "is": false, "cite": "card text (Antique Root Fossil can't retreat): a lock over the ChangeActive of a retreat whose leaving Pokemon is this one"},
+  {"at": "turn_end", "who": "me", "slot": "active", "card": "Hop's Snorlax JTG 117", "cite": "APR C-03 (even if your Active Pokemon can't retreat, it can still be switched with a Benched Pokemon through the effect of a card such as the Switch Item)"}
+ ]
+}

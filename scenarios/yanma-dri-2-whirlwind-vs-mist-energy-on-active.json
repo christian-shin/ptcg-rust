@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Yanma DRI 2", "4 Hop's Snorlax JTG 117", "4 Duraludon PRE 69", "4 Mist Energy TEF 161", "44 Grass Energy MEE 1"],
+  ["4 Yanma DRI 2", "4 Hop's Snorlax JTG 117", "4 Duraludon PRE 69", "4 Mist Energy TEF 161", "44 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Yanma DRI 2", "active_energy": ["Grass Energy MEE 1"]},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "active_energy": ["Mist Energy TEF 161"], "bench": [{"card": "Duraludon PRE 69"}]},
+ "answers": [{"a": "attack", "name": "Whirlwind"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Hop's Snorlax JTG 117", "cite": "APR C-04 specific case and id2025 (switching out is an effect done to the Active Pokemon; Mist Energy on it prevents an attack's switch-out); JP FAQ Mist Energy TEF 161 (Grimmsnarl's switch-out vs Mist Energy on the Active Pokemon: no)"},
+  {"at": "turn_end", "who": "opp", "bench_count": 1, "cite": "APR C-04, id2025"}
+ ]
+}

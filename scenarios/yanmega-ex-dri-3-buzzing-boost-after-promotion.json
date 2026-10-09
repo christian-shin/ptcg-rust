@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Makuhita MEG 72", "4 Hariyama MEG 73", "4 Yanma DRI 2", "4 Yanmega ex DRI 3", "4 Mega Latias ex MEG 100", "20 Fighting Energy MEE 6", "20 Grass Energy MEE 1"],
+  ["4 Makuhita MEG 72", "4 Hariyama MEG 73", "4 Yanma DRI 2", "4 Yanmega ex DRI 3", "4 Mega Latias ex MEG 100", "20 Fighting Energy MEE 6", "20 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": ["Makuhita MEG 72", "Hariyama MEG 73"], "active_energy": ["3 Fighting Energy MEE 6"], "active_damage": 90, "bench": [{"card": ["Yanma DRI 2", "Yanmega ex DRI 3"]}]},
+ "opp": {"reset": true, "active": "Mega Latias ex MEG 100"},
+ "answers": [{"a": "attack", "name": "Wild Press"}, [0], [{"player": 2, "slot": 2, "index": 0}], true],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "card": "Yanmega ex DRI 3", "cite": "card text (Yanmega ex's Buzzing Boost: once during your turn, when this Pokemon moves from your Bench to the Active Spot); APR E-25 (it doesn't matter how it moved)"},
+  {"at": "turn_end", "prompts": ["ChoosePokemon", "Confirm"], "cite": "card text (Buzzing Boost): the promotion after Hariyama Knocked itself Out with Wild Press during its owner's turn moves Yanmega ex from the Bench to the Active Spot, so the Ability is offered"}
+ ]
+}
