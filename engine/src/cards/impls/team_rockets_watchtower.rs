@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
                 probe: LockerProbe::StadiumOnSlot,
             }),
         },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
     ],
     ..CardSpec::NONE
 };

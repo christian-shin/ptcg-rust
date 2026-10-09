@@ -6,7 +6,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "NeutralCenter",
     passives: &[
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
         Passive {
             origin: RuleSource::Stadium,
             modifier: Modifier::PreventDamage(PreventDamageSpec { subject: SlotPred::Not(&SlotPred::RuleBox), source: SlotPred::RuleBox, ..PreventDamageSpec::DEFAULT }),

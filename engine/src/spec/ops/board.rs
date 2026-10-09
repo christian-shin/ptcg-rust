@@ -506,7 +506,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Switch(s) => switch_exec(g, me, f, s),
         Op::Evolve(EvolveSpec { how: EvolveHow::RareCandy }) => {
             let p = f.p as usize;
-            let stage2 = stage2_in_hand(g, p);
+            let stage2 = stage2_evolvable(g, p);
             let mut blocked: TargetList = SVec::new();
             for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
                 if g.st.cdef(c).stage == Stage::Basic as u8 && stage2.iter().any(|s2| matching_stage2(g, c, *s2)) && candy_played_turn(g, p, s)? < g.st.turn {
@@ -673,7 +673,8 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 let hand: Vec<CardId> = g.st.players[p].hand.iter().collect();
                 for (i, c) in hand.iter().enumerate() {
                     let d = g.st.cdef(*c);
-                    if d.is_pokemon() && d.stage == Stage::Stage2 as u8 && !matching_stage2(g, base, *c) {
+                    let stage2 = d.is_pokemon() && d.stage == Stage::Stage2 as u8;
+                    if stage2 && (!matching_stage2(g, base, *c) || crate::spec::passive::play_locked(g, p, *c, LockedAction::Evolve).is_some()) {
                         opts.blocked.push(i as u8);
                     }
                 }
@@ -1456,6 +1457,14 @@ pub fn matching_stage2(g: &Game, basic: CardId, stage2: CardId) -> bool {
     crate::gen::stage1::ALL_STAGE1.iter().any(|(n, from)| *n == s2 && *from == b)
 }
 
+/// The Stage 2 cards in the hand that Rare Candy may put into play: a lock on evolving with a card from the hand
+/// (Team Rocket's Arbok, Palafin ex) covers Rare Candy too (id1133).
+pub fn stage2_evolvable(g: &mut Game, p: usize) -> Vec<CardId> {
+    let mut v = stage2_in_hand(g, p);
+    v.retain(|c| crate::spec::passive::play_locked(g, p, *c, LockedAction::Evolve).is_none());
+    v
+}
+
 pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
     g.st.players[p].hand.iter().filter(|c| {
         let d = g.st.cdef(*c);
@@ -1597,7 +1606,7 @@ pub fn rare_candy_usable(g: &mut Game, p: usize) -> R<bool> {
     if g.st.turn == 1 || g.st.turn == 2 {
         return Ok(false);
     }
-    let stage2 = stage2_in_hand(g, p);
+    let stage2 = stage2_evolvable(g, p);
     // Evolution Jammer (Bronzong TEF): the player can't evolve.
     if stage2.is_empty() || g.st.players[p].cannot_evolve_pokemon_cards {
         return Ok(false);
