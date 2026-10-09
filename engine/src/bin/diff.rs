@@ -421,6 +421,11 @@ fn replay_obs(trace: &Value, dump: Option<&Path>, name: &str) -> Outcome {
                     return Outcome::Diverged { step: steps.len() as isize, what: "obs".into(), detail: "rust continues after the oracle game ended".into() };
                 };
                 next_turn += 1;
+                // `PTCG_DUMP_TURNS=1` with `--dump DIR`: the observable state at every turn decision (to compare two
+                // builds' replays of a game step by step and find what a rules change did).
+                if std::env::var("PTCG_DUMP_TURNS").map_or(false, |v| v == "1") {
+                    dump_state(&g, ti as isize);
+                }
                 ptcg::expect::on_turn_decision(&g);
                 if !scenario_done && g.st.turn >= ptcg::scenario::scenario_turn(scenario) {
                     scenario_done = true;

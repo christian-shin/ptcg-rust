@@ -33,6 +33,16 @@ pub struct PowerRef {
     pub index: u8,
 }
 
+/// One pair of a MoveCounters event: HP of damage counters `removed` from the Pokémon in `from`, `placed` on the one in
+/// `to` (0 when the destination is protected: they vanish).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct CounterMove {
+    pub from: SlotRef,
+    pub to: SlotRef,
+    pub removed: i32,
+    pub placed: i32,
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct EnergyEntry {
     pub card: CardId,
@@ -159,7 +169,9 @@ pub enum Effect {
     /// The PlaceCounters event (events batch 6; `engine::damage::place`): `amount` HP of damage counters are put on the
     /// Pokémon in `target` (APR C-07), whatever causes it. `p` is the Pokémon's owner.
     PlaceCounters { p: u8, target: SlotRef, amount: i32, cause: Cause },
-    MoveDamageCounters { p: u8 },
+    /// The MoveCounters event (events batch 6; `engine::damage::move_counters`): one action moving damage counters between
+    /// Pokémon, its pairs as they happened. `p` is the player whose effect moves them.
+    MoveCounters { p: u8, moves: crate::list::SVec<CounterMove, 16>, cause: Cause },
     /// The ChangeActive event (events batch 5; `engine::change_active`): player `p`'s Active Pokémon changes: the
     /// Pokémon in the Active Spot `from` (none for a promotion) goes to the Bench and the Benched Pokémon in `to`
     /// becomes the Active Pokémon, as `change` says (retreat, switch, switch-in, switch-out, promotion).
@@ -243,11 +255,6 @@ pub enum Effect {
     /// `RetaliateOnDamageDuringOpponentsNextTurnEffect` (target = attacker,
     /// `{ damage }` options): `player.active.retaliateOnDamageNextTurnPending`.
     RetaliateOnDamage { b: AtkBase, damage: i32, source_card: CardId },
-    /// `MoveCountersAttackEffect`: moves `damage` of damage counters from
-    /// `b.source` (the counters' source slot, which the TS constructor
-    /// assigns over the attacker's) to `b.target`. Reducer-less: the card
-    /// applies the counters after reducing it.
-    MoveCounters { b: AtkBase, damage: i32 },
     /// `DevolveEffect`: the probe that asks whether devolving `b.target` as an effect of an attack (Espeon ex's
     /// Amethyst) is prevented (Mist Energy and the like). Reducer-less; the Devolve event follows when it isn't.
     DevolveProbe { b: AtkBase },
@@ -343,7 +350,6 @@ impl Effect {
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             AddMarker { .. } => "ADD_MARKER_EFFECT",
             PlayLock { .. } => "PLAY_LOCK_EFFECT",
-            MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
             PreventAttackUntilLeavesActive { .. } => "EFFECT_OF_ATTACK_EFFECT",
@@ -359,7 +365,7 @@ impl Effect {
             CoinFlipCancelTrainerPlay { .. } => "COIN_FLIP_CANCEL_TRAINER_PLAY_EFFECT",
             OpponentPokemonCannotAttackNextTurn { .. } => "OPPONENT_POKEMON_CANNOT_ATTACK_DURING_THEIR_NEXT_TURN_EFFECT",
             RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
-            MoveCounters { .. } => "MOVE_COUNTERS_EFFECT",
+            MoveCounters { .. } => "MOVE_COUNTERS_EVENT",
             DevolveProbe { .. } => "DEVOLVE_EFFECT",
             Devolve { .. } => "DEVOLVE_EVENT",
             Swap { .. } => "SWAP_EVENT",
@@ -406,7 +412,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
+            RetaliateOnDamage { b, .. } | DevolveProbe { b } => Some(b),
             _ => None,
         }
     }
@@ -434,7 +440,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
+            RetaliateOnDamage { b, .. } | DevolveProbe { b } => Some(b),
             _ => None,
         }
     }
@@ -511,7 +517,6 @@ impl Effect {
             DiscardToHand { .. } => 63,
             CoinFlipSequence { .. } => 66,
             PlayLock { .. } => 67,
-            MoveDamageCounters { .. } => 68,
             PreventRetreat { .. } => 69,
             ReduceDamage { .. } => 110,
             PreventDamageFiltered { .. } => 84,
@@ -521,7 +526,7 @@ impl Effect {
             PreventEffectsOfAttacks { .. } => 77,
             ThisPokemonHasNoWeakness { .. } => 148,
             RetaliateOnDamage { .. } => 172,
-            MoveCounters { .. } => 244,
+            MoveCounters { .. } => 117,
             DevolveProbe { .. } => 247,
             Devolve { .. } => 248,
             Swap { .. } => 249,
@@ -613,14 +618,12 @@ pub mod k {
     pub const DISCARD_TO_HAND: u32 = 63;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
     pub const PLAY_LOCK: u32 = 67;
-    pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
     pub const PREVENT_RETREAT: u32 = 69;
     pub const REDUCE_DAMAGE: u32 = 110;
     pub const SELF_PREVENT_RETREAT: u32 = 105;
     pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
     pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
     pub const RETALIATE_ON_DAMAGE: u32 = 172;
-    pub const MOVE_COUNTERS: u32 = 244;
     pub const DEVOLVE_PROBE: u32 = 247;
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
@@ -751,6 +754,7 @@ impl Effect {
             | Evolve { cause, .. }
             | EffectOfAbility { cause, .. }
             | PlaceCounters { cause, .. }
+            | MoveCounters { cause, .. }
             | GainCondition { cause, .. }
             | RemoveCondition { cause, .. }
             | CoinFlip { cause, .. }

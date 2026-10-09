@@ -472,6 +472,7 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::COIN_FLIP,
     crate::effects::k::CHANGE_ACTIVE,
     crate::effects::k::PLACE_COUNTERS,
+    crate::effects::k::MOVE_COUNTERS_EVENT,
 ]);
 /// Every event kind with an effect except Damage: what a `Prevent` naming no `Kind` ranges over ("prevent all effects
 /// of attacks"): damage is not an effect (APR C-17 "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398).

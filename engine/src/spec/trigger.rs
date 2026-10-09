@@ -240,6 +240,9 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::Heal { target, damage, cause, .. } => crate::engine::condition::heal_view(g, target, damage, cause),
         Effect::CoinFlip { p, purpose, heads, cause } => crate::engine::condition::coin_view(g, p as usize, purpose, heads, cause),
         Effect::ChangeActive { p, from, to, change, cause } => crate::engine::change_active::effect_view(g, p, from, to, change, cause),
+        Effect::PlaceCounters { target, amount, cause, .. } => crate::engine::damage::counters_view(g, target, amount, cause),
+        // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.
+        Effect::MoveCounters { p, cause, .. } => EventView::new(EventKind::MoveCounters, cause, p, turn),
         _ => return None,
     })
 }

@@ -1221,7 +1221,7 @@ impl Game {
         if kind == k::CHANGE_ACTIVE {
             crate::engine::change_active::reducer(self, id)?;
         }
-        if kind == k::PLACE_COUNTERS {
+        if matches!(kind, k::PLACE_COUNTERS | k::MOVE_COUNTERS_EVENT) {
             crate::engine::damage::reducer(self, id)?;
         }
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {

@@ -275,8 +275,6 @@ impl PreventDamageSpec {
 pub enum PreventWhat {
     /// None of these: the declaration is over events (`PreventSpec::from`).
     None,
-    /// Damage counters can't be moved (to other Pokémon).
-    CounterMoves,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
     // --- S3 agent 3 appends ---
@@ -819,7 +817,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         }
         Modifier::Prevent(p) => prevent_kinds(p).or(match p.what {
             PreventWhat::None => KindMask::EMPTY,
-            PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
             PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
             PreventWhat::ToolEffects => mask(&[k::TOOL]),
@@ -1599,11 +1596,6 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
     }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     match (p.what, *g.e(e)) {
-        (PreventWhat::CounterMoves, Effect::MoveDamageCounters { .. } | Effect::MoveCounters { .. }) => {
-            if !blocked(g, me, origin, at, None) {
-                g.set_prevent(e, true);
-            }
-        }
         (PreventWhat::MoveToHandFromOppPlay, Effect::MoveCards { source, destination, .. }) => {
             let ListRef::Slot(sq, ss) = source else { return Ok(()) };
             let (sq, opp) = (sq as usize, 1 - at.owner);
@@ -1706,7 +1698,7 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
 /// the attack-effect probes, `AtkBase` effects standing for an event the engine doesn't produce as one yet, and the event
 /// each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
 /// ones in `Game::reduce_effect`) with the event's view: one declaration, two readers, until the events exist.
-pub const B6OLD_PROBES: [(u32, super::event::EventKind); 26] = {
+pub const B6OLD_PROBES: [(u32, super::event::EventKind); 25] = {
     use super::event::EventKind as E;
     use crate::effects::k;
     [
@@ -1716,7 +1708,6 @@ pub const B6OLD_PROBES: [(u32, super::event::EventKind); 26] = {
         (k::DEVOLVE_PROBE, E::Devolve),
         (k::KNOCK_OUT_OPPONENT, E::KnockOut),
         (k::KNOCK_OUT_PLAYER, E::KnockOut),
-        (k::MOVE_COUNTERS, E::MoveCounters),
         (k::DEAL_DAMAGE, E::Damage),
         (k::PUT_DAMAGE, E::Damage),
         (k::APPLY_WEAKNESS, E::Damage),
@@ -1788,7 +1779,6 @@ pub(crate) fn probe_view(g: &Game, id: EffId) -> Option<super::event::EventView>
     let b = *e.atk_base()?;
     let t = b.target;
     let end = match ek {
-        E::MoveCounters => Some(MoveEnd::To),
         E::MoveEnergy => Some(MoveEnd::From),
         _ => None,
     };

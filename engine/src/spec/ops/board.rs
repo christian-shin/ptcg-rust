@@ -1085,22 +1085,26 @@ fn move_any_resume(g: &mut Game, f: &Frame, _who: Who, first: Res) -> R {
     if attack_data(g, f.eff).is_none() {
         return Ok(());
     }
+    // One action: every counter the player moves, one at a time in the order given (the MoveCounters event).
+    let mut pairs: Vec<(SlotRef, SlotRef, i32)> = Vec::new();
     for (from, to) in damage_transfers(transfers.as_slice()) {
-        let source = get_target(&g.st, p, from)?;
-        let target = get_target(&g.st, p, to)?;
-        if g.st.slot(source.p as usize, source.s).damage >= 10 {
-            // B6-OLD -> C3: the MoveCounters event's preventions per end (a protected source keeps its counter; a
-            // protected destination makes it vanish: id390, id2257).
-            let from_v = crate::engine::damage::move_view(g, source, crate::spec::event::MoveEnd::From, 10, f.cause);
-            if crate::derived::event_prevented(g, &from_v)? {
-                continue;
-            }
-            g.st.players[source.p as usize].slots[source.s as usize].damage -= 10;
-            let to_v = crate::engine::damage::move_view(g, target, crate::spec::event::MoveEnd::To, 10, f.cause);
-            if !crate::derived::event_prevented(g, &to_v)? {
-                g.st.players[target.p as usize].slots[target.s as usize].damage += 10;
-            }
+        pairs.push((get_target(&g.st, p, from)?, get_target(&g.st, p, to)?, 10));
+    }
+    move_in_batches(g, &pairs, f.cause)
+}
+
+/// Move the counters of `pairs` as one action (`engine::damage::move_counters`): consecutive moves between the same two
+/// Pokémon are one pair (the counters move one at a time either way); an event holds up to 16 pairs.
+fn move_in_batches(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: crate::cause::Cause) -> R {
+    let mut merged: Vec<(SlotRef, SlotRef, i32)> = Vec::new();
+    for &(a, b, hp) in pairs {
+        match merged.last_mut() {
+            Some(l) if l.0 == a && l.1 == b => l.2 += hp,
+            _ => merged.push((a, b, hp)),
         }
+    }
+    for chunk in merged.chunks(16) {
+        crate::engine::damage::move_counters(g, chunk, cause)?;
     }
     Ok(())
 }
@@ -1152,29 +1156,13 @@ fn move_all_resume(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveCountersSpec
     Ok(Flow::Next)
 }
 
+/// All the counters on `src` move to `tgt` (one MoveCounters event).
 fn move_all_act(g: &mut Game, f: &Frame, src: SlotRef, tgt: SlotRef) -> R {
-    let p = f.p as usize;
     let move_damage = g.st.slot(src.p as usize, src.s).damage;
-    if move_damage <= 0 {
+    if move_damage <= 0 || attack_data(g, f.eff).is_none() {
         return Ok(());
     }
-    let (_, prevented) = g.run_fx(Effect::MoveDamageCounters { p: p as u8 })?;
-    if prevented {
-        return Ok(());
-    }
-    let Some((_, opp, attack, _)) = attack_data(g, f.eff) else { return Ok(()) };
-    let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: src, target: tgt, cause: f.cause };
-    let (fin, prevented) = g.run_fx(Effect::MoveCounters { b, damage: move_damage })?;
-    if let Effect::MoveCounters { b, damage } = fin {
-        let s = &mut g.st.players[b.source.p as usize].slots[b.source.s as usize];
-        s.damage -= damage;
-        if s.damage < 0 {
-            s.damage = 0;
-        }
-        if !prevented {
-            g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
-        }
-    }
+    crate::engine::damage::move_counters(g, &[(src, tgt, move_damage)], f.cause)?;
     Ok(())
 }
 
@@ -1244,29 +1232,19 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
 fn mine_to_opp_resume(g: &mut Game, me: CardId, f: &Frame, max: u8, first: Res) -> R {
     let p = f.p as usize;
     let Res::DamageTransfers(transfers) = first else { return Ok(()) };
+    let _ = me;
+    // One use of the Ability is one action (id67, id2152): up to `max` counters, one at a time, in the order given.
     let limit = max as i32 * 10;
+    let mut pairs: Vec<(SlotRef, SlotRef, i32)> = Vec::new();
     let mut total = 0;
     for (from, to) in damage_transfers(transfers.as_slice()) {
-        let source = get_target(&g.st, p, from)?;
-        let target = get_target(&g.st, p, to)?;
-        let src_damage = g.st.slot(source.p as usize, source.s).damage;
-        let damage_to_move = (limit - total).min(10.min(src_damage));
-        if damage_to_move > 0 {
-            let (_, prevented) = g.run_fx(Effect::MoveDamageCounters { p: p as u8 })?;
-            if prevented {
-                continue;
-            }
-            g.st.players[source.p as usize].slots[source.s as usize].damage -= damage_to_move;
-            let _ = me;
-            // B6-OLD -> C3: the counters arrive as a placement its preventions can stop (they vanish then).
-            crate::engine::damage::place(g, target, damage_to_move, f.cause)?;
-            total += damage_to_move;
-        }
         if total >= limit {
             break;
         }
+        pairs.push((get_target(&g.st, p, from)?, get_target(&g.st, p, to)?, 10.min(limit - total)));
+        total += 10;
     }
-    Ok(())
+    move_in_batches(g, &pairs, f.cause)
 }
 
 // S3 appends: spreading damage
