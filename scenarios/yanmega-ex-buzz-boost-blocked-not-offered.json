@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Switch 30C 127",
+   "4 Iron Thorns ex PRE 32",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "4 Switch 30C 127",
+   "4 Iron Thorns ex PRE 32",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": [
+     "Yanma DRI 2",
+     "Yanmega ex DRI 3"
+    ]
+   }
+  ],
+  "hand": [
+   "3 Switch 30C 127"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Switch 30C 127"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "absent": [
+    "Confirm"
+   ],
+   "cite": "Buzz Boost is an Ability: Iron Thorns ex's Initialization stops the Abilities of Rule Box Pokemon, so a blocked Buzz Boost is not offered (no 'you may' is asked)"
+  }
+ ]
+}

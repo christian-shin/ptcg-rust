@@ -27,8 +27,9 @@ pub static SPEC: CardSpec = CardSpec {
             event: Event::OnMoved(OnMovedSpec { to: MovedTo::Active }),
             steps: &[Step::new(Op::May(MaySpec {
                 asker: Who::Me,
-                // Not asked again once the marker is set.
-                when: Cond::Not(&Cond::HasMarker { who: Who::Me, name: "BUZZ_BOOST_MARKER", from: MarkerFrom::This }),
+                // Not asked again once the marker is set, and not offered while the Ability is blocked
+                // (B-PC-17: a blocked Ability can't be used, so nothing is asked or marked).
+                when: Cond::All(&[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "BUZZ_BOOST_MARKER", from: MarkerFrom::This }), Cond::Not(&Cond::AbilityBlocked)]),
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[Step::new(Op::If(IfSpec {
                     cond: Cond::Not(&Cond::AbilityBlocked),
