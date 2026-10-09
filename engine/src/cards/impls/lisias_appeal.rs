@@ -1,14 +1,8 @@
 //! Lisia's Appeal (SSP, supporter): switch in 1 of your opponent's Benched
-//! Basic Pokémon to the Active Spot; the new Active Pokémon is now Confused.
+//! Basic Pokémon to the Active Spot. If you do, the new Active Pokémon is now Confused.
 //!
-//! Fixed (phase 4b #44): `reduceEffect` checks the supporter turn
-//! (SUPPORTER_ALREADY_PLAYED) and fails (CANNOT_PLAY_THIS_CARD) unless the
-//! opponent has a Benched Basic Pokémon (a Bench of only evolutions used to
-//! leave a prompt with no valid answer).
-//! SWITCH_IN_OPPONENT_BENCHED_POKEMON with the
-//! non-Basic Bench spots blocked (no cancel); `opponent.switchPokemon` with
-//! `store, state`; then, unless a TrainerTargetEffect on the new Active is
-//! blocked, Confused is added directly (`addSpecialCondition`).
+//! Not playable unless the opponent has a Benched Basic Pokémon (phase 4b #44). The Confusion is a GainCondition
+//! (Slowpoke's Dopey Face prevents it).
 //!
 //! Rule: "If you do, the new Active Pokémon is now Confused": a switch-in (ChangeActive) that doesn't happen leaves
 //! no new Active Pokémon (`Cond::Done`). Used as the effect of an attack (Look-Alike Show), the switch-in is an

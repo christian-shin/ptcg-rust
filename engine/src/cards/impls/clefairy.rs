@@ -1,12 +1,9 @@
 //! Clefairy (M3 / POR 30): Follow Me — switch in 1 of your opponent's
 //! Benched Pokémon. Flop — 30.
 //!
-//! Twinleaf: AFTER_ATTACK; with no Benched opponent Pokémon the attack is still
-//! usable and does nothing (phase 4b R7E, ruling 1790: it used to throw
-//! CANNOT_USE_ATTACK); GUST_OPPONENT_BENCHED_POKEMON(player, { sourceEffect }) prompts the
-//! attacker (no cancel) and then reduces a GustOpponentBenchEffect built on a
-//! fresh AttackEffect (preventable, e.g. Mist Energy), whose reducer does the
-//! switch.
+//! With no Benched opponent Pokémon the attack is still usable and does nothing (ruling 1790). Rule: the switch-in is
+//! a ChangeActive (SwitchIn) done to the Benched Pokémon chosen (APR C-05, id2155): a Pokémon protected from the
+//! effects of attacks (Mist Energy, Unaware, Hide 'n' Sneak, ...) can be chosen, but it isn't switched in.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

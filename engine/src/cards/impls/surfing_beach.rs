@@ -5,8 +5,7 @@
 //! Twinleaf quirks kept: the `blocked` list gets the Active and every Bench
 //! slot that is not [W] (the `else` binds to the second `if`); the card
 //! throws CANNOT_USE_STADIUM without an Active and a Benched [W] Pokémon or
-//! when stadium effects on the Active are blocked; the callback re-checks the
-//! chosen slot, then switches silently (`player.switchPokemon(target)`).
+//! when stadium effects on the Active are blocked. The switch is a ChangeActive (Switch, APR C-03).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

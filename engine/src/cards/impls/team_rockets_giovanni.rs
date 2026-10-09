@@ -2,15 +2,10 @@
 //! with 1 of your Benched Team Rocket's Pokémon. If you do, switch in 1 of
 //! your opponent's Benched Pokémon to the Active Spot.
 //!
-//! Twinleaf: the card goes to the supporter pile (and `rocketSupporter` is
-//! set) before the Active / Bench checks throw. Each switch clears the old
-//! Active's effects first.
-//!
-//! Fixed in phase 4b (R4): playable when the opponent has no Benched Pokémon
-//! (only your own switch happens; the opponent's is the "if you do" part and is
-//! skipped), and both switches dispatch MovedToActive / MovedFromActiveToBench
-//! (they were silent: Yanmega ex Buzz Boost, Palafin Zero to Hero and the
-//! ability-lock activation order never saw them).
+//! Playable when the opponent has no Benched Pokémon (only your own switch happens). Rule: each switch is a
+//! ChangeActive (your own: Switch, APR C-03; the opponent's: SwitchIn, C-05), and "if you do" is `Cond::Done`. Used
+//! as the effect of an attack (Look-Alike Show), the switch-in is the attack's effect, which Mist Energy and the like
+//! on the chosen Pokémon prevent (id2025).
 //!
 //! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
 use crate::spec::prelude::*;

@@ -1,10 +1,8 @@
 //! Repel (SUM / MEG): your opponent switches their Active Pokémon with 1 of
 //! their Benched Pokémon.
 //!
-//! Twinleaf: throws CANNOT_PLAY_THIS_CARD without an opposing Bench, then
-//! SWITCH_OUT_OPPONENT_ACTIVE_POKEMON (no sourceEffect, no cancel): the
-//! *opponent* answers a ChoosePokemonPrompt over their own Bench and
-//! `opponent.switchPokemon(selected[0], store, state)` runs in the callback.
+//! Not playable without an opposing Bench. Rule: a ChangeActive (SwitchOut, APR C-04 specific case: Repel); the
+//! opponent chooses among their own Benched Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

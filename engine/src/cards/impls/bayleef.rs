@@ -1,11 +1,9 @@
-//! Bayleef (M1S): Push Down — 50. Switch out your opponent's Active Pokémon
+//! Bayleef (MEG 9): Push Down — 50. Switch out your opponent's Active Pokémon
 //! to the Bench (your opponent chooses the new Active Pokémon).
 //!
-//! AFTER_ATTACK → SWITCH_OUT_OPPONENT_ACTIVE_POKEMON(player, { sourceEffect }):
-//! a SwitchOutOpponentsActiveEffect probe (preventable, e.g. Mist Energy)
-//! before the opponent's ChoosePokemonPrompt, then another one carrying the
-//! chosen bench target, whose reducer does the switch. Each effect is built
-//! on a fresh AttackEffect (source = the player's Active at that time).
+//! Rule: the switch-out is a ChangeActive (SwitchOut) done to the opponent's Active Pokémon (APR C-04, id2025): when
+//! an attack-effect protection on that Pokémon (Mist Energy, Unaware, ...) prevents it, the opponent isn't asked to
+//! choose and nothing changes; a protected Benched Pokémon can still be brought in.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

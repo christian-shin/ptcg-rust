@@ -2,13 +2,8 @@
 //! Benched Pokémon. Then, you may move as many Energy attached to the old
 //! Active Pokémon to the new Active Pokémon as you like.
 //!
-//! Twinleaf: throws without a Benched Pokémon; the card moves to the
-//! Supporter area (not the discard pile) and the play is prevented; a
-//! ChoosePokemonPrompt over the Bench (fixed in phase 4b, R3: it can't be
-//! cancelled; cancelling used to burn the card with no switch). When the
-//! Active has Energy, a ChooseCardsPrompt over the Active's cards (Energy,
-//! 0..all, no cancel) moves the chosen Energy to the chosen Benched Pokémon;
-//! then the silent `switchPokemon(target)` runs.
+//! Not playable without a Benched Pokémon; the choice can't be cancelled (phase 4b, R3). The Energy chosen moves
+//! to the chosen Benched Pokémon first (MoveEnergy), then the switch (a ChangeActive, APR C-03).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

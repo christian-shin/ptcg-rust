@@ -5,10 +5,8 @@
 //! Without a Benched Pokémon the switch option is removed from the
 //! SelectPrompt. Fixed in phase 4b (R4): the +30 only applies to damage dealt
 //! to the opponent's Active Pokémon (Twinleaf added it to bench hits and to
-//! self-damage whenever the opponent's Active was ex/V); the switch
-//! dispatches MovedToActive / MovedFromActiveToBench (it was a silent board
-//! change: Yanmega ex Buzz Boost, Palafin Zero to Hero and the ability-lock
-//! activation order never saw it).
+//! self-damage whenever the opponent's Active was ex/V). The switch is a ChangeActive (Switch, APR C-03), which
+//! "when this Pokémon moves" Abilities see (Yanmega ex, Palafin).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

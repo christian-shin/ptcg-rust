@@ -1,10 +1,11 @@
-//! Hariyama (M1L): Sumo Catcher — when you play this card from your hand to
-//! evolve, you may switch 1 of your opponent's Benched Pokémon with their
-//! Active Pokémon. Wild Press — 210; this Pokémon does 70 damage to itself.
+//! Hariyama (MEG 73): Heave-Ho Catcher — once during your turn, when you play
+//! this Pokémon from your hand to evolve 1 of your Pokémon, you may switch in 1
+//! of your opponent's Benched Pokémon to the Active Spot. Wild Press — 210;
+//! this Pokémon also does 70 damage to itself.
 //!
-//! Twinleaf: fires on any EvolveEffect for this card (Rare Candy included);
-//! the switch goes through an EffectOfAbilityEffect and happens only if its
-//! target survives.
+//! Rule: the switch-in is a ChangeActive (SwitchIn) by the Ability, done to the Benched Pokémon chosen. A Benched
+//! Pokémon with Hide 'n' Sneak can be chosen but isn't switched in; Hide 'n' Sneak on the Active Pokémon doesn't stop
+//! it (official JP Q&A, Hariyama MEG 73). Evolving from the hand includes Rare Candy (id285, id1998).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Hariyama",
