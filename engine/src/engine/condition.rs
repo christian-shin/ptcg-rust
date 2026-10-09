@@ -133,7 +133,8 @@ pub fn recover_all(g: &mut Game, target: SlotRef, cause: Cause, keep: &[u8]) -> 
     Ok(())
 }
 
-/// RemoveCounters (healing): `amount` HP of damage counters come off the Pokémon in `target`. It doesn't happen
+/// RemoveCounters (healing): `amount` HP of damage counters come off the Pokémon in `target` (at most its damage:
+/// the event reports what is removed, not what the text asked for). It doesn't happen
 /// when there is nothing to heal (no Pokémon, no damage, no amount), when a lasting effect says the Pokémon can't
 /// be healed (`Slot::cannot_be_healed_next_turn`), or when the event is refused.
 pub fn heal(g: &mut Game, target: SlotRef, amount: i32, cause: Cause) -> R<bool> {
@@ -144,6 +145,8 @@ pub fn heal(g: &mut Game, target: SlotRef, amount: i32, cause: Cause) -> R<bool>
     if amount <= 0 || slot.damage <= 0 || slot.cannot_be_healed_next_turn {
         return Ok(false);
     }
+    // The event is the counters actually removed: "heal 60" on a Pokémon with 30 damage removes 30.
+    let amount = amount.min(slot.damage);
     let v = heal_view(g, target, amount, cause);
     if refused(g, &v)?.is_some() {
         return Ok(false);
