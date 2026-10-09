@@ -96,7 +96,7 @@ jobs:
         env:
           PTCG_VERIFY_LEGAL: "1"
         run: |
-          python3 tools/fuzz.py --games 4000 --seed "${{ needs.build.outputs.seed }}" --start 900000 --out legal-out --full
+          python3 tools/fuzz.py --games 20000 --seed "${{ needs.build.outputs.seed }}" --start 900000 --out legal-out --full
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
