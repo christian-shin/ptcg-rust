@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Froakie TWM 56",
+   "4 Hop's Snorlax JTG 117",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "2 Froakie TWM 56",
+   "4 Hop's Snorlax JTG 117",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Froakie TWM 56",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "deck_left": 0
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flock"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "absent": [
+    "ShuffleDeck"
+   ],
+   "cite": "ruling 840 (a deck can't be searched when empty) and rulings 361/362 (the attack still happens, the search and its shuffle are skipped)"
+  }
+ ]
+}
