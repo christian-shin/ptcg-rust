@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke PBL 29",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Slowpoke PBL 29",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slowpoke PBL 29",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "hand": [
+   "Hop's Snorlax JTG 117",
+   "Hop's Snorlax JTG 117",
+   "Hop's Snorlax JTG 117"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "All-You-Can-Yeet"
+  },
+  [
+   0,
+   1
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "cite": "All-You-Can-Yeet text: you may discard any number of cards from your hand (two chosen)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "All-You-Can-Yeet text: the card not chosen stays in the hand"
+  }
+ ]
+}
