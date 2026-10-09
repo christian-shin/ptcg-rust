@@ -770,7 +770,7 @@ impl Game {
         // Safety cap: a card duplicating itself in a loop would get here (the Dangle Tail aliasing that
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
-        crate::expect::on_prompt(self, &kind);
+        crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
         self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
         let mut ids = SVec::new();
         ids.push(id);

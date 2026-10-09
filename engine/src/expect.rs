@@ -511,9 +511,15 @@ thread_local! {
 }
 
 /// Hook in `Game::prompt`: record the kind name of every prompt of the replayed game (`prompts` assertions).
-pub fn on_prompt(g: &Game, kind: &crate::prompts::PromptKind) {
+///
+/// A coin flip's own prompt is a `Wait`; it is logged as `Coin` first, so a `prompts` list can place the
+/// flip relative to other prompts.
+pub fn on_prompt(g: &Game, kind: &crate::prompts::PromptKind, coin: bool) {
     if ARMED.with(|a| a.get()) != g as *const Game as usize {
         return;
+    }
+    if coin {
+        PROMPT_LOG.with(|l| l.borrow_mut().push("Coin".to_string()));
     }
     let name: String = format!("{:?}", kind).chars().take_while(|c| c.is_alphanumeric()).collect();
     PROMPT_LOG.with(|l| l.borrow_mut().push(name));
