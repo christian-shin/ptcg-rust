@@ -36,42 +36,46 @@ pub enum SlotTarget {
     Pick(PickSlotSpec),
 }
 
-/// How a switch is carried out.
+/// Which Benched Pokémon a switch can bring to the Active Spot.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum SwitchKind {
-    /// `Player.switchPokemon(target, store, state)`: movement effects fire.
-    Plain,
-    /// Wave 2 (A-PC4): the movement effects fire like `Plain`; kept for the cards that clear the
-    /// Pokémon's effects first.
-    Silent,
-    /// `Plain`, with only the side's Benched Basic Pokémon to choose from (S3).
-    PlainBasic,
-    /// An effect of this card's Ability (EffectOfAbility probe, power 0), then `Silent` if the target
-    /// survives it (Sumo Catcher).
-    SilentAbilityEffect,
-    /// Gust: a GustOpponentBenchEffect (preventable by attack effect protection).
-    Gust,
-    /// Switch out the opponent's Active: a SwitchOutOpponentsActiveEffect probe
-    /// before the new Active is chosen, and again with it.
-    SwitchOut,
-    // --- S3 agent 3 appends ---
-    /// The Pokémon chosen by `PickSlot` (a Benched Pokémon of `side`) becomes Active, silently,
-    /// without asking.
+pub enum SwitchAmong {
+    /// Any of the side's Benched Pokémon (chosen when the switch happens, or at step D in an attack).
+    Bench,
+    /// The side's Benched Basic Pokémon ("1 of your opponent's Benched Basic Pokémon": Lisia's Appeal).
+    BenchBasic,
+    /// The Pokémon chosen by the program's last `PickSlot` (no question).
     Picked,
-    /// With the Pokémon in the slot register (no question): `Plain` movement effects.
-    PickedPlain,
 }
 
-/// "Switch": the Pokémon in the Active Spot of `side` changes places with a
-/// Benched Pokémon chosen by `chooser`.
+/// A switch of the Active Pokémon, as the text says it (the ChangeActive event, `engine::change_active`):
+/// `change` is `Switch` ("switch your Active Pokémon with 1 of your Benched Pokémon": you choose, APR C-03),
+/// `SwitchIn` ("switch in 1 of your opponent's Benched Pokémon to the Active Spot": you choose, C-05) or `SwitchOut`
+/// ("switch out your opponent's Active Pokémon to the Bench; your opponent chooses the new Active Pokémon", C-04).
+/// Whose Pokémon and who chooses follow from it. The text's "if you do" is `Cond::Done`.
 pub struct SwitchSpec {
-    pub side: Who,
-    pub chooser: Who,
-    pub kind: SwitchKind,
+    pub change: crate::spec::event::ActiveChange,
+    pub among: SwitchAmong,
     pub msg: &'static str,
     /// A Trainer or Ability can't be used without a Benched Pokémon to switch
     /// with (otherwise the switch is simply skipped).
     pub required: bool,
+}
+
+impl SwitchSpec {
+    /// Whose Active Pokémon changes.
+    pub const fn side(&self) -> Who {
+        match self.change {
+            crate::spec::event::ActiveChange::SwitchIn | crate::spec::event::ActiveChange::SwitchOut => Who::Opp,
+            _ => Who::Me,
+        }
+    }
+    /// Who chooses the Benched Pokémon: the side's player for a switch-out (C-04), else the program's player.
+    pub const fn chooser(&self) -> Who {
+        match self.change {
+            crate::spec::event::ActiveChange::SwitchOut => Who::Opp,
+            _ => Who::Me,
+        }
+    }
 }
 
 /// Heal: the RemoveCounters event (`engine::condition::heal`), whatever causes it (the frame's `Cause`).
@@ -601,10 +605,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(if spread_damage_prompt(g, me, f, s)? { Flow::Suspend } else { Flow::Next })
         }
         Op::SwitchWithActive(w) => {
+            // "Switch it with your Active Pokémon" (Iron Leaves ex's Rapid Vernier): the player's own switch.
+            f.done = false;
             if let Some(s) = slot_of(g, me, f, w.target) {
                 let p = s.p as usize;
                 if g.st.players[p].bench_index_of(s.s).is_some() {
-                    crate::engine::turn::switch_pokemon(g, p, s.s, f.cause)?;
+                    let c = crate::engine::change_active::ChangeActiveView::of(g, p, Some(s.s), crate::spec::event::ActiveChange::Switch, f.cause);
+                    f.done = crate::engine::change_active::change_active(g, c)?;
                 }
             }
             Ok(Flow::Next)
@@ -644,8 +651,9 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             Ok(Flow::Next)
         }
         Op::Switch(s) => {
+            f.done = false;
             if let Some(slot) = first.slots().first().copied() {
-                switch_act(g, me, f, s, slot)?;
+                switch_act(g, f, s, slot)?;
             }
             Ok(Flow::Next)
         }
@@ -736,7 +744,7 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
         }
         Op::Switch(s) => {
             let cands = slots_of(g, me, f, &switch_among(s));
-            if cands.is_empty() || switch_prevented(g, f, s)? {
+            if cands.is_empty() || switch_out_refused(g, f, s)? {
                 f.record(g, me, CHOICE_NONE);
                 return Ok(Flow::Next);
             }
@@ -974,54 +982,41 @@ fn inflict_on(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialC
 
 /// The Pokémon a switch can bring to the Active Spot.
 fn switch_among(s: &SwitchSpec) -> SlotSel {
-    match (s.kind, s.side) {
+    match s.among {
         // Blocked: a Pokémon that is not Basic (a slot without a Pokémon card, a Fossil, is not).
-        (SwitchKind::PlainBasic, Who::Me) => SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Basic),
-        (SwitchKind::PlainBasic, Who::Opp) => SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Basic),
-        _ => SlotSel::Bench(s.side),
+        SwitchAmong::BenchBasic => match s.side() {
+            Who::Me => SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Basic),
+            Who::Opp => SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Basic),
+        },
+        _ => SlotSel::Bench(s.side()),
     }
 }
 
 fn switch_pick(s: &SwitchSpec) -> PickSlotSpec {
-    PickSlotSpec { chooser: s.chooser, among: switch_among(s), msg: s.msg }
+    PickSlotSpec { chooser: s.chooser(), among: switch_among(s), msg: s.msg }
 }
 
-/// A fresh attack effect for the attack in use (Gust and switch-out effects
-/// are built on a new AttackEffect).
-fn fresh_attack(g: &mut Game, f: &Frame) -> Option<(crate::effects::EffId, AtkBase)> {
-    let (_, p, opp, attack, _) = frame_attack(g, f)?;
-    let source = SlotRef::new(p as usize, g.st.players[p as usize].active);
-    let atk = g.new_fx(Effect::Attack {
-        p,
-        opp,
-        attack,
-        damage: 0,
-        ignore_weakness: false,
-        ignore_resistance: false,
-        ignore_defender_effects: false,
-        source,
-        barrage_used: false,
-    });
-    let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-    Some((atk, AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target, cause: f.cause }))
+/// The ChangeActive a switch op makes, with the Benched Pokémon `to` (`None`: not chosen yet).
+fn switch_change(g: &Game, f: &Frame, s: &SwitchSpec, to: Option<crate::state::SlotId>) -> crate::engine::change_active::ChangeActiveView {
+    crate::engine::change_active::ChangeActiveView::of(g, f.who(s.side()), to, s.change, f.cause)
 }
 
-/// Is the switch-out of the opponent's Active prevented (probe)?
-fn switch_prevented(g: &mut Game, f: &Frame, s: &SwitchSpec) -> R<bool> {
-    if s.kind != SwitchKind::SwitchOut {
+/// A switch-out is done to the Active Pokémon (APR C-04, id2025): when the change itself is refused (Mist Energy on
+/// the Active Pokémon against an attack's switch-out), the opponent isn't asked to choose.
+fn switch_out_refused(g: &mut Game, f: &Frame, s: &SwitchSpec) -> R<bool> {
+    if s.change != crate::spec::event::ActiveChange::SwitchOut {
         return Ok(false);
     }
-    let Some((atk, b)) = fresh_attack(g, f) else { return Ok(false) };
-    let r = g.run_fx(Effect::SwitchOutOpponentsActive { b, bench_target: None });
-    g.release_fx(atk);
-    Ok(r?.1)
+    let c = switch_change(g, f, s, None);
+    crate::engine::change_active::refused(g, &c)
 }
 
 fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flow> {
-    if matches!(s.kind, SwitchKind::Picked | SwitchKind::PickedPlain) {
+    f.done = false;
+    if s.among == SwitchAmong::Picked {
         if let Some(slot) = slot_of(g, me, f, SlotExpr::Picked) {
             if occupied(g, slot) {
-                switch_act(g, me, f, s, slot)?;
+                switch_act(g, f, s, slot)?;
             }
         }
         return Ok(Flow::Next);
@@ -1032,75 +1027,32 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
         }
         let slot = decode(c.items[0]);
         if occupied(g, slot) {
-            switch_act(g, me, f, s, slot)?;
+            switch_act(g, f, s, slot)?;
         }
         return Ok(Flow::Next);
     }
     let cands = slots_of(g, me, f, &switch_among(s));
-    if cands.is_empty() || switch_prevented(g, f, s)? {
+    if cands.is_empty() || switch_out_refused(g, f, s)? {
         return Ok(Flow::Next);
     }
     ask(g, me, f, &switch_pick(s), cands.as_slice(), 1);
     Ok(Flow::Suspend)
 }
 
-fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
-    let side = f.who(s.side);
+/// The switch with the chosen Benched Pokémon: the ChangeActive event (`engine::change_active`), which the locks and
+/// preventions can refuse (a switch-in by an opponent's attack or Ability of a Pokémon protected from them: APR C-05,
+/// id2155, JP Q&A on Hariyama's Heave-Ho Catcher); `f.done` says whether it happened.
+fn switch_act(g: &mut Game, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
+    let side = f.who(s.side());
     // The Pokémon that leaves the Active Spot is the picked slot afterwards (for effects on it).
     f.slot = encode(SlotRef::new(side, g.st.players[side].active));
     // The switch only acts on the side's own Bench.
     if slot.p as usize != side {
         return Ok(());
     }
-    match s.kind {
-        SwitchKind::Gust | SwitchKind::SwitchOut => crate::cause::compare(g, "SwitchKind::Gust/SwitchOut", &f.cause, crate::cause::Old::Attack(None)),
-        SwitchKind::SilentAbilityEffect => crate::cause::compare(g, "SwitchKind::SilentAbilityEffect", &f.cause, crate::cause::Old::Ability(None)),
-        _ => {}
-    }
-    match s.kind {
-        // Switching in the opponent's Benched Pokémon as an effect of an attack (a Supporter used through Look-Alike
-        // Show: Boss's Orders, Lisia's Appeal, Team Rocket's Giovanni) is an effect of the attack done to that Pokémon:
-        // asked through the gust probe, which the attack-effect preventions on it read (id2025; JP FAQ, Ninetales'
-        // Supernatural Shapeshifter with Boss's Orders vs Mist Energy: it can't be switched in). B5: the ChangeActive
-        // event's prevent marker replaces the probe.
-        SwitchKind::Plain | SwitchKind::PlainBasic | SwitchKind::PickedPlain if f.cause.is_attack() && side != f.p as usize => {
-            let Some((atk, mut b)) = fresh_attack(g, f) else { return crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause) };
-            b.target = slot;
-            let r = g.run_fx(Effect::GustOpponentBench { b });
-            g.release_fx(atk);
-            r.map(|_| ())
-        }
-        SwitchKind::Plain | SwitchKind::PlainBasic | SwitchKind::PickedPlain => crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause),
-        SwitchKind::SilentAbilityEffect => {
-            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot), cause: f.cause })?;
-            if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
-                let a = g.st.players[side].active;
-                crate::engine::condition::recover_by_rule(g, SlotRef::new(side, a), f.cause, &[])?;
-                crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
-                crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)?;
-            }
-            Ok(())
-        }
-        SwitchKind::Silent | SwitchKind::Picked => {
-            let a = g.st.players[side].active;
-            crate::engine::condition::recover_by_rule(g, SlotRef::new(side, a), f.cause, &[])?;
-            crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
-            crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)
-        }
-        SwitchKind::Gust => {
-            let Some((atk, mut b)) = fresh_attack(g, f) else { return Ok(()) };
-            b.target = slot;
-            let r = g.run_fx(Effect::GustOpponentBench { b });
-            g.release_fx(atk);
-            r.map(|_| ())
-        }
-        SwitchKind::SwitchOut => {
-            let Some((atk, b)) = fresh_attack(g, f) else { return Ok(()) };
-            let r = g.run_fx(Effect::SwitchOutOpponentsActive { b, bench_target: Some(slot) });
-            g.release_fx(atk);
-            r.map(|_| ())
-        }
-    }
+    let c = switch_change(g, f, s, Some(slot.s));
+    f.done = crate::engine::change_active::change_active(g, c)?;
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -1292,7 +1244,7 @@ pub const fn self_damage(hp: i32) -> Op {
 
 /// "Switch this Pokémon with 1 of your Benched Pokémon."
 pub const fn switch_self() -> Op {
-    Op::Switch(SwitchSpec { side: Who::Me, chooser: Who::Me, kind: SwitchKind::Plain, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false })
+    Op::Switch(SwitchSpec { change: crate::spec::event::ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false })
 }
 
 /// Heal damage from this Pokémon.

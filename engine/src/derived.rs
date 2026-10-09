@@ -55,7 +55,7 @@ pub struct Derived {
 /// The effect kinds after which the facts may have changed (the events of the design's list as today's
 /// effects carry them): enter or leave play, attach and move attached cards (MOVE_CARDS, ENTER_PLAY, ATTACH,
 /// MOVE_ENERGY, MOVE_TOOL, ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
-/// (MOVED_TO_ACTIVE, MOVED_FROM_ACTIVE_TO_BENCH), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
+/// (CHANGE_ACTIVE), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
 /// END_TURN), the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
 /// runs after the same kinds), and the events batch 4 events a continuous effect can read: a Special Condition
 /// gained or removed (Gutsy Swing's cost reads it) and healing (remaining HP). A CoinFlip changes no fact.
@@ -71,8 +71,7 @@ pub const INVALIDATING_KINDS: KindMask = mask(&[
     k::EVOLVE,
     k::DEVOLVE,
     k::SWAP,
-    k::MOVED_TO_ACTIVE,
-    k::MOVED_FROM_ACTIVE_TO_BENCH,
+    k::CHANGE_ACTIVE,
     k::PLAY_STADIUM,
     k::BEGIN_TURN,
     k::END_TURN,
@@ -194,12 +193,32 @@ pub fn event_locked(g: &mut Game, v: &crate::spec::event::EventView) -> R<Option
     crate::spec::passive::event_locked(g, v)
 }
 
-/// Is the event prevented by a `Prevent` declaration (`passive::event_prevented`)? The events batch 4 routines
-/// (`engine::condition`) ask it after the locks.
+/// Is the event prevented by a `Prevent` declaration (`passive::event_prevented`) or by a lasting "prevent all
+/// effects of attacks done to this Pokémon" an attack left on it (`lasting_attack_effects_prevented`)? The event
+/// routines (`engine::condition`, `engine::change_active`) ask it after the locks.
 #[inline]
 pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<bool> {
     g.derived.fresh();
+    if lasting_attack_effects_prevented(g, v) {
+        return Ok(true);
+    }
     crate::spec::passive::event_prevented(g, v)
+}
+
+/// "During your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon" (Hide,
+/// Splashing Dodge, Fly: `Slot::prevent_effects_of_attacks_next_turn`, a lasting effect stored on the spot until the
+/// derived layer holds it, events batch 8): an event caused by an attack of the opponent of the Pokémon's owner, done
+/// to it, while the attacking player's Active Spot holds a Pokémon. Read for the event families whose B-OLD
+/// attack-effect probe is gone (ChangeActive, events batch 5); the others still see it through their probe
+/// (`attack::should_prevent_attack_effects`).
+fn lasting_attack_effects_prevented(g: &Game, v: &crate::spec::event::EventView) -> bool {
+    use crate::spec::event::EventKind;
+    if !v.cause.is_attack() || v.kind != EventKind::ChangeActive {
+        return false;
+    }
+    let Some(t) = v.slot else { return false };
+    let attacker = v.cause.player as usize;
+    attacker != t.p as usize && g.st.slot(t.p as usize, t.s).prevent_effects_of_attacks_next_turn && g.st.active_pokemon(attacker).is_some()
 }
 
 /// The in-play or lasting lock that forbids player `p` doing one of `actions` with `card`, if any

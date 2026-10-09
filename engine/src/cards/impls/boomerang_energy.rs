@@ -111,7 +111,8 @@ mod tests {
     fn re_attached_to_the_pokemon_it_came_from_after_it_moves() {
         let (g, me, card) = run(|g, me| {
             let bench = g.st.players[me].bench.as_slice()[0];
-            crate::engine::turn::switch_pokemon(g, me, bench, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, me as u8)).unwrap();
+            let c = crate::engine::change_active::ChangeActiveView::of(g, me, Some(bench), crate::spec::event::ActiveChange::Retreat, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, me as u8));
+            assert!(crate::engine::change_active::change_active(g, c).unwrap());
         });
         let on_bench = g.st.players[me].bench.as_slice().iter().any(|&s| g.st.slot(me, s).cards.contains(card));
         assert!(on_bench, "back on the Pokémon that is now Benched");

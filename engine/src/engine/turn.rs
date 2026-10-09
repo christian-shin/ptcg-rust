@@ -1,68 +1,12 @@
-//! `play-card-reducer.ts` and `player-turn-reducer.ts`, plus
-//! `Player.switchPokemon`.
+//! `play-card-reducer.ts` and `player-turn-reducer.ts`. Changing the Active Pokémon is the ChangeActive event
+//! (`engine::change_active`).
 
 use crate::effects::*;
-use crate::engine::game_effect::{clear_effects, remove_attack_effects};
 use crate::game::{Action, Game, R};
 use crate::list::*;
-use crate::markers::*;
 use crate::prompts::get_target;
 use crate::state::*;
 use crate::types::*;
-
-/// `Player.switchPokemon(target, store, state)`; `cause` is what made the switch (a game rule, an
-/// attack, a Trainer, an Ability).
-pub fn switch_pokemon(g: &mut Game, p: usize, target: SlotId, cause: crate::cause::Cause) -> R {
-    switch_pokemon_ex(g, p, target, cause, true)
-}
-
-/// `Player.switchPokemon(target)` called without `store, state`: the same
-/// board changes, but no MovedToActiveEffect / MovedFromActiveToBenchEffect
-/// is dispatched (so e.g. ability-lock activation orders are not touched).
-pub fn switch_pokemon_silent(g: &mut Game, p: usize, target: SlotId) -> R {
-    switch_pokemon_ex(g, p, target, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8), false)
-}
-
-/// `cause`: what made the switch; `dispatch`: whether the movement effects are dispatched. The Pokémon moving to
-/// the Bench recovers from its Special Conditions (RemoveCondition events, by the switch's cause).
-fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, cause: crate::cause::Cause, dispatch: bool) -> R {
-    let bi = match g.st.players[p].bench_index_of(target) {
-        Some(i) => i,
-        None => return Ok(()),
-    };
-    let benched_out = g.st.active_pokemon(p);
-    let leaving = g.st.players[p].active;
-    crate::engine::condition::recover_by_rule(g, SlotRef::new(p, leaving), cause, &[])?;
-    let pl = &mut g.st.players[p];
-    pl.marker.items.retain(|m| !(m.target_scope == TargetScope::Pokemon || m.name == KNOCKOUT_MARKER || m.name == CLEAR_KNOCKOUT_MARKER));
-    let old = pl.active;
-    remove_attack_effects(&mut pl.slots[old as usize]);
-    clear_effects(&mut pl.slots[old as usize]);
-    pl.active = pl.bench.as_slice()[bi];
-    pl.bench.as_mut_slice()[bi] = old;
-    touch();
-    let new_active = g.st.players[p].active;
-    if let Some(c) = g.st.slot_pokemon(p, new_active) {
-        if !g.st.players[p].moved_to_active_this_turn.contains(&c) {
-            g.st.players[p].moved_to_active_this_turn.push(c);
-        }
-        g.st.cards[c as usize].moved_to_active_this_turn = true;
-        if dispatch {
-            g.run_fx_unit(Effect::MovedToActive { p: p as u8, card: c, cause })?;
-        }
-    }
-    if let Some(c) = benched_out {
-        if !g.st.players[p].moved_from_active_to_bench_this_turn.contains(&c) {
-            g.st.players[p].moved_from_active_to_bench_this_turn.push(c);
-        }
-        if dispatch {
-            g.run_fx_unit(Effect::MovedFromActiveToBench { p: p as u8, card: c, cause })?;
-        }
-    }
-    // The Active Spot changed (a silent switch dispatches nothing): locks may take hold or let go.
-    crate::spec::passive::lock_sync(g);
-    Ok(())
-}
 
 fn find_pokemon_target(g: &Game, p: usize, t: CardTarget) -> Option<SlotRef> {
     get_target(&g.st, p, t).ok()
@@ -304,11 +248,8 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                 ignore_status_conditions: false,
                 move_retreat_cost_to: ListRef::Discard(p as u8),
             })?;
-            // The new Active Pokémon's effects are cleared too (a Twinleaf quirk kept; events batch 5 decides
-            // ChangeActive's consequences); its Special Conditions, which a Benched Pokémon doesn't have, by events.
-            let act = g.st.players[p].active;
-            crate::engine::condition::recover_all(g, SlotRef::new(p, act), crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8), &[])?;
-            clear_effects(&mut g.st.players[p].slots[act as usize]);
+            // Only the Pokémon moving to the Bench loses its effects; the new Active Pokémon keeps its own (id356, id891:
+            // ChangeActive's consequences).
         }
         Action::Attack { name, from } => {
             let pokemon = g.st.active_pokemon(p);

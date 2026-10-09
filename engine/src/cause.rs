@@ -332,9 +332,7 @@ fn verify_effect_now(g: &crate::game::Game, e: &crate::effects::Effect) {
             target
         }
         Effect::Heal { target, .. } | Effect::Evolve { target, .. } | Effect::Attach { target, .. } => Some(target),
-        Effect::MovedToActive { p, card, .. } | Effect::MovedFromActiveToBench { p, card, .. } => {
-            g.st.find_pokemon_slot(card).filter(|(q, _)| *q == p as usize).map(|(q, s)| crate::effects::SlotRef::new(q, s))
-        }
+        // ChangeActive asks the `Prevent` reader itself (events batch 5): no kind list to escape.
         _ => None,
     };
     if let Some(t) = target {

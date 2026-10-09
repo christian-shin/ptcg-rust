@@ -2,6 +2,7 @@
 //! `game/store/effect-reducers`.
 
 pub mod attach;
+pub mod change_active;
 pub mod condition;
 pub mod attack;
 pub mod check;

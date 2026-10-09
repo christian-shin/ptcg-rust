@@ -761,10 +761,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.move_cards_to(b.target.list(), cards.as_slice(), ListRef::Hand(owner));
             Ok(())
         }
-        Effect::GustOpponentBench { b } => {
-            crate::engine::turn::switch_pokemon(g, b.opponent as usize, b.target.s, b.cause)?;
-            Ok(())
-        }
         Effect::MoveOpponentEnergy { b, card, destination } => {
             // The attack's effect on the Pokémon wasn't prevented: the card moves (MoveEnergy / MoveTool).
             crate::engine::attach::move_attached(g, card, b.target, destination, b.cause)?;
@@ -887,12 +883,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let o = b.opponent as usize;
             let a = g.st.players[o].active;
             g.st.players[o].slots[a as usize].attack_damage_reduction_next_turn = reduction.max(0);
-            Ok(())
-        }
-        Effect::SwitchOutOpponentsActive { b, bench_target } => {
-            if let Some(t) = bench_target {
-                crate::engine::turn::switch_pokemon(g, b.opponent as usize, t.s, b.cause)?;
-            }
             Ok(())
         }
         Effect::OpponentPokemonCannotUseAttack { b, name } => {

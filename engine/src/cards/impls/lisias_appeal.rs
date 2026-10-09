@@ -10,9 +10,10 @@
 //! `store, state`; then, unless a TrainerTargetEffect on the new Active is
 //! blocked, Confused is added directly (`addSpecialCondition`).
 //!
-//! Rule: "the new Active Pokémon" exists only when the switch happened: the Pokémon that was Active (the picked
-//! slot after the switch) has left the Active Spot. Used as the effect of an attack (Look-Alike Show), a switch the
-//! attack-effect preventions stop leaves no new Active Pokémon, so nothing is Confused (id2025).
+//! Rule: "If you do, the new Active Pokémon is now Confused": a switch-in (ChangeActive) that doesn't happen leaves
+//! no new Active Pokémon (`Cond::Done`). Used as the effect of an attack (Look-Alike Show), the switch-in is an
+//! effect of the attack done to the Benched Pokémon chosen, which Mist Energy and the like prevent (id2025; JP Q&A:
+//! Ninetales' Supernatural Shapeshifter with Boss's Orders vs Mist Energy), so nothing is Confused.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LisiasAppeal",
@@ -20,8 +21,8 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Basic)],
         steps: &[
-            Step::new(Op::Switch(SwitchSpec { side: Who::Opp, chooser: Who::Me, kind: SwitchKind::PlainBasic, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false })),
-            Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Active(Who::Opp), change: ConditionChange::Add(&[SpecialCondition::Confused]), gate: Gate::TrainerTarget, when: Cond::Slot(SlotExpr::Picked, SlotPred::Not(&SlotPred::IsActive)) })),
+            Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::BenchBasic, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false })),
+            Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Active(Who::Opp), change: ConditionChange::Add(&[SpecialCondition::Confused]), gate: Gate::TrainerTarget, when: Cond::Done })),
         ],
     }),
     ..CardSpec::NONE

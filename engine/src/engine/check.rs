@@ -371,19 +371,12 @@ pub fn choose_active_cont(g: &mut Game, p: u8, res: Res) -> R {
         Some(i) if sel[0].p as usize == p && g.st.slot(p, active).cards.is_empty() => i,
         _ => crate::bail!("ILLEGAL_ACTION"),
     };
-    let pl = &mut g.st.players[p];
-    let new_active = pl.bench.as_slice()[bi];
-    pl.bench.as_mut_slice()[bi] = pl.active;
-    pl.active = new_active;
-    touch();
-    if let Some(c) = g.st.slot_pokemon(p, new_active) {
-        if !g.st.players[p].moved_to_active_this_turn.contains(&c) {
-            g.st.players[p].moved_to_active_this_turn.push(c);
-        }
-        g.st.cards[c as usize].moved_to_active_this_turn = true;
-        g.run_fx_unit(Effect::MovedToActive { p: p as u8, card: c, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Promotion, p as u8) })?;
+    // The promotion: the ChangeActive event (kind Promotion, by the rule), after the Knocked Out Pokémon left play and
+    // the Prizes were taken (this ordering is the Check State step's, unchanged; events batch 6 makes them events).
+    let new_active = g.st.players[p].bench.as_slice()[bi];
+    if !crate::engine::change_active::promote(g, p, new_active)? {
+        crate::bail!("ILLEGAL_ACTION");
     }
-    crate::spec::passive::lock_sync(g);
     Ok(())
 }
 

@@ -3,7 +3,8 @@
 //!
 //! Events batch 2: EnterPlay, Evolve, Devolve and Swap are built by their routines (`engine/enter.rs`); events
 //! batch 3: Attach, MoveEnergy and MoveTool by theirs (`engine/attach.rs`); events batch 4: GainCondition,
-//! RemoveCondition, RemoveCounters (healing) and CoinFlip by theirs (`engine/condition.rs`). They are read by triggers (`trigger::Event::On`), locks (`LockDecl::forbids`), permissions (`Modifier::Permit`)
+//! RemoveCondition, RemoveCounters (healing) and CoinFlip by theirs (`engine/condition.rs`); events batch 5:
+//! ChangeActive by its routine (`engine/change_active.rs`). They are read by triggers (`trigger::Event::On`), locks (`LockDecl::forbids`), permissions (`Modifier::Permit`)
 //! and restrictions (`CardSpec::restricts`). The trees are static data (`&'static` slices, like `Pred` and
 //! `SlotPred`); evaluating one allocates nothing.
 
@@ -79,6 +80,7 @@ impl EventKind {
             EventKind::RemoveCondition => Some(k::REMOVE_CONDITION),
             EventKind::RemoveCounters => Some(k::HEAL),
             EventKind::CoinFlip => Some(k::COIN_FLIP),
+            EventKind::ChangeActive => Some(k::CHANGE_ACTIVE),
             _ => None,
         }
     }
@@ -98,6 +100,38 @@ pub enum CoinPurpose {
     Asleep,
     /// Who goes first (setup, and the Sudden Death game).
     FirstPlayer,
+}
+
+/// How the Active Pokémon changes (the ChangeActive event), named from the rulebook. Which Pokémon the change is
+/// done to (the event's card and spot) follows from it: the Active Pokémon for a retreat, a switch and a switch-out,
+/// the Benched Pokémon brought in for a switch-in, a promotion and the setup placement (APR C-04 / C-05 specific
+/// cases; id42, id2025, id2155; the official JP Q&A on Hariyama's Heave-Ho Catcher).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ActiveChange {
+    /// The player retreats their Active Pokémon (the turn action; APR A-03).
+    Retreat,
+    /// "Switch your Active Pokémon with 1 of your Benched Pokémon" / "switch this Pokémon with 1 of your Benched
+    /// Pokémon" (APR C-03): the side's own player switches, by their own effect.
+    Switch,
+    /// "Switch in 1 of your opponent's Benched Pokémon to the Active Spot" / "switch 1 of your opponent's Benched
+    /// Pokémon with their Active Pokémon" (APR C-05): an effect done to the Benched Pokémon chosen.
+    SwitchIn,
+    /// "Switch out your opponent's Active Pokémon to the Bench. (Your opponent chooses the new Active Pokémon.)" /
+    /// "your opponent switches their Active Pokémon with 1 of their Benched Pokémon" (APR C-04): an effect done to
+    /// the Active Pokémon.
+    SwitchOut,
+    /// A Benched Pokémon is promoted to the empty Active Spot (after the Active Pokémon left play).
+    Promotion,
+    /// Arranging the board outside the game's own flow (the scenario loader). The game's setup puts the Active
+    /// Pokémon by `EnterPlay { setup }`, which isn't a change of the Active Pokémon.
+    Setup,
+}
+
+impl ActiveChange {
+    /// Is the change done to the Pokémon leaving the Active Spot (otherwise to the one coming in)?
+    pub const fn done_to_leaving(self) -> bool {
+        matches!(self, ActiveChange::Retreat | ActiveChange::Switch | ActiveChange::SwitchOut)
+    }
 }
 
 /// How a Pokémon evolved.
@@ -219,6 +253,16 @@ pub enum EventPred {
     Turn(TurnOf),
     /// The Special Condition gained or removed (not in the design's list; its Slowpoke example needs it).
     Condition(SpecialCondition),
+    /// ChangeActive: how the Active Pokémon changes.
+    Change(ActiveChange),
+    /// ChangeActive: the spot of the Pokémon leaving the Active Spot (for the Bench) matches: "this Pokémon can't
+    /// retreat" is `Change(Retreat) & From(IsThisPokemon)`, "when this Pokémon moves from the Active Spot to the Bench"
+    /// `Kind(ChangeActive) & From(IsThisPokemon)`. False for a promotion (nothing leaves).
+    From(SlotPred),
+    /// ChangeActive: the spot of the Pokémon moving to the Active Spot matches ("when this Pokémon moves from your
+    /// Bench to the Active Spot": `Kind(ChangeActive) & To(IsThisPokemon)`). False while the Pokémon isn't chosen yet
+    /// (a switch-out checked before the opponent chooses).
+    To(SlotPred),
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
     Not(&'static EventPred),
@@ -253,12 +297,18 @@ pub struct EventView {
     pub base_entered_this_turn: bool,
     /// Evolve: it is the owner's first turn (the game's turns 1 and 2 are each player's first turn).
     pub owner_first_turn: bool,
+    /// ChangeActive: how it changes, the Active Spot (`from`, empty for a promotion) and the Benched Pokémon coming
+    /// in (`to`; `None` before it is chosen). `card` / `slot` are the Pokémon the change is done to
+    /// (`ActiveChange::done_to_leaving`).
+    pub change: Option<ActiveChange>,
+    pub from: Option<SlotRef>,
+    pub to: Option<SlotRef>,
 }
 
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or
@@ -279,6 +329,14 @@ fn who_is(g: &Game, me: CardId, w: Who, player: u8) -> bool {
         Who::Me => mine,
         Who::Opp => !mine,
     }
+}
+
+/// Does the spot match, with a checked read when the predicate needs one (never fails open)?
+fn slot_matches(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<bool> {
+    Ok(match slot_pred(g, me, s, sp) {
+        Some(b) => b,
+        None => slot_pred_m(g, me, s, sp)?,
+    })
 }
 
 impl CausePred {
@@ -319,6 +377,7 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::REMOVE_CONDITION,
     crate::effects::k::HEAL,
     crate::effects::k::COIN_FLIP,
+    crate::effects::k::CHANGE_ACTIVE,
 ]);
 /// The Pokémon events (events batch 2): a lock over them sets `DECLARES_EVENT_LOCK`.
 pub const POKEMON_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ENTER_PLAY, crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
@@ -331,6 +390,8 @@ pub const CONDITION_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effect
 pub const HEAL_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::HEAL]);
 /// CoinFlip: `DECLARES_COIN_LOCK` / `DECLARES_COIN_PREVENT`.
 pub const COIN_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::COIN_FLIP]);
+/// ChangeActive (events batch 5): `DECLARES_ACTIVE_LOCK` / `DECLARES_ACTIVE_PREVENT`.
+pub const ACTIVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::CHANGE_ACTIVE]);
 
 impl EventPred {
     /// Matches no event (`LockDecl::forbids` of a lock that declares only old `LockedAction`s).
@@ -424,10 +485,7 @@ impl EventPred {
             EventPred::This(Role::CauseCard) => v.cause.card == Some(me),
             EventPred::Slot(sp) => match v.slot {
                 None => false,
-                Some(s) => match slot_pred(g, me, s, sp) {
-                    Some(b) => b,
-                    None => slot_pred_m(g, me, s, sp)?,
-                },
+                Some(s) => slot_matches(g, me, s, sp)?,
             },
             EventPred::Owner(w) => who_is(g, me, *w, v.owner),
             EventPred::Turn(t) => match t {
@@ -437,6 +495,15 @@ impl EventPred {
                 TurnOf::Opp => v.turn != g.st.owner(me) as u8,
             },
             EventPred::Condition(c) => v.condition == Some(*c),
+            EventPred::Change(c) => v.change == Some(*c),
+            EventPred::From(sp) => match v.from {
+                Some(s) => slot_matches(g, me, s, sp)?,
+                None => false,
+            },
+            EventPred::To(sp) => match v.to {
+                Some(s) => slot_matches(g, me, s, sp)?,
+                None => false,
+            },
             EventPred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, v)? {

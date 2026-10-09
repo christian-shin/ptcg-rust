@@ -368,6 +368,9 @@ const fn prevent_kinds(p: &PreventSpec) -> KindMask {
     if m.intersects(super::event::COIN_EVENT_KINDS) {
         m = crate::spec::with(m, crate::effects::k::DECLARES_COIN_PREVENT);
     }
+    if m.intersects(super::event::ACTIVE_EVENT_KINDS) {
+        m = crate::spec::with(m, crate::effects::k::DECLARES_ACTIVE_PREVENT);
+    }
     m
 }
 /// Whom a lock stops, relative to the owner of the lock's source.
@@ -394,8 +397,6 @@ pub enum LockedAction {
     PlayItem,
     PlaySupporter,
     PlayStadium,
-    /// Retreat the Active Pokémon (the card is that Pokémon).
-    Retreat,
     /// Use the Stadium in play (the card is the Stadium).
     UseStadium,
 }
@@ -408,7 +409,6 @@ impl LockedAction {
             LockedAction::PlayItem => k::PLAY_ITEM,
             LockedAction::PlaySupporter => k::PLAY_SUPPORTER,
             LockedAction::PlayStadium => k::PLAY_STADIUM,
-            LockedAction::Retreat => k::RETREAT,
             LockedAction::UseStadium => k::USE_STADIUM,
         }
     }
@@ -513,11 +513,19 @@ impl BlockUseSpec {
         while_: &[LockWhile::CardIsSource],
         ability: false,
     };
-    /// This Pokémon can't retreat while it is the Active Pokémon (the Antique Fossils).
+    /// "This Pokémon can't retreat" (the Antique Fossils): a lock over the ChangeActive of a retreat whose leaving
+    /// Pokémon is this one (events batch 5). Retreating only: it can still be switched (APR C-03).
     pub const RETREAT_THIS_ACTIVE: BlockUseSpec = BlockUseSpec {
         binds: Binds::Owner,
-        lock: LockDecl { actions: &[LockedAction::Retreat], card: Pred::Any, except: Pred::False, error: "CANNOT_RETREAT", ..LockDecl::NONE },
-        while_: &[LockWhile::Active, LockWhile::CardIsSource],
+        lock: LockDecl::on(
+            super::event::EventPred::All(&[
+                super::event::EventPred::Kind(super::event::EventKind::ChangeActive),
+                super::event::EventPred::Change(super::event::ActiveChange::Retreat),
+                super::event::EventPred::From(SlotPred::IsThisPokemon),
+            ]),
+            "CANNOT_RETREAT",
+        ),
+        while_: &[],
         ability: false,
     };
 }
@@ -543,6 +551,9 @@ const fn block_kinds(lock: &LockDecl) -> KindMask {
         }
         if m.intersects(super::event::COIN_EVENT_KINDS) {
             m = crate::spec::with(m, crate::effects::k::DECLARES_COIN_LOCK);
+        }
+        if m.intersects(super::event::ACTIVE_EVENT_KINDS) {
+            m = crate::spec::with(m, crate::effects::k::DECLARES_ACTIVE_LOCK);
         }
     }
     let mut i = 0;
@@ -1693,7 +1704,7 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
 
 /// Every attack-effect kind (`AtkBase` effects) except the damage steps, plus the counters
 /// placed by Abilities: the effect kinds Hide 'n' Sneak and Mist Energy prevent.
-pub const HIDE_N_SNEAK_KINDS: [u32; 35] = [
+pub const HIDE_N_SNEAK_KINDS: [u32; 33] = [
     crate::effects::k::SELF_PREVENT_RETREAT,
     crate::effects::k::DISCARD_ATTACKER_ENERGY_IF_KO,
     crate::effects::k::APPLY_WEAKNESS,
@@ -1707,7 +1718,6 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 35] = [
     crate::effects::k::RETALIATE_DAMAGE,
     crate::effects::k::DISCARD_CARDS,
     crate::effects::k::CARDS_TO_HAND,
-    crate::effects::k::GUST_OPPONENT_BENCH,
     crate::effects::k::MOVE_OPPONENT_ENERGY,
     crate::effects::k::ADD_MARKER,
     crate::effects::k::ADD_SPECIAL_CONDITIONS,
@@ -1718,7 +1728,6 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 35] = [
     crate::effects::k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE,
     crate::effects::k::DEFENDING_POKEMON_TAKES_MORE_DAMAGE,
     crate::effects::k::REDUCE_DAMAGE,
-    crate::effects::k::SWITCH_OUT_OPPONENTS_ACTIVE,
     crate::effects::k::PLACE_DAMAGE_COUNTERS,
     crate::effects::k::PREVENT_DAMAGE,
     crate::effects::k::PREVENT_EFFECTS_OF_ATTACKS,
@@ -1798,6 +1807,28 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
     }
     Ok(())
 }
+
+/// "Prevent all effects of attacks used by your opponent's Pokémon done to <the Pokémon>", over the ChangeActive
+/// event (events batch 5): an opponent's attack switching the Pokémon in (APR C-05; id2155) or out (APR C-04;
+/// id2025). With the `Prevent` declaration's `protects` the Pokémon; the other events still go through the
+/// B4-OLD attack-effect probe (`PreventAttackEffects`) until their batch.
+pub const CHANGE_ACTIVE_BY_OPP_ATTACK: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::ChangeActive),
+    super::event::EventPred::Cause(super::event::CausePred::All(&[super::event::CausePred::By(Who::Opp), super::event::CausePred::Kind(crate::cause::CauseKind::Attack)])),
+]);
+
+/// Hide 'n' Sneak over the ChangeActive event: the opponent's attacks and Abilities (Hariyama's Heave-Ho Catcher, Hop's
+/// Dubwool's Defiant Horn switching in the Benched Pokémon that has it: official JP Q&A, Hariyama MEG 73).
+pub const CHANGE_ACTIVE_BY_OPP_ATTACK_OR_ABILITY: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::ChangeActive),
+    super::event::EventPred::Cause(super::event::CausePred::All(&[
+        super::event::CausePred::By(Who::Opp),
+        super::event::CausePred::Any(&[super::event::CausePred::Kind(crate::cause::CauseKind::Attack), super::event::CausePred::Kind(crate::cause::CauseKind::Ability)]),
+    ])),
+]);
+
+/// Hide 'n' Sneak's `Prevent` over the ChangeActive event (with [`HIDE_N_SNEAK`] for the other effects).
+pub const HIDE_N_SNEAK_SWITCH: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), CHANGE_ACTIVE_BY_OPP_ATTACK_OR_ABILITY);
 
 /// Hide 'n' Sneak: prevent all effects of the opponent's Pokémon's attacks and Abilities done to
 /// this Pokémon (damage is not an effect).
@@ -1932,7 +1963,7 @@ pub(crate) fn effect_actions(g: &Game, e: EffId) -> Option<(usize, CardId, &'sta
         Effect::PlayStadium { p, card } => (p as usize, card, &[A::PlayStadium]),
         // EnterPlay, Evolve, Attach, MoveEnergy, MoveTool: their routines check the locks before the event
         // (`event_locked`).
-        Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, &[A::Retreat]),
+        // Retreating: the ChangeActive's routine checks the locks over it (`event_locked`).
         Effect::UseStadium { p, stadium } => (p as usize, stadium, &[A::UseStadium]),
         _ => return None,
     })
@@ -2017,8 +2048,8 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::GainCondition | E::RemoveCondition => Some(crate::effects::k::DECLARES_CONDITION_LOCK),
         E::RemoveCounters => Some(crate::effects::k::DECLARES_HEAL_LOCK),
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_LOCK),
+        E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_LOCK),
         E::PlayTrainer
-        | E::ChangeActive
         | E::Damage
         | E::PlaceCounters
         | E::MoveCounters
@@ -2064,6 +2095,7 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         E::GainCondition | E::RemoveCondition => Some(crate::effects::k::DECLARES_CONDITION_PREVENT),
         E::RemoveCounters => Some(crate::effects::k::DECLARES_HEAL_PREVENT),
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_PREVENT),
+        E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_PREVENT),
         E::EnterPlay
         | E::Evolve
         | E::Devolve
@@ -2072,7 +2104,6 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::MoveEnergy
         | E::MoveTool
         | E::PlayTrainer
-        | E::ChangeActive
         | E::Damage
         | E::PlaceCounters
         | E::MoveCounters
@@ -3258,6 +3289,12 @@ mod lock_tests {
         assert!(lock_earlier(&g, a, b) && !lock_earlier(&g, b, a));
     }
 
+    /// The player's own switch (a Trainer's), the ChangeActive event.
+    fn switch(g: &mut Game, me: usize, slot: crate::state::SlotId) {
+        let c = crate::engine::change_active::ChangeActiveView::of(g, me, Some(slot), crate::spec::event::ActiveChange::Switch, crate::cause::Cause::new(crate::cause::CauseKind::Trainer, None, me as u8));
+        assert!(crate::engine::change_active::change_active(g, c).unwrap());
+    }
+
     #[test]
     fn stamps_follow_take_hold_and_release() {
         // Iron Thorns ex (opp) is Active; Flutter Mane waits on my Bench.
@@ -3267,11 +3304,11 @@ mod lock_tests {
         assert_eq!((stamp(&g, fm), stamp(&g, it)), (0, 1), "Iron Thorns ex holds, Flutter Mane isn't Active");
         // Flutter Mane comes in: it turns Iron Thorns ex's lock off though that took hold first.
         let slot = g.st.players[me].bench.as_slice()[0];
-        crate::engine::turn::switch_pokemon_silent(&mut g, me, slot).unwrap();
+        switch(&mut g, me, slot);
         assert_eq!((stamp(&g, fm), stamp(&g, it)), (2, 0));
         // Flutter Mane leaves: Iron Thorns ex is released and takes hold now.
         let slot = g.st.players[me].bench.as_slice()[0];
-        crate::engine::turn::switch_pokemon_silent(&mut g, me, slot).unwrap();
+        switch(&mut g, me, slot);
         assert_eq!((stamp(&g, fm), stamp(&g, it)), (0, 3));
     }
 
@@ -3465,7 +3502,7 @@ mod play_lock_tests {
             (&SUPPORTER, A::PlaySupporter), // Scream Tail ex
             (&STADIUM, A::PlayStadium), // Chi-Yu
         ];
-        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::Retreat, A::UseStadium];
+        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::UseStadium];
         let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83", "Noctowl PRE 78"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let me = g.st.active_player as usize;
@@ -3597,12 +3634,24 @@ mod play_lock_tests {
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let me = g.st.active_player as usize;
         let fossil = active(&g, me);
-        assert_eq!(play_locked(&mut g, me, fossil, LockedAction::Retreat), Some("CANNOT_RETREAT"));
+        let _ = fossil;
+        let retreat = |g: &mut Game| {
+            let bench = g.st.players[me].bench.as_slice()[0];
+            let c = crate::engine::change_active::ChangeActiveView::of(g, me, Some(bench), crate::spec::event::ActiveChange::Retreat, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, me as u8));
+            let v = crate::engine::change_active::view(g, &c);
+            crate::engine::change_active::check_with(g, &v).unwrap()
+        };
+        let switch = |g: &mut Game| {
+            let bench = g.st.players[me].bench.as_slice()[0];
+            let c = crate::engine::change_active::ChangeActiveView::of(g, me, Some(bench), crate::spec::event::ActiveChange::Switch, crate::cause::Cause::new(crate::cause::CauseKind::Trainer, None, me as u8));
+            crate::engine::change_active::refused(g, &c).unwrap()
+        };
+        assert_eq!(retreat(&mut g), Some("CANNOT_RETREAT"));
+        assert!(!switch(&mut g), "it can still be switched (APR C-03)");
         // A Pokémon with no such lock retreats; the Fossil on the Bench isn't "the Active Pokémon".
         let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": "Antique Root Fossil SCR 130"}]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
-        let dura = active(&g, me);
-        assert_eq!(play_locked(&mut g, me, dura, LockedAction::Retreat), None);
+        assert_eq!(retreat(&mut g), None);
         // Palafin ex can't be put into play by evolving or otherwise, whoever does it; Palafin can.
         let mut g = game(json!({"me": {"reset": true, "active": "Finizen TWM 59", "hand": ["Palafin ex PRE 151", "Palafin TWM 60"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
@@ -3790,8 +3839,10 @@ mod prevent_marker_tests {
                 }
             }
         }
-        // Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal.
-        assert_eq!(n, 7);
+        // Batch 4: Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal; batch 5 (over
+        // ChangeActive): Mist Energy, Rocky Fighting Energy, Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca,
+        // Acerola's Mischief, Antique Cover Fossil, and the four Hide 'n' Sneak Pokémon.
+        assert_eq!(n, 20);
     }
 
     /// The preventions that make an affected Pokémon recover when they come into force (id289): the cause-free ones

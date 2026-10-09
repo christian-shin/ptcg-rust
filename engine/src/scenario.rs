@@ -7,7 +7,6 @@
 
 use crate::engine::game_effect::reset_empty_slot;
 use crate::engine::phase::add_condition;
-use crate::engine::turn::switch_pokemon;
 use crate::game::Game;
 use crate::list::{CardId, CardList};
 use crate::state::{ListRef, SlotId};
@@ -156,7 +155,11 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         for n in stack(&side["active"]) {
             mv(g, p, n, ListRef::Slot(pu, s))?;
         }
-        switch_pokemon(g, p, s, crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, p as u8)).map_err(|e| e.0.to_string())?;
+        // The scenario's arrangement: a ChangeActive of kind Setup.
+        let c = crate::engine::change_active::ChangeActiveView::of(g, p, Some(s), crate::spec::event::ActiveChange::Setup, crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, p as u8));
+        if !crate::engine::change_active::change_active(g, c).map_err(|e| e.0.to_string())? {
+            return Err("scenario: the Active Pokemon can't be changed".into());
+        }
         let a = g.st.players[p].active;
         dress(g, p, a, &side["active_energy"], &side["active_tool"], &side["active_damage"], &side["active_conditions"], &side["active_played"])?;
     } else {

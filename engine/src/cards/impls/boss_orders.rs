@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],
-        steps: &[Step::new(Op::Switch(SwitchSpec { side: Who::Opp, chooser: Who::Me, kind: SwitchKind::Plain, msg: "CHOOSE_POKEMON_TO_SWITCH", required: true }))],
+        steps: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::Bench, msg: "CHOOSE_POKEMON_TO_SWITCH", required: true }))],
     }),
     ..CardSpec::NONE
 };

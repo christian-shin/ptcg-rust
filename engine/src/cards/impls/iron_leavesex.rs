@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     triggers: &[
-        Trigger { origin: RuleSource::Ability, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])), steps: &[Step::new(Op::May(MaySpec { asker: Who::Me, when: Cond::True, msg: "WANT_TO_USE_ABILITY", yes: &[Step::new(Op::If(IfSpec { cond: Cond::Not(&Cond::AbilityBlocked), yes: &[Step::new(Op::SwitchWithActive(SwitchWithActiveSpec { target: SlotExpr::This })), Step::new(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Me, mode: MoveEnergyMode::BenchToActive { max: None, required: false, ability: true } }))], no: &[] }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Ability, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])), steps: &[Step::new(Op::May(MaySpec { asker: Who::Me, when: Cond::True, msg: "WANT_TO_USE_ABILITY", yes: &[Step::new(Op::If(IfSpec { cond: Cond::Not(&Cond::AbilityBlocked), yes: &[Step::new(Op::SwitchWithActive(SwitchWithActiveSpec { target: SlotExpr::This })), Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::MoveEnergy(MoveEnergySpec { chooser: Who::Me, owner: Who::Me, mode: MoveEnergyMode::BenchToActive { max: None, required: false, ability: true } }))], no: &[] }))], no: &[] }))], no: &[] }))] },
     ],
     ..CardSpec::NONE
 };

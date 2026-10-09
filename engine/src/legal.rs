@@ -27,7 +27,8 @@
 //! * Ability: the power list read, the core use rule, the lock probe, once per turn, `needs` and implied
 //!   preconditions.
 //! * Use Stadium: `can_use_stadium`, the play locks, the Stadium's own `needs`.
-//! * Retreat: `can_retreat`, the play locks, the cost against the provided Energy.
+//! * Retreat: `can_retreat`, the ChangeActive's checks (`engine::change_active::check_with`: the Pokémon's lasting
+//!   "can't retreat", the locks over the event), the cost against the provided Energy.
 //! * Pass: always.
 
 use crate::carddb::DefId;
@@ -236,6 +237,21 @@ impl crate::engine::attach::AttachChecks for Ctx<'_> {
         }
         // An error of the read stops the play, as in the trial.
         Ok(crate::engine::attach::AttachChecks::guard_refuses(self.sc(), v).unwrap_or(true))
+    }
+}
+
+/// The checks of a ChangeActive the retreat produces (`engine::change_active::check_with`, the function execution
+/// calls): the spots and the Pokémon's lasting "can't retreat" on the game, the locks on the scratch game behind their
+/// plain-read gate. A prevention isn't a legality check (id290; a retreat's cause is a rule anyway).
+impl crate::engine::change_active::ActiveChecks for Ctx<'_> {
+    fn game(&self) -> &Game {
+        self.g
+    }
+    fn event_locked(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<Option<&'static str>> {
+        Ok(self.event_lock(v))
+    }
+    fn event_prevented(&mut self, _v: &crate::spec::event::EventView) -> crate::game::R<bool> {
+        Ok(false)
     }
 }
 
@@ -525,10 +541,11 @@ fn fast_retreat(ctx: &mut Ctx, bench_index: u8) -> Option<bool> {
     if retreat::can_retreat(g, p, bench_index, false).is_err() {
         return Some(false);
     }
-    if let Some(active) = g.st.active_pokemon(p) {
-        if ctx.play_locked(active, &[LockedAction::Retreat]) {
-            return Some(false);
-        }
+    // The ChangeActive the retreat produces, with the checks its routine makes.
+    let Some(c) = retreat::retreat_change(g, p, bench_index) else { return Some(false) };
+    let v = crate::engine::change_active::view(g, &c);
+    if !matches!(crate::engine::change_active::check_with(ctx, &v), Ok(None)) {
+        return Some(false);
     }
     let Ok(cost) = ctx.retreat_cost() else { return Some(false) };
     if cost.is_empty() {

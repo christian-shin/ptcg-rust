@@ -9,7 +9,11 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Banette",
     // Hide 'n' Sneak.
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) }],
+    passives: &[
+        Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) },
+        // The opponent's attacks and Abilities switching this Pokémon in or out (ChangeActive; JP Q&A, Hariyama MEG 73).
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(HIDE_N_SNEAK_SWITCH) },
+    ],
     // Puppet Pull: you may search your deck for a card and put it into your hand, then shuffle.
     attacks: &[AttackSpec {
         index: 0,

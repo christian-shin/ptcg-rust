@@ -10,6 +10,8 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::EnergyOn(SlotSel::One(OPP_ACTIVE), EnergyUnit::ProvidedUnits), &Num::Lit(30)), when: Cond::True }))],
     }],
     passives: &[
+        // An opponent's attack switching your Benched Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::IsBench, SlotPred::OnMySide]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },
         Passive {
             origin: RuleSource::Ability,
             modifier: Modifier::PreventDamage(PreventDamageSpec { subject: SlotPred::IsBench, side: Side::Owner, ..PreventDamageSpec::DEFAULT }),

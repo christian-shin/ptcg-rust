@@ -1,9 +1,11 @@
-//! `retreat-effect.ts`.
+//! Retreating (APR A-03): the turn action's rules (once per turn, not Asleep or Paralyzed), the Retreat Cost, then
+//! the ChangeActive event (`engine::change_active`, kind `Retreat`), which carries the checks ("can't retreat" locks,
+//! the Pokémon's lasting "can't retreat") and the consequences (only the Pokémon moving to the Bench loses its
+//! effects and Special Conditions: id356, id891).
 
 use crate::effects::*;
 use crate::energy;
-use crate::engine::game_effect::clear_effects;
-use crate::engine::turn::switch_pokemon;
+use crate::engine::change_active::{self, ChangeActiveView};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::prompts::*;
@@ -17,26 +19,22 @@ pub struct RetreatCont {
     pub move_to: ListRef,
 }
 
-fn assert_can_retreat(g: &Game, p: usize) -> R {
-    // cannotRetreatWhileActive: not modeled.
-    let a = g.st.slot(p, g.st.players[p].active);
-    if a.cannot_retreat_next_turn {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
-    Ok(())
+/// The ChangeActive a retreat to the Bench slot `bench_index` makes (`None`: no Pokémon there).
+pub fn retreat_change(g: &Game, p: usize, bench_index: u8) -> Option<ChangeActiveView> {
+    let bench = *g.st.players[p].bench.get(bench_index as usize)?;
+    g.st.slot_pokemon(p, bench)?;
+    let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8);
+    Some(ChangeActiveView::of(g, p, Some(bench), crate::spec::event::ActiveChange::Retreat, cause))
 }
 
+/// The Retreat Cost is paid: the Active Pokémon moves to the Bench (the ChangeActive event, checked before the cost).
 fn retreat_pokemon(g: &mut Game, p: usize, bench_index: u8) -> R {
-    let pl = &g.st.players[p];
-    let bench = match pl.bench.get(bench_index as usize) {
-        Some(b) => *b,
-        None => return Ok(()),
-    };
-    if g.st.active_pokemon(p).is_none() || g.st.slot_pokemon(p, bench).is_none() {
+    let Some(c) = retreat_change(g, p, bench_index) else { return Ok(()) };
+    if g.st.active_pokemon(p).is_none() {
         return Ok(());
     }
     g.st.players[p].retreated_turn = g.st.turn;
-    switch_pokemon(g, p, bench, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8))
+    change_active::produce(g, c)
 }
 
 fn energy_cards(map: &EnergyMap) -> Vec<CardId> {
@@ -49,10 +47,10 @@ fn energy_cards(map: &EnergyMap) -> Vec<CardId> {
     v
 }
 
-/// Check only: the state rules for retreating to the Bench slot `bench_index`
-/// (Retreat-blocking flag, target, Special Conditions, once per turn).
+/// Check only: the turn action's rules for retreating to the Bench slot `bench_index` (a Pokémon there, Special
+/// Conditions, once per turn). The ChangeActive's own checks (`change_active::check_with`: the locks, the Pokémon's
+/// lasting "can't retreat") come with it, on the game (execution) or legality's scratch game.
 pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions: bool) -> R {
-    assert_can_retreat(g, p)?;
     let bench = match g.st.players[p].bench.get(bench_index as usize) {
         Some(b) => *b,
         None => crate::bail!("INVALID_TARGET"),
@@ -100,12 +98,6 @@ pub fn retreat_payable(g: &mut Game, p: usize) -> R<bool> {
     Ok(cost.is_empty() || energy::check_enough_energy(map.as_slice(), cost.as_slice()))
 }
 
-/// The retreating Pokémon recovers from its Special Conditions (it moves to the Bench by the rule's Retreat; APR A-03,
-/// never refused: `condition::recover_by_rule`).
-fn recovers(g: &mut Game, p: usize, active: SlotId) -> R {
-    crate::engine::condition::recover_by_rule(g, SlotRef::new(p, active), crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8), &[])
-}
-
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     let (p, bench_index, ignore, move_to) = match *g.e(id) {
         Effect::Retreat { p, bench_index, ignore_status_conditions, move_retreat_cost_to } => {
@@ -114,11 +106,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         _ => return Ok(()),
     };
     can_retreat(g, p, bench_index, ignore)?;
+    let Some(c) = retreat_change(g, p, bench_index) else { crate::bail!("INVALID_TARGET") };
+    change_active::check(g, &c)?;
     let active = g.st.players[p].active;
     let (cost, map) = retreat_read(g, p)?;
     if cost.is_empty() {
-        recovers(g, p, active)?;
-        clear_effects(&mut g.st.players[p].slots[active as usize]);
         return retreat_pokemon(g, p, bench_index);
     }
     if !energy::check_enough_energy(map.as_slice(), cost.as_slice()) {
@@ -126,8 +118,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
     if energy::check_exact_energy(map.as_slice(), cost.as_slice()) {
         let cards = energy_cards(&map);
-        recovers(g, p, active)?;
-        clear_effects(&mut g.st.players[p].slots[active as usize]);
         g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);
         return retreat_pokemon(g, p, bench_index);
     }
@@ -137,8 +127,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let has_choice = sel.len() < cost.len() && map.len() >= cost.len();
             if !sel.is_empty() && !has_choice {
                 let cards: Vec<CardId> = sel.iter().map(|e| e.card).collect();
-                recovers(g, p, active)?;
-                clear_effects(&mut g.st.players[p].slots[active as usize]);
                 g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);
                 return retreat_pokemon(g, p, bench_index);
             }
@@ -169,8 +157,6 @@ pub fn resume(g: &mut Game, rc: RetreatCont, res: Res) -> R {
     }
     let cards: Vec<CardId> = energy.iter().copied().collect();
     let active = g.st.players[p].active;
-    recovers(g, p, active)?;
-    clear_effects(&mut g.st.players[p].slots[active as usize]);
     g.move_cards_to(ListRef::Slot(rc.p, active), &cards, rc.move_to);
     retreat_pokemon(g, p, rc.bench_index)
 }

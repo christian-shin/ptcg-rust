@@ -27,7 +27,9 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Slot(SlotExpr::Picked), name: MISCHIEF, source: RuleSource::TrainerEffect })),
         ],
     }),
-    passives: &[Passive {
+    passives: &[
+        // An opponent's attack switching the chosen Pokémon, by the opponent's Pokémon ex in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
+        Passive { origin: RuleSource::TrainerEffect, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::MarkerFromThis(MISCHIEF), EventPred::All(&[EventPred::Kind(EventKind::ChangeActive), EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Card(Pred::Tag(crate::types::tag::POKEMON_EX_LOWER))]))]))) },Passive {
         origin: RuleSource::TrainerEffect,
         modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec {
             subject: SlotPred::MarkerFromThis(MISCHIEF),

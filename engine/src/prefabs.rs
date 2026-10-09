@@ -17,16 +17,12 @@ pub enum PrefabCont {
     /// Shuffle order chosen: apply, then wait, then draw.
     ShuffleOrderThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
     DrawAfterWait { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
-    /// SWITCH_IN_OPPONENT_BENCHED_POKEMON callback.
-    SwitchInOpponent { p: u8, cause: crate::cause::Cause },
     /// THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_YOUR_OPPONENTS_[BENCHED_]POKEMON.
     DamageChosen { atk: EffId, damage: i32 },
     /// SEARCH_DECK_FOR_CARDS_TO_HAND.
     SearchToHand { p: u8, source: CardId, show: bool },
     /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND.
     SearchPokemonToHand { p: u8 },
-    /// SWITCH_ACTIVE_WITH_BENCHED callback.
-    SwitchActiveWithBenched { p: u8, cause: crate::cause::Cause },
     /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH: empty slots at prompt time.
     SearchToBench { p: u8, slots: SVec<SlotId, 8>, cause: crate::cause::Cause },
 }
@@ -99,28 +95,6 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
                 crate::engine::enter::enter_play(g, *c, SlotRef::new(p as usize, s), crate::spec::event::EnterMode::Effect, cause)?;
             }
             shuffle_deck(g, p as usize);
-            Ok(())
-        }
-        PrefabCont::SwitchActiveWithBenched { p, cause } => {
-            let sel = first.slots();
-            if sel.is_empty() {
-                return Ok(());
-            }
-            if sel[0].p == p {
-                crate::engine::turn::switch_pokemon(g, p as usize, sel[0].s, cause)?;
-            }
-            Ok(())
-        }
-        PrefabCont::SwitchInOpponent { p, cause } => {
-            let sel = first.slots();
-            if sel.is_empty() {
-                return Ok(());
-            }
-            let o = 1 - p as usize;
-            // switchPokemon only acts when the slot is on the opponent's bench.
-            if sel[0].p as usize == o {
-                crate::engine::turn::switch_pokemon(g, o, sel[0].s, cause)?;
-            }
             Ok(())
         }
     }

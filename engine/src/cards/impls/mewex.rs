@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
             asker: Who::Me,
             when: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any),
             msg: "WANT_TO_SWITCH_POKEMON",
-            yes: &[Step::new(Op::Switch(SwitchSpec { side: Who::Me, chooser: Who::Me, kind: SwitchKind::Plain, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false }))],
+            yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false }))],
             no: &[],
         }))],
     }],

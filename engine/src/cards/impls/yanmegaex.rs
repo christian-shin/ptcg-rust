@@ -4,13 +4,11 @@
 //! Jet Cyclone — 210; move 3 Energy from this Pokémon to 1 of your Benched
 //! Pokémon.
 //!
-//! Twinleaf: on MovedToActiveEffect for this card during its owner's turn
-//! (and listed in movedToActiveThisTurn), unless the player marker is set, a
-//! ConfirmPrompt. No → marker. Yes → a 'test' PowerEffect probe (blocked →
-//! nothing, no marker), marker, then a non-cancellable AttachEnergyPrompt
-//! (deck → Active, basic 'Grass Energy', min 0 max 3). No transfer →
-//! SHUFFLE_DECK; otherwise MOVE_CARDS + SHUFFLE_DECK per transfer (quirk
-//! kept: one shuffle per card). Jet Cyclone: AttachEnergyPrompt (Active →
+//! Buzz Boost is a trigger over the ChangeActive event that brings this Pokémon
+//! to the Active Spot during its owner's turn (a retreat, a switch, a
+//! promotion: APR E-25, whatever moved it), unless the player marker is set:
+//! a question; no → marker; yes → marker, then up to 3 Basic [G] Energy from
+//! the deck onto it (one shuffle per card attached, as recorded). Jet Cyclone: AttachEnergyPrompt (Active →
 //! Bench, any Energy, sameTarget, no cancel), MOVE_CARDS each. Phase 4b fix:
 //! with no Benched Pokémon the attack does nothing more (the prompt, min 3,
 //! was unanswerable), and min = max = min(3, Energy attached) so a Pokémon
@@ -24,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         // deck for up to 3 Basic [G] Energy and attach them to this Pokémon, then shuffle.
         Trigger {
             origin: RuleSource::Ability,
-            event: Event::OnMoved(OnMovedSpec { to: MovedTo::Active }),
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::ChangeActive), EventPred::To(SlotPred::IsThisPokemon), EventPred::Turn(TurnOf::Me)])),
             steps: &[Step::new(Op::May(MaySpec {
                 asker: Who::Me,
                 // Not asked again once the marker is set, and not offered while the Ability is blocked

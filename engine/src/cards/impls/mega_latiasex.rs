@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
                 // Asked even with nothing to switch with (Twinleaf).
                 when: Cond::True,
                 msg: "WANT_TO_SWITCH_POKEMON",
-                yes: &[Step::new(Op::Switch(SwitchSpec { side: Who::Me, chooser: Who::Me, kind: SwitchKind::Plain, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false }))],
+                yes: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: false }))],
                 no: &[],
             }))],
         },

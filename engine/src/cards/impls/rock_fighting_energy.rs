@@ -14,6 +14,8 @@ use crate::types::ct;
 pub static SPEC: CardSpec = CardSpec {
     class: "RockFightingEnergy",
     passives: &[
+        // An opponent's attack switching the [F] Pokémon this card is attached to in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
+        Passive { origin: RuleSource::Energy, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::PrintedTypeIs(ct::FIGHTING)]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },
         Passive { origin: RuleSource::Energy, modifier: Modifier::ProvidesEnergy(ProvidesEnergySpec { entries: &[ProvidedEntry::always(&[ct::FIGHTING])], probe: false }) },
         // Prevent all effects of attacks used by your opponent's Pokémon done to the [F] Pokémon this is attached to.
         Passive {

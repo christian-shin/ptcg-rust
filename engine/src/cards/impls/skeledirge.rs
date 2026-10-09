@@ -17,7 +17,9 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Skeledirge@SSP",
     // Unaware: prevent all effects of attacks used by the opponent's Pokémon done to this Pokémon.
-    passives: &[Passive {
+    passives: &[
+        // An opponent's attack switching this Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },Passive {
         origin: RuleSource::Ability,
         modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), ..PreventAttackEffectsSpec::DEFAULT }),
     }],

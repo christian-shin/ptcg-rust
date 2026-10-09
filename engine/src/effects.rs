@@ -158,8 +158,10 @@ pub enum Effect {
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
     PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId, cause: Cause },
     MoveDamageCounters { p: u8 },
-    MovedToActive { p: u8, card: CardId, cause: Cause },
-    MovedFromActiveToBench { p: u8, card: CardId, cause: Cause },
+    /// The ChangeActive event (events batch 5; `engine::change_active`): player `p`'s Active Pokémon changes: the
+    /// Pokémon in the Active Spot `from` (none for a promotion) goes to the Bench and the Benched Pokémon in `to`
+    /// becomes the Active Pokémon, as `change` says (retreat, switch, switch-in, switch-out, promotion).
+    ChangeActive { p: u8, from: crate::state::SlotId, to: crate::state::SlotId, change: crate::spec::event::ActiveChange, cause: Cause },
 
     // ---- attack sub-effects ----
     ApplyWeakness { b: AtkBase, damage: i32, ignore_weakness: bool, ignore_resistance: bool },
@@ -186,7 +188,6 @@ pub enum Effect {
     KnockOutPlayer { b: AtkBase, knocked_out: bool, prize_count: i32 },
     DiscardCards { b: AtkBase, cards: SVec<CardId, 64> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 64> },
-    GustOpponentBench { b: AtkBase },
     /// `MoveOpponentEnergyEffect`: an attack's move of an attached card between the opponent's Pokémon, as the
     /// effect of the attack that prevention reads (`b.target` is the source slot); its reducer produces the
     /// MoveEnergy event (`engine::attach::move_attached`).
@@ -225,8 +226,6 @@ pub enum Effect {
     /// `DiscardAttackerEnergyIfKnockedOutDuringOpponentsNextTurnEffect`
     /// (target = base.source; `markerSource` = `source_card`).
     DiscardAttackerEnergyIfKnockedOut { b: AtkBase, source_card: CardId },
-    /// `SwitchOutOpponentsActiveEffect`: switches `bench_target` in when set.
-    SwitchOutOpponentsActive { b: AtkBase, bench_target: Option<SlotRef> },
     /// `PreventDamageEffect` (EffectOfAttackEffect, target = attacker):
     /// `player.active.preventDamageNextTurnPending = {}` (empty filter only).
     PreventDamage { b: AtkBase },
@@ -340,8 +339,7 @@ impl Effect {
             EffectOfAbility { .. } => "EFFECT_OF_ABILITY_EFFECT",
             SpecialEnergy { .. } => "SPECIAL_ENERGY_EFFECT",
             PlaceDamageCounters { .. } => "PLACE_DAMAGE_COUNTERS_EFFECT",
-            MovedToActive { .. } => "MOVED_TO_ACTIVE_EFFECT",
-            MovedFromActiveToBench { .. } => "MOVED_FROM_ACTIVE_TO_BENCH_EFFECT",
+            ChangeActive { .. } => "CHANGE_ACTIVE_EVENT",
             ApplyWeakness { .. } => "APPLY_WEAKNESS_EFFECT",
             DealDamage { .. } => "DEAL_DAMAGE_EFFECT",
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
@@ -352,7 +350,6 @@ impl Effect {
             KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
-            GustOpponentBench { .. } => "GUST_OPPONENT_BENCH_EFFECT",
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             AddMarker { .. } => "ADD_MARKER_EFFECT",
             AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
@@ -367,7 +364,6 @@ impl Effect {
             PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
             SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
             DiscardAttackerEnergyIfKnockedOut { .. } => "DISCARD_ATTACKER_ENERGY_IF_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN_EFFECT",
-            SwitchOutOpponentsActive { .. } => "SWITCH_OUT_OPPONENTS_ACTIVE_EFFECT",
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
             PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
             ThisPokemonHasNoWeakness { .. } => "THIS_POKEMON_HAS_NO_WEAKNESS_DURING_OPPONENTS_NEXT_TURN_EFFECT",
@@ -412,13 +408,12 @@ impl Effect {
             | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
-            | GustOpponentBench { b, .. }
             | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
-            ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
+            ReduceDamage { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
             DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
@@ -443,13 +438,12 @@ impl Effect {
             | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
-            | GustOpponentBench { b, .. }
             | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
-            ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
+            ReduceDamage { b, .. } => Some(b),
             PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
             DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
@@ -504,8 +498,7 @@ impl Effect {
             EffectOfAbility { .. } => 32,
             SpecialEnergy { .. } => 33,
             PlaceDamageCounters { .. } => 34,
-            MovedToActive { .. } => 35,
-            MovedFromActiveToBench { .. } => 36,
+            ChangeActive { .. } => 35,
             ApplyWeakness { .. } => 37,
             DealDamage { .. } => 38,
             PutDamage { .. } => 39,
@@ -516,7 +509,6 @@ impl Effect {
             KnockOutPlayer { .. } => 140,
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
-            GustOpponentBench { .. } => 45,
             MoveOpponentEnergy { .. } => 164,
             AddMarker { .. } => 46,
             AddSpecialConditions { .. } => 47,
@@ -545,7 +537,6 @@ impl Effect {
             PreventDamageFiltered { .. } => 84,
             SelfPreventRetreat { .. } => 105,
             DiscardAttackerEnergyIfKnockedOut { .. } => 106,
-            SwitchOutOpponentsActive { .. } => 111,
             PreventDamage { .. } => 84,
             PreventEffectsOfAttacks { .. } => 77,
             ThisPokemonHasNoWeakness { .. } => 148,
@@ -610,8 +601,8 @@ pub mod k {
     pub const EFFECT_OF_ABILITY: u32 = 32;
     pub const SPECIAL_ENERGY: u32 = 33;
     pub const PLACE_DAMAGE_COUNTERS: u32 = 34;
-    pub const MOVED_TO_ACTIVE: u32 = 35;
-    pub const MOVED_FROM_ACTIVE_TO_BENCH: u32 = 36;
+    /// The ChangeActive event (events batch 5); the number the old MovedToActive effect had.
+    pub const CHANGE_ACTIVE: u32 = 35;
     pub const APPLY_WEAKNESS: u32 = 37;
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
@@ -622,7 +613,6 @@ pub mod k {
     pub const KNOCK_OUT_PLAYER: u32 = 140;
     pub const DISCARD_CARDS: u32 = 43;
     pub const CARDS_TO_HAND: u32 = 44;
-    pub const GUST_OPPONENT_BENCH: u32 = 45;
     pub const ADD_MARKER: u32 = 46;
     pub const ADD_SPECIAL_CONDITIONS: u32 = 47;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
@@ -651,7 +641,6 @@ pub mod k {
     pub const REDUCE_DAMAGE: u32 = 110;
     pub const SELF_PREVENT_RETREAT: u32 = 105;
     pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
-    pub const SWITCH_OUT_OPPONENTS_ACTIVE: u32 = 111;
     pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
     pub const RETALIATE_ON_DAMAGE: u32 = 172;
     pub const RETALIATE_DAMAGE: u32 = 173;
@@ -682,6 +671,9 @@ pub mod k {
     pub const DECLARES_CONDITION_PREVENT: u32 = 80;
     pub const DECLARES_HEAL_PREVENT: u32 = 81;
     pub const DECLARES_COIN_PREVENT: u32 = 82;
+    /// A lock / a `Prevent` declaration over ChangeActive (events batch 5).
+    pub const DECLARES_ACTIVE_LOCK: u32 = 36;
+    pub const DECLARES_ACTIVE_PREVENT: u32 = 45;
     /// A permission that lifts `Limit::FirstTurn` / `BaseEnteredThisTurn` / `EvolvesFrom` (with `DECLARES_PERMIT`).
     pub const PERMIT_FIRST_TURN: u32 = 253;
     pub const PERMIT_BASE_ENTERED: u32 = 254;
@@ -755,8 +747,7 @@ impl Effect {
             return Some(b.cause);
         }
         match *self {
-            MovedToActive { cause, .. }
-            | MovedFromActiveToBench { cause, .. }
+            ChangeActive { cause, .. }
             | Heal { cause, .. }
             | Evolve { cause, .. }
             | EffectOfAbility { cause, .. }

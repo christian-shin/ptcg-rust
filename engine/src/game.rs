@@ -1211,6 +1211,9 @@ impl Game {
         if matches!(kind, k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL) {
             crate::engine::attach::reducer(self, id)?;
         }
+        if kind == k::CHANGE_ACTIVE {
+            crate::engine::change_active::reducer(self, id)?;
+        }
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
             crate::engine::enter::reducer(self, id)?;
         }
@@ -1230,8 +1233,7 @@ impl Game {
                 | k::DEVOLVE
                 | k::PLAY_STADIUM
                 | k::ATTACH_POKEMON_TOOL
-                | k::MOVED_TO_ACTIVE
-                | k::MOVED_FROM_ACTIVE_TO_BENCH
+                | k::CHANGE_ACTIVE
                 | k::CHECK_TABLE_STATE
         ) && !(kind == k::ENTER_PLAY && self.st.phase == GamePhase::Setup)
         {

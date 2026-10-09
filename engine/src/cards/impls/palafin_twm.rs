@@ -9,7 +9,9 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[
         Trigger {
             origin: RuleSource::Ability,
-            event: Event::OnMoved(OnMovedSpec { to: MovedTo::Bench }),
+            // "Once during your turn, when this Pokémon moves from the Active Spot to the Bench" (a retreat or any switch;
+            // not a Knock Out, which isn't a move to the Bench).
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::ChangeActive), EventPred::From(SlotPred::IsThisPokemon), EventPred::Turn(TurnOf::Me)])),
             steps: &[Step::new(Op::If(IfSpec {
                 cond: Cond::Not(&Cond::HasMarker { who: Who::Me, name: "ABILITY_USED_MARKER", from: MarkerFrom::This }),
                 yes: &[Step::new(Op::May(MaySpec {

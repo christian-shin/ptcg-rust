@@ -15,12 +15,11 @@ pub struct Trigger {
 
 pub enum Event {
     /// A rules event matching the predicate (events batch 2: EnterPlay, Evolve, Devolve, Swap; batch 3: Attach,
-    /// MoveEnergy, MoveTool): the steps run
+    /// MoveEnergy, MoveTool; batch 4: the condition, healing and coin events; batch 5: ChangeActive): the steps run
     /// once the event is done (after its consequences), in the propagation order of the declaring cards
     /// (`run::after_event`). The program runs for the event's owner when the declaring card is a Stadium
     /// ("that player"), else for the declaring card's owner; the event's spot is the picked slot.
     On(super::event::EventPred),
-    OnMoved(OnMovedSpec),
     OnKnockOut(OnKnockOutSpec),
     OnDamagedByAttack(OnDamagedByAttackSpec),
     OnCheckup(OnCheckupSpec),
@@ -37,17 +36,6 @@ pub struct CustomEventSpec {
     pub fires: fn(&mut Game, CardId, EffId) -> Option<usize>,
 }
 
-/// This Pokémon moved between the Active Spot and the Bench during its owner's turn.
-pub struct OnMovedSpec {
-    pub to: MovedTo,
-}
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum MovedTo {
-    /// From the Active Spot to the Bench.
-    Bench,
-    /// From the Bench to the Active Spot.
-    Active,
-}
 /// Whose Knock Out.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum KoWhich {
@@ -107,10 +95,6 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
         Event::On(p) => p.effect_kinds(),
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
-        Event::OnMoved(m) => match m.to {
-            MovedTo::Bench => mask(&[k::MOVED_FROM_ACTIVE_TO_BENCH]),
-            MovedTo::Active => mask(&[k::MOVED_TO_ACTIVE]),
-        },
         Event::OnDamagedByAttack(_) => mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
         Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
@@ -203,22 +187,6 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 _ => None,
             }
         }
-        Event::OnMoved(OnMovedSpec { to: MovedTo::Bench }) => {
-            let Effect::MovedFromActiveToBench { p, card, .. } = *g.e(e) else { return None };
-            let p = p as usize;
-            if card != me || g.st.active_player as usize != p || !g.st.players[p].moved_from_active_to_bench_this_turn.contains(&me) {
-                return None;
-            }
-            if super::passive::blocked(g, me, t.origin, super::passive::Located { owner: p, held: None }, None) {
-                return None;
-            }
-            Some((p, None))
-        }
-        Event::OnMoved(OnMovedSpec { to: MovedTo::Active }) => {
-            let Effect::MovedToActive { p, card, .. } = *g.e(e) else { return None };
-            let p = p as usize;
-            (card == me && g.st.active_player as usize == p && g.st.players[p].moved_to_active_this_turn.contains(&me)).then_some((p, None))
-        }
         Event::OnDiscarded(_) => {
             let Effect::DiscardCards { b, ref cards } = *g.e(e) else { return None };
             let pu = b.player as usize;
@@ -260,6 +228,7 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::RemoveCondition { target, condition, cause, .. } => crate::engine::condition::condition_view(g, EventKind::RemoveCondition, target, condition, cause),
         Effect::Heal { target, damage, cause, .. } => crate::engine::condition::heal_view(g, target, damage, cause),
         Effect::CoinFlip { p, purpose, heads, cause } => crate::engine::condition::coin_view(g, p as usize, purpose, heads, cause),
+        Effect::ChangeActive { p, from, to, change, cause } => crate::engine::change_active::effect_view(g, p, from, to, change, cause),
         _ => return None,
     })
 }

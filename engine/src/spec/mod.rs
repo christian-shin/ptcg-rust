@@ -328,6 +328,6 @@ pub enum Op {
 /// Everything a spec card file needs.
 pub mod prelude {
     pub use super::*;
-    pub use super::event::{CausePred, EnterMode, EventKind, EventPred, EvolvePath, Limit, Role, RulesZone, TurnOf};
+    pub use super::event::{ActiveChange, CausePred, EnterMode, EventKind, EventPred, EvolvePath, Limit, Role, RulesZone, TurnOf};
     pub use crate::cards::CardImpl;
 }

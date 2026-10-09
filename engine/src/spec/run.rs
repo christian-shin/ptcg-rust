@@ -100,6 +100,9 @@ pub struct Frame {
     pub(crate) last: i32,
     /// The Trainer is used as the effect of an attack (Look-Alike Show); fixed when it starts.
     pub(crate) via_attack: bool,
+    /// "If you do": the last op that reports whether it did what it says did it (`Cond::Done`; events batch 5: the
+    /// switch ops, true when the ChangeActive happened).
+    pub(crate) done: bool,
     /// What the program's events are caused by (docs/design/events-design.md, section 3): set once when
     /// the frame is created (`frame_cause`), from what starts the program. Not encoded: a resumed frame
     /// computes it again from the same fixed fields.
@@ -108,7 +111,7 @@ pub struct Frame {
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize, cause: Cause) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, cause }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, done: false, cause }
     }
 
     /// The frame a passive of card `me` (owned by `owner`) evaluates its conditions and numbers in. It runs no
@@ -142,6 +145,7 @@ impl Frame {
         f.a[2] = (self.p as i32 & 1)
             | ((self.prize & 15) as i32) << 1
             | (self.via_attack as i32) << 5
+            | (self.done as i32) << 6
             | (self.attached_to as i32) << 8
             | ((self.last & 0xFFFF) << 16);
         f.a[3] = i32::from_le_bytes(self.iter);
@@ -186,6 +190,7 @@ impl Frame {
                 n => n as u8,
             },
             via_attack: (f.a[2] >> 5) & 1 != 0,
+            done: (f.a[2] >> 6) & 1 != 0,
             attached_to: ((f.a[2] >> 8) & 0xFF) as u8,
             last: (f.a[2] >> 16) as i16 as i32,
             cards: f.l,

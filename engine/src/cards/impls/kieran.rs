@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Choose(ChooseSpec { chooser: Who::Me, msg: "CHOOSE_OPTION", options: &[ChoiceBranch { label: "SWITCH_POKEMON", avail: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any), body: &[Step::new(Op::Switch(SwitchSpec { side: Who::Me, chooser: Who::Me, kind: SwitchKind::Plain, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false }))] }, ChoiceBranch { label: "INCREASE_DAMAGE_BY_30_AGAINST_OPPONENTS_EX_AND_V_POKEMON", avail: Cond::True, body: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "KIERAN_MARKER", source: RuleSource::TrainerEffect }))] }] })),
+            Step::new(Op::Choose(ChooseSpec { chooser: Who::Me, msg: "CHOOSE_OPTION", options: &[ChoiceBranch { label: "SWITCH_POKEMON", avail: Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Any), body: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false }))] }, ChoiceBranch { label: "INCREASE_DAMAGE_BY_30_AGAINST_OPPONENTS_EX_AND_V_POKEMON", avail: Cond::True, body: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "KIERAN_MARKER", source: RuleSource::TrainerEffect }))] }] })),
         ],
     }),
     passives: &[
