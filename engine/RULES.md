@@ -77,11 +77,12 @@ and simultaneous take-holds are stamped with the turn player's first.
   legality both call it. Locks that last (an attack's "can't play Item cards
   next turn": Budew, Frillish, Galvantula ex, Scream Tail ex, Chi-Yu,
   Bronzong) are player flags, not declared locks.
-- Jellicent ex's "Item cards or Pokémon Tool cards from their hand" and Team
-  Rocket's Arbok's "any Pokémon that has an Ability from their hand" cover
-  every way of playing the card from the hand: a Tool put on by an effect from
-  another zone isn't stopped, and Rare Candy can't put an Arbok-locked
-  Pokémon into play (the lock covers evolving from the hand, as Bronzong's does).
+- Jellicent ex's "Item cards or Pokémon Tool cards from their hand" stops a
+  Tool attached from the hand only; a Tool put on by an effect from another
+  zone isn't stopped. Team Rocket's Arbok's "any Pokémon that has an Ability
+  from their hand" also stops a Fossil with an Ability (Antique Root Fossil),
+  which is played as a Pokémon. Whether it stops Rare Candy is not decided (no
+  ruling): it doesn't today.
 
 ## On-play Abilities (2026-10-08)
 
