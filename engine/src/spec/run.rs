@@ -54,8 +54,8 @@ pub(crate) enum Phase {
     /// Step D of an attack (FINAL attack-choice rule, user 2026-10-07): the
     /// choices of the after-damage steps are made now, before the damage, and
     /// recorded in `Game::spec_choices`; the after-damage run carries them out.
-    /// Searches and choices nested under conditions, coins or loops are still
-    /// made after the damage, when their options exist.
+    /// Deck searches, and choices nested under an `If` the damage can change, a coin or a
+    /// loop, are still made after the damage, when their options exist.
     Choices = 3,
 }
 
