@@ -81,11 +81,19 @@ pub fn play_pokemon_from_zone_reducer(g: &mut Game, id: EffId) -> R {
     crate::bail!("INVALID_TARGET");
 }
 
-pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
-    let (p, card, target) = match *g.e(id) {
-        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
-        _ => return Ok(()),
-    };
+/// What a Pokémon card played onto a slot does.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum PokemonPlay {
+    /// A Basic onto an empty slot.
+    Basic,
+    /// An evolution of the Pokémon in the slot (its timing is still to check).
+    Evolve(CardId),
+}
+
+/// Check only: the state rules for playing this Pokémon card onto `target`
+/// (the play locks, the Basic/evolution match). Evolution timing needs the
+/// `CheckPokemonPlayedTurn` read, so it is [`can_evolve_now`].
+pub fn can_play_pokemon(g: &Game, p: usize, card: CardId, target: SlotRef) -> R<PokemonPlay> {
     let d = g.st.cdef(card);
     let pl = &g.st.players[p];
     if pl.cannot_play_pokemon_cards {
@@ -96,10 +104,7 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
     }
     let tslot = g.st.slot(target.p as usize, target.s);
     if d.stage == Stage::Basic as u8 && tslot.cards.is_empty() {
-        g.move_card_to(ListRef::Hand(p as u8), card, target.list());
-        let turn = g.st.turn;
-        g.st.players[target.p as usize].slots[target.s as usize].pokemon_played_turn = turn;
-        return Ok(());
+        return Ok(PokemonPlay::Basic);
     }
     let base = match g.st.slot_pokemon(target.p as usize, target.s) {
         Some(c) => c,
@@ -111,12 +116,22 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
     if g.st.players[p].cannot_evolve_pokemon_cards {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
+    Ok(PokemonPlay::Evolve(base))
+}
+
+/// The checked read of evolution timing: the slot's `pokemon_played_turn` and
+/// the first-turn permission, as the `CheckPokemonPlayedTurn` effect leaves them.
+pub fn read_pokemon_played_turn(g: &mut Game, p: usize, target: SlotRef) -> R<(i32, bool)> {
     let played = g.st.slot(target.p as usize, target.s).pokemon_played_turn;
     let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
-    let (played, first_turn_ok) = match e {
+    Ok(match e {
         Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
         _ => (played, false),
-    };
+    })
+}
+
+/// Check only: evolution timing, given the result of [`read_pokemon_played_turn`].
+pub fn can_evolve_now(g: &Game, p: usize, played: i32, first_turn_ok: bool) -> R {
     let turn = g.st.turn;
     if (turn == 0 || turn == 1 || turn == 2) && !g.st.players[p].can_evolve && !first_turn_ok {
         crate::bail!("CANNOT_EVOLVE_ON_YOUR_FIRST_TURN");
@@ -124,6 +139,22 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
     if played >= turn {
         crate::bail!("POKEMON_CANT_EVOLVE_THIS_TURN");
     }
+    Ok(())
+}
+
+pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
+    let (p, card, target) = match *g.e(id) {
+        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
+        _ => return Ok(()),
+    };
+    if can_play_pokemon(g, p, card, target)? == PokemonPlay::Basic {
+        g.move_card_to(ListRef::Hand(p as u8), card, target.list());
+        let turn = g.st.turn;
+        g.st.players[target.p as usize].slots[target.s as usize].pokemon_played_turn = turn;
+        return Ok(());
+    }
+    let (played, first_turn_ok) = read_pokemon_played_turn(g, p, target)?;
+    can_evolve_now(g, p, played, first_turn_ok)?;
     g.run_fx(Effect::Evolve { p: p as u8, target, card })?;
     finish_evolution(g, p, target)
 }
@@ -289,48 +320,69 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
     }
 }
 
+/// Check only: the Trainer-play rules the `play_trainer_reducer` applies.
+pub fn can_play_supporter(g: &Game, p: usize) -> R {
+    if g.st.players[p].cannot_play_supporter_cards {
+        crate::bail!("BLOCKED_BY_EFFECT");
+    }
+    // One Supporter card per turn (basic rule), for every Supporter.
+    if g.st.players[p].supporter_turn > 0 {
+        crate::bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    Ok(())
+}
+
+pub fn can_play_stadium(g: &Game, p: usize) -> R {
+    if g.st.players[p].cannot_play_stadium_cards {
+        crate::bail!("BLOCKED_BY_EFFECT");
+    }
+    Ok(())
+}
+
+pub fn can_play_item(g: &Game, p: usize) -> R {
+    if g.st.players[p].cannot_play_item_cards {
+        crate::bail!("BLOCKED_BY_EFFECT");
+    }
+    Ok(())
+}
+
+pub fn can_attach_tool(g: &Game, p: usize, card: CardId, target: SlotRef) -> R {
+    if target.p as usize != p && !g.st.cdef(card).attaches_to_opponents_pokemon {
+        crate::bail!("INVALID_TARGET");
+    }
+    let pc = match g.st.slot_pokemon(target.p as usize, target.s) {
+        Some(c) => c,
+        None => crate::bail!("INVALID_TARGET"),
+    };
+    if g.st.slot(target.p as usize, target.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
+        crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
+    }
+    if g.st.players[p].cannot_play_tool_cards {
+        crate::bail!("BLOCKED_BY_EFFECT");
+    }
+    Ok(())
+}
+
 pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::PlaySupporter { p, card, target } => {
             let pu = p as usize;
-            if g.st.players[pu].cannot_play_supporter_cards {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
-            // One Supporter card per turn (basic rule), for every Supporter.
-            if g.st.players[pu].supporter_turn > 0 {
-                crate::bail!("SUPPORTER_ALREADY_PLAYED");
-            }
+            can_play_supporter(g, pu)?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Supporter, p, card, target)
         }
         Effect::PlayStadium { p, card } => {
             let pu = p as usize;
-            if g.st.players[pu].cannot_play_stadium_cards {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
+            can_play_stadium(g, pu)?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Stadium, p, card, None)
         }
         Effect::AttachPokemonTool { p, card, target } => {
             let pu = p as usize;
-            if target.p != p && !g.st.cdef(card).attaches_to_opponents_pokemon {
-                crate::bail!("INVALID_TARGET");
-            }
-            let pc = match g.st.slot_pokemon(target.p as usize, target.s) {
-                Some(c) => c,
-                None => crate::bail!("INVALID_TARGET"),
-            };
-            if g.st.slot(target.p as usize, target.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
-                crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
-            }
-            if g.st.players[pu].cannot_play_tool_cards {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
+            can_attach_tool(g, pu, card, target)?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Tool, p, card, Some(target))
         }
         Effect::PlayItem { p, card, target } => {
             let pu = p as usize;
-            if g.st.players[pu].cannot_play_item_cards {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
+            can_play_item(g, pu)?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Item, p, card, target)
         }
         Effect::Trainer { p, card, .. } => {

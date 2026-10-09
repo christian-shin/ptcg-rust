@@ -210,17 +210,70 @@ struct Pass {
     retreat_cost_unpaid: bool,
 }
 
+/// Index into `legal_stats::KINDS`.
+fn stat_kind(g: &Game, a: Action) -> usize {
+    match a {
+        Action::PlayCard { hand_index, .. } => {
+            let p = g.st.active_player as usize;
+            let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return 3 };
+            let d = g.st.cdef(card);
+            if d.is_energy() {
+                0
+            } else if d.is_pokemon() {
+                if d.stage == Stage::Basic as u8 { 1 } else { 2 }
+            } else {
+                match d.trainer_type() {
+                    TrainerType::Item => 3,
+                    TrainerType::Supporter => 4,
+                    TrainerType::Stadium => 5,
+                    TrainerType::Tool => 6,
+                }
+            }
+        }
+        Action::Attack { .. } => 7,
+        Action::UseAbility { .. } | Action::UseTrainerAbility { .. } => 8,
+        Action::UseStadium => 9,
+        Action::Retreat { .. } => 10,
+        Action::Pass => 11,
+    }
+}
+
 fn legal_in(g: &Game, a: Action, ctx: &mut Pass) -> bool {
+    let stats = crate::legal_stats::enabled();
+    let kind = if stats { stat_kind(g, a) } else { 0 };
     let fast = match a {
         // Ending the turn is always possible.
-        Action::Pass => true,
-        Action::Retreat { .. } if ctx.retreat_cost_unpaid => false,
-        _ if rejects(g, a) => false,
+        Action::Pass => {
+            if stats {
+                crate::legal_stats::record(kind, false, true, None);
+            }
+            true
+        }
+        Action::Retreat { .. } if ctx.retreat_cost_unpaid => {
+            if stats {
+                crate::legal_stats::record(kind, false, false, None);
+            }
+            false
+        }
+        _ if rejects(g, a) => {
+            if stats {
+                crate::legal_stats::record(kind, false, false, None);
+            }
+            false
+        }
         _ => match trial(g, a, true) {
-            Ok(()) => true,
+            Ok(()) => {
+                if stats {
+                    crate::legal_stats::record(kind, true, true, None);
+                }
+                true
+            }
             Err(e) => {
                 if matches!(a, Action::Retreat { .. }) && e.0 == "NOT_ENOUGH_ENERGY" {
                     ctx.retreat_cost_unpaid = true;
+                }
+                if stats {
+                    crate::legal_stats::record(kind, true, false, Some(e.0));
                 }
                 false
             }
@@ -242,36 +295,29 @@ fn verify_legal() -> bool {
 /// Each check mirrors an unconditional failure of the trial's code path;
 /// `PTCG_VERIFY_LEGAL=1` checks them against the trial.
 fn rejects(g: &Game, a: Action) -> bool {
+    use crate::engine::{play, retreat, turn};
+    let p = g.st.active_player as usize;
     match a {
         Action::PlayCard { hand_index, target } => {
-            let p = g.st.active_player as usize;
             let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return false };
             let d = g.st.cdef(card);
-            if !d.is_pokemon() {
-                return false;
+            if d.is_energy() {
+                return turn::can_attach_energy(g, p, target).is_err();
             }
-            // play_pokemon_reducer: a Basic onto an empty slot, else an evolution of the slot's Pokémon.
-            let Ok(t) = crate::prompts::get_target(&g.st, p, target) else { return true };
-            if d.stage == Stage::Basic as u8 && g.st.slot(t.p as usize, t.s).cards.is_empty() {
-                return false;
+            if d.is_pokemon() {
+                let Ok(t) = crate::prompts::get_target(&g.st, p, target) else { return true };
+                return play::can_play_pokemon(g, p, card, t).is_err();
             }
-            match g.st.slot_pokemon(t.p as usize, t.s) {
-                None => true,
-                Some(base) => !crate::engine::play::can_evolve_from(g, base, card),
+            // The turn rules checked before the Trainer's effect is dispatched.
+            match d.trainer_type() {
+                TrainerType::Supporter => turn::can_play_supporter_card(g, p, card).is_err(),
+                TrainerType::Stadium => turn::can_play_stadium_card(g, p, card).is_err(),
+                _ => false,
             }
         }
-        // retreat::reducer: its unconditional failures (card handlers only add blocks).
-        Action::Retreat { bench_index } => {
-            let p = g.st.active_player as usize;
-            let pl = &g.st.players[p];
-            let active = g.st.slot(p, pl.active);
-            let sp = active.special_conditions;
-            active.cannot_retreat_next_turn
-                || pl.bench.get(bench_index as usize).map_or(true, |b| g.st.slot(p, *b).cards.is_empty())
-                || sp.contains(&(SpecialCondition::Paralyzed as u8))
-                || sp.contains(&(SpecialCondition::Asleep as u8))
-                || pl.retreated_turn == g.st.turn
-        }
+        Action::UseStadium => turn::can_use_stadium(g, p).is_err(),
+        // retreat::reducer: its state checks (card handlers only add blocks).
+        Action::Retreat { bench_index } => retreat::can_retreat(g, p, bench_index, false).is_err(),
         _ => false,
     }
 }

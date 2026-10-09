@@ -63,11 +63,10 @@ pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
     &g.st.cdef(a.card).attacks[a.idx()]
 }
 
-pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
-    let (p, attack, ignore_status, delegate_from) = match *g.e(id) {
-        Effect::UseAttack { p, attack, ignore_status_conditions, delegate_from, .. } => (p as usize, attack, ignore_status_conditions, delegate_from),
-        _ => return Ok(()),
-    };
+/// Check only, first half: first turn, Special Conditions, which Pokémon
+/// attacks (a Benched one for a use-on-Bench attack) and the flags that block
+/// it. Returns the attacking slot. Same order as `start_use_attack` always had.
+pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool) -> R<SlotRef> {
     let ad = attack_def(g, attack);
     // `attack.canUseOnFirstTurn` (printed, or written at runtime by Meloetta ex).
     let first_turn_ok = g.st.cards[attack.card as usize].attack_first_turn & (1u8 << attack.idx()) != 0;
@@ -93,16 +92,30 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     if g.st.players[p].cannot_attack_turns_remaining > 0 {
         crate::bail!("BLOCKED_BY_EFFECT");
     }
-    if g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 {
-        if let Some(max) = g.st.players[p].cannot_attack_max_energy {
-            let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: attacking, energy_map: SVec::new() })?;
-            let count: i32 = match pe {
-                Effect::CheckProvidedEnergy { energy_map, .. } => energy_map.iter().map(|m| m.provides.len() as i32).sum(),
-                _ => 0,
-            };
-            if count <= max {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
+    Ok(attacking)
+}
+
+/// The checked read between the halves: with a "can't attack with this much
+/// Energy" effect on the player, the Energy count the attacker provides.
+pub fn attack_read_max_energy(g: &mut Game, p: usize, attacking: SlotRef) -> R<Option<i32>> {
+    if g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 && g.st.players[p].cannot_attack_max_energy.is_some() {
+        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: attacking, energy_map: SVec::new() })?;
+        let count: i32 = match pe {
+            Effect::CheckProvidedEnergy { energy_map, .. } => energy_map.iter().map(|m| m.provides.len() as i32).sum(),
+            _ => 0,
+        };
+        return Ok(Some(count));
+    }
+    Ok(None)
+}
+
+/// Check only, second half: the max-Energy rule (given the read) and the
+/// blocked attack names.
+pub fn can_attack_post(g: &Game, p: usize, attack: AttackRef, attacking: SlotRef, max_energy_count: Option<i32>) -> R {
+    let ad = attack_def(g, attack);
+    if let (Some(count), Some(max)) = (max_energy_count, g.st.players[p].cannot_attack_max_energy) {
+        if count <= max {
+            crate::bail!("BLOCKED_BY_EFFECT");
         }
     }
     if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.name) {
@@ -117,7 +130,13 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     // cannotAttackMaxEnergy / other blocked attack names /
     // cannotUseAttackUntilLeavesPlay / cannotUseGXAttacks /
     // coinFlipCancelAttackNextTurn: not modeled.
+    Ok(())
+}
 
+/// The cost reads of an attack (`CheckAttackCost`, then `CheckProvidedEnergy`
+/// for the attacker) and whether the Energy covers the cost.
+pub fn attack_payable(g: &mut Game, p: usize, attack: AttackRef, attacking: SlotRef) -> R<bool> {
+    let ad = attack_def(g, attack);
     let mut cost: Cost = SVec::new();
     for &c in ad.cost {
         cost.push(c);
@@ -132,7 +151,20 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
         Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
         _ => SVec::new(),
     };
-    if !energy::check_enough_energy(emap.as_slice(), cost.as_slice()) {
+    Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))
+}
+
+pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
+    let (p, attack, ignore_status, delegate_from) = match *g.e(id) {
+        Effect::UseAttack { p, attack, ignore_status_conditions, delegate_from, .. } => (p as usize, attack, ignore_status_conditions, delegate_from),
+        _ => return Ok(()),
+    };
+    let active = g.st.players[p].active;
+    let sp = g.st.slot(p, active).special_conditions;
+    let attacking = can_attack_pre(g, p, attack, ignore_status)?;
+    let max_energy_count = attack_read_max_energy(g, p, attacking)?;
+    can_attack_post(g, p, attack, attacking, max_energy_count)?;
+    if !attack_payable(g, p, attack, attacking)? {
         crate::bail!("NOT_ENOUGH_ENERGY");
     }
     g.retain_fx(id);
