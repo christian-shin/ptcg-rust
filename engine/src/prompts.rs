@@ -1072,7 +1072,8 @@ impl Game {
                         let to = target_from(v, "to").ok_or(invalid)?;
                         let i = v.get("index").and_then(|x| x.as_u64()).ok_or(invalid)? as usize;
                         let c = *list.get(i).ok_or(invalid)?;
-                        if !self.st.cdef(c).is_energy() || o.blocked.contains(&(i as u8)) {
+                        // Each card is attached at most once.
+                        if !self.st.cdef(c).is_energy() || o.blocked.contains(&(i as u8)) || out.iter().any(|(_, x)| *x == c) {
                             return Err(invalid);
                         }
                         out.push((to, c));
@@ -1158,6 +1159,10 @@ impl Game {
                         let i = v.get("index").and_then(|x| x.as_u64()).ok_or(invalid)? as usize;
                         let s = get_target(&self.st, p, from)?;
                         let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
+                        // Each card is moved at most once.
+                        if out.iter().any(|(_, _, x)| *x == c) {
+                            return Err(invalid);
+                        }
                         out.push((from, to, c));
                     }
                     Ok(Res::Transfers(out))
@@ -1259,5 +1264,69 @@ impl Game {
             }
         })();
         Some(r)
+    }
+}
+
+#[cfg(test)]
+mod answer_tests {
+    use crate::game::{Game, Pending};
+    use crate::types::{CardTarget, PlayerType, SlotType};
+    use serde_json::json;
+
+    /// Metang's Metal Maker with two Metal Energy among the top 4: each card is attached at most once. An
+    /// answer naming the same card for two Pokémon used to be accepted (the card was attached to the first
+    /// and moved on to the second), and the pick mask offered it (CI golden corpus, Beldum deck).
+    #[test]
+    fn attach_answer_uses_each_card_once() {
+        let mut names: Vec<&str> = vec!["Metang TEF 114"; 4];
+        names.extend(["Beldum TEF 113"; 4]);
+        names.extend(["Metal Energy MEE 8"; 52]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        // Play the setup with the first allowed answers up to the first turn decision.
+        for _ in 0..100 {
+            g.settle().unwrap();
+            if !matches!(g.pending(), Pending::Decision(_)) {
+                break;
+            }
+            let sel = g.select().unwrap().unwrap();
+            let (mask, _) = g.pick_mask(&sel, &[]);
+            let picks: Vec<usize> = mask.iter().position(|m| *m).into_iter().collect();
+            g.answer(&sel, &picks).unwrap();
+        }
+        assert!(matches!(g.pending(), Pending::Turn(_)));
+        let sc = json!({
+            "me": {"reset": true, "active": "Metang TEF 114", "bench": ["Beldum TEF 113"],
+                   "deck_top": ["Metal Energy MEE 8", "Metal Energy MEE 8", "Beldum TEF 113", "Beldum TEF 113"]},
+            "opp": {"reset": true, "active": "Beldum TEF 113"}
+        });
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let src = CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0);
+        g.act(crate::game::Action::UseAbility { name: "Metal Maker", target: src }).unwrap();
+        g.settle().unwrap();
+        let i = match g.pending() {
+            Pending::Decision(i) => i,
+            p => panic!("no decision pending: {:?}", p),
+        };
+        let pr = g.prompts.as_slice()[i];
+        assert_eq!(pr.message, "ATTACH_ENERGY_CARDS");
+        let list = g.prompt_list(match pr.kind {
+            crate::prompts::PromptKind::AttachEnergy { cards, .. } => cards,
+            _ => unreachable!(),
+        }).to_vec();
+        let e: Vec<usize> = (0..list.len()).filter(|k| g.st.cdef(list[*k]).is_energy()).collect();
+        assert!(e.len() >= 2);
+        let active = json!({"player": 2, "slot": 1, "index": 0});
+        let bench = json!({"player": 2, "slot": 2, "index": 0});
+        let twice = json!([{"index": e[0], "to": active}, {"index": e[0], "to": bench}]);
+        assert!(g.decode_answer(&pr, &twice).is_err());
+        let both = json!([{"index": e[0], "to": active}, {"index": e[1], "to": bench}]);
+        assert!(g.decode_answer(&pr, &both).is_ok());
+        // The pick mask follows: once a card is picked, it isn't offered for another Pokémon.
+        let sel = g.select().unwrap().unwrap();
+        let first = (0..sel.options.len()).find(|j| sel.options[*j].serial == Some(list[e[0]])).unwrap();
+        let (mask, _) = g.pick_mask(&sel, &[first]);
+        assert!((0..sel.options.len()).all(|j| !mask[j] || sel.options[j].serial != Some(list[e[0]])));
     }
 }
