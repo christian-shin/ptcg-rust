@@ -2,7 +2,11 @@
 //! Active Spot. If you do, switch your Active Pokémon with 1 of your Benched
 //! Pokémon.
 //!
-//! Twinleaf: with an empty opposing Bench the play fails (undefined state).
+//! Rule: the first switch is a ChangeActive (SwitchIn, APR C-05) by this Item,
+//! done to the opponent's Benched Pokémon chosen; it can't be played when the
+//! opponent has no Benched Pokémon (the switch is required). "If you do" reads
+//! its outcome (`Cond::Done`); your own switch is a ChangeActive (Switch,
+//! C-03) done to your Active Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

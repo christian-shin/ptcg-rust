@@ -2,9 +2,13 @@
 //! hand to evolve 1 of your Pokémon during your turn, you may switch in 1
 //! of your opponent's Benched Pokémon to the Active Spot. Headbutt — 80.
 //!
-//! Twinleaf: the ability-lock probe and the opposing-Bench check run before
-//! the ConfirmPrompt (phase 4b fix: accepting with an empty opposing Bench
-//! used to throw CANNOT_PLAY_THIS_CARD in the callback and end the game).
+//! Rule: the Ability is offered only when it isn't blocked and the opponent
+//! has a Benched Pokémon. The switch-in is a ChangeActive (SwitchIn, APR C-05)
+//! by the Ability, done to the Benched Pokémon chosen, the same rule as
+//! Hariyama's Heave-Ho Catcher: a Benched Pokémon with Hide 'n' Sneak can be
+//! chosen but isn't switched in, and Hide 'n' Sneak on the Active Pokémon
+//! doesn't stop it (official JP Q&A, Hariyama MEG 73). Evolving from the hand
+//! includes Rare Candy (id285, id1998).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HopsDubwool",

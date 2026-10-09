@@ -3,11 +3,11 @@
 //! if you do, you may move any number of Energy from your Benched Pokémon
 //! to it. Prism Edge - 180; this Pokémon can't attack during your next turn.
 //!
-//! Twinleaf quirks kept: the confirm prompt is created before the card is
-//! benched (and before the ability-lock probe, which runs in the callback);
-//! the energy move loops over every transfer once per transfer, always
-//! using the outer transfer's source (moves of cards not in that source are
-//! no-ops, but each still reduces a MoveCardsEffect).
+//! Rule: Rapid Vernier triggers after this Pokémon is on the Bench (EnterPlay
+//! by the rule from the hand). The switch is a ChangeActive (Switch, APR C-03)
+//! by the Ability, done to the Active Pokémon; "if you do" reads its outcome
+//! (`Cond::Done`), and each Energy moved is a MoveEnergy from a Benched Pokémon
+//! to this one.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IronLeavesex",

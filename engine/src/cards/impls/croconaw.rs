@@ -1,10 +1,11 @@
 //! Croconaw (TEF): Reverse Thrust — 30; switch this Pokémon with 1 of your
 //! Benched Pokémon.
 //!
-//! Twinleaf: AFTER_ATTACK for Reverse Thrust, then SWITCH_ACTIVE_WITH_BENCHED
-//! for the effect's player. Fixed (R1-6): it used to react to the
-//! AfterDamageEffect of the attack, so it never switched when no damage was
-//! dealt (prevented, or 0 after Resistance).
+//! Rule: the switch is part of the attack's effect, after its damage, and
+//! happens whether or not damage was dealt (prevented, or 0 after
+//! Resistance). It is a ChangeActive (Switch, APR C-03) by the attack, done to
+//! this Pokémon: it goes to the Bench and loses its Special Conditions and the
+//! effects of attacks on it.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -768,3 +768,40 @@ impl Effect {
         }
     }
 }
+
+#[cfg(test)]
+mod marker_tests {
+    //! The declaration markers (`k::DECLARES_*`, `k::PERMIT_*`) share the mask with the effect kinds; some reuse
+    //! numbers effects freed (36, 45, 71, ...). A marker equal to an effect kind would alias: dispatching that effect
+    //! would call every card that declares the marker, and `kinds_present` would say a declaration exists whenever a
+    //! card reacts to the effect.
+
+    /// The numbers `Effect::kind()` returns and the markers' numbers, read from this file.
+    fn numbers() -> (Vec<u32>, Vec<(String, u32)>) {
+        let src = include_str!("effects.rs");
+        let body = src.split("pub fn kind(&self) -> u32 {").nth(1).unwrap().split("        };").next().unwrap();
+        let kinds: Vec<u32> = body.lines().filter_map(|l| l.trim().strip_suffix(',')?.rsplit("=> ").next()?.parse().ok()).collect();
+        let markers = src
+            .lines()
+            .filter_map(|l| {
+                let l = l.trim().strip_prefix("pub const ")?;
+                let (name, v) = l.split_once(": u32 = ")?;
+                (name.starts_with("DECLARES_") || name.starts_with("PERMIT_")).then(|| (name.to_string(), v.trim_end_matches(';').parse().unwrap()))
+            })
+            .collect();
+        (kinds, markers)
+    }
+
+    #[test]
+    fn no_marker_is_an_effect_kind() {
+        let (kinds, markers) = numbers();
+        assert!(kinds.len() > 90, "every Effect variant's kind is read ({})", kinds.len());
+        assert!(markers.len() >= 16, "the markers are read ({})", markers.len());
+        for (name, v) in &markers {
+            assert!(!kinds.contains(v), "k::{name} = {v} is also an effect kind");
+            assert!(markers.iter().filter(|(_, w)| w == v).count() == 1, "k::{name} = {v} is used twice");
+        }
+        assert!(markers.iter().any(|(n, v)| n == "DECLARES_ACTIVE_LOCK" && *v == super::k::DECLARES_ACTIVE_LOCK));
+        assert!(markers.iter().any(|(n, v)| n == "DECLARES_ACTIVE_PREVENT" && *v == super::k::DECLARES_ACTIVE_PREVENT));
+    }
+}
