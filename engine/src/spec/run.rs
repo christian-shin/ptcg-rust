@@ -428,10 +428,6 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, t) in spec.triggers.iter().enumerate() {
-        // "When you play this Pokémon" runs once the card is on the board (`after_enter_play`).
-        if trigger::runs_after_play(t) {
-            continue;
-        }
         if let Some((p, slot)) = trigger::fires(g, me, e, t) {
             let mut f = Frame::start(g, me, Prog::Trigger(i as u8), Phase::Use, e, p, false);
             f.slot = slot;
@@ -444,12 +440,11 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-/// The triggers over an event that is done (events batch 2: EnterPlay, Evolve, Devolve, Swap): first the
-/// `Event::On` triggers of every card that declares one for the event's kind, in propagation order; then the
-/// B2-OLD on-play triggers of the card itself. The event's consequences are applied by now (a Pokémon is on
-/// the board, so the ordinary in-play locks at its slot decide whether its Ability triggers;
-/// docs/rulings/RULES.md, On-play Abilities, and "Putting onto the Bench": Risky Ruins after the Pokémon is
-/// on the Bench).
+/// The triggers over an event that is done (events batch 2: EnterPlay, Evolve, Devolve, Swap): the `Event::On`
+/// triggers of every card that declares one for the event's kind, in propagation order. The event's
+/// consequences are applied by now (a Pokémon is on the board, so the ordinary in-play locks at its slot decide
+/// whether its Ability triggers; docs/rulings/RULES.md, On-play Abilities, and "Putting onto the Bench": Risky
+/// Ruins after the Pokémon is on the Bench).
 pub fn after_event(g: &mut Game, e: EffId) -> R {
     let kind = g.e(e).kind();
     if !matches!(kind, crate::effects::k::ENTER_PLAY | crate::effects::k::EVOLVE | crate::effects::k::DEVOLVE | crate::effects::k::SWAP) || g.prevented(e) {
@@ -469,27 +464,6 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
                     run(g, c, f)?;
                 }
             }
-        }
-    }
-    after_enter_play(g, e)
-}
-
-/// The B2-OLD triggers of a Pokémon that was just played or evolved ("when you play this Pokémon from your
-/// hand onto your Bench / to evolve").
-fn after_enter_play(g: &mut Game, e: EffId) -> R {
-    let card = match *g.e(e) {
-        Effect::EnterPlay { card, .. } | Effect::Evolve { card, .. } => card,
-        _ => return Ok(()),
-    };
-    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return Ok(()) };
-    for (i, t) in spec.triggers.iter().enumerate() {
-        if !trigger::runs_after_play(t) {
-            continue;
-        }
-        if let Some((p, slot)) = trigger::fires(g, card, e, t) {
-            let mut f = Frame::start(g, card, Prog::Trigger(i as u8), Phase::Use, e, p, false);
-            f.slot = slot;
-            run(g, card, f)?;
         }
     }
     Ok(())

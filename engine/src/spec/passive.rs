@@ -56,12 +56,6 @@ pub enum Modifier {
     GrantAttacks(GrantAttacksSpec),
     AttackFlags(AttackFlagsSpec),
     StatOverride(StatOverrideSpec),
-    /// B2-OLD (events batch 2): an adapter over the Evolve event, read as `Permit { for: Evolve & Source(Hand) &
-    /// Path(Rule) & This(Base) & Card(only & evolves from names), lifts: EvolvesFrom }`. Write `Permit`.
-    EvolveFrom(EvolveFromSpec),
-    /// B2-OLD: an adapter, read as `Permit { for: Evolve & Path(Rule) & Slot(subject), lifts: FirstTurn |
-    /// BaseEnteredThisTurn }`. Write `Permit`.
-    AllowEvolve(AllowEvolveSpec),
     ConditionImmunity(ConditionImmunitySpec),
     AttachGuard(AttachGuardSpec),
     BenchSize(BenchSizeSpec),
@@ -76,10 +70,6 @@ pub enum Modifier {
     PrizeAdjustOnce(PrizeAdjustSpec),
     /// The Pokémon matching `subject` has exactly these types (the game's type check).
     TypeOverride(TypeOverrideSpec),
-    /// B2-OLD: an adapter, read as Forest of Vitality's printed permission `Permit { for: Evolve & Path(Rule) &
-    /// Source(Hand) & Slot(TypeIs(type)) & Card(PokemonType(type)), lifts: BaseEnteredThisTurn }` (it used to
-    /// rewrite the played turn of the type's Pokémon). Write `Permit`.
-    PlayedTurnReset(PlayedTurnResetSpec),
     /// A permission (events design 4.2: "can evolve during ..."): while the card is in place for its origin
     /// and `while_` holds, the `lifts` limits don't apply to the events matching `for_`
     /// (`engine::enter::permitted`). Evaluated where the limit is checked; nothing is dispatched to it.
@@ -126,11 +116,6 @@ pub struct WeaknessOverrideSpec {
 pub struct TypeOverrideSpec {
     pub subject: SlotPred,
     pub set: &'static [CardType],
-}
-
-/// B2-OLD (see `Modifier::PlayedTurnReset`).
-pub struct PlayedTurnResetSpec {
-    pub card_type: CardType,
 }
 
 /// `Permit { origin, for, lifts, while_ }` (events design 4.2): the events matching `for_` (evaluated for the
@@ -356,10 +341,8 @@ pub enum Binds {
 /// uses: the card played from the hand, the Pokémon retreating, the Stadium being used.
 ///
 /// Actions are named from the rules, not from engine paths: a lock declares the words of its text, and every
-/// way of doing the action asks for all the actions it is an instance of. Every way a Pokémon card goes from
-/// the hand into play (a Basic onto the Bench, an Evolution played onto a Pokémon, Rare Candy's Stage 2) is
-/// `PlayPokemon`; the evolving ones (the Evolution played onto a Pokémon, Rare Candy) are also `Evolve`
-/// ([`LockedAction::EVOLUTION_FROM_HAND`]).
+/// way of doing the action asks for all the actions it is an instance of. Playing, putting into play and
+/// evolving Pokémon are events (EnterPlay, Evolve), which locks forbid with `LockDecl::forbids`.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum LockedAction {
     /// Play an Item card from the hand.
@@ -371,13 +354,6 @@ pub enum LockedAction {
     AttachTool,
     /// Attach an Energy card from the hand.
     AttachEnergy,
-    /// B2-OLD (events batch 2): an adapter over the events, `(EnterPlay | Evolve) & Source(Hand)` (not at setup;
-    /// `engine::enter::locked_actions`). A Pokémon card from the hand into play: onto the Bench, onto a Pokémon
-    /// to evolve it, with Rare Candy. Write `LockDecl::forbids` instead.
-    PlayPokemon,
-    /// B2-OLD: an adapter, `Evolve & Source(Hand)` (by playing it or with Rare Candy). Write
-    /// `LockDecl::forbids` instead.
-    Evolve,
     /// Retreat the Active Pokémon (the card is that Pokémon).
     Retreat,
     /// Use the Stadium in play (the card is the Stadium).
@@ -385,10 +361,6 @@ pub enum LockedAction {
 }
 
 impl LockedAction {
-    /// What evolving with a card from the hand is an instance of: play a Pokémon from the hand, and evolve
-    /// (the direct play onto a Pokémon and Rare Candy).
-    pub const EVOLUTION_FROM_HAND: &'static [LockedAction] = &[LockedAction::PlayPokemon, LockedAction::Evolve];
-
     /// The effect kind that carries this action.
     pub const fn kind(self) -> u32 {
         use crate::effects::k;
@@ -398,8 +370,6 @@ impl LockedAction {
             LockedAction::PlayStadium => k::PLAY_STADIUM,
             LockedAction::AttachTool => k::ATTACH_POKEMON_TOOL,
             LockedAction::AttachEnergy => k::ATTACH_ENERGY,
-            LockedAction::PlayPokemon => k::ENTER_PLAY,
-            LockedAction::Evolve => k::EVOLVE,
             LockedAction::Retreat => k::RETREAT,
             LockedAction::UseStadium => k::USE_STADIUM,
         }
@@ -426,8 +396,7 @@ pub enum LockWhile {
 ///   EnterPlay, Evolve, Devolve, Swap), evaluated for the lock's source card; the locked player is the
 ///   event's owner (the player whose card / hand it is). `EventPred::NEVER` when it has none.
 /// - `actions` (the turn actions not yet carried by events: Item, Supporter, Stadium, Tool, Energy, retreat,
-///   Stadium use; and the B2-OLD `PlayPokemon` / `Evolve` adapters), with a predicate over the card the action
-///   uses (`card`, minus `except`).
+///   Stadium use), with a predicate over the card the action uses (`card`, minus `except`).
 pub struct LockDecl {
     pub actions: &'static [LockedAction],
     pub card: Pred,
@@ -526,12 +495,6 @@ const fn block_kinds(lock: &LockDecl) -> KindMask {
     let mut i = 0;
     while i < actions.len() {
         m = crate::spec::with(m, actions[i].kind());
-        // An Evolution played from the hand is also a play of a Pokémon from the hand: both locks are listed
-        // under both kinds (`play_locked_as` walks the sources of the first asked action's kind).
-        if matches!(actions[i], LockedAction::PlayPokemon | LockedAction::Evolve) {
-            m = crate::spec::with(m, crate::effects::k::EVOLVE);
-            m = crate::spec::with(m, crate::effects::k::ENTER_PLAY);
-        }
         i += 1;
     }
     m
@@ -745,17 +708,6 @@ pub struct NextTurnBonusSpec {
     pub bonus: i32,
 }
 pub struct StatOverrideSpec {}
-/// The Pokémon also evolves from `names` (Eevee ex's Rainbow DNA); only a card matching `only`
-/// may be played onto it.
-pub struct EvolveFromSpec {
-    pub names: &'static [&'static str],
-    pub only: Pred,
-}
-/// "Can evolve during your first turn or the turn you play it": the Pokémon's played turn is the
-/// turn before, and it may evolve on the first turn, while it satisfies `subject`.
-pub struct AllowEvolveSpec {
-    pub subject: SlotPred,
-}
 /// "Can't be affected by Special Conditions" (vocabulary P20).
 pub struct ConditionImmunitySpec {
     /// The conditions (empty: all of them).
@@ -829,7 +781,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::HeavyBaton(_) => mask(&[k::KNOCK_OUT, k::PUT_DAMAGE]),
         Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::EFFECT_OF_ABILITY]),
-        Modifier::PlayedTurnReset(_) => mask(&[k::DECLARES_PERMIT, k::PERMIT_BASE_ENTERED]),
         Modifier::Permit(pm) => {
             let mut m = mask(&[k::DECLARES_PERMIT]);
             let mut i = 0;
@@ -840,7 +791,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             m
         }
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
-        Modifier::EvolveFrom(_) => mask(&[k::DECLARES_PERMIT, k::PERMIT_EVOLVES_FROM]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::BlockAttack(b) => match b.on {
             AttackBlockOn::ActiveAttack => mask(&[k::ATTACK]),
@@ -848,7 +798,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         },
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
-        Modifier::AllowEvolve(_) => mask(&[k::DECLARES_PERMIT, k::PERMIT_FIRST_TURN, k::PERMIT_BASE_ENTERED]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -976,7 +925,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             Ok(())
         }
         // Permissions are read where a limit is checked (`engine::enter::permitted`); nothing is dispatched to them.
-        Modifier::PlayedTurnReset(_) | Modifier::Permit(_) | Modifier::EvolveFrom(_) | Modifier::AllowEvolve(_) => Ok(()),
+        Modifier::Permit(_) => Ok(()),
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
         Modifier::HeavyBaton(h) => heavy_baton(g, me, e, h),
         Modifier::WeaknessOverride(w) => {
@@ -1926,8 +1875,7 @@ pub fn play_locked(g: &mut Game, p: usize, card: CardId, action: LockedAction) -
     play_locked_as(g, p, card, &[action])
 }
 
-/// `play_locked` for a way of acting that is an instance of several actions (it asks for all of them): evolving
-/// with a card from the hand is [`LockedAction::EVOLUTION_FROM_HAND`].
+/// `play_locked` for a way of acting that is an instance of several actions (it asks for all of them).
 pub fn play_locked_as(g: &mut Game, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
     if let Some(first) = actions.first() {
         if actions.iter().any(|a| g.kinds_present.has(a.kind())) {
@@ -1953,19 +1901,11 @@ pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[Locke
 
 /// The lock that forbids an event (events batch 2: EnterPlay, Evolve, Devolve, Swap), if any: the error code
 /// of the first one. The locked player is the event's owner (whose card or hand it is). Asked by the event's
-/// routine before the event, and by legality (the same declarations):
-/// - the B2-OLD `LockedAction`s the event is an instance of (`engine::enter::locked_actions`), as
-///   `play_locked_as` answers them (in play, then lasting);
-/// - the locks over events (`LockDecl::forbids`) in play, in propagation order, then the lasting ones.
+/// routine before the event, and by legality (the same declarations): the locks over events
+/// (`LockDecl::forbids`) in play, in propagation order, then the lasting ones.
 pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
     let Some(card) = v.card else { return Ok(None) };
     let p = v.owner as usize;
-    let actions = crate::engine::enter::locked_actions(v);
-    if !actions.is_empty() {
-        if let Some(code) = play_locked_as(g, p, card, actions) {
-            return Ok(Some(code));
-        }
-    }
     if let (true, Some(kind)) = (g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK), v.kind.effect_kind()) {
         let probe = Effect::PlayItem { p: p as u8, card, target: None };
         let order = g.propagation_order(&probe, kind);
@@ -3196,15 +3136,13 @@ mod play_lock_tests {
         static ITEM: LockDecl = LockDecl::of(&[A::PlayItem]);
         static SUPPORTER: LockDecl = LockDecl::of(&[A::PlaySupporter]);
         static STADIUM: LockDecl = LockDecl::of(&[A::PlayStadium]);
-        static EVOLVE: LockDecl = LockDecl::of(&[A::Evolve]);
-        let cases: [(&'static LockDecl, A); 4] = [
+        let cases: [(&'static LockDecl, A); 3] = [
             (&ITEM, A::PlayItem),           // Budew, Frillish, Galvantula ex
             (&SUPPORTER, A::PlaySupporter), // Scream Tail ex
             (&STADIUM, A::PlayStadium), // Chi-Yu
-            (&EVOLVE, A::Evolve),           // Bronzong
         ];
-        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::AttachTool, A::AttachEnergy, A::PlayPokemon, A::Evolve];
-        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Potion POR 83"]},
+        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::AttachTool, A::AttachEnergy];
+        let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83", "Noctowl PRE 78"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let me = g.st.active_player as usize;
         let potion = hand(&g, me, "Potion POR 83");
@@ -3221,10 +3159,15 @@ mod play_lock_tests {
             tick_play_locks_at_end_of_turn(&mut g.st.players[me]);
             assert_eq!(lasting_locked(&g, me, Some(potion), &[stops]), None, "gone at the end of the locked player's turn");
         }
-        // Evolving with a card from the hand is play-a-Pokémon and evolve: the Evolve lock stops it.
+        // Bronzong's lock is over events: evolving from the hand (Rare Candy too), not putting onto the Bench.
+        use crate::spec::event::{EventKind, EventPred, RulesZone};
+        static EVOLVE: LockDecl = LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::Source(RulesZone::Hand)]), "BLOCKED_BY_EFFECT");
+        let noctowl = hand(&g, me, "Noctowl PRE 78");
+        assert_eq!(event_lock(&mut g, me, noctowl, true), None);
         apply_play_lock(&mut g.st.players[me], &EVOLVE, 1, 0);
-        assert!(lasting_locked(&g, me, Some(potion), A::EVOLUTION_FROM_HAND).is_some());
-        assert_eq!(lasting_locked(&g, me, Some(potion), &[A::PlayPokemon]), None, "a Basic to the Bench isn't evolving");
+        assert_eq!(event_lock(&mut g, me, noctowl, true), Some("BLOCKED_BY_EFFECT"));
+        assert_eq!(event_lock(&mut g, me, noctowl, false), None, "an EnterPlay isn't evolving");
+        assert_eq!(event_lock(&mut g, 1 - me, noctowl, true), None, "the opponent of the locked player isn't stopped");
     }
 
     #[test]

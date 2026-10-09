@@ -209,16 +209,14 @@ impl<'a> Ctx<'a> {
         false
     }
 
-    /// Is the event forbidden by a declared lock (`passive::event_locked`, the same declarations: the B2-OLD
-    /// actions it is an instance of, in play and lasting; the locks over events, in play and lasting)?
+    /// Is the event forbidden by a declared lock (`passive::event_locked`, the same declarations: the locks over
+    /// events, in play and lasting)?
     fn event_locked(&mut self, v: &crate::spec::event::EventView) -> bool {
         let g = self.g;
-        let Some(card) = v.card else { return false };
-        let p = v.owner as usize;
-        let actions = crate::engine::enter::locked_actions(v);
-        if !actions.is_empty() && (passive::lasting_locked(g, p, Some(card), actions).is_some() || self.play_locked(card, actions)) {
-            return true;
+        if v.card.is_none() {
+            return false;
         }
+        let p = v.owner as usize;
         if g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK) {
             for i in 0..self.sources().event_lock.len() {
                 let src = self.sources().event_lock[i];

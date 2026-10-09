@@ -20,7 +20,7 @@ use crate::effects::{k, EffId, Effect, SlotRef};
 use crate::game::{Game, R};
 use crate::list::*;
 use crate::spec::event::*;
-use crate::spec::passive::{self, LockWhile, LockedAction, Modifier, Passive};
+use crate::spec::passive::{self, LockWhile, Modifier, Passive};
 use crate::state::ListRef;
 use crate::types::*;
 
@@ -162,20 +162,6 @@ pub fn evolves_into(g: &Game, base: CardId, card: CardId, reach: Reach) -> bool 
     }
 }
 
-/// The old `LockedAction`s an event is an instance of (the adapter of `LockDecl::actions`, events batch 2): a
-/// Pokémon card going from the hand into play (EnterPlay, not at setup) is `PlayPokemon`; an Evolve whose
-/// card comes from the hand is `PlayPokemon` and `Evolve` (Rare Candy included, id1133).
-pub fn locked_actions(v: &EventView) -> &'static [LockedAction] {
-    if v.source != Some(RulesZone::Hand) {
-        return &[];
-    }
-    match v.kind {
-        EventKind::EnterPlay if v.mode != Some(EnterMode::Setup) => &[LockedAction::PlayPokemon],
-        EventKind::Evolve => LockedAction::EVOLUTION_FROM_HAND,
-        _ => &[],
-    }
-}
-
 /// Does a limit apply to the event?
 fn limit_applies(v: &EventView, l: Limit) -> bool {
     match l {
@@ -214,66 +200,17 @@ pub(crate) fn while_ok(g: &Game, me: CardId, at: passive::Located, while_: &[Loc
     })
 }
 
-/// Does the permission `ps` of card `me` lift `limit` for the event? `Modifier::Permit`, and the old forms it
-/// adapts (`AllowEvolve`, `PlayedTurnReset`, `EvolveFrom`; events batch 2).
-#[allow(deprecated)]
+/// Does the permission `ps` of card `me` lift `limit` for the event (`Modifier::Permit`)?
 fn permit_lifts(g: &mut Game, me: CardId, ps: &Passive, v: &EventView, limit: Limit) -> R<bool> {
-    let in_place = |g: &mut Game, while_: &[LockWhile]| -> Option<passive::Located> {
-        let at = passive::locate(g, me, ps.origin)?;
-        (while_ok(g, me, at, while_, v.card)).then_some(at)
-    };
-    match &ps.modifier {
-        Modifier::Permit(pm) => {
-            if !pm.lifts.contains(&limit) {
-                return Ok(false);
-            }
-            let Some(at) = in_place(g, pm.while_) else { return Ok(false) };
-            if !pm.for_.eval(g, me, v)? {
-                return Ok(false);
-            }
-            Ok(!passive::blocked(g, me, ps.origin, at, v.slot))
-        }
-        // B2-OLD adapter: "this Pokémon (matching `subject`) can evolve during your first turn or the turn you
-        // play it" = Permit { for: Evolve & Path(Rule) & Slot(subject), lifts: FirstTurn | BaseEnteredThisTurn }.
-        Modifier::AllowEvolve(d) => {
-            if !matches!(limit, Limit::FirstTurn | Limit::BaseEnteredThisTurn) || v.kind != EventKind::Evolve || v.path != Some(EvolvePath::Rule) {
-                return Ok(false);
-            }
-            let (Some(at), Some(t)) = (in_place(g, &[]), v.slot) else { return Ok(false) };
-            if at.owner != v.owner as usize || !crate::spec::value::slot_pred_m(g, me, t, &d.subject)? {
-                return Ok(false);
-            }
-            Ok(!passive::blocked(g, me, ps.origin, at, Some(t)))
-        }
-        // B2-OLD adapter, with Forest of Vitality's printed meaning: "[type] Pokémon can evolve into [type]
-        // Pokémon during the turn they play those Pokémon" = Permit { for: Evolve & Path(Rule) &
-        // Source(Hand) & Slot(TypeIs(type)) & Card(PokemonType(type)), lifts: BaseEnteredThisTurn }.
-        Modifier::PlayedTurnReset(r) => {
-            if limit != Limit::BaseEnteredThisTurn || v.kind != EventKind::Evolve || v.path != Some(EvolvePath::Rule) || v.source != Some(RulesZone::Hand) {
-                return Ok(false);
-            }
-            let (Some(at), Some(t), Some(card)) = (in_place(g, &[]), v.slot, v.card) else { return Ok(false) };
-            if !g.st.cdef(card).card_type.contains(&r.card_type) || !crate::spec::value::slot_pred_m(g, me, t, &crate::spec::value::SlotPred::TypeIs(r.card_type))? {
-                return Ok(false);
-            }
-            Ok(!passive::blocked(g, me, ps.origin, at, Some(t)))
-        }
-        // B2-OLD adapter: "this Pokémon can evolve into a card matching `only` that evolves from one of
-        // `names`, played from the hand" = Permit { for: Evolve & Source(Hand) & Path(Rule) & This(Base) &
-        // Card(only & EvolvesFrom(names)), lifts: EvolvesFrom }.
-        Modifier::EvolveFrom(d) => {
-            if limit != Limit::EvolvesFrom || v.kind != EventKind::Evolve || v.base != Some(me) || v.source != Some(RulesZone::Hand) || v.path != Some(EvolvePath::Rule) {
-                return Ok(false);
-            }
-            let Some(card) = v.card else { return Ok(false) };
-            if !d.names.iter().any(|n| *n == g.st.cdef(card).evolves_from) || !crate::spec::value::pred(g, card, &d.only) {
-                return Ok(false);
-            }
-            let Some(at) = in_place(g, &[]) else { return Ok(false) };
-            Ok(!passive::blocked(g, me, ps.origin, at, v.slot))
-        }
-        _ => Ok(false),
+    let Modifier::Permit(pm) = &ps.modifier else { return Ok(false) };
+    if !pm.lifts.contains(&limit) {
+        return Ok(false);
     }
+    let Some(at) = passive::locate(g, me, ps.origin) else { return Ok(false) };
+    if !while_ok(g, me, at, pm.while_, v.card) || !pm.for_.eval(g, me, v)? {
+        return Ok(false);
+    }
+    Ok(!passive::blocked(g, me, ps.origin, at, v.slot))
 }
 
 /// The declaration marker kind of a permission lifting `limit` (`effects::k::PERMIT_*`, set in the declaring
