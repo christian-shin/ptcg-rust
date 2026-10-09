@@ -1192,7 +1192,8 @@ impl Game {
         // Propagate to cards.
         let kind = self.e(id).kind();
         let class = prop_class(self.e(id));
-        let order = if self.kinds_present.has(kind) { self.listeners(class, kind) } else { SVec::new() };
+        // The batch 4 / 5 events have no dispatch handler: their declarations are read through the index.
+        let order = if self.kinds_present.has(kind) && !crate::spec::event::INDEX_ONLY_EVENT_KINDS.has(kind) { self.listeners(class, kind) } else { SVec::new() };
         for &c in order.iter() {
             self.call_card(c, id, kind)?;
         }

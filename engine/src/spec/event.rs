@@ -405,6 +405,11 @@ pub const HEAL_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k:
 pub const COIN_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::COIN_FLIP]);
 /// ChangeActive (events batch 5): `DECLARES_ACTIVE_LOCK` / `DECLARES_ACTIVE_PREVENT`.
 pub const ACTIVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::CHANGE_ACTIVE]);
+/// The events no card handles when they are dispatched (events batches 4 and 5): what reacts to them is a declaration
+/// read through the dispatch index, by the triggers after the event (`run::after_event`) and by the locks and
+/// preventions the event's routine asks. `Game::reduce_effect` doesn't call the cards for them (events design,
+/// section 9). The batch 2 and 3 events still have dispatch handlers (once-per-turn markers, attach guards).
+pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS);
 
 impl EventPred {
     /// Matches no event (`LockDecl::forbids` of a lock that declares only old `LockedAction`s).

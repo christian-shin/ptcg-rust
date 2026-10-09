@@ -682,6 +682,13 @@ impl State {
         top
     }
 
+    /// Does any spot of either player hold a Special Condition (a plain read: a gate before the walks that look for
+    /// an affected Pokémon)?
+    #[inline]
+    pub fn any_special_condition(&self) -> bool {
+        self.players.iter().any(|pl| pl.slots.iter().any(|s| !s.special_conditions.is_empty()))
+    }
+
     pub fn active_pokemon(&self, p: usize) -> Option<CardId> {
         self.slot_pokemon(p, self.players[p].active)
     }

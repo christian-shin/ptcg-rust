@@ -1442,7 +1442,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
 /// "Recovers from all Special Conditions": at every table-state check, each Pokémon matching the subject recovers
 /// (one RemoveCondition per condition, by the card's effect).
 fn recover(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RecoverSpec) -> R {
-    if matches!(*g.e(e), Effect::CheckTableState { .. }) {
+    if matches!(*g.e(e), Effect::CheckTableState { .. }) && g.st.any_special_condition() {
         let Some(at) = locate(g, me, origin) else { return Ok(()) };
         for p in 0..2usize {
             for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
@@ -1602,7 +1602,7 @@ fn recover_protected(g: &mut Game, me: CardId, origin: RuleSource, p: &PreventSp
 }
 
 fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
-    if matches!(*g.e(e), Effect::CheckTableState { .. }) && prevention_recovers(p) {
+    if matches!(*g.e(e), Effect::CheckTableState { .. }) && g.st.any_special_condition() && prevention_recovers(p) {
         return recover_protected(g, me, origin, p);
     }
     // A declaration over events is read by the event's routine (`event_prevented`), not here.
@@ -2159,10 +2159,10 @@ fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool
         if p.from.is_never() {
             continue;
         }
-        let Some(at) = locate(g, me, ps.origin) else { continue };
         if !p.from.eval(g, me, v)? {
             continue;
         }
+        let Some(at) = locate(g, me, ps.origin) else { continue };
         let protected = match v.slot {
             Some(s) => slot_pred_m(g, me, s, &p.protects)?,
             None => matches!(p.protects, SlotPred::Any),

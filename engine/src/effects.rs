@@ -498,7 +498,7 @@ impl Effect {
             EffectOfAbility { .. } => 32,
             SpecialEnergy { .. } => 33,
             PlaceDamageCounters { .. } => 34,
-            ChangeActive { .. } => 35,
+            ChangeActive { .. } => 48,
             ApplyWeakness { .. } => 37,
             DealDamage { .. } => 38,
             PutDamage { .. } => 39,
@@ -601,8 +601,10 @@ pub mod k {
     pub const EFFECT_OF_ABILITY: u32 = 32;
     pub const SPECIAL_ENERGY: u32 = 33;
     pub const PLACE_DAMAGE_COUNTERS: u32 = 34;
-    /// The ChangeActive event (events batch 5); the number the old MovedToActive effect had.
-    pub const CHANGE_ACTIVE: u32 = 35;
+    /// The ChangeActive event (events batch 5). 48, not the old MovedToActive's 35: the dispatch index keys its
+    /// entries by `kind % 32` (`dispatch::SLOTS`), and 35 shared its entry with END_TURN (3), which games with a
+    /// ChangeActive handler (every attack-effect protection) then rebuilt in turn; nothing else uses entry 16.
+    pub const CHANGE_ACTIVE: u32 = 48;
     pub const APPLY_WEAKNESS: u32 = 37;
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
