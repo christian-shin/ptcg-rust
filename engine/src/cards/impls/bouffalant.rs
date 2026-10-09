@@ -5,9 +5,8 @@
 //! (THIS_POKEMON_CANNOT_ATTACK_NEXT_TURN: `cannotAttackNextTurnPending` on
 //! the Active).
 //!
-//! Twinleaf quirks kept: every copy reacts from any zone (its owner is the
-//! owner of the list holding it); it needs 2+ Pokémon named Bouffalant in
-//! that owner's play, then an ability-lock probe; any PutDamageEffect from
+//! Only a Bouffalant in play applies: it needs 2+ Pokémon named Bouffalant in
+//! its owner's play, then an ability-lock probe; any PutDamageEffect from
 //! the opponent's attack on the owner's Basic [C] Pokémon is reduced, once
 //! per effect via the `nonstackingDamageReducers` source 'Curly Wall'.
 //!
@@ -22,14 +21,13 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[Passive {
         origin: RuleSource::Ability,
         // Each of your Basic [C] Pokémon takes 60 less damage while you have another Bouffalant in play;
-        // only 1 Curly Wall applies. Today's behavior kept (B-PC-16): every copy, in any zone, reacts.
+        // only 1 Curly Wall applies. Only a Bouffalant in play has the Ability.
         modifier: Modifier::DamageTaken(DamageTakenSpec {
             amount: 60,
             subject: SlotPred::All(&[SlotPred::Basic, SlotPred::PrintedTypeIs(ct::COLORLESS)]),
             side: Side::Owner,
             guard: Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Named("Bouffalant")), CmpOp::Ge, Num::Lit(2)),
             nonstacking: Some(NonStack::CurlyWall),
-            anywhere: true,
             ..DamageTakenSpec::DEFAULT
         }),
     }],

@@ -214,9 +214,6 @@ pub struct DamageTakenSpec {
     pub nonstacking: Option<NonStack>,
     /// A Tool that is discarded after it reduced damage.
     pub then_discard: bool,
-    /// Today's behavior kept (planned change B-PC-16, Bouffalant SCR): the
-    /// passive applies from any zone, not only while the Pokémon is in play.
-    pub anywhere: bool,
 }
 
 impl DamageTakenSpec {
@@ -229,7 +226,6 @@ impl DamageTakenSpec {
         guard: Cond::True,
         nonstacking: None,
         then_discard: false,
-        anywhere: false,
     };
 }
 
@@ -922,7 +918,6 @@ fn damage_taken_prelude(
     subject: &SlotPred,
     source: &SlotPred,
     guard: &Cond,
-    anywhere: bool,
     from_any_attack: bool,
 ) -> R<Option<(AtkBase, Located)>> {
     let b = match *g.e(e) {
@@ -936,8 +931,7 @@ fn damage_taken_prelude(
     if b.source.p == t.p && !from_any_attack {
         return Ok(None);
     }
-    let located = if anywhere { locate(g, me, RuleSource::CardRule) } else { locate(g, me, origin) };
-    let Some(at) = located else { return Ok(None) };
+    let Some(at) = locate(g, me, origin) else { return Ok(None) };
     if side == Side::Owner && at.owner != t.p as usize {
         return Ok(None);
     }
@@ -954,7 +948,7 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
     if !matches!(*g.e(e), Effect::PutDamage { .. }) {
         return Ok(());
     }
-    let Some((b, _)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, d.anywhere, d.from_any_attack)? else { return Ok(()) };
+    let Some((b, _)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, d.from_any_attack)? else { return Ok(()) };
     if let Some(ns) = d.nonstacking {
         if g.fx_flags(e) & ns.flag() != 0 {
             return Ok(());
@@ -995,7 +989,7 @@ fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Pr
     if (d.how == PreventHow::Prevent || d.how == PreventHow::CoinFlip) && !matches!(*g.e(e), Effect::PutDamage { .. }) {
         return Ok(());
     }
-    let Some((_, at)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false, false)? else { return Ok(()) };
+    let Some((_, at)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false)? else { return Ok(()) };
     if d.how == PreventHow::CoinFlip {
         let damage = match *g.e(e) {
             Effect::PutDamage { damage, .. } => damage,
