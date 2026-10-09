@@ -1509,11 +1509,27 @@ pub(crate) fn evolve_targets(g: &mut Game, p: usize, cause: crate::cause::Cause)
     Ok((any, blocked))
 }
 
-/// Deck prompt for an evolution of `base` (`stage`), blocking deck Pokémon that don't evolve from it.
-fn evolution_prompt(g: &mut Game, p: usize, base: CardId, stage: Stage, cont: crate::game::Cont) {
+/// Can the effect (`cause`) evolve the Pokémon in `t` with `card` from `source`: it evolves from the Pokémon,
+/// and the Evolve event's checks allow it (`enter::check_evolve`: the locks, the rule's limits the card restates,
+/// the restrictions). An effect offers only cards it can put onto the Pokémon.
+fn effect_can_evolve(g: &mut Game, t: SlotRef, card: CardId, source: super::super::event::RulesZone, cause: crate::cause::Cause) -> R<bool> {
+    use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
+    let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
+    if !evolves_into(g, base, card, Reach::Next) {
+        return Ok(false);
+    }
+    let Some(v) = evolve_view(g, Some(card), t, source, super::super::event::EvolvePath::Effect, cause) else { return Ok(false) };
+    Ok(check_evolve(g, &v, Reach::Next).is_ok())
+}
+
+/// Deck prompt for an evolution (`stage`) of the Pokémon in `t`, blocking the deck Pokémon the effect can't put
+/// onto it ([`effect_can_evolve`]).
+fn evolution_prompt(g: &mut Game, p: usize, t: SlotRef, stage: Stage, cause: crate::cause::Cause, cont: crate::game::Cont) -> R {
+    let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(()) };
     let mut blocked = Blocked::default();
-    for (i, c) in g.st.players[p].deck.iter().enumerate() {
-        if g.st.cdef(c).is_pokemon() && !crate::engine::enter::evolves_into(g, base, c, crate::engine::enter::Reach::Next) {
+    let deck: Vec<CardId> = g.st.players[p].deck.iter().collect();
+    for (i, c) in deck.iter().copied().enumerate() {
+        if g.st.cdef(c).is_pokemon() && !effect_can_evolve(g, t, c, super::super::event::RulesZone::Deck, cause)? {
             blocked.push(i as u8);
         }
     }
@@ -1521,13 +1537,13 @@ fn evolution_prompt(g: &mut Game, p: usize, base: CardId, stage: Stage, cont: cr
     opts.blocked = blocked;
     let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(stage as u8), evolves_from: Some(g.st.cdef(base).name), ..Filter::none() };
     choose_cards(g, p, "CHOOSE_CARD_TO_EVOLVE", ListRef::Deck(p as u8), filter, opts, cont);
+    Ok(())
 }
 
 /// An effect evolves the Pokémon with a card from the deck: the Evolve event's effect path (the card isn't
-/// played from the hand: no lock or trigger on that applies; id1133, id2037).
-fn evolve_with(g: &mut Game, t: SlotRef, card: CardId, cause: crate::cause::Cause) -> R {
-    crate::engine::enter::evolve(g, card, t, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, cause)?;
-    Ok(())
+/// played from the hand: no lock or trigger on that applies; id1133, id2037). `false`: the event was refused.
+fn evolve_with(g: &mut Game, t: SlotRef, card: CardId, cause: crate::cause::Cause) -> R<bool> {
+    crate::engine::enter::evolve(g, card, t, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, cause)
 }
 
 fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: Stage, then_stage: Option<Stage>, first: Res) -> R<Flow> {
@@ -1540,17 +1556,20 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
             if g.st.cdef(c).stage != Stage::Basic as u8 || from_deck_refused(g, t, f.cause)? {
                 return Ok(Flow::Next);
             }
-            evolution_prompt(g, p, c, stage, f.cont(me, 0x20 | t.s));
+            evolution_prompt(g, p, t, stage, f.cause, f.cont(me, 0x20 | t.s))?;
             Ok(Flow::Suspend)
         }
         0x20 => {
             let t = SlotRef::new(p, f.sub & 0x0F);
             let Some(evo) = first.cards().first().copied() else { return Ok(Flow::Next) };
-            evolve_with(g, t, evo, f.cause)?;
+            // "If that Pokémon was evolved in this way": the Stage 2 search needs the first evolving.
+            if !evolve_with(g, t, evo, f.cause)? {
+                return Ok(Flow::Next);
+            }
             let name = g.st.cdef(evo).name;
             if let Some(st2) = then_stage {
                 if evolves_from_any(name) {
-                    evolution_prompt(g, p, evo, st2, f.cont(me, 0x30 | t.s));
+                    evolution_prompt(g, p, t, st2, f.cause, f.cont(me, 0x30 | t.s))?;
                     return Ok(Flow::Suspend);
                 }
             }
@@ -1743,12 +1762,16 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
 
 fn evolve_reg_exec(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, card: u8) -> R<Flow> {
     let Some(evo) = reg_list(g, f, card).first().copied() else { return Ok(Flow::Next) };
+    let Some((_, source)) = crate::engine::enter::source_of(g, evo) else { return Ok(Flow::Next) };
     let owner = f.who(chooser);
-    let cands: Vec<SlotRef> = for_each_pokemon(g, owner, PlayerType::BottomPlayer)
-        .iter()
-        .filter(|(_, c, _)| crate::engine::enter::evolves_into(g, *c, evo, crate::engine::enter::Reach::Next))
-        .map(|(s, _, _)| SlotRef::new(owner, *s))
-        .collect();
+    // The Pokémon the effect can put the card onto (the Evolve event's checks: [`effect_can_evolve`]).
+    let mut cands: Vec<SlotRef> = Vec::new();
+    for (s, _, _) in for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().copied() {
+        let t = SlotRef::new(owner, s);
+        if effect_can_evolve(g, t, evo, source, f.cause)? {
+            cands.push(t);
+        }
+    }
     if cands.is_empty() {
         return Ok(Flow::Next);
     }
@@ -1828,3 +1851,47 @@ fn swap_bottom_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCard
     Ok(Flow::Next)
 }
 
+
+#[cfg(test)]
+mod effect_evolve_tests {
+    //! An effect that evolves from the deck (Grand Tree, Salvatore) offers only the cards the Evolve event's checks
+    //! allow. Palafin ex's decided lock ("can't be put into play except by Zero to Hero", docs/rulings/RULES.md
+    //! "Evolution timing") lands with its conversion; a lasting lock over the same event stands in for it here.
+    use super::*;
+    use crate::spec::event::{EventKind, EventPred, RulesZone};
+    use crate::spec::passive::LockDecl;
+    use serde_json::json;
+
+    static NO_PALAFIN_EX: LockDecl = LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::Card(Pred::Name("Palafin ex"))]), "BLOCKED_BY_EFFECT");
+
+    #[test]
+    fn grand_tree_does_not_offer_a_locked_evolution_card() {
+        let mut names: Vec<&str> = vec!["Finizen TWM 59"; 4];
+        names.extend(["Palafin TWM 60"; 4]);
+        names.extend(["Palafin ex TWM 61"; 4]);
+        names.extend(["Grand Tree SCR 136"; 1]);
+        names.extend(["Water Energy MEE 3"; 47]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &json!({"me": {"reset": true, "active": "Finizen TWM 59", "stadium": "Grand Tree SCR 136"}, "opp": {"reset": true, "active": "Finizen TWM 59"}})).unwrap();
+        let me = g.st.active_player as usize;
+        let t = SlotRef::new(me, g.st.players[me].active);
+        let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8);
+        let card = |g: &Game, name: &str| {
+            let def = crate::carddb::def_by_full_name(name).unwrap();
+            g.st.players[me].deck.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap()
+        };
+        let (palafin, palafin_ex) = (card(&g, "Palafin TWM 60"), card(&g, "Palafin ex TWM 61"));
+        assert!(effect_can_evolve(&mut g, t, palafin, RulesZone::Deck, cause).unwrap());
+        assert!(effect_can_evolve(&mut g, t, palafin_ex, RulesZone::Deck, cause).unwrap(), "no lock yet");
+        crate::engine::phase::apply_play_lock(&mut g.st.players[me], &NO_PALAFIN_EX, 1, 0);
+        assert!(effect_can_evolve(&mut g, t, palafin, RulesZone::Deck, cause).unwrap());
+        assert!(!effect_can_evolve(&mut g, t, palafin_ex, RulesZone::Deck, cause).unwrap(), "a locked card isn't offered");
+        // The refused event doesn't happen, so "if that Pokémon was evolved in this way" is false.
+        assert!(!evolve_with(&mut g, t, palafin_ex, cause).unwrap());
+        assert_eq!(g.st.slot_pokemon(me, t.s).map(|c| g.st.cdef(c).name), Some("Finizen"));
+        assert!(evolve_with(&mut g, t, palafin, cause).unwrap());
+    }
+}
