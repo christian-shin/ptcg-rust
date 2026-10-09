@@ -1,19 +1,29 @@
-//! Harlequin (WHT): each player shuffles their hand into their deck; flip a
-//! coin: heads you draw 5 and your opponent draws 3, tails 3 and 5.
+//! Harlequin (WHT): each player shuffles their hand into their deck. Then,
+//! flip a coin: heads you draw 5 and your opponent draws 3, tails 3 and 5.
 //!
-//! Twinleaf: the Supporter moves to the supporter pile (preventDefault);
-//! after the flip the player's hand (minus this card) and the opponent's
-//! whole hand are moved with MoveCardsEffects (the opponent's can be
-//! prevented, which skips their shuffle and draw), then SHUFFLE_DECK and
-//! DRAW_CARDS for the opponent and the player.
+//! The hands are shuffled in first (the player's hand without this card, the
+//! opponent's whole hand), then the coin is flipped, then each player draws.
 use crate::spec::prelude::*;
+
 pub static SPEC: CardSpec = CardSpec {
     class: "Harlequin",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Coin(CoinSpec { heads: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck), wait: false })), Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: false })), Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(5)) }))], tails: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck), wait: false })), Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(5)) })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: false })), Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) }))], ..CoinSpec::DEFAULT })),
+            Step::new(Op::HandShuffleDraw(HandShuffleDrawSpec { who: Who::Me, draw: Num::Lit(0) })),
+            Step::new(Op::HandShuffleDraw(HandShuffleDrawSpec { who: Who::Opp, draw: Num::Lit(0) })),
+            Step::new(Op::Coin(CoinSpec {
+                heads: &[
+                    Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(5)) })),
+                    Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) })),
+                ],
+                tails: &[
+                    Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) })),
+                    Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(5)) })),
+                ],
+                ..CoinSpec::DEFAULT
+            })),
         ],
     }),
     ..CardSpec::NONE

@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Harlequin WHT 83",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Harlequin WHT 83",
+   "4 Hop's Snorlax JTG 117",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "coins": [
+  true
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Harlequin WHT 83",
+   "Hop's Snorlax JTG 117"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Hop's Snorlax JTG 117",
+   "Hop's Snorlax JTG 117"
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Harlequin WHT 83"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ShuffleDeck",
+    "ShuffleDeck",
+    "Coin"
+   ],
+   "cite": "Harlequin text: each player shuffles their hand into their deck. Then, flip a coin (both shuffles come before the flip)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 3,
+   "cite": "Harlequin text: heads, you draw 5 cards and your opponent draws 3"
+  }
+ ]
+}
