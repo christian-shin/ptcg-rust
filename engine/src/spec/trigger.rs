@@ -21,9 +21,6 @@ pub enum Event {
     /// ("that player"), else for the declaring card's owner; the event's spot is the picked slot.
     On(super::event::EventPred),
     OnMoved(OnMovedSpec),
-    /// B3-OLD: an adapter over `On(Attach & This(Card) [& Source(Hand)])` (`OnAttachSpec::pred`), run as an
-    /// `On` trigger after the Attach is done.
-    OnAttach(OnAttachSpec),
     OnKnockOut(OnKnockOutSpec),
     OnDamagedByAttack(OnDamagedByAttackSpec),
     OnCheckup(OnCheckupSpec),
@@ -50,34 +47,6 @@ pub enum MovedTo {
     Bench,
     /// From the Bench to the Active Spot.
     Active,
-}
-/// B3-OLD: this card is attached to a Pokémon (an Attach event, from any zone; a move isn't one, id1653); the
-/// Pokémon is the program's picked slot. Read as `Event::On(OnAttachSpec::pred())`: the steps run after the card
-/// is attached. New card files write the `Event::On` form.
-pub struct OnAttachSpec {
-    /// Only when the card is attached from the owner's hand, by the rule or by an effect, once per card (APR
-    /// C-09, E-07: Enriching Energy, Telepathic Psychic Energy); not from the deck (id1950).
-    pub from_hand: bool,
-}
-
-/// `Attach & This(Card)`.
-static ON_ATTACH_THIS: super::event::EventPred = super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::Attach), super::event::EventPred::This(super::event::Role::Card)]);
-/// `Attach & This(Card) & Source(Hand)`.
-static ON_ATTACH_THIS_FROM_HAND: super::event::EventPred = super::event::EventPred::All(&[
-    super::event::EventPred::Kind(super::event::EventKind::Attach),
-    super::event::EventPred::This(super::event::Role::Card),
-    super::event::EventPred::Source(super::event::RulesZone::Hand),
-]);
-
-impl OnAttachSpec {
-    /// The event predicate the adapter stands for.
-    pub fn pred(&self) -> &'static super::event::EventPred {
-        if self.from_hand {
-            &ON_ATTACH_THIS_FROM_HAND
-        } else {
-            &ON_ATTACH_THIS
-        }
-    }
 }
 /// Whose Knock Out.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -138,7 +107,6 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
         Event::On(p) => p.effect_kinds(),
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
-        Event::OnAttach(_) => mask(&[k::ATTACH]),
         Event::OnMoved(m) => match m.to {
             MovedTo::Bench => mask(&[k::MOVED_FROM_ACTIVE_TO_BENCH]),
             MovedTo::Active => mask(&[k::MOVED_TO_ACTIVE]),
@@ -161,7 +129,7 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(
 fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, Option<u8>)> {
     match &t.event {
         // Run after the event is done (`run::after_event`, `fires_on`).
-        Event::On(_) | Event::OnAttach(_) => None,
+        Event::On(_) => None,
         Event::OnEndTurn(w) => {
             let Effect::EndTurn { p } = *g.e(e) else { return None };
             let p = p as usize;
@@ -297,11 +265,7 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
 /// play, ...). Returns the program's player (the event's owner for a Stadium, else the card's owner) and the
 /// event's spot as the picked slot.
 pub(crate) fn fires_on(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> crate::game::R<Option<(usize, u8)>> {
-    let pred = match &t.event {
-        Event::On(pred) => pred,
-        Event::OnAttach(a) => a.pred(),
-        _ => return Ok(None),
-    };
+    let Event::On(pred) = &t.event else { return Ok(None) };
     let Some(v) = event_view(g, e) else { return Ok(None) };
     let Some(at) = super::passive::locate(g, me, t.origin) else { return Ok(None) };
     if !pred.eval(g, me, &v)? {

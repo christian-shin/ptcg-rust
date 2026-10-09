@@ -342,19 +342,14 @@ pub enum Binds {
 ///
 /// Actions are named from the rules, not from engine paths: a lock declares the words of its text, and every
 /// way of doing the action asks for all the actions it is an instance of. Playing, putting into play and
-/// evolving Pokémon are events (EnterPlay, Evolve), which locks forbid with `LockDecl::forbids`.
+/// evolving Pokémon, and attaching an Energy or a Tool, are events (EnterPlay, Evolve, Attach), which locks forbid
+/// with `LockDecl::forbids`.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum LockedAction {
     /// Play an Item card from the hand.
     PlayItem,
     PlaySupporter,
     PlayStadium,
-    /// B3-OLD: attach a Pokémon Tool card from the hand, any cause (a Tool put on by an effect from another zone
-    /// is not "played from the hand"). Read on the Attach event from the hand (`engine::attach::attach_locked`);
-    /// the new form is `LockDecl::on(Attach & Source(Hand) & Card(..))`.
-    AttachTool,
-    /// B3-OLD: attach an Energy card from the hand, any cause (id25, id230); as `AttachTool`.
-    AttachEnergy,
     /// Retreat the Active Pokémon (the card is that Pokémon).
     Retreat,
     /// Use the Stadium in play (the card is the Stadium).
@@ -369,7 +364,6 @@ impl LockedAction {
             LockedAction::PlayItem => k::PLAY_ITEM,
             LockedAction::PlaySupporter => k::PLAY_SUPPORTER,
             LockedAction::PlayStadium => k::PLAY_STADIUM,
-            LockedAction::AttachTool | LockedAction::AttachEnergy => k::ATTACH,
             LockedAction::Retreat => k::RETREAT,
             LockedAction::UseStadium => k::USE_STADIUM,
         }
@@ -1880,8 +1874,8 @@ pub(crate) fn effect_actions(g: &Game, e: EffId) -> Option<(usize, CardId, &'sta
         Effect::PlayItem { p, card, .. } => (p as usize, card, &[A::PlayItem]),
         Effect::PlaySupporter { p, card, .. } => (p as usize, card, &[A::PlaySupporter]),
         Effect::PlayStadium { p, card } => (p as usize, card, &[A::PlayStadium]),
-        // EnterPlay, Evolve and Attach: their routines check the locks before the event (`event_locked`; for an
-        // Attach from the hand also the B3-OLD action locks, `engine::attach::attach_locked`).
+        // EnterPlay, Evolve, Attach, MoveEnergy, MoveTool: their routines check the locks before the event
+        // (`event_locked`).
         Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, &[A::Retreat]),
         Effect::UseStadium { p, stadium } => (p as usize, stadium, &[A::UseStadium]),
         _ => return None,
@@ -3247,12 +3241,12 @@ mod play_lock_tests {
     }
 
     /// The lock answer for the Attach event of `card` from where it is onto `owner`'s Active Pokémon, caused by
-    /// `cause` (`engine::attach::attach_locked`: the locks over events, then the B3-OLD action locks).
+    /// `cause` (the one lock query, `derived::event_locked`, as the Attach routine asks it).
     fn attach_lock(g: &mut Game, owner: usize, card: CardId, cause: crate::cause::Cause) -> Option<&'static str> {
         let t = crate::effects::SlotRef::new(owner, g.st.players[owner].active);
         let (_, source) = crate::engine::enter::source_of(g, card).unwrap();
         let v = crate::engine::attach::attach_view(g, card, t, source, false, cause);
-        crate::engine::attach::attach_locked(g, &v).unwrap()
+        crate::derived::event_locked(g, &v).unwrap()
     }
 
     fn rule(p: usize) -> crate::cause::Cause {
@@ -3284,7 +3278,7 @@ mod play_lock_tests {
             (&SUPPORTER, A::PlaySupporter), // Scream Tail ex
             (&STADIUM, A::PlayStadium), // Chi-Yu
         ];
-        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::AttachTool, A::AttachEnergy];
+        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::Retreat, A::UseStadium];
         let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83", "Noctowl PRE 78"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let me = g.st.active_player as usize;

@@ -4,8 +4,8 @@
 //! Every path that attaches an Energy or a Pokémon Tool card, or moves one from a Pokémon to another, calls its
 //! routine here, in the `engine::enter` pattern: the routine checks the event (the same functions legality
 //! calls), produces it (an `Effect` dispatched to the cards), applies its consequences in [`reducer`], and then
-//! the triggers over the event run (`spec::run::after_event`, which also runs `lock_sync` before them: see
-//! `Game::reduce_effect`). The physical relocation (`Game::move_card_to`) stays below the events.
+//! the triggers over the event run (`spec::run::after_event`; `Game::reduce_effect` re-stamps the Ability locks
+//! before them when an attached card can change one, `spec::passive::lock_sync_attached`). The physical relocation (`Game::move_card_to`) stays below the events.
 //!
 //! - [`attach`]: an Energy or a Tool goes onto a Pokémon from a zone that isn't a Pokémon (the hand, the deck,
 //!   the discard pile, the cards looked at or searched: the event's `source` is the zone the look started from,
@@ -25,7 +25,7 @@ use crate::effects::{EffId, Effect, SlotRef};
 use crate::game::{Game, R};
 use crate::list::*;
 use crate::spec::event::*;
-use crate::spec::passive::{self, LockedAction};
+use crate::spec::passive;
 use crate::state::ListRef;
 use crate::types::*;
 
@@ -73,32 +73,6 @@ pub fn attach_target_ok(g: &Game, v: &EventView) -> R {
     Ok(())
 }
 
-/// The action-based lock form an Attach from the hand is an instance of (B3-OLD: `LockedAction::AttachEnergy` /
-/// `AttachTool`, until every card file declares `LockDecl::on(Attach & Source(Hand) & ..)`).
-pub fn old_action(g: &Game, card: CardId) -> LockedAction {
-    if is_tool(g, card) {
-        LockedAction::AttachTool
-    } else {
-        LockedAction::AttachEnergy
-    }
-}
-
-/// The lock that forbids the event, if any: the one lock query (`derived::event_locked`), then (B3-OLD) the
-/// action-based locks on an Attach from the hand, in play and lasting (`passive::play_locked_as`).
-pub fn attach_locked(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
-    if let Some(code) = crate::derived::event_locked(g, v)? {
-        return Ok(Some(code));
-    }
-    // B3-OLD: the action-based locks read the Attach from the hand (any cause: id25, id230).
-    if let (EventKind::Attach, Some(RulesZone::Hand), Some(card)) = (v.kind, v.source, v.card) {
-        let action = old_action(g, card);
-        if let Some(code) = passive::play_locked_as(g, v.owner as usize, card, &[action]) {
-            return Ok(Some(code));
-        }
-    }
-    Ok(None)
-}
-
 /// The Energy's own "this card can only be attached to ..." (`Modifier::AttachGuard`): the error when it refuses
 /// the spot.
 pub fn attach_guard(g: &mut Game, v: &EventView) -> R {
@@ -112,7 +86,7 @@ pub fn attach_guard(g: &mut Game, v: &EventView) -> R {
 /// Every check of an Attach event: the spot, the locks, the card's own guard.
 pub fn check_attach(g: &mut Game, v: &EventView) -> R {
     attach_target_ok(g, v)?;
-    if let Some(code) = attach_locked(g, v)? {
+    if let Some(code) = crate::derived::event_locked(g, v)? {
         crate::bail!(code);
     }
     attach_guard(g, v)
@@ -219,8 +193,8 @@ pub fn move_tool(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause: 
 // Consequences, applied by the events' reducer
 
 /// The reducer of the attaching events: what each does to the game. "When attached" effects of Special Energy
-/// and Tools are triggers over the event (`Event::On` / the `OnAttach` adapter), which run after it; the Ability
-/// locks are re-stamped after it (`lock_sync`).
+/// and Tools are triggers over the event (`Event::On`), which run after it; the Ability locks are re-stamped after
+/// it when an attached card can change them (`passive::lock_sync_attached`).
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::Attach { card, target, from, .. } => {

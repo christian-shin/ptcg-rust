@@ -15,8 +15,7 @@
 //!
 //! What each action kind checks:
 //! * Energy attach: the turn rule (`can_attach_energy`), then the Attach event the play produces
-//!   (`engine::attach`): the spot, its locks (`event_locked`, and the B3-OLD `LockedAction::AttachEnergy`), the
-//!   Energy card's own attach guard.
+//!   (`engine::attach`): the spot, its locks (`event_locked`), the Energy card's own attach guard.
 //! * Pokémon (Basic, evolve): the event the play produces (`enter::hand_play_view`), its locks
 //!   (`event_locked`), and for an Evolve the evolution rules (`enter::evolve_rules`: evolves from, the
 //!   rule's limits with the permissions, the restrictions).
@@ -205,12 +204,6 @@ impl<'a> Ctx<'a> {
         false
     }
 
-    /// B3-OLD: is an Attach of `card` from the hand stopped by an action-based lock, in play or lasting (the
-    /// `engine::attach::attach_locked` adapter: `passive::play_locked_as`)?
-    fn old_attach_locked(&mut self, card: CardId, action: LockedAction) -> bool {
-        passive::lasting_locked(self.g, self.p, Some(card), &[action]).is_some() || self.play_locked(card, &[action])
-    }
-
     /// Is the event forbidden by a declared lock? The one query execution makes (`derived::event_locked`, which
     /// the event's routine calls), on the scratch game, made only when a lock over events can exist
     /// (`passive::may_lock_event`).
@@ -257,9 +250,9 @@ fn fast_energy(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool> 
     let p = ctx.p;
     let Ok((t, _)) = turn::can_attach_energy(g, p, target) else { return Some(false) };
     // The Attach the play produces and the checks its routine makes (`engine::attach::check_attach`): the spot,
-    // the locks (over the event, then the B3-OLD action locks), the Energy's own guard.
+    // the locks, the Energy's own guard.
     let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, true, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));
-    if crate::engine::attach::attach_target_ok(g, &v).is_err() || ctx.event_locked(&v) || ctx.old_attach_locked(card, LockedAction::AttachEnergy) {
+    if crate::engine::attach::attach_target_ok(g, &v).is_err() || ctx.event_locked(&v) {
         return Some(false);
     }
     if def_flags(g.st.cards[card as usize].def) & F_ATTACH_GUARD != 0 && crate::engine::attach::attach_guard(ctx.sc(), &v).is_err() {
@@ -367,7 +360,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             // The Attach the play produces (`engine::attach::check_tool_play`): the spot (one Tool per Pokémon),
             // the locks.
             let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));
-            Some(crate::engine::attach::attach_target_ok(g, &v).is_ok() && !ctx.event_locked(&v) && !ctx.old_attach_locked(card, LockedAction::AttachTool))
+            Some(crate::engine::attach::attach_target_ok(g, &v).is_ok() && !ctx.event_locked(&v))
         }
     }
 }

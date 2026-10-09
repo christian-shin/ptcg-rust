@@ -221,18 +221,13 @@ impl Game {
         nd!(ancient_pokemon_attacked_last_turn, "ancientPokemonAttackedLastTurn");
         nd!(ancient_supporter, "ancientSupporter");
         // The locks an attack left, as the keys the state always had (what they stop, and the turns left). The
-        // locks over events (`LockDecl::forbids`: playing or evolving Pokémon, events batch 2) have no key: these
-        // keys are Twinleaf's, outside the observable projection the golden comparator hashes.
+        // locks over events (`LockDecl::forbids`: playing or evolving Pokémon, events batch 2; attaching from the
+        // hand, batch 3, whose keys were `cannotPlayToolCards` / `cannotPlayEnergyCards`) have no key: these keys
+        // are Twinleaf's, outside the observable projection the golden comparator hashes.
         {
             use crate::spec::passive::LockedAction as A;
             let stops = |a: A| pl.lasting_locks.iter().flatten().any(|l| l.decl.actions.contains(&a));
-            for (a, key) in [
-                (A::PlayItem, "cannotPlayItemCards"),
-                (A::PlaySupporter, "cannotPlaySupporterCards"),
-                (A::PlayStadium, "cannotPlayStadiumCards"),
-                (A::AttachTool, "cannotPlayToolCards"),
-                (A::AttachEnergy, "cannotPlayEnergyCards"),
-            ] {
+            for (a, key) in [(A::PlayItem, "cannotPlayItemCards"), (A::PlaySupporter, "cannotPlaySupporterCards"), (A::PlayStadium, "cannotPlayStadiumCards")] {
                 if stops(a) {
                     o.insert(key.into(), json!(true));
                 }

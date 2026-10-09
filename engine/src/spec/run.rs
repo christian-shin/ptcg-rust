@@ -441,8 +441,8 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 }
 
 /// The triggers over an event that is done (events batch 2: EnterPlay, Evolve, Devolve, Swap; batch 3: Attach,
-/// MoveEnergy, MoveTool): the `Event::On` triggers (and the B3-OLD `Event::OnAttach` adapter) of every card that
-/// declares one for the event's kind, in propagation order. The event's
+/// MoveEnergy, MoveTool): the `Event::On` triggers of every card that declares one for the event's kind, in
+/// propagation order. The event's
 /// consequences are applied by now (a Pokémon is on the board, so the ordinary in-play locks at its slot decide
 /// whether its Ability triggers; docs/rulings/RULES.md, On-play Abilities, and "Putting onto the Bench": Risky
 /// Ruins after the Pokémon is on the Bench).
@@ -456,7 +456,7 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
         for &c in order.iter() {
             let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
             for (i, t) in spec.triggers.iter().enumerate() {
-                if !matches!(t.event, trigger::Event::On(_) | trigger::Event::OnAttach(_)) {
+                if !matches!(t.event, trigger::Event::On(_)) {
                     continue;
                 }
                 if let Some((p, slot)) = trigger::fires_on(g, c, e, t)? {

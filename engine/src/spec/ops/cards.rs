@@ -266,12 +266,13 @@ pub enum TargetScan {
     EffectiveTypes(&'static [CardType]),
 }
 /// What an `Attach` does besides attaching. Every route produces one Attach event per card (events batch 3), so
-/// `Move` and `Effect` are the same now (B3-OLD: the card files keep either until their batch 3 conversion).
+/// `Move` and `Effect` are the same now. B7: the card files keep either name until batch 7 collapses the enum
+/// (with `MovePoisonActive`, whose direct Poison is batch 4's, and `MoveShufflePerCard`, which keeps its RNG order).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum AttachRoute {
-    /// Attach (B3-OLD name: before events batch 3 the cards moved without an event).
+    /// Attach (the name of the route that moved the cards without an event before events batch 3).
     Move,
-    /// Attach (B3-OLD name: before events batch 3 the only route with an attach event).
+    /// Attach (the name of the only route with an attach event before events batch 3).
     Effect,
     /// Attach; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
     /// (Janine's Secret Art).
