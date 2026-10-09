@@ -3693,6 +3693,69 @@ mod event_lock_marker_tests {
 }
 
 #[cfg(test)]
+mod prevent_marker_tests {
+    //! A `Prevent` over events is consulted only when its card's mask carries the marker `event_prevented` reads
+    //! (`prevent_marker`), which `prevent_kinds` sets from the effect kinds of `from`; and only the routines of the
+    //! kinds with a marker ask the reader. A prevention over GainCondition alone (Slowpoke's Dopey Face) must be
+    //! asked; one over a kind whose routine doesn't ask would silently never be.
+    use super::*;
+    use crate::spec::event::{EventKind as E, EventPred};
+
+    const ALL: &[E] = &[
+        E::EnterPlay, E::Evolve, E::Devolve, E::Swap, E::Attach, E::MoveEnergy, E::MoveTool, E::PlayTrainer, E::ChangeActive,
+        E::Damage, E::PlaceCounters, E::MoveCounters, E::RemoveCounters, E::GainCondition, E::RemoveCondition, E::KnockOut,
+        E::TakePrizes, E::Discard, E::Draw, E::PutIntoHand, E::PutIntoDeck, E::LeavePlay, E::Shuffle, E::Look, E::Reveal,
+        E::CoinFlip, E::StateCheck, E::GameEnd, E::Mulligan, E::SetPrizes, E::BeginTurn, E::EndTurn, E::Checkup,
+        E::UseAttack, E::UseAbility, E::UseStadium, E::Retreat,
+    ];
+
+    #[test]
+    fn every_prevented_kind_sets_the_marker_the_reader_reads() {
+        for &k in ALL {
+            let p = PreventSpec::on(SlotPred::Any, EventPred::Kind(k));
+            let m = prevent_kinds(&p);
+            if let Some(marker) = prevent_marker(k) {
+                let x = k.effect_kind().expect("a prevented kind has an effect kind");
+                assert!(m.has(x), "{k:?}: the prevention isn't listed under its effect kind");
+                assert!(m.has(marker), "{k:?}: prevent_kinds doesn't set the marker event_prevented reads");
+            }
+        }
+        // The four events batch 4 kinds are consulted.
+        for k in [E::GainCondition, E::RemoveCondition, E::RemoveCounters, E::CoinFlip] {
+            assert!(prevent_marker(k).is_some(), "{k:?}");
+        }
+    }
+
+    /// Every `Prevent` a card declares over events names only kinds whose routine asks the reader.
+    #[test]
+    fn declared_preventions_are_consulted() {
+        let mut consulted = KindMask::EMPTY;
+        for &k in ALL {
+            if let (Some(_), Some(x)) = (prevent_marker(k), k.effect_kind()) {
+                consulted = consulted.or(crate::effects::mask(&[x]));
+            }
+        }
+        let mut n = 0;
+        for s in crate::cards::registry::SPECS.iter() {
+            for p in s.passives {
+                if let Modifier::Prevent(pr) = &p.modifier {
+                    if pr.from.is_never() {
+                        continue;
+                    }
+                    n += 1;
+                    let kinds = pr.from.effect_kinds();
+                    assert!(kinds != KindMask::EMPTY, "{}: a prevention over no event kind", s.class);
+                    let outside = KindMask([kinds.0[0] & !consulted.0[0], kinds.0[1] & !consulted.0[1], kinds.0[2] & !consulted.0[2], kinds.0[3] & !consulted.0[3]]);
+                    assert_eq!(outside, KindMask::EMPTY, "{}: a prevention over a kind whose routine doesn't ask event_prevented", s.class);
+                }
+            }
+        }
+        // Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal.
+        assert_eq!(n, 7);
+    }
+}
+
+#[cfg(test)]
 mod attached_lock_tests {
     //! The gate of `lock_sync` after the attaching events (`lock_sync_attached`) assumes that a lock source's
     //! Ability is only turned off by declarations it accounts for: the Ability locks (their spot predicates and

@@ -212,3 +212,93 @@ pub fn put_condition(slot: &mut Slot, sc: SpecialCondition, counters: u8) {
     slot.special_conditions.retain(|s| !(*s == SpecialCondition::Paralyzed as u8 || *s == SpecialCondition::Confused as u8 || *s == SpecialCondition::Asleep as u8));
     slot.special_conditions.push(v);
 }
+
+#[cfg(test)]
+mod tests {
+    //! The routines against hand-built boards.
+    use super::*;
+    use crate::cause::CauseKind;
+    use serde_json::json;
+
+    const SLOWPOKE: &str = "Slowpoke MEP 86";
+    const SNORLAX: &str = "Hop's Snorlax JTG 117";
+    const YVELTAL: &str = "Yveltal 30C 100";
+
+    fn game(sc: serde_json::Value) -> Game {
+        let mut names: Vec<&str> = Vec::new();
+        for n in [SLOWPOKE, SNORLAX, YVELTAL] {
+            names.extend(std::iter::repeat(n).take(4));
+        }
+        while names.len() < 60 {
+            names.push("Psychic Energy MEE 5");
+        }
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        g
+    }
+
+    fn active(g: &Game, p: usize) -> SlotRef {
+        SlotRef::new(p, g.st.players[p].active)
+    }
+
+    fn trainer(p: usize) -> Cause {
+        Cause::new(CauseKind::Trainer, None, p as u8)
+    }
+
+    /// "This Pokémon can't be Confused" stops a Confusion whatever causes it, and nothing else.
+    #[test]
+    fn dopey_face_prevents_confusion_by_any_cause() {
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SLOWPOKE}}));
+        let me = g.st.active_player as usize;
+        let t = active(&g, 1 - me);
+        assert!(!gain(&mut g, t, SpecialCondition::Confused, trainer(me)).unwrap(), "prevented");
+        assert!(g.st.slot(t.p as usize, t.s).special_conditions.is_empty());
+        assert!(gain(&mut g, t, SpecialCondition::Burned, trainer(me)).unwrap());
+        let a = Cause::new(CauseKind::Ability, None, me as u8);
+        assert!(!gain(&mut g, t, SpecialCondition::Confused, a).unwrap(), "an Ability too");
+        // Not another Pokémon.
+        let mine = active(&g, me);
+        assert!(gain(&mut g, mine, SpecialCondition::Confused, trainer(me)).unwrap());
+        assert_eq!(g.st.slot(me, mine.s).confusion_damage, 30);
+    }
+
+    /// Asleep, Confused and Paralyzed replace one another; Poisoned and Burned stack; recovering removes one.
+    #[test]
+    fn conditions_replace_and_recover() {
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX}}));
+        let me = g.st.active_player as usize;
+        let t = active(&g, 1 - me);
+        for c in [SpecialCondition::Poisoned, SpecialCondition::Asleep, SpecialCondition::Paralyzed] {
+            assert!(gain(&mut g, t, c, trainer(me)).unwrap());
+        }
+        let conds = |g: &Game| g.st.slot(t.p as usize, t.s).special_conditions.as_slice().to_vec();
+        assert_eq!(conds(&g), vec![SpecialCondition::Poisoned as u8, SpecialCondition::Paralyzed as u8]);
+        assert!(!remove(&mut g, t, SpecialCondition::Asleep, trainer(me)).unwrap(), "nothing to remove");
+        recover_all(&mut g, t, trainer(me), &[SpecialCondition::Poisoned as u8]).unwrap();
+        assert_eq!(conds(&g), vec![SpecialCondition::Poisoned as u8]);
+    }
+
+    /// Healing: nothing happens without damage counters; "your opponent's Active Pokémon can't be healed"
+    /// (Yveltal's Life-Locked) is a prevention of the RemoveCounters event.
+    #[test]
+    fn heal_and_life_locked() {
+        let mut g = game(json!({"me": {"reset": true, "active": YVELTAL}, "opp": {"reset": true, "active": SNORLAX, "active_damage": 50, "bench": [{"card": SNORLAX, "damage": 30}]}}));
+        let me = g.st.active_player as usize;
+        let o = 1 - me;
+        let t = active(&g, o);
+        let b = SlotRef::new(o, g.st.players[o].bench.as_slice()[0]);
+        assert!(!heal(&mut g, t, 30, trainer(o)).unwrap(), "Life-Locked");
+        assert_eq!(g.st.slot(o, t.s).damage, 50);
+        assert!(heal(&mut g, b, 50, trainer(o)).unwrap(), "a Benched Pokémon can be healed");
+        assert_eq!(g.st.slot(o, b.s).damage, 0);
+        assert!(g.st.slot(o, b.s).healed_this_turn);
+        assert!(!heal(&mut g, b, 10, trainer(o)).unwrap(), "no damage counters left");
+        // Yveltal's own side heals.
+        g.st.players[me].slots[g.st.players[me].active as usize].damage = 20;
+        let mine = active(&g, me);
+        assert!(heal(&mut g, mine, 10, trainer(me)).unwrap());
+    }
+}

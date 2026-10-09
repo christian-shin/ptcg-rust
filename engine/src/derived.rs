@@ -56,8 +56,9 @@ pub struct Derived {
 /// effects carry them): enter or leave play, attach and move attached cards (MOVE_CARDS, ENTER_PLAY, ATTACH,
 /// MOVE_ENERGY, MOVE_TOOL, ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
 /// (MOVED_TO_ACTIVE, MOVED_FROM_ACTIVE_TO_BENCH), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
-/// END_TURN), and the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
-/// runs after the same kinds).
+/// END_TURN), the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
+/// runs after the same kinds), and the events batch 4 events a continuous effect can read: a Special Condition
+/// gained or removed (Gutsy Swing's cost reads it) and healing (remaining HP). A CoinFlip changes no fact.
 pub const INVALIDATING_KINDS: KindMask = mask(&[
     k::MOVE_CARDS,
     k::ENTER_PLAY,
@@ -76,6 +77,9 @@ pub const INVALIDATING_KINDS: KindMask = mask(&[
     k::BEGIN_TURN,
     k::END_TURN,
     k::CHECK_TABLE_STATE,
+    k::GAIN_CONDITION,
+    k::REMOVE_CONDITION,
+    k::HEAL,
 ]);
 
 impl Derived {
