@@ -50,8 +50,6 @@ const F_ATTACK_FAIL: u8 = 8;
 const F_ATTACH_GUARD: u8 = 16;
 const F_PLAY_SPEC: u8 = 32;
 const F_PLAYS_AS_POKEMON: u8 = 64;
-/// A handler that throws when its card is in no list (Flutter Mane's Midnight Fluttering).
-const F_THROWS_UNLISTED: u8 = 128;
 
 fn def_flags(def: DefId) -> u8 {
     static T: OnceLock<Vec<u8>> = OnceLock::new();
@@ -66,7 +64,6 @@ fn def_flags(def: DefId) -> u8 {
                         passive::Modifier::BlockAttack(_) => F_BLOCK_ATTACK,
                         passive::Modifier::PlayedTurnReset(_) => F_PLAYED_TURN_RESET,
                         passive::Modifier::AttachGuard(_) => F_ATTACH_GUARD,
-                        passive::Modifier::ActiveLock(passive::ActiveLock::MidnightFluttering) => F_THROWS_UNLISTED,
                         _ => 0,
                     };
                 }
@@ -91,8 +88,6 @@ struct Sources {
     block_use: Vec<CardId>,
     block_attack: Vec<CardId>,
     played_turn_reset: Vec<CardId>,
-    /// Cards in a deck whose handler throws while they sit in a scratch list (see `deck_look_throws`).
-    unlisted_throwers_in_decks: bool,
 }
 
 // ---------------------------------------------------------------------------
@@ -145,9 +140,6 @@ impl<'a> Ctx<'a> {
                 }
                 if f & F_PLAYED_TURN_RESET != 0 {
                     s.played_turn_reset.push(c);
-                }
-                if f & F_THROWS_UNLISTED != 0 && g.st.players.iter().any(|pl| pl.deck.contains(c)) {
-                    s.unlisted_throwers_in_decks = true;
                 }
             }
             self.sources = Some(s);
@@ -220,14 +212,6 @@ impl<'a> Ctx<'a> {
         sc.st.players[p].slots[target.s as usize].pokemon_played_turn = saved;
         self.played.push((target.s, reset, r.clone()));
         r
-    }
-
-    /// An action that looks at cards from a deck puts them in a scratch list, where a card whose handler throws
-    /// while it is in no list (Flutter Mane) makes the use fail when it is among them. Which cards are looked at
-    /// is hidden information the declared checks don't read: when such a card is in a deck, a use that would
-    /// otherwise be legal is played (a counted fallback).
-    fn deck_look_throws(&mut self) -> bool {
-        self.sources().unlisted_throwers_in_decks
     }
 
     /// Is `action` with `card` locked by a declared play lock (`passive::play_locked`)?
@@ -375,9 +359,6 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             sc.release_fx(e);
             sc.st.players[p].hand = hand;
             sc.st.players[p].supporter = supporter;
-            if ok && ctx.deck_look_throws() {
-                return ctx.none("item: deck look with a lock-throwing card in a deck");
-            }
             Some(ok)
         }
         TrainerType::Supporter => {
@@ -391,9 +372,6 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             let e = sc.new_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: false });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
-            if ok && ctx.deck_look_throws() {
-                return ctx.none("supporter: deck look with a lock-throwing card in a deck");
-            }
             Some(ok)
         }
         TrainerType::Stadium => Some(
@@ -531,9 +509,6 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
     let e = sc.new_fx(Effect::Power { p: p as u8, power, card, target: None, probe: false });
     let ok = crate::spec::run::power_check(sc, card, power.index, p, e).is_ok();
     sc.release_fx(e);
-    if ok && ctx.deck_look_throws() {
-        return ctx.none("ability: deck look with a lock-throwing card in a deck");
-    }
     Some(ok)
 }
 
