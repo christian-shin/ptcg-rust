@@ -5,10 +5,10 @@
 //! Primal Root: as long as it is Active, attacks used by your opponent's
 //! Basic Pokémon cost [C] more.
 //!
-//! Fixed (phase 4b, W4): Twinleaf did not implement Primal Root at all
-//! (CheckAttackCostEffect of an attacker whose Active is Basic, with this card
-//! the opponent's Active top card and the ability not blocked: +[C]). The
-//! printed `powers` list still holds only the discard power.
+//! Primal Root is the card's printed Ability (printed powers: the fossil rule
+//! and discard action, then Primal Root), so every Ability reader sees it:
+//! Froslass's Freezing Shroud, `HasAbility`, the locks. The discard action
+//! (power 0) stays always available and is not an Ability.
 //!
 //! Twinleaf: on its own PlayItemEffect the card reduces a PlayPokemonEffect
 //! into the first empty Bench slot (the item play then continues and finds
