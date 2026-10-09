@@ -25,3 +25,12 @@ g0500018045
 g0500003353
 g0500004828
 g0500008429
+# Events batch 6 C2, Froslass TWM 53 Freezing Shroud (R1): each Froslass in play whose Ability works applies it, as its
+# own Ability (id2302; official JP FAQ Battle Cage / Froslass, Poltchageist / Froslass).
+# g0500006317: Battle Cage PFL 85 keeps the opponent's Freezing Shroud counter off a Benched Mega Chandelure ex (turn 33).
+g0500006317
+# g0500013416, g0500014596: the Active Froslass has no Ability under Flutter Mane's Midnight Fluttering, the Benched one
+# still puts its counter on Flutter Mane at each Checkup (the old any-copy marker trigger put none); in g0500014596 the
+# counter Knocks Out a Pokemon (an extra Prize prompt).
+g0500013416
+g0500014596
