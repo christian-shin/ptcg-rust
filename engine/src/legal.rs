@@ -208,10 +208,34 @@ impl<'a> Ctx<'a> {
     /// the event's routine calls), on the scratch game, made only when a lock over events can exist
     /// (`passive::may_lock_event`).
     fn event_locked(&mut self, v: &crate::spec::event::EventView) -> bool {
+        self.event_lock(v).is_some()
+    }
+
+    /// [`Ctx::event_locked`] with the lock's code (an error of a read stops the play, as in the trial).
+    fn event_lock(&mut self, v: &crate::spec::event::EventView) -> Option<&'static str> {
         if v.card.is_none() || !passive::may_lock_event(self.g, v.owner as usize, v.kind) {
-            return false;
+            return None;
         }
-        !matches!(crate::derived::event_locked(self.sc(), v), Ok(None))
+        crate::derived::event_locked(self.sc(), v).unwrap_or_else(|e| Some(e.0))
+    }
+}
+
+/// The checks of an Attach the play produces (`engine::attach::check_attach_with`, the function execution calls):
+/// the spot on the game, the locks and the card's own guard on the scratch game, each behind its plain-read gate.
+impl crate::engine::attach::AttachChecks for Ctx<'_> {
+    fn game(&self) -> &Game {
+        self.g
+    }
+    fn event_locked(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<Option<&'static str>> {
+        Ok(self.event_lock(v))
+    }
+    fn guard_refuses(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<bool> {
+        let Some(card) = v.card else { return Ok(false) };
+        if def_flags(self.g.st.cards[card as usize].def) & F_ATTACH_GUARD == 0 {
+            return Ok(false);
+        }
+        // An error of the read stops the play, as in the trial.
+        Ok(crate::engine::attach::AttachChecks::guard_refuses(self.sc(), v).unwrap_or(true))
     }
 }
 
@@ -249,16 +273,10 @@ fn fast_energy(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool> 
     let g = ctx.g;
     let p = ctx.p;
     let Ok((t, _)) = turn::can_attach_energy(g, p, target) else { return Some(false) };
-    // The Attach the play produces and the checks its routine makes (`engine::attach::check_attach`): the spot,
-    // the locks, the Energy's own guard.
+    // The Attach the play produces and the checks its routine makes (`engine::attach::check_attach_with`): the
+    // spot, the locks, the Energy's own guard.
     let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, true, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));
-    if crate::engine::attach::attach_target_ok(g, &v).is_err() || ctx.event_locked(&v) {
-        return Some(false);
-    }
-    if def_flags(g.st.cards[card as usize].def) & F_ATTACH_GUARD != 0 && crate::engine::attach::attach_guard(ctx.sc(), &v).is_err() {
-        return Some(false);
-    }
-    Some(true)
+    Some(matches!(crate::engine::attach::check_attach_with(ctx, &v), Ok(None)))
 }
 
 // ---------------------------------------------------------------------------
@@ -357,10 +375,10 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             }
             let t = get_target(&g.st, p, target).ok();
             let Ok(t) = turn::can_play_tool_card(t) else { return Some(false) };
-            // The Attach the play produces (`engine::attach::check_tool_play`): the spot (one Tool per Pokémon),
-            // the locks.
+            // The Attach the play produces (`engine::attach::check_tool_play`, `check_attach_with`): the spot (one
+            // Tool per Pokémon), the locks, the card's own guard.
             let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));
-            Some(crate::engine::attach::attach_target_ok(g, &v).is_ok() && !ctx.event_locked(&v))
+            Some(matches!(crate::engine::attach::check_attach_with(ctx, &v), Ok(None)))
         }
     }
 }

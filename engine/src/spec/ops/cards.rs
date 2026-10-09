@@ -1158,13 +1158,17 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
         if !g.lst(from).contains(&c) || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
             continue;
         }
-        f.attached_to = encode(target);
         // One Attach event per card, from the zone the card is in (a card attached to a Pokémon is moved:
-        // MoveEnergy, id1653); a refused one doesn't happen.
-        crate::engine::attach::attach(g, c, target, f.cause)?;
+        // MoveEnergy, id1653); a refused one doesn't happen, nor does what the text does with the attached card.
+        let attached = crate::engine::attach::attach(g, c, target, f.cause)?;
         if a.route == AttachRoute::MoveShufflePerCard {
+            // The RNG order of the route (a shuffle per card chosen), refused or not.
             shuffle_deck(g, p);
         }
+        if !attached {
+            continue;
+        }
+        f.attached_to = encode(target);
         if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
             crate::cause::unseen(g, "AttachRoute::MovePoisonActive Poison (written directly)", &f.cause);
             crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);

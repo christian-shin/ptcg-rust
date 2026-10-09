@@ -73,23 +73,55 @@ pub fn attach_target_ok(g: &Game, v: &EventView) -> R {
     Ok(())
 }
 
-/// The Energy's own "this card can only be attached to ..." (`Modifier::AttachGuard`): the error when it refuses
-/// the spot.
-pub fn attach_guard(g: &mut Game, v: &EventView) -> R {
-    let (Some(card), Some(t)) = (v.card, v.slot) else { return Ok(()) };
-    if passive::attach_guard_refuses(g, card, t)? {
-        crate::bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    Ok(())
+/// The refusal of an Energy's own "this card can only be attached to ..." (`Modifier::AttachGuard`).
+pub const GUARD_REFUSES: &str = "CANNOT_PLAY_THIS_CARD";
+
+/// Where the checks of an Attach read the game: execution on the game itself, legality (`legal.rs Ctx`) on its
+/// scratch game, behind its plain-read gates. Both answer through [`check_attach_with`], so they can't drift.
+pub trait AttachChecks {
+    /// The game the plain reads (the spot) look at.
+    fn game(&self) -> &Game;
+    /// The one lock query (`derived::event_locked`): the code of the lock that forbids the event.
+    fn event_locked(&mut self, v: &EventView) -> R<Option<&'static str>>;
+    /// Does the card's own guard refuse the spot (`passive::attach_guard_refuses`)?
+    fn guard_refuses(&mut self, v: &EventView) -> R<bool>;
 }
 
-/// Every check of an Attach event: the spot, the locks, the card's own guard.
-pub fn check_attach(g: &mut Game, v: &EventView) -> R {
-    attach_target_ok(g, v)?;
-    if let Some(code) = crate::derived::event_locked(g, v)? {
-        crate::bail!(code);
+impl AttachChecks for Game {
+    fn game(&self) -> &Game {
+        self
     }
-    attach_guard(g, v)
+    fn event_locked(&mut self, v: &EventView) -> R<Option<&'static str>> {
+        crate::derived::event_locked(self, v)
+    }
+    fn guard_refuses(&mut self, v: &EventView) -> R<bool> {
+        let (Some(card), Some(t)) = (v.card, v.slot) else { return Ok(false) };
+        passive::attach_guard_refuses(self, card, t)
+    }
+}
+
+/// Every check of an Attach event, in order: the spot ([`attach_target_ok`]), the locks, the card's own guard.
+/// `Ok(Some(code))` when the event is refused (it doesn't happen); an error of a read (a lock's predicate, the
+/// guard's) is propagated, never taken for a refusal.
+pub fn check_attach_with<C: AttachChecks + ?Sized>(c: &mut C, v: &EventView) -> R<Option<&'static str>> {
+    if let Err(e) = attach_target_ok(c.game(), v) {
+        return Ok(Some(e.0));
+    }
+    if let Some(code) = c.event_locked(v)? {
+        return Ok(Some(code));
+    }
+    if c.guard_refuses(v)? {
+        return Ok(Some(GUARD_REFUSES));
+    }
+    Ok(None)
+}
+
+/// [`check_attach_with`] on the game, a refusal as its error (the turn actions: a refused one is illegal).
+pub fn check_attach(g: &mut Game, v: &EventView) -> R {
+    match check_attach_with(g, v)? {
+        Some(code) => crate::bail!(code),
+        None => Ok(()),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -117,16 +149,19 @@ pub fn check_tool_play(g: &mut Game, p: usize, card: CardId, target: SlotRef) ->
 
 /// Attach by an effect: `card` goes onto the Pokémon in `target` from wherever it is (one event per card). The
 /// checks come first: a refused attachment doesn't happen (`Ok(false)`; an effect does as much as it can), nor
-/// does it for a card that is nowhere. A card already attached to a Pokémon is moved (MoveEnergy / MoveTool,
-/// id1653).
+/// does it for a card that is nowhere. A card already attached to a Pokémon, an Energy or a Tool, is moved
+/// (MoveEnergy / MoveTool, id1653).
 pub fn attach(g: &mut Game, card: CardId, target: SlotRef, cause: Cause) -> R<bool> {
-    let Some((_, source)) = crate::engine::enter::source_of(g, card) else { return Ok(false) };
-    if source == RulesZone::InPlay {
-        let Some((fp, fs)) = g.st.find_pokemon_slot(card) else { return Ok(false) };
-        return move_attached(g, card, SlotRef::new(fp, fs), target, cause);
-    }
+    // An attached Tool is among its Pokémon's Tools only, which no zone lookup (`State::locate`) searches.
+    let source = match crate::engine::enter::source_of(g, card) {
+        Some((_, z)) if z != RulesZone::InPlay => z,
+        _ => {
+            let Some((fp, fs)) = g.st.find_pokemon_slot(card) else { return Ok(false) };
+            return move_attached(g, card, SlotRef::new(fp, fs), target, cause);
+        }
+    };
     let v = attach_view(g, card, target, source, false, cause);
-    if check_attach(g, &v).is_err() {
+    if check_attach_with(g, &v)?.is_some() {
         return Ok(false);
     }
     run_attach(g, card, target, false, cause)?;
@@ -156,10 +191,16 @@ pub fn move_attached(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cau
 
 /// MoveEnergy: the Energy `card` attached to the Pokémon in `from` moves to the Pokémon in `to` (APR C-10). It
 /// doesn't happen (`Ok(false)`) when the card isn't attached there any more, there is no Pokémon in `to`, the
-/// two are the same Pokémon, or a lock forbids it.
+/// two are the same Pokémon, `to` isn't the card's owner's ("a player's Energy should always be attached to their
+/// own Pokémon", APR C-10: every pool effect moves an Energy between Pokémon of one player, Elgyem's and Team
+/// Rocket's Zapdos's the opponent's Energy among the opponent's Pokémon), or a lock forbids it.
 pub fn move_energy(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> R<bool> {
     let src = g.st.slot(from.p as usize, from.s);
-    if from == to || !(src.cards.contains(card) || src.energies.contains(card)) || g.st.slot_pokemon(to.p as usize, to.s).is_none() {
+    if from == to
+        || !(src.cards.contains(card) || src.energies.contains(card))
+        || g.st.slot_pokemon(to.p as usize, to.s).is_none()
+        || g.st.owner(card) != to.p as usize
+    {
         return Ok(false);
     }
     let v = move_view(g, EventKind::MoveEnergy, card, from, to, cause);
@@ -306,6 +347,31 @@ mod tests {
         // Moving a Tool onto a Pokémon that has one doesn't happen either.
         let other = g.st.slot(me, a.s).tools.as_slice()[0];
         assert!(!move_tool(&mut g, other, a, b, ability(me)).unwrap());
+    }
+
+    /// "Attach" given a Tool already attached to a Pokémon moves it (a MoveTool, id1653): the Tool is among its
+    /// Pokémon's Tools only, which the zone lookup doesn't search (it returned "nowhere" before).
+    #[test]
+    fn attaching_an_attached_tool_moves_it() {
+        let mut g = game(json!({"me": {"reset": true, "active": DURA, "active_tool": CHARM, "bench": [{"card": DURA}]}, "opp": {"reset": true, "active": DURA}}));
+        let me = g.st.active_player as usize;
+        let (a, b) = (active(&g, me), bench(&g, me, 0));
+        let charm = g.st.slot(me, a.s).tools.as_slice()[0];
+        assert!(attach(&mut g, charm, b, ability(me)).unwrap(), "moved");
+        assert!(g.st.slot(me, b.s).tools.contains(charm) && !g.st.slot(me, a.s).tools.contains(charm));
+    }
+
+    /// An Energy moves only among its owner's Pokémon (APR C-10: "a player's Energy should always be attached to
+    /// their own Pokémon").
+    #[test]
+    fn energy_moves_only_to_its_owners_pokemon() {
+        let mut g = game(json!({"me": {"reset": true, "active": DURA, "active_energy": ["Metal Energy MEE 8"]}, "opp": {"reset": true, "active": DURA}}));
+        let me = g.st.active_player as usize;
+        let a = active(&g, me);
+        let e = g.st.slot(me, a.s).energies.as_slice()[0];
+        let opp = active(&g, 1 - me);
+        assert!(!move_energy(&mut g, e, a, opp, ability(me)).unwrap());
+        assert!(g.st.slot(me, a.s).energies.contains(e));
     }
 
     /// Moving an attached Energy isn't attaching it (id1653): Enriching Energy draws nothing, and a lock on

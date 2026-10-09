@@ -758,7 +758,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         }
         Modifier::BlockUse(b) => block_kinds(&b.lock),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
-        // The attach refusal is a check of the Attach routine (`engine::attach::attach_guard`).
+        // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`).
         Modifier::AttachGuard(_) => mask(&[k::CHECK_TABLE_STATE]),
         Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
             (true, true) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER, k::CHECK_TABLE_STATE]),
@@ -1216,7 +1216,7 @@ pub(crate) fn attach_guard_allows(g: &mut Game, me: CardId, target: SlotRef, a: 
 }
 
 /// Is attaching the Energy card `card` to `target` stopped by its own `AttachGuard` (the Attach routine refuses
-/// it with `CANNOT_PLAY_THIS_CARD`, `engine::attach::attach_guard`; legality asks the same)?
+/// it with `CANNOT_PLAY_THIS_CARD`, `engine::attach::check_attach_with`; legality asks the same)?
 pub fn attach_guard_refuses(g: &mut Game, card: CardId, target: SlotRef) -> R<bool> {
     let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[card as usize].def).map_or(&[], |s| s.passives);
     for ps in passives {
@@ -1927,25 +1927,60 @@ pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'sta
     if !may_lock_event(g, p, v.kind) {
         return Ok(None);
     }
-    if let (true, Some(kind)) = (g.kinds_present.has(lock_marker(v.kind)), v.kind.effect_kind()) {
-        let probe = Effect::PlayItem { p: p as u8, card, target: None };
-        let order = g.propagation_order(&probe, kind);
-        for c in order.iter().copied() {
-            if let Some(code) = event_locked_by(g, c, v)? {
-                return Ok(Some(code));
+    if let (Some(marker), Some(kind)) = (lock_marker(v.kind), v.kind.effect_kind()) {
+        if g.kinds_present.has(marker) {
+            let probe = Effect::PlayItem { p: p as u8, card, target: None };
+            let order = g.propagation_order(&probe, kind);
+            for c in order.iter().copied() {
+                if let Some(code) = event_locked_by(g, c, v)? {
+                    return Ok(Some(code));
+                }
             }
         }
     }
     lasting_event_locked(g, v)
 }
 
-/// The declaration marker a lock over events of `kind` sets in its card's mask (`block_kinds`).
+/// The declaration marker a lock over events of `kind` sets in its card's mask (`block_kinds`), `None` for a
+/// kind no effect carries yet (a lock over it would never be consulted: `block_kinds` sets nothing for it).
+/// Exhaustive on purpose: the batch that makes a kind an event gives it a marker here, and
+/// `event_lock_marker_tests` fails until it does.
 #[inline]
-const fn lock_marker(kind: super::event::EventKind) -> u32 {
+pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
     use super::event::EventKind as E;
     match kind {
-        E::Attach | E::MoveEnergy | E::MoveTool => crate::effects::k::DECLARES_ATTACH_LOCK,
-        _ => crate::effects::k::DECLARES_EVENT_LOCK,
+        E::EnterPlay | E::Evolve | E::Devolve | E::Swap => Some(crate::effects::k::DECLARES_EVENT_LOCK),
+        E::Attach | E::MoveEnergy | E::MoveTool => Some(crate::effects::k::DECLARES_ATTACH_LOCK),
+        E::PlayTrainer
+        | E::ChangeActive
+        | E::Damage
+        | E::PlaceCounters
+        | E::MoveCounters
+        | E::RemoveCounters
+        | E::GainCondition
+        | E::RemoveCondition
+        | E::KnockOut
+        | E::TakePrizes
+        | E::Discard
+        | E::Draw
+        | E::PutIntoHand
+        | E::PutIntoDeck
+        | E::LeavePlay
+        | E::Shuffle
+        | E::Look
+        | E::Reveal
+        | E::CoinFlip
+        | E::StateCheck
+        | E::GameEnd
+        | E::Mulligan
+        | E::SetPrizes
+        | E::BeginTurn
+        | E::EndTurn
+        | E::Checkup
+        | E::UseAttack
+        | E::UseAbility
+        | E::UseStadium
+        | E::Retreat => None,
     }
 }
 
@@ -1954,7 +1989,7 @@ const fn lock_marker(kind: super::event::EventKind) -> u32 {
 /// [`event_locked`] answers `None` without a walk, so legality asks it before making its scratch game.
 #[inline]
 pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool {
-    g.kinds_present.has(lock_marker(kind)) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
+    lock_marker(kind).map_or(false, |m| g.kinds_present.has(m)) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
 }
 
 /// [`event_locked`] for one in-play lock source `me`.
@@ -3451,6 +3486,97 @@ mod play_lock_tests {
         assert_eq!(ability_off(&g, active(&g, me)), Some(true));
         assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
         assert_eq!(ability_off(&g, bench(&g, me, 0)), Some(false), "a Metal Pokémon");
+    }
+}
+
+#[cfg(test)]
+mod event_lock_marker_tests {
+    //! A lock over an event is consulted only when its card's mask carries the marker `event_locked` and
+    //! `may_lock_event` read (`lock_marker`), which `block_kinds` sets from the effect kinds of `forbids`. The two
+    //! must agree for every kind, or a lock (a batch 4 lock or Prevent over GainCondition, say) would silently
+    //! never be asked.
+    use super::*;
+    use crate::spec::event::{EventKind as E, EventPred};
+
+    const ALL: &[E] = &[
+        E::EnterPlay,
+        E::Evolve,
+        E::Devolve,
+        E::Swap,
+        E::Attach,
+        E::MoveEnergy,
+        E::MoveTool,
+        E::PlayTrainer,
+        E::ChangeActive,
+        E::Damage,
+        E::PlaceCounters,
+        E::MoveCounters,
+        E::RemoveCounters,
+        E::GainCondition,
+        E::RemoveCondition,
+        E::KnockOut,
+        E::TakePrizes,
+        E::Discard,
+        E::Draw,
+        E::PutIntoHand,
+        E::PutIntoDeck,
+        E::LeavePlay,
+        E::Shuffle,
+        E::Look,
+        E::Reveal,
+        E::CoinFlip,
+        E::StateCheck,
+        E::GameEnd,
+        E::Mulligan,
+        E::SetPrizes,
+        E::BeginTurn,
+        E::EndTurn,
+        E::Checkup,
+        E::UseAttack,
+        E::UseAbility,
+        E::UseStadium,
+        E::Retreat,
+    ];
+
+    /// Exhaustive (no wildcard): a new kind doesn't compile until it is listed in `ALL`.
+    fn listed(k: E) -> bool {
+        match k {
+            E::EnterPlay | E::Evolve | E::Devolve | E::Swap | E::Attach | E::MoveEnergy | E::MoveTool | E::PlayTrainer | E::ChangeActive | E::Damage => ALL.contains(&k),
+            E::PlaceCounters | E::MoveCounters | E::RemoveCounters | E::GainCondition | E::RemoveCondition | E::KnockOut | E::TakePrizes | E::Discard => ALL.contains(&k),
+            E::Draw | E::PutIntoHand | E::PutIntoDeck | E::LeavePlay | E::Shuffle | E::Look | E::Reveal | E::CoinFlip | E::StateCheck | E::GameEnd => ALL.contains(&k),
+            E::Mulligan | E::SetPrizes | E::BeginTurn | E::EndTurn | E::Checkup | E::UseAttack | E::UseAbility | E::UseStadium | E::Retreat => ALL.contains(&k),
+        }
+    }
+
+    #[test]
+    fn every_event_kind_has_a_marker_block_kinds_sets() {
+        for &k in ALL {
+            assert!(listed(k));
+            static ERR: &str = "BLOCKED_BY_EFFECT";
+            let m = block_kinds(&LockDecl::on(EventPred::Kind(k), ERR));
+            match (k.effect_kind(), lock_marker(k)) {
+                (Some(x), Some(marker)) => {
+                    assert!(m.has(x), "{k:?}: the lock isn't listed under its effect kind");
+                    assert!(m.has(marker), "{k:?}: block_kinds doesn't set the marker event_locked reads");
+                }
+                (None, None) => assert_eq!(m, KindMask::EMPTY, "{k:?}"),
+                (e, marker) => panic!("{k:?}: effect kind {e:?} but marker {marker:?}"),
+            }
+        }
+    }
+
+    /// Every lock a card declares over events names a kind an effect carries (else it is never consulted).
+    #[test]
+    fn declared_event_locks_are_consulted() {
+        for s in crate::cards::registry::SPECS.iter() {
+            for p in s.passives {
+                if let Modifier::BlockUse(b) = &p.modifier {
+                    if !b.lock.forbids.is_never() {
+                        assert!(b.lock.forbids.effect_kinds() != KindMask::EMPTY, "{}: a lock over no event kind", s.class);
+                    }
+                }
+            }
+        }
     }
 }
 
