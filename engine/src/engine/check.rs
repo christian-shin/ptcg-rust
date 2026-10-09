@@ -125,7 +125,7 @@ fn find_ko_pokemons(g: &mut Game) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_RE
             if g.trial && g.st.slot(p, *s).damage == 0 {
                 continue;
             }
-            let hp = check_hp(g, p, *s)?;
+            let hp = crate::derived::hp(g, p, *s)?;
             if g.st.slot(p, *s).damage >= hp {
                 out.push(SlotRef::new(p, *s));
             }

@@ -279,6 +279,8 @@ pub struct Game {
     pub lock_syncing: bool,
     /// The per-kind dispatch index (`dispatch.rs`).
     pub dispatch: crate::dispatch::DispatchIndex,
+    /// The derived layer (`derived.rs`).
+    pub derived: crate::derived::Derived,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
@@ -353,6 +355,7 @@ impl Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
                 resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
                 dispatch,
+                derived: _,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -385,6 +388,8 @@ impl Game {
             f!((*d).lock_syncing).write(*lock_syncing);
             // The index comes along with the layout it describes (each entry carries its own generation).
             f!((*d).dispatch).write(*dispatch);
+            // The derived facts are not copied: the copy starts stale.
+            (*d).derived.invalidate();
         }
     }
 }
@@ -418,6 +423,7 @@ impl Game {
             spec_choices: SVec::new(),
             lock_syncing: false,
             dispatch: crate::dispatch::DispatchIndex::new(),
+            derived: crate::derived::Derived::new(),
         }
     }
 
@@ -1194,6 +1200,9 @@ impl Game {
         crate::engine::game_effect::reducer(self, id)?;
         attack::reducer(self, id)?;
         check::check_state_reducer(self, id)?;
+        if crate::derived::INVALIDATING_KINDS.has(kind) {
+            self.derived.invalidate();
+        }
         if matches!(
             kind,
             k::MOVE_CARDS | k::PLAY_POKEMON | k::EVOLVE | k::PLAY_POKEMON_FROM_DECK | k::PLAY_POKEMON_FROM_DISCARD | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE

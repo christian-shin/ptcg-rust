@@ -1090,7 +1090,7 @@ fn spread_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SpreadCountersSpec) 
     let p = f.who(s.chooser);
     let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
     for (sl, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        let hp = crate::engine::check::check_hp(g, p, sl)?;
+        let hp = crate::derived::hp(g, p, sl)?;
         max_allowed.push((t, hp + s.cap_bonus_hp));
     }
     let mut slots = SVec::new();
@@ -1141,7 +1141,7 @@ fn move_any_exec(g: &mut Game, me: CardId, f: &mut Frame, who: Who) -> R<Flow> {
     let player_type = if owner == f.p as usize { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
     let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
     for (sl, _, t) in for_each_pokemon(g, owner, player_type).iter().copied() {
-        let hp = crate::engine::check::check_hp(g, owner, sl)?;
+        let hp = crate::derived::hp(g, owner, sl)?;
         max_allowed.push((t, hp));
     }
     let mut slots = SVec::new();
@@ -1299,7 +1299,7 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
     let mine = for_each_pokemon(g, p, PlayerType::BottomPlayer);
     let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
     for (s, _, t) in mine.iter().copied() {
-        let hp = crate::engine::check::check_hp(g, p, s)?;
+        let hp = crate::derived::hp(g, p, s)?;
         max_allowed.push((t, hp));
     }
     let mut opts = MoveOpts { allow_cancel: false, min: 1, max: Some(max), ..Default::default() };
