@@ -194,17 +194,30 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
     Ok(())
 }
 
-/// Attacks available to the active player, as the AttackAction reducer builds them.
-/// The bool marks an attack copied from a Benched Pokémon (`CheckPokemonAttacksEffect.copiedAttacks`).
-pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64>> {
+/// The checked read of the attacks the active player may use (`CheckPokemonAttacks`): the attack list and the
+/// ones copied from a Benched Pokémon (`copiedAttacks`).
+pub type CheckedAttacks = (SVec<AttackRef, 32>, SVec<AttackRef, 32>);
+
+pub fn read_attack_list(g: &mut Game, p: usize) -> R<CheckedAttacks> {
+    let (e, _) = g.run_fx(check_attacks_effect(g, p))?;
+    Ok(match e {
+        Effect::CheckPokemonAttacks { attacks, copied, .. } => (attacks, copied),
+        _ => (SVec::new(), SVec::new()),
+    })
+}
+
+/// Attacks available to the active player, as the AttackAction reducer builds them, from the read
+/// [`read_attack_list`] made: the Active Pokémon's printed attacks, the use-on-Bench attacks of the Benched
+/// ones, then the checked list. The bool marks an attack copied from a Benched Pokémon.
+pub fn assemble_available_attacks(g: &Game, p: usize, checked: &CheckedAttacks) -> SVec<(AttackRef, bool), 64> {
     let mut out: SVec<(AttackRef, bool), 64> = SVec::new();
     if let Some(c) = g.st.active_pokemon(p) {
         for i in 0..g.st.cdef(c).attacks.len() {
             out.push((AttackRef { card: c, index: i as u8 }, false));
         }
     }
-    let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
-    for b in bench {
+    let (attacks, copied) = checked;
+    for &b in g.st.players[p].bench.iter() {
         if let Some(c) = g.st.slot_pokemon(p, b) {
             let d = g.st.cdef(c);
             if d.attacks.iter().any(|a| a.use_on_bench) {
@@ -213,22 +226,37 @@ pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64
                         out.push((AttackRef { card: c, index: i as u8 }, false));
                     }
                 }
-                let (e, _) = g.run_fx(check_attacks_effect(g, p))?;
-                if let Effect::CheckPokemonAttacks { attacks, copied, .. } = e {
-                    for a in attacks.iter() {
-                        out.push((*a, copied.iter().any(|c| c == a)));
-                    }
+                for a in attacks.iter() {
+                    out.push((*a, copied.iter().any(|c| c == a)));
                 }
             }
         }
     }
-    let (e, _) = g.run_fx(check_attacks_effect(g, p))?;
-    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = e {
-        for a in attacks.iter() {
-            out.push((*a, copied.iter().any(|c| c == a)));
-        }
+    for a in attacks.iter() {
+        out.push((*a, copied.iter().any(|c| c == a)));
     }
-    Ok(out)
+    out
+}
+
+/// Attacks available to the active player (the read, then the list).
+pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64>> {
+    let checked = read_attack_list(g, p)?;
+    Ok(assemble_available_attacks(g, p, &checked))
+}
+
+/// The attack named `name` (from the Benched Pokémon `from`, when copied by Memory Helix) in the list, as the
+/// `AttackAction` reducer finds it.
+pub fn find_attack(g: &Game, attacks: &[(AttackRef, bool)], name: &'static str, from: Option<&'static str>) -> Option<(AttackRef, bool)> {
+    attacks
+        .iter()
+        .find(|r| {
+            g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name
+                && match from {
+                    Some(f) => r.1 && g.st.cdef(r.0.card).full_name == f,
+                    None => true,
+                }
+        })
+        .copied()
 }
 
 /// `new CheckPokemonAttacksEffect(player)`: seeded with the active tool's attacks.
@@ -244,6 +272,19 @@ pub fn check_attacks_effect(g: &Game, p: usize) -> Effect {
         }
     }
     Effect::CheckPokemonAttacks { p: p as u8, attacks, copied: SVec::new() }
+}
+
+/// The Pokémon card whose Ability a `UseAbility` names (`None`: nothing to use).
+pub fn ability_source(g: &Game, p: usize, target: CardTarget) -> R<Option<CardId>> {
+    Ok(match target.slot {
+        SlotType::Active | SlotType::Bench => {
+            let t = get_target(&g.st, p, target)?;
+            g.st.slot_pokemon(t.p as usize, t.s)
+        }
+        SlotType::Discard => g.st.players[p].discard.get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
+        SlotType::Hand => g.st.players[p].hand.get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
+        _ => None,
+    })
 }
 
 pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
@@ -269,15 +310,9 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             let pokemon = g.st.active_pokemon(p);
             let attacks = available_attacks(g, p)?;
             // `from` names the Benched Pokemon of an attack copied by Memory Helix.
-            let found = attacks.iter().find(|r| {
-                g.st.cdef(r.0.card).attacks[r.0.index as usize].name == name
-                    && match from {
-                        Some(f) => r.1 && g.st.cdef(r.0.card).full_name == f,
-                        None => true,
-                    }
-            });
+            let found = find_attack(g, attacks.as_slice(), name, from);
             let (attack, copied) = match found {
-                Some(r) => *r,
+                Some(r) => r,
                 None => crate::bail!("UNKNOWN_ATTACK"),
             };
             let source = SlotRef::new(p, g.st.players[p].active);
@@ -291,15 +326,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             }
         }
         Action::UseAbility { name, target } => {
-            let card = match target.slot {
-                SlotType::Active | SlotType::Bench => {
-                    let t = get_target(&g.st, p, target)?;
-                    g.st.slot_pokemon(t.p as usize, t.s)
-                }
-                SlotType::Discard => g.st.players[p].discard.get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
-                SlotType::Hand => g.st.players[p].hand.get(target.index as usize).filter(|c| g.st.cdef(*c).is_pokemon()),
-                _ => None,
-            };
+            let card = ability_source(g, p, target)?;
             if let Some(c) = card {
                 let mut powers = SVec::new();
                 for i in 0..g.st.cdef(c).powers.len() {

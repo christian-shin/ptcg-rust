@@ -86,6 +86,11 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
     }
 }
 
+/// Does the condition of a `Fail` op hold (read by the executor and by legality)?
+pub(crate) fn fail_holds(g: &mut Game, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
+    flow::fail_holds(g, me, f, x)
+}
+
 /// The nested list `sel` of a flow op (`&[]` for ops without one).
 pub fn child(op: &Op, sel: u8) -> &'static [Step] {
     flow::child(op, sel)

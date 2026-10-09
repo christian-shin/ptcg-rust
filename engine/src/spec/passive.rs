@@ -1142,10 +1142,29 @@ fn provides_energy_boost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource,
     Ok(())
 }
 
+/// May the Energy `me` be attached to `target` (its own `AttachGuard`)?
+pub(crate) fn attach_guard_allows(g: &mut Game, me: CardId, target: SlotRef, a: &AttachGuardSpec) -> R<bool> {
+    slot_pred_m(g, me, target, &a.allow)
+}
+
+/// Legality: is attaching the Energy card `card` to `target` stopped by its own `AttachGuard` (the handler
+/// below refuses it with `CANNOT_PLAY_THIS_CARD`)?
+pub fn attach_guard_refuses(g: &mut Game, card: CardId, target: SlotRef) -> R<bool> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[card as usize].def).map_or(&[], |s| s.passives);
+    for ps in passives {
+        if let Modifier::AttachGuard(a) = &ps.modifier {
+            if !attach_guard_allows(g, card, target, a)? {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
+}
+
 fn attach_guard(g: &mut Game, me: CardId, e: EffId, a: &AttachGuardSpec) -> R {
     match *g.e(e) {
         Effect::AttachEnergy { card, target, .. } if card == me => {
-            if !slot_pred_m(g, me, target, &a.allow)? {
+            if !attach_guard_allows(g, me, target, a)? {
                 crate::bail!("CANNOT_PLAY_THIS_CARD");
             }
         }
@@ -1724,6 +1743,22 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
     Ok(())
 }
 
+/// Does the Pokémon `me` refuse `card` played onto `target` (only a card matching `only` can evolve it)?
+fn evolve_from_refuses(g: &Game, me: CardId, d: &EvolveFromSpec, card: CardId, target: SlotRef) -> bool {
+    if g.st.slot_pokemon(target.p as usize, target.s) != Some(me) {
+        return false;
+    }
+    let def = g.st.cdef(card);
+    d.names.iter().any(|n| *n == def.evolves_from) && !pred(g, card, &d.only)
+}
+
+/// Legality: does the Pokémon on `target` refuse the Pokémon card `card` played onto it (`INVALID_TARGET`)?
+pub fn evolve_refused_by_target(g: &Game, card: CardId, target: SlotRef) -> bool {
+    let Some(me) = g.st.slot_pokemon(target.p as usize, target.s) else { return false };
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    passives.iter().any(|ps| matches!(&ps.modifier, Modifier::EvolveFrom(d) if evolve_from_refuses(g, me, d, card, target)))
+}
+
 fn evolve_from(g: &mut Game, me: CardId, e: EffId, d: &EvolveFromSpec) -> R {
     static NONE: &[&str] = &[];
     match *g.e(e) {
@@ -1742,11 +1777,8 @@ fn evolve_from(g: &mut Game, me: CardId, e: EffId, d: &EvolveFromSpec) -> R {
         }
         // Only a card matching `only` can evolve this Pokémon.
         Effect::PlayPokemon { card, target, .. } => {
-            if g.st.slot_pokemon(target.p as usize, target.s) == Some(me) {
-                let def = g.st.cdef(card);
-                if d.names.iter().any(|n| *n == def.evolves_from) && !pred(g, card, &d.only) {
-                    crate::bail!("INVALID_TARGET");
-                }
+            if evolve_from_refuses(g, me, d, card, target) {
+                crate::bail!("INVALID_TARGET");
             }
         }
         _ => {}
@@ -2084,15 +2116,14 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
     Ok(())
 }
 
-fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: &PlayedTurnResetSpec) -> R {
-    let (p, card, target) = match *g.e(e) {
-        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
-        _ => return Ok(()),
-    };
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+/// The slots of `p` whose played turn the card `me` (a Stadium that resets the played turn of Pokémon as a
+/// Pokémon of its type is played, Lush Forest) resets when `card` is played onto `target`.
+fn played_turn_reset_slots(g: &mut Game, me: CardId, origin: RuleSource, r: &PlayedTurnResetSpec, p: usize, card: CardId, target: SlotRef) -> R<SVec<crate::state::SlotId, 9>> {
+    let mut out = SVec::new();
+    let Some(at) = locate(g, me, origin) else { return Ok(out) };
     // Not during a player's first turn; only when a Pokémon of the type is played.
     if g.st.turn <= 2 || !g.st.cdef(card).card_type.contains(&r.card_type) || blocked(g, me, origin, at, Some(target)) {
-        return Ok(());
+        return Ok(out);
     }
     for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
         let sr = SlotRef::new(p, s);
@@ -2105,8 +2136,33 @@ fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: 
             _ => false,
         };
         if of_type {
-            g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn as i32 - 1;
+            out.push(s);
         }
+    }
+    Ok(out)
+}
+
+/// Legality: does the card `me` reset the played turn of the Pokémon in `target` when `card` is played onto
+/// it (so evolution timing sees the turn before)?
+pub fn played_turn_reset_hits(g: &mut Game, me: CardId, p: usize, card: CardId, target: SlotRef) -> R<bool> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    for ps in passives {
+        if let Modifier::PlayedTurnReset(r) = &ps.modifier {
+            if played_turn_reset_slots(g, me, ps.origin, r, p, card, target)?.contains(&target.s) {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
+}
+
+fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: &PlayedTurnResetSpec) -> R {
+    let (p, card, target) = match *g.e(e) {
+        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
+        _ => return Ok(()),
+    };
+    for s in played_turn_reset_slots(g, me, origin, r, p, card, target)?.iter().copied() {
+        g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn as i32 - 1;
     }
     Ok(())
 }
@@ -2148,12 +2204,7 @@ fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &Atta
     }
     let Effect::UseAttack { p, attack, .. } = *g.e(e) else { return Ok(()) };
     let p = p as usize;
-    let active = g.st.players[p].active;
-    if !a.first_turn || !g.st.slot(p, active).cards.contains(me) || g.st.turn != 1 {
-        return Ok(());
-    }
-    let at = Located { owner: p, held: None };
-    if blocked(g, me, origin, at, None) {
+    if !first_turn_grants(g, me, origin, a, p) {
         return Ok(());
     }
     // A copy-attack clone carries its own flag (nothing reads it).
@@ -2161,6 +2212,40 @@ fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &Atta
         g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
     }
     Ok(())
+}
+
+/// Does `me` (an Ability on the attacking player's Active Pokémon) let `p`'s attacks be used on the first turn?
+fn first_turn_grants(g: &mut Game, me: CardId, origin: RuleSource, a: &AttackFlagsSpec, p: usize) -> bool {
+    let active = g.st.players[p].active;
+    if !a.first_turn || !g.st.slot(p, active).cards.contains(me) || g.st.turn != 1 {
+        return false;
+    }
+    let at = Located { owner: p, held: None };
+    !blocked(g, me, origin, at, None)
+}
+
+/// Legality: will an Ability on `p`'s Active Pokémon let the attack be used on the first turn (the flag
+/// `attack_flags` writes when the `UseAttack` effect reaches it)?
+pub fn grants_first_turn_attack(g: &mut Game, p: usize) -> bool {
+    if g.st.turn != 1 || !g.kinds_present.has(crate::effects::k::USE_ATTACK) {
+        return false;
+    }
+    let active = g.st.players[p].active;
+    let mut cards: SVec<CardId, 8> = SVec::new();
+    for c in g.st.slot(p, active).cards.iter() {
+        cards.push(c);
+    }
+    for me in cards.iter().copied() {
+        let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+        for ps in passives {
+            if let Modifier::AttackFlags(a) = &ps.modifier {
+                if a.shred.is_none() && first_turn_grants(g, me, ps.origin, a, p) {
+                    return true;
+                }
+            }
+        }
+    }
+    false
 }
 
 fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
@@ -2678,23 +2763,52 @@ fn block_attack(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &Bloc
         (AttackBlockOn::UseAttack, Effect::UseAttack { p, source, .. }) => (p as usize, Some(source)),
         _ => return Ok(()),
     };
+    match attack_block_error(g, me, origin, b, p, source) {
+        Some(code) => crate::bail!(code),
+        None => Ok(()),
+    }
+}
+
+/// The error code when the block `b` of `me` stops player `p`'s attack (`source`: the attacking slot of a
+/// `UseAttack`; `None` for the `Attack` effect, which only the Active Pokémon's own block reads).
+fn attack_block_error(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockAttackSpec, p: usize, source: Option<SlotRef>) -> Option<&'static str> {
     match source {
         None => {
             if g.st.active_pokemon(p) != Some(me) {
-                return Ok(());
+                return None;
             }
         }
         Some(src) => {
             if !g.st.slot(src.p as usize, src.s).cards.contains(me) {
-                return Ok(());
+                return None;
             }
         }
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    let at = locate(g, me, origin)?;
     if blocked(g, me, origin, at, None) || guard_ok(g, me, p, &b.unless) {
-        return Ok(());
+        return None;
     }
-    crate::bail!(b.error)
+    Some(b.error)
+}
+
+/// Legality: does a block declared by `me` (`BlockAttack`) stop player `p` from attacking? Both blocks are
+/// read: the one on the `UseAttack` (the Pokémon's own attacks) and the one on the `Attack` effect (while it
+/// is the Active Pokémon).
+pub fn attack_blocked_by(g: &mut Game, me: CardId, p: usize) -> bool {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    let active = SlotRef::new(p, g.st.players[p].active);
+    for ps in passives {
+        if let Modifier::BlockAttack(b) = &ps.modifier {
+            let source = match b.on {
+                AttackBlockOn::ActiveAttack => None,
+                AttackBlockOn::UseAttack => Some(active),
+            };
+            if attack_block_error(g, me, ps.origin, b, p, source).is_some() {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 /// "If the Pokémon has full HP and would be Knocked Out by damage from an opponent's attack, it is not Knocked Out

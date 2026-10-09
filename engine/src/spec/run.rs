@@ -313,14 +313,9 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     }
     if let Some(play) = &spec.play {
         if let Some(p) = trainer_played(g, e, me) {
-            if play.kind == PlayKind::Supporter && g.st.players[p].supporter_turn > 0 {
-                crate::bail!("SUPPORTER_ALREADY_PLAYED");
-            }
             let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
             f.via_attack = trainer_via_attack(g, e);
-            if !usable(g, me, &f, play.needs, play.steps)? {
-                crate::bail!("CANNOT_PLAY_THIS_CARD");
-            }
+            check_play(g, me, play, &f)?;
             run(g, me, f)?;
         }
     }
@@ -339,22 +334,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 _ => continue,
             };
             let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
-            match pw.once {
-                Once::PerTurn(name) => {
-                    if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
-                        crate::bail!("POWER_ALREADY_USED");
-                    }
-                }
-                Once::PerTurnShared(name) => {
-                    if g.st.players[p].marker.has(crate::markers::intern(name)) {
-                        crate::bail!("POWER_ALREADY_USED");
-                    }
-                }
-                Once::No => {}
-            }
-            if !usable(g, me, &f, pw.needs, pw.steps)? {
-                crate::bail!("CANNOT_USE_POWER");
-            }
+            check_power(g, me, pw, &f)?;
             if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
                 use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
                 ability_used(g, p, me);
@@ -366,9 +346,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if let Effect::UseStadium { p, stadium } = *g.e(e) {
             if stadium == me {
                 let f = Frame::new(Prog::UseStadium, Phase::Use, e, p as usize);
-                if !usable(g, me, &f, us.needs, us.steps)? {
-                    crate::bail!("CANNOT_USE_STADIUM");
-                }
+                check_use_stadium(g, me, us, &f)?;
                 run(g, me, f)?;
             }
         }
@@ -422,6 +400,132 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
         }
     }
     Ok(steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op)))
+}
+
+/// The declared checks of playing a Trainer (`reduce` and legality both make them): the one-Supporter rule
+/// and the card's `needs` and implied preconditions.
+pub(crate) fn check_play(g: &mut Game, me: CardId, play: &PlaySpec, f: &Frame) -> R {
+    if play.kind == PlayKind::Supporter && g.st.players[f.p as usize].supporter_turn > 0 {
+        crate::bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    if !usable(g, me, f, play.needs, play.steps)? {
+        crate::bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    Ok(())
+}
+
+/// The declared checks of using an Ability: once per turn, then its `needs` and implied preconditions.
+pub(crate) fn check_power(g: &mut Game, me: CardId, pw: &PowerSpec, f: &Frame) -> R {
+    let p = f.p as usize;
+    match pw.once {
+        Once::PerTurn(name) => {
+            if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
+                crate::bail!("POWER_ALREADY_USED");
+            }
+        }
+        Once::PerTurnShared(name) => {
+            if g.st.players[p].marker.has(crate::markers::intern(name)) {
+                crate::bail!("POWER_ALREADY_USED");
+            }
+        }
+        Once::No => {}
+    }
+    if !usable(g, me, f, pw.needs, pw.steps)? {
+        crate::bail!("CANNOT_USE_POWER");
+    }
+    Ok(())
+}
+
+/// The declared checks of using the Stadium in play.
+pub(crate) fn check_use_stadium(g: &mut Game, me: CardId, us: &PlaySpec, f: &Frame) -> R {
+    if !usable(g, me, f, us.needs, us.steps)? {
+        crate::bail!("CANNOT_USE_STADIUM");
+    }
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Legality: the declared checks of a card, evaluated without running its program. `e` is the effect the
+// use would carry (made by the caller on its scratch game); each returns `Ok` for a card that declares none.
+
+/// A Trainer's play checks (`trainer_played`'s card, player `p`).
+pub fn trainer_play_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+    let Some(play) = &spec.play else { return Ok(()) };
+    let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
+    f.via_attack = trainer_via_attack(g, e);
+    check_play(g, me, play, &f)
+}
+
+/// The checks of using the power with printed index `index` of `me`.
+pub fn power_check(g: &mut Game, me: CardId, index: u8, p: usize, e: EffId) -> R {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+    for (i, pw) in spec.powers.iter().enumerate() {
+        if pw.index == index {
+            let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
+            return check_power(g, me, pw, &f);
+        }
+    }
+    Ok(())
+}
+
+/// The checks of using the Stadium `me` in play.
+pub fn use_stadium_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+    let Some(us) = &spec.use_stadium else { return Ok(()) };
+    let f = Frame::new(Prog::UseStadium, Phase::Use, e, p);
+    check_use_stadium(g, me, us, &f)
+}
+
+/// What an attack's declared preconditions (its leading `Op::Fail` steps) say.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Gate {
+    Open,
+    Closed,
+    /// A `Fail` the leading steps don't cover (after other steps, or nested): not declared as a precondition.
+    Undeclared,
+}
+
+fn has_fail(steps: &[Step]) -> bool {
+    steps.iter().any(|s| matches!(s.op, Op::Fail(_)) || (0..=8).any(|sel| has_fail(ops::child(&s.op, sel))))
+}
+
+/// Does any attack of the card have a `Fail` op (legality reads its leading ones as preconditions)?
+pub fn spec_has_fail(spec: &CardSpec) -> bool {
+    spec.attacks.iter().any(|a| has_fail(a.steps))
+}
+
+/// Does the Trainer's play put the card onto the Bench as a Pokémon (`PlayAsPokemon`, the Antique Fossils)?
+/// Legality then also asks the checks of playing a Pokémon from the hand.
+pub fn plays_as_pokemon(spec: &CardSpec) -> bool {
+    spec.play.as_ref().map_or(false, |p| p.steps.iter().any(|s| matches!(s.op, Op::PlayAsPokemon(_))))
+}
+
+/// The leading `Fail` steps of attack `attack`'s text before the damage (`e`: the `Attack` effect the use
+/// would carry; `p` the attacking player; `me` the card whose program runs: the attack's card, or the
+/// copycat when the attack is copied from a Benched Pokémon), evaluated as `run` does.
+pub fn attack_gate(g: &mut Game, me: CardId, attack: crate::state::AttackRef, p: usize, e: EffId) -> R<Gate> {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[attack.card as usize].def) else { return Ok(Gate::Open) };
+    let Some((i, a)) = spec.attacks.iter().enumerate().find(|(_, a)| a.index == attack.idx() as u8) else { return Ok(Gate::Open) };
+    let f = Frame::new(Prog::Attack(i as u8), Phase::BeforeDamage, e, p);
+    let mut leading = true;
+    for s in a.steps {
+        match &s.op {
+            Op::Fail(x) if leading && s.at == RuleStep::BeforeDamage => match ops::fail_holds(g, me, &f, x) {
+                Ok(true) => {}
+                _ => return Ok(Gate::Closed),
+            },
+            op => {
+                if s.at == RuleStep::BeforeDamage {
+                    leading = false;
+                }
+                if matches!(op, Op::Fail(_)) || (0..=8).any(|sel| has_fail(ops::child(op, sel))) {
+                    return Ok(Gate::Undeclared);
+                }
+            }
+        }
+    }
+    Ok(Gate::Open)
 }
 
 /// `CardImpl::resume` of every spec card.

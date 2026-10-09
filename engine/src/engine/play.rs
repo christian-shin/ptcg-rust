@@ -229,6 +229,12 @@ fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId, keep: bool) {
     trainer_cleanup(g, p, card);
 }
 
+/// An Item being played leaves the hand for the play area before its effect runs (legality evaluates the
+/// card's declared checks in the same state).
+pub fn enter_item_play(g: &mut Game, p: usize, card: CardId) {
+    g.move_card_to(ListRef::Hand(p as u8), card, ListRef::Supporter(p as u8));
+}
+
 /// Which `playTrainerReducer` branch a Seismitoad-style coin flip resumes.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TrainerPlayKind {
@@ -311,7 +317,7 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
             Ok(())
         }
         TrainerPlayKind::Item => {
-            g.move_card_to(ListRef::Hand(p), card, ListRef::Supporter(p));
+            enter_item_play(g, pu, card);
             g.run_fx(Effect::Trainer { p, card, target, via_attack: false })?;
             restore_played_trainer(g, pu, card);
             finalize_trainer_cleanup(g, pu, card, false);

@@ -66,10 +66,14 @@ pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
 /// Check only, first half: first turn, Special Conditions, which Pokémon
 /// attacks (a Benched one for a use-on-Bench attack) and the flags that block
 /// it. Returns the attacking slot. Same order as `start_use_attack` always had.
-pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool) -> R<SlotRef> {
+///
+/// `granted_first_turn`: an Ability that lets the attack be used on the first turn (Meloetta ex) will write
+/// the flag when the `UseAttack` effect reaches it (execution passes `false`: the flag is written by then);
+/// legality asks `passive::grants_first_turn_attack` for it.
+pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool, granted_first_turn: bool) -> R<SlotRef> {
     let ad = attack_def(g, attack);
     // `attack.canUseOnFirstTurn` (printed, or written at runtime by Meloetta ex).
-    let first_turn_ok = g.st.cards[attack.card as usize].attack_first_turn & (1u8 << attack.idx()) != 0;
+    let first_turn_ok = granted_first_turn || g.st.cards[attack.card as usize].attack_first_turn & (1u8 << attack.idx()) != 0;
     if g.st.turn == 1 && !ad.can_use_on_first_turn && !first_turn_ok && !g.st.rules.attack_first_turn {
         crate::bail!("CANNOT_ATTACK_ON_FIRST_TURN");
     }
@@ -95,16 +99,22 @@ pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool
     Ok(attacking)
 }
 
+/// Is there a "can't attack with this much Energy" effect on the player (so the Energy count is read)?
+pub fn attack_max_energy_applies(g: &Game, p: usize) -> bool {
+    g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 && g.st.players[p].cannot_attack_max_energy.is_some()
+}
+
+/// The Energy count the attacker provides, from the `CheckProvidedEnergy` read.
+pub fn max_energy_count(map: &EnergyMap) -> i32 {
+    map.iter().map(|m| m.provides.len() as i32).sum()
+}
+
 /// The checked read between the halves: with a "can't attack with this much
 /// Energy" effect on the player, the Energy count the attacker provides.
 pub fn attack_read_max_energy(g: &mut Game, p: usize, attacking: SlotRef) -> R<Option<i32>> {
-    if g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 && g.st.players[p].cannot_attack_max_energy.is_some() {
-        let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: attacking, energy_map: SVec::new() })?;
-        let count: i32 = match pe {
-            Effect::CheckProvidedEnergy { energy_map, .. } => energy_map.iter().map(|m| m.provides.len() as i32).sum(),
-            _ => 0,
-        };
-        return Ok(Some(count));
+    if attack_max_energy_applies(g, p) {
+        let map = provided_energy_read(g, p, attacking)?;
+        return Ok(Some(max_energy_count(&map)));
     }
     Ok(None)
 }
@@ -133,24 +143,34 @@ pub fn can_attack_post(g: &Game, p: usize, attack: AttackRef, attacking: SlotRef
     Ok(())
 }
 
-/// The cost reads of an attack (`CheckAttackCost`, then `CheckProvidedEnergy`
-/// for the attacker) and whether the Energy covers the cost.
-pub fn attack_payable(g: &mut Game, p: usize, attack: AttackRef, attacking: SlotRef) -> R<bool> {
+/// The checked read of an attack's current cost (`CheckAttackCost`).
+pub fn attack_cost_read(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
     let ad = attack_def(g, attack);
     let mut cost: Cost = SVec::new();
     for &c in ad.cost {
         cost.push(c);
     }
     let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: attacking, energy_map: SVec::new() })?;
-    let cost = match ce {
+    Ok(match ce {
         Effect::CheckAttackCost { cost, .. } => cost,
         _ => SVec::new(),
-    };
-    let emap = match pe {
+    })
+}
+
+/// The checked read of the Energy a Pokémon provides (`CheckProvidedEnergy`): an attack's and a retreat's payment.
+pub fn provided_energy_read(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
+    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, energy_map: SVec::new() })?;
+    Ok(match pe {
         Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
         _ => SVec::new(),
-    };
+    })
+}
+
+/// The cost reads of an attack (`CheckAttackCost`, then `CheckProvidedEnergy`
+/// for the attacker) and whether the Energy covers the cost.
+pub fn attack_payable(g: &mut Game, p: usize, attack: AttackRef, attacking: SlotRef) -> R<bool> {
+    let cost = attack_cost_read(g, p, attack)?;
+    let emap = provided_energy_read(g, p, attacking)?;
     Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))
 }
 
@@ -161,7 +181,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     };
     let active = g.st.players[p].active;
     let sp = g.st.slot(p, active).special_conditions;
-    let attacking = can_attack_pre(g, p, attack, ignore_status)?;
+    let attacking = can_attack_pre(g, p, attack, ignore_status, false)?;
     let max_energy_count = attack_read_max_energy(g, p, attacking)?;
     can_attack_post(g, p, attack, attacking, max_energy_count)?;
     if !attack_payable(g, p, attack, attacking)? {
@@ -453,13 +473,18 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
     }
 }
 
+/// The lock probe made before an Ability is used: a stand-in `Power` effect every card sees; a lock refuses it.
+pub fn power_use_blocked(g: &mut Game, p: usize, power: PowerRef, card: CardId) -> bool {
+    g.run_fx(Effect::Power { p: p as u8, power, card, target: None, probe: true }).is_err()
+}
+
 pub fn start_use_power(g: &mut Game, id: EffId) -> R {
     let (p, power, card, target, bench_target) = match *g.e(id) {
         Effect::UsePower { p, power, card, target, bench_target } => (p as usize, power, card, target, bench_target),
         _ => return Ok(()),
     };
     // assertActivatedPowerNotLocked: probe with a stand-in power.
-    if g.run_fx(Effect::Power { p: p as u8, power, card, target: None, probe: true }).is_err() {
+    if power_use_blocked(g, p, power, card) {
         crate::bail!("CANNOT_USE_POWER");
     }
     let f = PowerFrame { p: p as u8, power, card, bench_target };

@@ -71,25 +71,26 @@ pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions
     Ok(())
 }
 
+/// The checked read of the effective Retreat Cost (`CheckRetreatCost`).
+pub fn retreat_cost_read(g: &mut Game, p: usize) -> R<Cost> {
+    let cost = check_retreat_cost_base(g, p);
+    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false, reduction: 0 })?;
+    Ok(match e {
+        Effect::CheckRetreatCost { cost, .. } => cost,
+        _ => SVec::new(),
+    })
+}
+
 /// The checked reads of a retreat: the effective cost (`CheckRetreatCost`)
 /// and, when the cost isn't empty, the Energy the Active Pokémon provides
 /// (`CheckProvidedEnergy`; the map is empty otherwise, as no read is run).
 pub fn retreat_read(g: &mut Game, p: usize) -> R<(Cost, EnergyMap)> {
     let active = g.st.players[p].active;
-    let cost = check_retreat_cost_base(g, p);
-    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false, reduction: 0 })?;
-    let cost = match e {
-        Effect::CheckRetreatCost { cost, .. } => cost,
-        _ => SVec::new(),
-    };
+    let cost = retreat_cost_read(g, p)?;
     if cost.is_empty() {
         return Ok((cost, SVec::new()));
     }
-    let (e, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, active), energy_map: SVec::new() })?;
-    let map = match e {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    };
+    let map = crate::engine::attack::provided_energy_read(g, p, SlotRef::new(p, active))?;
     Ok((cost, map))
 }
 

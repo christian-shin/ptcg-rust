@@ -199,7 +199,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Suspend)
         }
         Op::Fail(x) => {
-            if !cond_m(g, me, f, &x.unless)? {
+            if !fail_holds(g, me, f, x)? {
                 crate::bail!(x.error);
             }
             Ok(Flow::Next)
@@ -362,6 +362,11 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
 
 pub(crate) fn implied_ok(_g: &Game, _me: CardId, _f: &Frame, _op: &Op) -> bool {
     true
+}
+
+/// Does the `Fail` op's condition hold (the use may go on)? Read by the executor and by legality.
+pub(crate) fn fail_holds(g: &mut Game, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
+    cond_m(g, me, f, &x.unless)
 }
 
 pub fn child(op: &Op, sel: u8) -> &'static [Step] {
