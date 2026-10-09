@@ -273,7 +273,7 @@ pub struct Game {
     /// `last-attack.ts`: the attack in progress / the last attack, for the Knock Out check.
     pub last_attack: Option<LastAttack>,
     /// Attack choices made at step D, before the damage, by spec cards
-    /// (PLAN.md 8.5): read when the effects are carried out after the damage.
+    ///: read when the effects are carried out after the damage.
     pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
     /// `lock_sync` is running (it probes Abilities, which must not start another sync).
     pub lock_syncing: bool,

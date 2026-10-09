@@ -27,7 +27,7 @@ fn main() {
         out.push_str(&format!("    &{}::IMPL,\n", n));
     }
     out.push_str("];\n");
-    // Converted cards (PLAN.md 8.5) also define `pub static SPEC: CardSpec`.
+    // Converted cards also define `pub static SPEC: CardSpec`.
     out.push_str("pub static SPECS: &[&crate::spec::CardSpec] = &[\n");
     for n in &names {
         let text = fs::read_to_string(dir.join(format!("{}.rs", n))).unwrap_or_default();

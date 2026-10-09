@@ -309,7 +309,7 @@ pub struct CardInst {
     /// Ting-Lu's `discardedStadiumCard` instance field (never reset except
     /// by its own handler; canonical when true).
     pub discarded_stadium_card: bool,
-    /// Take-hold stamp of an Ability lock (RULES.md, precedence between locks): the order in which
+    /// Take-hold stamp of an Ability lock (docs/rulings/RULES.md, precedence between locks): the order in which
     /// the lock's source took hold, 0 while it doesn't hold. Kept up to date by `lock_sync`.
     pub lock_stamp: u16,
 }

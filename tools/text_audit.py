@@ -1,5 +1,5 @@
 """Audit pool cards: official text (data/official_text.json) vs the printed
-fields of the card in data/cards.json (PLAN.md 8.1 step 6).
+fields of the card in data/cards.json.
 
 usage: text_audit.py [--all]   -> porting/text-audit.md (local), summary on stdout
 

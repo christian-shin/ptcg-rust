@@ -2350,7 +2350,7 @@ fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 // Active-Spot Ability locks (Midnight Fluttering, Initialization)
 
 // ---------------------------------------------------------------------------
-// Precedence between locks (RULES.md, 2026-10-08)
+// Precedence between locks (docs/rulings/RULES.md, 2026-10-08)
 //
 // A lock source is a card with an Ability-lock passive (Flutter Mane, Iron Thorns ex, Gastrodon, Psyduck,
 // Team Rocket's Watchtower, ...). When lock A turns off the Ability of lock source B:
@@ -2591,7 +2591,7 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
             if g.st.active_pokemon(player) != Some(me) && g.st.active_pokemon(1 - player) != Some(me) {
                 return Ok(false);
             }
-            // A card in the hand is judged by its printed data (RULES.md): only Pokémon in play are locked.
+            // A card in the hand is judged by its printed data (docs/rulings/RULES.md): only Pokémon in play are locked.
             let slot = match g.st.locate(card) {
                 Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
                 _ => return Ok(false),
@@ -2941,7 +2941,7 @@ fn shred_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, attacker:
 
 #[cfg(test)]
 mod lock_tests {
-    //! Take-hold stamps and precedence between locks (RULES.md). No two locks in the pool turn each other
+    //! Take-hold stamps and precedence between locks (docs/rulings/RULES.md). No two locks in the pool turn each other
     //! off, so the mutual case is tested on the stamps directly.
     use super::*;
     use serde_json::json;

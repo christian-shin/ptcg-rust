@@ -1,4 +1,4 @@
-//! Fixed-size observation tensors for learning (PLAN.md 3.6), built in Rust.
+//! Fixed-size observation tensors for learning, built in Rust.
 //!
 //! The observation is from one player's point of view and contains only
 //! information that player can see: their own hand, both boards, public zone

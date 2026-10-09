@@ -1,4 +1,4 @@
-"""PPO smoke run against the bindings (PLAN.md 1, Python access).
+"""PPO smoke run against the bindings (Python access).
 
 A numpy-only pointer policy: every legal option gets a score from a linear
 function of its features (option one-hots crossed with a few board scalars);

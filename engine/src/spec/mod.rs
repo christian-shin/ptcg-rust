@@ -1,9 +1,10 @@
-//! Declarative card specs (PLAN.md 8.5): a card with logic is a `static
+//! Declarative card specs: a card with logic is a `static
 //! CardSpec` run by one shared interpreter (`run.rs`) instead of its own
 //! `reduce`/`resume` handlers.
 //!
-//! The vocabulary is `porting/card-survey/vocabulary-v1.md` (approved
-//! 2026-10-08); names follow it. Every op is declared here; its record type,
+//! The vocabulary is described in docs/ENGINE.md, "Cards as specs" (local);
+//! the rules-events migration (docs/design/events-design.md) is replacing
+//! parts of it. Every op is declared here; its record type,
 //! executor and step-D choice live in its family file, which one person owns
 //! at a time:
 //!
@@ -21,7 +22,7 @@
 //! `pub static IMPL: CardImpl = SPEC.card_impl();`. `build.rs` registers both;
 //! converted and hand-written cards run side by side.
 //!
-//! Parity is on what a player can observe (PLAN.md 8.5): ops implement the
+//! Parity is on what a player can observe: ops implement the
 //! rules, not Twinleaf's internal plumbing. An item that is declared but not
 //! implemented yet panics when a spec reaches it, so a replay reports it.
 

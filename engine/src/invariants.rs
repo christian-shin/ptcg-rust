@@ -1,4 +1,4 @@
-//! Game-state invariants (PLAN.md 4.6), checked by the replay and self-play
+//! Game-state invariants, checked by the replay and self-play
 //! tools at every turn decision.
 //!
 //! Every check here must hold in any reachable state of a correct game. A

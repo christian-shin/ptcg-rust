@@ -1,4 +1,4 @@
-//! Search support (PLAN.md 3.5): determinization of hidden information.
+//! Search support: determinization of hidden information.
 //!
 //! From one player's point of view the hidden cards are their own deck order
 //! and face-down prizes, and the opponent's hand, deck and prizes. A

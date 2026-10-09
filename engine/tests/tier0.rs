@@ -1,4 +1,4 @@
-//! Tier 0 (PLAN.md 4.4): the generated card database equals data/cards.json
+//! Tier 0: the generated card database equals data/cards.json
 //! (the printed fields of every card), every pool row has its card, and the
 //! names are the official ones.
 

@@ -434,7 +434,7 @@ const OBSERVABLE_SLOT_KEYS: [&str; 7] = ["cards", "energies", "tools", "damage",
 const OBSERVABLE_PLAYER_KEYS: [&str; 7] = ["hand", "discard", "lostzone", "stadium", "supporter", "prizes", "faceUpPrizes"];
 const OBSERVABLE_STATE_KEYS: [&str; 4] = ["phase", "turn", "activePlayer", "winner"];
 
-/// The player-observable projection of a canonical state (PLAN.md 8.5): what
+/// The player-observable projection of a canonical state: what
 /// the observable comparator compares. Identical to the oracle's
 /// `observableState` in `oracle/canonical.ts`.
 pub fn observable_json(can: &Value) -> Value {

@@ -1,5 +1,5 @@
-"""Fresh-seed self-play in the Rust engine (the oracle-free tier 4, PLAN.md
-4.4; replaces tier4.py since the oracle freeze of 2026-10-08).
+"""Fresh-seed self-play in the Rust engine (replaces tier4.py since the oracle freeze of
+2026-10-08).
 
 usage: fuzz.py [--games N] [--seed S] [--start I] [--random-decks M] [--out DIR]
                [--keep] [--threads T] [--full]

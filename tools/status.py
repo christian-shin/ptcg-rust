@@ -1,4 +1,4 @@
-"""Coverage table (PLAN.md 1): pool cards ported / verified, meta decks playable.
+"""Coverage table: pool cards ported / verified, meta decks playable.
 
 usage: status.py [--md]
 

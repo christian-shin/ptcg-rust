@@ -2,7 +2,7 @@
 //! same point of a replay (the first turn decision on or after
 //! `scenario.turn`) with the same primitives, so a trace that starts from a
 //! crafted position replays like any other. Keep this file and scenario.ts
-//! identical; the format is documented there and in CARD_PORTING.md.
+//! identical; the format is documented there and in docs/ENGINE.md (local).
 //! Scripted `answers` need nothing here: the trace records every answer.
 
 use crate::engine::game_effect::reset_empty_slot;

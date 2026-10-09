@@ -370,7 +370,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 
 /// The triggers of a Pokémon that was just played or evolved ("when you play this Pokémon from your
 /// hand onto your Bench / to evolve"): the card is on the board now, so the ordinary in-play locks at its
-/// slot decide whether its Ability triggers (RULES.md, On-play Abilities).
+/// slot decide whether its Ability triggers (docs/rulings/RULES.md, On-play Abilities).
 pub fn after_enter_play(g: &mut Game, e: EffId) -> R {
     let card = match *g.e(e) {
         Effect::PlayPokemon { card, .. } | Effect::Evolve { card, .. } => card,

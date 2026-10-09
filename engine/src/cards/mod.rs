@@ -92,7 +92,7 @@ pub fn impl_for(d: DefId) -> Option<&'static CardImpl> {
     table()[d as usize]
 }
 
-/// The declarative spec of a converted card (PLAN.md 8.5), matched like its `CardImpl`.
+/// The declarative spec of a converted card, matched like its `CardImpl`.
 pub fn spec_for(d: DefId) -> Option<&'static crate::spec::CardSpec> {
     static T: OnceLock<Vec<Option<&'static crate::spec::CardSpec>>> = OnceLock::new();
     T.get_or_init(|| {
