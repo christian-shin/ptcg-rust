@@ -735,6 +735,10 @@ impl Game {
             return (mask, stop);
         }
         let repeats = sel.allows_repeats();
+        let exact = match &sel.source {
+            Source::Prompt(i, _, _) => matches!(self.prompts.as_slice()[*i].kind, PromptKind::ChooseEnergy { .. }),
+            _ => false,
+        };
         let stop = picks.len() >= sel.min_count && self.is_accepted_answer(sel, picks);
         let mut mask = vec![false; n];
         if picks.len() >= sel.max_count {
@@ -748,8 +752,10 @@ impl Game {
             buf.push(j);
             // Each option gets its own small search budget, so a large option
             // list (e.g. every from/to pair of a move-damage prompt) cannot
-            // exhaust it for the options that come last.
-            let mut budget = 64usize;
+            // exhaust it for the options that come last. Energy payments search
+            // exactly: their picks are few (at most the cost) and an exhausted
+            // budget would offer an Energy that can't complete the payment.
+            let mut budget = if exact { usize::MAX } else { 64usize };
             mask[j] = self.completable(sel, &mut buf, 0, repeats, &mut budget);
             buf.pop();
         }
