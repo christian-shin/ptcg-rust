@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // the top card of your opponent's deck.
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule)])),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])),
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Deck), Pred::Any),
