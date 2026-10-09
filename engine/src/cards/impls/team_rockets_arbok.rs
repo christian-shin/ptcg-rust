@@ -4,7 +4,7 @@
 //! your opponent's Pokémon.
 //!
 //! Evolving (directly or with Rare Candy) is playing a Pokémon from the hand
-//! (rulings id285, id1998, id1133), so the lock declares only `PlayPokemon`.
+//! (rulings id285, id1998, id1133), so the lock covers EnterPlay and Evolve from the hand.
 //!
 //! Twinleaf: any PlayPokemonEffect (bench or evolve) by the player whose
 //! opponent has this card as the Active top card throws when the played card
@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     // from their hand (except Team Rocket's Pokémon).
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        lock: LockDecl { actions: &[LockedAction::PlayPokemon], card: Pred::PrintsAbility, except: Pred::Tag(tag::TEAM_ROCKET), error: "BLOCKED_BY_ABILITY", ..LockDecl::NONE },
+        lock: LockDecl::on(EventPred::All(&[EventPred::Any(&[EventPred::Kind(EventKind::EnterPlay), EventPred::Kind(EventKind::Evolve)]), EventPred::Source(RulesZone::Hand), EventPred::Card(Pred::All(&[Pred::PrintsAbility, Pred::Not(&Pred::Tag(tag::TEAM_ROCKET))]))]), "BLOCKED_BY_ABILITY"),
         while_: &[LockWhile::Active],
         ability: true,
     }) }],
