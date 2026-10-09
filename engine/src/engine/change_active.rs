@@ -345,7 +345,7 @@ mod tests {
             match c {
                 CausePred::Kind(k) => !matches!(k, CauseKind::Rule { .. }),
                 // A rule's cause has no card.
-                CausePred::Card(_) => true,
+                CausePred::Card(_) | CausePred::Pokemon(_) | CausePred::Attack(_) => true,
                 CausePred::All(ps) => ps.iter().any(cause),
                 CausePred::Any(ps) => ps.iter().all(cause),
                 CausePred::Rule | CausePred::By(_) | CausePred::Not(_) => false,

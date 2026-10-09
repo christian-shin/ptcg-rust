@@ -199,7 +199,7 @@ pub fn event_locked(g: &mut Game, v: &crate::spec::event::EventView) -> R<Option
 #[inline]
 pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<bool> {
     g.derived.fresh();
-    if lasting_attack_effects_prevented(g, v) {
+    if lasting_attack_effects_prevented(g, v) || crate::spec::passive::lasting_prevented(g, v)? {
         return Ok(true);
     }
     crate::spec::passive::event_prevented(g, v)

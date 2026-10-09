@@ -292,7 +292,9 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         slot.prevent_effects_of_attacks_next_turn_pending = false;
         slot.no_weakness_next_turn = false;
         slot.retaliate_on_damage_next_turn = None;
-        // other next-turn protections: not modeled.
+        // The preventions the opponent's attack left on its Pokémon end with this turn (armed during its turn: pending
+        // ones too).
+        slot.lasting_prevents.clear();
     }
     for s in g.st.players[p].in_play().iter() {
         // Phase 4b (R3): "This Pokémon can't use [attack]" only locks an attack the Pokémon
@@ -340,6 +342,10 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.prevent_effects_of_attacks_next_turn_pending {
             slot.prevent_effects_of_attacks_next_turn = true;
             slot.prevent_effects_of_attacks_next_turn_pending = false;
+        }
+        // A prevention armed during this turn is in force during the opponent's next turn.
+        for l in slot.lasting_prevents.as_mut_slice().iter_mut() {
+            l.pending = false;
         }
         if slot.no_weakness_next_turn_pending {
             slot.no_weakness_next_turn = true;

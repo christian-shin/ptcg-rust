@@ -51,6 +51,9 @@ pub enum EventKind {
     Look,
     Reveal,
     CoinFlip,
+    /// A lasting effect is put on a Pokémon or a player by an attack ("during your opponent's next turn, ..."; events
+    /// batch 6, user decision D4): what "prevent all effects of attacks done to this Pokémon" stops (APR C-17).
+    ApplyEffect,
     StateCheck,
     GameEnd,
     Mulligan,
@@ -81,6 +84,13 @@ impl EventKind {
             EventKind::RemoveCounters => Some(k::HEAL),
             EventKind::CoinFlip => Some(k::COIN_FLIP),
             EventKind::ChangeActive => Some(k::CHANGE_ACTIVE),
+            EventKind::Damage => Some(k::DAMAGE),
+            EventKind::PlaceCounters => Some(k::PLACE_COUNTERS),
+            EventKind::MoveCounters => Some(k::MOVE_COUNTERS_EVENT),
+            EventKind::KnockOut => Some(k::KNOCK_OUT),
+            EventKind::LeavePlay => Some(k::LEAVE_PLAY),
+            EventKind::TakePrizes => Some(k::TAKE_PRIZES),
+            EventKind::ApplyEffect => Some(k::APPLY_EFFECT),
             _ => None,
         }
     }
@@ -129,6 +139,33 @@ impl ActiveChange {
     pub const fn done_to_leaving(self) -> bool {
         matches!(self, ActiveChange::Retreat | ActiveChange::Switch | ActiveChange::SwitchOut)
     }
+}
+
+/// Which end of a move an event view is about (MoveCounters; MoveEnergy / MoveTool when their preventions are read
+/// per end): the Pokémon the counters or the card leave (`From`) or the one they go onto (`To`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum MoveEnd {
+    From,
+    To,
+}
+
+/// How a Pokémon is Knocked Out (the KnockOut event; APR D, E-04).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum KoBy {
+    /// It took damage from the opponent's attack in progress ("Knocked Out by damage from an attack").
+    AttackDamage,
+    /// An effect Knocks it Out ("is Knocked Out", "Knock Out ..."): recorded, then Knocked Out at the next state
+    /// check with the others (id2089, id810).
+    Effect,
+    /// Its HP reached 0 otherwise (damage counters, a Special Condition, an HP change).
+    Other,
+}
+
+/// A party to an event, relative to the event's owner (the player whose Pokémon or card it is about).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Party {
+    EventOwner,
+    NotEventOwner,
 }
 
 /// How a Pokémon evolved.
@@ -219,6 +256,11 @@ pub enum CausePred {
     By(Who),
     /// The causing card matches.
     Card(Pred),
+    /// The causing card is a Pokémon in play whose spot matches (a checked read where the predicate needs one; false
+    /// when the card is not a Pokémon in play): "attacks from Pokémon that have an Ability / Basic / Evolution / ex".
+    Pokemon(SlotPred),
+    /// The cause is the attack of this name (Unown's own Mysterious Signal).
+    Attack(&'static str),
     All(&'static [CausePred]),
     Any(&'static [CausePred]),
     Not(&'static CausePred),
@@ -261,6 +303,15 @@ pub enum EventPred {
     /// Bench to the Active Spot": `Kind(ChangeActive) & To(IsThisPokemon)`). False while the Pokémon isn't chosen yet
     /// (a switch-out checked before the opponent chooses).
     To(SlotPred),
+    /// Who causes the event (the `Cause` player) relative to the event's owner: Battle Cage's "from the opponent's
+    /// Pokémon" is `Actor(NotEventOwner)` (whose Bench it is decides, not whose card Battle Cage is).
+    Actor(Party),
+    /// Which end of a move the view is about (MoveCounters: the Pokémon the counters leave or go onto).
+    End(MoveEnd),
+    /// How a Pokémon is Knocked Out (KnockOut).
+    KoBy(KoBy),
+    /// Where the cards go (LeavePlay, Devolve, TakePrizes).
+    Dest(RulesZone),
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
     Not(&'static EventPred),
@@ -316,12 +367,21 @@ pub struct EventView {
     pub change: Option<ActiveChange>,
     pub from: Option<SlotRef>,
     pub to: Option<SlotRef>,
+    /// MoveCounters (MoveEnergy / MoveTool per end): which end of the move this view is about; `slot` is that end's spot.
+    pub end: Option<MoveEnd>,
+    /// KnockOut: how the Pokémon is Knocked Out.
+    pub ko_by: Option<KoBy>,
+    /// LeavePlay, Devolve, TakePrizes: where the cards go.
+    pub dest: Option<RulesZone>,
+    /// Damage: the attack isn't affected by effects on the damaged Pokémon (Shred, done to the opponent's Pokémon):
+    /// its preventions are skipped (APR C-16; RULES.md "Shred").
+    pub ignores_defender: bool,
 }
 
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or
@@ -363,17 +423,37 @@ impl CausePred {
         CausePred::By(Who::Opp)
     }
 
-    /// Does the cause match, for the card `me` that declares the predicate?
-    pub fn eval(&self, g: &Game, me: CardId, c: &Cause) -> bool {
-        match self {
+    /// Does the cause match, for the card `me` that declares the predicate? A spot predicate on the causing Pokémon
+    /// (`Pokemon`) makes a checked read where it needs one (never fails open).
+    pub fn eval(&self, g: &mut Game, me: CardId, c: &Cause) -> R<bool> {
+        Ok(match self {
             CausePred::Kind(k) => c.kind == *k,
             CausePred::Rule => matches!(c.kind, CauseKind::Rule { .. }),
             CausePred::By(w) => who_is(g, me, *w, c.player),
             CausePred::Card(p) => c.card.map_or(false, |x| pred(g, x, p)),
-            CausePred::All(ps) => ps.iter().all(|p| p.eval(g, me, c)),
-            CausePred::Any(ps) => ps.iter().any(|p| p.eval(g, me, c)),
-            CausePred::Not(p) => !p.eval(g, me, c),
-        }
+            CausePred::Pokemon(sp) => match c.card.and_then(|x| g.st.find_pokemon_slot(x)) {
+                Some((q, s)) if g.st.slot_pokemon(q, s) == c.card => slot_matches(g, me, SlotRef::new(q, s), sp)?,
+                _ => false,
+            },
+            CausePred::Attack(name) => c.attack.map_or(false, |a| crate::engine::attack::attack_def(g, a).name == *name),
+            CausePred::All(ps) => {
+                for p in ps.iter() {
+                    if !p.eval(g, me, c)? {
+                        return Ok(false);
+                    }
+                }
+                true
+            }
+            CausePred::Any(ps) => {
+                for p in ps.iter() {
+                    if p.eval(g, me, c)? {
+                        return Ok(true);
+                    }
+                }
+                false
+            }
+            CausePred::Not(p) => !p.eval(g, me, c)?,
+        })
     }
 }
 
@@ -392,6 +472,17 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::COIN_FLIP,
     crate::effects::k::CHANGE_ACTIVE,
 ]);
+/// Every event kind with an effect except Damage: what a `Prevent` naming no `Kind` ranges over ("prevent all effects
+/// of attacks"): damage is not an effect (APR C-17 "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398).
+/// A prevention of damage names `Kind(Damage)`.
+pub const EFFECT_EVENT_KINDS: KindMask = without(EVENT_KINDS, crate::effects::k::DAMAGE);
+
+/// `m` without the kind `k`.
+pub const fn without(m: KindMask, k: u32) -> KindMask {
+    let mut out = m;
+    out.0[(k >> 6) as usize] &= !(1u64 << (k & 63));
+    out
+}
 /// The Pokémon events (events batch 2): a lock over them sets `DECLARES_EVENT_LOCK`.
 pub const POKEMON_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ENTER_PLAY, crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
 /// The attaching events (events batch 3): a lock over them sets `DECLARES_ATTACH_LOCK`.
@@ -410,6 +501,16 @@ pub const ACTIVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::
 /// preventions the event's routine asks. `Game::reduce_effect` doesn't call the cards for them (events design,
 /// section 9). The batch 2 and 3 events still have dispatch handlers (once-per-turn markers, attach guards).
 pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS);
+/// PlaceCounters and MoveCounters (events batch 6): `DECLARES_COUNTER_LOCK` (Patrat's Watchful Eye) / `DECLARES_COUNTER_PREVENT`.
+pub const COUNTER_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::PLACE_COUNTERS, crate::effects::k::MOVE_COUNTERS_EVENT]);
+/// Damage (events batch 6): `DECLARES_DAMAGE_PREVENT` (no lock: no text says a Pokémon can't be damaged).
+pub const DAMAGE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::DAMAGE]);
+/// KnockOut: `DECLARES_KO_PREVENT` (asked for a Knock Out by an effect only; the state check's is the rule's).
+pub const KO_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::KNOCK_OUT]);
+/// LeavePlay: `DECLARES_LEAVE_PREVENT` (asked for an effect's removal only).
+pub const LEAVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::LEAVE_PLAY]);
+/// ApplyEffect (user decision D4): `DECLARES_APPLY_PREVENT`.
+pub const APPLY_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::APPLY_EFFECT]);
 
 impl EventPred {
     /// Matches no event (`LockDecl::forbids` of a lock that declares only old `LockedAction`s).
@@ -456,6 +557,18 @@ impl EventPred {
     /// The effect kinds whose events can match: the kinds the predicate names, or every event kind with an
     /// effect where it names none. The declaring card's dispatch mask.
     pub const fn effect_kinds(&self) -> KindMask {
+        self.kinds_over(EVENT_KINDS)
+    }
+
+    /// The effect kinds a `Prevent` over this predicate ranges over: the kinds it names, or every event kind with an
+    /// effect except Damage where it names none ([`EFFECT_EVENT_KINDS`]: "prevent all effects of attacks" never
+    /// prevents damage). The `Prevent` reader tests the event's kind against it before evaluating the predicate.
+    pub const fn prevent_kinds(&self) -> KindMask {
+        self.kinds_over(EFFECT_EVENT_KINDS)
+    }
+
+    /// The kinds the predicate names, `base` where it names none.
+    const fn kinds_over(&self, base: KindMask) -> KindMask {
         match self {
             EventPred::Kind(e) => match e.effect_kind() {
                 Some(x) => crate::effects::mask(&[x]),
@@ -464,9 +577,9 @@ impl EventPred {
             // A conjunction is limited by each member that names kinds.
             EventPred::All(ps) => {
                 let mut i = 0;
-                let mut m = EVENT_KINDS;
+                let mut m = base;
                 while i < ps.len() {
-                    let x = ps[i].effect_kinds();
+                    let x = ps[i].kinds_over(base);
                     m = KindMask([m.0[0] & x.0[0], m.0[1] & x.0[1], m.0[2] & x.0[2], m.0[3] & x.0[3]]);
                     i += 1;
                 }
@@ -476,12 +589,12 @@ impl EventPred {
                 let mut i = 0;
                 let mut m = KindMask::EMPTY;
                 while i < ps.len() {
-                    m = m.or(ps[i].effect_kinds());
+                    m = m.or(ps[i].kinds_over(base));
                     i += 1;
                 }
                 m
             }
-            _ => EVENT_KINDS,
+            _ => base,
         }
     }
 
@@ -495,7 +608,7 @@ impl EventPred {
             EventPred::Mode(m) => v.mode == Some(*m),
             EventPred::Source(z) => v.source == Some(*z),
             EventPred::Path(p) => v.path == Some(*p),
-            EventPred::Cause(c) => c.eval(g, me, &v.cause),
+            EventPred::Cause(c) => c.eval(g, me, &v.cause)?,
             EventPred::Card(p) => v.card.map_or(false, |c| pred(g, c, p)),
             EventPred::Base(p) => v.base.map_or(false, |c| pred(g, c, p)),
             EventPred::This(Role::Card) => v.card == Some(me),
@@ -522,6 +635,11 @@ impl EventPred {
                 Some(s) => slot_matches(g, me, s, sp)?,
                 None => false,
             },
+            EventPred::Actor(Party::EventOwner) => v.cause.player == v.owner,
+            EventPred::Actor(Party::NotEventOwner) => v.cause.player != v.owner,
+            EventPred::End(e) => v.end == Some(*e),
+            EventPred::KoBy(k) => v.ko_by == Some(*k),
+            EventPred::Dest(z) => v.dest == Some(*z),
             EventPred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, v)? {
@@ -717,6 +835,40 @@ mod tests {
         assert!(ev(&HIDE_N_SNEAK, &mut g, slowpoke, &confuse(Cause::new(CauseKind::Ability, None, 1), SpecialCondition::Confused)));
         assert!(!ev(&HIDE_N_SNEAK, &mut g, slowpoke, &confuse(lisia, SpecialCondition::Confused)), "a Trainer isn't an attack or an Ability");
         assert!(!ev(&HIDE_N_SNEAK, &mut g, slowpoke, &confuse(Cause::attack(0, None, AttackRef { card: 0, index: 0 }), SpecialCondition::Confused)), "its own side's attack");
+    }
+
+    /// "Prevent all effects of attacks" names no kind: it ranges over every event with an effect except Damage (APR C-17);
+    /// a prevention of damage names `Kind(Damage)`.
+    #[test]
+    fn effects_are_not_damage() {
+        let effects = EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(CauseKind::Attack)]));
+        let k = effects.prevent_kinds();
+        assert!(!k.has(crate::effects::k::DAMAGE));
+        assert!(k.has(crate::effects::k::GAIN_CONDITION) && k.has(crate::effects::k::CHANGE_ACTIVE));
+        let both = EventPred::Any(&[EventPred::Kind(EventKind::Damage), EventPred::Cause(CausePred::By(Who::Opp))]);
+        assert!(both.prevent_kinds().has(crate::effects::k::DAMAGE) && both.prevent_kinds().has(crate::effects::k::HEAL));
+        assert!(EventPred::Kind(EventKind::Damage).prevent_kinds() == crate::effects::mask(&[crate::effects::k::DAMAGE]));
+        assert!(!EFFECT_EVENT_KINDS.has(crate::effects::k::DAMAGE));
+    }
+
+    /// The batch 6 attributes: who causes the event relative to its owner, the end of a move, how a Pokémon is Knocked
+    /// Out, where cards go; the cause's attack by name.
+    #[test]
+    fn batch_6_attributes() {
+        let mut g = game();
+        let me = card(&g, "Slowpoke MEP 86", 0);
+        let opp_attack = Cause::attack(1, None, AttackRef { card: me, index: 0 });
+        let name = crate::engine::attack::attack_def(&g, AttackRef { card: me, index: 0 }).name;
+        let v = EventView { end: Some(MoveEnd::To), ko_by: Some(KoBy::Effect), dest: Some(RulesZone::Discard), ..EventView::new(EventKind::PlaceCounters, opp_attack, 0, 1) };
+        assert!(ev(&EventPred::Actor(Party::NotEventOwner), &mut g, me, &v));
+        assert!(!ev(&EventPred::Actor(Party::EventOwner), &mut g, me, &v));
+        assert!(ev(&EventPred::End(MoveEnd::To), &mut g, me, &v) && !ev(&EventPred::End(MoveEnd::From), &mut g, me, &v));
+        assert!(ev(&EventPred::KoBy(KoBy::Effect), &mut g, me, &v) && !ev(&EventPred::KoBy(KoBy::AttackDamage), &mut g, me, &v));
+        assert!(ev(&EventPred::Dest(RulesZone::Discard), &mut g, me, &v));
+        assert!(CausePred::Attack(name).eval(&mut g, me, &opp_attack).unwrap());
+        assert!(!CausePred::Attack("No Such Attack").eval(&mut g, me, &opp_attack).unwrap());
+        // The cause's card is not a Pokémon in play: `Pokemon(..)` is false whatever the spot predicate.
+        assert!(!CausePred::Pokemon(SlotPred::Any).eval(&mut g, me, &opp_attack).unwrap());
     }
 
     /// A CoinFlip has no card: a lock or prevention naming a card (`EventPred::Card`) never matches it, whatever the

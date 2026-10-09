@@ -36,6 +36,9 @@ pub enum RuleWhich {
     /// A rule printed on a card that is not an Ability (the Tera rule, a Fossil's rules), outside the
     /// end of the turn. (Not in the design's list; added in batch 2.)
     CardRule,
+    /// The state check (APR D): a Pokémon whose HP reached 0 (damage counters, a Special Condition, an HP change) is
+    /// Knocked Out by the rule (events batch 6); the cause of that KnockOut, for the Knocked Out Pokémon's opponent.
+    StateCheck,
 }
 
 /// The kind of thing that caused an event.
@@ -83,7 +86,7 @@ impl Cause {
     }
 
     /// The cause in 4 bytes, for a program frame that must carry it across a prompt (`CardFrame` has no room for
-    /// the 7-byte struct): kind and rule (6 bits) and player (1 bit), the card, the attack's card and index
+    /// the 7-byte struct): kind and rule (7 bits) and player (1 bit), the card, the attack's card and index
     /// (`0xFF` = none; a game has fewer card instances).
     pub const fn pack(&self) -> [u8; 4] {
         let (k, w) = match self.kind {
@@ -109,7 +112,7 @@ impl Cause {
 
     /// The inverse of [`Cause::pack`].
     pub const fn unpack(b: [u8; 4]) -> Cause {
-        const WHICH: [RuleWhich; 8] = [
+        const WHICH: [RuleWhich; 9] = [
             RuleWhich::TurnDraw,
             RuleWhich::Retreat,
             RuleWhich::Promotion,
@@ -118,6 +121,7 @@ impl Cause {
             RuleWhich::Action,
             RuleWhich::EndTurn,
             RuleWhich::CardRule,
+            RuleWhich::StateCheck,
         ];
         let kind = match b[0] & 7 {
             0 => CauseKind::Attack,
@@ -126,7 +130,7 @@ impl Cause {
             3 => CauseKind::Stadium,
             4 => CauseKind::Tool,
             5 => CauseKind::Energy,
-            6 => CauseKind::Rule { which: WHICH[((b[0] >> 3) & 7) as usize] },
+            6 => CauseKind::Rule { which: WHICH[((b[0] >> 3) & 15) as usize] },
             _ => CauseKind::SpecialCondition,
         };
         Cause {
@@ -368,7 +372,7 @@ mod tests {
 
     #[test]
     fn pack_round_trips() {
-        let whiches = [RuleWhich::TurnDraw, RuleWhich::Retreat, RuleWhich::Promotion, RuleWhich::Checkup, RuleWhich::Setup, RuleWhich::Action, RuleWhich::EndTurn, RuleWhich::CardRule];
+        let whiches = [RuleWhich::TurnDraw, RuleWhich::Retreat, RuleWhich::Promotion, RuleWhich::Checkup, RuleWhich::Setup, RuleWhich::Action, RuleWhich::EndTurn, RuleWhich::CardRule, RuleWhich::StateCheck];
         let mut all = vec![
             Cause::attack(1, Some(17), AttackRef { card: 17, index: 1 }),
             Cause::attack(0, None, AttackRef { card: 3, index: 0x90 }),

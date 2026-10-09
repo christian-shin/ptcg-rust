@@ -164,7 +164,29 @@ pub struct Slot {
     /// `retaliateOnDamageNextTurn` / `...Pending` (`{ damage }` options only).
     pub retaliate_on_damage_next_turn: Option<StoredRetaliate>,
     pub retaliate_on_damage_next_turn_pending: Option<StoredRetaliate>,
+    /// "During your opponent's next turn, prevent all damage done to / effects of attacks done to this Pokémon" (events
+    /// batch 6): `Prevent` declarations an attack left on the Pokémon, read by the `Prevent` reader with the in-play ones
+    /// (`passive::lasting_prevented`). Effects on this Pokémon: they go when it leaves the Active Spot or play
+    /// (`clear_effects`) and at the end of the opponent's turn.
+    pub lasting_prevents: SVec<LastingPrevent, 2>,
     pub is_public: bool,
+}
+
+/// A `Prevent` an attack left on a Pokémon ("during your opponent's next turn, prevent ..."): the declaration, the card
+/// whose attack left it (the card its predicates are evaluated for: "your opponent" is that card's owner's opponent),
+/// and whether it is still pending (armed during its owner's turn, in force from the end of that turn until the end of
+/// the opponent's next turn).
+#[derive(Clone, Copy)]
+pub struct LastingPrevent {
+    pub spec: &'static crate::spec::passive::PreventSpec,
+    pub source: CardId,
+    pub pending: bool,
+}
+
+impl std::fmt::Debug for LastingPrevent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LastingPrevent {{ source: {}, pending: {} }}", self.source, self.pending)
+    }
 }
 
 /// `StoredRetaliateOnDamage` with `{ damage }` options.
@@ -277,6 +299,7 @@ impl Default for Slot {
             retreat_cost_increase_next_turn_attacker: None,
             retaliate_on_damage_next_turn: None,
             retaliate_on_damage_next_turn_pending: None,
+            lasting_prevents: SVec::new(),
             is_public: false,
         }
     }

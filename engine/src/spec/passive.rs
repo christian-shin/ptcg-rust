@@ -354,25 +354,50 @@ const fn prevent_kinds(p: &PreventSpec) -> KindMask {
     if p.from.is_never() {
         return KindMask::EMPTY;
     }
-    let mut m = p.from.effect_kinds();
-    if m.intersects(super::event::CONDITION_EVENT_KINDS) {
-        m = crate::spec::with(m, crate::effects::k::DECLARES_CONDITION_PREVENT);
+    // The kinds the declaration ranges over (a cause-only one: every event with an effect except Damage), restricted to
+    // the families whose routine asks the reader, each with its marker.
+    let all = p.from.prevent_kinds();
+    let mut m = KindMask::EMPTY;
+    let mut i = 0;
+    while i < PREVENT_FAMILIES.len() {
+        let (fam, marker) = PREVENT_FAMILIES[i];
+        if all.intersects(fam) {
+            m = m.or(and(all, fam));
+            m = crate::spec::with(m, marker);
+        }
+        i += 1;
     }
     if prevention_recovers(p) {
         // The recovery while the protection is in force (`recover_protected`), at the table-state check.
         m = crate::spec::with(m, crate::effects::k::CHECK_TABLE_STATE);
     }
-    if m.intersects(super::event::HEAL_EVENT_KINDS) {
-        m = crate::spec::with(m, crate::effects::k::DECLARES_HEAL_PREVENT);
-    }
-    if m.intersects(super::event::COIN_EVENT_KINDS) {
-        m = crate::spec::with(m, crate::effects::k::DECLARES_COIN_PREVENT);
-    }
-    if m.intersects(super::event::ACTIVE_EVENT_KINDS) {
-        m = crate::spec::with(m, crate::effects::k::DECLARES_ACTIVE_PREVENT);
-    }
     m
 }
+
+const fn and(a: KindMask, b: KindMask) -> KindMask {
+    KindMask([a.0[0] & b.0[0], a.0[1] & b.0[1], a.0[2] & b.0[2], a.0[3] & b.0[3]])
+}
+
+/// The event families whose routine asks the `Prevent` reader (`event_prevented`), each with the marker a prevention over
+/// it sets (`prevent_kinds`) and the reader tests (`prevent_marker`).
+const PREVENT_FAMILIES: [(KindMask, u32); 4] = [
+    (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_PREVENT),
+    (super::event::HEAL_EVENT_KINDS, crate::effects::k::DECLARES_HEAL_PREVENT),
+    (super::event::COIN_EVENT_KINDS, crate::effects::k::DECLARES_COIN_PREVENT),
+    (super::event::ACTIVE_EVENT_KINDS, crate::effects::k::DECLARES_ACTIVE_PREVENT),
+];
+
+/// The event families a lock over events can forbid, each with the marker a lock over it sets (`block_kinds`) and the
+/// query tests (`lock_marker`).
+const LOCK_FAMILIES: [(KindMask, u32); 7] = [
+    (super::event::POKEMON_EVENT_KINDS, crate::effects::k::DECLARES_EVENT_LOCK),
+    (super::event::ATTACH_EVENT_KINDS, crate::effects::k::DECLARES_ATTACH_LOCK),
+    (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_LOCK),
+    (super::event::HEAL_EVENT_KINDS, crate::effects::k::DECLARES_HEAL_LOCK),
+    (super::event::COIN_EVENT_KINDS, crate::effects::k::DECLARES_COIN_LOCK),
+    (super::event::ACTIVE_EVENT_KINDS, crate::effects::k::DECLARES_ACTIVE_LOCK),
+    (super::event::COUNTER_EVENT_KINDS, crate::effects::k::DECLARES_COUNTER_LOCK),
+];
 /// Whom a lock stops, relative to the owner of the lock's source.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Binds {
@@ -536,24 +561,16 @@ const fn block_kinds(lock: &LockDecl) -> KindMask {
     let actions = lock.actions;
     let mut m = KindMask::EMPTY;
     if !lock.forbids.is_never() {
-        m = lock.forbids.effect_kinds();
-        if m.intersects(super::event::POKEMON_EVENT_KINDS) {
-            m = crate::spec::with(m, crate::effects::k::DECLARES_EVENT_LOCK);
-        }
-        if m.intersects(super::event::ATTACH_EVENT_KINDS) {
-            m = crate::spec::with(m, crate::effects::k::DECLARES_ATTACH_LOCK);
-        }
-        if m.intersects(super::event::CONDITION_EVENT_KINDS) {
-            m = crate::spec::with(m, crate::effects::k::DECLARES_CONDITION_LOCK);
-        }
-        if m.intersects(super::event::HEAL_EVENT_KINDS) {
-            m = crate::spec::with(m, crate::effects::k::DECLARES_HEAL_LOCK);
-        }
-        if m.intersects(super::event::COIN_EVENT_KINDS) {
-            m = crate::spec::with(m, crate::effects::k::DECLARES_COIN_LOCK);
-        }
-        if m.intersects(super::event::ACTIVE_EVENT_KINDS) {
-            m = crate::spec::with(m, crate::effects::k::DECLARES_ACTIVE_LOCK);
+        // The kinds it forbids, restricted to the families the lock query is asked for, each with its marker.
+        let all = lock.forbids.effect_kinds();
+        let mut i = 0;
+        while i < LOCK_FAMILIES.len() {
+            let (fam, marker) = LOCK_FAMILIES[i];
+            if all.intersects(fam) {
+                m = m.or(and(all, fam));
+                m = crate::spec::with(m, marker);
+            }
+            i += 1;
         }
     }
     let mut i = 0;
@@ -2049,10 +2066,10 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::RemoveCounters => Some(crate::effects::k::DECLARES_HEAL_LOCK),
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_LOCK),
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_LOCK),
+        E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_LOCK),
         E::PlayTrainer
         | E::Damage
-        | E::PlaceCounters
-        | E::MoveCounters
+        | E::ApplyEffect
         | E::KnockOut
         | E::TakePrizes
         | E::Discard
@@ -2117,6 +2134,7 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::Shuffle
         | E::Look
         | E::Reveal
+        | E::ApplyEffect
         | E::StateCheck
         | E::GameEnd
         | E::Mulligan
@@ -2150,13 +2168,35 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     Ok(false)
 }
 
+/// The `Prevent` declarations an attack left on the event's Pokémon ("during your opponent's next turn, prevent all
+/// damage done to / effects of attacks done to this Pokémon": `Slot::lasting_prevents`, in force once no longer
+/// pending): one matches the event. Each is evaluated for the card whose attack left it. A plain read of the slot when
+/// it holds none.
+pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
+    let (Some(t), Some(kind)) = (v.slot, v.kind.effect_kind()) else { return Ok(false) };
+    let n = g.st.slot(t.p as usize, t.s).lasting_prevents.len();
+    for i in 0..n {
+        let l = g.st.slot(t.p as usize, t.s).lasting_prevents.as_slice()[i];
+        if l.pending || !l.spec.from.prevent_kinds().has(kind) {
+            continue;
+        }
+        if l.spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &l.spec.protects)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 /// [`event_prevented`] for one source `me`: one of its `Prevent` declarations matches the event, protects the
 /// event's spot, and the card is in place for its origin and not blocked there.
 fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool> {
     let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    let Some(kind) = v.kind.effect_kind() else { return Ok(false) };
     for ps in passives {
         let Modifier::Prevent(p) = &ps.modifier else { continue };
-        if p.from.is_never() {
+        // The kinds it ranges over first (a mask test): "prevent all effects of attacks" names no kind and never
+        // prevents Damage (APR C-17).
+        if p.from.is_never() || !p.from.prevent_kinds().has(kind) {
             continue;
         }
         if !p.from.eval(g, me, v)? {
@@ -3726,6 +3766,7 @@ mod event_lock_marker_tests {
         E::Look,
         E::Reveal,
         E::CoinFlip,
+        E::ApplyEffect,
         E::StateCheck,
         E::GameEnd,
         E::Mulligan,
@@ -3744,7 +3785,7 @@ mod event_lock_marker_tests {
         match k {
             E::EnterPlay | E::Evolve | E::Devolve | E::Swap | E::Attach | E::MoveEnergy | E::MoveTool | E::PlayTrainer | E::ChangeActive | E::Damage => ALL.contains(&k),
             E::PlaceCounters | E::MoveCounters | E::RemoveCounters | E::GainCondition | E::RemoveCondition | E::KnockOut | E::TakePrizes | E::Discard => ALL.contains(&k),
-            E::Draw | E::PutIntoHand | E::PutIntoDeck | E::LeavePlay | E::Shuffle | E::Look | E::Reveal | E::CoinFlip | E::StateCheck | E::GameEnd => ALL.contains(&k),
+            E::Draw | E::PutIntoHand | E::PutIntoDeck | E::LeavePlay | E::Shuffle | E::Look | E::Reveal | E::CoinFlip | E::ApplyEffect | E::StateCheck | E::GameEnd => ALL.contains(&k),
             E::Mulligan | E::SetPrizes | E::BeginTurn | E::EndTurn | E::Checkup | E::UseAttack | E::UseAbility | E::UseStadium | E::Retreat => ALL.contains(&k),
         }
     }
@@ -3760,8 +3801,9 @@ mod event_lock_marker_tests {
                     assert!(m.has(x), "{k:?}: the lock isn't listed under its effect kind");
                     assert!(m.has(marker), "{k:?}: block_kinds doesn't set the marker event_locked reads");
                 }
-                (None, None) => assert_eq!(m, KindMask::EMPTY, "{k:?}"),
-                (e, marker) => panic!("{k:?}: effect kind {e:?} but marker {marker:?}"),
+                // No lock over it is consulted (no text forbids it: Damage, KnockOut, ...): a lock over it lists nothing.
+                (_, None) => assert_eq!(m, KindMask::EMPTY, "{k:?}"),
+                (None, Some(marker)) => panic!("{k:?}: marker {marker:?} but no effect kind"),
             }
         }
     }
@@ -3773,7 +3815,7 @@ mod event_lock_marker_tests {
             for p in s.passives {
                 if let Modifier::BlockUse(b) = &p.modifier {
                     if !b.lock.forbids.is_never() {
-                        assert!(b.lock.forbids.effect_kinds() != KindMask::EMPTY, "{}: a lock over no event kind", s.class);
+                        assert!(block_kinds(&b.lock) != KindMask::EMPTY, "{}: a lock over no consulted event kind", s.class);
                     }
                 }
             }
@@ -3794,7 +3836,7 @@ mod prevent_marker_tests {
         E::EnterPlay, E::Evolve, E::Devolve, E::Swap, E::Attach, E::MoveEnergy, E::MoveTool, E::PlayTrainer, E::ChangeActive,
         E::Damage, E::PlaceCounters, E::MoveCounters, E::RemoveCounters, E::GainCondition, E::RemoveCondition, E::KnockOut,
         E::TakePrizes, E::Discard, E::Draw, E::PutIntoHand, E::PutIntoDeck, E::LeavePlay, E::Shuffle, E::Look, E::Reveal,
-        E::CoinFlip, E::StateCheck, E::GameEnd, E::Mulligan, E::SetPrizes, E::BeginTurn, E::EndTurn, E::Checkup,
+        E::CoinFlip, E::ApplyEffect, E::StateCheck, E::GameEnd, E::Mulligan, E::SetPrizes, E::BeginTurn, E::EndTurn, E::Checkup,
         E::UseAttack, E::UseAbility, E::UseStadium, E::Retreat,
     ];
 

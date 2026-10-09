@@ -650,6 +650,29 @@ pub mod k {
     pub const DEVOLVE_PROBE: u32 = 247;
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
+    /// The events of events batch 6 (`engine::damage`, `engine::knockout`; KnockOut keeps `KNOCK_OUT`): Damage, PlaceCounters,
+    /// MoveCounters, LeavePlay, TakePrizes, and ApplyEffect (a lasting effect put on a Pokémon or a player, user decision D4).
+    /// Each number's dispatch-index entry (`kind % 32`) is one no hot kind uses (ENGINE.md section 12): Damage 30
+    /// (TrainerTarget), PlaceCounters 4 (WhoBegins), TakePrizes 1 (DrawCardForTurn), ApplyEffect 20 (Retreat),
+    /// MoveCounters 21, LeavePlay 23 (PlayItem).
+    pub const DAMAGE: u32 = 94;
+    pub const PLACE_COUNTERS: u32 = 100;
+    pub const MOVE_COUNTERS_EVENT: u32 = 117;
+    pub const LEAVE_PLAY: u32 = 119;
+    pub const TAKE_PRIZES: u32 = 97;
+    pub const APPLY_EFFECT: u32 = 116;
+    /// A `Prevent` declaration over PlaceCounters / MoveCounters, over Damage, over a KnockOut by an effect, over LeavePlay,
+    /// over Attach / MoveEnergy / MoveTool, over Evolve / Devolve / Swap, over ApplyEffect (events batch 6: the event's
+    /// routine asks `derived::event_prevented` only in a game with one).
+    pub const DECLARES_COUNTER_PREVENT: u32 = 210;
+    pub const DECLARES_DAMAGE_PREVENT: u32 = 211;
+    pub const DECLARES_KO_PREVENT: u32 = 212;
+    pub const DECLARES_LEAVE_PREVENT: u32 = 213;
+    pub const DECLARES_ATTACH_PREVENT: u32 = 214;
+    pub const DECLARES_POKEMON_PREVENT: u32 = 215;
+    pub const DECLARES_APPLY_PREVENT: u32 = 217;
+    /// A lock over PlaceCounters / MoveCounters (Patrat's Watchful Eye; events batch 6).
+    pub const DECLARES_COUNTER_LOCK: u32 = 216;
     // Declaration markers (never dispatched): set in a card's mask when it declares a permission, a
     // restriction or rule limits (`CardSpec::restricts` / `limits`) or a lock over events, so `Game::kinds_present` says whether a game has any.
     pub const DECLARES_PERMIT: u32 = 250;
