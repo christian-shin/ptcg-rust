@@ -468,11 +468,12 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
 fn finish(g: &mut Game) -> R {
     let first = g.st.active_player as usize;
     let second = 1 - first;
+    // The Pokémon put down at setup count as entering play on their owner's first turn (`Slot::entered_turn`).
     for s in g.st.players[first].in_play().iter() {
-        g.st.players[first].slots[*s as usize].pokemon_played_turn = 1;
+        g.st.players[first].slots[*s as usize].entered_turn = 1;
     }
     for s in g.st.players[second].in_play().iter() {
-        g.st.players[second].slots[*s as usize].pokemon_played_turn = 2;
+        g.st.players[second].slots[*s as usize].entered_turn = 2;
     }
     // Both Active Pokémon take hold together: the player who goes first is stamped first.
     crate::spec::passive::lock_sync(g);

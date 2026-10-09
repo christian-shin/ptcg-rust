@@ -650,7 +650,7 @@ pub enum SlotPred {
     PrintedTypeIs(CardType),
     /// The Pokémon card directly under this card in the stack has this name.
     CardBelowThis(&'static str),
-    /// The Pokémon was played (or evolved) this turn.
+    /// The Pokémon came into play this turn: put into play, evolved or devolved (`Slot::entered_turn`).
     PlayedThisTurn,
     // --- F-passive appends ---
     /// The slot this card is part of (the Pokémon it is, or the one it is attached to).
@@ -795,7 +795,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
             let stack = g.st.slot_pokemons(p, id);
             stack.iter().position(|c| *c == me).and_then(|i| i.checked_sub(1)).map_or(false, |i| g.st.cdef(stack.as_slice()[i]).name == *name)
         }
-        SlotPred::PlayedThisTurn => slot.pokemon_played_turn == g.st.turn as i32,
+        SlotPred::PlayedThisTurn => slot.entered_turn == g.st.turn as i32,
         SlotPred::Holder => slot.cards.contains(me) || slot.tools.contains(me),
         SlotPred::Tag(t) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_tag(*t)).unwrap_or(false),
         SlotPred::RuleBox => slot.cards.iter().any(|c| g.st.cdef(c).has_rule_box()),

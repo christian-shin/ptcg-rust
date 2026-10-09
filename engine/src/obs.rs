@@ -45,7 +45,7 @@ fn slot_features(g: &Game, p: usize, s: SlotId, out: &mut [f32]) {
             conds |= 1 << c;
         }
         out[14] = conds as f32;
-        out[15] = (g.st.turn - slot.pokemon_played_turn) as f32;
+        out[15] = (g.st.turn - slot.entered_turn) as f32;
     }
 }
 

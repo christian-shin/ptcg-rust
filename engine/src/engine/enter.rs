@@ -50,7 +50,7 @@ pub const IDENTITY: &[Fact] = &[
     Fact { name: "moved to the Active Spot this turn", bound: Bound::Card, stored: "CardInst::moved_to_active_this_turn, Player::moved_to_active_this_turn / moved_from_active_to_bench_this_turn" },
     Fact { name: "damage taken last turn", bound: Bound::Card, stored: "CardInst::damage_taken_last_turn" },
     Fact { name: "Ability used this turn", bound: Bound::Card, stored: "player markers from the card (Once::PerTurn): the card's own Abilities, so a new card has none used" },
-    Fact { name: "entered play this turn", bound: Bound::Slot, stored: "Slot::entered_turn (and the legacy Slot::pokemon_played_turn)" },
+    Fact { name: "entered play this turn", bound: Bound::Slot, stored: "Slot::entered_turn" },
     Fact { name: "damage counters", bound: Bound::Slot, stored: "Slot::damage" },
     Fact { name: "attached Energy and Tools", bound: Bound::Slot, stored: "Slot::cards / energies / tools" },
     Fact { name: "healed this turn", bound: Bound::Slot, stored: "Slot::healed_this_turn" },
@@ -579,7 +579,6 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef) -> R<SVec<CardId, 3>> {
             let turn = g.st.turn;
             let slot = &mut g.st.players[tp].slots[ts as usize];
             crate::engine::game_effect::clear_effects(slot);
-            slot.pokemon_played_turn = turn;
             slot.entered_turn = turn;
             return Ok(out);
         }
@@ -597,7 +596,6 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef) -> R<SVec<CardId, 3>> {
         let turn = g.st.turn;
         let slot = &mut g.st.players[tp].slots[ts as usize];
         crate::engine::game_effect::clear_effects(slot);
-        slot.pokemon_played_turn = turn;
         slot.entered_turn = turn;
         crate::prefabs::reset_once_per_turn_slot(g, t); // id317
     }
@@ -660,7 +658,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.move_card_to(from, card, target.list());
             let turn = g.st.turn;
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-            slot.pokemon_played_turn = turn;
             slot.entered_turn = turn;
             Ok(())
         }
@@ -671,7 +668,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.move_card_to(from, card, target.list());
             let turn = g.st.turn;
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-            slot.pokemon_played_turn = turn;
             slot.entered_turn = turn;
             slot.marker.remove_all_except_trainer_effects();
             evolution_consequences(g, target.p as usize, target)

@@ -99,12 +99,12 @@ pub struct Slot {
     pub burn_damage: i32,
     pub confusion_damage: i32,
     pub marker: Marker,
-    /// The turn the Pokémon here was put into play, set by the EnterPlay, Evolve and Devolve routines
-    /// (`engine::enter`). Legacy: the observation reads it; evolution timing reads `entered_turn`.
-    pub pokemon_played_turn: i32,
     /// The turn the Pokémon in this spot came into play: put into play, evolved or devolved (APR A-05,
     /// C-13; id2229). Slot-bound (events design 4.5). No permission rewrites it: permissions lift limits
-    /// (`Modifier::Permit`) instead. 0 for the Pokémon set up before the first turn.
+    /// (`Modifier::Permit`) instead. The one record of the fact: evolution timing, "played this turn"
+    /// (`SlotPred::PlayedThisTurn`), the observation and the canonical JSON (`pokemonPlayedTurn`) read it. The
+    /// Pokémon set up before the first turn count as entering on their owner's first turn (1 or 2,
+    /// `setup::finish`).
     pub entered_turn: i32,
     pub sleep_flips: i32,
     pub board_effect: SVec<u8, 6>,
@@ -236,7 +236,6 @@ impl Default for Slot {
             burn_damage: 20,
             confusion_damage: 30,
             marker: Marker::default(),
-            pokemon_played_turn: 0,
             entered_turn: 0,
             sleep_flips: 1,
             board_effect: SVec::new(),

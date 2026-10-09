@@ -84,7 +84,6 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
     }
     let turn = g.st.turn;
     let played_turn = if played.as_str() == Some("this_turn") { turn } else { 0 };
-    g.st.players[p].slots[s as usize].pokemon_played_turn = played_turn;
     g.st.players[p].slots[s as usize].entered_turn = played_turn;
     Ok(())
 }

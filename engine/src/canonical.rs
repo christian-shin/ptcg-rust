@@ -62,7 +62,7 @@ impl Game {
         nd!(poison_damage, "poisonDamage");
         nd!(burn_damage, "burnDamage");
         nd!(confusion_damage, "confusionDamage");
-        nd!(pokemon_played_turn, "pokemonPlayedTurn");
+        nd!(entered_turn, "pokemonPlayedTurn");
         nd!(sleep_flips, "sleepFlips");
         nd!(healed_this_turn, "healedThisTurn");
         nd!(cannot_be_healed_next_turn, "cannotBeHealedNextTurn");
