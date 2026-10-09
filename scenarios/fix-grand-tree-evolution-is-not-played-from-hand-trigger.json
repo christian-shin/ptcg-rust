@@ -37,14 +37,7 @@
    "who": "opp",
    "slot": "active",
    "card": "Kadabra MEG 55",
-   "cite": "Grand Tree evolves Abra from the deck"
-  },
-  {
-   "at": "next_turn_end",
-   "who": "opp",
-   "zone": "hand",
-   "count": 0,
-   "cite": "Psychic Draw triggers when the card is played from the hand to evolve (id1998, id285); an Evolution put on from the deck isn't: the hand (empty at the start) stays empty"
+   "cite": "Grand Tree evolves Abra from the deck (an Evolution not played from the hand: Kadabra's Psychic Draw does not trigger, id1998, id285; the trigger reads the source zone)"
   }
  ]
 }
