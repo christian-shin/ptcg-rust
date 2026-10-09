@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Sudowoodo DRI 93",
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Metagross CRI 61",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Ethan's Sudowoodo DRI 93",
+   "4 Beldum TEF 113",
+   "4 Metang TEF 114",
+   "4 Metagross CRI 61",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ethan's Sudowoodo DRI 93",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Beldum TEF 113",
+   "Metang TEF 114",
+   "Metagross CRI 61"
+  ],
+  "bench": [
+   {
+    "card": "Beldum TEF 113"
+   }
+  ]
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Try to Imitate"
+  },
+  {
+   "index": 0,
+   "attack": "Metallic Hammer"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "id2352: a Pokemon using a copied Metallic Hammer with fewer than 3 [M] Energy may choose the extra damage and discards as many as it can (both of its 2 Metal Energy); before, the discard demanded 3 and the game stalled (fuzz seed 8 g800966)"
+  }
+ ]
+}

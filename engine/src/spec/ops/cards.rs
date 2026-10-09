@@ -1560,7 +1560,10 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
         return Ok(false);
     }
     let mut cost = SVec::new();
-    let n = if up_to { (count as usize).min(energy.len()) } else { count as usize };
+    // An effect discards as many as it can when fewer are attached (id2352: a copied Metallic Hammer with
+    // fewer than 3 [M] Energy discards what there is).
+    let units: usize = energy.iter().map(|m| m.provides.iter().filter(|t| ty == ct::COLORLESS || **t == ty || **t == ct::ANY).count()).sum();
+    let n = if up_to { (count as usize).min(energy.len()) } else { (count as usize).min(units) };
     for _ in 0..n {
         cost.push(ty);
     }
