@@ -18,7 +18,7 @@ pub enum PrefabCont {
     ShuffleOrderThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
     DrawAfterWait { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
     /// SWITCH_IN_OPPONENT_BENCHED_POKEMON callback.
-    SwitchInOpponent { p: u8 },
+    SwitchInOpponent { p: u8, cause: crate::cause::Cause },
     /// THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_YOUR_OPPONENTS_[BENCHED_]POKEMON.
     DamageChosen { atk: EffId, damage: i32 },
     /// SEARCH_DECK_FOR_CARDS_TO_HAND.
@@ -26,9 +26,9 @@ pub enum PrefabCont {
     /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND.
     SearchPokemonToHand { p: u8 },
     /// SWITCH_ACTIVE_WITH_BENCHED callback.
-    SwitchActiveWithBenched { p: u8 },
+    SwitchActiveWithBenched { p: u8, cause: crate::cause::Cause },
     /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH: empty slots at prompt time.
-    SearchToBench { p: u8, slots: SVec<SlotId, 8> },
+    SearchToBench { p: u8, slots: SVec<SlotId, 8>, cause: crate::cause::Cause },
 }
 
 pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
@@ -88,7 +88,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
             shuffle_deck(g, p as usize);
             Ok(())
         }
-        PrefabCont::SearchToBench { p, slots } => {
+        PrefabCont::SearchToBench { p, slots, cause } => {
             let cards: Vec<CardId> = first.cards().to_vec();
             for (i, c) in cards.iter().enumerate() {
                 let s = match slots.get(i) {
@@ -96,22 +96,22 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
                     // The prompt's `max` is clamped to the empty slots.
                     None => break,
                 };
-                g.run_fx_unit(Effect::PlayPokemonFromDeck { p, card: *c, target: SlotRef::new(p as usize, s) })?;
+                g.run_fx_unit(Effect::PlayPokemonFromDeck { p, card: *c, target: SlotRef::new(p as usize, s), cause })?;
             }
             shuffle_deck(g, p as usize);
             Ok(())
         }
-        PrefabCont::SwitchActiveWithBenched { p } => {
+        PrefabCont::SwitchActiveWithBenched { p, cause } => {
             let sel = first.slots();
             if sel.is_empty() {
                 return Ok(());
             }
             if sel[0].p == p {
-                crate::engine::turn::switch_pokemon(g, p as usize, sel[0].s)?;
+                crate::engine::turn::switch_pokemon(g, p as usize, sel[0].s, cause)?;
             }
             Ok(())
         }
-        PrefabCont::SwitchInOpponent { p } => {
+        PrefabCont::SwitchInOpponent { p, cause } => {
             let sel = first.slots();
             if sel.is_empty() {
                 return Ok(());
@@ -119,7 +119,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
             let o = 1 - p as usize;
             // switchPokemon only acts when the slot is on the opponent's bench.
             if sel[0].p as usize == o {
-                crate::engine::turn::switch_pokemon(g, o, sel[0].s)?;
+                crate::engine::turn::switch_pokemon(g, o, sel[0].s, cause)?;
             }
             Ok(())
         }
@@ -454,7 +454,7 @@ pub fn opponent_cannot_play_cards(g: &mut Game, atk: EffId, lock: &'static crate
     // An AfterAttackEffect handler passes `new AttackEffect(player, opponent, effect.attack)`
     // (Chi-Yu MEG): its source is the player's Active.
     let mut b = match attack_data(g, atk) {
-        Some((p, opp, attack, source)) => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source },
+        Some((p, opp, attack, source)) => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source, cause: crate::cause::Cause::of_attack_at(g, p, attack, source) },
         None => return Ok(()),
     };
     b.target = b.source;
@@ -600,7 +600,7 @@ pub fn remove_marker_at_end_of_turn(g: &mut Game, e: EffId, marker: crate::marke
 
 fn atk_base_for(g: &Game, atk: EffId, target: SlotRef) -> AtkBase {
     match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target },
+        Effect::Attack { p, opp, attack, source, .. } => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target, cause: crate::cause::Cause::of_attack_at(g, p, attack, source) },
         _ => panic!("not an attack effect"),
     }
 }
@@ -761,13 +761,13 @@ pub fn discard_attacker_energy_if_knocked_out(g: &mut Game, atk: EffId, source_c
 /// `ADD_SPECIAL_CONDITIONS_TO_PLAYER_ACTIVE(store, state, player, source, conditions)`
 /// with the default poison/burn/sleep/confusion values: reduce an
 /// `AddSpecialConditionsPowerEffect` on `player.active`.
-pub fn add_special_conditions_to_player_active(g: &mut Game, p: usize, source: CardId, conditions: &[SpecialCondition]) -> R {
+pub fn add_special_conditions_to_player_active(g: &mut Game, p: usize, source: CardId, conditions: &[SpecialCondition], cause: crate::cause::Cause) -> R {
     let target = SlotRef::new(p, g.st.players[p].active);
     let mut cs = SVec::new();
     for c in conditions {
         cs.push(*c as u8);
     }
-    g.run_fx_unit(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30 })?;
+    g.run_fx_unit(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30, cause })?;
     Ok(())
 }
 
@@ -791,11 +791,11 @@ pub fn pack_attack(a: AttackRef) -> i32 {
 /// Does something prevent the effect of the attack `attack` (used by player `p`
 /// against `o`) on the Pokémon in `target`? A DiscardCardsEffect without cards
 /// on a fresh AttackEffect asks (Mist Energy and the like; R7F-17, ruling 1843).
-pub fn attack_effect_prevented_on(g: &mut Game, p: usize, o: usize, packed_attack: i32, target: SlotRef) -> R<bool> {
+pub fn attack_effect_prevented_on(g: &mut Game, p: usize, o: usize, packed_attack: i32, target: SlotRef, cause: crate::cause::Cause) -> R<bool> {
     let attack = AttackRef { card: (packed_attack >> 4) as CardId, index: (packed_attack & 15) as u8 };
     let source = SlotRef::new(p, g.st.players[p].active);
     let atk = g.new_fx(Effect::Attack { p: p as u8, opp: o as u8, attack, damage: 0, ignore_weakness: false, ignore_resistance: false, ignore_defender_effects: false, source, barrage_used: false });
-    let b = AtkBase { attack_effect: atk, player: p as u8, opponent: o as u8, attack, source, target };
+    let b = AtkBase { attack_effect: atk, player: p as u8, opponent: o as u8, attack, source, target, cause };
     let r = g.run_fx(Effect::DiscardCards { b, cards: SVec::new() });
     g.release_fx(atk);
     Ok(r?.1)

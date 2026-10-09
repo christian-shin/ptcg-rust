@@ -155,7 +155,7 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         for n in stack(&side["active"]) {
             mv(g, p, n, ListRef::Slot(pu, s))?;
         }
-        switch_pokemon(g, p, s).map_err(|e| e.0.to_string())?;
+        switch_pokemon(g, p, s, crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, p as u8)).map_err(|e| e.0.to_string())?;
         let a = g.st.players[p].active;
         dress(g, p, a, &side["active_energy"], &side["active_tool"], &side["active_damage"], &side["active_conditions"], &side["active_played"])?;
     } else {

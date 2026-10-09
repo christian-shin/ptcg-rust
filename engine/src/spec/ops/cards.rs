@@ -616,7 +616,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if g.st.players[p].supporter.contains(me) {
                 g.move_card_to(ListRef::Supporter(p as u8), me, ListRef::Hand(p as u8));
             }
-            g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card: me, target: SlotRef::new(p, s), slot: SlotType::Board, index: 0 })?;
+            g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card: me, target: SlotRef::new(p, s), slot: SlotType::Board, index: 0, cause: f.cause })?;
             Ok(Flow::Next)
         }
         Op::PlayFromZone(pz) => {
@@ -626,6 +626,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             for (c, s) in cards.iter().zip(open.iter()) {
                 let in_reg = f.cards.iter().filter(|r| **r != NONE).map(|r| ListRef::Temp(*r)).find(|l| g.lst(*l).contains(c));
                 if let Some(src) = g.st.locate(*c).or(in_reg) {
+                    crate::cause::unseen(g, "PlayFromZone to Bench (raw move)", &f.cause);
                     move_cards(g, src, ListRef::Slot(p as u8, *s), &[*c], me)?;
                     g.st.players[p].slots[*s as usize].pokemon_played_turn = g.st.turn;
                 }
@@ -948,8 +949,9 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
             let open = empty_bench_slots(g, p);
             for (c, slot) in chosen.iter().zip(open.iter()) {
                 if matches!(from, ListRef::Deck(_)) {
-                    g.run_fx_unit(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, *slot) })?;
+                    g.run_fx_unit(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, *slot), cause: f.cause })?;
                 } else {
+                    crate::cause::unseen(g, "Search to Bench from a non-deck zone (raw move)", &f.cause);
                     move_cards(g, from, ListRef::Slot(p as u8, *slot), &[*c], me)?;
                     g.st.players[p].slots[*slot as usize].pokemon_played_turn = g.st.turn;
                 }
@@ -1141,10 +1143,13 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
             continue;
         }
         f.attached_to = encode(target);
+        if a.route != AttachRoute::Effect {
+            crate::cause::unseen(g, "AttachRoute::Move* attach", &f.cause);
+        }
         match a.route {
             AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
             AttachRoute::Effect => {
-                g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card: c, target })?;
+                g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card: c, target, cause: f.cause })?;
             }
             AttachRoute::MoveShufflePerCard => {
                 move_cards(g, from, target.list(), &[c], me)?;
@@ -1152,6 +1157,7 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
             }
         }
         if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
+            crate::cause::unseen(g, "AttachRoute::MovePoisonActive Poison (written directly)", &f.cause);
             crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);
         }
     }
@@ -1207,7 +1213,7 @@ fn decode_transfers(items: &[u8]) -> Vec<(SlotRef, SlotRef, CardId)> {
 fn carry_out_transfers(g: &mut Game, f: &Frame, ts: &[(SlotRef, SlotRef, CardId)]) -> R {
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     for (from, to, c) in ts {
-        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *from };
+        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *from, cause: f.cause };
         g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *to })?;
     }
     Ok(())
@@ -1579,7 +1585,7 @@ fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId], to_h
     for c in cards {
         cs.push(*c);
     }
-    let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: slot };
+    let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: slot, cause: f.cause };
     if to_hand {
         g.run_fx_unit(Effect::CardsToHand { b, cards: cs })?;
     } else {
@@ -1717,7 +1723,7 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
     }
     let Some((_, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     for (target, cards) in groups {
-        let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source, target };
+        let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source, target, cause: f.cause };
         g.run_fx_unit(Effect::DiscardCards { b, cards })?;
     }
     Ok(())
@@ -1815,6 +1821,10 @@ fn energy_chosen(_f: &Frame, first: Res) -> Vec<CardId> {
 /// One DiscardCards effect per Pokémon the cards are on (first seen first).
 fn discard_cards_from_slots(g: &mut Game, me: CardId, f: &Frame, cards: &[CardId]) -> R {
     let attack = if matches!(f.prog, crate::spec::run::Prog::Attack(_)) { attack_data(g, f.eff) } else { None };
+    crate::cause::compare(g, "discard: f.prog == Attack", &f.cause, match attack {
+        Some((p, ..)) => crate::cause::Old::Attack(Some(p)),
+        None => crate::cause::Old::NotAttack,
+    });
     let Some((p, opp, attack, source)) = attack else {
         // An Ability's cost: the cards move to the discard pile.
         for c in cards {
@@ -1838,7 +1848,7 @@ fn discard_cards_from_slots(g: &mut Game, me: CardId, f: &Frame, cards: &[CardId
         }
     }
     for (target, cards) in groups {
-        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
+        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target, cause: f.cause };
         g.run_fx_unit(Effect::DiscardCards { b, cards })?;
     }
     Ok(())
@@ -1886,7 +1896,7 @@ fn opp_tools_carry_out(g: &mut Game, me: CardId, f: &Frame, items: &[u8]) -> R {
         let t = SlotRef::new((pair[0] >> 4) as usize, pair[0] & 15);
         let owner = t.p as usize;
         // An effect of the attack on that Pokémon: Mist Energy and the like prevent it (ruling 1843).
-        if attack_effect_prevented_on(g, p, owner, pack_attack(attack), t)? {
+        if attack_effect_prevented_on(g, p, owner, pack_attack(attack), t, f.cause)? {
             continue;
         }
         move_cards(g, ListRef::Slot(owner as u8, t.s), ListRef::Discard(owner as u8), &[pair[1]], source_card)?;
@@ -2235,7 +2245,9 @@ fn ec_energy_cards(g: &mut Game, src: SlotRef, kind: EnergyKind) -> R<Vec<CardId
 }
 
 fn ec_attack_context(g: &Game, f: &Frame) -> bool {
-    matches!(f.prog, super::super::run::Prog::Attack(_)) && attack_data(g, f.eff).is_some()
+    let r = matches!(f.prog, super::super::run::Prog::Attack(_)) && attack_data(g, f.eff).is_some();
+    crate::cause::compare(g, "Energy discard/move: f.prog == Attack", &f.cause, if r { crate::cause::Old::Attack(None) } else { crate::cause::Old::NotAttack });
+    r
 }
 
 /// The owner side a `Prompt` works on: the Active Pokémon named by `from`.
@@ -2562,7 +2574,7 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
                     let Some(dst) = dst else { continue };
                     if *via_effect && attack {
                         if let Some((p, opp, attack, source)) = attack_data(g, f.eff) {
-                            let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *a };
+                            let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *a, cause: f.cause };
                             g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *dst })?;
                         }
                     } else {
@@ -2573,7 +2585,7 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
             (_, EnergyDest::Discard) => {
                 if attack {
                     if let Some((p, opp, attack, source)) = attack_data(g, f.eff) {
-                        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: src };
+                        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: src, cause: f.cause };
                         let mut cs: SVec<CardId, 64> = SVec::new();
                         for c in &cards {
                             cs.push(*c);

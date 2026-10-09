@@ -297,10 +297,10 @@ pub(crate) fn occupied(g: &Game, s: SlotRef) -> bool {
 pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
     // A step 7 trigger acts for the attack it belongs to.
     if let Effect::AttackTrigger { attack_effect, p, opp, attack, source, .. } = *g.e(f.eff) {
-        return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target });
+        return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause });
     }
     let (p, opp, attack, source) = attack_data(g, f.eff)?;
-    Some(AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target })
+    Some(AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target, cause: f.cause })
 }
 
 /// The slot types a selector ranges over (for the prompt).
@@ -416,9 +416,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 if !occupied(g, slot) {
                     return Ok(Flow::Next);
                 }
+                crate::cause::compare(g, "RemoveFromPlay.effect_of_attack", &f.cause, if r.effect_of_attack { crate::cause::Old::Attack(None) } else { crate::cause::Old::NotAttack });
                 if r.effect_of_attack {
                     if let Some((_, _, attack, _)) = attack_data(g, f.eff) {
-                        if attack_effect_prevented_on(g, f.p as usize, slot.p as usize, pack_attack(attack), slot)? {
+                        if attack_effect_prevented_on(g, f.p as usize, slot.p as usize, pack_attack(attack), slot, f.cause)? {
                             return Ok(Flow::Next);
                         }
                     }
@@ -489,6 +490,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 return Ok(Flow::Next);
             }
             match k.mode {
+                KnockOutMode::Direct => crate::cause::unseen(g, "KnockOutMode::Direct (damage += 999)", &f.cause),
+                KnockOutMode::Opponent | KnockOutMode::Player => crate::cause::compare(g, "KnockOutMode::Opponent/Player", &f.cause, crate::cause::Old::Attack(None)),
+            }
+            match k.mode {
                 KnockOutMode::Direct => {
                     g.st.players[slot.p as usize].slots[slot.s as usize].damage += 999;
                 }
@@ -533,7 +538,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if g.st.locate(card).is_none() {
                 return Ok(Flow::Next);
             }
-            crate::engine::play::evolve_pokemon(g, p, slot, card)?;
+            crate::engine::play::evolve_pokemon(g, p, slot, card, f.cause)?;
             Ok(Flow::Next)
         }
         Op::Devolve(d) if d.chooser.is_some() => devolve_exec(g, me, f, d),
@@ -611,7 +616,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if let Some(s) = slot_of(g, me, f, w.target) {
                 let p = s.p as usize;
                 if g.st.players[p].bench_index_of(s.s).is_some() {
-                    crate::engine::turn::switch_pokemon(g, p, s.s)?;
+                    crate::engine::turn::switch_pokemon(g, p, s.s, f.cause)?;
                 }
             }
             Ok(Flow::Next)
@@ -682,7 +687,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             if let Some(c) = first.cards().first().copied() {
                 let target = decode(f.slot);
                 // It counts as evolving (ruling 1045).
-                crate::engine::play::evolve_pokemon(g, p, target, c)?;
+                crate::engine::play::evolve_pokemon(g, p, target, c, f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -836,6 +841,7 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
     match op {
         Op::Heal(h) => {
             let n = num_m(g, me, f, &h.hp)?;
+            crate::cause::compare(g, "HealVia", &f.cause, if h.via == HealVia::Attack { crate::cause::Old::Attack(None) } else { crate::cause::Old::NotAttack });
             match h.via {
                 HealVia::Attack => {
                     if let Some(b) = atk_base(g, f, slot) {
@@ -843,7 +849,7 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
                     }
                 }
                 HealVia::Effect => {
-                    g.run_fx_unit(Effect::Heal { p: f.p, target: slot, damage: n })?;
+                    g.run_fx_unit(Effect::Heal { p: f.p, target: slot, damage: n, cause: f.cause })?;
                 }
             }
             if h.clear_conditions {
@@ -869,8 +875,13 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
 /// `n` damage (in HP) as counters on the Pokémon the way `cause` says.
 fn counters_by(g: &mut Game, me: CardId, f: &Frame, cause: CounterCause, n: i32, slot: SlotRef) -> R {
     match cause {
+        CounterCause::Attack => crate::cause::compare(g, "CounterCause::Attack", &f.cause, crate::cause::Old::Attack(None)),
+        CounterCause::Effect => crate::cause::compare(g, "CounterCause::Effect", &f.cause, crate::cause::Old::NotAttack),
+        CounterCause::Direct => crate::cause::unseen(g, "CounterCause::Direct counters", &f.cause),
+    }
+    match cause {
         CounterCause::Effect => {
-            g.run_fx_unit(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me })?;
+            g.run_fx_unit(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me, cause: f.cause })?;
         }
         CounterCause::Direct => {
             g.st.players[slot.p as usize].slots[slot.s as usize].damage += n;
@@ -907,6 +918,11 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
                 }
             }
             match c.cause {
+                Cause::Attack => crate::cause::compare(g, "conditions Cause::Attack", &f.cause, crate::cause::Old::Attack(None)),
+                Cause::Ability => crate::cause::compare(g, "conditions Cause::Ability (AddSpecialConditionsPower)", &f.cause, crate::cause::Old::NotAttack),
+                Cause::Direct => crate::cause::unseen(g, "conditions Cause::Direct", &f.cause),
+            }
+            match c.cause {
                 Cause::Attack => {
                     let Some(b) = atk_base(g, f, slot) else { return Ok(Flow::Next) };
                     let mut v = SVec::new();
@@ -915,7 +931,7 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
                     }
                     g.run_fx_unit(Effect::AddSpecialConditions { b, conditions: v, poison_damage: None, burn_damage: None, confusion_damage: None })?;
                 }
-                Cause::Ability => add_special_conditions_to_player_active(g, p, me, cs)?,
+                Cause::Ability => add_special_conditions_to_player_active(g, p, me, cs, f.cause)?,
                 Cause::Direct => {
                     for x in cs {
                         crate::engine::phase::add_condition(&mut g.st.players[p].slots[s as usize], *x);
@@ -1002,7 +1018,7 @@ fn fresh_attack(g: &mut Game, f: &Frame) -> Option<(crate::effects::EffId, AtkBa
         barrage_used: false,
     });
     let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-    Some((atk, AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target }))
+    Some((atk, AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target, cause: f.cause }))
 }
 
 /// Is the switch-out of the opponent's Active prevented (probe)?
@@ -1052,20 +1068,25 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
         return Ok(());
     }
     match s.kind {
-        SwitchKind::Plain | SwitchKind::PlainBasic | SwitchKind::PickedPlain => crate::engine::turn::switch_pokemon(g, side, slot.s),
+        SwitchKind::Gust | SwitchKind::SwitchOut => crate::cause::compare(g, "SwitchKind::Gust/SwitchOut", &f.cause, crate::cause::Old::Attack(None)),
+        SwitchKind::SilentAbilityEffect => crate::cause::compare(g, "SwitchKind::SilentAbilityEffect", &f.cause, crate::cause::Old::Ability(None)),
+        _ => {}
+    }
+    match s.kind {
+        SwitchKind::Plain | SwitchKind::PlainBasic | SwitchKind::PickedPlain => crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause),
         SwitchKind::SilentAbilityEffect => {
-            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot) })?;
+            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot), cause: f.cause })?;
             if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
                 let a = g.st.players[side].active;
                 crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
-                crate::engine::turn::switch_pokemon(g, side, slot.s)?;
+                crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)?;
             }
             Ok(())
         }
         SwitchKind::Silent | SwitchKind::Picked => {
             let a = g.st.players[side].active;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
-            crate::engine::turn::switch_pokemon(g, side, slot.s)
+            crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)
         }
         SwitchKind::Gust => {
             let Some((atk, mut b)) = fresh_attack(g, f) else { return Ok(()) };
@@ -1126,7 +1147,7 @@ fn spread_resume(g: &mut Game, f: &Frame, s: &SpreadCountersSpec, first: Res) ->
     }
     for (t, damage) in map.iter() {
         let target = get_target(&g.st, p, *t)?;
-        let b = AtkBase { attack_effect: f.eff, player: pl, opponent: opp, attack, source, target };
+        let b = AtkBase { attack_effect: f.eff, player: pl, opponent: opp, attack, source, target, cause: f.cause };
         g.run_fx_unit(Effect::PutCounters { b, damage: *damage })?;
         if let Effect::Attack { damage: d, .. } = g.e_mut(f.eff) {
             *d = *damage * s.damage_per_hp;
@@ -1165,13 +1186,13 @@ fn move_any_resume(g: &mut Game, f: &Frame, _who: Who, first: Res) -> R {
         let source = get_target(&g.st, p, from)?;
         let target = get_target(&g.st, p, to)?;
         if g.st.slot(source.p as usize, source.s).damage >= 10 {
-            let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: asource, target: source };
+            let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: asource, target: source, cause: f.cause };
             let (_, from_prevented) = g.run_fx(Effect::PutCounters { b, damage: 0 })?;
             if from_prevented {
                 continue;
             }
             g.st.players[source.p as usize].slots[source.s as usize].damage -= 10;
-            let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: asource, target };
+            let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: asource, target, cause: f.cause };
             let (_, to_prevented) = g.run_fx(Effect::PutCounters { b, damage: 0 })?;
             if !to_prevented {
                 g.st.players[target.p as usize].slots[target.s as usize].damage += 10;
@@ -1239,7 +1260,7 @@ fn move_all_act(g: &mut Game, f: &Frame, src: SlotRef, tgt: SlotRef) -> R {
         return Ok(());
     }
     let Some((_, opp, attack, _)) = attack_data(g, f.eff) else { return Ok(()) };
-    let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: src, target: tgt };
+    let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: src, target: tgt, cause: f.cause };
     let (fin, prevented) = g.run_fx(Effect::MoveCounters { b, damage: move_damage })?;
     if let Effect::MoveCounters { b, damage } = fin {
         let s = &mut g.st.players[b.source.p as usize].slots[b.source.s as usize];
@@ -1333,7 +1354,7 @@ fn mine_to_opp_resume(g: &mut Game, me: CardId, f: &Frame, max: u8, first: Res) 
                 continue;
             }
             g.st.players[source.p as usize].slots[source.s as usize].damage -= damage_to_move;
-            g.run_fx_unit(Effect::PlaceDamageCounters { p: p as u8, target, damage: damage_to_move, source: me })?;
+            g.run_fx_unit(Effect::PlaceDamageCounters { p: p as u8, target, damage: damage_to_move, source: me, cause: f.cause })?;
             total += damage_to_move;
         }
         if total >= limit {
@@ -1546,8 +1567,8 @@ fn evolution_prompt(g: &mut Game, p: usize, from: &'static str, stage: Stage, co
 
 /// An effect evolves the Pokémon with a card from the deck: the same evolution as playing it from the hand,
 /// except that the Evolution isn't played from the hand (no lock or trigger on that applies).
-fn evolve_with(g: &mut Game, p: usize, t: SlotRef, card: CardId) -> R {
-    crate::engine::play::evolve_pokemon(g, p, t, card)
+fn evolve_with(g: &mut Game, p: usize, t: SlotRef, card: CardId, cause: crate::cause::Cause) -> R {
+    crate::engine::play::evolve_pokemon(g, p, t, card, cause)
 }
 
 fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: Stage, then_stage: Option<Stage>, first: Res) -> R<Flow> {
@@ -1568,7 +1589,7 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
         0x20 => {
             let t = SlotRef::new(p, f.sub & 0x0F);
             let Some(evo) = first.cards().first().copied() else { return Ok(Flow::Next) };
-            evolve_with(g, p, t, evo)?;
+            evolve_with(g, p, t, evo, f.cause)?;
             let name = g.st.cdef(evo).name;
             if let Some(st2) = then_stage {
                 if evolves_from_any(name) {
@@ -1581,7 +1602,7 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
         _ => {
             let t = SlotRef::new(p, f.sub & 0x0F);
             if let Some(c) = first.cards().first().copied() {
-                evolve_with(g, p, t, c)?;
+                evolve_with(g, p, t, c, f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -1783,7 +1804,7 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
             EachWhat::ShuffleIntoDeck => {
                 let Some((p, opp, attack, _)) = attack_data(g, f.eff) else { continue };
                 // An effect of the attack on that Pokémon: Mist Energy and the like prevent it.
-                if attack_effect_prevented_on(g, p as usize, opp as usize, pack_attack(attack), slot)? {
+                if attack_effect_prevented_on(g, p as usize, opp as usize, pack_attack(attack), slot, f.cause)? {
                     continue;
                 }
                 move_pokemon_off_board(g, slot, crate::state::ListRef::Deck(slot.p), me)?;
@@ -1815,7 +1836,7 @@ fn evolve_reg_resume(g: &mut Game, _me: CardId, f: &mut Frame, card: u8, first: 
         return Ok(Flow::Next);
     }
     if g.st.locate(evo).is_some() {
-        crate::engine::play::evolve_pokemon(g, t.p as usize, t, evo)?;
+        crate::engine::play::evolve_pokemon(g, t.p as usize, t, evo, f.cause)?;
     }
     Ok(Flow::Next)
 }

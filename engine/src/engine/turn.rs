@@ -10,19 +10,21 @@ use crate::prompts::get_target;
 use crate::state::*;
 use crate::types::*;
 
-/// `Player.switchPokemon(target, store, state)`.
-pub fn switch_pokemon(g: &mut Game, p: usize, target: SlotId) -> R {
-    switch_pokemon_ex(g, p, target, true)
+/// `Player.switchPokemon(target, store, state)`; `cause` is what made the switch (a game rule, an
+/// attack, a Trainer, an Ability).
+pub fn switch_pokemon(g: &mut Game, p: usize, target: SlotId, cause: crate::cause::Cause) -> R {
+    switch_pokemon_ex(g, p, target, Some(cause))
 }
 
 /// `Player.switchPokemon(target)` called without `store, state`: the same
 /// board changes, but no MovedToActiveEffect / MovedFromActiveToBenchEffect
 /// is dispatched (so e.g. ability-lock activation orders are not touched).
 pub fn switch_pokemon_silent(g: &mut Game, p: usize, target: SlotId) -> R {
-    switch_pokemon_ex(g, p, target, false)
+    switch_pokemon_ex(g, p, target, None)
 }
 
-fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> R {
+/// `dispatch`: the switch's cause when the movement effects are dispatched.
+fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: Option<crate::cause::Cause>) -> R {
     let bi = match g.st.players[p].bench_index_of(target) {
         Some(i) => i,
         None => return Ok(()),
@@ -43,16 +45,16 @@ fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> 
             g.st.players[p].moved_to_active_this_turn.push(c);
         }
         g.st.cards[c as usize].moved_to_active_this_turn = true;
-        if dispatch {
-            g.run_fx_unit(Effect::MovedToActive { p: p as u8, card: c })?;
+        if let Some(cause) = dispatch {
+            g.run_fx_unit(Effect::MovedToActive { p: p as u8, card: c, cause })?;
         }
     }
     if let Some(c) = benched_out {
         if !g.st.players[p].moved_from_active_to_bench_this_turn.contains(&c) {
             g.st.players[p].moved_from_active_to_bench_this_turn.push(c);
         }
-        if dispatch {
-            g.run_fx_unit(Effect::MovedFromActiveToBench { p: p as u8, card: c })?;
+        if let Some(cause) = dispatch {
+            g.run_fx_unit(Effect::MovedFromActiveToBench { p: p as u8, card: c, cause })?;
         }
     }
     // The Active Spot changed (a silent switch dispatches nothing): locks may take hold or let go.
@@ -161,7 +163,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
         if uses_turn_attach {
             g.st.players[p].energy_played_turn = g.st.turn;
         }
-        g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card, target: t })?;
+        g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card, target: t, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8) })?;
         return Ok(());
     }
     if d.is_pokemon() {
@@ -170,7 +172,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
             None => crate::bail!("INVALID_TARGET"),
         };
         // useFromHandToBench / Dual Legend: no pool card uses them.
-        g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card, target: t, slot: target.slot, index: target.index })?;
+        g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card, target: t, slot: target.slot, index: target.index, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8) })?;
         return Ok(());
     }
     if d.is_trainer() {

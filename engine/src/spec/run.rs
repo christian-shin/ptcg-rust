@@ -11,6 +11,7 @@
 
 use super::*;
 use crate::cards::CardFrame;
+use crate::cause::{Cause, CauseKind};
 use crate::effects::{EffId, Effect};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
@@ -99,11 +100,36 @@ pub struct Frame {
     pub(crate) last: i32,
     /// The Trainer is used as the effect of an attack (Look-Alike Show); fixed when it starts.
     pub(crate) via_attack: bool,
+    /// What the program's events are caused by (docs/design/events-design.md, section 3): set once when
+    /// the frame is created (`frame_cause`), from what starts the program. Not encoded: a resumed frame
+    /// computes it again from the same fixed fields.
+    pub(crate) cause: Cause,
 }
 
 impl Frame {
-    pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false }
+    pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize, cause: Cause) -> Frame {
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, cause }
+    }
+
+    /// The frame a passive of card `me` (owned by `owner`) evaluates its conditions and numbers in. It runs no
+    /// ops, so no event is made with its cause (the card's own kind: a Pokémon's passive is an Ability's).
+    pub(crate) fn passive(g: &Game, me: CardId, owner: usize) -> Frame {
+        let d = g.st.cdef(me);
+        let cause = if d.is_trainer() {
+            Cause::of_trainer(g, me, owner as u8)
+        } else if d.is_energy() {
+            Cause::new(CauseKind::Energy, Some(me), owner as u8)
+        } else {
+            Cause::new(CauseKind::Ability, Some(me), owner as u8)
+        };
+        Frame::new(Prog::Play, Phase::Use, 0, owner, cause)
+    }
+
+    /// The frame of card `me`'s program `prog`, with its cause (`frame_cause`).
+    pub(crate) fn start(g: &Game, me: CardId, prog: Prog, phase: Phase, eff: EffId, p: usize, via_attack: bool) -> Frame {
+        let mut f = Frame::new(prog, phase, eff, p, frame_cause(g, me, prog, p as u8, eff, via_attack));
+        f.via_attack = via_attack;
+        f
     }
 
     fn prog_code(&self) -> u32 {
@@ -132,7 +158,7 @@ impl Frame {
         f
     }
 
-    fn decode(f: &CardFrame) -> Option<Frame> {
+    fn decode(g: &Game, me: CardId, f: &CardFrame) -> Option<Frame> {
         if f.stage & 0xF0 != SPEC_STAGE {
             return None;
         }
@@ -170,6 +196,11 @@ impl Frame {
             attached_to: ((f.a[2] >> 8) & 0xFF) as u8,
             last: (f.a[2] >> 16) as i16 as i32,
             cards: f.l,
+            cause: Cause::rule(crate::cause::RuleWhich::Setup, 0),
+        })
+        .map(|mut fr| {
+            fr.cause = frame_cause(g, me, fr.prog, fr.p, fr.eff, fr.via_attack);
+            fr
         })
     }
 
@@ -289,6 +320,28 @@ fn list_at(spec: &'static CardSpec, f: &Frame) -> &'static [Step] {
     list
 }
 
+/// The cause of card `me`'s program `prog` run for player `p` (events design, section 3), from what
+/// starts it:
+/// - an attack: `Attack`, the attacking Pokémon (`me`, also the copycat of a copied attack), the attack of
+///   the frame's `AttackEffect`;
+/// - a Trainer: its own kind (Item / Supporter: `Trainer`, Tool, Stadium); used as the effect of an attack
+///   (Look-Alike Show): that attack, the Pokémon that used it;
+/// - an Ability: `Ability`; the Stadium's use: `Stadium`;
+/// - a trigger: the trigger's origin (`Cause::of_origin`), caused by the card's owner.
+pub(crate) fn frame_cause(g: &Game, me: CardId, prog: Prog, p: u8, eff: EffId, via_attack: bool) -> Cause {
+    match prog {
+        Prog::Attack(_) => {
+            let attack = if (eff as usize) < g.fx.len() { attack_data(g, eff).map(|d| d.2) } else { None };
+            Cause { kind: CauseKind::Attack, card: Some(me), player: p, attack }
+        }
+        Prog::Play if via_attack => Cause { kind: CauseKind::Attack, card: g.last_attack.as_ref().and_then(|l| l.pokemon), player: p, attack: g.st.last_attack },
+        Prog::Play => Cause::of_trainer(g, me, p),
+        Prog::Power(_) => Cause::new(CauseKind::Ability, Some(me), p),
+        Prog::UseStadium => Cause::new(CauseKind::Stadium, Some(me), p),
+        Prog::Trigger(i) => Cause::of_origin(spec_of(g, me).triggers[i as usize].origin, me, g.st.owner(me) as u8),
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Entry points
 
@@ -302,19 +355,18 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         if was_attack_used(g, e, a.index, me) {
             if let Some((p, ..)) = attack_data(g, e) {
                 g.spec_choices.retain(|c| c.card != me);
-                run(g, me, Frame::new(Prog::Attack(i as u8), Phase::BeforeDamage, e, p as usize))?;
+                run(g, me, Frame::start(g, me, Prog::Attack(i as u8), Phase::BeforeDamage, e, p as usize, false))?;
             }
         } else if after_attack_used(g, e, a.index, me) {
             let atk = real_attack(g, e);
             if let Some((p, ..)) = attack_data(g, atk) {
-                run(g, me, Frame::new(Prog::Attack(i as u8), Phase::AfterDamage, atk, p as usize))?;
+                run(g, me, Frame::start(g, me, Prog::Attack(i as u8), Phase::AfterDamage, atk, p as usize, false))?;
             }
         }
     }
     if let Some(play) = &spec.play {
         if let Some(p) = trainer_played(g, e, me) {
-            let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
-            f.via_attack = trainer_via_attack(g, e);
+            let f = Frame::start(g, me, Prog::Play, Phase::Use, e, p, trainer_via_attack(g, e));
             check_play(g, me, play, &f)?;
             run(g, me, f)?;
         }
@@ -333,7 +385,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 Effect::Power { p, .. } => p as usize,
                 _ => continue,
             };
-            let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
+            let f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
             check_power(g, me, pw, &f)?;
             if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
                 use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
@@ -345,7 +397,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     if let Some(us) = &spec.use_stadium {
         if let Effect::UseStadium { p, stadium } = *g.e(e) {
             if stadium == me {
-                let f = Frame::new(Prog::UseStadium, Phase::Use, e, p as usize);
+                let f = Frame::start(g, me, Prog::UseStadium, Phase::Use, e, p as usize, false);
                 check_use_stadium(g, me, us, &f)?;
                 run(g, me, f)?;
             }
@@ -357,7 +409,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             continue;
         }
         if let Some((p, slot)) = trigger::fires(g, me, e, t) {
-            let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            let mut f = Frame::start(g, me, Prog::Trigger(i as u8), Phase::Use, e, p, false);
             f.slot = slot;
             if trigger::retains(t) {
                 g.retain_fx(e);
@@ -382,7 +434,7 @@ pub fn after_enter_play(g: &mut Game, e: EffId) -> R {
             continue;
         }
         if let Some((p, slot)) = trigger::fires(g, card, e, t) {
-            let mut f = Frame::new(Prog::Trigger(i as u8), Phase::Use, e, p);
+            let mut f = Frame::start(g, card, Prog::Trigger(i as u8), Phase::Use, e, p, false);
             f.slot = slot;
             run(g, card, f)?;
         }
@@ -457,8 +509,7 @@ pub(crate) fn check_use_stadium(g: &mut Game, me: CardId, us: &PlaySpec, f: &Fra
 pub fn trainer_play_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
     let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
     let Some(play) = &spec.play else { return Ok(()) };
-    let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
-    f.via_attack = trainer_via_attack(g, e);
+    let f = Frame::start(g, me, Prog::Play, Phase::Use, e, p, trainer_via_attack(g, e));
     check_play(g, me, play, &f)
 }
 
@@ -476,7 +527,7 @@ pub fn power_check(g: &mut Game, me: CardId, index: u8, p: usize, e: EffId) -> R
     let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
     for (i, pw) in spec.powers.iter().enumerate() {
         if pw.index == index {
-            let f = Frame::new(Prog::Power(i as u8), Phase::Use, e, p);
+            let f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
             return check_power(g, me, pw, &f);
         }
     }
@@ -487,7 +538,7 @@ pub fn power_check(g: &mut Game, me: CardId, index: u8, p: usize, e: EffId) -> R
 pub fn use_stadium_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
     let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
     let Some(us) = &spec.use_stadium else { return Ok(()) };
-    let f = Frame::new(Prog::UseStadium, Phase::Use, e, p);
+    let f = Frame::start(g, me, Prog::UseStadium, Phase::Use, e, p, false);
     check_use_stadium(g, me, us, &f)
 }
 
@@ -521,7 +572,7 @@ pub fn plays_as_pokemon(spec: &CardSpec) -> bool {
 pub fn attack_gate(g: &mut Game, me: CardId, attack: crate::state::AttackRef, p: usize, e: EffId) -> R<Gate> {
     let Some(spec) = crate::cards::spec_for(g.st.cards[attack.card as usize].def) else { return Ok(Gate::Open) };
     let Some((i, a)) = spec.attacks.iter().enumerate().find(|(_, a)| a.index == attack.idx() as u8) else { return Ok(Gate::Open) };
-    let f = Frame::new(Prog::Attack(i as u8), Phase::BeforeDamage, e, p);
+    let f = Frame::start(g, me, Prog::Attack(i as u8), Phase::BeforeDamage, e, p, false);
     let mut leading = true;
     for s in a.steps {
         match &s.op {
@@ -547,7 +598,7 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
     if cf.stage == passive::HEAVY_BATON_STAGE {
         return passive::heavy_baton_resume(g, cf, results);
     }
-    let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
+    let Some(mut f) = Frame::decode(g, me, &cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
     let flow = if f.sub == COIN_SEQUENCE {
@@ -564,7 +615,7 @@ pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
 
 /// `CardImpl::coin` of every spec card: the result of a single flip.
 pub fn coin(g: &mut Game, me: CardId, cf: CardFrame, heads: bool) -> R {
-    let Some(mut f) = Frame::decode(&cf) else { return Ok(()) };
+    let Some(mut f) = Frame::decode(g, me, &cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;
     let flow = ops::coin_result(g, me, &mut f, op, heads)?;

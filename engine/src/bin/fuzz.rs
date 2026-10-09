@@ -159,6 +159,9 @@ fn main() {
         std::fs::write(d.join("summary.json"), serde_json::to_string_pretty(&summary).unwrap()).unwrap();
     }
     ptcg::legal_stats::print_table();
+    if ptcg::cause::verify() {
+        print!("{}", ptcg::cause::report());
+    }
     if !t.failures.is_empty() {
         std::process::exit(1);
     }

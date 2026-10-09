@@ -242,7 +242,7 @@ fn atk_base(g: &Game, atk: EffId) -> AtkBase {
     match *g.e(atk) {
         Effect::Attack { p, opp, attack, source, .. } => {
             let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-            AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target }
+            AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target, cause: crate::cause::Cause::of_attack_at(g, p, attack, source) }
         }
         _ => panic!("atk_base on non-attack effect"),
     }
@@ -700,7 +700,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                         src = SlotRef::new(ap, *s);
                     }
                 }
-                let rb = AtkBase { attack_effect, player: opp, opponent: p, attack: r.attack, source: src, target: source };
+                // The retaliation is an effect of the retaliator's own earlier attack.
+                let cause = crate::cause::Cause::attack(opp, Some(r.source_card), r.attack);
+                let rb = AtkBase { attack_effect, player: opp, opponent: p, attack: r.attack, source: src, target: source, cause };
                 let _ = attack;
                 g.run_fx_unit(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
             }
@@ -758,7 +760,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::GustOpponentBench { b } => {
-            crate::engine::turn::switch_pokemon(g, b.opponent as usize, b.target.s)?;
+            crate::engine::turn::switch_pokemon(g, b.opponent as usize, b.target.s, b.cause)?;
             Ok(())
         }
         Effect::MoveOpponentEnergy { b, card, destination } => {
@@ -772,7 +774,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::HealTarget { b, damage } => {
             let owner = b.target.p;
-            g.run_fx_unit(Effect::Heal { p: owner, target: b.target, damage })?;
+            g.run_fx_unit(Effect::Heal { p: owner, target: b.target, damage, cause: b.cause })?;
             Ok(())
         }
         Effect::AddSpecialConditions { b, conditions, poison_damage, burn_damage, confusion_damage } => {
@@ -901,7 +903,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::SwitchOutOpponentsActive { b, bench_target } => {
             if let Some(t) = bench_target {
-                crate::engine::turn::switch_pokemon(g, b.opponent as usize, t.s)?;
+                crate::engine::turn::switch_pokemon(g, b.opponent as usize, t.s, b.cause)?;
             }
             Ok(())
         }

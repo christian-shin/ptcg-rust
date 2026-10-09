@@ -3,6 +3,7 @@
 //! and are addressed by [`EffId`] so continuations can share them the way
 //! Twinleaf closures share effect objects.
 
+use crate::cause::Cause;
 use crate::list::*;
 use crate::state::{AttackRef, ListRef, SlotId};
 use crate::types::*;
@@ -65,6 +66,9 @@ pub struct AtkBase {
     pub attack: AttackRef,
     pub source: SlotRef,
     pub target: SlotRef,
+    /// What caused the effect (events batch 1: filled at every construction, not read yet; the readers
+    /// still infer "effect of an attack" from the presence of the `AtkBase`).
+    pub cause: Cause,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -118,18 +122,18 @@ pub enum Effect {
     /// `defer_removal`: the Check State step announces every Knock Out first and takes the
     /// Pokémon out of play later (`game_effect::complete_knock_out`).
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
-    Heal { p: u8, target: SlotRef, damage: i32 },
+    Heal { p: u8, target: SlotRef, damage: i32, cause: Cause },
     /// Every evolution: played from the hand, Rare Candy, and the effects that evolve from the deck or
     /// elsewhere. `from` is the zone the Evolution card comes from (locks and triggers on "from your hand" read it).
-    Evolve { p: u8, target: SlotRef, card: CardId, from: ListRef },
+    Evolve { p: u8, target: SlotRef, card: CardId, from: ListRef, cause: Cause },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
-    EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
+    EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
-    PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId },
+    PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId, cause: Cause },
     MoveDamageCounters { p: u8 },
-    MovedToActive { p: u8, card: CardId },
-    MovedFromActiveToBench { p: u8, card: CardId },
+    MovedToActive { p: u8, card: CardId, cause: Cause },
+    MovedFromActiveToBench { p: u8, card: CardId, cause: Cause },
 
     // ---- attack sub-effects ----
     ApplyWeakness { b: AtkBase, damage: i32, ignore_weakness: bool, ignore_resistance: bool },
@@ -178,7 +182,7 @@ pub enum Effect {
     /// opponent's current Active.
     DefendingPokemonTakesMoreDamage { b: AtkBase, damage_bonus: i32 },
     /// `AddSpecialConditionsPowerEffect` (check-effects; non-attack source).
-    AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32 },
+    AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32, cause: Cause },
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
     /// `attackDamageReductionNextTurn = max(0, reduction)`.
     ReduceDamage { b: AtkBase, reduction: i32 },
@@ -229,8 +233,8 @@ pub enum Effect {
     Devolve { b: AtkBase },
 
     // ---- play card ----
-    AttachEnergy { p: u8, card: CardId, target: SlotRef },
-    PlayPokemon { p: u8, card: CardId, target: SlotRef, slot: SlotType, index: u8 },
+    AttachEnergy { p: u8, card: CardId, target: SlotRef, cause: Cause },
+    PlayPokemon { p: u8, card: CardId, target: SlotRef, slot: SlotType, index: u8, cause: Cause },
     PlaySupporter { p: u8, card: CardId, target: Option<SlotRef> },
     PlayStadium { p: u8, card: CardId },
     AttachPokemonTool { p: u8, card: CardId, target: SlotRef },
@@ -244,7 +248,7 @@ pub enum Effect {
     Supporter { p: u8, card: CardId },
     TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
     DiscardToHand { p: u8, card: CardId },
-    PlayPokemonFromDeck { p: u8, card: CardId, target: SlotRef },
+    PlayPokemonFromDeck { p: u8, card: CardId, target: SlotRef, cause: Cause },
     PlayPokemonFromDiscard { p: u8, card: CardId, target: SlotRef },
     /// `mode`: 0 = until tails, n = n flips. `callback` indexes `coin_callbacks`.
     CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool },
@@ -662,3 +666,26 @@ impl std::ops::BitOrAssign for KindMask {
 }
 
 pub const ALL_KINDS: KindMask = KindMask([u64::MAX; 4]);
+
+impl Effect {
+    /// The effect's `Cause`, for the effects that carry one (events batch 1).
+    pub fn cause(&self) -> Option<Cause> {
+        use Effect::*;
+        if let Some(b) = self.atk_base() {
+            return Some(b.cause);
+        }
+        match *self {
+            MovedToActive { cause, .. }
+            | MovedFromActiveToBench { cause, .. }
+            | Heal { cause, .. }
+            | Evolve { cause, .. }
+            | EffectOfAbility { cause, .. }
+            | PlaceDamageCounters { cause, .. }
+            | AddSpecialConditionsPower { cause, .. }
+            | AttachEnergy { cause, .. }
+            | PlayPokemon { cause, .. }
+            | PlayPokemonFromDeck { cause, .. } => Some(cause),
+            _ => None,
+        }
+    }
+}

@@ -97,7 +97,7 @@ mod tests {
             source,
             barrage_used: false,
         });
-        let b = AtkBase { attack_effect: atk, player: me as u8, opponent: (1 - me) as u8, attack, source, target: source };
+        let b = AtkBase { attack_effect: atk, player: me as u8, opponent: (1 - me) as u8, attack, source, target: source, cause: crate::cause::Cause::of_attack_at(&g, me as u8, attack, source) };
         let mut cards = SVec::new();
         cards.push(card);
         g.run_fx(Effect::DiscardCards { b, cards }).unwrap();
@@ -111,7 +111,7 @@ mod tests {
     fn re_attached_to_the_pokemon_it_came_from_after_it_moves() {
         let (g, me, card) = run(|g, me| {
             let bench = g.st.players[me].bench.as_slice()[0];
-            crate::engine::turn::switch_pokemon(g, me, bench).unwrap();
+            crate::engine::turn::switch_pokemon(g, me, bench, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, me as u8)).unwrap();
         });
         let on_bench = g.st.players[me].bench.as_slice().iter().any(|&s| g.st.slot(me, s).cards.contains(card));
         assert!(on_bench, "back on the Pokémon that is now Benched");

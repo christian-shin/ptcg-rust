@@ -36,7 +36,7 @@ fn retreat_pokemon(g: &mut Game, p: usize, bench_index: u8) -> R {
         return Ok(());
     }
     g.st.players[p].retreated_turn = g.st.turn;
-    switch_pokemon(g, p, bench)
+    switch_pokemon(g, p, bench, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8))
 }
 
 fn energy_cards(map: &EnergyMap) -> Vec<CardId> {

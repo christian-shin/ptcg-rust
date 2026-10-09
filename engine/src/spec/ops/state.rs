@@ -180,7 +180,7 @@ pub fn has_marker(g: &Game, me: CardId, p: usize, name: &'static str, from: Mark
 
 fn attack_base(g: &Game, atk: crate::effects::EffId, target: SlotRef) -> Option<AtkBase> {
     match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => Some(AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target }),
+        Effect::Attack { p, opp, attack, source, .. } => Some(AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target, cause: crate::cause::Cause::of_attack_at(g, p, attack, source) }),
         _ => None,
     }
 }

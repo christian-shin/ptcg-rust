@@ -11,7 +11,7 @@ use crate::types::*;
 
 pub fn play_energy_reducer(g: &mut Game, id: EffId) -> R {
     let (p, card, target) = match *g.e(id) {
-        Effect::AttachEnergy { p, card, target } => (p as usize, card, target),
+        Effect::AttachEnergy { p, card, target, .. } => (p as usize, card, target),
         _ => return Ok(()),
     };
     if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
@@ -64,7 +64,7 @@ pub fn can_evolve_from(g: &Game, base: CardId, evo: CardId) -> bool {
 /// `play-pokemon-from-deck-effect.ts` / `...-from-discard-effect.ts`.
 pub fn play_pokemon_from_zone_reducer(g: &mut Game, id: EffId) -> R {
     let (p, card, target, src) = match *g.e(id) {
-        Effect::PlayPokemonFromDeck { p, card, target } => (p, card, target, ListRef::Deck(p)),
+        Effect::PlayPokemonFromDeck { p, card, target, .. } => (p, card, target, ListRef::Deck(p)),
         Effect::PlayPokemonFromDiscard { p, card, target } => (p, card, target, ListRef::Discard(p)),
         _ => return Ok(()),
     };
@@ -136,8 +136,8 @@ pub fn can_evolve_now(g: &Game, p: usize, played: i32, first_turn_ok: bool) -> R
 }
 
 pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
-    let (p, card, target) = match *g.e(id) {
-        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
+    let (p, card, target, cause) = match *g.e(id) {
+        Effect::PlayPokemon { p, card, target, cause, .. } => (p as usize, card, target, cause),
         _ => return Ok(()),
     };
     if can_play_pokemon(g, p, card, target)? == PokemonPlay::Basic {
@@ -148,15 +148,15 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
     }
     let (played, first_turn_ok) = read_pokemon_played_turn(g, p, target)?;
     can_evolve_now(g, p, played, first_turn_ok)?;
-    evolve_pokemon(g, p, target, card)
+    evolve_pokemon(g, p, target, card, cause)
 }
 
 /// The one evolution routine, for every way a Pokémon evolves (played from the hand, Rare Candy, an effect that
 /// evolves it with a card from the deck or elsewhere): the Evolve event carrying the card's source zone, then
 /// what evolving does to the Pokémon ([`finish_evolution`]).
-pub fn evolve_pokemon(g: &mut Game, p: usize, target: SlotRef, card: CardId) -> R {
+pub fn evolve_pokemon(g: &mut Game, p: usize, target: SlotRef, card: CardId, cause: crate::cause::Cause) -> R {
     let from = g.st.locate(card).unwrap_or(ListRef::Hand(p as u8));
-    g.run_fx_unit(Effect::Evolve { p: p as u8, target, card, from })?;
+    g.run_fx_unit(Effect::Evolve { p: p as u8, target, card, from, cause })?;
     finish_evolution(g, p, target)
 }
 

@@ -438,7 +438,7 @@ fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     let o = opp as usize;
     let target = crate::effects::SlotRef::new(o, g.st.players[o].active);
-    let b = crate::effects::AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
+    let b = crate::effects::AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target, cause: f.cause };
     g.run_fx_unit(crate::effects::Effect::OpponentPokemonCannotUseAttack { b, name })?;
     Ok(())
 }

@@ -185,7 +185,7 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             Some((p, None))
         }
         Event::OnAttach(a) => {
-            let Effect::AttachEnergy { p, card, target } = *g.e(e) else { return None };
+            let Effect::AttachEnergy { p, card, target, .. } = *g.e(e) else { return None };
             if card != me || (a.from_hand && !g.st.players[p as usize].hand.contains(me)) {
                 return None;
             }
@@ -252,7 +252,7 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             }
         }
         Event::OnMoved(OnMovedSpec { to: MovedTo::Bench }) => {
-            let Effect::MovedFromActiveToBench { p, card } = *g.e(e) else { return None };
+            let Effect::MovedFromActiveToBench { p, card, .. } = *g.e(e) else { return None };
             let p = p as usize;
             if card != me || g.st.active_player as usize != p || !g.st.players[p].moved_from_active_to_bench_this_turn.contains(&me) {
                 return None;
@@ -263,13 +263,13 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             Some((p, None))
         }
         Event::OnMoved(OnMovedSpec { to: MovedTo::Active }) => {
-            let Effect::MovedToActive { p, card } = *g.e(e) else { return None };
+            let Effect::MovedToActive { p, card, .. } = *g.e(e) else { return None };
             let p = p as usize;
             (card == me && g.st.active_player as usize == p && g.st.players[p].moved_to_active_this_turn.contains(&me)).then_some((p, None))
         }
         Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::PutOnBench { basic, not_type } }) => {
             let (p, card, target) = match *g.e(e) {
-                Effect::PlayPokemon { p, card, target, .. } | Effect::PlayPokemonFromDeck { p, card, target } | Effect::PlayPokemonFromDiscard { p, card, target } => {
+                Effect::PlayPokemon { p, card, target, .. } | Effect::PlayPokemonFromDeck { p, card, target, .. } | Effect::PlayPokemonFromDiscard { p, card, target } => {
                     (p as usize, card, target)
                 }
                 _ => return None,

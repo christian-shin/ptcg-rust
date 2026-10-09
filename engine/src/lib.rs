@@ -5,6 +5,7 @@
 //! state: a whole game, including pending prompts, is `Copy`.
 
 pub mod canonical;
+pub mod cause;
 pub mod spec;
 pub mod carddb;
 pub mod copy_attack;

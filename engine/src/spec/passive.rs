@@ -867,7 +867,7 @@ pub(crate) fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located,
 }
 
 fn guard_ok(g: &Game, me: CardId, owner: usize, guard: &Cond) -> bool {
-    let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, owner);
+    let f = run::Frame::passive(g, me, owner);
     cond(g, me, &f, guard)
 }
 
@@ -934,7 +934,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
                 return Ok(());
             }
-            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: at.owner as u8, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(target) })?;
+            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: at.owner as u8, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(target), cause: crate::cause::Cause::of_origin(ps.origin, me, at.owner as u8) })?;
             if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
                 if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(e) {
                     weakness.clear();
@@ -1267,7 +1267,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
         return Ok(());
     }
     let n = {
-        let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, at.owner);
+        let f = run::Frame::passive(g, me, at.owner);
         if !cond(g, me, &f, &c.guard) {
             return Ok(());
         }
@@ -1328,7 +1328,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
         return Ok(());
     }
     let n = {
-        let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, at.owner);
+        let f = run::Frame::passive(g, me, at.owner);
         if !cond(g, me, &f, &c.guard) {
             return Ok(());
         }
@@ -2610,7 +2610,7 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
             }
             if power_effect {
                 // CAN_APPLY_LOCK_TO_TARGET
-                return Ok(match g.run_fx(Effect::EffectOfAbility { p: locker_owner as u8, power: own, card: me, target: Some(slot) }) {
+                return Ok(match g.run_fx(Effect::EffectOfAbility { p: locker_owner as u8, power: own, card: me, target: Some(slot), cause: crate::cause::Cause::new(crate::cause::CauseKind::Ability, Some(me), locker_owner as u8) }) {
                     Ok((Effect::EffectOfAbility { target, .. }, _)) => target.is_some(),
                     _ => false,
                 });
@@ -2661,7 +2661,7 @@ fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
 
 /// A guard evaluated with checked reads (Energy provided, types as the game checks them).
 fn guard_ok_m(g: &mut Game, me: CardId, owner: usize, guard: &Cond) -> R<bool> {
-    let f = run::Frame::new(run::Prog::Play, run::Phase::Use, 0, owner);
+    let f = run::Frame::passive(g, me, owner);
     cond_m(g, me, &f, guard)
 }
 
@@ -3064,7 +3064,7 @@ mod ace_spec_tests {
         let me = g.st.active_player as usize;
         let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
         let target = SlotRef::new(me, g.st.players[me].active);
-        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target }).map(|_| ()).map_err(|e| e.0)
+        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8) }).map(|_| ()).map_err(|e| e.0)
     }
 
     /// Enriching Energy draws 4 cards only when attached from the hand (hand size after minus before).
@@ -3082,7 +3082,7 @@ mod ace_spec_tests {
         let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
         let before = g.st.players[me].hand.len() as i32;
         let target = SlotRef::new(me, g.st.players[me].active);
-        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target }).unwrap();
+        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8) }).unwrap();
         g.settle().ok();
         g.st.players[me].hand.len() as i32 - before
     }

@@ -420,7 +420,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[target.p as usize].slots[target.s as usize].damage += damage.max(0);
             Ok(())
         }
-        Effect::Evolve { p, target, card, from } => evolve(g, p as usize, target, card, from),
+        Effect::Evolve { p, target, card, from, .. } => evolve(g, p as usize, target, card, from),
         Effect::AddSpecialConditionsPower { target, conditions, poison_damage, burn_damage, sleep_flips, confusion_damage, .. } => {
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             for &c in conditions.iter() {
@@ -527,7 +527,9 @@ pub fn little_grudge_discard(g: &mut Game, owner: usize, prize_taker: usize, att
         source,
         barrage_used: false,
     });
-    let b = AtkBase { attack_effect: atk, player: owner as u8, opponent: prize_taker as u8, attack, source, target };
+    // An effect of the Knocked Out Pokémon's own earlier attack (Little Grudge).
+    let cause = crate::cause::Cause::attack(owner as u8, Some(source_card), attack);
+    let b = AtkBase { attack_effect: atk, player: owner as u8, opponent: prize_taker as u8, attack, source, target, cause };
     let mut cs = SVec::new();
     for c in cards {
         cs.push(*c);

@@ -469,6 +469,8 @@ impl Game {
     // Effect arena
 
     pub fn new_fx(&mut self, e: Effect) -> EffId {
+        // Events batch 1: the effect's `Cause` against the old inference (VERIFY only).
+        crate::cause::verify_effect(self, &e);
         self.fx.push(EffSlot { e, prevent_default: false, refs: 1, flags: 0 });
         (self.fx.len() - 1) as EffId
     }

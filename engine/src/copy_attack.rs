@@ -449,7 +449,7 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
             };
             if damage > 0 {
                 let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-                let b = AtkBase { attack_effect: f.atk, player: p, opponent: opp, attack: f.attack, source: f.src_slot, target };
+                let b = AtkBase { attack_effect: f.atk, player: p, opponent: opp, attack: f.attack, source: f.src_slot, target, cause: crate::cause::Cause::of_attack_at(g, p, f.attack, f.src_slot) };
                 let r = g.run_fx(Effect::DealDamage { b, damage }).map(|_| ());
                 return finish_step(g, f, r, wait_if_prompts);
             }
