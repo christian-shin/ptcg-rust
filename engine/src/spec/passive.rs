@@ -321,34 +321,120 @@ pub enum PreventWhat {
 pub struct PreventSpec {
     pub what: PreventWhat,
 }
-/// What a blocker stops.
+/// Whom a lock stops, relative to the owner of the lock's source.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum BlockWhat {
-    // --- S3-4 appends (the new kinds are listed first) ---
-    /// While this Pokémon is the Active Pokémon, the opponent can't play Pokémon with Abilities from
-    /// their hand, except Pokémon with this card tag.
-    PlayAbilityPokemon(u32),
-    /// While this Pokémon is the Active Pokémon, the opponent can't play Item cards from their hand.
-    OpponentItems,
-    /// The Stadium in play can't be used (it has no use text of its own).
-    UseStadium,
-    /// This Pokémon can't be put into play by evolving (Palafin ex: only by Zero to Hero).
-    /// No Ability-lock probe, as today (I-HD-palafin).
-    EvolveIntoThis,
-    /// The opponent can't play ACE SPEC cards from their hand (Genesect's Ace Canceller) while
-    /// the Pokémon has a Tool attached. Cards attached by an effect from another zone are not
-    /// played from the hand. The lock probe is made for the playing player.
-    AceSpecOfOpponent,
-    /// This Pokémon can't retreat while it is the Active Pokémon (Fossils).
-    RetreatThisActive,
-    /// The opponent can't play Item cards or attach Pokémon Tools while this Pokémon is your
-    /// Active Pokémon (Oceanic Curse): BLOCKED_BY_ABILITY unless the Ability is blocked.
-    ItemAndToolOfOpponent,
+pub enum Binds {
+    /// The player who isn't the source's owner.
+    Opponent,
+    /// The source's owner.
+    Owner,
+    /// Either player.
+    Both,
 }
 
-pub struct BlockUseSpec {
-    pub what: BlockWhat,
+/// An action a lock can stop. The card the lock's `card` / `except` predicates read is the card the action
+/// uses: the card played from the hand, the Pokémon retreating, the Stadium being used.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LockedAction {
+    /// Play an Item card from the hand.
+    PlayItem,
+    PlaySupporter,
+    PlayStadium,
+    /// Attach a Pokémon Tool card from the hand (a Tool put on by an effect from another zone is not
+    /// "played from the hand").
+    AttachTool,
+    /// Attach an Energy card from the hand.
+    AttachEnergy,
+    /// Play a Pokémon card from the hand: onto the Bench, or onto a Pokémon to evolve it.
+    PlayPokemon,
+    /// Evolve a Pokémon with a card from the hand, by playing it or with Rare Candy (an Evolution card that
+    /// comes from another zone doesn't pass through this action).
+    Evolve,
+    /// Retreat the Active Pokémon (the card is that Pokémon).
+    Retreat,
+    /// Use the Stadium in play (the card is the Stadium).
+    UseStadium,
 }
+
+impl LockedAction {
+    /// The effect kind that carries this action.
+    pub const fn kind(self) -> u32 {
+        use crate::effects::k;
+        match self {
+            LockedAction::PlayItem => k::PLAY_ITEM,
+            LockedAction::PlaySupporter => k::PLAY_SUPPORTER,
+            LockedAction::PlayStadium => k::PLAY_STADIUM,
+            LockedAction::AttachTool => k::ATTACH_POKEMON_TOOL,
+            LockedAction::AttachEnergy => k::ATTACH_ENERGY,
+            LockedAction::PlayPokemon => k::PLAY_POKEMON,
+            LockedAction::Evolve => k::EVOLVE,
+            LockedAction::Retreat => k::RETREAT,
+            LockedAction::UseStadium => k::USE_STADIUM,
+        }
+    }
+}
+
+/// A condition on the lock's source that must hold for the lock to be on. The source also has to be in place
+/// for its origin (a Pokémon with the Ability in play, the Stadium in play, ...), as for every passive.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LockWhile {
+    /// The source is its owner's Active Pokémon.
+    Active,
+    /// The source's Pokémon has a Pokémon Tool attached.
+    HasTool,
+    /// The card the action uses is the source itself (the Pokémon evolving into it, the Active Pokémon
+    /// that retreats, the Stadium being used).
+    CardIsSource,
+}
+
+/// A play or use lock, declared as data (`play_locked` evaluates it for execution and for legality): the
+/// players it `binds`, the `actions` it stops, a predicate over the card the action uses (`card`, minus
+/// `except`), the source's conditions (`while_`), and whether the source's Ability has to be on
+/// (`ability`: a lock whose source has no Ability is off, so Jellicent ex's Item lock ends when Iron Thorns
+/// ex removes its Ability). `error` is the code the blocked action fails with.
+pub struct BlockUseSpec {
+    pub binds: Binds,
+    pub actions: &'static [LockedAction],
+    pub card: Pred,
+    pub except: Pred,
+    pub while_: &'static [LockWhile],
+    pub ability: bool,
+    pub error: &'static str,
+}
+
+impl BlockUseSpec {
+    /// The Stadium in play can't be used (it has no use text of its own).
+    pub const USE_STADIUM: BlockUseSpec = BlockUseSpec {
+        binds: Binds::Both,
+        actions: &[LockedAction::UseStadium],
+        card: Pred::Any,
+        except: Pred::False,
+        while_: &[LockWhile::CardIsSource],
+        ability: false,
+        error: "CANNOT_USE_STADIUM",
+    };
+    /// This Pokémon can't retreat while it is the Active Pokémon (the Antique Fossils).
+    pub const RETREAT_THIS_ACTIVE: BlockUseSpec = BlockUseSpec {
+        binds: Binds::Owner,
+        actions: &[LockedAction::Retreat],
+        card: Pred::Any,
+        except: Pred::False,
+        while_: &[LockWhile::Active, LockWhile::CardIsSource],
+        ability: false,
+        error: "CANNOT_RETREAT",
+    };
+}
+
+const fn block_kinds(actions: &[LockedAction]) -> KindMask {
+    let mut m = KindMask::EMPTY;
+    let mut i = 0;
+    while i < actions.len() {
+        m = crate::spec::with(m, actions[i].kind());
+        i += 1;
+    }
+    m
+}
+
 /// Where the locking card must be.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Locker {
@@ -617,15 +703,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
                 mask(&[k::ATTACK])
             }
         }
-        Modifier::BlockUse(b) => match b.what {
-            BlockWhat::PlayAbilityPokemon(_) => mask(&[k::PLAY_POKEMON]),
-            BlockWhat::OpponentItems => mask(&[k::PLAY_ITEM]),
-            BlockWhat::UseStadium => mask(&[k::USE_STADIUM]),
-            BlockWhat::EvolveIntoThis => mask(&[k::EVOLVE]),
-            BlockWhat::AceSpecOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL, k::ATTACH_ENERGY, k::PLAY_STADIUM]),
-            BlockWhat::RetreatThisActive => mask(&[k::RETREAT]),
-            BlockWhat::ItemAndToolOfOpponent => mask(&[k::PLAY_ITEM, k::ATTACH_POKEMON_TOOL]),
-        },
+        Modifier::BlockUse(b) => block_kinds(b.actions),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
         Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
@@ -753,22 +831,14 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
-        Modifier::BlockUse(b) => match (b.what, *g.e(e)) {
-            (BlockWhat::UseStadium, Effect::UseStadium { .. }) if g.st.stadium_card() == Some(me) => crate::bail!("CANNOT_USE_STADIUM"),
-            (BlockWhat::EvolveIntoThis, Effect::Evolve { card, .. }) if card == me => crate::bail!("CANNOT_EVOLVE"),
-            (BlockWhat::AceSpecOfOpponent, _) => ace_spec_of_opponent(g, me, e),
-            (BlockWhat::RetreatThisActive, Effect::Retreat { p, .. }) if g.st.active_pokemon(p as usize) == Some(me) => crate::bail!("CANNOT_RETREAT"),
-            (BlockWhat::ItemAndToolOfOpponent, Effect::PlayItem { p, .. } | Effect::AttachPokemonTool { p, .. }) => {
-                let opp = 1 - p as usize;
-                if g.st.active_pokemon(opp) == Some(me) && !is_ability_blocked(g, opp, me, None) {
-                    crate::bail!("BLOCKED_BY_ABILITY");
-                }
-                Ok(())
+        Modifier::BlockUse(_) => {
+            // The same query legality asks (`play_locked`), restricted to this source.
+            let Some((p, card, action)) = effect_action(g, e) else { return Ok(()) };
+            match play_locked_by(g, me, p, card, action) {
+                Some(code) => crate::bail!(code),
+                None => Ok(()),
             }
-            (BlockWhat::PlayAbilityPokemon(tag), Effect::PlayPokemon { .. }) => block_ability_pokemon(g, me, e, tag),
-            (BlockWhat::OpponentItems, Effect::PlayItem { .. }) => block_items(g, me, e),
-            _ => Ok(()),
-        },
+        }
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
         Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
         Modifier::AttachGuard(a) => attach_guard(g, me, e, a),
@@ -1718,30 +1788,226 @@ fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 // ---------------------------------------------------------------------------
 // Blocked plays
 
-/// Genesect's Ace Canceller.
-fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
-    let (p, card) = match *g.e(e) {
-        Effect::PlayItem { p, card, .. } | Effect::AttachPokemonTool { p, card, .. } | Effect::AttachEnergy { p, card, .. } | Effect::PlayStadium { p, card } => (p as usize, card),
-        _ => return Ok(()),
+// ---------------------------------------------------------------------------
+// Play and use locks (`Modifier::BlockUse`), declared as data
+//
+// `play_locked` is the one query: execution (the passive's handler, per lock source, via
+// `play_locked_by`) and legality (all sources) read the same declarations, so they can't drift.
+
+/// The action an effect carries when a lock can stop it: (the acting player, the card the action uses,
+/// the action). Attaching a Tool or an Energy counts only when the card is in the hand ("played from the
+/// hand"; a card put on by an effect from the deck or the discard pile isn't).
+pub(crate) fn effect_action(g: &Game, e: EffId) -> Option<(usize, CardId, LockedAction)> {
+    Some(match *g.e(e) {
+        Effect::PlayItem { p, card, .. } => (p as usize, card, LockedAction::PlayItem),
+        Effect::PlaySupporter { p, card, .. } => (p as usize, card, LockedAction::PlaySupporter),
+        Effect::PlayStadium { p, card } => (p as usize, card, LockedAction::PlayStadium),
+        Effect::AttachPokemonTool { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, LockedAction::AttachTool),
+        Effect::AttachEnergy { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, LockedAction::AttachEnergy),
+        Effect::PlayPokemon { p, card, .. } => (p as usize, card, LockedAction::PlayPokemon),
+        Effect::Evolve { p, card, .. } => (p as usize, card, LockedAction::Evolve),
+        Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, LockedAction::Retreat),
+        Effect::UseStadium { p, stadium } => (p as usize, stadium, LockedAction::UseStadium),
+        _ => return None,
+    })
+}
+
+/// Is player `p` stopped from doing `action` with `card` (the card played from the hand, the retreating
+/// Pokémon, the Stadium being used)? The error code of the first lock that stops it, in the order the
+/// effect reaches the lock sources (the game's propagation order); `None` when no lock does.
+///
+/// Walks every card with a `BlockUse` declaration for the action and evaluates it (`lock_blocks`). A lock
+/// whose source has no Ability is off. A card in the hand is judged by its printed data. Locks that last
+/// (`cannot_play_item_cards` and the like, set by attacks) are player flags checked by the core reducers,
+/// not here.
+pub fn play_locked(g: &mut Game, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
+    let kind = action.kind();
+    if !g.kinds_present.has(kind) {
+        return None;
+    }
+    // The order only depends on the kind (every action's effect ranks cards by their super type).
+    let probe = Effect::PlayItem { p: p as u8, card, target: None };
+    let order = g.propagation_order(&probe, kind);
+    for c in order.iter().copied() {
+        if let Some(code) = play_locked_by(g, c, p, card, action) {
+            return Some(code);
+        }
+    }
+    None
+}
+
+/// `play_locked` for one lock source: the passive handler of `me` calls this, at the point the effect
+/// reaches it.
+pub(crate) fn play_locked_by(g: &mut Game, me: CardId, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    for ps in passives {
+        if let Modifier::BlockUse(b) = &ps.modifier {
+            if let Some(code) = lock_blocks(g, me, ps.origin, b, p, card, action) {
+                return Some(code);
+            }
+        }
+    }
+    None
+}
+
+/// Does the lock `b`, declared by `me`, stop player `p` from doing `action` with `card`?
+fn lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
+    if !b.actions.contains(&action) {
+        return None;
+    }
+    let at = locate(g, me, origin)?;
+    let binds = match b.binds {
+        Binds::Opponent => p == 1 - at.owner,
+        Binds::Owner => p == at.owner,
+        Binds::Both => true,
     };
-    if !g.st.cdef(card).has_tag(tag::ACE_SPEC) {
-        return Ok(());
+    if !binds {
+        return None;
     }
-    // Only cards played from the hand: an Energy or Tool put onto a Pokémon from the deck or discard pile
-    // by an effect is not "played from the hand" (A-PC6).
-    if matches!(*g.e(e), Effect::AttachPokemonTool { .. } | Effect::AttachEnergy { .. }) && !g.st.players[p].hand.contains(card) {
-        return Ok(());
+    for w in b.while_ {
+        let on = match w {
+            LockWhile::Active => g.st.active_pokemon(at.owner) == Some(me),
+            LockWhile::HasTool => at.held.map_or(false, |h| !g.st.slot(h.p as usize, h.s).tools.is_empty()),
+            LockWhile::CardIsSource => card == me,
+        };
+        if !on {
+            return None;
+        }
     }
-    let o = 1 - p;
-    let active = for_each_pokemon(g, o, PlayerType::TopPlayer).iter().any(|(s, c, _)| *c == me && !g.st.slot(o, *s).tools.is_empty());
-    if !active {
-        return Ok(());
+    // The card is judged by its printed data.
+    if !pred(g, card, &b.card) || pred(g, card, &b.except) {
+        return None;
     }
-    // The lock probe is made for the playing player (today's behavior).
-    if is_ability_blocked(g, p, me, None) {
-        return Ok(());
+    if b.ability && !source_ability_on(g, at.owner, me) {
+        return None;
     }
-    crate::bail!("BLOCKED_BY_EFFECT")
+    Some(b.error)
+}
+
+/// Does the lock source `me` have its Ability: the stored lock state when it can say, else the probe
+/// (`PTCG_VERIFY_LEGAL=1` checks the two against each other).
+fn source_ability_on(g: &mut Game, owner: usize, me: CardId) -> bool {
+    let off = ability_off(g, me);
+    match off {
+        Some(off) if !verify_ability_off() => !off,
+        _ => {
+            let blocked = is_ability_blocked(g, owner, me, None);
+            if let Some(off) = off {
+                assert_eq!(off, blocked, "ability_off differs from the lock probe for card {me}");
+            }
+            !blocked
+        }
+    }
+}
+
+fn verify_ability_off() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("PTCG_VERIFY_LEGAL").map_or(false, |v| v == "1"))
+}
+
+/// Is the Pokémon card's Ability off (turned off by a lock, the generic Ability probe)? Answered from the
+/// stored lock state (`CardInst::lock_stamp` of every lock source, as `lock_sync` keeps it) and the lock
+/// declarations, without running an effect; `None` when it can't be sure:
+/// * a copied attack is being run (`deleg`) for another card, or a lock sync is running;
+/// * a lock source that is in place has no stamp: it is off by another lock, or the stamps are not yet
+///   synced;
+/// * a lock that covers a lock source (whether it wins is `lock_beats`, a checked read);
+/// * Damp (only Abilities that Knock Out their user are removed, so a generic answer isn't defined) when the
+///   card has such an Ability;
+/// * a Pokémon type that is a checked read while a card changes types.
+///
+/// A card that isn't a Pokémon in play (the hand, the discard pile) has its printed Ability: no lock reaches it.
+pub fn ability_off(g: &Game, card: CardId) -> Option<bool> {
+    use crate::effects::k;
+    if let Some(d) = g.deleg {
+        return if d.attacks && d.copycat == card { Some(true) } else { None };
+    }
+    if g.lock_syncing {
+        return None;
+    }
+    if !g.kinds_present.has(k::CHECK_POKEMON_POWERS) {
+        return Some(false);
+    }
+    let slot = match g.st.locate(card) {
+        Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
+        Some(_) => return Some(false),
+        None => return None,
+    };
+    let mut sources: SVec<CardId, 24> = SVec::new();
+    for q in 0..2usize {
+        for s in g.st.players[q].in_play().iter() {
+            if let Some(c) = g.st.slot_pokemon(q, *s) {
+                sources.push(c);
+            }
+        }
+    }
+    if let Some(c) = g.st.stadium_card() {
+        sources.push(c);
+    }
+    let card_is_lock = lock_passives(g, card).next().is_some();
+    let mut unsure = false;
+    for src in sources.iter().copied() {
+        for pas in lock_passives(g, src) {
+            let Some(owner) = lock_position(g, src, pas) else { continue };
+            if g.st.cards[src as usize].lock_stamp == 0 {
+                unsure = true;
+                continue;
+            }
+            match lock_covers_generic(g, src, pas, owner, card, slot) {
+                Some(true) if card_is_lock => unsure = true,
+                Some(true) => return Some(true),
+                Some(false) => {}
+                None => unsure = true,
+            }
+        }
+    }
+    if unsure {
+        None
+    } else {
+        Some(false)
+    }
+}
+
+/// Would lock `pas` of `src` (in place, holding), take the Ability of `card` in `slot` away from the generic
+/// probe? `None` when that needs a checked read.
+fn lock_covers_generic(g: &Game, src: CardId, pas: &Passive, owner: usize, card: CardId, slot: SlotRef) -> Option<bool> {
+    match &pas.modifier {
+        Modifier::ActiveLock(ActiveLock::MidnightFluttering) => {
+            // Hide 'n' Sneak takes precedence over Midnight Fluttering.
+            Some(slot == SlotRef::new(1 - owner, g.st.players[1 - owner].active) && !g.st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak"))
+        }
+        Modifier::ActiveLock(ActiveLock::Initialization) => {
+            let d = g.st.cdef(card);
+            Some(!d.has_tag(tag::FUTURE) && d.has_rule_box())
+        }
+        Modifier::AbilityLock(l) => {
+            if !l.powers.generic_probe {
+                // Damp: decided per Ability.
+                let any = (0..g.st.cdef(card).powers.len()).any(|i| power_subject(g, &l.powers, crate::effects::PowerRef { card, index: i as u8 }));
+                return if any { None } else { Some(false) };
+            }
+            if !pred(g, card, &l.card) {
+                return Some(false);
+            }
+            if matches!(l.probe, LockerProbe::StadiumOnSlot) && g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0) {
+                return Some(false);
+            }
+            slot_pred_ro(g, src, slot, &l.slot)
+        }
+        _ => Some(false),
+    }
+}
+
+/// A slot predicate read without running effects; the Pokémon type reads the printed type while no card
+/// changes types.
+fn slot_pred_ro(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool> {
+    match slot_pred(g, me, s, sp) {
+        Some(v) => Some(v),
+        None => match sp {
+            SlotPred::TypeIs(t) if !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_TYPE) => Some(crate::engine::game_effect::pokemon_types(g, s).contains(t)),
+            _ => None,
+        },
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -2431,49 +2697,6 @@ fn block_attack(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &Bloc
     crate::bail!(b.error)
 }
 
-/// The opponent of this Active Pokémon plays a Pokémon with an Ability (after its powers are checked) that
-/// has not the exempt tag.
-fn block_ability_pokemon(g: &mut Game, me: CardId, e: EffId, except_tag: u32) -> R {
-    let Effect::PlayPokemon { p, card, .. } = *g.e(e) else { return Ok(()) };
-    let p = p as usize;
-    let o = 1 - p;
-    let a = g.st.players[o].active;
-    if g.st.slot_pokemon(o, a) != Some(me) || is_ability_blocked(g, o, me, None) {
-        return Ok(());
-    }
-    // The card is in the hand: its printed Abilities decide (in-play locks don't reach it).
-    let has_ability = g.st.cdef(card).powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8);
-    if has_ability && !g.st.cdef(card).has_tag(except_tag) {
-        crate::bail!("BLOCKED_BY_ABILITY");
-    }
-    Ok(())
-}
-
-/// While this Pokémon is the opponent's Active Pokémon, Item cards can't be played.
-fn block_items(g: &mut Game, me: CardId, e: EffId) -> R {
-    let Effect::PlayItem { p, .. } = *g.e(e) else { return Ok(()) };
-    let p = p as usize;
-    let o = 1 - p;
-    let in_play = for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().any(|x| x.1 == me) || for_each_pokemon(g, o, PlayerType::TopPlayer).iter().any(|x| x.1 == me);
-    if !in_play {
-        return Ok(());
-    }
-    let mine_active = g.st.active_pokemon(p) == Some(me);
-    let opp_active = g.st.active_pokemon(o) == Some(me);
-    if mine_active && !opp_active {
-        return Ok(());
-    }
-    if opp_active {
-        // A real Ability use of the item player probes the ability lock.
-        let power = crate::effects::PowerRef { card: me, index: 0 };
-        if g.run_fx(Effect::Power { p: p as u8, power, card: me, target: None, probe: false }).is_err() {
-            return Ok(());
-        }
-        crate::bail!("BLOCKED_BY_ABILITY");
-    }
-    Ok(())
-}
-
 /// "If the Pokémon has full HP and would be Knocked Out by damage from an opponent's attack, it is not Knocked Out
 /// and its remaining HP becomes 10 instead; then discard this card."
 fn survive_on_ten_tool(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
@@ -2686,5 +2909,195 @@ mod ace_spec_tests {
     fn only_a_card_played_from_the_hand_is_blocked() {
         assert_eq!(attach("hand"), Err("BLOCKED_BY_EFFECT"));
         assert_eq!(attach("discard"), Ok(()));
+    }
+}
+
+#[cfg(test)]
+mod play_lock_tests {
+    //! `play_locked` and `ability_off` on the lock cards (the query execution and legality share).
+    use super::*;
+    use serde_json::json;
+
+    const NAMES: [&str; 19] = [
+        "Frillish WHT 44",
+        "Jellicent ex WHT 45",
+        "Iron Thorns ex PRE 32",
+        "Flutter Mane PRE 43",
+        "Team Rocket's Ekans DRI 112",
+        "Team Rocket's Arbok DRI 113",
+        "Hoothoot PRE 77",
+        "Noctowl PRE 78",
+        "Team Rocket's Watchtower ASC 210",
+        "Meowth ex POR 62",
+        "Potion POR 83",
+        "Sacred Charm PFL 93",
+        "Enriching Energy SSP 191",
+        "Genesect SFA 40",
+        "Duraludon PRE 69",
+        "Palafin ex PRE 151",
+        "Finizen TWM 59",
+        "Palafin TWM 60",
+        "Antique Root Fossil SCR 130",
+    ];
+
+    fn game(sc: serde_json::Value) -> Game {
+        let mut deck: Vec<u16> = NAMES.iter().flat_map(|n| (0..if n.starts_with("Enriching") { 1 } else { 3 }).map(move |_| *n)).map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        while deck.len() < 60 {
+            deck.push(crate::carddb::def_by_full_name("Water Energy MEE 3").unwrap());
+        }
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        g
+    }
+
+    fn hand(g: &Game, p: usize, name: &str) -> CardId {
+        let def = crate::carddb::def_by_full_name(name).unwrap();
+        g.st.players[p].hand.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap()
+    }
+
+    fn active(g: &Game, p: usize) -> CardId {
+        g.st.active_pokemon(p).unwrap()
+    }
+
+    fn bench(g: &Game, p: usize, i: usize) -> CardId {
+        g.st.slot_pokemon(p, g.st.players[p].bench.as_slice()[i]).unwrap()
+    }
+
+    #[test]
+    fn jellicent_ex_locks_items_and_tools_while_active() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Potion POR 83", "Sacred Charm PFL 93"]},
+            "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"]}}));
+        let me = g.st.active_player as usize;
+        let (potion, charm) = (hand(&g, me, "Potion POR 83"), hand(&g, me, "Sacred Charm PFL 93"));
+        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), Some("BLOCKED_BY_ABILITY"));
+        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachTool), Some("BLOCKED_BY_ABILITY"));
+        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlaySupporter), None);
+        // Its owner is not stopped.
+        assert_eq!(play_locked(&mut g, 1 - me, potion, LockedAction::PlayItem), None);
+        // On the Bench it doesn't lock.
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Potion POR 83"]},
+            "opp": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": ["Frillish WHT 44", "Jellicent ex WHT 45"]}]}}));
+        let potion = hand(&g, me, "Potion POR 83");
+        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None);
+    }
+
+    #[test]
+    fn jellicent_ex_locked_by_iron_thorns_ex_lets_items_through() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Iron Thorns ex PRE 32", "hand": ["Potion POR 83"]},
+            "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"]}}));
+        let me = g.st.active_player as usize;
+        let potion = hand(&g, me, "Potion POR 83");
+        let jellicent = active(&g, 1 - me);
+        assert_eq!(ability_off(&g, jellicent), Some(true));
+        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None);
+        // The same with Flutter Mane Active (mine): Midnight Fluttering turns it off.
+        let mut g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "hand": ["Potion POR 83"]},
+            "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"]}}));
+        let potion = hand(&g, me, "Potion POR 83");
+        assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
+        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None);
+    }
+
+    #[test]
+    fn arbok_judges_a_hand_card_by_its_printed_data() {
+        // With Watchtower in play (id2147) a [C] Pokémon with an Ability still can't be played.
+        let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Noctowl PRE 78", "Duraludon PRE 69", "Team Rocket's Arbok DRI 113"], "stadium": "Team Rocket's Watchtower ASC 210"},
+            "opp": {"reset": true, "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]}}));
+        let me = g.st.active_player as usize;
+        let (noctowl, dura, arbok) = (hand(&g, me, "Noctowl PRE 78"), hand(&g, me, "Duraludon PRE 69"), hand(&g, me, "Team Rocket's Arbok DRI 113"));
+        assert_eq!(ability_off(&g, noctowl), Some(false), "printed data in the hand");
+        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
+        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), Some("BLOCKED_BY_ABILITY"), "Rare Candy too");
+        assert_eq!(play_locked(&mut g, me, dura, LockedAction::PlayPokemon), None, "no Ability");
+        assert_eq!(play_locked(&mut g, me, arbok, LockedAction::PlayPokemon), None, "Team Rocket's Pokémon are exempt");
+        // Its owner is not stopped.
+        assert_eq!(play_locked(&mut g, 1 - me, noctowl, LockedAction::PlayPokemon), None);
+    }
+
+    #[test]
+    fn arbok_with_iron_thorns_ex_active_still_blocks_a_rule_box_hand_card() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Iron Thorns ex PRE 32", "hand": ["Meowth ex POR 62"]},
+            "opp": {"reset": true, "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]}}));
+        let me = g.st.active_player as usize;
+        let meowth = hand(&g, me, "Meowth ex POR 62");
+        assert_eq!(play_locked(&mut g, me, meowth, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
+        // With Flutter Mane Active (mine) Arbok's Ability is off.
+        let mut g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "hand": ["Meowth ex POR 62"]},
+            "opp": {"reset": true, "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]}}));
+        let meowth = hand(&g, me, "Meowth ex POR 62");
+        assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
+        assert_eq!(play_locked(&mut g, me, meowth, LockedAction::PlayPokemon), None);
+    }
+
+    #[test]
+    fn genesect_locks_ace_spec_while_it_has_a_tool() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Enriching Energy SSP 191", "Potion POR 83"]},
+            "opp": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": "Genesect SFA 40", "tool": "Sacred Charm PFL 93"}]}}));
+        let me = g.st.active_player as usize;
+        let (charm, potion) = (hand(&g, me, "Enriching Energy SSP 191"), hand(&g, me, "Potion POR 83"));
+        let _ = bench(&g, 1 - me, 0);
+        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachEnergy), Some("BLOCKED_BY_EFFECT"));
+        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None, "not an ACE SPEC card");
+        // Genesect without a Tool doesn't lock.
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Enriching Energy SSP 191"]},
+            "opp": {"reset": true, "active": "Genesect SFA 40"}}));
+        let charm = hand(&g, me, "Enriching Energy SSP 191");
+        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachEnergy), None);
+        // Flutter Mane Active (mine) turns Genesect's Ability off.
+        let mut g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "hand": ["Enriching Energy SSP 191"]},
+            "opp": {"reset": true, "active": "Genesect SFA 40", "active_tool": "Sacred Charm PFL 93"}}));
+        let charm = hand(&g, me, "Enriching Energy SSP 191");
+        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachEnergy), None);
+    }
+
+    #[test]
+    fn antique_fossil_cant_retreat_and_palafin_cant_evolve_into() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Antique Root Fossil SCR 130", "bench": [{"card": "Duraludon PRE 69"}]},
+            "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let me = g.st.active_player as usize;
+        let fossil = active(&g, me);
+        assert_eq!(play_locked(&mut g, me, fossil, LockedAction::Retreat), Some("CANNOT_RETREAT"));
+        // A Pokémon with no such lock retreats; the Fossil on the Bench isn't "the Active Pokémon".
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": "Antique Root Fossil SCR 130"}]},
+            "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let dura = active(&g, me);
+        assert_eq!(play_locked(&mut g, me, dura, LockedAction::Retreat), None);
+        // Palafin ex can't be put into play by evolving, whoever does it; Palafin can.
+        let mut g = game(json!({"me": {"reset": true, "active": "Finizen TWM 59", "hand": ["Palafin ex PRE 151", "Palafin TWM 60"]},
+            "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let (ex, plain) = (hand(&g, me, "Palafin ex PRE 151"), hand(&g, me, "Palafin TWM 60"));
+        assert_eq!(play_locked(&mut g, me, ex, LockedAction::Evolve), Some("CANNOT_EVOLVE"));
+        assert_eq!(play_locked(&mut g, 1 - me, ex, LockedAction::Evolve), Some("CANNOT_EVOLVE"));
+        assert_eq!(play_locked(&mut g, me, plain, LockedAction::Evolve), None);
+        assert_eq!(play_locked(&mut g, me, ex, LockedAction::PlayPokemon), None, "only the evolving is locked");
+    }
+
+    #[test]
+    fn a_stadium_without_use_text_cant_be_used() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "stadium": "Team Rocket's Watchtower ASC 210"},
+            "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let me = g.st.active_player as usize;
+        let stadium = g.st.stadium_card().unwrap();
+        assert_eq!(play_locked(&mut g, me, stadium, LockedAction::UseStadium), Some("CANNOT_USE_STADIUM"));
+        assert_eq!(play_locked(&mut g, 1 - me, stadium, LockedAction::UseStadium), Some("CANNOT_USE_STADIUM"));
+    }
+
+    #[test]
+    fn ability_off_from_the_stored_lock_state() {
+        let g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "bench": [{"card": "Hoothoot PRE 77"}], "hand": ["Noctowl PRE 78"]},
+            "opp": {"reset": true, "active": "Hoothoot PRE 77", "bench": [{"card": "Hoothoot PRE 77"}]}}));
+        let me = g.st.active_player as usize;
+        assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true), "Midnight Fluttering: the opponent's Active");
+        assert_eq!(ability_off(&g, bench(&g, 1 - me, 0)), Some(false), "a Benched Pokémon keeps it");
+        assert_eq!(ability_off(&g, bench(&g, me, 0)), Some(false), "so does my own");
+        assert_eq!(ability_off(&g, hand(&g, me, "Noctowl PRE 78")), Some(false), "a hand card has its printed Ability");
+        // Watchtower: every [C] Pokémon in play.
+        let g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "bench": [{"card": "Duraludon PRE 69"}], "stadium": "Team Rocket's Watchtower ASC 210"},
+            "opp": {"reset": true, "active": "Hoothoot PRE 77"}}));
+        assert_eq!(ability_off(&g, active(&g, me)), Some(true));
+        assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
+        assert_eq!(ability_off(&g, bench(&g, me, 0)), Some(false), "a Metal Pokémon");
     }
 }

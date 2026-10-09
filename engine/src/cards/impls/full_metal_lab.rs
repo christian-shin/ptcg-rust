@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
             origin: RuleSource::Stadium,
             modifier: Modifier::DamageTaken(DamageTakenSpec { amount: 30, subject: SlotPred::TypeIs(ct::METAL), ..DamageTakenSpec::DEFAULT }),
         },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
     ],
     ..CardSpec::NONE
 };
