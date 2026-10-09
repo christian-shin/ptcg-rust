@@ -3003,13 +3003,15 @@ mod play_lock_tests {
     #[test]
     fn arbok_judges_a_hand_card_by_its_printed_data() {
         // With Watchtower in play (id2147) a [C] Pokémon with an Ability still can't be played.
-        let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Noctowl PRE 78", "Duraludon PRE 69", "Team Rocket's Arbok DRI 113"], "stadium": "Team Rocket's Watchtower ASC 210"},
+        let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Noctowl PRE 78", "Duraludon PRE 69", "Team Rocket's Arbok DRI 113", "Antique Root Fossil SCR 130"], "stadium": "Team Rocket's Watchtower ASC 210"},
             "opp": {"reset": true, "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]}}));
         let me = g.st.active_player as usize;
         let (noctowl, dura, arbok) = (hand(&g, me, "Noctowl PRE 78"), hand(&g, me, "Duraludon PRE 69"), hand(&g, me, "Team Rocket's Arbok DRI 113"));
         assert_eq!(ability_off(&g, noctowl), Some(false), "printed data in the hand");
         assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
-        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), Some("BLOCKED_BY_ABILITY"), "Rare Candy too");
+        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), None, "Rare Candy isn't covered (no ruling)");
+        let fossil = hand(&g, me, "Antique Root Fossil SCR 130");
+        assert_eq!(play_locked(&mut g, me, fossil, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"), "a Fossil with an Ability is played as a Pokémon");
         assert_eq!(play_locked(&mut g, me, dura, LockedAction::PlayPokemon), None, "no Ability");
         assert_eq!(play_locked(&mut g, me, arbok, LockedAction::PlayPokemon), None, "Team Rocket's Pokémon are exempt");
         // Its owner is not stopped.

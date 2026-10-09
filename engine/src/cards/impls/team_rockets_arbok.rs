@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     // from their hand (except Team Rocket's Pokémon).
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        actions: &[LockedAction::PlayPokemon, LockedAction::Evolve],
+        actions: &[LockedAction::PlayPokemon],
         card: Pred::PrintsAbility,
         except: Pred::Tag(tag::TEAM_ROCKET),
         while_: &[LockWhile::Active],
