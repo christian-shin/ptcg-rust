@@ -215,9 +215,9 @@ impl<'a> Ctx<'a> {
     }
 
     /// Is `action` with `card` locked by a declared play lock (`passive::play_locked`)?
-    fn play_locked(&mut self, card: CardId, action: LockedAction) -> bool {
+    fn play_locked(&mut self, card: CardId, action: &[LockedAction]) -> bool {
         let p = self.p;
-        if !self.g.kinds_present.has(action.kind()) || self.sources().block_use.is_empty() {
+        if !action.iter().any(|a| self.g.kinds_present.has(a.kind())) || self.sources().block_use.is_empty() {
             return false;
         }
         for i in 0..self.sources().block_use.len() {
@@ -268,11 +268,10 @@ fn fast_energy(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool> 
     if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
         return Some(false);
     }
-    let pl = &g.st.players[p];
-    if pl.cannot_play_energy_cards || (g.st.cdef(card).energy_type == EnergyType::Special as u8 && pl.cannot_play_special_energy_cards) {
+    if passive::lasting_locked(g, p, Some(card), &[LockedAction::AttachEnergy]).is_some() {
         return Some(false);
     }
-    if ctx.play_locked(card, LockedAction::AttachEnergy) {
+    if ctx.play_locked(card, &[LockedAction::AttachEnergy]) {
         return Some(false);
     }
     if def_flags(g.st.cards[card as usize].def) & F_ATTACH_GUARD != 0 && !matches!(passive::attach_guard_refuses(ctx.sc(), card, t), Ok(false)) {
@@ -293,7 +292,7 @@ fn fast_pokemon(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
         Err(_) => return Some(false),
     };
     // PlayPokemon effect: the target Pokémon's evolution filter, the play locks.
-    if passive::evolve_refused_by_target(g, card, t) || ctx.play_locked(card, LockedAction::PlayPokemon) {
+    if passive::evolve_refused_by_target(g, card, t) || ctx.play_locked(card, &[LockedAction::PlayPokemon]) {
         return Some(false);
     }
     match kind {
@@ -315,7 +314,7 @@ fn fast_pokemon(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             } else {
                 false
             };
-            if ctx.play_locked(card, LockedAction::Evolve) {
+            if ctx.play_locked(card, LockedAction::EVOLUTION_FROM_HAND) {
                 return Some(false);
             }
             let Ok((played, first_ok)) = ctx.played_turn(t, reset) else { return Some(false) };
@@ -333,7 +332,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
     let d = g.st.cdef(card);
     match d.trainer_type() {
         TrainerType::Item => {
-            if play::can_play_item(g, p).is_err() || ctx.play_locked(card, LockedAction::PlayItem) {
+            if play::can_play_item_with(g, p, Some(card)).is_err() || ctx.play_locked(card, &[LockedAction::PlayItem]) {
                 return Some(false);
             }
             if def_flags(d_def(g, card)) & F_PLAY_SPEC == 0 {
@@ -345,7 +344,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
                     None => return Some(false),
                     Some(&s) => {
                         let t = SlotRef::new(p, s);
-                        if play::can_play_pokemon(g, p, card, t).is_err() || passive::evolve_refused_by_target(g, card, t) || ctx.play_locked(card, LockedAction::PlayPokemon) {
+                        if play::can_play_pokemon(g, p, card, t).is_err() || passive::evolve_refused_by_target(g, card, t) || ctx.play_locked(card, &[LockedAction::PlayPokemon]) {
                             return Some(false);
                         }
                     }
@@ -363,7 +362,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             Some(ok)
         }
         TrainerType::Supporter => {
-            if turn::can_play_supporter_card(g, p, card).is_err() || play::can_play_supporter(g, p).is_err() || ctx.play_locked(card, LockedAction::PlaySupporter) {
+            if turn::can_play_supporter_card(g, p, card).is_err() || play::can_play_supporter_with(g, p, Some(card)).is_err() || ctx.play_locked(card, &[LockedAction::PlaySupporter]) {
                 return Some(false);
             }
             if def_flags(d_def(g, card)) & F_PLAY_SPEC == 0 {
@@ -376,7 +375,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             Some(ok)
         }
         TrainerType::Stadium => Some(
-            turn::can_play_stadium_card(g, p, card).is_ok() && play::can_play_stadium(g, p).is_ok() && !ctx.play_locked(card, LockedAction::PlayStadium),
+            turn::can_play_stadium_card(g, p, card).is_ok() && play::can_play_stadium_with(g, p, Some(card)).is_ok() && !ctx.play_locked(card, &[LockedAction::PlayStadium]),
         ),
         TrainerType::Tool => {
             // No Tool declares a play spec: its effects are passives (a Tool with one would need the state
@@ -386,7 +385,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             }
             let t = get_target(&g.st, p, target).ok();
             let Ok(t) = turn::can_play_tool_card(t) else { return Some(false) };
-            if ctx.play_locked(card, LockedAction::AttachTool) {
+            if ctx.play_locked(card, &[LockedAction::AttachTool]) {
                 return Some(false);
             }
             Some(play::can_attach_tool(g, p, card, t).is_ok())
@@ -520,7 +519,7 @@ fn fast_use_stadium(ctx: &mut Ctx) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
     let Ok(stadium) = turn::can_use_stadium(g, p) else { return Some(false) };
-    if ctx.play_locked(stadium, LockedAction::UseStadium) {
+    if ctx.play_locked(stadium, &[LockedAction::UseStadium]) {
         return Some(false);
     }
     let sc = ctx.sc();
@@ -537,7 +536,7 @@ fn fast_retreat(ctx: &mut Ctx, bench_index: u8) -> Option<bool> {
         return Some(false);
     }
     if let Some(active) = g.st.active_pokemon(p) {
-        if ctx.play_locked(active, LockedAction::Retreat) {
+        if ctx.play_locked(active, &[LockedAction::Retreat]) {
             return Some(false);
         }
     }
