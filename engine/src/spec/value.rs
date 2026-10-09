@@ -31,6 +31,8 @@ pub enum Zone {
     Attached(SlotExpr),
     /// The Energy cards attached to the Pokémon, as their own list (the player is ignored).
     AttachedEnergy(SlotExpr),
+    /// The Pokémon Tools attached to the Pokémon (read-only list; cards move out of the slot's list).
+    Tools(SlotExpr),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -275,7 +277,7 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
         Zone::Discard => ListRef::Discard(p),
         Zone::Scratch(r) => ListRef::Temp(f.cards[r as usize]),
         Zone::Stadium => ListRef::Stadium(p),
-        Zone::Attached(_) | Zone::AttachedEnergy(_) => panic!("Zone::Attached needs zone_list"),
+        Zone::Attached(_) | Zone::AttachedEnergy(_) | Zone::Tools(_) => panic!("Zone::Attached needs zone_list"),
     }
 }
 
@@ -284,6 +286,7 @@ pub fn zone_ref(f: &Frame, z: ZoneRef) -> ListRef {
 pub fn zone_list(g: &Game, me: CardId, f: &Frame, z: ZoneRef, for_move: bool) -> Option<ListRef> {
     match z.1 {
         Zone::Attached(e) => slot_of(g, me, f, e).map(|s| ListRef::Slot(s.p, s.s)),
+        Zone::Tools(e) => slot_of(g, me, f, e).map(|s| ListRef::Slot(s.p, s.s)),
         Zone::AttachedEnergy(e) => slot_of(g, me, f, e).map(|s| if for_move { ListRef::Slot(s.p, s.s) } else { ListRef::SlotEnergies(s.p, s.s) }),
         Zone::Scratch(r) if f.cards[r as usize] == super::run::NONE => None,
         _ => Some(zone_ref(f, z)),
@@ -292,6 +295,9 @@ pub fn zone_list(g: &Game, me: CardId, f: &Frame, z: ZoneRef, for_move: bool) ->
 
 /// The cards of a zone (empty when it names no list).
 pub fn zone_cards_of(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
+    if let Zone::Tools(e) = z.1 {
+        return slot_of(g, me, f, e).map(|s| g.st.slot(s.p as usize, s.s).tools.iter().collect()).unwrap_or_default();
+    }
     zone_list(g, me, f, z, false).map(|l| g.lst(l).to_vec()).unwrap_or_default()
 }
 
