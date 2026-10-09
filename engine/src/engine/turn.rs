@@ -32,7 +32,7 @@ fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, cause: crate::cause
     };
     let benched_out = g.st.active_pokemon(p);
     let leaving = g.st.players[p].active;
-    crate::engine::condition::recover_all(g, SlotRef::new(p, leaving), cause, &[])?;
+    crate::engine::condition::recover_by_rule(g, SlotRef::new(p, leaving), cause, &[])?;
     let pl = &mut g.st.players[p];
     pl.marker.items.retain(|m| !(m.target_scope == TargetScope::Pokemon || m.name == KNOCKOUT_MARKER || m.name == CLEAR_KNOCKOUT_MARKER));
     let old = pl.active;

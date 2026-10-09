@@ -500,7 +500,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
             for c in cards.iter().rev().take(3) {
                 out.push(*c);
             }
-            crate::engine::condition::recover_all(g, t, cause, &[])?;
+            crate::engine::condition::recover_by_rule(g, t, cause, &[])?;
             let turn = g.st.turn;
             let slot = &mut g.st.players[tp].slots[ts as usize];
             crate::engine::game_effect::clear_effects(slot);
@@ -518,7 +518,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
             }
             out.push(top);
         }
-        crate::engine::condition::recover_all(g, t, cause, &[])?;
+        crate::engine::condition::recover_by_rule(g, t, cause, &[])?;
         let turn = g.st.turn;
         let slot = &mut g.st.players[tp].slots[ts as usize];
         crate::engine::game_effect::clear_effects(slot);
@@ -622,7 +622,7 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause)
     g.st.players[p].marker.remove(CLEAR_KNOCKOUT_MARKER);
     // The Pokémon recovers from its Special Conditions, except the preserved ones (RemoveCondition events, by the
     // Evolve's cause).
-    crate::engine::condition::recover_all(g, target, cause, preserved.as_slice())?;
+    crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())?;
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
     crate::engine::game_effect::clear_effects(slot);
     slot.marker.remove_all_except_trainer_effects();

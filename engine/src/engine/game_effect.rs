@@ -43,8 +43,8 @@ pub fn reset_empty_slot(slot: &mut Slot) {
 }
 
 /// `PokemonCardList.clearEffects()` for the modeled fields, except the Special Conditions: a Pokémon that stays in
-/// play recovers from them through RemoveCondition events (`engine::condition::recover_all`, called first by every
-/// caller), and one leaving play loses them with it (`complete_knock_out`).
+/// play recovers from them through RemoveCondition events (`engine::condition::recover_by_rule`, called first by
+/// every caller), and one leaving play loses them with it (`complete_knock_out`).
 pub fn clear_effects(slot: &mut Slot) {
     slot.marker.remove_all_except_trainer_effects();
     slot.poison_damage = 10;

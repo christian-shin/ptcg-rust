@@ -1075,7 +1075,7 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
             let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot), cause: f.cause })?;
             if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
                 let a = g.st.players[side].active;
-                crate::engine::condition::recover_all(g, SlotRef::new(side, a), f.cause, &[])?;
+                crate::engine::condition::recover_by_rule(g, SlotRef::new(side, a), f.cause, &[])?;
                 crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
                 crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)?;
             }
@@ -1083,7 +1083,7 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
         }
         SwitchKind::Silent | SwitchKind::Picked => {
             let a = g.st.players[side].active;
-            crate::engine::condition::recover_all(g, SlotRef::new(side, a), f.cause, &[])?;
+            crate::engine::condition::recover_by_rule(g, SlotRef::new(side, a), f.cause, &[])?;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
             crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)
         }

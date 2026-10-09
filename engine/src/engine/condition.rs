@@ -11,9 +11,10 @@
 //!   effects first go through their B4-OLD probes (`Effect::AddSpecialConditions`,
 //!   `AddSpecialConditionsPower`), which the attack-effect preventions and Hide 'n' Sneak still read; their
 //!   reducers call [`gain`].
-//! - [`remove`] / [`recover_all`]: the Pokémon recovers from a condition: an effect ("recovers from all Special
-//!   Conditions"), evolving or devolving, moving to the Bench (retreat, switch), the Checkup (Paralyzed at the end
-//!   of its owner's turn, a heads for Burned or Asleep). One event per condition.
+//! - [`remove`] / [`recover_all`]: the Pokémon recovers from a condition by an effect ("recovers from all Special
+//!   Conditions") or at the Checkup (Paralyzed at the end of its owner's turn, a heads for Burned or Asleep); refusable.
+//!   [`recover_by_rule`]: the rules' consequence of moving to the Bench (retreat, switch), evolving or devolving;
+//!   never refused. One event per condition.
 //! - [`heal`]: damage counters removed from a Pokémon (APR C-06). Moving counters off a Pokémon isn't healing it
 //!   (events design 4.1; batch 6).
 //! - [`coin_flipped`]: one event per physical flip, once its result is known, whatever asked for it: a card's
@@ -128,6 +129,24 @@ pub fn recover_all(g: &mut Game, target: SlotRef, cause: Cause, keep: &[u8]) -> 
     for c in conds.iter().copied() {
         if !keep.contains(&c) {
             remove(g, target, SpecialCondition::from_u8(c), cause)?;
+        }
+    }
+    Ok(())
+}
+
+/// The Pokémon in `target` recovers from every Special Condition it has except those in `keep`, as a consequence the
+/// rules attach to what happened to it, not as an effect: an Active Pokémon moving to the Bench (retreat, any switch;
+/// APR A-03: "it loses all Special Conditions"), evolving (APR A-05; the preserved ones kept,
+/// `CheckSpecialConditionRemoval`) or devolving (APR C-13). One RemoveCondition each, which cards see, but no lock
+/// or prevention is asked: a Benched Pokémon can't have a Special Condition, so a "can't recover" over
+/// RemoveCondition can't keep one there. What an effect removes ("recovers from all Special Conditions", Recover,
+/// a heal that clears them) and the Checkup's recoveries go through [`remove`] / [`recover_all`] and can be refused.
+pub fn recover_by_rule(g: &mut Game, target: SlotRef, cause: Cause, keep: &[u8]) -> R {
+    let conds = g.st.slot(target.p as usize, target.s).special_conditions;
+    for c in conds.iter().copied() {
+        if !keep.contains(&c) && g.st.slot(target.p as usize, target.s).special_conditions.contains(&c) {
+            let condition = SpecialCondition::from_u8(c);
+            g.run_fx_unit(Effect::RemoveCondition { p: target.p, target, condition, cause })?;
         }
     }
     Ok(())

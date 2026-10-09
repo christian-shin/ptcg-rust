@@ -100,9 +100,10 @@ pub fn retreat_payable(g: &mut Game, p: usize) -> R<bool> {
     Ok(cost.is_empty() || energy::check_enough_energy(map.as_slice(), cost.as_slice()))
 }
 
-/// The retreating Pokémon recovers from its Special Conditions (it moves to the Bench by the rule's Retreat).
+/// The retreating Pokémon recovers from its Special Conditions (it moves to the Bench by the rule's Retreat; APR A-03,
+/// never refused: `condition::recover_by_rule`).
 fn recovers(g: &mut Game, p: usize, active: SlotId) -> R {
-    crate::engine::condition::recover_all(g, SlotRef::new(p, active), crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8), &[])
+    crate::engine::condition::recover_by_rule(g, SlotRef::new(p, active), crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8), &[])
 }
 
 pub fn reducer(g: &mut Game, id: EffId) -> R {
