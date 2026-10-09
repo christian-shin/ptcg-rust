@@ -155,6 +155,9 @@ pub struct AtkTrig {
 pub struct LastAttack {
     /// The attacking player.
     pub p: u8,
+    /// The AttackEffect being reduced (retained until the attack finishes; stale afterwards: read it only while the
+    /// attack is in progress, as a Trainer used as the attack's effect does, `spec::ops::board::frame_attack`).
+    pub effect: EffId,
     /// The attack (of the AttackEffect being reduced).
     pub attack: AttackRef,
     pub source: SlotRef,
@@ -1166,6 +1169,7 @@ impl Game {
             self.ten_hp_coin = SVec::new();
             self.last_attack = Some(LastAttack {
                 p,
+                effect: id,
                 source,
                 attack,
                 pokemon: self.st.slot_pokemon(source.p as usize, source.s),

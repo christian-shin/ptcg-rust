@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mr. Mime TEF 63", "4 Boss's Orders ASC 183", "4 Hop's Snorlax JTG 117", "4 Mist Energy TEF 161", "44 Psychic Energy MEE 5"],
+  ["4 Mr. Mime TEF 63", "4 Boss's Orders ASC 183", "4 Hop's Snorlax JTG 117", "4 Mist Energy TEF 161", "44 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Mr. Mime TEF 63", "active_energy": ["Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand_to_deck": true, "hand": ["Boss's Orders ASC 183"], "bench": [{"card": "Mr. Mime TEF 63", "energy": ["Mist Energy TEF 161"]}]},
+ "answers": [{"a": "attack", "name": "Look-Alike Show"}, [0], [{"player": 1, "slot": 2, "index": 0}]],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Hop's Snorlax JTG 117", "cite": "JP FAQ (Ninetales' Supernatural Shapeshifter using Boss's Orders: the opponent's Benched Pokemon with Mist Energy can't be switched in) and id2025: a Supporter's effect used as an attack's effect is the attack's effect done to the Benched Pokemon"},
+  {"at": "turn_end", "who": "opp", "bench_count": 1, "cite": "the Benched Mr. Mime with Mist Energy stays on the Bench"}
+ ]
+}

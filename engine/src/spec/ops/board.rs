@@ -273,17 +273,38 @@ pub(crate) fn occupied(g: &Game, s: SlotRef) -> bool {
     !g.st.slot(s.p as usize, s.s).cards.is_empty()
 }
 
-pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
-    // A resumed program's effect may be gone (a Supporter used through an attack, resumed after its prompt).
+/// The AttackEffect a frame's events are effects of, with the attack's player, opponent, attack and attacking
+/// Pokémon. An attack's program: its own effect (`f.eff`, retained until the attack finishes). A Trainer used as
+/// the effect of an attack (Look-Alike Show): the attack in progress (`Game::last_attack`), never `f.eff`, which is
+/// the Trainer's own effect (released when its program suspends for a prompt, its slot possibly reused after the
+/// resume): the Supporter's effect is the attack's effect (id2225, id2226).
+pub(crate) fn frame_attack(g: &Game, f: &Frame) -> Option<(crate::effects::EffId, u8, u8, crate::state::AttackRef, SlotRef)> {
+    if f.via_attack {
+        let la = g.last_attack?;
+        if (la.effect as usize) < g.fx.len() && matches!(*g.e(la.effect), Effect::Attack { attack, .. } if attack == la.attack) {
+            return Some((la.effect, la.p, 1 - la.p, la.attack, la.source));
+        }
+        return None;
+    }
+    // A program resumed after a prompt may outlive the effect that started it (a step 7 trigger after its
+    // AttackTrigger is released): no attack then. (g0500007065 crashed here when a Trainer used through an attack
+    // read its released effect; that case is the branch above now.)
     if f.eff as usize >= g.fx.len() {
         return None;
     }
-    // A step 7 trigger acts for the attack it belongs to.
-    if let Effect::AttackTrigger { attack_effect, p, opp, attack, source, .. } = *g.e(f.eff) {
-        return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause });
-    }
     let (p, opp, attack, source) = attack_data(g, f.eff)?;
-    Some(AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target, cause: f.cause })
+    Some((f.eff, p, opp, attack, source))
+}
+
+pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
+    // A step 7 trigger acts for the attack it belongs to.
+    if !f.via_attack && (f.eff as usize) < g.fx.len() {
+        if let Effect::AttackTrigger { attack_effect, p, opp, attack, source, .. } = *g.e(f.eff) {
+            return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause });
+        }
+    }
+    let (attack_effect, p, opp, attack, source) = frame_attack(g, f)?;
+    Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause })
 }
 
 /// The slot types a selector ranges over (for the prompt).
@@ -968,7 +989,7 @@ fn switch_pick(s: &SwitchSpec) -> PickSlotSpec {
 /// A fresh attack effect for the attack in use (Gust and switch-out effects
 /// are built on a new AttackEffect).
 fn fresh_attack(g: &mut Game, f: &Frame) -> Option<(crate::effects::EffId, AtkBase)> {
-    let (p, opp, attack, _) = attack_data(g, f.eff)?;
+    let (_, p, opp, attack, _) = frame_attack(g, f)?;
     let source = SlotRef::new(p as usize, g.st.players[p as usize].active);
     let atk = g.new_fx(Effect::Attack {
         p,
@@ -1037,6 +1058,18 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
         _ => {}
     }
     match s.kind {
+        // Switching in the opponent's Benched Pokémon as an effect of an attack (a Supporter used through Look-Alike
+        // Show: Boss's Orders, Lisia's Appeal, Team Rocket's Giovanni) is an effect of the attack done to that Pokémon:
+        // asked through the gust probe, which the attack-effect preventions on it read (id2025; JP FAQ, Ninetales'
+        // Supernatural Shapeshifter with Boss's Orders vs Mist Energy: it can't be switched in). B5: the ChangeActive
+        // event's prevent marker replaces the probe.
+        SwitchKind::Plain | SwitchKind::PlainBasic | SwitchKind::PickedPlain if f.cause.is_attack() && side != f.p as usize => {
+            let Some((atk, mut b)) = fresh_attack(g, f) else { return crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause) };
+            b.target = slot;
+            let r = g.run_fx(Effect::GustOpponentBench { b });
+            g.release_fx(atk);
+            r.map(|_| ())
+        }
         SwitchKind::Plain | SwitchKind::PlainBasic | SwitchKind::PickedPlain => crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause),
         SwitchKind::SilentAbilityEffect => {
             let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot), cause: f.cause })?;
