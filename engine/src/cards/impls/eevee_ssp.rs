@@ -1,20 +1,12 @@
-//! Eevee (SSP): Boosted Evolution — as long as this Pokémon is in the Active
-//! Spot, it can evolve during your first turn or the turn you play it.
+//! Eevee (SSP / PRE): Boosted Evolution — as long as this Pokémon is in the
+//! Active Spot, it can evolve during your first turn or the turn you play it.
 //! Reckless Charge — 30; this Pokémon also does 10 damage to itself.
 //!
-//! Twinleaf has several `Eevee` classes; this port is bound to SSP.
-//! Twinleaf quirks kept: every copy (any zone) adds its
-//! EVOLUTIONARY_ADVANTAGE_MARKER to the player of any PlayPokemonEffect and
-//! removes it at that player's end of turn (the marker does nothing else).
-//!
-//! Fixed in phase 4b (R4): Boosted Evolution answers the CheckPokemonPlayedTurnEffect of
-//! this Eevee's own slot: when it is its owner's Active Pokémon, still this
-//! card (not evolved) and a stub-Ability probe passes, the effect gets
-//! `pokemonPlayedTurn = turn - 1` and `canEvolveOnFirstTurn = true` (the
-//! PlayPokemonEffect first-turn test honours it). It used to write
-//! `player.canEvolve = true` on every CheckTableStateEffect while the active
-//! player's Active `cards[0]` was this card (even after it evolved), letting
-//! every Pokémon of that player evolve on the first turn.
+//! Events batch 2: a `Permit` on its own evolving (`This(Role::Base)`) by the
+//! rule (from the hand), lifting the first-turn and came-into-play-this-turn
+//! limits while it is the Active Pokémon (also after Strange Timepiece devolved
+//! it: id2327). Rare Candy and Grand Tree keep their own restrictions
+//! (id1144, id1815).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -23,7 +15,11 @@ pub static SPEC: CardSpec = CardSpec {
     // first turn or the turn you play it.
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::AllowEvolve(AllowEvolveSpec { subject: SlotPred::All(&[SlotPred::IsActive, SlotPred::IsThisPokemon]) }),
+        modifier: Modifier::Permit(PermitSpec {
+            for_: EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::Path(EvolvePath::Rule), EventPred::This(Role::Base)]),
+            lifts: &[Limit::FirstTurn, Limit::BaseEnteredThisTurn],
+            while_: &[LockWhile::Active],
+        }),
     }],
     // Reckless Charge: this Pokémon also does 10 damage to itself.
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(self_damage(10))] }],

@@ -10,8 +10,10 @@
 //! prompt then had no valid target; Ability evolutions were selectable too).
 //! The CheckPokemonPowers probe runs for every deck Pokémon. The card moves to the
 //! supporter pile and the TrainerEffect is prevented before the deck check.
-//! The evolution is a plain MOVE_CARDS deck→slot + clearEffects +
-//! pokemonPlayedTurn = turn (no EvolveEffect).
+//! Events batch 2: the evolving is the Evolve event's effect path from the
+//! deck, with no restriction (its text allows a Pokémon put into play this
+//! turn or at setup). Eevee ex's Rainbow DNA doesn't apply (not played from
+//! the hand; docs/rulings/RULES.md).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

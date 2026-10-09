@@ -1,0 +1,27 @@
+{
+ "turn": 3,
+ "decks": [
+  ["4 Applin TWM 17", "4 Dipplin PRE 10", "4 Hydrapple ex PRE 11", "4 Rare Candy MEG 125", "4 Forest of Vitality POR 109", "40 Grass Energy MEE 1"],
+  ["4 Applin TWM 17", "4 Dipplin PRE 10", "4 Hydrapple ex PRE 11", "4 Rare Candy MEG 125", "4 Forest of Vitality POR 109", "40 Grass Energy MEE 1"]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Applin TWM 17",
+  "active_played": "this_turn",
+  "stadium": "Forest of Vitality POR 109",
+  "hand": ["Applin TWM 17", "Rare Candy MEG 125", "Hydrapple ex PRE 11", "Dipplin PRE 10"]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Applin TWM 17"
+ },
+ "answers": [
+  {"a": "play", "card": "Applin TWM 17", "target": {"player": 2, "slot": 2, "index": 0}}
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "play", "name": "Rare Candy MEG 125", "is": false, "cite": "card text (Rare Candy)"},
+  {"at": "decision", "n": 1, "who": "me", "legal": "play", "name": "Rare Candy MEG 125", "is": false, "cite": "id1144, id1815"},
+  {"at": "decision", "n": 1, "who": "me", "legal": "play", "name": "Dipplin PRE 10", "on": "active", "is": true, "cite": "card text (Forest of Vitality)"}
+ ]
+}

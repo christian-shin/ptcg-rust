@@ -1,0 +1,28 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Duskull PRE 35", "4 Risky Ruins MEG 127", "52 Psychic Energy MEE 5"],
+  ["4 Duskull PRE 35", "4 Risky Ruins MEG 127", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duskull PRE 35",
+  "active_energy": ["Psychic Energy MEE 5"],
+  "discard": ["2 Duskull PRE 35"],
+  "stadium": "Risky Ruins MEG 127",
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duskull PRE 35"
+ },
+ "answers": [
+  {"a": "attack", "name": "Come and Get You"},
+  [0, 1]
+ ],
+ "expect": [
+  {"at": "turn_end", "who": "me", "bench_count": 2, "cite": "card text (Come and Get You)"},
+  {"at": "turn_end", "who": "me", "bench": 0, "card": "Duskull PRE 35", "damage": 20, "cite": "id2233"},
+  {"at": "turn_end", "who": "me", "bench": 1, "card": "Duskull PRE 35", "damage": 20, "cite": "id2233"}
+ ]
+}

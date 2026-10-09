@@ -1,0 +1,26 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Duskull PRE 35", "4 Duraludon PRE 69", "4 Risky Ruins MEG 127", "48 Psychic Energy MEE 5"],
+  ["4 Duskull PRE 35", "4 Duraludon PRE 69", "4 Risky Ruins MEG 127", "48 Psychic Energy MEE 5"]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duskull PRE 35",
+  "active_energy": ["Psychic Energy MEE 5"],
+  "bench": [{"card": "Duraludon PRE 69"}],
+  "stadium": "Risky Ruins MEG 127",
+  "energy_attached": true
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duskull PRE 35"
+ },
+ "answers": [
+  {"a": "retreat", "bench": 0}
+ ],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "card": "Duraludon PRE 69", "cite": "card text (retreat)"},
+  {"at": "turn_end", "who": "me", "card": "Duskull PRE 35", "damage": 0, "cite": "id2329"}
+ ]
+}

@@ -6,6 +6,11 @@
 //! 1778), so the prompt is `min: 0`; an attack that can do nothing (no Duskull in
 //! the discard pile, no empty Bench slot) is still used and opens no prompt (ruling
 //! 1790). It used to throw CANNOT_USE_POWER there and ask for at least 1.
+//!
+//! Events batch 2: each Duskull goes onto the Bench through the EnterPlay
+//! event (mode effect, source the discard pile), so "puts onto the Bench"
+//! effects see it: Risky Ruins places its counters (id2233). It used to be a
+//! raw move that no card saw.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,26 @@
+{
+ "turn": 3,
+ "decks": [
+  ["4 Scyther TEF 1", "4 Scizor ex TEF 111", "4 Forest of Vitality POR 109", "48 Grass Energy MEE 1"],
+  ["4 Scyther TEF 1", "4 Scizor ex TEF 111", "4 Forest of Vitality POR 109", "48 Grass Energy MEE 1"]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Scyther TEF 1",
+  "active_played": "this_turn",
+  "stadium": "Forest of Vitality POR 109",
+  "hand": ["Scyther TEF 1", "Scizor ex TEF 111"]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Scyther TEF 1"
+ },
+ "answers": [
+  {"a": "play", "card": "Scyther TEF 1", "target": {"player": 2, "slot": 2, "index": 0}}
+ ],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "play", "name": "Scizor ex TEF 111", "on": "active", "is": false, "cite": "APR A-05"},
+  {"at": "decision", "n": 1, "who": "me", "legal": "play", "name": "Scizor ex TEF 111", "on": "active", "is": false, "cite": "card text (Forest of Vitality: [G] Pokemon into [G] Pokemon)"}
+ ]
+}

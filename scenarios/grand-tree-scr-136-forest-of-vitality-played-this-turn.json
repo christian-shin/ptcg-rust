@@ -1,0 +1,26 @@
+{
+ "turn": 3,
+ "decks": [
+  ["4 Applin TWM 17", "4 Dipplin PRE 10", "4 Forest of Vitality POR 109", "1 Grand Tree SCR 136", "47 Grass Energy MEE 1"],
+  ["4 Applin TWM 17", "4 Dipplin PRE 10", "4 Forest of Vitality POR 109", "1 Grand Tree SCR 136", "47 Grass Energy MEE 1"]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Applin TWM 17",
+  "active_played": "this_turn",
+  "stadium": "Forest of Vitality POR 109",
+  "hand": ["Applin TWM 17", "Grand Tree SCR 136"]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Applin TWM 17"
+ },
+ "answers": [
+  {"a": "play", "card": "Applin TWM 17", "target": {"player": 2, "slot": 2, "index": 0}},
+  {"a": "play", "card": "Grand Tree SCR 136", "target": {"player": 2, "slot": 0, "index": 0}}
+ ],
+ "expect": [
+  {"at": "decision", "n": 2, "who": "me", "legal": "stadium", "is": false, "cite": "card text (Grand Tree: can't evolve a Basic Pokemon put into play this turn)"}
+ ]
+}
