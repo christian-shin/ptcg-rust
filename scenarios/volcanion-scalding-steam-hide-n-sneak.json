@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Volcanion ex JTG 31",
+   "4 Shuppet PBL 33",
+   "4 Duraludon PRE 69",
+   "4 Festival Grounds PRE 108",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Volcanion ex JTG 31",
+   "4 Shuppet PBL 33",
+   "4 Duraludon PRE 69",
+   "4 Festival Grounds PRE 108",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Volcanion ex JTG 31",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Shuppet PBL 33"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Scalding Steam",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Shuppet PBL 33",
+   "conditions": [],
+   "cite": "official text: Hide 'n' Sneak prevents all effects of the opponent's Pokémon's attacks and Abilities done to this Pokémon, so Scalding Steam doesn't Burn it"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "ability",
+   "name": "Scalding Steam",
+   "is": false,
+   "cite": "ruling id290 / n275 and id2264 / n1765: an Ability whose effect is blocked is still used; once per turn is spent"
+  }
+ ]
+}
