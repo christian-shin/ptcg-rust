@@ -1855,17 +1855,14 @@ fn swap_bottom_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCard
 #[cfg(test)]
 mod effect_evolve_tests {
     //! An effect that evolves from the deck (Grand Tree, Salvatore) offers only the cards the Evolve event's checks
-    //! allow. Palafin ex's decided lock ("can't be put into play except by Zero to Hero", docs/rulings/RULES.md
-    //! "Evolution timing") lands with its conversion; a lasting lock over the same event stands in for it here.
+    //! allow: Palafin ex's Hero's Spirit locks every EnterPlay and Evolve of the card (docs/rulings/RULES.md
+    //! "Evolution timing"), so Grand Tree doesn't offer it.
     use super::*;
-    use crate::spec::event::{EventKind, EventPred, RulesZone};
-    use crate::spec::passive::LockDecl;
+    use crate::spec::event::RulesZone;
     use serde_json::json;
 
-    static NO_PALAFIN_EX: LockDecl = LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::Card(Pred::Name("Palafin ex"))]), "BLOCKED_BY_EFFECT");
-
     #[test]
-    fn grand_tree_does_not_offer_a_locked_evolution_card() {
+    fn grand_tree_does_not_offer_palafin_ex() {
         let mut names: Vec<&str> = vec!["Finizen TWM 59"; 4];
         names.extend(["Palafin TWM 60"; 4]);
         names.extend(["Palafin ex TWM 61"; 4]);
@@ -1875,18 +1872,18 @@ mod effect_evolve_tests {
         let mut g = Game::new(7);
         g.start([&deck, &deck]).unwrap();
         g.settle().ok();
-        crate::scenario::apply(&mut g, &json!({"me": {"reset": true, "active": "Finizen TWM 59", "stadium": "Grand Tree SCR 136"}, "opp": {"reset": true, "active": "Finizen TWM 59"}})).unwrap();
+        crate::scenario::apply(&mut g, &json!({"me": {"reset": true, "hand_to_deck": true, "active": "Finizen TWM 59", "stadium": "Grand Tree SCR 136"}, "opp": {"reset": true, "active": "Finizen TWM 59"}})).unwrap();
+        // Not the first turn: Grand Tree's limits don't apply.
+        g.st.turn = g.st.turn.max(3);
         let me = g.st.active_player as usize;
         let t = SlotRef::new(me, g.st.players[me].active);
-        let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8);
+        let stadium = g.st.stadium_card().unwrap();
+        let cause = crate::cause::Cause::of_trainer(&g, stadium, me as u8);
         let card = |g: &Game, name: &str| {
             let def = crate::carddb::def_by_full_name(name).unwrap();
             g.st.players[me].deck.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap()
         };
         let (palafin, palafin_ex) = (card(&g, "Palafin TWM 60"), card(&g, "Palafin ex TWM 61"));
-        assert!(effect_can_evolve(&mut g, t, palafin, RulesZone::Deck, cause).unwrap());
-        assert!(effect_can_evolve(&mut g, t, palafin_ex, RulesZone::Deck, cause).unwrap(), "no lock yet");
-        crate::engine::phase::apply_play_lock(&mut g.st.players[me], &NO_PALAFIN_EX, 1, 0);
         assert!(effect_can_evolve(&mut g, t, palafin, RulesZone::Deck, cause).unwrap());
         assert!(!effect_can_evolve(&mut g, t, palafin_ex, RulesZone::Deck, cause).unwrap(), "a locked card isn't offered");
         // The refused event doesn't happen, so "if that Pokémon was evolved in this way" is false.
