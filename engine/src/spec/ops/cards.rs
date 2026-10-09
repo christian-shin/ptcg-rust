@@ -586,6 +586,13 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Suspend)
         }
         Op::Attach(a) => {
+            if let Some(c) = f.recorded_choice(g, me) {
+                // Chosen at step D: carry it out now.
+                f.attached_to = NONE;
+                let ts = decode_attach(&c.items[..c.len as usize]);
+                f.last = ts.len() as i32;
+                return attach_apply(g, me, f, a, &ts);
+            }
             if attach_prompt(g, me, f, a)? {
                 Ok(Flow::Suspend)
             } else {
@@ -1109,6 +1116,48 @@ fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool>
     Ok(true)
 }
 
+/// The Pokémon and cards an `Attach` carries out (step D: recorded as `slot, card` byte pairs).
+fn encode_attach(g: &Game, p: usize, ts: &[(CardTarget, CardId)]) -> Vec<u8> {
+    let mut out = Vec::new();
+    // A hand holds at most this many cards in practice (the record has room for SPEC_CHOICE_ITEMS bytes).
+    for (to, c) in ts.iter().take(SPEC_CHOICE_ITEMS / 2) {
+        let Ok(t) = get_target(&g.st, p, *to) else { continue };
+        out.extend_from_slice(&[t.p << 4 | t.s, *c]);
+    }
+    out
+}
+
+fn decode_attach(items: &[u8]) -> Vec<(SlotRef, CardId)> {
+    items.chunks(2).filter(|c| c.len() == 2).map(|c| (SlotRef { p: c[0] >> 4, s: c[0] & 15 }, c[1])).collect()
+}
+
+/// Attach the chosen cards, one after the other, to their Pokémon. A card that left its zone, or a
+/// Pokémon that left play, since the choice was made is skipped.
+fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(SlotRef, CardId)]) -> R<Flow> {
+    let p = f.who(a.chooser);
+    let Some(from) = zone_list(g, me, f, a.from, true) else { return Ok(Flow::Next) };
+    for (target, c) in ts.iter().copied() {
+        if !g.lst(from).contains(&c) || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
+            continue;
+        }
+        f.attached_to = encode(target);
+        match a.route {
+            AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
+            AttachRoute::Effect => {
+                g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
+            }
+            AttachRoute::MoveShufflePerCard => {
+                move_cards(g, from, target.list(), &[c], me)?;
+                shuffle_deck(g, p);
+            }
+        }
+        if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
+            crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);
+        }
+    }
+    Ok(Flow::Next)
+}
+
 fn attach_targets_exist(g: &Game, f: &Frame, a: &AttachSpec) -> bool {
     let p = f.who(a.chooser);
     let scope = if a.slots == AttachSlots::Bench { PlayScope::Bench } else { PlayScope::All };
@@ -1241,25 +1290,11 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 }
                 return Ok(Flow::Next);
             }
-            let Some(from) = zone_list(g, me, f, a.from, true) else { return Ok(Flow::Next) };
+            let mut slots: Vec<(SlotRef, CardId)> = Vec::new();
             for (to, c) in ts.iter().copied() {
-                let target = get_target(&g.st, p, to)?;
-                f.attached_to = encode(target);
-                match a.route {
-                    AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
-                    AttachRoute::Effect => {
-                        g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
-                    }
-                    AttachRoute::MoveShufflePerCard => {
-                        move_cards(g, from, target.list(), &[c], me)?;
-                        shuffle_deck(g, p);
-                    }
-                }
-                if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
-                    crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);
-                }
+                slots.push((get_target(&g.st, p, to)?, c));
             }
-            Ok(Flow::Next)
+            attach_apply(g, me, f, a, &slots)
         }
         Op::PickPrize(_) => {
             f.prize = match first {
@@ -1387,6 +1422,18 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
         Op::DiscardEnergy(d) if d.selection.is_moved() => ec_begin(g, me, f, d, true),
         Op::DiscardEnergy(d) => de_choice(g, me, f, d),
         Op::TakePrize(t) => tp_begin(g, me, f, t, true),
+        // Cards from the deck are chosen after the damage (the deck is hidden until it resolves).
+        Op::Attach(a) if a.from.1 != Zone::Deck => {
+            // A zone an earlier step fills can't be asked about yet.
+            if zone_is_unset(f, a.from) {
+                return Ok(Flow::Next);
+            }
+            if attach_prompt(g, me, f, a)? {
+                return Ok(Flow::Suspend);
+            }
+            f.record(g, me, CHOICE_NONE);
+            Ok(Flow::Next)
+        }
         _ => Ok(Flow::Next),
     }
 }
@@ -1419,6 +1466,15 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
                 Res::Prizes(ix) if !ix.is_empty() => f.record_items(g, me, CHOICE_YES, ix.as_slice()),
                 _ => f.record(g, me, CHOICE_NONE),
             }
+            Ok(Flow::Next)
+        }
+        Op::Attach(a) => {
+            let ts: Vec<(CardTarget, CardId)> = match first {
+                Res::Attach(t) => t.iter().copied().collect(),
+                _ => Vec::new(),
+            };
+            let items = encode_attach(g, f.who(a.chooser), &ts);
+            f.record_items(g, me, if items.is_empty() { CHOICE_NONE } else { CHOICE_YES }, &items);
             Ok(Flow::Next)
         }
         _ => Ok(Flow::Next),
