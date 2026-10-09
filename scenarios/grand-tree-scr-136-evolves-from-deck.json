@@ -1,0 +1,48 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "1 Grand Tree SCR 136",
+   "51 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "1 Grand Tree SCR 136",
+   "51 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Charcadet PFL 19",
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet PFL 19"
+ },
+ "answers": [
+  {
+   "a": "stadium"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": true,
+   "cite": "JP Q&A 2026-10-09 (Grand Tree evolving Bidoof into a Bibarel from the deck: はい、できます; Bidoof isn't in our pool, Charcadet into Armarouge is the same case): not the first turn, the Basic wasn't put into play this turn"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Armarouge SSP 34",
+   "cite": "card text (Grand Tree); JP Q&A 2026-10-09 (the normal case)"
+  }
+ ]
+}

@@ -33,8 +33,8 @@
    "at": "start",
    "who": "me",
    "legal": "stadium",
-   "is": true,
-   "cite": "Judge ruling id2327 (parenthetical text is reminder text; Boosted Evolution overrides it): Grand Tree's parenthetical restates the normal evolution limits, which Eevee's Boosted Evolution lifts while Eevee is Active (docs/rulings/RULES.md Evolution timing); put into play this turn"
+   "is": false,
+   "cite": "JP Q&A 2026-10-09 (a Scatterbug with Adaptive Evolution put onto the Bench this turn can't be evolved by Grand Tree; our pool's Scatterbug has no Ability, so Boosted Evolution stands in for the permission): Grand Tree's 'put into play this turn' clause is its own restriction; official JP Q&A 2026-10-09 (docs/rulings/forum-answers.md, Grand Tree): Grand Tree's parenthetical is its own restriction, which no permission lifts, like Rare Candy's (id1144, id1815); id2327 is Strange Timepiece's only (docs/rulings/RULES.md Evolution timing)"
   },
   {
    "at": "start",
@@ -43,7 +43,7 @@
    "name": "Sylveon ex PRE 41",
    "on": "active",
    "is": true,
-   "cite": "card text (Eevee Boosted Evolution)"
+   "cite": "card text (Eevee Boosted Evolution lifts the rule's limits for evolving from the hand)"
   }
  ]
 }

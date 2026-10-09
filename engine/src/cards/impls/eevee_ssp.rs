@@ -5,9 +5,10 @@
 //! Events batch 2: a `Permit` on its own evolving (`This(Role::Base)`) on any
 //! path (the text doesn't say "from your hand"), lifting the first-turn and
 //! came-into-play-this-turn limits while it is the Active Pokémon: from the
-//! hand, after Strange Timepiece devolved it, and with Grand Tree, whose
-//! parenthetical is reminder text (id2327). Rare Candy keeps its own
-//! restriction (id1144, id1815).
+//! hand, and after Strange Timepiece devolved it (its parenthetical is
+//! reminder text: id2327). Rare Candy and Grand Tree keep their own
+//! restriction (id1144, id1815; Grand Tree: official JP Q&A 2026-10-09,
+//! "on your first turn you can't use Grand Tree's effect").
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

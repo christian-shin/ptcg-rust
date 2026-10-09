@@ -10,8 +10,8 @@
 //! stays. It used to rewrite the played turn of every [G] Pokémon when a [G]
 //! card was played, which let a [G] Pokémon evolve into a non-[G] one and let
 //! Rare Candy ignore its own limit (a `Restrict`: id1144, id1815). Grand Tree's
-//! limits are liftable (id2327) but Grand Tree is a Stadium too: the two are
-//! never in play together.
+//! limits are its own `Restrict` too (official JP Q&A 2026-10-09), and Grand
+//! Tree is a Stadium as well: the two are never in play together.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LushForest",
