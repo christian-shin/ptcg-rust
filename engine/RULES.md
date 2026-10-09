@@ -74,6 +74,19 @@ stamps, because more lock cards will come.
 - So no lock needs a special case for cards in the hand: the hand check
   uses printed data, and the on-play trigger checks the card in play.
 
+## Blocked effects (2026-10-08)
+
+- An Ability or card whose effect is prevented can still be used or played;
+  the effect is blocked and the use counts (once per turn is spent). A Pokémon
+  that can't be affected by Special Conditions can still be the target of
+  Hypnotoxic Laser (id290 / n275); Dusknoir's Cursed Blast still Knocks Out
+  Dusknoir when Battle Cage blocks the counters (id2264 / n1765). So Hide 'n'
+  Sneak and Festival Grounds block Volcanion ex's Scalding Steam without
+  making it unusable. Only an Ability or card that can have no effect at all
+  (an empty deck, nothing to heal) can't be used (ids 255, 925, 2362).
+- Battle Cage stops counters from being placed on Benched Pokémon, so counters
+  moved onto one leave their source and vanish (id2257 / n1758).
+
 ## Not yet implemented (2026-10-08)
 
 - Lock precedence gets rules 2 and 4 wrong: take-hold order is applied to

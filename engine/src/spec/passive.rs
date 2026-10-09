@@ -575,7 +575,7 @@ pub struct ConditionImmunitySpec {
     pub subject: SlotPred,
     /// The conditions are removed from effects that would add them.
     pub prevent: bool,
-    /// Cleared whenever the table state is checked (today's Festival Grounds, B-PC-38).
+    /// Cleared whenever the table state is checked (Festival Grounds).
     pub sweep: bool,
 }
 /// The Energy can only be attached to a matching Pokémon (and is discarded from any other).
@@ -1479,7 +1479,7 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
 
 /// Every attack-effect kind (`AtkBase` effects) except the damage steps, plus the counters
 /// placed by Abilities: the effect kinds Hide 'n' Sneak and Mist Energy prevent.
-pub const HIDE_N_SNEAK_KINDS: [u32; 36] = [
+pub const HIDE_N_SNEAK_KINDS: [u32; 37] = [
     crate::effects::k::SELF_PREVENT_RETREAT,
     crate::effects::k::DISCARD_ATTACKER_ENERGY_IF_KO,
     crate::effects::k::APPLY_WEAKNESS,
@@ -1497,6 +1497,7 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 36] = [
     crate::effects::k::MOVE_OPPONENT_ENERGY,
     crate::effects::k::ADD_MARKER,
     crate::effects::k::ADD_SPECIAL_CONDITIONS,
+    crate::effects::k::ADD_SPECIAL_CONDITIONS_POWER,
     crate::effects::k::REMOVE_SPECIAL_CONDITIONS,
     crate::effects::k::HEAL_TARGET,
     crate::effects::k::PLAY_LOCK,
@@ -1552,6 +1553,22 @@ fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource
         return Ok(());
     }
     if d.abilities {
+        // A Special Condition added by the Ability of an opposing Pokémon (an effect built by a Trainer or
+        // by the owner's own Pokémon doesn't count).
+        if let Effect::AddSpecialConditionsPower { target, source, .. } = *g.e(e) {
+            let Some(at) = locate(g, me, origin) else { return Ok(()) };
+            if !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
+                return Ok(());
+            }
+            if g.st.cdef(source).is_pokemon() {
+                if let Some((q, _)) = g.st.find_pokemon_slot(source) {
+                    if q != target.p as usize {
+                        g.set_prevent(e, true);
+                    }
+                }
+            }
+            return Ok(());
+        }
         if let Effect::PlaceDamageCounters { p, target, source, .. } = *g.e(e) {
             let Some(at) = locate(g, me, origin) else { return Ok(()) };
             if !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {

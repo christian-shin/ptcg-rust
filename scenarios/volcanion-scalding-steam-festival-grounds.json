@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Volcanion ex JTG 31",
+   "4 Shuppet PBL 33",
+   "4 Duraludon PRE 69",
+   "4 Festival Grounds PRE 108",
+   "44 Metal Energy MEE 8"
+  ],
+  [
+   "4 Volcanion ex JTG 31",
+   "4 Shuppet PBL 33",
+   "4 Duraludon PRE 69",
+   "4 Festival Grounds PRE 108",
+   "44 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Volcanion ex JTG 31",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "stadium": "Festival Grounds PRE 108"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Scalding Steam",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "conditions": [],
+   "cite": "official text: under Festival Grounds a Pokémon with Energy attached can't be affected by any Special Conditions"
+  },
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "me",
+   "legal": "ability",
+   "name": "Scalding Steam",
+   "is": false,
+   "cite": "ruling id290 / n275: the Ability can be used but its effect is blocked, so once per turn is spent"
+  }
+ ]
+}
