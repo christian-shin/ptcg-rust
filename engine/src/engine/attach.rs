@@ -42,13 +42,13 @@ pub fn is_tool(g: &Game, card: CardId) -> bool {
 /// The Attach event of `card` onto the Pokémon in `target`, from `source`. The event's owner is the card's owner
 /// (whose hand or deck it comes from).
 pub fn attach_view(g: &Game, card: CardId, target: SlotRef, source: RulesZone, manual: bool, cause: Cause) -> EventView {
-    EventView { source: Some(source), manual, card: Some(card), slot: Some(target), ..EventView::new(EventKind::Attach, cause, g.st.owner(card) as u8, g.st.active_player) }
+    EventView { source: Some(source), manual, card: Some(card), slot: Some(target), ..EventView::new(EventKind::Attach, cause, g.st.owner(card) as u8, crate::spec::event::whose_turn(g)) }
 }
 
 /// The MoveEnergy / MoveTool event of `card` from the Pokémon in `from` to the one in `to` (the event's spot). The
 /// event's owner is the Pokémon's owner.
 pub fn move_view(g: &Game, kind: EventKind, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> EventView {
-    EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(kind, cause, from.p, g.st.active_player) }
+    EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(kind, cause, from.p, crate::spec::event::whose_turn(g)) }
 }
 
 // ---------------------------------------------------------------------------

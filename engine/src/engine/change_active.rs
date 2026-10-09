@@ -62,7 +62,7 @@ pub fn view(g: &Game, c: &ChangeActiveView) -> EventView {
         to,
         card: slot.and_then(|s| g.st.slot_pokemon(s.p as usize, s.s)),
         slot,
-        ..EventView::new(EventKind::ChangeActive, c.cause, c.p as u8, g.st.active_player)
+        ..EventView::new(EventKind::ChangeActive, c.cause, c.p as u8, crate::spec::event::whose_turn(g))
     }
 }
 

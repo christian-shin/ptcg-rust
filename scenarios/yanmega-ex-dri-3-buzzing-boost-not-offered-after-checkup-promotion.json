@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Makuhita MEG 72", "4 Yanma DRI 2", "4 Yanmega ex DRI 3", "4 Mega Latias ex MEG 100", "24 Fighting Energy MEE 6", "20 Grass Energy MEE 1"],
+  ["4 Makuhita MEG 72", "4 Yanma DRI 2", "4 Yanmega ex DRI 3", "4 Mega Latias ex MEG 100", "24 Fighting Energy MEE 6", "20 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Makuhita MEG 72", "active_damage": 70, "active_conditions": ["POISONED"], "bench": [{"card": ["Yanma DRI 2", "Yanmega ex DRI 3"]}]},
+ "opp": {"reset": true, "active": "Mega Latias ex MEG 100"},
+ "answers": [{"a": "pass"}],
+ "expect": [
+  {"at": "next_turn", "who": "me", "slot": "active", "card": "Yanmega ex DRI 3", "cite": "Makuhita is Knocked Out by Poison at Pokemon Checkup and Yanmega ex is promoted"},
+  {"at": "next_turn", "absent": ["Confirm"], "cite": "APR F: Pokemon Checkup takes place in neither player's turn, so a promotion after a Knock Out at Checkup isn't a move 'during your turn' and Buzzing Boost (once during your turn, when this Pokemon moves from your Bench to the Active Spot) isn't offered; compare the JP FAQ (Yanma DRI 2 / Mega Yanmega ex): the promotion after Arven's Toedscool Knocks itself Out with its attack during its owner's turn does allow it"}
+ ]
+}

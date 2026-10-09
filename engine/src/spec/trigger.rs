@@ -215,7 +215,7 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
 /// The event an effect carries, as predicates read it (`None` for an effect that carries no event yet).
 pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
     use super::event::{EventKind, EventView, RulesZone};
-    let turn = g.st.active_player;
+    let turn = super::event::whose_turn(g);
     Some(match *g.e(e) {
         Effect::EnterPlay { p, card, target, source, mode, cause, .. } => EventView { source: Some(source), mode: Some(mode), card: Some(card), slot: Some(target), ..EventView::new(EventKind::EnterPlay, cause, p, turn) },
         Effect::Evolve { p, card, base, target, source, path, cause, base_entered_this_turn, owner_first_turn, .. } => EventView { source: Some(source), path: Some(path), card: Some(card), base: Some(base), slot: Some(target), base_entered_this_turn, owner_first_turn, ..EventView::new(EventKind::Evolve, cause, p, turn) },

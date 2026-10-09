@@ -111,7 +111,7 @@ pub fn source_of(g: &Game, card: CardId) -> Option<(ListRef, RulesZone)> {
 
 /// The EnterPlay event of `card` onto `target`.
 pub fn enter_view(g: &Game, card: CardId, target: SlotRef, source: RulesZone, mode: EnterMode, cause: Cause) -> EventView {
-    EventView { source: Some(source), mode: Some(mode), card: Some(card), slot: Some(target), ..EventView::new(EventKind::EnterPlay, cause, target.p, g.st.active_player) }
+    EventView { source: Some(source), mode: Some(mode), card: Some(card), slot: Some(target), ..EventView::new(EventKind::EnterPlay, cause, target.p, crate::spec::event::whose_turn(g)) }
 }
 
 /// The Evolve event of `card` (`None`: a card not chosen yet) onto the Pokémon in `target`; `None` when the
@@ -129,7 +129,7 @@ pub fn evolve_view(g: &Game, card: Option<CardId>, target: SlotRef, source: Rule
         base_entered_this_turn: slot.entered_turn == g.st.turn,
         // The owner's first turn: the game's turn 1 or 2 when it is the owner's turn.
         owner_first_turn: g.st.turn <= 2 && g.st.active_player as usize == p,
-        ..EventView::new(EventKind::Evolve, cause, target.p, g.st.active_player)
+        ..EventView::new(EventKind::Evolve, cause, target.p, crate::spec::event::whose_turn(g))
     })
 }
 

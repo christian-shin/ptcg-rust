@@ -21,3 +21,7 @@ g0500013901
 # 2 Boss's Orders used through Mr. Mime's Look-Alike Show can't switch in a Benched Pokémon with Mist Energy (id2025; JP FAQ, Supernatural Shapeshifter + Boss's Orders vs Mist Energy)
 g0500000754
 g0500018045
+# 3 Yanmega ex's Buzzing Boost is no longer offered after a promotion that follows a Knock Out at Pokémon Checkup (APR F: Checkup is in neither player's turn)
+g0500003353
+g0500004828
+g0500008429

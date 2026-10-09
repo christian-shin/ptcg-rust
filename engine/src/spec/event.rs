@@ -198,12 +198,13 @@ pub enum Role {
 }
 
 /// Whose turn it is, for an event predicate (separate from the trigger's `trigger::Turn`, whose referent is
-/// the declaring card's owner).
+/// the declaring card's owner). Every one but `NotEventOwner` is false while it is nobody's turn ([`NO_TURN`]:
+/// Pokémon Checkup, APR F).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TurnOf {
     /// The turn of the player whose card / Pokémon the event is about ("during their turn").
     EventOwner,
-    /// Not that player's turn.
+    /// Not that player's turn (the other player's, or nobody's: Pokémon Checkup).
     NotEventOwner,
     /// The turn of the declaring card's owner ("during your turn").
     Me,
@@ -268,6 +269,21 @@ pub enum EventPred {
     Not(&'static EventPred),
 }
 
+/// No player's turn: [`EventView::turn`] during Pokémon Checkup and the game's setup.
+pub const NO_TURN: u8 = 2;
+
+/// The player whose turn it is, as an event records it: nobody's during Pokémon Checkup ("Pokémon Checkup takes
+/// place in neither player's turn", APR F) and during setup, so "during your turn" / "during their turn" is false
+/// there for every event (a Pokémon promoted after a Knock Out at Checkup isn't moved during its owner's turn).
+#[inline]
+pub fn whose_turn(g: &Game) -> u8 {
+    use crate::types::GamePhase;
+    match g.st.phase {
+        GamePhase::BetweenTurns | GamePhase::Setup | GamePhase::WaitingForPlayers => NO_TURN,
+        _ => g.st.active_player,
+    }
+}
+
 /// The attributes of one event that predicates read.
 #[derive(Clone, Copy, Debug)]
 pub struct EventView {
@@ -290,7 +306,7 @@ pub struct EventView {
     pub heads: Option<bool>,
     /// The player whose card / Pokémon the event is about.
     pub owner: u8,
-    /// The player whose turn it is.
+    /// The player whose turn it is ([`whose_turn`]; [`NO_TURN`] during Pokémon Checkup and setup).
     pub turn: u8,
     /// Evolve: the Pokémon evolved from came into play this turn (the slot's entered-turn record,
     /// `Slot::entered_turn`, which no permission rewrites).
@@ -492,7 +508,7 @@ impl EventPred {
                 TurnOf::EventOwner => v.turn == v.owner,
                 TurnOf::NotEventOwner => v.turn != v.owner,
                 TurnOf::Me => v.turn == g.st.owner(me) as u8,
-                TurnOf::Opp => v.turn != g.st.owner(me) as u8,
+                TurnOf::Opp => v.turn == 1 - g.st.owner(me) as u8,
             },
             EventPred::Condition(c) => v.condition == Some(*c),
             EventPred::Change(c) => v.change == Some(*c),
@@ -670,6 +686,14 @@ mod tests {
         assert!(ev(&EventPred::Turn(TurnOf::EventOwner), &mut g, mine, &v));
         assert!(ev(&EventPred::Turn(TurnOf::Opp), &mut g, mine, &v));
         assert!(!ev(&EventPred::Turn(TurnOf::Me), &mut g, mine, &v));
+        // Pokémon Checkup is in neither player's turn (APR F).
+        let checkup = EventView { turn: NO_TURN, ..v };
+        for t in [TurnOf::EventOwner, TurnOf::Me, TurnOf::Opp] {
+            assert!(!ev(&EventPred::Turn(t), &mut g, mine, &checkup), "{t:?} at Checkup");
+        }
+        assert!(ev(&EventPred::Turn(TurnOf::NotEventOwner), &mut g, mine, &checkup));
+        g.st.phase = crate::types::GamePhase::BetweenTurns;
+        assert_eq!(whose_turn(&g), NO_TURN);
     }
 
     /// Slowpoke Dopey Face: can't be Confused, whatever causes it (Lisia's Appeal included).

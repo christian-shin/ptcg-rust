@@ -37,17 +37,17 @@ use crate::types::SpecialCondition;
 /// The GainCondition / RemoveCondition event of `condition` on the Pokémon in `target`. The event's card is that
 /// Pokémon, its owner the Pokémon's owner.
 pub fn condition_view(g: &Game, kind: EventKind, target: SlotRef, condition: SpecialCondition, cause: Cause) -> EventView {
-    EventView { card: g.st.slot_pokemon(target.p as usize, target.s), slot: Some(target), condition: Some(condition), ..EventView::new(kind, cause, target.p, g.st.active_player) }
+    EventView { card: g.st.slot_pokemon(target.p as usize, target.s), slot: Some(target), condition: Some(condition), ..EventView::new(kind, cause, target.p, crate::spec::event::whose_turn(g)) }
 }
 
 /// The RemoveCounters event: `amount` HP of damage counters off the Pokémon in `target`.
 pub fn heal_view(g: &Game, target: SlotRef, amount: i32, cause: Cause) -> EventView {
-    EventView { card: g.st.slot_pokemon(target.p as usize, target.s), slot: Some(target), amount, ..EventView::new(EventKind::RemoveCounters, cause, target.p, g.st.active_player) }
+    EventView { card: g.st.slot_pokemon(target.p as usize, target.s), slot: Some(target), amount, ..EventView::new(EventKind::RemoveCounters, cause, target.p, crate::spec::event::whose_turn(g)) }
 }
 
 /// The CoinFlip event of player `p`.
 pub fn coin_view(g: &Game, p: usize, purpose: CoinPurpose, heads: bool, cause: Cause) -> EventView {
-    EventView { purpose: Some(purpose), heads: Some(heads), ..EventView::new(EventKind::CoinFlip, cause, p as u8, g.st.active_player) }
+    EventView { purpose: Some(purpose), heads: Some(heads), ..EventView::new(EventKind::CoinFlip, cause, p as u8, crate::spec::event::whose_turn(g)) }
 }
 
 // ---------------------------------------------------------------------------
