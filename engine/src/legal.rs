@@ -85,9 +85,9 @@ fn def_flags(def: DefId) -> u8 {
 /// The cards of the game that declare a lock-like check, by kind (found once per decision).
 #[derive(Default)]
 struct Sources {
-    block_use: Vec<CardId>,
-    block_attack: Vec<CardId>,
-    played_turn_reset: Vec<CardId>,
+    block_use: SVec<CardId, 120>,
+    block_attack: SVec<CardId, 120>,
+    played_turn_reset: SVec<CardId, 120>,
 }
 
 // ---------------------------------------------------------------------------
@@ -101,9 +101,9 @@ pub struct Ctx<'a> {
     /// The checked attack list and the available attacks built from it.
     attacks: Option<Result<(turn::CheckedAttacks, SVec<(AttackRef, bool), 64>), ()>>,
     /// CheckProvidedEnergy per slot.
-    provided: Vec<(crate::state::SlotId, Result<EnergyMap, ()>)>,
+    provided: SVec<(crate::state::SlotId, Result<EnergyMap, ()>), { crate::state::MAX_SLOTS }>,
     /// CheckPokemonPlayedTurn per slot.
-    played: Vec<(crate::state::SlotId, bool, Result<(i32, bool), ()>)>,
+    played: SVec<(crate::state::SlotId, bool, Result<(i32, bool), ()>), { 2 * crate::state::MAX_SLOTS }>,
     /// CheckRetreatCost.
     retreat_cost: Option<Result<Cost, ()>>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
@@ -112,7 +112,7 @@ pub struct Ctx<'a> {
 
 impl<'a> Ctx<'a> {
     pub fn new(g: &'a Game) -> Ctx<'a> {
-        Ctx { g, p: g.st.active_player as usize, scratch: None, sources: None, attacks: None, provided: Vec::new(), played: Vec::new(), retreat_cost: None, why: "" }
+        Ctx { g, p: g.st.active_player as usize, scratch: None, sources: None, attacks: None, provided: SVec::new(), played: SVec::new(), retreat_cost: None, why: "" }
     }
 
     /// The scratch game checked reads run on (made on first use, one per decision).

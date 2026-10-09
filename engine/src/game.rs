@@ -304,7 +304,7 @@ impl PropCache {
 }
 
 /// `PTCG_VERIFY_CACHE=1` (or `PTCG_VERIFY_LEGAL=1`): every memo hit is checked against a fresh computation.
-fn verify_cache() -> bool {
+pub(crate) fn verify_cache() -> bool {
     static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *V.get_or_init(|| ["PTCG_VERIFY_CACHE", "PTCG_VERIFY_LEGAL"].iter().any(|k| std::env::var(k).map_or(false, |v| v == "1")))
 }

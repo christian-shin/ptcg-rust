@@ -493,6 +493,22 @@ pub fn slot_targets(st: &State, p: usize, pt: PlayerType, slots: &[u8]) -> Vec<C
     out
 }
 
+/// The player's own Active Spot and Bench targets that hold a Pokémon: `slot_targets` for
+/// `BottomPlayer` and `[Active, Bench]`, without the allocation.
+pub fn own_targets(st: &State, p: usize) -> SVec<CardTarget, { crate::state::MAX_SLOTS }> {
+    let mut out = SVec::new();
+    let pl = &st.players[p];
+    if !pl.slots[pl.active as usize].cards.is_empty() {
+        out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0));
+    }
+    for (i, &b) in pl.bench.iter().enumerate() {
+        if !pl.slots[b as usize].cards.is_empty() {
+            out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8));
+        }
+    }
+    out
+}
+
 pub fn target_json(t: CardTarget) -> Value {
     json!({ "player": t.player as u8, "slot": t.slot as u8, "index": t.index })
 }
@@ -651,7 +667,6 @@ impl Game {
     /// Decode a raw wire answer and validate it (socket-server semantics).
     pub fn decode_answer(&self, pr: &PromptRec, raw: &Value) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
         if raw.is_null() {
             let can_cancel = match pr.kind {
                 PromptKind::ChooseCards { opts, .. } => opts.allow_cancel,
@@ -674,81 +689,20 @@ impl Game {
             PromptKind::Confirm => Ok(Res::Bool(raw.as_bool().ok_or(invalid)?)),
             PromptKind::Select { .. } => Ok(Res::Int(raw.as_i64().ok_or(invalid)? as i32)),
             PromptKind::ChooseCards { cards, filter, opts } => {
-                let list = self.prompt_list(cards);
-                let mut out: List<120> = List::new();
-                for v in raw.as_array().ok_or(invalid)? {
-                    let i = v.as_u64().ok_or(invalid)? as usize;
-                    // `cards[index]` is undefined for out-of-range indices; validate rejects it.
-                    out.push(*list.get(i).ok_or(invalid)?);
-                }
-                if self.choose_cards_valid(list, out.as_slice(), &filter, &opts) {
-                    Ok(Res::Cards(out))
-                } else {
-                    Err(invalid)
-                }
+                let idx = raw.as_array().ok_or(invalid)?.iter().map(|v| v.as_u64().map(|i| i as usize));
+                self.decode_choose_cards(cards, &filter, &opts, idx)
             }
-            PromptKind::ChoosePokemon { min, max, blocked, .. } => {
-                let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
-                for v in raw.as_array().ok_or(invalid)? {
-                    let t = target_from_json(v).ok_or(invalid)?;
-                    let q = if t.player == PlayerType::BottomPlayer { p } else { 1 - p };
-                    let s = if t.slot == SlotType::Active {
-                        self.st.players[q].active
-                    } else {
-                        *self.st.players[q].bench.get(t.index as usize).ok_or(invalid)?
-                    };
-                    out.push(SlotRef::new(q, s));
-                }
-                if out.len() < min as usize || out.len() > max as usize {
-                    return Err(invalid);
-                }
-                if out.iter().any(|s| self.st.slot(s.p as usize, s.s).cards.is_empty()) {
-                    return Err(invalid);
-                }
-                let bl = blocked_slots(&self.st, p, blocked.as_slice());
-                if out.iter().any(|s| bl.contains(s)) {
-                    return Err(invalid);
-                }
-                Ok(Res::Slots(out))
+            PromptKind::ChoosePokemon { .. } => {
+                let ts = raw.as_array().ok_or(invalid)?.iter().map(target_from_json);
+                self.decode_choose_pokemon(pr, ts)
             }
-            PromptKind::ChoosePrize { count, use_opponent_prizes, face_down_only, .. } => {
-                let q = if use_opponent_prizes { 1 - p } else { p };
-                let nonempty: Vec<u8> =
-                    (0..self.st.players[q].prize_count).filter(|i| !self.st.players[q].prizes[*i as usize].is_empty()).collect();
-                let mut out: SVec<u8, 6> = SVec::new();
-                for v in raw.as_array().ok_or(invalid)? {
-                    let i = v.as_u64().ok_or(invalid)? as usize;
-                    out.push(*nonempty.get(i).ok_or(invalid)?);
-                }
-                let required = (count as usize).min(nonempty.len());
-                if out.len() != required {
-                    return Err(invalid);
-                }
-                for (i, a) in out.iter().enumerate() {
-                    if out.as_slice()[..i].contains(a) {
-                        return Err(invalid);
-                    }
-                }
-                if face_down_only && out.iter().any(|a| self.st.players[q].prize_face_up[*a as usize]) {
-                    return Err(invalid);
-                }
-                Ok(Res::Prizes(out))
+            PromptKind::ChoosePrize { .. } => {
+                let idx = raw.as_array().ok_or(invalid)?.iter().map(|v| v.as_u64().map(|i| i as usize));
+                self.decode_choose_prize(pr, idx)
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
-                let mut out: SVec<EnergyEntry, 64> = SVec::new();
-                for v in raw.as_array().ok_or(invalid)? {
-                    let i = v.as_u64().ok_or(invalid)? as usize;
-                    out.push(*energy.get(i).ok_or(invalid)?);
-                }
-                if energy::check_energy_payment(out.as_slice(), cost.as_slice()) {
-                    let mut cards: SVec<CardId, 64> = SVec::new();
-                    for e in out.iter() {
-                        cards.push(e.card);
-                    }
-                    Ok(Res::Energy(cards))
-                } else {
-                    Err(invalid)
-                }
+                let idx = raw.as_array().ok_or(invalid)?.iter().map(|v| v.as_u64().map(|i| i as usize));
+                self.decode_choose_energy(&energy, &cost, idx)
             }
             PromptKind::ShuffleDeck => {
                 let mut l: List<120> = List::new();
@@ -781,6 +735,103 @@ impl Game {
             | PromptKind::RemoveDamage { .. }
             | PromptKind::OrderCards { .. } => self.decode_extra(pr, raw).unwrap_or(Err(invalid)),
             _ => Ok(Res::True),
+        }
+    }
+
+    /// `ChooseCardsPrompt` answer from the indices into the offered list (`None`: not an index).
+    pub(crate) fn decode_choose_cards(&self, cards: ListRef, filter: &Filter, o: &ChooseCardsOpts, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let list = self.prompt_list(cards);
+        let mut out: List<120> = List::new();
+        for i in idx {
+            // `cards[index]` is undefined for out-of-range indices; validate rejects it.
+            out.push(*list.get(i.ok_or(invalid)?).ok_or(invalid)?);
+        }
+        if self.choose_cards_valid(list, out.as_slice(), filter, o) {
+            Ok(Res::Cards(out))
+        } else {
+            Err(invalid)
+        }
+    }
+
+    /// `ChoosePokemonPrompt` answer from the chosen targets (`None`: not a target).
+    pub(crate) fn decode_choose_pokemon(&self, pr: &PromptRec, targets: impl Iterator<Item = Option<CardTarget>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let p = self.st.player_index_by_id(pr.perspective_id());
+        let PromptKind::ChoosePokemon { min, max, blocked, .. } = pr.kind else { return Err(invalid) };
+        let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
+        for t in targets {
+            let t = t.ok_or(invalid)?;
+            let q = if t.player == PlayerType::BottomPlayer { p } else { 1 - p };
+            let s = if t.slot == SlotType::Active {
+                self.st.players[q].active
+            } else {
+                *self.st.players[q].bench.get(t.index as usize).ok_or(invalid)?
+            };
+            out.push(SlotRef::new(q, s));
+        }
+        if out.len() < min as usize || out.len() > max as usize {
+            return Err(invalid);
+        }
+        if out.iter().any(|s| self.st.slot(s.p as usize, s.s).cards.is_empty()) {
+            return Err(invalid);
+        }
+        let bl = blocked_slots(&self.st, p, blocked.as_slice());
+        if out.iter().any(|s| bl.contains(s)) {
+            return Err(invalid);
+        }
+        Ok(Res::Slots(out))
+    }
+
+    /// `ChoosePrizePrompt` answer from the indices among the remaining prizes.
+    pub(crate) fn decode_choose_prize(&self, pr: &PromptRec, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let p = self.st.player_index_by_id(pr.perspective_id());
+        let PromptKind::ChoosePrize { count, use_opponent_prizes, face_down_only, .. } = pr.kind else { return Err(invalid) };
+        let q = if use_opponent_prizes { 1 - p } else { p };
+        let nonempty: SVec<u8, 6> = {
+            let mut v = SVec::new();
+            for i in 0..self.st.players[q].prize_count {
+                if !self.st.players[q].prizes[i as usize].is_empty() {
+                    v.push(i);
+                }
+            }
+            v
+        };
+        let mut out: SVec<u8, 6> = SVec::new();
+        for i in idx {
+            out.push(*nonempty.get(i.ok_or(invalid)?).ok_or(invalid)?);
+        }
+        let required = (count as usize).min(nonempty.len());
+        if out.len() != required {
+            return Err(invalid);
+        }
+        for (i, a) in out.iter().enumerate() {
+            if out.as_slice()[..i].contains(a) {
+                return Err(invalid);
+            }
+        }
+        if face_down_only && out.iter().any(|a| self.st.players[q].prize_face_up[*a as usize]) {
+            return Err(invalid);
+        }
+        Ok(Res::Prizes(out))
+    }
+
+    /// `ChooseEnergyPrompt` answer from the indices into the offered Energy.
+    pub(crate) fn decode_choose_energy(&self, energy: &EnergyMap, cost: &Cost, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let mut out: SVec<EnergyEntry, 64> = SVec::new();
+        for i in idx {
+            out.push(*energy.get(i.ok_or(invalid)?).ok_or(invalid)?);
+        }
+        if energy::check_energy_payment(out.as_slice(), cost.as_slice()) {
+            let mut cards: SVec<CardId, 64> = SVec::new();
+            for e in out.iter() {
+                cards.push(e.card);
+            }
+            Ok(Res::Energy(cards))
+        } else {
+            Err(invalid)
         }
     }
 

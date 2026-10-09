@@ -277,6 +277,14 @@ impl<T: Copy, const N: usize> SVec<T, N> {
     }
 }
 
+impl<T: Copy, const N: usize> std::ops::Index<usize> for SVec<T, N> {
+    type Output = T;
+    #[inline]
+    fn index(&self, i: usize) -> &T {
+        &self.as_slice()[i]
+    }
+}
+
 impl<T: Copy + PartialEq, const N: usize> SVec<T, N> {
     pub fn contains(&self, v: &T) -> bool {
         self.as_slice().contains(v)

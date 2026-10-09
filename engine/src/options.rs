@@ -6,7 +6,7 @@
 use crate::game::{Action, Game};
 use crate::legal::{legal_fast, Ctx};
 use crate::list::*;
-use crate::prompts::{slot_targets, target_json};
+use crate::prompts::{own_targets, target_json};
 use crate::types::*;
 use serde_json::{json, Value};
 
@@ -19,12 +19,14 @@ pub struct TurnOption {
 const BOARD: CardTarget = CardTarget::new(PlayerType::BottomPlayer, SlotType::Board, 0);
 
 /// JavaScript default sort order for strings (UTF-16 code units).
-fn js_sort(v: &mut Vec<&'static str>) {
-    v.sort_by(|a, b| {
-        let x: Vec<u16> = a.encode_utf16().collect();
-        let y: Vec<u16> = b.encode_utf16().collect();
-        x.cmp(&y)
-    });
+fn js_cmp(a: &str, b: &str) -> std::cmp::Ordering {
+    a.encode_utf16().cmp(b.encode_utf16())
+}
+
+/// The UTF-16 units of the oracle's sort key for an attack: its name, then `\0` and the source card
+/// of a copied attack.
+fn attack_key(n: &'static str, from: Option<&'static str>) -> impl Iterator<Item = u16> {
+    n.encode_utf16().chain(from.into_iter().flat_map(|f| std::iter::once(0u16).chain(f.encode_utf16())))
 }
 
 /// The descriptor's `a` field of a turn action (what the policies tell actions apart by).
@@ -73,22 +75,24 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
 
 /// Structural candidates for the active player's turn, in oracle order.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
-    candidates(&mut Ctx::new(g))
+    let mut out = Vec::with_capacity(32);
+    candidates(&mut Ctx::new(g), &mut out);
+    out
 }
 
 /// The candidates, reading the attack list through the decision's context.
-fn candidates(ctx: &mut Ctx) -> Vec<Action> {
+fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
     let g = ctx.g;
-    let mut out = Vec::with_capacity(32);
+    out.clear();
     let p = g.st.active_player as usize;
-    let own = slot_targets(&g.st, p, PlayerType::BottomPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]);
+    let own = own_targets(&g.st, p);
     let pl = &g.st.players[p];
     let first_empty = pl.bench.iter().position(|b| pl.slots[*b as usize].cards.is_empty());
     for (hi, c) in pl.hand.iter().enumerate() {
         let d = g.st.cdef(c);
         let hand_index = hi as u8;
         if d.is_energy() {
-            for t in &own {
+            for t in own.iter() {
                 out.push(Action::PlayCard { hand_index, target: *t });
             }
         } else if d.is_pokemon() {
@@ -96,13 +100,13 @@ fn candidates(ctx: &mut Ctx) -> Vec<Action> {
                 out.push(Action::PlayCard { hand_index, target: CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, i as u8) });
             }
             if d.stage != Stage::Basic as u8 {
-                for t in &own {
+                for t in own.iter() {
                     out.push(Action::PlayCard { hand_index, target: *t });
                 }
             }
         } else if d.is_trainer() {
             if d.trainer_type == TrainerType::Tool as u8 {
-                for t in &own {
+                for t in own.iter() {
                     out.push(Action::PlayCard { hand_index, target: *t });
                 }
             } else {
@@ -111,9 +115,9 @@ fn candidates(ctx: &mut Ctx) -> Vec<Action> {
         }
     }
 
-    let mut names: Vec<&'static str> = Vec::new();
-    let mut from_names: Vec<(&'static str, &'static str)> = Vec::new();
-    let add = |n: &'static str, names: &mut Vec<&'static str>| {
+    let mut names: SVec<&'static str, 96> = SVec::new();
+    let mut from_names: SVec<(&'static str, &'static str), 48> = SVec::new();
+    let add = |n: &'static str, names: &mut SVec<&'static str, 96>| {
         if !names.contains(&n) {
             names.push(n);
         }
@@ -147,34 +151,30 @@ fn candidates(ctx: &mut Ctx) -> Vec<Action> {
         }
     }
     // Same order as the oracle's `[...names, ...name + '\0' + from].sort()`.
-    let mut keyed: Vec<(String, Action)> = Vec::new();
-    for n in names {
-        keyed.push((n.to_string(), Action::Attack { name: n, from: None }));
+    let mut keyed: SVec<(&'static str, Option<&'static str>), 144> = SVec::new();
+    for &n in names.iter() {
+        keyed.push((n, None));
     }
-    for (n, f) in from_names {
-        keyed.push((format!("{}\u{0}{}", n, f), Action::Attack { name: n, from: Some(f) }));
+    for &(n, f) in from_names.iter() {
+        keyed.push((n, Some(f)));
     }
-    keyed.sort_by(|a, b| {
-        let x: Vec<u16> = a.0.encode_utf16().collect();
-        let y: Vec<u16> = b.0.encode_utf16().collect();
-        x.cmp(&y)
-    });
-    for (_, a) in keyed {
-        out.push(a);
+    keyed.as_mut_slice().sort_by(|a, b| attack_key(a.0, a.1).cmp(attack_key(b.0, b.1)));
+    for &(n, f) in keyed.iter() {
+        out.push(Action::Attack { name: n, from: f });
     }
 
-    for t in &own {
+    for t in own.iter() {
         let slot = crate::prompts::get_target(&g.st, p, *t).unwrap();
         if let Some(c) = g.st.slot_pokemon(slot.p as usize, slot.s) {
-            let mut pn: Vec<&'static str> = Vec::new();
+            let mut pn: SVec<&'static str, 8> = SVec::new();
             for pw in g.st.cdef(c).powers {
                 if !pn.contains(&pw.name) {
                     pn.push(pw.name);
                 }
             }
             // (The checked power list only removes powers: the printed names are the candidates.)
-            js_sort(&mut pn);
-            for n in pn {
+            pn.as_mut_slice().sort_by(|a, b| js_cmp(a, b));
+            for &n in pn.iter() {
                 out.push(Action::UseAbility { name: n, target: *t });
             }
         }
@@ -188,26 +188,39 @@ fn candidates(ctx: &mut Ctx) -> Vec<Action> {
         }
     }
     out.push(Action::Pass);
-    out
 }
 
-/// Legal turn options (deduplicated, in candidate order). Descriptors are built for the legal ones only.
-pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
+thread_local! {
+    /// Scratch lists of `legal_actions_into`, kept between decisions (no allocation per decision).
+    static LEGAL_SCRATCH: std::cell::RefCell<(Vec<Action>, Vec<Action>)> = const { std::cell::RefCell::new((Vec::new(), Vec::new())) };
+}
+
+/// The legal actions of the active player's turn into `out` (cleared first), deduplicated, in candidate
+/// order. Two candidates with one descriptor are one option: a card is told apart by its id, so a repeat is
+/// the same action.
+pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
+    out.clear();
+    let (mut cands, mut seen) = LEGAL_SCRATCH.with(|s| std::mem::take(&mut *s.borrow_mut()));
     let mut ctx = Ctx::new(g);
-    let mut seen: Vec<Action> = Vec::new();
-    let mut out = Vec::new();
-    for action in candidates(&mut ctx) {
-        // Two candidates with one descriptor are one option: a card is told apart by its id, so a repeat is
-        // the same action.
+    candidates(&mut ctx, &mut cands);
+    seen.clear();
+    for &action in cands.iter() {
         if seen.contains(&action) {
             continue;
         }
         seen.push(action);
         if legal_in(&mut ctx, action) {
-            out.push(TurnOption { desc: describe_action(g, action), action });
+            out.push(action);
         }
     }
-    out
+    LEGAL_SCRATCH.with(|s| *s.borrow_mut() = (cands, seen));
+}
+
+/// Legal turn options (deduplicated, in candidate order). Descriptors are built for the legal ones only.
+pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
+    let mut acts = Vec::new();
+    legal_actions_into(g, &mut acts);
+    acts.into_iter().map(|action| TurnOption { desc: describe_action(g, action), action }).collect()
 }
 
 /// Legality of one turn action: from the declared checks, else a trial on a
@@ -347,17 +360,7 @@ fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
 
 /// Legal actions without descriptors (fast path for the select interface).
 pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
-    let mut ctx = Ctx::new(g);
-    let mut seen: Vec<Action> = Vec::new();
-    let mut out: Vec<TurnOption> = Vec::new();
-    for c in candidates(&mut ctx) {
-        if seen.contains(&c) {
-            continue;
-        }
-        seen.push(c);
-        if legal_in(&mut ctx, c) {
-            out.push(TurnOption { desc: Value::Null, action: c });
-        }
-    }
-    out
+    let mut acts = Vec::new();
+    legal_actions_into(g, &mut acts);
+    acts.into_iter().map(|action| TurnOption { desc: Value::Null, action }).collect()
 }

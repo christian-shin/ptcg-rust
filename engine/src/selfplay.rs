@@ -12,7 +12,7 @@ use crate::carddb::{def, def_by_full_name, DefId};
 use crate::game::{Action, Game, Pending};
 use crate::interface::SelectData;
 use crate::list::{CardId, CardList};
-use crate::options::{action_kind, describe_action, describe_action_of, legal_actions, TurnOption};
+use crate::options::{action_kind, describe_action, describe_action_of, legal_actions_into, TurnOption};
 use crate::rng::{Draw, Rng};
 use serde_json::{json, Value};
 use std::collections::VecDeque;
@@ -270,8 +270,8 @@ fn find_by_card(g: &Game, opts: &[TurnOption], scripted: &Value) -> Option<usize
 }
 
 /// A turn option by policy, as the oracle runner's `decideTurn`.
-pub fn pick_turn(opts: &[TurnOption], policy: Policy, rng: &mut Rng) -> usize {
-    let kind = |i: usize| action_kind(&opts[i].action);
+pub fn pick_turn(opts: &[Action], policy: Policy, rng: &mut Rng) -> usize {
+    let kind = |i: usize| action_kind(&opts[i]);
     let pass = (0..opts.len()).find(|&i| kind(i) == "pass");
     // The index of the n-th option whose kind is among `ks`.
     let count = |ks: &[&str]| (0..opts.len()).filter(|&i| ks.contains(&kind(i))).count();
@@ -444,6 +444,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
     }
     let mut prng = Rng::new(o.seed.wrapping_mul(2654435761));
     let mut script: VecDeque<Value> = VecDeque::new();
+    let mut opts: Vec<Action> = Vec::new();
     let turn_at = o.scenario.map(crate::scenario::scenario_turn);
     for step in 0..MAX_STEPS {
         if g.st.turn > MAX_TURNS {
@@ -511,7 +512,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                         }
                     }
                 }
-                let opts = legal_actions(g);
+                legal_actions_into(g, &mut opts);
                 if opts.is_empty() {
                     return End::Fail(format!("no legal turn options at step {} (turn {})", step, g.st.turn));
                 }
@@ -522,7 +523,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                 }
                 let p = g.st.active_player as usize;
                 // Descriptors are made only when something reads them: a scripted answer, the trace.
-                let described = |g: &Game| -> Vec<TurnOption> { opts.iter().map(|x| TurnOption { desc: describe_action(g, x.action), action: x.action }).collect() };
+                let described = |g: &Game| -> Vec<TurnOption> { opts.iter().map(|&action| TurnOption { desc: describe_action(g, action), action }).collect() };
                 let scripted = script.pop_front();
                 let full = (rec.on || scripted.is_some()).then(|| described(g));
                 let k = match scripted {
@@ -536,16 +537,16 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     }
                     None => pick_turn(&opts, o.policy[p], &mut prng),
                 };
-                let card = match opts[k].action {
+                let card = match opts[k] {
                     Action::PlayCard { hand_index, .. } => g.st.players[p].hand.get(hand_index as usize),
                     _ => None,
                 };
-                note(Last::Turn(opts[k].action, card));
+                note(Last::Turn(opts[k], card));
                 let d = match (&full, rec.on) {
                     (Some(full), true) => json!({ "kind": "turn", "options": full.iter().map(|x| x.desc.clone()).collect::<Vec<_>>() }),
                     _ => Value::Null,
                 };
-                let r = g.act(opts[k].action).and_then(|_| g.settle());
+                let r = g.act(opts[k]).and_then(|_| g.settle());
                 if r.is_ok() && rec.on {
                     rec.step(g, p, d, full.as_ref().unwrap()[k].desc.clone());
                 }

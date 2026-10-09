@@ -14,7 +14,7 @@
 
 use ptcg::carddb::DefId;
 use ptcg::game::{Game, Pending};
-use ptcg::options::legal_actions;
+use ptcg::options::legal_actions_into;
 use ptcg::rng::Rng;
 use ptcg::selfplay::{expand_deck, MAX_STEPS, MAX_TURNS};
 use serde_json::Value;
@@ -79,6 +79,7 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
         return fail(0, "start");
     }
     let mut decisions = 0u64;
+    let mut opts = Vec::new();
     for _ in 0..MAX_STEPS {
         if g.st.turn > MAX_TURNS {
             break;
@@ -92,13 +93,13 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                 }
             }
             Pending::Turn(_) => {
-                let opts = legal_actions(&g);
+                legal_actions_into(&g, &mut opts);
                 if opts.is_empty() {
                     return fail(decisions, "no legal options");
                 }
                 decisions += 1;
                 let k = rng.index(opts.len());
-                if g.act(opts[k].action).and_then(|_| g.settle()).is_err() {
+                if g.act(opts[k]).and_then(|_| g.settle()).is_err() {
                     return fail(decisions, "act");
                 }
             }
