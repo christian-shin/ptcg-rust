@@ -1,0 +1,18 @@
+# Games of the golden corpus (tools/golden-corpus.txt) that the engine is expected to diverge on,
+# each a rules fix against the recording. Update in the same commit as a rules fix.
+# 5 Duskull + Risky Ruins (id2233)
+g0500002226
+g0500009190
+g0500013026
+g0500016390
+g0500019266
+# 2 Forest of Vitality's permission ends with the Stadium
+g0500011728
+g0500015648
+# 6 Brute Bonnet's Poison Spray is stopped by "prevent all effects of attacks" cards
+g0500005066
+g0500008666
+g0500011097
+g0500012241
+g0500012537
+g0500019737

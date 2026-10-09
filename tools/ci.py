@@ -4,7 +4,7 @@ usage: ci.py [--name NAME] [--games N] [--shards K] [--no-wait]
 
 Pushes the current commit to the `ci/<NAME>` branch (default: the current
 branch name), which starts the `rust` workflow (.github/workflows/rust.yml):
-build, `cargo test`, every scenario, and `tools/fuzz.py` split across K
+build, `cargo test` (job `test`), the golden-corpus replay (job `golden`), every scenario, and `tools/fuzz.py` split across K
 runners (default 4 x 25,000 games). With --games/--shards it dispatches the
 workflow on that branch instead of relying on the push (dispatch needs the
 workflow file on the default branch). Then it waits for the
@@ -90,7 +90,11 @@ def main():
     out = os.path.join(ROOT, 'corpus', 'ci', str(run))
     os.makedirs(out, exist_ok=True)
     sh('gh', 'run', 'download', str(run), '--dir', out, check=False)
-    print('artifacts (failing traces, if any) in %s' % os.path.relpath(out, ROOT))
+    print('artifacts (failing traces, golden diff output, if any) in %s' % os.path.relpath(out, ROOT))
+    gd = os.path.join(out, 'golden-diff', 'golden-diff.txt')
+    if os.path.exists(gd):
+        r = sh(sys.executable, os.path.join(ROOT, 'tools', 'golden_check.py'), gd, check=False)
+        print('golden check (against tools/golden-expected.txt):\n' + r.stdout.rstrip())
     log = sh('gh', 'run', 'view', str(run), '--log-failed', check=False).stdout
     print('\n'.join(log.splitlines()[-60:]))
     print('FAILED')

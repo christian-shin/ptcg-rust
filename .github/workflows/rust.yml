@@ -1,5 +1,5 @@
 # Rust engine checks, as separate jobs
-# after one build: unit and integration tests, every scenario (`scen`: expect assertions, invariants,
+# after one build: unit and integration tests, the golden-corpus replay, every scenario (`scen`: expect assertions, invariants,
 # stuck prompts, errors, panics) and fresh-seed self-play (`tools/fuzz.py`:
 # meta decks plus random legal pool decks) split across runners.
 #
@@ -48,8 +48,6 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-
       - name: Build
         run: cargo build --release --manifest-path engine/Cargo.toml --bins
-      - name: Tests
-        run: cargo test --release --manifest-path engine/Cargo.toml
       - id: m
         run: |
           SEED="${{ inputs.seed }}"
@@ -64,6 +62,71 @@ jobs:
             engine/target/release/diff
             engine/target/release/scen
           retention-days: 1
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            engine/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-
+      - name: Unit and integration tests
+        run: cargo test --release --manifest-path engine/Cargo.toml
+
+  # Golden-corpus replay: 20,001 recorded games through `diff`; the set of diverged games must equal
+  # tools/golden-expected.txt (each a rules fix). The corpus is a release asset (tools/golden-corpus.txt
+  # names it; tools/golden_pack.py publishes it), cached per corpus name.
+  golden:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bins
+          path: engine/target/release
+      - run: chmod +x engine/target/release/*
+      - id: c
+        run: echo "name=$(tr -d '[:space:]' < tools/golden-corpus.txt)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: golden-dl
+          key: golden-${{ steps.c.outputs.name }}
+      - name: Download corpus
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          N="${{ steps.c.outputs.name }}"
+          mkdir golden-dl
+          gh release download "golden-$N" --repo "$GITHUB_REPOSITORY" --dir golden-dl --pattern "$N.tar.*" --pattern SHA256SUMS
+      - name: Extract
+        run: |
+          N="${{ steps.c.outputs.name }}"
+          (cd golden-dl && grep " $N\.tar" SHA256SUMS | sha256sum -c -)
+          mkdir golden && tar -C golden -xf golden-dl/$N.tar.*
+          ls golden/traces | wc -l
+      - name: Replay
+        run: |
+          set -o pipefail
+          engine/target/release/diff golden/traces --quiet --threads "$(nproc)" | tee golden-diff.txt
+      - name: Check against tools/golden-expected.txt
+        run: python3 tools/golden_check.py golden-diff.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-diff
+          path: golden-diff.txt
+          if-no-files-found: ignore
 
   scenarios:
     needs: build
