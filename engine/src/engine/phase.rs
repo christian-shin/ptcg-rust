@@ -255,7 +255,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 if g.st.slot_pokemon(tp, ts).is_none() {
                     continue;
                 }
-                let hp = crate::engine::check::check_hp(g, tp, ts)?;
+                let hp = crate::derived::hp(g, tp, ts)?;
                 if g.st.slot(tp, ts).damage >= hp {
                     g.st.players[tp].slots[ts as usize].damage = hp - 10;
                 }

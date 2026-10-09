@@ -876,7 +876,7 @@ pub fn slot_pred_m(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<boo
             if g.st.slot_pokemon(s.p as usize, s.s).is_none() {
                 return Ok(false);
             }
-            let hp = crate::engine::check::check_hp(g, s.p as usize, s.s)?;
+            let hp = crate::derived::hp(g, s.p as usize, s.s)?;
             hp - g.st.slot(s.p as usize, s.s).damage <= *n
         }
         SlotPred::HasAbility => {

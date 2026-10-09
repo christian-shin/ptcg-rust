@@ -2148,7 +2148,7 @@ fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: 
             if g.st.slot(owner, t.s).damage != 0 {
                 return Ok(());
             }
-            let hp = crate::engine::check::check_hp(g, owner, t.s)?;
+            let hp = crate::derived::hp(g, owner, t.s)?;
             if damage >= hp {
                 if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
                     *survive_on_ten_hp = true;
@@ -2904,7 +2904,7 @@ fn survive_on_ten_tool(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -
     if blocked(g, me, origin, at, Some(t)) || g.st.slot(owner, t.s).damage != 0 {
         return Ok(());
     }
-    let hp = crate::engine::check::check_hp(g, owner, t.s)?;
+    let hp = crate::derived::hp(g, owner, t.s)?;
     if damage < hp {
         return Ok(());
     }

@@ -156,7 +156,7 @@ impl<'a> Ctx<'a> {
             let g = self.g;
             let p = self.p;
             let checked = if g.kinds_present.has(k::CHECK_POKEMON_ATTACKS) {
-                turn::read_attack_list(self.sc(), p).map_err(|_| ())
+                crate::derived::attacks(self.sc(), p).map_err(|_| ())
             } else {
                 // No handler: the read gives the seed (the Active Pokémon's Tool attacks).
                 match turn::check_attacks_effect(g, p) {
@@ -178,7 +178,7 @@ impl<'a> Ctx<'a> {
             return r.clone();
         }
         let p = self.p;
-        let r = attack::provided_energy_read(self.sc(), p, SlotRef::new(p, slot)).map_err(|_| ());
+        let r = crate::derived::provided_energy(self.sc(), p, SlotRef::new(p, slot)).map_err(|_| ());
         self.provided.push((slot, r.clone()));
         r
     }
@@ -189,7 +189,7 @@ impl<'a> Ctx<'a> {
             return r.clone();
         }
         let p = self.p;
-        let r = retreat::retreat_cost_read(self.sc(), p).map_err(|_| ());
+        let r = crate::derived::retreat_cost(self.sc(), p).map_err(|_| ());
         self.retreat_cost = Some(r.clone());
         r
     }
@@ -208,7 +208,7 @@ impl<'a> Ctx<'a> {
         if reset {
             slot.pokemon_played_turn = turn - 1;
         }
-        let r = play::read_pokemon_played_turn(sc, p, target).map_err(|_| ());
+        let r = crate::derived::played_turn(sc, p, target).map_err(|_| ());
         sc.st.players[p].slots[target.s as usize].pokemon_played_turn = saved;
         self.played.push((target.s, reset, r.clone()));
         r
@@ -357,8 +357,13 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             let e = sc.new_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: false });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
+            // The lists go back by assignment: the layout tracking (the dispatch index) learns it here.
+            crate::list::mark_all(sc.st.players[p].hand.as_slice());
+            crate::list::mark_all(sc.st.players[p].supporter.as_slice());
             sc.st.players[p].hand = hand;
             sc.st.players[p].supporter = supporter;
+            crate::list::mark_all(hand.as_slice());
+            crate::list::mark_all(supporter.as_slice());
             Some(ok)
         }
         TrainerType::Supporter => {

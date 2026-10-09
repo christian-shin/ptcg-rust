@@ -9,6 +9,8 @@ pub mod cause;
 pub mod spec;
 pub mod carddb;
 pub mod copy_attack;
+pub mod derived;
+pub mod dispatch;
 pub mod cards;
 pub mod effects;
 pub mod energy;

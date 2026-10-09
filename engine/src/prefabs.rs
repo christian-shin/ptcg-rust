@@ -158,7 +158,7 @@ pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize) -> R {
         Effect::PutDamage { b, damage, .. } => (b.target, damage),
         _ => return Ok(()),
     };
-    let hp = crate::engine::check::check_hp(g, player, t.s)?;
+    let hp = crate::derived::hp(g, player, t.s)?;
     if g.st.slot(t.p as usize, t.s).damage + damage >= hp {
         if g.st.phase == GamePhase::Attack {
             if !g.ten_hp_coin.iter().any(|(s, _)| *s == t) {
@@ -185,7 +185,7 @@ pub fn resolve_survive_coin_flips(g: &mut Game) -> R {
         if g.st.slot_pokemon(tp, ts).is_none() {
             continue;
         }
-        let hp = crate::engine::check::check_hp(g, owner as usize, ts)?;
+        let hp = crate::derived::hp(g, owner as usize, ts)?;
         if g.st.slot(tp, ts).damage < hp {
             continue;
         }
