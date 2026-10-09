@@ -105,7 +105,8 @@ fn card_db_matches_card_data() {
         let (oname, oatk, oabil) = parse_official(off);
         assert_eq!(d.name, oname, "{}", key);
         assert_eq!(d.attacks.iter().map(|a| a.name.to_string()).collect::<Vec<_>>(), oatk, "{} attack names", key);
-        assert_eq!(d.powers.iter().map(|a| a.name.to_string()).collect::<Vec<_>>(), oabil, "{} Ability names", key);
+        // A Fossil's rule and discard action is a power of its own (type 9), not an Ability.
+        assert_eq!(d.powers.iter().filter(|a| a.power_type == 2).map(|a| a.name.to_string()).collect::<Vec<_>>(), oabil, "{} Ability names", key);
         checked += 1;
         if let Some(prev) = row["prev_key"].as_str() {
             assert!(def_by_full_name(prev).is_some(), "{} in db", prev);
