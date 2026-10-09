@@ -63,7 +63,6 @@ impl Game {
         nd!(burn_damage, "burnDamage");
         nd!(confusion_damage, "confusionDamage");
         nd!(pokemon_played_turn, "pokemonPlayedTurn");
-        nd!(ability_lock_activation_order, "abilityLockActivationOrder");
         nd!(sleep_flips, "sleepFlips");
         nd!(healed_this_turn, "healedThisTurn");
         nd!(cannot_be_healed_next_turn, "cannotBeHealedNextTurn");

@@ -1,0 +1,58 @@
+{
+ "me": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "bench": [
+   {
+    "card": [
+     "Swinub JTG 77",
+     "Piloswine JTG 78",
+     "Mamoswine ex JTG 79"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "who": "opp",
+   "legal": "ability",
+   "name": "Mammoth Hauler",
+   "is": true,
+   "cite": "RULES.md precedence rules 2 and 4: Flutter Mane turns Iron Thorns ex's lock off, on the turn of either player (the order set when they took hold doesn't swap)"
+  }
+ ],
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Iron Thorns ex PRE 32",
+   "4 Swinub JTG 77",
+   "4 Piloswine JTG 78",
+   "4 Mamoswine ex JTG 79",
+   "4 Duraludon PRE 69",
+   "4 Switch 30C 127",
+   "32 Metal Energy MEE 8"
+  ],
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Iron Thorns ex PRE 32",
+   "4 Swinub JTG 77",
+   "4 Piloswine JTG 78",
+   "4 Mamoswine ex JTG 79",
+   "4 Duraludon PRE 69",
+   "4 Switch 30C 127",
+   "32 Metal Energy MEE 8"
+  ]
+ ]
+}

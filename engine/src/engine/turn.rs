@@ -54,6 +54,8 @@ fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> 
             g.run_fx(Effect::MovedFromActiveToBench { p: p as u8, card: c })?;
         }
     }
+    // The Active Spot changed (a silent switch dispatches nothing): locks may take hold or let go.
+    crate::spec::passive::lock_sync(g);
     Ok(())
 }
 

@@ -371,6 +371,7 @@ pub fn choose_active_cont(g: &mut Game, p: u8, res: Res) -> R {
         g.st.cards[c as usize].moved_to_active_this_turn = true;
         g.run_fx(Effect::MovedToActive { p: p as u8, card: c })?;
     }
+    crate::spec::passive::lock_sync(g);
     Ok(())
 }
 

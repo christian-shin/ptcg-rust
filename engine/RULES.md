@@ -44,7 +44,10 @@ Watchtower), or being released when the lock that prevented it turns off.
 
 No two locks in the current pool can turn each other off, so rule 3 doesn't
 yet decide a game. The engine implements it in full anyway, with take-hold
-stamps, because more lock cards will come.
+stamps, because more lock cards will come. The stamps live in the game state
+(`CardInst::lock_stamp`) and are kept up to date as the board changes
+(`lock_sync` in `spec/passive.rs`): a stamp is cleared when its lock goes off,
+and simultaneous take-holds are stamped with the turn player's first.
 
 ### Locks on playing cards
 
@@ -86,9 +89,3 @@ stamps, because more lock cards will come.
   (an empty deck, nothing to heal) can't be used (ids 255, 925, 2362).
 - Battle Cage stops counters from being placed on Benched Pokémon, so counters
   moved onto one leave their source and vanish (id2257 / n1758).
-
-## Not yet implemented (2026-10-08)
-
-- Lock precedence gets rules 2 and 4 wrong: take-hold order is applied to
-  one-way pairs too, ties go to whoever's turn it currently is, and stamps are
-  set only when a Pokémon becomes Active.

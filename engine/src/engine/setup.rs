@@ -473,6 +473,7 @@ fn finish(g: &mut Game) -> R {
     for s in g.st.players[second].in_play().iter() {
         g.st.players[second].slots[*s as usize].pokemon_played_turn = 2;
     }
-    crate::engine::game_effect::stamp_starting_ability_locks(g);
+    // Both Active Pokémon take hold together: the player who goes first is stamped first.
+    crate::spec::passive::lock_sync(g);
     crate::engine::phase::init_next_turn(g)
 }
