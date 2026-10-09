@@ -372,7 +372,7 @@ pub fn evolve_rules_fast(g: &Game, v: &EventView, reach: Reach) -> Option<bool> 
 
 /// Every check of an Evolve event: the locks, then [`evolve_rules`].
 pub fn check_evolve(g: &mut Game, v: &EventView, reach: Reach) -> R {
-    if let Some(code) = passive::event_locked(g, v)? {
+    if let Some(code) = crate::derived::event_locked(g, v)? {
         crate::bail!(code);
     }
     evolve_rules(g, v, reach)
@@ -384,7 +384,7 @@ pub fn check_enter(g: &mut Game, v: &EventView) -> R {
     if !g.st.slot(t.p as usize, t.s).cards.is_empty() {
         crate::bail!("INVALID_TARGET");
     }
-    if let Some(code) = passive::event_locked(g, v)? {
+    if let Some(code) = crate::derived::event_locked(g, v)? {
         crate::bail!(code);
     }
     if let Some(code) = restricted(g, v)? {

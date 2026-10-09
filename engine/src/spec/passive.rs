@@ -1906,6 +1906,9 @@ pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[Locke
 pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
     let Some(card) = v.card else { return Ok(None) };
     let p = v.owner as usize;
+    if !may_lock_event(g, p) {
+        return Ok(None);
+    }
     if let (true, Some(kind)) = (g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK), v.kind.effect_kind()) {
         let probe = Effect::PlayItem { p: p as u8, card, target: None };
         let order = g.propagation_order(&probe, kind);
@@ -1916,6 +1919,14 @@ pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'sta
         }
     }
     lasting_event_locked(g, v)
+}
+
+/// Can a lock forbid an event of player `p` at all (a plain read: some card of the game declares a lock over
+/// events, or an attack left one on `p`)? When it can't, [`event_locked`] answers `None` without a walk, so
+/// legality asks it before making its scratch game.
+#[inline]
+pub fn may_lock_event(g: &Game, p: usize) -> bool {
+    g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
 }
 
 /// [`event_locked`] for one in-play lock source `me`.

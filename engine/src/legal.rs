@@ -46,8 +46,6 @@ use std::sync::OnceLock;
 
 const F_BLOCK_USE: u8 = 1;
 const F_BLOCK_ATTACK: u8 = 2;
-/// A lock over events (`LockDecl::forbids`).
-const F_EVENT_LOCK: u8 = 4;
 const F_ATTACK_FAIL: u8 = 8;
 const F_ATTACH_GUARD: u8 = 16;
 const F_PLAY_SPEC: u8 = 32;
@@ -62,8 +60,8 @@ fn def_flags(def: DefId) -> u8 {
                 let mut f = 0;
                 for ps in spec.passives {
                     f |= match &ps.modifier {
-                        passive::Modifier::BlockUse(b) if !b.lock.forbids.is_never() => F_BLOCK_USE | F_EVENT_LOCK,
-                        passive::Modifier::BlockUse(_) => F_BLOCK_USE,
+                        // A lock over actions (a lock over events is asked through `derived::event_locked`).
+                        passive::Modifier::BlockUse(b) if !b.lock.actions.is_empty() => F_BLOCK_USE,
                         passive::Modifier::BlockAttack(_) => F_BLOCK_ATTACK,
                         passive::Modifier::AttachGuard(_) => F_ATTACH_GUARD,
                         _ => 0,
@@ -89,7 +87,6 @@ fn def_flags(def: DefId) -> u8 {
 struct Sources {
     block_use: SVec<CardId, 120>,
     block_attack: SVec<CardId, 120>,
-    event_lock: SVec<CardId, 120>,
 }
 
 // ---------------------------------------------------------------------------
@@ -137,9 +134,6 @@ impl<'a> Ctx<'a> {
                 }
                 if f & F_BLOCK_ATTACK != 0 {
                     s.block_attack.push(c);
-                }
-                if f & F_EVENT_LOCK != 0 {
-                    s.event_lock.push(c);
                 }
             }
             self.sources = Some(s);
@@ -209,26 +203,14 @@ impl<'a> Ctx<'a> {
         false
     }
 
-    /// Is the event forbidden by a declared lock (`passive::event_locked`, the same declarations: the locks over
-    /// events, in play and lasting)?
+    /// Is the event forbidden by a declared lock? The one query execution makes (`derived::event_locked`, which
+    /// the event's routine calls), on the scratch game, made only when a lock over events can exist
+    /// (`passive::may_lock_event`).
     fn event_locked(&mut self, v: &crate::spec::event::EventView) -> bool {
-        let g = self.g;
-        if v.card.is_none() {
+        if v.card.is_none() || !passive::may_lock_event(self.g, v.owner as usize) {
             return false;
         }
-        let p = v.owner as usize;
-        if g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK) {
-            for i in 0..self.sources().event_lock.len() {
-                let src = self.sources().event_lock[i];
-                if !matches!(passive::event_locked_by(self.sc(), src, v), Ok(None)) {
-                    return true;
-                }
-            }
-        }
-        if g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never()) {
-            return !matches!(passive::lasting_event_locked(self.sc(), v), Ok(None));
-        }
-        false
+        !matches!(crate::derived::event_locked(self.sc(), v), Ok(None))
     }
 }
 

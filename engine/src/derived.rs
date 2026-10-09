@@ -179,6 +179,15 @@ pub fn has_no_ability(g: &mut Game, p: usize, card: crate::list::CardId, power_i
     crate::prefabs::is_ability_blocked(g, p, card, power_index)
 }
 
+/// The lock that forbids a Pokémon event (EnterPlay, Evolve, Devolve, Swap), if any (`passive::event_locked`):
+/// the one query the event's routine asks before the event and legality asks for the event a play would
+/// produce.
+#[inline]
+pub fn event_locked(g: &mut Game, v: &crate::spec::event::EventView) -> R<Option<&'static str>> {
+    g.derived.fresh();
+    crate::spec::passive::event_locked(g, v)
+}
+
 /// The in-play or lasting lock that forbids player `p` doing one of `actions` with `card`, if any
 /// (`passive::play_locked_as`).
 #[inline]
