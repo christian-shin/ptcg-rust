@@ -12,7 +12,9 @@
 //! - Switch (C-03), switch-in (C-05), switch-out (C-04): the switch ops of Trainers, Abilities and attacks
 //!   (`spec::ops::board`: `Op::Switch`, `Op::SwitchWithActive`).
 //! - Promotion: a Benched Pokémon goes to the empty Active Spot after a Knock Out (`engine::check`).
-//! - Setup: the scenario loader's arrangement of the board (the game's setup puts the Active Pokémon by EnterPlay).
+//!
+//! The game's setup puts the Active Pokémon by EnterPlay, and the scenario loader arranges the board directly: neither
+//! is a change of the Active Pokémon (being put into the Active Spot at setup isn't moving from the Bench).
 //!
 //! The change is done to one Pokémon (`ActiveChange::done_to_leaving`): the Active Pokémon for a retreat, a switch
 //! and a switch-out, the Benched Pokémon brought in for a switch-in (APR C-04 / C-05 specific cases; id42, id2025,

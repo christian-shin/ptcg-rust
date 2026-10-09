@@ -104,7 +104,7 @@ pub enum CoinPurpose {
 
 /// How the Active Pokémon changes (the ChangeActive event), named from the rulebook. Which Pokémon the change is
 /// done to (the event's card and spot) follows from it: the Active Pokémon for a retreat, a switch and a switch-out,
-/// the Benched Pokémon brought in for a switch-in, a promotion and the setup placement (APR C-04 / C-05 specific
+/// the Benched Pokémon brought in for a switch-in, and a promotion (APR C-04 / C-05 specific
 /// cases; id42, id2025, id2155; the official JP Q&A on Hariyama's Heave-Ho Catcher).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ActiveChange {
@@ -122,9 +122,6 @@ pub enum ActiveChange {
     SwitchOut,
     /// A Benched Pokémon is promoted to the empty Active Spot (after the Active Pokémon left play).
     Promotion,
-    /// Arranging the board outside the game's own flow (the scenario loader). The game's setup puts the Active
-    /// Pokémon by `EnterPlay { setup }`, which isn't a change of the Active Pokémon.
-    Setup,
 }
 
 impl ActiveChange {

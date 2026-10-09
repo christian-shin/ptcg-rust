@@ -155,12 +155,16 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         for n in stack(&side["active"]) {
             mv(g, p, n, ListRef::Slot(pu, s))?;
         }
-        // The scenario's arrangement: a ChangeActive of kind Setup.
-        let c = crate::engine::change_active::ChangeActiveView::of(g, p, Some(s), crate::spec::event::ActiveChange::Setup, crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, p as u8));
-        if !crate::engine::change_active::change_active(g, c).map_err(|e| e.0.to_string())? {
-            return Err("scenario: the Active Pokemon can't be changed".into());
-        }
-        let a = g.st.players[p].active;
+        // The scenario's arrangement, not a move in the game: the new Pokémon takes the Active Spot and the setup's
+        // Active Pokémon goes to its Bench spot directly, like the `reset` path. Being put into the Active Spot at
+        // setup isn't moving from the Bench (RULES.md), so no ChangeActive: no "moved this turn" record (APR E-25),
+        // no trigger.
+        let pl = &mut g.st.players[p];
+        let bi = pl.bench_index_of(s).ok_or("scenario: no Bench spot")?;
+        pl.bench.as_mut_slice()[bi] = pl.active;
+        pl.active = s;
+        crate::list::touch();
+        let a = s;
         dress(g, p, a, &side["active_energy"], &side["active_tool"], &side["active_damage"], &side["active_conditions"], &side["active_played"])?;
     } else {
         let a = g.st.players[p].active;

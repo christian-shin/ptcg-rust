@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Buneary PFL 83", "4 Mega Lopunny ex PFL 84", "4 Mega Lucario ex ASC 113", "48 Fire Energy MEE 2"],
+  ["4 Buneary PFL 83", "4 Mega Lopunny ex PFL 84", "4 Mega Lucario ex ASC 113", "48 Fire Energy MEE 2"]
+ ],
+ "me": {"active": ["Buneary PFL 83", "Mega Lopunny ex PFL 84"], "active_energy": ["Fire Energy MEE 2"]},
+ "opp": {"reset": true, "active": "Mega Lucario ex ASC 113"},
+ "answers": [{"a": "attack", "name": "Gale Thrust"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "damage": 60, "cite": "RULES.md (being put into the Active Spot at setup isn't moving from the Bench): the scenario loader places Mega Lopunny ex in the Active Spot of a board that wasn't reset; it didn't move from the Bench this turn (APR E-25), so Gale Thrust does 60, not 60 + 170"}
+ ]
+}
