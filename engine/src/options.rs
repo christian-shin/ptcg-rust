@@ -169,20 +169,20 @@ fn candidates(ctx: &mut Ctx) -> Vec<Action> {
     out
 }
 
-/// Legal turn options (deduplicated, in candidate order).
+/// Legal turn options (deduplicated, in candidate order). Descriptors are built for the legal ones only.
 pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
     let mut ctx = Ctx::new(g);
-    let mut seen: Vec<String> = Vec::new();
+    let mut seen: Vec<Action> = Vec::new();
     let mut out = Vec::new();
     for action in candidates(&mut ctx) {
-        let c = TurnOption { desc: describe_action(g, action), action };
-        let key = serde_json::to_string(&c.desc).unwrap();
-        if seen.contains(&key) {
+        // Two candidates with one descriptor are one option: a card is told apart by its id, so a repeat is
+        // the same action.
+        if seen.contains(&action) {
             continue;
         }
-        seen.push(key);
-        if legal_in(&mut ctx, c.action) {
-            out.push(c);
+        seen.push(action);
+        if legal_in(&mut ctx, action) {
+            out.push(TurnOption { desc: describe_action(g, action), action });
         }
     }
     out

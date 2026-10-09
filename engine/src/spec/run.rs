@@ -416,7 +416,15 @@ pub(crate) fn check_play(g: &mut Game, me: CardId, play: &PlaySpec, f: &Frame) -
 
 /// The declared checks of using an Ability: once per turn, then its `needs` and implied preconditions.
 pub(crate) fn check_power(g: &mut Game, me: CardId, pw: &PowerSpec, f: &Frame) -> R {
-    let p = f.p as usize;
+    check_once(g, me, pw, f.p as usize)?;
+    if !usable(g, me, f, pw.needs, pw.steps)? {
+        crate::bail!("CANNOT_USE_POWER");
+    }
+    Ok(())
+}
+
+/// Once per turn: refused while the marker is set.
+fn check_once(g: &Game, me: CardId, pw: &PowerSpec, p: usize) -> R {
     match pw.once {
         Once::PerTurn(name) => {
             if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
@@ -429,9 +437,6 @@ pub(crate) fn check_power(g: &mut Game, me: CardId, pw: &PowerSpec, f: &Frame) -
             }
         }
         Once::No => {}
-    }
-    if !usable(g, me, f, pw.needs, pw.steps)? {
-        crate::bail!("CANNOT_USE_POWER");
     }
     Ok(())
 }
@@ -455,6 +460,15 @@ pub fn trainer_play_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
     let mut f = Frame::new(Prog::Play, Phase::Use, e, p);
     f.via_attack = trainer_via_attack(g, e);
     check_play(g, me, play, &f)
+}
+
+/// Legality, the cheap half of the power checks (read from the game as it is): is the once-per-turn marker free?
+pub fn power_once_check(g: &Game, me: CardId, index: u8, p: usize) -> R {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+    match spec.powers.iter().find(|pw| pw.index == index) {
+        Some(pw) => check_once(g, me, pw, p),
+        None => Ok(()),
+    }
 }
 
 /// The checks of using the power with printed index `index` of `me`.

@@ -477,21 +477,31 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
         Ok(None) => return ctx.none("ability: no Pokémon"),
         Ok(Some(c)) => c,
     };
-    // The powers the card has now (CheckPokemonPowers).
-    let mut powers: SVec<PowerRef, 8> = SVec::new();
-    for i in 0..g.st.cdef(card).powers.len() {
-        powers.push(PowerRef { card, index: i as u8 });
+    // The printed power by name: the checked list only removes powers, so one that isn't printed, or that the
+    // core rule refuses, is illegal whatever the lock reads say.
+    let mut same = g.st.cdef(card).powers.iter().enumerate().filter(|(_, pw)| pw.name == name).map(|(i, _)| i);
+    let Some(i) = same.next() else { return Some(false) };
+    if same.next().is_some() {
+        return ctx.none("ability: two powers with one name");
     }
+    let mut power = PowerRef { card, index: i as u8 };
+    if turn::can_use_ability_core(g, power, target.slot).is_err() || crate::spec::run::power_once_check(g, card, power.index, p).is_err() {
+        return Some(false);
+    }
+    // The powers the card has now (CheckPokemonPowers).
     if g.kinds_present.has(k::CHECK_POKEMON_POWERS) {
+        let mut powers: SVec<PowerRef, 8> = SVec::new();
+        for i in 0..g.st.cdef(card).powers.len() {
+            powers.push(PowerRef { card, index: i as u8 });
+        }
         match ctx.sc().run_fx(Effect::CheckPokemonPowers { p: p as u8, target: card, powers }) {
-            Ok((Effect::CheckPokemonPowers { powers: after, .. }, _)) => powers = after,
+            Ok((Effect::CheckPokemonPowers { powers: after, .. }, _)) => match after.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
+                Some(r) => power = *r,
+                None => return Some(false),
+            },
             Ok(_) => {}
             Err(_) => return Some(false),
         }
-    }
-    let Some(power) = powers.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name).copied() else { return Some(false) };
-    if turn::can_use_ability_core(g, power, target.slot).is_err() {
-        return Some(false);
     }
     let sc = ctx.sc();
     if attack::power_use_blocked(sc, p, power, card) {
