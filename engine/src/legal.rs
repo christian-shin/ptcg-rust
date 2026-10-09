@@ -357,8 +357,13 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             let e = sc.new_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: false });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
+            // The lists go back by assignment: the layout tracking (the dispatch index) learns it here.
+            crate::list::mark_all(sc.st.players[p].hand.as_slice());
+            crate::list::mark_all(sc.st.players[p].supporter.as_slice());
             sc.st.players[p].hand = hand;
             sc.st.players[p].supporter = supporter;
+            crate::list::mark_all(hand.as_slice());
+            crate::list::mark_all(supporter.as_slice());
             Some(ok)
         }
         TrainerType::Supporter => {

@@ -277,16 +277,16 @@ pub struct Game {
     pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
     /// `lock_sync` is running (it probes Abilities, which must not start another sync).
     pub lock_syncing: bool,
-    /// Memo of [`Game::propagation_order`] (valid while the board layout is unchanged).
-    pub prop: PropCache,
+    /// The per-kind dispatch index (`dispatch.rs`).
+    pub dispatch: crate::dispatch::DispatchIndex,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
-const PROP_POWER: u16 = 1;
-const PROP_CHECK_POWERS: u16 = 2;
-const PROP_AFTER_ATTACK: u16 = 3;
+pub(crate) const PROP_POWER: u16 = 1;
+pub(crate) const PROP_CHECK_POWERS: u16 = 2;
+pub(crate) const PROP_AFTER_ATTACK: u16 = 3;
 
-fn prop_class(e: &Effect) -> u16 {
+pub(crate) fn prop_class(e: &Effect) -> u16 {
     match e {
         Effect::Power { .. } => PROP_POWER,
         Effect::CheckPokemonPowers { .. } => PROP_CHECK_POWERS,
@@ -295,45 +295,8 @@ fn prop_class(e: &Effect) -> u16 {
     }
 }
 
-/// Slots of the propagation-order memo, and the most cards one entry holds (longer orders aren't kept).
-const PROP_SLOTS: usize = 32;
-const PROP_CARDS: usize = 16;
-
-/// `propagation_order` results by (effect kind, rank class), good while `gen` is [`crate::list::zone_gen`].
-/// The order depends on the card layout only (zone contents and order, Active/Bench slots), and every
-/// change of that bumps the generation.
-///
-/// Also kept: for an effect kind, the set of cards of the game that have a handler for it (a bit per card
-/// id). That depends on the cards of the game only (their definitions never change), so it outlives a
-/// layout change and the scan for the order tests a bit instead of looking each card up.
-#[derive(Clone, Copy)]
-pub struct PropCache {
-    gen: u64,
-    tags: [u16; PROP_SLOTS],
-    lens: [u8; PROP_SLOTS],
-    items: [[CardId; PROP_CARDS]; PROP_SLOTS],
-    /// `n_cards` the handler sets were made for.
-    cand_cards: u8,
-    cand_tags: [u16; PROP_SLOTS],
-    cands: [u128; PROP_SLOTS],
-}
-
-impl PropCache {
-    const EMPTY_TAG: u16 = u16::MAX;
-    fn new() -> PropCache {
-        PropCache {
-            gen: 0,
-            tags: [Self::EMPTY_TAG; PROP_SLOTS],
-            lens: [0; PROP_SLOTS],
-            items: [[NO_CARD; PROP_CARDS]; PROP_SLOTS],
-            cand_cards: 0,
-            cand_tags: [Self::EMPTY_TAG; PROP_SLOTS],
-            cands: [0; PROP_SLOTS],
-        }
-    }
-}
-
-/// `PTCG_VERIFY_CACHE=1` (or `PTCG_VERIFY_LEGAL=1`): every memo hit is checked against a fresh computation.
+/// `PTCG_VERIFY_CACHE=1` (or `PTCG_VERIFY_LEGAL=1`): every cached answer (the dispatch index, the quiet
+/// CheckHp) is checked against a fresh computation.
 pub(crate) fn verify_cache() -> bool {
     static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *V.get_or_init(|| ["PTCG_VERIFY_CACHE", "PTCG_VERIFY_LEGAL"].iter().any(|k| std::env::var(k).map_or(false, |v| v == "1")))
@@ -389,7 +352,7 @@ impl Game {
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
                 resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
-                prop,
+                dispatch,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -420,15 +383,8 @@ impl Game {
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
             f!((*d).lock_syncing).write(*lock_syncing);
-            // The memo comes along while it is good; a stale one starts over. The handler sets always do.
-            if prop.gen == crate::list::zone_gen() {
-                f!((*d).prop).write(*prop);
-            } else {
-                (*d).prop.gen = 0;
-                f!((*d).prop.cand_cards).write(prop.cand_cards);
-                f!((*d).prop.cand_tags).write(prop.cand_tags);
-                f!((*d).prop.cands).write(prop.cands);
-            }
+            // The index comes along with the layout it describes (each entry carries its own generation).
+            f!((*d).dispatch).write(*dispatch);
         }
     }
 }
@@ -461,7 +417,7 @@ impl Game {
             last_attack: None,
             spec_choices: SVec::new(),
             lock_syncing: false,
-            prop: PropCache::new(),
+            dispatch: crate::dispatch::DispatchIndex::new(),
         }
     }
 
@@ -1081,77 +1037,23 @@ impl Game {
     // -----------------------------------------------------------------------
     // Effect propagation
 
-    /// Cards with a handler for this effect kind, in Twinleaf's
-    /// `propagateEffect` order (zone order, then stable sort by rank).
-    pub(crate) fn propagation_order(&mut self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
-        self.propagation_order_class(prop_class(e), kind)
-    }
+    // The broadcast: the propagation order computed from the whole board. The dispatch index
+    // (`dispatch.rs`) keeps these lists; VERIFY checks every index answer against this.
 
-    fn propagation_order_class(&mut self, class: u16, kind: u32) -> SVec<CardId, 120> {
-        let tag = (kind as u16) << 2 | class;
-        let slot = kind as usize % PROP_SLOTS;
-        let now = crate::list::zone_gen();
-        if self.prop.gen != now {
-            self.prop.tags = [PropCache::EMPTY_TAG; PROP_SLOTS];
-            self.prop.gen = now;
-        } else if self.prop.tags[slot] == tag {
-            let mut out: SVec<CardId, 120> = SVec::new();
-            for &c in &self.prop.items[slot][..self.prop.lens[slot] as usize] {
-                out.push(c);
-            }
-            if verify_cache() {
-                let fresh = self.propagation_order_slow(class, kind);
-                assert_eq!(out.as_slice(), fresh.as_slice(), "stale propagation order for kind {} (class {})", kind, class);
-            }
-            return out;
-        }
-        let cands = self.handlers_of(kind);
-        let out = self.propagation_order_fresh(class, kind, cands);
-        if verify_cache() {
-            let slow = self.propagation_order_slow(class, kind);
-            assert_eq!(out.as_slice(), slow.as_slice(), "propagation order by handler set differs for kind {} (class {})", kind, class);
-        }
-        if out.len() <= PROP_CARDS {
-            self.prop.tags[slot] = tag;
-            self.prop.lens[slot] = out.len() as u8;
-            self.prop.items[slot][..out.len()].copy_from_slice(out.as_slice());
-        }
-        out
-    }
-
-    /// The cards of the game with a handler for `kind`, one bit per card id.
-    fn handlers_of(&mut self, kind: u32) -> u128 {
-        if self.prop.cand_cards != self.st.n_cards {
-            self.prop.cand_tags = [PropCache::EMPTY_TAG; PROP_SLOTS];
-            self.prop.cand_cards = self.st.n_cards;
-        }
-        let slot = kind as usize % PROP_SLOTS;
-        if self.prop.cand_tags[slot] != kind as u16 {
-            let mut set = 0u128;
-            for c in 0..self.st.n_cards {
-                if cards::impl_for(self.st.cards[c as usize].def).is_some_and(|imp| imp.mask.has(kind)) {
-                    set |= 1u128 << c;
-                }
-            }
-            self.prop.cand_tags[slot] = kind as u16;
-            self.prop.cands[slot] = set;
-        }
-        self.prop.cands[slot]
-    }
-
-    /// The propagation order the slow way: every card of every zone looked up (the check for the faster one).
-    fn propagation_order_slow(&mut self, class: u16, kind: u32) -> SVec<CardId, 120> {
+    /// Cards with a handler for this effect kind, in Twinleaf's `propagateEffect` order (zone order,
+    /// then stable sort by rank), the slow way: every card of every zone looked up.
+    pub(crate) fn propagation_order_slow(&self, class: u16, kind: u32) -> SVec<CardId, 120> {
         let mut set = 0u128;
         for c in 0..self.st.n_cards {
             if cards::impl_for(self.st.cards[c as usize].def).is_some_and(|imp| imp.mask.has(kind)) {
                 set |= 1u128 << c;
             }
         }
-        self.propagation_order_fresh(class, kind, set)
+        self.propagation_order_fresh(class, set)
     }
 
-    fn propagation_order_fresh(&self, class: u16, kind: u32, handlers: u128) -> SVec<CardId, 120> {
-        let _ = kind;
+    /// The propagation order of the cards in `handlers` (a bit per card id).
+    pub(crate) fn propagation_order_fresh(&self, class: u16, handlers: u128) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if (handlers >> c) & 1 != 0 {
@@ -1268,7 +1170,7 @@ impl Game {
         for &c in first.iter() {
             self.call_card(c, id, kind)?;
         }
-        let order = if self.kinds_present.has(kind) { self.propagation_order_class(class, kind) } else { SVec::new() };
+        let order = if self.kinds_present.has(kind) { self.listeners(class, kind) } else { SVec::new() };
         for &c in order.iter() {
             if first.contains(&c) {
                 continue;
@@ -1552,7 +1454,7 @@ pub fn apply_order<L: CardList + ?Sized>(list: &mut L, order: &[u8]) {
         }
         v
     };
-    let s = list.as_mut_slice();
+    let s = list.as_permutable_slice();
     for (i, &o) in order.iter().enumerate() {
         s[i] = copy.as_slice()[o as usize];
     }
