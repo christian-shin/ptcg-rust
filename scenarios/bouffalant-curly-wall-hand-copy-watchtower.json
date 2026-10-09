@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Bouffalant SCR 119",
+   "4 Duraludon PRE 69",
+   "4 Team Rocket's Watchtower ASC 210",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Bouffalant SCR 119",
+   "4 Duraludon PRE 69",
+   "4 Team Rocket's Watchtower ASC 210",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "stadium": "Team Rocket's Watchtower ASC 210"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Bouffalant SCR 119",
+  "bench": [
+   {
+    "card": "Bouffalant SCR 119"
+   }
+  ],
+  "hand": [
+   "Bouffalant SCR 119"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Raging Hammer"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "official text: Curly Wall works only for a Bouffalant in play, and Team Rocket's Watchtower removes the Abilities of both Bouffalant in play; a Bouffalant in the hand does nothing"
+  }
+ ]
+}
