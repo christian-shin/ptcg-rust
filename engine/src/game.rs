@@ -1185,7 +1185,9 @@ impl Game {
         }
 
         phase::reducer(self, id)?;
-        play::play_energy_reducer(self, id)?;
+        if matches!(kind, k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL) {
+            crate::engine::attach::reducer(self, id)?;
+        }
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
             crate::engine::enter::reducer(self, id)?;
         }
@@ -1199,13 +1201,24 @@ impl Game {
         }
         if matches!(
             kind,
-            k::MOVE_CARDS | k::ENTER_PLAY | k::EVOLVE | k::DEVOLVE | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE
+            k::MOVE_CARDS
+                | k::ENTER_PLAY
+                | k::EVOLVE
+                | k::DEVOLVE
+                | k::PLAY_STADIUM
+                | k::ATTACH_POKEMON_TOOL
+                | k::ATTACH
+                | k::MOVE_ENERGY
+                | k::MOVE_TOOL
+                | k::MOVED_TO_ACTIVE
+                | k::MOVED_FROM_ACTIVE_TO_BENCH
+                | k::CHECK_TABLE_STATE
         ) && !(kind == k::ENTER_PLAY && self.st.phase == GamePhase::Setup)
         {
             // The Pokémon put down at setup take hold together when setup ends (`setup::finish`).
             crate::spec::passive::lock_sync(self);
         }
-        if matches!(kind, k::ENTER_PLAY | k::EVOLVE | k::DEVOLVE | k::SWAP) {
+        if crate::spec::event::EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
         }
         Ok(())

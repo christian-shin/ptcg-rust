@@ -160,11 +160,8 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
     let d = g.st.cdef(card);
     if d.is_energy() {
         let (t, uses_turn_attach) = can_attach_energy(g, p, target)?;
-        if uses_turn_attach {
-            g.st.players[p].energy_played_turn = g.st.turn;
-        }
-        g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card, target: t, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8) })?;
-        return Ok(());
+        // The Attach event from the hand by the rule (`manual`), with its checks.
+        return crate::engine::attach::play_energy(g, p, card, t, uses_turn_attach);
     }
     if d.is_pokemon() {
         let t = match find_pokemon_target(g, p, target) {

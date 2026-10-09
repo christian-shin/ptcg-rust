@@ -171,7 +171,9 @@ pub enum Effect {
     DiscardCards { b: AtkBase, cards: SVec<CardId, 64> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 64> },
     GustOpponentBench { b: AtkBase },
-    /// `MoveOpponentEnergyEffect`: `b.target` is the source slot.
+    /// `MoveOpponentEnergyEffect`: an attack's move of an attached card between the opponent's Pokémon, as the
+    /// effect of the attack that prevention reads (`b.target` is the source slot); its reducer produces the
+    /// MoveEnergy event (`engine::attach::move_attached`).
     MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
     AddMarker { b: AtkBase, marker: u16, marker_source: CardId },
     AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
@@ -243,9 +245,21 @@ pub enum Effect {
     DevolveProbe { b: AtkBase },
 
     // ---- play card ----
-    AttachEnergy { p: u8, card: CardId, target: SlotRef, cause: Cause },
+    /// The Attach event (events batch 3; `engine::attach`): an Energy or a Pokémon Tool card goes onto the Pokémon
+    /// in `target` from a zone that isn't a Pokémon (the hand, the deck, the discard pile, the cards looked at).
+    /// `from` is the list the card physically leaves, `source` its rules zone (what "from your hand" reads),
+    /// `manual` the turn's one Energy attachment by the game rule (nothing else is manual; effects don't use it
+    /// up, APR C-09). `p` is the card's owner.
+    Attach { p: u8, card: CardId, target: SlotRef, from: ListRef, source: crate::spec::event::RulesZone, manual: bool, cause: Cause },
+    /// The MoveEnergy event (`engine::attach::move_energy`): an attached Energy card moves from the Pokémon in
+    /// `from` to the one in `to` (APR C-10; not an Attach, id1653). `p` is the Pokémon's owner.
+    MoveEnergy { p: u8, card: CardId, from: SlotRef, to: SlotRef, cause: Cause },
+    /// The MoveTool event (`engine::attach::move_tool`): an attached Pokémon Tool moves between Pokémon.
+    MoveTool { p: u8, card: CardId, from: SlotRef, to: SlotRef, cause: Cause },
     PlaySupporter { p: u8, card: CardId, target: Option<SlotRef> },
     PlayStadium { p: u8, card: CardId },
+    /// Playing a Pokémon Tool card from the hand onto `target` (the Trainer play: Seismitoad's coin flip, then
+    /// the Tool's `Attach` and its `Trainer` effect). Events batch 7 makes it a PlayTrainer.
     AttachPokemonTool { p: u8, card: CardId, target: SlotRef },
     PlayItem { p: u8, card: CardId, target: Option<SlotRef> },
     /// `via_attack` = `usedAsAttackEffect`: a Supporter's effect used as the effect of an attack
@@ -344,7 +358,9 @@ impl Effect {
             DevolveProbe { .. } => "DEVOLVE_EFFECT",
             Devolve { .. } => "DEVOLVE_EVENT",
             Swap { .. } => "SWAP_EVENT",
-            AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
+            Attach { .. } => "ATTACH_EVENT",
+            MoveEnergy { .. } => "MOVE_ENERGY_EVENT",
+            MoveTool { .. } => "MOVE_TOOL_EVENT",
             EnterPlay { .. } => "ENTER_PLAY_EVENT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
             PlayStadium { .. } => "PLAY_STADIUM_EFFECT",
@@ -485,7 +501,9 @@ impl Effect {
             AddSpecialConditions { .. } => 47,
             RemoveSpecialConditions { .. } => 48,
             HealTarget { .. } => 49,
-            AttachEnergy { .. } => 50,
+            Attach { .. } => 50,
+            MoveEnergy { .. } => 64,
+            MoveTool { .. } => 65,
             EnterPlay { .. } => 51,
             PlaySupporter { .. } => 52,
             PlayStadium { .. } => 53,
@@ -585,7 +603,10 @@ pub mod k {
     pub const ADD_SPECIAL_CONDITIONS: u32 = 47;
     pub const REMOVE_SPECIAL_CONDITIONS: u32 = 48;
     pub const HEAL_TARGET: u32 = 49;
-    pub const ATTACH_ENERGY: u32 = 50;
+    /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
+    pub const ATTACH: u32 = 50;
+    pub const MOVE_ENERGY: u32 = 64;
+    pub const MOVE_TOOL: u32 = 65;
     pub const ENTER_PLAY: u32 = 51;
     pub const PLAY_SUPPORTER: u32 = 52;
     pub const PLAY_STADIUM: u32 = 53;
@@ -619,7 +640,10 @@ pub mod k {
     // restriction or rule limits (`CardSpec::restricts` / `limits`) or a lock over events, so `Game::kinds_present` says whether a game has any.
     pub const DECLARES_PERMIT: u32 = 250;
     pub const DECLARES_RESTRICT: u32 = 251;
+    /// A lock over the Pokémon events (EnterPlay, Evolve, Devolve, Swap).
     pub const DECLARES_EVENT_LOCK: u32 = 252;
+    /// A lock over the attaching events (Attach, MoveEnergy, MoveTool; events batch 3).
+    pub const DECLARES_ATTACH_LOCK: u32 = 71;
     /// A permission that lifts `Limit::FirstTurn` / `BaseEnteredThisTurn` / `EvolvesFrom` (with `DECLARES_PERMIT`).
     pub const PERMIT_FIRST_TURN: u32 = 253;
     pub const PERMIT_BASE_ENTERED: u32 = 254;
@@ -663,6 +687,11 @@ impl KindMask {
     pub const fn or(self, o: KindMask) -> KindMask {
         KindMask([self.0[0] | o.0[0], self.0[1] | o.0[1], self.0[2] | o.0[2], self.0[3] | o.0[3]])
     }
+
+    /// Do the two masks share a kind?
+    pub const fn intersects(self, o: KindMask) -> bool {
+        (self.0[0] & o.0[0]) | (self.0[1] & o.0[1]) | (self.0[2] & o.0[2]) | (self.0[3] & o.0[3]) != 0
+    }
 }
 
 impl std::ops::BitOr for KindMask {
@@ -695,7 +724,9 @@ impl Effect {
             | EffectOfAbility { cause, .. }
             | PlaceDamageCounters { cause, .. }
             | AddSpecialConditionsPower { cause, .. }
-            | AttachEnergy { cause, .. }
+            | Attach { cause, .. }
+            | MoveEnergy { cause, .. }
+            | MoveTool { cause, .. }
             | EnterPlay { cause, .. }
             | Devolve { cause, .. }
             | Swap { cause, .. } => Some(cause),

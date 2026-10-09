@@ -1,8 +1,8 @@
 //! Rules events as data, and the one predicate type over them (docs/design/events-design.md, sections 4
 //! and 5): triggers, locks, prevention, permissions and restrictions are all `EventPred`s.
 //!
-//! Events batch 2: EnterPlay, Evolve, Devolve and Swap are built by their routines (`engine/enter.rs`) and
-//! read by triggers (`trigger::Event::On`), locks (`LockDecl::forbids`), permissions (`Modifier::Permit`)
+//! Events batch 2: EnterPlay, Evolve, Devolve and Swap are built by their routines (`engine/enter.rs`); events
+//! batch 3: Attach, MoveEnergy and MoveTool by theirs (`engine/attach.rs`). They are read by triggers (`trigger::Event::On`), locks (`LockDecl::forbids`), permissions (`Modifier::Permit`)
 //! and restrictions (`CardSpec::restricts`). The trees are static data (`&'static` slices, like `Pred` and
 //! `SlotPred`); evaluating one allocates nothing.
 
@@ -71,6 +71,9 @@ impl EventKind {
             EventKind::Evolve => Some(k::EVOLVE),
             EventKind::Devolve => Some(k::DEVOLVE),
             EventKind::Swap => Some(k::SWAP),
+            EventKind::Attach => Some(k::ATTACH),
+            EventKind::MoveEnergy => Some(k::MOVE_ENERGY),
+            EventKind::MoveTool => Some(k::MOVE_TOOL),
             _ => None,
         }
     }
@@ -207,7 +210,7 @@ pub struct EventView {
     pub source: Option<RulesZone>,
     /// EnterPlay: how it entered.
     pub mode: Option<EnterMode>,
-    /// Attach: the turn's one Energy attachment (events batch 3).
+    /// Attach: the turn's one Energy attachment by the game rule (events batch 3); false for every other event.
     pub manual: bool,
     pub path: Option<EvolvePath>,
     pub cause: Cause,
@@ -267,7 +270,19 @@ impl CausePred {
 }
 
 /// Every effect kind that carries an event so far.
-const EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ENTER_PLAY, crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
+pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
+    crate::effects::k::ENTER_PLAY,
+    crate::effects::k::EVOLVE,
+    crate::effects::k::DEVOLVE,
+    crate::effects::k::SWAP,
+    crate::effects::k::ATTACH,
+    crate::effects::k::MOVE_ENERGY,
+    crate::effects::k::MOVE_TOOL,
+]);
+/// The Pokémon events (events batch 2): a lock over them sets `DECLARES_EVENT_LOCK`.
+pub const POKEMON_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ENTER_PLAY, crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
+/// The attaching events (events batch 3): a lock over them sets `DECLARES_ATTACH_LOCK`.
+pub const ATTACH_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ATTACH, crate::effects::k::MOVE_ENERGY, crate::effects::k::MOVE_TOOL]);
 
 impl EventPred {
     /// Matches no event (`LockDecl::forbids` of a lock that declares only old `LockedAction`s).

@@ -53,15 +53,17 @@ pub struct Derived {
 }
 
 /// The effect kinds after which the facts may have changed (the events of the design's list as today's
-/// effects carry them): enter or leave play and attach (MOVE_CARDS, ENTER_PLAY, ATTACH_ENERGY,
-/// ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
+/// effects carry them): enter or leave play, attach and move attached cards (MOVE_CARDS, ENTER_PLAY, ATTACH,
+/// MOVE_ENERGY, MOVE_TOOL, ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
 /// (MOVED_TO_ACTIVE, MOVED_FROM_ACTIVE_TO_BENCH), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
 /// END_TURN), and the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
 /// runs after the same kinds).
 pub const INVALIDATING_KINDS: KindMask = mask(&[
     k::MOVE_CARDS,
     k::ENTER_PLAY,
-    k::ATTACH_ENERGY,
+    k::ATTACH,
+    k::MOVE_ENERGY,
+    k::MOVE_TOOL,
     k::ATTACH_POKEMON_TOOL,
     k::DISCARD_CARDS,
     k::KNOCK_OUT,

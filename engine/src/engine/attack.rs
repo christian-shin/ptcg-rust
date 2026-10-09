@@ -764,8 +764,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::MoveOpponentEnergy { b, card, destination } => {
-            // MoveOpponentEnergyEffect: `target.moveCardTo(card, destination)`.
-            g.move_card_to(b.target.list(), card, destination.list());
+            // The attack's effect on the Pokémon wasn't prevented: the card moves (MoveEnergy / MoveTool).
+            crate::engine::attach::move_attached(g, card, b.target, destination, b.cause)?;
             Ok(())
         }
         Effect::AddMarker { b, marker, marker_source } => {

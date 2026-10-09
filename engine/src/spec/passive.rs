@@ -349,10 +349,11 @@ pub enum LockedAction {
     PlayItem,
     PlaySupporter,
     PlayStadium,
-    /// Attach a Pokémon Tool card from the hand (a Tool put on by an effect from another zone is not
-    /// "played from the hand").
+    /// B3-OLD: attach a Pokémon Tool card from the hand, any cause (a Tool put on by an effect from another zone
+    /// is not "played from the hand"). Read on the Attach event from the hand (`engine::attach::attach_locked`);
+    /// the new form is `LockDecl::on(Attach & Source(Hand) & Card(..))`.
     AttachTool,
-    /// Attach an Energy card from the hand.
+    /// B3-OLD: attach an Energy card from the hand, any cause (id25, id230); as `AttachTool`.
     AttachEnergy,
     /// Retreat the Active Pokémon (the card is that Pokémon).
     Retreat,
@@ -368,8 +369,7 @@ impl LockedAction {
             LockedAction::PlayItem => k::PLAY_ITEM,
             LockedAction::PlaySupporter => k::PLAY_SUPPORTER,
             LockedAction::PlayStadium => k::PLAY_STADIUM,
-            LockedAction::AttachTool => k::ATTACH_POKEMON_TOOL,
-            LockedAction::AttachEnergy => k::ATTACH_ENERGY,
+            LockedAction::AttachTool | LockedAction::AttachEnergy => k::ATTACH,
             LockedAction::Retreat => k::RETREAT,
             LockedAction::UseStadium => k::USE_STADIUM,
         }
@@ -490,7 +490,12 @@ const fn block_kinds(lock: &LockDecl) -> KindMask {
     let mut m = KindMask::EMPTY;
     if !lock.forbids.is_never() {
         m = lock.forbids.effect_kinds();
-        m = crate::spec::with(m, crate::effects::k::DECLARES_EVENT_LOCK);
+        if m.intersects(super::event::POKEMON_EVENT_KINDS) {
+            m = crate::spec::with(m, crate::effects::k::DECLARES_EVENT_LOCK);
+        }
+        if m.intersects(super::event::ATTACH_EVENT_KINDS) {
+            m = crate::spec::with(m, crate::effects::k::DECLARES_ATTACH_LOCK);
+        }
     }
     let mut i = 0;
     while i < actions.len() {
@@ -759,7 +764,8 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         }
         Modifier::BlockUse(b) => block_kinds(&b.lock),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
-        Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
+        // The attach refusal is a check of the Attach routine (`engine::attach::attach_guard`).
+        Modifier::AttachGuard(_) => mask(&[k::CHECK_TABLE_STATE]),
         Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
             (true, true) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER, k::CHECK_TABLE_STATE]),
             (true, false) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER]),
@@ -1209,8 +1215,8 @@ pub(crate) fn attach_guard_allows(g: &mut Game, me: CardId, target: SlotRef, a: 
     slot_pred_m(g, me, target, &a.allow)
 }
 
-/// Legality: is attaching the Energy card `card` to `target` stopped by its own `AttachGuard` (the handler
-/// below refuses it with `CANNOT_PLAY_THIS_CARD`)?
+/// Is attaching the Energy card `card` to `target` stopped by its own `AttachGuard` (the Attach routine refuses
+/// it with `CANNOT_PLAY_THIS_CARD`, `engine::attach::attach_guard`; legality asks the same)?
 pub fn attach_guard_refuses(g: &mut Game, card: CardId, target: SlotRef) -> R<bool> {
     let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[card as usize].def).map_or(&[], |s| s.passives);
     for ps in passives {
@@ -1223,13 +1229,26 @@ pub fn attach_guard_refuses(g: &mut Game, card: CardId, target: SlotRef) -> R<bo
     Ok(false)
 }
 
-fn attach_guard(g: &mut Game, me: CardId, e: EffId, a: &AttachGuardSpec) -> R {
-    match *g.e(e) {
-        Effect::AttachEnergy { card, target, .. } if card == me => {
-            if !attach_guard_allows(g, me, target, a)? {
-                crate::bail!("CANNOT_PLAY_THIS_CARD");
+/// Is the Energy `card`, just moved onto `target`, discarded there by its own guard ("if this card is attached to
+/// anything other than ..., discard this card": the check the table-state sweep below makes, at the move)?
+pub fn attach_guard_discards(g: &mut Game, card: CardId, target: SlotRef) -> R<bool> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[card as usize].def).map_or(&[], |s| s.passives);
+    for ps in passives {
+        if let Modifier::AttachGuard(a) = &ps.modifier {
+            let p = target.p as usize;
+            if !g.st.slot(p, target.s).cards.contains(card) || g.st.slot_pokemon(p, target.s).is_none() || is_special_energy_blocked(g, p, card, target, false) {
+                continue;
+            }
+            if !slot_pred_m(g, card, target, &a.allow)? {
+                return Ok(true);
             }
         }
+    }
+    Ok(false)
+}
+
+fn attach_guard(g: &mut Game, me: CardId, e: EffId, a: &AttachGuardSpec) -> R {
+    match *g.e(e) {
         Effect::CheckTableState { .. } => {
             for p in 0..2usize {
                 for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
@@ -1855,9 +1874,8 @@ pub(crate) fn effect_actions(g: &Game, e: EffId) -> Option<(usize, CardId, &'sta
         Effect::PlayItem { p, card, .. } => (p as usize, card, &[A::PlayItem]),
         Effect::PlaySupporter { p, card, .. } => (p as usize, card, &[A::PlaySupporter]),
         Effect::PlayStadium { p, card } => (p as usize, card, &[A::PlayStadium]),
-        Effect::AttachPokemonTool { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, &[A::AttachTool]),
-        Effect::AttachEnergy { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, &[A::AttachEnergy]),
-        // EnterPlay and Evolve: their routines check the locks before the event (`event_locked`).
+        // EnterPlay, Evolve and Attach: their routines check the locks before the event (`event_locked`; for an
+        // Attach from the hand also the B3-OLD action locks, `engine::attach::attach_locked`).
         Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, &[A::Retreat]),
         Effect::UseStadium { p, stadium } => (p as usize, stadium, &[A::UseStadium]),
         _ => return None,
@@ -1906,10 +1924,10 @@ pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[Locke
 pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
     let Some(card) = v.card else { return Ok(None) };
     let p = v.owner as usize;
-    if !may_lock_event(g, p) {
+    if !may_lock_event(g, p, v.kind) {
         return Ok(None);
     }
-    if let (true, Some(kind)) = (g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK), v.kind.effect_kind()) {
+    if let (true, Some(kind)) = (g.kinds_present.has(lock_marker(v.kind)), v.kind.effect_kind()) {
         let probe = Effect::PlayItem { p: p as u8, card, target: None };
         let order = g.propagation_order(&probe, kind);
         for c in order.iter().copied() {
@@ -1921,12 +1939,22 @@ pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'sta
     lasting_event_locked(g, v)
 }
 
-/// Can a lock forbid an event of player `p` at all (a plain read: some card of the game declares a lock over
-/// events, or an attack left one on `p`)? When it can't, [`event_locked`] answers `None` without a walk, so
-/// legality asks it before making its scratch game.
+/// The declaration marker a lock over events of `kind` sets in its card's mask (`block_kinds`).
 #[inline]
-pub fn may_lock_event(g: &Game, p: usize) -> bool {
-    g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
+const fn lock_marker(kind: super::event::EventKind) -> u32 {
+    use super::event::EventKind as E;
+    match kind {
+        E::Attach | E::MoveEnergy | E::MoveTool => crate::effects::k::DECLARES_ATTACH_LOCK,
+        _ => crate::effects::k::DECLARES_EVENT_LOCK,
+    }
+}
+
+/// Can a lock forbid an event of `kind` of player `p` at all (a plain read: some card of the game declares a
+/// lock over events of its family, or an attack left a lock over events on `p`)? When it can't,
+/// [`event_locked`] answers `None` without a walk, so legality asks it before making its scratch game.
+#[inline]
+pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool {
+    g.kinds_present.has(lock_marker(kind)) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
 }
 
 /// [`event_locked`] for one in-play lock source `me`.
@@ -3012,8 +3040,9 @@ mod lock_tests {
 
 #[cfg(test)]
 mod ace_spec_tests {
-    //! Genesect's ACE Nullifier blocks ACE SPEC cards played from the hand only (A-PC6). No pool card
-    //! attaches an ACE SPEC Energy from the deck or discard pile, so this can't be a scenario.
+    //! Genesect's ACE Nullifier blocks ACE SPEC cards played from the hand only (A-PC6), whatever attaches them
+    //! (id25, id230). No pool card attaches an ACE SPEC Energy by an effect (every pool effect that attaches
+    //! from the hand, deck or discard pile takes Basic Energy), so this can't be a scenario.
     use super::*;
     use serde_json::json;
 
@@ -3035,7 +3064,11 @@ mod ace_spec_tests {
         let me = g.st.active_player as usize;
         let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
         let target = SlotRef::new(me, g.st.players[me].active);
-        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8) }).map(|_| ()).map_err(|e| e.0)
+        // An Ability attaching it (id25, id230: any cause; the lock reads the event's source zone).
+        let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, None, me as u8);
+        let (_, source) = crate::engine::enter::source_of(&g, card).unwrap();
+        let v = crate::engine::attach::attach_view(&g, card, target, source, false, cause);
+        crate::engine::attach::check_attach(&mut g, &v).map_err(|e| e.0)
     }
 
     /// Enriching Energy draws 4 cards only when attached from the hand (hand size after minus before).
@@ -3053,7 +3086,9 @@ mod ace_spec_tests {
         let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
         let before = g.st.players[me].hand.len() as i32;
         let target = SlotRef::new(me, g.st.players[me].active);
-        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8) }).unwrap();
+        // An effect attaching it (APR C-09: "when you attach this card from your hand" counts it too).
+        let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, None, me as u8);
+        assert!(crate::engine::attach::attach(&mut g, card, target, cause).unwrap());
         g.settle().ok();
         g.st.players[me].hand.len() as i32 - before
     }
@@ -3138,6 +3173,30 @@ mod play_lock_tests {
         event_locked(g, &v).unwrap()
     }
 
+    /// The lock answer for the Attach event of `card` from where it is onto `owner`'s Active Pokémon, caused by
+    /// `cause` (`engine::attach::attach_locked`: the locks over events, then the B3-OLD action locks).
+    fn attach_lock(g: &mut Game, owner: usize, card: CardId, cause: crate::cause::Cause) -> Option<&'static str> {
+        let t = crate::effects::SlotRef::new(owner, g.st.players[owner].active);
+        let (_, source) = crate::engine::enter::source_of(g, card).unwrap();
+        let v = crate::engine::attach::attach_view(g, card, t, source, false, cause);
+        crate::engine::attach::attach_locked(g, &v).unwrap()
+    }
+
+    fn rule(p: usize) -> crate::cause::Cause {
+        crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8)
+    }
+
+    fn ability(p: usize) -> crate::cause::Cause {
+        crate::cause::Cause::new(crate::cause::CauseKind::Ability, None, p as u8)
+    }
+
+    /// A copy of `name` of `p`'s in the deck (or the Prizes after a reset): not in the hand.
+    fn in_deck(g: &Game, p: usize, name: &str) -> CardId {
+        let def = crate::carddb::def_by_full_name(name).unwrap();
+        let pl = &g.st.players[p];
+        pl.deck.iter().chain(pl.prizes.iter().flat_map(|z| z.iter())).find(|c| g.st.cards[*c as usize].def == def).unwrap()
+    }
+
     /// The lock each attack leaves, applied to player `p` as the attack does, with what it stops.
     #[test]
     fn attack_locks_stop_what_their_text_says_and_expire() {
@@ -3188,7 +3247,12 @@ mod play_lock_tests {
         let me = g.st.active_player as usize;
         let (potion, charm) = (hand(&g, me, "Potion POR 83"), hand(&g, me, "Sacred Charm PFL 93"));
         assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), Some("BLOCKED_BY_ABILITY"));
-        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachTool), Some("BLOCKED_BY_ABILITY"));
+        // A Tool from the hand: the Attach event from the hand, whatever attaches it (id25, id230).
+        assert_eq!(attach_lock(&mut g, me, charm, rule(me)), Some("BLOCKED_BY_ABILITY"));
+        assert_eq!(attach_lock(&mut g, me, charm, ability(me)), Some("BLOCKED_BY_ABILITY"));
+        // A Tool put on by an effect from the deck isn't played from the hand.
+        let from_deck = in_deck(&g, me, "Sacred Charm PFL 93");
+        assert_eq!(attach_lock(&mut g, me, from_deck, ability(me)), None);
         assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlaySupporter), None);
         // Its owner is not stopped.
         assert_eq!(play_locked(&mut g, 1 - me, potion, LockedAction::PlayItem), None);
@@ -3257,18 +3321,20 @@ mod play_lock_tests {
         let me = g.st.active_player as usize;
         let (charm, potion) = (hand(&g, me, "Enriching Energy SSP 191"), hand(&g, me, "Potion POR 83"));
         let _ = bench(&g, 1 - me, 0);
-        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachEnergy), Some("BLOCKED_BY_EFFECT"));
+        assert_eq!(attach_lock(&mut g, me, charm, rule(me)), Some("BLOCKED_BY_EFFECT"));
+        // An Ability attaching it from the hand is stopped too (id25, id230; RULES.md, decided 2026-10-09).
+        assert_eq!(attach_lock(&mut g, me, charm, ability(me)), Some("BLOCKED_BY_EFFECT"));
         assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None, "not an ACE SPEC card");
         // Genesect without a Tool doesn't lock.
         let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Enriching Energy SSP 191"]},
             "opp": {"reset": true, "active": "Genesect SFA 40"}}));
         let charm = hand(&g, me, "Enriching Energy SSP 191");
-        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachEnergy), None);
+        assert_eq!(attach_lock(&mut g, me, charm, rule(me)), None);
         // Flutter Mane Active (mine) turns Genesect's Ability off.
         let mut g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "hand": ["Enriching Energy SSP 191"]},
             "opp": {"reset": true, "active": "Genesect SFA 40", "active_tool": "Sacred Charm PFL 93"}}));
         let charm = hand(&g, me, "Enriching Energy SSP 191");
-        assert_eq!(play_locked(&mut g, me, charm, LockedAction::AttachEnergy), None);
+        assert_eq!(attach_lock(&mut g, me, charm, rule(me)), None);
     }
 
     #[test]

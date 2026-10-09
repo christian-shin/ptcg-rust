@@ -276,7 +276,7 @@ fn verify_effect_now(g: &crate::game::Game, e: &crate::effects::Effect) {
             compare_now(g, "EFFECT_OF_ABILITY (probe = Ability)", &c, Old::Ability(Some(p)));
             target
         }
-        Effect::Heal { target, .. } | Effect::Evolve { target, .. } | Effect::AttachEnergy { target, .. } => Some(target),
+        Effect::Heal { target, .. } | Effect::Evolve { target, .. } | Effect::Attach { target, .. } => Some(target),
         Effect::MovedToActive { p, card, .. } | Effect::MovedFromActiveToBench { p, card, .. } => {
             g.st.find_pokemon_slot(card).filter(|(q, _)| *q == p as usize).map(|(q, s)| crate::effects::SlotRef::new(q, s))
         }

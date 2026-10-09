@@ -1,4 +1,4 @@
-//! `play-energy-effect.ts`, `play-trainer-effect.ts` (playing a Pokémon card: `engine::enter`).
+//! `play-trainer-effect.ts` (playing a Pokémon card: `engine::enter`; attaching an Energy or a Tool: `engine::attach`).
 
 use crate::effects::*;
 use crate::game::{Cont, Game, R};
@@ -6,46 +6,6 @@ use crate::list::*;
 use crate::spec::passive::{lasting_locked, LockedAction};
 use crate::state::*;
 use crate::types::*;
-
-pub fn play_energy_reducer(g: &mut Game, id: EffId) -> R {
-    let (p, card, target) = match *g.e(id) {
-        Effect::AttachEnergy { p, card, target, .. } => (p as usize, card, target),
-        _ => return Ok(()),
-    };
-    if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
-        crate::bail!("INVALID_TARGET");
-    }
-    if let Some(code) = lasting_locked(g, p, Some(card), &[LockedAction::AttachEnergy]) {
-        crate::bail!(code);
-    }
-    // cannotAttachEnergyFromHandNextTurn / pending attach consequences: not modeled.
-    // The Energy card is moved from where it is (Twinleaf moved it from the hand only, so an
-    // Energy attached from the deck, discard pile or the cards just looked at stayed there):
-    // the hand, else any list of the game state, else a scratch list (Twinleaf's
-    // `AttachEnergyEffect.sourceList`, the top cards of LOOK_AT_TOP_X_CARDS_AND_ATTACH...).
-    let mut src = ListRef::Hand(p as u8);
-    if !g.st.players[p].hand.contains(card) {
-        match g.st.locate(card) {
-            Some(l) => src = l,
-            None => {
-                for i in 0..g.temps.len() {
-                    if g.temps[i].as_slice().contains(&card) {
-                        src = ListRef::Temp(i as u8);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    if src != target.list() {
-        g.move_card_to(src, card, target.list());
-    }
-    let e = &mut g.st.players[target.p as usize].slots[target.s as usize].energies;
-    if !e.contains(card) {
-        e.push(card);
-    }
-    Ok(())
-}
 
 fn cleanup_target(g: &Game, card: CardId) -> fn(u8) -> ListRef {
     if g.st.cdef(card).has_tag(tag::PRISM_STAR) {
@@ -163,10 +123,9 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
                 Some(t) => t,
                 None => return Ok(()),
             };
-            g.move_card_to(ListRef::Hand(p), card, target.list());
-            let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-            slot.cards.remove(card);
-            slot.tools.push(card);
+            // The Tool is attached from the hand (the Attach event, checked by `can_attach_tool`), then its Trainer
+            // effect.
+            crate::engine::attach::run_attach(g, card, target, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p))?;
             g.run_fx_unit(Effect::Trainer { p, card, target: Some(target), via_attack: false })?;
             Ok(())
         }
@@ -221,21 +180,10 @@ pub fn can_play_item_with(g: &Game, p: usize, card: Option<CardId>) -> R {
     Ok(())
 }
 
-pub fn can_attach_tool(g: &Game, p: usize, card: CardId, target: SlotRef) -> R {
-    if target.p as usize != p && !g.st.cdef(card).attaches_to_opponents_pokemon {
-        crate::bail!("INVALID_TARGET");
-    }
-    let pc = match g.st.slot_pokemon(target.p as usize, target.s) {
-        Some(c) => c,
-        None => crate::bail!("INVALID_TARGET"),
-    };
-    if g.st.slot(target.p as usize, target.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
-        crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
-    }
-    if let Some(code) = lasting_locked(g, p, Some(card), &[LockedAction::AttachTool]) {
-        crate::bail!(code);
-    }
-    Ok(())
+/// The checks of playing the Tool `card` from the hand onto `target`: the Attach it produces
+/// (`engine::attach::check_tool_play`: the spot, one Tool per Pokémon, the locks).
+pub fn can_attach_tool(g: &mut Game, p: usize, card: CardId, target: SlotRef) -> R {
+    crate::engine::attach::check_tool_play(g, p, card, target)
 }
 
 pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {

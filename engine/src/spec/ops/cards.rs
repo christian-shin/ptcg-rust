@@ -265,17 +265,18 @@ pub enum TargetScan {
     /// Every Pokémon in play (Active first) whose current type is none of these is blocked.
     EffectiveTypes(&'static [CardType]),
 }
+/// What an `Attach` does besides attaching. Every route produces one Attach event per card (events batch 3), so
+/// `Move` and `Effect` are the same now (B3-OLD: the card files keep either until their batch 3 conversion).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum AttachRoute {
-    /// The cards move to the Pokémon (not an attachment from hand).
+    /// Attach (B3-OLD name: before events batch 3 the cards moved without an event).
     Move,
-    /// The attachment effect (attached from hand by an Ability).
+    /// Attach (B3-OLD name: before events batch 3 the only route with an attach event).
     Effect,
-    /// `Move`; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
+    /// Attach; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
     /// (Janine's Secret Art).
     MovePoisonActive,
-    /// The cards move to the Pokémon, and the deck is shuffled after each one (today's behavior of
-    /// Yanmega ex's Buzz Boost).
+    /// Attach, and the deck is shuffled after each card (today's behavior of Yanmega ex's Buzz Boost).
     MoveShufflePerCard,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
@@ -808,16 +809,20 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
             set_reg(g, f, r, &[]);
         }
     }
+    if let Place::AttachTo(e) = m.place {
+        let Some(slot) = slot_of(g, me, f, e) else { return Ok(()) };
+        return attach_moved(g, f, src, slot, &cards, me);
+    }
     let Some(dst) = zone_list(g, me, f, m.to, false) else { return Ok(()) };
+    if let ListRef::Slot(tp, ts) = dst {
+        // Onto a Pokémon: an Energy or a Tool is attached (or moved, from another Pokémon), one event per card.
+        return attach_moved(g, f, src, SlotRef { p: tp, s: ts }, &cards, me);
+    }
     if matches!(m.cards, CardSel::Tools(_)) {
         for c in cards {
             move_cards(g, src, dst, &[c], me)?;
         }
         return Ok(());
-    }
-    if let Place::AttachTo(e) = m.place {
-        let Some(slot) = slot_of(g, me, f, e) else { return Ok(()) };
-        return move_cards(g, src, slot.list(), &cards, me);
     }
     match m.place {
         Place::AttachTo(_) => unreachable!(),
@@ -836,6 +841,22 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
             Ok(())
         }
     }
+}
+
+/// `Move` onto a Pokémon (`Place::AttachTo`, a `Zone::Attached` destination): each Energy or Tool card is attached
+/// (`engine::attach::attach`: an Attach event from its zone, or a MoveEnergy / MoveTool from another Pokémon);
+/// anything else (never a pool card) moves physically.
+fn attach_moved(g: &mut Game, f: &Frame, src: ListRef, target: SlotRef, cards: &[CardId], me: CardId) -> R {
+    for &c in cards {
+        let d = g.st.cdef(c);
+        if d.is_energy() || crate::engine::attach::is_tool(g, c) {
+            crate::engine::attach::attach(g, c, target, f.cause)?;
+        } else {
+            debug_assert!(false, "a card that is neither an Energy nor a Tool moved onto a Pokémon");
+            move_cards(g, src, target.list(), &[c], me)?;
+        }
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -972,12 +993,12 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
                     bench_idx = i;
                 }
             }
+            // The Attach event from the deck, with its checks (one Tool per Pokémon: a refused Tool stays where it
+            // was).
             for c in chosen {
-                if g.st.cdef(*c).is_trainer() {
+                if crate::engine::attach::is_tool(g, *c) {
                     let s = g.st.players[p].bench.as_slice()[bench_idx];
-                    move_cards(g, from, ListRef::Slot(p as u8, s), &[*c], me)?;
-                    g.st.players[p].slots[s as usize].cards.remove(*c);
-                    g.st.players[p].slots[s as usize].tools.push(*c);
+                    crate::engine::attach::attach(g, *c, SlotRef::new(p, s), f.cause)?;
                 }
             }
         }
@@ -1137,18 +1158,11 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
             continue;
         }
         f.attached_to = encode(target);
-        if a.route != AttachRoute::Effect {
-            crate::cause::unseen(g, "AttachRoute::Move* attach", &f.cause);
-        }
-        match a.route {
-            AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
-            AttachRoute::Effect => {
-                g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card: c, target, cause: f.cause })?;
-            }
-            AttachRoute::MoveShufflePerCard => {
-                move_cards(g, from, target.list(), &[c], me)?;
-                shuffle_deck(g, p);
-            }
+        // One Attach event per card, from the zone the card is in (a card attached to a Pokémon is moved:
+        // MoveEnergy, id1653); a refused one doesn't happen.
+        crate::engine::attach::attach(g, c, target, f.cause)?;
+        if a.route == AttachRoute::MoveShufflePerCard {
+            shuffle_deck(g, p);
         }
         if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
             crate::cause::unseen(g, "AttachRoute::MovePoisonActive Poison (written directly)", &f.cause);
@@ -1245,12 +1259,16 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             Ok(Flow::Suspend)
         }
         Op::Search(s) if f.sub == 2 => {
-            // The target of searched cards that are attached: they leave the deck for that Pokémon.
+            // The target of searched cards that are attached: they leave the deck for that Pokémon, one Attach event
+            // per card.
             if let Some(t) = first.slots().first().copied() {
                 let cards: Vec<CardId> = reg_list(g, f, s.pick.into).to_vec();
                 let from = zone_ref(f, s.pick.from);
-                let source_card = g.st.slot_pokemon(f.p as usize, g.st.players[f.p as usize].active).unwrap_or(me);
-                move_cards(g, from, t.list(), &cards, source_card)?;
+                for c in cards {
+                    if g.lst(from).contains(&c) {
+                        crate::engine::attach::attach(g, c, t, f.cause)?;
+                    }
+                }
             }
             Ok(Flow::Next)
         }
@@ -1314,7 +1332,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                         }
                     }
                     let src = get_target(&g.st, p, *from)?;
-                    move_cards(g, src.list(), dst.list(), &[*card], me)?;
+                    crate::engine::attach::move_attached(g, *card, src, dst, f.cause)?;
                 }
             }
             if m.used_always {
@@ -1327,7 +1345,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             let p = f.p as usize;
             if let MoveEnergyMode::BenchToActive { ability: true, .. } = m.mode {
                 // One source after the other, the chosen cards of each in the order chosen.
-                let dst = ListRef::Slot(p as u8, g.st.players[p].active);
+                let dst = SlotRef::new(p, g.st.players[p].active);
                 let mut done: Vec<SlotRef> = Vec::new();
                 for (from, _, _) in ts.iter() {
                     let src = get_target(&g.st, p, *from)?;
@@ -1337,7 +1355,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                     done.push(src);
                     for (_, _, card) in ts.iter() {
                         if g.lst(src.list()).contains(card) {
-                            move_cards(g, src.list(), dst, &[*card], me)?;
+                            crate::engine::attach::move_attached(g, *card, src, dst, f.cause)?;
                         }
                     }
                 }
@@ -1351,7 +1369,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                     MoveEnergyMode::BenchToActive { .. } => SlotRef::new(p, g.st.players[p].active),
                     _ => get_target(&g.st, p, *to)?,
                 };
-                move_cards(g, src.list(), dst.list(), &[*card], me)?;
+                crate::engine::attach::move_attached(g, *card, src, dst, f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -2572,7 +2590,7 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
                             g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *dst })?;
                         }
                     } else {
-                        move_cards(g, a.list(), dst.list(), &[*c], me)?;
+                        crate::engine::attach::move_attached(g, *c, *a, *dst, f.cause)?;
                     }
                 }
             }
@@ -2594,7 +2612,9 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
             (_, EnergyDest::Deck) => move_cards(g, src.list(), ListRef::Deck(me_p as u8), &cards, me)?,
             (_, EnergyDest::Slot(x)) => {
                 if let Some(dst) = slot_of(g, me, f, x) {
-                    move_cards(g, src.list(), dst.list(), &cards, me)?;
+                    for c in &cards {
+                        crate::engine::attach::move_attached(g, *c, src, dst, f.cause)?;
+                    }
                 }
             }
             (_, EnergyDest::Stay) => {}
