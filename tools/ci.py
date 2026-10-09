@@ -76,7 +76,12 @@ def main():
     if a.no_wait:
         return
     sh('gh', 'run', 'watch', str(run), '--exit-status', '--interval', '30', check=False, capture=True)
-    view = json.loads(sh('gh', 'run', 'view', str(run), '--json', 'conclusion,jobs').stdout)
+    # `gh run watch` can return early (network hiccups); poll until the run is done.
+    while True:
+        view = json.loads(sh('gh', 'run', 'view', str(run), '--json', 'status,conclusion,jobs').stdout)
+        if view['status'] == 'completed':
+            break
+        time.sleep(30)
     for j in view['jobs']:
         print('  %-12s %s' % (j['name'], j['conclusion']))
     if view['conclusion'] == 'success':
