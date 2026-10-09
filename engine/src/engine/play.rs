@@ -157,6 +157,8 @@ pub fn finish_evolution(g: &mut Game, p: usize, target: SlotRef) -> R {
     slot.special_conditions.retain(|c| keep.contains(c));
     slot.marker.remove_all_except_trainer_effects();
     slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
+    // The evolved Pokémon is a new one for once-per-turn Abilities (ruling 317).
+    crate::prefabs::reset_once_per_turn_slot(g, target);
     Ok(())
 }
 

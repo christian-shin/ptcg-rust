@@ -1,0 +1,84 @@
+{
+ "turn": 4,
+ "decks": [
+  [
+   "4 Team Rocket's Porygon DRI 153",
+   "4 Team Rocket's Porygon2 DRI 154",
+   "4 Team Rocket's Porygon-Z DRI 155",
+   "1 Scoop Up Cyclone PRE 128",
+   "4 Rare Candy MEG 125",
+   "43 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Team Rocket's Porygon DRI 153",
+   "4 Team Rocket's Porygon2 DRI 154",
+   "4 Team Rocket's Porygon-Z DRI 155",
+   "1 Scoop Up Cyclone PRE 128",
+   "4 Rare Candy MEG 125",
+   "43 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Porygon DRI 153",
+   "Team Rocket's Porygon2 DRI 154",
+   "Team Rocket's Porygon-Z DRI 155"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Porygon DRI 153"
+   }
+  ],
+  "hand": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Scoop Up Cyclone PRE 128",
+   "Rare Candy MEG 125"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Porygon DRI 153"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Reconstitute",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   0,
+   1
+  ],
+  {
+   "a": "play",
+   "card": "Scoop Up Cyclone PRE 128"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "play",
+   "card": "Rare Candy MEG 125"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "me",
+   "legal": "ability",
+   "name": "Reconstitute",
+   "cite": "ruling 317 (a once-per-turn Ability is reset when the Pokemon leaves play and comes into play again that turn; Scoop Up Cyclone returns the Pokemon to the hand, Rare Candy puts the card back into play)"
+  }
+ ]
+}

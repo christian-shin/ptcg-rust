@@ -126,6 +126,10 @@ impl Game {
     }
 
     pub fn move_card_to(&mut self, src: ListRef, c: CardId, dst: ListRef) {
+        // Entering, leaving or changing slot resets the card's once-per-turn marks (ruling 317).
+        if (Self::slot_of(src).is_some() || Self::slot_of(dst).is_some()) && src != dst {
+            crate::prefabs::reset_once_per_turn(self, c);
+        }
         if let Some((p, s)) = Self::slot_of(src) {
             // PokemonCardList.moveCardsTo
             if let Some(i) = self.st.players[p].slots[s as usize].cards.index_of(c) {
