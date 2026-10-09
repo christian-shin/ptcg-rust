@@ -81,8 +81,7 @@ and simultaneous take-holds are stamped with the turn player's first.
   Tool attached from the hand only; a Tool put on by an effect from another
   zone isn't stopped. Team Rocket's Arbok's "any Pokémon that has an Ability
   from their hand" also stops a Fossil with an Ability (Antique Root Fossil),
-  which is played as a Pokémon. Whether it stops Rare Candy is not decided (no
-  ruling): it doesn't today.
+  which is played as a Pokémon. It also stops Rare Candy into a Stage 2 with an Ability (except Team Rocket's): Rare Candy is still played from the hand (id1133 / n1046, id285, id1998), so Rare Candy offers no Stage 2 a play lock blocks, and can't be used when none is left.
 
 ## On-play Abilities (2026-10-08)
 

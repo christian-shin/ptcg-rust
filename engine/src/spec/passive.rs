@@ -3009,11 +3009,12 @@ mod play_lock_tests {
         let (noctowl, dura, arbok) = (hand(&g, me, "Noctowl PRE 78"), hand(&g, me, "Duraludon PRE 69"), hand(&g, me, "Team Rocket's Arbok DRI 113"));
         assert_eq!(ability_off(&g, noctowl), Some(false), "printed data in the hand");
         assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
-        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), None, "Rare Candy isn't covered (no ruling)");
+        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), Some("BLOCKED_BY_ABILITY"), "Rare Candy too (id1133, id285, id1998)");
         let fossil = hand(&g, me, "Antique Root Fossil SCR 130");
         assert_eq!(play_locked(&mut g, me, fossil, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"), "a Fossil with an Ability is played as a Pokémon");
         assert_eq!(play_locked(&mut g, me, dura, LockedAction::PlayPokemon), None, "no Ability");
         assert_eq!(play_locked(&mut g, me, arbok, LockedAction::PlayPokemon), None, "Team Rocket's Pokémon are exempt");
+        assert_eq!(play_locked(&mut g, me, arbok, LockedAction::Evolve), None);
         // Its owner is not stopped.
         assert_eq!(play_locked(&mut g, 1 - me, noctowl, LockedAction::PlayPokemon), None);
     }
