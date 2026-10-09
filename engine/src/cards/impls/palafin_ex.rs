@@ -13,7 +13,15 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Palafinex",
 attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] }],
     // Can only be put into play with Palafin's Zero to Hero.
-    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::EvolveIntoThis }) }],
+    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec {
+        binds: Binds::Both,
+        actions: &[LockedAction::Evolve],
+        card: Pred::Any,
+        except: Pred::False,
+        while_: &[LockWhile::CardIsSource],
+        ability: false,
+        error: "CANNOT_EVOLVE",
+    }) }],
     ..CardSpec::NONE
 };
 

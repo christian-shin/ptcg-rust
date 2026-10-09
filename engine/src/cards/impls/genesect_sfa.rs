@@ -9,10 +9,19 @@
 //! BLOCKED_BY_EFFECT is thrown when it passes. Only cards played from the hand: an Energy or
 //! Tool attached by an effect from the deck or discard pile is not blocked.
 use crate::spec::prelude::*;
+use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Genesect@SFA",
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::AceSpecOfOpponent }) }],
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
+        binds: Binds::Opponent,
+        actions: &[LockedAction::PlayItem, LockedAction::AttachTool, LockedAction::AttachEnergy, LockedAction::PlayStadium],
+        card: Pred::Tag(tag::ACE_SPEC),
+        except: Pred::False,
+        while_: &[LockWhile::HasTool],
+        ability: true,
+        error: "BLOCKED_BY_EFFECT",
+    }) }],
     ..CardSpec::NONE
 };
 

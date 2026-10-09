@@ -14,7 +14,15 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::ItemAndToolOfOpponent }) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
+            binds: Binds::Opponent,
+            actions: &[LockedAction::PlayItem, LockedAction::AttachTool],
+            card: Pred::Any,
+            except: Pred::False,
+            while_: &[LockWhile::Active],
+            ability: true,
+            error: "BLOCKED_BY_ABILITY",
+        }) },
     ],
     ..CardSpec::NONE
 };

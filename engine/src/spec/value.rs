@@ -258,7 +258,7 @@ pub enum Pred {
     SpecialEnergy,
     /// The Pokémon evolves from a Pokémon its owner has in play.
     EvolvesFromOwnInPlay,
-    /// The Pokémon card prints an Ability.
+    /// The card prints an Ability (a Pokémon, or a Fossil that is played as one).
     PrintsAbility,
 }
 
@@ -607,7 +607,7 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
                 for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(_, top, _)| g.st.cdef(*top).name == d.evolves_from)
             }
         }
-        Pred::PrintsAbility => mon && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
+        Pred::PrintsAbility => d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),
     }
 }
 

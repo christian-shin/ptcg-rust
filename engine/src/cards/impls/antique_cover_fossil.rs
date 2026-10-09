@@ -44,7 +44,7 @@ pub static SPEC: CardSpec = CardSpec {
                 sweep: true,
             }),
         },
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::RetreatThisActive }) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec::RETREAT_THIS_ACTIVE) },
     ],
     ..CardSpec::NONE
 };

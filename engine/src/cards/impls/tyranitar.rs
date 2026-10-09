@@ -12,7 +12,15 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Tyranitar",
     // Daunting Gaze: while this Pokémon is in the Active Spot, your opponent can't play Item cards from their hand.
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::OpponentItems }) }],
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
+        binds: Binds::Opponent,
+        actions: &[LockedAction::PlayItem],
+        card: Pred::Any,
+        except: Pred::False,
+        while_: &[LockWhile::Active],
+        ability: true,
+        error: "BLOCKED_BY_ABILITY",
+    }) }],
     attacks: &[AttackSpec {
         index: 0,
         // Crackling Stomp: discard the top 2 cards of your opponent's deck.
