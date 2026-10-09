@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mr. Mime TEF 63", "4 Lisia's Appeal SSP 179", "4 Hop's Snorlax JTG 117", "4 Mist Energy TEF 161", "44 Psychic Energy MEE 5"],
+  ["4 Mr. Mime TEF 63", "4 Lisia's Appeal SSP 179", "4 Hop's Snorlax JTG 117", "4 Mist Energy TEF 161", "44 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Mr. Mime TEF 63", "active_energy": ["Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand_to_deck": true, "hand": ["Lisia's Appeal SSP 179"], "bench": [{"card": "Mr. Mime TEF 63", "energy": ["Mist Energy TEF 161"]}]},
+ "answers": [{"a": "attack", "name": "Look-Alike Show"}, [0], [{"player": 1, "slot": 2, "index": 0}]],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Hop's Snorlax JTG 117", "conditions": [], "cite": "id2025 and the JP FAQ (Ninetales' Supernatural Shapeshifter with Boss's Orders vs Mist Energy: can't be switched in): Lisia's Appeal used as the effect of Look-Alike Show is the attack's effect (id2225, id2226); Mist Energy prevents the switch-in of the Benched Mr. Mime, so there is no new Active Pokemon and nothing is Confused"},
+  {"at": "turn_end", "who": "opp", "bench_count": 1, "cite": "id2025: the Benched Mr. Mime with Mist Energy stays on the Bench"}
+ ]
+}

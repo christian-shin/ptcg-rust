@@ -18,3 +18,6 @@ g0500012537
 g0500019737
 # Grand Tree can no longer evolve an Eevee with Boosted Evolution on the player's first turn (official JP FAQ 2026-10-09)
 g0500013901
+# 2 Boss's Orders used through Mr. Mime's Look-Alike Show can't switch in a Benched Pokémon with Mist Energy (id2025; JP FAQ, Supernatural Shapeshifter + Boss's Orders vs Mist Energy)
+g0500000754
+g0500018045
