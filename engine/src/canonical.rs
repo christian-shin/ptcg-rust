@@ -220,7 +220,9 @@ impl Game {
         nd!(can_evolve, "canEvolve");
         nd!(ancient_pokemon_attacked_last_turn, "ancientPokemonAttackedLastTurn");
         nd!(ancient_supporter, "ancientSupporter");
-        // The locks an attack left, as the keys the state always had (what they stop, and the turns left).
+        // The locks an attack left, as the keys the state always had (what they stop, and the turns left). The
+        // locks over events (`LockDecl::forbids`: playing or evolving Pokémon, events batch 2) have no key: these
+        // keys are Twinleaf's, outside the observable projection the golden comparator hashes.
         {
             use crate::spec::passive::LockedAction as A;
             let stops = |a: A| pl.lasting_locks.iter().flatten().any(|l| l.decl.actions.contains(&a));
@@ -230,8 +232,6 @@ impl Game {
                 (A::PlayStadium, "cannotPlayStadiumCards"),
                 (A::AttachTool, "cannotPlayToolCards"),
                 (A::AttachEnergy, "cannotPlayEnergyCards"),
-                (A::PlayPokemon, "cannotPlayPokemonCards"),
-                (A::Evolve, "cannotEvolvePokemonCards"),
             ] {
                 if stops(a) {
                     o.insert(key.into(), json!(true));
