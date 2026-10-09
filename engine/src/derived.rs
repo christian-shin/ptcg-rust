@@ -211,7 +211,7 @@ pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<boo
 /// to it, while the attacking player's Active Spot holds a Pokémon. Read for the event families whose B-OLD
 /// attack-effect probe is gone (ChangeActive, events batch 5); the others still see it through their probe
 /// (`attack::should_prevent_attack_effects`).
-fn lasting_attack_effects_prevented(g: &Game, v: &crate::spec::event::EventView) -> bool {
+pub(crate) fn lasting_attack_effects_prevented(g: &Game, v: &crate::spec::event::EventView) -> bool {
     use crate::spec::event::EventKind;
     if !v.cause.is_attack() || v.kind != EventKind::ChangeActive {
         return false;

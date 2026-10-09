@@ -122,8 +122,9 @@ pub trait ActiveChecks {
     fn game(&self) -> &Game;
     /// The one lock query (`derived::event_locked`): the code of the lock that forbids the event.
     fn event_locked(&mut self, v: &EventView) -> R<Option<&'static str>>;
-    /// Is the event prevented (`derived::event_prevented`)? Legality answers no: a prevented effect can still be
-    /// played (id290).
+    /// Is the event prevented (`derived::event_prevented`)? Legality, which checks the retreat (a turn action
+    /// execution would refuse is illegal), reads the lasting effect only: no declaration matches a rule's cause
+    /// (`no_prevention_matches_a_rule_cause`).
     fn event_prevented(&mut self, v: &EventView) -> R<bool>;
 }
 
@@ -336,6 +337,45 @@ mod tests {
         assert!(change(&mut g, o, snorlax, ActiveChange::SwitchIn, ability), "the Active Shuppet doesn't stop it");
         // Its owner's own switch isn't the opponent's effect.
         assert!(change(&mut g, o, shuppet, ActiveChange::Switch, Cause::new(CauseKind::Trainer, None, o as u8)));
+    }
+
+    /// Does the predicate require a cause that isn't a game rule (an attack, an Ability, a card)?
+    fn needs_non_rule(p: &EventPred) -> bool {
+        fn cause(c: &CausePred) -> bool {
+            match c {
+                CausePred::Kind(k) => !matches!(k, CauseKind::Rule { .. }),
+                // A rule's cause has no card.
+                CausePred::Card(_) => true,
+                CausePred::All(ps) => ps.iter().any(cause),
+                CausePred::Any(ps) => ps.iter().all(cause),
+                CausePred::Rule | CausePred::By(_) | CausePred::Not(_) => false,
+            }
+        }
+        match p {
+            EventPred::Cause(c) => cause(c),
+            EventPred::All(ps) => ps.iter().any(needs_non_rule),
+            EventPred::Any(ps) => ps.iter().all(needs_non_rule),
+            _ => false,
+        }
+    }
+
+    /// No `Prevent` over ChangeActive can match a rule's cause (a retreat, a promotion): legality doesn't read the
+    /// declarations for the retreat (legal.rs `Ctx`), and the rule's promotion must happen. A declaration that could
+    /// would need both readers.
+    #[test]
+    fn no_prevention_matches_a_rule_cause() {
+        let mut n = 0;
+        for s in crate::cards::registry::SPECS.iter() {
+            for ps in s.passives {
+                let crate::spec::passive::Modifier::Prevent(p) = &ps.modifier else { continue };
+                if p.from.is_never() || !p.from.effect_kinds().has(crate::effects::k::CHANGE_ACTIVE) {
+                    continue;
+                }
+                n += 1;
+                assert!(needs_non_rule(&p.from), "{}: a Prevent over ChangeActive that a rule's cause could match", s.class);
+            }
+        }
+        assert!(n >= 13, "the ChangeActive preventions are read ({n})");
     }
 
     /// A promotion fills the empty Active Spot; nothing leaves.
