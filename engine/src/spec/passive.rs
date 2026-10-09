@@ -3173,6 +3173,20 @@ mod play_lock_tests {
         g.st.slot_pokemon(p, g.st.players[p].bench.as_slice()[i]).unwrap()
     }
 
+    /// The lock answer for the Evolve (`evolve`) or EnterPlay event of `card` from the hand, onto the active spot
+    /// of `owner` (the event's owner), by the rule.
+    fn event_lock(g: &mut Game, owner: usize, card: CardId, evolve: bool) -> Option<&'static str> {
+        use crate::engine::enter::{enter_view, evolve_view};
+        let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, owner as u8);
+        let t = crate::effects::SlotRef::new(owner, g.st.players[owner].active);
+        let v = if evolve {
+            evolve_view(g, Some(card), t, crate::spec::event::RulesZone::Hand, crate::spec::event::EvolvePath::Rule, cause).unwrap()
+        } else {
+            enter_view(g, card, t, crate::spec::event::RulesZone::Hand, crate::spec::event::EnterMode::Rule, cause)
+        };
+        event_locked(g, &v).unwrap()
+    }
+
     /// The lock each attack leaves, applied to player `p` as the attack does, with what it stops.
     #[test]
     fn attack_locks_stop_what_their_text_says_and_expire() {
@@ -3256,16 +3270,15 @@ mod play_lock_tests {
         let me = g.st.active_player as usize;
         let (noctowl, dura, arbok) = (hand(&g, me, "Noctowl PRE 78"), hand(&g, me, "Duraludon PRE 69"), hand(&g, me, "Team Rocket's Arbok DRI 113"));
         assert_eq!(ability_off(&g, noctowl), Some(false), "printed data in the hand");
-        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
-        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), None, "Arbok declares only PlayPokemon, as its text");
-        assert_eq!(play_locked_as(&mut g, me, noctowl, LockedAction::EVOLUTION_FROM_HAND), Some("BLOCKED_BY_ABILITY"), "Rare Candy too (id1133, id285, id1998)");
+        assert_eq!(event_lock(&mut g, me, noctowl, true), Some("BLOCKED_BY_ABILITY"), "evolving from the hand, Rare Candy too (id1133, id285, id1998)");
+        assert_eq!(event_lock(&mut g, me, noctowl, false), Some("BLOCKED_BY_ABILITY"), "put onto the Bench from the hand");
         let fossil = hand(&g, me, "Antique Root Fossil SCR 130");
-        assert_eq!(play_locked(&mut g, me, fossil, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"), "a Fossil with an Ability is played as a Pokémon");
-        assert_eq!(play_locked(&mut g, me, dura, LockedAction::PlayPokemon), None, "no Ability");
-        assert_eq!(play_locked(&mut g, me, arbok, LockedAction::PlayPokemon), None, "Team Rocket's Pokémon are exempt");
-        assert_eq!(play_locked_as(&mut g, me, arbok, LockedAction::EVOLUTION_FROM_HAND), None);
+        assert_eq!(event_lock(&mut g, me, fossil, false), Some("BLOCKED_BY_ABILITY"), "a Fossil with an Ability is played as a Pokémon");
+        assert_eq!(event_lock(&mut g, me, dura, false), None, "no Ability");
+        assert_eq!(event_lock(&mut g, me, arbok, false), None, "Team Rocket's Pokémon are exempt");
+        assert_eq!(event_lock(&mut g, me, arbok, true), None);
         // Its owner is not stopped.
-        assert_eq!(play_locked(&mut g, 1 - me, noctowl, LockedAction::PlayPokemon), None);
+        assert_eq!(event_lock(&mut g, 1 - me, noctowl, true), None);
     }
 
     #[test]
@@ -3274,13 +3287,13 @@ mod play_lock_tests {
             "opp": {"reset": true, "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]}}));
         let me = g.st.active_player as usize;
         let meowth = hand(&g, me, "Meowth ex POR 62");
-        assert_eq!(play_locked(&mut g, me, meowth, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
+        assert_eq!(event_lock(&mut g, me, meowth, false), Some("BLOCKED_BY_ABILITY"));
         // With Flutter Mane Active (mine) Arbok's Ability is off.
         let mut g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "hand": ["Meowth ex POR 62"]},
             "opp": {"reset": true, "active": ["Team Rocket's Ekans DRI 112", "Team Rocket's Arbok DRI 113"]}}));
         let meowth = hand(&g, me, "Meowth ex POR 62");
         assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
-        assert_eq!(play_locked(&mut g, me, meowth, LockedAction::PlayPokemon), None);
+        assert_eq!(event_lock(&mut g, me, meowth, false), None);
     }
 
     #[test]
@@ -3316,14 +3329,14 @@ mod play_lock_tests {
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let dura = active(&g, me);
         assert_eq!(play_locked(&mut g, me, dura, LockedAction::Retreat), None);
-        // Palafin ex can't be put into play by evolving, whoever does it; Palafin can.
+        // Palafin ex can't be put into play by evolving or otherwise, whoever does it; Palafin can.
         let mut g = game(json!({"me": {"reset": true, "active": "Finizen TWM 59", "hand": ["Palafin ex PRE 151", "Palafin TWM 60"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let (ex, plain) = (hand(&g, me, "Palafin ex PRE 151"), hand(&g, me, "Palafin TWM 60"));
-        assert_eq!(play_locked(&mut g, me, ex, LockedAction::Evolve), Some("CANNOT_EVOLVE"));
-        assert_eq!(play_locked(&mut g, 1 - me, ex, LockedAction::Evolve), Some("CANNOT_EVOLVE"));
-        assert_eq!(play_locked(&mut g, me, plain, LockedAction::Evolve), None);
-        assert_eq!(play_locked(&mut g, me, ex, LockedAction::PlayPokemon), None, "only the evolving is locked");
+        assert_eq!(event_lock(&mut g, me, ex, true), Some("CANNOT_EVOLVE"));
+        assert_eq!(event_lock(&mut g, 1 - me, ex, true), Some("CANNOT_EVOLVE"));
+        assert_eq!(event_lock(&mut g, me, plain, true), None);
+        assert_eq!(event_lock(&mut g, me, ex, false), Some("CANNOT_EVOLVE"), "every EnterPlay of the card too (RULES.md Evolution timing)");
     }
 
     #[test]
