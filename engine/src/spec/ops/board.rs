@@ -17,7 +17,7 @@ use crate::game::{Game, R};
 use crate::list::*;
 use crate::prefabs::*;
 use crate::prompts::*;
-use crate::state::{ListRef, SlotId};
+use crate::state::ListRef;
 use crate::types::*;
 
 /// Card files name Special Conditions and Pokémon types through the prelude.
@@ -511,10 +511,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Switch(s) => switch_exec(g, me, f, s),
         Op::Evolve(EvolveSpec { how: EvolveHow::RareCandy }) => {
             let p = f.p as usize;
-            let stage2 = stage2_evolvable(g, p);
+            let stage2 = stage2_in_hand(g, p);
             let mut blocked: TargetList = SVec::new();
             for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if g.st.cdef(c).stage == Stage::Basic as u8 && stage2.iter().any(|s2| matching_stage2(g, c, *s2)) && candy_played_turn(g, p, s)? < g.st.turn {
+                if g.st.cdef(c).stage == Stage::Basic as u8 && candy_can_evolve(g, f.cause, SlotRef::new(p, s), &stage2)? {
                     continue;
                 }
                 blocked.push(t);
@@ -534,11 +534,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::Evolve(EvolveSpec { how: EvolveHow::FromRegister { chooser, card } }) => evolve_reg_exec(g, me, f, *chooser, *card),
         Op::Evolve(EvolveSpec { how: EvolveHow::PutOnto { slot, card } }) => {
             let (Some(slot), Some(&card)) = (slot_of(g, me, f, *slot), reg_list(g, f, *card).first()) else { return Ok(Flow::Next) };
-            let p = slot.p as usize;
             if g.st.locate(card).is_none() {
                 return Ok(Flow::Next);
             }
-            crate::engine::play::evolve_pokemon(g, p, slot, card, f.cause)?;
+            // Put onto the Pokémon by the effect: the effect path.
+            crate::engine::enter::evolve(g, card, slot, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, f.cause)?;
             Ok(Flow::Next)
         }
         Op::Devolve(d) if d.chooser.is_some() => devolve_exec(g, me, f, d),
@@ -546,11 +546,9 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let Some(slot) = slot_of(g, me, f, dv.slot) else { return Ok(Flow::Next) };
             let (p, s) = (slot.p as usize, slot.s);
             if occupied(g, slot) && g.st.slot_pokemons(p, s).len() > 1 {
+                // An effect of the attack: prevention can stop it (the DevolveProbe).
                 if let Some(b) = atk_base(g, f, slot) {
-                    let (_, prevented) = g.run_fx(Effect::Devolve { b })?;
-                    if !prevented {
-                        devolve_pokemon(g, slot, zone_ref(f, dv.destination))?;
-                    }
+                    crate::engine::enter::devolve(g, slot, 1, zone_ref(f, dv.destination), f.cause, Some(b))?;
                 }
             }
             Ok(Flow::Next)
@@ -558,29 +556,15 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         Op::SwapPokemonCard(sw) if sw.bottom => swap_bottom_exec(g, me, f, sw),
         Op::SwapPokemonCard(sw) => {
             // The chosen card goes onto this Pokémon's slot, this card leaves for `into`; it is the
-            // same Pokémon (ruling 1840): the state kept on the card moves to the new card.
+            // same Pokémon (id2372): the card-bound facts move to the new card (the Swap event).
             let new = reg_list(g, f, sw.cards).first().copied();
             let slot = slot_of(g, me, f, sw.slot);
             if let (Some(new), Some(slot)) = (new, slot) {
                 let (p, s) = (slot.p as usize, slot.s);
                 let Some(old) = g.st.slot_pokemon(p, s) else { return Ok(Flow::Next) };
-                if let Some(src) = g.st.locate(new) {
-                    let list = crate::state::ListRef::Slot(slot.p, slot.s);
-                    let old_index = g.st.slot(p, s).cards.index_of(old);
-                    move_cards(g, src, list, &[new], me)?;
-                    let dst = zone_ref(f, sw.into);
-                    move_cards(g, list, dst, &[old], me)?;
-                    if sw.keep_index {
-                        let slot = &mut g.st.players[p].slots[s as usize];
-                        if let (Some(ni), Some(oi)) = (slot.cards.index_of(new), old_index) {
-                            if ni != oi {
-                                slot.cards.remove_at(ni);
-                                let at = oi.min(slot.cards.len());
-                                slot.cards.insert(at, new);
-                            }
-                        }
-                    }
-                    transfer_pokemon_card_state(g, p, old, new);
+                if g.st.locate(new).is_some() {
+                    let place = if sw.keep_index { crate::engine::enter::SwapPlace::OldIndex } else { crate::engine::enter::SwapPlace::Top };
+                    crate::engine::enter::swap(g, slot, old, new, zone_ref(f, sw.into), place, me, f.cause)?;
                 }
             }
             Ok(Flow::Next)
@@ -623,7 +607,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::Evolve(EvolveSpec { how: EvolveHow::FromDeck { chooser, .. } }) => {
             let p = f.who(*chooser);
-            let (_, blocked) = evolve_targets(g, p)?;
+            let (_, blocked) = evolve_targets(g, p, f.cause)?;
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);
             slots.push(SlotType::Active as u8);
@@ -669,14 +653,16 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             let p = f.p as usize;
             if f.sub == 1 {
                 let Some(target) = first.slots().first().copied() else { return Ok(Flow::Next) };
-                let Some(base) = g.st.slot_pokemon(target.p as usize, target.s) else { return Ok(Flow::Next) };
+                if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
+                    return Ok(Flow::Next);
+                }
                 f.slot = encode(target);
                 let mut opts = ChooseCardsOpts::new(1, 1, false);
                 let hand: Vec<CardId> = g.st.players[p].hand.iter().collect();
                 for (i, c) in hand.iter().enumerate() {
                     let d = g.st.cdef(*c);
                     let stage2 = d.is_pokemon() && d.stage == Stage::Stage2 as u8;
-                    if stage2 && (!matching_stage2(g, base, *c) || crate::spec::passive::play_locked_as(g, p, *c, LockedAction::EVOLUTION_FROM_HAND).is_some()) {
+                    if stage2 && !candy_can_evolve(g, f.cause, target, &[*c])? {
                         opts.blocked.push(i as u8);
                     }
                 }
@@ -686,8 +672,9 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             }
             if let Some(c) = first.cards().first().copied() {
                 let target = decode(f.slot);
-                // It counts as evolving (ruling 1045).
-                crate::engine::play::evolve_pokemon(g, p, target, c, f.cause)?;
+                // It counts as evolving (id1045), and as playing the card from the hand (id285, id1998): the
+                // rule path, skipping the Stage 1.
+                crate::engine::enter::evolve(g, c, target, super::super::event::EvolvePath::Rule, crate::engine::enter::Reach::SkipStage1, f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -1465,22 +1452,7 @@ fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items:
 }
 
 // ---------------------------------------------------------------------------
-// Rare Candy (S3 agent 3)
-
-/// `isMatchingStage2(stage1, basic, stage2)`.
-pub fn matching_stage2(g: &Game, basic: CardId, stage2: CardId) -> bool {
-    let b = g.st.cdef(basic).name;
-    let s2 = g.st.cdef(stage2).evolves_from;
-    crate::gen::stage1::ALL_STAGE1.iter().any(|(n, from)| *n == s2 && *from == b)
-}
-
-/// The Stage 2 cards in the hand that Rare Candy may put into play: a play lock on evolving with a card from the
-/// hand (Team Rocket's Arbok, Palafin ex) covers Rare Candy too (id1133, id285, id1998).
-pub fn stage2_evolvable(g: &mut Game, p: usize) -> Vec<CardId> {
-    let mut v = stage2_in_hand(g, p);
-    v.retain(|c| crate::spec::passive::play_locked_as(g, p, *c, LockedAction::EVOLUTION_FROM_HAND).is_none());
-    v
-}
+// Rare Candy (S3 agent 3; its checks are the Evolve event's: `candy_can_evolve`)
 
 pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
     g.st.players[p].hand.iter().filter(|c| {
@@ -1505,41 +1477,27 @@ fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -
 }
 
 // ---------------------------------------------------------------------------
-// Evolve (Grand Tree)
-
-/// `CheckPokemonPlayedTurnEffect`: (pokemonPlayedTurn, canEvolveOnFirstTurn).
-fn played_turn(g: &mut Game, p: usize, s: SlotId) -> R<(i32, bool)> {
-    let target = SlotRef::new(p, s);
-    let played = g.st.slot(p, s).pokemon_played_turn;
-    let (e, _) = g.run_fx(Effect::CheckPokemonPlayedTurn { p: p as u8, target, pokemon_played_turn: played, can_evolve_on_first_turn: false })?;
-    Ok(match e {
-        Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } => (pokemon_played_turn, can_evolve_on_first_turn),
-        _ => (played, false),
-    })
-}
-
-/// A Pokémon can't be evolved during its owner's first turn (the PlayPokemonEffect test), unless it has its own exception.
-fn first_turn_blocked(g: &Game, p: usize, can_evolve_on_first_turn: bool) -> bool {
-    g.st.turn <= 2 && !g.st.players[p].can_evolve && !can_evolve_on_first_turn
-}
+// Evolve (Grand Tree): the Evolve event's effect path, with the card's own restriction
 
 fn evolves_from_any(name: &str) -> bool {
     crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == name)
 }
 
-/// Whether some Basic Pokémon of `p` can evolve now (not put into play this turn, not in the first turn)
-/// into a card the game knows, and the Pokémon prompt's blocked targets.
-pub(crate) fn evolve_targets(g: &mut Game, p: usize) -> R<(bool, TargetList)> {
-    let turn = g.st.turn as i32;
+/// Grand Tree's restriction on the Pokémon in `t` ("Players can't evolve a Basic Pokémon during their first
+/// turn or a Basic Pokémon that was put into play this turn"): the card's `Restrict`, asked before the card is
+/// chosen (`engine::enter::restricted`; no permission lifts it).
+fn from_deck_refused(g: &mut Game, t: SlotRef, cause: crate::cause::Cause) -> R<bool> {
+    let Some(v) = crate::engine::enter::evolve_view(g, None, t, super::super::event::RulesZone::Deck, super::super::event::EvolvePath::Effect, cause) else { return Ok(true) };
+    Ok(crate::engine::enter::restricted(g, &v)?.is_some())
+}
+
+/// Whether some Basic Pokémon of `p` can evolve now (the cause card's restrictions allow it) into a card the
+/// game knows, and the Pokémon prompt's blocked targets.
+pub(crate) fn evolve_targets(g: &mut Game, p: usize, cause: crate::cause::Cause) -> R<(bool, TargetList)> {
     let mut any = false;
     let mut blocked: TargetList = SVec::new();
     for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if g.st.cdef(c).stage != Stage::Basic as u8 {
-            blocked.push(t);
-            continue;
-        }
-        let (played, first_ok) = played_turn(g, p, s)?;
-        if played == turn || first_turn_blocked(g, p, first_ok) {
+        if g.st.cdef(c).stage != Stage::Basic as u8 || from_deck_refused(g, SlotRef::new(p, s), cause)? {
             blocked.push(t);
             continue;
         }
@@ -1550,25 +1508,25 @@ pub(crate) fn evolve_targets(g: &mut Game, p: usize) -> R<(bool, TargetList)> {
     Ok((any, blocked))
 }
 
-/// Deck prompt for an evolution of `from` (`stage`), blocking deck Pokémon that evolve from something else.
-fn evolution_prompt(g: &mut Game, p: usize, from: &'static str, stage: Stage, cont: crate::game::Cont) {
+/// Deck prompt for an evolution of `base` (`stage`), blocking deck Pokémon that don't evolve from it.
+fn evolution_prompt(g: &mut Game, p: usize, base: CardId, stage: Stage, cont: crate::game::Cont) {
     let mut blocked = Blocked::default();
     for (i, c) in g.st.players[p].deck.iter().enumerate() {
-        let d = g.st.cdef(c);
-        if d.is_pokemon() && d.evolves_from != from {
+        if g.st.cdef(c).is_pokemon() && !crate::engine::enter::evolves_into(g, base, c, crate::engine::enter::Reach::Next) {
             blocked.push(i as u8);
         }
     }
     let mut opts = ChooseCardsOpts::new(1, 1, true);
     opts.blocked = blocked;
-    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(stage as u8), evolves_from: Some(from), ..Filter::none() };
+    let filter = Filter { super_type: Some(SuperType::Pokemon as u8), stage: Some(stage as u8), evolves_from: Some(g.st.cdef(base).name), ..Filter::none() };
     choose_cards(g, p, "CHOOSE_CARD_TO_EVOLVE", ListRef::Deck(p as u8), filter, opts, cont);
 }
 
-/// An effect evolves the Pokémon with a card from the deck: the same evolution as playing it from the hand,
-/// except that the Evolution isn't played from the hand (no lock or trigger on that applies).
-fn evolve_with(g: &mut Game, p: usize, t: SlotRef, card: CardId, cause: crate::cause::Cause) -> R {
-    crate::engine::play::evolve_pokemon(g, p, t, card, cause)
+/// An effect evolves the Pokémon with a card from the deck: the Evolve event's effect path (the card isn't
+/// played from the hand: no lock or trigger on that applies; id1133, id2037).
+fn evolve_with(g: &mut Game, t: SlotRef, card: CardId, cause: crate::cause::Cause) -> R {
+    crate::engine::enter::evolve(g, card, t, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, cause)?;
+    Ok(())
 }
 
 fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: Stage, then_stage: Option<Stage>, first: Res) -> R<Flow> {
@@ -1578,22 +1536,20 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
             // The Pokémon was chosen.
             let Some(t) = first.slots().first().copied() else { return Ok(Flow::Next) };
             let Some(c) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(Flow::Next) };
-            let (played, first_ok) = played_turn(g, p, t.s)?;
-            if g.st.cdef(c).stage != Stage::Basic as u8 || played == g.st.turn as i32 || first_turn_blocked(g, p, first_ok) {
+            if g.st.cdef(c).stage != Stage::Basic as u8 || from_deck_refused(g, t, f.cause)? {
                 return Ok(Flow::Next);
             }
-            let name = g.st.cdef(c).name;
-            evolution_prompt(g, p, name, stage, f.cont(me, 0x20 | t.s));
+            evolution_prompt(g, p, c, stage, f.cont(me, 0x20 | t.s));
             Ok(Flow::Suspend)
         }
         0x20 => {
             let t = SlotRef::new(p, f.sub & 0x0F);
             let Some(evo) = first.cards().first().copied() else { return Ok(Flow::Next) };
-            evolve_with(g, p, t, evo, f.cause)?;
+            evolve_with(g, t, evo, f.cause)?;
             let name = g.st.cdef(evo).name;
             if let Some(st2) = then_stage {
                 if evolves_from_any(name) {
-                    evolution_prompt(g, p, name, st2, f.cont(me, 0x30 | t.s));
+                    evolution_prompt(g, p, evo, st2, f.cont(me, 0x30 | t.s));
                     return Ok(Flow::Suspend);
                 }
             }
@@ -1602,77 +1558,45 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
         _ => {
             let t = SlotRef::new(p, f.sub & 0x0F);
             if let Some(c) = first.cards().first().copied() {
-                evolve_with(g, p, t, c, f.cause)?;
+                evolve_with(g, t, c, f.cause)?;
             }
             Ok(Flow::Next)
         }
     }
 }
 
-/// `CheckPokemonPlayedTurnEffect` pokemonPlayedTurn, as Rare Candy reads it.
-fn candy_played_turn(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    Ok(played_turn(g, p, s)?.0)
+/// Can Rare Candy (`cause`) evolve the Basic Pokémon in `t` with one of `stage2` (cards in the hand)? The Evolve
+/// event's checks on the rule path, skipping the Stage 1: the locks on evolving from the hand (id1133, id285,
+/// id1998), the rule's limits and Rare Candy's own restriction (no permission lifts it: id1144, id1815).
+pub(crate) fn candy_can_evolve(g: &mut Game, cause: crate::cause::Cause, t: SlotRef, stage2: &[CardId]) -> R<bool> {
+    use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
+    let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
+    for &c in stage2 {
+        if !evolves_into(g, base, c, Reach::SkipStage1) {
+            continue;
+        }
+        let Some(v) = evolve_view(g, Some(c), t, super::super::event::RulesZone::Hand, super::super::event::EvolvePath::Rule, cause) else { return Ok(false) };
+        if check_evolve(g, &v, Reach::SkipStage1).is_ok() {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
-/// `canUseRareCandy`.
-pub fn rare_candy_usable(g: &mut Game, p: usize) -> R<bool> {
-    // A player's first turn is turn 1 or 2 (R7F-14, ruling 689).
-    if g.st.turn == 1 || g.st.turn == 2 {
-        return Ok(false);
-    }
-    let stage2 = stage2_evolvable(g, p);
-    // A lock on evolving (Bronzong's Evolution Jammer) leaves no Stage 2 to play.
+/// `canUseRareCandy`: some Basic Pokémon of `p` can evolve with a Stage 2 card in the hand
+/// ([`candy_can_evolve`]); `me` is the Rare Candy card.
+pub fn rare_candy_usable(g: &mut Game, me: CardId, p: usize) -> R<bool> {
+    let stage2 = stage2_in_hand(g, p);
     if stage2.is_empty() {
         return Ok(false);
     }
-    let mut ok = false;
+    let cause = crate::cause::Cause::of_trainer(g, me, p as u8);
     for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if g.st.cdef(c).stage != Stage::Basic as u8 || !stage2.iter().any(|s2| matching_stage2(g, c, *s2)) {
-            continue;
-        }
-        if candy_played_turn(g, p, s)? < g.st.turn {
-            ok = true;
+        if g.st.cdef(c).stage == Stage::Basic as u8 && candy_can_evolve(g, cause, SlotRef::new(p, s), &stage2)? {
+            return Ok(true);
         }
     }
-    Ok(ok)
-}
-
-/// `DEVOLVE_POKEMON(store, state, target, destination)`.
-pub fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: crate::state::ListRef) -> R {
-    let (tp, ts) = (t.p as usize, t.s);
-    let pokemons = g.st.slot_pokemons(tp, ts);
-    let top = g.st.slot_pokemon(tp, ts);
-    let top_def = top.map(|c| g.st.cdef(c));
-    if let (Some(_), Some(d)) = (top, top_def) {
-        if d.has_tag(tag::POKEMON_LV_X) {
-            if pokemons.len() == 2 && pokemons.iter().any(|c| g.st.cdef(*c).stage == Stage::Basic as u8) {
-                return Ok(());
-            }
-            let cards: Vec<CardId> = pokemons.iter().copied().filter(|c| g.st.cdef(*c).name == d.name).collect();
-            crate::prefabs::move_cards(g, t.list(), dest, &cards, NO_CARD)?;
-            let turn = g.st.turn;
-            let slot = &mut g.st.players[tp].slots[ts as usize];
-            crate::engine::game_effect::clear_effects(slot);
-            slot.pokemon_played_turn = turn;
-            return Ok(());
-        }
-    }
-    // CardTag.LEGEND is TAG_NAMES index 30.
-    let special = top_def.map(|d| d.has_tag(tag::POKEMON_VUNION) || d.has_tag(30)).unwrap_or(false);
-    if pokemons.len() > 1 && !special {
-        if let Some(top) = top {
-            // MOVE_CARD_TO: findCardList(card).moveCardTo(card, destination).
-            if let Some(src) = g.st.locate(top) {
-                g.move_card_to(src, top, dest);
-            }
-        }
-        let turn = g.st.turn;
-        let slot = &mut g.st.players[tp].slots[ts as usize];
-        crate::engine::game_effect::clear_effects(slot);
-        slot.pokemon_played_turn = turn;
-        crate::prefabs::reset_once_per_turn_slot(g, t); // ruling 317
-    }
-    Ok(())
+    Ok(false)
 }
 
 // ---------------------------------------------------------------------------
@@ -1818,9 +1742,12 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
 
 fn evolve_reg_exec(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, card: u8) -> R<Flow> {
     let Some(evo) = reg_list(g, f, card).first().copied() else { return Ok(Flow::Next) };
-    let from = g.st.cdef(evo).evolves_from;
     let owner = f.who(chooser);
-    let cands: Vec<SlotRef> = for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().filter(|(_, c, _)| g.st.cdef(*c).name == from).map(|(s, _, _)| SlotRef::new(owner, *s)).collect();
+    let cands: Vec<SlotRef> = for_each_pokemon(g, owner, PlayerType::BottomPlayer)
+        .iter()
+        .filter(|(_, c, _)| crate::engine::enter::evolves_into(g, *c, evo, crate::engine::enter::Reach::Next))
+        .map(|(s, _, _)| SlotRef::new(owner, *s))
+        .collect();
     if cands.is_empty() {
         return Ok(Flow::Next);
     }
@@ -1836,7 +1763,9 @@ fn evolve_reg_resume(g: &mut Game, _me: CardId, f: &mut Frame, card: u8, first: 
         return Ok(Flow::Next);
     }
     if g.st.locate(evo).is_some() {
-        crate::engine::play::evolve_pokemon(g, t.p as usize, t, evo, f.cause)?;
+        // Put onto the Pokémon by the effect (no limit: "you can use this card on a Pokémon ... put into play
+        // this turn").
+        crate::engine::enter::evolve(g, evo, t, super::super::event::EvolvePath::Effect, crate::engine::enter::Reach::Next, f.cause)?;
     }
     Ok(Flow::Next)
 }
@@ -1871,9 +1800,8 @@ fn devolve_resume(g: &mut Game, f: &Frame, d: &DevolveSpec, first: Res) -> R<Flo
     }
     let dest = zone_ref(f, d.destination);
     if let Some(i) = idx {
-        for _ in 0..(pokemons.len() - i) {
-            devolve_pokemon(g, t, dest)?;
-        }
+        // The Devolve event (Strange Timepiece: not an attack's effect, nothing prevents it).
+        crate::engine::enter::devolve(g, t, pokemons.len() - i, dest, f.cause, None)?;
     }
     Ok(Flow::Next)
 }
@@ -1882,22 +1810,19 @@ fn swap_bottom_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCard
     let Some(t) = slot_of(g, me, f, s.slot) else { return Ok(Flow::Next) };
     let Some(chosen) = reg_list(g, f, s.cards).first().copied() else { return Ok(Flow::Next) };
     let (tp, ts) = (t.p as usize, t.s);
-    let list = t.list();
     let old = if g.st.slot_pokemon(tp, ts).is_some() { g.st.slot(tp, ts).cards.get(0) } else { None };
-    let Some(src) = g.st.locate(chosen) else { return Ok(Flow::Next) };
-    if let Some(old) = old {
-        // The new card goes onto the slot first and the old one is discarded after, so the slot is never
-        // empty (that would discard its attachments and reset it).
-        move_cards(g, src, list, &[chosen], me)?;
-        move_cards(g, list, zone_ref(f, s.into), &[old], me)?;
-        // The new card takes the old card's place at the bottom of the stack.
-        let mut order: Vec<CardId> = vec![chosen];
-        order.extend(g.st.slot(tp, ts).cards.iter().filter(|c| *c != chosen));
-        g.st.players[tp].slots[ts as usize].cards = List::from_slice(&order);
-        // State kept on the card object moves with the Pokémon (ruling 1840).
-        transfer_pokemon_card_state(g, f.p as usize, old, chosen);
-    } else {
-        move_cards(g, src, list, &[chosen], me)?;
+    if g.st.locate(chosen).is_none() {
+        return Ok(Flow::Next);
+    }
+    match old {
+        // The new card goes onto the slot first and the old one leaves after, so the slot is never empty
+        // (that would discard its attachments and reset it); the new card takes the old card's place at the
+        // bottom of the stack. The same Pokémon (id2372): the Swap event.
+        Some(old) => crate::engine::enter::swap(g, t, old, chosen, zone_ref(f, s.into), crate::engine::enter::SwapPlace::Bottom, me, f.cause)?,
+        // No Pokémon there: the card is put onto the empty spot.
+        None => {
+            crate::engine::enter::enter_play(g, chosen, t, super::super::event::EnterMode::Effect, f.cause)?;
+        }
     }
     Ok(Flow::Next)
 }

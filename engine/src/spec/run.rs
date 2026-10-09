@@ -112,17 +112,10 @@ impl Frame {
     }
 
     /// The frame a passive of card `me` (owned by `owner`) evaluates its conditions and numbers in. It runs no
-    /// ops, so no event is made with its cause (the card's own kind: a Pokémon's passive is an Ability's).
-    pub(crate) fn passive(g: &Game, me: CardId, owner: usize) -> Frame {
-        let d = g.st.cdef(me);
-        let cause = if d.is_trainer() {
-            Cause::of_trainer(g, me, owner as u8)
-        } else if d.is_energy() {
-            Cause::new(CauseKind::Energy, Some(me), owner as u8)
-        } else {
-            Cause::new(CauseKind::Ability, Some(me), owner as u8)
-        };
-        Frame::new(Prog::Play, Phase::Use, 0, owner, cause)
+    /// ops, so no event is made with its cause: the passive's origin (`Cause::of_origin`; a Pokémon's
+    /// `CardRule` passive, the Tera rule, is not an Ability).
+    pub(crate) fn passive(_g: &Game, me: CardId, owner: usize, origin: passive::RuleSource) -> Frame {
+        Frame::new(Prog::Play, Phase::Use, 0, owner, Cause::of_origin(origin, me, owner as u8))
     }
 
     /// The frame of card `me`'s program `prog`, with its cause (`frame_cause`).
@@ -334,11 +327,41 @@ pub(crate) fn frame_cause(g: &Game, me: CardId, prog: Prog, p: u8, eff: EffId, v
             let attack = if (eff as usize) < g.fx.len() { attack_data(g, eff).map(|d| d.2) } else { None };
             Cause { kind: CauseKind::Attack, card: Some(me), player: p, attack }
         }
-        Prog::Play if via_attack => Cause { kind: CauseKind::Attack, card: g.last_attack.as_ref().and_then(|l| l.pokemon), player: p, attack: g.st.last_attack },
+        // The attack that uses the Trainer: the one of the AttackEffect being reduced (`Game::last_attack`,
+        // set when the AttackEffect is dispatched; id2225, id2226, id2376).
+        Prog::Play if via_attack => match g.last_attack.as_ref() {
+            Some(l) => Cause { kind: CauseKind::Attack, card: l.pokemon, player: p, attack: Some(l.attack) },
+            None => Cause { kind: CauseKind::Attack, card: None, player: p, attack: g.st.last_attack },
+        },
         Prog::Play => Cause::of_trainer(g, me, p),
         Prog::Power(_) => Cause::new(CauseKind::Ability, Some(me), p),
         Prog::UseStadium => Cause::new(CauseKind::Stadium, Some(me), p),
-        Prog::Trigger(i) => Cause::of_origin(spec_of(g, me).triggers[i as usize].origin, me, g.st.owner(me) as u8),
+        Prog::Trigger(i) => trigger_cause(g, me, &spec_of(g, me).triggers[i as usize], eff),
+    }
+}
+
+/// A trigger's cause: its origin, caused by the card's owner; a `CardRule` trigger by its event (the end of
+/// the turn's bookkeeping is `Rule { EndTurn }`; a trigger that continues an attack is that attack).
+fn trigger_cause(g: &Game, me: CardId, t: &trigger::Trigger, eff: crate::effects::EffId) -> Cause {
+    let owner = g.st.owner(me) as u8;
+    if t.origin != passive::RuleSource::CardRule {
+        return Cause::of_origin(t.origin, me, owner);
+    }
+    match &t.event {
+        trigger::Event::OnEndTurn(_) => Cause::new(CauseKind::Rule { which: crate::cause::RuleWhich::EndTurn }, Some(me), owner),
+        trigger::Event::OnAfterAttackTriggers(_) | trigger::Event::OnDamagedByAttack(_) => {
+            let attack = if (eff as usize) < g.fx.len() {
+                match *g.e(eff) {
+                    Effect::AfterAttackTriggers { p, attack, .. } => Some(Cause { kind: CauseKind::Attack, card: g.last_attack.as_ref().and_then(|l| l.pokemon), player: p, attack: Some(attack) }),
+                    Effect::AttackTrigger { p, attack, source, .. } => Some(Cause::of_attack_at(g, p, attack, source)),
+                    _ => None,
+                }
+            } else {
+                None
+            };
+            attack.unwrap_or_else(|| Cause::of_origin(t.origin, me, owner))
+        }
+        _ => Cause::of_origin(t.origin, me, owner),
     }
 }
 
@@ -374,7 +397,8 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     for (i, pw) in spec.powers.iter().enumerate() {
         if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
             remove_marker_at_end_of_turn(g, e, crate::markers::intern(name), me);
-            if let Effect::PlayPokemon { p, card, .. } = *g.e(e) {
+            // A card that enters play or evolves is a new Pokémon (id317).
+            if let Effect::EnterPlay { p, card, .. } | Effect::Evolve { p, card, .. } = *g.e(e) {
                 if card == me {
                     g.st.players[p as usize].marker.remove_from(crate::markers::intern(name), me);
                 }
@@ -420,12 +444,41 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
     Ok(())
 }
 
-/// The triggers of a Pokémon that was just played or evolved ("when you play this Pokémon from your
-/// hand onto your Bench / to evolve"): the card is on the board now, so the ordinary in-play locks at its
-/// slot decide whether its Ability triggers (docs/rulings/RULES.md, On-play Abilities).
-pub fn after_enter_play(g: &mut Game, e: EffId) -> R {
+/// The triggers over an event that is done (events batch 2: EnterPlay, Evolve, Devolve, Swap): first the
+/// `Event::On` triggers of every card that declares one for the event's kind, in propagation order; then the
+/// B2-OLD on-play triggers of the card itself. The event's consequences are applied by now (a Pokémon is on
+/// the board, so the ordinary in-play locks at its slot decide whether its Ability triggers;
+/// docs/rulings/RULES.md, On-play Abilities, and "Putting onto the Bench": Risky Ruins after the Pokémon is
+/// on the Bench).
+pub fn after_event(g: &mut Game, e: EffId) -> R {
+    let kind = g.e(e).kind();
+    if !matches!(kind, crate::effects::k::ENTER_PLAY | crate::effects::k::EVOLVE | crate::effects::k::DEVOLVE | crate::effects::k::SWAP) || g.prevented(e) {
+        return Ok(());
+    }
+    if g.kinds_present.has(kind) {
+        let order = g.listeners(crate::game::prop_class(g.e(e)), kind);
+        for &c in order.iter() {
+            let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
+            for (i, t) in spec.triggers.iter().enumerate() {
+                if !matches!(t.event, trigger::Event::On(_)) {
+                    continue;
+                }
+                if let Some((p, slot)) = trigger::fires_on(g, c, e, t)? {
+                    let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
+                    f.slot = slot;
+                    run(g, c, f)?;
+                }
+            }
+        }
+    }
+    after_enter_play(g, e)
+}
+
+/// The B2-OLD triggers of a Pokémon that was just played or evolved ("when you play this Pokémon from your
+/// hand onto your Bench / to evolve").
+fn after_enter_play(g: &mut Game, e: EffId) -> R {
     let card = match *g.e(e) {
-        Effect::PlayPokemon { card, .. } | Effect::Evolve { card, .. } => card,
+        Effect::EnterPlay { card, .. } | Effect::Evolve { card, .. } => card,
         _ => return Ok(()),
     };
     let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return Ok(()) };

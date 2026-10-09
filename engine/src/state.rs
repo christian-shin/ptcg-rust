@@ -99,7 +99,13 @@ pub struct Slot {
     pub burn_damage: i32,
     pub confusion_damage: i32,
     pub marker: Marker,
+    /// The turn the Pokémon here was put into play, set by the EnterPlay, Evolve and Devolve routines
+    /// (`engine::enter`). Legacy: the observation reads it; evolution timing reads `entered_turn`.
     pub pokemon_played_turn: i32,
+    /// The turn the Pokémon in this spot came into play: put into play, evolved or devolved (APR A-05,
+    /// C-13; id2229). Slot-bound (events design 4.5). No permission rewrites it: permissions lift limits
+    /// (`Modifier::Permit`) instead. 0 for the Pokémon set up before the first turn.
+    pub entered_turn: i32,
     pub sleep_flips: i32,
     pub board_effect: SVec<u8, 6>,
     /// `attacksThisTurn` (absent until first written).
@@ -231,6 +237,7 @@ impl Default for Slot {
             confusion_damage: 30,
             marker: Marker::default(),
             pokemon_played_turn: 0,
+            entered_turn: 0,
             sleep_flips: 1,
             board_effect: SVec::new(),
             attacks_this_turn: None,
@@ -312,11 +319,14 @@ pub struct CardInst {
     /// Take-hold stamp of an Ability lock (docs/rulings/RULES.md, precedence between locks): the order in which
     /// the lock's source took hold, 0 while it doesn't hold. Kept up to date by `lock_sync`.
     pub lock_stamp: u16,
+    /// The rules zone the card was in when it was moved into a staging list (`Game::temps`: cards looked at
+    /// or searched for), so an event that takes it from there knows its source (`engine::enter::source_of`).
+    pub staged_from: Option<crate::spec::event::RulesZone>,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0, attack_shred: 0, lock_stamp: 0 }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0, attack_shred: 0, lock_stamp: 0, staged_from: None }
     }
 }
 
@@ -326,6 +336,8 @@ impl Default for CardInst {
 pub struct LastingLock {
     pub decl: &'static crate::spec::passive::LockDecl,
     pub turns_remaining: i8,
+    /// The card whose attack left it (the declaring card a `LockDecl::forbids` predicate is evaluated for).
+    pub source: crate::list::CardId,
 }
 
 #[derive(Clone, Copy, Debug)]

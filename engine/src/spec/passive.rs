@@ -56,7 +56,11 @@ pub enum Modifier {
     GrantAttacks(GrantAttacksSpec),
     AttackFlags(AttackFlagsSpec),
     StatOverride(StatOverrideSpec),
+    /// B2-OLD (events batch 2): an adapter over the Evolve event, read as `Permit { for: Evolve & Source(Hand) &
+    /// Path(Rule) & This(Base) & Card(only & evolves from names), lifts: EvolvesFrom }`. Write `Permit`.
     EvolveFrom(EvolveFromSpec),
+    /// B2-OLD: an adapter, read as `Permit { for: Evolve & Path(Rule) & Slot(subject), lifts: FirstTurn |
+    /// BaseEnteredThisTurn }`. Write `Permit`.
     AllowEvolve(AllowEvolveSpec),
     ConditionImmunity(ConditionImmunitySpec),
     AttachGuard(AttachGuardSpec),
@@ -72,9 +76,14 @@ pub enum Modifier {
     PrizeAdjustOnce(PrizeAdjustSpec),
     /// The Pokémon matching `subject` has exactly these types (the game's type check).
     TypeOverride(TypeOverrideSpec),
-    /// A Stadium: when a Pokémon of the type is played, each of the player's Pokémon of that type counts as
-    /// having been played the turn before (Forest of Vitality).
+    /// B2-OLD: an adapter, read as Forest of Vitality's printed permission `Permit { for: Evolve & Path(Rule) &
+    /// Source(Hand) & Slot(TypeIs(type)) & Card(PokemonType(type)), lifts: BaseEnteredThisTurn }` (it used to
+    /// rewrite the played turn of the type's Pokémon). Write `Permit`.
     PlayedTurnReset(PlayedTurnResetSpec),
+    /// A permission (events design 4.2: "can evolve during ..."): while the card is in place for its origin
+    /// and `while_` holds, the `lifts` limits don't apply to the events matching `for_`
+    /// (`engine::enter::permitted`). Evaluated where the limit is checked; nothing is dispatched to it.
+    Permit(PermitSpec),
     /// The Weakness of the opponent's Pokémon matching `subject` is `weakness` (Fairy Zone).
     WeaknessOverride(WeaknessOverrideSpec),
     /// An Ability lock that applies while this Pokémon is in the Active Spot, with the Ability lockers'
@@ -119,8 +128,19 @@ pub struct TypeOverrideSpec {
     pub set: &'static [CardType],
 }
 
+/// B2-OLD (see `Modifier::PlayedTurnReset`).
 pub struct PlayedTurnResetSpec {
     pub card_type: CardType,
+}
+
+/// `Permit { origin, for, lifts, while_ }` (events design 4.2): the events matching `for_` (evaluated for the
+/// declaring card: `This(Role::Base)` is "this Pokémon evolves") are free of the `lifts` limits on the rule
+/// path. A card's own `Restrict` still applies (id1144, id1815).
+pub struct PermitSpec {
+    pub for_: super::event::EventPred,
+    pub lifts: &'static [super::event::Limit],
+    /// Conditions on the declaring card (`LockWhile::Active`: it is its owner's Active Pokémon).
+    pub while_: &'static [LockWhile],
 }
 /// While this Pokémon is Active, it can use the attacks of any of the owner's Benched Pokémon
 /// (Mew ex's Memory Helix): they are offered as copied attacks.
@@ -351,11 +371,12 @@ pub enum LockedAction {
     AttachTool,
     /// Attach an Energy card from the hand.
     AttachEnergy,
-    /// Play a Pokémon card from the hand into play: onto the Bench, onto a Pokémon to evolve it, or with Rare
-    /// Candy. A Pokémon put into play from another zone (the deck, the discard pile) isn't this action.
+    /// B2-OLD (events batch 2): an adapter over the events, `(EnterPlay | Evolve) & Source(Hand)` (not at setup;
+    /// `engine::enter::locked_actions`). A Pokémon card from the hand into play: onto the Bench, onto a Pokémon
+    /// to evolve it, with Rare Candy. Write `LockDecl::forbids` instead.
     PlayPokemon,
-    /// Evolve a Pokémon with a card from the hand (the subset of `PlayPokemon` that evolves), by playing it or
-    /// with Rare Candy. An Evolution card that comes from another zone doesn't pass through this action.
+    /// B2-OLD: an adapter, `Evolve & Source(Hand)` (by playing it or with Rare Candy). Write
+    /// `LockDecl::forbids` instead.
     Evolve,
     /// Retreat the Active Pokémon (the card is that Pokémon).
     Retreat,
@@ -377,7 +398,7 @@ impl LockedAction {
             LockedAction::PlayStadium => k::PLAY_STADIUM,
             LockedAction::AttachTool => k::ATTACH_POKEMON_TOOL,
             LockedAction::AttachEnergy => k::ATTACH_ENERGY,
-            LockedAction::PlayPokemon => k::PLAY_POKEMON,
+            LockedAction::PlayPokemon => k::ENTER_PLAY,
             LockedAction::Evolve => k::EVOLVE,
             LockedAction::Retreat => k::RETREAT,
             LockedAction::UseStadium => k::USE_STADIUM,
@@ -398,21 +419,35 @@ pub enum LockWhile {
     CardIsSource,
 }
 
-/// What a lock stops, declared as data: the `actions` it stops, a predicate over the card the action uses
-/// (`card`, minus `except`), and the code the stopped action fails with. The in-play locks
+/// What a lock stops, declared as data, and the code the stopped action fails with. The in-play locks
 /// ([`BlockUseSpec`]) and the locks an attack leaves on the opponent (`Lasting::OppCannotPlay`, stored on the
-/// locked player as a [`crate::state::LastingLock`]) are this one declaration.
+/// locked player as a [`crate::state::LastingLock`]) are this one declaration. Two forms, either or both:
+/// - `forbids`: the events it forbids (`Lock { forbids: EventPred }`, events design section 5; events batch 2:
+///   EnterPlay, Evolve, Devolve, Swap), evaluated for the lock's source card; the locked player is the
+///   event's owner (the player whose card / hand it is). `EventPred::NEVER` when it has none.
+/// - `actions` (the turn actions not yet carried by events: Item, Supporter, Stadium, Tool, Energy, retreat,
+///   Stadium use; and the B2-OLD `PlayPokemon` / `Evolve` adapters), with a predicate over the card the action
+///   uses (`card`, minus `except`).
 pub struct LockDecl {
     pub actions: &'static [LockedAction],
     pub card: Pred,
     pub except: Pred,
     pub error: &'static str,
+    pub forbids: super::event::EventPred,
 }
 
 impl LockDecl {
+    /// No actions and no events (with `..LockDecl::NONE`).
+    pub const NONE: LockDecl = LockDecl { actions: &[], card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_EFFECT", forbids: super::event::EventPred::NEVER };
+
     /// A lock on every card of these actions, failing with BLOCKED_BY_EFFECT.
     pub const fn of(actions: &'static [LockedAction]) -> LockDecl {
-        LockDecl { actions, card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_EFFECT" }
+        LockDecl { actions, card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_EFFECT", forbids: super::event::EventPred::NEVER }
+    }
+
+    /// A lock on the events matching `forbids`, failing with `error`.
+    pub const fn on(forbids: super::event::EventPred, error: &'static str) -> LockDecl {
+        LockDecl { actions: &[], card: Pred::Any, except: Pred::False, error, forbids }
     }
 
     /// Does the lock stop one of these actions with `card` (`None`: any card of the action, which a lock on
@@ -431,6 +466,8 @@ impl LockDecl {
     pub fn same_as(&self, o: &LockDecl) -> bool {
         std::ptr::eq(self, o)
             || (self.actions == o.actions
+                && self.forbids.is_never()
+                && o.forbids.is_never()
                 && self.error == o.error
                 && matches!((&self.card, &o.card), (Pred::Any, Pred::Any))
                 && matches!((&self.except, &o.except), (Pred::False, Pred::False)))
@@ -464,27 +501,36 @@ impl BlockUseSpec {
     /// The Stadium in play can't be used (it has no use text of its own).
     pub const USE_STADIUM: BlockUseSpec = BlockUseSpec {
         binds: Binds::Both,
-        lock: LockDecl { actions: &[LockedAction::UseStadium], card: Pred::Any, except: Pred::False, error: "CANNOT_USE_STADIUM" },
+        lock: LockDecl { actions: &[LockedAction::UseStadium], card: Pred::Any, except: Pred::False, error: "CANNOT_USE_STADIUM", ..LockDecl::NONE },
         while_: &[LockWhile::CardIsSource],
         ability: false,
     };
     /// This Pokémon can't retreat while it is the Active Pokémon (the Antique Fossils).
     pub const RETREAT_THIS_ACTIVE: BlockUseSpec = BlockUseSpec {
         binds: Binds::Owner,
-        lock: LockDecl { actions: &[LockedAction::Retreat], card: Pred::Any, except: Pred::False, error: "CANNOT_RETREAT" },
+        lock: LockDecl { actions: &[LockedAction::Retreat], card: Pred::Any, except: Pred::False, error: "CANNOT_RETREAT", ..LockDecl::NONE },
         while_: &[LockWhile::Active, LockWhile::CardIsSource],
         ability: false,
     };
 }
 
-const fn block_kinds(actions: &[LockedAction]) -> KindMask {
+/// The kinds a lock's source is listed under (its dispatch mask; `play_locked_as` walks the sources of the
+/// asked actions' kinds), plus the marker of a lock over events.
+const fn block_kinds(lock: &LockDecl) -> KindMask {
+    let actions = lock.actions;
     let mut m = KindMask::EMPTY;
+    if !lock.forbids.is_never() {
+        m = lock.forbids.effect_kinds();
+        m = crate::spec::with(m, crate::effects::k::DECLARES_EVENT_LOCK);
+    }
     let mut i = 0;
     while i < actions.len() {
         m = crate::spec::with(m, actions[i].kind());
-        // An Evolution played from the hand is also a play of a Pokémon from the hand.
-        if matches!(actions[i], LockedAction::PlayPokemon) {
+        // An Evolution played from the hand is also a play of a Pokémon from the hand: both locks are listed
+        // under both kinds (`play_locked_as` walks the sources of the first asked action's kind).
+        if matches!(actions[i], LockedAction::PlayPokemon | LockedAction::Evolve) {
             m = crate::spec::with(m, crate::effects::k::EVOLVE);
+            m = crate::spec::with(m, crate::effects::k::ENTER_PLAY);
         }
         i += 1;
     }
@@ -759,7 +805,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
                 mask(&[k::ATTACK])
             }
         }
-        Modifier::BlockUse(b) => block_kinds(b.lock.actions),
+        Modifier::BlockUse(b) => block_kinds(&b.lock),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
         Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
@@ -783,9 +829,18 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::HeavyBaton(_) => mask(&[k::KNOCK_OUT, k::PUT_DAMAGE]),
         Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::EFFECT_OF_ABILITY]),
-        Modifier::PlayedTurnReset(_) => mask(&[k::PLAY_POKEMON]),
+        Modifier::PlayedTurnReset(_) => mask(&[k::DECLARES_PERMIT, k::PERMIT_BASE_ENTERED]),
+        Modifier::Permit(pm) => {
+            let mut m = mask(&[k::DECLARES_PERMIT]);
+            let mut i = 0;
+            while i < pm.lifts.len() {
+                m = crate::spec::with(m, crate::engine::enter::limit_kind(pm.lifts[i]));
+                i += 1;
+            }
+            m
+        }
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
-        Modifier::EvolveFrom(_) => mask(&[k::CHECK_TABLE_STATE, k::PLAY_POKEMON]),
+        Modifier::EvolveFrom(_) => mask(&[k::DECLARES_PERMIT, k::PERMIT_EVOLVES_FROM]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::BlockAttack(b) => match b.on {
             AttackBlockOn::ActiveAttack => mask(&[k::ATTACK]),
@@ -793,7 +848,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         },
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
-        Modifier::AllowEvolve(_) => mask(&[k::CHECK_POKEMON_PLAYED_TURN]),
+        Modifier::AllowEvolve(_) => mask(&[k::DECLARES_PERMIT, k::PERMIT_FIRST_TURN, k::PERMIT_BASE_ENTERED]),
         Modifier::PreventDamage(p) => match p.how {
             PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
             _ => mask(&[k::PUT_DAMAGE]),
@@ -866,8 +921,8 @@ pub(crate) fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located,
     }
 }
 
-fn guard_ok(g: &Game, me: CardId, owner: usize, guard: &Cond) -> bool {
-    let f = run::Frame::passive(g, me, owner);
+fn guard_ok(g: &Game, me: CardId, origin: RuleSource, owner: usize, guard: &Cond) -> bool {
+    let f = run::Frame::passive(g, me, owner, origin);
     cond(g, me, &f, guard)
 }
 
@@ -920,7 +975,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             }
             Ok(())
         }
-        Modifier::PlayedTurnReset(r) => played_turn_reset(g, me, e, ps.origin, r),
+        // Permissions are read where a limit is checked (`engine::enter::permitted`); nothing is dispatched to them.
+        Modifier::PlayedTurnReset(_) | Modifier::Permit(_) | Modifier::EvolveFrom(_) | Modifier::AllowEvolve(_) => Ok(()),
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
         Modifier::HeavyBaton(h) => heavy_baton(g, me, e, h),
         Modifier::WeaknessOverride(w) => {
@@ -961,10 +1017,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             Ok(())
         }
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
-        Modifier::EvolveFrom(d) => evolve_from(g, me, e, d),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
         Modifier::BenchSize(d) => bench_size(g, me, e, ps.origin, d),
-        Modifier::AllowEvolve(d) => allow_evolve(g, me, e, ps.origin, d),
         Modifier::BlockAttack(b) => block_attack(g, me, e, ps.origin, b),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
@@ -976,7 +1030,7 @@ fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subjec
         _ => return Ok(()),
     };
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, at.owner, guard)? {
+    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, origin, at.owner, guard)? {
         return Ok(());
     }
     // HP is only changed for a Pokémon actually being checked (`effect.hp += n` writes only then).
@@ -1013,7 +1067,7 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
     if blocked(g, me, origin, at, Some(affected)) {
         return Ok(());
     }
-    if !slot_pred_m(g, me, source, &d.attacker)? || !guard_ok(g, me, at.owner, &d.guard) {
+    if !slot_pred_m(g, me, source, &d.attacker)? || !guard_ok(g, me, origin, at.owner, &d.guard) {
         return Ok(());
     }
     if let Some(t) = target {
@@ -1066,7 +1120,7 @@ fn damage_taken_prelude(
     if !slot_pred_m(g, me, t, subject)? || blocked(g, me, origin, at, Some(t)) {
         return Ok(None);
     }
-    if !guard_ok(g, me, at.owner, guard) || !slot_pred_m(g, me, b.source, source)? {
+    if !guard_ok(g, me, origin, at.owner, guard) || !slot_pred_m(g, me, b.source, source)? {
         return Ok(None);
     }
     Ok(Some((b, at)))
@@ -1267,7 +1321,7 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
         return Ok(());
     }
     let n = {
-        let f = run::Frame::passive(g, me, at.owner);
+        let f = run::Frame::passive(g, me, at.owner, origin);
         if !cond(g, me, &f, &c.guard) {
             return Ok(());
         }
@@ -1328,7 +1382,7 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
         return Ok(());
     }
     let n = {
-        let f = run::Frame::passive(g, me, at.owner);
+        let f = run::Frame::passive(g, me, at.owner, origin);
         if !cond(g, me, &f, &c.guard) {
             return Ok(());
         }
@@ -1650,7 +1704,7 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 37] = [
     crate::effects::k::INCREASE_RETREAT_COST_NEXT_TURN,
     crate::effects::k::COIN_FLIP_CANCEL_TRAINER_PLAY,
     crate::effects::k::MOVE_COUNTERS,
-    crate::effects::k::DEVOLVE,
+    crate::effects::k::DEVOLVE_PROBE,
 ];
 
 pub const HIDE_N_SNEAK_MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS);
@@ -1786,7 +1840,7 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
             return Ok(());
         }
     }
-    if !guard_ok(g, me, at.owner, &d.guard) {
+    if !guard_ok(g, me, origin, at.owner, &d.guard) {
         return Ok(());
     }
     if let Some(name) = d.nonstacking {
@@ -1798,49 +1852,6 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
     }
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
         *prize_count += d.delta;
-    }
-    Ok(())
-}
-
-/// Does the Pokémon `me` refuse `card` played onto `target` (only a card matching `only` can evolve it)?
-fn evolve_from_refuses(g: &Game, me: CardId, d: &EvolveFromSpec, card: CardId, target: SlotRef) -> bool {
-    if g.st.slot_pokemon(target.p as usize, target.s) != Some(me) {
-        return false;
-    }
-    let def = g.st.cdef(card);
-    d.names.iter().any(|n| *n == def.evolves_from) && !pred(g, card, &d.only)
-}
-
-/// Legality: does the Pokémon on `target` refuse the Pokémon card `card` played onto it (`INVALID_TARGET`)?
-pub fn evolve_refused_by_target(g: &Game, card: CardId, target: SlotRef) -> bool {
-    let Some(me) = g.st.slot_pokemon(target.p as usize, target.s) else { return false };
-    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
-    passives.iter().any(|ps| matches!(&ps.modifier, Modifier::EvolveFrom(d) if evolve_from_refuses(g, me, d, card, target)))
-}
-
-fn evolve_from(g: &mut Game, me: CardId, e: EffId, d: &EvolveFromSpec) -> R {
-    static NONE: &[&str] = &[];
-    match *g.e(e) {
-        Effect::CheckTableState { .. } => {
-            let v = match g.st.find_pokemon_slot(me) {
-                None => NONE,
-                Some((owner, _)) => {
-                    if is_ability_blocked(g, owner, me, None) {
-                        NONE
-                    } else {
-                        d.names
-                    }
-                }
-            };
-            g.st.cards[me as usize].evolves_from_base = Some(v);
-        }
-        // Only a card matching `only` can evolve this Pokémon.
-        Effect::PlayPokemon { card, target, .. } => {
-            if evolve_from_refuses(g, me, d, card, target) {
-                crate::bail!("INVALID_TARGET");
-            }
-        }
-        _ => {}
     }
     Ok(())
 }
@@ -1897,9 +1908,7 @@ pub(crate) fn effect_actions(g: &Game, e: EffId) -> Option<(usize, CardId, &'sta
         Effect::PlayStadium { p, card } => (p as usize, card, &[A::PlayStadium]),
         Effect::AttachPokemonTool { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, &[A::AttachTool]),
         Effect::AttachEnergy { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, &[A::AttachEnergy]),
-        Effect::PlayPokemon { p, card, .. } => (p as usize, card, &[A::PlayPokemon]),
-        // Only an Evolution played from the hand: one from the deck or elsewhere isn't (id1133).
-        Effect::Evolve { p, card, from, .. } if from == ListRef::Hand(p) => (p as usize, card, A::EVOLUTION_FROM_HAND),
+        // EnterPlay and Evolve: their routines check the locks before the event (`event_locked`).
         Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, &[A::Retreat]),
         Effect::UseStadium { p, stadium } => (p as usize, stadium, &[A::UseStadium]),
         _ => return None,
@@ -1940,6 +1949,82 @@ pub fn play_locked_as(g: &mut Game, p: usize, card: CardId, actions: &[LockedAct
 /// of the action). The core reducers ask this at the point they always checked it.
 pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[LockedAction]) -> Option<&'static str> {
     g.st.players[p].lasting_locks.iter().flatten().find(|l| l.decl.stops(g, card, actions)).map(|l| l.decl.error)
+}
+
+/// The lock that forbids an event (events batch 2: EnterPlay, Evolve, Devolve, Swap), if any: the error code
+/// of the first one. The locked player is the event's owner (whose card or hand it is). Asked by the event's
+/// routine before the event, and by legality (the same declarations):
+/// - the B2-OLD `LockedAction`s the event is an instance of (`engine::enter::locked_actions`), as
+///   `play_locked_as` answers them (in play, then lasting);
+/// - the locks over events (`LockDecl::forbids`) in play, in propagation order, then the lasting ones.
+pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
+    let Some(card) = v.card else { return Ok(None) };
+    let p = v.owner as usize;
+    let actions = crate::engine::enter::locked_actions(v);
+    if !actions.is_empty() {
+        if let Some(code) = play_locked_as(g, p, card, actions) {
+            return Ok(Some(code));
+        }
+    }
+    if let (true, Some(kind)) = (g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK), v.kind.effect_kind()) {
+        let probe = Effect::PlayItem { p: p as u8, card, target: None };
+        let order = g.propagation_order(&probe, kind);
+        for c in order.iter().copied() {
+            if let Some(code) = event_locked_by(g, c, v)? {
+                return Ok(Some(code));
+            }
+        }
+    }
+    lasting_event_locked(g, v)
+}
+
+/// [`event_locked`] for one in-play lock source `me`.
+pub(crate) fn event_locked_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<Option<&'static str>> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    for ps in passives {
+        if let Modifier::BlockUse(b) = &ps.modifier {
+            if let Some(code) = event_lock_blocks(g, me, ps.origin, b, v)? {
+                return Ok(Some(code));
+            }
+        }
+    }
+    Ok(None)
+}
+
+/// [`event_locked`] for the locks over events an attack left on the event's owner.
+pub fn lasting_event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
+    let p = v.owner as usize;
+    for i in 0..g.st.players[p].lasting_locks.len() {
+        let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
+        if !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
+            return Ok(Some(l.decl.error));
+        }
+    }
+    Ok(None)
+}
+
+/// Does the in-play lock `b` of `me` forbid the event (`LockDecl::forbids`)?
+pub(crate) fn event_lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, v: &super::event::EventView) -> R<Option<&'static str>> {
+    if b.lock.forbids.is_never() {
+        return Ok(None);
+    }
+    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+    let p = v.owner as usize;
+    let binds = match b.binds {
+        Binds::Opponent => p == 1 - at.owner,
+        Binds::Owner => p == at.owner,
+        Binds::Both => true,
+    };
+    if !binds || !crate::engine::enter::while_ok(g, me, at, b.while_, v.card) {
+        return Ok(None);
+    }
+    if !b.lock.forbids.eval(g, me, v)? {
+        return Ok(None);
+    }
+    if b.ability && !source_ability_on(g, at.owner, me) {
+        return Ok(None);
+    }
+    Ok(Some(b.lock.error))
 }
 
 /// `play_locked` for one lock source: the passive handler of `me` calls this, at the point the effect
@@ -2186,57 +2271,6 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
         }
     } else if let Effect::BetweenTurns { poison_damage, .. } = g.e_mut(e) {
         *poison_damage += c.amount;
-    }
-    Ok(())
-}
-
-/// The slots of `p` whose played turn the card `me` (a Stadium that resets the played turn of Pokémon as a
-/// Pokémon of its type is played, Lush Forest) resets when `card` is played onto `target`.
-fn played_turn_reset_slots(g: &mut Game, me: CardId, origin: RuleSource, r: &PlayedTurnResetSpec, p: usize, card: CardId, target: SlotRef) -> R<SVec<crate::state::SlotId, 9>> {
-    let mut out = SVec::new();
-    let Some(at) = locate(g, me, origin) else { return Ok(out) };
-    // Not during a player's first turn; only when a Pokémon of the type is played.
-    if g.st.turn <= 2 || !g.st.cdef(card).card_type.contains(&r.card_type) || blocked(g, me, origin, at, Some(target)) {
-        return Ok(out);
-    }
-    for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        let sr = SlotRef::new(p, s);
-        if blocked(g, me, origin, at, Some(sr)) {
-            continue;
-        }
-        let (t, _) = g.run_fx(Effect::CheckPokemonType { target: sr, card_types: crate::engine::game_effect::pokemon_types(g, sr) })?;
-        let of_type = match t {
-            Effect::CheckPokemonType { card_types, .. } => card_types.contains(&r.card_type),
-            _ => false,
-        };
-        if of_type {
-            out.push(s);
-        }
-    }
-    Ok(out)
-}
-
-/// Legality: does the card `me` reset the played turn of the Pokémon in `target` when `card` is played onto
-/// it (so evolution timing sees the turn before)?
-pub fn played_turn_reset_hits(g: &mut Game, me: CardId, p: usize, card: CardId, target: SlotRef) -> R<bool> {
-    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
-    for ps in passives {
-        if let Modifier::PlayedTurnReset(r) = &ps.modifier {
-            if played_turn_reset_slots(g, me, ps.origin, r, p, card, target)?.contains(&target.s) {
-                return Ok(true);
-            }
-        }
-    }
-    Ok(false)
-}
-
-fn played_turn_reset(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, r: &PlayedTurnResetSpec) -> R {
-    let (p, card, target) = match *g.e(e) {
-        Effect::PlayPokemon { p, card, target, .. } => (p as usize, card, target),
-        _ => return Ok(()),
-    };
-    for s in played_turn_reset_slots(g, me, origin, r, p, card, target)?.iter().copied() {
-        g.st.players[p].slots[s as usize].pokemon_played_turn = g.st.turn as i32 - 1;
     }
     Ok(())
 }
@@ -2660,8 +2694,8 @@ fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
 }
 
 /// A guard evaluated with checked reads (Energy provided, types as the game checks them).
-fn guard_ok_m(g: &mut Game, me: CardId, owner: usize, guard: &Cond) -> R<bool> {
-    let f = run::Frame::passive(g, me, owner);
+fn guard_ok_m(g: &mut Game, me: CardId, origin: RuleSource, owner: usize, guard: &Cond) -> R<bool> {
+    let f = run::Frame::passive(g, me, owner, origin);
     cond_m(g, me, &f, guard)
 }
 
@@ -2681,26 +2715,12 @@ fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchS
     }
     let mut sizes = bench_sizes;
     for (p, size) in sizes.iter_mut().enumerate() {
-        if guard_ok(g, me, p, &d.guard) {
+        if guard_ok(g, me, origin, p, &d.guard) {
             *size = d.size;
         }
     }
     if let Effect::CheckTableState { bench_sizes } = g.e_mut(e) {
         *bench_sizes = sizes;
-    }
-    Ok(())
-}
-
-fn allow_evolve(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &AllowEvolveSpec) -> R {
-    let Effect::CheckPokemonPlayedTurn { p, target, .. } = *g.e(e) else { return Ok(()) };
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if target.p as usize != p as usize || at.owner != p as usize || !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
-        return Ok(());
-    }
-    let turn = g.st.turn as i32;
-    if let Effect::CheckPokemonPlayedTurn { pokemon_played_turn, can_evolve_on_first_turn, .. } = g.e_mut(e) {
-        *pokemon_played_turn = turn - 1;
-        *can_evolve_on_first_turn = true;
     }
     Ok(())
 }
@@ -2859,7 +2879,7 @@ fn attack_block_error(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockAtt
         }
     }
     let at = locate(g, me, origin)?;
-    if blocked(g, me, origin, at, None) || guard_ok(g, me, p, &b.unless) {
+    if blocked(g, me, origin, at, None) || guard_ok(g, me, origin, p, &b.unless) {
         return None;
     }
     Some(b.error)
@@ -3175,7 +3195,7 @@ mod play_lock_tests {
         let me = g.st.active_player as usize;
         let potion = hand(&g, me, "Potion POR 83");
         for (decl, stops) in cases {
-            apply_play_lock(&mut g.st.players[me], decl, 1);
+            apply_play_lock(&mut g.st.players[me], decl, 1, 0);
             for a in all {
                 let want = (a == stops).then_some("BLOCKED_BY_EFFECT");
                 assert_eq!(lasting_locked(&g, me, Some(potion), &[a]), want, "{a:?} under a lock on {stops:?}");
@@ -3188,7 +3208,7 @@ mod play_lock_tests {
             assert_eq!(lasting_locked(&g, me, Some(potion), &[stops]), None, "gone at the end of the locked player's turn");
         }
         // Evolving with a card from the hand is play-a-Pokémon and evolve: the Evolve lock stops it.
-        apply_play_lock(&mut g.st.players[me], &EVOLVE, 1);
+        apply_play_lock(&mut g.st.players[me], &EVOLVE, 1, 0);
         assert!(lasting_locked(&g, me, Some(potion), A::EVOLUTION_FROM_HAND).is_some());
         assert_eq!(lasting_locked(&g, me, Some(potion), &[A::PlayPokemon]), None, "a Basic to the Bench isn't evolving");
     }

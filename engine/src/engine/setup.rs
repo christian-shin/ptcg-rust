@@ -2,7 +2,7 @@
 //! hands, mulligans, starting Pokémon, prizes, mulligan draws.
 
 use crate::carddb::{def, DefId};
-use crate::effects::Effect;
+use crate::effects::{Effect, SlotRef};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::prompts::*;
@@ -230,13 +230,13 @@ fn choose_starting(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
     );
 }
 
-fn put_starting_pokemons_and_prizes(g: &mut Game, p: usize, cards: &[CardId]) {
+fn put_starting_pokemons_and_prizes(g: &mut Game, p: usize, cards: &[CardId]) -> R {
     if cards.is_empty() {
-        return;
+        return Ok(());
     }
     let pl = p as u8;
     let active = g.st.players[p].active;
-    g.move_card_to(ListRef::Hand(pl), cards[0], ListRef::Slot(pl, active));
+    crate::engine::enter::put_at_setup(g, cards[0], SlotRef::new(p, active))?;
     // A card that can't be Benched stays in hand.
     let mut benched = 0;
     for &c in cards.iter().skip(1) {
@@ -244,12 +244,13 @@ fn put_starting_pokemons_and_prizes(g: &mut Game, p: usize, cards: &[CardId]) {
             continue;
         }
         let b = g.st.players[p].bench.as_slice()[benched];
-        g.move_card_to(ListRef::Hand(pl), c, ListRef::Slot(pl, b));
+        crate::engine::enter::put_at_setup(g, c, SlotRef::new(p, b))?;
         benched += 1;
     }
     for i in 0..6u8 {
         g.move_to(ListRef::Deck(pl), ListRef::Prize(pl, i), Some(1));
     }
+    Ok(())
 }
 
 fn mulligan_shuffle(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
@@ -402,7 +403,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
         Stage::ConfB => after_mulligan_draw(g, 0, f, matches!(first, Res::Bool(true))),
         Stage::AStart | Stage::BStart => {
             let (me, other) = if f.stage == Stage::AStart { (0, 1) } else { (1, 0) };
-            put_starting_pokemons_and_prizes(g, me, first.cards());
+            put_starting_pokemons_and_prizes(g, me, first.cards())?;
             // The other player mulligans until they have a Basic.
             if f.stage == Stage::AStart {
                 f.om += 1;
@@ -427,17 +428,17 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
         }
         Stage::AOppSetup | Stage::BPlayerSetup => {
             let other = if f.stage == Stage::AOppSetup { 1 } else { 0 };
-            put_starting_pokemons_and_prizes(g, other, first.cards());
+            put_starting_pokemons_and_prizes(g, other, first.cards())?;
             f.shown = 0;
             show_mulligans(g, f)
         }
         Stage::CFirst => {
-            put_starting_pokemons_and_prizes(g, 0, first.cards());
+            put_starting_pokemons_and_prizes(g, 0, first.cards())?;
             choose_starting(g, 1, f, Stage::CSecond);
             Ok(())
         }
         Stage::CSecond => {
-            put_starting_pokemons_and_prizes(g, 1, first.cards());
+            put_starting_pokemons_and_prizes(g, 1, first.cards())?;
             f.shown = 0;
             show_mulligans(g, f)
         }
@@ -456,7 +457,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
                 let pl = &g.st.players[drawer];
                 let empty = pl.bench.iter().copied().find(|b| pl.slots[*b as usize].cards.is_empty());
                 if let Some(b) = empty {
-                    g.move_card_to(ListRef::Hand(drawer as u8), c, ListRef::Slot(drawer as u8, b));
+                    crate::engine::enter::put_at_setup(g, c, crate::effects::SlotRef::new(drawer, b))?;
                 }
             }
             finish(g)

@@ -155,6 +155,8 @@ pub struct AtkTrig {
 pub struct LastAttack {
     /// The attacking player.
     pub p: u8,
+    /// The attack (of the AttackEffect being reduced).
+    pub attack: AttackRef,
     pub source: SlotRef,
     /// The Pokémon card that used the attack (in `source` when the attack started).
     pub pokemon: Option<CardId>,
@@ -1143,12 +1145,13 @@ impl Game {
         if self.defer_after_damage(id) {
             return Ok(());
         }
-        if let Effect::Attack { p, source, .. } = *self.e(id) {
+        if let Effect::Attack { p, source, attack, .. } = *self.e(id) {
             self.ten_hp = SVec::new();
             self.ten_hp_coin = SVec::new();
             self.last_attack = Some(LastAttack {
                 p,
                 source,
+                attack,
                 pokemon: self.st.slot_pokemon(source.p as usize, source.s),
                 damaged_active: SVec::new(),
                 damaged: SVec::new(),
@@ -1166,23 +1169,11 @@ impl Game {
             }
         }
 
-        // Propagate to cards (PlayPokemonEffect: target's tools first).
+        // Propagate to cards.
         let kind = self.e(id).kind();
         let class = prop_class(self.e(id));
-        let mut first: SVec<CardId, 4> = SVec::new();
-        if let Effect::PlayPokemon { target, .. } = *self.e(id) {
-            for c in self.st.slot(target.p as usize, target.s).tools.iter() {
-                first.push(c);
-            }
-        }
-        for &c in first.iter() {
-            self.call_card(c, id, kind)?;
-        }
         let order = if self.kinds_present.has(kind) { self.listeners(class, kind) } else { SVec::new() };
         for &c in order.iter() {
-            if first.contains(&c) {
-                continue;
-            }
             self.call_card(c, id, kind)?;
         }
         if !self.copy_sessions.is_empty() {
@@ -1195,8 +1186,9 @@ impl Game {
 
         phase::reducer(self, id)?;
         play::play_energy_reducer(self, id)?;
-        play::play_pokemon_reducer(self, id)?;
-        play::play_pokemon_from_zone_reducer(self, id)?;
+        if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
+            crate::engine::enter::reducer(self, id)?;
+        }
         play::play_trainer_reducer(self, id)?;
         retreat::reducer(self, id)?;
         crate::engine::game_effect::reducer(self, id)?;
@@ -1207,11 +1199,15 @@ impl Game {
         }
         if matches!(
             kind,
-            k::MOVE_CARDS | k::PLAY_POKEMON | k::EVOLVE | k::PLAY_POKEMON_FROM_DECK | k::PLAY_POKEMON_FROM_DISCARD | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE
-        ) {
+            k::MOVE_CARDS | k::ENTER_PLAY | k::EVOLVE | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE
+        ) && !(kind == k::ENTER_PLAY && self.st.phase == GamePhase::Setup)
+        {
+            // The Pokémon put down at setup take hold together when setup ends (`setup::finish`).
             crate::spec::passive::lock_sync(self);
         }
-        crate::spec::run::after_enter_play(self, id)?;
+        if matches!(kind, k::ENTER_PLAY | k::EVOLVE | k::DEVOLVE | k::SWAP) {
+            crate::spec::run::after_event(self, id)?;
+        }
         Ok(())
     }
 

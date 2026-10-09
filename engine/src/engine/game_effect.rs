@@ -6,7 +6,6 @@ use crate::game::{CoinCb, Cont, Game, R};
 use crate::list::*;
 use crate::markers::*;
 use crate::prompts::{Filter, MoveOpts, PromptKind};
-use crate::spec::passive::{lasting_locked, LockedAction};
 use crate::state::*;
 use crate::types::*;
 
@@ -420,7 +419,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[target.p as usize].slots[target.s as usize].damage += damage.max(0);
             Ok(())
         }
-        Effect::Evolve { p, target, card, from, .. } => evolve(g, p as usize, target, card, from),
         Effect::AddSpecialConditionsPower { target, conditions, poison_damage, burn_damage, sleep_flips, confusion_damage, .. } => {
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             for &c in conditions.iter() {
@@ -455,24 +453,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         _ => Ok(()),
     }
-}
-
-fn evolve(g: &mut Game, p: usize, target: SlotRef, card: CardId, from: ListRef) -> R {
-    // The locks on playing a Pokémon from the hand don't reach an Evolution that comes from another zone.
-    if from == ListRef::Hand(p as u8) {
-        if let Some(code) = lasting_locked(g, p, Some(card), LockedAction::EVOLUTION_FROM_HAND) {
-            crate::bail!(code);
-        }
-    }
-    if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
-        crate::bail!("INVALID_TARGET");
-    }
-    g.move_card_to(from, card, target.list());
-    let turn = g.st.turn;
-    let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-    slot.pokemon_played_turn = turn;
-    slot.marker.remove_all_except_trainer_effects();
-    Ok(())
 }
 
 /// Initial `CheckPokemonTypeEffect.cardTypes` for a slot.

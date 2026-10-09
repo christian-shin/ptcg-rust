@@ -494,14 +494,14 @@ fn cost_increase_end_of_turn(g: &mut Game, p: usize) {
 
 /// A lock an attack leaves on the player for `turns_remaining` of their turns (a lock already there, the same
 /// declaration, keeps the longer).
-pub fn apply_play_lock(pl: &mut Player, lock: &'static crate::spec::passive::LockDecl, turns_remaining: i8) {
+pub fn apply_play_lock(pl: &mut Player, lock: &'static crate::spec::passive::LockDecl, turns_remaining: i8, source: crate::list::CardId) {
     let turns = turns_remaining.max(1);
     if let Some(l) = pl.lasting_locks.iter_mut().flatten().find(|l| l.decl.same_as(lock)) {
         l.turns_remaining = l.turns_remaining.max(turns);
         return;
     }
     let slot = pl.lasting_locks.iter().position(|l| l.is_none()).unwrap_or(pl.lasting_locks.len() - 1);
-    pl.lasting_locks[slot] = Some(LastingLock { decl: lock, turns_remaining: turns });
+    pl.lasting_locks[slot] = Some(LastingLock { decl: lock, turns_remaining: turns, source });
 }
 
 pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {

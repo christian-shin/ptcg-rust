@@ -16,8 +16,9 @@
 //! What each action kind checks:
 //! * Energy attach: the turn rule (`can_attach_energy`), the target, the player's Energy-play flags, the play
 //!   locks (`LockedAction::AttachEnergy`), the Energy card's own attach guard.
-//! * Pokémon (Basic, evolve): `can_play_pokemon`, the target Pokémon's evolution filter, the play locks
-//!   (`PlayPokemon`, and `Evolve`), evolution timing (`CheckPokemonPlayedTurn` read + `can_evolve_now`).
+//! * Pokémon (Basic, evolve): the event the play produces (`enter::hand_play_view`), its locks
+//!   (`event_locked`), and for an Evolve the evolution rules (`enter::evolve_rules`: evolves from, the
+//!   rule's limits with the permissions, the restrictions).
 //! * Item / Supporter / Stadium / Tool: the turn rules and flags (`can_play_*`), the play locks, and the
 //!   card's declared `needs` and implied preconditions evaluated in the state its effect would see.
 //! * Attack: the attack list read, `can_attack_pre/post`, the max-Energy rule, blocks (`BlockAttack`), the
@@ -45,7 +46,8 @@ use std::sync::OnceLock;
 
 const F_BLOCK_USE: u8 = 1;
 const F_BLOCK_ATTACK: u8 = 2;
-const F_PLAYED_TURN_RESET: u8 = 4;
+/// A lock over events (`LockDecl::forbids`).
+const F_EVENT_LOCK: u8 = 4;
 const F_ATTACK_FAIL: u8 = 8;
 const F_ATTACH_GUARD: u8 = 16;
 const F_PLAY_SPEC: u8 = 32;
@@ -60,9 +62,9 @@ fn def_flags(def: DefId) -> u8 {
                 let mut f = 0;
                 for ps in spec.passives {
                     f |= match &ps.modifier {
+                        passive::Modifier::BlockUse(b) if !b.lock.forbids.is_never() => F_BLOCK_USE | F_EVENT_LOCK,
                         passive::Modifier::BlockUse(_) => F_BLOCK_USE,
                         passive::Modifier::BlockAttack(_) => F_BLOCK_ATTACK,
-                        passive::Modifier::PlayedTurnReset(_) => F_PLAYED_TURN_RESET,
                         passive::Modifier::AttachGuard(_) => F_ATTACH_GUARD,
                         _ => 0,
                     };
@@ -87,7 +89,7 @@ fn def_flags(def: DefId) -> u8 {
 struct Sources {
     block_use: SVec<CardId, 120>,
     block_attack: SVec<CardId, 120>,
-    played_turn_reset: SVec<CardId, 120>,
+    event_lock: SVec<CardId, 120>,
 }
 
 // ---------------------------------------------------------------------------
@@ -102,8 +104,6 @@ pub struct Ctx<'a> {
     attacks: Option<Result<(turn::CheckedAttacks, SVec<(AttackRef, bool), 64>), ()>>,
     /// CheckProvidedEnergy per slot.
     provided: SVec<(crate::state::SlotId, Result<EnergyMap, ()>), { crate::state::MAX_SLOTS }>,
-    /// CheckPokemonPlayedTurn per slot.
-    played: SVec<(crate::state::SlotId, bool, Result<(i32, bool), ()>), { 2 * crate::state::MAX_SLOTS }>,
     /// CheckRetreatCost.
     retreat_cost: Option<Result<Cost, ()>>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
@@ -112,7 +112,7 @@ pub struct Ctx<'a> {
 
 impl<'a> Ctx<'a> {
     pub fn new(g: &'a Game) -> Ctx<'a> {
-        Ctx { g, p: g.st.active_player as usize, scratch: None, sources: None, attacks: None, provided: SVec::new(), played: SVec::new(), retreat_cost: None, why: "" }
+        Ctx { g, p: g.st.active_player as usize, scratch: None, sources: None, attacks: None, provided: SVec::new(), retreat_cost: None, why: "" }
     }
 
     /// The scratch game checked reads run on (made on first use, one per decision).
@@ -138,8 +138,8 @@ impl<'a> Ctx<'a> {
                 if f & F_BLOCK_ATTACK != 0 {
                     s.block_attack.push(c);
                 }
-                if f & F_PLAYED_TURN_RESET != 0 {
-                    s.played_turn_reset.push(c);
+                if f & F_EVENT_LOCK != 0 {
+                    s.event_lock.push(c);
                 }
             }
             self.sources = Some(s);
@@ -194,26 +194,6 @@ impl<'a> Ctx<'a> {
         r
     }
 
-    /// Evolution timing of the Pokémon in `target` (`CheckPokemonPlayedTurn`), read once per slot (and per
-    /// whether the Pokémon being played resets its played turn to the turn before).
-    fn played_turn(&mut self, target: SlotRef, reset: bool) -> Result<(i32, bool), ()> {
-        if let Some((_, _, r)) = self.played.iter().find(|(s, rs, _)| *s == target.s && *rs == reset) {
-            return r.clone();
-        }
-        let p = self.p;
-        let sc = self.sc();
-        let turn = sc.st.turn as i32;
-        let slot = &mut sc.st.players[p].slots[target.s as usize];
-        let saved = slot.pokemon_played_turn;
-        if reset {
-            slot.pokemon_played_turn = turn - 1;
-        }
-        let r = crate::derived::played_turn(sc, p, target).map_err(|_| ());
-        sc.st.players[p].slots[target.s as usize].pokemon_played_turn = saved;
-        self.played.push((target.s, reset, r.clone()));
-        r
-    }
-
     /// Is `action` with `card` locked by a declared play lock (`passive::play_locked`)?
     fn play_locked(&mut self, card: CardId, action: &[LockedAction]) -> bool {
         let p = self.p;
@@ -225,6 +205,30 @@ impl<'a> Ctx<'a> {
             if passive::play_locked_by(self.sc(), src, p, card, action).is_some() {
                 return true;
             }
+        }
+        false
+    }
+
+    /// Is the event forbidden by a declared lock (`passive::event_locked`, the same declarations: the B2-OLD
+    /// actions it is an instance of, in play and lasting; the locks over events, in play and lasting)?
+    fn event_locked(&mut self, v: &crate::spec::event::EventView) -> bool {
+        let g = self.g;
+        let Some(card) = v.card else { return false };
+        let p = v.owner as usize;
+        let actions = crate::engine::enter::locked_actions(v);
+        if !actions.is_empty() && (passive::lasting_locked(g, p, Some(card), actions).is_some() || self.play_locked(card, actions)) {
+            return true;
+        }
+        if g.kinds_present.has(crate::effects::k::DECLARES_EVENT_LOCK) {
+            for i in 0..self.sources().event_lock.len() {
+                let src = self.sources().event_lock[i];
+                if !matches!(passive::event_locked_by(self.sc(), src, v), Ok(None)) {
+                    return true;
+                }
+            }
+        }
+        if g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never()) {
+            return !matches!(passive::lasting_event_locked(self.sc(), v), Ok(None));
         }
         false
     }
@@ -287,39 +291,22 @@ fn fast_pokemon(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
     let g = ctx.g;
     let p = ctx.p;
     let Ok(t) = get_target(&g.st, p, target) else { return Some(false) };
-    let kind = match play::can_play_pokemon(g, p, card, t) {
-        Ok(k) => k,
-        Err(_) => return Some(false),
-    };
-    // PlayPokemon effect: the target Pokémon's evolution filter, the play locks.
-    if passive::evolve_refused_by_target(g, card, t) || ctx.play_locked(card, &[LockedAction::PlayPokemon]) {
+    // The event the play produces (`enter::hand_play_view`) and the same checks its routine makes
+    // (`enter::check_enter` / `check_evolve`): the locks, then the evolution rules.
+    let Ok(v) = crate::engine::enter::hand_play_view(g, p, card, t) else { return Some(false) };
+    if ctx.event_locked(&v) {
         return Some(false);
     }
-    match kind {
-        play::PokemonPlay::Basic => Some(true),
-        play::PokemonPlay::Evolve(_) => {
-            // A card that resets the played turn of Pokémon as one is played (Lush Forest) changes what the
-            // timing read sees.
-            let reset = if g.st.turn > 2 {
-                let n = ctx.sources().played_turn_reset.len();
-                let mut hit = false;
-                for i in 0..n {
-                    let c = ctx.sources().played_turn_reset[i];
-                    match passive::played_turn_reset_hits(ctx.sc(), c, p, card, t) {
-                        Ok(h) => hit |= h,
-                        Err(_) => return Some(false),
-                    }
-                }
-                hit
-            } else {
-                false
-            };
-            if ctx.play_locked(card, LockedAction::EVOLUTION_FROM_HAND) {
-                return Some(false);
-            }
-            let Ok((played, first_ok)) = ctx.played_turn(t, reset) else { return Some(false) };
-            Some(play::can_evolve_now(g, p, played, first_ok).is_ok())
+    if v.kind == crate::spec::event::EventKind::EnterPlay {
+        if crate::engine::enter::may_be_restricted(g, &v) {
+            return Some(matches!(crate::engine::enter::restricted(ctx.sc(), &v), Ok(None)));
         }
+        return Some(true);
+    }
+    let reach = crate::engine::enter::Reach::Next;
+    match crate::engine::enter::evolve_rules_fast(g, &v, reach) {
+        Some(ok) => Some(ok),
+        None => Some(crate::engine::enter::evolve_rules(ctx.sc(), &v, reach).is_ok()),
     }
 }
 
@@ -343,8 +330,11 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
                 match crate::prefabs::empty_bench_slots(g, p).as_slice().first() {
                     None => return Some(false),
                     Some(&s) => {
+                        // EnterPlay by the rule from the hand, caused by the Trainer card (`Op::PlayAsPokemon`).
                         let t = SlotRef::new(p, s);
-                        if play::can_play_pokemon(g, p, card, t).is_err() || passive::evolve_refused_by_target(g, card, t) || ctx.play_locked(card, &[LockedAction::PlayPokemon]) {
+                        let cause = crate::cause::Cause::of_trainer(g, card, p as u8);
+                        let v = crate::engine::enter::enter_view(g, card, t, crate::spec::event::RulesZone::Hand, crate::spec::event::EnterMode::Rule, cause);
+                        if ctx.event_locked(&v) || (crate::engine::enter::may_be_restricted(g, &v) && !matches!(crate::engine::enter::restricted(ctx.sc(), &v), Ok(None))) {
                             return Some(false);
                         }
                     }

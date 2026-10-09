@@ -15,7 +15,7 @@ attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { 
     // Can only be put into play with Palafin's Zero to Hero.
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Both,
-        lock: LockDecl { actions: &[LockedAction::Evolve], card: Pred::Any, except: Pred::False, error: "CANNOT_EVOLVE" },
+        lock: LockDecl { actions: &[LockedAction::Evolve], card: Pred::Any, except: Pred::False, error: "CANNOT_EVOLVE", ..LockDecl::NONE },
         while_: &[LockWhile::CardIsSource],
         ability: false,
     }) }],

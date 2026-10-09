@@ -33,6 +33,9 @@ pub enum RuleWhich {
     /// The end of the turn (the game's end-of-turn bookkeeping of a card's own text).
     /// (Not in the design's list; added in batch 1, see the batch report.)
     EndTurn,
+    /// A rule printed on a card that is not an Ability (the Tera rule, a Fossil's rules), outside the
+    /// end of the turn. (Not in the design's list; added in batch 2.)
+    CardRule,
 }
 
 /// The kind of thing that caused an event.
@@ -104,9 +107,9 @@ impl Cause {
         Cause::attack(p, card, attack)
     }
 
-    /// The cause of a card's own rule text by its origin (a passive's or a trigger's `RuleSource`).
-    /// `CardRule` (a rule printed on the card that is not an Ability, today only end-of-turn marker
-    /// bookkeeping) is `Rule { EndTurn }`.
+    /// The cause of a card's own rule text by its origin (a passive's `RuleSource`). `CardRule` (a rule
+    /// printed on the card that is not an Ability) is `Rule { CardRule }`; a trigger's cause also depends
+    /// on its event (`spec::run::frame_cause`).
     pub fn of_origin(origin: crate::spec::passive::RuleSource, card: CardId, player: u8) -> Cause {
         use crate::spec::passive::RuleSource;
         let kind = match origin {
@@ -115,7 +118,7 @@ impl Cause {
             RuleSource::Energy => CauseKind::Energy,
             RuleSource::Stadium => CauseKind::Stadium,
             RuleSource::TrainerEffect => CauseKind::Trainer,
-            RuleSource::CardRule => CauseKind::Rule { which: RuleWhich::EndTurn },
+            RuleSource::CardRule => CauseKind::Rule { which: RuleWhich::CardRule },
         };
         Cause::new(kind, Some(card), player)
     }

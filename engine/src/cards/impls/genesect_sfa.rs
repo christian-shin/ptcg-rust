@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Genesect@SFA",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        lock: LockDecl { actions: &[LockedAction::PlayItem, LockedAction::AttachTool, LockedAction::AttachEnergy, LockedAction::PlayStadium], card: Pred::Tag(tag::ACE_SPEC), except: Pred::False, error: "BLOCKED_BY_EFFECT" },
+        lock: LockDecl { actions: &[LockedAction::PlayItem, LockedAction::AttachTool, LockedAction::AttachEnergy, LockedAction::PlayStadium], card: Pred::Tag(tag::ACE_SPEC), except: Pred::False, error: "BLOCKED_BY_EFFECT", ..LockDecl::NONE },
         while_: &[LockWhile::HasTool],
         ability: true,
     }) }],

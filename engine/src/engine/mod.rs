@@ -3,6 +3,7 @@
 
 pub mod attack;
 pub mod check;
+pub mod enter;
 pub mod game_effect;
 pub mod ops;
 pub mod phase;

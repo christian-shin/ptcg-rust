@@ -1069,7 +1069,7 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
                 CmpOp::Gt => a > b,
             }
         }
-        Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, f.p as usize)?,
+        Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, me, f.p as usize)?,
         Cond::TrainerTargetOk(e) => match slot_of(g, me, f, *e) {
             Some(slot) => {
                 let (t, prevented) = g.run_fx(Effect::TrainerTarget { p: f.p, card: me, target: Some(slot) })?;
@@ -1078,7 +1078,7 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
             None => false,
         },
         Cond::AbilityBlocked => is_ability_blocked(g, f.p as usize, me, None),
-        Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w))?.0,
+        Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
         Cond::ToolBlocked => is_tool_blocked(g, f.p as usize, me),
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,

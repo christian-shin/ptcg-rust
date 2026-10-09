@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Daunting Gaze: while this Pokémon is in the Active Spot, your opponent can't play Item cards from their hand.
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        lock: LockDecl { actions: &[LockedAction::PlayItem], card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_ABILITY" },
+        lock: LockDecl { actions: &[LockedAction::PlayItem], card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_ABILITY", ..LockDecl::NONE },
         while_: &[LockWhile::Active],
         ability: true,
     }) }],

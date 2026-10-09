@@ -53,22 +53,21 @@ pub struct Derived {
 }
 
 /// The effect kinds after which the facts may have changed (the events of the design's list as today's
-/// effects carry them): enter or leave play and attach (MOVE_CARDS, PLAY_POKEMON*, ATTACH_ENERGY,
-/// ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve and devolve (EVOLVE, DEVOLVE), Active changes
+/// effects carry them): enter or leave play and attach (MOVE_CARDS, ENTER_PLAY, ATTACH_ENERGY,
+/// ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
 /// (MOVED_TO_ACTIVE, MOVED_FROM_ACTIVE_TO_BENCH), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
 /// END_TURN), and the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
 /// runs after the same kinds).
 pub const INVALIDATING_KINDS: KindMask = mask(&[
     k::MOVE_CARDS,
-    k::PLAY_POKEMON,
-    k::PLAY_POKEMON_FROM_DECK,
-    k::PLAY_POKEMON_FROM_DISCARD,
+    k::ENTER_PLAY,
     k::ATTACH_ENERGY,
     k::ATTACH_POKEMON_TOOL,
     k::DISCARD_CARDS,
     k::KNOCK_OUT,
     k::EVOLVE,
     k::DEVOLVE,
+    k::SWAP,
     k::MOVED_TO_ACTIVE,
     k::MOVED_FROM_ACTIVE_TO_BENCH,
     k::PLAY_STADIUM,
@@ -170,14 +169,6 @@ pub fn attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks>
 pub fn attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
     g.derived.fresh();
     crate::engine::attack::attack_cost_read(g, p, attack)
-}
-
-/// Evolution timing of the Pokémon in `target`: its played turn and the first-turn permission
-/// (`CheckPokemonPlayedTurn`).
-#[inline]
-pub fn played_turn(g: &mut Game, p: usize, target: SlotRef) -> R<(i32, bool)> {
-    g.derived.fresh();
-    crate::engine::play::read_pokemon_played_turn(g, p, target)
 }
 
 /// Does `card` (player `p`'s) have no Ability (power `power_index`, or any) now? (The lock pass with

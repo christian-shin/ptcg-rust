@@ -14,6 +14,13 @@ pub struct Trigger {
 }
 
 pub enum Event {
+    /// A rules event matching the predicate (events batch 2: EnterPlay, Evolve, Devolve, Swap): the steps run
+    /// once the event is done (after its consequences), in the propagation order of the declaring cards
+    /// (`run::after_event`). The program runs for the event's owner when the declaring card is a Stadium
+    /// ("that player"), else for the declaring card's owner; the event's spot is the picked slot.
+    On(super::event::EventPred),
+    /// B2-OLD (events batch 2): an adapter over the EnterPlay / Evolve events; write `On(..)` instead
+    /// (docs/design/batch-2-conversions.md).
     OnEnterPlay(OnEnterPlaySpec),
     OnMoved(OnMovedSpec),
     OnAttach(OnAttachSpec),
@@ -33,7 +40,8 @@ pub struct CustomEventSpec {
     pub fires: fn(&mut Game, CardId, EffId) -> Option<usize>,
 }
 
-/// How a Pokémon came into play.
+/// B2-OLD: how a Pokémon came into play (the adapter `Event::OnEnterPlay`; write `Event::On` with an
+/// `EventPred` instead).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EnterMethod {
     /// "When you play this Pokémon from your hand to evolve" (an Evolve of this card from the hand, Rare Candy
@@ -125,10 +133,11 @@ pub const fn event_kinds(e: &Event) -> KindMask {
     use crate::effects::k;
     match e {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
+        Event::On(p) => p.effect_kinds(),
         Event::OnEnterPlay(w) => match w.method {
             EnterMethod::Evolve => mask(&[k::EVOLVE]),
-            EnterMethod::Play => mask(&[k::PLAY_POKEMON]),
-            EnterMethod::PutOnBench { .. } => mask(&[k::PLAY_POKEMON, k::PLAY_POKEMON_FROM_DECK, k::PLAY_POKEMON_FROM_DISCARD]),
+            EnterMethod::Play => mask(&[k::ENTER_PLAY, k::EVOLVE]),
+            EnterMethod::PutOnBench { .. } => mask(&[k::ENTER_PLAY]),
         },
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
         Event::OnAttach(_) => mask(&[k::ATTACH_ENERGY]),
@@ -153,6 +162,8 @@ pub(crate) fn fires(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(
 /// The program's player and, for events about a Pokémon, the slot (`p << 4 | slot`) it works on.
 fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, Option<u8>)> {
     match &t.event {
+        // Run after the event is done (`run::after_event`, `fires_on`).
+        Event::On(_) => None,
         Event::OnEndTurn(w) => {
             let Effect::EndTurn { p } = *g.e(e) else { return None };
             let p = p as usize;
@@ -172,9 +183,15 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             ok.then_some((owner, None))
         }
         Event::OnEnterPlay(OnEnterPlaySpec { method: m @ (EnterMethod::Play | EnterMethod::Evolve) }) => {
+            use super::event::{EnterMode, EvolvePath, RulesZone};
+            // B2-OLD adapter. `Play`: the old PlayPokemon effect, the card played from the hand by the rule (onto
+            // the Bench, a Fossil, or onto a Pokémon to evolve it; not Rare Candy). `Evolve`: an Evolve of the
+            // card from the hand (Rare Candy included).
+            let rule_action = |c: crate::cause::Cause| c.kind == crate::cause::CauseKind::Rule { which: crate::cause::RuleWhich::Action };
             let p = match (m, *g.e(e)) {
-                (EnterMethod::Play, Effect::PlayPokemon { p, card, .. }) if card == me => p as usize,
-                (EnterMethod::Evolve, Effect::Evolve { p, card, from, .. }) if card == me && from == crate::state::ListRef::Hand(p) => p as usize,
+                (EnterMethod::Play, Effect::EnterPlay { p, card, source: RulesZone::Hand, mode: EnterMode::Rule, .. }) if card == me => p as usize,
+                (EnterMethod::Play, Effect::Evolve { p, card, source: RulesZone::Hand, path: EvolvePath::Rule, cause, .. }) if card == me && rule_action(cause) => p as usize,
+                (EnterMethod::Evolve, Effect::Evolve { p, card, source: RulesZone::Hand, .. }) if card == me => p as usize,
                 _ => return None,
             };
             // The card is on the board by now: its slot's locks apply as for any Ability.
@@ -268,10 +285,9 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             (card == me && g.st.active_player as usize == p && g.st.players[p].moved_to_active_this_turn.contains(&me)).then_some((p, None))
         }
         Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::PutOnBench { basic, not_type } }) => {
+            // B2-OLD adapter: any EnterPlay onto a Bench spot (not at setup), before the card is placed.
             let (p, card, target) = match *g.e(e) {
-                Effect::PlayPokemon { p, card, target, .. } | Effect::PlayPokemonFromDeck { p, card, target, .. } | Effect::PlayPokemonFromDiscard { p, card, target } => {
-                    (p as usize, card, target)
-                }
+                Effect::EnterPlay { p, card, target, mode, .. } if mode != super::event::EnterMode::Setup => (p as usize, card, target),
                 _ => return None,
             };
             let tp = target.p as usize;
@@ -312,9 +328,41 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
     }
 }
 
-/// Triggers of the card's own entering that run once it is on the board.
+/// The B2-OLD triggers of the card's own entering that run once it is on the board (`run::after_event`).
 pub(crate) fn runs_after_play(t: &Trigger) -> bool {
     matches!(t.event, Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play | EnterMethod::Evolve }))
+}
+
+/// The event an effect carries, as predicates read it (`None` for an effect that carries no event yet).
+pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
+    use super::event::{EventKind, EventView, RulesZone};
+    let turn = g.st.active_player;
+    Some(match *g.e(e) {
+        Effect::EnterPlay { p, card, target, source, mode, cause, .. } => EventView { source: Some(source), mode: Some(mode), card: Some(card), slot: Some(target), ..EventView::new(EventKind::EnterPlay, cause, p, turn) },
+        Effect::Evolve { p, card, base, target, source, path, cause, .. } => EventView { source: Some(source), path: Some(path), card: Some(card), base: Some(base), slot: Some(target), ..EventView::new(EventKind::Evolve, cause, p, turn) },
+        Effect::Devolve { p, target, ref removed, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: g.st.slot_pokemon(target.p as usize, target.s), base: removed.get(0).copied(), slot: Some(target), ..EventView::new(EventKind::Devolve, cause, p, turn) },
+        Effect::Swap { p, target, old, new, cause } => EventView { source: crate::engine::enter::source_of(g, new).map(|x| x.1), card: Some(new), base: Some(old), slot: Some(target), ..EventView::new(EventKind::Swap, cause, p, turn) },
+        _ => return None,
+    })
+}
+
+/// Does the event of effect `e` fire the `Event::On` trigger `t` of card `me` (after the event is done)? The
+/// declaring card must be in place for its origin and not blocked there (a Pokémon's Ability, the Stadium in
+/// play, ...). Returns the program's player (the event's owner for a Stadium, else the card's owner) and the
+/// event's spot as the picked slot.
+pub(crate) fn fires_on(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> crate::game::R<Option<(usize, u8)>> {
+    let Event::On(pred) = &t.event else { return Ok(None) };
+    let Some(v) = event_view(g, e) else { return Ok(None) };
+    let Some(at) = super::passive::locate(g, me, t.origin) else { return Ok(None) };
+    if !pred.eval(g, me, &v)? {
+        return Ok(None);
+    }
+    if super::passive::blocked(g, me, t.origin, at, v.slot) {
+        return Ok(None);
+    }
+    let p = if t.origin == RuleSource::Stadium { v.owner as usize } else { g.st.owner(me) };
+    let slot = v.slot.map_or(super::run::NONE, |s| s.p << 4 | s.s);
+    Ok(Some((p, slot)))
 }
 
 /// The effect stays alive while the trigger's program is suspended (a Knock Out of the opponent's Active

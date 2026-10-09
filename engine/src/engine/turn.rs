@@ -172,8 +172,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
             None => crate::bail!("INVALID_TARGET"),
         };
         // useFromHandToBench / Dual Legend: no pool card uses them.
-        g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card, target: t, slot: target.slot, index: target.index, cause: crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8) })?;
-        return Ok(());
+        return crate::engine::enter::play_from_hand(g, p, card, t);
     }
     if d.is_trainer() {
         let t = find_pokemon_target(g, p, target);

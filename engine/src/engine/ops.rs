@@ -82,6 +82,9 @@ impl Game {
         for &c in &self.lst(src)[..n] {
             moved.push(c);
         }
+        for &c in moved.iter() {
+            self.note_staged(src, c, dst);
+        }
         {
             let l = self.lst_mut(src);
             let rest: SVec<CardId, 120> = {
@@ -118,6 +121,15 @@ impl Game {
         self.lst_mut(dst).set_from(v.as_slice());
     }
 
+    /// A card moved into a staging list (`Game::temps`) remembers the rules zone it came from
+    /// (`CardInst::staged_from`): an event that takes it from there reports that zone as its source.
+    #[inline]
+    fn note_staged(&mut self, src: ListRef, c: CardId, dst: ListRef) {
+        if let (ListRef::Temp(_), Some(z)) = (dst, crate::engine::enter::rules_zone_of(src)) {
+            self.st.cards[c as usize].staged_from = Some(z);
+        }
+    }
+
     /// `moveCardsTo(cards, destination)` for either list kind.
     pub fn move_cards_to(&mut self, src: ListRef, cards: &[CardId], dst: ListRef) {
         for &c in cards {
@@ -126,6 +138,7 @@ impl Game {
     }
 
     pub fn move_card_to(&mut self, src: ListRef, c: CardId, dst: ListRef) {
+        self.note_staged(src, c, dst);
         // Entering, leaving or changing slot resets the card's once-per-turn marks (ruling 317).
         if (Self::slot_of(src).is_some() || Self::slot_of(dst).is_some()) && src != dst {
             crate::prefabs::reset_once_per_turn(self, c);

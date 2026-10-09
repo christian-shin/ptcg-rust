@@ -616,7 +616,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if g.st.players[p].supporter.contains(me) {
                 g.move_card_to(ListRef::Supporter(p as u8), me, ListRef::Hand(p as u8));
             }
-            g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card: me, target: SlotRef::new(p, s), slot: SlotType::Board, index: 0, cause: f.cause })?;
+            // Played from the hand as a Pokémon: EnterPlay by the rule, caused by the Trainer card.
+            crate::engine::enter::enter_play(g, me, SlotRef::new(p, s), super::super::event::EnterMode::Rule, f.cause)?;
             Ok(Flow::Next)
         }
         Op::PlayFromZone(pz) => {
@@ -624,12 +625,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let cards: Vec<CardId> = reg_list(g, f, pz.cards).to_vec();
             let open = empty_bench_slots(g, p);
             for (c, s) in cards.iter().zip(open.iter()) {
-                let in_reg = f.cards.iter().filter(|r| **r != NONE).map(|r| ListRef::Temp(*r)).find(|l| g.lst(*l).contains(c));
-                if let Some(src) = g.st.locate(*c).or(in_reg) {
-                    crate::cause::unseen(g, "PlayFromZone to Bench (raw move)", &f.cause);
-                    move_cards(g, src, ListRef::Slot(p as u8, *s), &[*c], me)?;
-                    g.st.players[p].slots[*s as usize].pokemon_played_turn = g.st.turn;
-                }
+                crate::engine::enter::enter_play(g, *c, SlotRef::new(p, *s), super::super::event::EnterMode::Effect, f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -947,14 +943,9 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
     match s.destination {
         SearchDestination::Bench => {
             let open = empty_bench_slots(g, p);
+            // Put onto the Bench by the effect, from whatever zone the search started in (id2233).
             for (c, slot) in chosen.iter().zip(open.iter()) {
-                if matches!(from, ListRef::Deck(_)) {
-                    g.run_fx_unit(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, *slot), cause: f.cause })?;
-                } else {
-                    crate::cause::unseen(g, "Search to Bench from a non-deck zone (raw move)", &f.cause);
-                    move_cards(g, from, ListRef::Slot(p as u8, *slot), &[*c], me)?;
-                    g.st.players[p].slots[*slot as usize].pokemon_played_turn = g.st.turn;
-                }
+                crate::engine::enter::enter_play(g, *c, SlotRef::new(p, *slot), super::super::event::EnterMode::Effect, f.cause)?;
             }
         }
         SearchDestination::Hand { reveal: r } => {

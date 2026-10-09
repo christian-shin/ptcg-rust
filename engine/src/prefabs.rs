@@ -96,7 +96,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
                     // The prompt's `max` is clamped to the empty slots.
                     None => break,
                 };
-                g.run_fx_unit(Effect::PlayPokemonFromDeck { p, card: *c, target: SlotRef::new(p as usize, s), cause })?;
+                crate::engine::enter::enter_play(g, *c, SlotRef::new(p as usize, s), crate::spec::event::EnterMode::Effect, cause)?;
             }
             shuffle_deck(g, p as usize);
             Ok(())

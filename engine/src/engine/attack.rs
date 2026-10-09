@@ -794,7 +794,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::PlayLock { b, lock } => {
-            crate::engine::phase::apply_play_lock(&mut g.st.players[b.opponent as usize], lock, 1);
+            crate::engine::phase::apply_play_lock(&mut g.st.players[b.opponent as usize], lock, 1, b.cause.card.unwrap_or(b.attack.card));
             Ok(())
         }
         Effect::IncreaseAttackCostNextTurn { b } => {

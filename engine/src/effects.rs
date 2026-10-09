@@ -102,7 +102,6 @@ pub enum Effect {
     /// `copied`: the attacks of other Pokémon that the Active Pokémon uses as its own (Mew ex Memory Helix),
     /// pushed to `attacks` as well; the source is `AttackRef::card`.
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32>, copied: SVec<AttackRef, 32> },
-    CheckPokemonPlayedTurn { p: u8, target: SlotRef, pokemon_played_turn: i32, can_evolve_on_first_turn: bool },
     CheckTableState { bench_sizes: [u8; 2] },
     CheckPrizesDestination { p: u8, destination: ListRef },
     CheckSpecialConditionRemoval { p: u8, target: SlotRef, preserved: SVec<u8, 5> },
@@ -123,9 +122,17 @@ pub enum Effect {
     /// Pokémon out of play later (`game_effect::complete_knock_out`).
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
     Heal { p: u8, target: SlotRef, damage: i32, cause: Cause },
-    /// Every evolution: played from the hand, Rare Candy, and the effects that evolve from the deck or
-    /// elsewhere. `from` is the zone the Evolution card comes from (locks and triggers on "from your hand" read it).
-    Evolve { p: u8, target: SlotRef, card: CardId, from: ListRef, cause: Cause },
+    /// The Evolve event (events batch 2; `engine::enter::evolve`): every evolution, played from the hand, Rare
+    /// Candy, and the effects that evolve from the deck or elsewhere. `from` is the list the card physically
+    /// leaves, `source` its rules zone (what "from your hand" reads), `base` the Pokémon evolved from.
+    Evolve { p: u8, target: SlotRef, card: CardId, base: CardId, from: ListRef, source: crate::spec::event::RulesZone, path: crate::spec::event::EvolvePath, cause: Cause },
+    /// The EnterPlay event (`engine::enter::enter_play`): a Pokémon card goes onto the empty spot `target` of
+    /// its owner `p`: played from the hand by the rule, put by an effect, or set up.
+    EnterPlay { p: u8, card: CardId, target: SlotRef, from: ListRef, source: crate::spec::event::RulesZone, mode: crate::spec::event::EnterMode, cause: Cause },
+    /// The Devolve event (`engine::enter::devolve`): `removed` (highest Stage first) left the Pokémon for `dest`.
+    Devolve { p: u8, target: SlotRef, removed: SVec<CardId, 3>, dest: ListRef, cause: Cause },
+    /// The Swap event (`engine::enter::swap`): the Pokémon card `old` in `target` was replaced by `new`.
+    Swap { p: u8, target: SlotRef, old: CardId, new: CardId, cause: Cause },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
@@ -228,13 +235,12 @@ pub enum Effect {
     /// assigns over the attacker's) to `b.target`. Reducer-less: the card
     /// applies the counters after reducing it.
     MoveCounters { b: AtkBase, damage: i32 },
-    /// `DevolveEffect`: devolving `b.target` as an effect of an attack (Espeon ex's Amethyst). Reducer-less:
-    /// the card devolves the Pokémon unless the effect was prevented (Mist Energy and the like).
-    Devolve { b: AtkBase },
+    /// `DevolveEffect`: the probe that asks whether devolving `b.target` as an effect of an attack (Espeon ex's
+    /// Amethyst) is prevented (Mist Energy and the like). Reducer-less; the Devolve event follows when it isn't.
+    DevolveProbe { b: AtkBase },
 
     // ---- play card ----
     AttachEnergy { p: u8, card: CardId, target: SlotRef, cause: Cause },
-    PlayPokemon { p: u8, card: CardId, target: SlotRef, slot: SlotType, index: u8, cause: Cause },
     PlaySupporter { p: u8, card: CardId, target: Option<SlotRef> },
     PlayStadium { p: u8, card: CardId },
     AttachPokemonTool { p: u8, card: CardId, target: SlotRef },
@@ -248,8 +254,6 @@ pub enum Effect {
     Supporter { p: u8, card: CardId },
     TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
     DiscardToHand { p: u8, card: CardId },
-    PlayPokemonFromDeck { p: u8, card: CardId, target: SlotRef, cause: Cause },
-    PlayPokemonFromDiscard { p: u8, card: CardId, target: SlotRef },
     /// `mode`: 0 = until tails, n = n flips. `callback` indexes `coin_callbacks`.
     CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool },
     CoinFlip { p: u8, callback: Option<u8>, result: Option<bool>, skip_reflip_stadium: bool, skip_reflip_tool: bool },
@@ -277,7 +281,6 @@ impl Effect {
             CheckProvidedEnergy { .. } => "CHECK_ENOUGH_ENERGY_EFFECT",
             CheckPokemonPowers { .. } => "CHECK_POKEMON_POWERS_EFFECT",
             CheckPokemonAttacks { .. } => "CHECK_POKEMON_ATTACKS_EFFECT",
-            CheckPokemonPlayedTurn { .. } => "CHECK_POKEMON_PLAYED_TURN_EFFECT",
             CheckTableState { .. } => "CHECK_TABLE_STATE_EFFECT",
             CheckPrizesDestination { .. } => "CHECK_PRIZES_DESTINATION_EFFECT",
             CheckSpecialConditionRemoval { .. } => "CHECK_SPECIAL_CONDITION_REMOVAL_EFFECT",
@@ -335,9 +338,11 @@ impl Effect {
             RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EFFECT",
-            Devolve { .. } => "DEVOLVE_EFFECT",
+            DevolveProbe { .. } => "DEVOLVE_EFFECT",
+            Devolve { .. } => "DEVOLVE_EVENT",
+            Swap { .. } => "SWAP_EVENT",
             AttachEnergy { .. } => "ATTACH_ENERGY_EFFECT",
-            PlayPokemon { .. } => "PLAY_POKEMON_EFFECT",
+            EnterPlay { .. } => "ENTER_PLAY_EVENT",
             PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
             PlayStadium { .. } => "PLAY_STADIUM_EFFECT",
             AttachPokemonTool { .. } => "PLAY_POKEMON_TOOL_EFFECT",
@@ -349,8 +354,6 @@ impl Effect {
             Supporter { .. } => "SUPPORTER_EFFECT",
             TrainerTarget { .. } => "TRAINER_TARGET_EFFECT",
             DiscardToHand { .. } => "DISCARD_TO_HAND_EFFECT",
-            PlayPokemonFromDeck { .. } => "PLAY_POKEMON_FROM_DECK_EFFECT",
-            PlayPokemonFromDiscard { .. } => "PLAY_POKEMON_FROM_DISCARD_EFFECT",
             CoinFlipSequence { .. } => "COIN_FLIP_SEQUENCE_EFFECT",
             CoinFlip { .. } => "COIN_FLIP_EFFECT",
         }
@@ -384,7 +387,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | Devolve { b } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
             _ => None,
         }
     }
@@ -417,7 +420,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | Devolve { b } => Some(b),
+            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
             _ => None,
         }
     }
@@ -443,7 +446,6 @@ impl Effect {
             CheckProvidedEnergy { .. } => 13,
             CheckPokemonPowers { .. } => 14,
             CheckPokemonAttacks { .. } => 15,
-            CheckPokemonPlayedTurn { .. } => 16,
             CheckTableState { .. } => 17,
             CheckPrizesDestination { .. } => 18,
             CheckSpecialConditionRemoval { .. } => 19,
@@ -481,7 +483,7 @@ impl Effect {
             RemoveSpecialConditions { .. } => 48,
             HealTarget { .. } => 49,
             AttachEnergy { .. } => 50,
-            PlayPokemon { .. } => 51,
+            EnterPlay { .. } => 51,
             PlaySupporter { .. } => 52,
             PlayStadium { .. } => 53,
             AttachPokemonTool { .. } => 54,
@@ -494,8 +496,6 @@ impl Effect {
             CoinFlip { .. } => 61,
             TrainerTarget { .. } => 62,
             DiscardToHand { .. } => 63,
-            PlayPokemonFromDeck { .. } => 64,
-            PlayPokemonFromDiscard { .. } => 65,
             CoinFlipSequence { .. } => 66,
             PlayLock { .. } => 67,
             MoveDamageCounters { .. } => 68,
@@ -512,7 +512,9 @@ impl Effect {
             RetaliateOnDamage { .. } => 172,
             RetaliateDamage { .. } => 173,
             MoveCounters { .. } => 244,
-            Devolve { .. } => 247,
+            DevolveProbe { .. } => 247,
+            Devolve { .. } => 248,
+            Swap { .. } => 249,
             OpponentPokemonCannotUseAttack { .. } => 91,
             PreventAttackUntilLeavesActive { .. } => 188,
             DefendingPokemonTakesMoreDamage { .. } => 130,
@@ -545,7 +547,6 @@ pub mod k {
     pub const CHECK_PROVIDED_ENERGY: u32 = 13;
     pub const CHECK_POKEMON_POWERS: u32 = 14;
     pub const CHECK_POKEMON_ATTACKS: u32 = 15;
-    pub const CHECK_POKEMON_PLAYED_TURN: u32 = 16;
     pub const CHECK_TABLE_STATE: u32 = 17;
     pub const CHECK_PRIZES_DESTINATION: u32 = 18;
     pub const CHECK_SPECIAL_CONDITION_REMOVAL: u32 = 19;
@@ -582,7 +583,7 @@ pub mod k {
     pub const REMOVE_SPECIAL_CONDITIONS: u32 = 48;
     pub const HEAL_TARGET: u32 = 49;
     pub const ATTACH_ENERGY: u32 = 50;
-    pub const PLAY_POKEMON: u32 = 51;
+    pub const ENTER_PLAY: u32 = 51;
     pub const PLAY_SUPPORTER: u32 = 52;
     pub const PLAY_STADIUM: u32 = 53;
     pub const ATTACH_POKEMON_TOOL: u32 = 54;
@@ -595,8 +596,6 @@ pub mod k {
     pub const COIN_FLIP: u32 = 61;
     pub const TRAINER_TARGET: u32 = 62;
     pub const DISCARD_TO_HAND: u32 = 63;
-    pub const PLAY_POKEMON_FROM_DECK: u32 = 64;
-    pub const PLAY_POKEMON_FROM_DISCARD: u32 = 65;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
     pub const PLAY_LOCK: u32 = 67;
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
@@ -610,7 +609,18 @@ pub mod k {
     pub const RETALIATE_ON_DAMAGE: u32 = 172;
     pub const RETALIATE_DAMAGE: u32 = 173;
     pub const MOVE_COUNTERS: u32 = 244;
-    pub const DEVOLVE: u32 = 247;
+    pub const DEVOLVE_PROBE: u32 = 247;
+    pub const DEVOLVE: u32 = 248;
+    pub const SWAP: u32 = 249;
+    // Declaration markers (never dispatched): set in a card's mask when it declares a permission, a
+    // restriction or a lock over events, so `Game::kinds_present` says whether a game has any.
+    pub const DECLARES_PERMIT: u32 = 250;
+    pub const DECLARES_RESTRICT: u32 = 251;
+    pub const DECLARES_EVENT_LOCK: u32 = 252;
+    /// A permission that lifts `Limit::FirstTurn` / `BaseEnteredThisTurn` / `EvolvesFrom` (with `DECLARES_PERMIT`).
+    pub const PERMIT_FIRST_TURN: u32 = 253;
+    pub const PERMIT_BASE_ENTERED: u32 = 254;
+    pub const PERMIT_EVOLVES_FROM: u32 = 255;
     pub const PREVENT_DAMAGE: u32 = 84;
     pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
     pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
@@ -683,8 +693,9 @@ impl Effect {
             | PlaceDamageCounters { cause, .. }
             | AddSpecialConditionsPower { cause, .. }
             | AttachEnergy { cause, .. }
-            | PlayPokemon { cause, .. }
-            | PlayPokemonFromDeck { cause, .. } => Some(cause),
+            | EnterPlay { cause, .. }
+            | Devolve { cause, .. }
+            | Swap { cause, .. } => Some(cause),
             _ => None,
         }
     }

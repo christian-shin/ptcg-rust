@@ -55,10 +55,21 @@ pub struct CardSpec {
     pub use_stadium: Option<PlaySpec>,
     pub passives: &'static [Passive],
     pub triggers: &'static [Trigger],
+    /// "You can't use this card during your first turn or on a Basic Pokémon that was put into play this
+    /// turn": limits on the events this card is part of (its own effect, `This(Role::CauseCard)`; or the card
+    /// itself, `This(Role::Card)`). No permission lifts them (id1144, id1815).
+    pub restricts: &'static [Restrict],
+}
+
+/// A restriction a card declares on events (events design 4.2): when `on` matches, each of `limits` that
+/// applies forbids the event (`engine::enter::restricted`).
+pub struct Restrict {
+    pub on: event::EventPred,
+    pub limits: &'static [event::Limit],
 }
 
 impl CardSpec {
-    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[] };
+    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[], restricts: &[] };
 
     /// The registry entry: the shared interpreter, subscribed to exactly the
     /// effect kinds this spec reacts to.
@@ -90,9 +101,10 @@ impl CardSpec {
         while i < self.powers.len() {
             if matches!(self.powers[i].once, Once::PerTurn(_) | Once::PerTurnShared(_)) {
                 // The once-per-turn marker is cleared at the end of the turn, and when
-                // the card is played again (a new Pokémon).
+                // the card enters play or evolves again (a new Pokémon, id317).
                 m = with(m, k::END_TURN);
-                m = with(m, k::PLAY_POKEMON);
+                m = with(m, k::ENTER_PLAY);
+                m = with(m, k::EVOLVE);
             }
             i += 1;
         }
@@ -111,6 +123,9 @@ impl CardSpec {
         while i < self.triggers.len() {
             m = merge(m, trigger::event_kinds(&self.triggers[i].event));
             i += 1;
+        }
+        if !self.restricts.is_empty() {
+            m = with(m, k::DECLARES_RESTRICT);
         }
         m
     }
@@ -306,5 +321,6 @@ pub enum Op {
 /// Everything a spec card file needs.
 pub mod prelude {
     pub use super::*;
+    pub use super::event::{CausePred, EnterMode, EventKind, EventPred, EvolvePath, Limit, Role, RulesZone, TurnOf};
     pub use crate::cards::CardImpl;
 }
