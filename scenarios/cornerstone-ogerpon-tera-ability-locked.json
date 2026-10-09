@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Fezandipiti ex ASC 142",
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Iron Thorns ex PRE 32",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Fezandipiti ex ASC 142",
+   "4 Cornerstone Mask Ogerpon ex PRE 58",
+   "4 Iron Thorns ex PRE 32",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Fezandipiti ex ASC 142",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Iron Thorns ex PRE 32",
+  "bench": [
+   {
+    "card": "Cornerstone Mask Ogerpon ex PRE 58"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cruel Arrow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Cornerstone Mask Ogerpon ex PRE 58",
+   "damage": 0,
+   "cite": "official text: the Tera rule is printed above the Ability, so Iron Thorns ex's Initialization doesn't turn it off (RULES.md, Tera is a card rule)"
+  }
+ ]
+}

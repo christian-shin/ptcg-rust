@@ -987,16 +987,7 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
 fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PreventDamageSpec) -> R {
     if d.how == PreventHow::Tera {
         // `TERA_RULE`: only for the card on top of its Pokémon.
-        if let Effect::PutDamage { b, .. } = *g.e(e) {
-            if origin != RuleSource::CardRule {
-                // Today's behavior kept (planned change I-PC1, Cornerstone Mask Ogerpon ex): the
-                // Tera rule is skipped when the Ability's own gates are: damage from the owner's
-                // own Pokémon, outside the attack phase, or a blocked Ability.
-                let Some(at) = locate(g, me, origin) else { return Ok(()) };
-                if b.source.p == b.target.p || !is_attack_phase(g) || g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() || blocked(g, me, origin, at, Some(b.target)) {
-                    return Ok(());
-                }
-            }
+        if let Effect::PutDamage { .. } = *g.e(e) {
             tera_rule(g, e, me);
         }
         return Ok(());
