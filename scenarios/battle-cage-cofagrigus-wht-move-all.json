@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cofagrigus WHT 40",
+   "4 Yamask PLF 55",
+   "4 Battle Cage PFL 85",
+   "4 Duraludon PRE 69",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Cofagrigus WHT 40",
+   "4 Yamask PLF 55",
+   "4 Battle Cage PFL 85",
+   "4 Duraludon PRE 69",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "stadium": "Battle Cage PFL 85",
+  "active": [
+   "Yamask PLF 55",
+   "Cofagrigus WHT 40"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "damage": 50
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Extended Damagriiigus"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 0,
+   "cite": "ruling id2257 / n1758 (Battle Cage): damage counters can't be placed on Benched Pokémon by the opponent's Pokémon's effects; moved counters just vanish"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "damage": 0,
+   "cite": "ruling id2257 / n1758: the counters are removed from the source Pokémon even when they can't be placed"
+  }
+ ]
+}

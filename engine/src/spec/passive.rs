@@ -302,7 +302,7 @@ pub enum PreventWhat {
     /// Damage counters can't be moved (to other Pokémon).
     CounterMoves,
     /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
-    /// and Abilities, and no moving of counters by the player whose turn it is not.
+    /// and Abilities (counters moved onto them included).
     BenchCounters,
     /// The opponent's Active Pokémon can't be healed (an attack's `HealTarget` heals through `Heal`).
     HealOppActive,
@@ -636,7 +636,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::AbilityLock(_) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::Prevent(p) => match p.what {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
-            PreventWhat::BenchCounters => mask(&[k::MOVE_DAMAGE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
+            PreventWhat::BenchCounters => mask(&[k::MOVE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
             PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
             PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
@@ -1387,8 +1387,10 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
                 g.set_prevent(e, true);
             }
         }
-        (PreventWhat::BenchCounters, Effect::MoveDamageCounters { p }) => {
-            if p as usize == 1 - g.st.active_player as usize {
+        // Counters moved onto a Benched Pokémon by the opponent's effect: they are taken off the source and
+        // vanish (ruling 2257).
+        (PreventWhat::BenchCounters, Effect::MoveCounters { b, .. }) => {
+            if bench_target_prevented(g, me, b.player as usize, b.target) {
                 g.set_prevent(e, true);
             }
         }

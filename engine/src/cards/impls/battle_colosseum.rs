@@ -3,12 +3,11 @@
 //! opponent's) by effects of attacks and Abilities from the opponent's
 //! Pokémon.
 //!
-//! Twinleaf: while this is the stadium in play,
-//! * every MoveDamageCountersEffect whose player is the non-active player is
-//!   prevented (no bench / source check, no stadium-block probe);
-//! * a PutCountersEffect (attack) or PlaceDamageCountersEffect (whose source
-//!   card is still in play) on a Benched Pokémon from its owner's opponent
-//!   is prevented unless the stadium effect is blocked for that target.
+//! While this is the stadium in play, a PutCountersEffect (attack), a
+//! MoveCountersEffect or a PlaceDamageCountersEffect (whose source card is
+//! still in play) on a Benched Pokémon from its owner's opponent is prevented
+//! unless the stadium effect is blocked for that target. Counters moved onto
+//! such a Pokémon leave their source and vanish (ruling 2257).
 //!   Using the stadium is not allowed (CANNOT_USE_STADIUM, Advanced Rulebook B-04).
 use crate::spec::prelude::*;
 
