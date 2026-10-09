@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Heatran TWM 123", "4 Mankey SSP 98", "4 Shuppet PBL 33", "48 Psychic Energy MEE 5"],
+  ["4 Heatran TWM 123", "4 Mankey SSP 98", "4 Shuppet PBL 33", "48 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Shuppet PBL 33", "active_energy": ["Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Heatran TWM 123"},
+ "answers": [{"a": "attack", "name": "Hang Down"}],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "conditions": [], "cite": "card text: Hide 'n' Sneak prevents effects of the opponent's Pokemon's Abilities (Incandescent Body) done to Shuppet"}
+ ]
+}

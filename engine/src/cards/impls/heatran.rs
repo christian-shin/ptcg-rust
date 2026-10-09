@@ -8,10 +8,11 @@
 //! CheckProvidedEnergy map whose entry provides [M] in one DiscardCardsEffect
 //! and adds `(listed - 1) * 50` (counted before the discard resolves).
 //! Fixed (phase 4b, R3): it used to discard and count every attached Energy
-//! card, whatever its type. Incandescent Body reacts to AfterDamageEffect on
-//! any list holding this card: the lock probe runs for the *attacking*
-//! player, and the burn is a direct `source.addSpecialCondition` during the
-//! attack phase.
+//! card, whatever its type. Incandescent Body reacts to the attack's damage
+//! to this Pokémon: a GainCondition(Burned) on the Attacking Pokémon caused by
+//! this Ability (events batch 4: an effect of the opponent's Pokémon's Ability,
+//! so Hide 'n' Sneak and the other Ability immunities prevent it; it was a
+//! direct Burn before).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Heatran",
