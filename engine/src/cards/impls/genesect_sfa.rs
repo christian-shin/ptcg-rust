@@ -6,8 +6,8 @@
 //! PlayStadiumEffect whose card has the ACE SPEC tag: when this card is the
 //! top Pokémon of a slot with a tool on the playing player's opponent's side,
 //! the ability-lock probe runs for the *playing* player, and
-//! BLOCKED_BY_EFFECT is thrown when it passes. (AttachEnergyEffect fires for
-//! any energy attachment, not only from the hand.)
+//! BLOCKED_BY_EFFECT is thrown when it passes. Only cards played from the hand: an Energy or
+//! Tool attached by an effect from the deck or discard pile is not blocked.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

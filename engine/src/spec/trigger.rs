@@ -64,7 +64,10 @@ pub enum MovedTo {
 }
 /// This Energy card is attached to a Pokémon, from any zone (before it is attached); the Pokémon is the
 /// program's picked slot.
-pub struct OnAttachSpec {}
+pub struct OnAttachSpec {
+    /// Only when the Energy is attached from the owner's hand (Enriching Energy, Telepathic Psychic Energy).
+    pub from_hand: bool,
+}
 /// Whose Knock Out.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum KoWhich {
@@ -180,9 +183,9 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             }
             Some((p, None))
         }
-        Event::OnAttach(_) => {
+        Event::OnAttach(a) => {
             let Effect::AttachEnergy { p, card, target } = *g.e(e) else { return None };
-            if card != me {
+            if card != me || (a.from_hand && !g.st.players[p as usize].hand.contains(me)) {
                 return None;
             }
             let at = super::passive::Located { owner: p as usize, held: Some(target) };

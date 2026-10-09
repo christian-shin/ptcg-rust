@@ -337,8 +337,8 @@ pub enum BlockWhat {
     /// No Ability-lock probe, as today (I-HD-palafin).
     EvolveIntoThis,
     /// The opponent can't play ACE SPEC cards from their hand (Genesect's Ace Canceller) while
-    /// the Pokémon has a Tool attached. Today's behavior kept (A-PC6): from any zone, and the
-    /// lock probe is made for the playing player.
+    /// the Pokémon has a Tool attached. Cards attached by an effect from another zone are not
+    /// played from the hand. The lock probe is made for the playing player.
     AceSpecOfOpponent,
     /// This Pokémon can't retreat while it is the Active Pokémon (Fossils).
     RetreatThisActive,
@@ -1723,6 +1723,11 @@ fn ace_spec_of_opponent(g: &mut Game, me: CardId, e: EffId) -> R {
         _ => return Ok(()),
     };
     if !g.st.cdef(card).has_tag(tag::ACE_SPEC) {
+        return Ok(());
+    }
+    // Only cards played from the hand: an Energy or Tool put onto a Pokémon from the deck or discard pile
+    // by an effect is not "played from the hand" (A-PC6).
+    if matches!(*g.e(e), Effect::AttachPokemonTool { .. } | Effect::AttachEnergy { .. }) && !g.st.players[p].hand.contains(card) {
         return Ok(());
     }
     let o = 1 - p;
