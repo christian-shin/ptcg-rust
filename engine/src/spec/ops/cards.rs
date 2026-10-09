@@ -617,7 +617,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 g.move_card_to(ListRef::Supporter(p as u8), me, ListRef::Hand(p as u8));
             }
             // Played from the hand as a Pokémon: EnterPlay by the rule, caused by the Trainer card.
-            crate::engine::enter::enter_play(g, me, SlotRef::new(p, s), super::super::event::EnterMode::Rule, f.cause)?;
+            // A lock or restriction on that EnterPlay (Arbok's, Risky-Ruins-style limits) means the card can't be played.
+            if !crate::engine::enter::enter_play(g, me, SlotRef::new(p, s), super::super::event::EnterMode::Rule, f.cause)? {
+                crate::bail!("CANNOT_PLAY_THIS_CARD");
+            }
             Ok(Flow::Next)
         }
         Op::PlayFromZone(pz) => {

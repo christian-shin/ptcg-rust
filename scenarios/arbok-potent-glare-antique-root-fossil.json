@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Antique Root Fossil SCR 130",
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Antique Root Fossil SCR 130",
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Ekans DRI 112",
+  "hand": [
+   "Antique Root Fossil SCR 130"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Ekans DRI 112",
+   "Team Rocket's Arbok DRI 113"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Antique Root Fossil SCR 130",
+   "is": false,
+   "cite": "Team Rocket's Arbok Intimidating Glare (printed): the opponent can't play Pokemon with Abilities from the hand; a Fossil is played as a Pokemon and prints Primal Root (card text, APR)"
+  }
+ ]
+}

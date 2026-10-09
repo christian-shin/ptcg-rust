@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     // deck for up to 3 Basic [F] Energy cards and discard them, then shuffle.
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule)])),
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(DECK, Pred::Any),
