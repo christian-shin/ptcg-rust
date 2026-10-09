@@ -563,6 +563,28 @@ pub fn use_ability_once_per_turn(g: &mut Game, p: usize, marker: crate::markers:
     Ok(())
 }
 
+/// A card's own once-per-turn use marks reset when its Pokémon changes (ruling 317: evolving,
+/// devolving, leaving play, and coming into play again); benching does not.
+pub fn reset_once_per_turn(g: &mut Game, card: CardId) {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return };
+    for pw in spec.powers.iter() {
+        if let crate::spec::Once::PerTurn(name) = pw.once {
+            let m = crate::markers::intern(name);
+            for pl in g.st.players.iter_mut() {
+                pl.marker.remove_from(m, card);
+            }
+        }
+    }
+}
+
+/// `reset_once_per_turn` for every card of a slot.
+pub fn reset_once_per_turn_slot(g: &mut Game, t: SlotRef) {
+    let cards: Vec<CardId> = g.st.slot(t.p as usize, t.s).cards.iter().collect();
+    for c in cards {
+        reset_once_per_turn(g, c);
+    }
+}
+
 /// `REMOVE_MARKER_AT_END_OF_TURN(effect, marker, source)` (player marker).
 pub fn remove_marker_at_end_of_turn(g: &mut Game, e: EffId, marker: crate::markers::MarkerName, source: CardId) {
     if let Effect::EndTurn { p } = *g.e(e) {

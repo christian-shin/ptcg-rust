@@ -1643,6 +1643,7 @@ pub fn devolve_pokemon(g: &mut Game, t: SlotRef, dest: crate::state::ListRef) ->
         let slot = &mut g.st.players[tp].slots[ts as usize];
         crate::engine::game_effect::clear_effects(slot);
         slot.pokemon_played_turn = turn;
+        crate::prefabs::reset_once_per_turn_slot(g, t); // ruling 317
     }
     Ok(())
 }
