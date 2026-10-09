@@ -82,10 +82,19 @@ pub fn rules_zone_of(l: ListRef) -> Option<RulesZone> {
 }
 
 /// Where `card` physically is (a zone, or a staging list) and its rules zone: for a staged card, the zone its
-/// search or look started from (`CardInst::staged_from`).
+/// search or look started from (`CardInst::staged_from`). A staged card is taken from the staging list it was
+/// moved into (`CardInst::staged_in`), not from a card register holding a copy of it (a Pick's selection:
+/// Grimsley's Move would otherwise leave the card in its looked-at cards too).
 pub fn source_of(g: &Game, card: CardId) -> Option<(ListRef, RulesZone)> {
     if let Some(l) = g.st.locate(card) {
         return rules_zone_of(l).map(|z| (l, z));
+    }
+    let inst = &g.st.cards[card as usize];
+    if let Some(i) = inst.staged_in {
+        if g.temps[i as usize].as_slice().contains(&card) {
+            debug_assert!(inst.staged_from.is_some(), "a staged card without its source zone");
+            return Some((ListRef::Temp(i), inst.staged_from.unwrap_or(RulesZone::Deck)));
+        }
     }
     for i in 0..g.temps.len() {
         if g.temps[i].as_slice().contains(&card) {
@@ -710,6 +719,33 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef) -> R {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A card staged in one list and copied into a card register with a lower index is taken from the staging
+    /// list (Grimsley's Move: Scratch(0) holds the looked-at cards, the Pick's register a copy of the chosen one).
+    #[test]
+    fn a_staged_card_leaves_its_staging_list_not_a_copy() {
+        let mut names: Vec<&str> = vec!["Charcadet PFL 19"; 4];
+        names.extend(["Finizen TWM 59"; 4]);
+        names.extend(["Fire Energy MEE 2"; 52]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "hand_to_deck": true, "active": "Charcadet PFL 19"}, "opp": {"reset": true, "active": "Charcadet PFL 19"}})).unwrap();
+        let me = g.st.active_player as usize;
+        let card = g.st.players[me].deck.iter().find(|c| g.st.cdef(*c).is_pokemon()).unwrap();
+        // The copy register is allocated first (the lower index), the staging list second.
+        let copy = g.alloc_temp(&[]);
+        let staging = g.alloc_temp(&[]);
+        g.move_card_to(ListRef::Deck(me as u8), card, staging);
+        g.lst_mut(copy).set_from(&[card]);
+        assert_eq!(source_of(&g, card), Some((staging, RulesZone::Deck)));
+        let s = g.st.players[me].bench.as_slice()[0];
+        assert!(g.st.slot(me, s).cards.is_empty());
+        assert!(enter_play(&mut g, card, SlotRef::new(me, s), EnterMode::Effect, Cause::rule(crate::cause::RuleWhich::Action, me as u8)).unwrap());
+        assert!(!g.lst(staging).contains(&card), "the card left its staging list");
+        assert_eq!(g.st.slot_pokemon(me, s), Some(card));
+    }
 
     #[test]
     fn identity_table_declares_every_fact_once() {

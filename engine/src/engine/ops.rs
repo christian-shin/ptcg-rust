@@ -125,8 +125,13 @@ impl Game {
     /// (`CardInst::staged_from`): an event that takes it from there reports that zone as its source.
     #[inline]
     fn note_staged(&mut self, src: ListRef, c: CardId, dst: ListRef) {
-        if let (ListRef::Temp(_), Some(z)) = (dst, crate::engine::enter::rules_zone_of(src)) {
-            self.st.cards[c as usize].staged_from = Some(z);
+        if let ListRef::Temp(i) = dst {
+            let inst = &mut self.st.cards[c as usize];
+            // From one staging list to another the card keeps the zone it was staged from.
+            if let Some(z) = crate::engine::enter::rules_zone_of(src) {
+                inst.staged_from = Some(z);
+            }
+            inst.staged_in = Some(i);
         }
     }
 

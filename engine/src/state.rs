@@ -322,11 +322,15 @@ pub struct CardInst {
     /// The rules zone the card was in when it was moved into a staging list (`Game::temps`: cards looked at
     /// or searched for), so an event that takes it from there knows its source (`engine::enter::source_of`).
     pub staged_from: Option<crate::spec::event::RulesZone>,
+    /// The staging list the card was last moved into (`ListRef::Temp` index): where it physically is while it
+    /// sits there. A card register can hold a copy of it too (a Pick's selection); `source_of` takes the card
+    /// from this list, never from a copy.
+    pub staged_in: Option<u8>,
 }
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0, attack_shred: 0, lock_stamp: 0, staged_from: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0, attack_shred: 0, lock_stamp: 0, staged_from: None, staged_in: None }
     }
 }
 
