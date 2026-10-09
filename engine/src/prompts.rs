@@ -840,15 +840,18 @@ impl Game {
         if result.len() < o.min as usize || result.len() > o.max as usize {
             return false;
         }
-        let defs: Vec<&CardDef> = result.iter().map(|c| self.st.cdef(*c)).collect();
+        let mut defs: SVec<&CardDef, 120> = SVec::new();
+        for c in result {
+            defs.push(self.st.cdef(*c));
+        }
         if !o.allow_different_super_types {
             if defs.iter().any(|d| d.super_type != defs[0].super_type) {
                 return false;
             }
         }
         if o.different_types {
-            let mut seen = Vec::new();
-            for d in &defs {
+            let mut seen: SVec<CardType, 120> = SVec::new();
+            for d in defs.iter() {
                 let t = choose_cards_card_type(d);
                 if seen.contains(&t) {
                     return false;
@@ -1093,228 +1096,266 @@ impl Game {
         true
     }
 
-    /// Decode + validate for the energy / damage prompt kinds.
-    pub fn decode_extra(&self, pr: &PromptRec, raw: &Value) -> Option<Result<Res, GameError>> {
-        let invalid = GameError("INVALID_PROMPT_RESULT");
-        let p = self.st.player_index_by_id(pr.perspective_id());
-        let arr = match raw.as_array() {
-            Some(a) => a,
-            None => return None,
-        };
-        // Answers longer than the result capacity are rejected, not a panic
-        // (only reachable from agents; no oracle answer comes close, except the
-        // bot's Move damage answers, which are run-length encoded).
-        let cap = match pr.kind {
+    /// The longest answer the energy / damage prompt kinds take: longer ones are rejected, not a panic
+    /// (only reachable from agents; no oracle answer comes close, except the bot's Move damage answers,
+    /// which are run-length encoded).
+    pub(crate) fn extra_cap(kind: &PromptKind) -> usize {
+        match kind {
             PromptKind::MoveEnergy { .. } => 48,
             PromptKind::OrderCards { .. } => 120,
             // Run-length encoded below: only the number of runs is limited.
             PromptKind::MoveDamage { .. } | PromptKind::RemoveDamage { .. } => usize::MAX,
             _ => 16,
+        }
+    }
+
+    /// Decode + validate for the energy / damage prompt kinds.
+    pub fn decode_extra(&self, pr: &PromptRec, raw: &Value) -> Option<Result<Res, GameError>> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let arr = match raw.as_array() {
+            Some(a) => a,
+            None => return None,
         };
-        if arr.len() > cap {
+        if arr.len() > Self::extra_cap(&pr.kind) {
             return Some(Err(invalid));
         }
-        let r = (|| -> Result<Res, GameError> {
-            match pr.kind {
-                PromptKind::AttachEnergy { cards, o, .. } => {
-                    let list = self.prompt_list(cards);
-                    let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
-                    for v in arr {
-                        let to = target_from(v, "to").ok_or(invalid)?;
-                        let i = v.get("index").and_then(|x| x.as_u64()).ok_or(invalid)? as usize;
-                        let c = *list.get(i).ok_or(invalid)?;
-                        // Each card is attached at most once.
-                        if !self.st.cdef(c).is_energy() || o.blocked.contains(&(i as u8)) || out.iter().any(|(_, x)| *x == c) {
-                            return Err(invalid);
-                        }
-                        out.push((to, c));
-                    }
-                    let n = out.len();
-                    if n < o.min as usize || n > o.max as usize {
-                        return Err(invalid);
-                    }
-                    if out.iter().any(|(_, c)| list.iter().position(|x| x == c).map(|i| o.blocked.contains(&(i as u8))).unwrap_or(false)) {
-                        return Err(invalid);
-                    }
-                    if let Some(m) = o.max_per_type {
-                        let mut counts = [0u8; 32];
-                        for (_, c) in out.iter() {
-                            let t = self.st.cdef(*c).provides.first().copied().unwrap_or(0) as usize;
-                            counts[t] += 1;
-                            if counts[t] > m {
-                                return Err(invalid);
-                            }
-                        }
-                    }
-                    if o.same_target && n > 1 {
-                        let t = out.as_slice()[0].0;
-                        if out.iter().any(|(x, _)| !same_t(*x, t)) {
-                            return Err(invalid);
-                        }
-                    }
-                    if let Some(v) = o.valid_card_types {
-                        let ok = out.iter().all(|(_, c)| self.st.cdef(*c).provides.iter().any(|t| v.contains(t)));
-                        if !ok {
-                            return Err(invalid);
-                        }
-                    }
-                    if o.different_types {
-                        let mut seen = Vec::new();
-                        for (_, c) in out.iter() {
-                            let t = self.st.cdef(*c).provides.first().copied().unwrap_or(ct::NONE);
-                            if seen.contains(&t) {
-                                return Err(invalid);
-                            }
-                            seen.push(t);
-                        }
-                    }
-                    if o.different_targets && n > 1 {
-                        for (i, (t, _)) in out.iter().enumerate() {
-                            if out.iter().position(|(x, _)| same_t(*x, *t)) != Some(i) {
-                                return Err(invalid);
-                            }
-                        }
-                    }
-                    Ok(Res::Attach(out))
-                }
-                PromptKind::DiscardEnergy { o, filter, .. } => {
-                    let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
-                    let mut keys: Vec<(u8, u8, u8, usize)> = Vec::new();
-                    for v in arr {
-                        let from = target_from(v, "from").ok_or(invalid)?;
-                        let i = v.get("index").and_then(|x| x.as_u64()).ok_or(invalid)? as usize;
-                        let k = (from.player as u8, from.slot as u8, from.index, i);
-                        if keys.contains(&k) {
-                            return Err(invalid);
-                        }
-                        keys.push(k);
-                        let s = get_target(&self.st, p, from)?;
-                        let tool_mode = is_tool_filter(&filter);
-                        let slot = self.st.slot(s.p as usize, s.s);
-                        let c = *(if tool_mode { slot.tools.as_slice() } else { slot.cards.as_slice() }).get(i).ok_or(invalid)?;
-                        if !tool_mode && !self.st.cdef(c).is_energy() {
-                            return Err(invalid);
-                        }
-                        out.push((from, c));
-                    }
-                    if out.len() < o.min as usize || o.max.map(|m| out.len() > m as usize).unwrap_or(false) {
-                        return Err(invalid);
-                    }
-                    Ok(Res::CardsFrom(out))
-                }
-                PromptKind::MoveEnergy { .. } => {
-                    let mut out: SVec<(CardTarget, CardTarget, CardId), 64> = SVec::new();
-                    for v in arr {
-                        let from = target_from(v, "from").ok_or(invalid)?;
-                        let to = target_from(v, "to").ok_or(invalid)?;
-                        let i = v.get("index").and_then(|x| x.as_u64()).ok_or(invalid)? as usize;
-                        let s = get_target(&self.st, p, from)?;
-                        let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
-                        // Each card is moved at most once.
-                        if out.iter().any(|(_, _, x)| *x == c) {
-                            return Err(invalid);
-                        }
-                        out.push((from, to, c));
-                    }
-                    Ok(Res::Transfers(out))
-                }
-                PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, .. } => {
-                    let mut out: SVec<(CardTarget, i32), 16> = SVec::new();
-                    let mut sum = 0;
-                    for v in arr {
-                        let t = target_from(v, "target").ok_or(invalid)?;
-                        let d = v.get("damage").and_then(|x| x.as_i64()).ok_or(invalid)? as i32;
-                        sum += d;
-                        out.push((t, d));
-                    }
-                    if sum != damage && !allow_partial {
-                        return Err(invalid);
-                    }
-                    let bl = blocked_slots(&self.st, p, blocked.as_slice());
-                    for (t, _) in out.iter() {
-                        let s = get_target(&self.st, p, *t).map_err(|_| invalid)?;
-                        if bl.contains(&s) {
-                            return Err(invalid);
-                        }
-                    }
-                    if player_type != PlayerType::Any && out.iter().any(|(t, _)| t.player != player_type) {
-                        return Err(invalid);
-                    }
-                    if out.iter().any(|(t, _)| !slots.contains(&(t.slot as u8))) {
-                        return Err(invalid);
-                    }
-                    Ok(Res::DamageMap(out))
-                }
-                PromptKind::MoveDamage { .. } | PromptKind::RemoveDamage { .. } => {
-                    let (player_type, slots, o, single_source, single_destination) = match pr.kind {
-                        PromptKind::MoveDamage { player_type, slots, o, single_source, single_destination, .. } => {
-                            (player_type, slots, o, single_source, single_destination)
-                        }
-                        PromptKind::RemoveDamage { player_type, slots, o, same_target, .. } => (player_type, slots, o, false, same_target),
-                        _ => unreachable!(),
-                    };
-                    // Run-length encoded (see `Res::DamageTransfers`); `n` counts the transfers.
-                    let mut out: SVec<(CardTarget, CardTarget, u8), MAX_DAMAGE_RUNS> = SVec::new();
-                    let mut n = 0usize;
-                    for v in arr {
-                        let (f, t) = (target_from(v, "from").ok_or(invalid)?, target_from(v, "to").ok_or(invalid)?);
-                        n += 1;
-                        let extend = matches!(out.as_slice().last(), Some(l) if same_t(l.0, f) && same_t(l.1, t) && l.2 < u8::MAX);
-                        if extend {
-                            out.as_mut_slice().last_mut().unwrap().2 += 1;
-                        } else if out.len() == MAX_DAMAGE_RUNS {
-                            return Err(invalid);
-                        } else {
-                            out.push((f, t, 1));
-                        }
-                    }
-                    if single_source && n > 1 && out.iter().any(|(f, _, _)| !same_t(*f, out.as_slice()[0].0)) {
-                        return Err(invalid);
-                    }
-                    if single_destination && n > 1 && out.iter().any(|(_, t, _)| !same_t(*t, out.as_slice()[0].1)) {
-                        return Err(invalid);
-                    }
-                    if n < o.min as usize || o.max.map(|m| n > m as usize).unwrap_or(false) {
-                        return Err(invalid);
-                    }
-                    let bf = blocked_slots(&self.st, p, o.blocked_from.as_slice());
-                    let bt = blocked_slots(&self.st, p, o.blocked_to.as_slice());
-                    for (f, t, _) in out.iter() {
-                        let fs = get_target(&self.st, p, *f).map_err(|_| invalid)?;
-                        let ts = get_target(&self.st, p, *t).map_err(|_| invalid)?;
-                        if bf.contains(&fs) || bt.contains(&ts) {
-                            return Err(invalid);
-                        }
-                    }
-                    if player_type != PlayerType::Any && out.iter().any(|(f, t, _)| f.player != player_type || t.player != player_type) {
-                        return Err(invalid);
-                    }
-                    if out.iter().any(|(f, t, _)| !slots.contains(&(f.slot as u8)) || !slots.contains(&(t.slot as u8))) {
-                        return Err(invalid);
-                    }
-                    Ok(Res::DamageTransfers(out))
-                }
-                PromptKind::OrderCards { cards, .. } => {
-                    let n = self.prompt_list(cards).len();
-                    let mut v: Vec<u64> = Vec::new();
-                    for x in arr {
-                        v.push(x.as_u64().ok_or(invalid)?);
-                    }
-                    if v.len() != n {
-                        return Err(invalid);
-                    }
-                    // `s.sort()` sorts numbers as strings.
-                    let mut s = v.clone();
-                    s.sort_by_key(|x| x.to_string());
-                    if s.iter().enumerate().any(|(i, x)| *x != i as u64) {
-                        return Err(invalid);
-                    }
-                    Ok(Res::Order(List::from_slice(&v.iter().map(|x| *x as u8).collect::<Vec<_>>())))
-                }
-                _ => Err(invalid),
+        let to_index = |v: &Value| Some((target_from(v, "to")?, v.get("index")?.as_u64()? as usize));
+        let from_index = |v: &Value| Some((target_from(v, "from")?, v.get("index")?.as_u64()? as usize));
+        Some(match pr.kind {
+            PromptKind::AttachEnergy { .. } => self.decode_attach(pr, arr.iter().map(to_index)),
+            PromptKind::DiscardEnergy { .. } => self.decode_discard_energy(pr, arr.iter().map(from_index)),
+            PromptKind::MoveEnergy { .. } => {
+                self.decode_move_energy(pr, arr.iter().map(|v| Some((target_from(v, "from")?, target_from(v, "to")?, v.get("index")?.as_u64()? as usize))))
             }
-        })();
-        Some(r)
+            PromptKind::PutDamage { .. } => {
+                self.decode_put_damage(pr, arr.iter().map(|v| Some((target_from(v, "target")?, v.get("damage")?.as_i64()? as i32))))
+            }
+            PromptKind::MoveDamage { .. } | PromptKind::RemoveDamage { .. } => {
+                self.decode_move_damage(pr, arr.iter().map(|v| Some((target_from(v, "from")?, target_from(v, "to")?))))
+            }
+            PromptKind::OrderCards { .. } => self.decode_order(pr, arr.iter().map(|x| x.as_u64().map(|x| x as usize))),
+            _ => Err(invalid),
+        })
+    }
+
+    /// `AttachEnergyPrompt` answer from (target, index into the offered list) pairs.
+    pub(crate) fn decode_attach(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, usize)>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let PromptKind::AttachEnergy { cards, o, .. } = pr.kind else { return Err(invalid) };
+        let list = self.prompt_list(cards);
+        let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
+        for it in items {
+            let (to, i) = it.ok_or(invalid)?;
+            let c = *list.get(i).ok_or(invalid)?;
+            // Each card is attached at most once.
+            if !self.st.cdef(c).is_energy() || o.blocked.contains(&(i as u8)) || out.iter().any(|(_, x)| *x == c) {
+                return Err(invalid);
+            }
+            out.push((to, c));
+        }
+        let n = out.len();
+        if n < o.min as usize || n > o.max as usize {
+            return Err(invalid);
+        }
+        if out.iter().any(|(_, c)| list.iter().position(|x| x == c).map(|i| o.blocked.contains(&(i as u8))).unwrap_or(false)) {
+            return Err(invalid);
+        }
+        if let Some(m) = o.max_per_type {
+            let mut counts = [0u8; 32];
+            for (_, c) in out.iter() {
+                let t = self.st.cdef(*c).provides.first().copied().unwrap_or(0) as usize;
+                counts[t] += 1;
+                if counts[t] > m {
+                    return Err(invalid);
+                }
+            }
+        }
+        if o.same_target && n > 1 {
+            let t = out.as_slice()[0].0;
+            if out.iter().any(|(x, _)| !same_t(*x, t)) {
+                return Err(invalid);
+            }
+        }
+        if let Some(v) = o.valid_card_types {
+            let ok = out.iter().all(|(_, c)| self.st.cdef(*c).provides.iter().any(|t| v.contains(t)));
+            if !ok {
+                return Err(invalid);
+            }
+        }
+        if o.different_types {
+            let mut seen: SVec<CardType, 64> = SVec::new();
+            for (_, c) in out.iter() {
+                let t = self.st.cdef(*c).provides.first().copied().unwrap_or(ct::NONE);
+                if seen.contains(&t) {
+                    return Err(invalid);
+                }
+                seen.push(t);
+            }
+        }
+        if o.different_targets && n > 1 {
+            for (i, (t, _)) in out.iter().enumerate() {
+                if out.iter().position(|(x, _)| same_t(*x, *t)) != Some(i) {
+                    return Err(invalid);
+                }
+            }
+        }
+        Ok(Res::Attach(out))
+    }
+
+    /// `DiscardEnergyPrompt` answer from (slot, index) pairs.
+    pub(crate) fn decode_discard_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, usize)>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let p = self.st.player_index_by_id(pr.perspective_id());
+        let PromptKind::DiscardEnergy { o, filter, .. } = pr.kind else { return Err(invalid) };
+        let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
+        let mut keys: SVec<(u8, u8, u8, usize), 64> = SVec::new();
+        for it in items {
+            let (from, i) = it.ok_or(invalid)?;
+            let k = (from.player as u8, from.slot as u8, from.index, i);
+            if keys.contains(&k) {
+                return Err(invalid);
+            }
+            keys.push(k);
+            let s = get_target(&self.st, p, from)?;
+            let tool_mode = is_tool_filter(&filter);
+            let slot = self.st.slot(s.p as usize, s.s);
+            let c = *(if tool_mode { slot.tools.as_slice() } else { slot.cards.as_slice() }).get(i).ok_or(invalid)?;
+            if !tool_mode && !self.st.cdef(c).is_energy() {
+                return Err(invalid);
+            }
+            out.push((from, c));
+        }
+        if out.len() < o.min as usize || o.max.map(|m| out.len() > m as usize).unwrap_or(false) {
+            return Err(invalid);
+        }
+        Ok(Res::CardsFrom(out))
+    }
+
+    /// `MoveEnergyPrompt` answer from (from, to, index) triples.
+    pub(crate) fn decode_move_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget, usize)>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let p = self.st.player_index_by_id(pr.perspective_id());
+        let mut out: SVec<(CardTarget, CardTarget, CardId), 64> = SVec::new();
+        for it in items {
+            let (from, to, i) = it.ok_or(invalid)?;
+            let s = get_target(&self.st, p, from)?;
+            let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
+            // Each card is moved at most once.
+            if out.iter().any(|(_, _, x)| *x == c) {
+                return Err(invalid);
+            }
+            out.push((from, to, c));
+        }
+        Ok(Res::Transfers(out))
+    }
+
+    /// `PutDamageCountersPrompt` answer from (target, damage) pairs.
+    pub(crate) fn decode_put_damage(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, i32)>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let p = self.st.player_index_by_id(pr.perspective_id());
+        let PromptKind::PutDamage { player_type, slots, damage, blocked, allow_partial, .. } = pr.kind else { return Err(invalid) };
+        let mut out: SVec<(CardTarget, i32), 16> = SVec::new();
+        let mut sum = 0;
+        for it in items {
+            let (t, d) = it.ok_or(invalid)?;
+            sum += d;
+            out.push((t, d));
+        }
+        if sum != damage && !allow_partial {
+            return Err(invalid);
+        }
+        let bl = blocked_slots(&self.st, p, blocked.as_slice());
+        for (t, _) in out.iter() {
+            let s = get_target(&self.st, p, *t).map_err(|_| invalid)?;
+            if bl.contains(&s) {
+                return Err(invalid);
+            }
+        }
+        if player_type != PlayerType::Any && out.iter().any(|(t, _)| t.player != player_type) {
+            return Err(invalid);
+        }
+        if out.iter().any(|(t, _)| !slots.contains(&(t.slot as u8))) {
+            return Err(invalid);
+        }
+        Ok(Res::DamageMap(out))
+    }
+
+    /// `MoveDamageCountersPrompt` / `RemoveDamageCountersPrompt` answer from one (from, to) pair per counter.
+    pub(crate) fn decode_move_damage(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget)>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let p = self.st.player_index_by_id(pr.perspective_id());
+        let (player_type, slots, o, single_source, single_destination) = match pr.kind {
+            PromptKind::MoveDamage { player_type, slots, o, single_source, single_destination, .. } => {
+                (player_type, slots, o, single_source, single_destination)
+            }
+            PromptKind::RemoveDamage { player_type, slots, o, same_target, .. } => (player_type, slots, o, false, same_target),
+            _ => return Err(invalid),
+        };
+        // Run-length encoded (see `Res::DamageTransfers`); `n` counts the transfers.
+        let mut out: SVec<(CardTarget, CardTarget, u8), MAX_DAMAGE_RUNS> = SVec::new();
+        let mut n = 0usize;
+        for it in items {
+            let (f, t) = it.ok_or(invalid)?;
+            n += 1;
+            let extend = matches!(out.as_slice().last(), Some(l) if same_t(l.0, f) && same_t(l.1, t) && l.2 < u8::MAX);
+            if extend {
+                out.as_mut_slice().last_mut().unwrap().2 += 1;
+            } else if out.len() == MAX_DAMAGE_RUNS {
+                return Err(invalid);
+            } else {
+                out.push((f, t, 1));
+            }
+        }
+        if single_source && n > 1 && out.iter().any(|(f, _, _)| !same_t(*f, out.as_slice()[0].0)) {
+            return Err(invalid);
+        }
+        if single_destination && n > 1 && out.iter().any(|(_, t, _)| !same_t(*t, out.as_slice()[0].1)) {
+            return Err(invalid);
+        }
+        if n < o.min as usize || o.max.map(|m| n > m as usize).unwrap_or(false) {
+            return Err(invalid);
+        }
+        let bf = blocked_slots(&self.st, p, o.blocked_from.as_slice());
+        let bt = blocked_slots(&self.st, p, o.blocked_to.as_slice());
+        for (f, t, _) in out.iter() {
+            let fs = get_target(&self.st, p, *f).map_err(|_| invalid)?;
+            let ts = get_target(&self.st, p, *t).map_err(|_| invalid)?;
+            if bf.contains(&fs) || bt.contains(&ts) {
+                return Err(invalid);
+            }
+        }
+        if player_type != PlayerType::Any && out.iter().any(|(f, t, _)| f.player != player_type || t.player != player_type) {
+            return Err(invalid);
+        }
+        if out.iter().any(|(f, t, _)| !slots.contains(&(f.slot as u8)) || !slots.contains(&(t.slot as u8))) {
+            return Err(invalid);
+        }
+        Ok(Res::DamageTransfers(out))
+    }
+
+    /// `OrderCardsPrompt` answer: the new order as indices into the list (`None`: not an index).
+    pub(crate) fn decode_order(&self, pr: &PromptRec, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
+        let invalid = GameError("INVALID_PROMPT_RESULT");
+        let PromptKind::OrderCards { cards, .. } = pr.kind else { return Err(invalid) };
+        let n = self.prompt_list(cards).len();
+        let mut v: SVec<usize, 120> = SVec::new();
+        for x in idx {
+            v.push(x.ok_or(invalid)?);
+        }
+        if v.len() != n {
+            return Err(invalid);
+        }
+        // The oracle checks `s.sort()` against 0..n, and `sort()` orders numbers as strings: only for up
+        // to ten cards is a permutation sorted into 0..n.
+        let mut seen = [false; 10];
+        if n > 10 || v.iter().any(|x| *x >= n || std::mem::replace(&mut seen[*x], true)) {
+            return Err(invalid);
+        }
+        let mut l: List<120> = List::new();
+        for x in v.iter() {
+            l.push(*x as u8);
+        }
+        Ok(Res::Order(l))
     }
 }
 

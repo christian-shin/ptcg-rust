@@ -89,8 +89,19 @@ pub fn check_hp(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
     if card.is_some() {
         g.st.players[p].slots[s as usize].hp_bonus = 0;
     }
+    // With no card that reacts to CheckHp in the game, no session or trace to feed, the dispatch changes
+    // nothing: the HP is the printed one (`PTCG_VERIFY_CACHE=1` dispatches anyway and compares).
+    let quiet = !g.kinds_present.has(k::CHECK_HP) && g.copy_sessions.is_empty() && !g.trace_effects;
+    let printed = hp_of(g, p, s, card);
+    if quiet && !crate::game::verify_cache() {
+        return Ok(printed);
+    }
     g.run_fx_unit(Effect::CheckHp { p: p as u8, target: SlotRef::new(p, s), card })?;
-    Ok(hp_of(g, p, s, card))
+    let hp = hp_of(g, p, s, card);
+    if quiet {
+        assert_eq!(hp, printed, "CheckHp changed the HP although no card reacts to it");
+    }
+    Ok(hp)
 }
 
 pub fn hp_of(g: &Game, p: usize, s: SlotId, card: Option<CardId>) -> i32 {

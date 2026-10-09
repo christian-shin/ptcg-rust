@@ -205,7 +205,7 @@ pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
     candidates(&mut ctx, &mut cands);
     seen.clear();
     for &action in cands.iter() {
-        if seen.contains(&action) {
+        if seen_before(&seen, action) {
             continue;
         }
         seen.push(action);
@@ -214,6 +214,21 @@ pub fn legal_actions_into(g: &Game, out: &mut Vec<Action>) {
         }
     }
     LEGAL_SCRATCH.with(|s| *s.borrow_mut() = (cands, seen));
+}
+
+/// Whether `action` is among the candidates already seen. The candidates come in runs (the plays of one
+/// hand card, then the other actions), and an action only repeats inside its own run, so only the tail
+/// of `seen` is compared (`PTCG_VERIFY_LEGAL=1` checks this against the full comparison).
+fn seen_before(seen: &[Action], action: Action) -> bool {
+    let tail = |same_run: &dyn Fn(&Action) -> bool| seen.iter().rev().take_while(|x| same_run(x)).any(|x| *x == action);
+    let found = match action {
+        Action::PlayCard { hand_index, .. } => tail(&|x| matches!(x, Action::PlayCard { hand_index: h, .. } if *h == hand_index)),
+        _ => tail(&|x| !matches!(x, Action::PlayCard { .. })),
+    };
+    if verify_legal() {
+        assert_eq!(found, seen.contains(&action), "duplicate candidate scan differs: {:?}", action);
+    }
+    found
 }
 
 /// Legal turn options (deduplicated, in candidate order). Descriptors are built for the legal ones only.

@@ -12,7 +12,7 @@ use crate::options::TurnOption;
 use crate::prompts::*;
 use crate::state::ListRef;
 use crate::types::*;
-use crate::list::CardList;
+use crate::list::{CardList, SVec};
 use serde_json::{json, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -181,6 +181,14 @@ enum Wire {
     Idx(usize),
     Target(CardTarget),
     Bool(bool),
+    /// An Energy card (index) attached to a target.
+    AttachTo(CardTarget, usize),
+    /// A card (index) of a slot.
+    From(CardTarget, usize),
+    /// A card (index) of a slot, moved to a target.
+    FromTo(CardTarget, CardTarget, usize),
+    /// A damage counter moved from one target to another.
+    Pair(CardTarget, CardTarget),
     Json(Value),
 }
 
@@ -190,6 +198,10 @@ impl Wire {
             Wire::Idx(i) => json!(i),
             Wire::Target(t) => target_json(*t),
             Wire::Bool(b) => json!(b),
+            Wire::AttachTo(t, i) => json!({ "to": target_json(*t), "index": i }),
+            Wire::From(f, i) => json!({ "from": target_json(*f), "index": i }),
+            Wire::FromTo(f, t, i) => json!({ "from": target_json(*f), "to": target_json(*t), "index": i }),
+            Wire::Pair(f, t) => json!({ "from": target_json(*f), "to": target_json(*t) }),
             Wire::Json(v) => v.clone(),
         }
     }
@@ -506,7 +518,7 @@ impl Game {
                             serial: Some(c),
                             ..Default::default()
                         });
-                        vals.push(Wire::Json(json!({ "to": target_json(*t), "index": k })));
+                        vals.push(Wire::AttachTo(*t, k));
                     }
                 }
                 mk(SelectType::AttachedCard, SelectContext::AttachTo, o.min as usize, o.max as usize, options, vals, AnswerShape::Array)
@@ -534,11 +546,11 @@ impl Game {
                                 base.in_play_area = Some(if to.slot == SlotType::Active { AreaType::Active as u8 } else { AreaType::Bench as u8 });
                                 base.in_play_index = Some(to.index);
                                 options.push(base.clone());
-                                vals.push(Wire::Json(json!({ "from": target_json(from), "to": target_json(*to), "index": i })));
+                                vals.push(Wire::FromTo(from, *to, i as usize));
                             }
                         } else {
                             options.push(base);
-                            vals.push(Wire::Json(json!({ "from": target_json(from), "index": i })));
+                            vals.push(Wire::From(from, i as usize));
                         }
                     }
                 }
@@ -579,7 +591,7 @@ impl Game {
                             in_play_index: Some(t.index),
                             ..Default::default()
                         });
-                        vals.push(Wire::Json(json!({ "from": target_json(*f), "to": target_json(*t) })));
+                        vals.push(Wire::Pair(*f, *t));
                     }
                 }
                 let max = o.max.map(|m| m as usize).unwrap_or(12);
@@ -798,6 +810,55 @@ impl Game {
             (PromptKind::ChoosePokemon { .. }, AnswerShape::Array) => self.decode_choose_pokemon(pr, chosen.iter().map(target)),
             (PromptKind::ChoosePrize { .. }, AnswerShape::Array) => self.decode_choose_prize(pr, chosen.iter().map(idx)),
             (PromptKind::ChooseEnergy { energy, cost, .. }, AnswerShape::Array) => self.decode_choose_energy(energy, cost, chosen.iter().map(idx)),
+            (PromptKind::AttachEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_attach(
+                pr,
+                chosen.iter().map(|k| match &vals[*k] {
+                    Wire::AttachTo(t, i) => Some((*t, *i)),
+                    _ => None,
+                }),
+            ),
+            (PromptKind::DiscardEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_discard_energy(
+                pr,
+                chosen.iter().map(|k| match &vals[*k] {
+                    Wire::From(f, i) => Some((*f, *i)),
+                    _ => None,
+                }),
+            ),
+            (PromptKind::MoveEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_move_energy(
+                pr,
+                chosen.iter().map(|k| match &vals[*k] {
+                    Wire::FromTo(f, t, i) => Some((*f, *t, *i)),
+                    _ => None,
+                }),
+            ),
+            (PromptKind::MoveDamage { .. } | PromptKind::RemoveDamage { .. }, AnswerShape::Array) => self.decode_move_damage(
+                pr,
+                chosen.iter().map(|k| match &vals[*k] {
+                    Wire::Pair(f, t) => Some((*f, *t)),
+                    _ => None,
+                }),
+            ),
+            (PromptKind::OrderCards { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_order(pr, chosen.iter().map(idx)),
+            (PromptKind::PutDamage { .. }, AnswerShape::Counters(mult)) => {
+                // Picks of one target add up (`raw_answer`).
+                let mut agg: SVec<(usize, i32), 32> = SVec::new();
+                for &k in chosen {
+                    match agg.as_mut_slice().iter_mut().find(|x| x.0 == k) {
+                        Some(x) => x.1 += *mult,
+                        None => agg.push((k, *mult)),
+                    }
+                }
+                if agg.len() > Self::extra_cap(&pr.kind) {
+                    return Err(GameError("INVALID_PROMPT_RESULT"));
+                }
+                self.decode_put_damage(
+                    pr,
+                    agg.iter().map(|(k, d)| match &vals[*k] {
+                        Wire::Target(t) => Some((*t, *d)),
+                        _ => None,
+                    }),
+                )
+            }
             (PromptKind::Confirm, AnswerShape::Single) => match &vals[chosen[0]] {
                 Wire::Bool(b) => Ok(Res::Bool(*b)),
                 _ => Err(GameError("INVALID_PROMPT_RESULT")),
