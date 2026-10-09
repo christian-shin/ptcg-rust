@@ -7,9 +7,8 @@
 //! Resistance on the AttackEffect (phase 4b R7B: it used to add 140 straight
 //! to the Active, skipping the attacker's effects). Cornerstone
 //! Stance checks the source's printed `powers` (any kind) and an ability
-//! probe for this card's owner. The Tera bench protection sits after it and
-//! is skipped by its early returns (this card not the top card, no source
-//! Pokémon, own damage, outside the attack phase, or the ability blocked).
+//! probe for this card's owner. The Tera bench protection is a card rule
+//! (printed above the Ability), so Ability locks don't touch it.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -33,12 +32,8 @@ pub static SPEC: CardSpec = CardSpec {
                 ..PreventDamageSpec::DEFAULT
             }),
         },
-        // Tera: no attack damage while Benched. Today's behavior kept (I-PC1): skipped when the
-        // Ability's own gates are.
-        Passive {
-            origin: RuleSource::Ability,
-            modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }),
-        },
+        // Tera: a card rule, not part of the Ability (it stays while the Ability is locked).
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
     ],
     ..CardSpec::NONE
 };
