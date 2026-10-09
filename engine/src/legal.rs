@@ -213,7 +213,7 @@ impl<'a> Ctx<'a> {
 
     /// [`Ctx::event_locked`] with the lock's code (an error of a read stops the play, as in the trial).
     fn event_lock(&mut self, v: &crate::spec::event::EventView) -> Option<&'static str> {
-        if v.card.is_none() || !passive::may_lock_event(self.g, v.owner as usize, v.kind) {
+        if v.card.is_none() || !passive::may_lock_event(self.g, v.actor() as usize, v.kind) {
             return None;
         }
         crate::derived::event_locked(self.sc(), v).unwrap_or_else(|e| Some(e.0))

@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Psyduck ASC 39",
+   "40 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Psyduck ASC 39",
+   "40 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Vullaby WHT 63",
+  "hand": [
+   "Psyduck ASC 39",
+   "Vullaby WHT 63"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Ekans DRI 112",
+   "Team Rocket's Arbok DRI 113"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Psyduck ASC 39",
+   "is": false,
+   "cite": "id2147 (Potent Glare stops the opponent playing a Pokemon with an Ability from their hand), id25 / id230 (the lock binds the player who plays it)"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Vullaby WHT 63",
+   "cite": "Team Rocket's Arbok Potent Glare (card text: only Pokemon that have an Ability)"
+  }
+ ]
+}

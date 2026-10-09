@@ -234,6 +234,17 @@ impl EventView {
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
         EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false }
     }
+
+    /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or
+    /// Trainer that does it; the player the rule acts for). A lock binds the actor, not the owner of the
+    /// card: "your opponent can't play X from their hand" stops the opponent's own plays, by the rule or by
+    /// their Abilities and attacks (id25, id230), and not a card the lock's owner puts from the opponent's
+    /// hand (id959: putting the opponent's Basic onto their Bench isn't them playing it; Mandibuzz's Look for
+    /// Prey past Team Rocket's Arbok).
+    #[inline]
+    pub const fn actor(&self) -> u8 {
+        self.cause.player
+    }
 }
 
 fn who_is(g: &Game, me: CardId, w: Who, player: u8) -> bool {

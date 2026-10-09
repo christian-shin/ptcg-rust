@@ -387,8 +387,9 @@ pub enum LockWhile {
 /// ([`BlockUseSpec`]) and the locks an attack leaves on the opponent (`Lasting::OppCannotPlay`, stored on the
 /// locked player as a [`crate::state::LastingLock`]) are this one declaration. Two forms, either or both:
 /// - `forbids`: the events it forbids (`Lock { forbids: EventPred }`, events design section 5; events batch 2:
-///   EnterPlay, Evolve, Devolve, Swap), evaluated for the lock's source card; the locked player is the
-///   event's owner (the player whose card / hand it is). `EventPred::NEVER` when it has none.
+///   EnterPlay, Evolve, Devolve, Swap; batch 3 the attaching events), evaluated for the lock's source card; the
+///   locked player is the event's actor (`EventView::actor`, the `Cause` player: id25, id230, id959).
+///   `EventPred::NEVER` when it has none.
 /// - `actions` (the turn actions not yet carried by events: Item, Supporter, Stadium, Tool, Energy, retreat,
 ///   Stadium use), with a predicate over the card the action uses (`card`, minus `except`).
 pub struct LockDecl {
@@ -1917,13 +1918,14 @@ pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[Locke
     g.st.players[p].lasting_locks.iter().flatten().find(|l| l.decl.stops(g, card, actions)).map(|l| l.decl.error)
 }
 
-/// The lock that forbids an event (events batch 2: EnterPlay, Evolve, Devolve, Swap), if any: the error code
-/// of the first one. The locked player is the event's owner (whose card or hand it is). Asked by the event's
-/// routine before the event, and by legality (the same declarations): the locks over events
-/// (`LockDecl::forbids`) in play, in propagation order, then the lasting ones.
+/// The lock that forbids an event, if any: the error code of the first one. The locked player is the event's
+/// actor (`EventView::actor`, the `Cause` player: who does the play, the attach, ...), not the owner of the
+/// card (id25, id230, id959, id20). Asked by the event's routine before the event, and by legality (the same
+/// declarations): the locks over events (`LockDecl::forbids`) in play, in propagation order, then the lasting
+/// ones on the actor.
 pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
     let Some(card) = v.card else { return Ok(None) };
-    let p = v.owner as usize;
+    let p = v.actor() as usize;
     if !may_lock_event(g, p, v.kind) {
         return Ok(None);
     }
@@ -2005,9 +2007,9 @@ pub(crate) fn event_locked_by(g: &mut Game, me: CardId, v: &super::event::EventV
     Ok(None)
 }
 
-/// [`event_locked`] for the locks over events an attack left on the event's owner.
+/// [`event_locked`] for the locks over events an attack left on the event's actor (the locked player).
 pub fn lasting_event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
-    let p = v.owner as usize;
+    let p = v.actor() as usize;
     for i in 0..g.st.players[p].lasting_locks.len() {
         let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
         if !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
@@ -2023,7 +2025,8 @@ pub(crate) fn event_lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b:
         return Ok(None);
     }
     let Some(at) = locate(g, me, origin) else { return Ok(None) };
-    let p = v.owner as usize;
+    // The locked player is the actor (`EventView::actor`).
+    let p = v.actor() as usize;
     let binds = match b.binds {
         Binds::Opponent => p == 1 - at.owner,
         Binds::Owner => p == at.owner,

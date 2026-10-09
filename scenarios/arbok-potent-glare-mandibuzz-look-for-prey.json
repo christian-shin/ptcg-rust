@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Psyduck ASC 39",
+   "40 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Team Rocket's Ekans DRI 112",
+   "4 Team Rocket's Arbok DRI 113",
+   "4 Vullaby WHT 63",
+   "4 Mandibuzz WHT 64",
+   "4 Psyduck ASC 39",
+   "40 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Ekans DRI 112",
+   "Team Rocket's Arbok DRI 113"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Vullaby WHT 63",
+     "Mandibuzz WHT 64"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Vullaby WHT 63",
+  "hand_to_deck": true,
+  "hand": [
+   "Psyduck ASC 39"
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Look for Prey",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "card": "Psyduck ASC 39",
+   "in_play": true,
+   "cite": "id959 (Captivating Poke Puff: the opponent putting your Basic onto your Bench isn't you playing it), id25 / id230 (a hand lock binds the player who plays the card); Potent Glare binds the opponent's own plays only (RULES.md, Locks on playing cards)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "not_contains": [
+    "Psyduck ASC 39"
+   ],
+   "cite": "Mandibuzz Look for Prey (card text)"
+  }
+ ]
+}
