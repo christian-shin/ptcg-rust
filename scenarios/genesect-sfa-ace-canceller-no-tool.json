@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Enriching Energy SSP 191",
+   "4 Genesect SFA 40",
+   "4 Sacred Charm PFL 93",
+   "4 Duraludon PRE 69",
+   "47 Metal Energy MEE 8"
+  ],
+  [
+   "1 Enriching Energy SSP 191",
+   "4 Genesect SFA 40",
+   "4 Sacred Charm PFL 93",
+   "4 Duraludon PRE 69",
+   "47 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Enriching Energy SSP 191"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Genesect SFA 40"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Enriching Energy SSP 191",
+   "on": "active",
+   "is": true,
+   "cite": "Genesect SFA 40 Ace Canceller (card text): only while it has a Pokemon Tool attached"
+  }
+ ]
+}

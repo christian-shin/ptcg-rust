@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Enriching Energy SSP 191",
+   "4 Duraludon PRE 69",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "1 Enriching Energy SSP 191",
+   "4 Duraludon PRE 69",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Enriching Energy SSP 191"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Enriching Energy SSP 191",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 4,
+   "cite": "Enriching Energy SSP 191 (card text): when you attach this card from your hand, draw 4 cards; APR E-07 (the turn's attachment counts)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": [
+    "Enriching Energy SSP 191"
+   ],
+   "cite": "APR C-09"
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Sacred Charm PFL 93",
+   "4 Minccino JTG 125",
+   "2 Frillish WHT 44",
+   "2 Jellicent ex WHT 45",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Sacred Charm PFL 93",
+   "4 Minccino JTG 125",
+   "2 Frillish WHT 44",
+   "2 Jellicent ex WHT 45",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Minccino JTG 125",
+  "hand": [
+   "Sacred Charm PFL 93"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Frillish WHT 44",
+   "Jellicent ex WHT 45"
+  ]
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Sacred Charm PFL 93",
+   "on": "active",
+   "is": false,
+   "cite": "Jellicent ex WHT 45 Oceanic Curse (card text): no Pokemon Tool cards from the hand while it is Active (the Attach event from the hand; id25, id230)"
+  }
+ ]
+}
