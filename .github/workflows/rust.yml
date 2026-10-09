@@ -79,6 +79,31 @@ jobs:
       - name: Scenarios
         run: engine/target/release/scen scenarios --games 8 --quiet --full
 
+  # Fast legality checked against the full trial on every candidate (PTCG_VERIFY_LEGAL=1 panics on a
+  # difference): the guard for legality decided without trials (porting S4 / Phase 5).
+  legal:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bins
+          path: engine/target/release
+      - run: chmod +x engine/target/release/*
+      - name: Verify legality
+        env:
+          PTCG_VERIFY_LEGAL: "1"
+        run: |
+          python3 tools/fuzz.py --games 4000 --seed "${{ needs.build.outputs.seed }}" --start 900000 --out legal-out --full
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legal-failures
+          path: legal-out
+          if-no-files-found: ignore
+
   fuzz:
     needs: build
     runs-on: ubuntu-latest
