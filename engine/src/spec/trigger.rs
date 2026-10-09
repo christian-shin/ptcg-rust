@@ -296,7 +296,8 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
             if t.origin == RuleSource::Energy && crate::prefabs::is_special_energy_blocked(g, pu, me, b.source, false) {
                 return None;
             }
-            Some((pu, None))
+            // The Pokémon it was attached to is the event's slot.
+            Some((pu, Some(b.source.p << 4 | b.source.s)))
         }
         Event::Custom(c) => (c.fires)(g, me, e).map(|p| (p, None)),
         Event::OnCheckup(_) => match *g.e(e) {

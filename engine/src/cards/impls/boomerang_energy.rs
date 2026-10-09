@@ -2,7 +2,8 @@
 //! attack of the Pokémon it is attached to, attach it from the discard pile
 //! to that Pokémon after attacking.
 //!
-//! Twinleaf quirk kept: the card is re-attached to whatever is Active then.
+//! Fixed (phase 4 wave 2, B-PC-7): it is re-attached to the Pokémon it was attached to (the marker
+//! is kept on that Pokémon), if that Pokémon is still in play; nothing otherwise.
 //!
 //! Fixed (phase 4b, R7F-10; ruling 1650): it was re-attached at EndTurn; it is
 //! now re-attached in AfterAttackTriggersEffect, once the attack's effects and the
@@ -24,10 +25,11 @@ const DISCARDED: &str = "BOOMERANG_DISCARDED_MARKER";
 /// Attach this card from the discard pile to the Active Pokémon, once, when it was discarded by
 /// an effect of its Pokémon's attack.
 const REATTACH: &[Step] = &[Step::new(Op::If(IfSpec {
-    cond: Cond::HasMarker { who: Who::Me, name: DISCARDED, from: MarkerFrom::This },
+    cond: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::MarkerFromThis(DISCARDED)),
     yes: &[
-        Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: DISCARDED, from: MarkerFrom::This })),
-        Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, place: Place::AttachTo(MY_ACTIVE), ..MoveSpec::DEFAULT })),
+        // "That Pokémon": the one it was attached to, if it is still in play.
+        Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, place: Place::AttachTo(SlotExpr::Marked(DISCARDED)), ..MoveSpec::DEFAULT })),
+        Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::EveryPokemon(Who::Me), name: DISCARDED, from: MarkerFrom::This })),
     ],
     no: &[],
 }))];
@@ -38,7 +40,8 @@ pub static SPEC: CardSpec = CardSpec {
         Trigger {
             origin: RuleSource::Energy,
             event: Event::OnDiscarded(OnDiscardedSpec {}),
-            steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: DISCARDED, source: RuleSource::Energy }))],
+            // The marker stays on the Pokémon through a switch (a TrainerEffect source marker is kept).
+            steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Slot(SlotExpr::Picked), name: DISCARDED, source: RuleSource::TrainerEffect }))],
         },
         // After the attack's effects (and the Energy choices they ask) are done; the end of the
         // turn is the fallback for a discard no after-attack window followed.
@@ -49,3 +52,78 @@ pub static SPEC: CardSpec = CardSpec {
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
+
+#[cfg(test)]
+mod tests {
+    //! No pool attack discards Boomerang Energy and then moves its Pokémon (Mega Latias ex's Strafe
+    //! doesn't discard; Mega Dragonite ex's Sky Transport is an Ability), so "that Pokémon" is covered
+    //! here: the discard is made by an attack of the Active, the Pokémon then moves or is gone, and the
+    //! card follows the Pokémon (or stays in the discard pile).
+    use crate::effects::*;
+    use crate::game::Game;
+    use crate::list::*;
+    use crate::state::*;
+    use serde_json::json;
+
+    const DURA: &str = "Duraludon PRE 69";
+    const BOOM: &str = "Boomerang Energy TWM 166";
+
+    fn run(after: fn(&mut Game, usize)) -> (Game, usize, CardId) {
+        let mut names: Vec<&str> = vec![BOOM; 4];
+        names.extend([DURA; 4]);
+        names.extend(["Metal Energy MEE 8"; 52]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sc = json!({
+            "me": {"reset": true, "active": DURA, "active_energy": [BOOM], "bench": [{"card": DURA}]},
+            "opp": {"reset": true, "active": DURA}
+        });
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let me = g.st.active_player as usize;
+        let slot = g.st.players[me].active;
+        let card = g.st.slot(me, slot).cards.iter().find(|&c| g.st.cdef(c).name == "Boomerang Energy").unwrap();
+        let source = SlotRef::new(me, slot);
+        let attack = AttackRef { card: g.st.slot_pokemon(me, slot).unwrap(), index: 0 };
+        let atk = g.new_fx(Effect::Attack {
+            p: me as u8,
+            opp: (1 - me) as u8,
+            attack,
+            damage: 0,
+            ignore_weakness: false,
+            ignore_resistance: false,
+            ignore_defender_effects: false,
+            source,
+            barrage_used: false,
+        });
+        let b = AtkBase { attack_effect: atk, player: me as u8, opponent: (1 - me) as u8, attack, source, target: source };
+        let mut cards = SVec::new();
+        cards.push(card);
+        g.run_fx(Effect::DiscardCards { b, cards }).unwrap();
+        assert!(g.st.players[me].discard.contains(card), "discarded");
+        after(&mut g, me);
+        g.run_fx(Effect::AfterAttackTriggers { p: me as u8, opp: (1 - me) as u8, attack }).unwrap();
+        (g, me, card)
+    }
+
+    #[test]
+    fn re_attached_to_the_pokemon_it_came_from_after_it_moves() {
+        let (g, me, card) = run(|g, me| {
+            let bench = g.st.players[me].bench.as_slice()[0];
+            crate::engine::turn::switch_pokemon(g, me, bench).unwrap();
+        });
+        let on_bench = g.st.players[me].bench.as_slice().iter().any(|&s| g.st.slot(me, s).cards.contains(card));
+        assert!(on_bench, "back on the Pokémon that is now Benched");
+        assert!(!g.st.slot(me, g.st.players[me].active).cards.contains(card));
+    }
+
+    #[test]
+    fn nothing_when_that_pokemon_is_gone() {
+        let (g, me, card) = run(|g, me| {
+            let a = g.st.players[me].active;
+            g.st.players[me].slots[a as usize].cards = Default::default();
+        });
+        assert!(g.st.players[me].discard.contains(card), "stays in the discard pile");
+    }
+}

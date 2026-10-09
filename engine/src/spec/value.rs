@@ -47,6 +47,8 @@ pub enum SlotExpr {
     Picked,
     /// The Pokémon the program's last attachment went to (none when nothing was attached).
     Attached,
+    /// The Pokémon in play that carries the marker `name` set by this card (none when it left play).
+    Marked(&'static str),
 }
 
 pub enum Num {
@@ -308,6 +310,19 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
+        }
+        SlotExpr::Marked(name) => {
+            let id = crate::markers::marker_id(name)?;
+            for p in 0..2 {
+                let pl = &g.st.players[p];
+                for s in pl.in_play().iter().copied() {
+                    let sl = &pl.slots[s as usize];
+                    if !sl.cards.is_empty() && sl.marker.has_from(id, me) {
+                        return Some(SlotRef::new(p, s));
+                    }
+                }
+            }
+            None
         }
         SlotExpr::This => {
             for p in 0..2 {
