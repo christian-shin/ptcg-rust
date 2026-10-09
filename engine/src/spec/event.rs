@@ -604,4 +604,17 @@ mod tests {
         assert!(!ev(&HIDE_N_SNEAK, &mut g, slowpoke, &confuse(lisia, SpecialCondition::Confused)), "a Trainer isn't an attack or an Ability");
         assert!(!ev(&HIDE_N_SNEAK, &mut g, slowpoke, &confuse(Cause::attack(0, None, AttackRef { card: 0, index: 0 }), SpecialCondition::Confused)), "its own side's attack");
     }
+
+    /// A CoinFlip has no card: a lock or prevention naming a card (`EventPred::Card`) never matches it, whatever the
+    /// card predicate; its cause's card is matched through `EventPred::Cause`.
+    #[test]
+    fn coin_flip_has_no_card() {
+        let mut g = game();
+        let me = card(&g, "Slowpoke MEP 86", 0);
+        let cause = Cause::new(crate::cause::CauseKind::Trainer, Some(me), 0);
+        let v = crate::engine::condition::coin_view(&g, 0, CoinPurpose::Effect, true, cause);
+        assert_eq!(v.card, None);
+        assert!(!EventPred::Card(Pred::Any).eval(&mut g, me, &v).unwrap());
+        assert!(EventPred::Kind(EventKind::CoinFlip).eval(&mut g, me, &v).unwrap());
+    }
 }

@@ -65,7 +65,6 @@ impl Game {
         nd!(entered_turn, "pokemonPlayedTurn");
         nd!(sleep_flips, "sleepFlips");
         nd!(healed_this_turn, "healedThisTurn");
-        nd!(cannot_be_healed_next_turn, "cannotBeHealedNextTurn");
         nd!(cannot_attack_next_turn, "cannotAttackNextTurn");
         nd!(cannot_attack_next_turn_pending, "cannotAttackNextTurnPending");
         nd!(cannot_retreat_next_turn, "cannotRetreatNextTurn");

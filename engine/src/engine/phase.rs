@@ -376,9 +376,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.cannot_retreat_next_turn = true;
             slot.cannot_retreat_next_turn_pending = false;
         }
-        if slot.cannot_be_healed_next_turn {
-            slot.cannot_be_healed_next_turn = false;
-        }
         slot.blocked_attack_name_next_turn = None;
         if slot.prevent_damage_next_turn_pending {
             slot.prevent_damage_next_turn = true;

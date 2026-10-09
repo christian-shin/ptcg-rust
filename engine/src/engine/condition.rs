@@ -154,14 +154,14 @@ pub fn recover_by_rule(g: &mut Game, target: SlotRef, cause: Cause, keep: &[u8])
 
 /// RemoveCounters (healing): `amount` HP of damage counters come off the Pokémon in `target` (at most its damage:
 /// the event reports what is removed, not what the text asked for). It doesn't happen
-/// when there is nothing to heal (no Pokémon, no damage, no amount), when a lasting effect says the Pokémon can't
-/// be healed (`Slot::cannot_be_healed_next_turn`), or when the event is refused.
+/// when there is nothing to heal (no Pokémon, no damage, no amount) or when the event is refused (a lock, or a
+/// prevention such as Yveltal's Life-Locked: "can't be healed" is a `Prevent` over RemoveCounters).
 pub fn heal(g: &mut Game, target: SlotRef, amount: i32, cause: Cause) -> R<bool> {
     if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
         return Ok(false);
     }
     let slot = g.st.slot(target.p as usize, target.s);
-    if amount <= 0 || slot.damage <= 0 || slot.cannot_be_healed_next_turn {
+    if amount <= 0 || slot.damage <= 0 {
         return Ok(false);
     }
     // The event is the counters actually removed: "heal 60" on a Pokémon with 30 damage removes 30.

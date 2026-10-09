@@ -1941,11 +1941,12 @@ pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[Locke
 /// ones on the actor.
 pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
     // A Pokémon event or an Attach without a card is one whose card isn't chosen yet (legality asks it only with
-    // one); a CoinFlip has none.
+    // one). A CoinFlip has no card (a coin isn't a card): `EventPred::Card(..)` is false on it (`v.card` stays None;
+    // test `coin_flip_has_no_card`); the probe below only orders the lock cards, whatever its card.
     if v.card.is_none() && v.kind != super::event::EventKind::CoinFlip {
         return Ok(None);
     }
-    let card = v.card.unwrap_or(0);
+    let card = v.card.unwrap_or(crate::list::NO_CARD);
     let p = v.actor() as usize;
     if !may_lock_event(g, p, v.kind) {
         return Ok(None);

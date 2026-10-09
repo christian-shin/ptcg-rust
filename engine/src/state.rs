@@ -111,7 +111,6 @@ pub struct Slot {
     /// `attacksThisTurn` (absent until first written).
     pub attacks_this_turn: Option<i32>,
     pub healed_this_turn: bool,
-    pub cannot_be_healed_next_turn: bool,
     pub cannot_attack_next_turn: bool,
     pub cannot_attack_next_turn_pending: bool,
     pub cannot_retreat_next_turn: bool,
@@ -241,7 +240,6 @@ impl Default for Slot {
             board_effect: SVec::new(),
             attacks_this_turn: None,
             healed_this_turn: false,
-            cannot_be_healed_next_turn: false,
             cannot_attack_next_turn: false,
             cannot_attack_next_turn_pending: false,
             cannot_retreat_next_turn: false,
