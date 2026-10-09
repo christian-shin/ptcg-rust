@@ -1,6 +1,7 @@
-//! `PTCG_LEGAL_STATS=1`: how each legality answer was reached (by a rule
-//! check or by a trial on a fork), per action kind, with the illegal trials
-//! counted by error code. Thread-local counters merged into a global on
+//! `PTCG_LEGAL_STATS=1`: how each legality answer was reached (from the declared
+//! checks, or by a trial on a fork: a fallback for what is not declared), per
+//! action kind, with the illegal fallbacks counted by error code and every
+//! fallback by its reason. Thread-local counters merged into a global on
 //! thread exit; the `fuzz` and `scen` binaries print the table at the end.
 
 use std::collections::BTreeMap;
@@ -18,6 +19,8 @@ pub struct Stats {
     /// Per kind: [no-trial legal, no-trial illegal, trial legal, trial illegal].
     pub n: [[u64; 4]; 12],
     pub errs: BTreeMap<(usize, &'static str), u64>,
+    /// Fallbacks by reason (why the declared checks could not answer).
+    pub reasons: BTreeMap<(usize, &'static str), u64>,
 }
 
 impl Stats {
@@ -29,6 +32,9 @@ impl Stats {
         }
         for (key, v) in &o.errs {
             *self.errs.entry(*key).or_default() += v;
+        }
+        for (key, v) in &o.reasons {
+            *self.reasons.entry(*key).or_default() += v;
         }
     }
 }
@@ -63,6 +69,13 @@ pub fn record(kind: usize, trial: bool, legal: bool, err: Option<&'static str>) 
     });
 }
 
+/// Record a fallback (a trial because the declared checks could not answer): `legal` is the trial's answer,
+/// `err` its error code when illegal, `why` the reason.
+pub fn record_fallback(kind: usize, legal: bool, err: Option<&'static str>, why: &'static str) {
+    record(kind, true, legal, err);
+    LOCAL.with(|l| *l.borrow_mut().0.reasons.entry((kind, why)).or_default() += 1);
+}
+
 /// Print the table to stderr (when enabled), after flushing this thread's counters.
 pub fn print_table() {
     if !enabled() {
@@ -74,7 +87,7 @@ pub fn print_table() {
     });
     let g = GLOBAL.lock().unwrap_or_else(|e| e.into_inner()).clone().unwrap_or_default();
     eprintln!("legality stats (answers per action kind)");
-    eprintln!("{:<12} {:>10} {:>10} {:>10} {:>10}   {:>8}", "kind", "rule:legal", "rule:ill", "trial:leg", "trial:ill", "trial%");
+    eprintln!("{:<12} {:>10} {:>10} {:>10} {:>10}   {:>9}", "kind", "decl:legal", "decl:ill", "fback:leg", "fback:ill", "fallback%");
     let mut tot = [0u64; 4];
     for (k, name) in KINDS.iter().enumerate() {
         let n = g.n[k];
@@ -85,14 +98,21 @@ pub fn print_table() {
         for i in 0..4 {
             tot[i] += n[i];
         }
-        eprintln!("{:<12} {:>10} {:>10} {:>10} {:>10}   {:>7.1}%", name, n[0], n[1], n[2], n[3], 100.0 * (n[2] + n[3]) as f64 / all as f64);
+        eprintln!("{:<12} {:>10} {:>10} {:>10} {:>10}   {:>8.1}%", name, n[0], n[1], n[2], n[3], 100.0 * (n[2] + n[3]) as f64 / all as f64);
     }
     let all: u64 = tot.iter().sum();
-    eprintln!("{:<12} {:>10} {:>10} {:>10} {:>10}   {:>7.1}%", "total", tot[0], tot[1], tot[2], tot[3], 100.0 * (tot[2] + tot[3]) as f64 / all.max(1) as f64);
-    eprintln!("illegal trials by error:");
+    eprintln!("{:<12} {:>10} {:>10} {:>10} {:>10}   {:>8.1}%", "total", tot[0], tot[1], tot[2], tot[3], 100.0 * (tot[2] + tot[3]) as f64 / all.max(1) as f64);
+    eprintln!("illegal fallbacks by error:");
     let mut v: Vec<_> = g.errs.iter().collect();
     v.sort_by(|a, b| b.1.cmp(a.1));
     for ((k, e), n) in v {
         eprintln!("  {:<12} {:<34} {:>10}", KINDS[*k], e, n);
     }
+    eprintln!("fallbacks by reason:");
+    let mut v: Vec<_> = g.reasons.iter().collect();
+    v.sort_by(|a, b| b.1.cmp(a.1));
+    for ((k, why), n) in v {
+        eprintln!("  {:<12} {:<52} {:>10}", KINDS[*k], why, n);
+    }
 }
+

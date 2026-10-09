@@ -1,10 +1,10 @@
-//! Turn-level options: structural candidates filtered by trial dispatch on a
-//! clone (cheap: the whole game is `Copy`). Mirrors the oracle's
-//! `turnCandidates` + `legalTurnOptions` exactly, including order.
+//! Turn-level options: structural candidates, each answered from the declared
+//! checks (`legal.rs`); a trial on a copy of the game only for what is not
+//! declared (a counted fallback). Mirrors the oracle's `turnCandidates` +
+//! `legalTurnOptions` exactly, including order.
 
-use crate::effects::*;
-use crate::engine::turn::check_attacks_effect;
 use crate::game::{Action, Game};
+use crate::legal::{legal_fast, Ctx};
 use crate::list::*;
 use crate::prompts::{slot_targets, target_json};
 use crate::types::*;
@@ -51,6 +51,12 @@ pub fn turn_candidates(g: &Game) -> Vec<TurnOption> {
 
 /// Structural candidates for the active player's turn, in oracle order.
 pub fn candidate_actions(g: &Game) -> Vec<Action> {
+    candidates(&mut Ctx::new(g))
+}
+
+/// The candidates, reading the attack list through the decision's context.
+fn candidates(ctx: &mut Ctx) -> Vec<Action> {
+    let g = ctx.g;
     let mut out = Vec::with_capacity(32);
     let p = g.st.active_player as usize;
     let own = slot_targets(&g.st, p, PlayerType::BottomPlayer, &[SlotType::Active as u8, SlotType::Bench as u8]);
@@ -103,8 +109,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
         }
     }
     if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_ATTACKS) || g.st.slot(p, pl.active).tools.len() > 0 {
-        let mut sim = g.fork();
-        if let Ok((Effect::CheckPokemonAttacks { attacks, copied, .. }, _)) = { let e = check_attacks_effect(&sim, p); sim.run_fx(e) } {
+        if let Ok(((attacks, copied), _)) = ctx.attack_list() {
             for a in attacks.iter() {
                 let n = g.st.cdef(a.card).attacks[a.idx()].name;
                 if copied.iter().any(|c| c == a) {
@@ -145,21 +150,7 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
                     pn.push(pw.name);
                 }
             }
-            if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
-                let mut sim = g.fork();
-                let mut powers = SVec::new();
-                for i in 0..g.st.cdef(c).powers.len() {
-                    powers.push(PowerRef { card: c, index: i as u8 });
-                }
-                if let Ok((Effect::CheckPokemonPowers { powers, .. }, _)) = sim.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: c, powers }) {
-                    for r in powers.iter() {
-                        let n = g.st.cdef(r.card).powers[r.index as usize].name;
-                        if !pn.contains(&n) {
-                            pn.push(n);
-                        }
-                    }
-                }
-            }
+            // (The checked power list only removes powers: the printed names are the candidates.)
             js_sort(&mut pn);
             for n in pn {
                 out.push(Action::UseAbility { name: n, target: *t });
@@ -180,34 +171,27 @@ pub fn candidate_actions(g: &Game) -> Vec<Action> {
 
 /// Legal turn options (deduplicated, in candidate order).
 pub fn legal_turn_options(g: &Game) -> Vec<TurnOption> {
-    let mut ctx = Pass::default();
+    let mut ctx = Ctx::new(g);
     let mut seen: Vec<String> = Vec::new();
     let mut out = Vec::new();
-    for c in turn_candidates(g) {
+    for action in candidates(&mut ctx) {
+        let c = TurnOption { desc: describe_action(g, action), action };
         let key = serde_json::to_string(&c.desc).unwrap();
         if seen.contains(&key) {
             continue;
         }
         seen.push(key);
-        if legal_in(g, c.action, &mut ctx) {
+        if legal_in(&mut ctx, c.action) {
             out.push(c);
         }
     }
     out
 }
 
-/// Legality of one turn action: fast answers where they are certain,
-/// otherwise a trial on a copy of the game.
+/// Legality of one turn action: from the declared checks, else a trial on a
+/// copy of the game.
 pub fn is_legal(g: &Game, a: Action) -> bool {
-    legal_in(g, a, &mut Pass::default())
-}
-
-/// What one pass over a decision's candidates learns for the next ones.
-#[derive(Default)]
-struct Pass {
-    /// A retreat failed paying its cost, which doesn't depend on the Benched
-    /// Pokémon chosen: every other retreat fails the same way.
-    retreat_cost_unpaid: bool,
+    legal_in(&mut Ctx::new(g), a)
 }
 
 /// Index into `legal_stats::KINDS`.
@@ -238,88 +222,70 @@ fn stat_kind(g: &Game, a: Action) -> usize {
     }
 }
 
-fn legal_in(g: &Game, a: Action, ctx: &mut Pass) -> bool {
+fn legal_in(ctx: &mut Ctx, a: Action) -> bool {
+    let g = ctx.g;
     let stats = crate::legal_stats::enabled();
     let kind = if stats { stat_kind(g, a) } else { 0 };
-    let fast = match a {
-        // Ending the turn is always possible.
-        Action::Pass => {
+    let answer = match legal_fast(ctx, a) {
+        Some(legal) => {
             if stats {
-                crate::legal_stats::record(kind, false, true, None);
+                crate::legal_stats::record(kind, false, legal, None);
             }
-            true
+            legal
         }
-        Action::Retreat { .. } if ctx.retreat_cost_unpaid => {
-            if stats {
-                crate::legal_stats::record(kind, false, false, None);
-            }
-            false
-        }
-        _ if rejects(g, a) => {
-            if stats {
-                crate::legal_stats::record(kind, false, false, None);
-            }
-            false
-        }
-        _ => match trial(g, a, true) {
+        // Not declared: play it on a copy.
+        None => match trial(g, a, true) {
             Ok(()) => {
                 if stats {
-                    crate::legal_stats::record(kind, true, true, None);
+                    crate::legal_stats::record_fallback(kind, true, None, ctx.why);
                 }
                 true
             }
             Err(e) => {
-                if matches!(a, Action::Retreat { .. }) && e.0 == "NOT_ENOUGH_ENERGY" {
-                    ctx.retreat_cost_unpaid = true;
-                }
                 if stats {
-                    crate::legal_stats::record(kind, true, false, Some(e.0));
+                    crate::legal_stats::record_fallback(kind, false, Some(e.0), ctx.why);
                 }
                 false
             }
         },
     };
     if verify_legal() {
-        assert_eq!(fast, trial(g, a, false).is_ok(), "fast legality differs from the full trial: {:?}", a);
+        let full = trial(g, a, false);
+        assert_eq!(
+            answer,
+            full.is_ok(),
+            "legality differs from the full trial: {:?} (declared answer {}, trial {:?}, fallback reason {:?}) {}",
+            a,
+            answer,
+            full,
+            ctx.why,
+            describe_for_verify(g, a)
+        );
     }
-    fast
+    answer
 }
 
-/// `PTCG_VERIFY_LEGAL=1`: check every fast answer against the full trial.
-fn verify_legal() -> bool {
-    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    *V.get_or_init(|| std::env::var("PTCG_VERIFY_LEGAL").map_or(false, |v| v == "1"))
-}
-
-/// Actions the trial would certainly reject, decided without playing them.
-/// Each check mirrors an unconditional failure of the trial's code path;
-/// `PTCG_VERIFY_LEGAL=1` checks them against the trial.
-fn rejects(g: &Game, a: Action) -> bool {
-    use crate::engine::{play, retreat, turn};
+/// The cards an action involves, for the verification failure message.
+fn describe_for_verify(g: &Game, a: Action) -> String {
     let p = g.st.active_player as usize;
     match a {
         Action::PlayCard { hand_index, target } => {
-            let Some(card) = g.st.players[p].hand.get(hand_index as usize) else { return false };
-            let d = g.st.cdef(card);
-            if d.is_energy() {
-                return turn::can_attach_energy(g, p, target).is_err();
-            }
-            if d.is_pokemon() {
-                let Ok(t) = crate::prompts::get_target(&g.st, p, target) else { return true };
-                return play::can_play_pokemon(g, p, card, t).is_err();
-            }
-            // The turn rules checked before the Trainer's effect is dispatched.
-            match d.trainer_type() {
-                TrainerType::Supporter => turn::can_play_supporter_card(g, p, card).is_err(),
-                TrainerType::Stadium => turn::can_play_stadium_card(g, p, card).is_err(),
-                _ => false,
-            }
+            let c = g.st.players[p].hand.get(hand_index as usize).map(|c| g.st.cdef(c).full_name).unwrap_or("?");
+            format!("[play {} onto {:?}; turn {}]", c, target_json(target), g.st.turn)
         }
-        Action::UseStadium => turn::can_use_stadium(g, p).is_err(),
-        // retreat::reducer: its state checks (card handlers only add blocks).
-        Action::Retreat { bench_index } => retreat::can_retreat(g, p, bench_index, false).is_err(),
-        _ => false,
+        Action::Attack { name, from } => {
+            let c = g.st.active_pokemon(p).map(|c| g.st.cdef(c).full_name).unwrap_or("?");
+            format!("[attack {} {:?} by {}; turn {}]", name, from, c, g.st.turn)
+        }
+        Action::UseAbility { name, target } => format!("[ability {} at {:?}; turn {}]", name, target_json(target), g.st.turn),
+        _ => format!("[turn {}]", g.st.turn),
     }
+}
+
+/// `PTCG_VERIFY_LEGAL=1`: check every answer against the full trial.
+fn verify_legal() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("PTCG_VERIFY_LEGAL").map_or(false, |v| v == "1"))
 }
 
 /// Play the action on a copy; `fast` skips work that can't change the answer.
@@ -359,19 +325,15 @@ fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
 
 /// Legal actions without descriptors (fast path for the select interface).
 pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
-    let mut ctx = Pass::default();
+    let mut ctx = Ctx::new(g);
     let mut out: Vec<TurnOption> = Vec::new();
-    for c in turn_candidates_fast(g) {
+    for c in candidates(&mut ctx) {
         if out.iter().any(|o| o.action == c) {
             continue;
         }
-        if legal_in(g, c, &mut ctx) {
+        if legal_in(&mut ctx, c) {
             out.push(TurnOption { desc: Value::Null, action: c });
         }
     }
     out
-}
-
-fn turn_candidates_fast(g: &Game) -> Vec<Action> {
-    candidate_actions(g)
 }
