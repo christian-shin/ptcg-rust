@@ -115,17 +115,24 @@ jobs:
           (cd golden-dl && grep " $N\.tar" SHA256SUMS | sha256sum -c -)
           mkdir golden && tar -C golden -xf golden-dl/$N.tar.*
           ls golden/traces | wc -l
+      # diff exits non-zero when any game diverges (expected for the rules fixes): the check below decides.
       - name: Replay
         run: |
-          set -o pipefail
-          engine/target/release/diff golden/traces --quiet --threads "$(nproc)" | tee golden-diff.txt
+          engine/target/release/diff golden/traces --quiet --threads "$(nproc)" > golden-diff.txt || true
+          tail -3 golden-diff.txt
       - name: Check against tools/golden-expected.txt
         run: python3 tools/golden_check.py golden-diff.txt
+      - name: Replay under PTCG_VERIFY_CACHE=1
+        run: |
+          PTCG_VERIFY_CACHE=1 engine/target/release/diff golden/traces --quiet --threads "$(nproc)" > golden-diff-verify.txt || true
+          tail -3 golden-diff-verify.txt
+      - name: Check the VERIFY_CACHE replay
+        run: python3 tools/golden_check.py golden-diff-verify.txt
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: golden-diff
-          path: golden-diff.txt
+          path: golden-diff*.txt
           if-no-files-found: ignore
 
   scenarios:

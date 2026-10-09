@@ -16,3 +16,5 @@ g0500011097
 g0500012241
 g0500012537
 g0500019737
+# Grand Tree can no longer evolve an Eevee with Boosted Evolution on the player's first turn (official JP FAQ 2026-10-09)
+g0500013901
