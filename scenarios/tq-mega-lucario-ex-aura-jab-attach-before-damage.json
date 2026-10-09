@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Riolu ASC 112",
+   "4 Mega Lucario ex ASC 113",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Riolu ASC 112",
+   "4 Mega Lucario ex ASC 113",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Riolu ASC 112",
+   "Mega Lucario ex ASC 113"
+  ],
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Riolu ASC 112"
+   }
+  ],
+  "discard": [
+   "3 Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Aura Jab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "AttachEnergy",
+    "Wait"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08; rulings 1553, 1846): the Energy to attach from the discard pile and the Pokemon to attach it to are chosen at step D, before the damage, and attached after it"
+  }
+ ]
+}
