@@ -1,10 +1,9 @@
 //! Slakoth (SSP): Take It Easy — heal 60 damage from this Pokémon. During
 //! your next turn, this Pokémon can't retreat.
 //!
-//! Twinleaf: HEAL_X_DAMAGE_FROM_THIS_POKEMON (a HealTargetEffect on
-//! `player.active`) then BLOCK_SELF_RETREAT (a SelfPreventRetreatEffect whose
-//! target is the attacker since phase 4b, so Mist Energy on the Defending
-//! Pokémon no longer blocks it).
+//! Rule: Take It Easy is a RemoveCounters (heal) of 60 on this Pokémon, caused
+//! by the attack, then a self retreat block whose target is the attacker (so
+//! Mist Energy on the Defending Pokémon doesn't block it).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

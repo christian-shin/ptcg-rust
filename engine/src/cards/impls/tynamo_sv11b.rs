@@ -1,6 +1,6 @@
 //! Tynamo (SV11B): Hold Still — heal 10 damage from this Pokémon.
 //!
-//! Twinleaf: a HealTargetEffect(effect, 10) targeting the player's Active.
+//! Rule: Hold Still is a RemoveCounters (heal) of 10 on the player's Active, caused by the attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

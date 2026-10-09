@@ -2,11 +2,9 @@
 //! Pokémon also does 70 damage to itself; the opponent's Active is now
 //! Paralyzed and Poisoned.
 //!
-//! Twinleaf: the conditions go through two AddSpecialConditionsEffects
-//! (YOUR_OPPPONENTS_ACTIVE_POKEMON_IS_NOW_POISIONED / _PARALYZED), Poison
-//! first. Fixed in phase 4b (R4): they were AddSpecialConditionsPowerEffects
-//! (ADD_POISON / ADD_PARALYZED_TO_PLAYER_ACTIVE), an Ability-style effect that
-//! Mist Energy and effect prevention don't stop.
+//! Rule: the conditions are effects of the attack: GainCondition(Poisoned) then
+//! GainCondition(Paralyzed) on the opponent's Active, each with the attack's
+//! cause, so Mist Energy and effect prevention stop them.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

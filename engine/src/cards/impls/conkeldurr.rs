@@ -2,8 +2,8 @@
 //! Swing — 250; if this Pokémon is affected by a Special Condition, ignore
 //! all Energy in this attack's cost.
 //!
-//! Twinleaf: Tantrum reduces an AddSpecialConditionsEffect on
-//! `player.active`; Gutsy Swing empties the CheckAttackCostEffect cost when
+//! Tantrum's Confusion is a GainCondition(Confused) on this Pokémon with the
+//! attack's cause; Gutsy Swing empties the CheckAttackCostEffect cost when
 //! this card is the player's Active and it has any Special Condition. R7F-11
 //! (rulings 252, 1552): the cost is also marked as set, so an increase (Rillaboom's
 //! Drum Beating, ...) no longer adds a [C] back.

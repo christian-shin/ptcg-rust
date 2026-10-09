@@ -1,6 +1,6 @@
 //! Frogadier (TWM): Numbing Water — flip a coin, if heads the opponent's
-//! Active Pokémon is now Paralyzed (AddSpecialConditionsEffect from the
-//! coin callback).
+//! Active Pokémon is now Paralyzed (a CoinFlip, then on heads a
+//! GainCondition(Paralyzed) with the attack's cause).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Frogadier@TWM",

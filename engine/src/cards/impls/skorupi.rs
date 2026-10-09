@@ -1,7 +1,6 @@
 //! Skorupi (M3 / POR 51): Poison Jab — 20; the opponent's Active is now
-//! Poisoned (YOUR_OPPPONENTS_ACTIVE_POKEMON_IS_NOW_POISIONED: an
-//! AddSpecialConditionsEffect; fixed in phase 4b, R4: it was an Ability-style
-//! AddSpecialConditionsPowerEffect via ADD_POISON_TO_PLAYER_ACTIVE).
+//! Poisoned (a GainCondition(Poisoned) with the attack's cause, so Mist Energy
+//! and effect prevention stop it).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

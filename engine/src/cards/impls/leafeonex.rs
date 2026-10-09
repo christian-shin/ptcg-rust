@@ -4,7 +4,7 @@
 //!
 //! Twinleaf: Verdant Storm counts CheckProvidedEnergyEffect `energyMap`
 //! entries (cards, not provided types) and sets `effect.damage`; Moss
-//! Agate reduces a HealTargetEffect per Benched Pokémon.
+//! Agate is a RemoveCounters (heal) of 100 per Benched Pokémon, caused by the attack.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Leafeonex",

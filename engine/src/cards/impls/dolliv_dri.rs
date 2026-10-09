@@ -1,9 +1,9 @@
 //! Dolliv (DRI): Nutrients — heal 40 damage from 1 of your Pokémon.
 //! Tackle — 40.
 //!
-//! Twinleaf: a non-cancellable ChoosePokemonPrompt over your Active and
-//! Bench (undamaged Pokémon selectable, message CHOOSE_POKEMON_TO_DAMAGE),
-//! then a HealTargetEffect(effect, 40) on the choice.
+//! Rule: a non-cancellable pick over your Active and Bench (undamaged Pokémon
+//! selectable, message CHOOSE_POKEMON_TO_DAMAGE), then a RemoveCounters (heal)
+//! of 40 on the choice, caused by the attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

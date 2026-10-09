@@ -1,7 +1,7 @@
 //! Togetic (SSP / ASC): Drain Kiss - 30; heal 30 damage from this Pokémon.
 //!
-//! Twinleaf: `new HealEffect(player, player.active, 30)` (a HealEffect, not
-//! the attack-side HealTargetEffect).
+//! Rule: Drain Kiss is a RemoveCounters (heal) of 30 on this Pokémon, caused by
+//! the attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

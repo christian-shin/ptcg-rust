@@ -2,7 +2,7 @@
 //! Jungle Whip — 80+; you may put all Energy attached to this Pokémon into
 //! your hand for 80 more damage.
 //!
-//! Twinleaf: HealTargetEffect(20) on the Active; Jungle Whip is a
+//! Rule: Leaf Drain is a RemoveCounters (heal) of 20 on the Active, caused by the attack; Jungle Whip is a
 //! ConfirmPrompt (WANT_TO_USE_ABILITY) whose yes-callback reads
 //! CheckProvidedEnergyEffect on the Active, MOVE_CARDS those cards to the
 //! hand, then adds 80 to the attack's damage.

@@ -2,8 +2,8 @@
 //! Pokémon is now Burned and Confused. Scorching Fire — 120; discard an
 //! Energy from this Pokémon.
 //!
-//! Twinleaf: Cruel Coal reduces an AddSpecialConditionsEffect [BURNED,
-//! CONFUSED]. Scorching Fire: DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(1, {},
+//! Rule: Cruel Coal is two GainConditions (Burned, Confused) with the attack's cause.
+//! Scorching Fire: DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(1, {},
 //! 1): no prompt without Energy on the Active; otherwise a non-cancellable
 //! DiscardEnergyPrompt (min = min(1, available), max = min(1, available)),
 //! then one DiscardCardsEffect per source slot. Shared by Galarian Obstagoon

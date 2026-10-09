@@ -2,9 +2,9 @@
 //! Relentless Punches — 50+, 50 more for each damage counter on the
 //! opponent's Active.
 //!
-//! Twinleaf: Poison Spray uses ADD_POISON_TO_PLAYER_ACTIVE, an
-//! AddSpecialConditionsPowerEffect (not the attack effect), which also sets
-//! the target's poison/burn/sleep/confusion values to the defaults.
+//! Rule: Poison Spray's Poison is an effect of the attack: a
+//! GainCondition(Poisoned) with the attack's cause, so Unaware, Repelling Veil
+//! and Mist-style Energy prevent it.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

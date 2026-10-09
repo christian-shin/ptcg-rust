@@ -1,5 +1,5 @@
 //! Swablu (SSP 148): Disarming Voice — 10; your opponent's Active Pokémon is
-//! now Confused (AddSpecialConditionsEffect).
+//! now Confused (a GainCondition(Confused) with the attack's cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

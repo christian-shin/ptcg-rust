@@ -10,11 +10,11 @@
 //! Froslass's Freezing Shroud, `HasAbility`, the locks. The discard action
 //! (power 0) stays always available and is not an Ability.
 //!
-//! Twinleaf: on its own PlayItemEffect the card reduces a PlayPokemonEffect
-//! into the first empty Bench slot (the item play then continues and finds
-//! the card no longer in hand). In play, its Trainer Ability (a regular
-//! UsePowerEffect path) MOVE_CARDS it to the discard; a RetreatEffect with it
-//! Active throws; AddSpecialConditionsEffects on it are prevented.
+//! Rule: played as a Pokémon, it enters the first empty Bench spot (the item
+//! play then continues and finds the card no longer in hand). Its discard
+//! action moves it to the discard pile; it can't retreat; and it can't be
+//! affected by Special Conditions: a Prevent over GainCondition, whatever the
+//! cause (an attack effect or any other), so the event doesn't happen.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -3,8 +3,8 @@
 //! Pokémon to their other Pokémon in any way you like. Psychic — 10+, 50 more
 //! for each Energy attached to your opponent's Active Pokémon.
 //!
-//! Twinleaf (twilight-masquerade file): Strange Hacking reduces an
-//! AddSpecialConditionsEffect (Confused), builds maxAllowedDamage from a
+//! Strange Hacking's Confusion is a GainCondition(Confused) with the attack's
+//! cause (an attack effect). The attack builds maxAllowedDamage from a
 //! CheckHpEffect per opponent Pokémon and opens a MoveDamagePrompt (opponent's
 //! Active + Bench, cancellable, defaults otherwise); each transfer moves 10
 //! damage directly if the source has at least 10. Psychic counts

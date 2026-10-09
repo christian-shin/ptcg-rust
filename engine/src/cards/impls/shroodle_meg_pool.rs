@@ -1,5 +1,5 @@
 //! Shroodle (MEG 91): Poison Jab — 20; your opponent's Active Pokémon is now
-//! Poisoned (an AddSpecialConditionsEffect [POISONED]).
+//! Poisoned (a GainCondition(Poisoned) with the attack's cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,8 +1,8 @@
 //! Annihilape (SSP): Tantrum — 130; this Pokémon is now Confused. Destined
 //! Fight — both Active Pokémon are Knocked Out.
 //!
-//! Twinleaf (surging-sparks file): Tantrum is ADD_CONFUSION_TO_PLAYER_ACTIVE
-//! (an AddSpecialConditionsPowerEffect on `player.active`); Destined Fight
+//! Tantrum's Confusion is a GainCondition(Confused) on this Pokémon with the
+//! attack's cause (an attack effect, not an Ability's); Destined Fight
 //! reduces KnockOutPlayerEffect on `player.active` (the opponent takes the
 //! Prizes) and then KnockOutOpponentEffect on `opponent.active`.
 use crate::spec::prelude::*;

@@ -3,9 +3,9 @@
 //! Cyclone — 160; move an Energy from this Pokémon to 1 of your Benched
 //! Pokémon.
 //!
-//! Twinleaf quirk kept: the AddSpecialConditionsPowerEffect is built with
-//! the OPPONENT as its player and reduced twice (same effect object, once
-//! before and once after the marker is added). Heat Cyclone's
+//! Rule: Scorching Steam's Burn is an Ability effect: GainCondition(Burned) on
+//! the opponent's Active with the Ability's cause (Ability locks and Prevent
+//! apply). Heat Cyclone's
 //! AttachEnergyPrompt targets your own Benched Pokémon (phase 4b fix: it
 //! used `PlayerType.TOP_PLAYER`, so it offered the opponent's Bench, moved
 //! the Energy there, and got stuck when that Bench was empty).

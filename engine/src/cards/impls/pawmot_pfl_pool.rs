@@ -1,9 +1,9 @@
 //! Pawmot (PFL 34): Voltaic Fist — 130; you may have this Pokémon also do 60
 //! damage to itself and make your opponent's Active Pokémon Paralyzed.
 //!
-//! Twinleaf: CONFIRMATION_PROMPT (WANT_TO_USE_ABILITY); on yes a DealDamageEffect
-//! aimed at the attacking slot, then an AddSpecialConditionsEffect [PARALYZED]
-//! on the opponent's Active.
+//! Rule: a may-choice (WANT_TO_USE_ABILITY); on yes the attacking Pokémon takes
+//! the damage, then GainCondition(Paralyzed) on the opponent's Active with the
+//! attack's cause.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

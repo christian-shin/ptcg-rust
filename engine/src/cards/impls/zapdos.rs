@@ -2,7 +2,8 @@
 //! Pokémon is now Paralyzed. Thunderbolt — 190; discard all Energy from this
 //! Pokémon.
 //!
-//! Twinleaf: the coin callback reduces an AddSpecialConditionsEffect; the
+//! Rule: a CoinFlip; on heads GainCondition(Paralyzed) on the opponent's Active
+//! with the attack's cause; the
 //! discard is one DiscardCardsEffect with every card of the Active's
 //! CheckProvidedEnergy map, aimed at `player.active`.
 //!

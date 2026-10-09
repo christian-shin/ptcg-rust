@@ -1,6 +1,6 @@
 //! Applin (DRI 16): Mini Drain — 10; heal 10 damage from this Pokémon.
 //!
-//! Twinleaf: a HealTargetEffect on `player.active`. Two `Applin` classes
+//! Mini Drain is a RemoveCounters (heal) on this Pokémon, caused by the attack. Two `Applin` classes
 //! exist; this port is bound to DRI.
 use crate::spec::prelude::*;
 

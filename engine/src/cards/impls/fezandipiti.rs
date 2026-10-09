@@ -3,12 +3,10 @@
 //! damage. Energy Feather — 30 damage for each Energy attached to this
 //! Pokémon.
 //!
-//! Twinleaf: Adrena-Pheromone runs on every PutDamageEffect whose target slot
-//! holds this card (not necessarily on top): it needs this card on top and the
-//! attack phase, then IS_ABILITY_BLOCKED and a CheckProvidedEnergyEffect are
-//! both evaluated with the OWNER as `player` (phase 4b: it used to be the
-//! attacker). [D] or a rainbow unit counts. The damage must be positive; a
-//! CoinFlipEffect (owner, no callback) decides.
+//! Rule: Adrena-Pheromone applies to damage from an attack to the slot holding
+//! this card: it needs this card on top and the attack phase, the Ability not
+//! blocked and a [D] (or rainbow) unit provided, both read with the OWNER as
+//! `player`. The damage must be positive; a CoinFlip event (owner) decides.
 //! Energy Feather counts every provided unit on the slot holding this card.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
