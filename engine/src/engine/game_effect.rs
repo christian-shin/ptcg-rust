@@ -1,4 +1,4 @@
-//! `game-effect.ts` (gameReducer) plus ability-lock activation stamps.
+//! `game-effect.ts` (gameReducer).
 
 use crate::effects::*;
 use crate::engine::attack;
@@ -8,33 +8,6 @@ use crate::markers::*;
 use crate::prompts::{Filter, MoveOpts, PromptKind};
 use crate::state::*;
 use crate::types::*;
-
-pub fn stamp_ability_lock_activation(g: &mut Game, p: usize, slot: SlotId, card: CardId) {
-    if !g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock) {
-        return;
-    }
-    g.st.ability_lock_order_counter += 1;
-    g.st.players[p].slots[slot as usize].ability_lock_activation_order = g.st.ability_lock_order_counter;
-}
-
-pub fn clear_ability_lock_activation(g: &mut Game, card: CardId) {
-    if let Some(ListRef::Slot(p, s)) = g.st.locate(card) {
-        g.st.players[p as usize].slots[s as usize].ability_lock_activation_order = 0;
-    }
-}
-
-pub fn stamp_starting_ability_locks(g: &mut Game) {
-    g.st.ability_lock_order_counter += 1;
-    let order = g.st.ability_lock_order_counter;
-    for p in 0..2 {
-        if let Some(c) = g.st.active_pokemon(p) {
-            if g.st.cdef(c).powers.iter().any(|pw| pw.ability_lock) {
-                let a = g.st.players[p].active;
-                g.st.players[p].slots[a as usize].ability_lock_activation_order = order;
-            }
-        }
-    }
-}
 
 pub fn apply_weakness_and_resistance(damage: i32, types: &[CardType], weakness: &[WeaknessV], resistance: &[ResistanceV]) -> i32 {
     let mut multiply = 1;
@@ -498,10 +471,6 @@ fn evolve(g: &mut Game, p: usize, target: SlotRef, card: CardId) -> R {
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
     slot.pokemon_played_turn = turn;
     slot.marker.remove_all_except_trainer_effects();
-    if g.st.players[p].active == target.s && target.p as usize == p {
-        g.st.players[p].slots[target.s as usize].ability_lock_activation_order = 0;
-        stamp_ability_lock_activation(g, p, target.s, card);
-    }
     Ok(())
 }
 

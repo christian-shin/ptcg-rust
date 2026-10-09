@@ -1275,27 +1275,7 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
 
 /// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?
 fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<bool> {
-    let owner = match l.locker {
-        Locker::BenchOfEitherSide => {
-            let mut found = None;
-            for q in 0..2usize {
-                let pl = &g.st.players[q];
-                if pl.bench.iter().any(|b| g.st.slot_pokemon(q, *b) == Some(me)) {
-                    found = Some(q);
-                }
-            }
-            found
-        }
-        Locker::InPlayEitherSide => {
-            let in_play = (0..2usize).any(|q| g.st.players[q].in_play().iter().any(|s| g.st.slot_pokemon(q, *s) == Some(me)));
-            if in_play {
-                g.st.locate(me).and_then(|x| x.owner())
-            } else {
-                None
-            }
-        }
-        Locker::StadiumInPlay => (g.st.stadium_card() == Some(me)).then(|| g.st.locate(me).and_then(|x| x.owner()).unwrap_or_else(|| g.st.owner(me))),
-    };
+    let owner = locker_owner(g, me, l.locker);
     let Some(owner) = owner else { return Ok(false) };
     let slot = match g.st.locate(card) {
         None => return Ok(pred(g, card, &l.missing)),
@@ -1303,6 +1283,10 @@ fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<b
         Some(_) => return Ok(false),
     };
     if !pred(g, card, &l.card) {
+        return Ok(false);
+    }
+    // A lock source's Ability is turned off only by a lock that wins over it.
+    if lock_passives(g, card).next().is_some() && !lock_beats(g, me, card)? {
         return Ok(false);
     }
     match l.probe {
@@ -1940,40 +1924,201 @@ fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 
 // Active-Spot Ability locks (Midnight Fluttering, Initialization)
 
-fn lock_order(g: &Game, c: CardId) -> i32 {
-    match g.st.locate(c) {
-        Some(ListRef::Slot(p, s)) => g.st.slot(p as usize, s).ability_lock_activation_order,
-        _ => 0,
+// ---------------------------------------------------------------------------
+// Precedence between locks (RULES.md, 2026-10-08)
+//
+// A lock source is a card with an Ability-lock passive (Flutter Mane, Iron Thorns ex, Gastrodon, Psyduck,
+// Team Rocket's Watchtower, ...). When lock A turns off the Ability of lock source B:
+// * one-way (B doesn't turn A's Ability off): A wins whatever the order;
+// * mutual: the lock that took hold first wins, decided by the take-hold stamps.
+// A lock takes hold when its conditions are first met while its source has its Ability; its stamp
+// (`CardInst::lock_stamp`) is the next number then, and is cleared when it goes off. Locks taking hold
+// together are stamped with the turn player's first. `lock_sync` keeps the stamps up to date.
+
+/// The Ability-lock passives of a card.
+fn lock_passives(g: &Game, c: CardId) -> impl Iterator<Item = &'static Passive> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives);
+    passives.iter().filter(|p| matches!(p.modifier, Modifier::ActiveLock(_) | Modifier::AbilityLock(_)))
+}
+
+/// Where the lock's source must be for it to hold, and its owner when it is.
+fn lock_position(g: &Game, c: CardId, p: &Passive) -> Option<usize> {
+    match &p.modifier {
+        Modifier::ActiveLock(_) => (0..2usize).find(|q| g.st.active_pokemon(*q) == Some(c)),
+        Modifier::AbilityLock(l) => locker_owner(g, c, l.locker),
+        _ => None,
     }
 }
 
-fn is_turn_players_card(g: &Game, c: CardId) -> bool {
-    match g.st.locate(c).and_then(|l| l.owner()) {
-        Some(o) => g.st.active_player as usize == o,
-        None => false,
+/// The player whose card `me` is where a lock of kind `locker` needs it (a Pokémon in a Bench spot, in play,
+/// the Stadium in play).
+fn locker_owner(g: &Game, me: CardId, locker: Locker) -> Option<usize> {
+    match locker {
+        Locker::BenchOfEitherSide => {
+            let mut found = None;
+            for q in 0..2usize {
+                let pl = &g.st.players[q];
+                if pl.bench.iter().any(|b| g.st.slot_pokemon(q, *b) == Some(me)) {
+                    found = Some(q);
+                }
+            }
+            found
+        }
+        Locker::InPlayEitherSide => {
+            let in_play = (0..2usize).any(|q| g.st.players[q].in_play().iter().any(|s| g.st.slot_pokemon(q, *s) == Some(me)));
+            if in_play {
+                g.st.locate(me).and_then(|x| x.owner())
+            } else {
+                None
+            }
+        }
+        Locker::StadiumInPlay => (g.st.stadium_card() == Some(me)).then(|| g.st.locate(me).and_then(|x| x.owner()).unwrap_or_else(|| g.st.owner(me))),
     }
 }
 
-/// `CAN_SUPPRESS_ABILITY_LOCKER(state, suppressor, target)`.
-fn can_suppress(g: &Game, suppressor: CardId, target: CardId) -> bool {
-    let s = lock_order(g, suppressor);
-    let t = lock_order(g, target);
-    if s == 0 && t == 0 {
-        return is_turn_players_card(g, suppressor);
+/// The Ability of a Pokémon card that a lock would turn off (its first Ability).
+fn first_ability(g: &Game, c: CardId) -> Option<crate::effects::PowerRef> {
+    g.st.cdef(c).powers.iter().position(|pw| pw.power_type == PowerType::Ability as u8).map(|i| crate::effects::PowerRef { card: c, index: i as u8 })
+}
+
+/// Would lock `pa` of `a`, in place, turn off the Ability of lock source `s` where it is now? Position and
+/// coverage only: the lock's own probes aren't run.
+fn lock_covers(g: &mut Game, a: CardId, pa: &Passive, s: CardId) -> R<bool> {
+    let Some(owner) = lock_position(g, a, pa) else { return Ok(false) };
+    let Some(power) = first_ability(g, s) else { return Ok(false) };
+    let slot = match g.st.locate(s) {
+        Some(ListRef::Slot(q, sl)) => SlotRef::new(q as usize, sl),
+        _ => return Ok(false),
+    };
+    match &pa.modifier {
+        Modifier::ActiveLock(l) => {
+            if !active_lock_subject(g, *l, power, false) {
+                return Ok(false);
+            }
+            Ok(match l {
+                ActiveLock::MidnightFluttering => {
+                    // Hide 'n' Sneak takes precedence over Midnight Fluttering.
+                    slot == SlotRef::new(1 - owner, g.st.players[1 - owner].active) && !g.st.cdef(s).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak")
+                }
+                ActiveLock::Initialization => {
+                    let d = g.st.cdef(s);
+                    !d.has_tag(tag::FUTURE) && d.has_rule_box()
+                }
+            })
+        }
+        Modifier::AbilityLock(l) => {
+            if !power_subject(g, &l.powers, power) || !pred(g, s, &l.card) {
+                return Ok(false);
+            }
+            Ok(slot_pred_m(g, a, slot, &l.slot).unwrap_or(false))
+        }
+        _ => Ok(false),
     }
-    if s == 0 {
-        return false;
+}
+
+/// Did lock source `a` take hold before `s`? Stamps decide; with neither stamped (they take hold together) the
+/// turn player's card is first.
+fn lock_earlier(g: &Game, a: CardId, s: CardId) -> bool {
+    let (sa, ss) = (g.st.cards[a as usize].lock_stamp, g.st.cards[s as usize].lock_stamp);
+    match (sa, ss) {
+        (0, 0) => lock_turn_order(g, a) <= lock_turn_order(g, s),
+        (0, _) => false,
+        (_, 0) => true,
+        _ => sa < ss,
     }
-    if t == 0 {
+}
+
+/// Sort key of simultaneous take-holds: the turn player's cards first, then by card.
+fn lock_turn_order(g: &Game, c: CardId) -> (bool, CardId) {
+    let owner = g.st.locate(c).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(c));
+    (owner != g.st.active_player as usize, c)
+}
+
+/// Lock `a` covers lock source `s`: does it win? It does when `s` can't turn `a` off in return, or `a` took
+/// hold first.
+fn lock_beats(g: &mut Game, a: CardId, s: CardId) -> R<bool> {
+    let mut mutual = false;
+    for ps in lock_passives(g, s) {
+        if lock_covers(g, s, ps, a)? {
+            mutual = true;
+            break;
+        }
+    }
+    Ok(!mutual || lock_earlier(g, a, s))
+}
+
+/// Does the source of lock `p` have its Ability (it is in place, `owner`'s)? Probed as the lock itself does.
+/// A Stadium has none to turn off.
+fn lock_has_ability(g: &mut Game, c: CardId, p: &Passive, owner: usize) -> bool {
+    if p.origin != RuleSource::Ability {
         return true;
     }
-    if s < t {
-        return true;
+    let real = |g: &mut Game, index: u8| g.run_fx(Effect::Power { p: owner as u8, power: crate::effects::PowerRef { card: c, index }, card: c, target: None, probe: false }).is_ok();
+    match &p.modifier {
+        Modifier::ActiveLock(_) => real(g, 0),
+        Modifier::AbilityLock(l) => match l.probe {
+            LockerProbe::Generic => !is_ability_blocked(g, owner, c, None),
+            LockerProbe::OwnPower(i) => real(g, i),
+            LockerProbe::StadiumOnSlot => true,
+        },
+        _ => true,
     }
-    if s > t {
-        return false;
+}
+
+/// Keep the take-hold stamps up to date after the board changed: a lock source that holds (in place, its
+/// Ability on) and has no stamp gets the next one, the turn player's first; one that doesn't hold loses its
+/// stamp. Releasing a lock that was turned off can let the other take hold, so it repeats until nothing
+/// changes.
+pub(crate) fn lock_sync(g: &mut Game) {
+    if g.lock_syncing || !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
+        return;
     }
-    is_turn_players_card(g, suppressor)
+    g.lock_syncing = true;
+    for _ in 0..4 {
+        let mut sources: SVec<CardId, 24> = SVec::new();
+        for q in 0..2usize {
+            for s in g.st.players[q].in_play().iter() {
+                if let Some(c) = g.st.slot_pokemon(q, *s) {
+                    sources.push(c);
+                }
+            }
+        }
+        if let Some(c) = g.st.stadium_card() {
+            sources.push(c);
+        }
+        for c in 0..g.st.n_cards {
+            if g.st.cards[c as usize].lock_stamp != 0 && !sources.contains(&c) {
+                sources.push(c);
+            }
+        }
+        let mut changed = false;
+        let mut taking: Vec<CardId> = Vec::new();
+        for c in sources.iter().copied() {
+            let mut holds = false;
+            for p in lock_passives(g, c) {
+                if let Some(owner) = lock_position(g, c, p) {
+                    holds |= lock_has_ability(g, c, p, owner);
+                }
+            }
+            let stamp = g.st.cards[c as usize].lock_stamp;
+            if !holds && stamp != 0 {
+                g.st.cards[c as usize].lock_stamp = 0;
+                changed = true;
+            } else if holds && stamp == 0 {
+                taking.push(c);
+            }
+        }
+        taking.sort_by_key(|c| lock_turn_order(g, *c));
+        for c in taking {
+            g.st.ability_lock_order_counter = g.st.ability_lock_order_counter.saturating_add(1);
+            g.st.cards[c as usize].lock_stamp = g.st.ability_lock_order_counter;
+            changed = true;
+        }
+        if !changed {
+            break;
+        }
+    }
+    g.lock_syncing = false;
 }
 
 /// `IS_POWER_SUBJECT_TO_ABILITY_LOCK` with the lock's options.
@@ -2011,9 +2156,8 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
             if g.st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
                 return Ok(false);
             }
-            // LOCKER_ABILITY_APPLIES
-            let lock_card = g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock);
-            if lock_card && !can_suppress(g, me, card) {
+            // LOCKER_ABILITY_APPLIES: a lock source is turned off only by a lock that wins over it.
+            if lock_passives(g, card).next().is_some() && !lock_beats(g, me, card)? {
                 return Ok(false);
             }
             Ok(g.run_fx(Effect::Power { p: owner as u8, power: own, card: me, target: None, probe: false }).is_ok())
@@ -2033,8 +2177,7 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
             }
             let locker_owner = if g.st.active_pokemon(player) == Some(me) { player } else { 1 - player };
             // LOCKER_ABILITY_APPLIES
-            let lock_card = g.st.cdef(card).powers.iter().any(|pw| pw.ability_lock);
-            if lock_card && !can_suppress(g, me, card) {
+            if lock_passives(g, card).next().is_some() && !lock_beats(g, me, card)? {
                 return Ok(false);
             }
             if g.run_fx(Effect::Power { p: locker_owner as u8, power: own, card: me, target: None, probe: false }).is_err() {
@@ -2383,4 +2526,104 @@ fn shred_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, attacker:
         *ignore_defender_effects = true;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod lock_tests {
+    //! Take-hold stamps and precedence between locks (RULES.md). No two locks in the pool turn each other
+    //! off, so the mutual case is tested on the stamps directly.
+    use super::*;
+    use serde_json::json;
+
+    const FM: &str = "Flutter Mane PRE 43";
+    const IT: &str = "Iron Thorns ex PRE 32";
+    const DURA: &str = "Duraludon PRE 69";
+
+    fn game(sc: serde_json::Value) -> Game {
+        let deck: Vec<u16> = (0..4)
+            .map(|_| FM)
+            .chain((0..4).map(|_| IT))
+            .chain((0..4).map(|_| DURA))
+            .chain((0..48).map(|_| "Metal Energy MEE 8"))
+            .map(|n| crate::carddb::def_by_full_name(n).unwrap())
+            .collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        g
+    }
+
+    fn top(g: &Game, p: usize, bench: Option<usize>) -> CardId {
+        let s = match bench {
+            None => g.st.players[p].active,
+            Some(i) => g.st.players[p].bench.as_slice()[i],
+        };
+        g.st.slot_pokemon(p, s).unwrap()
+    }
+
+    fn stamp(g: &Game, c: CardId) -> u16 {
+        g.st.cards[c as usize].lock_stamp
+    }
+
+    #[test]
+    fn one_way_lock_wins_whatever_the_order() {
+        // Flutter Mane (mine, Active) turns off Iron Thorns ex's Initialization; Initialization can't
+        // touch Flutter Mane (no Rule Box).
+        let g = game(json!({"me": {"reset": true, "active": FM}, "opp": {"reset": true, "active": IT}}));
+        let me = g.st.active_player as usize;
+        assert!(stamp(&g, top(&g, me, None)) > 0, "Flutter Mane holds");
+        assert_eq!(stamp(&g, top(&g, 1 - me, None)), 0, "Iron Thorns ex's lock is off");
+        // The same with the sides swapped: the turn player has Iron Thorns ex.
+        let g = game(json!({"me": {"reset": true, "active": IT}, "opp": {"reset": true, "active": FM}}));
+        let me = g.st.active_player as usize;
+        assert_eq!(stamp(&g, top(&g, me, None)), 0);
+        assert!(stamp(&g, top(&g, 1 - me, None)) > 0);
+    }
+
+    #[test]
+    fn simultaneous_take_hold_is_stamped_turn_player_first_and_stays() {
+        let mut g = game(json!({"me": {"reset": true, "active": FM}, "opp": {"reset": true, "active": FM}}));
+        let me = g.st.active_player as usize;
+        let (a, b) = (top(&g, me, None), top(&g, 1 - me, None));
+        assert_eq!((stamp(&g, a), stamp(&g, b)), (1, 2), "the turn player's lock took hold first");
+        // The turn passes: the order doesn't swap.
+        g.st.active_player = (1 - me) as u8;
+        lock_sync(&mut g);
+        assert_eq!((stamp(&g, a), stamp(&g, b)), (1, 2));
+        assert!(lock_earlier(&g, a, b) && !lock_earlier(&g, b, a));
+    }
+
+    #[test]
+    fn stamps_follow_take_hold_and_release() {
+        // Iron Thorns ex (opp) is Active; Flutter Mane waits on my Bench.
+        let mut g = game(json!({"me": {"reset": true, "active": DURA, "bench": [{"card": FM}]}, "opp": {"reset": true, "active": IT}}));
+        let me = g.st.active_player as usize;
+        let (fm, it) = (top(&g, me, Some(0)), top(&g, 1 - me, None));
+        assert_eq!((stamp(&g, fm), stamp(&g, it)), (0, 1), "Iron Thorns ex holds, Flutter Mane isn't Active");
+        // Flutter Mane comes in: it turns Iron Thorns ex's lock off though that took hold first.
+        let slot = g.st.players[me].bench.as_slice()[0];
+        crate::engine::turn::switch_pokemon_silent(&mut g, me, slot).unwrap();
+        assert_eq!((stamp(&g, fm), stamp(&g, it)), (2, 0));
+        // Flutter Mane leaves: Iron Thorns ex is released and takes hold now.
+        let slot = g.st.players[me].bench.as_slice()[0];
+        crate::engine::turn::switch_pokemon_silent(&mut g, me, slot).unwrap();
+        assert_eq!((stamp(&g, fm), stamp(&g, it)), (0, 3));
+    }
+
+    #[test]
+    fn mutual_locks_the_earlier_stamp_wins() {
+        let mut g = game(json!({"me": {"reset": true, "active": FM}, "opp": {"reset": true, "active": FM}}));
+        let me = g.st.active_player as usize;
+        let (a, b) = (top(&g, me, None), top(&g, 1 - me, None));
+        // Pretend the opponent's lock took hold first, then ours.
+        g.st.cards[a as usize].lock_stamp = 5;
+        g.st.cards[b as usize].lock_stamp = 3;
+        assert!(lock_earlier(&g, b, a) && !lock_earlier(&g, a, b));
+        // A lock that holds beats one that doesn't yet; with neither, the turn player's card is first.
+        g.st.cards[a as usize].lock_stamp = 0;
+        assert!(lock_earlier(&g, b, a) && !lock_earlier(&g, a, b));
+        g.st.cards[b as usize].lock_stamp = 0;
+        assert!(lock_earlier(&g, a, b) && !lock_earlier(&g, b, a));
+    }
 }

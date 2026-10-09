@@ -1,0 +1,73 @@
+{
+ "me": {
+  "reset": true,
+  "active": "Flutter Mane PRE 43",
+  "bench": [
+   {
+    "card": [
+     "Swinub JTG 77",
+     "Piloswine JTG 78",
+     "Mamoswine ex JTG 79"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Iron Thorns ex PRE 32"
+   }
+  ],
+  "hand": [
+   "Switch 30C 127"
+  ]
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "play",
+   "card": "Switch 30C 127"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "me",
+   "legal": "ability",
+   "name": "Mammoth Hauler",
+   "is": true,
+   "cite": "RULES.md precedence rule 2 (one-way: the lock that turns the other off wins whatever the order); id142 / n135"
+  }
+ ],
+ "turn": 2,
+ "decks": [
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Iron Thorns ex PRE 32",
+   "4 Swinub JTG 77",
+   "4 Piloswine JTG 78",
+   "4 Mamoswine ex JTG 79",
+   "4 Duraludon PRE 69",
+   "4 Switch 30C 127",
+   "32 Metal Energy MEE 8"
+  ],
+  [
+   "4 Flutter Mane PRE 43",
+   "4 Iron Thorns ex PRE 32",
+   "4 Swinub JTG 77",
+   "4 Piloswine JTG 78",
+   "4 Mamoswine ex JTG 79",
+   "4 Duraludon PRE 69",
+   "4 Switch 30C 127",
+   "32 Metal Energy MEE 8"
+  ]
+ ]
+}

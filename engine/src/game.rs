@@ -275,6 +275,8 @@ pub struct Game {
     /// Attack choices made at step D, before the damage, by spec cards
     /// (PLAN.md 8.5): read when the effects are carried out after the damage.
     pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
+    /// `lock_sync` is running (it probes Abilities, which must not start another sync).
+    pub lock_syncing: bool,
 }
 
 /// Prompt constructor work Twinleaf does in the prompt class itself:
@@ -326,7 +328,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
+                resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -356,6 +358,7 @@ impl Game {
             ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
+            f!((*d).lock_syncing).write(*lock_syncing);
         }
     }
 }
@@ -387,6 +390,7 @@ impl Game {
             ten_hp_coin: SVec::new(),
             last_attack: None,
             spec_choices: SVec::new(),
+            lock_syncing: false,
         }
     }
 
@@ -1099,18 +1103,6 @@ impl Game {
             let t = self.e(id).type_name();
             EFFECT_TRACE.with(|v| v.borrow_mut().push(t));
         }
-        // Ability-lock activation order bookkeeping.
-        match *self.e(id) {
-            Effect::MovedToActive { p, card } => {
-                let slot = self.st.players[p as usize].active;
-                crate::engine::game_effect::stamp_ability_lock_activation(self, p as usize, slot, card);
-            }
-            Effect::MovedFromActiveToBench { card, .. } => {
-                crate::engine::game_effect::clear_ability_lock_activation(self, card);
-            }
-            _ => {}
-        }
-
         // A copied attack gives the copycat the attack only: source code run for
         // the copycat can't use or probe an Ability of the copycat (store.ts).
         if let Effect::Power { card, .. } = *self.e(id) {
@@ -1155,6 +1147,12 @@ impl Game {
         crate::engine::game_effect::reducer(self, id)?;
         attack::reducer(self, id)?;
         check::check_state_reducer(self, id)?;
+        if matches!(
+            kind,
+            k::MOVE_CARDS | k::PLAY_POKEMON | k::EVOLVE | k::PLAY_POKEMON_FROM_DECK | k::PLAY_POKEMON_FROM_DISCARD | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE
+        ) {
+            crate::spec::passive::lock_sync(self);
+        }
         crate::spec::run::after_enter_play(self, id)?;
         Ok(())
     }

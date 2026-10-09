@@ -234,5 +234,7 @@ pub fn apply(g: &mut Game, sc: &Value) -> Result<(), String> {
         g.st.is_sudden_death = true;
     }
     g.rng.force_coins(&coins);
+    // The edited board is the position the game starts from: its locks take hold now.
+    crate::spec::passive::lock_sync(g);
     Ok(())
 }
