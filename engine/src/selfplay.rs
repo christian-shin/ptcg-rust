@@ -17,6 +17,8 @@ use serde_json::{json, Value};
 use std::collections::VecDeque;
 
 thread_local! {
+    /// Set when the pick mask led to picks that can't be completed (see `random_prompt`).
+    static DEAD_END: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
     /// The decision being resolved (descriptor or answer), reported when the game panics.
     static LAST: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
 }
@@ -295,6 +297,12 @@ fn random_prompt(g: &mut Game, pi: usize, rng: &mut Rng) -> Option<Value> {
                 if picks.is_empty() && !stop {
                     return None;
                 }
+                // The mask offered picks that can't be completed: an interface bug (the RL action mask
+                // has the same dead end). Reported as such rather than submitted.
+                if !stop {
+                    DEAD_END.with(|d| d.set(true));
+                    return None;
+                }
                 break;
             }
             let r = rng.index(choices);
@@ -419,6 +427,9 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     }
                     None => match random_prompt(g, pi, &mut prng) {
                         Some(w) => w,
+                        None if DEAD_END.with(|d| d.replace(false)) => {
+                            return End::Fail(format!("pick mask dead end at step {} (turn {}): {}", step, g.st.turn, g.describe_prompt(&pr)))
+                        }
                         None => return End::Fail(format!("no valid answer at step {} (turn {}): {}", step, g.st.turn, g.describe_prompt(&pr))),
                     },
                 };
