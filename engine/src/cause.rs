@@ -82,6 +82,61 @@ impl Cause {
         Cause { kind: CauseKind::Rule { which }, card: None, player, attack: None }
     }
 
+    /// The cause in 4 bytes, for a program frame that must carry it across a prompt (`CardFrame` has no room for
+    /// the 7-byte struct): kind and rule (6 bits) and player (1 bit), the card, the attack's card and index
+    /// (`0xFF` = none; a game has fewer card instances).
+    pub const fn pack(&self) -> [u8; 4] {
+        let (k, w) = match self.kind {
+            CauseKind::Attack => (0u8, 0u8),
+            CauseKind::Ability => (1, 0),
+            CauseKind::Trainer => (2, 0),
+            CauseKind::Stadium => (3, 0),
+            CauseKind::Tool => (4, 0),
+            CauseKind::Energy => (5, 0),
+            CauseKind::Rule { which } => (6, which as u8),
+            CauseKind::SpecialCondition => (7, 0),
+        };
+        let card = match self.card {
+            Some(c) => c,
+            None => 0xFF,
+        };
+        let (ac, ai) = match self.attack {
+            Some(a) => (a.card, a.index),
+            None => (0xFF, 0xFF),
+        };
+        [k | w << 3 | (self.player & 1) << 7, card, ac, ai]
+    }
+
+    /// The inverse of [`Cause::pack`].
+    pub const fn unpack(b: [u8; 4]) -> Cause {
+        const WHICH: [RuleWhich; 8] = [
+            RuleWhich::TurnDraw,
+            RuleWhich::Retreat,
+            RuleWhich::Promotion,
+            RuleWhich::Checkup,
+            RuleWhich::Setup,
+            RuleWhich::Action,
+            RuleWhich::EndTurn,
+            RuleWhich::CardRule,
+        ];
+        let kind = match b[0] & 7 {
+            0 => CauseKind::Attack,
+            1 => CauseKind::Ability,
+            2 => CauseKind::Trainer,
+            3 => CauseKind::Stadium,
+            4 => CauseKind::Tool,
+            5 => CauseKind::Energy,
+            6 => CauseKind::Rule { which: WHICH[((b[0] >> 3) & 7) as usize] },
+            _ => CauseKind::SpecialCondition,
+        };
+        Cause {
+            kind,
+            card: if b[1] == 0xFF { None } else { Some(b[1]) },
+            player: b[0] >> 7,
+            attack: if b[2] == 0xFF && b[3] == 0xFF { None } else { Some(AttackRef { card: b[2], index: b[3] }) },
+        }
+    }
+
     pub const fn is_attack(&self) -> bool {
         matches!(self.kind, CauseKind::Attack)
     }
@@ -311,5 +366,26 @@ mod tests {
         let c = Cause::rule(RuleWhich::Checkup, 1);
         let d = c;
         assert_eq!(c, d);
+    }
+
+    #[test]
+    fn pack_round_trips() {
+        let whiches = [RuleWhich::TurnDraw, RuleWhich::Retreat, RuleWhich::Promotion, RuleWhich::Checkup, RuleWhich::Setup, RuleWhich::Action, RuleWhich::EndTurn, RuleWhich::CardRule];
+        let mut all = vec![
+            Cause::attack(1, Some(17), AttackRef { card: 17, index: 1 }),
+            Cause::attack(0, None, AttackRef { card: 3, index: 0x90 }),
+            Cause::new(CauseKind::Ability, Some(0), 0),
+            Cause::new(CauseKind::Trainer, Some(119), 1),
+            Cause::new(CauseKind::Stadium, Some(5), 0),
+            Cause::new(CauseKind::Tool, Some(6), 1),
+            Cause::new(CauseKind::Energy, Some(7), 0),
+            Cause::new(CauseKind::SpecialCondition, None, 1),
+        ];
+        for w in whiches {
+            all.push(Cause::rule(w, 1));
+        }
+        for c in all {
+            assert_eq!(Cause::unpack(c.pack()), c);
+        }
     }
 }

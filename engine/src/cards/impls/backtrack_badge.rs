@@ -20,7 +20,8 @@
 //! frame carries its state. Events batch 4 (B4-OLD): the hook stays on the flip requests (`CoinFlipRequest`,
 //! `CoinFlipSequence`), which ask for a flip before its result is used; every flip the Badge makes (its own and
 //! the re-flips) is a CoinFlip event like any other (`cards` = callback and mode, `slot` = the player, `last` = the results, `iter[0]` =
-//! the flip count of a finished sequence).
+//! the flip count of a finished sequence; `attached_to` and `iter[1..4]` = the original request's cause, `Cause::pack`).
+//! The re-flip is the same request flipped again: it has the original request's cause (the attack's), not the Tool's.
 use crate::effects::{k, EffId, Effect};
 use crate::game::{CoinCb, Game, R};
 use crate::list::{CardId, CardList};
@@ -33,6 +34,20 @@ use crate::types::{ct, GamePhase};
 
 /// No callback.
 const NO_CALLBACK: u8 = 0xFF;
+
+/// Keep the original request's cause in the frame across the prompts.
+fn keep_cause(f: &mut Frame, cause: crate::cause::Cause) {
+    let b = cause.pack();
+    f.attached_to = b[0];
+    f.iter[1] = b[1];
+    f.iter[2] = b[2];
+    f.iter[3] = b[3];
+}
+
+/// The original request's cause (`keep_cause`).
+fn kept_cause(f: &Frame) -> crate::cause::Cause {
+    crate::cause::Cause::unpack([f.attached_to, f.iter[1], f.iter[2], f.iter[3]])
+}
 
 /// The Active Pokémon of the attacking player holds this unblocked Tool and is a [C] Pokémon.
 fn can_offer(g: &mut Game, me: CardId, p: usize) -> bool {
@@ -78,6 +93,7 @@ fn exec(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
             crate::engine::condition::coin_flipped(g, p, crate::spec::event::CoinPurpose::Effect, result, cause)?;
             f.cards = [callback.unwrap_or(NO_CALLBACK), result as u8];
             f.slot = p as u8;
+            keep_cause(f, cause);
             let id = g.player_id(p);
             g.prompt(id, "", PromptKind::Wait, f.cont(me, 1));
             Ok(Flow::Suspend)
@@ -87,6 +103,7 @@ fn exec(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
             g.set_prevent(e, true);
             f.cards = [callback, mode];
             f.slot = p as u8;
+            keep_cause(f, cause);
             g.coin_callbacks.push(CoinCb::SequenceCard { card: me, frame: f.frame_at(10) });
             let k2 = (g.coin_callbacks.len() - 1) as u8;
             g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k2, skip_reflip_stadium: true, skip_reflip_tool: true, cause })?;
@@ -117,7 +134,7 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
                 return Ok(Flow::Next);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx_unit(Effect::CoinFlipRequest { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause: f.cause })?;
+            g.run_fx_unit(Effect::CoinFlipRequest { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause: kept_cause(f) })?;
             Ok(Flow::Next)
         }
         // Sequence finished (the core passes the results and the flip count).
@@ -137,7 +154,7 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
                 return finish(g, f);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true, cause: f.cause })?;
+            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true, cause: kept_cause(f) })?;
             Ok(Flow::Next)
         }
         _ => Ok(Flow::Next),
