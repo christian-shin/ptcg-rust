@@ -3,10 +3,8 @@
 //! then shuffle. Wonder Cotton — your opponent reveals their hand; 50
 //! damage for each Trainer card there.
 //!
-//! Twinleaf quirks kept: an empty deck skips Energy Gift; the generator is
-//! resumed inside the transfer loop, so with no transfer the deck is never
-//! shuffled, and otherwise the ShuffleDeckPrompt (no wait) is created after
-//! the first MOVE_CARDS (the rest follow before it resolves). Wonder Cotton
+//! An empty deck skips Energy Gift; after a search of a nonempty deck the deck
+//! is shuffled even when no Energy is chosen (ruling 2303). Wonder Cotton
 //! always shows the opponent's hand (even when empty) and sets
 //! `effect.damage` when the prompt resolves.
 use crate::spec::prelude::*;
@@ -36,8 +34,8 @@ pub static SPEC: CardSpec = CardSpec {
                         route: AttachRoute::Move,
                         none_shuffles: false,
                      different_types: false, })),
-                    // With nothing attached the deck is not shuffled (Twinleaf).
-                    Step::new(Op::If(IfSpec { cond: Cond::Slot(SlotExpr::Attached, SlotPred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
+                    // Then shuffle, even when no Energy was chosen (ruling 2303).
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                 ],
                 no: &[],
             }))],
