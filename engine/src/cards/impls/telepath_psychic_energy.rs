@@ -2,8 +2,8 @@
 //! When attached from your hand to a [P] Pokémon, search your deck for up to
 //! 2 Basic [P] Pokémon and put them onto your Bench, then shuffle.
 //!
-//! Twinleaf reacts to every AttachEnergyEffect of this card (not only from
-//! the hand); the type check runs before the card is attached. Phase 4b: the search
+//! Only an attach from the hand triggers it; the type check runs before the
+//! card is attached. Phase 4b: the search
 //! always happens when the deck is not empty (it used to be skipped, without a
 //! shuffle, when the deck held no Basic [P] Pokémon).
 use crate::spec::prelude::*;
@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // When attached to a [P] Pokémon, search your deck for up to 2 Basic [P] Pokémon and put them onto your Bench, then shuffle.
     triggers: &[Trigger {
         origin: RuleSource::Energy,
-        event: Event::OnAttach(OnAttachSpec {}),
+        event: Event::OnAttach(OnAttachSpec { from_hand: true }),
         steps: &[Step::new(Op::If(IfSpec {
             cond: Cond::All(&[Cond::Slot(SlotExpr::Picked, SlotPred::TypeIs(ct::PSYCHIC)), Cond::BenchSpace(Who::Me), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)]),
             yes: &[
