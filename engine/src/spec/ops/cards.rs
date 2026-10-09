@@ -470,7 +470,7 @@ fn hand_len_without(g: &Game, p: usize, me: CardId) -> i32 {
 }
 
 fn zone_is_unset(f: &Frame, z: ZoneRef) -> bool {
-    matches!(z.1, Zone::Scratch(r) if f.cards[r as usize] == NONE) || (matches!(z.1, Zone::Attached(SlotExpr::Picked) | Zone::AttachedEnergy(SlotExpr::Picked)) && f.slot == NONE)
+    matches!(z.1, Zone::Scratch(r) if f.cards[r as usize] == NONE) || (matches!(z.1, Zone::Attached(SlotExpr::Picked) | Zone::AttachedEnergy(SlotExpr::Picked) | Zone::Tools(SlotExpr::Picked)) && f.slot == NONE)
 }
 
 /// The cards of a zone in list order; the resolving card is never part of a hand.
@@ -875,7 +875,7 @@ fn ask_pick(g: &mut Game, me: CardId, f: &Frame, pick: &PickSpec, max_cap: i32, 
         }
     }
     // A hand's prompt lists it without the resolving card.
-    let list = if pick.from.1 == Zone::Hand && !f.via_attack && g.lst(zone_ref(f, pick.from)).contains(&me) {
+    let list = if matches!(pick.from.1, Zone::Tools(_)) || (pick.from.1 == Zone::Hand && !f.via_attack && g.lst(zone_ref(f, pick.from)).contains(&me)) {
         g.alloc_temp(&cards)
     } else {
         match zone_list(g, me, f, pick.from, false) {

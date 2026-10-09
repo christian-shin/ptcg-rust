@@ -7,8 +7,7 @@
 //! counts taken when the card was played (the Special Energy blocked list is
 //! taken after the energy discard). After the chosen action queues its
 //! prompt (or discards the Stadium), the card moves supporter→discard.
-//! The multi-tool branch chooses from `cardList.cards`, where Tools never
-//! are.
+//! Spec: with several Tools on the Pokémon, one Tool is chosen and only it is discarded.
 use crate::spec::prelude::*;
 
 const HAND: ZoneRef = ZoneRef(Who::Me, Zone::Hand);
@@ -20,6 +19,7 @@ const HAS_TOOL: Cond = Cond::AnySlot(OPP_POKEMON, SlotPred::AnyTool(Pred::Any));
 const HAS_SPECIAL: Cond = Cond::AnySlot(OPP_POKEMON, SlotPred::HasSpecialEnergy);
 const STADIUM_IN_PLAY: Cond = Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]);
 const ATTACHED: ZoneRef = ZoneRef(Who::Opp, Zone::Attached(SlotExpr::Picked));
+const TOOLS: ZoneRef = ZoneRef(Who::Opp, Zone::Tools(SlotExpr::Picked));
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Blowtorch",
@@ -44,12 +44,9 @@ pub static SPEC: CardSpec = CardSpec {
                                 among: SlotSel::Filtered(&OPP_POKEMON, SlotPred::AnyTool(Pred::Any)),
                                 msg: "CHOOSE_POKEMON_TO_DISCARD_CARDS",
                             })),
-                            Step::new(Op::Move(MoveSpec {
-                                from: ATTACHED,
-                                to: ZoneRef(Who::Opp, Zone::Discard),
-                                cards: CardSel::Tools(SlotExpr::Picked),
-                                ..MoveSpec::DEFAULT
-                            })),
+                            // One Tool of the Pokémon, chosen when it has several.
+                            Step::new(Op::Pick(PickSpec { from: TOOLS, predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
+                            Step::new(Op::Move(MoveSpec { from: TOOLS, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
                         ],
                     },
                     ChoiceBranch {
