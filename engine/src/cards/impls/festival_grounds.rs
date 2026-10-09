@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             origin: RuleSource::Stadium,
             modifier: Modifier::ConditionImmunity(ConditionImmunitySpec { conds: &[], subject: SlotPred::HasEnergy, prevent: true, sweep: true }),
         },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
     ],
     ..CardSpec::NONE
 };

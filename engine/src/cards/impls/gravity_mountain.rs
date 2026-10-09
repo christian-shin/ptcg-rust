@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
             origin: RuleSource::Stadium,
             modifier: Modifier::HpMod(HpModSpec { amount: -30, subject: SlotPred::StageIs(Stage::Stage2), guard: Cond::True }),
         },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec { what: BlockWhat::UseStadium }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
     ],
     ..CardSpec::NONE
 };

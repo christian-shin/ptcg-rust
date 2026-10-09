@@ -68,6 +68,21 @@ and simultaneous take-holds are stamped with the turn player's first.
   from the hand.
 - Locks are declared in the card specs as predicates over the card (`Pred`),
   not as card-category bitmasks.
+  A lock (`BlockUse`) declares whom it binds (opponent / owner / both), the
+  actions it stops (play Item / Supporter / Stadium, attach Tool / Energy from
+  the hand, play a Pokémon, evolve from the hand, retreat, use the Stadium), a
+  card predicate and an `except` predicate, and the source's conditions
+  (Active, has a Tool, the card is the source itself). `play_locked` in
+  `spec/passive.rs` is the one query: the passive's handler (execution) and
+  legality both call it. Locks that last (an attack's "can't play Item cards
+  next turn": Budew, Frillish, Galvantula ex, Scream Tail ex, Chi-Yu,
+  Bronzong) are player flags, not declared locks.
+- Jellicent ex's "Item cards or Pokémon Tool cards from their hand" stops a
+  Tool attached from the hand only; a Tool put on by an effect from another
+  zone isn't stopped. Team Rocket's Arbok's "any Pokémon that has an Ability
+  from their hand" also stops a Fossil with an Ability (Antique Root Fossil),
+  which is played as a Pokémon. Whether it stops Rare Candy is not decided (no
+  ruling): it doesn't today.
 
 ## On-play Abilities (2026-10-08)
 

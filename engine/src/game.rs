@@ -1004,7 +1004,7 @@ impl Game {
 
     /// Cards with a handler for this effect kind, in Twinleaf's
     /// `propagateEffect` order (zone order, then stable sort by rank).
-    fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
+    pub(crate) fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
