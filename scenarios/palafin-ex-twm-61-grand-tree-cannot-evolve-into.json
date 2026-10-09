@@ -1,0 +1,40 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Finizen TWM 59",
+   "4 Palafin ex TWM 61",
+   "1 Grand Tree SCR 136",
+   "51 Water Energy MEE 3"
+  ],
+  [
+   "4 Finizen TWM 59",
+   "4 Palafin ex TWM 61",
+   "1 Grand Tree SCR 136",
+   "51 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Finizen TWM 59",
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Finizen TWM 59"
+ },
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Finizen TWM 59",
+   "cite": "Palafin ex Hero's Spirit (printed: put into play only with the effect of Palafin's Zero to Hero) and RULES.md 'Evolution timing': locked against every EnterPlay and Evolve of the card, Grand Tree included; the only Stage 1 in the deck is Palafin ex, so Finizen stays"
+  }
+ ],
+ "answers": [
+  {
+   "a": "stadium"
+  }
+ ]
+}
