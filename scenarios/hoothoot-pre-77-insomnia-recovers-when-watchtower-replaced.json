@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Hoothoot PRE 77", "4 Team Rocket's Watchtower ASC 210", "4 Jamming Tower ASC 261", "48 Grass Energy MEE 1"],
+  ["4 Hoothoot PRE 77", "4 Team Rocket's Watchtower ASC 210", "4 Jamming Tower ASC 261", "48 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Hoothoot PRE 77", "active_conditions": ["ASLEEP"], "stadium": "Team Rocket's Watchtower ASC 210", "hand_to_deck": true, "hand": ["Jamming Tower ASC 261"]},
+ "opp": {"reset": true, "active": "Hoothoot PRE 77"},
+ "answers": [{"a": "play", "card": "Jamming Tower ASC 261"}, {"a": "pass"}],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "card": "Hoothoot PRE 77", "conditions": [], "cite": "id289 (a Pokemon already affected when its protection comes into force recovers): Insomnia (\"This Pokemon can't be Asleep\") was off under Team Rocket's Watchtower; once the Stadium is replaced, Hoothoot recovers from Sleep"}
+ ]
+}

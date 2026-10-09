@@ -353,6 +353,27 @@ impl EventPred {
         matches!(self, EventPred::Any(ps) if ps.is_empty())
     }
 
+    /// Does the predicate depend on what causes the event (`Cause`, or the declaring card's role, which can be the
+    /// cause's card)? "Can't be Confused" doesn't; "prevent all effects of attacks used by your opponent's Pokémon"
+    /// does.
+    pub const fn reads_cause(&self) -> bool {
+        match self {
+            EventPred::Cause(_) | EventPred::This(_) => true,
+            EventPred::All(ps) | EventPred::Any(ps) => {
+                let mut i = 0;
+                while i < ps.len() {
+                    if ps[i].reads_cause() {
+                        return true;
+                    }
+                    i += 1;
+                }
+                false
+            }
+            EventPred::Not(p) => p.reads_cause(),
+            _ => false,
+        }
+    }
+
     /// The effect kinds whose events can match: the kinds the predicate names, or every event kind with an
     /// effect where it names none. The declaring card's dispatch mask.
     pub const fn effect_kinds(&self) -> KindMask {

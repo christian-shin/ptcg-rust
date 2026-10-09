@@ -358,6 +358,10 @@ const fn prevent_kinds(p: &PreventSpec) -> KindMask {
     if m.intersects(super::event::CONDITION_EVENT_KINDS) {
         m = crate::spec::with(m, crate::effects::k::DECLARES_CONDITION_PREVENT);
     }
+    if prevention_recovers(p) {
+        // The recovery while the protection is in force (`recover_protected`), at the table-state check.
+        m = crate::spec::with(m, crate::effects::k::CHECK_TABLE_STATE);
+    }
     if m.intersects(super::event::HEAL_EVENT_KINDS) {
         m = crate::spec::with(m, crate::effects::k::DECLARES_HEAL_PREVENT);
     }
@@ -1554,7 +1558,42 @@ pub const DAMP: AbilityLockSpec = AbilityLockSpec {
 // ---------------------------------------------------------------------------
 // Prevent
 
+/// Does the prevention make an affected Pokémon recover? A Pokémon that "can't be affected by Special Conditions" /
+/// "can't be <condition>", whatever the cause, can't stay affected: one that already is when the protection comes
+/// into force (its Ability no longer blocked, a lock gone, the card entering play, the Stadium put into play)
+/// recovers (id289: Virizion-EX's Verdant Wind removes the Special Conditions of a Pokémon affected when the
+/// protection starts; Festival Grounds and Bubbly Water Energy print it). A prevention that depends on the cause
+/// ("effects of attacks used by your opponent's Pokémon": Mist Energy, "Existing effects are not removed") doesn't.
+const fn prevention_recovers(p: &PreventSpec) -> bool {
+    !p.from.is_never() && p.from.effect_kinds().has(crate::effects::k::GAIN_CONDITION) && !p.from.reads_cause()
+}
+
+/// The recovery of [`prevention_recovers`], at the table-state check (where `Modifier::Recover` runs): each Pokémon
+/// the declaration protects from a condition it has recovers from it (RemoveCondition by the protecting card).
+fn recover_protected(g: &mut Game, me: CardId, origin: RuleSource, p: &PreventSpec) -> R {
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    let cause = crate::cause::Cause::of_origin(origin, me, at.owner as u8);
+    for q in 0..2usize {
+        for (s, _, _) in for_each_pokemon(g, q, PlayerType::BottomPlayer).iter().copied() {
+            let t = SlotRef::new(q, s);
+            let conds = g.st.slot(q, s).special_conditions;
+            for c in conds.iter().copied() {
+                let x = SpecialCondition::from_u8(c);
+                let v = crate::engine::condition::condition_view(g, super::event::EventKind::GainCondition, t, x, cause);
+                if !p.from.eval(g, me, &v)? || !slot_pred_m(g, me, t, &p.protects)? || blocked(g, me, origin, at, Some(t)) {
+                    continue;
+                }
+                crate::engine::condition::remove(g, t, x, cause)?;
+            }
+        }
+    }
+    Ok(())
+}
+
 fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
+    if matches!(*g.e(e), Effect::CheckTableState { .. }) && prevention_recovers(p) {
+        return recover_protected(g, me, origin, p);
+    }
     // A declaration over events is read by the event's routine (`event_prevented`), not here.
     if matches!(p.what, PreventWhat::None) {
         return Ok(());
@@ -3753,6 +3792,32 @@ mod prevent_marker_tests {
         }
         // Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal.
         assert_eq!(n, 7);
+    }
+
+    /// The preventions that make an affected Pokémon recover when they come into force (id289): the cause-free ones
+    /// over GainCondition (Slowpoke, Hoothoot, the Fossils, Bubbly Water Energy, Festival Grounds), not Yveltal's
+    /// "can't be healed", and not one that depends on the cause.
+    #[test]
+    fn which_preventions_recover() {
+        let mut recovering: Vec<&str> = Vec::new();
+        for s in crate::cards::registry::SPECS.iter() {
+            for p in s.passives {
+                if let Modifier::Prevent(pr) = &p.modifier {
+                    if prevention_recovers(pr) {
+                        assert!(s.card_impl().mask.has(crate::effects::k::CHECK_TABLE_STATE), "{}: the recovery is never dispatched", s.class);
+                        recovering.push(s.class);
+                    }
+                }
+            }
+        }
+        recovering.sort();
+        assert_eq!(recovering.len(), 6, "{recovering:?}");
+        assert!(!recovering.iter().any(|c| c.starts_with("Yveltal")));
+        let by_attacks = PreventSpec::on(
+            SlotPred::Holder,
+            EventPred::All(&[EventPred::Kind(E::GainCondition), EventPred::Cause(crate::spec::event::CausePred::Kind(crate::cause::CauseKind::Attack))]),
+        );
+        assert!(!prevention_recovers(&by_attacks), "a prevention that depends on the cause removes no existing effect");
     }
 }
 

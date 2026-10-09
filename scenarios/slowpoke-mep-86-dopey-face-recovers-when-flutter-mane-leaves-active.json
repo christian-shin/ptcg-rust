@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Flutter Mane PRE 43", "4 Slowpoke MEP 86", "52 Psychic Energy MEE 5"],
+  ["4 Flutter Mane PRE 43", "4 Slowpoke MEP 86", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Flutter Mane PRE 43", "active_energy": ["Psychic Energy MEE 5"], "bench": [{"card": "Slowpoke MEP 86"}]},
+ "opp": {"reset": true, "active": "Slowpoke MEP 86", "active_conditions": ["CONFUSED"]},
+ "answers": [{"a": "retreat", "bench": 0}, {"a": "pass"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Slowpoke MEP 86", "conditions": [], "cite": "id289 (a Pokemon already affected when its protection comes into force recovers): Dopey Face (\"This Pokemon can't be Confused\") was off while Flutter Mane's Midnight Fluttering applied; once Flutter Mane leaves the Active Spot, Slowpoke recovers from Confusion"}
+ ]
+}
