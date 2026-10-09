@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Heatran TWM 123", "4 Mankey SSP 98", "4 Shuppet PBL 33", "48 Psychic Energy MEE 5"],
+  ["4 Heatran TWM 123", "4 Mankey SSP 98", "4 Shuppet PBL 33", "48 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Mankey SSP 98", "active_energy": ["Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Heatran TWM 123"},
+ "coins": [true, true],
+ "answers": [{"a": "attack", "name": "Dual Chop"}],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "conditions": ["BURNED"], "cite": "card text: Incandescent Body burns the Attacking Pokemon"}
+ ]
+}

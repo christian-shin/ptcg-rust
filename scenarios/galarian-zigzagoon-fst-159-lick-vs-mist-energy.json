@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Galarian Zigzagoon FST 159", "4 Duraludon PRE 69", "4 Mist Energy TEF 161", "48 Darkness Energy MEE 7"],
+  ["4 Galarian Zigzagoon FST 159", "4 Duraludon PRE 69", "4 Mist Energy TEF 161", "48 Darkness Energy MEE 7"]
+ ],
+ "me": {"reset": true, "active": "Galarian Zigzagoon FST 159", "active_energy": ["Darkness Energy MEE 7"]},
+ "opp": {"reset": true, "active": "Duraludon PRE 69", "active_energy": ["Mist Energy TEF 161"]},
+ "coins": [true],
+ "answers": [{"a": "attack", "name": "Lick"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "conditions": [], "cite": "card text: Lick's Paralysis is an effect of the attack; Mist Energy prevents effects of attacks used by the opponent's Pokemon done to the Pokemon it is attached to"}
+ ]
+}
