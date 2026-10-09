@@ -644,6 +644,12 @@ pub mod k {
     pub const DECLARES_EVENT_LOCK: u32 = 252;
     /// A lock over the attaching events (Attach, MoveEnergy, MoveTool; events batch 3).
     pub const DECLARES_ATTACH_LOCK: u32 = 71;
+    /// An Ability lock whose taking hold can depend on what is attached to a Pokémon: its spot predicate reads
+    /// the attached cards (directly, or through a checked read such as the type, which attached cards can
+    /// change), its probe goes through the Stadium's effect on the spot, or its source's own Ability has a
+    /// program (`spec::passive::lock_reads_attached`). Without one, an Attach / MoveEnergy / MoveTool can't
+    /// change the take-hold stamps (`spec::passive::lock_sync_attached`).
+    pub const DECLARES_ATTACHED_LOCK: u32 = 72;
     /// A permission that lifts `Limit::FirstTurn` / `BaseEnteredThisTurn` / `EvolvesFrom` (with `DECLARES_PERMIT`).
     pub const PERMIT_FIRST_TURN: u32 = 253;
     pub const PERMIT_BASE_ENTERED: u32 = 254;

@@ -140,6 +140,11 @@ impl CardSpec {
         if !self.restricts.is_empty() || !self.limits.is_empty() {
             m = with(m, k::DECLARES_RESTRICT);
         }
+        // A lock source whose own Ability has a program: the lock probes a real use of it, whose needs can read
+        // its attached cards (`passive::lock_reads_attached`).
+        if !self.powers.is_empty() && passive::declares_ability_lock(self.passives) {
+            m = with(m, k::DECLARES_ATTACHED_LOCK);
+        }
         m
     }
 }

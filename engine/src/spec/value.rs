@@ -703,6 +703,49 @@ pub enum SlotPred {
     OnMySide,
 }
 
+impl SlotPred {
+    /// Can the answer depend on the cards attached to the Pokémon (the attached cards themselves, or a checked
+    /// read they can change: type, Energy provided, HP, Abilities, the Stadium's effect)? Conservative: a
+    /// predicate not known to read only the Pokémon card, its position, counters, conditions and markers says
+    /// yes.
+    pub const fn reads_attached(&self) -> bool {
+        match self {
+            SlotPred::Not(p) => p.reads_attached(),
+            SlotPred::All(ps) | SlotPred::OneOf(ps) => {
+                let mut i = 0;
+                while i < ps.len() {
+                    if ps[i].reads_attached() {
+                        return true;
+                    }
+                    i += 1;
+                }
+                false
+            }
+            SlotPred::Any
+            | SlotPred::Damaged
+            | SlotPred::IsActive
+            | SlotPred::IsBench
+            | SlotPred::Top(_)
+            | SlotPred::HasCondition
+            | SlotPred::PrintedTypeIs(_)
+            | SlotPred::CardBelowThis(_)
+            | SlotPred::PlayedThisTurn
+            | SlotPred::Tag(_)
+            | SlotPred::Basic
+            | SlotPred::StageIs(_)
+            | SlotPred::Evolution
+            | SlotPred::PrintsPower
+            | SlotPred::IsThisPokemon
+            | SlotPred::Named(_)
+            | SlotPred::Condition(_)
+            | SlotPred::MarkerFromThis(_)
+            | SlotPred::Evolved
+            | SlotPred::OnMySide => false,
+            _ => true,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EnergyUnit {
     /// Attached Special Energy cards. Pure.

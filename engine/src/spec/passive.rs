@@ -771,7 +771,13 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             (true, false) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER]),
             _ => mask(&[k::CHECK_TABLE_STATE]),
         },
-        Modifier::AbilityLock(_) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
+        Modifier::AbilityLock(l) => {
+            if lock_reads_attached(l) {
+                mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::DECLARES_ATTACHED_LOCK])
+            } else {
+                mask(&[k::CHECK_POKEMON_POWERS, k::POWER])
+            }
+        }
         Modifier::Prevent(p) => match p.what {
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
             PreventWhat::BenchCounters => mask(&[k::MOVE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
@@ -2503,6 +2509,51 @@ fn lock_has_ability(g: &mut Game, c: CardId, p: &Passive, owner: usize) -> bool 
     }
 }
 
+/// Can whether this Ability lock's source has its Ability (and so whether the lock holds) depend on what is
+/// attached to a Pokémon? Its source is a Pokémon in play or the Stadium (never an attached card), so an
+/// attachment changes nothing about where it is; what can change is the answer of the locks that cover it,
+/// read through the same declarations: the spot predicate ([`SlotPred::reads_attached`]: the type, the Energy,
+/// a Tool ...) and the Stadium-effect probe (effects on the spot can block the Stadium). The card predicate
+/// reads the printed card. The two `ActiveLock`s read the Active Spot, the printed card, its Rule Box and
+/// tags: never this.
+pub const fn lock_reads_attached(l: &AbilityLockSpec) -> bool {
+    l.slot.reads_attached() || matches!(l.probe, LockerProbe::StadiumOnSlot)
+}
+
+/// Does the card declare an Ability lock (`ActiveLock` / `AbilityLock`)?
+pub const fn declares_ability_lock(passives: &[Passive]) -> bool {
+    let mut i = 0;
+    while i < passives.len() {
+        if matches!(passives[i].modifier, Modifier::ActiveLock(_) | Modifier::AbilityLock(_)) {
+            return true;
+        }
+        i += 1;
+    }
+    false
+}
+
+/// `lock_sync` after an Attach, a MoveEnergy or a MoveTool. Where every Pokémon and the Stadium are didn't
+/// change, so the stamps can only change when a lock source's Ability can be turned on or off by an attached
+/// card: some card of the game declares such a lock (`k::DECLARES_ATTACHED_LOCK`). Otherwise the sync is
+/// skipped; `PTCG_VERIFY_CACHE=1` runs it anyway and asserts that it changed nothing.
+pub(crate) fn lock_sync_attached(g: &mut Game) {
+    if g.kinds_present.has(crate::effects::k::DECLARES_ATTACHED_LOCK) {
+        lock_sync(g);
+        return;
+    }
+    if !crate::game::verify_cache() || g.lock_syncing || !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
+        return;
+    }
+    let before: Vec<u32> = (0..g.st.n_cards).map(|c| g.st.cards[c as usize].lock_stamp as u32).collect();
+    let counter = g.st.ability_lock_order_counter;
+    lock_sync(g);
+    let after: Vec<u32> = (0..g.st.n_cards).map(|c| g.st.cards[c as usize].lock_stamp as u32).collect();
+    assert!(
+        before == after && counter == g.st.ability_lock_order_counter,
+        "lock_sync after an attaching event changed the take-hold stamps in a game with no DECLARES_ATTACHED_LOCK"
+    );
+}
+
 /// Keep the take-hold stamps up to date after the board changed: a lock source that holds (in place, its
 /// Ability on) and has no stamp gets the next one, the turn player's first; one that doesn't hold loses its
 /// stamp. Releasing a lock that was turned off can let the other take hold, so it repeats until nothing
@@ -2511,23 +2562,45 @@ pub(crate) fn lock_sync(g: &mut Game) {
     if g.lock_syncing || !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
         return;
     }
+    // Only a card that declares an Ability lock can hold one or carry a stamp (`Game::lock_cards`).
+    let lockers = g.lock_cards;
+    let is_locker = |c: CardId| lockers[(c >> 6) as usize] & (1u64 << (c & 63)) != 0;
+    if crate::game::verify_cache() {
+        for c in 0..g.st.n_cards {
+            assert_eq!(lock_passives(g, c).next().is_some(), is_locker(c), "Game::lock_cards is stale for card {c}");
+        }
+    }
     g.lock_syncing = true;
     for _ in 0..4 {
+        // The lock sources in play (the Pokémon, Active first, then the Stadium), then the stamped cards that
+        // left play, by card.
         let mut sources: SVec<CardId, 24> = SVec::new();
         for q in 0..2usize {
             for s in g.st.players[q].in_play().iter() {
                 if let Some(c) = g.st.slot_pokemon(q, *s) {
-                    sources.push(c);
+                    if is_locker(c) {
+                        sources.push(c);
+                    }
                 }
             }
         }
         if let Some(c) = g.st.stadium_card() {
-            sources.push(c);
-        }
-        for c in 0..g.st.n_cards {
-            if g.st.cards[c as usize].lock_stamp != 0 && !sources.contains(&c) {
+            if is_locker(c) {
                 sources.push(c);
             }
+        }
+        for (w, bits) in lockers.iter().enumerate() {
+            let mut b = *bits;
+            while b != 0 {
+                let c = (w * 64 + b.trailing_zeros() as usize) as CardId;
+                b &= b - 1;
+                if g.st.cards[c as usize].lock_stamp != 0 && !sources.contains(&c) {
+                    sources.push(c);
+                }
+            }
+        }
+        if sources.is_empty() {
+            break;
         }
         let mut changed = false;
         let mut taking: Vec<CardId> = Vec::new();
@@ -3384,5 +3457,42 @@ mod play_lock_tests {
         assert_eq!(ability_off(&g, active(&g, me)), Some(true));
         assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
         assert_eq!(ability_off(&g, bench(&g, me, 0)), Some(false), "a Metal Pokémon");
+    }
+}
+
+#[cfg(test)]
+mod attached_lock_tests {
+    //! The gate of `lock_sync` after the attaching events (`lock_sync_attached`) assumes that a lock source's
+    //! Ability is only turned off by declarations it accounts for: the Ability locks (their spot predicates and
+    //! probes: `lock_reads_attached`) and the source's own Ability (`CardSpec::mask`). A card declaring another
+    //! handler of the Power probe or of the Ability-effect probe would need the marker too.
+    use super::*;
+    use crate::effects::k;
+
+    #[test]
+    fn power_probe_handlers_are_accounted_for() {
+        for s in crate::cards::registry::SPECS.iter() {
+            let m = s.card_impl().mask;
+            let lock = declares_ability_lock(s.passives);
+            if m.has(k::POWER) {
+                assert!(!s.powers.is_empty() || lock, "{}: a Power handler that is neither an Ability nor an Ability lock", s.class);
+            }
+            if m.has(k::EFFECT_OF_ABILITY) {
+                assert!(
+                    s.passives.iter().any(|p| matches!(p.modifier, Modifier::ActiveLock(ActiveLock::Initialization))),
+                    "{}: an Ability-effect handler other than Initialization",
+                    s.class
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn which_locks_read_attached_cards() {
+        let marked: Vec<&str> =
+            crate::cards::registry::SPECS.iter().filter(|s| s.card_impl().mask.has(k::DECLARES_ATTACHED_LOCK)).map(|s| s.class).collect();
+        // Team Rocket's Watchtower: "Colorless Pokémon" is the type as the game checks it (attached cards can
+        // change it), and its probe is the Stadium's effect on the spot.
+        assert_eq!(marked, vec!["TeamRocketsWatchtower"]);
     }
 }

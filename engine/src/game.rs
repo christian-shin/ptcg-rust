@@ -256,6 +256,9 @@ pub struct Game {
     pub trial: bool,
     /// Union of subscription masks of every card in the game (skip propagation otherwise).
     pub kinds_present: crate::effects::KindMask,
+    /// The cards of the game that declare an Ability lock (`ActiveLock` / `AbilityLock`), a bit per card id: the
+    /// only cards `lock_sync` can stamp (set once by `start`).
+    pub lock_cards: [u64; 4],
     /// Opt-in effect-type trace for the diff tool (not part of rules state).
     pub trace_effects: bool,
     /// Copy-attack sessions (`copyAttackSessions`, module state in Twinleaf).
@@ -355,7 +358,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
+                resolving_trainer, probing_stadium, trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
                 dispatch,
                 derived: _,
             } = src;
@@ -377,6 +380,7 @@ impl Game {
             f!((*d).probing_stadium).write(*probing_stadium);
             f!((*d).trial).write(*trial);
             f!((*d).kinds_present).write(*kinds_present);
+            f!((*d).lock_cards).write(*lock_cards);
             f!((*d).trace_effects).write(*trace_effects);
             copy_sessions.copy_live_to(f!((*d).copy_sessions));
             f!((*d).copy_serial).write(*copy_serial);
@@ -413,6 +417,7 @@ impl Game {
             probing_stadium: false,
             trial: false,
             kinds_present: crate::effects::KindMask::EMPTY,
+            lock_cards: [0; 4],
             trace_effects: false,
             copy_sessions: SVec::new(),
             copy_serial: 0,
@@ -1207,9 +1212,6 @@ impl Game {
                 | k::DEVOLVE
                 | k::PLAY_STADIUM
                 | k::ATTACH_POKEMON_TOOL
-                | k::ATTACH
-                | k::MOVE_ENERGY
-                | k::MOVE_TOOL
                 | k::MOVED_TO_ACTIVE
                 | k::MOVED_FROM_ACTIVE_TO_BENCH
                 | k::CHECK_TABLE_STATE
@@ -1217,6 +1219,9 @@ impl Game {
         {
             // The Pokémon put down at setup take hold together when setup ends (`setup::finish`).
             crate::spec::passive::lock_sync(self);
+        } else if matches!(kind, k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL) {
+            // Only when an attached card can turn a lock source's Ability on or off.
+            crate::spec::passive::lock_sync_attached(self);
         }
         if crate::spec::event::EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
@@ -1292,6 +1297,9 @@ impl Game {
                 let c = base + i as u8;
                 self.st.cards[c as usize] = CardInst { def: *d, owner: p as u8, ..Default::default() };
                 self.st.players[p].deck.push(c);
+                if cards::spec_for(*d).map_or(false, |s| crate::spec::passive::declares_ability_lock(s.passives)) {
+                    self.lock_cards[(c >> 6) as usize] |= 1u64 << (c & 63);
+                }
             }
             self.st.n_cards += deck.len() as u8;
             for d in deck.iter() {
