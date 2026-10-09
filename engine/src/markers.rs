@@ -21,7 +21,14 @@ markers! {
     LOST_CITY_MARKER = "LOST_CITY_MARKER",
 }
 
+/// The interned names past `MARKER_NAMES`, in id order (append-only). Locked only to register a name or
+/// to refresh a thread's copy (`NAMES`): never on a lookup that the thread's copy answers. One lock per
+/// lookup was a process-wide bottleneck at 32+ threads (every thread on one futex word, whose cache line
+/// also held hot read-only statics).
 static EXTRA: std::sync::Mutex<Vec<&'static str>> = std::sync::Mutex::new(Vec::new());
+/// `EXTRA.len()`, stored under the lock after each push: a lookup whose copy is this long has seen every
+/// registered name and answers "not registered" without the lock.
+static EXTRA_LEN: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
 thread_local! {
     /// Per-thread copies, so lookups don't contend on `EXTRA`: interned ids by
@@ -46,11 +53,24 @@ pub fn marker_name(id: MarkerName) -> &'static str {
     })
 }
 
+/// Id of a registered marker name (`None`: no thread has registered it). Answers from this thread's copy of
+/// the registered names; locks `EXTRA` only when another thread registered names since the copy was made.
 pub fn marker_id(name: &str) -> Option<MarkerName> {
     if let Some(i) = MARKER_NAMES.iter().position(|n| *n == name) {
         return Some(i as MarkerName);
     }
-    EXTRA.lock().unwrap().iter().position(|n| *n == name).map(|i| (i + MARKER_NAMES.len()) as MarkerName)
+    let id = |i: usize| (i + MARKER_NAMES.len()) as MarkerName;
+    NAMES.with(|n| {
+        let mut n = n.borrow_mut();
+        if let Some(i) = n.iter().position(|x| *x == name) {
+            return Some(id(i));
+        }
+        if EXTRA_LEN.load(std::sync::atomic::Ordering::Acquire) <= n.len() {
+            return None;
+        }
+        *n = EXTRA.lock().unwrap().clone();
+        n.iter().position(|x| *x == name).map(id)
+    })
 }
 
 /// Id for a marker name, registering it on first use. Ids are process-local;
@@ -69,6 +89,7 @@ pub fn intern(name: &'static str) -> MarkerName {
                 Some(i) => i,
                 None => {
                     v.push(name);
+                    EXTRA_LEN.store(v.len(), std::sync::atomic::Ordering::Release);
                     v.len() - 1
                 }
             };
