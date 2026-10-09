@@ -613,7 +613,7 @@ pub mod k {
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
     // Declaration markers (never dispatched): set in a card's mask when it declares a permission, a
-    // restriction or a lock over events, so `Game::kinds_present` says whether a game has any.
+    // restriction or rule limits (`CardSpec::restricts` / `limits`) or a lock over events, so `Game::kinds_present` says whether a game has any.
     pub const DECLARES_PERMIT: u32 = 250;
     pub const DECLARES_RESTRICT: u32 = 251;
     pub const DECLARES_EVENT_LOCK: u32 = 252;

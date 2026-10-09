@@ -1,22 +1,48 @@
 {
  "turn": 1,
  "decks": [
-  ["4 Eevee PRE 74", "4 Sylveon ex PRE 41", "1 Grand Tree SCR 136", "51 Psychic Energy MEE 5"],
-  ["4 Eevee PRE 74", "4 Sylveon ex PRE 41", "1 Grand Tree SCR 136", "51 Psychic Energy MEE 5"]
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ]
  ],
  "me": {
   "reset": true,
   "hand_to_deck": true,
   "active": "Eevee PRE 74",
   "stadium": "Grand Tree SCR 136",
-  "hand": ["Sylveon ex PRE 41"]
+  "hand": [
+   "Sylveon ex PRE 41"
+  ]
  },
  "opp": {
   "reset": true,
   "active": "Eevee PRE 74"
  },
  "expect": [
-  {"at": "start", "who": "me", "legal": "stadium", "is": false, "cite": "card text (Grand Tree: can't evolve a Basic Pokemon during their first turn)"},
-  {"at": "start", "who": "me", "legal": "play", "name": "Sylveon ex PRE 41", "on": "active", "is": true, "cite": "card text (Eevee Boosted Evolution)"}
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": true,
+   "cite": "Judge ruling id2327 (parenthetical text is reminder text; Boosted Evolution overrides it): Grand Tree's parenthetical restates the normal evolution limits, which Eevee's Boosted Evolution lifts while Eevee is Active (docs/rulings/RULES.md Evolution timing); first turn"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Sylveon ex PRE 41",
+   "on": "active",
+   "is": true,
+   "cite": "card text (Eevee Boosted Evolution)"
+  }
  ]
 }

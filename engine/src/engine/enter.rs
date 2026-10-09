@@ -191,6 +191,10 @@ fn spec_restricts(g: &Game, c: CardId) -> &'static [crate::spec::Restrict] {
     crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.restricts)
 }
 
+fn spec_limits(g: &Game, c: CardId) -> &'static [crate::spec::Limits] {
+    crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.limits)
+}
+
 /// The conditions on a declaration's source (`LockWhile`), for the card `me` located at `at`.
 pub(crate) fn while_ok(g: &Game, me: CardId, at: passive::Located, while_: &[LockWhile], event_card: Option<CardId>) -> bool {
     while_.iter().all(|w| match w {
@@ -306,30 +310,50 @@ pub fn permitted(g: &mut Game, v: &EventView, limit: Limit) -> R<bool> {
     Ok(false)
 }
 
-/// The rule's limits on evolving (APR A-05) that apply to a rule-path Evolve and that no permission lifts:
-/// the error of the first, or `None`.
+/// The rule's limits on evolving (APR A-05) that apply to the event and that no permission lifts: the error of
+/// the first, or `None`. A rule-path Evolve is subject to every limit; an effect-path Evolve only to the ones a
+/// card of the event declares as reminder text (`CardSpec::limits`, Grand Tree: id2327).
 pub fn rule_limits(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
-    if v.path != Some(EvolvePath::Rule) {
-        return Ok(None);
-    }
     for l in [Limit::FirstTurn, Limit::BaseEnteredThisTurn] {
-        if limit_applies(v, l) && !permitted(g, v, l)? {
+        if limit_applies(v, l) && subject_to(g, v, l)? && !permitted(g, v, l)? {
             return Ok(Some(limit_error(l)));
         }
     }
     Ok(None)
 }
 
+/// The cards of the event whose declarations bind it: its cause card, then its card (once).
+fn event_cards(v: &EventView) -> SVec<CardId, 2> {
+    let mut out: SVec<CardId, 2> = SVec::new();
+    for c in [v.cause.card, v.card].into_iter().flatten() {
+        if c != NO_CARD && !out.contains(&c) {
+            out.push(c);
+        }
+    }
+    out
+}
+
+/// Is the event subject to the rule's limit `l`: a rule-path Evolve, or a card of the event declares it
+/// (`CardSpec::limits` whose `on` matches)?
+fn subject_to(g: &mut Game, v: &EventView, l: Limit) -> R<bool> {
+    if v.path == Some(EvolvePath::Rule) {
+        return Ok(true);
+    }
+    for c in event_cards(v).iter().copied() {
+        for d in spec_limits(g, c) {
+            if d.limits.contains(&l) && d.on.eval(g, c, v)? {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
+}
+
 /// Does a card of the event (its cause card, its card) restrict it ("you can't use this card during your
 /// first turn or on a Basic Pokémon that was put into play this turn")? No permission lifts a restriction
 /// (id1144, id1815).
 pub fn restricted(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
-    let cards = [v.cause.card, v.card];
-    for (i, c) in cards.iter().enumerate() {
-        let Some(c) = *c else { continue };
-        if c == NO_CARD || (i == 1 && cards[0] == Some(c)) {
-            continue;
-        }
+    for c in event_cards(v).iter().copied() {
         for r in spec_restricts(g, c) {
             let Some(l) = r.limits.iter().copied().find(|l| limit_applies(v, *l)) else { continue };
             if r.on.eval(g, c, v)? {
@@ -340,15 +364,24 @@ pub fn restricted(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
     Ok(None)
 }
 
-/// Do the restrictions need a look (a card of the event declares one)? A plain read, for legality's fast
-/// path.
+/// Do the restrictions or declared rule limits need a look (a card of the event declares one)? A plain read,
+/// for legality's fast path.
 pub fn may_be_restricted(g: &Game, v: &EventView) -> bool {
-    g.kinds_present.has(k::DECLARES_RESTRICT) && [v.cause.card, v.card].iter().flatten().any(|c| *c != NO_CARD && !spec_restricts(g, *c).is_empty())
+    g.kinds_present.has(k::DECLARES_RESTRICT) && [v.cause.card, v.card].iter().flatten().any(|c| *c != NO_CARD && (!spec_restricts(g, *c).is_empty() || !spec_limits(g, *c).is_empty()))
+}
+
+/// The limits of an Evolve event whose card isn't chosen yet (an effect asks before offering cards: Grand
+/// Tree's Pokémon prompt): the rule's limits with the permissions in force, then the restrictions.
+pub fn evolve_limits(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
+    if let Some(code) = rule_limits(g, v)? {
+        return Ok(Some(code));
+    }
+    restricted(g, v)
 }
 
 /// The evolution rules of an Evolve event, after the locks: the card evolves from the Pokémon (rule path;
-/// unless a permission lifts it), the rule's limits (rule path; unless permissions lift them), the
-/// restrictions (any path; nothing lifts them).
+/// unless a permission lifts it), the rule's limits (rule path, or declared by a card of the event; unless
+/// permissions lift them), the restrictions (any path; nothing lifts them).
 pub fn evolve_rules(g: &mut Game, v: &EventView, reach: Reach) -> R {
     let (Some(card), Some(base)) = (v.card, v.base) else { crate::bail!("INVALID_TARGET") };
     if v.path == Some(EvolvePath::Rule) && !evolves_into(g, base, card, reach) && !(reach == Reach::Next && permitted(g, v, Limit::EvolvesFrom)?) {

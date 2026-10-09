@@ -1,0 +1,45 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "43 Fire Energy MEE 2"
+  ],
+  [
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "43 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Charcadet PFL 19",
+  "bench": [
+   {
+    "card": "Eevee PRE 74"
+   }
+  ],
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Charcadet PFL 19"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": false,
+   "cite": "card text (Grand Tree: players can't evolve a Basic Pokemon during their first turn; APR A-05). Boosted Evolution lifts it only while Eevee is in the Active Spot (card text, id2327)"
+  }
+ ]
+}

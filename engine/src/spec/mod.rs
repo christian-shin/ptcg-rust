@@ -59,6 +59,19 @@ pub struct CardSpec {
     /// turn": limits on the events this card is part of (its own effect, `This(Role::CauseCard)`; or the card
     /// itself, `This(Role::Card)`). No permission lifts them (id1144, id1815).
     pub restricts: &'static [Restrict],
+    /// "(Players can't evolve a Basic Pokémon during their first turn or a Basic Pokémon that was put into play
+    /// this turn.)": reminder text restating the rule's limits on evolving (APR A-05) for the events this card
+    /// causes, which an effect would otherwise ignore (APR C-12). The event is subject to them as a rule-path
+    /// Evolve is, so a `Permit` lifts them (id2327); a `Restrict` is the unliftable form.
+    pub limits: &'static [Limits],
+}
+
+/// The rule's limits on evolving applied to the events a card causes (events design 4.2, amended by id2327):
+/// when `on` matches, each of `limits` that applies forbids the event unless a permission lifts it
+/// (`engine::enter::rule_limits`).
+pub struct Limits {
+    pub on: event::EventPred,
+    pub limits: &'static [event::Limit],
 }
 
 /// A restriction a card declares on events (events design 4.2): when `on` matches, each of `limits` that
@@ -69,7 +82,7 @@ pub struct Restrict {
 }
 
 impl CardSpec {
-    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[], restricts: &[] };
+    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[], restricts: &[], limits: &[] };
 
     /// The registry entry: the shared interpreter, subscribed to exactly the
     /// effect kinds this spec reacts to.
@@ -124,7 +137,7 @@ impl CardSpec {
             m = merge(m, trigger::event_kinds(&self.triggers[i].event));
             i += 1;
         }
-        if !self.restricts.is_empty() {
+        if !self.restricts.is_empty() || !self.limits.is_empty() {
             m = with(m, k::DECLARES_RESTRICT);
         }
         m

@@ -1477,18 +1477,19 @@ fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -
 }
 
 // ---------------------------------------------------------------------------
-// Evolve (Grand Tree): the Evolve event's effect path, with the card's own restriction
+// Evolve (Grand Tree): the Evolve event's effect path, with the rule's limits the card restates
 
 fn evolves_from_any(name: &str) -> bool {
     crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == name)
 }
 
-/// Grand Tree's restriction on the Pokémon in `t` ("Players can't evolve a Basic Pokémon during their first
-/// turn or a Basic Pokémon that was put into play this turn"): the card's `Restrict`, asked before the card is
-/// chosen (`engine::enter::restricted`; no permission lifts it).
+/// Grand Tree's limits on the Pokémon in `t` ("Players can't evolve a Basic Pokémon during their first turn or
+/// a Basic Pokémon that was put into play this turn"): the rule's limits its reminder text restates
+/// (`CardSpec::limits`, which a permission lifts: id2327) and any restriction, asked before the card is chosen
+/// (`engine::enter::evolve_limits`).
 fn from_deck_refused(g: &mut Game, t: SlotRef, cause: crate::cause::Cause) -> R<bool> {
     let Some(v) = crate::engine::enter::evolve_view(g, None, t, super::super::event::RulesZone::Deck, super::super::event::EvolvePath::Effect, cause) else { return Ok(true) };
-    Ok(crate::engine::enter::restricted(g, &v)?.is_some())
+    Ok(crate::engine::enter::evolve_limits(g, &v)?.is_some())
 }
 
 /// Whether some Basic Pokémon of `p` can evolve now (the cause card's restrictions allow it) into a card the

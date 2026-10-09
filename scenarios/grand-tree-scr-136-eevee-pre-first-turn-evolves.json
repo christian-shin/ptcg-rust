@@ -1,0 +1,41 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Eevee PRE 74",
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee PRE 74"
+ },
+ "answers": [
+  {
+   "a": "stadium"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Sylveon ex PRE 41",
+   "cite": "Judge ruling id2327 (parenthetical text is reminder text; Boosted Evolution overrides it): Grand Tree's parenthetical restates the normal evolution limits, which Eevee's Boosted Evolution lifts while Eevee is Active (docs/rulings/RULES.md Evolution timing)"
+  }
+ ]
+}
