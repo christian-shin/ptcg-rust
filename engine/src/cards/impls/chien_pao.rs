@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Stadium in play.
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])),
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Any(&[Cond::Nonempty(MY_STADIUM, Pred::Any), Cond::Nonempty(OPP_STADIUM, Pred::Any)]),

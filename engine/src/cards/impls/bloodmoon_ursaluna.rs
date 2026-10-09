@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
     // up to 2 Basic [F] Energy from your hand to it.
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])),
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), FIGHTING_ENERGY),

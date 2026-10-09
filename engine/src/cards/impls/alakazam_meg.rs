@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Psychic Draw: when you play this Pokémon from your hand to evolve, you may draw 3 cards.
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Evolve }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand)])),
         steps: &[Step::new(Op::May(MaySpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),

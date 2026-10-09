@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Evolve }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand)])),
         steps: &[Step::new(Op::If(IfSpec {
             cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
             yes: &[Step::new(Op::May(MaySpec {

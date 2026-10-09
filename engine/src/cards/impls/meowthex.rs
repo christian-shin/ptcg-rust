@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[
         Trigger {
             origin: RuleSource::Ability,
-            event: Event::OnEnterPlay(OnEnterPlaySpec { method: EnterMethod::Play }),
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])),
             steps: &[Step::new(Op::If(IfSpec {
                 // Only one "Last-Ditch" Ability per turn (the state marker); it needs a card in the deck.
                 cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Not(&Cond::HasMarker { who: Who::Me, name: "TRUMP_CARD_MARKER", from: MarkerFrom::Any })]),
