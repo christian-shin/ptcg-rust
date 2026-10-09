@@ -1,0 +1,14 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mega Latias ex MEG 100", "4 Makuhita MEG 72", "4 AZ's Tranquility CRI 76", "48 Fighting Energy MEE 6"],
+  ["4 Mega Latias ex MEG 100", "4 Makuhita MEG 72", "4 AZ's Tranquility CRI 76", "48 Fighting Energy MEE 6"]
+ ],
+ "me": {"reset": true, "active": "Mega Latias ex MEG 100", "active_damage": 100, "bench": [{"card": "Makuhita MEG 72", "damage": 30}], "hand": ["AZ's Tranquility CRI 76"]},
+ "opp": {"reset": true, "active": "Makuhita MEG 72"},
+ "answers": [{"a": "play", "card": "AZ's Tranquility CRI 76"}, [{"player": 2, "slot": 2, "index": 0}]],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "card": "Makuhita MEG 72", "damage": 30, "cite": "card text (AZ's Tranquility: switch your Active Pokemon with 1 of your Benched Pokemon); the Pokemon moved to the Active Spot isn't healed"},
+  {"at": "turn_end", "who": "me", "bench": 0, "card": "Mega Latias ex MEG 100", "damage": 20, "cite": "card text (AZ's Tranquility: if you moved a Pokemon ex to your Bench in this way, heal 80 damage from it): the switch was done (Cond::Done) and the Pokemon it moved to the Bench is a Pokemon ex"}
+ ]
+}
