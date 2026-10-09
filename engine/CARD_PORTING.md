@@ -480,7 +480,7 @@ rules say with an optional top-level `expect` list, evaluated by the replay.
   that the engine created prompts of these kinds, in this order (a
   subsequence), since the scenario edits. The names are the `PromptKind`
   variants (`Wait`, `CoinFlip`, `Confirm`, `ChooseCards`, `ChoosePokemon`,
-  `PutDamage`, `AttachEnergy`, `ShuffleDeck`, ...); no `who`. Use it to pin when
+  `PutDamage`, `AttachEnergy`, `ShuffleDeck`, ...; a coin flip is logged as `Coin`, followed by its `Wait`); no `who`. Use it to pin when
   an attack asks its question relative to a coin flip or another prompt
   (Advanced Rulebook A-01 steps 3 to 5, C-07; rulings 1553, 1580, 1770, 1846,
   1874). `"absent": [kinds]` (alone or with `prompts`) asserts that no prompt of
