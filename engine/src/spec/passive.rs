@@ -56,7 +56,10 @@ pub enum Modifier {
     GrantAttacks(GrantAttacksSpec),
     AttackFlags(AttackFlagsSpec),
     StatOverride(StatOverrideSpec),
-    ConditionImmunity(ConditionImmunitySpec),
+    /// "Recovers from all Special Conditions" (Festival Grounds, Bubbly Water Energy): the Pokémon matching
+    /// `subject` recover whenever the table state is checked (RemoveCondition events). "Can't be affected by" is
+    /// a `Prevent` declaration over GainCondition.
+    Recover(RecoverSpec),
     AttachGuard(AttachGuardSpec),
     BenchSize(BenchSizeSpec),
     // Appended by F-passive.
@@ -304,13 +307,13 @@ impl PreventAttackEffectsSpec {
 /// What a `Prevent` passive stops.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum PreventWhat {
+    /// None of these: the declaration is over events (`PreventSpec::from`).
+    None,
     /// Damage counters can't be moved (to other Pokémon).
     CounterMoves,
     /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
     /// and Abilities (counters moved onto them included).
     BenchCounters,
-    /// The opponent's Active Pokémon can't be healed (the RemoveCounters event, `Effect::Heal`).
-    HealOppActive,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
     // --- S3 agent 3 appends ---
@@ -322,9 +325,46 @@ pub enum PreventWhat {
     ToolEffects,
 }
 
-/// A prohibition on the opponent's or everyone's effects (vocabulary P5).
+/// A prevention (events design section 5: `Prevent { origin, protects: SlotPred, from: EventPred }`): the events
+/// matching `from` don't happen to the Pokémon matching `protects` while the declaring card is in place for its
+/// origin and its effect isn't blocked there ("this Pokémon can't be Confused", "your opponent's Active Pokémon
+/// can't be healed", "can't be affected by any Special Conditions"). Both predicates are evaluated for the
+/// declaring card, `protects` on the event's spot. The event's routine asks `derived::event_prevented` (events
+/// batch 4: GainCondition, RemoveCondition, RemoveCounters, CoinFlip). `what` is the old form, a prohibition
+/// not over events yet (`PreventWhat::None` for a declaration over events).
 pub struct PreventSpec {
     pub what: PreventWhat,
+    pub protects: SlotPred,
+    pub from: super::event::EventPred,
+}
+
+impl PreventSpec {
+    /// No prevention: write `..PreventSpec::NONE` for the fields a declaration doesn't use.
+    pub const NONE: PreventSpec = PreventSpec { what: PreventWhat::None, protects: SlotPred::Any, from: super::event::EventPred::NEVER };
+
+    /// The events `from` don't happen to the Pokémon matching `protects`.
+    pub const fn on(protects: SlotPred, from: super::event::EventPred) -> PreventSpec {
+        PreventSpec { what: PreventWhat::None, protects, from }
+    }
+}
+
+/// The kinds a `Prevent` over events is listed under (the effect kinds of `from`, where the reader walks its
+/// sources) and the marker its event's routine reads (`prevent_marker`): nothing for the old form.
+const fn prevent_kinds(p: &PreventSpec) -> KindMask {
+    if p.from.is_never() {
+        return KindMask::EMPTY;
+    }
+    let mut m = p.from.effect_kinds();
+    if m.intersects(super::event::CONDITION_EVENT_KINDS) {
+        m = crate::spec::with(m, crate::effects::k::DECLARES_CONDITION_PREVENT);
+    }
+    if m.intersects(super::event::HEAL_EVENT_KINDS) {
+        m = crate::spec::with(m, crate::effects::k::DECLARES_HEAL_PREVENT);
+    }
+    if m.intersects(super::event::COIN_EVENT_KINDS) {
+        m = crate::spec::with(m, crate::effects::k::DECLARES_COIN_PREVENT);
+    }
+    m
 }
 /// Whom a lock stops, relative to the owner of the lock's source.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -490,6 +530,15 @@ const fn block_kinds(lock: &LockDecl) -> KindMask {
         }
         if m.intersects(super::event::ATTACH_EVENT_KINDS) {
             m = crate::spec::with(m, crate::effects::k::DECLARES_ATTACH_LOCK);
+        }
+        if m.intersects(super::event::CONDITION_EVENT_KINDS) {
+            m = crate::spec::with(m, crate::effects::k::DECLARES_CONDITION_LOCK);
+        }
+        if m.intersects(super::event::HEAL_EVENT_KINDS) {
+            m = crate::spec::with(m, crate::effects::k::DECLARES_HEAL_LOCK);
+        }
+        if m.intersects(super::event::COIN_EVENT_KINDS) {
+            m = crate::spec::with(m, crate::effects::k::DECLARES_COIN_LOCK);
         }
     }
     let mut i = 0;
@@ -708,15 +757,11 @@ pub struct NextTurnBonusSpec {
     pub bonus: i32,
 }
 pub struct StatOverrideSpec {}
-/// "Can't be affected by Special Conditions" (vocabulary P20).
-pub struct ConditionImmunitySpec {
-    /// The conditions (empty: all of them).
+/// "Recovers from all Special Conditions": the Pokémon matching `subject` recover from `conds` (empty: all of
+/// them) whenever the table state is checked.
+pub struct RecoverSpec {
     pub conds: &'static [SpecialCondition],
     pub subject: SlotPred,
-    /// The conditions are removed from effects that would add them.
-    pub prevent: bool,
-    /// Cleared whenever the table state is checked (Festival Grounds).
-    pub sweep: bool,
 }
 /// The Energy can only be attached to a matching Pokémon (and is discarded from any other).
 pub struct AttachGuardSpec {
@@ -761,11 +806,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`).
         Modifier::AttachGuard(_) => mask(&[k::CHECK_TABLE_STATE]),
-        Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
-            (true, true) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER, k::CHECK_TABLE_STATE]),
-            (true, false) => mask(&[k::ADD_SPECIAL_CONDITIONS, k::ADD_SPECIAL_CONDITIONS_POWER]),
-            _ => mask(&[k::CHECK_TABLE_STATE]),
-        },
+        Modifier::Recover(_) => mask(&[k::CHECK_TABLE_STATE]),
         Modifier::AbilityLock(l) => {
             if lock_reads_attached(l) {
                 mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::DECLARES_ATTACHED_LOCK])
@@ -773,14 +814,14 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
                 mask(&[k::CHECK_POKEMON_POWERS, k::POWER])
             }
         }
-        Modifier::Prevent(p) => match p.what {
+        Modifier::Prevent(p) => prevent_kinds(p).or(match p.what {
+            PreventWhat::None => KindMask::EMPTY,
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
             PreventWhat::BenchCounters => mask(&[k::MOVE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
-            PreventWhat::HealOppActive => mask(&[k::HEAL]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
             PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
             PreventWhat::ToolEffects => mask(&[k::TOOL]),
-        },
+        }),
         Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
@@ -913,7 +954,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
         Modifier::AttachGuard(a) => attach_guard(g, me, e, a),
         Modifier::AttackCost(c) => attack_cost(g, me, e, ps.origin, c),
-        Modifier::ConditionImmunity(c) => condition_immunity(g, me, e, ps.origin, c),
+        Modifier::Recover(c) => recover(g, me, e, ps.origin, c),
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::PreventAttackEffects(d) => prevent_attack_effects(g, me, e, ps.origin, d),
@@ -1383,32 +1424,10 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
 // ---------------------------------------------------------------------------
 // Special Conditions
 
-fn condition_immunity(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &ConditionImmunitySpec) -> R {
-    if c.prevent {
-        let (target, conditions) = match *g.e(e) {
-            Effect::AddSpecialConditions { b, conditions, .. } => (b.target, conditions),
-            Effect::AddSpecialConditionsPower { target, conditions, .. } => (target, conditions),
-            _ => (SlotRef::new(0, 0), SVec::new()),
-        };
-        if !conditions.is_empty() {
-            let Some(at) = locate(g, me, origin) else { return Ok(()) };
-            let hit = |x: &u8| c.conds.is_empty() || c.conds.iter().any(|y| *y as u8 == *x);
-            if conditions.iter().any(hit) && slot_pred_m(g, me, target, &c.subject)? && !blocked(g, me, origin, at, Some(target)) {
-                let mut remaining = conditions;
-                remaining.retain(|x| !hit(x));
-                if remaining.is_empty() {
-                    g.set_prevent(e, true);
-                } else {
-                    match g.e_mut(e) {
-                        Effect::AddSpecialConditions { conditions, .. } | Effect::AddSpecialConditionsPower { conditions, .. } => *conditions = remaining,
-                        _ => {}
-                    }
-                }
-            }
-            return Ok(());
-        }
-    }
-    if c.sweep && matches!(*g.e(e), Effect::CheckTableState { .. }) {
+/// "Recovers from all Special Conditions": at every table-state check, each Pokémon matching the subject recovers
+/// (one RemoveCondition per condition, by the card's effect).
+fn recover(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RecoverSpec) -> R {
+    if matches!(*g.e(e), Effect::CheckTableState { .. }) {
         let Some(at) = locate(g, me, origin) else { return Ok(()) };
         for p in 0..2usize {
             for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
@@ -1536,6 +1555,10 @@ pub const DAMP: AbilityLockSpec = AbilityLockSpec {
 // Prevent
 
 fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
+    // A declaration over events is read by the event's routine (`event_prevented`), not here.
+    if matches!(p.what, PreventWhat::None) {
+        return Ok(());
+    }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     match (p.what, *g.e(e)) {
         (PreventWhat::CounterMoves, Effect::MoveDamageCounters { .. } | Effect::MoveCounters { .. }) => {
@@ -1563,12 +1586,6 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
                 if bench_target_prevented(g, me, owner, target) {
                     g.set_prevent(e, true);
                 }
-            }
-        }
-        (PreventWhat::HealOppActive, Effect::Heal { target, .. }) => {
-            let o = 1 - at.owner;
-            if target.p as usize == o && target.s == g.st.players[o].active && !blocked(g, me, origin, at, None) {
-                g.set_prevent(e, true);
             }
         }
         (PreventWhat::MoveToHandFromOppPlay, Effect::MoveCards { source, destination, .. }) => {
@@ -1923,7 +1940,12 @@ pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[Locke
 /// declarations): the locks over events (`LockDecl::forbids`) in play, in propagation order, then the lasting
 /// ones on the actor.
 pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
-    let Some(card) = v.card else { return Ok(None) };
+    // A Pokémon event or an Attach without a card is one whose card isn't chosen yet (legality asks it only with
+    // one); a CoinFlip has none.
+    if v.card.is_none() && v.kind != super::event::EventKind::CoinFlip {
+        return Ok(None);
+    }
+    let card = v.card.unwrap_or(0);
     let p = v.actor() as usize;
     if !may_lock_event(g, p, v.kind) {
         return Ok(None);
@@ -1952,14 +1974,14 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
     match kind {
         E::EnterPlay | E::Evolve | E::Devolve | E::Swap => Some(crate::effects::k::DECLARES_EVENT_LOCK),
         E::Attach | E::MoveEnergy | E::MoveTool => Some(crate::effects::k::DECLARES_ATTACH_LOCK),
+        E::GainCondition | E::RemoveCondition => Some(crate::effects::k::DECLARES_CONDITION_LOCK),
+        E::RemoveCounters => Some(crate::effects::k::DECLARES_HEAL_LOCK),
+        E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_LOCK),
         E::PlayTrainer
         | E::ChangeActive
         | E::Damage
         | E::PlaceCounters
         | E::MoveCounters
-        | E::RemoveCounters
-        | E::GainCondition
-        | E::RemoveCondition
         | E::KnockOut
         | E::TakePrizes
         | E::Discard
@@ -1970,7 +1992,6 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         | E::Shuffle
         | E::Look
         | E::Reveal
-        | E::CoinFlip
         | E::StateCheck
         | E::GameEnd
         | E::Mulligan
@@ -1991,6 +2012,95 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
 #[inline]
 pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool {
     lock_marker(kind).map_or(false, |m| g.kinds_present.has(m)) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
+}
+
+/// The marker a `Prevent` over events of `kind` sets in its card's mask (`prevent_kinds`) and that
+/// [`event_prevented`] reads; `None` for a kind whose routine doesn't ask the reader (a prevention over it would
+/// never be consulted: `prevent_marker_tests` checks that no card declares one). Exhaustive, like `lock_marker`.
+#[inline]
+pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32> {
+    use super::event::EventKind as E;
+    match kind {
+        E::GainCondition | E::RemoveCondition => Some(crate::effects::k::DECLARES_CONDITION_PREVENT),
+        E::RemoveCounters => Some(crate::effects::k::DECLARES_HEAL_PREVENT),
+        E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_PREVENT),
+        E::EnterPlay
+        | E::Evolve
+        | E::Devolve
+        | E::Swap
+        | E::Attach
+        | E::MoveEnergy
+        | E::MoveTool
+        | E::PlayTrainer
+        | E::ChangeActive
+        | E::Damage
+        | E::PlaceCounters
+        | E::MoveCounters
+        | E::KnockOut
+        | E::TakePrizes
+        | E::Discard
+        | E::Draw
+        | E::PutIntoHand
+        | E::PutIntoDeck
+        | E::LeavePlay
+        | E::Shuffle
+        | E::Look
+        | E::Reveal
+        | E::StateCheck
+        | E::GameEnd
+        | E::Mulligan
+        | E::SetPrizes
+        | E::BeginTurn
+        | E::EndTurn
+        | E::Checkup
+        | E::UseAttack
+        | E::UseAbility
+        | E::UseStadium
+        | E::Retreat => None,
+    }
+}
+
+/// Is the event prevented (a `Prevent` declaration whose `from` matches it protects its spot)? The events
+/// design's Prevent reader: the event's routine asks it (through `derived::event_prevented`) after the locks, only
+/// in a game where a card declares a prevention over the event's family (`prevent_marker`), so a game without one
+/// pays a mask test. The sources are walked in the propagation order of the event's kind.
+pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
+    let (Some(marker), Some(kind)) = (prevent_marker(v.kind), v.kind.effect_kind()) else { return Ok(false) };
+    if !g.kinds_present.has(marker) {
+        return Ok(false);
+    }
+    let probe = Effect::PlayItem { p: v.owner, card: v.card.unwrap_or(0), target: None };
+    let order = g.propagation_order(&probe, kind);
+    for c in order.iter().copied() {
+        if prevented_by(g, c, v)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
+/// [`event_prevented`] for one source `me`: one of its `Prevent` declarations matches the event, protects the
+/// event's spot, and the card is in place for its origin and not blocked there.
+fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+    for ps in passives {
+        let Modifier::Prevent(p) = &ps.modifier else { continue };
+        if p.from.is_never() {
+            continue;
+        }
+        let Some(at) = locate(g, me, ps.origin) else { continue };
+        if !p.from.eval(g, me, v)? {
+            continue;
+        }
+        let protected = match v.slot {
+            Some(s) => slot_pred_m(g, me, s, &p.protects)?,
+            None => matches!(p.protects, SlotPred::Any),
+        };
+        if protected && !blocked(g, me, ps.origin, at, v.slot) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 /// [`event_locked`] for one in-play lock source `me`.

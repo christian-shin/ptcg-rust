@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
             origin: RuleSource::Stadium,
             modifier: Modifier::PreventDamage(PreventDamageSpec { subject: SlotPred::Not(&SlotPred::RuleBox), source: SlotPred::RuleBox, ..PreventDamageSpec::DEFAULT }),
         },
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::ThisCardFromDiscard }) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::ThisCardFromDiscard, ..PreventSpec::NONE }) },
     ],
     ..CardSpec::NONE
 };

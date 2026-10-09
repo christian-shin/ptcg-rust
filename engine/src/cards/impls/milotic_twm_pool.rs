@@ -11,7 +11,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "MiloticTWMPool",
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::MoveToHandFromOppPlay }) }],
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::MoveToHandFromOppPlay, ..PreventSpec::NONE }) }],
     ..CardSpec::NONE
 };
 

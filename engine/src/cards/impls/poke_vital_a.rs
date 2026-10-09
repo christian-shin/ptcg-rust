@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
             clear_conditions: false,
         }))],
     }),
-    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::ThisCardFromDiscard }) }],
+    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::ThisCardFromDiscard, ..PreventSpec::NONE }) }],
     ..CardSpec::NONE
 };
 

@@ -256,6 +256,10 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::Attach { p, card, target, source, manual, cause, .. } => EventView { source: Some(source), manual, card: Some(card), slot: Some(target), ..EventView::new(EventKind::Attach, cause, p, turn) },
         Effect::MoveEnergy { p, card, to, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(EventKind::MoveEnergy, cause, p, turn) },
         Effect::MoveTool { p, card, to, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(EventKind::MoveTool, cause, p, turn) },
+        Effect::GainCondition { target, condition, cause, .. } => crate::engine::condition::condition_view(g, EventKind::GainCondition, target, condition, cause),
+        Effect::RemoveCondition { target, condition, cause, .. } => crate::engine::condition::condition_view(g, EventKind::RemoveCondition, target, condition, cause),
+        Effect::Heal { target, damage, cause, .. } => crate::engine::condition::heal_view(g, target, damage, cause),
+        Effect::CoinFlip { p, purpose, heads, cause } => crate::engine::condition::coin_view(g, p as usize, purpose, heads, cause),
         _ => return None,
     })
 }

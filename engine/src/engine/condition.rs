@@ -3,7 +3,7 @@
 //!
 //! Every path that gives a Pokémon a Special Condition, makes it recover from one, heals it, or flips a coin calls
 //! its routine here, in the `engine::enter` / `engine::attach` pattern: the routine checks the event (the Pokémon
-//! is there; the locks, `derived::event_locked`), produces it (an `Effect` dispatched to the cards), and applies
+//! is there; the locks, `derived::event_locked`; the preventions, `derived::event_prevented`), produces it (an `Effect` dispatched to the cards), and applies
 //! its consequences in [`reducer`]. A refused event doesn't happen (`Ok(false)`): an effect does as much as it can.
 //!
 //! - [`gain`]: "is now Poisoned / Burned / Asleep / Paralyzed / Confused", whatever causes it (an attack, an
@@ -52,11 +52,18 @@ pub fn coin_view(g: &Game, p: usize, purpose: CoinPurpose, heads: bool, cause: C
 // ---------------------------------------------------------------------------
 // The checks
 
-/// The checks every event of this module makes after its own (a Pokémon there, something to remove): the locks.
-/// `Some(code)` is a refusal (the event doesn't happen); an error of a read is propagated.
+/// The refusal of a prevented event (`derived::event_prevented`).
+pub const PREVENTED: &str = "PREVENTED";
+
+/// The checks every event of this module makes after its own (a Pokémon there, something to remove): the locks
+/// (`derived::event_locked`), then the preventions (`derived::event_prevented`: "this Pokémon can't be Confused",
+/// whatever the cause). `Some(code)` is a refusal (the event doesn't happen); an error of a read is propagated.
 pub fn refused(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
     if let Some(code) = crate::derived::event_locked(g, v)? {
         return Ok(Some(code));
+    }
+    if crate::derived::event_prevented(g, v)? {
+        return Ok(Some(PREVENTED));
     }
     Ok(None)
 }

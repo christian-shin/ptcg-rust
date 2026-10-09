@@ -190,6 +190,14 @@ pub fn event_locked(g: &mut Game, v: &crate::spec::event::EventView) -> R<Option
     crate::spec::passive::event_locked(g, v)
 }
 
+/// Is the event prevented by a `Prevent` declaration (`passive::event_prevented`)? The events batch 4 routines
+/// (`engine::condition`) ask it after the locks.
+#[inline]
+pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<bool> {
+    g.derived.fresh();
+    crate::spec::passive::event_prevented(g, v)
+}
+
 /// The in-play or lasting lock that forbids player `p` doing one of `actions` with `card`, if any
 /// (`passive::play_locked_as`).
 #[inline]

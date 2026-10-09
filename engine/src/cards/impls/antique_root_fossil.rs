@@ -43,13 +43,9 @@ pub static SPEC: CardSpec = CardSpec {
         // It can't be affected by Special Conditions and can't retreat.
         Passive {
             origin: RuleSource::CardRule,
-            modifier: Modifier::ConditionImmunity(ConditionImmunitySpec {
-                conds: &[],
-                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-                prevent: true,
-                // Conditions added directly (not through an effect) are cleared at the next check.
-                sweep: true,
-            }),
+            // Every GainCondition on it is prevented, whatever the cause (events batch 4: no condition is written
+            // directly any more, so nothing is left to sweep).
+            modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::Kind(EventKind::GainCondition))),
         },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec::RETREAT_THIS_ACTIVE) },
     ],

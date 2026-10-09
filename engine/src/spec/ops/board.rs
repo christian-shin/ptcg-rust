@@ -925,10 +925,10 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
 }
 
 /// The Pokémon in `slot` is now affected by `cs`, by the frame's cause: one GainCondition each
-/// (`engine::condition::gain`). B4-OLD: an attack's goes through the attack-effect probe
-/// (`Effect::AddSpecialConditions`, read by the attack-effect preventions), any other through the Ability probe
-/// (`AddSpecialConditionsPower`, read by Hide 'n' Sneak and the condition immunities); their reducers produce the
-/// events.
+/// (`engine::condition::gain`), which the preventions over it stop whatever the cause (Slowpoke's Dopey Face vs
+/// Lisia's Appeal). B4-OLD: an attack's goes through the attack-effect probe (`Effect::AddSpecialConditions`,
+/// read by the attack-effect preventions) and an Ability's through the Ability probe (`AddSpecialConditionsPower`,
+/// read by Hide 'n' Sneak); their reducers produce the events.
 fn inflict_on(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialCondition]) -> R {
     let mut v = SVec::new();
     for x in cs {
@@ -939,7 +939,13 @@ fn inflict_on(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialC
             return g.run_fx_unit(Effect::AddSpecialConditions { b, conditions: v });
         }
     }
-    g.run_fx_unit(Effect::AddSpecialConditionsPower { p: slot.p, source: me, target: slot, conditions: v, cause: f.cause })
+    if f.cause.is_ability() {
+        return g.run_fx_unit(Effect::AddSpecialConditionsPower { p: slot.p, source: me, target: slot, conditions: v, cause: f.cause });
+    }
+    for x in cs {
+        crate::engine::condition::gain(g, slot, *x, f.cause)?;
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------

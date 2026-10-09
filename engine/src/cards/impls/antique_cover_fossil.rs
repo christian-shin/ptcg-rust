@@ -16,8 +16,8 @@
 //! lock probe for the owner, except Weakness/Resistance, Put Damage and Deal
 //! Damage. Fixed (user 2026-10-08, as the text): the owner's own attacks are
 //! no longer blocked. Fixed: it can't be affected by Special Conditions (printed text):
-//! adding them is prevented and any added directly are cleared at the next
-//! table check, as for Antique Root Fossil.
+//! a `Prevent` over GainCondition (events batch 4: every cause, so the old sweep of conditions added
+//! directly went), as for Antique Root Fossil.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -37,12 +37,8 @@ pub static SPEC: CardSpec = CardSpec {
         // It can't be affected by Special Conditions and can't retreat.
         Passive {
             origin: RuleSource::CardRule,
-            modifier: Modifier::ConditionImmunity(ConditionImmunitySpec {
-                conds: &[],
-                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-                prevent: true,
-                sweep: true,
-            }),
+            // Every GainCondition on it is prevented, whatever the cause (events batch 4).
+            modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::Kind(EventKind::GainCondition))),
         },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec::RETREAT_THIS_ACTIVE) },
     ],

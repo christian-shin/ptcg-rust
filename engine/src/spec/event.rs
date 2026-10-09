@@ -75,6 +75,10 @@ impl EventKind {
             EventKind::Attach => Some(k::ATTACH),
             EventKind::MoveEnergy => Some(k::MOVE_ENERGY),
             EventKind::MoveTool => Some(k::MOVE_TOOL),
+            EventKind::GainCondition => Some(k::GAIN_CONDITION),
+            EventKind::RemoveCondition => Some(k::REMOVE_CONDITION),
+            EventKind::RemoveCounters => Some(k::HEAL),
+            EventKind::CoinFlip => Some(k::COIN_FLIP),
             _ => None,
         }
     }
@@ -311,11 +315,22 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::ATTACH,
     crate::effects::k::MOVE_ENERGY,
     crate::effects::k::MOVE_TOOL,
+    crate::effects::k::GAIN_CONDITION,
+    crate::effects::k::REMOVE_CONDITION,
+    crate::effects::k::HEAL,
+    crate::effects::k::COIN_FLIP,
 ]);
 /// The Pokémon events (events batch 2): a lock over them sets `DECLARES_EVENT_LOCK`.
 pub const POKEMON_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ENTER_PLAY, crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
 /// The attaching events (events batch 3): a lock over them sets `DECLARES_ATTACH_LOCK`.
 pub const ATTACH_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::ATTACH, crate::effects::k::MOVE_ENERGY, crate::effects::k::MOVE_TOOL]);
+/// The Special Condition events (events batch 4): a lock over them sets `DECLARES_CONDITION_LOCK`, a `Prevent`
+/// `DECLARES_CONDITION_PREVENT`.
+pub const CONDITION_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::GAIN_CONDITION, crate::effects::k::REMOVE_CONDITION]);
+/// RemoveCounters (healing): `DECLARES_HEAL_LOCK` / `DECLARES_HEAL_PREVENT`.
+pub const HEAL_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::HEAL]);
+/// CoinFlip: `DECLARES_COIN_LOCK` / `DECLARES_COIN_PREVENT`.
+pub const COIN_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::COIN_FLIP]);
 
 impl EventPred {
     /// Matches no event (`LockDecl::forbids` of a lock that declares only old `LockedAction`s).

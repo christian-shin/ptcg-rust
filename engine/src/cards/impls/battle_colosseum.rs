@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         // Automatically active: it can't be announced and used.
         Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::BenchCounters }) },
+        Passive { origin: RuleSource::Stadium, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::BenchCounters, ..PreventSpec::NONE }) },
     ],
     ..CardSpec::NONE
 };

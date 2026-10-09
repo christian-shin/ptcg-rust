@@ -14,12 +14,11 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Hoothoot@PRE",
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::ConditionImmunity(ConditionImmunitySpec {
-            conds: &[SpecialCondition::Asleep],
-            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-            prevent: true,
-            sweep: false,
-        }),
+        // This Pokémon can't be Asleep (any cause: events batch 4).
+        modifier: Modifier::Prevent(PreventSpec::on(
+            SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
+            EventPred::All(&[EventPred::Kind(EventKind::GainCondition), EventPred::Condition(SpecialCondition::Asleep)]),
+        )),
     }],
     ..CardSpec::NONE
 };

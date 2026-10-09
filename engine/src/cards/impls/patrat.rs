@@ -12,7 +12,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Patrat",
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::CounterMoves }) }],
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::CounterMoves, ..PreventSpec::NONE }) }],
     ..CardSpec::NONE
 };
 
