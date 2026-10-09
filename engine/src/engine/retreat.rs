@@ -49,13 +49,9 @@ fn energy_cards(map: &EnergyMap) -> Vec<CardId> {
     v
 }
 
-pub fn reducer(g: &mut Game, id: EffId) -> R {
-    let (p, bench_index, ignore, move_to) = match *g.e(id) {
-        Effect::Retreat { p, bench_index, ignore_status_conditions, move_retreat_cost_to } => {
-            (p as usize, bench_index, ignore_status_conditions, move_retreat_cost_to)
-        }
-        _ => return Ok(()),
-    };
+/// Check only: the state rules for retreating to the Bench slot `bench_index`
+/// (Retreat-blocking flag, target, Special Conditions, once per turn).
+pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions: bool) -> R {
     assert_can_retreat(g, p)?;
     let bench = match g.st.players[p].bench.get(bench_index as usize) {
         Some(b) => *b,
@@ -66,12 +62,20 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
     let active = g.st.players[p].active;
     let sp = g.st.slot(p, active).special_conditions;
-    if (sp.contains(&(SpecialCondition::Paralyzed as u8)) || sp.contains(&(SpecialCondition::Asleep as u8))) && !ignore {
+    if (sp.contains(&(SpecialCondition::Paralyzed as u8)) || sp.contains(&(SpecialCondition::Asleep as u8))) && !ignore_status_conditions {
         crate::bail!("BLOCKED_BY_SPECIAL_CONDITION");
     }
     if g.st.players[p].retreated_turn == g.st.turn {
         crate::bail!("RETREAT_ALREADY_USED");
     }
+    Ok(())
+}
+
+/// The checked reads of a retreat: the effective cost (`CheckRetreatCost`)
+/// and, when the cost isn't empty, the Energy the Active Pokémon provides
+/// (`CheckProvidedEnergy`; the map is empty otherwise, as no read is run).
+pub fn retreat_read(g: &mut Game, p: usize) -> R<(Cost, EnergyMap)> {
+    let active = g.st.players[p].active;
     let cost = check_retreat_cost_base(g, p);
     let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false, reduction: 0 })?;
     let cost = match e {
@@ -79,14 +83,36 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         _ => SVec::new(),
     };
     if cost.is_empty() {
-        clear_effects(&mut g.st.players[p].slots[active as usize]);
-        return retreat_pokemon(g, p, bench_index);
+        return Ok((cost, SVec::new()));
     }
     let (e, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, active), energy_map: SVec::new() })?;
     let map = match e {
         Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
         _ => SVec::new(),
     };
+    Ok((cost, map))
+}
+
+/// Can the Active Pokémon pay its Retreat Cost now? (Runs the checked reads.)
+pub fn retreat_payable(g: &mut Game, p: usize) -> R<bool> {
+    let (cost, map) = retreat_read(g, p)?;
+    Ok(cost.is_empty() || energy::check_enough_energy(map.as_slice(), cost.as_slice()))
+}
+
+pub fn reducer(g: &mut Game, id: EffId) -> R {
+    let (p, bench_index, ignore, move_to) = match *g.e(id) {
+        Effect::Retreat { p, bench_index, ignore_status_conditions, move_retreat_cost_to } => {
+            (p as usize, bench_index, ignore_status_conditions, move_retreat_cost_to)
+        }
+        _ => return Ok(()),
+    };
+    can_retreat(g, p, bench_index, ignore)?;
+    let active = g.st.players[p].active;
+    let (cost, map) = retreat_read(g, p)?;
+    if cost.is_empty() {
+        clear_effects(&mut g.st.players[p].slots[active as usize]);
+        return retreat_pokemon(g, p, bench_index);
+    }
     if !energy::check_enough_energy(map.as_slice(), cost.as_slice()) {
         crate::bail!("NOT_ENOUGH_ENERGY");
     }

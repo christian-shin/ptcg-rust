@@ -63,6 +63,84 @@ fn find_pokemon_target(g: &Game, p: usize, t: CardTarget) -> Option<SlotRef> {
     get_target(&g.st, p, t).ok()
 }
 
+/// Check only: may this Energy be attached from the hand to `target` now?
+/// Returns the slot and whether the attachment uses the turn's one attachment
+/// (not with Dragon's Wish or unlimited attachments).
+pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<(SlotRef, bool)> {
+    let t = match find_pokemon_target(g, p, target) {
+        Some(t) if !g.st.slot(t.p as usize, t.s).cards.is_empty() => t,
+        _ => crate::bail!("INVALID_TARGET"),
+    };
+    let pl = &g.st.players[p];
+    if pl.used_dragons_wish || g.st.rules.unlimited_energy_attachments {
+        return Ok((t, false));
+    }
+    if pl.energy_played_turn == g.st.turn {
+        crate::bail!("ENERGY_ALREADY_ATTACHED");
+    }
+    Ok((t, true))
+}
+
+/// Check only: the turn rules for playing this Supporter (first turn, one per turn).
+pub fn can_play_supporter_card(g: &Game, p: usize, card: CardId) -> R {
+    if g.st.turn == 1 && !g.st.cdef(card).first_turn {
+        crate::bail!("CANNOT_PLAY_THIS_CARD");
+    }
+    if !g.st.players[p].supporter.is_empty() {
+        crate::bail!("SUPPORTER_ALREADY_PLAYED");
+    }
+    Ok(())
+}
+
+/// Check only: the turn rules for playing this Stadium (one per turn, not the one in play).
+pub fn can_play_stadium_card(g: &Game, p: usize, card: CardId) -> R {
+    let d = g.st.cdef(card);
+    let stadium = g.st.stadium_card();
+    let hyperrogue = d.name == "Hyperrogue Ange Floette" && stadium.map(|s| g.st.cdef(s).name == "Prism Tower").unwrap_or(false);
+    if g.st.players[p].stadium_played_turn == g.st.turn && !hyperrogue {
+        crate::bail!("STADIUM_ALREADY_PLAYED");
+    }
+    if let Some(s) = stadium {
+        if g.st.cdef(s).name == d.name {
+            crate::bail!("SAME_STADIUM_ALREADY_IN_PLAY");
+        }
+    }
+    Ok(())
+}
+
+/// Check only: a Tool needs a Pokémon target.
+pub fn can_play_tool_card(target: Option<SlotRef>) -> R<SlotRef> {
+    match target {
+        Some(t) => Ok(t),
+        None => crate::bail!("INVALID_TARGET"),
+    }
+}
+
+/// Check only: using the Stadium in play (once per turn, needs one).
+pub fn can_use_stadium(g: &Game, p: usize) -> R<CardId> {
+    if g.st.players[p].stadium_used_turn == g.st.turn {
+        crate::bail!("STADIUM_ALREADY_USED");
+    }
+    match g.st.stadium_card() {
+        Some(s) => Ok(s),
+        None => crate::bail!("NO_STADIUM_IN_PLAY"),
+    }
+}
+
+/// Check only: the core rule for using this Ability from this zone (the
+/// printed use-from flags). The caller found the power with the
+/// `CheckPokemonPowers` read.
+pub fn can_use_ability_core(g: &Game, power: PowerRef, zone: SlotType) -> R {
+    let pd = &g.st.cdef(power.card).powers[power.index as usize];
+    match zone {
+        SlotType::Active | SlotType::Bench if !pd.use_when_in_play => crate::bail!("CANNOT_USE_POWER"),
+        SlotType::Hand if !pd.use_from_hand => crate::bail!("CANNOT_USE_POWER"),
+        SlotType::Discard if !pd.use_from_discard => crate::bail!("CANNOT_USE_POWER"),
+        _ => {}
+    }
+    Ok(())
+}
+
 pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
     let (hand_index, target) = match a {
         Action::PlayCard { hand_index, target } => (hand_index, target),
@@ -78,19 +156,10 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
     };
     let d = g.st.cdef(card);
     if d.is_energy() {
-        let t = match find_pokemon_target(g, p, target) {
-            Some(t) if !g.st.slot(t.p as usize, t.s).cards.is_empty() => t,
-            _ => crate::bail!("INVALID_TARGET"),
-        };
-        let pl = &mut g.st.players[p];
-        if pl.used_dragons_wish || g.st.rules.unlimited_energy_attachments {
-            g.run_fx(Effect::AttachEnergy { p: p as u8, card, target: t })?;
-            return Ok(());
+        let (t, uses_turn_attach) = can_attach_energy(g, p, target)?;
+        if uses_turn_attach {
+            g.st.players[p].energy_played_turn = g.st.turn;
         }
-        if pl.energy_played_turn == g.st.turn {
-            crate::bail!("ENERGY_ALREADY_ATTACHED");
-        }
-        pl.energy_played_turn = g.st.turn;
         g.run_fx(Effect::AttachEnergy { p: p as u8, card, target: t })?;
         return Ok(());
     }
@@ -107,32 +176,15 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
         let t = find_pokemon_target(g, p, target);
         let e = match d.trainer_type() {
             TrainerType::Supporter => {
-                if g.st.turn == 1 && !d.first_turn {
-                    crate::bail!("CANNOT_PLAY_THIS_CARD");
-                }
-                if !g.st.players[p].supporter.is_empty() {
-                    crate::bail!("SUPPORTER_ALREADY_PLAYED");
-                }
+                can_play_supporter_card(g, p, card)?;
                 Effect::PlaySupporter { p: p as u8, card, target: t }
             }
             TrainerType::Stadium => {
-                let stadium = g.st.stadium_card();
-                let hyperrogue = d.name == "Hyperrogue Ange Floette" && stadium.map(|s| g.st.cdef(s).name == "Prism Tower").unwrap_or(false);
-                if g.st.players[p].stadium_played_turn == g.st.turn && !hyperrogue {
-                    crate::bail!("STADIUM_ALREADY_PLAYED");
-                }
-                if let Some(s) = stadium {
-                    if g.st.cdef(s).name == d.name {
-                        crate::bail!("SAME_STADIUM_ALREADY_IN_PLAY");
-                    }
-                }
+                can_play_stadium_card(g, p, card)?;
                 g.st.players[p].stadium_played_turn = g.st.turn;
                 Effect::PlayStadium { p: p as u8, card }
             }
-            TrainerType::Tool => match t {
-                Some(t) => Effect::AttachPokemonTool { p: p as u8, card, target: t },
-                None => crate::bail!("INVALID_TARGET"),
-            },
+            TrainerType::Tool => Effect::AttachPokemonTool { p: p as u8, card, target: can_play_tool_card(t)? },
             TrainerType::Item => Effect::PlayItem { p: p as u8, card, target: t },
         };
         g.run_fx(e)?;
@@ -262,13 +314,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                     Some(r) => *r,
                     None => crate::bail!("UNKNOWN_POWER"),
                 };
-                let pd = &g.st.cdef(power.card).powers[power.index as usize];
-                match target.slot {
-                    SlotType::Active | SlotType::Bench if !pd.use_when_in_play => crate::bail!("CANNOT_USE_POWER"),
-                    SlotType::Hand if !pd.use_from_hand => crate::bail!("CANNOT_USE_POWER"),
-                    SlotType::Discard if !pd.use_from_discard => crate::bail!("CANNOT_USE_POWER"),
-                    _ => {}
-                }
+                can_use_ability_core(g, power, target.slot)?;
                 g.run_fx(Effect::UsePower { p: p as u8, power, card: c, target, bench_target: None })?;
             }
         }
@@ -276,13 +322,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             // Trainer powers from hand/discard: no pool card has one.
         }
         Action::UseStadium => {
-            if g.st.players[p].stadium_used_turn == g.st.turn {
-                crate::bail!("STADIUM_ALREADY_USED");
-            }
-            let stadium = match g.st.stadium_card() {
-                Some(s) => s,
-                None => crate::bail!("NO_STADIUM_IN_PLAY"),
-            };
+            let stadium = can_use_stadium(g, p)?;
             g.run_fx(Effect::UseStadium { p: p as u8, stadium })?;
         }
         Action::PlayCard { .. } => {}
