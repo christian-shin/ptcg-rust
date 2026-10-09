@@ -9,6 +9,6 @@
  "answers": [{"a": "attack", "name": "Wild Press"}, [0], [{"player": 2, "slot": 2, "index": 0}], true],
  "expect": [
   {"at": "turn_end", "who": "me", "slot": "active", "card": "Yanmega ex DRI 3", "cite": "card text (Yanmega ex's Buzzing Boost: once during your turn, when this Pokemon moves from your Bench to the Active Spot); APR E-25 (it doesn't matter how it moved)"},
-  {"at": "turn_end", "prompts": ["ChoosePokemon", "Confirm"], "cite": "card text (Buzzing Boost): the promotion after Hariyama Knocked itself Out with Wild Press during its owner's turn moves Yanmega ex from the Bench to the Active Spot, so the Ability is offered"}
+  {"at": "turn_end", "prompts": ["ChoosePokemon", "Confirm"], "cite": "card text (Buzzing Boost): the promotion after Hariyama Knocked itself Out with Wild Press during its owner's turn moves Yanmega ex from the Bench to the Active Spot, so the Ability is offered; official JP FAQ (Yanma DRI 2 / Mega Yanmega ex): after Arven's Toedscool Knocks itself Out with its attack and Mega Yanmega ex is put from the Bench into the Active Spot, 「特性「バズブースト」を使うことはできますか？」「はい、できます。」 (can you use Buzzing Boost? yes)"}
  ]
 }
