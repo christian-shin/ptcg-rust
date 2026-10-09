@@ -752,8 +752,11 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
         }
         Op::MoveCounters(m) if matches!(m.kind, MoveCountersKind::AllFromOne { .. }) => move_all_exec(g, me, f, m),
         Op::PickSlot(pick) => {
-            // A fixed Pokémon is just selected when the effect is carried out.
+            // A fixed Pokémon is just selected when the effect is carried out (nothing to ask or
+            // record; the step D steps after it read it).
             if matches!(pick.among, SlotSel::One(_)) {
+                let cands = candidates(g, me, f, pick)?;
+                f.slot = cands.as_slice().first().map(|s| encode(*s)).unwrap_or(NONE);
                 return Ok(Flow::Next);
             }
             let cands = candidates(g, me, f, pick)?;

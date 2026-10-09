@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chansey TWM 133",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "4 Chansey TWM 133",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Chansey TWM 133",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Chansey TWM 133"
+   }
+  ],
+  "hand": [
+   "2 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Chansey TWM 133",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Lucky Attachment"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "AttachEnergy",
+    "Wait"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08; rulings 1553, 1846): the Energy from the hand and the Pokemon to attach it to are chosen at step D, before the damage; the hand does not change with the damage, so the choice under the attack's 'if you have a Basic Energy in hand' check is made then too"
+  }
+ ]
+}

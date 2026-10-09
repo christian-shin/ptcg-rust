@@ -331,6 +331,12 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             confirmation_prompt(g, f.who(m.asker), m.msg, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
+        // A condition the damage can't change: the branch it picks is known now, so the choices
+        // under it are made now. Otherwise they are made when it is reached.
+        Op::If(i) if cond_stable(&i.cond) => {
+            let (list, sel) = if cond_m(g, me, f, &i.cond)? { (i.yes, 0) } else { (i.no, 1) };
+            Ok(if list.is_empty() { Flow::Next } else { Flow::Enter(sel) })
+        }
         _ => Ok(Flow::Next),
     }
 }

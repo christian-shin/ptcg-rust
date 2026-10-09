@@ -81,10 +81,21 @@ written in printed order. The interpreter does the rest:
   carried out after it. The interpreter's choice pass asks the op's `choice`
   half before the damage and keeps the answer (`Game::spec_choices`); the
   after-damage run uses it. Spec authors do nothing special.
-* A search, or a choice whose options only exist after the damage, is asked
-  after the damage (it has no step-D half). Choices nested under a coin, an
-  `If` or a loop are asked when reached.
-* A `May` ("you may ...") asks at step D too, when the effect could happen.
+* Attach from the hand or the discard pile, Pick, non-deck Search, Energy
+  discard and move, counter and damage targets, switch targets and the like
+  all have a step-D half. A search of the deck (and a Pick or an Attach from
+  it) has none: the deck is hidden until it resolves, so it is asked after the
+  damage.
+* A `May` ("you may ...") asks at step D too, when the effect could happen
+  (the search under a "you may search your deck" is still asked after).
+* The choice pass goes into a `May`'s yes branch and into an `If` whose
+  condition the damage can't change (`cond_stable` in `spec/value.rs`: the
+  player's own hand, discard pile, deck and Bench, printed properties of the
+  Active Pokemon, cards already picked): `If(Nonempty(hand, Basic Energy), Attach
+  ...)` asks the Attach at step D. An `If` with any other condition (damage,
+  Special Conditions, the opponent's cards), and every `Coin`, `ForEach` and
+  `Choose`, is asked when reached (a coin is flipped with the effect, after
+  the damage, so a choice under heads follows it).
 
 Example (Cynthia's Garchomp ex, attack 1: `Corkscrew Dive - 100; you may draw
 until you have 6 cards`, attack 2 discards all its Energy):

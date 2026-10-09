@@ -1397,7 +1397,8 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
 
 pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
-        Op::Pick(p) => {
+        // Cards from the deck are chosen after the damage (the deck is hidden until it resolves).
+        Op::Pick(p) if p.from.1 != Zone::Deck => {
             if ask_pick(g, me, f, p, i32::MAX, p_msg(p, ""), 1, false) {
                 return Ok(Flow::Suspend);
             }

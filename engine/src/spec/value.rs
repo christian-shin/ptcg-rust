@@ -994,6 +994,50 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
     })
 }
 
+/// Does the answer of the condition stay the same through an attack's damage? Only these can be
+/// decided at step D for a choice nested under an `If` (the attack-choice rule): the player's own
+/// hand, discard pile and deck, their own Bench, printed properties of the Active Pokémon and of
+/// this Pokémon, and the cards a step D choice has already picked. Anything else (damage, Special
+/// Conditions, the opponent's cards, a coin) is decided when it is reached.
+pub fn cond_stable(c: &Cond) -> bool {
+    fn own_zone(z: &ZoneRef) -> bool {
+        z.0 == Who::Me && matches!(z.1, Zone::Hand | Zone::Discard | Zone::Deck)
+    }
+    fn slot_pred(p: &SlotPred) -> bool {
+        match p {
+            SlotPred::Any | SlotPred::IsActive | SlotPred::IsBench | SlotPred::Basic | SlotPred::Top(_) | SlotPred::Tag(_) | SlotPred::HasCard(_) => true,
+            SlotPred::Not(p) => slot_pred(p),
+            SlotPred::All(ps) | SlotPred::OneOf(ps) => ps.iter().all(slot_pred),
+            _ => false,
+        }
+    }
+    fn slot_sel(s: &SlotSel) -> bool {
+        match s {
+            SlotSel::One(SlotExpr::This | SlotExpr::Active(_)) => true,
+            SlotSel::Bench(Who::Me) => true,
+            _ => false,
+        }
+    }
+    fn num_stable(n: &Num) -> bool {
+        match n {
+            Num::Lit(_) => true,
+            Num::ZoneSize(z) | Num::CardCount(z, _) => own_zone(z),
+            _ => false,
+        }
+    }
+    match c {
+        Cond::True | Cond::False | Cond::Chosen(_) => true,
+        Cond::Not(c) => cond_stable(c),
+        Cond::All(cs) | Cond::Any(cs) => cs.iter().all(cond_stable),
+        Cond::Cmp(a, _, b) => num_stable(a) && num_stable(b),
+        Cond::Nonempty(z, _) | Cond::NonemptyOther(z, _) | Cond::ZoneIs(z, _) => own_zone(z),
+        Cond::Slot(SlotExpr::This | SlotExpr::Active(_), p) => slot_pred(p),
+        Cond::AnySlot(s, p) | Cond::AllSlots(s, p) => slot_sel(s) && slot_pred(p),
+        Cond::StadiumInPlay(_) => true,
+        _ => false,
+    }
+}
+
 /// `cond` with checked reads.
 pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
     Ok(match c {

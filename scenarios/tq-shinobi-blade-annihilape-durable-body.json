@@ -53,11 +53,11 @@
   {
    "at": "turn_end",
    "prompts": [
+    "Confirm",
     "Wait",
-    "Wait",
-    "Confirm"
+    "Wait"
    ],
-   "cite": "ruling 1770 (Durable Body); Advanced Rulebook A-01 steps 3-5, C-07; attack-choice rule (step D, 2026-10-08): a search, or a choice whose options exist only after the damage, is asked after the damage (the you-may search confirm)"
+   "cite": "ruling 1770 (Durable Body); Advanced Rulebook A-01 steps 3-5, C-07; attack-choice rule (step D, 2026-10-08): the 'you may' decision is made at step D, before the damage (the deck is nonempty, so it is known then); only the search itself, which needs the deck, is asked after the damage"
   },
   {
    "at": "turn_end",

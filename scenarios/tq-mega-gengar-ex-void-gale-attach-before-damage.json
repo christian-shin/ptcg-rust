@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Gastly ASC 123",
+   "4 Haunter ASC 124",
+   "4 Mega Gengar ex ASC 125",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Gastly ASC 123",
+   "Haunter ASC 124",
+   "Mega Gengar ex ASC 125"
+  ],
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Gastly ASC 123"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Gengar ex ASC 125",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Void Gale"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "AttachEnergy",
+    "Wait"
+   ],
+   "cite": "Advanced Rulebook A-01 steps 3-5, C-01; attack-choice rule (step D, 2026-10-08; rulings 1553, 1846): the Energy to move and the Benched Pokemon to move it to are chosen at step D, before the damage (the Bench does not change with the damage)"
+  }
+ ]
+}
