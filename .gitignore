@@ -11,4 +11,3 @@ python/target/
 *.so
 .claude/
 docs/
-AGENT_PLAN.md
