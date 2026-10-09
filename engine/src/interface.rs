@@ -139,6 +139,16 @@ impl SelectData {
         raw_answer(self, chosen)
     }
 
+    /// Whether `wire_answer(chosen)` would succeed (every pick names an option; a single-valued prompt
+    /// needs one pick), without building it.
+    pub fn picks_ok(&self, chosen: &[usize]) -> bool {
+        match &self.source {
+            Source::Prompt(_, vals, AnswerShape::Single) => chosen.first().is_some_and(|k| *k < vals.len()),
+            Source::Prompt(_, vals, _) => chosen.iter().all(|k| *k < vals.len()),
+            _ => false,
+        }
+    }
+
     /// True when the same option may be picked more than once (each pick is
     /// one damage counter: Put / Move / Remove damage prompts).
     /// The prompt message this select answers (empty for turn / chance selects).
@@ -598,6 +608,12 @@ impl Game {
     /// energy set that does not pay the cost exactly) return an error and
     /// leave the game unchanged.
     pub fn answer(&mut self, sel: &SelectData, chosen: &[usize]) -> R {
+        self.answer_with(sel, chosen, true)
+    }
+
+    /// [`Game::answer`]; `rollback` false skips the backup copy that restores the game when the answer
+    /// is rejected (a caller working on a copy it throws away).
+    fn answer_with(&mut self, sel: &SelectData, chosen: &[usize], rollback: bool) -> R {
         match &sel.source {
             Source::Chance(i) => {
                 let k = *chosen.first().ok_or(GameError("EMPTY_ANSWER"))?;
@@ -618,6 +634,9 @@ impl Game {
                 let raw = raw_answer(sel, chosen)?;
                 let pr = self.prompts.as_slice()[*i];
                 let res = self.decode_answer(&pr, &raw)?;
+                if !rollback {
+                    return self.resolve(*i, res);
+                }
                 let backup = self.fork();
                 let r = self.resolve(*i, res);
                 if r.is_err() {
@@ -716,7 +735,16 @@ impl Game {
             return false;
         }
         let mut trial = self.fork();
-        trial.answer(sel, chosen).is_ok()
+        trial.answer_with(sel, chosen, false).is_ok()
+    }
+
+    /// The decoded and validated answer for option indices `chosen` of a prompt select (what
+    /// [`Game::answer`] resolves), without resolving it.
+    pub fn decode_picks(&self, sel: &SelectData, chosen: &[usize]) -> Result<Res, GameError> {
+        let Source::Prompt(i, _, _) = &sel.source else { return Err(GameError("NOT_A_PROMPT")) };
+        let raw = raw_answer(sel, chosen)?;
+        let pr = self.prompts.as_slice()[*i];
+        self.decode_answer(&pr, &raw)
     }
 
     /// For a pick-by-pick answer: which options can be picked next so that a
@@ -774,7 +802,7 @@ impl Game {
         }
         if buf.len() >= sel.min_count && self.is_valid_answer(sel, buf) {
             let mut trial = self.fork();
-            if trial.answer(sel, buf).is_ok() {
+            if trial.answer_with(sel, buf, false).is_ok() {
                 return true;
             }
         }

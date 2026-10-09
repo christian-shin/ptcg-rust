@@ -10,8 +10,9 @@
 
 use crate::carddb::{def, def_by_full_name, DefId};
 use crate::game::{Action, Game, Pending};
-use crate::list::CardList;
-use crate::options::{legal_turn_options, TurnOption};
+use crate::interface::SelectData;
+use crate::list::{CardId, CardList};
+use crate::options::{action_kind, describe_action, describe_action_of, legal_actions, TurnOption};
 use crate::rng::{Draw, Rng};
 use serde_json::{json, Value};
 use std::collections::VecDeque;
@@ -19,12 +20,30 @@ use std::collections::VecDeque;
 thread_local! {
     /// Set when the pick mask led to picks that can't be completed (see `random_prompt`).
     static DEAD_END: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
-    /// The decision being resolved (descriptor or answer), reported when the game panics.
-    static LAST: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+    /// The decision being resolved, reported when the game panics (described only then).
+    static LAST: std::cell::RefCell<Last> = const { std::cell::RefCell::new(Last::None) };
 }
 
-fn note(what: impl FnOnce() -> String) {
-    LAST.with(|l| *l.borrow_mut() = what());
+/// What was being resolved, kept cheap: the text is made when a game panics.
+enum Last {
+    None,
+    /// A prompt of this class, answered by these option indices (or, scripted, by this wire answer).
+    Prompt { cls: &'static str, picks: Vec<usize>, wire: Option<Value> },
+    /// A turn action (and the card it plays).
+    Turn(Action, Option<CardId>),
+}
+
+fn note(what: Last) {
+    LAST.with(|l| *l.borrow_mut() = what);
+}
+
+fn last_text(g: &Game) -> String {
+    LAST.with(|l| match &*l.borrow() {
+        Last::None => String::new(),
+        Last::Prompt { cls, wire: Some(w), .. } => format!("prompt {} with {}", cls, w),
+        Last::Prompt { cls, picks, wire: None } => format!("prompt {} with picks {:?}", cls, picks),
+        Last::Turn(a, c) => format!("turn action {}", describe_action_of(g, *a, *c)),
+    })
 }
 
 /// The oracle runner's caps.
@@ -252,39 +271,56 @@ fn find_by_card(g: &Game, opts: &[TurnOption], scripted: &Value) -> Option<usize
 
 /// A turn option by policy, as the oracle runner's `decideTurn`.
 pub fn pick_turn(opts: &[TurnOption], policy: Policy, rng: &mut Rng) -> usize {
-    let kind = |o: &TurnOption| o.desc["a"].as_str().unwrap_or("").to_string();
-    let pass = opts.iter().position(|o| kind(o) == "pass");
+    let kind = |i: usize| action_kind(&opts[i].action);
+    let pass = (0..opts.len()).find(|&i| kind(i) == "pass");
+    // The index of the n-th option whose kind is among `ks`.
+    let count = |ks: &[&str]| (0..opts.len()).filter(|&i| ks.contains(&kind(i))).count();
+    let nth = |ks: &[&str], n: usize| (0..opts.len()).filter(|&i| ks.contains(&kind(i))).nth(n).unwrap();
     match policy {
         Policy::Heur => {
-            let idx = |ks: &[&str]| -> Vec<usize> { (0..opts.len()).filter(|&i| ks.contains(&kind(&opts[i]).as_str())).collect() };
-            let develop = idx(&["play", "ability", "trainerAbility", "energyAbility", "stadium"]);
-            let attack = idx(&["attack"]);
-            let retreat = idx(&["retreat"]);
+            const DEVELOP: [&str; 5] = ["play", "ability", "trainerAbility", "energyAbility", "stadium"];
+            let (develop, attack, retreat) = (count(&DEVELOP), count(&["attack"]), count(&["retreat"]));
             let r = rng.below(1_000_000) as f64 / 1e6;
-            if !develop.is_empty() && r < 0.8 {
-                return develop[rng.index(develop.len())];
+            if develop > 0 && r < 0.8 {
+                return nth(&DEVELOP, rng.index(develop));
             }
-            if !attack.is_empty() && r < 0.97 {
-                return attack[rng.index(attack.len())];
+            if attack > 0 && r < 0.97 {
+                return nth(&["attack"], rng.index(attack));
             }
-            if !retreat.is_empty() && r < 0.99 {
-                return retreat[rng.index(retreat.len())];
+            if retreat > 0 && r < 0.99 {
+                return nth(&["retreat"], rng.index(retreat));
             }
             pass.unwrap_or_else(|| rng.index(opts.len()))
         }
         Policy::Random => {
-            let others: Vec<usize> = (0..opts.len()).filter(|i| Some(*i) != pass).collect();
-            if others.is_empty() || (pass.is_some() && rng.below(1_000_000) < 80_000) {
+            let others = opts.len() - pass.is_some() as usize;
+            if others == 0 || (pass.is_some() && rng.below(1_000_000) < 80_000) {
                 return pass.unwrap_or(0);
             }
-            others[rng.index(others.len())]
+            let n = rng.index(others);
+            (0..opts.len()).filter(|i| Some(*i) != pass).nth(n).unwrap()
+        }
+    }
+}
+
+/// A prompt answer: option indices of a select, or a wire answer.
+enum Picked {
+    Picks(SelectData, Vec<usize>),
+    Wire(Value),
+}
+
+impl Picked {
+    fn wire(&self) -> Value {
+        match self {
+            Picked::Picks(sel, picks) => sel.wire_answer(picks).unwrap_or(Value::Null),
+            Picked::Wire(w) => w.clone(),
         }
     }
 }
 
 /// A random valid prompt answer from the selection masks; when nothing can be chosen, cancel or an
 /// empty answer if the prompt takes one (the oracle's `randomAnswer` fallbacks).
-fn random_prompt(g: &mut Game, pi: usize, rng: &mut Rng) -> Option<Value> {
+fn random_prompt(g: &mut Game, pi: usize, rng: &mut Rng) -> Option<Picked> {
     let picked = (|| {
         let sel = g.select().ok()??;
         let n = sel.options.len();
@@ -314,11 +350,11 @@ fn random_prompt(g: &mut Game, pi: usize, rng: &mut Rng) -> Option<Value> {
                 break;
             }
         }
-        sel.wire_answer(&picks).ok()
+        sel.picks_ok(&picks).then_some(Picked::Picks(sel, picks))
     })();
     picked.or_else(|| {
         let pr = g.prompts.as_slice()[pi];
-        [Value::Null, Value::Array(vec![])].into_iter().find(|w| g.decode_answer(&pr, w).is_ok())
+        [Value::Null, Value::Array(vec![])].into_iter().find(|w| g.decode_answer(&pr, w).is_ok()).map(Picked::Wire)
     })
 }
 
@@ -366,7 +402,7 @@ pub fn play(o: &Opts) -> Played {
     let end = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| run(o, &mut g, &mut rec, &mut reached)))
         .unwrap_or_else(|e| {
             let msg = e.downcast_ref::<&str>().map(|s| s.to_string()).or_else(|| e.downcast_ref::<String>().cloned()).unwrap_or_default();
-            End::Fail(format!("panic: {} (turn {}, resolving {})", msg, g.st.turn, LAST.with(|l| l.borrow().clone())))
+            End::Fail(format!("panic: {} (turn {}, resolving {})", msg, g.st.turn, last_text(&g)))
         });
     let expect = crate::expect::take();
     crate::rng::take_recorded();
@@ -420,10 +456,10 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
             Pending::Decision(pi) => {
                 let pr = g.prompts.as_slice()[pi];
                 let p = g.st.player_index_by_id(pr.player_id);
-                let wire = match script.front().filter(|v| !is_turn_answer(v)).cloned() {
+                let picked = match script.front().filter(|v| !is_turn_answer(v)).cloned() {
                     Some(v) => {
                         script.pop_front();
-                        v
+                        Picked::Wire(v)
                     }
                     None => match random_prompt(g, pi, &mut prng) {
                         Some(w) => w,
@@ -434,14 +470,21 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     },
                 };
                 let d = if rec.on { g.describe_prompt(&pr) } else { Value::Null };
-                note(|| format!("prompt {} with {}", g.describe_prompt(&pr)["cls"], wire));
-                let r = match g.decode_answer(&pr, &wire) {
+                note(match &picked {
+                    Picked::Picks(_, picks) => Last::Prompt { cls: pr.class_name(), picks: picks.clone(), wire: None },
+                    Picked::Wire(w) => Last::Prompt { cls: pr.class_name(), picks: Vec::new(), wire: Some(w.clone()) },
+                });
+                let decoded = match &picked {
+                    Picked::Picks(sel, picks) => g.decode_picks(sel, picks),
+                    Picked::Wire(w) => g.decode_answer(&pr, w),
+                };
+                let r = match decoded {
                     Ok(res) => g.resolve(pi, res),
-                    Err(e) => return End::Broken(format!("answer {} rejected: {:?} by {}", wire, e, g.describe_prompt(&pr))),
+                    Err(e) => return End::Broken(format!("answer {} rejected: {:?} by {}", picked.wire(), e, g.describe_prompt(&pr))),
                 };
                 let r = r.and_then(|_| g.settle());
-                if r.is_ok() {
-                    rec.step(g, p, d, wire);
+                if r.is_ok() && rec.on {
+                    rec.step(g, p, d, picked.wire());
                 }
                 r
             }
@@ -468,7 +511,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                         }
                     }
                 }
-                let opts = legal_turn_options(g);
+                let opts = legal_actions(g);
                 if opts.is_empty() {
                     return End::Fail(format!("no legal turn options at step {} (turn {})", step, g.st.turn));
                 }
@@ -478,21 +521,33 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     script.pop_front();
                 }
                 let p = g.st.active_player as usize;
-                let k = match script.pop_front() {
+                // Descriptors are made only when something reads them: a scripted answer, the trace.
+                let described = |g: &Game| -> Vec<TurnOption> { opts.iter().map(|x| TurnOption { desc: describe_action(g, x.action), action: x.action }).collect() };
+                let scripted = script.pop_front();
+                let full = (rec.on || scripted.is_some()).then(|| described(g));
+                let k = match scripted {
                     Some(want) => {
+                        let full = full.as_ref().unwrap();
                         let key = stable(&want);
-                        match opts.iter().position(|x| stable(&x.desc) == key).or_else(|| find_by_card(g, &opts, &want)) {
+                        match full.iter().position(|x| stable(&x.desc) == key).or_else(|| find_by_card(g, full, &want)) {
                             Some(k) => k,
                             None => return End::Broken(format!("scripted answer not among options: {}", key)),
                         }
                     }
                     None => pick_turn(&opts, o.policy[p], &mut prng),
                 };
-                let d = if rec.on { json!({ "kind": "turn", "options": opts.iter().map(|x| x.desc.clone()).collect::<Vec<_>>() }) } else { Value::Null };
-                note(|| format!("turn action {}", opts[k].desc));
+                let card = match opts[k].action {
+                    Action::PlayCard { hand_index, .. } => g.st.players[p].hand.get(hand_index as usize),
+                    _ => None,
+                };
+                note(Last::Turn(opts[k].action, card));
+                let d = match (&full, rec.on) {
+                    (Some(full), true) => json!({ "kind": "turn", "options": full.iter().map(|x| x.desc.clone()).collect::<Vec<_>>() }),
+                    _ => Value::Null,
+                };
                 let r = g.act(opts[k].action).and_then(|_| g.settle());
-                if r.is_ok() {
-                    rec.step(g, p, d, opts[k].desc.clone());
+                if r.is_ok() && rec.on {
+                    rec.step(g, p, d, full.as_ref().unwrap()[k].desc.clone());
                 }
                 r
             }

@@ -27,12 +27,34 @@ fn js_sort(v: &mut Vec<&'static str>) {
     });
 }
 
+/// The descriptor's `a` field of a turn action (what the policies tell actions apart by).
+pub fn action_kind(a: &Action) -> &'static str {
+    match a {
+        Action::PlayCard { .. } => "play",
+        Action::Attack { .. } => "attack",
+        Action::UseAbility { .. } => "ability",
+        Action::UseTrainerAbility { .. } => "trainerAbility",
+        Action::UseStadium => "stadium",
+        Action::Retreat { .. } => "retreat",
+        Action::Pass => "pass",
+    }
+}
+
 /// Canonical descriptor of a turn action (oracle `TurnOption.desc`).
 pub fn describe_action(g: &Game, a: Action) -> Value {
     let p = g.st.active_player as usize;
+    let card = match a {
+        Action::PlayCard { hand_index, .. } => Some(g.st.players[p].hand.as_slice()[hand_index as usize]),
+        _ => None,
+    };
+    describe_action_of(g, a, card)
+}
+
+/// [`describe_action`] with the played card given (for a `PlayCard`; it no longer has to be in the hand).
+pub fn describe_action_of(g: &Game, a: Action, card: Option<CardId>) -> Value {
     match a {
-        Action::PlayCard { hand_index, target } => {
-            let c = g.st.players[p].hand.as_slice()[hand_index as usize];
+        Action::PlayCard { target, .. } => {
+            let c = card.expect("PlayCard needs its card");
             json!({ "a": "play", "card": g.card_ref(c), "target": target_json(target) })
         }
         Action::Attack { name, from: None } => json!({ "a": "attack", "name": name }),
@@ -326,11 +348,13 @@ fn trial(g: &Game, a: Action, fast: bool) -> crate::game::R {
 /// Legal actions without descriptors (fast path for the select interface).
 pub fn legal_actions(g: &Game) -> Vec<TurnOption> {
     let mut ctx = Ctx::new(g);
+    let mut seen: Vec<Action> = Vec::new();
     let mut out: Vec<TurnOption> = Vec::new();
     for c in candidates(&mut ctx) {
-        if out.iter().any(|o| o.action == c) {
+        if seen.contains(&c) {
             continue;
         }
+        seen.push(c);
         if legal_in(&mut ctx, c) {
             out.push(TurnOption { desc: Value::Null, action: c });
         }
