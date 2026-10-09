@@ -61,6 +61,14 @@ and simultaneous take-holds are stamped with the turn player's first.
   to evolve") also stops Rare Candy. It doesn't stop an Evolution card that
   comes from somewhere else, such as Grand Tree's search of the deck (id1133
   / n1046, Archeops' Ancient Power, same wording).
+- **"Can't play X from your hand" covers every way a card goes from the hand
+  into play, including through an Ability or an attack.** Honchkrow GX's Ruler
+  of the Night stops Charjabug's Battery and Porygon-Z's Crazy Code attaching a
+  Special Energy from the hand (id25, id230); Rare Candy's Stage 2 is played
+  from the hand (id285, id1998). So Genesect's ACE Nullifier also stops an
+  Ability or attack attaching an ACE SPEC card from the hand (decided
+  2026-10-09). The once-per-turn Energy attachment and the one Supporter per
+  turn are separate limits that effects don't use up (APR C-09).
 - Genesect's ACE Nullifier ("can't play any ACE SPEC cards from their hand")
   blocks only cards played from the hand. An Energy or Tool put onto a Pokémon
   from the deck or discard pile by an effect isn't played from the hand, and
@@ -122,3 +130,28 @@ and simultaneous take-holds are stamped with the turn player's first.
   (an empty deck, nothing to heal) can't be used (ids 255, 925, 2362).
 - Battle Cage stops counters from being placed on Benched Pokémon, so counters
   moved onto one leave their source and vanish (id2257 / n1758).
+
+## Evolution timing (2026-10-09)
+
+- Evolving with a card from the hand can't happen on the player's first turn,
+  on a Pokémon put into play this turn, or twice in a turn (APR A-05). An
+  effect that puts an Evolution card onto a Pokémon ignores these limits
+  unless its text says otherwise (APR C-12): Grand Tree's text keeps both,
+  Salvatore's allows "put into play this turn".
+- A permission doesn't override a card's own restriction: Rare Candy can't be
+  used during the first turn or on a Basic put into play this turn even with
+  Forest of Vitality or Eevee's Boosted Evolution in effect (Rare Candy text,
+  id1144, id1815).
+- A permission applies only as its text says: Eevee ex's Rainbow DNA ("if you
+  play it from your hand onto this Pokémon") doesn't apply to Grand Tree or
+  Salvatore; Forest of Vitality lets a [G] Pokémon evolve only into a [G]
+  Pokémon on the turn it was played.
+
+## Putting onto the Bench (2026-10-09)
+
+- Risky Ruins and similar "whenever … puts a Pokémon onto their Bench" effects
+  apply to every way a Pokémon is put onto the Bench (hand, deck, discard
+  pile; id2233), after the Pokémon is on the Bench, like other "enters play"
+  effects. Moving a Pokémon to the Bench (retreat, switch) isn't putting it
+  onto the Bench (id2329).
+
