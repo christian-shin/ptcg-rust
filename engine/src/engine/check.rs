@@ -364,6 +364,7 @@ pub fn choose_active_cont(g: &mut Game, p: u8, res: Res) -> R {
     let new_active = pl.bench.as_slice()[bi];
     pl.bench.as_mut_slice()[bi] = pl.active;
     pl.active = new_active;
+    touch();
     if let Some(c) = g.st.slot_pokemon(p, new_active) {
         if !g.st.players[p].moved_to_active_this_turn.contains(&c) {
             g.st.players[p].moved_to_active_this_turn.push(c);
@@ -552,6 +553,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
             let s = g.st.players[p].alloc_slot();
             g.st.players[p].slots[s as usize].is_public = true;
             g.st.players[p].bench.push(s);
+            touch();
         }
         if g.st.players[p].bench.len() == size {
             continue;
@@ -572,6 +574,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
                 let s = pl.bench.as_slice()[i];
                 if empty.contains(&s) {
                     pl.bench.remove_at(i);
+                    touch();
                     pl.free_slot(s);
                 }
             }
@@ -630,6 +633,7 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
         let pl = &mut g.st.players[pu];
         if let Some(j) = pl.bench.position(&s) {
             pl.bench.remove_at(j);
+            touch();
         }
         pl.free_slot(s);
     }
@@ -826,6 +830,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         let cards: Vec<CardId> = deck.iter().collect();
         g.st.players[p as usize] = Player::new(id);
         g.st.players[p as usize].deck = deck;
+        touch();
         for c in cards {
             let inst = &mut g.st.cards[c as usize];
             inst.moved_to_active_this_turn = false;

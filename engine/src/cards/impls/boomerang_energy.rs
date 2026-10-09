@@ -123,6 +123,7 @@ mod tests {
         let (g, me, card) = run(|g, me| {
             let a = g.st.players[me].active;
             g.st.players[me].slots[a as usize].cards = Default::default();
+            crate::list::touch();
         });
         assert!(g.st.players[me].discard.contains(card), "stays in the discard pile");
     }

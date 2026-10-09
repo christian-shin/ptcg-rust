@@ -36,6 +36,7 @@ fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> 
     pl.slots[old as usize].special_conditions.clear();
     pl.active = pl.bench.as_slice()[bi];
     pl.bench.as_mut_slice()[bi] = old;
+    touch();
     let new_active = g.st.players[p].active;
     if let Some(c) = g.st.slot_pokemon(p, new_active) {
         if !g.st.players[p].moved_to_active_this_turn.contains(&c) {

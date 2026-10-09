@@ -18,7 +18,7 @@ pub const MAX_BENCH: usize = 8;
 
 /// Zone lists hold up to 120: Twinleaf can duplicate cards (energies of a
 /// fully moved Pokémon slot are pushed twice), so zones may exceed 60.
-pub type Deck = List<120>;
+pub type Deck = ZoneList<120>;
 pub type SlotId = u8;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
@@ -87,9 +87,9 @@ impl<const N: usize> Marker<N> {
 /// `PokemonCardList`: one board slot.
 #[derive(Clone, Copy, Debug)]
 pub struct Slot {
-    pub cards: List<60>,
-    pub energies: List<60>,
-    pub tools: List<4>,
+    pub cards: ZoneList<60>,
+    pub energies: ZoneList<60>,
+    pub tools: ZoneList<4>,
     pub damage: i32,
     pub hp: i32,
     pub hp_bonus: i32,
@@ -336,9 +336,9 @@ pub struct Player {
     pub hand: Deck,
     pub discard: Deck,
     pub lostzone: Deck,
-    pub stadium: List<4>,
-    pub supporter: List<8>,
-    pub prizes: [List<4>; 6],
+    pub stadium: ZoneList<4>,
+    pub supporter: ZoneList<8>,
+    pub prizes: [ZoneList<4>; 6],
     pub prize_count: u8,
     /// Prize `CardList.isSecret == false` (Cresselia SFA turns one public);
     /// all prize lists start secret.
@@ -466,6 +466,7 @@ impl Player {
             p.slots[i].is_public = true;
             p.bench.push(i as SlotId);
         }
+        touch();
         p
     }
 
@@ -512,12 +513,14 @@ impl Player {
             if !self.slot_used[i] {
                 self.slot_used[i] = true;
                 self.slots[i] = Slot::default();
+                touch();
                 return i as SlotId;
             }
         }
         panic!("slot arena exhausted");
     }
     pub fn free_slot(&mut self, s: SlotId) {
+        touch();
         self.slot_used[s as usize] = false;
     }
 }

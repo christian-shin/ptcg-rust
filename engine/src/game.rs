@@ -277,6 +277,36 @@ pub struct Game {
     pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
     /// `lock_sync` is running (it probes Abilities, which must not start another sync).
     pub lock_syncing: bool,
+    /// Memo of [`Game::propagation_order`] (valid while the board layout is unchanged).
+    pub prop: PropCache,
+}
+
+/// Slots of the propagation-order memo, and the most cards one entry holds (longer orders aren't kept).
+const PROP_SLOTS: usize = 64;
+const PROP_CARDS: usize = 24;
+
+/// `propagation_order` results by (effect kind, rank class), good while `gen` is [`crate::list::zone_gen`].
+/// The order depends on the card layout only (zone contents and order, Active/Bench slots), and every
+/// change of that bumps the generation.
+#[derive(Clone, Copy)]
+pub struct PropCache {
+    gen: u64,
+    tags: [u16; PROP_SLOTS],
+    lens: [u8; PROP_SLOTS],
+    items: [[CardId; PROP_CARDS]; PROP_SLOTS],
+}
+
+impl PropCache {
+    const EMPTY_TAG: u16 = u16::MAX;
+    fn new() -> PropCache {
+        PropCache { gen: 0, tags: [Self::EMPTY_TAG; PROP_SLOTS], lens: [0; PROP_SLOTS], items: [[NO_CARD; PROP_CARDS]; PROP_SLOTS] }
+    }
+}
+
+/// `PTCG_VERIFY_CACHE=1` (or `PTCG_VERIFY_LEGAL=1`): every memo hit is checked against a fresh computation.
+fn verify_cache() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| ["PTCG_VERIFY_CACHE", "PTCG_VERIFY_LEGAL"].iter().any(|k| std::env::var(k).map_or(false, |v| v == "1")))
 }
 
 /// Prompt constructor work Twinleaf does in the prompt class itself:
@@ -329,6 +359,7 @@ impl Game {
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
                 resolving_trainer, probing_stadium, trial, kinds_present, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
+                prop,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -359,6 +390,12 @@ impl Game {
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
             f!((*d).lock_syncing).write(*lock_syncing);
+            // The memo comes along while it is good; a stale one starts over.
+            if prop.gen == crate::list::zone_gen() {
+                f!((*d).prop).write(*prop);
+            } else {
+                (*d).prop.gen = 0;
+            }
         }
     }
 }
@@ -391,6 +428,7 @@ impl Game {
             last_attack: None,
             spec_choices: SVec::new(),
             lock_syncing: false,
+            prop: PropCache::new(),
         }
     }
 
@@ -1004,7 +1042,41 @@ impl Game {
 
     /// Cards with a handler for this effect kind, in Twinleaf's
     /// `propagateEffect` order (zone order, then stable sort by rank).
-    pub(crate) fn propagation_order(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
+    pub(crate) fn propagation_order(&mut self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
+        // The ranking depends on the effect's variant for these three; every other effect ranks by super type.
+        let class: u16 = match e {
+            Effect::Power { .. } => 1,
+            Effect::CheckPokemonPowers { .. } => 2,
+            Effect::AfterAttack { .. } => 3,
+            _ => 0,
+        };
+        let tag = (kind as u16) << 2 | class;
+        let slot = kind as usize % PROP_SLOTS;
+        let now = crate::list::zone_gen();
+        if self.prop.gen != now {
+            self.prop.tags = [PropCache::EMPTY_TAG; PROP_SLOTS];
+            self.prop.gen = now;
+        } else if self.prop.tags[slot] == tag {
+            let mut out: SVec<CardId, 120> = SVec::new();
+            for &c in &self.prop.items[slot][..self.prop.lens[slot] as usize] {
+                out.push(c);
+            }
+            if verify_cache() {
+                let fresh = self.propagation_order_fresh(e, kind);
+                assert_eq!(out.as_slice(), fresh.as_slice(), "stale propagation order for kind {} (class {})", kind, class);
+            }
+            return out;
+        }
+        let out = self.propagation_order_fresh(e, kind);
+        if out.len() <= PROP_CARDS {
+            self.prop.tags[slot] = tag;
+            self.prop.lens[slot] = out.len() as u8;
+            self.prop.items[slot][..out.len()].copy_from_slice(out.as_slice());
+        }
+        out
+    }
+
+    fn propagation_order_fresh(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {

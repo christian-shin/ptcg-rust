@@ -5,19 +5,43 @@ use std::fmt;
 pub type CardId = u8;
 pub const NO_CARD: CardId = u8::MAX;
 
+thread_local! {
+    /// Bumped by every mutation of a zone list (`List<N, true>`) and by [`touch`]; see [`zone_gen`].
+    static ZONE_GEN: std::cell::Cell<u64> = const { std::cell::Cell::new(1) };
+}
+
+/// Records that the card layout of the board changed (a card moved, a zone was shuffled, the Active
+/// Spot or the Bench changed). Zone lists call this themselves; code that changes the layout in another
+/// way (the Active/Bench slot ids, a whole slot or list assigned) calls it by hand.
+#[inline]
+pub fn touch() {
+    ZONE_GEN.with(|g| g.set(g.get() + 1));
+}
+
+/// A counter that changes whenever the card layout of any game on this thread changes: a value computed
+/// from the layout (the propagation order) is still good while this is the same.
+#[inline]
+pub fn zone_gen() -> u64 {
+    ZONE_GEN.with(|g| g.get())
+}
+
+/// A card list. `Z` marks a zone (hand, deck, discard, prizes, a slot's cards): its mutations [`touch`].
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub struct List<const N: usize> {
+pub struct List<const N: usize, const Z: bool = false> {
     len: u8,
     items: [CardId; N],
 }
 
-impl<const N: usize> Default for List<N> {
+/// A card list that is part of the board layout.
+pub type ZoneList<const N: usize> = List<N, true>;
+
+impl<const N: usize, const Z: bool> Default for List<N, Z> {
     fn default() -> Self {
         List { len: 0, items: [NO_CARD; N] }
     }
 }
 
-impl<const N: usize> fmt::Debug for List<N> {
+impl<const N: usize, const Z: bool> fmt::Debug for List<N, Z> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_list().entries(self.as_slice()).finish()
     }
@@ -64,29 +88,41 @@ pub trait CardList {
     }
 }
 
-impl<const N: usize> CardList for List<N> {
+impl<const N: usize, const Z: bool> CardList for List<N, Z> {
     #[inline]
     fn as_slice(&self) -> &[CardId] {
         &self.items[..self.len as usize]
     }
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [CardId] {
+        if Z {
+            touch();
+        }
         &mut self.items[..self.len as usize]
     }
     #[inline]
     fn push(&mut self, c: CardId) {
         assert!((self.len as usize) < N, "List<{}> overflow", N);
+        if Z {
+            touch();
+        }
         self.items[self.len as usize] = c;
         self.len += 1;
     }
     fn insert(&mut self, i: usize, c: CardId) {
         assert!((self.len as usize) < N, "List<{}> overflow", N);
+        if Z {
+            touch();
+        }
         let len = self.len as usize;
         self.items.copy_within(i..len, i + 1);
         self.items[i] = c;
         self.len += 1;
     }
     fn remove_at(&mut self, i: usize) -> CardId {
+        if Z {
+            touch();
+        }
         let len = self.len as usize;
         let c = self.items[i];
         self.items.copy_within(i + 1..len, i);
@@ -96,10 +132,16 @@ impl<const N: usize> CardList for List<N> {
     }
     #[inline]
     fn clear(&mut self) {
+        if Z {
+            touch();
+        }
         self.len = 0;
     }
     fn set_from(&mut self, cards: &[CardId]) {
         assert!(cards.len() <= N, "List<{}> overflow", N);
+        if Z {
+            touch();
+        }
         self.items[..cards.len()].copy_from_slice(cards);
         self.len = cards.len() as u8;
     }
@@ -108,7 +150,7 @@ impl<const N: usize> CardList for List<N> {
     }
 }
 
-impl<const N: usize> List<N> {
+impl<const N: usize, const Z: bool> List<N, Z> {
     pub fn new() -> Self {
         Self::default()
     }

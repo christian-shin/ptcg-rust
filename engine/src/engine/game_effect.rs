@@ -37,6 +37,7 @@ pub fn reset_empty_slot(slot: &mut Slot) {
     *slot = Slot::default();
     slot.cards = cards;
     slot.energies = energies;
+    touch();
     slot.is_public = is_public;
     // attacksThisTurn = undefined
     slot.attacks_this_turn = None;
