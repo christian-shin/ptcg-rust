@@ -76,15 +76,6 @@ impl DamageSource {
     }
 }
 
-/// What the opponent can't play.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Locked {
-    Item,
-    Supporter,
-    Evolve,
-    Stadium,
-}
-
 /// A lasting attack effect (vocabulary v1 `Lasting`). The core owns the
 /// pending-to-active roll-over at the end of the turn and the expiry.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -109,8 +100,9 @@ pub enum Lasting {
     /// During the opponent's next turn, if this Pokémon is damaged by an attack
     /// (even if Knocked Out), put n damage counters on the Attacking Pokémon.
     Retaliate(i32),
-    /// The opponent can't play these cards from their hand during their next turn.
-    OppCannotPlay(Locked),
+    /// The opponent can't do these actions with these cards (a [`LockDecl`], the declaration an in-play lock
+    /// uses) during their next turn.
+    OppCannotPlay(&'static LockDecl),
     /// During the opponent's next turn, whenever they try to use a Trainer from
     /// their hand, they flip a coin; on tails it is discarded instead.
     CoinFlipCancelTrainer,
@@ -267,15 +259,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 g.run_fx(Effect::RetaliateOnDamage { b, damage: n, source_card: me })?;
             }
         }
-        Lasting::OppCannotPlay(l) => {
-            let locks = match l {
-                Locked::Item => crate::effects::play_lock::ITEM,
-                Locked::Supporter => crate::effects::play_lock::SUPPORTER,
-                Locked::Evolve => crate::effects::play_lock::EVOLVE,
-                Locked::Stadium => crate::effects::play_lock::STADIUM,
-            };
-            opponent_cannot_play_cards(g, atk, locks)?;
-        }
+        Lasting::OppCannotPlay(lock) => opponent_cannot_play_cards(g, atk, lock)?,
         Lasting::DiscardAttackerEnergyIfKnockedOut => discard_attacker_energy_if_knocked_out(g, atk, me)?,
         Lasting::CoinFlipCancelTrainer => {
             if let Some(b) = attack_base(g, atk, source) {

@@ -1,0 +1,50 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Abra MEG 54",
+   "4 Kadabra MEG 55",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Abra MEG 54",
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Abra MEG 54"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "stadium"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Kadabra MEG 55",
+   "cite": "Grand Tree evolves Abra from the deck"
+  },
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 0,
+   "cite": "Psychic Draw triggers when the card is played from the hand to evolve (id1998, id285); an Evolution put on from the deck isn't: the hand (empty at the start) stays empty"
+  }
+ ]
+}

@@ -74,9 +74,23 @@ and simultaneous take-holds are stamped with the turn player's first.
   card predicate and an `except` predicate, and the source's conditions
   (Active, has a Tool, the card is the source itself). `play_locked` in
   `spec/passive.rs` is the one query: the passive's handler (execution) and
-  legality both call it. Locks that last (an attack's "can't play Item cards
+  legality both call it. A lock that lasts (an attack's "can't play Item cards
   next turn": Budew, Frillish, Galvantula ex, Scream Tail ex, Chi-Yu,
-  Bronzong) are player flags, not declared locks.
+  Bronzong) is the same declaration (`LockDecl`: actions, card predicate,
+  `except`, error code) stored on the locked player with the turns it has
+  left; `play_locked` checks the in-play locks and then those
+  (`lasting_locked`). There are no per-category flags.
+- **Locks name rules actions, not engine paths.** Every way a Pokémon card
+  goes from the hand into play (a Basic to the Bench, an Evolution played onto
+  a Pokémon, Rare Candy's Stage 2) is `PlayPokemon`; evolving with a card from
+  the hand is also `Evolve`. Each path asks for all the actions it is an
+  instance of, so Team Rocket's Arbok declares only `PlayPokemon` (its text)
+  and still stops Rare Candy; Bronzong declares `Evolve`.
+- **One evolution routine.** Every evolution (from the hand, Rare Candy,
+  Grand Tree, Salvatore, Dwebble, ...) runs one Evolve event carrying the
+  card's source zone, then the same consequences. Locks and "when you play
+  this Pokémon from your hand to evolve" triggers apply only when the source
+  is the hand (id1133, id285, id1998).
 - Jellicent ex's "Item cards or Pokémon Tool cards from their hand" stops a
   Tool attached from the hand only; a Tool put on by an effect from another
   zone isn't stopped. Team Rocket's Arbok's "any Pokémon that has an Ability

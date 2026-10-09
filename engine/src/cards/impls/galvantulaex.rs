@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
         AttackSpec { index: 1, steps: &[
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Item) })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::of(&[LockedAction::PlayItem])) })),
         ] },
     ],
     passives: &[

@@ -7,7 +7,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Bronzong",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Evolve) }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::of(&[LockedAction::Evolve])) }))] }],
     ..CardSpec::NONE
 };
 

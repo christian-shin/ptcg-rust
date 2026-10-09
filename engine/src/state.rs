@@ -320,6 +320,14 @@ impl Default for CardInst {
     }
 }
 
+/// A play lock an attack left on a player: the declared lock and the player turns it still lasts (it is
+/// dropped at the end of the player's turn in which it reaches 0).
+#[derive(Clone, Copy, Debug)]
+pub struct LastingLock {
+    pub decl: &'static crate::spec::passive::LockDecl,
+    pub turns_remaining: i8,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct Player {
     /// Twinleaf client id (1 or 2).
@@ -364,16 +372,8 @@ pub struct Player {
     pub ancient_pokemon_attacked_last_turn: bool,
     /// `Player.ancientSupporter` (Explorer's Guidance / Professor Sada's Vitality).
     pub ancient_supporter: bool,
-    pub cannot_play_item_cards: bool,
-    pub cannot_play_supporter_cards: bool,
-    pub cannot_play_stadium_cards: bool,
-    pub cannot_play_tool_cards: bool,
-    pub cannot_play_special_energy_cards: bool,
-    pub cannot_play_energy_cards: bool,
-    pub cannot_play_pokemon_cards: bool,
-    pub cannot_play_pokemon_with_abilities: bool,
-    pub cannot_evolve_pokemon_cards: bool,
-    pub play_locks_turns_remaining: i32,
+    /// The locks an attack left on this player (`Lasting::OppCannotPlay`), each with its turns left.
+    pub lasting_locks: [Option<LastingLock>; 6],
     pub used_dragons_wish: bool,
     pub unlimited_energy_attach_turns_remaining: i32,
     pub cannot_draw_at_start_of_turn: bool,
@@ -440,16 +440,7 @@ impl Player {
             can_evolve: false,
             ancient_pokemon_attacked_last_turn: false,
             ancient_supporter: false,
-            cannot_play_item_cards: false,
-            cannot_play_supporter_cards: false,
-            cannot_play_stadium_cards: false,
-            cannot_play_tool_cards: false,
-            cannot_play_special_energy_cards: false,
-            cannot_play_energy_cards: false,
-            cannot_play_pokemon_cards: false,
-            cannot_play_pokemon_with_abilities: false,
-            cannot_evolve_pokemon_cards: false,
-            play_locks_turns_remaining: 0,
+            lasting_locks: [None; 6],
             used_dragons_wish: false,
             unlimited_energy_attach_turns_remaining: 0,
             cannot_draw_at_start_of_turn: false,

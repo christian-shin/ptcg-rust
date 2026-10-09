@@ -1,0 +1,56 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
+   "4 Seismitoad 30C 84",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "1 Grand Tree SCR 136",
+   "39 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
+   "4 Seismitoad 30C 84",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "1 Grand Tree SCR 136",
+   "39 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Bronzor TEF 68",
+   "Bronzong TEF 69"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Tympole EVS 42"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evolution Jammer"
+  },
+  {
+   "a": "stadium"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Seismitoad 30C 84",
+   "cite": "Judge ruling id1133 (compendium n1046): Evolution Jammer stops only Pokemon played from the hand to evolve; Grand Tree's Evolution cards come from the deck, so Tympole still evolves (Stage 1, then Stage 2)"
+  }
+ ]
+}
