@@ -124,15 +124,18 @@ pub enum Effect {
     Heal { p: u8, target: SlotRef, damage: i32, cause: Cause },
     /// The Evolve event (events batch 2; `engine::enter::evolve`): every evolution, played from the hand, Rare
     /// Candy, and the effects that evolve from the deck or elsewhere. `from` is the list the card physically
-    /// leaves, `source` its rules zone (what "from your hand" reads), `base` the Pokémon evolved from.
-    Evolve { p: u8, target: SlotRef, card: CardId, base: CardId, from: ListRef, source: crate::spec::event::RulesZone, path: crate::spec::event::EvolvePath, cause: Cause },
+    /// leaves, `source` its rules zone (what "from your hand" reads), `base` the Pokémon evolved from;
+    /// `base_entered_this_turn` / `owner_first_turn` as they were before the event (the limits it was checked
+    /// against: `EventView`).
+    Evolve { p: u8, target: SlotRef, card: CardId, base: CardId, from: ListRef, source: crate::spec::event::RulesZone, path: crate::spec::event::EvolvePath, cause: Cause, base_entered_this_turn: bool, owner_first_turn: bool },
     /// The EnterPlay event (`engine::enter::enter_play`): a Pokémon card goes onto the empty spot `target` of
     /// its owner `p`: played from the hand by the rule, put by an effect, or set up.
     EnterPlay { p: u8, card: CardId, target: SlotRef, from: ListRef, source: crate::spec::event::RulesZone, mode: crate::spec::event::EnterMode, cause: Cause },
     /// The Devolve event (`engine::enter::devolve`): `removed` (highest Stage first) left the Pokémon for `dest`.
     Devolve { p: u8, target: SlotRef, removed: SVec<CardId, 3>, dest: ListRef, cause: Cause },
-    /// The Swap event (`engine::enter::swap`): the Pokémon card `old` in `target` was replaced by `new`.
-    Swap { p: u8, target: SlotRef, old: CardId, new: CardId, cause: Cause },
+    /// The Swap event (`engine::enter::swap`): the Pokémon card `old` in `target` was replaced by `new`, which came
+    /// from `source` (its rules zone before the swap).
+    Swap { p: u8, target: SlotRef, old: CardId, new: CardId, source: crate::spec::event::RulesZone, cause: Cause },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },

@@ -339,9 +339,9 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
     let turn = g.st.active_player;
     Some(match *g.e(e) {
         Effect::EnterPlay { p, card, target, source, mode, cause, .. } => EventView { source: Some(source), mode: Some(mode), card: Some(card), slot: Some(target), ..EventView::new(EventKind::EnterPlay, cause, p, turn) },
-        Effect::Evolve { p, card, base, target, source, path, cause, .. } => EventView { source: Some(source), path: Some(path), card: Some(card), base: Some(base), slot: Some(target), ..EventView::new(EventKind::Evolve, cause, p, turn) },
+        Effect::Evolve { p, card, base, target, source, path, cause, base_entered_this_turn, owner_first_turn, .. } => EventView { source: Some(source), path: Some(path), card: Some(card), base: Some(base), slot: Some(target), base_entered_this_turn, owner_first_turn, ..EventView::new(EventKind::Evolve, cause, p, turn) },
         Effect::Devolve { p, target, ref removed, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: g.st.slot_pokemon(target.p as usize, target.s), base: removed.get(0).copied(), slot: Some(target), ..EventView::new(EventKind::Devolve, cause, p, turn) },
-        Effect::Swap { p, target, old, new, cause } => EventView { source: crate::engine::enter::source_of(g, new).map(|x| x.1), card: Some(new), base: Some(old), slot: Some(target), ..EventView::new(EventKind::Swap, cause, p, turn) },
+        Effect::Swap { p, target, old, new, source, cause } => EventView { source: Some(source), card: Some(new), base: Some(old), slot: Some(target), ..EventView::new(EventKind::Swap, cause, p, turn) },
         _ => return None,
     })
 }

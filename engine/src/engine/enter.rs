@@ -127,7 +127,8 @@ pub fn evolve_view(g: &Game, card: Option<CardId>, target: SlotRef, source: Rule
         base: Some(base),
         slot: Some(target),
         base_entered_this_turn: slot.entered_turn == g.st.turn,
-        owner_first_turn: g.st.turn <= 2 && !g.st.players[p].can_evolve,
+        // The owner's first turn: the game's turn 1 or 2 when it is the owner's turn.
+        owner_first_turn: g.st.turn <= 2 && g.st.active_player as usize == p,
         ..EventView::new(EventKind::Evolve, cause, target.p, g.st.active_player)
     })
 }
@@ -529,8 +530,9 @@ pub fn evolve(g: &mut Game, card: CardId, target: SlotRef, path: EvolvePath, rea
 
 fn run_evolve(g: &mut Game, card: CardId, target: SlotRef, path: EvolvePath, cause: Cause) -> R {
     let Some((from, source)) = source_of(g, card) else { return Ok(()) };
-    let Some(base) = g.st.slot_pokemon(target.p as usize, target.s) else { crate::bail!("INVALID_TARGET") };
-    g.run_fx_unit(Effect::Evolve { p: target.p, target, card, base, from, source, path, cause })
+    let Some(v) = evolve_view(g, Some(card), target, source, path, cause) else { crate::bail!("INVALID_TARGET") };
+    let base = v.base.unwrap_or(NO_CARD);
+    g.run_fx_unit(Effect::Evolve { p: target.p, target, card, base, from, source, path, cause, base_entered_this_turn: v.base_entered_this_turn, owner_first_turn: v.owner_first_turn })
 }
 
 /// Devolve: the top `count` Evolution cards of the Pokémon in `target` go to `dest`, highest Stage first. An
@@ -544,6 +546,8 @@ pub fn devolve(g: &mut Game, target: SlotRef, count: usize, dest: ListRef, cause
             return Ok(());
         }
     }
+    // B6: the routine's shape stays until events batch 6: no lock check before the event, the consequences
+    // (devolve_one) applied before the Devolve effect is dispatched, one event per Stage removed.
     for _ in 0..count {
         let (tp, ts) = (target.p as usize, target.s);
         if g.st.slot_pokemons(tp, ts).len() <= 1 {
@@ -617,8 +621,11 @@ pub enum SwapPlace {
 /// The card-bound facts move to the new card, the slot-bound ones stay (4.5; id2372). The physical moves are
 /// `MoveCards` effects, as before.
 pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListRef, place: SwapPlace, me: CardId, cause: Cause) -> R {
+    // B6: the routine's shape stays until events batch 6: no lock check before the event, the physical moves and
+    // the card-bound facts applied before the Swap effect is dispatched.
     let (p, s) = (target.p as usize, target.s);
-    let Some(src) = g.st.locate(new).or_else(|| source_of(g, new).map(|x| x.0)) else { return Ok(()) };
+    // Where the new card comes from, read before it moves (the event's source).
+    let Some((src, source)) = source_of(g, new) else { return Ok(()) };
     let list = target.list();
     let old_index = g.st.slot(p, s).cards.index_of(old);
     crate::prefabs::move_cards(g, src, list, &[new], me)?;
@@ -642,7 +649,7 @@ pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListR
         }
     }
     swap_card_facts(g, p, old, new);
-    g.run_fx_unit(Effect::Swap { p: target.p, target, old, new, cause })
+    g.run_fx_unit(Effect::Swap { p: target.p, target, old, new, source, cause })
 }
 
 // ---------------------------------------------------------------------------

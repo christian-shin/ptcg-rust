@@ -1199,7 +1199,7 @@ impl Game {
         }
         if matches!(
             kind,
-            k::MOVE_CARDS | k::ENTER_PLAY | k::EVOLVE | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE
+            k::MOVE_CARDS | k::ENTER_PLAY | k::EVOLVE | k::DEVOLVE | k::PLAY_STADIUM | k::ATTACH_POKEMON_TOOL | k::MOVED_TO_ACTIVE | k::MOVED_FROM_ACTIVE_TO_BENCH | k::CHECK_TABLE_STATE
         ) && !(kind == k::ENTER_PLAY && self.st.phase == GamePhase::Setup)
         {
             // The Pokémon put down at setup take hold together when setup ends (`setup::finish`).
