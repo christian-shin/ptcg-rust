@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
         }),
     }],
     // Mega Drain: heal 50 damage from this Pokémon.
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(50, HealVia::Attack))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(50))] }],
     ..CardSpec::NONE
 };
 

@@ -2,7 +2,8 @@
 //! and 5): triggers, locks, prevention, permissions and restrictions are all `EventPred`s.
 //!
 //! Events batch 2: EnterPlay, Evolve, Devolve and Swap are built by their routines (`engine/enter.rs`); events
-//! batch 3: Attach, MoveEnergy and MoveTool by theirs (`engine/attach.rs`). They are read by triggers (`trigger::Event::On`), locks (`LockDecl::forbids`), permissions (`Modifier::Permit`)
+//! batch 3: Attach, MoveEnergy and MoveTool by theirs (`engine/attach.rs`); events batch 4: GainCondition,
+//! RemoveCondition, RemoveCounters (healing) and CoinFlip by theirs (`engine/condition.rs`). They are read by triggers (`trigger::Event::On`), locks (`LockDecl::forbids`), permissions (`Modifier::Permit`)
 //! and restrictions (`CardSpec::restricts`). The trees are static data (`&'static` slices, like `Pred` and
 //! `SlotPred`); evaluating one allocates nothing.
 
@@ -77,6 +78,22 @@ impl EventKind {
             _ => None,
         }
     }
+}
+
+/// What a coin is flipped for (the CoinFlip event).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CoinPurpose {
+    /// A card's text ("flip a coin"): an attack, an Ability, a Trainer, a Tool, a lasting effect (Seismitoad's
+    /// Quaking Fist when a Trainer is played).
+    Effect,
+    /// A Confused Pokémon tries to attack (APR: Special Conditions).
+    Confusion,
+    /// Burned, at Pokémon Checkup.
+    Burned,
+    /// Asleep, at Pokémon Checkup.
+    Asleep,
+    /// Who goes first (setup, and the Sudden Death game).
+    FirstPlayer,
 }
 
 /// How a Pokémon evolved.
@@ -218,6 +235,11 @@ pub struct EventView {
     pub base: Option<CardId>,
     pub slot: Option<SlotRef>,
     pub condition: Option<SpecialCondition>,
+    /// RemoveCounters: the HP of damage counters removed.
+    pub amount: i32,
+    /// CoinFlip: what it is for and the result.
+    pub purpose: Option<CoinPurpose>,
+    pub heads: Option<bool>,
     /// The player whose card / Pokémon the event is about.
     pub owner: u8,
     /// The player whose turn it is.
@@ -232,7 +254,7 @@ pub struct EventView {
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or

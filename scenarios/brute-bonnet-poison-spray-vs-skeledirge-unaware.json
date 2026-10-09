@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Brute Bonnet TWM 118", "4 Fuecoco SSP 29", "4 Crocalor SVP 80", "4 Skeledirge SSP 31", "44 Darkness Energy MEE 7"],
+  ["4 Brute Bonnet TWM 118", "4 Fuecoco SSP 29", "4 Crocalor SVP 80", "4 Skeledirge SSP 31", "44 Darkness Energy MEE 7"]
+ ],
+ "me": {"reset": true, "active": "Brute Bonnet TWM 118", "active_energy": ["Darkness Energy MEE 7"]},
+ "opp": {"reset": true, "active": ["Fuecoco SSP 29", "Crocalor SVP 80", "Skeledirge SSP 31"]},
+ "answers": [{"a": "attack", "name": "Poison Spray"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "conditions": [], "cite": "card text: Skeledirge's Unaware prevents all effects of attacks used by the opponent's Pokemon done to it, and Brute Bonnet's Poison Spray is an effect of its attack (events batch 4: the frame's Cause decides, not an op flag; it went through the Ability probe before)"}
+ ]
+}

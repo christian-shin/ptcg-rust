@@ -42,13 +42,11 @@ pub fn reset_empty_slot(slot: &mut Slot) {
     slot.attacks_this_turn = None;
 }
 
-/// `PokemonCardList.clearEffects()` for the modeled fields.
+/// `PokemonCardList.clearEffects()` for the modeled fields, except the Special Conditions: a Pokémon that stays in
+/// play recovers from them through RemoveCondition events (`engine::condition::recover_all`, called first by every
+/// caller), and one leaving play loses them with it (`complete_knock_out`).
 pub fn clear_effects(slot: &mut Slot) {
     slot.marker.remove_all_except_trainer_effects();
-    for sc in [SpecialCondition::Poisoned, SpecialCondition::Asleep, SpecialCondition::Burned, SpecialCondition::Confused, SpecialCondition::Paralyzed] {
-        let v = sc as u8;
-        slot.special_conditions.retain(|x| *x != v);
-    }
     slot.poison_damage = 10;
     slot.burn_damage = 20;
     slot.confusion_damage = 30;
@@ -347,6 +345,8 @@ pub fn complete_knock_out(g: &mut Game, id: EffId) -> R {
         g.move_card_to(target.list(), t, ListRef::Discard(owner as u8));
     }
     clear_effects(&mut g.st.players[tp].slots[target.s as usize]);
+    // B6: the Pokémon leaves play with its Special Conditions (LeavePlay, events batch 6); not a recovery.
+    g.st.players[tp].slots[target.s as usize].special_conditions.clear();
     g.run_fx(Effect::MoveCards {
         source: target.list(),
         destination: ListRef::Discard(owner as u8),
@@ -400,18 +400,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[p as usize].stadium_used_turn = g.st.turn;
             Ok(())
         }
-        Effect::Heal { target, damage, .. } => {
-            let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-            if slot.cannot_be_healed_next_turn {
-                g.set_prevent(id, true);
-                return Ok(());
-            }
-            if damage > 0 && slot.damage > 0 {
-                slot.healed_this_turn = true;
-            }
-            slot.damage = (slot.damage - damage).max(0);
-            Ok(())
-        }
         Effect::PlaceDamageCounters { target, damage, .. } => {
             if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
                 crate::bail!("ILLEGAL_ACTION");
@@ -419,30 +407,28 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[target.p as usize].slots[target.s as usize].damage += damage.max(0);
             Ok(())
         }
-        Effect::AddSpecialConditionsPower { target, conditions, poison_damage, burn_damage, sleep_flips, confusion_damage, .. } => {
-            let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
+        // B4-OLD: the Ability probe produces one GainCondition per condition. (It also set the Poison, Burn,
+        // Confusion and Sleep values to their defaults, which are the only values any path writes.)
+        Effect::AddSpecialConditionsPower { target, conditions, cause, .. } => {
             for &c in conditions.iter() {
-                crate::engine::phase::add_condition(slot, SpecialCondition::from_u8(c));
+                crate::engine::condition::gain(g, target, SpecialCondition::from_u8(c), cause)?;
             }
-            slot.poison_damage = poison_damage;
-            slot.burn_damage = burn_damage;
-            slot.confusion_damage = confusion_damage;
-            slot.sleep_flips = sleep_flips;
             Ok(())
         }
         Effect::MoveCards { .. } => move_cards(g, id),
-        Effect::CoinFlipSequence { p, mode, callback, .. } => {
-            let cb = CoinCb::Sequence { p, mode, results: 0, n: 0, callback };
+        Effect::CoinFlipSequence { p, mode, callback, cause, .. } => {
+            let cb = CoinCb::Sequence { p, mode, results: 0, n: 0, callback, cause };
             g.coin_callbacks.push(cb);
             let k = (g.coin_callbacks.len() - 1) as u8;
-            g.run_fx_unit(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlipRequest { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause })?;
             Ok(())
         }
-        Effect::CoinFlip { p, callback, .. } => {
+        Effect::CoinFlipRequest { p, callback, cause, .. } => {
             let result = g.rng.coin();
-            if let Effect::CoinFlip { result: r, .. } = g.e_mut(id) {
+            if let Effect::CoinFlipRequest { result: r, .. } = g.e_mut(id) {
                 *r = Some(result);
             }
+            crate::engine::condition::coin_flipped(g, p as usize, crate::spec::event::CoinPurpose::Effect, result, cause)?;
             let cb = match callback {
                 Some(k) => g.coin_callbacks.as_slice()[k as usize],
                 None => CoinCb::None,

@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(inflict(&[SpecialCondition::Poisoned], Cause::Attack)),
+                Step::after_damage(inflict(&[SpecialCondition::Poisoned])),
             ],
         },
     ],

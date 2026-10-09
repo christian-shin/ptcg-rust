@@ -16,8 +16,8 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             steps: &[
                 Step::after_damage(self_damage(70)),
-                Step::after_damage(inflict(&[SpecialCondition::Poisoned], Cause::Attack)),
-                Step::after_damage(inflict(&[SpecialCondition::Paralyzed], Cause::Attack)),
+                Step::after_damage(inflict(&[SpecialCondition::Poisoned])),
+                Step::after_damage(inflict(&[SpecialCondition::Paralyzed])),
             ],
         },
     ],

@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(20), via: HealVia::Effect, clear_conditions: false })),
+                Step::after_damage(Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(20), clear_conditions: false })),
             ],
         },
         AttackSpec {

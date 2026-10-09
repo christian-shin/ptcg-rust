@@ -13,7 +13,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsHoundoomDRIPool",
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Burned, SpecialCondition::Confused], Cause::Attack))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Burned, SpecialCondition::Confused]))] },
         AttackSpec {
             index: 1,
             // Discard an Energy from this Pokémon.

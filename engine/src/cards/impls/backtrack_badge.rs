@@ -17,7 +17,9 @@
 //!   (conditions re-checked): declining finishes the original callback, and
 //!   accepting reruns the whole sequence with the skip flags set.
 //! The coin session of the Badge is the one rule kept as code in this file (`Op::Custom`): the
-//! frame carries its state (`cards` = callback and mode, `slot` = the player, `last` = the results, `iter[0]` =
+//! frame carries its state. Events batch 4 (B4-OLD): the hook stays on the flip requests (`CoinFlipRequest`,
+//! `CoinFlipSequence`), which ask for a flip before its result is used; every flip the Badge makes (its own and
+//! the re-flips) is a CoinFlip event like any other (`cards` = callback and mode, `slot` = the player, `last` = the results, `iter[0]` =
 //! the flip count of a finished sequence).
 use crate::effects::{k, EffId, Effect};
 use crate::game::{CoinCb, Game, R};
@@ -53,7 +55,7 @@ fn can_offer(g: &mut Game, me: CardId, p: usize) -> bool {
 /// Does a coin flip (or a sequence of flips) of an attack fall under the Badge?
 fn fires(g: &mut Game, me: CardId, e: EffId) -> Option<usize> {
     let (p, skip) = match *g.e(e) {
-        Effect::CoinFlip { p, skip_reflip_tool, .. } | Effect::CoinFlipSequence { p, skip_reflip_tool, .. } => (p as usize, skip_reflip_tool),
+        Effect::CoinFlipRequest { p, skip_reflip_tool, .. } | Effect::CoinFlipSequence { p, skip_reflip_tool, .. } => (p as usize, skip_reflip_tool),
         _ => return None,
     };
     if skip || g.st.phase != GamePhase::Attack || g.st.players[p].marker.has(COIN_REFLIP_AGAIN_USED) || !can_offer(g, me, p) {
@@ -67,12 +69,13 @@ fn exec(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
     let p = f.p as usize;
     match *g.e(e) {
         // A single flip is prevented and resolved here: the coin, a wait prompt, then the offer.
-        Effect::CoinFlip { callback, .. } => {
+        Effect::CoinFlipRequest { callback, cause, .. } => {
             g.set_prevent(e, true);
             let result = g.rng.coin();
-            if let Effect::CoinFlip { result: r, .. } = g.e_mut(e) {
+            if let Effect::CoinFlipRequest { result: r, .. } = g.e_mut(e) {
                 *r = Some(result);
             }
+            crate::engine::condition::coin_flipped(g, p, crate::spec::event::CoinPurpose::Effect, result, cause)?;
             f.cards = [callback.unwrap_or(NO_CALLBACK), result as u8];
             f.slot = p as u8;
             let id = g.player_id(p);
@@ -80,13 +83,13 @@ fn exec(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
             Ok(Flow::Suspend)
         }
         // A sequence is prevented and run as a sequence of plain flips; the offer follows its end.
-        Effect::CoinFlipSequence { mode, callback, .. } => {
+        Effect::CoinFlipSequence { mode, callback, cause, .. } => {
             g.set_prevent(e, true);
             f.cards = [callback, mode];
             f.slot = p as u8;
             g.coin_callbacks.push(CoinCb::SequenceCard { card: me, frame: f.frame_at(10) });
             let k2 = (g.coin_callbacks.len() - 1) as u8;
-            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k2, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k2, skip_reflip_stadium: true, skip_reflip_tool: true, cause })?;
             Ok(Flow::Suspend)
         }
         _ => Ok(Flow::Next),
@@ -114,7 +117,7 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
                 return Ok(Flow::Next);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx_unit(Effect::CoinFlip { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlipRequest { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause: f.cause })?;
             Ok(Flow::Next)
         }
         // Sequence finished (the core passes the results and the flip count).
@@ -134,7 +137,7 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
                 return finish(g, f);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true, cause: f.cause })?;
             Ok(Flow::Next)
         }
         _ => Ok(Flow::Next),
@@ -154,7 +157,7 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[
         Trigger {
             origin: RuleSource::Tool,
-            event: Event::Custom(CustomEventSpec { kinds: &[k::COIN_FLIP, k::COIN_FLIP_SEQUENCE], fires }),
+            event: Event::Custom(CustomEventSpec { kinds: &[k::COIN_FLIP_REQUEST, k::COIN_FLIP_SEQUENCE], fires }),
             steps: &[Step::new(Op::Custom(CustomSpec { exec, resume }))],
         },
         // The once-per-turn use ends with the turn.

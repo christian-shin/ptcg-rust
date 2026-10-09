@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::Arm(ArmSpec { what: Lasting::DiscardAttackerEnergyIfKnockedOut })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Asleep], Cause::Attack))], ..CoinSpec::DEFAULT })),
+            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Asleep]))], ..CoinSpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE

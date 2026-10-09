@@ -74,19 +74,10 @@ pub struct SwitchSpec {
     pub required: bool,
 }
 
-/// Which effect carries out a heal.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum HealVia {
-    /// `HealTargetEffect`, built on the attack.
-    Attack,
-    /// `HealEffect`.
-    Effect,
-}
-
+/// Heal: the RemoveCounters event (`engine::condition::heal`), whatever causes it (the frame's `Cause`).
 pub struct HealSpec {
     pub target: SlotTarget,
     pub hp: Num,
-    pub via: HealVia,
     /// Also remove every Special Condition from the Pokémon (after the heal).
     pub clear_conditions: bool,
 }
@@ -230,17 +221,6 @@ pub struct RemoveFromPlaySpec {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Cause {
-    /// An effect of the attack (AddSpecialConditionsEffect): effect protection applies.
-    Attack,
-    /// An Ability-style effect (AddSpecialConditionsPowerEffect), also what
-    /// resets the Poison, Burn and Confusion values to the defaults.
-    Ability,
-    /// Written directly on the Pokémon.
-    Direct,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ConditionChange {
     Add(&'static [SpecialCondition]),
     RemoveAll,
@@ -258,7 +238,6 @@ pub enum Gate {
 pub struct ConditionsSpec {
     pub target: SlotExpr,
     pub change: ConditionChange,
-    pub cause: Cause,
     pub gate: Gate,
     pub when: Cond,
 }
@@ -295,6 +274,10 @@ pub(crate) fn occupied(g: &Game, s: SlotRef) -> bool {
 }
 
 pub(crate) fn atk_base(g: &Game, f: &Frame, target: SlotRef) -> Option<AtkBase> {
+    // A resumed program's effect may be gone (a Supporter used through an attack, resumed after its prompt).
+    if f.eff as usize >= g.fx.len() {
+        return None;
+    }
     // A step 7 trigger acts for the attack it belongs to.
     if let Effect::AttackTrigger { attack_effect, p, opp, attack, source, .. } = *g.e(f.eff) {
         return Some(AtkBase { attack_effect, player: p, opponent: opp, attack, source, target, cause: f.cause });
@@ -828,19 +811,9 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
     match op {
         Op::Heal(h) => {
             let n = num_m(g, me, f, &h.hp)?;
-            crate::cause::compare(g, "HealVia", &f.cause, if h.via == HealVia::Attack { crate::cause::Old::Attack(None) } else { crate::cause::Old::NotAttack });
-            match h.via {
-                HealVia::Attack => {
-                    if let Some(b) = atk_base(g, f, slot) {
-                        g.run_fx_unit(Effect::HealTarget { b, damage: n })?;
-                    }
-                }
-                HealVia::Effect => {
-                    g.run_fx_unit(Effect::Heal { p: f.p, target: slot, damage: n, cause: f.cause })?;
-                }
-            }
+            crate::engine::condition::heal(g, slot, n, f.cause)?;
             if h.clear_conditions {
-                g.st.players[slot.p as usize].slots[slot.s as usize].special_conditions.clear();
+                crate::engine::condition::recover_all(g, slot, f.cause, &[])?;
             }
         }
         Op::DamageSlot(d) => {
@@ -904,37 +877,17 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
                     return Ok(Flow::Next);
                 }
             }
-            match c.cause {
-                Cause::Attack => crate::cause::compare(g, "conditions Cause::Attack", &f.cause, crate::cause::Old::Attack(None)),
-                Cause::Ability => crate::cause::compare(g, "conditions Cause::Ability (AddSpecialConditionsPower)", &f.cause, crate::cause::Old::NotAttack),
-                Cause::Direct => crate::cause::unseen(g, "conditions Cause::Direct", &f.cause),
-            }
-            match c.cause {
-                Cause::Attack => {
-                    let Some(b) = atk_base(g, f, slot) else { return Ok(Flow::Next) };
-                    let mut v = SVec::new();
-                    for x in cs {
-                        v.push(*x as u8);
-                    }
-                    g.run_fx_unit(Effect::AddSpecialConditions { b, conditions: v, poison_damage: None, burn_damage: None, confusion_damage: None })?;
-                }
-                Cause::Ability => add_special_conditions_to_player_active(g, p, me, cs, f.cause)?,
-                Cause::Direct => {
-                    for x in cs {
-                        crate::engine::phase::add_condition(&mut g.st.players[p].slots[s as usize], *x);
-                    }
-                }
-            }
+            inflict_on(g, me, f, slot, cs)?;
             Ok(Flow::Next)
         }
         ConditionChange::RemoveAll => {
-            g.st.players[p].slots[s as usize].special_conditions.clear();
+            crate::engine::condition::recover_all(g, slot, f.cause, &[])?;
             Ok(Flow::Next)
         }
         ConditionChange::RemoveChosen => {
             let conds: Vec<u8> = g.st.slot(p, s).special_conditions.as_slice().to_vec();
             if conds.len() == 1 {
-                crate::engine::phase::remove_condition(g, p, s, SpecialCondition::from_u8(conds[0]));
+                crate::engine::condition::remove(g, slot, SpecialCondition::from_u8(conds[0]), f.cause)?;
             } else if conds.len() > 1 {
                 let mut disabled = 0u16;
                 for i in 0..CONDITION_NAMES.len() {
@@ -967,8 +920,26 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
             None => return Ok(()),
         },
     };
-    crate::engine::phase::remove_condition(g, p, s, SpecialCondition::from_u8(choice as u8));
+    crate::engine::condition::remove(g, slot, SpecialCondition::from_u8(choice as u8), f.cause)?;
     Ok(())
+}
+
+/// The Pokémon in `slot` is now affected by `cs`, by the frame's cause: one GainCondition each
+/// (`engine::condition::gain`). B4-OLD: an attack's goes through the attack-effect probe
+/// (`Effect::AddSpecialConditions`, read by the attack-effect preventions), any other through the Ability probe
+/// (`AddSpecialConditionsPower`, read by Hide 'n' Sneak and the condition immunities); their reducers produce the
+/// events.
+fn inflict_on(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialCondition]) -> R {
+    let mut v = SVec::new();
+    for x in cs {
+        v.push(*x as u8);
+    }
+    if f.cause.is_attack() {
+        if let Some(b) = atk_base(g, f, slot) {
+            return g.run_fx_unit(Effect::AddSpecialConditions { b, conditions: v });
+        }
+    }
+    g.run_fx_unit(Effect::AddSpecialConditionsPower { p: slot.p, source: me, target: slot, conditions: v, cause: f.cause })
 }
 
 // ---------------------------------------------------------------------------
@@ -1065,6 +1036,7 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
             let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: f.p, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(slot), cause: f.cause })?;
             if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
                 let a = g.st.players[side].active;
+                crate::engine::condition::recover_all(g, SlotRef::new(side, a), f.cause, &[])?;
                 crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
                 crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)?;
             }
@@ -1072,6 +1044,7 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
         }
         SwitchKind::Silent | SwitchKind::Picked => {
             let a = g.st.players[side].active;
+            crate::engine::condition::recover_all(g, SlotRef::new(side, a), f.cause, &[])?;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
             crate::engine::turn::switch_pokemon(g, side, slot.s, f.cause)
         }
@@ -1268,9 +1241,9 @@ fn move_all_act(g: &mut Game, f: &Frame, src: SlotRef, tgt: SlotRef) -> R {
 pub const OPP_ACTIVE: SlotExpr = SlotExpr::Active(Who::Opp);
 pub const MY_ACTIVE: SlotExpr = SlotExpr::Active(Who::Me);
 
-/// The opponent's Active Pokémon is now affected by these Special Conditions.
-pub const fn inflict(cs: &'static [SpecialCondition], cause: Cause) -> Op {
-    Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(cs), cause, gate: Gate::None, when: Cond::True })
+/// The opponent's Active Pokémon is now affected by these Special Conditions (by the frame's cause).
+pub const fn inflict(cs: &'static [SpecialCondition]) -> Op {
+    Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(cs), gate: Gate::None, when: Cond::True })
 }
 
 /// "This Pokémon also does N damage to itself."
@@ -1284,8 +1257,8 @@ pub const fn switch_self() -> Op {
 }
 
 /// Heal damage from this Pokémon.
-pub const fn heal_active(hp: i32, via: HealVia) -> Op {
-    Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(hp), via, clear_conditions: false })
+pub const fn heal_active(hp: i32) -> Op {
+    Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(hp), clear_conditions: false })
 }
 
 /// "N more damage" when the condition holds.

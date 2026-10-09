@@ -369,6 +369,8 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
     let first = results.first().copied().unwrap_or(Res::Null);
     match f.stage {
         Stage::Coin => {
+            // The flip for who goes first (player 1 flips).
+            crate::engine::condition::coin_flipped(g, 0, crate::spec::event::CoinPurpose::FirstPlayer, first.as_bool(), crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, 0))?;
             f.who_begins = first.as_bool();
             f.stage = Stage::GoFirst;
             let id = if f.who_begins { g.player_id(0) } else { g.player_id(1) };

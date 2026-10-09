@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Slot(MY_ACTIVE, SlotPred::Damaged)],
         steps: &[
-            Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(70), via: HealVia::Effect, clear_conditions: false })),
+            Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(70), clear_conditions: false })),
         ],
     }),
     ..CardSpec::NONE

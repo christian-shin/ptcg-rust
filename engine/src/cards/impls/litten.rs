@@ -5,7 +5,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Litten",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed], Cause::Attack))], ..CoinSpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed]))], ..CoinSpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

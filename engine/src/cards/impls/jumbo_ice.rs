@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::Slot(SlotExpr::Active(Who::Me), SlotPred::Damaged), Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::ProvidedCards), CmpOp::Ge, Num::Lit(3))],
         steps: &[
-            Step::new(heal_active(80, HealVia::Effect)),
+            Step::new(heal_active(80)),
         ],
     }),
     ..CardSpec::NONE

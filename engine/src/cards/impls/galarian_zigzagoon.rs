@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec {
         index: 0,
         // The Paralysis is an Ability-style effect (AddSpecialConditionsPowerEffect), as today.
-        steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed], Cause::Ability))], ..CoinSpec::DEFAULT }))],
+        steps: &[Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(inflict(&[SpecialCondition::Paralyzed]))], ..CoinSpec::DEFAULT }))],
     }],
     ..CardSpec::NONE
 };

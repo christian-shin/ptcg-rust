@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[
-                Step::before_damage(inflict(&[SpecialCondition::Asleep], Cause::Attack)),
+                Step::before_damage(inflict(&[SpecialCondition::Asleep])),
             ],
         },
     ],

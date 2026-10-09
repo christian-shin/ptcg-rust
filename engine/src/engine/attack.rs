@@ -446,6 +446,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
     match f.stage {
         AtkStage::AfterConfusion => {
             let heads = res.as_bool();
+            // The flip of a Confused Pokémon trying to attack.
+            crate::engine::condition::coin_flipped(g, f.p as usize, crate::spec::event::CoinPurpose::Confusion, heads, crate::engine::condition::by_condition(f.p as usize))?;
             if !heads {
                 let p = f.p as usize;
                 let a = g.st.players[p].active;
@@ -772,24 +774,10 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[b.target.p as usize].slots[b.target.s as usize].marker.add(marker, marker_source, SourceType::None, TargetScope::None);
             Ok(())
         }
-        Effect::HealTarget { b, damage } => {
-            let owner = b.target.p;
-            g.run_fx_unit(Effect::Heal { p: owner, target: b.target, damage, cause: b.cause })?;
-            Ok(())
-        }
-        Effect::AddSpecialConditions { b, conditions, poison_damage, burn_damage, confusion_damage } => {
-            let slot = &mut g.st.players[b.target.p as usize].slots[b.target.s as usize];
+        // B4-OLD: the attack-effect probe produces one GainCondition per condition.
+        Effect::AddSpecialConditions { b, conditions } => {
             for &c in conditions.iter() {
-                crate::engine::phase::add_condition(slot, SpecialCondition::from_u8(c));
-            }
-            if let Some(v) = poison_damage {
-                slot.poison_damage = v;
-            }
-            if let Some(v) = burn_damage {
-                slot.burn_damage = v;
-            }
-            if let Some(v) = confusion_damage {
-                slot.confusion_damage = v;
+                crate::engine::condition::gain(g, b.target, SpecialCondition::from_u8(c), b.cause)?;
             }
             Ok(())
         }
@@ -930,13 +918,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 slot.defending_extra_damage_rearm_after_attack = true;
             } else {
                 slot.defending_extra_damage_pending = true;
-            }
-            Ok(())
-        }
-        Effect::RemoveSpecialConditions { b, conditions } => {
-            let slot = &mut g.st.players[b.target.p as usize].slots[b.target.s as usize];
-            for &c in conditions.iter() {
-                slot.special_conditions.retain(|x| *x != c);
             }
             Ok(())
         }

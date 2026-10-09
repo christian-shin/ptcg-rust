@@ -5,7 +5,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Miloticex",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Asleep], Cause::Attack))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Asleep]))] }],
     passives: &[
         Passive {
             origin: RuleSource::Ability,

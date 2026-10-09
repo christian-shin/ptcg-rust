@@ -5,7 +5,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Munkidori",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused], Cause::Attack))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused]))] }],
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("ADRENA_BRAIN_MARKER"),

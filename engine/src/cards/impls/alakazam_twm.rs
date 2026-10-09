@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(inflict(&[SpecialCondition::Confused], Cause::Attack)),
+                Step::after_damage(inflict(&[SpecialCondition::Confused])),
                 Step::after_damage(Op::MoveCounters(MoveCountersSpec { kind: MoveCountersKind::AnyAmong { who: Who::Opp } })),
             ],
         },

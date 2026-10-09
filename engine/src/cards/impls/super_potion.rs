@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: true, energies_only: false }, into: Some(0), ..DiscardEnergySpec::DEFAULT })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
-                yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(40), via: HealVia::Effect, clear_conditions: false }))],
+                yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(40), clear_conditions: false }))],
                 no: &[],
             })),
         ],

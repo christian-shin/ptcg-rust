@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(damage_is(Num::Mul(&Num::EnergyOn(SlotSel::Pokemon(Who::Opp), EnergyUnit::ProvidedCards), &Num::Lit(60)))),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::ForEach(ForEachSpec { over: SlotSel::Bench(Who::Me), body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(100), via: HealVia::Attack, clear_conditions: false }))] })),
+            Step::after_damage(Op::ForEach(ForEachSpec { over: SlotSel::Bench(Who::Me), body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(100), clear_conditions: false }))] })),
         ] },
     ],
     passives: &[

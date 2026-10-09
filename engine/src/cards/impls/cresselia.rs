@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 0,
             steps: &[Step::after_damage(Op::ForEach(ForEachSpec {
                 over: SlotSel::Pokemon(Who::Me),
-                body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(20), via: HealVia::Effect, clear_conditions: false }))],
+                body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(20), clear_conditions: false }))],
             }))],
         },
         // Crescent Purge: you may turn 1 of your face-down Prize cards face up for 80 more damage.

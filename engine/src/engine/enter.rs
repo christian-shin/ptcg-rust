@@ -490,7 +490,7 @@ pub fn devolve(g: &mut Game, target: SlotRef, count: usize, dest: ListRef, cause
         if g.st.slot_pokemons(tp, ts).len() <= 1 {
             break;
         }
-        let removed = devolve_one(g, target, dest)?;
+        let removed = devolve_one(g, target, dest, cause)?;
         if removed.is_empty() {
             break;
         }
@@ -501,7 +501,7 @@ pub fn devolve(g: &mut Game, target: SlotRef, count: usize, dest: ListRef, cause
 
 /// `DEVOLVE_POKEMON(store, state, target, destination)`: the physical devolving of one Stage and its
 /// consequences (4.4: Special Conditions and effects removed, entered this turn, once-per-turn reset).
-fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef) -> R<SVec<CardId, 3>> {
+fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<CardId, 3>> {
     let mut out: SVec<CardId, 3> = SVec::new();
     let (tp, ts) = (t.p as usize, t.s);
     let pokemons = g.st.slot_pokemons(tp, ts);
@@ -517,6 +517,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef) -> R<SVec<CardId, 3>> {
             for c in cards.iter().rev().take(3) {
                 out.push(*c);
             }
+            crate::engine::condition::recover_all(g, t, cause, &[])?;
             let turn = g.st.turn;
             let slot = &mut g.st.players[tp].slots[ts as usize];
             crate::engine::game_effect::clear_effects(slot);
@@ -534,6 +535,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef) -> R<SVec<CardId, 3>> {
             }
             out.push(top);
         }
+        crate::engine::condition::recover_all(g, t, cause, &[])?;
         let turn = g.st.turn;
         let slot = &mut g.st.players[tp].slots[ts as usize];
         crate::engine::game_effect::clear_effects(slot);
@@ -605,7 +607,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             slot.entered_turn = turn;
             Ok(())
         }
-        Effect::Evolve { card, target, from, .. } => {
+        Effect::Evolve { card, target, from, cause, .. } => {
             if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
                 crate::bail!("INVALID_TARGET");
             }
@@ -614,7 +616,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             slot.entered_turn = turn;
             slot.marker.remove_all_except_trainer_effects();
-            evolution_consequences(g, target.p as usize, target)
+            evolution_consequences(g, target.p as usize, target, cause)
         }
         // Devolve and Swap act in their routines (the physical moves are MoveCards effects there).
         _ => Ok(()),
@@ -625,7 +627,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 /// Conditions (except the ones a card preserves: `CheckSpecialConditionRemoval`) and the effects on it; it is a
 /// new Pokémon for once-per-turn Abilities (id317) and has none of the old card's card-bound facts (id2265).
 /// Rare Candy counts as evolving (id1045).
-fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef) -> R {
+fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause) -> R {
     use crate::markers::*;
     let (e, _) = g.run_fx(Effect::CheckSpecialConditionRemoval { p: p as u8, target, preserved: SVec::new() })?;
     let preserved = match e {
@@ -635,21 +637,11 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef) -> R {
     // player.removePokemonEffects(target)
     g.st.players[p].marker.remove(KNOCKOUT_MARKER);
     g.st.players[p].marker.remove(CLEAR_KNOCKOUT_MARKER);
+    // The Pokémon recovers from its Special Conditions, except the preserved ones (RemoveCondition events, by the
+    // Evolve's cause).
+    crate::engine::condition::recover_all(g, target, cause, preserved.as_slice())?;
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-    let keep: SVec<u8, 5> = {
-        let mut v = SVec::new();
-        for c in slot.special_conditions.iter() {
-            if preserved.contains(c) {
-                v.push(*c);
-            }
-        }
-        v
-    };
-    let before = slot.special_conditions;
     crate::engine::game_effect::clear_effects(slot);
-    // clearEffects only removes non-preserved conditions (order kept).
-    slot.special_conditions = before;
-    slot.special_conditions.retain(|c| keep.contains(c));
     slot.marker.remove_all_except_trainer_effects();
     slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
     crate::prefabs::reset_once_per_turn_slot(g, target);

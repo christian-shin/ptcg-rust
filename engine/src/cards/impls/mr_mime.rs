@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MrMime",
     attacks: &[
         AttackSpec { index: 0, steps: &[Step::after_damage(Op::Custom(CustomSpec { exec: choose_supporter, resume: copy_effect }))] },
-        AttackSpec { index: 1, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused], Cause::Attack))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused]))] },
     ],
     ..CardSpec::NONE
 };

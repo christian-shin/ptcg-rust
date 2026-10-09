@@ -12,7 +12,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Zarude@SSP",
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(20, HealVia::Attack))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(20))] },
         AttackSpec {
             index: 1,
             // You may put all Energy attached to this Pokémon into your hand for 80 more damage.

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Damaged)],
         steps: &[
-            Step::new(Op::ForEach(ForEachSpec { over: SlotSel::Pokemon(Who::Me), body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(40), via: HealVia::Effect, clear_conditions: false }))] })),
+            Step::new(Op::ForEach(ForEachSpec { over: SlotSel::Pokemon(Who::Me), body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(40), clear_conditions: false }))] })),
         ],
     }),
     ..CardSpec::NONE

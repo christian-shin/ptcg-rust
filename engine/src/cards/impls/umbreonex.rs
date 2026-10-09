@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Umbreonex",
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) }],
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused], Cause::Attack))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused]))] },
         AttackSpec {
             index: 1,
             // Onyx: discard all Energy from this Pokémon and take a Prize card.

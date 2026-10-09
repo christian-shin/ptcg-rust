@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::WouldChangeConditions(OPP_ACTIVE, &[SpecialCondition::Burned, SpecialCondition::Confused])],
         steps: &[
-            Step::new(Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Burned, SpecialCondition::Confused]), cause: Cause::Direct, gate: Gate::TrainerTarget, when: Cond::True })),
+            Step::new(Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Burned, SpecialCondition::Confused]), gate: Gate::TrainerTarget, when: Cond::True })),
         ],
     }),
     ..CardSpec::NONE

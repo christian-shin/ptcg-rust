@@ -90,7 +90,8 @@ pub fn init_next_turn(g: &mut Game) -> R {
 fn start_next_turn(g: &mut Game) -> R {
     let p = g.st.active_player as usize;
     let a = g.st.players[p].active;
-    remove_condition(g, p, a, SpecialCondition::Paralyzed);
+    // Pokémon Checkup: a Pokémon Paralyzed since the start of its owner's last turn recovers.
+    crate::engine::condition::remove(g, SlotRef::new(p, a), SpecialCondition::Paralyzed, crate::engine::condition::by_checkup(p))?;
     g.move_to(ListRef::Supporter(p as u8), ListRef::Discard(p as u8), None);
     between_turns(g, OnComplete::InitNextTurn)
 }
@@ -149,39 +150,18 @@ pub fn after_end_turn(g: &mut Game, p: usize) -> R {
     start_next_turn(g)
 }
 
-pub fn remove_condition(g: &mut Game, p: usize, s: SlotId, sc: SpecialCondition) {
-    let v = sc as u8;
-    let conds = &mut g.st.players[p].slots[s as usize].special_conditions;
-    if conds.contains(&v) {
-        conds.retain(|x| *x != v);
-    }
-}
-
-pub fn remove_active_condition(g: &mut Game, p: usize, sc: SpecialCondition) {
+/// The Active Pokémon of `p` recovers from `sc` at Pokémon Checkup (a heads for Burned or Asleep): the
+/// RemoveCondition event.
+pub fn checkup_recovers(g: &mut Game, p: usize, sc: SpecialCondition) -> R {
     let a = g.st.players[p].active;
-    remove_condition(g, p, a, sc);
+    crate::engine::condition::remove(g, SlotRef::new(p, a), sc, crate::engine::condition::by_checkup(p))?;
+    Ok(())
 }
 
+/// Scenario setup only (a board edit, not an event): the slot's Pokémon is affected by `sc` with its rule's
+/// counters. Every game path gains a condition through `engine::condition::gain`.
 pub fn add_condition(slot: &mut Slot, sc: SpecialCondition) {
-    // cannotBeSpecialConditionedNextTurn: not modeled.
-    match sc {
-        SpecialCondition::Poisoned => slot.poison_damage = 10,
-        SpecialCondition::Burned => slot.burn_damage = 20,
-        SpecialCondition::Confused => slot.confusion_damage = 30,
-        _ => {}
-    }
-    let v = sc as u8;
-    if slot.special_conditions.contains(&v) {
-        return;
-    }
-    if sc == SpecialCondition::Poisoned || sc == SpecialCondition::Burned {
-        slot.special_conditions.push(v);
-        return;
-    }
-    slot.special_conditions.retain(|s| {
-        !(*s == SpecialCondition::Paralyzed as u8 || *s == SpecialCondition::Confused as u8 || *s == SpecialCondition::Asleep as u8)
-    });
-    slot.special_conditions.push(v);
+    crate::engine::condition::put_condition(slot, sc, crate::engine::condition::base_counters(sc));
 }
 
 /// `WOULD_CHANGE_SPECIAL_CONDITIONS` (prefabs/special-condition-change.ts): would making the slot's Pokémon
@@ -198,12 +178,12 @@ pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) 
     })
 }
 
-fn handle_special_conditions(g: &mut Game, id: EffId) {
+fn handle_special_conditions(g: &mut Game, id: EffId) -> R {
     let (p, poison, burn, burn_flip, asleep_flip) = match *g.e(id) {
         Effect::BetweenTurns { p, poison_damage, burn_damage, burn_flip_result, asleep_flip_result } => {
             (p as usize, poison_damage, burn_damage, burn_flip_result, asleep_flip_result)
         }
-        _ => return,
+        _ => return Ok(()),
     };
     let pid = g.player_id(p);
     // Iterate over a snapshot, like `for...of` over the original array.
@@ -225,7 +205,7 @@ fn handle_special_conditions(g: &mut Game, id: EffId) {
                 }
             }
             SpecialCondition::Asleep => match asleep_flip {
-                Some(true) => remove_active_condition(g, p, SpecialCondition::Asleep),
+                Some(true) => checkup_recovers(g, p, SpecialCondition::Asleep)?,
                 Some(false) => {}
                 None => {
                     let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;
@@ -234,13 +214,14 @@ fn handle_special_conditions(g: &mut Game, id: EffId) {
                             (0..flips).map(|_| (pid, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
                         g.prompt_group(&prompts, Cont::SleepFlips { p: p as u8, slot: a });
                     } else {
-                        remove_active_condition(g, p, SpecialCondition::Asleep);
+                        checkup_recovers(g, p, SpecialCondition::Asleep)?;
                     }
                 }
             },
             _ => {}
         }
     }
+    Ok(())
 }
 
 pub fn reducer(g: &mut Game, id: EffId) -> R {
@@ -270,10 +251,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
-        Effect::BetweenTurns { .. } => {
-            handle_special_conditions(g, id);
-            Ok(())
-        }
+        Effect::BetweenTurns { .. } => handle_special_conditions(g, id),
         _ => Ok(()),
     }
 }

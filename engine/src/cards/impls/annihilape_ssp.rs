@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Confused]), cause: Cause::Ability, gate: Gate::None, when: Cond::True })),
+                Step::after_damage(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Confused]), gate: Gate::None, when: Cond::True })),
             ],
         },
         AttackSpec {

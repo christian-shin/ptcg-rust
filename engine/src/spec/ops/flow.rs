@@ -190,11 +190,11 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.who(c.flipper);
             match c.flips {
                 Flips::One => {
-                    g.coin_flip(p, CoinCb::Card { card: me, frame: f.frame_at(1) })?;
+                    g.coin_flip(p, CoinCb::Card { card: me, frame: f.frame_at(1) }, f.cause)?;
                 }
                 // The sequence's callback leaves the frame as it is and passes the results.
-                Flips::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) })?,
-                Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) })?,
+                Flips::Count(n) => coin_flip_sequence(g, p, n, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) }, f.cause)?,
+                Flips::UntilTails => coin_flip_sequence(g, p, 0, CoinCb::SequenceCard { card: me, frame: f.frame_at(COIN_SEQUENCE) }, f.cause)?,
             }
             Ok(Flow::Suspend)
         }

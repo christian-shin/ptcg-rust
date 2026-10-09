@@ -5,7 +5,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "MegaVenusaurEx",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(30, HealVia::Effect))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(30))] }],
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,

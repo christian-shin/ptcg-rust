@@ -83,7 +83,7 @@ pub enum CoinCb {
     Card { card: CardId, frame: CardFrame },
     Attack(attack::AttackCoinCb),
     /// RUN_COIN_FLIP_SEQUENCE: one flip done; `results` bit i = flip i heads.
-    Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8 },
+    Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8, cause: crate::cause::Cause },
     /// Final callback of a sequence: card receives (bitmask, count) via `frame.a[2..]`.
     SequenceCard { card: CardId, frame: CardFrame },
     /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).
@@ -760,14 +760,15 @@ impl Game {
         self.fx.as_mut_slice()[id as usize].prevent_default = v;
     }
 
-    /// `new CoinFlipEffect(player, callback)` reduced (COIN_FLIP_PROMPT).
-    pub fn coin_flip(&mut self, p: usize, cb: CoinCb) -> R<Option<bool>> {
+    /// A coin flip of player `p` for a card's effect (`cause`), whose result goes to `cb`: the B4-OLD request
+    /// (`CoinFlipRequest`, which Backtrack Badge's re-flip hook replaces); the flip is a CoinFlip event.
+    pub fn coin_flip(&mut self, p: usize, cb: CoinCb, cause: crate::cause::Cause) -> R<Option<bool>> {
         let cb = self.tag_coin(cb);
         self.coin_callbacks.push(cb);
         let k = (self.coin_callbacks.len() - 1) as u8;
-        let (e, _) = self.run_fx(Effect::CoinFlip { p: p as u8, callback: Some(k), result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+        let (e, _) = self.run_fx(Effect::CoinFlipRequest { p: p as u8, callback: Some(k), result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
         Ok(match e {
-            Effect::CoinFlip { result, .. } => result,
+            Effect::CoinFlipRequest { result, .. } => result,
             _ => None,
         })
     }
@@ -954,14 +955,20 @@ impl Game {
             Cont::BetweenTurnsWait { oc } => phase::run_between_turns_effects(self, oc),
             Cont::BetweenTurnsCheck { oc } => check::check_state(self, oc),
             Cont::BurnFlip { p, .. } => {
+                let p = p as usize;
+                crate::engine::condition::coin_flipped(self, p, crate::spec::event::CoinPurpose::Burned, first.as_bool(), crate::engine::condition::by_condition(p))?;
                 if first.as_bool() {
-                    phase::remove_active_condition(self, p as usize, SpecialCondition::Burned);
+                    phase::checkup_recovers(self, p, SpecialCondition::Burned)?;
                 }
                 Ok(())
             }
             Cont::SleepFlips { p, .. } => {
+                let p = p as usize;
+                for r in results.iter() {
+                    crate::engine::condition::coin_flipped(self, p, crate::spec::event::CoinPurpose::Asleep, r.as_bool(), crate::engine::condition::by_condition(p))?;
+                }
                 if results.iter().all(|r| r.as_bool()) {
-                    phase::remove_active_condition(self, p as usize, SpecialCondition::Asleep);
+                    phase::checkup_recovers(self, p, SpecialCondition::Asleep)?;
                 }
                 Ok(())
             }
@@ -989,7 +996,11 @@ impl Game {
                 Ok(())
             }
             Cont::Prefab(c) => crate::prefabs::resume(self, c, results),
-            Cont::SuddenDeathCoin => check::setup_sudden_death_game(self, if first.as_bool() { 0 } else { 1 }),
+            Cont::SuddenDeathCoin => {
+                // The flip for who goes first in the Sudden Death game (player 1 flips; heads, they go first).
+                crate::engine::condition::coin_flipped(self, 0, crate::spec::event::CoinPurpose::FirstPlayer, first.as_bool(), crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, 0))?;
+                check::setup_sudden_death_game(self, if first.as_bool() { 0 } else { 1 })
+            }
             Cont::Card { card, frame } => cards::resume(self, card, frame, results),
             Cont::CopyAttack(f) => crate::copy_attack::resume(self, f, first),
             Cont::DelegCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, results, None),
@@ -1004,12 +1015,12 @@ impl Game {
             CoinCb::DelegSequenceCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
             CoinCb::CancelTrainer { kind, p, card, target } => crate::engine::play::cancel_trainer_coin(self, kind, p, card, target, result),
-            CoinCb::Sequence { p, mode, results, n, callback } => {
+            CoinCb::Sequence { p, mode, results, n, callback, cause } => {
                 let results = if result { results | (1 << n) } else { results };
                 let n = n + 1;
                 let more = if mode == 0 { result } else { n < mode };
                 if more {
-                    let cb = CoinCb::Sequence { p, mode, results, n, callback };
+                    let cb = CoinCb::Sequence { p, mode, results, n, callback, cause };
                     // The sequence reuses its own slot (the flip copies its callback when it resolves, and
                     // sequences skip the reflip offers that would read it again), so "flip until tails"
                     // takes one slot however many heads come up.
@@ -1024,7 +1035,7 @@ impl Game {
                             (self.coin_callbacks.len() - 1) as u8
                         }
                     };
-                    self.run_fx_unit(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+                    self.run_fx_unit(Effect::CoinFlipRequest { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause })?;
                     return Ok(());
                 }
                 // Reflip offers (stadium/tool) are applied by those cards' handlers
@@ -1190,6 +1201,9 @@ impl Game {
         }
 
         phase::reducer(self, id)?;
+        if matches!(kind, k::GAIN_CONDITION | k::REMOVE_CONDITION | k::HEAL | k::COIN_FLIP) {
+            crate::engine::condition::reducer(self, id)?;
+        }
         if matches!(kind, k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL) {
             crate::engine::attach::reducer(self, id)?;
         }

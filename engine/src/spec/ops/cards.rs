@@ -1170,8 +1170,8 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
         }
         f.attached_to = encode(target);
         if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
-            crate::cause::unseen(g, "AttachRoute::MovePoisonActive Poison (written directly)", &f.cause);
-            crate::engine::phase::add_condition(&mut g.st.players[p].slots[target.s as usize], SpecialCondition::Poisoned);
+            // Janine's Secret Art: "If you attached Energy to your Active Pokémon in this way, it is now Poisoned."
+            crate::engine::condition::gain(g, target, SpecialCondition::Poisoned, f.cause)?;
         }
     }
     Ok(Flow::Next)

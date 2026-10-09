@@ -70,7 +70,9 @@ fn with_optional_coin_flip_cancel_trainer(g: &mut Game, kind: TrainerPlayKind, p
     if g.rng.is_fixed() {
         return continue_trainer_play(g, kind, p, card, target);
     }
-    g.coin_flip(p as usize, crate::game::CoinCb::CancelTrainer { kind, p, card, target })?;
+    // The flip is an effect of the opponent's attack (Seismitoad's Quaking Fist), whose card isn't kept.
+    let cause = crate::cause::Cause::new(crate::cause::CauseKind::Attack, None, 1 - p);
+    g.coin_flip(p as usize, crate::game::CoinCb::CancelTrainer { kind, p, card, target }, cause)?;
     Ok(())
 }
 

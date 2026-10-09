@@ -9,7 +9,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::Heal(HealSpec {
             target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Damaged), msg: "CHOOSE_POKEMON_TO_HEAL" }),
             hp: Num::Lit(20),
-            via: HealVia::Effect,
             clear_conditions: false,
         }))],
     }),

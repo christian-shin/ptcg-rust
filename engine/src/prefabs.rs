@@ -153,7 +153,7 @@ pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
 /// `resolve_survive_coin_flips`). Outside an attack the coin is flipped right away (`CoinFlipEffect.result`, no
 /// callback: a callback would run after the flip's wait prompt, i.e. after the damage was applied); heads sets
 /// `surviveOnTenHPReason`.
-pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize) -> R {
+pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize, cause: crate::cause::Cause) -> R {
     let (t, damage) = match *g.e(e) {
         Effect::PutDamage { b, damage, .. } => (b.target, damage),
         _ => return Ok(()),
@@ -166,8 +166,8 @@ pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize) -> R {
             }
             return Ok(());
         }
-        let (c, _) = g.run_fx(Effect::CoinFlip { p: player as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
-        if let Effect::CoinFlip { result: Some(true), .. } = c {
+        let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: player as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
+        if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
             if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
                 *survive_on_ten_hp = true;
             }
@@ -189,8 +189,10 @@ pub fn resolve_survive_coin_flips(g: &mut Game) -> R {
         if g.st.slot(tp, ts).damage < hp {
             continue;
         }
-        let (c, _) = g.run_fx(Effect::CoinFlip { p: owner, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
-        if let Effect::CoinFlip { result: Some(true), .. } = c {
+        // The Pokémon's own Ability ("flip a coin; if heads, it is not Knocked Out").
+        let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, g.st.slot_pokemon(tp, ts), owner);
+        let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: owner, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
+        if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
             g.st.players[tp].slots[ts as usize].damage = hp - 10;
             if !g.ten_hp.contains(&t) {
                 g.ten_hp.push(t);
@@ -650,11 +652,11 @@ pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
 
 /// `MULTIPLE_COIN_FLIPS_PROMPT` / `FLIP_UNTIL_TAILS` (`mode` 0 = until tails):
 /// the callback receives the results as a bitmask (bit i = flip i heads) and count.
-pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb) -> R {
+pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb, cause: crate::cause::Cause) -> R {
     let cb = g.tag_coin(cb);
     g.coin_callbacks.push(cb);
     let k = (g.coin_callbacks.len() - 1) as u8;
-    g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+    g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
     Ok(())
 }
 
@@ -755,19 +757,6 @@ pub fn discard_attacker_energy_if_knocked_out(g: &mut Game, atk: EffId, source_c
     };
     let b = atk_base_for(g, atk, source);
     g.run_fx_unit(Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card })?;
-    Ok(())
-}
-
-/// `ADD_SPECIAL_CONDITIONS_TO_PLAYER_ACTIVE(store, state, player, source, conditions)`
-/// with the default poison/burn/sleep/confusion values: reduce an
-/// `AddSpecialConditionsPowerEffect` on `player.active`.
-pub fn add_special_conditions_to_player_active(g: &mut Game, p: usize, source: CardId, conditions: &[SpecialCondition], cause: crate::cause::Cause) -> R {
-    let target = SlotRef::new(p, g.st.players[p].active);
-    let mut cs = SVec::new();
-    for c in conditions {
-        cs.push(*c as u8);
-    }
-    g.run_fx_unit(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30, cause })?;
     Ok(())
 }
 

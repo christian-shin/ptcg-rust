@@ -309,7 +309,7 @@ pub enum PreventWhat {
     /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
     /// and Abilities (counters moved onto them included).
     BenchCounters,
-    /// The opponent's Active Pokémon can't be healed (an attack's `HealTarget` heals through `Heal`).
+    /// The opponent's Active Pokémon can't be healed (the RemoveCounters event, `Effect::Heal`).
     HealOppActive,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
@@ -1136,8 +1136,9 @@ fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Pr
         if damage <= 0 {
             return Ok(());
         }
-        let (c, _) = g.run_fx(Effect::CoinFlip { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false })?;
-        if let Effect::CoinFlip { result: Some(false), .. } = c {
+        let cause = crate::cause::Cause::of_origin(origin, me, at.owner as u8);
+        let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
+        if let Effect::CoinFlipRequest { result: Some(false), .. } = c {
             return Ok(());
         }
         g.set_prevent(e, true);
@@ -1415,11 +1416,11 @@ fn condition_immunity(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c:
                 if g.st.slot(p, s).special_conditions.is_empty() || !slot_pred_m(g, me, t, &c.subject)? || blocked(g, me, origin, at, Some(t)) {
                     continue;
                 }
-                // `clearAllSpecialConditions()`: removes the five conditions.
-                let sc = &mut g.st.players[p].slots[s as usize].special_conditions;
+                // The Pokémon recovers: one RemoveCondition per condition, by the card's effect.
+                let cause = crate::cause::Cause::of_origin(origin, me, at.owner as u8);
                 for x in [SpecialCondition::Poisoned, SpecialCondition::Asleep, SpecialCondition::Burned, SpecialCondition::Confused, SpecialCondition::Paralyzed] {
                     if c.conds.is_empty() || c.conds.contains(&x) {
-                        sc.retain(|y| *y != x as u8);
+                        crate::engine::condition::remove(g, t, x, cause)?;
                     }
                 }
             }
@@ -1636,7 +1637,7 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
 
 /// Every attack-effect kind (`AtkBase` effects) except the damage steps, plus the counters
 /// placed by Abilities: the effect kinds Hide 'n' Sneak and Mist Energy prevent.
-pub const HIDE_N_SNEAK_KINDS: [u32; 37] = [
+pub const HIDE_N_SNEAK_KINDS: [u32; 35] = [
     crate::effects::k::SELF_PREVENT_RETREAT,
     crate::effects::k::DISCARD_ATTACKER_ENERGY_IF_KO,
     crate::effects::k::APPLY_WEAKNESS,
@@ -1655,8 +1656,6 @@ pub const HIDE_N_SNEAK_KINDS: [u32; 37] = [
     crate::effects::k::ADD_MARKER,
     crate::effects::k::ADD_SPECIAL_CONDITIONS,
     crate::effects::k::ADD_SPECIAL_CONDITIONS_POWER,
-    crate::effects::k::REMOVE_SPECIAL_CONDITIONS,
-    crate::effects::k::HEAL_TARGET,
     crate::effects::k::PLAY_LOCK,
     crate::effects::k::PREVENT_RETREAT,
     crate::effects::k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
@@ -2244,7 +2243,7 @@ fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: 
             if g.st.slot_pokemon(owner, t.s) != Some(me) {
                 return Ok(());
             }
-            survive_on_ten_on_coin_flip(g, e, owner)?
+            survive_on_ten_on_coin_flip(g, e, owner, crate::cause::Cause::of_origin(origin, me, owner as u8))?
         }
         SurviveKind::IfFullHp => {
             if g.st.slot(owner, t.s).damage != 0 {

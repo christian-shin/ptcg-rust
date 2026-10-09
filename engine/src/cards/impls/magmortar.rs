@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Magmortar",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Burned], Cause::Attack))], ..CoinSpec::DEFAULT })),
+            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(inflict(&[SpecialCondition::Burned]))], ..CoinSpec::DEFAULT })),
         ] },
     ],
     passives: &[

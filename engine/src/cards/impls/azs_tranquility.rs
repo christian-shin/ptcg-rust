@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             // is a Pokémon ex, heal 80 from it.
             Step::new(Op::If(IfSpec {
                 cond: Cond::Slot(SlotExpr::Picked, SlotPred::AnyCardTag(crate::types::tag::POKEMON_EX_LOWER)),
-                yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(80), via: HealVia::Effect, clear_conditions: false }))],
+                yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(80), clear_conditions: false }))],
                 no: &[],
             })),
         ],

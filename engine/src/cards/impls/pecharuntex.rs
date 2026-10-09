@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_POKEMON_TO_SWITCH",
             })),
             Step::new(Op::Switch(SwitchSpec { side: Who::Me, chooser: Who::Me, kind: SwitchKind::Picked, msg: "", required: false })),
-            Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), cause: Cause::Direct, gate: Gate::None, when: Cond::True })),
+            Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), gate: Gate::None, when: Cond::True })),
             Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "CHAINS_OF_CONTROL_USED_MARKER", source: RuleSource::Ability })),
         ],
     }],

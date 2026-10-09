@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::PerTurn("SCORCHING_STEAM"),
         // If this Pokémon is in the Active Spot, your opponent's Active Pokémon is now Burned (not when it already is).
         needs: &[Cond::IsActive(SlotExpr::This), Cond::WouldChangeConditions(OPP_ACTIVE, &[SpecialCondition::Burned])],
-        steps: &[Step::new(inflict(&[SpecialCondition::Burned], Cause::Ability))],
+        steps: &[Step::new(inflict(&[SpecialCondition::Burned]))],
     }],
     attacks: &[AttackSpec {
         index: 0,

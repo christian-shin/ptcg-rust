@@ -121,7 +121,23 @@ pub enum Effect {
     /// `defer_removal`: the Check State step announces every Knock Out first and takes the
     /// Pokémon out of play later (`game_effect::complete_knock_out`).
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
+    /// The RemoveCounters event (events batch 4; `engine::condition::heal`): `damage` HP of damage counters are
+    /// removed from the Pokémon in `target` (healing; APR C-06). Every heal produces it (an attack's, a Trainer's,
+    /// an Ability's). `p` is the Pokémon's owner.
     Heal { p: u8, target: SlotRef, damage: i32, cause: Cause },
+    /// The GainCondition event (events batch 4; `engine::condition::gain`): the Pokémon in `target` is now affected
+    /// by `condition`. `counters`: the damage counters its rule places (Poison 1 at each Checkup, Burn 2, Confusion
+    /// 3 when the attack fails; 0 for Asleep and Paralyzed): the base, plus any "more" an effect adds. `p` is the
+    /// Pokémon's owner.
+    GainCondition { p: u8, target: SlotRef, condition: crate::types::SpecialCondition, counters: u8, cause: Cause },
+    /// The RemoveCondition event (`engine::condition::remove`): the Pokémon in `target` recovers from `condition`
+    /// (an effect, evolving or devolving, moving to the Bench, the Checkup).
+    RemoveCondition { p: u8, target: SlotRef, condition: crate::types::SpecialCondition, cause: Cause },
+    /// The CoinFlip event (`engine::condition::coin_flipped`): player `p` flipped a coin, `heads` or not, for
+    /// `purpose` (an effect, Confusion, Burned, Asleep, who goes first). Produced once per physical flip, when its
+    /// result is known; the flip itself is asked for by a request (`CoinFlipRequest`, `CoinFlipSequence`) or a
+    /// Checkup / Confusion prompt.
+    CoinFlip { p: u8, purpose: crate::spec::event::CoinPurpose, heads: bool, cause: Cause },
     /// The Evolve event (events batch 2; `engine::enter::evolve`): every evolution, played from the hand, Rare
     /// Candy, and the effects that evolve from the deck or elsewhere. `from` is the list the card physically
     /// leaves, `source` its rules zone (what "from your hand" reads), `base` the Pokémon evolved from;
@@ -176,9 +192,10 @@ pub enum Effect {
     /// MoveEnergy event (`engine::attach::move_attached`).
     MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
     AddMarker { b: AtkBase, marker: u16, marker_source: CardId },
-    AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
-    RemoveSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
-    HealTarget { b: AtkBase, damage: i32 },
+    /// B4-OLD: Special Conditions as an effect of the attack, the probe attack-effect prevention reads (Mist
+    /// Energy, Hide 'n' Sneak's attack half); its reducer produces one GainCondition per condition
+    /// (`engine::condition::gain`). Goes when the attack-effect preventions are `Prevent` declarations.
+    AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
     /// `PlayLockEffect` (target = attacker's slot): the opponent gets the lock for their next turn.
     PlayLock { b: AtkBase, lock: &'static crate::spec::passive::LockDecl },
     /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
@@ -193,8 +210,9 @@ pub enum Effect {
     /// (EffectOfAttackEffect): arms `defendingPokemonExtraDamage*` on the
     /// opponent's current Active.
     DefendingPokemonTakesMoreDamage { b: AtkBase, damage_bonus: i32 },
-    /// `AddSpecialConditionsPowerEffect` (check-effects; non-attack source).
-    AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, poison_damage: i32, burn_damage: i32, sleep_flips: i32, confusion_damage: i32, cause: Cause },
+    /// B4-OLD: Special Conditions by an Ability, the probe Hide 'n' Sneak's Ability half reads; its reducer
+    /// produces one GainCondition per condition (`engine::condition::gain`).
+    AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, cause: Cause },
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
     /// `attackDamageReductionNextTurn = max(0, reduction)`.
     ReduceDamage { b: AtkBase, reduction: i32 },
@@ -271,9 +289,12 @@ pub enum Effect {
     Supporter { p: u8, card: CardId },
     TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
     DiscardToHand { p: u8, card: CardId },
+    /// B4-OLD: a request for a sequence of flips (each is a `CoinFlipRequest`, each flip a CoinFlip event).
     /// `mode`: 0 = until tails, n = n flips. `callback` indexes `coin_callbacks`.
-    CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool },
-    CoinFlip { p: u8, callback: Option<u8>, result: Option<bool>, skip_reflip_stadium: bool, skip_reflip_tool: bool },
+    CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool, cause: Cause },
+    /// B4-OLD: a request for one flip, which Backtrack Badge's re-flip hook replaces (`Event::Custom`); its reducer
+    /// flips the coin and produces the CoinFlip event, then the callback gets the result.
+    CoinFlipRequest { p: u8, callback: Option<u8>, result: Option<bool>, skip_reflip_stadium: bool, skip_reflip_tool: bool, cause: Cause },
 }
 
 impl Effect {
@@ -310,6 +331,9 @@ impl Effect {
             Attack { .. } => "ATTACK_EFFECT",
             KnockOut { .. } => "KNOCK_OUT_EFFECT",
             Heal { .. } => "HEAL_EFFECT",
+            GainCondition { .. } => "GAIN_CONDITION_EVENT",
+            RemoveCondition { .. } => "REMOVE_CONDITION_EVENT",
+            CoinFlip { .. } => "COIN_FLIP_EVENT",
             Evolve { .. } => "EVOLVE_EFFECT",
             DrawPrizes { .. } => "DRAW_PRIZES_EFFECT",
             MoveCards { .. } => "MOVE_CARDS_EFFECT",
@@ -332,8 +356,6 @@ impl Effect {
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             AddMarker { .. } => "ADD_MARKER_EFFECT",
             AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
-            RemoveSpecialConditions { .. } => "REMOVE_SPECIAL_CONDITIONS_EFFECT",
-            HealTarget { .. } => "HEAL_TARGET_EFFECT",
             PlayLock { .. } => "PLAY_LOCK_EFFECT",
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
@@ -374,7 +396,7 @@ impl Effect {
             TrainerTarget { .. } => "TRAINER_TARGET_EFFECT",
             DiscardToHand { .. } => "DISCARD_TO_HAND_EFFECT",
             CoinFlipSequence { .. } => "COIN_FLIP_SEQUENCE_EFFECT",
-            CoinFlip { .. } => "COIN_FLIP_EFFECT",
+            CoinFlipRequest { .. } => "COIN_FLIP_EFFECT",
         }
     }
 
@@ -394,8 +416,6 @@ impl Effect {
             | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
-            | RemoveSpecialConditions { b, .. }
-            | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
@@ -427,8 +447,6 @@ impl Effect {
             | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
             | AddSpecialConditions { b, .. }
-            | RemoveSpecialConditions { b, .. }
-            | HealTarget { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } | SwitchOutOpponentsActive { b, .. } => Some(b),
@@ -477,6 +495,9 @@ impl Effect {
             Attack { .. } => 26,
             KnockOut { .. } => 27,
             Heal { .. } => 28,
+            GainCondition { .. } => 73,
+            RemoveCondition { .. } => 74,
+            CoinFlip { .. } => 75,
             Evolve { .. } => 29,
             DrawPrizes { .. } => 30,
             MoveCards { .. } => 31,
@@ -499,8 +520,6 @@ impl Effect {
             MoveOpponentEnergy { .. } => 164,
             AddMarker { .. } => 46,
             AddSpecialConditions { .. } => 47,
-            RemoveSpecialConditions { .. } => 48,
-            HealTarget { .. } => 49,
             Attach { .. } => 50,
             MoveEnergy { .. } => 64,
             MoveTool { .. } => 65,
@@ -514,7 +533,7 @@ impl Effect {
             Tool { .. } => 58,
             Stadium { .. } => 59,
             Supporter { .. } => 60,
-            CoinFlip { .. } => 61,
+            CoinFlipRequest { .. } => 61,
             TrainerTarget { .. } => 62,
             DiscardToHand { .. } => 63,
             CoinFlipSequence { .. } => 66,
@@ -579,7 +598,12 @@ pub mod k {
     pub const POWER: u32 = 25;
     pub const ATTACK: u32 = 26;
     pub const KNOCK_OUT: u32 = 27;
+    /// The RemoveCounters event (healing; events batch 4).
     pub const HEAL: u32 = 28;
+    /// The GainCondition / RemoveCondition / CoinFlip events (events batch 4).
+    pub const GAIN_CONDITION: u32 = 73;
+    pub const REMOVE_CONDITION: u32 = 74;
+    pub const COIN_FLIP: u32 = 75;
     pub const EVOLVE: u32 = 29;
     pub const DRAW_PRIZES: u32 = 30;
     pub const MOVE_CARDS: u32 = 31;
@@ -601,8 +625,6 @@ pub mod k {
     pub const GUST_OPPONENT_BENCH: u32 = 45;
     pub const ADD_MARKER: u32 = 46;
     pub const ADD_SPECIAL_CONDITIONS: u32 = 47;
-    pub const REMOVE_SPECIAL_CONDITIONS: u32 = 48;
-    pub const HEAL_TARGET: u32 = 49;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
     pub const ATTACH: u32 = 50;
     pub const MOVE_ENERGY: u32 = 64;
@@ -617,7 +639,8 @@ pub mod k {
     pub const TOOL: u32 = 58;
     pub const STADIUM: u32 = 59;
     pub const SUPPORTER: u32 = 60;
-    pub const COIN_FLIP: u32 = 61;
+    /// B4-OLD: the request for one coin flip (Backtrack Badge's re-flip hook reads it).
+    pub const COIN_FLIP_REQUEST: u32 = 61;
     pub const TRAINER_TARGET: u32 = 62;
     pub const DISCARD_TO_HAND: u32 = 63;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
@@ -650,6 +673,15 @@ pub mod k {
     /// program (`spec::passive::lock_reads_attached`). Without one, an Attach / MoveEnergy / MoveTool can't
     /// change the take-hold stamps (`spec::passive::lock_sync_attached`).
     pub const DECLARES_ATTACHED_LOCK: u32 = 72;
+    /// A lock over GainCondition / RemoveCondition, over RemoveCounters (healing), over CoinFlip (events batch 4).
+    pub const DECLARES_CONDITION_LOCK: u32 = 76;
+    pub const DECLARES_HEAL_LOCK: u32 = 78;
+    pub const DECLARES_COIN_LOCK: u32 = 79;
+    /// A `Prevent` declaration over GainCondition / RemoveCondition, over RemoveCounters, over CoinFlip (events
+    /// batch 4: the event's routine asks `derived::event_prevented` only in a game with one).
+    pub const DECLARES_CONDITION_PREVENT: u32 = 80;
+    pub const DECLARES_HEAL_PREVENT: u32 = 81;
+    pub const DECLARES_COIN_PREVENT: u32 = 82;
     /// A permission that lifts `Limit::FirstTurn` / `BaseEnteredThisTurn` / `EvolvesFrom` (with `DECLARES_PERMIT`).
     pub const PERMIT_FIRST_TURN: u32 = 253;
     pub const PERMIT_BASE_ENTERED: u32 = 254;
@@ -730,6 +762,11 @@ impl Effect {
             | EffectOfAbility { cause, .. }
             | PlaceDamageCounters { cause, .. }
             | AddSpecialConditionsPower { cause, .. }
+            | GainCondition { cause, .. }
+            | RemoveCondition { cause, .. }
+            | CoinFlip { cause, .. }
+            | CoinFlipRequest { cause, .. }
+            | CoinFlipSequence { cause, .. }
             | Attach { cause, .. }
             | MoveEnergy { cause, .. }
             | MoveTool { cause, .. }

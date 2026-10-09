@@ -100,6 +100,11 @@ pub fn retreat_payable(g: &mut Game, p: usize) -> R<bool> {
     Ok(cost.is_empty() || energy::check_enough_energy(map.as_slice(), cost.as_slice()))
 }
 
+/// The retreating Pokémon recovers from its Special Conditions (it moves to the Bench by the rule's Retreat).
+fn recovers(g: &mut Game, p: usize, active: SlotId) -> R {
+    crate::engine::condition::recover_all(g, SlotRef::new(p, active), crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8), &[])
+}
+
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     let (p, bench_index, ignore, move_to) = match *g.e(id) {
         Effect::Retreat { p, bench_index, ignore_status_conditions, move_retreat_cost_to } => {
@@ -111,6 +116,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     let active = g.st.players[p].active;
     let (cost, map) = retreat_read(g, p)?;
     if cost.is_empty() {
+        recovers(g, p, active)?;
         clear_effects(&mut g.st.players[p].slots[active as usize]);
         return retreat_pokemon(g, p, bench_index);
     }
@@ -119,6 +125,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
     if energy::check_exact_energy(map.as_slice(), cost.as_slice()) {
         let cards = energy_cards(&map);
+        recovers(g, p, active)?;
         clear_effects(&mut g.st.players[p].slots[active as usize]);
         g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);
         return retreat_pokemon(g, p, bench_index);
@@ -129,6 +136,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let has_choice = sel.len() < cost.len() && map.len() >= cost.len();
             if !sel.is_empty() && !has_choice {
                 let cards: Vec<CardId> = sel.iter().map(|e| e.card).collect();
+                recovers(g, p, active)?;
                 clear_effects(&mut g.st.players[p].slots[active as usize]);
                 g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);
                 return retreat_pokemon(g, p, bench_index);
@@ -160,6 +168,7 @@ pub fn resume(g: &mut Game, rc: RetreatCont, res: Res) -> R {
     }
     let cards: Vec<CardId> = energy.iter().copied().collect();
     let active = g.st.players[p].active;
+    recovers(g, p, active)?;
     clear_effects(&mut g.st.players[p].slots[active as usize]);
     g.move_cards_to(ListRef::Slot(rc.p, active), &cards, rc.move_to);
     retreat_pokemon(g, p, rc.bench_index)

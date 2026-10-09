@@ -9,7 +9,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Slakoth",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(60, HealVia::Attack)), Step::after_damage(Op::Arm(ArmSpec { what: Lasting::SelfCannotRetreat }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(heal_active(60)), Step::after_damage(Op::Arm(ArmSpec { what: Lasting::SelfCannotRetreat }))] }],
     ..CardSpec::NONE
 };
 

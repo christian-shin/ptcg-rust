@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     triggers: &[
-        Trigger { origin: RuleSource::Ability, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, removes_attacker_energy: false, attacker_required: true }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::AbilityBlocked), Cond::Slot(SlotExpr::Picked, SlotPred::IsActive)]), yes: &[Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Picked, change: ConditionChange::Add(&[SpecialCondition::Burned]), cause: Cause::Direct, gate: Gate::None, when: Cond::True }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Ability, event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, removes_attacker_energy: false, attacker_required: true }), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::Not(&Cond::AbilityBlocked), Cond::Slot(SlotExpr::Picked, SlotPred::IsActive)]), yes: &[Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Picked, change: ConditionChange::Add(&[SpecialCondition::Burned]), gate: Gate::None, when: Cond::True }))], no: &[] }))] },
     ],
     ..CardSpec::NONE
 };

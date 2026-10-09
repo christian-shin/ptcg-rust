@@ -25,7 +25,7 @@ pub static SPEC: CardSpec = CardSpec {
                         cond: Cond::Chosen(0),
                         yes: &[
                             Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
-                            Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), cause: Cause::Attack, gate: Gate::None, when: Cond::True })),
+                            Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), gate: Gate::None, when: Cond::True })),
                         ],
                         no: &[],
                     })),

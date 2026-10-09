@@ -38,7 +38,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         steps: &[Step::after_damage(Op::ForEach(ForEachSpec {
             over: SlotSel::Pokemon(Who::Me),
-            body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(50), via: HealVia::Effect, clear_conditions: false }))],
+            body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(50), clear_conditions: false }))],
         }))],
     }],
     ..CardSpec::NONE
