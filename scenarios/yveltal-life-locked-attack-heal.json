@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slakoth SSP 145",
+   "4 Yveltal 30C 100",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Slakoth SSP 145",
+   "4 Yveltal 30C 100",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Slakoth SSP 145",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "active_damage": 50
+ },
+ "opp": {
+  "reset": true,
+  "active": "Yveltal 30C 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Take It Easy"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 50,
+   "cite": "official text (Yveltal, Life-Locked): the opponent's Active Pokémon can't be healed, by an attack's heal effect either"
+  }
+ ]
+}

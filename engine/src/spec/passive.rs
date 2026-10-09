@@ -304,8 +304,7 @@ pub enum PreventWhat {
     /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
     /// and Abilities, and no moving of counters by the player whose turn it is not.
     BenchCounters,
-    /// The opponent's Active Pokémon can't be healed. Today's behavior kept (A-PC8): only `Heal`,
-    /// not `HealTarget`.
+    /// The opponent's Active Pokémon can't be healed (an attack's `HealTarget` heals through `Heal`).
     HealOppActive,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
