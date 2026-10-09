@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // When attached to a [P] Pokémon, search your deck for up to 2 Basic [P] Pokémon and put them onto your Bench, then shuffle.
     triggers: &[Trigger {
         origin: RuleSource::Energy,
-        event: Event::OnAttach(OnAttachSpec { from_hand: true }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand)])),
         steps: &[Step::new(Op::If(IfSpec {
             cond: Cond::All(&[Cond::Slot(SlotExpr::Picked, SlotPred::TypeIs(ct::PSYCHIC)), Cond::BenchSpace(Who::Me), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)]),
             yes: &[

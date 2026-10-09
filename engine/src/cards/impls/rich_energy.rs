@@ -6,7 +6,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "RichEnergy",
     triggers: &[Trigger {
         origin: RuleSource::Energy,
-        event: Event::OnAttach(OnAttachSpec { from_hand: true }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand)])),
         steps: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(4)) }))],
     }],
     ..CardSpec::NONE
