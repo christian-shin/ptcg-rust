@@ -16,6 +16,7 @@ pub mod game;
 pub mod gen;
 pub mod interface;
 pub mod invariants;
+pub mod legal_stats;
 pub mod list;
 pub mod markers;
 pub mod options;
