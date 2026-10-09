@@ -2627,3 +2627,64 @@ mod lock_tests {
         assert!(lock_earlier(&g, a, b) && !lock_earlier(&g, b, a));
     }
 }
+
+#[cfg(test)]
+mod ace_spec_tests {
+    //! Genesect's ACE Nullifier blocks ACE SPEC cards played from the hand only (A-PC6). No pool card
+    //! attaches an ACE SPEC Energy from the deck or discard pile, so this can't be a scenario.
+    use super::*;
+    use serde_json::json;
+
+    fn attach(from: &str) -> Result<(), &'static str> {
+        let mut names: Vec<&str> = vec!["Genesect SFA 40"; 4];
+        names.extend(["Enriching Energy SSP 191"; 1]);
+        names.extend(["Sacred Charm PFL 93"; 4]);
+        names.extend(["Duraludon PRE 69"; 4]);
+        names.extend(["Metal Energy MEE 8"; 47]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sc = json!({
+            "me": {"reset": true, "active": "Duraludon PRE 69", from: ["Enriching Energy SSP 191"]},
+            "opp": {"reset": true, "active": "Genesect SFA 40", "active_tool": "Sacred Charm PFL 93"}
+        });
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let me = g.st.active_player as usize;
+        let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
+        let target = SlotRef::new(me, g.st.players[me].active);
+        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target }).map(|_| ()).map_err(|e| e.0)
+    }
+
+    /// Enriching Energy draws 4 cards only when attached from the hand (hand size after minus before).
+    fn draws(from: &str) -> i32 {
+        let mut names: Vec<&str> = vec!["Enriching Energy SSP 191"; 1];
+        names.extend(["Duraludon PRE 69"; 4]);
+        names.extend(["Metal Energy MEE 8"; 55]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sc = json!({"me": {"reset": true, "active": "Duraludon PRE 69", from: ["Enriching Energy SSP 191"]}, "opp": {"reset": true, "active": "Duraludon PRE 69"}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let me = g.st.active_player as usize;
+        let card = g.st.cards.iter().position(|c| c.def == crate::carddb::def_by_full_name("Enriching Energy SSP 191").unwrap() && c.owner as usize == me).unwrap() as CardId;
+        let before = g.st.players[me].hand.len() as i32;
+        let target = SlotRef::new(me, g.st.players[me].active);
+        g.run_fx(Effect::AttachEnergy { p: me as u8, card, target }).unwrap();
+        g.settle().ok();
+        g.st.players[me].hand.len() as i32 - before
+    }
+
+    #[test]
+    fn enriching_energy_draws_only_when_attached_from_the_hand() {
+        assert_eq!(draws("hand"), 3, "the card leaves the hand, 4 cards are drawn");
+        assert_eq!(draws("discard"), 0);
+    }
+
+    #[test]
+    fn only_a_card_played_from_the_hand_is_blocked() {
+        assert_eq!(attach("hand"), Err("BLOCKED_BY_EFFECT"));
+        assert_eq!(attach("discard"), Ok(()));
+    }
+}

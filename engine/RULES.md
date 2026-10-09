@@ -61,6 +61,11 @@ and simultaneous take-holds are stamped with the turn player's first.
   to evolve") also stops Rare Candy. It doesn't stop an Evolution card that
   comes from somewhere else, such as Grand Tree's search of the deck (id1133
   / n1046, Archeops' Ancient Power, same wording).
+- Genesect's ACE Nullifier ("can't play any ACE SPEC cards from their hand")
+  blocks only cards played from the hand. An Energy or Tool put onto a Pokémon
+  from the deck or discard pile by an effect isn't played from the hand, and
+  Enriching Energy and Telepathic Psychic Energy trigger only when attached
+  from the hand.
 - Locks are declared in the card specs as predicates over the card (`Pred`),
   not as card-category bitmasks.
 
