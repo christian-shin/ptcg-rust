@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
             // Only if you go second, during your first turn.
             steps: &[
                 Step::before_damage(Op::Fail(FailSpec { unless: Cond::Not(&Cond::Cmp(Num::Turn, CmpOp::Ne, Num::Lit(2))), error: "CANNOT_USE_ATTACK" })),
-                Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(Locked::Supporter) })),
+                Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::of(&[LockedAction::PlaySupporter])) })),
             ],
         },
         AttackSpec {

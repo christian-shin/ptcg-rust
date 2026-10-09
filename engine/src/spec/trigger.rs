@@ -36,8 +36,8 @@ pub struct CustomEventSpec {
 /// How a Pokémon came into play.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EnterMethod {
-    /// "When you play this Pokémon from your hand to evolve" (any Evolve effect of this card,
-    /// Rare Candy included).
+    /// "When you play this Pokémon from your hand to evolve" (an Evolve of this card from the hand, Rare Candy
+    /// included; not an evolution with a card from the deck).
     Evolve,
     /// "When you play this Pokémon from your hand onto your Bench" (any Play effect of this card).
     Play,
@@ -173,7 +173,8 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
         }
         Event::OnEnterPlay(OnEnterPlaySpec { method: m @ (EnterMethod::Play | EnterMethod::Evolve) }) => {
             let p = match (m, *g.e(e)) {
-                (EnterMethod::Play, Effect::PlayPokemon { p, card, .. }) | (EnterMethod::Evolve, Effect::Evolve { p, card, .. }) if card == me => p as usize,
+                (EnterMethod::Play, Effect::PlayPokemon { p, card, .. }) if card == me => p as usize,
+                (EnterMethod::Evolve, Effect::Evolve { p, card, from, .. }) if card == me && from == crate::state::ListRef::Hand(p) => p as usize,
                 _ => return None,
             };
             // The card is on the board by now: its slot's locks apply as for any Ability.

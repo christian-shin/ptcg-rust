@@ -1,0 +1,60 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
+   "4 Seismitoad 30C 84",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Salvatore TEF 160",
+   "36 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Tympole EVS 42",
+   "4 Palpitoad OBF 51",
+   "4 Seismitoad 30C 84",
+   "4 Bronzor TEF 68",
+   "4 Bronzong TEF 69",
+   "4 Salvatore TEF 160",
+   "36 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Bronzor TEF 68",
+   "Bronzong TEF 69"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Tympole EVS 42",
+  "bench": [],
+  "hand": [
+   "Salvatore TEF 160"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Evolution Jammer"
+  },
+  {
+   "a": "play",
+   "name": "Salvatore TEF 160"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Palpitoad OBF 51",
+   "cite": "Judge ruling id1133: Evolution Jammer doesn't stop an Evolution put onto a Pokemon from the deck (Salvatore)"
+  }
+ ]
+}

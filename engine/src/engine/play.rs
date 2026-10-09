@@ -5,6 +5,7 @@ use crate::engine::game_effect::clear_effects;
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::markers::*;
+use crate::spec::passive::{lasting_locked, LockedAction};
 use crate::state::*;
 use crate::types::*;
 
@@ -16,12 +17,8 @@ pub fn play_energy_reducer(g: &mut Game, id: EffId) -> R {
     if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
         crate::bail!("INVALID_TARGET");
     }
-    let pl = &g.st.players[p];
-    if pl.cannot_play_energy_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
-    if g.st.cdef(card).energy_type == EnergyType::Special as u8 && pl.cannot_play_special_energy_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    if let Some(code) = lasting_locked(g, p, Some(card), &[LockedAction::AttachEnergy]) {
+        crate::bail!(code);
     }
     // cannotAttachEnergyFromHandNextTurn / pending attach consequences: not modeled.
     // The Energy card is moved from where it is (Twinleaf moved it from the hand only, so an
@@ -95,12 +92,8 @@ pub enum PokemonPlay {
 /// `CheckPokemonPlayedTurn` read, so it is [`can_evolve_now`].
 pub fn can_play_pokemon(g: &Game, p: usize, card: CardId, target: SlotRef) -> R<PokemonPlay> {
     let d = g.st.cdef(card);
-    let pl = &g.st.players[p];
-    if pl.cannot_play_pokemon_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
-    if pl.cannot_play_pokemon_with_abilities && d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8) {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    if let Some(code) = lasting_locked(g, p, Some(card), &[LockedAction::PlayPokemon]) {
+        crate::bail!(code);
     }
     let tslot = g.st.slot(target.p as usize, target.s);
     if d.stage == Stage::Basic as u8 && tslot.cards.is_empty() {
@@ -113,8 +106,8 @@ pub fn can_play_pokemon(g: &Game, p: usize, card: CardId, target: SlotRef) -> R<
     if !can_evolve_from(g, base, card) {
         crate::bail!("INVALID_TARGET");
     }
-    if g.st.players[p].cannot_evolve_pokemon_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    if let Some(code) = lasting_locked(g, p, Some(card), &[LockedAction::Evolve]) {
+        crate::bail!(code);
     }
     Ok(PokemonPlay::Evolve(base))
 }
@@ -155,7 +148,15 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
     }
     let (played, first_turn_ok) = read_pokemon_played_turn(g, p, target)?;
     can_evolve_now(g, p, played, first_turn_ok)?;
-    g.run_fx(Effect::Evolve { p: p as u8, target, card })?;
+    evolve_pokemon(g, p, target, card)
+}
+
+/// The one evolution routine, for every way a Pokémon evolves (played from the hand, Rare Candy, an effect that
+/// evolves it with a card from the deck or elsewhere): the Evolve event carrying the card's source zone, then
+/// what evolving does to the Pokémon ([`finish_evolution`]).
+pub fn evolve_pokemon(g: &mut Game, p: usize, target: SlotRef, card: CardId) -> R {
+    let from = g.st.locate(card).unwrap_or(ListRef::Hand(p as u8));
+    g.run_fx(Effect::Evolve { p: p as u8, target, card, from })?;
     finish_evolution(g, p, target)
 }
 
@@ -328,8 +329,13 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
 
 /// Check only: the Trainer-play rules the `play_trainer_reducer` applies.
 pub fn can_play_supporter(g: &Game, p: usize) -> R {
-    if g.st.players[p].cannot_play_supporter_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    can_play_supporter_with(g, p, None)
+}
+
+/// [`can_play_supporter`] for this card (`None`: any Supporter): the locks an attack left judge the card.
+pub fn can_play_supporter_with(g: &Game, p: usize, card: Option<CardId>) -> R {
+    if let Some(code) = lasting_locked(g, p, card, &[LockedAction::PlaySupporter]) {
+        crate::bail!(code);
     }
     // One Supporter card per turn (basic rule), for every Supporter.
     if g.st.players[p].supporter_turn > 0 {
@@ -339,15 +345,25 @@ pub fn can_play_supporter(g: &Game, p: usize) -> R {
 }
 
 pub fn can_play_stadium(g: &Game, p: usize) -> R {
-    if g.st.players[p].cannot_play_stadium_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    can_play_stadium_with(g, p, None)
+}
+
+/// [`can_play_stadium`] for this card (`None`: any Stadium).
+pub fn can_play_stadium_with(g: &Game, p: usize, card: Option<CardId>) -> R {
+    if let Some(code) = lasting_locked(g, p, card, &[LockedAction::PlayStadium]) {
+        crate::bail!(code);
     }
     Ok(())
 }
 
 pub fn can_play_item(g: &Game, p: usize) -> R {
-    if g.st.players[p].cannot_play_item_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    can_play_item_with(g, p, None)
+}
+
+/// [`can_play_item`] for this card (`None`: any Item).
+pub fn can_play_item_with(g: &Game, p: usize, card: Option<CardId>) -> R {
+    if let Some(code) = lasting_locked(g, p, card, &[LockedAction::PlayItem]) {
+        crate::bail!(code);
     }
     Ok(())
 }
@@ -363,8 +379,8 @@ pub fn can_attach_tool(g: &Game, p: usize, card: CardId, target: SlotRef) -> R {
     if g.st.slot(target.p as usize, target.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
         crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
     }
-    if g.st.players[p].cannot_play_tool_cards {
-        crate::bail!("BLOCKED_BY_EFFECT");
+    if let Some(code) = lasting_locked(g, p, Some(card), &[LockedAction::AttachTool]) {
+        crate::bail!(code);
     }
     Ok(())
 }
@@ -373,12 +389,12 @@ pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::PlaySupporter { p, card, target } => {
             let pu = p as usize;
-            can_play_supporter(g, pu)?;
+            can_play_supporter_with(g, pu, Some(card))?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Supporter, p, card, target)
         }
         Effect::PlayStadium { p, card } => {
             let pu = p as usize;
-            can_play_stadium(g, pu)?;
+            can_play_stadium_with(g, pu, Some(card))?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Stadium, p, card, None)
         }
         Effect::AttachPokemonTool { p, card, target } => {
@@ -388,7 +404,7 @@ pub fn play_trainer_reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::PlayItem { p, card, target } => {
             let pu = p as usize;
-            can_play_item(g, pu)?;
+            can_play_item_with(g, pu, Some(card))?;
             with_optional_coin_flip_cancel_trainer(g, TrainerPlayKind::Item, p, card, target)
         }
         Effect::Trainer { p, card, .. } => {

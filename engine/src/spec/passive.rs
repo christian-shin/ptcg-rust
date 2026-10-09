@@ -334,6 +334,12 @@ pub enum Binds {
 
 /// An action a lock can stop. The card the lock's `card` / `except` predicates read is the card the action
 /// uses: the card played from the hand, the Pokémon retreating, the Stadium being used.
+///
+/// Actions are named from the rules, not from engine paths: a lock declares the words of its text, and every
+/// way of doing the action asks for all the actions it is an instance of. Every way a Pokémon card goes from
+/// the hand into play (a Basic onto the Bench, an Evolution played onto a Pokémon, Rare Candy's Stage 2) is
+/// `PlayPokemon`; the evolving ones (the Evolution played onto a Pokémon, Rare Candy) are also `Evolve`
+/// ([`LockedAction::EVOLUTION_FROM_HAND`]).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum LockedAction {
     /// Play an Item card from the hand.
@@ -345,10 +351,11 @@ pub enum LockedAction {
     AttachTool,
     /// Attach an Energy card from the hand.
     AttachEnergy,
-    /// Play a Pokémon card from the hand: onto the Bench, or onto a Pokémon to evolve it.
+    /// Play a Pokémon card from the hand into play: onto the Bench, onto a Pokémon to evolve it, or with Rare
+    /// Candy. A Pokémon put into play from another zone (the deck, the discard pile) isn't this action.
     PlayPokemon,
-    /// Evolve a Pokémon with a card from the hand, by playing it or with Rare Candy (an Evolution card that
-    /// comes from another zone doesn't pass through this action).
+    /// Evolve a Pokémon with a card from the hand (the subset of `PlayPokemon` that evolves), by playing it or
+    /// with Rare Candy. An Evolution card that comes from another zone doesn't pass through this action.
     Evolve,
     /// Retreat the Active Pokémon (the card is that Pokémon).
     Retreat,
@@ -357,6 +364,10 @@ pub enum LockedAction {
 }
 
 impl LockedAction {
+    /// What evolving with a card from the hand is an instance of: play a Pokémon from the hand, and evolve
+    /// (the direct play onto a Pokémon and Rare Candy).
+    pub const EVOLUTION_FROM_HAND: &'static [LockedAction] = &[LockedAction::PlayPokemon, LockedAction::Evolve];
+
     /// The effect kind that carries this action.
     pub const fn kind(self) -> u32 {
         use crate::effects::k;
@@ -387,41 +398,82 @@ pub enum LockWhile {
     CardIsSource,
 }
 
-/// A play or use lock, declared as data (`play_locked` evaluates it for execution and for legality): the
-/// players it `binds`, the `actions` it stops, a predicate over the card the action uses (`card`, minus
-/// `except`), the source's conditions (`while_`), and whether the source's Ability has to be on
-/// (`ability`: a lock whose source has no Ability is off, so Jellicent ex's Item lock ends when Iron Thorns
-/// ex removes its Ability). `error` is the code the blocked action fails with.
-pub struct BlockUseSpec {
-    pub binds: Binds,
+/// What a lock stops, declared as data: the `actions` it stops, a predicate over the card the action uses
+/// (`card`, minus `except`), and the code the stopped action fails with. The in-play locks
+/// ([`BlockUseSpec`]) and the locks an attack leaves on the opponent (`Lasting::OppCannotPlay`, stored on the
+/// locked player as a [`crate::state::LastingLock`]) are this one declaration.
+pub struct LockDecl {
     pub actions: &'static [LockedAction],
     pub card: Pred,
     pub except: Pred,
+    pub error: &'static str,
+}
+
+impl LockDecl {
+    /// A lock on every card of these actions, failing with BLOCKED_BY_EFFECT.
+    pub const fn of(actions: &'static [LockedAction]) -> LockDecl {
+        LockDecl { actions, card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_EFFECT" }
+    }
+
+    /// Does the lock stop one of these actions with `card` (`None`: any card of the action, which a lock on
+    /// every card of its actions answers)?
+    pub fn stops(&self, g: &Game, card: Option<CardId>, asked: &[LockedAction]) -> bool {
+        if !self.actions.iter().any(|a| asked.contains(a)) {
+            return false;
+        }
+        match card {
+            Some(c) => pred(g, c, &self.card) && !pred(g, c, &self.except),
+            None => matches!(self.card, Pred::Any) && matches!(self.except, Pred::False),
+        }
+    }
+
+    /// Two locks that stop the same cards the same way (so one stands for both).
+    pub fn same_as(&self, o: &LockDecl) -> bool {
+        std::ptr::eq(self, o)
+            || (self.actions == o.actions
+                && self.error == o.error
+                && matches!((&self.card, &o.card), (Pred::Any, Pred::Any))
+                && matches!((&self.except, &o.except), (Pred::False, Pred::False)))
+    }
+}
+
+impl PartialEq for LockDecl {
+    fn eq(&self, o: &LockDecl) -> bool {
+        std::ptr::eq(self, o)
+    }
+}
+impl Eq for LockDecl {}
+impl std::fmt::Debug for LockDecl {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LockDecl({:?}, {})", self.actions, self.error)
+    }
+}
+
+/// A play or use lock of a card in play, declared as data (`play_locked` evaluates it for execution and for
+/// legality): the players it `binds`, what it stops (`lock`), the source's conditions (`while_`), and whether
+/// the source's Ability has to be on (`ability`: a lock whose source has no Ability is off, so Jellicent ex's
+/// Item lock ends when Iron Thorns ex removes its Ability).
+pub struct BlockUseSpec {
+    pub binds: Binds,
+    pub lock: LockDecl,
     pub while_: &'static [LockWhile],
     pub ability: bool,
-    pub error: &'static str,
 }
 
 impl BlockUseSpec {
     /// The Stadium in play can't be used (it has no use text of its own).
     pub const USE_STADIUM: BlockUseSpec = BlockUseSpec {
         binds: Binds::Both,
-        actions: &[LockedAction::UseStadium],
-        card: Pred::Any,
-        except: Pred::False,
+        lock: LockDecl { actions: &[LockedAction::UseStadium], card: Pred::Any, except: Pred::False, error: "CANNOT_USE_STADIUM" },
         while_: &[LockWhile::CardIsSource],
         ability: false,
-        error: "CANNOT_USE_STADIUM",
     };
     /// This Pokémon can't retreat while it is the Active Pokémon (the Antique Fossils).
     pub const RETREAT_THIS_ACTIVE: BlockUseSpec = BlockUseSpec {
         binds: Binds::Owner,
-        actions: &[LockedAction::Retreat],
-        card: Pred::Any,
-        except: Pred::False,
+        lock: LockDecl { actions: &[LockedAction::Retreat], card: Pred::Any, except: Pred::False, error: "CANNOT_RETREAT" },
         while_: &[LockWhile::Active, LockWhile::CardIsSource],
         ability: false,
-        error: "CANNOT_RETREAT",
     };
 }
 
@@ -430,6 +482,10 @@ const fn block_kinds(actions: &[LockedAction]) -> KindMask {
     let mut i = 0;
     while i < actions.len() {
         m = crate::spec::with(m, actions[i].kind());
+        // An Evolution played from the hand is also a play of a Pokémon from the hand.
+        if matches!(actions[i], LockedAction::PlayPokemon) {
+            m = crate::spec::with(m, crate::effects::k::EVOLVE);
+        }
         i += 1;
     }
     m
@@ -703,7 +759,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
                 mask(&[k::ATTACK])
             }
         }
-        Modifier::BlockUse(b) => block_kinds(b.actions),
+        Modifier::BlockUse(b) => block_kinds(b.lock.actions),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         Modifier::AttachGuard(_) => mask(&[k::ATTACH_ENERGY, k::CHECK_TABLE_STATE]),
         Modifier::ConditionImmunity(c) => match (c.prevent, c.sweep) {
@@ -833,8 +889,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
         Modifier::BlockUse(_) => {
             // The same query legality asks (`play_locked`), restricted to this source.
-            let Some((p, card, action)) = effect_action(g, e) else { return Ok(()) };
-            match play_locked_by(g, me, p, card, action) {
+            let Some((p, card, actions)) = effect_actions(g, e) else { return Ok(()) };
+            match play_locked_by(g, me, p, card, actions) {
                 Some(code) => crate::bail!(code),
                 None => Ok(()),
             }
@@ -1826,55 +1882,70 @@ fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 // `play_locked` is the one query: execution (the passive's handler, per lock source, via
 // `play_locked_by`) and legality (all sources) read the same declarations, so they can't drift.
 
-/// The action an effect carries when a lock can stop it: (the acting player, the card the action uses,
-/// the action). Attaching a Tool or an Energy counts only when the card is in the hand ("played from the
-/// hand"; a card put on by an effect from the deck or the discard pile isn't).
-pub(crate) fn effect_action(g: &Game, e: EffId) -> Option<(usize, CardId, LockedAction)> {
+/// The actions an effect is an instance of when a lock can stop it: (the acting player, the card the action
+/// uses, the actions). Attaching a Tool or an Energy counts only when the card is in the hand ("played from
+/// the hand"; a card put on by an effect from the deck or the discard pile isn't). An Evolve effect whose card
+/// comes from the hand is both a play of a Pokémon from the hand and an evolving.
+pub(crate) fn effect_actions(g: &Game, e: EffId) -> Option<(usize, CardId, &'static [LockedAction])> {
+    use LockedAction as A;
     Some(match *g.e(e) {
-        Effect::PlayItem { p, card, .. } => (p as usize, card, LockedAction::PlayItem),
-        Effect::PlaySupporter { p, card, .. } => (p as usize, card, LockedAction::PlaySupporter),
-        Effect::PlayStadium { p, card } => (p as usize, card, LockedAction::PlayStadium),
-        Effect::AttachPokemonTool { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, LockedAction::AttachTool),
-        Effect::AttachEnergy { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, LockedAction::AttachEnergy),
-        Effect::PlayPokemon { p, card, .. } => (p as usize, card, LockedAction::PlayPokemon),
-        Effect::Evolve { p, card, .. } => (p as usize, card, LockedAction::Evolve),
-        Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, LockedAction::Retreat),
-        Effect::UseStadium { p, stadium } => (p as usize, stadium, LockedAction::UseStadium),
+        Effect::PlayItem { p, card, .. } => (p as usize, card, &[A::PlayItem]),
+        Effect::PlaySupporter { p, card, .. } => (p as usize, card, &[A::PlaySupporter]),
+        Effect::PlayStadium { p, card } => (p as usize, card, &[A::PlayStadium]),
+        Effect::AttachPokemonTool { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, &[A::AttachTool]),
+        Effect::AttachEnergy { p, card, .. } if g.st.players[p as usize].hand.contains(card) => (p as usize, card, &[A::AttachEnergy]),
+        Effect::PlayPokemon { p, card, .. } => (p as usize, card, &[A::PlayPokemon]),
+        // Only an Evolution played from the hand: one from the deck or elsewhere isn't (id1133).
+        Effect::Evolve { p, card, from, .. } if from == ListRef::Hand(p) => (p as usize, card, A::EVOLUTION_FROM_HAND),
+        Effect::Retreat { p, .. } => (p as usize, g.st.active_pokemon(p as usize)?, &[A::Retreat]),
+        Effect::UseStadium { p, stadium } => (p as usize, stadium, &[A::UseStadium]),
         _ => return None,
     })
 }
 
 /// Is player `p` stopped from doing `action` with `card` (the card played from the hand, the retreating
 /// Pokémon, the Stadium being used)? The error code of the first lock that stops it, in the order the
-/// effect reaches the lock sources (the game's propagation order); `None` when no lock does.
+/// effect reaches the lock sources (the game's propagation order), then the locks an attack left on the
+/// player ([`lasting_locked`], which the core reducers check at their own point); `None` when no lock does.
 ///
 /// Walks every card with a `BlockUse` declaration for the action and evaluates it (`lock_blocks`). A lock
-/// whose source has no Ability is off. A card in the hand is judged by its printed data. Locks that last
-/// (`cannot_play_item_cards` and the like, set by attacks) are player flags checked by the core reducers,
-/// not here.
+/// whose source has no Ability is off. A card in the hand is judged by its printed data.
 pub fn play_locked(g: &mut Game, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
-    let kind = action.kind();
-    if !g.kinds_present.has(kind) {
-        return None;
-    }
-    // The order only depends on the kind (every action's effect ranks cards by their super type).
-    let probe = Effect::PlayItem { p: p as u8, card, target: None };
-    let order = g.propagation_order(&probe, kind);
-    for c in order.iter().copied() {
-        if let Some(code) = play_locked_by(g, c, p, card, action) {
-            return Some(code);
+    play_locked_as(g, p, card, &[action])
+}
+
+/// `play_locked` for a way of acting that is an instance of several actions (it asks for all of them): evolving
+/// with a card from the hand is [`LockedAction::EVOLUTION_FROM_HAND`].
+pub fn play_locked_as(g: &mut Game, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
+    if let Some(first) = actions.first() {
+        if actions.iter().any(|a| g.kinds_present.has(a.kind())) {
+            // The order only depends on the kind (every action's effect ranks cards by their super type).
+            let probe = Effect::PlayItem { p: p as u8, card, target: None };
+            let order = g.propagation_order(&probe, first.kind());
+            for c in order.iter().copied() {
+                if let Some(code) = play_locked_by(g, c, p, card, actions) {
+                    return Some(code);
+                }
+            }
         }
     }
-    None
+    lasting_locked(g, p, Some(card), actions)
+}
+
+/// The locks an attack left on player `p` ("your opponent can't play Item cards from their hand during their
+/// next turn"): the error code of the first one that stops one of these actions with `card` (`None`: any card
+/// of the action). The core reducers ask this at the point they always checked it.
+pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[LockedAction]) -> Option<&'static str> {
+    g.st.players[p].lasting_locks.iter().flatten().find(|l| l.decl.stops(g, card, actions)).map(|l| l.decl.error)
 }
 
 /// `play_locked` for one lock source: the passive handler of `me` calls this, at the point the effect
 /// reaches it.
-pub(crate) fn play_locked_by(g: &mut Game, me: CardId, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
+pub(crate) fn play_locked_by(g: &mut Game, me: CardId, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
     let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
     for ps in passives {
         if let Modifier::BlockUse(b) = &ps.modifier {
-            if let Some(code) = lock_blocks(g, me, ps.origin, b, p, card, action) {
+            if let Some(code) = lock_blocks(g, me, ps.origin, b, p, card, actions) {
                 return Some(code);
             }
         }
@@ -1883,8 +1954,8 @@ pub(crate) fn play_locked_by(g: &mut Game, me: CardId, p: usize, card: CardId, a
 }
 
 /// Does the lock `b`, declared by `me`, stop player `p` from doing `action` with `card`?
-fn lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
-    if !b.actions.contains(&action) {
+fn lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
+    if !b.lock.actions.iter().any(|a| actions.contains(a)) {
         return None;
     }
     let at = locate(g, me, origin)?;
@@ -1907,13 +1978,13 @@ fn lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, p
         }
     }
     // The card is judged by its printed data.
-    if !pred(g, card, &b.card) || pred(g, card, &b.except) {
+    if !pred(g, card, &b.lock.card) || pred(g, card, &b.lock.except) {
         return None;
     }
     if b.ability && !source_ability_on(g, at.owner, me) {
         return None;
     }
-    Some(b.error)
+    Some(b.lock.error)
 }
 
 /// Does the lock source `me` have its Ability: the stored lock state when it can say, else the probe
@@ -3079,6 +3150,46 @@ mod play_lock_tests {
         g.st.slot_pokemon(p, g.st.players[p].bench.as_slice()[i]).unwrap()
     }
 
+    /// The lock each attack leaves, applied to player `p` as the attack does, with what it stops.
+    #[test]
+    fn attack_locks_stop_what_their_text_says_and_expire() {
+        use crate::engine::phase::{apply_play_lock, tick_play_locks_at_end_of_turn};
+        use LockedAction as A;
+        // (the card's declaration, the one action it stops)
+        static ITEM: LockDecl = LockDecl::of(&[A::PlayItem]);
+        static SUPPORTER: LockDecl = LockDecl::of(&[A::PlaySupporter]);
+        static STADIUM: LockDecl = LockDecl::of(&[A::PlayStadium]);
+        static EVOLVE: LockDecl = LockDecl::of(&[A::Evolve]);
+        let cases: [(&'static LockDecl, A); 4] = [
+            (&ITEM, A::PlayItem),           // Budew, Frillish, Galvantula ex
+            (&SUPPORTER, A::PlaySupporter), // Scream Tail ex
+            (&STADIUM, A::PlayStadium), // Chi-Yu
+            (&EVOLVE, A::Evolve),           // Bronzong
+        ];
+        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::AttachTool, A::AttachEnergy, A::PlayPokemon, A::Evolve];
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Potion POR 83"]},
+            "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let me = g.st.active_player as usize;
+        let potion = hand(&g, me, "Potion POR 83");
+        for (decl, stops) in cases {
+            apply_play_lock(&mut g.st.players[me], decl, 1);
+            for a in all {
+                let want = (a == stops).then_some("BLOCKED_BY_EFFECT");
+                assert_eq!(lasting_locked(&g, me, Some(potion), &[a]), want, "{a:?} under a lock on {stops:?}");
+            }
+            // The opponent of the locked player isn't stopped.
+            assert_eq!(lasting_locked(&g, 1 - me, Some(potion), &[stops]), None);
+            tick_play_locks_at_end_of_turn(&mut g.st.players[1 - me]);
+            assert!(lasting_locked(&g, me, Some(potion), &[stops]).is_some(), "the other player's turn doesn't end it");
+            tick_play_locks_at_end_of_turn(&mut g.st.players[me]);
+            assert_eq!(lasting_locked(&g, me, Some(potion), &[stops]), None, "gone at the end of the locked player's turn");
+        }
+        // Evolving with a card from the hand is play-a-Pokémon and evolve: the Evolve lock stops it.
+        apply_play_lock(&mut g.st.players[me], &EVOLVE, 1);
+        assert!(lasting_locked(&g, me, Some(potion), A::EVOLUTION_FROM_HAND).is_some());
+        assert_eq!(lasting_locked(&g, me, Some(potion), &[A::PlayPokemon]), None, "a Basic to the Bench isn't evolving");
+    }
+
     #[test]
     fn jellicent_ex_locks_items_and_tools_while_active() {
         let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Potion POR 83", "Sacred Charm PFL 93"]},
@@ -3123,12 +3234,13 @@ mod play_lock_tests {
         let (noctowl, dura, arbok) = (hand(&g, me, "Noctowl PRE 78"), hand(&g, me, "Duraludon PRE 69"), hand(&g, me, "Team Rocket's Arbok DRI 113"));
         assert_eq!(ability_off(&g, noctowl), Some(false), "printed data in the hand");
         assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"));
-        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), Some("BLOCKED_BY_ABILITY"), "Rare Candy too (id1133, id285, id1998)");
+        assert_eq!(play_locked(&mut g, me, noctowl, LockedAction::Evolve), None, "Arbok declares only PlayPokemon, as its text");
+        assert_eq!(play_locked_as(&mut g, me, noctowl, LockedAction::EVOLUTION_FROM_HAND), Some("BLOCKED_BY_ABILITY"), "Rare Candy too (id1133, id285, id1998)");
         let fossil = hand(&g, me, "Antique Root Fossil SCR 130");
         assert_eq!(play_locked(&mut g, me, fossil, LockedAction::PlayPokemon), Some("BLOCKED_BY_ABILITY"), "a Fossil with an Ability is played as a Pokémon");
         assert_eq!(play_locked(&mut g, me, dura, LockedAction::PlayPokemon), None, "no Ability");
         assert_eq!(play_locked(&mut g, me, arbok, LockedAction::PlayPokemon), None, "Team Rocket's Pokémon are exempt");
-        assert_eq!(play_locked(&mut g, me, arbok, LockedAction::Evolve), None);
+        assert_eq!(play_locked_as(&mut g, me, arbok, LockedAction::EVOLUTION_FROM_HAND), None);
         // Its owner is not stopped.
         assert_eq!(play_locked(&mut g, 1 - me, noctowl, LockedAction::PlayPokemon), None);
     }

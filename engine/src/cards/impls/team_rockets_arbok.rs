@@ -3,6 +3,9 @@
 //! hand (except Team Rocket's Pokémon). Spinning Tail — 30 damage to each of
 //! your opponent's Pokémon.
 //!
+//! Evolving (directly or with Rare Candy) is playing a Pokémon from the hand
+//! (rulings id285, id1998, id1133), so the lock declares only `PlayPokemon`.
+//!
 //! Twinleaf: any PlayPokemonEffect (bench or evolve) by the player whose
 //! opponent has this card as the Active top card throws when the played card
 //! has an Ability after CheckPokemonPowersEffect.
@@ -15,12 +18,9 @@ pub static SPEC: CardSpec = CardSpec {
     // from their hand (except Team Rocket's Pokémon).
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        actions: &[LockedAction::PlayPokemon, LockedAction::Evolve],
-        card: Pred::PrintsAbility,
-        except: Pred::Tag(tag::TEAM_ROCKET),
+        lock: LockDecl { actions: &[LockedAction::PlayPokemon], card: Pred::PrintsAbility, except: Pred::Tag(tag::TEAM_ROCKET), error: "BLOCKED_BY_ABILITY" },
         while_: &[LockWhile::Active],
         ability: true,
-        error: "BLOCKED_BY_ABILITY",
     }) }],
     attacks: &[AttackSpec {
         index: 0,

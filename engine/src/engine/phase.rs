@@ -492,58 +492,25 @@ fn cost_increase_end_of_turn(g: &mut Game, p: usize) {
     }
 }
 
-pub fn clear_play_locks(pl: &mut Player) {
-    pl.cannot_play_item_cards = false;
-    pl.cannot_play_supporter_cards = false;
-    pl.cannot_play_stadium_cards = false;
-    pl.cannot_play_tool_cards = false;
-    pl.cannot_play_special_energy_cards = false;
-    pl.cannot_play_energy_cards = false;
-    pl.cannot_play_pokemon_cards = false;
-    pl.cannot_play_pokemon_with_abilities = false;
-    pl.cannot_evolve_pokemon_cards = false;
-    pl.play_locks_turns_remaining = 0;
+/// A lock an attack leaves on the player for `turns_remaining` of their turns (a lock already there, the same
+/// declaration, keeps the longer).
+pub fn apply_play_lock(pl: &mut Player, lock: &'static crate::spec::passive::LockDecl, turns_remaining: i8) {
+    let turns = turns_remaining.max(1);
+    if let Some(l) = pl.lasting_locks.iter_mut().flatten().find(|l| l.decl.same_as(lock)) {
+        l.turns_remaining = l.turns_remaining.max(turns);
+        return;
+    }
+    let slot = pl.lasting_locks.iter().position(|l| l.is_none()).unwrap_or(pl.lasting_locks.len() - 1);
+    pl.lasting_locks[slot] = Some(LastingLock { decl: lock, turns_remaining: turns });
 }
 
-/// `Player.applyPlayLocks(locks, turnsRemaining)`.
-pub fn apply_play_locks(pl: &mut Player, locks: u16, turns_remaining: i32) {
-    use crate::effects::play_lock as l;
-    if locks & l::ITEM != 0 {
-        pl.cannot_play_item_cards = true;
-    }
-    if locks & l::SUPPORTER != 0 {
-        pl.cannot_play_supporter_cards = true;
-    }
-    if locks & l::STADIUM != 0 {
-        pl.cannot_play_stadium_cards = true;
-    }
-    if locks & l::TOOL != 0 {
-        pl.cannot_play_tool_cards = true;
-    }
-    if locks & l::SPECIAL_ENERGY != 0 {
-        pl.cannot_play_special_energy_cards = true;
-    }
-    if locks & l::ENERGY != 0 {
-        pl.cannot_play_energy_cards = true;
-        pl.cannot_play_special_energy_cards = true;
-    }
-    if locks & l::POKEMON != 0 {
-        pl.cannot_play_pokemon_cards = true;
-    }
-    if locks & l::POKEMON_WITH_ABILITIES != 0 {
-        pl.cannot_play_pokemon_with_abilities = true;
-    }
-    if locks & l::EVOLVE != 0 {
-        pl.cannot_evolve_pokemon_cards = true;
-    }
-    pl.play_locks_turns_remaining = pl.play_locks_turns_remaining.max(turns_remaining.max(1));
-}
-
-fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
-    if pl.play_locks_turns_remaining > 0 {
-        pl.play_locks_turns_remaining -= 1;
-        if pl.play_locks_turns_remaining <= 0 {
-            clear_play_locks(pl);
+pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
+    for slot in pl.lasting_locks.iter_mut() {
+        if let Some(l) = slot {
+            l.turns_remaining -= 1;
+            if l.turns_remaining <= 0 {
+                *slot = None;
+            }
         }
     }
     if pl.stadium_and_tool_have_no_effect_turns_remaining > 0 {

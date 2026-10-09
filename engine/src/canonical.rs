@@ -220,16 +220,27 @@ impl Game {
         nd!(can_evolve, "canEvolve");
         nd!(ancient_pokemon_attacked_last_turn, "ancientPokemonAttackedLastTurn");
         nd!(ancient_supporter, "ancientSupporter");
-        nd!(cannot_play_item_cards, "cannotPlayItemCards");
-        nd!(cannot_play_supporter_cards, "cannotPlaySupporterCards");
-        nd!(cannot_play_stadium_cards, "cannotPlayStadiumCards");
-        nd!(cannot_play_tool_cards, "cannotPlayToolCards");
-        nd!(cannot_play_special_energy_cards, "cannotPlaySpecialEnergyCards");
-        nd!(cannot_play_energy_cards, "cannotPlayEnergyCards");
-        nd!(cannot_play_pokemon_cards, "cannotPlayPokemonCards");
-        nd!(cannot_play_pokemon_with_abilities, "cannotPlayPokemonWithAbilities");
-        nd!(cannot_evolve_pokemon_cards, "cannotEvolvePokemonCards");
-        nd!(play_locks_turns_remaining, "playLocksTurnsRemaining");
+        // The locks an attack left, as the keys the state always had (what they stop, and the turns left).
+        {
+            use crate::spec::passive::LockedAction as A;
+            let stops = |a: A| pl.lasting_locks.iter().flatten().any(|l| l.decl.actions.contains(&a));
+            for (a, key) in [
+                (A::PlayItem, "cannotPlayItemCards"),
+                (A::PlaySupporter, "cannotPlaySupporterCards"),
+                (A::PlayStadium, "cannotPlayStadiumCards"),
+                (A::AttachTool, "cannotPlayToolCards"),
+                (A::AttachEnergy, "cannotPlayEnergyCards"),
+                (A::PlayPokemon, "cannotPlayPokemonCards"),
+                (A::Evolve, "cannotEvolvePokemonCards"),
+            ] {
+                if stops(a) {
+                    o.insert(key.into(), json!(true));
+                }
+            }
+            if let Some(t) = pl.lasting_locks.iter().flatten().map(|l| l.turns_remaining).max() {
+                o.insert("playLocksTurnsRemaining".into(), json!(t));
+            }
+        }
         nd!(used_dragons_wish, "usedDragonsWish");
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
         nd!(cannot_draw_at_start_of_turn, "cannotDrawAtStartOfTurn");

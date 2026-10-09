@@ -119,7 +119,9 @@ pub enum Effect {
     /// Pokémon out of play later (`game_effect::complete_knock_out`).
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
     Heal { p: u8, target: SlotRef, damage: i32 },
-    Evolve { p: u8, target: SlotRef, card: CardId },
+    /// Every evolution: played from the hand, Rare Candy, and the effects that evolve from the deck or
+    /// elsewhere. `from` is the zone the Evolution card comes from (locks and triggers on "from your hand" read it).
+    Evolve { p: u8, target: SlotRef, card: CardId, from: ListRef },
     DrawPrizes { p: u8, prizes: u8, destination: ListRef },
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
@@ -161,8 +163,8 @@ pub enum Effect {
     AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5>, poison_damage: Option<i32>, burn_damage: Option<i32>, confusion_damage: Option<i32> },
     RemoveSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
     HealTarget { b: AtkBase, damage: i32 },
-    /// `PlayLockEffect` (target = attacker's slot). `locks`: [`play_lock`] bits.
-    PlayLock { b: AtkBase, locks: u16, turns_remaining: Option<i32>, both_players: bool, attacker_turns_remaining: Option<i32> },
+    /// `PlayLockEffect` (target = attacker's slot): the opponent gets the lock for their next turn.
+    PlayLock { b: AtkBase, lock: &'static crate::spec::passive::LockDecl },
     /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
     PreventRetreat { b: AtkBase },
     /// `OpponentPokemonCannotUseAttackEffect` (EffectOfAttackEffect):
@@ -614,19 +616,6 @@ pub mod k {
     pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;
     pub const COIN_FLIP_CANCEL_TRAINER_PLAY: u32 = 122;
     pub const OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN: u32 = 196;
-}
-
-/// `PlayLockOptions` flags for [`Effect::PlayLock`].
-pub mod play_lock {
-    pub const ITEM: u16 = 1 << 0;
-    pub const SUPPORTER: u16 = 1 << 1;
-    pub const STADIUM: u16 = 1 << 2;
-    pub const TOOL: u16 = 1 << 3;
-    pub const SPECIAL_ENERGY: u16 = 1 << 4;
-    pub const ENERGY: u16 = 1 << 5;
-    pub const POKEMON: u16 = 1 << 6;
-    pub const POKEMON_WITH_ABILITIES: u16 = 1 << 7;
-    pub const EVOLVE: u16 = 1 << 8;
 }
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.
