@@ -14,11 +14,11 @@
 //!
 //! Events batch 2: each evolving is the Evolve event's effect path from the
 //! deck (not played from the hand: id1133, id2037). The printed parenthetical
-//! is reminder text for the rule's limits (id2327), declared as the card's
-//! `Limits` on its first evolving (a Basic Pokémon): the effect path is subject
-//! to them as an evolution from the hand is, and a permission lifts them
-//! (Eevee's Boosted Evolution while it is the Active Pokémon). Rare Candy's
-//! printed limit is a `Restrict` instead, which nothing lifts (id1144, id1815).
+//! is the card's own restriction on its first evolving (a Basic Pokémon),
+//! declared as a `Restrict` as Rare Candy's is: no permission lifts it, on
+//! either clause (Eevee's Boosted Evolution, Forest of Vitality; official JP
+//! Q&A 2026-10-09, docs/rulings/forum-answers.md; id1144, id1815). id2327
+//! (a permission overrides the reminder text) is Strange Timepiece's only.
 use crate::spec::prelude::*;
 use crate::types::Stage;
 
@@ -31,7 +31,7 @@ pub static SPEC: CardSpec = CardSpec {
     }),
     // Players can't evolve a Basic Pokémon during their first turn or a Basic Pokémon that was put into play
     // this turn.
-    limits: &[Limits {
+    restricts: &[Restrict {
         on: EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::This(Role::CauseCard), EventPred::Base(Pred::Basic)]),
         limits: &[Limit::FirstTurn, Limit::BaseEnteredThisTurn],
     }],

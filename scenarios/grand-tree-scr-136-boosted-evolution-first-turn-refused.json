@@ -1,0 +1,43 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "1 Grand Tree SCR 136",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "hand_to_deck": true,
+  "active": "Eevee PRE 74",
+  "stadium": "Grand Tree SCR 136"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee PRE 74"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": false,
+   "cite": "JP Q&A 2026-10-09: 先攻プレイヤーの最初の番、特性「ブーストしんか」を持つバトル場のイーブイを、スタジアム「偉大な大樹」の効果で進化させることはできますか？ いいえ、できません。最初の自分の番、スタジアム「偉大な大樹」の効果を使うことはできません。 (On the first player's first turn, an Active Eevee with Boosted Evolution can't be evolved by Grand Tree's effect.) official JP Q&A 2026-10-09 (docs/rulings/forum-answers.md, Grand Tree): Grand Tree's parenthetical is its own restriction, which no permission lifts, like Rare Candy's (id1144, id1815); id2327 is Strange Timepiece's only (docs/rulings/RULES.md Evolution timing)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Eevee PRE 74",
+   "cite": "JP Q&A 2026-10-09 (Grand Tree vs Boosted Evolution, first turn): Eevee stays an Eevee"
+  }
+ ]
+}

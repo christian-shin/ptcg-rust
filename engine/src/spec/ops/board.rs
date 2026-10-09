@@ -1456,15 +1456,15 @@ fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -
 }
 
 // ---------------------------------------------------------------------------
-// Evolve (Grand Tree): the Evolve event's effect path, with the rule's limits the card restates
+// Evolve (Grand Tree): the Evolve event's effect path, with the card's own restriction
 
 fn evolves_from_any(name: &str) -> bool {
     crate::gen::evolutions::ALL_EVOLUTIONS.iter().any(|(_, from)| *from == name)
 }
 
 /// Grand Tree's limits on the Pokémon in `t` ("Players can't evolve a Basic Pokémon during their first turn or
-/// a Basic Pokémon that was put into play this turn"): the rule's limits its reminder text restates
-/// (`CardSpec::limits`, which a permission lifts: id2327) and any restriction, asked before the card is chosen
+/// a Basic Pokémon that was put into play this turn"): the card's own restriction (`CardSpec::restricts`, which
+/// no permission lifts: official JP Q&A 2026-10-09), asked before the card is chosen
 /// (`engine::enter::evolve_limits`).
 fn from_deck_refused(g: &mut Game, t: SlotRef, cause: crate::cause::Cause) -> R<bool> {
     let Some(v) = crate::engine::enter::evolve_view(g, None, t, super::super::event::RulesZone::Deck, super::super::event::EvolvePath::Effect, cause) else { return Ok(true) };
@@ -1489,8 +1489,8 @@ pub(crate) fn evolve_targets(g: &mut Game, p: usize, cause: crate::cause::Cause)
 }
 
 /// Can the effect (`cause`) evolve the Pokémon in `t` with `card` from `source`: it evolves from the Pokémon,
-/// and the Evolve event's checks allow it (`enter::check_evolve`: the locks, the rule's limits the card restates,
-/// the restrictions). An effect offers only cards it can put onto the Pokémon.
+/// and the Evolve event's checks allow it (`enter::check_evolve`: the locks, the card's own
+/// restrictions). An effect offers only cards it can put onto the Pokémon.
 fn effect_can_evolve(g: &mut Game, t: SlotRef, card: CardId, source: super::super::event::RulesZone, cause: crate::cause::Cause) -> R<bool> {
     use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
     let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
