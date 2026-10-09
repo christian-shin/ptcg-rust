@@ -430,7 +430,7 @@ impl Game {
                 let n = (count as usize).min(left);
                 mk(SelectType::Card, ctx, n, n, options, (0..left).map(|k| json!(k)).collect(), AnswerShape::Array)
             }
-            PromptKind::ChooseEnergy { energy, .. } => {
+            PromptKind::ChooseEnergy { energy, cost, .. } => {
                 let options = energy
                     .iter()
                     .enumerate()
@@ -444,7 +444,10 @@ impl Game {
                     })
                     .collect::<Vec<_>>();
                 let n = options.len();
-                mk(SelectType::Energy, ctx, 0, n, options, (0..n).map(|k| json!(k)).collect(), AnswerShape::Array)
+                // A payment never has more cards than the cost (ruling 1652); a larger bound made the
+                // pick-mask search run out of budget and offer cards that lead to a dead end.
+                let max = n.min(cost.len().max(1));
+                mk(SelectType::Energy, ctx, 0, max, options, (0..n).map(|k| json!(k)).collect(), AnswerShape::Array)
             }
             PromptKind::AttachEnergy { cards, player_type, slots, filter, o } => {
                 // One option per (energy card, target) pair; pick each energy at most once.
