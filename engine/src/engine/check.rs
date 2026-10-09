@@ -89,7 +89,7 @@ pub fn check_hp(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
     if card.is_some() {
         g.st.players[p].slots[s as usize].hp_bonus = 0;
     }
-    g.run_fx(Effect::CheckHp { p: p as u8, target: SlotRef::new(p, s), card })?;
+    g.run_fx_unit(Effect::CheckHp { p: p as u8, target: SlotRef::new(p, s), card })?;
     Ok(hp_of(g, p, s, card))
 }
 
@@ -370,7 +370,7 @@ pub fn choose_active_cont(g: &mut Game, p: u8, res: Res) -> R {
             g.st.players[p].moved_to_active_this_turn.push(c);
         }
         g.st.cards[c as usize].moved_to_active_this_turn = true;
-        g.run_fx(Effect::MovedToActive { p: p as u8, card: c })?;
+        g.run_fx_unit(Effect::MovedToActive { p: p as u8, card: c })?;
     }
     crate::spec::passive::lock_sync(g);
     Ok(())

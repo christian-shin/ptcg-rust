@@ -546,7 +546,7 @@ fn run(o: &Opts, g: &mut Game, rec: &mut Rec, reached: &mut bool) -> End {
                     (Some(full), true) => json!({ "kind": "turn", "options": full.iter().map(|x| x.desc.clone()).collect::<Vec<_>>() }),
                     _ => Value::Null,
                 };
-                let r = g.act(opts[k]).and_then(|_| g.settle());
+                let r = g.act_no_rollback(opts[k]).and_then(|_| g.settle());
                 if r.is_ok() && rec.on {
                     rec.step(g, p, d, full.as_ref().unwrap()[k].desc.clone());
                 }

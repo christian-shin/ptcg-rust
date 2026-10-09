@@ -281,6 +281,20 @@ pub struct Game {
     pub prop: PropCache,
 }
 
+/// How the propagation order ranks the cards: by super type, or specially for these three effects.
+const PROP_POWER: u16 = 1;
+const PROP_CHECK_POWERS: u16 = 2;
+const PROP_AFTER_ATTACK: u16 = 3;
+
+fn prop_class(e: &Effect) -> u16 {
+    match e {
+        Effect::Power { .. } => PROP_POWER,
+        Effect::CheckPokemonPowers { .. } => PROP_CHECK_POWERS,
+        Effect::AfterAttack { .. } => PROP_AFTER_ATTACK,
+        _ => 0,
+    }
+}
+
 /// Slots of the propagation-order memo, and the most cards one entry holds (longer orders aren't kept).
 const PROP_SLOTS: usize = 64;
 const PROP_CARDS: usize = 24;
@@ -778,6 +792,14 @@ impl Game {
         r.map(|_| out)
     }
 
+    /// [`Game::run_fx`] for a caller that does not read the result (no copy of the effect).
+    pub fn run_fx_unit(&mut self, e: Effect) -> R {
+        let id = self.new_fx(e);
+        let r = self.reduce_effect(id);
+        self.release_fx(id);
+        r
+    }
+
     // -----------------------------------------------------------------------
     // Temp lists
 
@@ -1012,7 +1034,7 @@ impl Game {
                             (self.coin_callbacks.len() - 1) as u8
                         }
                     };
-                    self.run_fx(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+                    self.run_fx_unit(Effect::CoinFlip { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
                     return Ok(());
                 }
                 // Reflip offers (stadium/tool) are applied by those cards' handlers
@@ -1043,13 +1065,10 @@ impl Game {
     /// Cards with a handler for this effect kind, in Twinleaf's
     /// `propagateEffect` order (zone order, then stable sort by rank).
     pub(crate) fn propagation_order(&mut self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
-        // The ranking depends on the effect's variant for these three; every other effect ranks by super type.
-        let class: u16 = match e {
-            Effect::Power { .. } => 1,
-            Effect::CheckPokemonPowers { .. } => 2,
-            Effect::AfterAttack { .. } => 3,
-            _ => 0,
-        };
+        self.propagation_order_class(prop_class(e), kind)
+    }
+
+    fn propagation_order_class(&mut self, class: u16, kind: u32) -> SVec<CardId, 120> {
         let tag = (kind as u16) << 2 | class;
         let slot = kind as usize % PROP_SLOTS;
         let now = crate::list::zone_gen();
@@ -1062,12 +1081,12 @@ impl Game {
                 out.push(c);
             }
             if verify_cache() {
-                let fresh = self.propagation_order_fresh(e, kind);
+                let fresh = self.propagation_order_fresh(class, kind);
                 assert_eq!(out.as_slice(), fresh.as_slice(), "stale propagation order for kind {} (class {})", kind, class);
             }
             return out;
         }
-        let out = self.propagation_order_fresh(e, kind);
+        let out = self.propagation_order_fresh(class, kind);
         if out.len() <= PROP_CARDS {
             self.prop.tags[slot] = tag;
             self.prop.lens[slot] = out.len() as u8;
@@ -1076,7 +1095,7 @@ impl Game {
         out
     }
 
-    fn propagation_order_fresh(&self, e: &Effect, kind: u32) -> SVec<CardId, 120> {
+    fn propagation_order_fresh(&self, class: u16, kind: u32) -> SVec<CardId, 120> {
         let mut cards: SVec<CardId, 120> = SVec::new();
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
             if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
@@ -1129,20 +1148,20 @@ impl Game {
         }
         let rank = |c: CardId| -> u8 {
             let d = self.st.cdef(c);
-            match e {
-                Effect::Power { .. } => match d.super_type {
+            match class {
+                PROP_POWER => match d.super_type {
                     2 => 0,
                     3 => 1,
                     _ => 2,
                 },
-                Effect::CheckPokemonPowers { .. } => match d.super_type {
+                PROP_CHECK_POWERS => match d.super_type {
                     1 => 0,
                     3 => 1,
                     2 if d.trainer_type == TrainerType::Stadium as u8 => 3,
                     _ => 2,
                 },
                 // AfterAttackEffect: Pokémon, then Energy, then Trainers (R7F-10).
-                Effect::AfterAttack { .. } => match d.super_type {
+                PROP_AFTER_ATTACK => match d.super_type {
                     1 => 0,
                     3 => 1,
                     _ => 2,
@@ -1184,10 +1203,10 @@ impl Game {
         }
 
         // Propagate to cards (PlayPokemonEffect: target's tools first).
-        let e = *self.e(id);
-        let kind = e.kind();
+        let kind = self.e(id).kind();
+        let class = prop_class(self.e(id));
         let mut first: SVec<CardId, 4> = SVec::new();
-        if let Effect::PlayPokemon { target, .. } = e {
+        if let Effect::PlayPokemon { target, .. } = *self.e(id) {
             for c in self.st.slot(target.p as usize, target.s).tools.iter() {
                 first.push(c);
             }
@@ -1195,7 +1214,7 @@ impl Game {
         for &c in first.iter() {
             self.call_card(c, id, kind)?;
         }
-        let order = if self.kinds_present.has(kind) { self.propagation_order(&e, kind) } else { SVec::new() };
+        let order = if self.kinds_present.has(kind) { self.propagation_order_class(class, kind) } else { SVec::new() };
         for &c in order.iter() {
             if first.contains(&c) {
                 continue;
@@ -1360,8 +1379,24 @@ impl Game {
 
     /// A turn action (`Store.reduce`): all-or-nothing.
     pub fn act(&mut self, action: Action) -> R {
+        self.act_with(action, true)
+    }
+
+    /// [`Game::act`] for a driver that gives up the game on an error (self-play, the benchmark): no backup
+    /// copy, so a rejected action leaves the game half done.
+    pub fn act_no_rollback(&mut self, action: Action) -> R {
+        self.act_with(action, false)
+    }
+
+    fn act_with(&mut self, action: Action, rollback: bool) -> R {
         if self.prompts.iter().any(|p| p.result.is_none()) {
             bail!("ACTION_IN_PROGRESS");
+        }
+        if !rollback {
+            self.items.clear();
+            turn::play_card_reducer(self, action)?;
+            turn::player_turn_reducer(self, action)?;
+            return self.after_dispatch();
         }
         let backup = self.fork();
         self.items.clear();

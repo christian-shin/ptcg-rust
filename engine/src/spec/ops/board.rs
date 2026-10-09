@@ -495,9 +495,9 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 KnockOutMode::Opponent | KnockOutMode::Player => {
                     let Some(b) = atk_base(g, f, slot) else { return Ok(Flow::Next) };
                     if k.mode == KnockOutMode::Opponent {
-                        g.run_fx(Effect::KnockOutOpponent { b, knocked_out: false, prize_count: 0 })?;
+                        g.run_fx_unit(Effect::KnockOutOpponent { b, knocked_out: false, prize_count: 0 })?;
                     } else {
-                        g.run_fx(Effect::KnockOutPlayer { b, knocked_out: false, prize_count: 0 })?;
+                        g.run_fx_unit(Effect::KnockOutPlayer { b, knocked_out: false, prize_count: 0 })?;
                     }
                 }
             }
@@ -839,11 +839,11 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
             match h.via {
                 HealVia::Attack => {
                     if let Some(b) = atk_base(g, f, slot) {
-                        g.run_fx(Effect::HealTarget { b, damage: n })?;
+                        g.run_fx_unit(Effect::HealTarget { b, damage: n })?;
                     }
                 }
                 HealVia::Effect => {
-                    g.run_fx(Effect::Heal { p: f.p, target: slot, damage: n })?;
+                    g.run_fx_unit(Effect::Heal { p: f.p, target: slot, damage: n })?;
                 }
             }
             if h.clear_conditions {
@@ -870,14 +870,14 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
 fn counters_by(g: &mut Game, me: CardId, f: &Frame, cause: CounterCause, n: i32, slot: SlotRef) -> R {
     match cause {
         CounterCause::Effect => {
-            g.run_fx(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me })?;
+            g.run_fx_unit(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me })?;
         }
         CounterCause::Direct => {
             g.st.players[slot.p as usize].slots[slot.s as usize].damage += n;
         }
         CounterCause::Attack => {
             if let Some(b) = atk_base(g, f, slot) {
-                g.run_fx(Effect::PutCounters { b, damage: n })?;
+                g.run_fx_unit(Effect::PutCounters { b, damage: n })?;
             }
         }
     }
@@ -913,7 +913,7 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
                     for x in cs {
                         v.push(*x as u8);
                     }
-                    g.run_fx(Effect::AddSpecialConditions { b, conditions: v, poison_damage: None, burn_damage: None, confusion_damage: None })?;
+                    g.run_fx_unit(Effect::AddSpecialConditions { b, conditions: v, poison_damage: None, burn_damage: None, confusion_damage: None })?;
                 }
                 Cause::Ability => add_special_conditions_to_player_active(g, p, me, cs)?,
                 Cause::Direct => {
@@ -1127,7 +1127,7 @@ fn spread_resume(g: &mut Game, f: &Frame, s: &SpreadCountersSpec, first: Res) ->
     for (t, damage) in map.iter() {
         let target = get_target(&g.st, p, *t)?;
         let b = AtkBase { attack_effect: f.eff, player: pl, opponent: opp, attack, source, target };
-        g.run_fx(Effect::PutCounters { b, damage: *damage })?;
+        g.run_fx_unit(Effect::PutCounters { b, damage: *damage })?;
         if let Effect::Attack { damage: d, .. } = g.e_mut(f.eff) {
             *d = *damage * s.damage_per_hp;
         }
@@ -1333,7 +1333,7 @@ fn mine_to_opp_resume(g: &mut Game, me: CardId, f: &Frame, max: u8, first: Res) 
                 continue;
             }
             g.st.players[source.p as usize].slots[source.s as usize].damage -= damage_to_move;
-            g.run_fx(Effect::PlaceDamageCounters { p: p as u8, target, damage: damage_to_move, source: me })?;
+            g.run_fx_unit(Effect::PlaceDamageCounters { p: p as u8, target, damage: damage_to_move, source: me })?;
             total += damage_to_move;
         }
         if total >= limit {
@@ -1435,7 +1435,7 @@ fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items:
             SpreadApply::Damage => deal_or_put_damage(g, f.eff, damage, slot)?,
             SpreadApply::Counters => {
                 if let Some(b) = atk_base(g, f, slot) {
-                    g.run_fx(Effect::PutCounters { b, damage })?;
+                    g.run_fx_unit(Effect::PutCounters { b, damage })?;
                 }
             }
         }
@@ -1476,7 +1476,7 @@ fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -
         DamageCalc::Direct => g.st.players[slot.p as usize].slots[slot.s as usize].damage += n,
         DamageCalc::Deal => {
             if let Some(b) = atk_base(g, f, slot) {
-                g.run_fx(Effect::DealDamage { b, damage: n })?;
+                g.run_fx_unit(Effect::DealDamage { b, damage: n })?;
             }
         }
     }

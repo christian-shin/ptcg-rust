@@ -1,7 +1,7 @@
 //! Throughput benchmark: uniformly random play from a fuzz spec's decks,
 //! no JSON descriptors, no invariant checks, no recording.
 //!
-//!   bench [spec.json] [--games N] [--seed S] [--threads T]
+//!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes]
 //!
 //! `spec.json` is the fuzz deck spec (default `corpus/golden/current/spec.json`).
 //! Game i has seed S * 100,000 + i and the decks pair as in `fuzz`. Turn
@@ -99,7 +99,7 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                 }
                 decisions += 1;
                 let k = rng.index(opts.len());
-                if g.act(opts[k]).and_then(|_| g.settle()).is_err() {
+                if g.act_no_rollback(opts[k]).and_then(|_| g.settle()).is_err() {
                     return fail(decisions, "act");
                 }
             }
@@ -166,6 +166,19 @@ fn main() {
     let games: usize = arg(&args, "--games").map(|s| s.parse().expect("--games")).unwrap_or(300);
     let seed0: u32 = arg(&args, "--seed").map(|s| s.parse().expect("--seed")).unwrap_or(11);
     let max_threads: usize = arg(&args, "--threads").map(|s| s.parse().expect("--threads")).unwrap_or_else(|| std::thread::available_parallelism().map_or(4, |n| n.get()));
+    if args.iter().any(|a| a == "--sizes") {
+        use std::mem::size_of;
+        println!(
+            "sizeof: Game {} B, State {} B, Player {} B, Slot {} B, CardInst {} B, Effect {} B, PromptRec {} B",
+            size_of::<Game>(),
+            size_of::<ptcg::state::State>(),
+            size_of::<ptcg::state::Player>(),
+            size_of::<ptcg::state::Slot>(),
+            size_of::<ptcg::state::CardInst>(),
+            size_of::<ptcg::effects::Effect>(),
+            size_of::<ptcg::prompts::PromptRec>()
+        );
+    }
     let spec: Value = serde_json::from_str(&std::fs::read_to_string(&spec_path).expect("spec")).expect("spec json");
     let mut decks: Vec<Vec<DefId>> = Vec::new();
     for d in spec["decks"].as_array().expect("spec.decks") {

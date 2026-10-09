@@ -86,7 +86,7 @@ fn exec(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
             f.slot = p as u8;
             g.coin_callbacks.push(CoinCb::SequenceCard { card: me, frame: f.frame_at(10) });
             let k2 = (g.coin_callbacks.len() - 1) as u8;
-            g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode, callback: k2, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k2, skip_reflip_stadium: true, skip_reflip_tool: true })?;
             Ok(Flow::Suspend)
         }
         _ => Ok(Flow::Next),
@@ -114,7 +114,7 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
                 return Ok(Flow::Next);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx(Effect::CoinFlip { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlip { p: p as u8, callback, result: None, skip_reflip_stadium: true, skip_reflip_tool: true })?;
             Ok(Flow::Next)
         }
         // Sequence finished (the core passes the results and the flip count).
@@ -134,7 +134,7 @@ fn resume(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
                 return finish(g, f);
             }
             g.st.players[p].marker.add_to_state(COIN_REFLIP_AGAIN_USED);
-            g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true })?;
+            g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode: f.cards[1], callback: f.cards[0], skip_reflip_stadium: true, skip_reflip_tool: true })?;
             Ok(Flow::Next)
         }
         _ => Ok(Flow::Next),

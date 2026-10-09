@@ -155,6 +155,18 @@ impl CardDef {
 
 pub type DefId = u16;
 
+/// `pokemon_flags` bits: a Pokémon card; treated as one by `getPokemons()` (fossils, dolls).
+pub const PF_POKEMON: u8 = 1;
+pub const PF_FOSSIL: u8 = 2;
+
+/// Whether the card is a Pokémon / fossil (a dense table: the full card record is big, and the board
+/// scans only need these two bits).
+#[inline]
+pub fn pokemon_flags(id: DefId) -> u8 {
+    static T: OnceLock<Vec<u8>> = OnceLock::new();
+    T.get_or_init(|| cards().iter().map(|d| (d.is_pokemon() as u8) * PF_POKEMON | (d.fossil_doll as u8) * PF_FOSSIL).collect())[id as usize]
+}
+
 pub fn cards() -> &'static [CardDef] {
     crate::gen::cards::CARDS
 }

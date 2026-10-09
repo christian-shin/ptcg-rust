@@ -204,7 +204,7 @@ pub fn defending_pokemon_does_less_damage(g: &mut Game, atk: crate::effects::Eff
         _ => None,
     };
     if let Some(b) = b {
-        g.run_fx(Effect::ReduceDamage { b, reduction })?;
+        g.run_fx_unit(Effect::ReduceDamage { b, reduction })?;
     }
     Ok(())
 }
@@ -235,7 +235,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
         Lasting::BlockThisAttackUntilLeavesActive => {
             let name = this_attack_name(g, atk);
             if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx(Effect::PreventAttackUntilLeavesActive { b, name })?;
+                g.run_fx_unit(Effect::PreventAttackUntilLeavesActive { b, name })?;
             }
         }
         Lasting::TakesLessDamage(n) => {
@@ -247,7 +247,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
             let o = 1 - p;
             let target = SlotRef::new(o, g.st.players[o].active);
             if let Some(b) = attack_base(g, atk, target) {
-                g.run_fx(Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus: n })?;
+                g.run_fx_unit(Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus: n })?;
             }
         }
         Lasting::PreventDamage(src) => match src.filter() {
@@ -256,14 +256,14 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
         },
         Lasting::Retaliate(n) => {
             if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx(Effect::RetaliateOnDamage { b, damage: n, source_card: me })?;
+                g.run_fx_unit(Effect::RetaliateOnDamage { b, damage: n, source_card: me })?;
             }
         }
         Lasting::OppCannotPlay(lock) => opponent_cannot_play_cards(g, atk, lock)?,
         Lasting::DiscardAttackerEnergyIfKnockedOut => discard_attacker_energy_if_knocked_out(g, atk, me)?,
         Lasting::CoinFlipCancelTrainer => {
             if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx(Effect::CoinFlipCancelTrainerPlay { b })?;
+                g.run_fx_unit(Effect::CoinFlipCancelTrainerPlay { b })?;
             }
         }
         Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
@@ -278,15 +278,15 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
             }
             if let Some(b) = attack_base(g, atk, SlotRef::new(o, a)) {
                 if what == Lasting::IncreaseAttackCost {
-                    g.run_fx(Effect::IncreaseAttackCostNextTurn { b })?;
+                    g.run_fx_unit(Effect::IncreaseAttackCostNextTurn { b })?;
                 } else {
-                    g.run_fx(Effect::IncreaseRetreatCostNextTurn { b })?;
+                    g.run_fx_unit(Effect::IncreaseRetreatCostNextTurn { b })?;
                 }
             }
         }
         Lasting::NoWeakness => {
             if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx(Effect::ThisPokemonHasNoWeakness { b })?;
+                g.run_fx_unit(Effect::ThisPokemonHasNoWeakness { b })?;
             }
         }
         Lasting::PreventAttackEffects => prevent_effects_of_attacks(g, atk)?,

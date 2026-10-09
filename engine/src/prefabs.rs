@@ -96,7 +96,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
                     // The prompt's `max` is clamped to the empty slots.
                     None => break,
                 };
-                g.run_fx(Effect::PlayPokemonFromDeck { p, card: *c, target: SlotRef::new(p as usize, s) })?;
+                g.run_fx_unit(Effect::PlayPokemonFromDeck { p, card: *c, target: SlotRef::new(p as usize, s) })?;
             }
             shuffle_deck(g, p as usize);
             Ok(())
@@ -458,7 +458,7 @@ pub fn opponent_cannot_play_cards(g: &mut Game, atk: EffId, lock: &'static crate
         None => return Ok(()),
     };
     b.target = b.source;
-    g.run_fx(Effect::PlayLock { b, lock })?;
+    g.run_fx_unit(Effect::PlayLock { b, lock })?;
     Ok(())
 }
 
@@ -610,9 +610,9 @@ pub fn deal_or_put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef
     let b = atk_base_for(g, atk, target);
     let o = b.opponent as usize;
     if target.p as usize == o && target.s == g.st.players[o].active {
-        g.run_fx(Effect::DealDamage { b, damage })?;
+        g.run_fx_unit(Effect::DealDamage { b, damage })?;
     } else {
-        g.run_fx(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
+        g.run_fx_unit(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
     }
     Ok(())
 }
@@ -620,7 +620,7 @@ pub fn deal_or_put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef
 /// `PutDamageEffect(effect, damage)` on `target` (no Weakness for the Bench).
 pub fn put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef) -> R {
     let b = atk_base_for(g, atk, target);
-    g.run_fx(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
+    g.run_fx_unit(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
     Ok(())
 }
 
@@ -654,7 +654,7 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb) -> R {
     let cb = g.tag_coin(cb);
     g.coin_callbacks.push(cb);
     let k = (g.coin_callbacks.len() - 1) as u8;
-    g.run_fx(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false })?;
+    g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false })?;
     Ok(())
 }
 
@@ -694,7 +694,7 @@ pub fn block_retreat(g: &mut Game, atk: EffId) -> R {
     };
     let target = SlotRef::new(o, g.st.players[o].active);
     let b = atk_base_for(g, atk, target);
-    g.run_fx(Effect::PreventRetreat { b })?;
+    g.run_fx_unit(Effect::PreventRetreat { b })?;
     Ok(())
 }
 
@@ -706,7 +706,7 @@ pub fn prevent_damage(g: &mut Game, atk: EffId) -> R {
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx(Effect::PreventDamage { b })?;
+    g.run_fx_unit(Effect::PreventDamage { b })?;
     Ok(())
 }
 
@@ -717,7 +717,7 @@ pub fn prevent_damage_filtered(g: &mut Game, atk: EffId, filter: crate::state::P
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx(Effect::PreventDamageFiltered { b, filter })?;
+    g.run_fx_unit(Effect::PreventDamageFiltered { b, filter })?;
     Ok(())
 }
 
@@ -729,7 +729,7 @@ pub fn prevent_effects_of_attacks(g: &mut Game, atk: EffId) -> R {
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx(Effect::PreventEffectsOfAttacks { b })?;
+    g.run_fx_unit(Effect::PreventEffectsOfAttacks { b })?;
     Ok(())
 }
 
@@ -743,7 +743,7 @@ pub fn block_self_retreat(g: &mut Game, atk: EffId) -> R {
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx(Effect::SelfPreventRetreat { b })?;
+    g.run_fx_unit(Effect::SelfPreventRetreat { b })?;
     Ok(())
 }
 
@@ -754,7 +754,7 @@ pub fn discard_attacker_energy_if_knocked_out(g: &mut Game, atk: EffId, source_c
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx(Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card })?;
+    g.run_fx_unit(Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card })?;
     Ok(())
 }
 
@@ -767,7 +767,7 @@ pub fn add_special_conditions_to_player_active(g: &mut Game, p: usize, source: C
     for c in conditions {
         cs.push(*c as u8);
     }
-    g.run_fx(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30 })?;
+    g.run_fx_unit(Effect::AddSpecialConditionsPower { p: p as u8, source, target, conditions: cs, poison_damage: 10, burn_damage: 20, sleep_flips: 1, confusion_damage: 30 })?;
     Ok(())
 }
 
@@ -779,7 +779,7 @@ pub fn opponent_pokemon_with_x_or_less_energy_cannot_attack(g: &mut Game, atk: E
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx(Effect::OpponentPokemonCannotAttackNextTurn { b, max_energy: Some(max_energy) })?;
+    g.run_fx_unit(Effect::OpponentPokemonCannotAttackNextTurn { b, max_energy: Some(max_energy) })?;
     Ok(())
 }
 

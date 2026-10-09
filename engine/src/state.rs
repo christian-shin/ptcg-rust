@@ -5,7 +5,7 @@
 //! live in a per-player arena so a slot keeps its identity when it moves
 //! between the Active Spot and the Bench (Twinleaf swaps the objects).
 
-use crate::carddb::{def, CardDef, DefId};
+use crate::carddb::{def, CardDef, DefId, PF_FOSSIL, PF_POKEMON};
 use crate::list::*;
 use crate::markers::*;
 use crate::types::*;
@@ -648,8 +648,8 @@ impl State {
         let slot = self.slot(p, s);
         let mut out = SVec::new();
         for c in slot.cards.iter() {
-            let d = self.cdef(c);
-            if (d.is_pokemon() && !slot.tools.contains(c) && !slot.energies.contains(c)) || d.fossil_doll {
+            let f = crate::carddb::pokemon_flags(self.cards[c as usize].def);
+            if (f & PF_POKEMON != 0 && !slot.tools.contains(c) && !slot.energies.contains(c)) || f & PF_FOSSIL != 0 {
                 out.push(c);
             }
         }
@@ -661,8 +661,8 @@ impl State {
         let slot = self.slot(p, s);
         let mut top = None;
         for c in slot.cards.iter() {
-            let d = self.cdef(c);
-            if (d.is_pokemon() && !slot.tools.contains(c) && !slot.energies.contains(c)) || d.fossil_doll {
+            let f = crate::carddb::pokemon_flags(self.cards[c as usize].def);
+            if (f & PF_POKEMON != 0 && !slot.tools.contains(c) && !slot.energies.contains(c)) || f & PF_FOSSIL != 0 {
                 top = Some(c);
             }
         }

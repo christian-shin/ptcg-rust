@@ -170,7 +170,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Suspend)
         }
         Op::EndTurn(t) => {
-            g.run_fx(crate::effects::Effect::EndTurn { p: f.who(t.who) as u8 })?;
+            g.run_fx_unit(crate::effects::Effect::EndTurn { p: f.who(t.who) as u8 })?;
             Ok(Flow::Next)
         }
         Op::ForEach(fe) => {
@@ -439,6 +439,6 @@ fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
     let o = opp as usize;
     let target = crate::effects::SlotRef::new(o, g.st.players[o].active);
     let b = crate::effects::AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
-    g.run_fx(crate::effects::Effect::OpponentPokemonCannotUseAttack { b, name })?;
+    g.run_fx_unit(crate::effects::Effect::OpponentPokemonCannotUseAttack { b, name })?;
     Ok(())
 }

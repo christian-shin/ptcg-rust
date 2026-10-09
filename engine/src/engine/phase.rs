@@ -45,7 +45,7 @@ pub fn init_next_turn(g: &mut Game) -> R {
         end_game(g, winner);
         return Ok(());
     }
-    g.run_fx(Effect::BeginTurn { p: p as u8 })?;
+    g.run_fx_unit(Effect::BeginTurn { p: p as u8 })?;
 
     let id = g.player_id(p);
     let draw = if g.st.players[p].cannot_draw_at_start_of_turn {
@@ -117,7 +117,7 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
             burn_flip_result: None,
             asleep_flip_result: None,
         };
-        g.run_fx(e)?;
+        g.run_fx_unit(e)?;
     }
     if g.has_prompts() {
         g.wait_prompt(Cont::BetweenTurnsCheck { oc });

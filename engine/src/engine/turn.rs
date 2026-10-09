@@ -44,7 +44,7 @@ fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> 
         }
         g.st.cards[c as usize].moved_to_active_this_turn = true;
         if dispatch {
-            g.run_fx(Effect::MovedToActive { p: p as u8, card: c })?;
+            g.run_fx_unit(Effect::MovedToActive { p: p as u8, card: c })?;
         }
     }
     if let Some(c) = benched_out {
@@ -52,7 +52,7 @@ fn switch_pokemon_ex(g: &mut Game, p: usize, target: SlotId, dispatch: bool) -> 
             g.st.players[p].moved_from_active_to_bench_this_turn.push(c);
         }
         if dispatch {
-            g.run_fx(Effect::MovedFromActiveToBench { p: p as u8, card: c })?;
+            g.run_fx_unit(Effect::MovedFromActiveToBench { p: p as u8, card: c })?;
         }
     }
     // The Active Spot changed (a silent switch dispatches nothing): locks may take hold or let go.
@@ -161,7 +161,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
         if uses_turn_attach {
             g.st.players[p].energy_played_turn = g.st.turn;
         }
-        g.run_fx(Effect::AttachEnergy { p: p as u8, card, target: t })?;
+        g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card, target: t })?;
         return Ok(());
     }
     if d.is_pokemon() {
@@ -170,7 +170,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
             None => crate::bail!("INVALID_TARGET"),
         };
         // useFromHandToBench / Dual Legend: no pool card uses them.
-        g.run_fx(Effect::PlayPokemon { p: p as u8, card, target: t, slot: target.slot, index: target.index })?;
+        g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card, target: t, slot: target.slot, index: target.index })?;
         return Ok(());
     }
     if d.is_trainer() {
@@ -188,7 +188,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
             TrainerType::Tool => Effect::AttachPokemonTool { p: p as u8, card, target: can_play_tool_card(t)? },
             TrainerType::Item => Effect::PlayItem { p: p as u8, card, target: t },
         };
-        g.run_fx(e)?;
+        g.run_fx_unit(e)?;
         return Ok(());
     }
     g.move_card_to(ListRef::Hand(p as u8), card, ListRef::Supporter(p as u8));
@@ -295,7 +295,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
     let p = g.st.active_player as usize;
     match a {
         Action::Pass => {
-            g.run_fx(Effect::EndTurn { p: p as u8 })?;
+            g.run_fx_unit(Effect::EndTurn { p: p as u8 })?;
         }
         Action::Retreat { bench_index } => {
             g.run_fx(Effect::Retreat {
@@ -319,7 +319,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             let source = SlotRef::new(p, g.st.players[p].active);
             // An attack copied from a Benched Pokémon (Mew ex Memory Helix) runs as the Active Pokémon's.
             let delegate_from = if copied { Some(attack.card) } else { None };
-            g.run_fx(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false, delegate_from })?;
+            g.run_fx_unit(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false, delegate_from })?;
             g.st.last_attack = Some(attack);
             if let Some(pc) = pokemon {
                 g.st.player_last_attack[p] = Some((attack, pc));
@@ -343,7 +343,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                     None => crate::bail!("UNKNOWN_POWER"),
                 };
                 can_use_ability_core(g, power, target.slot)?;
-                g.run_fx(Effect::UsePower { p: p as u8, power, card: c, target, bench_target: None })?;
+                g.run_fx_unit(Effect::UsePower { p: p as u8, power, card: c, target, bench_target: None })?;
             }
         }
         Action::UseTrainerAbility { .. } => {
@@ -351,7 +351,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
         }
         Action::UseStadium => {
             let stadium = can_use_stadium(g, p)?;
-            g.run_fx(Effect::UseStadium { p: p as u8, stadium })?;
+            g.run_fx_unit(Effect::UseStadium { p: p as u8, stadium })?;
         }
         Action::PlayCard { .. } => {}
     }

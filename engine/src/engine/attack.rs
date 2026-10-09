@@ -253,14 +253,14 @@ fn deal_damage(g: &mut Game, mut f: AttackFrame) -> R {
         Effect::Attack { p, opp, attack, .. } => (p, opp, attack),
         _ => unreachable!(),
     };
-    g.run_fx(Effect::BeforeDoingDamage { attack_effect: f.atk, p, opp, attack })?;
+    g.run_fx_unit(Effect::BeforeDoingDamage { attack_effect: f.atk, p, opp, attack })?;
     let damage = match *g.e(f.atk) {
         Effect::Attack { damage, .. } => damage,
         _ => 0,
     };
     if damage > 0 {
         let b = atk_base(g, f.atk);
-        g.run_fx(Effect::DealDamage { b, damage })?;
+        g.run_fx_unit(Effect::DealDamage { b, damage })?;
         if g.has_prompts() {
             f.stage = AtkStage::AfterDealDamage;
             g.wait_prompt(Cont::UseAttack(f));
@@ -285,7 +285,7 @@ fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
     // Tenacious Body / Durable Body: the coin is flipped after all the damage is done (ruling 1770).
     crate::prefabs::resolve_survive_coin_flips(g)?;
-    g.run_fx(Effect::AfterAttack { p: f.p, opp: (1 - p) as u8, attack: f.attack, atk: f.atk })?;
+    g.run_fx_unit(Effect::AfterAttack { p: f.p, opp: (1 - p) as u8, attack: f.attack, atk: f.atk })?;
     if g.has_prompts() {
         f.stage = AtkStage::AfterAfterAttack;
         g.wait_prompt(Cont::UseAttack(f));
@@ -302,7 +302,7 @@ fn attack_triggers(g: &mut Game, f: AttackFrame) -> R {
     // damage after the damage step) gets its Tenacious Body coin here, once
     // all of the attack's damage is done (ruling 1770).
     crate::prefabs::resolve_survive_coin_flips(g)?;
-    g.run_fx(Effect::AfterAttackTriggers { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
+    g.run_fx_unit(Effect::AfterAttackTriggers { p: f.p, opp: (1 - p) as u8, attack: f.attack })?;
     attack_triggers_loop(g, f)
 }
 
@@ -350,7 +350,7 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
     }
     g.release_fx(f.atk);
     g.release_fx(f.origin);
-    g.run_fx(Effect::EndTurn { p: f.p })?;
+    g.run_fx_unit(Effect::EndTurn { p: f.p })?;
     Ok(())
 }
 
@@ -381,7 +381,7 @@ fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     if attack_barrage(g, f.attack) && !barrage_can_attack_again(g, &f)? {
         g.release_fx(f.atk);
         g.release_fx(f.origin);
-        g.run_fx(Effect::EndTurn { p: f.p })?;
+        g.run_fx_unit(Effect::EndTurn { p: f.p })?;
         return Ok(());
     }
     f.stage = AtkStage::AfterBarrageConfirm;
@@ -431,7 +431,7 @@ fn barrage_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
     g.release_fx(f.atk);
     g.release_fx(f.origin);
     if !want {
-        g.run_fx(Effect::EndTurn { p: f.p })?;
+        g.run_fx_unit(Effect::EndTurn { p: f.p })?;
         return Ok(());
     }
     let p = f.p as usize;
@@ -455,7 +455,7 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
                 // (phase 4b, ruling n=1621): the playerLastAttack stamp is voided.
                 g.st.player_last_attack_turn[p] = -1;
                 g.release_fx(f.origin);
-                g.run_fx(Effect::EndTurn { p: f.p })?;
+                g.run_fx_unit(Effect::EndTurn { p: f.p })?;
                 return Ok(());
             }
             begin_attack(g, f)
@@ -497,7 +497,7 @@ pub fn start_use_power(g: &mut Game, id: EffId) -> R {
 }
 
 pub fn resume_use_power(g: &mut Game, f: PowerFrame) -> R {
-    g.run_fx(Effect::Power { p: f.p, power: f.power, card: f.card, target: f.bench_target, probe: false })?;
+    g.run_fx_unit(Effect::Power { p: f.p, power: f.power, card: f.card, target: f.bench_target, probe: false })?;
     Ok(())
 }
 
@@ -528,7 +528,7 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
             if card.is_some() {
                 g.st.players[tp].slots[ts as usize].hp_bonus = 0;
             }
-            g.run_fx(Effect::CheckHp { p: b.player, target: t, card })?;
+            g.run_fx_unit(Effect::CheckHp { p: b.player, target: t, card })?;
             let hp = crate::engine::check::hp_of(g, tp, ts, card);
             if g.st.slot(tp, ts).damage >= hp {
                 g.st.players[tp].slots[ts as usize].damage = hp - 10;
@@ -539,7 +539,7 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
         }
         let mut ab = b;
         ab.target = t;
-        g.run_fx(Effect::AfterDamage { b: ab, damage })?;
+        g.run_fx_unit(Effect::AfterDamage { b: ab, damage })?;
     }
     Ok(())
 }
@@ -649,7 +649,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 Effect::ApplyWeakness { damage, .. } => damage,
                 _ => damage,
             };
-            g.run_fx(Effect::PutDamage { b, damage: d, weakness_applied: true, survive_on_ten_hp: false })?;
+            g.run_fx_unit(Effect::PutDamage { b, damage: d, weakness_applied: true, survive_on_ten_hp: false })?;
             Ok(())
         }
         Effect::PutCounters { b, damage } => {
@@ -702,7 +702,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
                 let rb = AtkBase { attack_effect, player: opp, opponent: p, attack: r.attack, source: src, target: source };
                 let _ = attack;
-                g.run_fx(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
+                g.run_fx_unit(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
             }
             Ok(())
         }
@@ -772,7 +772,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::HealTarget { b, damage } => {
             let owner = b.target.p;
-            g.run_fx(Effect::Heal { p: owner, target: b.target, damage })?;
+            g.run_fx_unit(Effect::Heal { p: owner, target: b.target, damage })?;
             Ok(())
         }
         Effect::AddSpecialConditions { b, conditions, poison_damage, burn_damage, confusion_damage } => {

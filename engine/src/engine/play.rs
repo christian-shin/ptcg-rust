@@ -156,7 +156,7 @@ pub fn play_pokemon_reducer(g: &mut Game, id: EffId) -> R {
 /// what evolving does to the Pokémon ([`finish_evolution`]).
 pub fn evolve_pokemon(g: &mut Game, p: usize, target: SlotRef, card: CardId) -> R {
     let from = g.st.locate(card).unwrap_or(ListRef::Hand(p as u8));
-    g.run_fx(Effect::Evolve { p: p as u8, target, card, from })?;
+    g.run_fx_unit(Effect::Evolve { p: p as u8, target, card, from })?;
     finish_evolution(g, p, target)
 }
 
@@ -280,7 +280,7 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
     let pu = p as usize;
     match kind {
         TrainerPlayKind::Supporter => {
-            g.run_fx(Effect::Trainer { p, card, target, via_attack: false })?;
+            g.run_fx_unit(Effect::Trainer { p, card, target, via_attack: false })?;
             // `rocketSupporter` (read by Team Rocket's Factory and Kangaskhan ex): a Team Rocket's
             // Supporter played from the hand (K1; a Supporter's effect used by an attack never gets here).
             if g.st.cdef(card).has_tag(tag::TEAM_ROCKET) {
@@ -314,12 +314,12 @@ fn continue_trainer_play(g: &mut Game, kind: TrainerPlayKind, p: u8, card: CardI
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             slot.cards.remove(card);
             slot.tools.push(card);
-            g.run_fx(Effect::Trainer { p, card, target: Some(target), via_attack: false })?;
+            g.run_fx_unit(Effect::Trainer { p, card, target: Some(target), via_attack: false })?;
             Ok(())
         }
         TrainerPlayKind::Item => {
             enter_item_play(g, pu, card);
-            g.run_fx(Effect::Trainer { p, card, target, via_attack: false })?;
+            g.run_fx_unit(Effect::Trainer { p, card, target, via_attack: false })?;
             restore_played_trainer(g, pu, card);
             finalize_trainer_cleanup(g, pu, card, false);
             Ok(())

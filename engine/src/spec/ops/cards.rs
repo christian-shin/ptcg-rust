@@ -616,7 +616,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if g.st.players[p].supporter.contains(me) {
                 g.move_card_to(ListRef::Supporter(p as u8), me, ListRef::Hand(p as u8));
             }
-            g.run_fx(Effect::PlayPokemon { p: p as u8, card: me, target: SlotRef::new(p, s), slot: SlotType::Board, index: 0 })?;
+            g.run_fx_unit(Effect::PlayPokemon { p: p as u8, card: me, target: SlotRef::new(p, s), slot: SlotType::Board, index: 0 })?;
             Ok(Flow::Next)
         }
         Op::PlayFromZone(pz) => {
@@ -948,7 +948,7 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
             let open = empty_bench_slots(g, p);
             for (c, slot) in chosen.iter().zip(open.iter()) {
                 if matches!(from, ListRef::Deck(_)) {
-                    g.run_fx(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, *slot) })?;
+                    g.run_fx_unit(Effect::PlayPokemonFromDeck { p: p as u8, card: *c, target: SlotRef::new(p, *slot) })?;
                 } else {
                     move_cards(g, from, ListRef::Slot(p as u8, *slot), &[*c], me)?;
                     g.st.players[p].slots[*slot as usize].pokemon_played_turn = g.st.turn;
@@ -1144,7 +1144,7 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
         match a.route {
             AttachRoute::Move | AttachRoute::MovePoisonActive => move_cards(g, from, target.list(), &[c], me)?,
             AttachRoute::Effect => {
-                g.run_fx(Effect::AttachEnergy { p: p as u8, card: c, target })?;
+                g.run_fx_unit(Effect::AttachEnergy { p: p as u8, card: c, target })?;
             }
             AttachRoute::MoveShufflePerCard => {
                 move_cards(g, from, target.list(), &[c], me)?;
@@ -1208,7 +1208,7 @@ fn carry_out_transfers(g: &mut Game, f: &Frame, ts: &[(SlotRef, SlotRef, CardId)
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     for (from, to, c) in ts {
         let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *from };
-        g.run_fx(Effect::MoveOpponentEnergy { b, card: *c, destination: *to })?;
+        g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *to })?;
     }
     Ok(())
 }
@@ -1581,9 +1581,9 @@ fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId], to_h
     }
     let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: slot };
     if to_hand {
-        g.run_fx(Effect::CardsToHand { b, cards: cs })?;
+        g.run_fx_unit(Effect::CardsToHand { b, cards: cs })?;
     } else {
-        g.run_fx(Effect::DiscardCards { b, cards: cs })?;
+        g.run_fx_unit(Effect::DiscardCards { b, cards: cs })?;
     }
     Ok(())
 }
@@ -1718,7 +1718,7 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
     let Some((_, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     for (target, cards) in groups {
         let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source, target };
-        g.run_fx(Effect::DiscardCards { b, cards })?;
+        g.run_fx_unit(Effect::DiscardCards { b, cards })?;
     }
     Ok(())
 }
@@ -1839,7 +1839,7 @@ fn discard_cards_from_slots(g: &mut Game, me: CardId, f: &Frame, cards: &[CardId
     }
     for (target, cards) in groups {
         let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target };
-        g.run_fx(Effect::DiscardCards { b, cards })?;
+        g.run_fx_unit(Effect::DiscardCards { b, cards })?;
     }
     Ok(())
 }
@@ -2563,7 +2563,7 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
                     if *via_effect && attack {
                         if let Some((p, opp, attack, source)) = attack_data(g, f.eff) {
                             let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *a };
-                            g.run_fx(Effect::MoveOpponentEnergy { b, card: *c, destination: *dst })?;
+                            g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *dst })?;
                         }
                     } else {
                         move_cards(g, a.list(), dst.list(), &[*c], me)?;
@@ -2578,7 +2578,7 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
                         for c in &cards {
                             cs.push(*c);
                         }
-                        g.run_fx(Effect::DiscardCards { b, cards: cs })?;
+                        g.run_fx_unit(Effect::DiscardCards { b, cards: cs })?;
                     }
                 } else {
                     move_cards(g, src.list(), ListRef::Discard(src.p), &cards, me)?;

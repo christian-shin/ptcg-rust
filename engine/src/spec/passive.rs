@@ -829,7 +829,7 @@ pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located
     match origin {
         RuleSource::Tool => slot_where(g, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
         RuleSource::Energy => slot_where(g, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Ability => slot_where(g, |_, p, s| g.st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Ability => slot_where(g, |sl, p, s| sl.cards.contains(me) && g.st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
         RuleSource::Stadium => {
             if g.st.stadium_card() == Some(me) {
                 let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
