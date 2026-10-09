@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Prime Catcher PRE 119",
+   "4 Duraludon PRE 69",
+   "4 Palafin TWM 60",
+   "4 Palafin ex TWM 61",
+   "4 Finizen TWM 59",
+   "43 Water Energy MEE 3"
+  ],
+  [
+   "1 Prime Catcher PRE 119",
+   "4 Duraludon PRE 69",
+   "4 Palafin TWM 60",
+   "4 Palafin ex TWM 61",
+   "4 Finizen TWM 59",
+   "43 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Finizen TWM 59",
+   "Palafin TWM 60"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "hand": [
+   "Prime Catcher PRE 119"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Prime Catcher PRE 119"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Confirm"
+   ],
+   "cite": "Zero to Hero text: when this Pok\u00e9mon moves from the Active Spot to the Bench during your turn, you may search for a Palafin ex; Prime Catcher's own switch moves it, so the movement effects fire for every successful switch"
+  }
+ ]
+}

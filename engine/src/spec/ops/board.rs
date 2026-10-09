@@ -41,7 +41,8 @@ pub enum SlotTarget {
 pub enum SwitchKind {
     /// `Player.switchPokemon(target, store, state)`: movement effects fire.
     Plain,
-    /// `switchPokemon(target)` without dispatching movement effects.
+    /// Wave 2 (A-PC4): the movement effects fire like `Plain`; kept for the cards that clear the
+    /// Pokémon's effects first.
     Silent,
     /// `Plain`, with only the side's Benched Basic Pokémon to choose from (S3).
     PlainBasic,
@@ -326,7 +327,7 @@ fn sel_types(sel: &SlotSel) -> SVec<u8, 3> {
 fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
     match sel {
         SlotSel::One(SlotExpr::Active(w)) | SlotSel::Bench(w) | SlotSel::Pokemon(w) | SlotSel::PokemonBenchFirst(w) => f.who(*w),
-        SlotSel::One(SlotExpr::This) => f.p as usize,
+        SlotSel::One(SlotExpr::This | SlotExpr::Marked(_)) => f.p as usize,
         SlotSel::One(SlotExpr::Picked) => (f.slot >> 4) as usize,
         SlotSel::One(SlotExpr::Attached) => (f.attached_to >> 4) as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
@@ -1057,14 +1058,14 @@ fn switch_act(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec, slot: Slo
             if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
                 let a = g.st.players[side].active;
                 crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
-                crate::engine::turn::switch_pokemon_silent(g, side, slot.s)?;
+                crate::engine::turn::switch_pokemon(g, side, slot.s)?;
             }
             Ok(())
         }
         SwitchKind::Silent | SwitchKind::Picked => {
             let a = g.st.players[side].active;
             crate::engine::game_effect::clear_effects(&mut g.st.players[side].slots[a as usize]);
-            crate::engine::turn::switch_pokemon_silent(g, side, slot.s)
+            crate::engine::turn::switch_pokemon(g, side, slot.s)
         }
         SwitchKind::Gust => {
             let Some((atk, mut b)) = fresh_attack(g, f) else { return Ok(()) };

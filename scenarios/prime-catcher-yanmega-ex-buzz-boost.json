@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Prime Catcher PRE 119",
+   "4 Duraludon PRE 69",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "47 Grass Energy MEE 1"
+  ],
+  [
+   "1 Prime Catcher PRE 119",
+   "4 Duraludon PRE 69",
+   "4 Yanma DRI 2",
+   "4 Yanmega ex DRI 3",
+   "47 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": [
+     "Yanma DRI 2",
+     "Yanmega ex DRI 3"
+    ]
+   }
+  ],
+  "hand": [
+   "Prime Catcher PRE 119"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Prime Catcher PRE 119"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Confirm"
+   ],
+   "cite": "Buzz Boost text: when this Pok\u00e9mon moves from your Bench to the Active Spot during your turn, you may search your deck; any switch counts (here Prime Catcher's second switch), so the movement effects fire for every successful switch"
+  }
+ ]
+}
