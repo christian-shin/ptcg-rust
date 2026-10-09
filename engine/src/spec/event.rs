@@ -471,11 +471,22 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::HEAL,
     crate::effects::k::COIN_FLIP,
     crate::effects::k::CHANGE_ACTIVE,
+    crate::effects::k::PLACE_COUNTERS,
 ]);
 /// Every event kind with an effect except Damage: what a `Prevent` naming no `Kind` ranges over ("prevent all effects
 /// of attacks"): damage is not an effect (APR C-17 "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398).
 /// A prevention of damage names `Kind(Damage)`.
-pub const EFFECT_EVENT_KINDS: KindMask = without(EVENT_KINDS, crate::effects::k::DAMAGE);
+pub const EFFECT_EVENT_KINDS: KindMask = without(
+    EVENT_KINDS.or(crate::effects::mask(&[
+        crate::effects::k::PLACE_COUNTERS,
+        crate::effects::k::MOVE_COUNTERS_EVENT,
+        crate::effects::k::KNOCK_OUT,
+        crate::effects::k::LEAVE_PLAY,
+        crate::effects::k::TAKE_PRIZES,
+        crate::effects::k::APPLY_EFFECT,
+    ])),
+    crate::effects::k::DAMAGE,
+);
 
 /// `m` without the kind `k`.
 pub const fn without(m: KindMask, k: u32) -> KindMask {
@@ -496,11 +507,11 @@ pub const HEAL_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k:
 pub const COIN_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::COIN_FLIP]);
 /// ChangeActive (events batch 5): `DECLARES_ACTIVE_LOCK` / `DECLARES_ACTIVE_PREVENT`.
 pub const ACTIVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::CHANGE_ACTIVE]);
-/// The events no card handles when they are dispatched (events batches 4 and 5): what reacts to them is a declaration
+/// The events no card handles when they are dispatched (events batches 4, 5 and 6): what reacts to them is a declaration
 /// read through the dispatch index, by the triggers after the event (`run::after_event`) and by the locks and
 /// preventions the event's routine asks. `Game::reduce_effect` doesn't call the cards for them (events design,
 /// section 9). The batch 2 and 3 events still have dispatch handlers (once-per-turn markers, attach guards).
-pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS);
+pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS).or(COUNTER_EVENT_KINDS);
 /// PlaceCounters and MoveCounters (events batch 6): `DECLARES_COUNTER_LOCK` (Patrat's Watchful Eye) / `DECLARES_COUNTER_PREVENT`.
 pub const COUNTER_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::PLACE_COUNTERS, crate::effects::k::MOVE_COUNTERS_EVENT]);
 /// Damage (events batch 6): `DECLARES_DAMAGE_PREVENT` (no lock: no text says a Pokémon can't be damaged).
@@ -569,18 +580,32 @@ impl EventPred {
 
     /// The kinds the predicate names, `base` where it names none.
     const fn kinds_over(&self, base: KindMask) -> KindMask {
+        match self.named_kinds(base) {
+            Some(m) => m,
+            None => base,
+        }
+    }
+
+    /// The kinds the predicate restricts the event to, `None` when it names none (it then ranges over `base`). A
+    /// conjunction is limited by each member that names kinds (a member that names none doesn't restrict it); a
+    /// disjunction ranges over the union, a member naming none counting as `base`: "damage from and effects of attacks"
+    /// is `All[Any[Kind(Damage), ALWAYS], Cause(..)]`, over Damage and every effect.
+    const fn named_kinds(&self, base: KindMask) -> Option<KindMask> {
         match self {
-            EventPred::Kind(e) => match e.effect_kind() {
+            EventPred::Kind(e) => Some(match e.effect_kind() {
                 Some(x) => crate::effects::mask(&[x]),
                 None => KindMask::EMPTY,
-            },
-            // A conjunction is limited by each member that names kinds.
+            }),
             EventPred::All(ps) => {
                 let mut i = 0;
-                let mut m = base;
+                let mut m: Option<KindMask> = None;
                 while i < ps.len() {
-                    let x = ps[i].kinds_over(base);
-                    m = KindMask([m.0[0] & x.0[0], m.0[1] & x.0[1], m.0[2] & x.0[2], m.0[3] & x.0[3]]);
+                    if let Some(x) = ps[i].named_kinds(base) {
+                        m = Some(match m {
+                            Some(y) => KindMask([y.0[0] & x.0[0], y.0[1] & x.0[1], y.0[2] & x.0[2], y.0[3] & x.0[3]]),
+                            None => x,
+                        });
+                    }
                     i += 1;
                 }
                 m
@@ -592,9 +617,9 @@ impl EventPred {
                     m = m.or(ps[i].kinds_over(base));
                     i += 1;
                 }
-                m
+                Some(m)
             }
-            _ => base,
+            _ => None,
         }
     }
 

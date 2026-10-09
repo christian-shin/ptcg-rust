@@ -452,7 +452,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
                 let p = f.p as usize;
                 let a = g.st.players[p].active;
                 let conf = g.st.slot(p, a).confusion_damage;
-                g.st.players[p].slots[a as usize].damage += conf;
+                // Confusion's rule puts its damage counters on the Pokémon (a PlaceCounters by the Special Condition).
+                crate::engine::damage::place(g, SlotRef::new(p, a), conf, crate::engine::condition::by_condition(p))?;
                 // A failed attack attempt while Confused isn't an attack used
                 // (phase 4b, ruling n=1621): the playerLastAttack stamp is voided.
                 g.st.player_last_attack_turn[p] = -1;
@@ -546,24 +547,6 @@ fn apply_put_damage(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
-/// `shouldPreventAttackEffects(state, effect)` (empty filter only).
-fn should_prevent_attack_effects(g: &Game, id: EffId) -> bool {
-    let b = match g.e(id).atk_base() {
-        Some(b) => *b,
-        None => return false,
-    };
-    if !g.st.slot(b.target.p as usize, b.target.s).prevent_effects_of_attacks_next_turn {
-        return false;
-    }
-    if b.source.p == b.target.p {
-        return false;
-    }
-    if g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
-        return false;
-    }
-    !matches!(*g.e(id), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. })
-}
-
 /// `shouldPreventAttackDamage(target, source)` (sourceStage / sourceCardTypes filters modeled).
 pub fn should_prevent_attack_damage(g: &Game, t: SlotRef, source: SlotRef) -> bool {
     g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
@@ -577,9 +560,6 @@ pub fn should_prevent_attack_damage(g: &Game, t: SlotRef, source: SlotRef) -> bo
 }
 
 pub fn reducer(g: &mut Game, id: EffId) -> R {
-    if should_prevent_attack_effects(g, id) {
-        return Ok(());
-    }
     match *g.e(id) {
         Effect::PutDamage { b, damage, weakness_applied, .. } => {
             let t = b.target;
@@ -654,14 +634,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.run_fx_unit(Effect::PutDamage { b, damage: d, weakness_applied: true, survive_on_ten_hp: false })?;
             Ok(())
         }
-        Effect::PutCounters { b, damage } => {
-            let t = b.target;
-            if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
-                crate::bail!("ILLEGAL_ACTION");
-            }
-            g.st.players[t.p as usize].slots[t.s as usize].damage += damage.max(0);
-            Ok(())
-        }
         Effect::AfterDamage { b, damage } => {
             g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
             if damage > 0 && b.target.p != b.player && g.st.phase == GamePhase::Attack {
@@ -690,7 +662,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
-        Effect::AttackTrigger { attack_effect, p, opp, attack, card, target, source, source_in_play, retaliate: Some(r), .. } => {
+        Effect::AttackTrigger { attack_effect, opp, attack, card, target, source, source_in_play, retaliate: Some(r), .. } => {
             // Resolution of a revenge trap: an EffectOfAttack attributed to the retaliator so Mist Energy blocks it.
             // The Attacking Pokémon must still be in play (ruling 530) and takes the counters wherever it is (rulings
             // 482, 1839); the trap is an effect of the damaged Pokémon, gone when that Pokémon left play.
@@ -702,11 +674,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                         src = SlotRef::new(ap, *s);
                     }
                 }
-                // The retaliation is an effect of the retaliator's own earlier attack.
+                // The retaliation is an effect of the retaliator's own earlier attack (id2408, id1958): its counters on the
+                // Attacking Pokémon are a PlaceCounters by that attack.
                 let cause = crate::cause::Cause::attack(opp, Some(r.source_card), r.attack);
-                let rb = AtkBase { attack_effect, player: opp, opponent: p, attack: r.attack, source: src, target: source, cause };
-                let _ = attack;
-                g.run_fx_unit(Effect::RetaliateDamage { b: rb, damage: r.damage })?;
+                let _ = (attack, attack_effect, src);
+                crate::engine::damage::place(g, source, r.damage, cause)?;
             }
             Ok(())
         }
@@ -770,13 +742,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[b.target.p as usize].slots[b.target.s as usize].marker.add(marker, marker_source, SourceType::None, TargetScope::None);
             Ok(())
         }
-        // B4-OLD: the attack-effect probe produces one GainCondition per condition.
-        Effect::AddSpecialConditions { b, conditions } => {
-            for &c in conditions.iter() {
-                crate::engine::condition::gain(g, b.target, SpecialCondition::from_u8(c), b.cause)?;
-            }
-            Ok(())
-        }
         Effect::PlayLock { b, lock } => {
             crate::engine::phase::apply_play_lock(&mut g.st.players[b.opponent as usize], lock, 1, b.cause.card.unwrap_or(b.attack.card));
             Ok(())
@@ -837,9 +802,15 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::PreventEffectsOfAttacks { b } => {
+            // "During your opponent's next turn, prevent all effects of attacks done to this Pokémon": a `Prevent` stored
+            // with the Pokémon, pending until the end of this turn.
             let p = b.player as usize;
             let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].prevent_effects_of_attacks_next_turn_pending = true;
+            let source = b.cause.card.unwrap_or(b.attack.card);
+            let l = &mut g.st.players[p].slots[a as usize].lasting_prevents;
+            if !l.iter().any(|x| std::ptr::eq(x.spec, &crate::spec::passive::LASTING_PREVENT_EFFECTS)) {
+                l.push(crate::state::LastingPrevent { spec: &crate::spec::passive::LASTING_PREVENT_EFFECTS, source, pending: true });
+            }
             Ok(())
         }
         Effect::ThisPokemonHasNoWeakness { b } => {
@@ -859,12 +830,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let a = g.st.players[p].active;
             g.st.players[p].slots[a as usize].retaliate_on_damage_next_turn_pending =
                 Some(StoredRetaliate { damage, attack: b.attack, source_card, attacker: b.player });
-            Ok(())
-        }
-        Effect::RetaliateDamage { b, damage } => {
-            if damage > 0 {
-                g.st.players[b.target.p as usize].slots[b.target.s as usize].damage += damage;
-            }
             Ok(())
         }
         Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card } => {

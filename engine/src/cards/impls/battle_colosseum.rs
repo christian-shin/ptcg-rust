@@ -16,7 +16,19 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         // Automatically active: it can't be announced and used.
         Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::BenchCounters, ..PreventSpec::NONE }) },
+        // Damage counters placed on a Benched Pokémon, or moved onto one (they leave their source and vanish: id2257, JP FAQ
+        // Battle Cage x3), by an effect of an attack or Ability from the Pokémon of that Pokémon's owner's opponent.
+        Passive {
+            origin: RuleSource::Stadium,
+            modifier: Modifier::Prevent(PreventSpec::on(
+                SlotPred::IsBench,
+                EventPred::All(&[
+                    EventPred::Any(&[EventPred::Kind(EventKind::PlaceCounters), EventPred::All(&[EventPred::Kind(EventKind::MoveCounters), EventPred::End(MoveEnd::To)])]),
+                    EventPred::Cause(CausePred::Any(&[CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Kind(crate::cause::CauseKind::Ability)])),
+                    EventPred::Actor(Party::NotEventOwner),
+                ]),
+            )),
+        },
     ],
     ..CardSpec::NONE
 };

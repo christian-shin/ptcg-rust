@@ -111,13 +111,7 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
     for p in 0..2 {
         let a = g.st.players[p].active;
         let slot = g.st.slot(p, a);
-        let e = Effect::BetweenTurns {
-            p: p as u8,
-            poison_damage: slot.poison_damage,
-            burn_damage: slot.burn_damage,
-            burn_flip_result: None,
-            asleep_flip_result: None,
-        };
+        let e = Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage };
         g.run_fx_unit(e)?;
     }
     if g.has_prompts() {
@@ -179,10 +173,8 @@ pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) 
 }
 
 fn handle_special_conditions(g: &mut Game, id: EffId) -> R {
-    let (p, poison, burn, burn_flip, asleep_flip) = match *g.e(id) {
-        Effect::BetweenTurns { p, poison_damage, burn_damage, burn_flip_result, asleep_flip_result } => {
-            (p as usize, poison_damage, burn_damage, burn_flip_result, asleep_flip_result)
-        }
+    let (p, poison, burn) = match *g.e(id) {
+        Effect::BetweenTurns { p, poison_damage, burn_damage } => (p as usize, poison_damage, burn_damage),
         _ => return Ok(()),
     };
     let pid = g.player_id(p);
@@ -194,30 +186,25 @@ fn handle_special_conditions(g: &mut Game, id: EffId) -> R {
     let order = [SpecialCondition::Poisoned, SpecialCondition::Burned, SpecialCondition::Asleep, SpecialCondition::Paralyzed];
     for &sp in order.iter().filter(|c| conds.contains(&(**c as u8))).map(|c| *c as u8).collect::<Vec<u8>>().iter() {
         let a = g.st.players[p].active;
+        // Poison's and Burn's damage counters: a PlaceCounters by the Special Condition (APR F; events batch 6).
+        let by_condition = crate::engine::condition::by_condition(p);
         match SpecialCondition::from_u8(sp) {
-            SpecialCondition::Poisoned => g.st.players[p].slots[a as usize].damage += poison,
+            SpecialCondition::Poisoned => {
+                crate::engine::damage::place(g, SlotRef::new(p, a), poison, by_condition)?;
+            }
             SpecialCondition::Burned => {
-                g.st.players[p].slots[a as usize].damage += burn;
-                match burn_flip {
-                    Some(true) => {}
-                    Some(false) => g.st.players[p].slots[a as usize].damage += burn,
-                    None => g.prompt(pid, "FLIP_BURNED", PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a }),
+                crate::engine::damage::place(g, SlotRef::new(p, a), burn, by_condition)?;
+                g.prompt(pid, "FLIP_BURNED", PromptKind::CoinFlip, Cont::BurnFlip { p: p as u8, slot: a });
+            }
+            SpecialCondition::Asleep => {
+                let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;
+                if flips > 0 {
+                    let prompts: Vec<(u8, &'static str, PromptKind)> = (0..flips).map(|_| (pid, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
+                    g.prompt_group(&prompts, Cont::SleepFlips { p: p as u8, slot: a });
+                } else {
+                    checkup_recovers(g, p, SpecialCondition::Asleep)?;
                 }
             }
-            SpecialCondition::Asleep => match asleep_flip {
-                Some(true) => checkup_recovers(g, p, SpecialCondition::Asleep)?,
-                Some(false) => {}
-                None => {
-                    let flips = g.st.slot(p, a).sleep_flips.max(0) as usize;
-                    if flips > 0 {
-                        let prompts: Vec<(u8, &'static str, PromptKind)> =
-                            (0..flips).map(|_| (pid, "FLIP_ASLEEP", PromptKind::CoinFlip)).collect();
-                        g.prompt_group(&prompts, Cont::SleepFlips { p: p as u8, slot: a });
-                    } else {
-                        checkup_recovers(g, p, SpecialCondition::Asleep)?;
-                    }
-                }
-            },
             _ => {}
         }
     }
@@ -288,8 +275,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         slot.prevent_damage_next_turn_pending = false;
         slot.prevent_damage_filter = Default::default();
         slot.prevent_damage_filter_pending = Default::default();
-        slot.prevent_effects_of_attacks_next_turn = false;
-        slot.prevent_effects_of_attacks_next_turn_pending = false;
         slot.no_weakness_next_turn = false;
         slot.retaliate_on_damage_next_turn = None;
         // The preventions the opponent's attack left on its Pokémon end with this turn (armed during its turn: pending
@@ -339,10 +324,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.prevent_damage_filter = slot.prevent_damage_filter_pending;
             slot.prevent_damage_filter_pending = Default::default();
         }
-        if slot.prevent_effects_of_attacks_next_turn_pending {
-            slot.prevent_effects_of_attacks_next_turn = true;
-            slot.prevent_effects_of_attacks_next_turn_pending = false;
-        }
         // A prevention armed during this turn is in force during the opponent's next turn.
         for l in slot.lasting_prevents.as_mut_slice().iter_mut() {
             l.pending = false;
@@ -386,10 +367,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         if slot.prevent_damage_next_turn_pending {
             slot.prevent_damage_next_turn = true;
             slot.prevent_damage_next_turn_pending = false;
-        }
-        if slot.prevent_effects_of_attacks_next_turn_pending {
-            slot.prevent_effects_of_attacks_next_turn = true;
-            slot.prevent_effects_of_attacks_next_turn_pending = false;
         }
         // Replace the previous bonus with one armed during this turn, or clear it.
         slot.next_turn_attack_damage_bonus = slot.next_turn_attack_damage_bonus_pending;

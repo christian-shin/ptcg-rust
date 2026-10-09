@@ -79,7 +79,7 @@ pub enum Effect {
     DrewTopdeck { p: u8, card: CardId },
     EndTurn { p: u8 },
     WhoBegins { player: Option<u8> },
-    BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32, burn_flip_result: Option<bool>, asleep_flip_result: Option<bool> },
+    BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32 },
     /// `atk` is the attack's own AttackEffect (`AfterAttackEffect.attackEffect`): effect text asked after the damage keeps
     /// the attack's state through it.
     AfterAttack { p: u8, opp: u8, attack: AttackRef, atk: EffId },
@@ -156,7 +156,9 @@ pub enum Effect {
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
-    PlaceDamageCounters { p: u8, target: SlotRef, damage: i32, source: CardId, cause: Cause },
+    /// The PlaceCounters event (events batch 6; `engine::damage::place`): `amount` HP of damage counters are put on the
+    /// Pokémon in `target` (APR C-07), whatever causes it. `p` is the Pokémon's owner.
+    PlaceCounters { p: u8, target: SlotRef, amount: i32, cause: Cause },
     MoveDamageCounters { p: u8 },
     /// The ChangeActive event (events batch 5; `engine::change_active`): player `p`'s Active Pokémon changes: the
     /// Pokémon in the Active Spot `from` (none for a promotion) goes to the Bench and the Benched Pokémon in `to`
@@ -182,7 +184,6 @@ pub enum Effect {
         source_in_play: bool,
         retaliate: Option<crate::state::StoredRetaliate>,
     },
-    PutCounters { b: AtkBase, damage: i32 },
     KnockOutOpponent { b: AtkBase, knocked_out: bool, prize_count: i32 },
     /// `KnockOutPlayerEffect` (KNOCK_OUT_PLAYERS_ACTIVE_POKEMON): the opponent takes the Prizes.
     KnockOutPlayer { b: AtkBase, knocked_out: bool, prize_count: i32 },
@@ -193,10 +194,6 @@ pub enum Effect {
     /// MoveEnergy event (`engine::attach::move_attached`).
     MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
     AddMarker { b: AtkBase, marker: u16, marker_source: CardId },
-    /// B4-OLD: Special Conditions as an effect of the attack, the probe attack-effect prevention reads (Mist
-    /// Energy, Hide 'n' Sneak's attack half); its reducer produces one GainCondition per condition
-    /// (`engine::condition::gain`). Goes when the attack-effect preventions are `Prevent` declarations.
-    AddSpecialConditions { b: AtkBase, conditions: SVec<u8, 5> },
     /// `PlayLockEffect` (target = attacker's slot): the opponent gets the lock for their next turn.
     PlayLock { b: AtkBase, lock: &'static crate::spec::passive::LockDecl },
     /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
@@ -211,9 +208,6 @@ pub enum Effect {
     /// (EffectOfAttackEffect): arms `defendingPokemonExtraDamage*` on the
     /// opponent's current Active.
     DefendingPokemonTakesMoreDamage { b: AtkBase, damage_bonus: i32 },
-    /// B4-OLD: Special Conditions by an Ability, the probe Hide 'n' Sneak's Ability half reads; its reducer
-    /// produces one GainCondition per condition (`engine::condition::gain`).
-    AddSpecialConditionsPower { p: u8, source: CardId, target: SlotRef, conditions: SVec<u8, 5>, cause: Cause },
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
     /// `attackDamageReductionNextTurn = max(0, reduction)`.
     ReduceDamage { b: AtkBase, reduction: i32 },
@@ -249,9 +243,6 @@ pub enum Effect {
     /// `RetaliateOnDamageDuringOpponentsNextTurnEffect` (target = attacker,
     /// `{ damage }` options): `player.active.retaliateOnDamageNextTurnPending`.
     RetaliateOnDamage { b: AtkBase, damage: i32, source_card: CardId },
-    /// `RetaliateDamageEffect`: `target.damage += damage` (b.player is the
-    /// retaliator's owner, b.source its slot, b.target the attacker's slot).
-    RetaliateDamage { b: AtkBase, damage: i32 },
     /// `MoveCountersAttackEffect`: moves `damage` of damage counters from
     /// `b.source` (the counters' source slot, which the TS constructor
     /// assigns over the attacker's) to `b.target`. Reducer-less: the card
@@ -338,28 +329,25 @@ impl Effect {
             MoveCards { .. } => "MOVE_CARDS_EFFECT",
             EffectOfAbility { .. } => "EFFECT_OF_ABILITY_EFFECT",
             SpecialEnergy { .. } => "SPECIAL_ENERGY_EFFECT",
-            PlaceDamageCounters { .. } => "PLACE_DAMAGE_COUNTERS_EFFECT",
+            PlaceCounters { .. } => "PLACE_COUNTERS_EVENT",
             ChangeActive { .. } => "CHANGE_ACTIVE_EVENT",
             ApplyWeakness { .. } => "APPLY_WEAKNESS_EFFECT",
             DealDamage { .. } => "DEAL_DAMAGE_EFFECT",
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
             AfterDamage { .. } => "AFTER_DAMAGE_EFFECT",
             AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
-            PutCounters { .. } => "PUT_COUNTERS_EFFECT",
             KnockOutOpponent { .. } => "KNOCK_OUT_OPPONENT_EFFECT",
             KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             AddMarker { .. } => "ADD_MARKER_EFFECT",
-            AddSpecialConditions { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             PlayLock { .. } => "PLAY_LOCK_EFFECT",
             MoveDamageCounters { .. } => "MOVE_DAMAGE_COUNTERS_EFFECT",
             PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
             OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
             PreventAttackUntilLeavesActive { .. } => "EFFECT_OF_ATTACK_EFFECT",
             DefendingPokemonTakesMoreDamage { .. } => "DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_ATTACKER_NEXT_TURN_EFFECT",
-            AddSpecialConditionsPower { .. } => "ADD_SPECIAL_CONDITIONS_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
             PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
             SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
@@ -371,7 +359,6 @@ impl Effect {
             CoinFlipCancelTrainerPlay { .. } => "COIN_FLIP_CANCEL_TRAINER_PLAY_EFFECT",
             OpponentPokemonCannotAttackNextTurn { .. } => "OPPONENT_POKEMON_CANNOT_ATTACK_DURING_THEIR_NEXT_TURN_EFFECT",
             RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
-            RetaliateDamage { .. } => "RETALIATE_DAMAGE_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EFFECT",
             DevolveProbe { .. } => "DEVOLVE_EFFECT",
             Devolve { .. } => "DEVOLVE_EVENT",
@@ -403,14 +390,12 @@ impl Effect {
             | DealDamage { b, .. }
             | PutDamage { b, .. }
             | AfterDamage { b, .. }
-            | PutCounters { b, .. }
             | KnockOutOpponent { b, .. }
             | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
-            | AddSpecialConditions { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } => Some(b),
@@ -421,7 +406,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
+            RetaliateOnDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
             _ => None,
         }
     }
@@ -433,14 +418,12 @@ impl Effect {
             | DealDamage { b, .. }
             | PutDamage { b, .. }
             | AfterDamage { b, .. }
-            | PutCounters { b, .. }
             | KnockOutOpponent { b, .. }
             | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | MoveOpponentEnergy { b, .. }
             | AddMarker { b, .. }
-            | AddSpecialConditions { b, .. }
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } => Some(b),
@@ -451,7 +434,7 @@ impl Effect {
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | RetaliateDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
+            RetaliateOnDamage { b, .. } | MoveCounters { b, .. } | DevolveProbe { b } => Some(b),
             _ => None,
         }
     }
@@ -497,21 +480,19 @@ impl Effect {
             MoveCards { .. } => 31,
             EffectOfAbility { .. } => 32,
             SpecialEnergy { .. } => 33,
-            PlaceDamageCounters { .. } => 34,
+            PlaceCounters { .. } => 100,
             ChangeActive { .. } => 48,
             ApplyWeakness { .. } => 37,
             DealDamage { .. } => 38,
             PutDamage { .. } => 39,
             AfterDamage { .. } => 40,
             AttackTrigger { .. } => 246,
-            PutCounters { .. } => 41,
             KnockOutOpponent { .. } => 42,
             KnockOutPlayer { .. } => 140,
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
             MoveOpponentEnergy { .. } => 164,
             AddMarker { .. } => 46,
-            AddSpecialConditions { .. } => 47,
             Attach { .. } => 50,
             MoveEnergy { .. } => 64,
             MoveTool { .. } => 65,
@@ -532,7 +513,6 @@ impl Effect {
             PlayLock { .. } => 67,
             MoveDamageCounters { .. } => 68,
             PreventRetreat { .. } => 69,
-            AddSpecialConditionsPower { .. } => 70,
             ReduceDamage { .. } => 110,
             PreventDamageFiltered { .. } => 84,
             SelfPreventRetreat { .. } => 105,
@@ -541,7 +521,6 @@ impl Effect {
             PreventEffectsOfAttacks { .. } => 77,
             ThisPokemonHasNoWeakness { .. } => 148,
             RetaliateOnDamage { .. } => 172,
-            RetaliateDamage { .. } => 173,
             MoveCounters { .. } => 244,
             DevolveProbe { .. } => 247,
             Devolve { .. } => 248,
@@ -600,7 +579,6 @@ pub mod k {
     pub const MOVE_CARDS: u32 = 31;
     pub const EFFECT_OF_ABILITY: u32 = 32;
     pub const SPECIAL_ENERGY: u32 = 33;
-    pub const PLACE_DAMAGE_COUNTERS: u32 = 34;
     /// The ChangeActive event (events batch 5). 48, not the old MovedToActive's 35: the dispatch index keys its
     /// entries by `kind % 32` (`dispatch::SLOTS`), and 35 shared its entry with END_TURN (3), which games with a
     /// ChangeActive handler (every attack-effect protection) then rebuilt in turn; nothing else uses entry 16.
@@ -610,13 +588,11 @@ pub mod k {
     pub const PUT_DAMAGE: u32 = 39;
     pub const AFTER_DAMAGE: u32 = 40;
     pub const MOVE_OPPONENT_ENERGY: u32 = 164;
-    pub const PUT_COUNTERS: u32 = 41;
     pub const KNOCK_OUT_OPPONENT: u32 = 42;
     pub const KNOCK_OUT_PLAYER: u32 = 140;
     pub const DISCARD_CARDS: u32 = 43;
     pub const CARDS_TO_HAND: u32 = 44;
     pub const ADD_MARKER: u32 = 46;
-    pub const ADD_SPECIAL_CONDITIONS: u32 = 47;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
     pub const ATTACH: u32 = 50;
     pub const MOVE_ENERGY: u32 = 64;
@@ -639,13 +615,11 @@ pub mod k {
     pub const PLAY_LOCK: u32 = 67;
     pub const MOVE_DAMAGE_COUNTERS: u32 = 68;
     pub const PREVENT_RETREAT: u32 = 69;
-    pub const ADD_SPECIAL_CONDITIONS_POWER: u32 = 70;
     pub const REDUCE_DAMAGE: u32 = 110;
     pub const SELF_PREVENT_RETREAT: u32 = 105;
     pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
     pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
     pub const RETALIATE_ON_DAMAGE: u32 = 172;
-    pub const RETALIATE_DAMAGE: u32 = 173;
     pub const MOVE_COUNTERS: u32 = 244;
     pub const DEVOLVE_PROBE: u32 = 247;
     pub const DEVOLVE: u32 = 248;
@@ -776,8 +750,7 @@ impl Effect {
             | Heal { cause, .. }
             | Evolve { cause, .. }
             | EffectOfAbility { cause, .. }
-            | PlaceDamageCounters { cause, .. }
-            | AddSpecialConditionsPower { cause, .. }
+            | PlaceCounters { cause, .. }
             | GainCondition { cause, .. }
             | RemoveCondition { cause, .. }
             | CoinFlip { cause, .. }
@@ -820,7 +793,7 @@ mod marker_tests {
     #[test]
     fn no_marker_is_an_effect_kind() {
         let (kinds, markers) = numbers();
-        assert!(kinds.len() > 90, "every Effect variant's kind is read ({})", kinds.len());
+        assert!(kinds.len() > 60, "every Effect variant's kind is read ({})", kinds.len());
         assert!(markers.len() >= 16, "the markers are read ({})", markers.len());
         for (name, v) in &markers {
             assert!(!kinds.contains(v), "k::{name} = {v} is also an effect kind");

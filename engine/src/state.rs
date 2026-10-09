@@ -138,9 +138,6 @@ pub struct Slot {
     pub discard_attacker_energy_if_ko_attack: Option<AttackRef>,
     pub discard_attacker_energy_if_ko_source_card: Option<CardId>,
     pub discard_attacker_energy_if_ko_attacker: Option<u8>,
-    /// `preventEffectsOfAttacksNextTurn` / `...Pending` (empty filter only).
-    pub prevent_effects_of_attacks_next_turn: bool,
-    pub prevent_effects_of_attacks_next_turn_pending: bool,
     /// `noWeaknessNextTurn` / `...Pending`.
     pub no_weakness_next_turn: bool,
     pub no_weakness_next_turn_pending: bool,
@@ -281,8 +278,6 @@ impl Default for Slot {
             discard_attacker_energy_if_ko_attack: None,
             discard_attacker_energy_if_ko_source_card: None,
             discard_attacker_energy_if_ko_attacker: None,
-            prevent_effects_of_attacks_next_turn: false,
-            prevent_effects_of_attacks_next_turn_pending: false,
             no_weakness_next_turn: false,
             no_weakness_next_turn_pending: false,
             next_turn_attack_damage_bonus: None,

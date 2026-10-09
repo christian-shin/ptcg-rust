@@ -13,9 +13,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Sinistcha",
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) },
-        // The opponent's attacks and Abilities switching this Pokémon in or out (ChangeActive; JP Q&A, Hariyama MEG 73).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(HIDE_N_SNEAK_SWITCH) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(HIDE_N_SNEAK) },
     ],
     attacks: &[AttackSpec {
         index: 0,
@@ -24,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::If(IfSpec {
                 cond: Cond::Cmp(Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::HasAbilityNamed("Hide 'n' Sneak")), CmpOp::Ge, Num::Lit(6)),
                 // 4 damage counters on each of the opponent's Pokémon (an effect of the attack).
-                yes: &[Step::new(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), what: EachWhat::Counters(CounterCause::Attack), amount: Num::Lit(4), ..EachSlotSpec::DEFAULT }))],
+                yes: &[Step::new(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), what: EachWhat::Counters, amount: Num::Lit(4), ..EachSlotSpec::DEFAULT }))],
                 no: &[],
             })),
         ],

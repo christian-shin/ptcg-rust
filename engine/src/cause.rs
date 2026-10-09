@@ -295,11 +295,9 @@ fn unseen_now(g: &crate::game::Game, site: &str, c: &Cause) {
 /// effect created outside legality trials when VERIFY is on):
 /// - the `AtkBase` makes an effect "an effect of the attack by `b.player`" (Hide 'n' Sneak, Mist Energy,
 ///   "prevent all effects of attacks", the attack reducer's own check);
-/// - Hide 'n' Sneak's Ability half: an `AddSpecialConditionsPower` whose source is a Pokémon in play is an
-///   Ability of that Pokémon's side; a `PlaceDamageCounters` whose source is a Pokémon in play of `p` is
-///   `p`'s Ability; `EffectOfAbility` is an Ability of `p`;
-/// - an opponent's attack or Ability effect on a Pokémon whose kind is missing from
-///   `HIDE_N_SNEAK_KINDS` escapes Hide 'n' Sneak.
+/// - `EffectOfAbility` is an Ability of `p`;
+/// - an opponent's attack or Ability effect on a Pokémon whose kind no `Prevent` reader consults (an event family's
+///   routine or a B6-OLD probe: `passive::prevent_consulted`) escapes Hide 'n' Sneak and Mist Energy.
 #[inline]
 pub fn verify_effect(g: &crate::game::Game, e: &crate::effects::Effect) {
     if on(g) {
@@ -316,21 +314,6 @@ fn verify_effect_now(g: &crate::game::Game, e: &crate::effects::Effect) {
         return;
     }
     let target = match *e {
-        Effect::AddSpecialConditionsPower { source, target: _, .. } => {
-            let side = if g.st.cdef(source).is_pokemon() { g.st.find_pokemon_slot(source).map(|(q, _)| q as u8) } else { None };
-            let old = match side {
-                Some(q) => Old::Ability(Some(q)),
-                None => Old::Neither,
-            };
-            compare_now(g, "ADD_SPECIAL_CONDITIONS_POWER (source Pokemon in play = Ability)", &c, old);
-            None
-        }
-        Effect::PlaceDamageCounters { p, source, .. } => {
-            let ability = source != crate::list::NO_CARD && matches!(g.st.find_pokemon_slot(source), Some((q, _)) if q == p as usize);
-            let old = if ability { Old::Ability(Some(p)) } else { Old::Neither };
-            compare_now(g, "PLACE_DAMAGE_COUNTERS (source Pokemon of p in play = Ability)", &c, old);
-            None
-        }
         Effect::EffectOfAbility { p, target, .. } => {
             compare_now(g, "EFFECT_OF_ABILITY (probe = Ability)", &c, Old::Ability(Some(p)));
             target
@@ -340,9 +323,9 @@ fn verify_effect_now(g: &crate::game::Game, e: &crate::effects::Effect) {
         _ => None,
     };
     if let Some(t) = target {
-        if (c.is_attack() || c.is_ability()) && t.p != c.player && !crate::spec::passive::HIDE_N_SNEAK_KINDS.contains(&e.kind()) {
+        if (c.is_attack() || c.is_ability()) && t.p != c.player && !crate::spec::passive::prevent_consulted(e.kind()) {
             checked();
-            mismatch(format!("{} on the opponent's Pokemon, kind not in HIDE_N_SNEAK_KINDS: cause {}", e.type_name(), label(g, &c)));
+            mismatch(format!("{} on the opponent's Pokemon, kind no Prevent reader consults: cause {}", e.type_name(), label(g, &c)));
         }
     }
 }

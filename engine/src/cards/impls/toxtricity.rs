@@ -38,7 +38,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cond: Cond::Slot(SlotExpr::Attached, SlotPred::Any),
                 yes: &[
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
-                    Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Attached), counters: Num::Lit(2), cause: CounterCause::Effect })),
+                    Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Attached), counters: Num::Lit(2) })),
                 ],
                 no: &[],
             })),

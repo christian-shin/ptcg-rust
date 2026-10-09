@@ -27,7 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
             EventPred::Card(Pred::All(&[Pred::Basic, Pred::Not(&Pred::PokemonType(ct::DARK))])),
             EventPred::Turn(TurnOf::EventOwner),
         ])),
-        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2), cause: CounterCause::Direct }))],
+        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2) }))],
     }],
     ..CardSpec::NONE
 };

@@ -17,10 +17,9 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::Coin(CoinSpec {
             heads: &[Step::new(Op::PlaceCounters(PlaceCountersSpec {
                 target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
-                counters: Num::Lit(2),
-                cause: CounterCause::Effect,
+                counters: Num::Lit(2)
             }))],
-            tails: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(MY_ACTIVE), counters: Num::Lit(2), cause: CounterCause::Effect }))],
+            tails: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(MY_ACTIVE), counters: Num::Lit(2) }))],
             ..CoinSpec::DEFAULT
         }))],
     }),

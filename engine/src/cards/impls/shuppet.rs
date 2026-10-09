@@ -15,9 +15,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Shuppet",
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK) },
-        // The opponent's attacks and Abilities switching this Pokémon in or out (ChangeActive; JP Q&A, Hariyama MEG 73).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(HIDE_N_SNEAK_SWITCH) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(HIDE_N_SNEAK) },
     ],
     ..CardSpec::NONE
 };

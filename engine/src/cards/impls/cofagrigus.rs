@@ -7,7 +7,7 @@
 //! Ability, a PutCountersEffect of 60 is applied.
 use crate::spec::prelude::*;
 
-const HAS_COUNTERS: Op = Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(6), cause: CounterCause::Attack });
+const HAS_COUNTERS: Op = Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(6) });
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Cofagrigus@SSP",

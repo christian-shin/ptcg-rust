@@ -15,11 +15,10 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Empoleonex",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::TakesLessDamage(60) }))] }],
     passives: &[
-        // An opponent's attack switching this Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, CHANGE_ACTIVE_BY_OPP_ATTACK)) },Passive {
-        origin: RuleSource::Ability,
-        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { probe_for_attacker: true, ..PreventAttackEffectsSpec::DEFAULT }),
-    }],
+        // Emperor's Stance: every event the opponent's attacks cause to this Pokémon, the switches included (APR
+        // C-04 / C-05, id2025, id2155); damage is not an effect.
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, EFFECTS_OF_OPP_ATTACKS)) },
+    ],
     ..CardSpec::NONE
 };
 

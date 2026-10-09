@@ -41,7 +41,6 @@ pub enum Modifier {
     DamageDealt(DamageDealtSpec),
     DamageTaken(DamageTakenSpec),
     PreventDamage(PreventDamageSpec),
-    PreventAttackEffects(PreventAttackEffectsSpec),
     Prevent(PreventSpec),
     BlockUse(BlockUseSpec),
     AbilityLock(AbilityLockSpec),
@@ -271,39 +270,6 @@ impl PreventDamageSpec {
     };
 }
 
-/// "Prevent all effects of attacks done to this Pokémon" (vocabulary P4). The damage steps are not
-/// effects (Weakness, Resistance and damage itself are never prevented here).
-pub struct PreventAttackEffectsSpec {
-    /// The Pokémon the effects are done to.
-    pub subject: SlotPred,
-    /// Also the damage counters placed by the opponent's Abilities (Hide 'n' Sneak).
-    pub abilities: bool,
-    /// The lock probe is made for the attacking player (today's behavior of Empoleon ex),
-    /// not for the card's owner.
-    pub probe_for_attacker: bool,
-    /// Nothing is prevented when the attack's source slot holds no Pokémon.
-    pub needs_source_pokemon: bool,
-    /// Only attacks of Pokémon matching this predicate (the attacking Pokémon).
-    pub attacker: SlotPred,
-    /// Only Pokémon of the card's owner are protected (`Side::Owner`).
-    pub side: Side,
-    /// The damage steps are prevented too, unless the attack ignores effects on the
-    /// Defending Pokémon (Shred): "prevent all damage from and effects of attacks".
-    pub damage_too: bool,
-}
-
-impl PreventAttackEffectsSpec {
-    pub const DEFAULT: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
-        subject: SlotPred::Holder,
-        abilities: false,
-        probe_for_attacker: false,
-        needs_source_pokemon: true,
-        attacker: SlotPred::Any,
-        side: Side::Any,
-        damage_too: false,
-    };
-}
-
 /// What a `Prevent` passive stops.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum PreventWhat {
@@ -311,9 +277,6 @@ pub enum PreventWhat {
     None,
     /// Damage counters can't be moved (to other Pokémon).
     CounterMoves,
-    /// Battle Cage: no damage counters on Benched Pokémon from the opponent's Pokémon's attacks
-    /// and Abilities (counters moved onto them included).
-    BenchCounters,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
     MoveToHandFromOppPlay,
     // --- S3 agent 3 appends ---
@@ -355,9 +318,10 @@ const fn prevent_kinds(p: &PreventSpec) -> KindMask {
         return KindMask::EMPTY;
     }
     // The kinds the declaration ranges over (a cause-only one: every event with an effect except Damage), restricted to
-    // the families whose routine asks the reader, each with its marker.
+    // the families whose routine asks the reader, each with its marker; and the B6-OLD probes standing for an event it
+    // ranges over, whose dispatch it answers (`probe_prevent`).
     let all = p.from.prevent_kinds();
-    let mut m = KindMask::EMPTY;
+    let mut m = probe_kinds(&p.from);
     let mut i = 0;
     while i < PREVENT_FAMILIES.len() {
         let (fam, marker) = PREVENT_FAMILIES[i];
@@ -380,12 +344,19 @@ const fn and(a: KindMask, b: KindMask) -> KindMask {
 
 /// The event families whose routine asks the `Prevent` reader (`event_prevented`), each with the marker a prevention over
 /// it sets (`prevent_kinds`) and the reader tests (`prevent_marker`).
-const PREVENT_FAMILIES: [(KindMask, u32); 4] = [
+const PREVENT_FAMILIES: [(KindMask, u32); 5] = [
     (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_PREVENT),
     (super::event::HEAL_EVENT_KINDS, crate::effects::k::DECLARES_HEAL_PREVENT),
     (super::event::COIN_EVENT_KINDS, crate::effects::k::DECLARES_COIN_PREVENT),
     (super::event::ACTIVE_EVENT_KINDS, crate::effects::k::DECLARES_ACTIVE_PREVENT),
+    (super::event::COUNTER_EVENT_KINDS, crate::effects::k::DECLARES_COUNTER_PREVENT),
 ];
+
+/// Does some routine or B6-OLD probe consult the `Prevent` reader for effects of this kind (the VERIFY cause
+/// cross-check: an opponent's attack or Ability effect on a Pokémon no reader consults escapes every prevention)?
+pub fn prevent_consulted(kind: u32) -> bool {
+    B6OLD_PROBE_MASK.has(kind) || PREVENT_FAMILIES.iter().any(|(fam, _)| fam.has(kind))
+}
 
 /// The event families a lock over events can forbid, each with the marker a lock over it sets (`block_kinds`) and the
 /// query tests (`lock_marker`).
@@ -849,12 +820,10 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::Prevent(p) => prevent_kinds(p).or(match p.what {
             PreventWhat::None => KindMask::EMPTY,
             PreventWhat::CounterMoves => mask(&[k::MOVE_DAMAGE_COUNTERS, k::MOVE_COUNTERS]),
-            PreventWhat::BenchCounters => mask(&[k::MOVE_COUNTERS, k::PUT_COUNTERS, k::PLACE_DAMAGE_COUNTERS]),
             PreventWhat::MoveToHandFromOppPlay => mask(&[k::MOVE_CARDS]),
             PreventWhat::ThisCardFromDiscard => mask(&[k::MOVE_CARDS]),
             PreventWhat::ToolEffects => mask(&[k::TOOL]),
         }),
-        Modifier::PreventAttackEffects(_) => HIDE_N_SNEAK_MASK,
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
         Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
@@ -989,7 +958,6 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::Recover(c) => recover(g, me, e, ps.origin, c),
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
-        Modifier::PreventAttackEffects(d) => prevent_attack_effects(g, me, e, ps.origin, d),
         Modifier::TypeOverride(t) => {
             let Effect::CheckPokemonType { target, .. } = *g.e(e) else { return Ok(()) };
             let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
@@ -1622,6 +1590,9 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
     if matches!(*g.e(e), Effect::CheckTableState { .. }) && g.st.any_special_condition() && prevention_recovers(p) {
         return recover_protected(g, me, origin, p);
     }
+    if B6OLD_PROBE_MASK.has(g.e(e).kind()) {
+        return probe_prevent(g, me, e, origin, p);
+    }
     // A declaration over events is read by the event's routine (`event_prevented`), not here.
     if matches!(p.what, PreventWhat::None) {
         return Ok(());
@@ -1631,28 +1602,6 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
         (PreventWhat::CounterMoves, Effect::MoveDamageCounters { .. } | Effect::MoveCounters { .. }) => {
             if !blocked(g, me, origin, at, None) {
                 g.set_prevent(e, true);
-            }
-        }
-        // Counters moved onto a Benched Pokémon by the opponent's effect: they are taken off the source and
-        // vanish (ruling 2257).
-        (PreventWhat::BenchCounters, Effect::MoveCounters { b, .. }) => {
-            if bench_target_prevented(g, me, b.player as usize, b.target) {
-                g.set_prevent(e, true);
-            }
-        }
-        (PreventWhat::BenchCounters, Effect::PutCounters { b, .. }) => {
-            if bench_target_prevented(g, me, b.source.p as usize, b.target) {
-                g.set_prevent(e, true);
-            }
-        }
-        (PreventWhat::BenchCounters, Effect::PlaceDamageCounters { target, source, .. }) => {
-            if source == NO_CARD {
-                return Ok(());
-            }
-            if let Some((owner, _)) = g.st.find_pokemon_slot(source) {
-                if bench_target_prevented(g, me, owner, target) {
-                    g.set_prevent(e, true);
-                }
             }
         }
         (PreventWhat::MoveToHandFromOppPlay, Effect::MoveCards { source, destination, .. }) => {
@@ -1717,160 +1666,165 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
 }
 
 // ---------------------------------------------------------------------------
-// Attack effects
+// "Prevent all effects of attacks": one `Prevent` over `Cause` (events batch 6)
 
-/// Every attack-effect kind (`AtkBase` effects) except the damage steps, plus the counters
-/// placed by Abilities: the effect kinds Hide 'n' Sneak and Mist Energy prevent.
-pub const HIDE_N_SNEAK_KINDS: [u32; 33] = [
-    crate::effects::k::SELF_PREVENT_RETREAT,
-    crate::effects::k::DISCARD_ATTACKER_ENERGY_IF_KO,
-    crate::effects::k::APPLY_WEAKNESS,
-    crate::effects::k::DEAL_DAMAGE,
-    crate::effects::k::PUT_DAMAGE,
-    crate::effects::k::AFTER_DAMAGE,
-    crate::effects::k::PUT_COUNTERS,
-    crate::effects::k::KNOCK_OUT_OPPONENT,
-    crate::effects::k::KNOCK_OUT_PLAYER,
-    crate::effects::k::RETALIATE_ON_DAMAGE,
-    crate::effects::k::RETALIATE_DAMAGE,
-    crate::effects::k::DISCARD_CARDS,
-    crate::effects::k::CARDS_TO_HAND,
-    crate::effects::k::MOVE_OPPONENT_ENERGY,
-    crate::effects::k::ADD_MARKER,
-    crate::effects::k::ADD_SPECIAL_CONDITIONS,
-    crate::effects::k::ADD_SPECIAL_CONDITIONS_POWER,
-    crate::effects::k::PLAY_LOCK,
-    crate::effects::k::PREVENT_RETREAT,
-    crate::effects::k::OPPONENT_POKEMON_CANNOT_USE_ATTACK,
-    crate::effects::k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE,
-    crate::effects::k::DEFENDING_POKEMON_TAKES_MORE_DAMAGE,
-    crate::effects::k::REDUCE_DAMAGE,
-    crate::effects::k::PLACE_DAMAGE_COUNTERS,
-    crate::effects::k::PREVENT_DAMAGE,
-    crate::effects::k::PREVENT_EFFECTS_OF_ATTACKS,
-    crate::effects::k::THIS_POKEMON_HAS_NO_WEAKNESS,
-    crate::effects::k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN,
-    crate::effects::k::INCREASE_ATTACK_COST_NEXT_TURN,
-    crate::effects::k::INCREASE_RETREAT_COST_NEXT_TURN,
-    crate::effects::k::COIN_FLIP_CANCEL_TRAINER_PLAY,
-    crate::effects::k::MOVE_COUNTERS,
-    crate::effects::k::DEVOLVE_PROBE,
-];
+/// "Prevent all effects of attacks used by your opponent's Pokémon done to ..." (Mist Energy, Rocky Fighting Energy,
+/// Unaware, Emperor's Stance, Protective Cover, Repelling Veil): the events caused by the opponent's attacks. It names
+/// no kind, so it ranges over every event with an effect and never over Damage (APR C-17: damage is not an effect).
+pub const EFFECTS_OF_OPP_ATTACKS: super::event::EventPred = super::event::EventPred::Cause(super::event::CausePred::All(&[super::event::CausePred::By(Who::Opp), super::event::CausePred::Kind(crate::cause::CauseKind::Attack)]));
 
-pub const HIDE_N_SNEAK_MASK: KindMask = mask(&HIDE_N_SNEAK_KINDS);
+/// Hide 'n' Sneak's "prevent all effects of your opponent's Pokémon's attacks and Abilities done to this Pokémon".
+pub const EFFECTS_OF_OPP_ATTACKS_AND_ABILITIES: super::event::EventPred = super::event::EventPred::Cause(super::event::CausePred::All(&[
+    super::event::CausePred::By(Who::Opp),
+    super::event::CausePred::Any(&[super::event::CausePred::Kind(crate::cause::CauseKind::Attack), super::event::CausePred::Kind(crate::cause::CauseKind::Ability)]),
+]));
 
-fn prevent_attack_effects(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PreventAttackEffectsSpec) -> R {
-    if let Some(b) = g.e(e).atk_base().copied() {
-        let t = b.target;
-        let Some(at) = locate(g, me, origin) else { return Ok(()) };
-        if !slot_pred_m(g, me, t, &d.subject)? || (d.side == Side::Owner && at.owner != t.p as usize) {
-            return Ok(());
+/// "Damage from and effects of": the Damage event or any event with an effect (`All[DAMAGE_OR_EFFECTS, Cause(..)]`
+/// restricts both to the cause: Rabsca, Acerola's Mischief, Milotic ex).
+pub const DAMAGE_OR_EFFECTS: super::event::EventPred = super::event::EventPred::Any(&[super::event::EventPred::Kind(super::event::EventKind::Damage), super::event::EventPred::ALWAYS]);
+
+/// Hide 'n' Sneak (Shuppet, Banette, Sinistcha, Poltchageist): no Bench condition (the printed text has none; id2426
+/// has it work on an Active Pokémon).
+pub const HIDE_N_SNEAK: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS_AND_ABILITIES);
+
+/// "During your opponent's next turn, prevent all effects of attacks done to this Pokémon" (an attack's lasting effect on
+/// its own Pokémon: `Lasting::PreventAttackEffects`), stored on the Pokémon (`Slot::lasting_prevents`).
+pub static LASTING_PREVENT_EFFECTS: PreventSpec = PreventSpec::on(SlotPred::Any, EFFECTS_OF_OPP_ATTACKS);
+
+/// Does a `Prevent` over `from` range over events of `kind` (the mask test the reader makes before evaluating it)? An
+/// event kind with no effect yet (Discard, PutIntoHand: events batch 7) is in range of a declaration that ranges over
+/// every effect.
+pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> bool {
+    let m = from.prevent_kinds();
+    match kind.effect_kind() {
+        Some(x) => m.has(x),
+        None => and(m, super::event::EFFECT_EVENT_KINDS) == super::event::EFFECT_EVENT_KINDS,
+    }
+}
+
+/// B6-OLD -> C4 (damage steps), C5 (Knock Outs), C6 (Devolve, MoveEnergy, lasting effects), B7 (Discard, PutIntoHand):
+/// the attack-effect probes, `AtkBase` effects standing for an event the engine doesn't produce as one yet, and the event
+/// each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
+/// ones in `Game::reduce_effect`) with the event's view: one declaration, two readers, until the events exist.
+pub const B6OLD_PROBES: [(u32, super::event::EventKind); 26] = {
+    use super::event::EventKind as E;
+    use crate::effects::k;
+    [
+        (k::DISCARD_CARDS, E::Discard),
+        (k::CARDS_TO_HAND, E::PutIntoHand),
+        (k::MOVE_OPPONENT_ENERGY, E::MoveEnergy),
+        (k::DEVOLVE_PROBE, E::Devolve),
+        (k::KNOCK_OUT_OPPONENT, E::KnockOut),
+        (k::KNOCK_OUT_PLAYER, E::KnockOut),
+        (k::MOVE_COUNTERS, E::MoveCounters),
+        (k::DEAL_DAMAGE, E::Damage),
+        (k::PUT_DAMAGE, E::Damage),
+        (k::APPLY_WEAKNESS, E::Damage),
+        // B6-OLD -> C4: today's record of the damage is answered as an effect (as the attack-effect probe did).
+        (k::AFTER_DAMAGE, E::ApplyEffect),
+        (k::PLAY_LOCK, E::ApplyEffect),
+        (k::PREVENT_RETREAT, E::ApplyEffect),
+        (k::OPPONENT_POKEMON_CANNOT_USE_ATTACK, E::ApplyEffect),
+        (k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE, E::ApplyEffect),
+        (k::DEFENDING_POKEMON_TAKES_MORE_DAMAGE, E::ApplyEffect),
+        (k::REDUCE_DAMAGE, E::ApplyEffect),
+        (k::PREVENT_DAMAGE, E::ApplyEffect),
+        (k::PREVENT_EFFECTS_OF_ATTACKS, E::ApplyEffect),
+        (k::THIS_POKEMON_HAS_NO_WEAKNESS, E::ApplyEffect),
+        (k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN, E::ApplyEffect),
+        (k::INCREASE_ATTACK_COST_NEXT_TURN, E::ApplyEffect),
+        (k::INCREASE_RETREAT_COST_NEXT_TURN, E::ApplyEffect),
+        (k::COIN_FLIP_CANCEL_TRAINER_PLAY, E::ApplyEffect),
+        (k::SELF_PREVENT_RETREAT, E::ApplyEffect),
+        (k::DISCARD_ATTACKER_ENERGY_IF_KO, E::ApplyEffect),
+    ]
+};
+
+const fn probe_mask() -> KindMask {
+    let mut m = KindMask::EMPTY;
+    let mut i = 0;
+    while i < B6OLD_PROBES.len() {
+        m = crate::spec::with(m, B6OLD_PROBES[i].0);
+        i += 1;
+    }
+    m
+}
+
+/// The effect kinds of [`B6OLD_PROBES`].
+pub const B6OLD_PROBE_MASK: KindMask = probe_mask();
+
+/// The kinds a `Prevent` over `from` is dispatched for as the probes' reader: the probes standing for an event it ranges
+/// over.
+const fn probe_kinds(from: &super::event::EventPred) -> KindMask {
+    let all = from.prevent_kinds();
+    let mut m = KindMask::EMPTY;
+    let mut i = 0;
+    while i < B6OLD_PROBES.len() {
+        let (k, ek) = B6OLD_PROBES[i];
+        let ok = match ek.effect_kind() {
+            Some(x) => all.has(x),
+            None => {
+                let e = super::event::EFFECT_EVENT_KINDS;
+                let a = and(all, e);
+                a.0[0] == e.0[0] && a.0[1] == e.0[1] && a.0[2] == e.0[2] && a.0[3] == e.0[3]
+            }
+        };
+        if ok {
+            m = crate::spec::with(m, k);
         }
-        let probe_as = if d.probe_for_attacker { Located { owner: b.player as usize, ..at } } else { at };
-        if blocked(g, me, origin, probe_as, Some(t)) {
-            return Ok(());
-        }
-        let attacker = if d.probe_for_attacker { b.source.p } else { b.player };
-        if attacker == t.p {
-            return Ok(());
-        }
-        let damage_step = matches!(*g.e(e), Effect::ApplyWeakness { .. } | Effect::PutDamage { .. } | Effect::DealDamage { .. });
-        if damage_step && !d.damage_too {
-            return Ok(());
-        }
-        if d.damage_too && (damage_step || matches!(*g.e(e), Effect::AfterDamage { .. })) && ignores_defender_effects(g, &b) {
-            return Ok(());
-        }
-        if !matches!(d.attacker, SlotPred::Any) && !slot_pred_m(g, me, b.source, &d.attacker)? {
-            return Ok(());
-        }
-        if d.needs_source_pokemon && g.st.slot_pokemon(b.source.p as usize, b.source.s).is_none() {
-            return Ok(());
-        }
-        g.set_prevent(e, true);
+        i += 1;
+    }
+    m
+}
+
+/// The event a probe stands for, as predicates read it: done to the probe's target (`b.target`), by the probe's cause.
+/// A move's probe (counters, an Energy) is about the end its target is: the destination for the counters
+/// (`MoveCounters`, To), the source for an Energy (`MoveOpponentEnergy`, From).
+pub(crate) fn probe_view(g: &Game, id: EffId) -> Option<super::event::EventView> {
+    use super::event::{EventKind as E, EventView, MoveEnd};
+    let e = g.e(id);
+    let kind = e.kind();
+    let ek = B6OLD_PROBES.iter().find(|(k, _)| *k == kind)?.1;
+    let b = *e.atk_base()?;
+    let t = b.target;
+    let end = match ek {
+        E::MoveCounters => Some(MoveEnd::To),
+        E::MoveEnergy => Some(MoveEnd::From),
+        _ => None,
+    };
+    let ignores_defender = ek == E::Damage && ignores_defender_effects(g, &b);
+    Some(EventView { card: g.st.slot_pokemon(t.p as usize, t.s), slot: Some(t), end, ignores_defender, ..EventView::new(ek, b.cause, t.p, super::event::whose_turn(g)) })
+}
+
+/// The `Prevent` declaration `p` of `me` answers the probe `e` it is dispatched (B6-OLD; see [`B6OLD_PROBES`]): it
+/// ranges over the event the probe stands for, its `from` matches the event, `protects` the probe's target, and the card
+/// is in place for its origin and not blocked there. Damage an attack does ignoring the effects on the damaged Pokémon
+/// (Shred) is not prevented (APR C-16; RULES.md "Shred").
+fn probe_prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
+    let Some(v) = probe_view(g, e) else { return Ok(()) };
+    if p.from.is_never() || !ranges(&p.from, v.kind) || (v.kind == super::event::EventKind::Damage && v.ignores_defender) {
         return Ok(());
     }
-    if d.abilities {
-        // A Special Condition added by the Ability of an opposing Pokémon (an effect built by a Trainer or
-        // by the owner's own Pokémon doesn't count).
-        if let Effect::AddSpecialConditionsPower { target, source, .. } = *g.e(e) {
-            let Some(at) = locate(g, me, origin) else { return Ok(()) };
-            if !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
-                return Ok(());
-            }
-            if g.st.cdef(source).is_pokemon() {
-                if let Some((q, _)) = g.st.find_pokemon_slot(source) {
-                    if q != target.p as usize {
-                        g.set_prevent(e, true);
-                    }
-                }
-            }
-            return Ok(());
-        }
-        if let Effect::PlaceDamageCounters { p, target, source, .. } = *g.e(e) {
-            let Some(at) = locate(g, me, origin) else { return Ok(()) };
-            if !slot_pred_m(g, me, target, &d.subject)? || blocked(g, me, origin, at, Some(target)) {
-                return Ok(());
-            }
-            if p as usize == target.p as usize || source == NO_CARD {
-                return Ok(());
-            }
-            match g.st.find_pokemon_slot(source) {
-                Some((q, _)) if q == p as usize => {}
-                _ => return Ok(()),
-            }
-            g.set_prevent(e, true);
-        }
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if !p.from.eval(g, me, &v)? {
+        return Ok(());
+    }
+    let t = v.slot.expect("a probe has a target");
+    if slot_pred_m(g, me, t, &p.protects)? && !blocked(g, me, origin, at, Some(t)) {
+        g.set_prevent(e, true);
     }
     Ok(())
 }
 
-/// "Prevent all effects of attacks used by your opponent's Pokémon done to <the Pokémon>", over the ChangeActive
-/// event (events batch 5): an opponent's attack switching the Pokémon in (APR C-05; id2155) or out (APR C-04;
-/// id2025). With the `Prevent` declaration's `protects` the Pokémon; the other events still go through the
-/// B4-OLD attack-effect probe (`PreventAttackEffects`) until their batch.
-pub const CHANGE_ACTIVE_BY_OPP_ATTACK: super::event::EventPred = super::event::EventPred::All(&[
-    super::event::EventPred::Kind(super::event::EventKind::ChangeActive),
-    super::event::EventPred::Cause(super::event::CausePred::All(&[super::event::CausePred::By(Who::Opp), super::event::CausePred::Kind(crate::cause::CauseKind::Attack)])),
-]);
-
-/// Hide 'n' Sneak over the ChangeActive event: the opponent's attacks and Abilities (Hariyama's Heave-Ho Catcher, Hop's
-/// Dubwool's Defiant Horn switching in the Benched Pokémon that has it: official JP Q&A, Hariyama MEG 73).
-pub const CHANGE_ACTIVE_BY_OPP_ATTACK_OR_ABILITY: super::event::EventPred = super::event::EventPred::All(&[
-    super::event::EventPred::Kind(super::event::EventKind::ChangeActive),
-    super::event::EventPred::Cause(super::event::CausePred::All(&[
-        super::event::CausePred::By(Who::Opp),
-        super::event::CausePred::Any(&[super::event::CausePred::Kind(crate::cause::CauseKind::Attack), super::event::CausePred::Kind(crate::cause::CauseKind::Ability)]),
-    ])),
-]);
-
-/// Hide 'n' Sneak's `Prevent` over the ChangeActive event (with [`HIDE_N_SNEAK`] for the other effects).
-pub const HIDE_N_SNEAK_SWITCH: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), CHANGE_ACTIVE_BY_OPP_ATTACK_OR_ABILITY);
-
-/// Hide 'n' Sneak: prevent all effects of the opponent's Pokémon's attacks and Abilities done to
-/// this Pokémon (damage is not an effect).
-pub const HIDE_N_SNEAK: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
-    subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-    abilities: true,
-    probe_for_attacker: false,
-    needs_source_pokemon: false,
-    attacker: SlotPred::Any,
-    side: Side::Any,
-    damage_too: false,
-};
-
-/// "Prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon" (a Fossil's
-/// Protective Cover): Hide 'n' Sneak without the Abilities part.
-pub const HIDE_N_SNEAK_ATTACKS: PreventAttackEffectsSpec = PreventAttackEffectsSpec {
-    subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-    abilities: false,
-    probe_for_attacker: false,
-    needs_source_pokemon: true,
-    attacker: SlotPred::Any,
-    side: Side::Any,
-    damage_too: false,
-};
-
+/// The lasting preventions on the probe's target ([`lasting_prevented`]) answer the probe `id` (B6-OLD; asked by
+/// `Game::reduce_effect` before the probe is dispatched).
+pub fn probe_lasting_prevented(g: &mut Game, id: EffId) -> R<bool> {
+    let Some(v) = probe_view(g, id) else { return Ok(false) };
+    if v.kind == super::event::EventKind::Damage && v.ignores_defender {
+        return Ok(false);
+    }
+    lasting_prevented(g, &v)
+}
 // ---------------------------------------------------------------------------
 // Prizes, evolution, attacks
 
@@ -2113,6 +2067,7 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         E::RemoveCounters => Some(crate::effects::k::DECLARES_HEAL_PREVENT),
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_PREVENT),
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_PREVENT),
+        E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_PREVENT),
         E::EnterPlay
         | E::Evolve
         | E::Devolve
@@ -2122,8 +2077,6 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::MoveTool
         | E::PlayTrainer
         | E::Damage
-        | E::PlaceCounters
-        | E::MoveCounters
         | E::KnockOut
         | E::TakePrizes
         | E::Discard
@@ -2173,11 +2126,11 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
 /// pending): one matches the event. Each is evaluated for the card whose attack left it. A plain read of the slot when
 /// it holds none.
 pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
-    let (Some(t), Some(kind)) = (v.slot, v.kind.effect_kind()) else { return Ok(false) };
+    let Some(t) = v.slot else { return Ok(false) };
     let n = g.st.slot(t.p as usize, t.s).lasting_prevents.len();
     for i in 0..n {
         let l = g.st.slot(t.p as usize, t.s).lasting_prevents.as_slice()[i];
-        if l.pending || !l.spec.from.prevent_kinds().has(kind) {
+        if l.pending || !ranges(&l.spec.from, v.kind) {
             continue;
         }
         if l.spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &l.spec.protects)? {
@@ -2191,12 +2144,11 @@ pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
 /// event's spot, and the card is in place for its origin and not blocked there.
 fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool> {
     let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
-    let Some(kind) = v.kind.effect_kind() else { return Ok(false) };
     for ps in passives {
         let Modifier::Prevent(p) = &ps.modifier else { continue };
         // The kinds it ranges over first (a mask test): "prevent all effects of attacks" names no kind and never
         // prevents Damage (APR C-17).
-        if p.from.is_never() || !p.from.prevent_kinds().has(kind) {
+        if p.from.is_never() || !ranges(&p.from, v.kind) {
             continue;
         }
         if !p.from.eval(g, me, v)? {
@@ -3004,13 +2956,6 @@ fn guard_ok_m(g: &mut Game, me: CardId, origin: RuleSource, owner: usize, guard:
 }
 
 /// A Benched Pokémon whose counters come from the opponent's Pokémon (Battle Cage).
-fn bench_target_prevented(g: &mut Game, me: CardId, source_owner: usize, t: SlotRef) -> bool {
-    let owner = t.p as usize;
-    if source_owner != 1 - owner || t.s == g.st.players[owner].active {
-        return false;
-    }
-    !is_stadium_effect_blocked(g, owner, t, me)
-}
 
 fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchSizeSpec) -> R {
     let Effect::CheckTableState { bench_sizes } = *g.e(e) else { return Ok(()) };
@@ -3857,7 +3802,9 @@ mod prevent_marker_tests {
         }
     }
 
-    /// Every `Prevent` a card declares over events names only kinds whose routine asks the reader.
+    /// Every `Prevent` a card declares is consulted somewhere, and the kinds it names explicitly (beyond "every effect",
+    /// which a cause-only declaration ranges over by design) are kinds whose routine asks the reader or a B6-OLD probe
+    /// stands for.
     #[test]
     fn declared_preventions_are_consulted() {
         let mut consulted = KindMask::EMPTY;
@@ -3866,6 +3813,12 @@ mod prevent_marker_tests {
                 consulted = consulted.or(crate::effects::mask(&[x]));
             }
         }
+        for (_, ek) in B6OLD_PROBES.iter() {
+            if let Some(x) = ek.effect_kind() {
+                consulted = consulted.or(crate::effects::mask(&[x]));
+            }
+        }
+        let effects = crate::spec::event::EFFECT_EVENT_KINDS;
         let mut n = 0;
         for s in crate::cards::registry::SPECS.iter() {
             for p in s.passives {
@@ -3874,17 +3827,31 @@ mod prevent_marker_tests {
                         continue;
                     }
                     n += 1;
-                    let kinds = pr.from.effect_kinds();
-                    assert!(kinds != KindMask::EMPTY, "{}: a prevention over no event kind", s.class);
-                    let outside = KindMask([kinds.0[0] & !consulted.0[0], kinds.0[1] & !consulted.0[1], kinds.0[2] & !consulted.0[2], kinds.0[3] & !consulted.0[3]]);
+                    assert!(prevent_kinds(pr) != KindMask::EMPTY, "{}: a prevention no routine consults", s.class);
+                    let kinds = pr.from.prevent_kinds();
+                    let explicit = KindMask([kinds.0[0] & !effects.0[0], kinds.0[1] & !effects.0[1], kinds.0[2] & !effects.0[2], kinds.0[3] & !effects.0[3]]);
+                    let named_effects = if and(kinds, effects) == effects { KindMask::EMPTY } else { kinds };
+                    let named = explicit.or(named_effects);
+                    let outside = KindMask([named.0[0] & !consulted.0[0], named.0[1] & !consulted.0[1], named.0[2] & !consulted.0[2], named.0[3] & !consulted.0[3]]);
                     assert_eq!(outside, KindMask::EMPTY, "{}: a prevention over a kind whose routine doesn't ask event_prevented", s.class);
                 }
             }
         }
-        // Batch 4: Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal; batch 5 (over
-        // ChangeActive): Mist Energy, Rocky Fighting Energy, Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca,
-        // Acerola's Mischief, Antique Cover Fossil, and the four Hide 'n' Sneak Pokémon.
-        assert_eq!(n, 20);
+        // Batch 4: Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal; batch 6 (one
+        // declaration over the cause each, the batch 5 ChangeActive ones merged into it): Mist Energy, Rocky Fighting Energy,
+        // Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca, Acerola's Mischief, Antique Cover Fossil, the
+        // four Hide 'n' Sneak Pokémon, Battle Cage.
+        assert_eq!(n, 21);
+    }
+
+    /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
+    #[test]
+    fn effects_declarations_and_damage() {
+        assert!(!ranges(&EFFECTS_OF_OPP_ATTACKS, E::Damage));
+        assert!(ranges(&EFFECTS_OF_OPP_ATTACKS, E::GainCondition) && ranges(&EFFECTS_OF_OPP_ATTACKS, E::PlaceCounters) && ranges(&EFFECTS_OF_OPP_ATTACKS, E::Discard));
+        let both = EventPred::All(&[DAMAGE_OR_EFFECTS, EFFECTS_OF_OPP_ATTACKS]);
+        assert!(ranges(&both, E::Damage) && ranges(&both, E::ChangeActive) && ranges(&both, E::Discard));
+        assert!(!ranges(&EventPred::Kind(E::Damage), E::Discard));
     }
 
     /// The preventions that make an affected Pokémon recover when they come into force (id289): the cause-free ones

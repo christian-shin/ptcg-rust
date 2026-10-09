@@ -28,17 +28,16 @@ pub static SPEC: CardSpec = CardSpec {
         ],
     }),
     passives: &[
-        // An opponent's attack switching the chosen Pokémon, by the opponent's Pokémon ex in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::TrainerEffect, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::MarkerFromThis(MISCHIEF), EventPred::All(&[EventPred::Kind(EventKind::ChangeActive), EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Card(Pred::Tag(crate::types::tag::POKEMON_EX_LOWER))]))]))) },Passive {
-        origin: RuleSource::TrainerEffect,
-        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec {
-            subject: SlotPred::MarkerFromThis(MISCHIEF),
-            attacker: SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER),
-            needs_source_pokemon: false,
-            damage_too: true,
-            ..PreventAttackEffectsSpec::DEFAULT
-        }),
-    }],
+        // Prevent all damage from and effects of attacks from your opponent's Pokémon ex done to the chosen Pokémon (every
+        // event they cause, the switches included: APR C-04 / C-05, id2025, id2155).
+        Passive {
+            origin: RuleSource::TrainerEffect,
+            modifier: Modifier::Prevent(PreventSpec::on(
+                SlotPred::MarkerFromThis(MISCHIEF),
+                EventPred::All(&[DAMAGE_OR_EFFECTS, EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Card(Pred::Tag(crate::types::tag::POKEMON_EX_LOWER))]))]),
+            )),
+        },
+    ],
     // The markers end with the opponent's next turn.
     triggers: &[Trigger {
         origin: RuleSource::TrainerEffect,

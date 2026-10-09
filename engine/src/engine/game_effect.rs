@@ -69,8 +69,6 @@ fn clear_prevent_next_turn(slot: &mut Slot) {
     slot.no_weakness_next_turn_pending = false;
     slot.prevent_damage_next_turn = false;
     slot.prevent_damage_next_turn_pending = false;
-    slot.prevent_effects_of_attacks_next_turn = false;
-    slot.prevent_effects_of_attacks_next_turn_pending = false;
     slot.prevent_damage_filter = Default::default();
     slot.prevent_damage_filter_pending = Default::default();
     slot.discard_attacker_energy_if_ko_next_turn = false;
@@ -397,21 +395,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 crate::bail!("BLOCKED_BY_EFFECT");
             }
             g.st.players[p as usize].stadium_used_turn = g.st.turn;
-            Ok(())
-        }
-        Effect::PlaceDamageCounters { target, damage, .. } => {
-            if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
-                crate::bail!("ILLEGAL_ACTION");
-            }
-            g.st.players[target.p as usize].slots[target.s as usize].damage += damage.max(0);
-            Ok(())
-        }
-        // B4-OLD: the Ability probe produces one GainCondition per condition. (It also set the Poison, Burn,
-        // Confusion and Sleep values to their defaults, which are the only values any path writes.)
-        Effect::AddSpecialConditionsPower { target, conditions, cause, .. } => {
-            for &c in conditions.iter() {
-                crate::engine::condition::gain(g, target, SpecialCondition::from_u8(c), cause)?;
-            }
             Ok(())
         }
         Effect::MoveCards { .. } => move_cards(g, id),

@@ -65,8 +65,10 @@ pub struct OnDamagedByAttackSpec {
 impl OnDamagedByAttackSpec {
     pub const DEFAULT: OnDamagedByAttackSpec = OnDamagedByAttackSpec { as_attacker: false, removes_attacker_energy: false, attacker_required: true };
 }
-/// Pokémon Checkup (between turns), for every copy of the card in any zone; the program's player is the
-/// player being checked.
+/// Pokémon Checkup (between turns); the program's player is the player being checked. An Ability fires for each
+/// Pokémon in play that has it, in its owner's part of the Checkup, while it works (Froslass's Freezing Shroud: each
+/// Froslass applies it separately, id2302); a card rule or a Trainer's effect fires for every copy of the card in any
+/// zone (it clears its own markers).
 pub struct OnCheckupSpec {}
 /// This card is discarded by an effect of an attack of the Pokémon it is attached to (that
 /// player's Active Pokémon).
@@ -202,7 +204,16 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
         }
         Event::Custom(c) => (c.fires)(g, me, e).map(|p| (p, None)),
         Event::OnCheckup(_) => match *g.e(e) {
-            Effect::BetweenTurns { p, .. } if g.st.phase == crate::types::GamePhase::BetweenTurns => Some((p as usize, None)),
+            Effect::BetweenTurns { p, .. } if g.st.phase == crate::types::GamePhase::BetweenTurns => {
+                let p = p as usize;
+                if t.origin == RuleSource::Ability {
+                    let at = super::passive::locate(g, me, t.origin)?;
+                    if at.owner != p || super::passive::blocked(g, me, t.origin, at, None) {
+                        return None;
+                    }
+                }
+                Some((p, None))
+            }
             _ => None,
         },
         Event::OnAfterAttackTriggers(_) => match *g.e(e) {

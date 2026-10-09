@@ -1191,6 +1191,12 @@ impl Game {
 
         // Propagate to cards.
         let kind = self.e(id).kind();
+        // B6-OLD: an attack-effect probe a lasting prevention on its target answers ("during your opponent's next turn,
+        // prevent all effects of attacks done to this Pokémon"; `passive::B6OLD_PROBES`); the in-play preventions answer it
+        // on its dispatch.
+        if crate::spec::passive::B6OLD_PROBE_MASK.has(kind) && crate::spec::passive::probe_lasting_prevented(self, id)? {
+            self.set_prevent(id, true);
+        }
         let class = prop_class(self.e(id));
         // The batch 4 / 5 events have no dispatch handler: their declarations are read through the index.
         let order = if self.kinds_present.has(kind) && !crate::spec::event::INDEX_ONLY_EVENT_KINDS.has(kind) { self.listeners(class, kind) } else { SVec::new() };
@@ -1214,6 +1220,9 @@ impl Game {
         }
         if kind == k::CHANGE_ACTIVE {
             crate::engine::change_active::reducer(self, id)?;
+        }
+        if kind == k::PLACE_COUNTERS {
+            crate::engine::damage::reducer(self, id)?;
         }
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
             crate::engine::enter::reducer(self, id)?;

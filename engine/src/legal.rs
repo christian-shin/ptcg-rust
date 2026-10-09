@@ -245,7 +245,8 @@ impl crate::engine::attach::AttachChecks for Ctx<'_> {
 /// plain-read gate. The retreat is a turn action, so one execution would refuse is illegal. Its cause is a rule, which
 /// no `Prevent` declaration over ChangeActive can match (each needs an attack or an Ability: unit test
 /// `change_active::tests::no_prevention_matches_a_rule_cause`), so the declared preventions are not read here (reading
-/// them would cost a scratch game per decision); the lasting "prevent all effects of attacks" is, as a plain read.
+/// them would cost a scratch game per decision); nor are the lasting ones an attack leaves on a Pokémon
+/// (`Slot::lasting_prevents`), which all name the opponent's attacks.
 impl crate::engine::change_active::ActiveChecks for Ctx<'_> {
     fn game(&self) -> &Game {
         self.g
@@ -254,9 +255,6 @@ impl crate::engine::change_active::ActiveChecks for Ctx<'_> {
         Ok(self.event_lock(v))
     }
     fn event_prevented(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<bool> {
-        if crate::derived::lasting_attack_effects_prevented(self.g, v) {
-            return Ok(true);
-        }
         debug_assert!(matches!(v.cause.kind, crate::cause::CauseKind::Rule { .. }), "legality checks the retreat only");
         Ok(false)
     }

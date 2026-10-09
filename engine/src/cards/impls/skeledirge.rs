@@ -18,11 +18,10 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Skeledirge@SSP",
     // Unaware: prevent all effects of attacks used by the opponent's Pokémon done to this Pokémon.
     passives: &[
-        // An opponent's attack switching this Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },Passive {
-        origin: RuleSource::Ability,
-        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), ..PreventAttackEffectsSpec::DEFAULT }),
-    }],
+        // Every event the opponent's attacks cause to this Pokémon, the switches included (APR C-04 / C-05, id2025,
+        // id2155); damage is not an effect.
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS)) },
+    ],
     attacks: &[AttackSpec {
         index: 0,
         steps: &[Step::before_damage(damage_is(Num::Add(&Num::Lit(60), &Num::Mul(&Num::Add(&Num::BenchCount(Who::Me), &Num::BenchCount(Who::Opp)), &Num::Lit(20)))))],

@@ -39,8 +39,7 @@ pub static SPEC: CardSpec = CardSpec {
                     Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
                     Step::new(Op::PlaceCounters(PlaceCountersSpec {
                         target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
-                        counters: Num::Lit(6),
-                        cause: CounterCause::Effect,
+                        counters: Num::Lit(6)
                     })),
                     Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "MORTAL_SHURIKEN_MARKER", source: RuleSource::Ability })),
                 ],

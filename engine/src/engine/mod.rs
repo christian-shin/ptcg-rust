@@ -4,6 +4,7 @@
 pub mod attach;
 pub mod change_active;
 pub mod condition;
+pub mod damage;
 pub mod attack;
 pub mod check;
 pub mod enter;

@@ -28,8 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         steps: &[Step::after_damage(Op::PlaceCounters(PlaceCountersSpec {
             target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
-            counters: Num::Lit(5),
-            cause: CounterCause::Attack,
+            counters: Num::Lit(5)
         }))],
     }],
     ..CardSpec::NONE

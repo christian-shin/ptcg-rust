@@ -20,14 +20,9 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsArticuno",
     // Repelling Veil: prevent all effects of the opponent's attacks done to your Basic Team Rocket's Pokémon.
     passives: &[
-        // An opponent's attack switching your Basic Team Rocket's Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::OnMySide, SlotPred::Top(Pred::All(&[Pred::Basic, Pred::Tag(tag::TEAM_ROCKET)]))]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },Passive {
-        origin: RuleSource::Ability,
-        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec {
-            subject: SlotPred::All(&[SlotPred::OnMySide, SlotPred::Top(Pred::All(&[Pred::Basic, Pred::Tag(tag::TEAM_ROCKET)]))]),
-            ..PreventAttackEffectsSpec::DEFAULT
-        }),
-    }],
+        // Every event the opponent's attacks cause to them, the switches included (APR C-04 / C-05, id2025, id2155).
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::OnMySide, SlotPred::Top(Pred::All(&[Pred::Basic, Pred::Tag(tag::TEAM_ROCKET)]))]), EFFECTS_OF_OPP_ATTACKS)) },
+    ],
     attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(more_damage_if(60, Cond::Slot(MY_ACTIVE, SlotPred::HasEnergyNamed("Team Rocket's Energy"))))] }],
     ..CardSpec::NONE
 };

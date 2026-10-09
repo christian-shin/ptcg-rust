@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::If(IfSpec {
             // 4 damage counters on the Attacking Pokémon, if the holder is a [D] Pokémon.
             cond: Cond::Slot(SlotExpr::This, SlotPred::TypeIs(crate::types::ct::DARK)),
-            yes: &[Step::new(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(40), target_damage_mul: 0, calc: DamageCalc::Direct, when: Cond::True }))],
+            yes: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(4) }))],
             no: &[],
         }))],
     }],

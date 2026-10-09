@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[Trigger {
         origin: RuleSource::Energy,
         event: Event::OnDamagedByAttack(OnDamagedByAttackSpec { as_attacker: true, removes_attacker_energy: false, attacker_required: true }),
-        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2), cause: CounterCause::Attack }))],
+        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(2) }))],
     }],
     ..CardSpec::NONE
 };

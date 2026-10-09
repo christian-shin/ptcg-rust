@@ -10,8 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         steps: &[Step::after_damage(Op::PlaceCounters(PlaceCountersSpec {
             target: SlotTarget::Slot(OPP_ACTIVE),
-            counters: Num::Mul(&Num::Lit(2), &Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand))),
-            cause: CounterCause::Attack,
+            counters: Num::Mul(&Num::Lit(2), &Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)))
         }))],
     }],
     // Psychic Draw: when you play this Pokémon from your hand to evolve, you may draw 3 cards.

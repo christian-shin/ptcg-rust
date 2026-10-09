@@ -376,6 +376,8 @@ mod tests {
             }
         }
         assert!(n >= 13, "the ChangeActive preventions are read ({n})");
+        // The ones an attack leaves on a Pokémon too (legality doesn't read `Slot::lasting_prevents` for the retreat).
+        assert!(needs_non_rule(&crate::spec::passive::LASTING_PREVENT_EFFECTS.from), "a lasting Prevent a rule's cause could match");
     }
 
     /// A promotion fills the empty Active Spot; nothing leaves.

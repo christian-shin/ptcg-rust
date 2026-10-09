@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::PerTurn("TORRENTIAL_HEART_MARKER"),
         needs: &[],
         steps: &[
-            Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::This), counters: Num::Lit(5), cause: CounterCause::Effect })),
+            Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::This), counters: Num::Lit(5) })),
         ],
     }],
     passives: &[

@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             // Corrosive Winds: 2 damage counters on each of your opponent's Pokémon that has any damage counters.
-            steps: &[Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), what: EachWhat::Counters(CounterCause::Attack), amount: Num::Lit(2), only_damaged: true, ..EachSlotSpec::DEFAULT }))],
+            steps: &[Step::after_damage(Op::EachSlot(EachSlotSpec { among: SlotSel::Pokemon(Who::Opp), what: EachWhat::Counters, amount: Num::Lit(2), only_damaged: true, ..EachSlotSpec::DEFAULT }))],
         },
         AttackSpec {
             index: 1,

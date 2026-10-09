@@ -32,10 +32,9 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Discard), effect_of_attack: false }))],
     }],
     passives: &[
-        // An opponent's attack switching this Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },
-        // Protective Cover: prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon.
-        Passive { origin: RuleSource::Ability, modifier: Modifier::PreventAttackEffects(HIDE_N_SNEAK_ATTACKS) },
+        // Protective Cover: prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon (every event
+        // they cause, the switches included: APR C-04 / C-05, id2025, id2155).
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS)) },
         // It can't be affected by Special Conditions and can't retreat.
         Passive {
             origin: RuleSource::CardRule,

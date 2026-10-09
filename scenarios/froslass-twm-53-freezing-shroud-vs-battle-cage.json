@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Snorunt TWM 51", "4 Froslass TWM 53", "4 Antique Root Fossil SCR 130", "4 Poltchageist PBL 5", "2 Battle Cage PFL 85", "42 Water Energy MEE 3"],
+  ["4 Snorunt TWM 51", "4 Froslass TWM 53", "4 Antique Root Fossil SCR 130", "4 Poltchageist PBL 5", "2 Battle Cage PFL 85", "42 Water Energy MEE 3"]
+ ],
+ "me": {"reset": true, "active": ["Snorunt TWM 51", "Froslass TWM 53"], "active_energy": ["2 Water Energy MEE 3"], "bench": [{"card": "Antique Root Fossil SCR 130"}]},
+ "opp": {"reset": true, "active": "Antique Root Fossil SCR 130", "bench": [{"card": "Antique Root Fossil SCR 130"}], "stadium": "Battle Cage PFL 85"},
+ "answers": [{"a": "pass"}],
+ "expect": [
+  {"at": "next_turn", "who": "opp", "bench": 0, "card": "Antique Root Fossil SCR 130", "damage": 0, "cite": "official JP FAQ Battle Cage / Froslass (相手のベンチポケモンにはダメカンをのせることはできません: Battle Cage prevents the opponent's Freezing Shroud counters on Benched Pokémon)"},
+  {"at": "next_turn", "who": "me", "bench": 0, "card": "Antique Root Fossil SCR 130", "damage": 10, "cite": "official JP FAQ Battle Cage / Froslass (自分のベンチポケモンにダメカンをのせますか？ はい、のせます: the owner's own Benched Pokémon still get them)"},
+  {"at": "next_turn", "who": "opp", "slot": "active", "card": "Antique Root Fossil SCR 130", "damage": 10, "cite": "card text (Battle Cage protects Benched Pokémon only)"}
+ ]
+}

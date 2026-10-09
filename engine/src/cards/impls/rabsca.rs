@@ -10,15 +10,14 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::EnergyOn(SlotSel::One(OPP_ACTIVE), EnergyUnit::ProvidedUnits), &Num::Lit(30)), when: Cond::True }))],
     }],
     passives: &[
-        // An opponent's attack switching your Benched Pokémon in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::IsBench, SlotPred::OnMySide]), CHANGE_ACTIVE_BY_OPP_ATTACK)) },
+        // Spherical Shield: prevent all damage from and effects of the opponent's attacks done to your Benched Pokémon (every
+        // event they cause, the switches included: APR C-04 / C-05, id2025, id2155).
         Passive {
             origin: RuleSource::Ability,
-            modifier: Modifier::PreventDamage(PreventDamageSpec { subject: SlotPred::IsBench, side: Side::Owner, ..PreventDamageSpec::DEFAULT }),
-        },
-        Passive {
-            origin: RuleSource::Ability,
-            modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::IsBench, side: Side::Owner, needs_source_pokemon: false, ..PreventAttackEffectsSpec::DEFAULT }),
+            modifier: Modifier::Prevent(PreventSpec::on(
+                SlotPred::All(&[SlotPred::IsBench, SlotPred::OnMySide]),
+                EventPred::All(&[DAMAGE_OR_EFFECTS, EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack)]))]),
+            )),
         },
     ],
     ..CardSpec::NONE

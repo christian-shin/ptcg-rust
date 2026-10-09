@@ -16,8 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[
             Step::new(Op::PlaceCounters(PlaceCountersSpec {
                 target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::PokemonBenchFirst(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
-                counters: Num::Lit(13),
-                cause: CounterCause::Effect,
+                counters: Num::Lit(13)
             })),
             Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, mode: KnockOutMode::Direct, when: Cond::True })),
         ],

@@ -109,9 +109,6 @@ pub enum DamageCalc {
     Deal,
     /// A PutDamageEffect (no Weakness or Resistance).
     Put,
-    // --- S3 agent 3 appends ---
-    /// The damage is written on the Pokémon directly (no effect, no Knock Out check).
-    Direct,
 }
 
 /// Damage the attack does to a Pokémon other than the Defending one (or to
@@ -125,21 +122,11 @@ pub struct DamageSlotSpec {
     pub when: Cond,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum CounterCause {
-    /// PutCountersEffect, built on the attack.
-    Attack,
-    /// PlaceDamageCountersEffect (Ability or card effect).
-    Effect,
-    /// Written on the slot without an effect (nothing can prevent it); the slot can still be
-    /// empty (a Pokémon about to be put there).
-    Direct,
-}
-
+/// "Put N damage counters on ...": the PlaceCounters event (`engine::damage::place`), by the frame's cause (an attack's
+/// effect, an Ability, a Trainer, a Stadium, a Tool, an Energy).
 pub struct PlaceCountersSpec {
     pub target: SlotTarget,
     pub counters: Num,
-    pub cause: CounterCause,
 }
 /// Put up to `total_hp` damage, in counters, on the chooser's Active Pokémon
 /// (the allocation prompt lists every Pokémon in play, each capped at its HP
@@ -458,8 +445,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                         return Ok(Flow::Next);
                     }
                     if let Some(s) = slot_of(g, me, f, *e) {
-                        let direct = matches!(op, Op::PlaceCounters(PlaceCountersSpec { cause: CounterCause::Direct, .. }));
-                        if occupied(g, s) || direct {
+                        if occupied(g, s) {
                             act(g, me, f, op, s)?;
                         }
                     }
@@ -854,32 +840,9 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
         }
         Op::PlaceCounters(c) => {
             let n = num_m(g, me, f, &c.counters)? * 10;
-            counters_by(g, me, f, c.cause, n, slot)?;
+            crate::engine::damage::place(g, slot, n, f.cause)?;
         }
         _ => {}
-    }
-    Ok(())
-}
-
-/// `n` damage (in HP) as counters on the Pokémon the way `cause` says.
-fn counters_by(g: &mut Game, me: CardId, f: &Frame, cause: CounterCause, n: i32, slot: SlotRef) -> R {
-    match cause {
-        CounterCause::Attack => crate::cause::compare(g, "CounterCause::Attack", &f.cause, crate::cause::Old::Attack(None)),
-        CounterCause::Effect => crate::cause::compare(g, "CounterCause::Effect", &f.cause, crate::cause::Old::NotAttack),
-        CounterCause::Direct => crate::cause::unseen(g, "CounterCause::Direct counters", &f.cause),
-    }
-    match cause {
-        CounterCause::Effect => {
-            g.run_fx_unit(Effect::PlaceDamageCounters { p: f.p, target: slot, damage: n, source: me, cause: f.cause })?;
-        }
-        CounterCause::Direct => {
-            g.st.players[slot.p as usize].slots[slot.s as usize].damage += n;
-        }
-        CounterCause::Attack => {
-            if let Some(b) = atk_base(g, f, slot) {
-                g.run_fx_unit(Effect::PutCounters { b, damage: n })?;
-            }
-        }
     }
     Ok(())
 }
@@ -955,22 +918,8 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
 
 /// The Pokémon in `slot` is now affected by `cs`, by the frame's cause: one GainCondition each
 /// (`engine::condition::gain`), which the preventions over it stop whatever the cause (Slowpoke's Dopey Face vs
-/// Lisia's Appeal). B4-OLD: an attack's goes through the attack-effect probe (`Effect::AddSpecialConditions`,
-/// read by the attack-effect preventions) and an Ability's through the Ability probe (`AddSpecialConditionsPower`,
-/// read by Hide 'n' Sneak); their reducers produce the events.
-fn inflict_on(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialCondition]) -> R {
-    let mut v = SVec::new();
-    for x in cs {
-        v.push(*x as u8);
-    }
-    if f.cause.is_attack() {
-        if let Some(b) = atk_base(g, f, slot) {
-            return g.run_fx_unit(Effect::AddSpecialConditions { b, conditions: v });
-        }
-    }
-    if f.cause.is_ability() {
-        return g.run_fx_unit(Effect::AddSpecialConditionsPower { p: slot.p, source: me, target: slot, conditions: v, cause: f.cause });
-    }
+/// Lisia's Appeal; "prevent all effects of attacks" against an attack's).
+fn inflict_on(g: &mut Game, _me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialCondition]) -> R {
     for x in cs {
         crate::engine::condition::gain(g, slot, *x, f.cause)?;
     }
@@ -1088,7 +1037,9 @@ fn spread_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SpreadCountersSpec) 
 
 fn spread_resume(g: &mut Game, f: &Frame, s: &SpreadCountersSpec, first: Res) -> R {
     let p = f.who(s.chooser);
-    let Some((pl, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    if attack_data(g, f.eff).is_none() {
+        return Ok(());
+    }
     let map: SVec<(CardTarget, i32), 16> = match first {
         Res::DamageMap(m) => m,
         _ => SVec::new(),
@@ -1098,8 +1049,7 @@ fn spread_resume(g: &mut Game, f: &Frame, s: &SpreadCountersSpec, first: Res) ->
     }
     for (t, damage) in map.iter() {
         let target = get_target(&g.st, p, *t)?;
-        let b = AtkBase { attack_effect: f.eff, player: pl, opponent: opp, attack, source, target, cause: f.cause };
-        g.run_fx_unit(Effect::PutCounters { b, damage: *damage })?;
+        crate::engine::damage::place(g, target, *damage, f.cause)?;
         if let Effect::Attack { damage: d, .. } = g.e_mut(f.eff) {
             *d = *damage * s.damage_per_hp;
         }
@@ -1132,20 +1082,22 @@ fn move_any_exec(g: &mut Game, me: CardId, f: &mut Frame, who: Who) -> R<Flow> {
 fn move_any_resume(g: &mut Game, f: &Frame, _who: Who, first: Res) -> R {
     let p = f.p as usize;
     let Res::DamageTransfers(transfers) = first else { return Ok(()) };
-    let Some((_, opp, attack, asource)) = attack_data(g, f.eff) else { return Ok(()) };
+    if attack_data(g, f.eff).is_none() {
+        return Ok(());
+    }
     for (from, to) in damage_transfers(transfers.as_slice()) {
         let source = get_target(&g.st, p, from)?;
         let target = get_target(&g.st, p, to)?;
         if g.st.slot(source.p as usize, source.s).damage >= 10 {
-            let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: asource, target: source, cause: f.cause };
-            let (_, from_prevented) = g.run_fx(Effect::PutCounters { b, damage: 0 })?;
-            if from_prevented {
+            // B6-OLD -> C3: the MoveCounters event's preventions per end (a protected source keeps its counter; a
+            // protected destination makes it vanish: id390, id2257).
+            let from_v = crate::engine::damage::move_view(g, source, crate::spec::event::MoveEnd::From, 10, f.cause);
+            if crate::derived::event_prevented(g, &from_v)? {
                 continue;
             }
             g.st.players[source.p as usize].slots[source.s as usize].damage -= 10;
-            let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source: asource, target, cause: f.cause };
-            let (_, to_prevented) = g.run_fx(Effect::PutCounters { b, damage: 0 })?;
-            if !to_prevented {
+            let to_v = crate::engine::damage::move_view(g, target, crate::spec::event::MoveEnd::To, 10, f.cause);
+            if !crate::derived::event_prevented(g, &to_v)? {
                 g.st.players[target.p as usize].slots[target.s as usize].damage += 10;
             }
         }
@@ -1305,7 +1257,9 @@ fn mine_to_opp_resume(g: &mut Game, me: CardId, f: &Frame, max: u8, first: Res) 
                 continue;
             }
             g.st.players[source.p as usize].slots[source.s as usize].damage -= damage_to_move;
-            g.run_fx_unit(Effect::PlaceDamageCounters { p: p as u8, target, damage: damage_to_move, source: me, cause: f.cause })?;
+            let _ = me;
+            // B6-OLD -> C3: the counters arrive as a placement its preventions can stop (they vanish then).
+            crate::engine::damage::place(g, target, damage_to_move, f.cause)?;
             total += damage_to_move;
         }
         if total >= limit {
@@ -1406,9 +1360,7 @@ fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items:
         match s.apply {
             SpreadApply::Damage => deal_or_put_damage(g, f.eff, damage, slot)?,
             SpreadApply::Counters => {
-                if let Some(b) = atk_base(g, f, slot) {
-                    g.run_fx_unit(Effect::PutCounters { b, damage })?;
-                }
+                crate::engine::damage::place(g, slot, damage, f.cause)?;
             }
         }
     }
@@ -1430,7 +1382,6 @@ fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -
     match calc {
         DamageCalc::Auto => deal_or_put_damage(g, f.eff, n, slot)?,
         DamageCalc::Put => put_damage(g, f.eff, n, slot)?,
-        DamageCalc::Direct => g.st.players[slot.p as usize].slots[slot.s as usize].damage += n,
         DamageCalc::Deal => {
             if let Some(b) = atk_base(g, f, slot) {
                 g.run_fx_unit(Effect::DealDamage { b, damage: n })?;
@@ -1598,8 +1549,8 @@ pub struct ChooseN {
 pub enum EachWhat {
     /// Damage to each (by `calc`).
     Damage(DamageCalc),
-    /// Damage counters on each.
-    Counters(CounterCause),
+    /// Damage counters on each (PlaceCounters, by the frame's cause).
+    Counters,
     /// Each Pokémon and all cards attached to it are shuffled into its owner's deck (an
     /// effect of the attack, which effect protection stops).
     ShuffleIntoDeck,
@@ -1705,9 +1656,9 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
                 let n = num_m(g, me, f, &e.amount)? + e.per_damage * target_damage;
                 damage_by(g, f, calc, n, slot)?;
             }
-            EachWhat::Counters(cause) => {
+            EachWhat::Counters => {
                 let n = num_m(g, me, f, &e.amount)? * 10 + e.per_damage * target_damage;
-                counters_by(g, me, f, cause, n, slot)?;
+                crate::engine::damage::place(g, slot, n, f.cause)?;
             }
             EachWhat::ShuffleIntoDeck => {
                 let Some((p, opp, attack, _)) = attack_data(g, f.eff) else { continue };

@@ -6,11 +6,10 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "MistEnergy",
     passives: &[
-        // An opponent's attack switching the Pokémon this card is attached to in or out (ChangeActive: APR C-04 / C-05, id2025, id2155).
-        Passive { origin: RuleSource::Energy, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, CHANGE_ACTIVE_BY_OPP_ATTACK)) },Passive {
-        origin: RuleSource::Energy,
-        modifier: Modifier::PreventAttackEffects(PreventAttackEffectsSpec { subject: SlotPred::Holder, abilities: false, probe_for_attacker: true, needs_source_pokemon: true, ..PreventAttackEffectsSpec::DEFAULT }),
-    }],
+        // Prevent all effects of attacks used by your opponent's Pokémon done to the Pokémon this card is attached to (every
+        // event they cause, the switches included: APR C-04 / C-05, id2025, id2155; damage is not an effect).
+        Passive { origin: RuleSource::Energy, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, EFFECTS_OF_OPP_ATTACKS)) },
+    ],
     ..CardSpec::NONE
 };
 

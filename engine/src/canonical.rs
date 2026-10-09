@@ -83,11 +83,10 @@ impl Game {
         if s.prevent_damage_next_turn_pending {
             o.insert("preventDamageNextTurnPending".into(), prevent_filter_json(&s.prevent_damage_filter_pending));
         }
-        if s.prevent_effects_of_attacks_next_turn {
-            o.insert("preventEffectsOfAttacksNextTurn".into(), json!({}));
-        }
-        if s.prevent_effects_of_attacks_next_turn_pending {
-            o.insert("preventEffectsOfAttacksNextTurnPending".into(), json!({}));
+        // The preventions an attack left on the Pokémon (events batch 6), by the card that left them.
+        if !s.lasting_prevents.is_empty() {
+            let v: Vec<Value> = s.lasting_prevents.iter().map(|l| json!({"source": self.card_ref(l.source), "pending": l.pending})).collect();
+            o.insert("lastingPrevents".into(), Value::Array(v));
         }
         nd!(no_weakness_next_turn, "noWeaknessNextTurn");
         nd!(no_weakness_next_turn_pending, "noWeaknessNextTurnPending");
