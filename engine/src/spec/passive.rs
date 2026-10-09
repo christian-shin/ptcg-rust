@@ -815,10 +815,13 @@ pub(crate) struct Located {
 }
 
 fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> Option<SlotRef> {
+    // The Pokémon in play, Active first (`Player::in_play`), without building the list.
     for p in 0..2 {
-        for s in g.st.players[p].in_play().iter() {
-            if f(g.st.slot(p, *s), p, *s) {
-                return Some(SlotRef::new(p, *s));
+        let pl = &g.st.players[p];
+        for &s in std::iter::once(&pl.active).chain(pl.bench.iter()) {
+            let slot = &pl.slots[s as usize];
+            if !slot.cards.is_empty() && f(slot, p, s) {
+                return Some(SlotRef::new(p, s));
             }
         }
     }

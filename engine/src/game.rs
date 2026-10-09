@@ -296,24 +296,40 @@ fn prop_class(e: &Effect) -> u16 {
 }
 
 /// Slots of the propagation-order memo, and the most cards one entry holds (longer orders aren't kept).
-const PROP_SLOTS: usize = 64;
-const PROP_CARDS: usize = 24;
+const PROP_SLOTS: usize = 32;
+const PROP_CARDS: usize = 16;
 
 /// `propagation_order` results by (effect kind, rank class), good while `gen` is [`crate::list::zone_gen`].
 /// The order depends on the card layout only (zone contents and order, Active/Bench slots), and every
 /// change of that bumps the generation.
+///
+/// Also kept: for an effect kind, the set of cards of the game that have a handler for it (a bit per card
+/// id). That depends on the cards of the game only (their definitions never change), so it outlives a
+/// layout change and the scan for the order tests a bit instead of looking each card up.
 #[derive(Clone, Copy)]
 pub struct PropCache {
     gen: u64,
     tags: [u16; PROP_SLOTS],
     lens: [u8; PROP_SLOTS],
     items: [[CardId; PROP_CARDS]; PROP_SLOTS],
+    /// `n_cards` the handler sets were made for.
+    cand_cards: u8,
+    cand_tags: [u16; PROP_SLOTS],
+    cands: [u128; PROP_SLOTS],
 }
 
 impl PropCache {
     const EMPTY_TAG: u16 = u16::MAX;
     fn new() -> PropCache {
-        PropCache { gen: 0, tags: [Self::EMPTY_TAG; PROP_SLOTS], lens: [0; PROP_SLOTS], items: [[NO_CARD; PROP_CARDS]; PROP_SLOTS] }
+        PropCache {
+            gen: 0,
+            tags: [Self::EMPTY_TAG; PROP_SLOTS],
+            lens: [0; PROP_SLOTS],
+            items: [[NO_CARD; PROP_CARDS]; PROP_SLOTS],
+            cand_cards: 0,
+            cand_tags: [Self::EMPTY_TAG; PROP_SLOTS],
+            cands: [0; PROP_SLOTS],
+        }
     }
 }
 
@@ -404,11 +420,14 @@ impl Game {
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
             f!((*d).lock_syncing).write(*lock_syncing);
-            // The memo comes along while it is good; a stale one starts over.
+            // The memo comes along while it is good; a stale one starts over. The handler sets always do.
             if prop.gen == crate::list::zone_gen() {
                 f!((*d).prop).write(*prop);
             } else {
                 (*d).prop.gen = 0;
+                f!((*d).prop.cand_cards).write(prop.cand_cards);
+                f!((*d).prop.cand_tags).write(prop.cand_tags);
+                f!((*d).prop.cands).write(prop.cands);
             }
         }
     }
@@ -1081,12 +1100,17 @@ impl Game {
                 out.push(c);
             }
             if verify_cache() {
-                let fresh = self.propagation_order_fresh(class, kind);
+                let fresh = self.propagation_order_slow(class, kind);
                 assert_eq!(out.as_slice(), fresh.as_slice(), "stale propagation order for kind {} (class {})", kind, class);
             }
             return out;
         }
-        let out = self.propagation_order_fresh(class, kind);
+        let cands = self.handlers_of(kind);
+        let out = self.propagation_order_fresh(class, kind, cands);
+        if verify_cache() {
+            let slow = self.propagation_order_slow(class, kind);
+            assert_eq!(out.as_slice(), slow.as_slice(), "propagation order by handler set differs for kind {} (class {})", kind, class);
+        }
         if out.len() <= PROP_CARDS {
             self.prop.tags[slot] = tag;
             self.prop.lens[slot] = out.len() as u8;
@@ -1095,13 +1119,43 @@ impl Game {
         out
     }
 
-    fn propagation_order_fresh(&self, class: u16, kind: u32) -> SVec<CardId, 120> {
+    /// The cards of the game with a handler for `kind`, one bit per card id.
+    fn handlers_of(&mut self, kind: u32) -> u128 {
+        if self.prop.cand_cards != self.st.n_cards {
+            self.prop.cand_tags = [PropCache::EMPTY_TAG; PROP_SLOTS];
+            self.prop.cand_cards = self.st.n_cards;
+        }
+        let slot = kind as usize % PROP_SLOTS;
+        if self.prop.cand_tags[slot] != kind as u16 {
+            let mut set = 0u128;
+            for c in 0..self.st.n_cards {
+                if cards::impl_for(self.st.cards[c as usize].def).is_some_and(|imp| imp.mask.has(kind)) {
+                    set |= 1u128 << c;
+                }
+            }
+            self.prop.cand_tags[slot] = kind as u16;
+            self.prop.cands[slot] = set;
+        }
+        self.prop.cands[slot]
+    }
+
+    /// The propagation order the slow way: every card of every zone looked up (the check for the faster one).
+    fn propagation_order_slow(&mut self, class: u16, kind: u32) -> SVec<CardId, 120> {
+        let mut set = 0u128;
+        for c in 0..self.st.n_cards {
+            if cards::impl_for(self.st.cards[c as usize].def).is_some_and(|imp| imp.mask.has(kind)) {
+                set |= 1u128 << c;
+            }
+        }
+        self.propagation_order_fresh(class, kind, set)
+    }
+
+    fn propagation_order_fresh(&self, class: u16, kind: u32, handlers: u128) -> SVec<CardId, 120> {
+        let _ = kind;
         let mut cards: SVec<CardId, 120> = SVec::new();
         let add = |c: CardId, cards: &mut SVec<CardId, 120>| {
-            if let Some(imp) = cards::impl_for(self.st.cards[c as usize].def) {
-                if imp.mask.has(kind) {
-                    cards.push(c);
-                }
+            if (handlers >> c) & 1 != 0 {
+                cards.push(c);
             }
         };
         for p in 0..2 {

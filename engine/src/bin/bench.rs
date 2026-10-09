@@ -3,7 +3,7 @@
 //!
 //!   bench [spec.json] [--games N] [--seed S] [--threads T] [--sizes]
 //!
-//! `spec.json` is the fuzz deck spec (default `corpus/golden/current/spec.json`).
+//! `spec.json` is the fuzz deck spec (default `bench/spec.json`, a copy of the golden deck spec).
 //! Game i has seed S * 100,000 + i and the decks pair as in `fuzz`. Turn
 //! options come from the declared-checks fast path (`legal_actions`), prompt
 //! answers pick uniformly from the select interface's pick masks. Prints
@@ -162,7 +162,7 @@ fn run(decks: &[Vec<DefId>], seed0: u32, range: std::ops::Range<usize>) -> Tally
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    let spec_path = args.first().filter(|a| !a.starts_with("--")).cloned().unwrap_or_else(|| "corpus/golden/current/spec.json".into());
+    let spec_path = args.first().filter(|a| !a.starts_with("--")).cloned().unwrap_or_else(|| "bench/spec.json".into());
     let games: usize = arg(&args, "--games").map(|s| s.parse().expect("--games")).unwrap_or(300);
     let seed0: u32 = arg(&args, "--seed").map(|s| s.parse().expect("--seed")).unwrap_or(11);
     let max_threads: usize = arg(&args, "--threads").map(|s| s.parse().expect("--threads")).unwrap_or_else(|| std::thread::available_parallelism().map_or(4, |n| n.get()));
