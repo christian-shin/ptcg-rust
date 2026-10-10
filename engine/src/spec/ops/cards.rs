@@ -7,7 +7,7 @@
 //! Attack choices whose options exist before the damage are made at step D
 //! (`choice` / `resume_choice`) and recorded as card ids.
 
-use super::super::run::{Flow, Frame, CHOICE_NONE, CHOICE_YES, NONE};
+use super::super::run::{Flow, Frame, Outcome, CHOICE_NONE, CHOICE_YES, NONE};
 use super::board::encode;
 use super::super::*;
 use crate::effects::{Effect, SlotRef};
@@ -540,9 +540,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 DrawAmount::UntilHandSize(n) => num_m(g, me, f, n)? - hand_len_without(g, p, me),
                 DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32,
             };
-            if n > 0 {
-                crate::engine::cards_zone::draw(g, p, n as usize, f.cause)?;
-            }
+            f.outcome = if n > 0 { crate::engine::cards_zone::draw(g, p, n as usize, f.cause)? } else { Outcome::Impossible };
             Ok(Flow::Next)
         }
         Op::Discard(d) => verb(g, me, f, d.from, &d.cards, d.into, DeckOrder::AsIs, None, Dest::Discard),
@@ -563,18 +561,21 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 let id = g.player_id(f.who(r.to));
                 g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
             }
+            f.outcome = if cards.is_empty() { Outcome::Impossible } else { Outcome::Done };
             Ok(Flow::Next)
         }
         Op::Pick(p) => {
             if let Some(c) = f.recorded_choice(g, me) {
                 let cards: Vec<CardId> = c.items[..c.len as usize].to_vec();
                 set_reg(g, f, p.into, &cards);
+                f.outcome = Outcome::count(cards.len(), cards.len(), 0);
                 return Ok(Flow::Next);
             }
             if ask_pick(g, me, f, p, i32::MAX, p_msg(p, ""), 1, false) {
                 Ok(Flow::Suspend)
             } else {
                 set_reg(g, f, p.into, &[]);
+                f.outcome = Outcome::Impossible;
                 Ok(Flow::Next)
             }
         }
@@ -584,8 +585,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             // The Shuffle of a Search that was skipped because the deck is empty is skipped with it
             // (ruling 840: an empty deck can't be searched; rulings 361/362: the whole effect fails).
             if g.st.players[p].deck.is_empty() {
+                f.outcome = Outcome::Impossible;
                 return Ok(Flow::Next);
             }
+            f.outcome = Outcome::Done;
             if !s.wait {
                 shuffle_deck(g, p);
                 return Ok(Flow::Next);
@@ -605,6 +608,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if attach_prompt(g, me, f, a)? {
                 Ok(Flow::Suspend)
             } else {
+                f.outcome = Outcome::Impossible;
                 Ok(Flow::Next)
             }
         }
@@ -795,6 +799,7 @@ fn verb(g: &mut Game, me: CardId, f: &mut Frame, from: ZoneRef, sel: &CardSel, i
                 set_reg(g, f, r, &[]);
             }
         }
+        f.outcome = Outcome::Impossible;
         return Ok(Flow::Next);
     };
     if order == DeckOrder::Shuffled && !cards.is_empty() {
@@ -810,6 +815,7 @@ fn verb(g: &mut Game, me: CardId, f: &mut Frame, from: ZoneRef, sel: &CardSel, i
         set_reg(g, f, r, &cards);
     }
     if cards.is_empty() {
+        f.outcome = Outcome::Impossible;
         return Ok(Flow::Next);
     }
     if let Some(w) = reveal {
@@ -830,7 +836,7 @@ fn verb(g: &mut Game, me: CardId, f: &mut Frame, from: ZoneRef, sel: &CardSel, i
         Dest::Deck(p) => p,
         _ => crate::spec::event::DeckPosition::Bottom,
     };
-    move_cards_event(g, f, src, &cards, dst, position)?;
+    f.outcome = move_cards_event(g, f, src, &cards, dst, position)?;
     Ok(Flow::Next)
 }
 
@@ -852,6 +858,7 @@ fn order_prompt(g: &mut Game, me: CardId, f: &mut Frame, src: ListRef, cards: &[
         }
     };
     if g.lst(list).is_empty() {
+        f.outcome = Outcome::Impossible;
         return Ok(Flow::Next);
     }
     let id = g.player_id(f.who(w));
@@ -871,47 +878,50 @@ fn order_list(f: &Frame, from: ZoneRef, into: Option<u8>) -> Option<ListRef> {
 /// Attach the cards `sel` of `from` to the Pokémon `onto` names (an `Op::Attach` with a fixed target: "attach it to this
 /// Pokémon", "attach it to that Pokémon"; no prompt).
 fn attach_onto(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, onto: SlotExpr) -> R<Flow> {
+    f.outcome = Outcome::Impossible;
     let Some((src, cards)) = select(g, me, f, a.from, &a.cards) else { return Ok(Flow::Next) };
     if cards.is_empty() {
         return Ok(Flow::Next);
     }
     let Some(slot) = slot_of(g, me, f, onto) else { return Ok(Flow::Next) };
+    let before = attached_count(g, slot);
     attach_moved(g, f, src, slot, &cards, me)?;
+    let done = attached_count(g, slot).saturating_sub(before);
+    f.outcome = Outcome::count(cards.len(), done, cards.len() - done.min(cards.len()));
     Ok(Flow::Next)
 }
 
 /// The event that moves `cards` from `src` to the zone of `dst` (its owner's, APR C-01 / C-02: only the kind of `dst`
 /// counts): staged for a register (Look); a LeavePlay for cards attached to a Pokémon or the Stadium (user decision D1); a
 /// Discard, PutIntoHand or PutIntoDeck otherwise (`engine::cards_zone`).
-fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst: ListRef, position: crate::spec::event::DeckPosition) -> R {
+fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst: ListRef, position: crate::spec::event::DeckPosition) -> R<Outcome> {
     use crate::spec::event::RulesZone;
     if let ListRef::Temp(_) = dst {
         crate::engine::cards_zone::stage(g, src, cards, dst);
-        return Ok(());
+        return Ok(Outcome::count(cards.len(), cards.len(), 0));
     }
     let zone = crate::engine::knockout::zone_of(dst);
-    match src {
-        ListRef::Slot(p, s) => {
-            crate::engine::knockout::leave_play_cards(g, SlotRef { p, s }, cards, zone, f.cause, None)?;
-        }
+    Ok(match src {
+        ListRef::Slot(p, s) => crate::engine::knockout::leave_play_cards(g, SlotRef { p, s }, cards, zone, f.cause, None)?,
         ListRef::Stadium(_) => {
+            let mut done = 0;
             for &c in cards {
-                crate::engine::knockout::leave_play_stadium(g, c, zone, f.cause)?;
+                done += crate::engine::knockout::leave_play_stadium(g, c, zone, f.cause)? as usize;
             }
+            Outcome::count(cards.len(), done, cards.len() - done)
         }
         _ => match zone {
-            RulesZone::Hand => {
-                crate::engine::cards_zone::put_into_hand(g, src, cards, f.cause)?;
-            }
-            RulesZone::Deck => {
-                crate::engine::cards_zone::put_into_deck(g, src, cards, position, f.cause)?;
-            }
-            _ => {
-                crate::engine::cards_zone::discard(g, src, cards, f.cause)?;
-            }
+            RulesZone::Hand => crate::engine::cards_zone::put_into_hand(g, src, cards, f.cause)?,
+            RulesZone::Deck => crate::engine::cards_zone::put_into_deck(g, src, cards, position, f.cause)?,
+            _ => crate::engine::cards_zone::discard(g, src, cards, f.cause)?,
         },
-    }
-    Ok(())
+    })
+}
+
+/// The cards attached to the Pokémon in `slot` (an Attach's count of what it attached).
+fn attached_count(g: &Game, slot: SlotRef) -> usize {
+    let sl = g.st.slot(slot.p as usize, slot.s);
+    sl.cards.len() + sl.energies.len() + sl.tools.len()
 }
 
 /// Cards put onto a Pokémon: each Energy or Tool card is attached (`engine::attach::attach`: an Attach event from its
@@ -1013,12 +1023,14 @@ fn search_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec) -> R<Flo
     if let Some(c) = f.recorded_choice(g, me) {
         let cards: Vec<CardId> = c.items[..c.len as usize].to_vec();
         finish_search(g, me, f, s, &cards)?;
+        f.outcome = if cards.is_empty() { Outcome::Impossible } else { Outcome::Done };
         return Ok(Flow::Next);
     }
     if ask_pick(g, me, f, &s.pick, search_room(g, f, s), search_msg(s), 1, s.cancel) {
         Ok(Flow::Suspend)
     } else {
         set_reg(g, f, s.pick.into, &[]);
+        f.outcome = Outcome::Impossible;
         Ok(Flow::Next)
     }
 }
@@ -1219,7 +1231,9 @@ fn decode_attach(items: &[u8]) -> Vec<(SlotRef, CardId)> {
 /// Attach the chosen cards, one after the other, to their Pokémon. A card that left its zone, or a
 /// Pokémon that left play, since the choice was made is skipped.
 fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(SlotRef, CardId)]) -> R<Flow> {
+    f.outcome = Outcome::Impossible;
     let Some(from) = zone_list(g, me, f, a.from, true) else { return Ok(Flow::Next) };
+    let (mut done, mut refused) = (0, 0);
     for (target, c) in ts.iter().copied() {
         if !g.lst(from).contains(&c) || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
             continue;
@@ -1227,9 +1241,12 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
         // One Attach event per card, from the zone the card is in (a card attached to a Pokémon is moved:
         // MoveEnergy, id1653); a refused one doesn't happen, nor does what the text does with the attached card.
         let attached = crate::engine::attach::attach(g, c, target, f.cause)?;
+        f.outcome = Outcome::count(ts.len(), done + attached as usize, refused + !attached as usize);
         if !attached {
+            refused += 1;
             continue;
         }
+        done += 1;
         // The Pokémon attached to (`SlotExpr::Attached`): the last one, or the Active Pokémon once a card went there
         // ("if you attached Energy to your Active Pokémon in this way": Janine's Secret Art).
         let on_active = |g: &Game, e: u8| e != NONE && g.st.players[(e >> 4) as usize].active == e & 15;
@@ -1304,6 +1321,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
     match op {
         Op::Pick(p) => {
             set_reg(g, f, p.into, first.cards());
+            f.outcome = if first.cards().is_empty() { Outcome::Impossible } else { Outcome::Done };
             Ok(Flow::Next)
         }
         Op::Search(s) if f.sub == 2 => {
@@ -1323,6 +1341,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::Search(s) => {
             let chosen: Vec<CardId> = first.cards().to_vec();
             finish_search(g, me, f, s, &chosen)?;
+            f.outcome = if chosen.is_empty() { Outcome::Impossible } else { Outcome::Done };
             if s.destination == SearchDestination::AttachToPicked && search_attach_prompt(g, me, f, s) {
                 return Ok(Flow::Suspend);
             }
@@ -1344,6 +1363,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             };
             f.last = ts.len() as i32;
             if ts.is_empty() {
+                f.outcome = Outcome::Impossible;
                 return Ok(Flow::Next);
             }
             let mut slots: Vec<(SlotRef, CardId)> = Vec::new();
@@ -1436,7 +1456,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             }
             let cards: Vec<CardId> = g.lst(list).to_vec();
             if !cards.is_empty() {
-                move_cards_event(g, f, list, &cards, ListRef::Deck(0), d.position)?;
+                f.outcome = move_cards_event(g, f, list, &cards, ListRef::Deck(0), d.position)?;
             }
             Ok(Flow::Next)
         }
@@ -2126,7 +2146,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
             let (p, s) = (slot.p as usize, slot.s);
             let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
             if !energies.is_empty() {
-                crate::engine::knockout::leave_play_cards(g, SlotRef::new(p, s), &energies, crate::spec::event::RulesZone::Deck, f.cause, Some((f.eff, false)))?;
+                f.outcome = crate::engine::knockout::leave_play_cards(g, SlotRef::new(p, s), &energies, crate::spec::event::RulesZone::Deck, f.cause, Some((f.eff, false)))?;
             }
             shuffle_deck_after_damage(g, f.eff, p);
         }
@@ -2658,13 +2678,13 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
             // its damage.
             (_, EnergyDest::Discard) => {
                 let window = if attack { Some((f.eff, true)) } else { None };
-                crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Discard, f.cause, window)?;
+                f.outcome = crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Discard, f.cause, window)?;
             }
             (_, EnergyDest::Hand) => {
-                crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Hand, f.cause, None)?;
+                f.outcome = crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Hand, f.cause, None)?;
             }
             (_, EnergyDest::Deck) => {
-                crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Deck, f.cause, None)?;
+                f.outcome = crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Deck, f.cause, None)?;
             }
             (_, EnergyDest::Slot(x)) => {
                 if let Some(dst) = slot_of(g, me, f, x) {
