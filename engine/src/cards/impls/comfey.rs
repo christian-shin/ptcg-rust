@@ -11,18 +11,8 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Move(MoveSpec {
-                    from: ZoneRef(Who::Me, Zone::Deck),
-                    to: ZoneRef(Who::Me, Zone::Hand),
-                    cards: CardSel::Top(Num::Lit(3)),
-                    ..MoveSpec::DEFAULT
-                })),
-                Step::after_damage(Op::Move(MoveSpec {
-                    from: ZoneRef(Who::Opp, Zone::Deck),
-                    to: ZoneRef(Who::Opp, Zone::Hand),
-                    cards: CardSel::Top(Num::Lit(3)),
-                    ..MoveSpec::DEFAULT
-                })),
+                Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(3)), ..PutIntoHandSpec::DEFAULT })),
+                Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(3)), ..PutIntoHandSpec::DEFAULT })),
             ],
         },
         // Play Rough: flip a coin, if heads 20 more damage.

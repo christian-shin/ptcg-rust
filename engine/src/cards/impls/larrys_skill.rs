@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, ..DiscardSpec::DEFAULT }))], no: &[] })),
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::OneOf(&[Pred::Pokemon, Pred::Supporter, Pred::BasicEnergy]), bounds: Bounds { min: Num::Lit(0), max: Num::Add(&Num::Add(&Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Pokemon), &Num::Lit(1)), &Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Supporter), &Num::Lit(1))), &Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::BasicEnergy), &Num::Lit(1))) }, caps: &[Cap { kind: CapKind::Pokemon, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Pokemon), &Num::Lit(1)) }, Cap { kind: CapKind::Supporter, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::Supporter), &Num::Lit(1)) }, Cap { kind: CapKind::Energy, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::BasicEnergy), &Num::Lit(1)) }], ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: true },

@@ -28,7 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
                     msg: "CHOOSE_CARD_TO_DISCARD",
                     ..PickSpec::DEFAULT
                 })),
-                Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             ],
         },
     ],

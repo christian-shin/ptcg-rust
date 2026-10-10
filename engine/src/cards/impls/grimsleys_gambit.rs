@@ -19,10 +19,10 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2)), Cond::BenchSpace(Who::Me)],
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(7)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(7)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), predicate: Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::DARK)]), bounds: Bounds { min: Num::If(&Cond::All(&[Cond::Not(&Cond::TrainerViaAttack), Cond::Nonempty(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::DARK)]))]), &Num::Lit(1), &Num::Lit(0)), max: Num::Lit(1) }, into: 1, msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ..PickSpec::DEFAULT })),
             Step::new(Op::PlayFromZone(PlayFromZoneSpec { cards: 1, who: Who::Me })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Bottom, order: DeckOrder::Shuffled, ..PutIntoDeckSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

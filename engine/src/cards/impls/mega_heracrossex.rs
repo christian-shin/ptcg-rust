@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MegaHeracrossex",
     attacks: &[
         AttackSpec { index: 0, steps: &[Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::DamageTakenLastTurn(MY_ACTIVE), when: Cond::True }))] },
-        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Deck), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Top(Num::Lit(2)), ..MoveSpec::DEFAULT }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(2)), ..DiscardSpec::DEFAULT }))] },
     ],
     ..CardSpec::NONE
 };

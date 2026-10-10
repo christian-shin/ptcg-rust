@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "GATHER_EVIDENCE_MARKER", from: MarkerFrom::This }), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::Any)],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, msg: "CHOOSE_CARD_TO_DECK", ..PickSpec::DEFAULT })),
-            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Top(Num::Lit(1)), ..MoveSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Chosen(0), place: Place::Top, ..MoveSpec::DEFAULT })), Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("GATHER_EVIDENCE_MARKER") }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(1)), ..PutIntoHandSpec::DEFAULT })), Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), position: DeckPosition::Top, ..PutIntoDeckSpec::DEFAULT })), Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("GATHER_EVIDENCE_MARKER") }))], no: &[] })),
         ],
     }],
     triggers: &[

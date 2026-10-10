@@ -18,9 +18,16 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Ge, Num::Lit(2))],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(2), max: Num::Lit(2) }, into: 0, msg: "CHOOSE_CARDS_TO_PUT_ON_BOTTOM_OF_THE_DECK", ..PickSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Scratch(1)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Order(OrderSpec { who: Who::Me, zone: ZoneRef(Who::Me, Zone::Scratch(1)), msg: "CHOOSE_CARDS_ORDER" })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(1)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            // "Put 2 cards from your hand on the bottom of your deck in any order": set aside in register 1 while the order
+            // is chosen.
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec {
+                from: ZoneRef(Who::Me, Zone::Hand),
+                cards: CardSel::Chosen(0),
+                position: DeckPosition::Bottom,
+                order: DeckOrder::ChosenBy(Who::Me),
+                into: Some(1),
+                ..PutIntoDeckSpec::DEFAULT
+            })),
             Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Min(&Num::Lit(4), &Num::ZoneSize(ZoneRef(Who::Me, Zone::Deck)))) }))], no: &[] })),
         ],
     }),

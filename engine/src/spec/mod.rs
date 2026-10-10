@@ -251,14 +251,20 @@ pub struct SpecChoice {
 /// Every op of vocabulary v1. Record types live in the family files.
 pub enum Op {
     // ops/cards.rs
-    Move(MoveSpec),
+    /// "Discard ..." (events batch 7: a Discard, or a LeavePlay for cards in play).
+    Discard(DiscardSpec),
+    /// "Put ... into your hand".
+    PutIntoHand(PutIntoHandSpec),
+    /// "Put ... into / on the top or bottom of your deck", "shuffle ... into your deck".
+    PutIntoDeck(PutIntoDeckSpec),
+    /// "Look at ..." / cards set aside: staged in a register.
+    Look(LookSpec),
     Pick(PickSpec),
     Draw(DrawSpec),
     Shuffle(ShuffleSpec),
     Reveal(RevealSpec),
     Search(SearchSpec),
     Snapshot(SnapshotSpec),
-    Order(OrderSpec),
     Attach(AttachSpec),
     MoveEnergy(MoveEnergySpec),
     DiscardEnergy(DiscardEnergySpec),
@@ -328,6 +334,6 @@ pub enum Op {
 /// Everything a spec card file needs.
 pub mod prelude {
     pub use super::*;
-    pub use super::event::{ActiveChange, CausePred, EnterMode, EventKind, EventPred, EvolvePath, KoBy, Limit, MoveEnd, Party, Role, RulesZone, TurnOf};
+    pub use super::event::{ActiveChange, CausePred, DeckPosition, EnterMode, EventKind, EventPred, EvolvePath, KoBy, Limit, MoveEnd, Party, Role, RulesZone, TrainerUse, TurnOf};
     pub use crate::cards::CardImpl;
 }

@@ -33,7 +33,7 @@ pub static SPEC: CardSpec = CardSpec {
                 yes: &[
                     Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: CHRONO, from: MarkerFrom::This })),
                     Step::new(Op::Snapshot(SnapshotSpec { zone: ATTACHED, predicate: Pred::Energy, into: 0 })),
-                    Step::new(Op::Move(MoveSpec { from: ATTACHED, to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                    Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ATTACHED, cards: CardSel::Chosen(0), position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
                     Step::new(Op::If(IfSpec {
                         cond: Cond::Chosen(0),
                         yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))],

@@ -23,8 +23,8 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::after_damage(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), to: Who::Opp, when_empty: false })),
-            Step::after_damage(Op::Move(MoveSpec { from: DISCARD, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::after_damage(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), by: Who::Me, to: Who::Opp, when_empty: false })),
+            Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: DISCARD, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
         ],
     }],
     ..CardSpec::NONE
