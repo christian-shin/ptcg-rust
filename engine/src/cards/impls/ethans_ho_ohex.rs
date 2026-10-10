@@ -29,7 +29,6 @@ pub static SPEC: CardSpec = CardSpec {
             target: Pred::Tag(crate::types::tag::ETHANS),
             bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) },
             same_target: true,
-            route: AttachRoute::Move,
             ..AttachSpec::DEFAULT
         }))],
     }],

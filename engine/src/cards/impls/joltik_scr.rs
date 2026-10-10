@@ -25,7 +25,6 @@ pub static SPEC: CardSpec = CardSpec {
                 valid_types: &[crate::types::ct::GRASS, crate::types::ct::LIGHTNING],
                 max_per_type: 2,
                 cancel: true,
-                route: AttachRoute::Move,
                 onto: None,
                 cards: CardSel::All,
                 none_shuffles: false,

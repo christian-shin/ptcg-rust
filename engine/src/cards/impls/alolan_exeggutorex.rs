@@ -20,7 +20,6 @@ pub static SPEC: CardSpec = CardSpec {
                     from: ZoneRef(Who::Me, Zone::Hand),
                     slots: AttachSlots::BenchActive,
                     bounds: Bounds { min: Num::Lit(0), max: Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)) },
-                    route: AttachRoute::Effect,
                     ..AttachSpec::DEFAULT
                 }))],
                 no: &[],

@@ -22,7 +22,6 @@ pub static SPEC: CardSpec = CardSpec {
             slots: AttachSlots::BenchActive,
             target: Pred::PrintedType(ct::FIGHTING),
             bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
-            route: AttachRoute::Move,
             ..AttachSpec::DEFAULT
         }))],
     }],

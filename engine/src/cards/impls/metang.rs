@@ -17,7 +17,6 @@ pub static SPEC: CardSpec = CardSpec {
                 slots: AttachSlots::BenchActive,
                 bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::Lit(4), &Num::CardCount(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::BasicEnergy)) },
                 valid_types: &[crate::types::ct::METAL],
-                route: AttachRoute::Effect,
                 ..AttachSpec::DEFAULT
             })),
             // The rest goes to the bottom of the deck, shuffled first.
