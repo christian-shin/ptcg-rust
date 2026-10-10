@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Finizen TWM 59",
+   "2 Palafin TEF 49",
+   "2 Hop's Zacian ex JTG 111",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "2 Finizen TWM 59",
+   "2 Palafin TEF 49",
+   "2 Hop's Zacian ex JTG 111",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Finizen TWM 59",
+   "Palafin TEF 49"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "active_damage": 30,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Vanguard Punch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 130,
+   "cite": "card text: 130 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 60,
+   "cite": "card text (Vanguard Punch): 10 damage to itself for each damage counter on it (3 counters: 30 more)"
+  }
+ ]
+}

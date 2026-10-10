@@ -1,19 +1,12 @@
-//! Iron Crown ex (TEF): Cobalt Command — your Future Pokémon's attacks,
-//! except any Iron Crown ex, do 20 more damage to your opponent's Active
-//! Pokémon (before applying Weakness and Resistance). Twin Shotels — 50
-//! damage to 2 of your opponent's Pokémon; the damage isn't affected by
-//! Weakness or Resistance, or by any effects on those Pokémon.
+//! Iron Crown ex (TEF): Cobalt Command — your Future Pokémon's attacks, except any Iron Crown ex, do 20 more damage to
+//! your opponent's Active Pokémon (before applying Weakness and Resistance). Twin Shotels — 50 damage to 2 of your
+//! opponent's Pokémon; the damage isn't affected by Weakness or Resistance, or by any effects on those Pokémon.
 //!
-//! Twinleaf: Cobalt Command reacts to every DealDamageEffect of a player that
-//! has this card in play (copies stack): attack phase, a Future source that
-//! isn't named Iron Crown ex, the Defending Active as target, positive
-//! damage, ability not blocked for that player. Twin Shotels opens a
-//! non-cancellable ChoosePokemonPrompt for exactly min(2, the opponent's
-//! Pokémon in play) targets (phase 4b: it allowed 1); for each chosen Pokémon
-//! it runs a DealDamageEffect of 50 on that Pokémon with `ignoreDefenderEffects`
-//! and Weakness/Resistance ignored on the attack (phase 4b R7B: it used to add
-//! the 50 straight to the Pokémon, skipping the attacker's effects, e.g.
-//! Maximum Belt on the Active ex, and the survive-on-10 effects).
+//! Cobalt Command is `Modifier::DamageDealt` (+20 in the attacker-side pass of the Damage calculation, before Weakness):
+//! the attacker is a Future Pokémon other than an Iron Crown ex, the target the Defending Pokémon, positive damage;
+//! copies stack. Twin Shotels: exactly min(2, the opponent's Pokémon in play) targets (no cancel), each a Damage event
+//! of 50 caused by the attack, with the attack flags `IgnoreDefenderEffects` / `NoWeakness` / `NoResistance`: the
+//! effects on those Pokémon are ignored, including a `Prevent` over Damage (APR C-16, Shred).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

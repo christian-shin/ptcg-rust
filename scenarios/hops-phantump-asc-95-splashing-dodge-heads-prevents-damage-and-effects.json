@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Phantump ASC 95",
+   "2 Swablu SSP 148",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Hop's Phantump ASC 95",
+   "2 Swablu SSP 148",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Phantump ASC 95",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Splashing Dodge"
+  },
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "conditions": [],
+   "cite": "card text: on heads, during your opponent's next turn prevent all damage from and effects of attacks done to this Pokémon (the 10 damage at step 6, APR C-16; the Confusion as an effect, APR C-17)"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Deoxys CRI 33",
+   "2 Walking Wake TWM 63",
+   "28 Psychic Energy MEE 5",
+   "28 Water Energy MEE 3"
+  ],
+  [
+   "2 Deoxys CRI 33",
+   "2 Walking Wake TWM 63",
+   "28 Psychic Energy MEE 5",
+   "28 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Deoxys CRI 33",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Psy Protection"
+  },
+  {
+   "a": "attack",
+   "name": "Aurora Gain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 20,
+   "cite": "card text (Psy Protection): only attacks from Pokémon that have an Ability are prevented; Walking Wake has none"
+  }
+ ]
+}

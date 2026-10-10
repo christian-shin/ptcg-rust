@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Mega Skarmory ex POR 55",
+   "2 Togepi ASC 80",
+   "2 Togetic ASC 81",
+   "2 Togekiss ASC 82",
+   "2 Walking Wake TWM 63",
+   "2 Tynamo ASC 59",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "2 Mega Skarmory ex POR 55",
+   "2 Togepi ASC 80",
+   "2 Togetic ASC 81",
+   "2 Togekiss ASC 82",
+   "2 Walking Wake TWM 63",
+   "2 Tynamo ASC 59",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Mega Skarmory ex POR 55",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Togepi ASC 80",
+     "Togetic ASC 81",
+     "Togekiss ASC 82"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "bench": [
+   {
+    "card": "Tynamo ASC 59"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Sonic Ripper"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Tynamo ASC 59"
+   ],
+   "cite": "card text: 220 damage Knocks Out the Benched Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "card text (Wonder Kiss): only the opponent's Active Pokémon; id2043"
+  }
+ ]
+}

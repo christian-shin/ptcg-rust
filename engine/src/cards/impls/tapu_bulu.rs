@@ -1,7 +1,6 @@
 //! Tapu Bulu (SFA): Wood Hammer — 220. This Pokémon also does 30 damage to itself.
 //!
-//! Twinleaf: a DealDamageEffect (Weakness/Resistance path) on the player's
-//! Active, reduced from the AttackEffect handler (before the main damage).
+//! The self damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance, APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

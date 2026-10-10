@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Mega Skarmory ex POR 55",
+   "2 Walking Wake TWM 63",
+   "27 Metal Energy MEE 8",
+   "27 Fire Energy MEE 2"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Mega Skarmory ex POR 55",
+   "2 Walking Wake TWM 63",
+   "27 Metal Energy MEE 8",
+   "27 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "3 Metal Energy MEE 8",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Skarmory ex POR 55",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Brave Slash"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 240,
+   "cite": "card text: 240 damage"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Brave Slash",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokémon can't use Brave Slash"
+  }
+ ]
+}

@@ -1,14 +1,10 @@
-//! Lucky Helmet (TWM, tool): if the Pokémon this card is attached to is in
-//! the Active Spot and is damaged by an attack from your opponent's Pokémon
-//! (even if it is Knocked Out), draw 2 cards.
+//! Lucky Helmet (TWM, tool): whenever the Pokémon this card is attached to is your Active Pokémon and is damaged by an
+//! opponent's attack (even if that Pokémon is Knocked Out), draw 2 cards.
 //!
-//! Twinleaf: reacts to AfterDamageEffect on the holder; the tool block probe
-//! is a bare ToolEffect for the attacking player and runs first; the draw is
-//! MOVE_CARDS(count 2) from the attacked player's deck (no phase check).
-//!
-//! Step 7 of the attack flow chart (F1): the damage records the trigger and it resolves after the attack's own
-//! effects (AttackTrigger): the Tool must still be attached (ruling 1649) and not blocked. It draws even if the
-//! Attacking Pokémon switched or left play (ruling 1827).
+//! `Event::OnDamagedByAttack` on the Damage event (the Active Spot read when the damage is done, id1992): the trigger
+//! resolves at step 7 of the attack flow, after the attack's own effects. The Tool must still be attached and not
+//! blocked. It draws even if the Attacking Pokémon switched or left play and even if the damaged Pokémon is Knocked Out
+//! (the Knock Out is taken later, at the state check).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LuckyHelmet",

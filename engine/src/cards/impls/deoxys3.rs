@@ -1,8 +1,9 @@
-//! Deoxys (M4 33): Psy Protection - 80; during your opponent's next turn,
-//! prevent all damage done to this Pokémon by attacks from Pokémon that have
-//! an Ability.
+//! Deoxys (M4 33): Psy Protection - 80; during your opponent's next turn, prevent all damage done to this Pokémon by
+//! attacks from Pokémon that have an Ability.
 //!
-//! Twinleaf: PREVENT_DAMAGE with `{ sourceHasAbility: true }` (damage only).
+//! `Lasting::PreventDamage(HasAbility)`: one ApplyEffect event arms a `Prevent` over `Kind(Damage)` stored on this
+//! Pokémon (`Slot::lasting_prevents`); it is read at step 6 of the damage calculation (APR C-16) and never stops
+//! effects.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

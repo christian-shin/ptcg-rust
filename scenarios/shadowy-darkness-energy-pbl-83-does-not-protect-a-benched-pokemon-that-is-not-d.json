@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Team Rocket's Murkrow ASC 126",
+   "2 Walking Wake TWM 63",
+   "2 Shadowy Darkness Energy PBL 83",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Team Rocket's Murkrow ASC 126",
+   "2 Walking Wake TWM 63",
+   "2 Shadowy Darkness Energy PBL 83",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Team Rocket's Murkrow ASC 126",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63",
+    "energy": [
+     "Shadowy Darkness Energy PBL 83"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Walking Wake TWM 63",
+   "damage": 30,
+   "cite": "card text: only the [D] Pokémon it is attached to (Walking Wake is [W])"
+  }
+ ]
+}

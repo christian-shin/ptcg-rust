@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Tapu Bulu SFA 6",
+   "2 Mega Skarmory ex POR 55",
+   "56 Grass Energy MEE 1"
+  ],
+  [
+   "2 Tapu Bulu SFA 6",
+   "2 Mega Skarmory ex POR 55",
+   "56 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Tapu Bulu SFA 6",
+  "active_energy": [
+   "4 Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Skarmory ex POR 55",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wood Hammer"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 220,
+   "cite": "card text: 220 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text (Wood Hammer): this Pokémon also does 30 damage to itself; no Weakness or Resistance (APR B-08)"
+  }
+ ]
+}

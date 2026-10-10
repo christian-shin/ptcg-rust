@@ -1,12 +1,10 @@
-//! Briar (SCR): usable only if the opponent has exactly 2 Prize cards left;
-//! this turn, if the opponent's Active is Knocked Out by damage from an attack
-//! of your Tera Pokémon, take 1 more Prize card.
+//! Briar (SCR): usable only if the opponent has exactly 2 Prize cards left; this turn, if the opponent's Active is
+//! Knocked Out by damage from an attack of your Tera Pokémon, take 1 more Prize card.
 //!
-//! Twinleaf keeps the flag on the card instance (`extraPrizes`); every Briar
-//! copy in any zone reacts to Active knock-outs during the attack phase.
-//! Fixed in phase 4b (R4): the flag is cleared at every end of turn ("during
-//! this turn"); it used to survive until the next knock-out of an Active
-//! Pokémon, so it could apply on a later turn or to the opponent.
+//! Briar sets a marker on the player; `Modifier::PrizeAdjust` adds the Prize at the KnockOut event (`ko_by` =
+//! AttackDamage, the Knocked Out Pokémon is the opponent's Active Pokémon, the Attacking Pokémon is a Tera Pokémon).
+//! "During this turn": the marker is cleared at every Pokémon Checkup, so it never reaches a later turn or the
+//! opponent's turns.
 use crate::spec::prelude::*;
 
 const BRIAR: &str = "BRIAR_EXTRA_PRIZE_MARKER";

@@ -1,11 +1,9 @@
-//! Magmortar (JTG): Magma Surge — during Pokémon Checkup, put 3 more damage
-//! counters on your opponent's Burned Pokémon. Searing Flame — 90; flip a
-//! coin, if heads the opponent's Active Pokémon is now Burned.
+//! Magmortar (JTG): Magma Surge — during Pokémon Checkup, put 3 more damage counters on your opponent's Burned Pokémon.
+//! Searing Flame — 90; flip a coin, if heads the opponent's Active Pokémon is now Burned.
 //!
-//! Twinleaf: on each BetweenTurnsEffect the owner is found by scanning
-//! [player, opponent] (last match wins), a generic ability probe is run for
-//! the owner, and `burnDamage += 30` when the ending player is the owner's
-//! opponent and its Active is Burned.
+//! Magma Surge is `Modifier::CheckupDamage` (+30 on the Burn placement at Checkup, the PlaceCounters event caused by the
+//! Special Condition), for each copy whose Ability works, on the opponent's Burned Pokémon only; the copies add up
+//! (id2112: 2 + 3 + 3 with two Magmortar).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Magmortar",

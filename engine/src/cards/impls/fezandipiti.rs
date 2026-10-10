@@ -1,13 +1,12 @@
-//! Fezandipiti (TWM): Adrena-Pheromone — if this Pokémon has any [D] Energy
-//! attached and is damaged by an attack, flip a coin; if heads, prevent that
-//! damage. Energy Feather — 30 damage for each Energy attached to this
-//! Pokémon.
+//! Fezandipiti (TWM): Adrena-Pheromone — if this Pokémon has any [D] Energy attached and is damaged by an attack, flip a
+//! coin; if heads, prevent that damage. Energy Feather — 30 damage for each Energy attached to this Pokémon.
 //!
-//! Rule: Adrena-Pheromone applies to damage from an attack to the slot holding
-//! this card: it needs this card on top and the attack phase, the Ability not
-//! blocked and a [D] (or rainbow) unit provided, both read with the OWNER as
-//! `player`. The damage must be positive; a CoinFlip event (owner) decides.
-//! Energy Feather counts every provided unit on the slot holding this card.
+//! Adrena-Pheromone is a `Prevent` over `Kind(Damage)` with a coin (`PreventSpec::on_coin`, decision D8): at step 6
+//! of the damage calculation, after the hard preventions, and only for damage there is (nothing is flipped for 0 damage
+//! or damage already prevented). It needs the Ability working and a [D] Energy unit provided on this Pokémon (a Legacy
+//! Energy counts, id1969), and the flip belongs to the Pokémon's owner. Energy Feather counts every Energy unit
+//! provided on this Pokémon. The text says "damaged by an attack" with no owner; the declaration covers the
+//! opponent's attacks only (`DAMAGE_BY_OPP_ATTACKS`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Fezandipiti",

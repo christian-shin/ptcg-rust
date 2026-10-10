@@ -1,12 +1,6 @@
-//! Crustle (BLK): Sturdy - if this Pokémon has full HP and would be Knocked
-//! Out by damage from an attack, it is not Knocked Out and its remaining HP
-//! becomes 10 (SURVIVE_ON_TEN_IF_FULL_HP, see `crustle_bcr.rs`). Stone Edge -
-//! 80+; flip a coin, if heads 60 more damage.
-//!
-//! Twinleaf fix (phase 4b, Y2-1): Sturdy's reason is the literal 'Sturdy'; it
-//! read `this.powers[0].name`, which threw for a copycat without Abilities
-//! (Zoroark's Foul Play, Ethan's Sudowoodo's Try to Imitate) on the first
-//! effect its copy session delegated to this code.
+//! Crustle (BLK): Sturdy - if this Pokémon has full HP and would be Knocked Out by damage from an attack, it is not
+//! Knocked Out and its remaining HP becomes 10 (`SurviveOnTen`, see `crustle_bcr.rs`: a replacement inside the Damage
+//! event's calculation). Stone Edge - 80+; flip a coin, if heads 60 more damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

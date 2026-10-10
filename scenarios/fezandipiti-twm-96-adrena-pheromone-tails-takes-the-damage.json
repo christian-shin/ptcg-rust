@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Fezandipiti TWM 96",
+   "28 Metal Energy MEE 8",
+   "28 Darkness Energy MEE 7"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Fezandipiti TWM 96",
+   "28 Metal Energy MEE 8",
+   "28 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Fezandipiti TWM 96",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 60,
+   "cite": "card text (Adrena-Pheromone): nothing on tails (30 doubled: Fezandipiti is weak to Metal)"
+  }
+ ]
+}

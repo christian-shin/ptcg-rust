@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Deoxys CRI 33",
+   "2 Hop's Snorlax JTG 117",
+   "2 Walking Wake TWM 63",
+   "27 Psychic Energy MEE 5",
+   "27 Water Energy MEE 3"
+  ],
+  [
+   "2 Deoxys CRI 33",
+   "2 Hop's Snorlax JTG 117",
+   "2 Walking Wake TWM 63",
+   "27 Psychic Energy MEE 5",
+   "27 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Deoxys CRI 33",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Psy Protection"
+  },
+  {
+   "a": "attack",
+   "name": "Dynamic Press"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text (Psy Protection): prevent all damage done to this Pokémon by attacks from Pokémon that have an Ability (Hop's Snorlax has Extra Helpings); damage is prevented at step 6, APR C-16"
+  }
+ ]
+}

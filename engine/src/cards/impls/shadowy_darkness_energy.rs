@@ -1,12 +1,9 @@
-//! Shadowy Darkness Energy ("Shadow Darkness Energy M5", PBL): provides [D].
-//! Prevent all damage done by your opponent's attacks to the Benched [D]
-//! Pokémon this card is attached to.
+//! Shadowy Darkness Energy ("Shadow Darkness Energy M5", PBL): provides [D]. Prevent all damage done by your opponent's
+//! attacks to the Benched [D] Pokémon this card is attached to.
 //!
-//! Twinleaf: the [D] entry is pushed unless an EnergyEffect probe throws.
-//! A DealDamage / PutDamage effect during the ATTACK phase on a benched slot
-//! holding this card, from the slot owner's opponent, gets `damage = 0`
-//! unless the special energy is blocked or a CheckPokemonTypeEffect on the
-//! slot lacks [D].
+//! The prevention is a `Prevent` over `Kind(Damage)` caused by the opponent's attacks (`DAMAGE_BY_OPP_ATTACKS`), read at
+//! step 6 of the damage calculation (APR C-16, decision D7): a later "takes N more damage" can't undo it. It needs the
+//! Special Energy to work and the Pokémon to be a [D] Pokémon on the Bench.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

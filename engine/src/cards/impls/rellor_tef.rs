@@ -1,8 +1,6 @@
-//! Rellor (TEF): Slight Intrusion — 30; this Pokémon also does 10 damage to
-//! itself.
+//! Rellor (TEF): Slight Intrusion — 30; this Pokémon also does 10 damage to itself.
 //!
-//! Twinleaf: the self-damage is a DealDamageEffect on the player's Active,
-//! reduced during the AttackEffect (before the attack's own damage).
+//! The self damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance, APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

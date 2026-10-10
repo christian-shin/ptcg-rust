@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Walking Wake TWM 63",
+   "2 Togepi ASC 80",
+   "2 Togetic ASC 81",
+   "2 Togekiss ASC 82",
+   "2 Tynamo ASC 59",
+   "50 Water Energy MEE 3"
+  ],
+  [
+   "2 Walking Wake TWM 63",
+   "2 Togepi ASC 80",
+   "2 Togetic ASC 81",
+   "2 Togekiss ASC 82",
+   "2 Tynamo ASC 59",
+   "50 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Walking Wake TWM 63",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Togepi ASC 80",
+     "Togetic ASC 81",
+     "Togekiss ASC 82"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Tynamo ASC 59",
+  "active_damage": 30,
+  "bench": [
+   {
+    "card": "Tynamo ASC 59"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Aurora Gain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "card text (Wonder Kiss): nothing on tails"
+  }
+ ]
+}

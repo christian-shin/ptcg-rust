@@ -1,11 +1,9 @@
-//! Hydreigon ex (SSP, Tera): Crashing Headbutt — 200; discard the top 3
-//! cards of your opponent's deck. Obsidian — 130; also 130 damage to 2 of
-//! your opponent's Benched Pokémon.
+//! Hydreigon ex (SSP, Tera): Crashing Headbutt — 200; discard the top 3 cards of your opponent's deck. Obsidian — 130;
+//! also 130 damage to 2 of your opponent's Benched Pokémon.
 //!
-//! Twinleaf: THIS_ATTACK_DOES_X_DAMAGE_TO_X_OF_YOUR_OPPONENTS_POKEMON with
-//! min = max = min(2, benched). `AttackEffect.target` is never set, so the
-//! `effect.target === effect.opponent.active` branch never fires and every
-//! target gets a PutDamageEffect.
+//! Obsidian: min = max = min(2, Benched Pokémon); each chosen Benched Pokémon takes a Damage event of 130 caused by the
+//! attack, with no Weakness or Resistance (APR B-08). The Tera rule is `TERA_RULE`: a `Prevent` over `Kind(Damage)` on
+//! this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Hydreigonex",

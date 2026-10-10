@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Petilil BLK 6",
+   "2 Swablu SSP 148",
+   "28 Grass Energy MEE 1",
+   "28 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Petilil BLK 6",
+   "2 Swablu SSP 148",
+   "28 Grass Energy MEE 1",
+   "28 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Petilil BLK 6",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hide"
+  },
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "conditions": [
+    "CONFUSED"
+   ],
+   "cite": "card text (Hide): nothing on tails"
+  }
+ ]
+}

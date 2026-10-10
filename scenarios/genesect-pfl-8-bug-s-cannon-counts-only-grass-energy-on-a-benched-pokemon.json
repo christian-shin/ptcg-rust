@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Genesect PFL 8",
+   "2 Walking Wake TWM 63",
+   "2 Dwebble DRI 11",
+   "2 Crustle BLK 52",
+   "26 Grass Energy MEE 1",
+   "26 Fire Energy MEE 2"
+  ],
+  [
+   "2 Genesect PFL 8",
+   "2 Walking Wake TWM 63",
+   "2 Dwebble DRI 11",
+   "2 Crustle BLK 52",
+   "26 Grass Energy MEE 1",
+   "26 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Genesect PFL 8",
+  "active_energy": [
+   "2 Grass Energy MEE 1",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "bench": [
+   {
+    "card": [
+     "Dwebble DRI 11",
+     "Crustle BLK 52"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bug's Cannon"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Crustle BLK 52",
+   "damage": 40,
+   "cite": "card text: 20 damage for each [G] Energy attached (2), no Weakness (Crustle is weak to Grass) for a Benched Pokémon: APR B-08"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: only the chosen Pokémon"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Koraidon ex TEF 120",
+   "2 Greninja ex TWM 106",
+   "28 Fire Energy MEE 2",
+   "28 Fighting Energy MEE 6"
+  ],
+  [
+   "2 Koraidon ex TEF 120",
+   "2 Greninja ex TWM 106",
+   "28 Fire Energy MEE 2",
+   "28 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Koraidon ex TEF 120",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "2 Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Greninja ex TWM 106",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Kaiser Tackle"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 280,
+   "cite": "card text: 280 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 60,
+   "cite": "card text (Kaiser Tackle): this Pokémon does 60 damage to itself; no Weakness or Resistance (APR B-08)"
+  }
+ ]
+}

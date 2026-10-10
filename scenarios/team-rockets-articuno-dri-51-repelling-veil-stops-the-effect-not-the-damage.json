@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Swablu SSP 148",
+   "2 Team Rocket's Articuno DRI 51",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Swablu SSP 148",
+   "2 Team Rocket's Articuno DRI 51",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Team Rocket's Articuno DRI 51",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 10,
+   "conditions": [],
+   "cite": "card text (Repelling Veil): prevent all effects of the opponent's attacks done to your Basic Team Rocket's Pokémon; damage is not an effect (APR C-17)"
+  }
+ ]
+}

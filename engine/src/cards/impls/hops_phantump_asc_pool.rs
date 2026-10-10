@@ -1,9 +1,8 @@
-//! Hop's Phantump (ASC 95): Splashing Dodge — 10; flip a coin, if heads,
-//! during your opponent's next turn, prevent all damage from and effects of
-//! attacks done to this Pokémon.
+//! Hop's Phantump (ASC 95): Splashing Dodge — 10; flip a coin, if heads, during your opponent's next turn, prevent all
+//! damage from and effects of attacks done to this Pokémon.
 //!
-//! Twinleaf: FLIP_COIN_TO_PREVENT_DAMAGE_AND_EFFECTS_DURING_OPPONENTS_NEXT_TURN
-//! (PREVENT_DAMAGE then PREVENT_EFFECTS_OF_ATTACKS on heads).
+//! On heads the attack arms `Lasting::PreventDamage(Any)` (a `Prevent` over `Kind(Damage)`, step 6, APR C-16) and
+//! `Lasting::PreventAttackEffects` (a `Prevent` naming no kind), each one ApplyEffect event, both stored on this Pokémon.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HopsPhantumpASCPool",

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "1 Neutralization Zone SFA 60",
+   "2 Walking Wake TWM 63",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "1 Neutralization Zone SFA 60",
+   "2 Walking Wake TWM 63",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "stadium": "Neutralization Zone SFA 60",
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: prevent all damage done to Pokémon without a Rule Box by attacks from the opponent's Pokémon ex (step 6, APR C-16)"
+  }
+ ]
+}

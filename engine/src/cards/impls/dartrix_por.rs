@@ -1,11 +1,7 @@
-//! Dartrix (POR / M3): Leafage — 10. Feather Shot — discard all Energy from
-//! this Pokémon, and this attack does 90 damage to 1 of your opponent's
-//! Pokémon.
+//! Dartrix (POR / M3): Leafage — 10. Feather Shot — discard all Energy from this Pokémon, and this attack does 90 damage
+//! to 1 of your opponent's Pokémon (no Weakness or Resistance for a Benched Pokémon, APR B-08).
 //!
-//! Twinleaf: DISCARD_ALL_ENERGY_FROM_POKEMON (CheckProvidedEnergyEffect on
-//! the player's Active, then a DiscardCardsEffect of the map's cards on this
-//! card's slot), then a non-cancellable ChoosePokemonPrompt and
-//! DAMAGE_OPPONENT_POKEMON(90) on the choice.
+//! Feather Shot discards first, then the chosen Pokémon (no cancel) takes a Damage event of 90 caused by the attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

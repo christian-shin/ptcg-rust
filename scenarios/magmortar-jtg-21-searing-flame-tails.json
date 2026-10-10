@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Magmar BRS 19",
+   "2 Magmortar JTG 21",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "2 Magmar BRS 19",
+   "2 Magmortar JTG 21",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Magmar BRS 19",
+   "Magmortar JTG 21"
+  ],
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Searing Flame"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 180,
+   "conditions": [],
+   "cite": "card text: 90 damage (Weakness doubles it), flip a coin: nothing on tails"
+  }
+ ]
+}

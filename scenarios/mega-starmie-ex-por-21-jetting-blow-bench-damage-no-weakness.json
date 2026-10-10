@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Staryu POR 20",
+   "2 Mega Starmie ex POR 21",
+   "2 Walking Wake TWM 63",
+   "2 Charmander PFL 11",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "2 Staryu POR 20",
+   "2 Mega Starmie ex POR 21",
+   "2 Walking Wake TWM 63",
+   "2 Charmander PFL 11",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Staryu POR 20",
+   "Mega Starmie ex POR 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "bench": [
+   {
+    "card": "Charmander PFL 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jetting Blow"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: 120 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Charmander PFL 11",
+   "damage": 50,
+   "cite": "card text: also 50 damage to 1 Benched Pokémon, Charmander is weak to Water but the Bench takes no Weakness: APR B-08"
+  }
+ ]
+}

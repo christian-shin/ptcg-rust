@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "1 Neutralization Zone SFA 60",
+   "2 Mega Skarmory ex POR 55",
+   "55 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "1 Neutralization Zone SFA 60",
+   "2 Mega Skarmory ex POR 55",
+   "55 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "stadium": "Neutralization Zone SFA 60",
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Skarmory ex POR 55",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: the damage is prevented only for Pokémon that don't have a Rule Box"
+  }
+ ]
+}

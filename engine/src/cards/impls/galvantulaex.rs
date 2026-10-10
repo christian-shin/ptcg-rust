@@ -1,16 +1,9 @@
-//! Galvantula ex (SCR, Tera): Charged Web — 110+, 110 more if your
-//! opponent's Active Pokémon is a Pokémon ex or Pokémon V. Fulgurite — 180;
-//! discard all Energy from this Pokémon; during your opponent's next turn
-//! they can't play Item cards.
+//! Galvantula ex (SCR, Tera): Charged Web — 110+, 110 more if your opponent's Active Pokémon is a Pokémon ex or Pokémon V.
+//! Fulgurite — 180; discard all Energy from this Pokémon; during your opponent's next turn they can't play Item cards.
 //!
-//! Twinleaf: the V check covers V / VSTAR / VMAX tags (not V-UNION).
-//! Fulgurite: CheckProvidedEnergyEffect(player) on the Active, a
-//! DiscardCardsEffect of the map's cards on the Active, then
-//! OPPONENT_CANNOT_PLAY_ITEM_CARDS (PlayLockEffect). Tera bench protection.
-//!
-//! Fixed (phase 4b, R2): the Energy was discarded in the attack handler,
-//! before the damage (Voltaic Lightning Energy's +20 was lost); it is now
-//! discarded in AfterAttackEffect. The Item lock stays in the attack handler.
+//! The V check covers V / VSTAR / VMAX tags (not V-UNION). Fulgurite discards after the damage (so Voltaic Lightning
+//! Energy's +20 counts), then arms the Item lock (one ApplyEffect event on the opponent). The Tera rule is `TERA_RULE`:
+//! a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

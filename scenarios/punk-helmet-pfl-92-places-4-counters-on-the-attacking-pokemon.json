@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Team Rocket's Murkrow ASC 126",
+   "2 Punk Helmet PFL 92",
+   "54 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Team Rocket's Murkrow ASC 126",
+   "2 Punk Helmet PFL 92",
+   "54 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Team Rocket's Murkrow ASC 126",
+  "active_tool": "Punk Helmet PFL 92",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: place 4 damage counters on the Attacking Pokémon (counters, not damage: APR C-07)"
+  }
+ ]
+}

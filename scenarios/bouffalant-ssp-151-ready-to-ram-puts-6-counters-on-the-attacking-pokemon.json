@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Bouffalant SSP 151",
+   "2 Hop's Zacian ex JTG 111",
+   "28 Fire Energy MEE 2",
+   "28 Metal Energy MEE 8"
+  ],
+  [
+   "2 Bouffalant SSP 151",
+   "2 Hop's Zacian ex JTG 111",
+   "28 Fire Energy MEE 2",
+   "28 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Bouffalant SSP 151",
+  "active_energy": [
+   "2 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ready to Ram"
+  },
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "slot": "active",
+   "damage": 100,
+   "cite": "card text (Ready to Ram): 40 damage, then during your opponent's next turn if this Pokémon is damaged by an attack, 6 damage counters on the Attacking Pokémon (40 + 60)"
+  }
+ ]
+}

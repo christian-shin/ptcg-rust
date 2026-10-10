@@ -1,17 +1,11 @@
-//! Togekiss (SSP / ASC): Wonder Kiss - whenever your opponent's Active Pokémon
-//! gets Knocked Out, flip a coin; if heads, take 1 more Prize card for that
-//! Knock Out (does not stack). Speed Wing - 140.
+//! Togekiss (SSP / ASC): Wonder Kiss - whenever your opponent's Active Pokémon gets Knocked Out, flip a coin; if heads,
+//! take 1 more Prize card for that Knock Out (does not stack). Speed Wing - 140.
 //!
-//! Twinleaf: on a KnockOutEffect for the owner's Active, with this card in
-//! play on the other side, unless the Ability is blocked and the sourceless
-//! marker TOGEKISS_KNOCKOUT_FLIP isn't set: set the marker, flip (the
-//! KnockOutEffect is retained across the flip), `prizeCount += 1` on heads
-//! when it is > 0, then remove the marker.
-//!
-//! Fixed (phase 4b, R7F-1; rulings 1591, 1619, 1623): the handler used to
-//! require the ATTACK phase of Togekiss' owner, so a Knock Out by Poison or
-//! Burn in Pokémon Checkup, or by an Ability (Cursed Blast), took no extra
-//! Prize. Any Knock Out of the opponent's Active counts.
+//! An `On(KnockOut & Owner(Opp) & Slot(Active))` trigger of the Ability: any Knock Out of the opponent's Active counts,
+//! whatever the cause (attack damage, Checkup Poison or Burn, a Pokémon Knocking itself Out: id2043; a Cursed Blast Knock
+//! Out too, id2084, id2089: every effect resolves before the Knock Outs). One flip however many Togekiss
+//! (id2083): while it is pending the Ability's marker on the player stops a second copy from flipping; heads adds 1 Prize to the
+//! KnockOut (`Op::PrizeBonus`).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

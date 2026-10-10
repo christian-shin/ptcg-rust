@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Iron Leaves ex PRE 176",
+   "2 Iron Crown ex PRE 158",
+   "2 Mega Skarmory ex POR 55",
+   "54 Grass Energy MEE 1"
+  ],
+  [
+   "2 Iron Leaves ex PRE 176",
+   "2 Iron Crown ex PRE 158",
+   "2 Mega Skarmory ex POR 55",
+   "54 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Iron Leaves ex PRE 176",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Iron Crown ex PRE 158"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Skarmory ex POR 55",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Prism Edge"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 200,
+   "cite": "card text (Cobalt Command): a Future Pokémon's attack does 20 more damage to the opponent's Active Pokémon (180 + 20)"
+  }
+ ]
+}

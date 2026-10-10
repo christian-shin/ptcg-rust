@@ -1,6 +1,9 @@
-//! Mega Starmie ex (POR / M3): Jetting Blow — 120; also 50 damage to 1 of
-//! your opponent's Benched Pokémon (PutDamageEffect, no Weakness). Nebula
-//! Beam — 210; not affected by Weakness, Resistance, or effects.
+//! Mega Starmie ex (POR / M3): Jetting Blow — 120; also 50 damage to 1 of your opponent's Benched Pokémon (no Weakness or
+//! Resistance, APR B-08). Nebula Beam — 210; not affected by Weakness, Resistance, or effects.
+//!
+//! Jetting Blow: the chosen Benched Pokémon takes a Damage event of 50 caused by the attack. Nebula Beam sets the attack
+//! flags `IgnoreDefenderEffects` / `NoWeakness` / `NoResistance`: the damage skips the Prevent over Damage at step 6
+//! and every "takes less damage" (APR C-16, Shred).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

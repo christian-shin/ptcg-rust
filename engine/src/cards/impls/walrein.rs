@@ -1,7 +1,9 @@
-//! Walrein (SSP): Frigid Fangs — 60; during your opponent's next turn,
-//! Pokémon that have 2 or less Energy attached can't attack (a player-level
-//! OpponentPokemonCannotAttackDuringTheirNextTurnEffect). Megaton Fall — 170;
-//! this Pokémon also does 50 damage to itself.
+//! Walrein (SSP): Frigid Fangs — 60; during your opponent's next turn, Pokémon that have 2 or less Energy attached can't
+//! attack (a player-level lasting effect: `Lasting::OppSmallEnergyCannotAttack(2)`, one ApplyEffect event on the player,
+//! so it includes Pokémon that come into play later, and Walrein leaving the Active Spot doesn't end it: id2055).
+//! Megaton Fall — 170; this Pokémon also does 50 damage to itself.
+//!
+//! The self damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance, APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

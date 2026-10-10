@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Swablu SSP 148",
+   "2 Piplup PFL 27",
+   "2 Prinplup BRS 36",
+   "2 Empoleon ex PFL 70",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Swablu SSP 148",
+   "2 Piplup PFL 27",
+   "2 Prinplup BRS 36",
+   "2 Empoleon ex PFL 70",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Piplup PFL 27",
+   "Prinplup BRS 36",
+   "Empoleon ex PFL 70"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 10,
+   "conditions": [],
+   "cite": "card text (Emperor's Stance): prevent all effects of attacks, damage is not an effect (APR C-17): the 10 damage is done, Confusion is not"
+  }
+ ]
+}
