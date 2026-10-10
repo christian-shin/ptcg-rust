@@ -23,7 +23,6 @@ pub enum Event {
     OnDamagedByAttack(OnDamagedByAttackSpec),
     OnCheckup(OnCheckupSpec),
     OnEndTurn(OnEndTurnSpec),
-    OnDiscarded(OnDiscardedSpec),
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
     /// A rule no event expresses (Backtrack Badge): the card names the effect kinds it reacts to and
     /// decides in its own function whether it fires (returning the program's player).
@@ -56,9 +55,6 @@ impl OnDamagedByAttackSpec {
 /// Froslass applies it separately, id2302); a card rule or a Trainer's effect fires for every copy of the card in any
 /// zone (it clears its own markers).
 pub struct OnCheckupSpec {}
-/// This card is discarded by an effect of an attack of the Pokémon it is attached to (that
-/// player's Active Pokémon).
-pub struct OnDiscardedSpec {}
 /// The attack's after-attack triggers of the player run (step 7 window).
 pub struct OnAfterAttackTriggersSpec {}
 
@@ -83,7 +79,6 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
         Event::On(p) => p.effect_kinds(),
         Event::OnDamagedByAttack(_) => mask(&[k::DAMAGE, k::ATTACK_TRIGGER]),
-        Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
         Event::Custom(c) => mask(c.kinds),
         Event::OnAfterAttackTriggers(_) => mask(&[k::AFTER_ATTACK_TRIGGERS]),
@@ -148,19 +143,6 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 _ => None,
             }
         }
-        Event::OnDiscarded(_) => {
-            let Effect::DiscardCards { b, ref cards } = *g.e(e) else { return None };
-            let pu = b.player as usize;
-            let (sp, ss) = (b.source.p as usize, b.source.s);
-            if !(cards.contains(&me) && g.st.slot(sp, ss).cards.contains(me) && g.st.players[pu].active == ss && sp == pu) {
-                return None;
-            }
-            if t.origin == RuleSource::Energy && crate::prefabs::is_special_energy_blocked(g, pu, me, b.source, false) {
-                return None;
-            }
-            // The Pokémon it was attached to is the event's slot.
-            Some((pu, Some(b.source.p << 4 | b.source.s)))
-        }
         Event::Custom(c) => (c.fires)(g, me, e).map(|p| (p, None)),
         Event::OnCheckup(_) => match *g.e(e) {
             Effect::BetweenTurns { p, .. } if g.st.phase == crate::types::GamePhase::BetweenTurns => {
@@ -203,7 +185,11 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::Damage { b, amount, .. } => crate::engine::damage::damage_view(g, &b, amount),
         Effect::KnockOut { target, ko_by, cause, .. } => crate::engine::knockout::ko_view(g, target, ko_by, cause),
         // The Pokémon as it was when it left (the view is read after the reducer emptied the spot).
-        Effect::LeavePlay { target, pokemon, dest, cause, .. } => EventView { card: Some(pokemon).filter(|c| *c != crate::list::NO_CARD), ..crate::engine::knockout::leave_view(g, target, dest, cause) },
+        Effect::LeavePlay { target: Some(target), pokemon, dest, cause, how: crate::effects::LeaveHow::KnockOut | crate::effects::LeaveHow::Effect | crate::effects::LeaveHow::BenchShrink, .. } => {
+            EventView { card: Some(pokemon).filter(|c| *c != crate::list::NO_CARD), ..crate::engine::knockout::leave_view(g, target, dest, cause) }
+        }
+        // Cards attached to a Pokémon, the Stadium: one view per card (`run::after_event`, `cards_zone::view_of`).
+        Effect::LeavePlay { .. } => return None,
         Effect::ApplyEffect { target, cause, .. } => crate::engine::apply::apply_view(g, target, cause),
         Effect::TakePrizes { p, prizes, cause } => crate::engine::knockout::prizes_view(g, p as usize, prizes.len() as i32, cause),
         // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.
@@ -216,11 +202,16 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
 /// declaring card must be in place for its origin and not blocked there (a Pokémon's Ability, the Stadium in
 /// play, ...). Returns the program's player (the event's owner for a Stadium, else the card's owner) and the
 /// event's spot as the picked slot.
-pub(crate) fn fires_on(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> crate::game::R<Option<(usize, u8)>> {
+pub(crate) fn fires_on(g: &mut Game, me: CardId, v: &super::event::EventView, t: &Trigger) -> crate::game::R<Option<(usize, u8)>> {
     let Event::On(pred) = &t.event else { return Ok(None) };
-    let Some(v) = event_view(g, e) else { return Ok(None) };
-    let Some(at) = super::passive::locate(g, me, t.origin) else { return Ok(None) };
-    if !pred.eval(g, me, &v)? {
+    // A card that just left play reacts to its own LeavePlay as it was in play: attached to the Pokémon in the event's
+    // spot (Boomerang Energy, "if this card is discarded by an effect of an attack of the Pokémon it is attached to").
+    let left = match (v.kind, v.card, v.slot) {
+        (super::event::EventKind::LeavePlay, Some(c), Some(s)) if c == me && matches!(t.origin, RuleSource::Energy | RuleSource::Tool) => Some(super::passive::Located { owner: s.p as usize, held: Some(s) }),
+        _ => None,
+    };
+    let Some(at) = super::passive::locate(g, me, t.origin).or(left) else { return Ok(None) };
+    if !pred.eval(g, me, v)? {
         return Ok(None);
     }
     if super::passive::blocked(g, me, t.origin, at, v.slot) {

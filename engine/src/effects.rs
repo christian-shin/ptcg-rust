@@ -49,6 +49,12 @@ pub enum LeaveHow {
     KnockOut,
     Effect,
     BenchShrink,
+    /// Cards attached to a Pokémon leave play, the Pokémon staying (an Energy or a Tool discarded, put into the hand or
+    /// the deck; events batch 7, user decision D1: any card in play ceasing to be in play is a LeavePlay, the destination
+    /// a consequence).
+    Attached,
+    /// The Stadium leaves play (discarded by an effect, or replaced by a new one, APR B-04; user decision D1).
+    Stadium,
 }
 
 /// One pair of a MoveCounters event: HP of damage counters `removed` from the Pokémon in `from`, `placed` on the one in
@@ -104,8 +110,6 @@ pub struct AtkBase {
 pub enum Effect {
     // ---- game phase ----
     BeginTurn { p: u8 },
-    DrawCardForTurn { p: u8, draw_count: i32 },
-    DrewTopdeck { p: u8, card: CardId },
     EndTurn { p: u8 },
     WhoBegins { player: Option<u8> },
     BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32 },
@@ -153,10 +157,12 @@ pub enum Effect {
     /// `prize_count` Prize cards to the opponent (`prize_base` before the adjustments that reduce it). Produced by the
     /// state check while every Pokémon Knocked Out at the same time is still in play.
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, ko_by: crate::spec::event::KoBy, cause: Cause },
-    /// The LeavePlay event (`engine::knockout::leave_play`): the Pokémon in `target` and every card attached to it leave
-    /// play for `dest` (`how`: a Knock Out's, an effect's, the Bench shrinking). `p` is the Pokémon's owner.
-    /// `pokemon`: its top Pokémon card as it leaves (what the triggers after the event read).
-    LeavePlay { p: u8, target: SlotRef, pokemon: CardId, dest: ListRef, cause: Cause, how: LeaveHow, source_card: CardId },
+    /// The LeavePlay event (`engine::knockout`): a card in play ceases to be in play (user decision D1), for `dest` (its
+    /// owner's zone). `how`: the Pokémon in `target` and every card attached to it (a Knock Out's, an effect's, the Bench
+    /// shrinking: `cards` is empty), the `cards` attached to the Pokémon in `target` (`Attached`), the Stadium `cards[0]`
+    /// (`Stadium`, no `target`). `p` is the owner of what leaves. `pokemon`: for a whole Pokémon, its top Pokémon card as
+    /// it leaves (what the triggers after the event read); `NO_CARD` otherwise.
+    LeavePlay { p: u8, target: Option<SlotRef>, pokemon: CardId, dest: ListRef, cause: Cause, how: LeaveHow, source_card: CardId, cards: SVec<CardId, 64> },
     /// The TakePrizes event (`engine::knockout::take_prizes`): player `p` takes the Prize cards `prizes` (Prize list
     /// indices, in the order taken) into their hand.
     TakePrizes { p: u8, prizes: crate::list::SVec<u8, 6>, cause: Cause },
@@ -195,7 +201,17 @@ pub enum Effect {
     /// The ApplyEffect event (events batch 6, user decision D4; `engine::apply`): player `p`'s attack `attack` (used by
     /// `card`) puts the lasting `effect` on `target`.
     ApplyEffect { p: u8, target: ApplyTarget, effect: crate::spec::ops::state::Lasting, card: CardId, attack: AttackRef, cause: Cause },
-    MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
+    /// The Discard event (events batch 7; `engine::cards_zone::discard`): player `p`'s `cards` go from `from` (their hand,
+    /// their deck, or the cards looked at, `source` the rules zone) to their discard pile (a Prism Star card to the Lost
+    /// Zone), in the order of the action. One per action and owner.
+    Discard { p: u8, cards: SVec<CardId, 64>, from: ListRef, source: crate::spec::event::RulesZone, cause: Cause },
+    /// The PutIntoHand event (`engine::cards_zone::put_into_hand`): player `p`'s `cards` go from `from` into their hand.
+    PutIntoHand { p: u8, cards: SVec<CardId, 64>, from: ListRef, source: crate::spec::event::RulesZone, cause: Cause },
+    /// The PutIntoDeck event (`engine::cards_zone::put_into_deck`): player `p`'s `cards` go from `from` into their deck at
+    /// `position`.
+    PutIntoDeck { p: u8, cards: SVec<CardId, 64>, from: ListRef, source: crate::spec::event::RulesZone, position: crate::spec::event::DeckPosition, cause: Cause },
+    /// The Draw event (`engine::cards_zone::draw`): player `p` draws `cards` (the top of their deck) into their hand.
+    Draw { p: u8, cards: SVec<CardId, 64>, cause: Cause },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
     /// The PlaceCounters event (events batch 6; `engine::damage::place`): `amount` HP of damage counters are put on the
@@ -233,8 +249,6 @@ pub enum Effect {
         source_in_play: bool,
         retaliate: Option<crate::state::StoredRetaliate>,
     },
-    DiscardCards { b: AtkBase, cards: SVec<CardId, 64> },
-    CardsToHand { b: AtkBase, cards: SVec<CardId, 64> },
     /// An attack's move of an Energy between the opponent's Pokémon, held until the attack's damage is done (the attack's
     /// after-damage window, `Game::defer_after_damage`; `b.target` is the source spot); its reducer produces the MoveEnergy
     /// event (`engine::attach::move_attached`), whose preventions read both ends (B6-OLD -> batch 7: the window becomes the
@@ -282,8 +296,6 @@ impl Effect {
         use Effect::*;
         match self {
             BeginTurn { .. } => "BEGIN_TURN_EFFECT",
-            DrawCardForTurn { .. } => "DRAW_CARD_FOR_TURN_EFFECT",
-            DrewTopdeck { .. } => "DREW_TOPDECK_EFFECT",
             EndTurn { .. } => "END_TURN_EFFECT",
             WhoBegins { .. } => "END_TURN_EFFECT",
             BetweenTurns { .. } => "BETWEEN_TURNS_EFFECT",
@@ -315,7 +327,10 @@ impl Effect {
             RemoveCondition { .. } => "REMOVE_CONDITION_EVENT",
             CoinFlip { .. } => "COIN_FLIP_EVENT",
             Evolve { .. } => "EVOLVE_EFFECT",
-            MoveCards { .. } => "MOVE_CARDS_EFFECT",
+            Discard { .. } => "DISCARD_EVENT",
+            PutIntoHand { .. } => "PUT_INTO_HAND_EVENT",
+            PutIntoDeck { .. } => "PUT_INTO_DECK_EVENT",
+            Draw { .. } => "DRAW_EVENT",
             EffectOfAbility { .. } => "EFFECT_OF_ABILITY_EFFECT",
             SpecialEnergy { .. } => "SPECIAL_ENERGY_EFFECT",
             PlaceCounters { .. } => "PLACE_COUNTERS_EVENT",
@@ -325,8 +340,6 @@ impl Effect {
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
             Damage { .. } => "DAMAGE_EVENT",
             AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
-            DiscardCards { .. } => "DISCARD_CARD_EFFECT",
-            CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EVENT",
             Devolve { .. } => "DEVOLVE_EVENT",
@@ -355,7 +368,7 @@ impl Effect {
     pub fn atk_base(&self) -> Option<&AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | DiscardCards { b, .. } | CardsToHand { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
+            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -363,7 +376,7 @@ impl Effect {
     pub fn atk_base_mut(&mut self) -> Option<&mut AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | DiscardCards { b, .. } | CardsToHand { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
+            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -373,8 +386,6 @@ impl Effect {
         use Effect::*;
         let k = match self {
             BeginTurn { .. } => 0,
-            DrawCardForTurn { .. } => 1,
-            DrewTopdeck { .. } => 2,
             EndTurn { .. } => 3,
             WhoBegins { .. } => 4,
             BetweenTurns { .. } => 5,
@@ -406,7 +417,10 @@ impl Effect {
             RemoveCondition { .. } => 74,
             CoinFlip { .. } => 75,
             Evolve { .. } => 29,
-            MoveCards { .. } => 31,
+            Discard { .. } => 95,
+            PutIntoHand { .. } => 98,
+            PutIntoDeck { .. } => 127,
+            Draw { .. } => 130,
             EffectOfAbility { .. } => 32,
             SpecialEnergy { .. } => 33,
             PlaceCounters { .. } => 100,
@@ -416,8 +430,6 @@ impl Effect {
             PutDamage { .. } => 39,
             Damage { .. } => 94,
             AttackTrigger { .. } => 246,
-            DiscardCards { .. } => 43,
-            CardsToHand { .. } => 44,
             MoveOpponentEnergy { .. } => 164,
             Attach { .. } => 50,
             MoveEnergy { .. } => 64,
@@ -448,8 +460,6 @@ impl Effect {
 /// `Effect::kind()` values, for subscription masks.
 pub mod k {
     pub const BEGIN_TURN: u32 = 0;
-    pub const DRAW_CARD_FOR_TURN: u32 = 1;
-    pub const DREW_TOPDECK: u32 = 2;
     pub const END_TURN: u32 = 3;
     pub const WHO_BEGINS: u32 = 4;
     pub const BETWEEN_TURNS: u32 = 5;
@@ -482,7 +492,6 @@ pub mod k {
     pub const REMOVE_CONDITION: u32 = 74;
     pub const COIN_FLIP: u32 = 75;
     pub const EVOLVE: u32 = 29;
-    pub const MOVE_CARDS: u32 = 31;
     pub const EFFECT_OF_ABILITY: u32 = 32;
     pub const SPECIAL_ENERGY: u32 = 33;
     /// The ChangeActive event (events batch 5). 48, not the old MovedToActive's 35: the dispatch index keys its
@@ -493,8 +502,6 @@ pub mod k {
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
     pub const MOVE_OPPONENT_ENERGY: u32 = 164;
-    pub const DISCARD_CARDS: u32 = 43;
-    pub const CARDS_TO_HAND: u32 = 44;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
     pub const ATTACH: u32 = 50;
     pub const MOVE_ENERGY: u32 = 64;
@@ -652,6 +659,10 @@ impl Effect {
             | MoveCounters { cause, .. }
             | KnockOut { cause, .. }
             | LeavePlay { cause, .. }
+            | Discard { cause, .. }
+            | PutIntoHand { cause, .. }
+            | PutIntoDeck { cause, .. }
+            | Draw { cause, .. }
             | TakePrizes { cause, .. }
             | ApplyEffect { cause, .. }
             | GainCondition { cause, .. }

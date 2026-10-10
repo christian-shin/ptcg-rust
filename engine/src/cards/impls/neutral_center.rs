@@ -22,7 +22,8 @@ pub static SPEC: CardSpec = CardSpec {
                 ]),
             )),
         },
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::ThisCardFromDiscard, ..PreventSpec::NONE }) },
+        // "This card can't be put into your hand or deck from the discard pile": a lock over its PutIntoHand / PutIntoDeck.
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec::NOT_FROM_DISCARD_TO_HAND_OR_DECK) },
     ],
     ..CardSpec::NONE
 };

@@ -118,7 +118,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
     if energy::check_exact_energy(map.as_slice(), cost.as_slice()) {
         let cards = energy_cards(&map);
-        g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);
+        pay(g, p, active, &cards, move_to)?;
         return retreat_pokemon(g, p, bench_index);
     }
     if energy::all_provides_identical(map.as_slice()) {
@@ -127,7 +127,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let has_choice = sel.len() < cost.len() && map.len() >= cost.len();
             if !sel.is_empty() && !has_choice {
                 let cards: Vec<CardId> = sel.iter().map(|e| e.card).collect();
-                g.move_cards_to(ListRef::Slot(p as u8, active), &cards, move_to);
+                pay(g, p, active, &cards, move_to)?;
                 return retreat_pokemon(g, p, bench_index);
             }
         }
@@ -157,8 +157,15 @@ pub fn resume(g: &mut Game, rc: RetreatCont, res: Res) -> R {
     }
     let cards: Vec<CardId> = energy.iter().copied().collect();
     let active = g.st.players[p].active;
-    g.move_cards_to(ListRef::Slot(rc.p, active), &cards, rc.move_to);
+    pay(g, p, active, &cards, rc.move_to)?;
     retreat_pokemon(g, p, rc.bench_index)
+}
+
+/// The Retreat Cost paid: the chosen Energy cards leave play from the Active Pokémon for their owner's discard pile (a
+/// LeavePlay of attached cards by the rule, user decision D1; never refused).
+fn pay(g: &mut Game, p: usize, active: crate::state::SlotId, cards: &[CardId], to: ListRef) -> R {
+    let zone = crate::engine::knockout::zone_of(to);
+    crate::engine::knockout::leave_play_cards_by_rule(g, SlotRef::new(p, active), cards, zone, crate::cause::Cause::rule(crate::cause::RuleWhich::Retreat, p as u8))
 }
 
 /// `new CheckRetreatCostEffect(player)`: the Active Pokémon's printed Retreat

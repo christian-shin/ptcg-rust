@@ -46,40 +46,11 @@ pub fn init_next_turn(g: &mut Game) -> R {
     g.run_fx_unit(Effect::BeginTurn { p: p as u8 })?;
 
     let id = g.player_id(p);
-    let draw = if g.st.players[p].cannot_draw_at_start_of_turn {
+    if g.st.players[p].cannot_draw_at_start_of_turn {
         g.st.players[p].cannot_draw_at_start_of_turn = false;
-        None
     } else {
-        match g.run_fx(Effect::DrawCardForTurn { p: p as u8, draw_count: 1 }) {
-            Ok((Effect::DrawCardForTurn { draw_count, .. }, _)) => Some(draw_count),
-            _ => None,
-        }
-    };
-    let draw_count = match draw {
-        Some(n) => n,
-        None => {
-            g.wait(id, Cont::PhasePlayerTurn);
-            return Ok(());
-        }
-    };
-    let hand_start = g.st.players[p].hand.len();
-    g.run_fx(Effect::MoveCards {
-        source: ListRef::Deck(p as u8),
-        destination: ListRef::Hand(p as u8),
-        cards: None,
-        count: Some(draw_count),
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card: NO_CARD,
-    })?;
-    let drawn = g.st.players[p].hand.len().saturating_sub(hand_start);
-    for i in 0..drawn {
-        let card = g.st.players[p].hand.as_slice()[hand_start + i];
-        if g.run_fx(Effect::DrewTopdeck { p: p as u8, card }).is_err() {
-            g.wait(id, Cont::PhasePlayerTurn);
-            return Ok(());
-        }
+        // The turn's draw (APR H, G step 4): a Draw event by the rule.
+        crate::engine::cards_zone::draw(g, p, 1, crate::cause::Cause::rule(crate::cause::RuleWhich::TurnDraw, p as u8))?;
     }
     g.wait(id, Cont::PhasePlayerTurn);
     Ok(())
