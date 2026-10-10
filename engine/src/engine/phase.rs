@@ -246,42 +246,14 @@ fn end_turn(g: &mut Game, p: usize) -> R {
         slot.lasting_prevents.clear();
     }
     for s in g.st.players[p].in_play().iter() {
-        // Phase 4b (R3): "This Pokémon can't use [attack]" only locks an attack the Pokémon
-        // has; a Pokémon that copied the attack (Slowking's Seek Inspiration, Metronome) used
-        // its own attack, so the copy doesn't lock the copied name (Rulings Compendium 1654).
-        // TS: `cannotUseAttacksNextTurnPending.filter(name => cards.some(attacks has name))`.
-        // Memory Helix (Mew ex) is different: the Pokémon uses the attack itself, so the lock keeps
-        // a name that is among the Active Pokémon's offered (copied) attacks.
-        let mut owned: SVec<&'static str, 4> = SVec::new();
-        let mut copied_names: Option<SVec<&'static str, 32>> = None;
-        let pending: SVec<&'static str, 4> = g.st.players[p].slots[*s as usize].cannot_use_attacks_next_turn_pending;
-        for n in pending.iter() {
-            let sl = &g.st.players[p].slots[*s as usize];
-            if sl.cards.iter().any(|c| {
-                let d = g.st.cdef(c);
-                d.is_pokemon() && d.attacks.iter().any(|x| x.name == *n)
-            }) {
-                owned.push(*n);
-                continue;
-            }
-            if *s != g.st.players[p].active {
-                continue;
-            }
-            if copied_names.is_none() {
-                let mut v: SVec<&'static str, 32> = SVec::new();
-                let e = crate::engine::turn::check_attacks_effect(g, p);
-                if let (Effect::CheckPokemonAttacks { copied, .. }, _) = g.run_fx(e)? {
-                    for a in copied.iter() {
-                        v.push(g.st.cdef(a.card).attacks[a.idx()].name);
-                    }
-                }
-                copied_names = Some(v);
-            }
-            if copied_names.as_ref().map_or(false, |v| v.iter().any(|x| x == n)) {
-                owned.push(*n);
+        let slot = &mut g.st.players[p].slots[*s as usize];
+        // The locks an attack left on the Pokémon count this turn of its owner (events batch 7, D14).
+        for l in slot.lasting_locks.as_mut_slice().iter_mut() {
+            if l.turns_remaining != LastingLock::UNTIL_REMOVED {
+                l.turns_remaining -= 1;
             }
         }
-        let slot = &mut g.st.players[p].slots[*s as usize];
+        slot.lasting_locks.retain(|l| l.turns_remaining > 0);
         // A prevention armed during this turn is in force during the opponent's next turn.
         for l in slot.lasting_prevents.as_mut_slice().iter_mut() {
             l.pending = false;
@@ -297,31 +269,9 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.discard_attacker_energy_if_ko_next_turn = true;
             slot.discard_attacker_energy_if_ko_next_turn_pending = false;
         }
-        if slot.cannot_attack_next_turn {
-            slot.cannot_attack_next_turn = false;
-        }
-        if !slot.cannot_use_attacks_next_turn.is_empty() {
-            slot.cannot_use_attacks_next_turn.clear();
-        }
-        if slot.cannot_attack_next_turn_pending {
-            slot.cannot_attack_next_turn = true;
-            slot.cannot_attack_next_turn_pending = false;
-        }
-        if !slot.cannot_use_attacks_next_turn_pending.is_empty() {
-            slot.cannot_use_attacks_next_turn = owned;
-            slot.cannot_use_attacks_next_turn_pending.clear();
-        }
         if slot.attack_damage_reduction_next_turn > 0 {
             slot.attack_damage_reduction_next_turn = 0;
         }
-        if slot.cannot_retreat_next_turn {
-            slot.cannot_retreat_next_turn = false;
-        }
-        if slot.cannot_retreat_next_turn_pending {
-            slot.cannot_retreat_next_turn = true;
-            slot.cannot_retreat_next_turn_pending = false;
-        }
-        slot.blocked_attack_name_next_turn = None;
         // Replace the previous bonus with one armed during this turn, or clear it.
         slot.next_turn_attack_damage_bonus = slot.next_turn_attack_damage_bonus_pending;
         slot.next_turn_attack_damage_bonus_pending = None;
@@ -413,7 +363,7 @@ pub fn apply_play_lock(pl: &mut Player, lock: &'static crate::spec::passive::Loc
         return;
     }
     let slot = pl.lasting_locks.iter().position(|l| l.is_none()).unwrap_or(pl.lasting_locks.len() - 1);
-    pl.lasting_locks[slot] = Some(LastingLock { decl: lock, turns_remaining: turns, source });
+    pl.lasting_locks[slot] = Some(LastingLock { decl: lock, turns_remaining: turns, source, attack: None });
 }
 
 pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
@@ -427,15 +377,6 @@ pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
     }
     if pl.stadium_and_tool_have_no_effect_turns_remaining > 0 {
         pl.stadium_and_tool_have_no_effect_turns_remaining -= 1;
-    }
-    if pl.cannot_attack_turns_remaining > 0 {
-        pl.cannot_attack_turns_remaining -= 1;
-    }
-    if pl.cannot_attack_max_energy_turns_remaining > 0 {
-        pl.cannot_attack_max_energy_turns_remaining -= 1;
-        if pl.cannot_attack_max_energy_turns_remaining <= 0 {
-            pl.cannot_attack_max_energy = None;
-        }
     }
     if pl.unlimited_energy_attach_turns_remaining > 0 {
         pl.unlimited_energy_attach_turns_remaining -= 1;

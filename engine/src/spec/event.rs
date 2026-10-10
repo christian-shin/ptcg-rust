@@ -359,6 +359,10 @@ pub enum EventPred {
     CauseOnSlot,
     /// CoinFlip: what the coin is flipped for.
     Purpose(CoinPurpose),
+    /// UseAttack: the attacking Pokémon provides at most this many Energy (Walrein's Frigid Fangs: "Pokémon that have 2
+    /// or less Energy attached can't attack"; the count of a checked read of the Energy it provides, which the
+    /// UseAttack's checks make only when a lock on the player reads it: [`EventPred::reads_energy`]).
+    EnergyAtMost(i32),
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
     Not(&'static EventPred),
@@ -429,12 +433,16 @@ pub struct EventView {
     pub trainer_use: Option<TrainerUse>,
     /// PutIntoDeck: where the cards go.
     pub position: Option<DeckPosition>,
+    /// UseAttack: the attack used (its name is what "can't use [Attack Name]" reads, APR C-15).
+    pub attack: Option<crate::state::AttackRef>,
+    /// UseAttack: the Energy the attacking Pokémon provides, when a lock reads it ([`EventPred::EnergyAtMost`]).
+    pub energy: Option<i32>,
 }
 
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false, trainer_use: None, position: None }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false, trainer_use: None, position: None, attack: None, energy: None }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or
@@ -658,6 +666,26 @@ impl EventPred {
         }
     }
 
+    /// Does the predicate read the Energy the event's Pokémon provides ([`EventPred::EnergyAtMost`], a checked read the
+    /// UseAttack's checks make only for a lock that needs it)?
+    pub const fn reads_energy(&self) -> bool {
+        match self {
+            EventPred::EnergyAtMost(_) => true,
+            EventPred::All(ps) | EventPred::Any(ps) => {
+                let mut i = 0;
+                while i < ps.len() {
+                    if ps[i].reads_energy() {
+                        return true;
+                    }
+                    i += 1;
+                }
+                false
+            }
+            EventPred::Not(p) => p.reads_energy(),
+            _ => false,
+        }
+    }
+
     /// The effect kinds whose events can match: the kinds the predicate names, or every event kind with an
     /// effect where it names none. The declaring card's dispatch mask.
     pub const fn effect_kinds(&self) -> KindMask {
@@ -765,6 +793,7 @@ impl EventPred {
                 _ => false,
             },
             EventPred::Purpose(p) => v.purpose == Some(*p),
+            EventPred::EnergyAtMost(n) => v.energy.map_or(false, |e| e <= *n),
             EventPred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, v)? {

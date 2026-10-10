@@ -2,7 +2,7 @@
 //! 240; during your next turn this Pokémon can't use Brave Slash.
 //!
 //! Insta-Strike: no prompt without a Benched Pokémon; the chosen Benched Pokémon takes a Damage event of 30 caused by
-//! the attack, with no Weakness or Resistance (APR B-08). Brave Slash arms `Lasting::CannotUseThisAttackNextTurn` (an
+//! the attack, with no Weakness or Resistance (APR B-08). Brave Slash arms `Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This))` (an
 //! ApplyEffect event on this Pokémon: `Lasting::CannotUseAttack`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), hp: Num::Lit(30), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::True })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This)) })),
         ] },
     ],
     ..CardSpec::NONE

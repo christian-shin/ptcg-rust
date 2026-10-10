@@ -8,7 +8,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "GougingFireex",
-    attacks: &[AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::BlockThisAttackUntilLeavesActive }))] }],
+    attacks: &[AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_USE_ATTACK_AGAIN, LockUntil::LeavesActive).naming(NamedAttack::This)) }))] }],
     ..CardSpec::NONE
 };
 

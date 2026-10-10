@@ -15,7 +15,7 @@ static QUAKING_FIST: LockDecl = LockDecl { error: "BLOCKED_BY_EFFECT", forbids: 
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Seismitoad",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&QUAKING_FIST) }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_opponent(&QUAKING_FIST)) }))] }],
     ..CardSpec::NONE
 };
 

@@ -89,57 +89,12 @@ pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool
             }
         }
     }
-    if g.st.slot(p, attacking.s).cannot_attack_next_turn {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
-    if g.st.players[p].cannot_attack_turns_remaining > 0 {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
     Ok(attacking)
-}
-
-/// Is there a "can't attack with this much Energy" effect on the player (so the Energy count is read)?
-pub fn attack_max_energy_applies(g: &Game, p: usize) -> bool {
-    g.st.players[p].cannot_attack_max_energy_turns_remaining > 0 && g.st.players[p].cannot_attack_max_energy.is_some()
 }
 
 /// The Energy count the attacker provides, from the `CheckProvidedEnergy` read.
 pub fn max_energy_count(map: &EnergyMap) -> i32 {
     map.iter().map(|m| m.provides.len() as i32).sum()
-}
-
-/// The checked read between the halves: with a "can't attack with this much
-/// Energy" effect on the player, the Energy count the attacker provides.
-pub fn attack_read_max_energy(g: &mut Game, p: usize, attacking: SlotRef) -> R<Option<i32>> {
-    if attack_max_energy_applies(g, p) {
-        let map = provided_energy_read(g, p, attacking)?;
-        return Ok(Some(max_energy_count(&map)));
-    }
-    Ok(None)
-}
-
-/// Check only, second half: the max-Energy rule (given the read) and the
-/// blocked attack names.
-pub fn can_attack_post(g: &Game, p: usize, attack: AttackRef, attacking: SlotRef, max_energy_count: Option<i32>) -> R {
-    let ad = attack_def(g, attack);
-    if let (Some(count), Some(max)) = (max_energy_count, g.st.players[p].cannot_attack_max_energy) {
-        if count <= max {
-            crate::bail!("BLOCKED_BY_EFFECT");
-        }
-    }
-    if g.st.slot(p, attacking.s).cannot_use_attacks_next_turn.contains(&ad.name) {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
-    if g.st.slot(p, attacking.s).blocked_attack_name_next_turn == Some(ad.name) {
-        crate::bail!("BLOCKED_BY_EFFECT");
-    }
-    if g.st.slot(p, attacking.s).blocked_attack_name_until_leaves_active == Some(ad.name) {
-        crate::bail!("CANNOT_USE_ATTACK");
-    }
-    // cannotAttackMaxEnergy / other blocked attack names /
-    // cannotUseAttackUntilLeavesPlay / cannotUseGXAttacks /
-    // coinFlipCancelAttackNextTurn: not modeled.
-    Ok(())
 }
 
 /// The checked read of an attack's current cost (`CheckAttackCost`).

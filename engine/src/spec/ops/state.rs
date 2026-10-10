@@ -74,18 +74,10 @@ impl DamageSource {
 /// pending-to-active roll-over at the end of the turn and the expiry.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Lasting {
-    /// The Defending Pokémon can't retreat during the opponent's next turn (an
-    /// attack effect on the opponent's Pokémon).
-    PreventRetreat,
-    /// This Pokémon can't attack during your next turn.
-    CannotAttackNextTurn,
-    /// This Pokémon can't use this attack during your next turn.
-    CannotUseThisAttackNextTurn,
-    /// This Pokémon can't use this attack again until it leaves the Active Spot.
-    BlockThisAttackUntilLeavesActive,
-    /// The Defending Pokémon can't use the attack of this name during the opponent's next turn (APR C-15: "it can't be
-    /// used during their next turn" after the attacker chose it).
-    CannotUseAttack(&'static str),
+    /// A lock the attack leaves on a Pokémon or on the opponent, for a time (events batch 7, user decision D14): "this
+    /// Pokémon can't attack during your next turn", "can't use [Attack Name]" (APR C-15), "the Defending Pokémon can't
+    /// retreat", "your opponent can't play Item cards from their hand" (APR C-19), Seismitoad's coin-gated one.
+    Lock(LastingLockSpec),
     /// During the opponent's next turn, this Pokémon takes n less damage from attacks.
     TakesLessDamage(i32),
     /// During the opponent's next turn, attacks used by the Defending Pokémon do n less damage.
@@ -97,10 +89,6 @@ pub enum Lasting {
     /// During the opponent's next turn, if this Pokémon is damaged by an attack
     /// (even if Knocked Out), put n damage counters on the Attacking Pokémon.
     Retaliate(i32),
-    /// The opponent can't do these actions with these cards (a [`LockDecl`], the declaration an in-play lock
-    /// uses) during their next turn.
-    OppCannotPlay(&'static LockDecl),
-    // --- S3 agent 3 appends ---
     /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
     IncreaseAttackCost,
     /// During the opponent's next turn, the Defending Pokémon's Retreat Cost is [C] more.
@@ -112,10 +100,68 @@ pub enum Lasting {
     /// During the opponent's next turn, if this Pokémon is Knocked Out by damage from an attack,
     /// the attacker's controller discards an Energy attached to the Attacking Pokémon (Little Grudge).
     DiscardAttackerEnergyIfKnockedOut,
-    /// This Pokémon can't retreat during your next turn.
-    SelfCannotRetreat,
-    /// During the opponent's next turn, Pokémon with this many Energy or fewer can't attack.
-    OppSmallEnergyCannotAttack(i32),
+}
+
+/// A lock an attack leaves (`Lasting::Lock`): the declaration (what it forbids, a [`LockDecl`] as an in-play lock
+/// uses), whom it is on, until when, and the attack it names.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct LastingLockSpec {
+    pub lock: &'static LockDecl,
+    pub on: LockOn,
+    pub until: LockUntil,
+    pub attack: NamedAttack,
+}
+
+/// Whom a lasting lock is on.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LockOn {
+    /// The attacking Pokémon ("this Pokémon").
+    ThisPokemon,
+    /// The opponent's Active Pokémon ("the Defending Pokémon").
+    DefendingPokemon,
+    /// The opponent ("your opponent can't ..."; a player has no spot: no `Prevent` matches it, APR C-19).
+    Opponent,
+}
+
+/// Until when a lasting lock lasts.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LockUntil {
+    /// "During your next turn" (a lock on the attacking Pokémon: the attack ends this turn).
+    YourNextTurn,
+    /// "During your opponent's next turn".
+    OpponentsNextTurn,
+    /// "Until it leaves the Active Spot" (ends with the Pokémon's other effects of attacks, APR C-15).
+    LeavesActive,
+}
+
+/// The attack a "can't use [Attack Name]" lock names (APR C-15: the Pokémon's other attacks can still be used).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum NamedAttack {
+    /// None: the declaration says what it forbids.
+    Any,
+    /// The attack being used ("this Pokémon can't use [this attack] during your next turn").
+    This,
+    /// An attack the attacker chose ("choose 1 of the Defending Pokémon's attacks; it can't be used ...").
+    Chosen(&'static str),
+}
+
+impl LastingLockSpec {
+    /// "Your opponent can't ... during their next turn" (APR C-19).
+    pub const fn on_opponent(lock: &'static LockDecl) -> LastingLockSpec {
+        LastingLockSpec { lock, on: LockOn::Opponent, until: LockUntil::OpponentsNextTurn, attack: NamedAttack::Any }
+    }
+    /// "This Pokémon can't ..." until `until`.
+    pub const fn on_this_pokemon(lock: &'static LockDecl, until: LockUntil) -> LastingLockSpec {
+        LastingLockSpec { lock, on: LockOn::ThisPokemon, until, attack: NamedAttack::Any }
+    }
+    /// "The Defending Pokémon can't ... during your opponent's next turn".
+    pub const fn on_defending(lock: &'static LockDecl) -> LastingLockSpec {
+        LastingLockSpec { lock, on: LockOn::DefendingPokemon, until: LockUntil::OpponentsNextTurn, attack: NamedAttack::Any }
+    }
+    /// The lock names an attack ("can't use [Attack Name]").
+    pub const fn naming(self, attack: NamedAttack) -> LastingLockSpec {
+        LastingLockSpec { attack, ..self }
+    }
 }
 
 /// Arm a lasting effect of the attack being used.

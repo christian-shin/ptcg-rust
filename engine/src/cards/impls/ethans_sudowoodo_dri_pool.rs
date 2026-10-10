@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "EthansSudowoodoDRIPool",
     attacks: &[
         // Impound: during your opponent's next turn the Defending Pokémon can't retreat.
-        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))] },
         // Try to Imitate: flip a coin; if heads, choose 1 of your opponent's Active Pokémon's attacks
         // and use it as this attack.
         AttackSpec {

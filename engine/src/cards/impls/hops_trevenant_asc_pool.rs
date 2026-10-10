@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(more_damage_if(100, Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: true, tag: Some(tag::HOPS) })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) })),
         ] },
     ],
     ..CardSpec::NONE

@@ -65,18 +65,8 @@ impl Game {
         nd!(entered_turn, "pokemonPlayedTurn");
         nd!(sleep_flips, "sleepFlips");
         nd!(healed_this_turn, "healedThisTurn");
-        nd!(cannot_attack_next_turn, "cannotAttackNextTurn");
-        nd!(cannot_attack_next_turn_pending, "cannotAttackNextTurnPending");
-        nd!(cannot_retreat_next_turn, "cannotRetreatNextTurn");
-        nd!(cannot_retreat_next_turn_pending, "cannotRetreatNextTurnPending");
         nd!(damage_reduction_next_turn, "damageReductionNextTurn");
         nd!(attack_damage_reduction_next_turn, "attackDamageReductionNextTurn");
-        if !s.cannot_use_attacks_next_turn.is_empty() {
-            o.insert("cannotUseAttacksNextTurn".into(), json!(s.cannot_use_attacks_next_turn.as_slice()));
-        }
-        if !s.cannot_use_attacks_next_turn_pending.is_empty() {
-            o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
-        }
         // The preventions an attack left on the Pokémon (events batch 6), by the card that left them.
         if !s.lasting_prevents.is_empty() {
             let v: Vec<Value> = s.lasting_prevents.iter().map(|l| json!({"source": self.card_ref(l.source), "pending": l.pending})).collect();
@@ -133,11 +123,11 @@ impl Game {
         }
         nd!(defending_extra_damage_pending, "defendingPokemonExtraDamagePending");
         nd!(defending_extra_damage_rearm_after_attack, "defendingPokemonExtraDamageRearmAfterAttack");
-        if let Some(n) = s.blocked_attack_name_next_turn {
-            o.insert("blockedAttackNameNextTurn".into(), json!(n));
-        }
-        if let Some(n) = s.blocked_attack_name_until_leaves_active {
-            o.insert("blockedAttackNameUntilLeavesActive".into(), json!(n));
+        // The locks an attack left on the Pokémon: the turns left and the attack each names (outside the observable
+        // projection the golden comparator hashes).
+        if !s.lasting_locks.is_empty() {
+            let v: Vec<serde_json::Value> = s.lasting_locks.iter().map(|l| json!({"turns": l.turns_remaining, "attack": l.attack})).collect();
+            o.insert("lastingLocks".into(), json!(v));
         }
         if let Some(b) = s.next_turn_attack_damage_bonus {
             o.insert("nextTurnAttackDamageBonus".into(), next_turn_bonus_json(&b));
@@ -229,9 +219,6 @@ impl Game {
         nd!(used_dragons_wish, "usedDragonsWish");
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
         nd!(cannot_draw_at_start_of_turn, "cannotDrawAtStartOfTurn");
-        nd!(cannot_attack_turns_remaining, "cannotAttackTurnsRemaining");
-        nd!(cannot_attack_max_energy, "cannotAttackMaxEnergy");
-        nd!(cannot_attack_max_energy_turns_remaining, "cannotAttackMaxEnergyTurnsRemaining");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
         nd!(used_table_turner, "usedTableTurner");
         nd!(chains_of_control_used, "chainsOfControlUsed");

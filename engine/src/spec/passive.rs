@@ -374,7 +374,7 @@ pub enum CoinGate {
 /// A lock (events design section 5: `Lock { forbids }`), and the code the stopped action fails with: the events it
 /// forbids (`forbids`), evaluated for the lock's source card; the locked player is the event's actor
 /// (`EventView::actor`, the `Cause` player: id25, id230, id959). The in-play locks ([`BlockUseSpec`]) and the locks an
-/// attack leaves on the opponent (`Lasting::OppCannotPlay`, stored on the locked player as a
+/// attack leaves on the opponent (`Lasting::Lock` on the opponent, stored on the locked player as a
 /// [`crate::state::LastingLock`]) are this one declaration. Events batch 7: the play locks are over PlayTrainer ("your
 /// opponent can't play Item cards from their hand": `Kind(PlayTrainer) & Use(Played) & Source(Hand) & Card(Item)`).
 pub struct LockDecl {
@@ -397,6 +397,33 @@ impl LockDecl {
         std::ptr::eq(self, o)
     }
 }
+
+/// "This Pokémon can't attack" / "can't use attacks" / "can't use [Attack Name]" for a time (APR C-15; events batch 7, user
+/// decision D14): a lock over the UseAttack of the Pokémon it is on, left by an attack (`Lasting::Lock`; the attack it
+/// names is the stored lock's, `LastingLock::attack`). The player can't announce nor use the attack.
+pub static CANT_ATTACK: LockDecl = LockDecl::on(
+    super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
+    "BLOCKED_BY_EFFECT",
+);
+
+/// "This Pokémon can't use [this attack] again until it leaves the Active Spot" (Gouging Fire ex's Blaze Blitz): the same
+/// lock, named, until the Pokémon's effects of attacks end.
+pub static CANT_USE_ATTACK_AGAIN: LockDecl = LockDecl::on(
+    super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
+    "CANNOT_USE_ATTACK",
+);
+
+/// "This Pokémon can't retreat" / "the Defending Pokémon can't retreat" for a time (events batch 7, user decision D14): a
+/// lock over the ChangeActive of a retreat whose leaving Pokémon is the one it is on. Retreating only: it can still be
+/// switched (APR C-03).
+pub static CANT_RETREAT: LockDecl = LockDecl::on(
+    super::event::EventPred::All(&[
+        super::event::EventPred::Kind(super::event::EventKind::ChangeActive),
+        super::event::EventPred::Change(super::event::ActiveChange::Retreat),
+        super::event::EventPred::From(SlotPred::IsThisPokemon),
+    ]),
+    "BLOCKED_BY_EFFECT",
+);
 
 /// "Your opponent can't play Item cards from their hand" (Tyranitar, Jellicent ex's Items half, Budew, Frillish,
 /// Galvantula ex): PlayTrainer of an Item played from the hand.
@@ -1785,7 +1812,15 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
 /// [`event_locked`] answers `None` without a walk, so legality asks it before making its scratch game.
 #[inline]
 pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool {
-    lock_marker(kind).map_or(false, |m| g.kinds_present.has(m)) || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
+    lock_marker(kind).map_or(false, |m| g.kinds_present.has(m))
+        || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
+        || g.st.players[p].slots.iter().any(|s| !s.lasting_locks.is_empty())
+}
+
+/// Does a lock an attack left on player `p` read the Energy the attacking Pokémon provides (`EventPred::EnergyAtMost`)?
+/// The UseAttack's checks make that checked read only then.
+pub fn lasting_reads_energy(g: &Game, p: usize) -> bool {
+    g.st.players[p].lasting_locks.iter().flatten().any(|l| l.decl.forbids.reads_energy())
 }
 
 /// The marker a `Prevent` over events of `kind` sets in its card's mask (`prevent_kinds`) and that
@@ -1947,13 +1982,33 @@ pub(crate) fn event_locked_by(g: &mut Game, me: CardId, v: &super::event::EventV
     Ok(None)
 }
 
-/// [`event_locked`] for the locks over events an attack left on the event's actor (the locked player).
+/// [`event_locked`] for the locks an attack left: on the event's actor (the locked player), and on the Pokémon the event
+/// is about (its spot, a retreat's leaving Pokémon: "this Pokémon can't attack / retreat during your next turn", APR
+/// C-15), evaluated for that Pokémon; a lock naming an attack forbids only that attack.
 pub fn lasting_event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
     let p = v.actor() as usize;
     for i in 0..g.st.players[p].lasting_locks.len() {
         let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
         if l.decl.coin == CoinGate::No && !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
             return Ok(Some(l.decl.error));
+        }
+    }
+    let spots = [v.slot, v.from.filter(|f| Some(*f) != v.slot)];
+    for s in spots.into_iter().flatten() {
+        let n = g.st.slot(s.p as usize, s.s).lasting_locks.len();
+        if n == 0 {
+            continue;
+        }
+        let Some(me) = g.st.slot_pokemon(s.p as usize, s.s) else { continue };
+        for i in 0..n {
+            let l = g.st.slot(s.p as usize, s.s).lasting_locks.as_slice()[i];
+            let named = match l.attack {
+                None => true,
+                Some(name) => v.attack.map_or(false, |a| crate::engine::attack::attack_def(g, a).name == name),
+            };
+            if named && l.decl.coin == CoinGate::No && l.decl.forbids.eval(g, me, v)? {
+                return Ok(Some(l.decl.error));
+            }
         }
     }
     Ok(None)

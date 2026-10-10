@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
         AttackSpec { index: 1, steps: &[
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::on(PLAY_ITEM_FROM_HAND, "BLOCKED_BY_EFFECT")) })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_opponent(&LockDecl::on(PLAY_ITEM_FROM_HAND, "BLOCKED_BY_EFFECT"))) })),
         ] },
     ],
     passives: &[

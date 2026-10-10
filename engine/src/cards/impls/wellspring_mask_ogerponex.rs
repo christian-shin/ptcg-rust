@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "WellspringMaskOgerponex",
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) }],
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))] },
         AttackSpec {
             index: 1,
             // You may shuffle 3 Energy from this Pokémon into your deck; if you do, also 120 damage to 1 of the opponent's Benched Pokémon.

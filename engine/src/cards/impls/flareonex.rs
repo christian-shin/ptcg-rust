@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
             })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn)) })),
         ] },
     ],
     passives: &[

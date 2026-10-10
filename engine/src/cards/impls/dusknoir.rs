@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
         ],
     }],
     // Shadow Bind: the Defending Pokémon can't retreat during your opponent's next turn.
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))] }],
     ..CardSpec::NONE
 };
 

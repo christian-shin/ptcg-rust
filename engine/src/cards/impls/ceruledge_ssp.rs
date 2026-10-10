@@ -25,7 +25,7 @@ pub static SPEC: CardSpec = CardSpec {
             }))],
         },
         // Amethyst Rage: during your next turn, this Pokémon can't attack.
-        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn)) }))] },
     ],
     ..CardSpec::NONE
 };
