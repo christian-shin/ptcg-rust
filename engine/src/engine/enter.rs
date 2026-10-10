@@ -193,6 +193,10 @@ pub(crate) fn while_ok(g: &Game, me: CardId, at: passive::Located, while_: &[Loc
         LockWhile::Active => g.st.active_pokemon(at.owner) == Some(me),
         LockWhile::HasTool => at.held.map_or(false, |h| !g.st.slot(h.p as usize, h.s).tools.is_empty()),
         LockWhile::CardIsSource => event_card == Some(me),
+        LockWhile::Unless(c) => {
+            let f = crate::spec::run::Frame::passive(g, me, at.owner, passive::RuleSource::CardRule);
+            !crate::spec::value::cond(g, me, &f, c)
+        }
     })
 }
 

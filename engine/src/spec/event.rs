@@ -96,6 +96,9 @@ impl EventKind {
             EventKind::PutIntoDeck => Some(k::PUT_INTO_DECK),
             EventKind::Draw => Some(k::DRAW),
             EventKind::PlayTrainer => Some(k::PLAY_TRAINER),
+            EventKind::UseAttack => Some(k::USE_ATTACK),
+            EventKind::UseAbility => Some(k::USE_POWER),
+            EventKind::UseStadium => Some(k::USE_STADIUM),
             _ => None,
         }
     }
@@ -537,6 +540,9 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::PUT_INTO_DECK,
     crate::effects::k::DRAW,
     crate::effects::k::PLAY_TRAINER,
+    crate::effects::k::USE_ATTACK,
+    crate::effects::k::USE_POWER,
+    crate::effects::k::USE_STADIUM,
 ]);
 /// The events with an effect done to a Pokémon or its cards, which a `Prevent` naming no `Kind` ranges over ("prevent all
 /// effects of attacks done to X"): an explicit list (events batch 7). Not Damage: damage is not an effect (APR C-17
@@ -570,6 +576,8 @@ pub const CARD_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k:
 /// PlayTrainer (events batch 7): a lock over it sets `DECLARES_PLAY_LOCK`. No `Prevent` ranges over it (it isn't done to
 /// a Pokémon; a used Supporter's effects are the attack's, on the Pokémon they reach: id2025).
 pub const PLAY_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::PLAY_TRAINER]);
+/// The turn actions UseAttack, UseAbility, UseStadium (events batch 7): a lock over them sets `DECLARES_USE_LOCK`.
+pub const USE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::USE_ATTACK, crate::effects::k::USE_POWER, crate::effects::k::USE_STADIUM]);
 
 /// `m` without the kind `k`.
 pub const fn without(m: KindMask, k: u32) -> KindMask {
