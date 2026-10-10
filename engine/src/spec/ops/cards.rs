@@ -244,7 +244,6 @@ pub struct AttachSpec {
     pub valid_types: &'static [u8],
     pub max_per_type: u8,
     pub cancel: bool,
-    pub route: AttachRoute,
     /// "Attach it to this Pokémon" / "to that Pokémon": the cards `cards` of `from` go onto the Pokémon this names, with no
     /// prompt (the cards were chosen before). `None`: the AttachEnergy prompt chooses cards and Pokémon.
     pub onto: Option<SlotExpr>,
@@ -269,7 +268,6 @@ impl AttachSpec {
         valid_types: &[],
         max_per_type: 0,
         cancel: false,
-        route: AttachRoute::Move,
         onto: None,
         cards: CardSel::All,
         none_shuffles: false,
@@ -294,19 +292,6 @@ pub enum TargetScan {
     // --- S3-4 appends ---
     /// Every Pokémon in play (Active first) whose current type is none of these is blocked.
     EffectiveTypes(&'static [CardType]),
-}
-/// What an `Attach` does besides attaching. Every route produces one Attach event per card (events batch 3), so
-/// `Move` and `Effect` are the same now. B7: the card files keep either name until batch 7 collapses the enum
-/// (with `MovePoisonActive`, whose direct Poison is batch 4's, and `MoveShufflePerCard`, which keeps its RNG order).
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum AttachRoute {
-    /// Attach (the name of the route that moved the cards without an event before events batch 3).
-    Move,
-    /// Attach (the name of the only route with an attach event before events batch 3).
-    Effect,
-    /// Attach; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
-    /// (Janine's Secret Art).
-    MovePoisonActive,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
 /// effect that effect-prevention can stop.
@@ -1244,7 +1229,6 @@ fn decode_attach(items: &[u8]) -> Vec<(SlotRef, CardId)> {
 /// Attach the chosen cards, one after the other, to their Pokémon. A card that left its zone, or a
 /// Pokémon that left play, since the choice was made is skipped.
 fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(SlotRef, CardId)]) -> R<Flow> {
-    let p = f.who(a.chooser);
     let Some(from) = zone_list(g, me, f, a.from, true) else { return Ok(Flow::Next) };
     for (target, c) in ts.iter().copied() {
         if !g.lst(from).contains(&c) || g.st.slot_pokemon(target.p as usize, target.s).is_none() {
@@ -1256,10 +1240,11 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
         if !attached {
             continue;
         }
-        f.attached_to = encode(target);
-        if a.route == AttachRoute::MovePoisonActive && target.p as usize == p && target.s == g.st.players[p].active {
-            // Janine's Secret Art: "If you attached Energy to your Active Pokémon in this way, it is now Poisoned."
-            crate::engine::condition::gain(g, target, SpecialCondition::Poisoned, f.cause)?;
+        // The Pokémon attached to (`SlotExpr::Attached`): the last one, or the Active Pokémon once a card went there
+        // ("if you attached Energy to your Active Pokémon in this way": Janine's Secret Art).
+        let on_active = |g: &Game, e: u8| e != NONE && g.st.players[(e >> 4) as usize].active == e & 15;
+        if !on_active(g, f.attached_to) {
+            f.attached_to = encode(target);
         }
     }
     Ok(Flow::Next)

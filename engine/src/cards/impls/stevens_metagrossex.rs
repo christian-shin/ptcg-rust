@@ -44,7 +44,6 @@ pub static SPEC: CardSpec = CardSpec {
                 different_types: true,
                 max_per_type: 0,
                 cancel: true,
-                route: AttachRoute::Move,
                 onto: None,
                 cards: CardSel::All,
                 none_shuffles: true,

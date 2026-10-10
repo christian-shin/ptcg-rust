@@ -30,7 +30,6 @@ pub static SPEC: CardSpec = CardSpec {
                 slots: AttachSlots::ActiveBench,
                 target: Pred::PrintedType(ct::METAL),
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) },
-                route: AttachRoute::Move,
                 ..AttachSpec::DEFAULT
             }))],
             no: &[],

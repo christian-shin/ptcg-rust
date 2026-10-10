@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "RIPE_CHARGE_MARKER", from: MarkerFrom::This }), Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Provides(ct::GRASS)]))],
         steps: &[
-            Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), slots: AttachSlots::ActiveBench, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, route: AttachRoute::Effect, ..AttachSpec::DEFAULT })),
+            Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), slots: AttachSlots::ActiveBench, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, ..AttachSpec::DEFAULT })),
             Step::new(Op::If(IfSpec { cond: Cond::Cmp(Num::Last, CmpOp::Gt, Num::Lit(0)), yes: &[Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("RIPE_CHARGE_MARKER") })), Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Attached), hp: Num::Lit(30), clear_conditions: false }))], no: &[] })),
         ],
     }],

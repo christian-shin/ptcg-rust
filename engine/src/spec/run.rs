@@ -150,7 +150,8 @@ pub struct Frame {
     pub(crate) slot: u8,
     /// The Prize card pile picked by the last `PickPrize`, or NONE.
     pub(crate) prize: u8,
-    /// The Pokémon the last `Attach` attached cards to (`p << 4 | slot`), or NONE.
+    /// The Pokémon the last `Attach` attached cards to (`p << 4 | slot`; the Active Pokémon when one of the cards went
+    /// there), or NONE.
     pub(crate) attached_to: u8,
     /// Cards the last discard of the program moved (`Num::Last`, 16 bits).
     pub(crate) last: i32,
