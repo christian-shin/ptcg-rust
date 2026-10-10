@@ -167,10 +167,7 @@ pub fn resolve_survive_coin_flips(g: &mut Game) -> R {
         let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, g.st.slot_pokemon(tp, ts), owner);
         let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: owner, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
         if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
-            g.st.players[tp].slots[ts as usize].damage = hp - 10;
-            if !g.ten_hp.contains(&t) {
-                g.ten_hp.push(t);
-            }
+            crate::engine::damage::survive_on_10(g, t, hp);
         }
     }
     Ok(())

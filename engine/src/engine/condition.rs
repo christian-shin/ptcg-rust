@@ -7,10 +7,8 @@
 //! its consequences in [`reducer`]. A refused event doesn't happen (`Ok(false)`): an effect does as much as it can.
 //!
 //! - [`gain`]: "is now Poisoned / Burned / Asleep / Paralyzed / Confused", whatever causes it (an attack, an
-//!   Ability, a Trainer, a Tool, Janine's Secret Art). One event per condition. The attack's and the Ability's
-//!   effects first go through their B4-OLD probes (`Effect::AddSpecialConditions`,
-//!   `AddSpecialConditionsPower`), which the attack-effect preventions and Hide 'n' Sneak still read; their
-//!   reducers call [`gain`].
+//!   Ability, a Trainer, a Tool, Janine's Secret Art). One event per condition; the preventions over it (Hide 'n'
+//!   Sneak, "prevent all effects of attacks") read the event's Cause (events batch 6 removed the probes).
 //! - [`remove`] / [`recover_all`]: the Pokémon recovers from a condition by an effect ("recovers from all Special
 //!   Conditions") or at the Checkup (Paralyzed at the end of its owner's turn, a heads for Burned or Asleep); refusable.
 //!   [`recover_by_rule`]: the rules' consequence of moving to the Bench (retreat, switch), evolving or devolving;

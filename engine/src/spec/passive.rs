@@ -228,6 +228,7 @@ pub enum PreventWhat {
     /// None of these: the declaration is over events (`PreventSpec::from`).
     None,
     /// The opponent's Pokémon in play and their attached cards can't be put into the opponent's hand.
+    /// B6-OLD -> batch 7: the attached-card half (a card leaving play to the hand is batch 7's LeavePlay / PutIntoHand).
     MoveToHandFromOppPlay,
     // --- S3 agent 3 appends ---
     /// This card can't be put into its owner's hand or deck from the discard pile (the move

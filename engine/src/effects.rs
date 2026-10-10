@@ -116,6 +116,7 @@ pub enum Effect {
     BeforeDoingDamage { attack_effect: EffId, p: u8, opp: u8, attack: AttackRef },
 
     // ---- checks ----
+    /// B6-OLD -> batch 8 (HP from the derived layer).
     CheckHp { p: u8, target: SlotRef, card: Option<CardId> },
     CheckPokemonStats { target: SlotRef, weakness: SVec<WeaknessV, 4>, resistance: SVec<ResistanceV, 4> },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
@@ -130,6 +131,7 @@ pub enum Effect {
     /// `copied`: the attacks of other Pokémon that the Active Pokémon uses as its own (Mew ex Memory Helix),
     /// pushed to `attacks` as well; the source is `AttackRef::card`.
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32>, copied: SVec<AttackRef, 32> },
+    /// B6-OLD -> batch 8 (Bench size and Prize count adjustments from the derived layer).
     CheckTableState { bench_sizes: [u8; 2] },
     CheckSpecialConditionRemoval { p: u8, target: SlotRef, preserved: SVec<u8, 5> },
 
@@ -206,6 +208,8 @@ pub enum Effect {
     ChangeActive { p: u8, from: crate::state::SlotId, to: crate::state::SlotId, change: crate::spec::event::ActiveChange, cause: Cause },
 
     // ---- attack sub-effects ----
+    /// The damage calculation passes of `engine::damage::deal` (B6-OLD -> batch 8: the damage modifiers and Weakness /
+    /// Resistance as derived reads; the Damage event itself is `Effect::Damage`).
     ApplyWeakness { b: AtkBase, damage: i32, ignore_weakness: bool, ignore_resistance: bool },
     DealDamage { b: AtkBase, damage: i32 },
     PutDamage { b: AtkBase, damage: i32, weakness_applied: bool, survive_on_ten_hp: bool },

@@ -246,10 +246,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 g.run_fx_unit(Effect::CheckHp { p: b.player, target: t, card: Some(card) })?;
                 let hp = crate::engine::check::hp_of(g, tp, ts, Some(card));
                 if g.st.slot(tp, ts).damage >= hp {
-                    g.st.players[tp].slots[ts as usize].damage = hp - 10;
-                    if !g.ten_hp.contains(&t) {
-                        g.ten_hp.push(t);
-                    }
+                    survive_on_10(g, t, hp);
                 }
             }
             // What the attack damaged, for "Knocked Out by damage from an attack" (the opponent's Pokémon, any spot; and
@@ -284,6 +281,21 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         _ => {}
     }
     Ok(())
+}
+
+/// "It is not Knocked Out, and its remaining HP becomes 10" (ruling 1770; survive-on-10 replacements): the damage that
+/// leaves 10 HP of `hp`, and the Pokémon is recorded so an effect of the same attack lowering its HP keeps it at 10
+/// (ruling 1589; `engine::phase`'s AfterAttack).
+pub fn survive_on_10(g: &mut Game, t: SlotRef, hp: i32) {
+    g.st.players[t.p as usize].slots[t.s as usize].damage = hp - 10;
+    if !g.ten_hp.contains(&t) {
+        g.ten_hp.push(t);
+    }
+}
+
+/// The remaining HP of a Pokémon recorded by [`survive_on_10`] is 10 again after the attack lowered its HP (ruling 1589).
+pub fn keep_10(g: &mut Game, t: SlotRef, hp: i32) {
+    g.st.players[t.p as usize].slots[t.s as usize].damage = hp - 10;
 }
 
 #[cfg(test)]

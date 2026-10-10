@@ -6,10 +6,9 @@
 //! routines fill it with their rule (turn draw, retreat, promotion, Checkup, setup). Ops never pick a
 //! cause per card.
 //!
-//! Events batch 1: the field is filled everywhere, but the old inference (`AtkBase` presence, the
-//! Hide 'n' Sneak kind list, op flags like `CounterCause` / `effect_of_attack`) is still what the
-//! readers use. `PTCG_VERIFY_CACHE=1` compares the two and counts the disagreements per class
-//! (`mismatch`, `report`).
+//! Since events batch 6 the readers use the Cause only (the `Prevent` reader, `derived::event_prevented`; the
+//! B6-OLD probes for an attack's Discard / PutIntoHand -> batch 7). `PTCG_VERIFY_CACHE=1` still compares it with the
+//! old `AtkBase` inference where that remains and counts the disagreements per class (`mismatch`, `report`).
 
 use crate::list::CardId;
 use crate::state::AttackRef;

@@ -223,7 +223,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
                 let hp = crate::derived::hp(g, tp, ts)?;
                 if g.st.slot(tp, ts).damage >= hp {
-                    g.st.players[tp].slots[ts as usize].damage = hp - 10;
+                    crate::engine::damage::keep_10(g, *t, hp);
                 }
             }
             let o = opp as usize;
