@@ -67,42 +67,42 @@ pub fn damage_view(g: &Game, b: &AtkBase, amount: i32) -> EventView {
 // ---------------------------------------------------------------------------
 // The routines
 
-/// Damage: the attack of `b` does `amount` damage to the Pokémon in `b.target`. `deal`: the damage to the Defending
-/// Pokémon (the `DealDamage` route: the attacker-side modifiers, Weakness and Resistance); otherwise put on the Pokémon
-/// (`PutDamage`: Benched Pokémon; Weakness and Resistance still for the opponent's Active Pokémon, as today). The
-/// calculation passes keep today's order exactly (B6-OLD -> batch 8). Nothing happens when the final damage is 0 or a
-/// prevention applies.
+/// Damage: the attack of `b` does `amount` damage to the Pokémon in `b.target`, in one calculation order (APR Damage
+/// Calculation Order 1-6). `deal`: the attack's damage calculated in full (the `DealDamage` route: the attacker-side
+/// modifiers, and Weakness and Resistance when the target is in an Active Spot); otherwise put on the Pokémon (the
+/// `PutDamage` route, `DamageCalc::Put`: no attacker-side modifiers, no Weakness or Resistance). The passes are
+/// today's (B6-OLD -> batch 8, derived reads). Nothing happens when the final damage is 0 or a prevention applies.
 pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     let t = b.target;
     let mut d = amount;
-    let mut weakness_applied = false;
     let (ig_w, ig_r) = match *g.e(b.attack_effect) {
         Effect::Attack { ignore_weakness, ignore_resistance, .. } => (ignore_weakness, ignore_resistance),
         _ => (false, false),
     };
+    // Step 2: the effects on the Pokémon doing the damage: the attacker-side modifiers (DamageDealt passives), then
+    // "the Defending Pokémon's attacks do N less damage".
     if deal {
-        // Step 2: the attacker-side modifiers (DamageDealt passives), then "the Defending Pokémon's attacks do N less".
         let (e, _) = g.run_fx(Effect::DealDamage { b, damage: d })?;
         if let Effect::DealDamage { damage, .. } = e {
             d = damage;
         }
-        let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
-        if src_red > 0 {
-            d = (d - src_red).max(0);
-        }
-        // Steps 3-4: Weakness and Resistance apply to the opponent's Active Pokémon only (APR B-08: not to the attack's
-        // damage to the attacker itself).
-        let opp = 1 - b.player as usize;
-        if t.p as usize == opp && t.s == g.st.players[opp].active {
-            let (e, _) = g.run_fx(Effect::ApplyWeakness { b, damage: d, ignore_weakness: ig_w, ignore_resistance: ig_r })?;
-            if let Effect::ApplyWeakness { damage, .. } = e {
-                d = damage;
-            }
-        }
-        weakness_applied = true;
     }
-    // Step 5: the defender-side modifiers (DamageTaken passives), and the survive-on-10 replacements of a full-HP Pokémon.
-    let (e, _) = g.run_fx(Effect::PutDamage { b, damage: d, weakness_applied, survive_on_ten_hp: false })?;
+    let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
+    if src_red > 0 {
+        d = (d - src_red).max(0);
+    }
+    // Steps 3-4: Weakness and Resistance apply to damage done to a Pokémon in an Active Spot, either player's: the
+    // attack's damage to the attacker itself too (APR B-09: "Weakness, Resistance, and other effects on the Pokémon
+    // still apply"); never to a Benched Pokémon unless the text says so (APR B-08, B-09).
+    if deal && t.s == g.st.players[t.p as usize].active {
+        let (e, _) = g.run_fx(Effect::ApplyWeakness { b, damage: d, ignore_weakness: ig_w, ignore_resistance: ig_r })?;
+        if let Effect::ApplyWeakness { damage, .. } = e {
+            d = damage;
+        }
+    }
+    // Step 5: the effects on the damaged Pokémon: the defender-side modifiers (DamageTaken passives), the survive-on-10
+    // replacements of a full-HP Pokémon, then the lasting "takes N less / more damage".
+    let (e, _) = g.run_fx(Effect::PutDamage { b, damage: d, weakness_applied: deal, survive_on_ten_hp: false })?;
     let survive = match e {
         Effect::PutDamage { damage, survive_on_ten_hp, .. } => {
             d = damage;
@@ -113,20 +113,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
         crate::bail!("ILLEGAL_ACTION");
     }
-    let opp = 1 - b.player as usize;
     let shred = crate::prefabs::ignores_defender_effects(g, &b);
-    if !weakness_applied {
-        let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
-        if src_red > 0 {
-            d = (d - src_red).max(0);
-        }
-        if t.p as usize == opp && t.s == g.st.players[opp].active {
-            let (e, _) = g.run_fx(Effect::ApplyWeakness { b, damage: d, ignore_weakness: ig_w, ignore_resistance: ig_r })?;
-            if let Effect::ApplyWeakness { damage, .. } = e {
-                d = damage;
-            }
-        }
-    }
     // The lasting defender-side effects: "takes N less damage", "the Defending Pokémon takes N more damage" (summed,
     // floored once: APR B-05).
     if !shred {
@@ -309,10 +296,11 @@ mod tests {
     const OGERPON: &str = "Teal Mask Ogerpon ex TWM 25";
     const SNORLAX: &str = "Hop's Snorlax JTG 117";
     const MIST: &str = "Mist Energy TEF 161";
+    const ZAPDOS: &str = "Zapdos TWM 65";
 
     fn game(sc: serde_json::Value) -> Game {
         let mut names: Vec<&str> = Vec::new();
-        for n in [MILOTIC, OGERPON, SNORLAX, MIST] {
+        for n in [MILOTIC, OGERPON, SNORLAX, MIST, ZAPDOS] {
             names.extend(std::iter::repeat(n).take(4));
         }
         while names.len() < 60 {
@@ -335,6 +323,31 @@ mod tests {
         g.st.phase = GamePhase::Attack;
         g.last_attack = Some(crate::game::LastAttack { p: p as u8, effect: atk, attack, source, pokemon: Some(card), damaged_active: SVec::new(), damaged: SVec::new() });
         AtkBase { attack_effect: atk, player: p as u8, opponent: (1 - p) as u8, attack, source, target, cause: Cause::of_attack_at(g, p as u8, attack, source) }
+    }
+
+    /// Weakness and Resistance apply to the attack's damage to the attacker itself (APR B-09: "Weakness, Resistance, and
+    /// other effects on the Pokémon still apply"), never to a Benched Pokémon (APR B-08), and not on the `Put` route.
+    /// Zapdos TWM 65 is a Lightning Pokémon with Lightning Weakness (no self-damage user in the pool is weak or resistant
+    /// to its own type: latent).
+    #[test]
+    fn weakness_applies_to_self_damage() {
+        let mut g = game(json!({"me": {"reset": true, "active": ZAPDOS, "bench": [{"card": ZAPDOS}]}, "opp": {"reset": true, "active": SNORLAX}}));
+        let me = g.st.active_player as usize;
+        let own = SlotRef::new(me, g.st.players[me].active);
+        let bench = SlotRef::new(me, g.st.players[me].bench.as_slice()[0]);
+        let mut b = attack_on(&mut g, me, own);
+        if let Effect::Attack { ignore_weakness, ignore_resistance, .. } = g.e_mut(b.attack_effect) {
+            *ignore_weakness = false;
+            *ignore_resistance = false;
+        }
+        deal(&mut g, b, 30, true).unwrap();
+        assert_eq!(g.st.slot(me, own.s).damage, 60, "the attacker's damage to itself: Weakness x2 (APR B-09)");
+        b.target = bench;
+        deal(&mut g, b, 30, true).unwrap();
+        assert_eq!(g.st.slot(me, bench.s).damage, 30, "no Weakness on a Benched Pokémon (APR B-08)");
+        b.target = own;
+        deal(&mut g, b, 10, false).unwrap();
+        assert_eq!(g.st.slot(me, own.s).damage, 70, "the Put route: no Weakness");
     }
 
     /// "Prevent all damage" is step 6 of the calculation (APR C-16): the damage becomes 0 and the calculation ends, so a
