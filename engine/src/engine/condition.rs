@@ -16,9 +16,12 @@
 //! - [`heal`]: damage counters removed from a Pokémon (APR C-06). Moving counters off a Pokémon isn't healing it
 //!   (events design 4.1; batch 6).
 //! - [`coin_flipped`]: one event per physical flip, once its result is known, whatever asked for it: a card's
-//!   "flip a coin" (the B4-OLD `CoinFlipRequest` / `CoinFlipSequence`, which Backtrack Badge's re-flip hook
-//!   replaces), the Checkup flips for Burned and Asleep, the flip of a Confused Pokémon trying to attack, the flip
-//!   for who goes first.
+//!   "flip a coin" ([`flip_coin`], [`flip_sequence`]), the Checkup flips for Burned and Asleep, the flip of a Confused
+//!   Pokémon trying to attack, the flip for who goes first.
+//! - [`flip_coin`] / [`flip_sequence`]: a card's flips for an effect (events batch 7). Before their results are used, a
+//!   re-flip declaration covering them is offered (`Modifier::Reflip`, Backtrack Badge: "you may ignore all results of
+//!   those coin flips and begin flipping those coins again"; [`reflip_offered`]); the re-flip's flips are new CoinFlip
+//!   events with the original cause.
 //!
 //! The Cause is the frame's (`spec::run::Frame::cause`) or the rule's; ops never pick one.
 
@@ -41,6 +44,98 @@ pub fn condition_view(g: &Game, kind: EventKind, target: SlotRef, condition: Spe
 /// The RemoveCounters event: `amount` HP of damage counters off the Pokémon in `target`.
 pub fn heal_view(g: &Game, target: SlotRef, amount: i32, cause: Cause) -> EventView {
     EventView { card: g.st.slot_pokemon(target.p as usize, target.s), slot: Some(target), amount, ..EventView::new(EventKind::RemoveCounters, cause, target.p, crate::spec::event::whose_turn(g)) }
+}
+
+/// A card's coin flip of player `p` for an effect (`cause`): the flip (a CoinFlip event), the flip's wait, then `cb`
+/// runs with the result, unless a re-flip is offered first ([`reflip_offered`]). Returns the result of the flip made
+/// now (the callers that read it at once: no re-flip covers their flips).
+pub fn flip_coin(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) -> R<bool> {
+    let offer = reflip_offered(g, p, cause)?;
+    let cb = match offer {
+        Some(once) => {
+            g.coin_callbacks.push(cb);
+            let callback = (g.coin_callbacks.len() - 1) as u8;
+            crate::game::CoinCb::Reflip { p: p as u8, callback, cause, once }
+        }
+        None => cb,
+    };
+    flip_raw(g, p, cb, cause)
+}
+
+/// One flip of a card's effect with no re-flip offer: the CoinFlip event, then `cb` after the flip's wait.
+pub fn flip_raw(g: &mut Game, p: usize, cb: crate::game::CoinCb, cause: Cause) -> R<bool> {
+    let result = g.rng.coin();
+    coin_flipped(g, p, CoinPurpose::Effect, result, cause)?;
+    let pid = g.player_id(p);
+    g.prompt(pid, "", crate::prompts::PromptKind::Wait, crate::game::Cont::CoinFlipWait { cb, result });
+    Ok(result)
+}
+
+/// A card's sequence of flips ("flip N coins": `mode` N; "flip until you get tails": `mode` 0) of player `p` for an
+/// effect; `cb` gets the results (bit i = flip i heads) and the count, after a re-flip offer when one covers them.
+pub fn flip_sequence(g: &mut Game, p: usize, mode: u8, cb: crate::game::CoinCb, cause: Cause) -> R {
+    let cb = g.tag_coin(cb);
+    g.coin_callbacks.push(cb);
+    let callback = (g.coin_callbacks.len() - 1) as u8;
+    let offer = reflip_offered(g, p, cause)?;
+    let seq = crate::game::CoinCb::Sequence { p: p as u8, mode, results: 0, n: 0, callback, cause, offer: offer.is_some() };
+    g.coin_callbacks.push(seq);
+    flip_raw(g, p, seq, cause)?;
+    Ok(())
+}
+
+/// The re-flip declaration in play covering player `p`'s flips for an effect caused by `cause` (`Modifier::Reflip`,
+/// `passive::reflip_offered`): the once-per-turn marker it sets on its player when used, or `None`.
+pub fn reflip_offered(g: &mut Game, p: usize, cause: Cause) -> R<Option<crate::markers::MarkerName>> {
+    let v = EventView { purpose: Some(CoinPurpose::Effect), ..EventView::new(EventKind::CoinFlip, cause, p as u8, crate::spec::event::whose_turn(g)) };
+    crate::spec::passive::reflip_offered(g, &v)
+}
+
+/// The re-flip offer's answer (asked of player `p` after the flips of `callback`'s request: one flip's `result`, or a
+/// sequence's `results` / `n` with `mode` = `Some(mode)`): declined, the results go to the request's callback; taken,
+/// the player's once-per-turn marker is set and the coins are flipped again from the first, with no offer.
+pub fn reflip_answer(g: &mut Game, a: ReflipAsk, yes: bool) -> R {
+    let p = a.p as usize;
+    if !yes {
+        return match a.mode {
+            None => {
+                let cb = g.coin_callbacks.as_slice()[a.callback as usize];
+                g.run_coin_cb(cb, a.result)
+            }
+            Some(_) => g.finish_coin_sequence(a.callback, a.results, a.n, a.result),
+        };
+    }
+    g.st.players[p].marker.add_to_state(a.once);
+    match a.mode {
+        None => {
+            let cb = g.coin_callbacks.as_slice()[a.callback as usize];
+            flip_raw(g, p, cb, a.cause)?;
+        }
+        Some(mode) => {
+            let seq = crate::game::CoinCb::Sequence { p: a.p, mode, results: 0, n: 0, callback: a.callback, cause: a.cause, offer: false };
+            g.coin_callbacks.push(seq);
+            flip_raw(g, p, seq, a.cause)?;
+        }
+    }
+    Ok(())
+}
+
+/// A pending re-flip offer (`Cont::Reflip`).
+#[derive(Clone, Copy, Debug)]
+pub struct ReflipAsk {
+    pub p: u8,
+    pub callback: u8,
+    pub cause: Cause,
+    pub once: crate::markers::MarkerName,
+    pub result: bool,
+    pub results: u32,
+    pub n: u8,
+    pub mode: Option<u8>,
+}
+
+/// Offer the re-flip to player `p` (Backtrack Badge's "you may"; the prompt's message is the Badge's own).
+pub fn ask_reflip(g: &mut Game, a: ReflipAsk) {
+    crate::prefabs::confirmation_prompt(g, a.p as usize, "WANT_TO_USE_ABILITY", crate::game::Cont::Reflip(a));
 }
 
 /// The CoinFlip event of player `p`.
@@ -320,5 +415,41 @@ mod tests {
         g.st.players[me].slots[g.st.players[me].active as usize].damage = 20;
         let mine = active(&g, me);
         assert!(heal(&mut g, mine, 10, trainer(me)).unwrap());
+    }
+
+    /// Backtrack Badge (D7): offered for the flips of an effect of an attack of the [C] Pokémon holding it, by its
+    /// owner, once per turn; not a Confusion flip (id2417), not an Ability's (JP FAQ Cinccino ex), not an attack of a
+    /// Pokémon not holding it, not when the attacking Pokémon isn't [C] whatever attack it uses (JP FAQ Slowking's Seek
+    /// Inspiration choosing Stoutland's attack: the cause card is the attacking Pokémon).
+    #[test]
+    fn backtrack_badge_reflip_offer() {
+        const BADGE: &str = "Backtrack Badge PBL 74";
+        let mut names: Vec<&str> = Vec::new();
+        for n in [SLOWPOKE, SNORLAX, BADGE] {
+            names.extend(std::iter::repeat(n).take(4));
+        }
+        while names.len() < 60 {
+            names.push("Psychic Energy MEE 5");
+        }
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sc = json!({"me": {"reset": true, "active": SNORLAX, "active_tool": BADGE, "bench": [{"card": SLOWPOKE, "tool": BADGE}]}, "opp": {"reset": true, "active": SLOWPOKE}});
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let me = g.st.active_player as usize;
+        let snorlax = g.st.slot_pokemon(me, g.st.players[me].active).unwrap();
+        let slowpoke = g.st.slot_pokemon(me, g.st.players[me].bench.as_slice()[0]).unwrap();
+        let atk = |c: crate::list::CardId| Cause::attack(me as u8, Some(c), crate::state::AttackRef { card: c, index: 0 });
+        let once = crate::markers::COIN_REFLIP_AGAIN_USED;
+        assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), Some(once), "an attack of the [C] Pokémon holding it");
+        assert_eq!(reflip_offered(&mut g, me, atk(slowpoke)).unwrap(), None, "the attacking Pokémon isn't [C]");
+        let ability = Cause::new(CauseKind::Ability, Some(snorlax), me as u8);
+        assert_eq!(reflip_offered(&mut g, me, ability).unwrap(), None, "an Ability's flips");
+        assert_eq!(reflip_offered(&mut g, 1 - me, atk(snorlax)).unwrap(), None, "only its owner's flips");
+        let v = EventView { purpose: Some(CoinPurpose::Confusion), ..EventView::new(EventKind::CoinFlip, atk(snorlax), me as u8, crate::spec::event::whose_turn(&g)) };
+        assert_eq!(crate::spec::passive::reflip_offered(&mut g, &v).unwrap(), None, "a Confusion flip");
+        g.st.players[me].marker.add_to_state(once);
+        assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), None, "once during your turn");
     }
 }

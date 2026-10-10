@@ -180,7 +180,7 @@ pub enum Effect {
     RemoveCondition { p: u8, target: SlotRef, condition: crate::types::SpecialCondition, cause: Cause },
     /// The CoinFlip event (`engine::condition::coin_flipped`): player `p` flipped a coin, `heads` or not, for
     /// `purpose` (an effect, Confusion, Burned, Asleep, who goes first). Produced once per physical flip, when its
-    /// result is known; the flip itself is asked for by a request (`CoinFlipRequest`, `CoinFlipSequence`) or a
+    /// result is known; a card's flips are made by `engine::condition::flip_coin` / `flip_sequence`, the others by a
     /// Checkup / Confusion prompt.
     CoinFlip { p: u8, purpose: crate::spec::event::CoinPurpose, heads: bool, cause: Cause },
     /// The Evolve event (events batch 2; `engine::enter::evolve`): every evolution, played from the hand, Rare
@@ -271,12 +271,6 @@ pub enum Effect {
     Tool { p: u8, card: CardId },
     Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },
     TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
-    /// B4-OLD: a request for a sequence of flips (each is a `CoinFlipRequest`, each flip a CoinFlip event).
-    /// `mode`: 0 = until tails, n = n flips. `callback` indexes `coin_callbacks`.
-    CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool, cause: Cause },
-    /// B4-OLD: a request for one flip, which Backtrack Badge's re-flip hook replaces (`Event::Custom`); its reducer
-    /// flips the coin and produces the CoinFlip event, then the callback gets the result.
-    CoinFlipRequest { p: u8, callback: Option<u8>, result: Option<bool>, skip_reflip_stadium: bool, skip_reflip_tool: bool, cause: Cause },
 }
 
 impl Effect {
@@ -342,8 +336,6 @@ impl Effect {
             Tool { .. } => "TOOL_EFFECT",
             Stadium { .. } => "STADIUM_EFFECT",
             TrainerTarget { .. } => "TRAINER_TARGET_EFFECT",
-            CoinFlipSequence { .. } => "COIN_FLIP_SEQUENCE_EFFECT",
-            CoinFlipRequest { .. } => "COIN_FLIP_EFFECT",
         }
     }
 
@@ -420,9 +412,7 @@ impl Effect {
             Energy { .. } => 57,
             Tool { .. } => 58,
             Stadium { .. } => 59,
-            CoinFlipRequest { .. } => 61,
             TrainerTarget { .. } => 62,
-            CoinFlipSequence { .. } => 66,
             MoveCounters { .. } => 129,
             Devolve { .. } => 248,
             Swap { .. } => 249,
@@ -487,9 +477,7 @@ pub mod k {
     pub const TOOL: u32 = 58;
     pub const STADIUM: u32 = 59;
     /// B4-OLD: the request for one coin flip (Backtrack Badge's re-flip hook reads it).
-    pub const COIN_FLIP_REQUEST: u32 = 61;
     pub const TRAINER_TARGET: u32 = 62;
-    pub const COIN_FLIP_SEQUENCE: u32 = 66;
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
     /// The events of events batch 6 (`engine::damage`, `engine::knockout`; KnockOut keeps `KNOCK_OUT`): Damage, PlaceCounters,
@@ -522,6 +510,8 @@ pub mod k {
     pub const DECLARES_PLAY_LOCK: u32 = 219;
     /// A lock over UseAttack / UseAbility / UseStadium (events batch 7: "this Pokémon can't attack unless ...").
     pub const DECLARES_USE_LOCK: u32 = 220;
+    /// A re-flip declaration (`Modifier::Reflip`: Backtrack Badge), read by `passive::reflip_offered`.
+    pub const DECLARES_REFLIP: u32 = 221;
     /// A `Prevent` declaration over PlaceCounters / MoveCounters, over Damage, over a KnockOut by an effect, over LeavePlay,
     /// over Attach / MoveEnergy / MoveTool, over Evolve / Devolve / Swap, over ApplyEffect (events batch 6: the event's
     /// routine asks `derived::event_prevented` only in a game with one).
@@ -642,8 +632,6 @@ impl Effect {
             | GainCondition { cause, .. }
             | RemoveCondition { cause, .. }
             | CoinFlip { cause, .. }
-            | CoinFlipRequest { cause, .. }
-            | CoinFlipSequence { cause, .. }
             | Attach { cause, .. }
             | MoveEnergy { cause, .. }
             | MoveTool { cause, .. }
