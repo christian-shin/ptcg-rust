@@ -7,7 +7,7 @@
 
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
-use crate::engine::{attack, check, phase, play, retreat, setup, turn};
+use crate::engine::{attack, check, phase, retreat, setup, turn};
 use crate::list::*;
 use crate::prompts::*;
 use crate::rng::Rng;
@@ -89,8 +89,8 @@ pub enum CoinCb {
     /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).
     DelegCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
     DelegSequenceCard { card: CardId, source: CardId, serial: u8, frame: CardFrame },
-    /// `withOptionalCoinFlipCancelTrainer` (Seismitoad 30C's Quaking Fist).
-    CancelTrainer { kind: crate::engine::play::TrainerPlayKind, p: u8, card: CardId, target: Option<SlotRef> },
+    /// The coin of a coin-gated lock on a Trainer play (Seismitoad 30C's Quaking Fist; `engine::play_trainer::gate_coin`).
+    PlayGate { p: u8, card: CardId, target: Option<SlotRef> },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -966,7 +966,7 @@ impl Game {
             Cont::Retreat(rc) => retreat::resume(self, rc, first),
             Cont::CoinFlipWait { cb, result } => self.run_coin_cb(cb, result),
             Cont::TrainerCleanup { p, card } => {
-                play::trainer_cleanup(self, p as usize, card);
+                crate::engine::play_trainer::trainer_cleanup(self, p as usize, card);
                 Ok(())
             }
             Cont::ShuffleApplyNoWait { p } => {
@@ -1003,7 +1003,7 @@ impl Game {
             CoinCb::DelegCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], Some(result)),
             CoinCb::DelegSequenceCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
-            CoinCb::CancelTrainer { kind, p, card, target } => crate::engine::play::cancel_trainer_coin(self, kind, p, card, target, result),
+            CoinCb::PlayGate { p, card, target } => crate::engine::play_trainer::gate_coin(self, p, card, target, result),
             CoinCb::Sequence { p, mode, results, n, callback, cause } => {
                 let results = if result { results | (1 << n) } else { results };
                 let n = n + 1;
@@ -1219,7 +1219,9 @@ impl Game {
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
             crate::engine::enter::reducer(self, id)?;
         }
-        play::play_trainer_reducer(self, id)?;
+        if kind == k::PLAY_TRAINER {
+            crate::engine::play_trainer::reducer(self, id)?;
+        }
         retreat::reducer(self, id)?;
         crate::engine::game_effect::reducer(self, id)?;
         attack::reducer(self, id)?;
@@ -1236,8 +1238,6 @@ impl Game {
                 | k::ENTER_PLAY
                 | k::EVOLVE
                 | k::DEVOLVE
-                | k::PLAY_STADIUM
-                | k::ATTACH_POKEMON_TOOL
                 | k::CHANGE_ACTIVE
                 | k::CHECK_TABLE_STATE
         ) && !(kind == k::ENTER_PLAY && self.st.phase == GamePhase::Setup)
@@ -1266,7 +1266,7 @@ impl Game {
         let d = self.st.cards[c as usize].def;
         if let Some(imp) = cards::impl_for(d) {
             if imp.mask.has(kind) {
-                if let Effect::Trainer { p, card, .. } = *self.e(id) {
+                if let Effect::PlayTrainer { p, card, .. } = *self.e(id) {
                     if card == c {
                         let prev = self.resolving_trainer;
                         self.resolving_trainer = Some((p, c));

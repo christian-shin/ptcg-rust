@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // hand, they may heal 10 damage from each of their Pokémon (it can't be used without damage).
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
-        needs: &[Cond::SupporterPlayed(Who::Me), Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Damaged)],
+        needs: &[Cond::PlayedThisTurn(Who::Me, Pred::Supporter), Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Damaged)],
         steps: &[Step::new(Op::ForEach(ForEachSpec {
             over: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::StadiumEffectActive),
             body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(10), clear_conditions: false }))],

@@ -7,7 +7,6 @@ pub static SPEC: CardSpec = CardSpec {
     class: "AreaZeroUnderdepths",
     passives: &[
         // Automatically active: it can't be announced and used.
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
         // Each player with any Tera Pokémon in play can have up to 8 Benched Pokémon.
         Passive {
             origin: RuleSource::Stadium,

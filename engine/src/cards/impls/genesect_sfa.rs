@@ -11,7 +11,7 @@
 //!
 //! Events batch 3: attaching an ACE SPEC Energy or Tool is the Attach event from the hand, whatever
 //! attaches it (the turn's attachment, an Ability, an attack: id25, id230; RULES.md "Locks on playing
-//! cards"); Items and Stadiums keep the action form until PlayTrainer (batch 7).
+//! cards"). Events batch 7: an ACE SPEC Trainer played from the hand is its PlayTrainer.
 use crate::spec::prelude::*;
 use crate::types::tag;
 
@@ -19,13 +19,16 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Genesect@SFA",
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Opponent,
-        lock: LockDecl {
-            actions: &[LockedAction::PlayItem, LockedAction::PlayStadium],
-            card: Pred::Tag(tag::ACE_SPEC),
-            except: Pred::False,
-            error: "BLOCKED_BY_EFFECT",
-            forbids: EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::Source(RulesZone::Hand), EventPred::Card(Pred::Tag(tag::ACE_SPEC))]),
-        },
+        lock: LockDecl::on(
+            EventPred::All(&[
+                EventPred::Any(&[
+                    EventPred::All(&[EventPred::Kind(EventKind::PlayTrainer), EventPred::Use(TrainerUse::Played), EventPred::Source(RulesZone::Hand)]),
+                    EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::Source(RulesZone::Hand)]),
+                ]),
+                EventPred::Card(Pred::Tag(tag::ACE_SPEC)),
+            ]),
+            "BLOCKED_BY_EFFECT",
+        ),
         while_: &[LockWhile::HasTool],
         ability: true,
     }) }],

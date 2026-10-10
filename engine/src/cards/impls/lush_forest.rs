@@ -16,7 +16,6 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LushForest",
     passives: &[
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
         Passive {
             origin: RuleSource::Stadium,
             modifier: Modifier::Permit(PermitSpec {
