@@ -103,11 +103,13 @@ pub struct DamageSpec {
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum DamageCalc {
-    /// A DealDamageEffect on the opponent's Active, a PutDamageEffect elsewhere.
+    /// `Deal` on the opponent's Active Pokémon, `Put` elsewhere.
     Auto,
-    /// A DealDamageEffect (Weakness and Resistance apply).
+    /// The full calculation (`engine::damage::deal` with `deal`): the attacker-side modifiers, and Weakness and
+    /// Resistance when the target is in an Active Spot, either player's (the attacker's damage to itself too, APR B-09);
+    /// never on a Benched Pokémon (APR B-08).
     Deal,
-    /// A PutDamageEffect (no Weakness or Resistance).
+    /// Put on the Pokémon: no attacker-side modifiers, no Weakness or Resistance (damage to Benched Pokémon).
     Put,
 }
 
