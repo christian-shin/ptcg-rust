@@ -2,16 +2,10 @@
 //! opponent's Pokémon done to this Pokémon (damage is not an effect).
 //! Torcherto — 60+, 20 more damage for each Benched Pokémon (both sides).
 //!
-//! Twinleaf: Torcherto assigns `effect.damage = 60 + 20 * benched`. Unaware
-//! reacts to every AbstractAttackEffect whose target slot holds this card
-//! once the target's top Pokémon is this card and the source slot has a
-//! Pokémon; after the ability-lock probe (stub Ability for the target's
-//! owner) everything but ApplyWeakness / PutDamage / DealDamage is prevented.
-//!
-//! Fixed (phase 4b, R2): Unaware also prevented the effects of the owner's
-//! own attacks (a heal, counters from your own Cofagrigus); it now only
-//! applies to attacks of the opponent's Pokémon
-//! (IS_ATTACK_EFFECT_FROM_OPPONENTS_POKEMON).
+//! Unaware is one `Prevent` over `EFFECTS_OF_OPP_ATTACKS` on this Pokémon, no kind named: it stops every event with an
+//! effect that the opponent's attacks cause to this Pokémon (counters, conditions, switches, lasting effects), and never
+//! the Damage event (APR C-17). It doesn't touch the owner's own attacks or effects (a heal, counters from your own
+//! Cofagrigus). Torcherto sets the main damage to 60 plus 20 per Benched Pokémon on both sides.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

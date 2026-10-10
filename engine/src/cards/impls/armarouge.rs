@@ -1,10 +1,8 @@
 //! Armarouge (SSP): Combustion — 50. Crimson Blaster — discard all [R] Energy
 //! from this Pokémon, and 180 damage to 1 of your opponent's Benched Pokémon.
 //!
-//! Twinleaf: a DiscardCardsEffect of every attached card named "Fire Energy"
-//! on the Active (even when empty), then THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_
-//! YOUR_OPPONENTS_BENCHED_POKEMON. Fixed in phase 4b (R4): the Active could
-//! be chosen too (it used the "1 of your opponent's Pokémon" prefab).
+//! The Energy is discarded first, then one Damage event on the chosen Benched Pokémon (the Active Pokémon can't be
+//! chosen; no Weakness or Resistance on the Bench), with the attack as its cause.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,6 +1,11 @@
 //! Rabsca (TEF): Spherical Shield — prevent all damage from and effects of
 //! attacks done to your Benched Pokémon by your opponent's attacks.
 //! Psychic — 10+; 30 more for each Energy attached to the opponent's Active.
+//!
+//! Spherical Shield is one `Prevent` over `DAMAGE_OR_EFFECTS` on the owner's Benched Pokémon, restricted to the cause
+//! (an attack of the opponent's Pokémon): the Damage event of an attack's damage and every event with an effect (counters,
+//! conditions, switches, lasting effects) are stopped. The Active Pokémon isn't covered, and neither are the owner's own
+//! attacks or the opponent's Abilities.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

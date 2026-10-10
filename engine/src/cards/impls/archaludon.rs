@@ -2,7 +2,8 @@
 //! next turn, prevent all damage done to this Pokémon by attacks from Basic
 //! Pokémon.
 //!
-//! Twinleaf: PREVENT_DAMAGE with `{ sourceStage: BASIC }`.
+//! One ApplyEffect event (`Op::Arm`) leaves a lasting `Prevent` over `Kind(Damage)` on this Pokémon, read at step 6 of
+//! the damage (APR C-16) against the attacker's stage (Basic); it ends with the opponent's next turn.
 use crate::spec::prelude::*;
 use crate::types::Stage;
 pub static SPEC: CardSpec = CardSpec {

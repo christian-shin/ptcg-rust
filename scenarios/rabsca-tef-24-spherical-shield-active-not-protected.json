@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rellor TEF 23",
+   "4 Rabsca TEF 24",
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "4 Duraludon PRE 69",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Rellor TEF 23",
+   "4 Rabsca TEF 24",
+   "4 Charcadet PFL 19",
+   "4 Armarouge SSP 34",
+   "4 Duraludon PRE 69",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Charcadet PFL 19",
+   "Armarouge SSP 34"
+  ],
+  "active_energy": [
+   "2 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Rellor TEF 23",
+   "Rabsca TEF 24"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Combustion"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "cite": "card text (Spherical Shield protects only Benched Pokémon): Combustion 50 + Weakness x2 Knocks Out the Active Rabsca"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "card text (a Knocked Out Pokémon gives a Prize)"
+  }
+ ]
+}

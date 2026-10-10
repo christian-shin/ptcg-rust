@@ -2,11 +2,10 @@
 //! do 30 more damage to your opponent's Active Pokémon (before Weakness and
 //! Resistance); doesn't stack. Dynamic Press — 140; 80 damage to itself.
 //!
-//! Twinleaf: any DealDamageEffect whose attacker (`effect.player`) has this
-//! card as the top Pokémon of a slot; after the ability-lock probe, adds 30
-//! when the attacker's current Active is a Hop's Pokémon, the target is the
-//! opponent's Active and the effect's `damageIncreased` flag is unset (then
-//! sets it). The self-damage DealDamageEffect also passes through here.
+//! Extra Helpings is a `DamageDealt` modifier read in the damage calculation while the Ability works: +30 to the
+//! Damage event's amount when the attacking player's Active Pokémon is a Hop's Pokémon and the target is the opponent's
+//! Active Pokémon, once however many Snorlax are in play. The recoil of Dynamic Press is one Damage event on the
+//! attacker, never to the opponent's Active, so it gets none.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

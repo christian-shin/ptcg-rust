@@ -3,20 +3,16 @@
 //! Pokémon (even if it is Knocked Out), put 2 damage counters on the
 //! Attacking Pokémon.
 //!
-//! Twinleaf: the block check is made for the attacking player; the counters
-//! are a PutCountersEffect on the attacker.
+//! An `OnDamagedByAttack` trigger over the Damage event: it records only a Damage event of more than 0 that an
+//! opponent's attack did to the Active Pokémon this card is attached to, so damage that was prevented (Crustle's
+//! Mysterious Rock Inn) or reduced to 0 doesn't count. It stacks (one per copy, ruling 1646) and works wherever the
+//! Pokémon end up (ruling 1839).
 //!
-//! Fixed (phase 4b, R7F-15): it reacted to DealDamageEffect (before any damage
-//! is put, whatever its amount), so it also fired when the damage was
-//! prevented (Crustle's Mysterious Rock Inn, ...) or reduced to 0 although the
-//! Pokémon was not damaged. It now reacts to AfterDamageEffect, like Punk
-//! Helmet and Lucky Helmet (text: "is damaged by an attack"; rulings 1646,
-//! 1839: it stacks and works wherever the Pokémon end up).
-//!
-//! Step 7 of the attack flow chart (F1): the damage records the trigger (`Game::attack_trigger`) and it resolves
-//! after every effect of the attack's own text and its prompts (AttackTrigger): it needs this card to be still
-//! attached to the damaged Pokémon (an attack that discards it stops it, ruling 1649), the Special Energy not
-//! blocked, and the Attacking Pokémon still in play, wherever it is (rulings 530, 1839).
+//! Step 7 of the attack flow chart (F1): the trigger resolves after every effect of the attack's own text and its prompts
+//! (`AttackTrigger`). It needs this card to be still attached to the damaged Pokémon (an attack that discards it stops
+//! it, ruling 1649), the Special Energy not blocked (the lock is read for the attacking player), and the Attacking
+//! Pokémon still in play, wherever it is (rulings 530, 1839). The counters are one PlaceCounters event on the Attacking
+//! Pokémon, cause this card's Energy rule.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

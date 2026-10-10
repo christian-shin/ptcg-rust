@@ -1,13 +1,11 @@
-//! Ting-Lu (TWM 110): Ground Crack — 30; if a Stadium is in play, 30 damage
+//! Ting-Lu (TWM 110): Ground Crasher — 30; if a Stadium is in play, 30 damage
 //! to each of your opponent's Benched Pokémon, then discard that Stadium.
 //! Hammer In — 110.
 //!
-//! Fixed (phase 4b, R7F-2; rulings 1559, 1589): Twinleaf set a card-object
-//! flag in the attack and discarded the Stadium on a later BetweenTurnsEffect,
-//! after the Knock Out check (a Pokémon the Stadium's HP bonus or Tool lock
-//! kept alive was Knocked Out) and, when the Stadium had already left play,
-//! the flag stayed set and discarded a later Stadium. The Stadium is now
-//! discarded in AfterAttackEffect: after the damage, before the Knock Outs.
+//! One Damage event per Benched Pokémon of the opponent (no Weakness or Resistance), each with the attack as its cause,
+//! then the Stadium is discarded after the damage and before the Knock Outs (the state check; rulings 1559, 1589): a
+//! Pokémon that the Stadium's HP bonus or Tool lock kept alive is Knocked Out only once the Stadium is gone, and a
+//! Stadium that had already left play is never replaced by a later one.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

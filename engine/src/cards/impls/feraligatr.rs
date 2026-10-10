@@ -3,12 +3,10 @@
 //! damage this turn. Giant Wave — 160; this Pokémon can't use Giant Wave
 //! during your next turn.
 //!
-//! Twinleaf: the +120 applies to every AttackEffect whose source list holds
-//! this card while the player marker is set (not only Giant Wave). The Ability
-//! throws BLOCKED_BY_EFFECT when the marker is already set (it is not a
-//! USE_ABILITY_ONCE_PER_TURN call) and adds 50 damage to the slot holding
-//! this card without any check for Knock Out. Giant Wave pushes its name onto
-//! the player's Active `cannotUseAttacksNextTurnPending` if missing.
+//! Torrential Heart puts the 5 counters with one PlaceCounters event (the Ability is its cause; the counters aren't damage
+//! and can't be prevented by an attack's protection) and sets the once-per-turn marker; while the marker is on this
+//! Pokémon, the main damage of any of its attacks gets +120 at the attack stage (before Weakness and Resistance). Giant
+//! Wave's "can't use" is an ApplyEffect event on this Pokémon (`Lasting::CannotUseThisAttackNextTurn`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Feraligatr",

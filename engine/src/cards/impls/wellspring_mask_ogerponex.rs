@@ -4,13 +4,10 @@
 //! also 120 damage to 1 of your opponent's Benched Pokémon. Tera: no attack
 //! damage while on the Bench.
 //!
-//! Twinleaf quirks kept: declining sets the attack's damage back to exactly
-//! 100 (dropping any bonus added during the AttackEffect), and the energy
-//! choice is priced as [C][C][C]. Twinleaf builds the energy map before the
-//! confirm prompt; nothing can change the Active's energy in between, so it
-//! is rebuilt when the confirm resolves (the frame can't hold the map).
-//! R7A (ruling 1580): the Energy goes back into the deck, and the deck is shuffled, after the damage (`move_cards_after_damage`,
-//! `shuffle_deck_after_damage`); the bench target is asked right after the Energy choice.
+//! The Tera rule is `TERA_RULE`: a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench. Torrential Pump
+//! asks the Energy first (priced as [C][C][C]) and the bench target right after, the main damage is done, then the Energy
+//! goes back into the deck and the deck is shuffled (ruling 1580); the 120 is one Damage event on the chosen Benched
+//! Pokémon (no Weakness or Resistance).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

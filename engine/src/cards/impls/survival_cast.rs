@@ -3,13 +3,9 @@
 //! attack, that Pokémon is not Knocked Out and its remaining HP becomes 10
 //! instead. Then, discard this card.
 //!
-//! Twinleaf: on a PutDamageEffect whose target holds this tool, during the
-//! attack phase and not from the owner's own Pokémon (phase 4b: it used to
-//! trigger on any PutDamageEffect), unless the tool is blocked, when the slot
-//! has no damage and `effect.damage >=` its HP (CheckHpEffect by the owner):
-//! sets `surviveOnTenHPReason` and discards the tool from every slot of the
-//! owner holding it. The core then caps the damage at HP - 10 whenever it
-//! reached HP (phase 4b: exactly lethal damage used to Knock Out anyway).
+//! A survive-on-10 replacement in the damage calculation (`damage::survive_on_10`), for the damage of an opponent's
+//! attack only (not the owner's own Pokémon's attack): when the Pokémon has no damage and the Damage event's amount reaches
+//! its HP (exactly lethal included), the damage is capped at HP - 10 and this Tool is discarded, unless its lock is on.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

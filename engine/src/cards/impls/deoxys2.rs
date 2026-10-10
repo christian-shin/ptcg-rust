@@ -1,10 +1,8 @@
 //! Deoxys (M4 32): Psyspear - 120; if this Pokémon has at least 2 extra
 //! Energy attached, also 120 damage to 1 of your opponent's Benched Pokémon.
 //!
-//! Twinleaf: only with an occupied opponent Bench, a CheckAttackCostEffect is
-//! reduced (result unused), then the provided Energy of the Active is summed
-//! and compared with a hard-coded cost of 3; the bench target is a mandatory
-//! ChoosePokemonPrompt and gets a PutDamageEffect (no Weakness/Resistance).
+//! With 2 or more Energy beyond the attack's printed cost, one Damage event on the chosen Benched Pokémon (a mandatory
+//! pick, only when the opponent has a Benched Pokémon; no Weakness or Resistance), with the attack as its cause.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

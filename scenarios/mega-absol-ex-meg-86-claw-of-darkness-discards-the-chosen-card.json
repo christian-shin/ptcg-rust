@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Absol ex MEG 86",
+   "4 Koraidon TEF 119",
+   "11 Fire Energy MEE 2",
+   "41 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Mega Absol ex MEG 86",
+   "4 Koraidon TEF 119",
+   "11 Fire Energy MEE 2",
+   "41 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Mega Absol ex MEG 86",
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "hand_to_deck": true,
+  "hand": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Claw of Darkness"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "card text (the opponent reveals their hand, you discard a card you find there)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 0,
+   "cite": "card text"
+  }
+ ]
+}

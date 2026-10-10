@@ -1,12 +1,10 @@
-//! Zeraora (DRI): Scratch — 20. Thunder Blitz — discard all Energy from this
+//! Zeraora (DRI): Scratch — 20. Thunder Raid — discard all Energy from this
 //! Pokémon; 210 damage to 1 of the opponent's Benched Pokémon ex.
 //!
-//! The "any ex" test counts only the opponent's Benched Pokémon (phase 4b fix:
-//! it used forEachPokemon without a slot check, so an ex in the Active Spot
-//! alone let the attack through to a prompt with every Benched target blocked,
-//! which was unanswerable). Phase 4b R7E (ruling 1790): with no Benched ex the
-//! attack is still usable (Twinleaf threw CANNOT_PLAY_THIS_CARD): the Energy is
-//! discarded and there is no damage and no prompt.
+//! Only the opponent's Benched Pokémon count as "Benched ex" (an ex Active Pokémon alone doesn't make the target
+//! reachable). With no Benched ex the attack is still usable (ruling 1790): the Energy is discarded and there is no damage
+//! and no prompt. Otherwise one Damage event on the chosen Benched ex (no Weakness or Resistance), with the attack as its
+//! cause.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

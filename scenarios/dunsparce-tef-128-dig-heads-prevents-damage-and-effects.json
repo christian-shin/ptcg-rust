@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dunsparce TEF 128",
+   "4 Timburr BLK 47",
+   "4 Munkidori TWM 95",
+   "4 Darkness Energy MEE 7",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dunsparce TEF 128",
+   "4 Timburr BLK 47",
+   "4 Munkidori TWM 95",
+   "4 Darkness Energy MEE 7",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Dunsparce TEF 128",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Munkidori TWM 95",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dig"
+  },
+  {
+   "a": "attack",
+   "name": "Mind Bend"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Dunsparce TEF 128",
+   "damage": 0,
+   "conditions": [],
+   "cite": "card text; APR C-17 (heads: prevent all damage from and effects of attacks during the opponent's next turn: no damage, no Confusion)"
+  }
+ ]
+}

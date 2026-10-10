@@ -1,10 +1,9 @@
 //! Hisuian Growlithe (TWM): Blazing Destruction — discard a Stadium in play.
 //! Take Down — 40, this Pokémon also does 10 damage to itself.
 //!
-//! Twinleaf: with no Stadium in play the attack does nothing (phase 4b: it used
-//! to throw CANNOT_USE_ATTACK, but an attack can be used with no effect);
-//! the Stadium goes to its owner's discard (MOVE_CARDS of the whole list).
-//! Take Down's recoil is a DealDamageEffect aimed at the attacker's Active.
+//! Blazing Destruction does nothing when no Stadium is in play (an attack can be used with no effect); the Stadium goes
+//! to its owner's discard pile. Take Down's recoil is one Damage event on the attacker with the attack as its cause,
+//! after the main damage.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HisuianGrowlithe",

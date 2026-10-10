@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pawmi PAF 226",
+   "4 Pawmo J-MEE 4",
+   "4 Pawmot PFL 34",
+   "4 Koraidon TEF 119",
+   "4 Mist Energy TEF 161",
+   "40 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Pawmi PAF 226",
+   "4 Pawmo J-MEE 4",
+   "4 Pawmot PFL 34",
+   "4 Koraidon TEF 119",
+   "4 Mist Energy TEF 161",
+   "40 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Pawmi PAF 226",
+   "Pawmo J-MEE 4",
+   "Pawmot PFL 34"
+  ],
+  "active_energy": [
+   "2 Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Voltaic Fist"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 130,
+   "conditions": [],
+   "cite": "Mist Energy card text; APR C-17 (Paralysis is an effect of the attack, prevented; the damage isn't)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Pawmot PFL 34",
+   "damage": 60,
+   "cite": "card text (the damage to itself is not an effect done to the opponent's Pokémon: it still happens)"
+  }
+ ]
+}

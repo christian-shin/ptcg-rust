@@ -3,19 +3,11 @@
 //! Ghostly Blow — 100, place 5 damage counters on 1 of the opponent's
 //! Benched Pokémon.
 //!
-//! Fixed (phase 4b, X1-1): the coin's callback used to set
-//! `surviveOnTenHPReason` after the flip's wait prompt, i.e. after the
-//! PutDamageEffect was already applied, so the flip happened but never saved
-//! the Pokémon (and the would-KO test ignored the damage already on it). The
-//! flip is now read right away (SURVIVE_ON_TEN_ON_COIN_FLIP). Also fixed: when the code runs
-//! for a copycat (a copied Ghostly Blow's session), `IS_ABILITY_BLOCKED` is
-//! true for the copycat, so Durable Body no longer applies to it (it used to
-//! throw here for a copycat whose card has no powers).
-//!
-//! Fixed (phase 4b, R2): Ghostly Blow placed its counters with a
-//! PlaceDamageCountersEffect (an Ability effect), which Mist Energy, Empoleon
-//! ex and Skeledirge do not prevent; it now uses a PutCountersEffect (an
-//! effect of the attack) on the chosen Benched Pokémon.
+//! Durable Body is a survive-on-10 replacement in the damage calculation (`damage::survive_on_10`): the coin is flipped
+//! when the attack's damage would reach this Pokémon's HP (the damage already on it counts), before the Damage event
+//! places it; a copycat whose Ability is blocked doesn't get it. Ghostly Blow is one PlaceCounters event whose cause is
+//! the attack: placing counters is an effect of the attack, not damage, so Mist Energy, Empoleon ex, Skeledirge, Hide 'n'
+//! Sneak and Battle Cage (on a Benched Pokémon) prevent it, and Weakness and Resistance never apply.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

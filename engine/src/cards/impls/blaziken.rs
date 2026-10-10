@@ -1,10 +1,10 @@
-//! Blaziken (DRI): Heat Blast — 70. Inferno Legs — 120; discard 2 Energy from
+//! Blaziken (DRI): Heat Blast — 70. Inferno Kick Flurry — 120; discard 2 Energy from
 //! this Pokémon, and 120 damage to 1 of your opponent's Benched Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Blaziken",
-    // Inferno Legs: discard 2 Energy from this Pokémon, and 120 damage to 1 of your opponent's
+    // Inferno Kick Flurry: discard 2 Energy from this Pokémon, and 120 damage to 1 of your opponent's
     // Benched Pokémon (the damage target is chosen before the Energy to discard).
     attacks: &[AttackSpec {
         index: 1,

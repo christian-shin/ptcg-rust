@@ -1,13 +1,9 @@
 //! Azumarill (SSP): Glistening Bubbles - with a Tera Pokémon in play,
 //! Double-Edge costs less. Double-Edge - 230; 50 damage to itself.
 //!
-//! Twinleaf: on CheckAttackCostEffect for attack 0, when any of the player's
-//! in-play Pokémon has the Tera tag and an Ability probe passes, the first
-//! [P] of the cost is removed together with the two entries after it
-//! (`splice(index, 3)`), so [P][P][P][P] becomes [P] (fixed in phase 4b: the
-//! old loop repeated the splice and left an empty cost). The self-damage
-//! is a DealDamageEffect targeting the player's Active (not necessarily this
-//! Pokémon).
+//! Glistening Bubbles sets Double-Edge's cost to [P] while any of the owner's Pokémon in play is Tera. Double-Edge's
+//! self-damage is one Damage event on this Pokémon (the attacker) with the attack as its cause, after the main damage;
+//! no Weakness or Resistance applies and the opponent's effects on the attack's damage don't reduce it.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

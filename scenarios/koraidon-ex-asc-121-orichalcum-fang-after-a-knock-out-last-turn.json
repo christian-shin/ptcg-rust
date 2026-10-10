@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Koraidon ex ASC 121",
+   "4 Hop's Wooloo JTG 135",
+   "4 Koraidon TEF 119",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Koraidon ex ASC 121",
+   "4 Hop's Wooloo JTG 135",
+   "4 Koraidon TEF 119",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Wooloo JTG 135",
+  "active_damage": 50,
+  "bench": [
+   {
+    "card": "Koraidon ex ASC 121",
+    "energy": [
+     "2 Fighting Energy MEE 6"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "active_energy": [
+   "2 Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Wooloo JTG 135"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Primordial Beatdown"
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "attack",
+   "name": "Orichalcum Fang"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "card text (any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn: 120 more, 170 Knocks Out the 140 HP Koraidon)"
+  }
+ ]
+}

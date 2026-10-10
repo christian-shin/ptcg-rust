@@ -1,0 +1,71 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Torchic DRI 40",
+   "4 Combusken DRI 41",
+   "4 Blaziken DRI 42",
+   "4 Koraidon TEF 119",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Torchic DRI 40",
+   "4 Combusken DRI 41",
+   "4 Blaziken DRI 42",
+   "4 Koraidon TEF 119",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Torchic DRI 40",
+   "Combusken DRI 41",
+   "Blaziken DRI 42"
+  ],
+  "active_energy": [
+   "4 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Inferno Kick Flurry"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 120,
+   "cite": "card text (120 to the Active Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Koraidon TEF 119",
+   "damage": 120,
+   "cite": "card text (also 120 to the only Benched Pokémon, no Weakness or Resistance)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Blaziken DRI 42",
+   "energy": 2,
+   "cite": "card text (discard 2 Energy from this Pokémon)"
+  }
+ ]
+}

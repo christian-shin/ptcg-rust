@@ -1,8 +1,7 @@
-//! Carvanha (M2 / PFL 60): Assault — 30, this Pokémon also does 10 damage to
+//! Carvanha (M2 / PFL 60): Reckless Charge — 30, this Pokémon also does 10 damage to
 //! itself.
 //!
-//! Twinleaf: a DealDamageEffect(effect, 10) targeting the attacker's current
-//! Active, reduced during the AttackEffect (before the main damage).
+//! The self-damage is one Damage event on the attacker with the attack as its cause, after the main damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

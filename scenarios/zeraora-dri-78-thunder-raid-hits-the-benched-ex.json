@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zeraora DRI 78",
+   "4 Koraidon TEF 119",
+   "4 Hop's Zacian ex JTG 111",
+   "4 Hop's Wooloo JTG 135",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Zeraora DRI 78",
+   "4 Koraidon TEF 119",
+   "4 Hop's Zacian ex JTG 111",
+   "4 Hop's Wooloo JTG 135",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "3 Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "bench": [
+   {
+    "card": "Hop's Wooloo JTG 135"
+   },
+   {
+    "card": "Hop's Zacian ex JTG 111"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Raid"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "card": "Hop's Zacian ex JTG 111",
+   "damage": 210,
+   "cite": "card text (210 to 1 of the opponent's Benched Pokemon ex; no Weakness or Resistance)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Hop's Wooloo JTG 135",
+   "damage": 0,
+   "cite": "card text (only a Benched ex can be chosen)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Zeraora DRI 78",
+   "energy": 0,
+   "cite": "card text (discard all Energy from this Pokémon)"
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Absol ex MEG 86",
+   "4 Koraidon TEF 119",
+   "52 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Mega Absol ex MEG 86",
+   "4 Koraidon TEF 119",
+   "52 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Mega Absol ex MEG 86",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "active_damage": 70,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Terminal Period"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 70,
+   "cite": "card text (7 damage counters is not exactly 6: nothing happens)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "card text"
+  }
+ ]
+}

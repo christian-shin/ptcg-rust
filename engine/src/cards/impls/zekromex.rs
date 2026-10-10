@@ -2,8 +2,8 @@
 //! for each Prize card your opponent has taken; this Pokémon does 30 damage
 //! to itself.
 //!
-//! Twinleaf: counts `6 - opponent.getPrizeLeft()` and reduces a
-//! DealDamageEffect of 30 aimed at `player.active`.
+//! The bonus is 50 times 6 minus the opponent's Prizes left. The recoil is one Damage event on the attacker with the
+//! attack as its cause, after the main damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Darumaka JTG 26",
+   "4 N's Darmanitan JTG 27",
+   "4 Koraidon TEF 119",
+   "13 Water Energy MEE 3",
+   "4 Mist Energy TEF 161",
+   "31 Fire Energy MEE 2"
+  ],
+  [
+   "4 N's Darumaka JTG 26",
+   "4 N's Darmanitan JTG 27",
+   "4 Koraidon TEF 119",
+   "13 Water Energy MEE 3",
+   "4 Mist Energy TEF 161",
+   "31 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": [
+   "N's Darumaka JTG 26",
+   "N's Darmanitan JTG 27"
+  ],
+  "active_energy": [
+   "2 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "discard": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Mist Energy TEF 161"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Back Draft"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 90,
+   "cite": "card text (30 damage for each Basic Energy card in the opponent's discard pile: 3 Basic, the Special Energy doesn't count)"
+  }
+ ]
+}

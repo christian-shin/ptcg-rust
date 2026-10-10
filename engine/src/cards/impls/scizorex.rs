@@ -3,12 +3,10 @@
 //! discard up to 2 [M] Energy from this Pokémon, 120 damage for each card
 //! discarded.
 //!
-//! Twinleaf: Steel Wing sets `player.active.damageReductionNextTurn = 50`.
-//! Cross Breaker opens a DiscardEnergyPrompt on the Active (Energy cards, the
-//! ones that don't provide [M] blocked, min 0, max 2, no cancel) even when nothing matches; an empty
-//! answer sets the damage to 0, otherwise each transfer is a MOVE_CARDS to
-//! the discard (no DiscardCardsEffect) and the damage is 120 x transfers.
-//! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
+//! Steel Wing is an ApplyEffect event on this Pokémon (`Lasting::TakesLessDamage(50)`), read in the damage calculation
+//! after Weakness and Resistance until the end of the opponent's next turn. Cross Breaker asks for the Energy first
+//! (0 to 2; the prompt appears even with none), the damage is then 120 for each chosen (ruling 1874), and the Energy is
+//! discarded after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

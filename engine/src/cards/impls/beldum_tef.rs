@@ -1,6 +1,7 @@
 //! Beldum (TEF): Dig Claws — 10. Iron Tackle — 50; this Pokémon also does
-//! 10 damage to itself (THIS_POKEMON_DOES_DAMAGE_TO_ITSELF: a DealDamageEffect
-//! aimed at `effect.source`).
+//! 10 damage to itself.
+//!
+//! The self-damage is one Damage event on the attacker with the attack as its cause, after the main damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

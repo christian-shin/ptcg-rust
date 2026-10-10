@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PFL 74",
+   "4 Archaludon PFL 75",
+   "4 Timburr BLK 47",
+   "11 Fighting Energy MEE 6",
+   "37 Metal Energy MEE 8"
+  ],
+  [
+   "4 Duraludon PFL 74",
+   "4 Archaludon PFL 75",
+   "4 Timburr BLK 47",
+   "11 Fighting Energy MEE 6",
+   "37 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Duraludon PFL 74",
+   "Archaludon PFL 75"
+  ],
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Timburr BLK 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Coated Attack"
+  },
+  {
+   "a": "attack",
+   "name": "Low Kick"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Archaludon PFL 75",
+   "damage": 0,
+   "cite": "card text; APR C-16 (prevent all damage done to this Pokémon by attacks from Basic Pokémon during the opponent's next turn)"
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Electrike MEG 49",
+   "4 Manectric PBL 24",
+   "4 Gurdurr TWM 104",
+   "4 Timburr BLK 47",
+   "11 Fighting Energy MEE 6",
+   "33 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Electrike MEG 49",
+   "4 Manectric PBL 24",
+   "4 Gurdurr TWM 104",
+   "4 Timburr BLK 47",
+   "11 Fighting Energy MEE 6",
+   "33 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Electrike MEG 49",
+   "Manectric PBL 24"
+  ],
+  "active_energy": [
+   "2 Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Timburr BLK 47",
+   "Gurdurr TWM 104"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flashing Barrier"
+  },
+  {
+   "a": "attack",
+   "name": "Knuckle Punch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Manectric PBL 24",
+   "damage": 0,
+   "cite": "card text; APR C-16 (prevent all damage done to this Pokémon by attacks from Evolution Pokémon during the opponent's next turn)"
+  }
+ ]
+}

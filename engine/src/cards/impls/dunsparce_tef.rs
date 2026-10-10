@@ -1,10 +1,10 @@
-//! Dunsparce (TEF): Gnaw — 10. Dig — 30; flip a coin, if heads, during your
-//! opponent's next turn, prevent all damage from and effects of attacks done
-//! to this Pokémon.
+//! Dunsparce (TEF): Gnaw — 10. Dig — 30; flip a coin, if heads, during your opponent's
+//! next turn, prevent all damage from and effects of attacks done to this
+//! Pokémon.
 //!
-//! Twinleaf: PREVENT_DAMAGE then PREVENT_EFFECTS_OF_ATTACKS (EffectOfAttack
-//! effects targeting the attacker) arm `preventDamageNextTurnPending` /
-//! `preventEffectsOfAttacksNextTurnPending` = `{}` on the attacker's Active.
+//! On heads, two ApplyEffect events (`Op::Arm`) leave lasting `Prevent`s on this Pokémon: one over `Kind(Damage)` (any
+//! attacker) and one over the effects of attacks (`EFFECTS_OF_OPP_ATTACKS`, never damage: APR C-17). Both end with the
+//! opponent's next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

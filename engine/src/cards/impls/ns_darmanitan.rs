@@ -1,13 +1,10 @@
-//! N's Darmanitan (JTG): Backdraft — 30 damage for each Basic Energy card in
-//! your opponent's discard pile. Darman-i-cannon — 90; discard all Energy
+//! N's Darmanitan (JTG): Back Draft — 30 damage for each Basic Energy card in
+//! your opponent's discard pile. Flamebody Cannon — 90; discard all Energy
 //! from this Pokémon; also 90 damage to 1 of your opponent's Benched Pokémon.
 //!
-//! Twinleaf: Backdraft assigns the damage. Darman-i-cannon discards every
-//! card of the Active's CheckProvidedEnergy map with one DiscardCardsEffect,
-//! then (when the opponent has a Benched Pokémon; phase 4b fix, it used to
-//! open the prompt on an empty Bench and get stuck) opens a non-cancellable
-//! ChoosePokemonPrompt over the opponent's Bench, and puts 90 with a plain
-//! PutDamageEffect on the chosen Pokémon.
+//! Back Draft sets the main damage. Flamebody Cannon discards every Energy of the Active Pokémon, then (only when the
+//! opponent has a Benched Pokémon) a mandatory pick and one Damage event on it (no Weakness or Resistance), with the
+//! attack as its cause.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

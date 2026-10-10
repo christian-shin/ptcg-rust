@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Timburr TWM 103",
+   "4 Gurdurr TWM 104",
+   "4 Koraidon TEF 119",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Timburr TWM 103",
+   "4 Gurdurr TWM 104",
+   "4 Koraidon TEF 119",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Timburr TWM 103",
+   "Gurdurr TWM 104"
+  ],
+  "active_energy": [
+   "3 Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Koraidon TEF 119",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Superpower"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Koraidon TEF 119",
+   "damage": 80,
+   "cite": "card text (50 + 30 more damage)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Gurdurr TWM 104",
+   "damage": 30,
+   "cite": "card text (if you do, 30 damage to itself)"
+  }
+ ]
+}

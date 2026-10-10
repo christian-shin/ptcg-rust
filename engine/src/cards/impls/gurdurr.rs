@@ -1,8 +1,8 @@
 //! Gurdurr (TWM 104): Knuckle Punch — 20. Superpower — 50; you may do 30
 //! more damage. If you do, this Pokémon also does 30 damage to itself.
 //!
-//! Twinleaf: a non-yielding ConfirmPrompt (WANT_TO_USE_ABILITY); on yes,
-//! `effect.damage += 30` and a PutDamageEffect(30) on `player.active`.
+//! A may-choice before the damage; on yes the main damage is 30 more and one Damage event puts 30 on the attacker
+//! (no Weakness or Resistance), with the attack as its cause.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

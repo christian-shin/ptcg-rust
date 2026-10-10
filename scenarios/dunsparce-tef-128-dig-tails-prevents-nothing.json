@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dunsparce TEF 128",
+   "4 Timburr BLK 47",
+   "4 Munkidori TWM 95",
+   "4 Darkness Energy MEE 7",
+   "11 Fighting Energy MEE 6",
+   "33 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dunsparce TEF 128",
+   "4 Timburr BLK 47",
+   "4 Munkidori TWM 95",
+   "4 Darkness Energy MEE 7",
+   "11 Fighting Energy MEE 6",
+   "33 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Dunsparce TEF 128",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Timburr BLK 47",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dig"
+  },
+  {
+   "a": "attack",
+   "name": "Low Kick"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Dunsparce TEF 128",
+   "damage": 20,
+   "cite": "card text (tails: nothing is prevented; Weakness doubles the 10)"
+  }
+ ]
+}
