@@ -22,11 +22,11 @@
 //! * Trainer: the PlayTrainer the play produces and the checks its routine makes (`engine::play_trainer::check_with`:
 //!   the turn's rules, a Tool's Attach, the locks over PlayTrainer), then the card's declared `needs` and implied
 //!   preconditions evaluated in the state its effect would see.
-//! * Attack: the attack list read, `can_attack_pre/post`, the max-Energy rule, blocks (`BlockAttack`), the
-//!   leading `Fail` steps, the cost against the provided Energy.
-//! * Ability: the power list read, the core use rule, the lock probe, once per turn, `needs` and implied
-//!   preconditions.
-//! * Use Stadium: `can_use_stadium` (a Stadium that declares a use, once per turn), the Stadium's own `needs`.
+//! * Attack: the attack list read, then the UseAttack's checks (`engine::turn_action::attack_checks`: the first turn,
+//!   the Special Conditions, the lasting "can't attack", the locks over UseAttack, the cost), the leading `Fail` steps.
+//! * Ability: the power list read, the core use rule, the lock probe, the locks over UseAbility, once per turn, `needs`
+//!   and implied preconditions.
+//! * Use Stadium: the UseStadium's checks (`engine::turn_action::stadium_checks`), the Stadium's own `needs`.
 //! * Retreat: `can_retreat`, the ChangeActive's checks (`engine::change_active::check_with`: the Pokémon's lasting
 //!   "can't retreat", the locks over the event), the cost against the provided Energy.
 //! * Pass: always.
@@ -46,7 +46,6 @@ use std::sync::OnceLock;
 // ---------------------------------------------------------------------------
 // Which cards declare something legality reads
 
-const F_BLOCK_ATTACK: u8 = 2;
 const F_ATTACK_FAIL: u8 = 8;
 const F_ATTACH_GUARD: u8 = 16;
 const F_PLAY_SPEC: u8 = 32;
@@ -61,7 +60,6 @@ fn def_flags(def: DefId) -> u8 {
                 let mut f = 0;
                 for ps in spec.passives {
                     f |= match &ps.modifier {
-                        passive::Modifier::BlockAttack(_) => F_BLOCK_ATTACK,
                         passive::Modifier::AttachGuard(_) => F_ATTACH_GUARD,
                         _ => 0,
                     };
@@ -81,12 +79,6 @@ fn def_flags(def: DefId) -> u8 {
     })[def as usize]
 }
 
-/// The cards of the game that declare a lock-like check, by kind (found once per decision).
-#[derive(Default)]
-struct Sources {
-    block_attack: SVec<CardId, 120>,
-}
-
 // ---------------------------------------------------------------------------
 // The per-decision context
 
@@ -94,7 +86,6 @@ pub struct Ctx<'a> {
     pub g: &'a Game,
     p: usize,
     scratch: Option<Fork>,
-    sources: Option<Sources>,
     /// The checked attack list and the available attacks built from it.
     attacks: Option<Result<(turn::CheckedAttacks, SVec<(AttackRef, bool), 64>), ()>>,
     /// CheckProvidedEnergy per slot.
@@ -107,7 +98,7 @@ pub struct Ctx<'a> {
 
 impl<'a> Ctx<'a> {
     pub fn new(g: &'a Game) -> Ctx<'a> {
-        Ctx { g, p: g.st.active_player as usize, scratch: None, sources: None, attacks: None, provided: SVec::new(), retreat_cost: None, why: "" }
+        Ctx { g, p: g.st.active_player as usize, scratch: None, attacks: None, provided: SVec::new(), retreat_cost: None, why: "" }
     }
 
     /// The scratch game checked reads run on (made on first use, one per decision).
@@ -119,21 +110,6 @@ impl<'a> Ctx<'a> {
     fn none(&mut self, why: &'static str) -> Option<bool> {
         self.why = why;
         None
-    }
-
-    fn sources(&mut self) -> &Sources {
-        if self.sources.is_none() {
-            let g = self.g;
-            let mut s = Sources::default();
-            for c in 0..g.st.n_cards {
-                let f = def_flags(g.st.cards[c as usize].def);
-                if f & F_BLOCK_ATTACK != 0 {
-                    s.block_attack.push(c);
-                }
-            }
-            self.sources = Some(s);
-        }
-        self.sources.as_ref().unwrap()
     }
 
     // --- the derived reads ---------------------------------------------------
@@ -230,6 +206,29 @@ impl crate::engine::play_trainer::PlayChecks for Ctx<'_> {
     fn tool_attach(&mut self, card: CardId, target: SlotRef) -> crate::game::R<Option<&'static str>> {
         let v = crate::engine::attach::attach_view(self.g, card, target, crate::spec::event::RulesZone::Hand, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, self.p as u8));
         crate::engine::attach::check_attach_with(self, &v)
+    }
+}
+
+/// The checks of a turn action (`engine::turn_action`: UseAttack, UseAbility, UseStadium), the functions execution calls:
+/// the plain reads on the game, the locks and the Energy reads on the scratch game behind their gates.
+impl crate::engine::turn_action::ActionChecks for Ctx<'_> {
+    fn game(&self) -> &Game {
+        self.g
+    }
+    fn event_locked(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<Option<&'static str>> {
+        Ok(self.event_lock(v))
+    }
+    fn energy_count(&mut self, slot: SlotRef) -> crate::game::R<i32> {
+        match self.provided(slot.s) {
+            Ok(map) => Ok(attack::max_energy_count(&map)),
+            Err(()) => Err(crate::game::GameError("ENERGY_READ")),
+        }
+    }
+    fn payable(&mut self, attack_ref: AttackRef, slot: SlotRef) -> crate::game::R<bool> {
+        let p = self.p;
+        let Ok(cost) = attack::attack_cost_read(self.sc(), p, attack_ref) else { return Ok(false) };
+        let Ok(map) = self.provided(slot.s) else { return Ok(false) };
+        Ok(crate::energy::check_enough_energy(map.as_slice(), cost.as_slice()))
     }
 }
 
@@ -415,28 +414,12 @@ fn fast_attack(ctx: &mut Ctx, name: &'static str, from: Option<&'static str>) ->
     }
     // The first-turn flag an Ability writes as the attack is used (Meloetta ex).
     let granted = g.st.turn == 1 && g.kinds_present.has(k::USE_ATTACK) && passive::grants_first_turn_attack(ctx.sc(), p);
-    let Ok(attacking) = attack::can_attack_pre(g, p, attack, false, granted) else { return Some(false) };
-    let max_energy = if attack::attack_max_energy_applies(g, p) {
-        match ctx.provided(attacking.s) {
-            Ok(map) => Some(attack::max_energy_count(&map)),
-            Err(()) => return Some(false),
-        }
-    } else {
-        None
+    // The UseAttack's checks (`engine::turn_action::attack_checks`, the function execution calls).
+    let attacking = match crate::engine::turn_action::attack_checks(ctx, p, attack, false, granted) {
+        Ok(Ok(s)) => s,
+        _ => return Some(false),
     };
-    if attack::can_attack_post(g, p, attack, attacking, max_energy).is_err() {
-        return Some(false);
-    }
-    // Blocks and preconditions the cards declare.
-    if g.kinds_present.has(k::USE_ATTACK) || g.kinds_present.has(k::ATTACK) {
-        let n = ctx.sources().block_attack.len();
-        for i in 0..n {
-            let src = ctx.sources().block_attack[i];
-            if passive::attack_blocked_by(ctx.sc(), src, p) {
-                return Some(false);
-            }
-        }
-    }
+    // The preconditions the attack's text declares (its leading `Fail` steps).
     if def_flags(d_def(g, attack.card)) & F_ATTACK_FAIL != 0 {
         let ad = attack::attack_def(g, attack);
         let sc = ctx.sc();
@@ -461,10 +444,7 @@ fn fast_attack(ctx: &mut Ctx, name: &'static str, from: Option<&'static str>) ->
             Ok(Gate::Undeclared) => return ctx.none("attack: a Fail step after other steps"),
         }
     }
-    // The cost against the Energy provided.
-    let Ok(cost) = attack::attack_cost_read(ctx.sc(), p, attack) else { return Some(false) };
-    let Ok(map) = ctx.provided(attacking.s) else { return Some(false) };
-    Some(crate::energy::check_enough_energy(map.as_slice(), cost.as_slice()))
+    Some(true)
 }
 
 // ---------------------------------------------------------------------------
@@ -508,6 +488,10 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
     if attack::power_use_blocked(sc, p, power, card) {
         return Some(false);
     }
+    if !matches!(crate::engine::turn_action::ability_locked(sc, p, power, card), Ok(None)) {
+        return Some(false);
+    }
+    let sc = ctx.sc();
     let e = sc.new_fx(Effect::Power { p: p as u8, power, card, target: None, probe: false });
     let ok = crate::spec::run::power_check(sc, card, power.index, p, e).is_ok();
     sc.release_fx(e);
@@ -520,7 +504,11 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
 fn fast_use_stadium(ctx: &mut Ctx) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
-    let Ok(stadium) = turn::can_use_stadium(g, p) else { return Some(false) };
+    let _ = g;
+    let stadium = match crate::engine::turn_action::stadium_checks(ctx, p) {
+        Ok(Ok(s)) => s,
+        _ => return Some(false),
+    };
     let sc = ctx.sc();
     let e = sc.new_fx(Effect::UseStadium { p: p as u8, stadium });
     let ok = crate::spec::run::use_stadium_check(sc, stadium, p, e).is_ok();

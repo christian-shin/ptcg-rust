@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Team Rocket's Houndour DRI 37",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Team Rocket's Mewtwo ex ASC 79",
+   "4 Team Rocket's Houndour DRI 37",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Mewtwo ex ASC 79",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Houndour DRI 37"
+   },
+   {
+    "card": "Team Rocket's Houndour DRI 37"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Houndour DRI 37"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Erasure Ball",
+   "is": false,
+   "cite": "Team Rocket's Mewtwo ex Power Saver: 'This Pokemon can't attack unless you have 4 or more Team Rocket's Pokemon in play' (3 in play: the attack can't be used; events batch 7 lock over UseAttack)"
+  }
+ ]
+}
