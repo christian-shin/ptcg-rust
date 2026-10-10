@@ -482,6 +482,7 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::KNOCK_OUT,
     crate::effects::k::LEAVE_PLAY,
     crate::effects::k::TAKE_PRIZES,
+    crate::effects::k::APPLY_EFFECT,
 ]);
 /// Every event kind with an effect except Damage: what a `Prevent` naming no `Kind` ranges over ("prevent all effects
 /// of attacks"): damage is not an effect (APR C-17 "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398).
@@ -521,7 +522,7 @@ pub const ACTIVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::
 /// read through the dispatch index, by the triggers after the event (`run::after_event`) and by the locks and
 /// preventions the event's routine asks. `Game::reduce_effect` doesn't call the cards for them (events design,
 /// section 9). The batch 2 and 3 events still have dispatch handlers (once-per-turn markers, attach guards).
-pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS).or(COUNTER_EVENT_KINDS).or(LEAVE_EVENT_KINDS).or(crate::effects::mask(&[crate::effects::k::TAKE_PRIZES]));
+pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS).or(COUNTER_EVENT_KINDS).or(LEAVE_EVENT_KINDS).or(crate::effects::mask(&[crate::effects::k::TAKE_PRIZES])).or(APPLY_EVENT_KINDS);
 /// PlaceCounters and MoveCounters (events batch 6): `DECLARES_COUNTER_LOCK` (Patrat's Watchful Eye) / `DECLARES_COUNTER_PREVENT`.
 pub const COUNTER_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::PLACE_COUNTERS, crate::effects::k::MOVE_COUNTERS_EVENT]);
 /// Damage (events batch 6): `DECLARES_DAMAGE_PREVENT` (no lock: no text says a Pokémon can't be damaged).
@@ -530,6 +531,8 @@ pub const DAMAGE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::
 pub const KO_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::KNOCK_OUT]);
 /// LeavePlay: `DECLARES_LEAVE_PREVENT` (asked for an effect's removal only).
 pub const LEAVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::LEAVE_PLAY]);
+/// Evolve, Devolve and Swap: a `Prevent` over them sets `DECLARES_POKEMON_PREVENT` (EnterPlay has no Pokémon to protect yet).
+pub const POKEMON_PREVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
 /// ApplyEffect (user decision D4): `DECLARES_APPLY_PREVENT`.
 pub const APPLY_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::APPLY_EFFECT]);
 

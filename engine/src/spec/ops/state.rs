@@ -7,7 +7,7 @@
 
 use super::super::run::{Flow, Frame};
 use super::super::*;
-use crate::effects::{AtkBase, Effect, SlotRef};
+use crate::effects::Effect;
 use crate::game::{Game, R};
 use crate::list::CardId;
 use crate::markers::{MarkerName, SourceType, TargetScope};
@@ -83,6 +83,9 @@ pub enum Lasting {
     CannotUseThisAttackNextTurn,
     /// This Pokémon can't use this attack again until it leaves the Active Spot.
     BlockThisAttackUntilLeavesActive,
+    /// The Defending Pokémon can't use the attack of this name during the opponent's next turn (APR C-15: "it can't be
+    /// used during their next turn" after the attacker chose it).
+    CannotUseAttack(&'static str),
     /// During the opponent's next turn, this Pokémon takes n less damage from attacks.
     TakesLessDamage(i32),
     /// During the opponent's next turn, attacks used by the Defending Pokémon do n less damage.
@@ -172,118 +175,15 @@ pub fn has_marker(g: &Game, me: CardId, p: usize, name: &'static str, from: Mark
 // ---------------------------------------------------------------------------
 // Execution
 
-fn attack_base(g: &Game, atk: crate::effects::EffId, target: SlotRef) -> Option<AtkBase> {
-    match *g.e(atk) {
-        Effect::Attack { p, opp, attack, source, .. } => Some(AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target, cause: crate::cause::Cause::of_attack_at(g, p, attack, source) }),
-        _ => None,
-    }
-}
-
-/// `if (!player.active.cannotUseAttacksNextTurnPending.includes(name)) push(name)`.
-pub fn push_cannot_use_attack(g: &mut Game, p: usize, name: &'static str) {
-    let a = g.st.players[p].active;
-    let v = &mut g.st.players[p].slots[a as usize].cannot_use_attacks_next_turn_pending;
-    if !v.contains(&name) {
-        v.push(name);
-    }
-}
-
-/// `DEFENDING_POKEMON_DOES_LESS_DAMAGE(store, state, effect, source, reduction)`.
-pub fn defending_pokemon_does_less_damage(g: &mut Game, atk: crate::effects::EffId, reduction: i32) -> R {
-    let b = match *g.e(atk) {
-        Effect::Attack { opp, .. } => {
-            let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
-            attack_base(g, atk, target)
-        }
-        _ => None,
-    };
-    if let Some(b) = b {
-        g.run_fx_unit(Effect::ReduceDamage { b, reduction })?;
-    }
-    Ok(())
-}
-
-fn this_attack_name(g: &Game, atk: crate::effects::EffId) -> &'static str {
-    match *g.e(atk) {
-        Effect::Attack { attack, .. } => crate::engine::attack::attack_def(g, attack).name,
-        _ => "",
-    }
-}
-
+/// Arm a lasting effect of the attack being used: the ApplyEffect event (`engine::apply`) on its target, by the frame's
+/// cause.
 fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
-    let atk = f.eff;
-    let (p, source) = match *g.e(atk) {
-        Effect::Attack { p, source, .. } => (p as usize, source),
+    let (p, source, attack) = match *g.e(f.eff) {
+        Effect::Attack { p, source, attack, .. } => (p as usize, source, attack),
         _ => return Ok(()),
     };
-    match what {
-        Lasting::PreventRetreat => block_retreat(g, atk)?,
-        Lasting::CannotAttackNextTurn => {
-            let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].cannot_attack_next_turn_pending = true;
-        }
-        Lasting::CannotUseThisAttackNextTurn => {
-            let name = this_attack_name(g, atk);
-            push_cannot_use_attack(g, p, name);
-        }
-        Lasting::BlockThisAttackUntilLeavesActive => {
-            let name = this_attack_name(g, atk);
-            if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx_unit(Effect::PreventAttackUntilLeavesActive { b, name })?;
-            }
-        }
-        Lasting::TakesLessDamage(n) => {
-            let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].damage_reduction_next_turn = n;
-        }
-        Lasting::DealsLessDamage(n) => defending_pokemon_does_less_damage(g, atk, n)?,
-        Lasting::TakesMoreDamage(n) => {
-            let o = 1 - p;
-            let target = SlotRef::new(o, g.st.players[o].active);
-            if let Some(b) = attack_base(g, atk, target) {
-                g.run_fx_unit(Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus: n })?;
-            }
-        }
-        Lasting::PreventDamage(src) => prevent_damage_next_turn(g, atk, src.spec())?,
-        Lasting::Retaliate(n) => {
-            if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx_unit(Effect::RetaliateOnDamage { b, damage: n, source_card: me })?;
-            }
-        }
-        Lasting::OppCannotPlay(lock) => opponent_cannot_play_cards(g, atk, lock)?,
-        Lasting::DiscardAttackerEnergyIfKnockedOut => discard_attacker_energy_if_knocked_out(g, atk, me)?,
-        Lasting::CoinFlipCancelTrainer => {
-            if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx_unit(Effect::CoinFlipCancelTrainerPlay { b })?;
-            }
-        }
-        Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
-            // The pending value is written first, so it survives a prevented effect (Twinleaf).
-            let o = 1 - p;
-            let a = g.st.players[o].active;
-            let slot = &mut g.st.players[o].slots[a as usize];
-            if what == Lasting::IncreaseAttackCost {
-                slot.attack_cost_increase_next_turn_pending = 1;
-            } else {
-                slot.retreat_cost_increase_next_turn_pending = 1;
-            }
-            if let Some(b) = attack_base(g, atk, SlotRef::new(o, a)) {
-                if what == Lasting::IncreaseAttackCost {
-                    g.run_fx_unit(Effect::IncreaseAttackCostNextTurn { b })?;
-                } else {
-                    g.run_fx_unit(Effect::IncreaseRetreatCostNextTurn { b })?;
-                }
-            }
-        }
-        Lasting::NoWeakness => {
-            if let Some(b) = attack_base(g, atk, source) {
-                g.run_fx_unit(Effect::ThisPokemonHasNoWeakness { b })?;
-            }
-        }
-        Lasting::PreventAttackEffects => prevent_effects_of_attacks(g, atk)?,
-        Lasting::SelfCannotRetreat => block_self_retreat(g, atk)?,
-        Lasting::OppSmallEnergyCannotAttack(n) => opponent_pokemon_with_x_or_less_energy_cannot_attack(g, atk, n)?,
-    }
+    let target = crate::engine::apply::target_of(g, p, source, what);
+    crate::engine::apply::apply_effect(g, p, target, what, me, attack, f.cause)?;
     Ok(())
 }
 

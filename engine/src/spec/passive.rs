@@ -15,7 +15,6 @@ use crate::effects::{mask, AtkBase, EffId, Effect, EnergyEntry, KindMask, SlotRe
 use crate::game::{fx_flag, Game, R};
 use crate::list::*;
 use crate::prefabs::*;
-use crate::prompts::{get_target, AttachOpts, Filter, PromptKind};
 use crate::state::{AttackRef, ListRef};
 use crate::types::*;
 
@@ -80,22 +79,10 @@ pub enum Modifier {
     /// An Ability lock that applies while this Pokémon is in the Active Spot, with the Ability lockers'
     /// activation order (a lock that was in effect first suppresses a later one).
     ActiveLock(ActiveLock),
-    /// Heavy Baton: when the Active Pokémon this Tool is attached to, with a Retreat Cost of exactly
-    /// `retreat_cost`, is Knocked Out by damage from an attack from the opponent's Pokémon, its owner moves up
-    /// to `max` Basic Energy cards from it to their Benched Pokémon in any way they like.
-    HeavyBaton(HeavyBatonSpec),
     // --- S3-4 appends ---
     /// The card's Pokémon can't attack unless a condition holds.
     BlockAttack(BlockAttackSpec),
 }
-
-pub struct HeavyBatonSpec {
-    pub retreat_cost: usize,
-    pub max: u8,
-}
-
-/// `CardFrame::stage` of Heavy Baton's prompt.
-pub(crate) const HEAVY_BATON_STAGE: u8 = 0xB1;
 
 /// The Active-Spot Ability locks.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -322,7 +309,10 @@ const fn and(a: KindMask, b: KindMask) -> KindMask {
 
 /// The event families whose routine asks the `Prevent` reader (`event_prevented`), each with the marker a prevention over
 /// it sets (`prevent_kinds`) and the reader tests (`prevent_marker`).
-const PREVENT_FAMILIES: [(KindMask, u32); 8] = [
+const PREVENT_FAMILIES: [(KindMask, u32); 11] = [
+    (super::event::ATTACH_EVENT_KINDS, crate::effects::k::DECLARES_ATTACH_PREVENT),
+    (super::event::POKEMON_PREVENT_KINDS, crate::effects::k::DECLARES_POKEMON_PREVENT),
+    (super::event::APPLY_EVENT_KINDS, crate::effects::k::DECLARES_APPLY_PREVENT),
     (super::event::KO_EVENT_KINDS, crate::effects::k::DECLARES_KO_PREVENT),
     (super::event::LEAVE_EVENT_KINDS, crate::effects::k::DECLARES_LEAVE_PREVENT),
     (super::event::DAMAGE_EVENT_KINDS, crate::effects::k::DECLARES_DAMAGE_PREVENT),
@@ -804,7 +794,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
         Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
-        Modifier::HeavyBaton(_) => mask(&[k::KNOCK_OUT, k::DAMAGE]),
         Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::EFFECT_OF_ABILITY]),
         Modifier::Permit(pm) => {
@@ -947,7 +936,6 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         // Permissions are read where a limit is checked (`engine::enter::permitted`); nothing is dispatched to them.
         Modifier::Permit(_) => Ok(()),
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
-        Modifier::HeavyBaton(h) => heavy_baton(g, me, e, h),
         Modifier::WeaknessOverride(w) => {
             let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
             let player = target.p as usize;
@@ -1677,34 +1665,14 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
     }
 }
 
-/// B6-OLD -> C4 (damage steps), C5 (Knock Outs), C6 (Devolve, MoveEnergy, lasting effects), B7 (Discard, PutIntoHand):
-/// the attack-effect probes, `AtkBase` effects standing for an event the engine doesn't produce as one yet, and the event
-/// each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
+/// B6-OLD -> batch 7 (Discard, PutIntoHand): the attack-effect probes, `AtkBase` effects standing for an event the
+/// engine doesn't produce as one yet (an attack's discard of, or return to the hand of, cards of the opponent's Pokémon),
+/// and the event each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
 /// ones in `Game::reduce_effect`) with the event's view: one declaration, two readers, until the events exist.
-pub const B6OLD_PROBES: [(u32, super::event::EventKind); 19] = {
+pub const B6OLD_PROBES: [(u32, super::event::EventKind); 2] = {
     use super::event::EventKind as E;
     use crate::effects::k;
-    [
-        (k::DISCARD_CARDS, E::Discard),
-        (k::CARDS_TO_HAND, E::PutIntoHand),
-        (k::MOVE_OPPONENT_ENERGY, E::MoveEnergy),
-        (k::DEVOLVE_PROBE, E::Devolve),
-        (k::PLAY_LOCK, E::ApplyEffect),
-        (k::PREVENT_RETREAT, E::ApplyEffect),
-        (k::OPPONENT_POKEMON_CANNOT_USE_ATTACK, E::ApplyEffect),
-        (k::PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE, E::ApplyEffect),
-        (k::DEFENDING_POKEMON_TAKES_MORE_DAMAGE, E::ApplyEffect),
-        (k::REDUCE_DAMAGE, E::ApplyEffect),
-        (k::PREVENT_DAMAGE, E::ApplyEffect),
-        (k::PREVENT_EFFECTS_OF_ATTACKS, E::ApplyEffect),
-        (k::THIS_POKEMON_HAS_NO_WEAKNESS, E::ApplyEffect),
-        (k::OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN, E::ApplyEffect),
-        (k::INCREASE_ATTACK_COST_NEXT_TURN, E::ApplyEffect),
-        (k::INCREASE_RETREAT_COST_NEXT_TURN, E::ApplyEffect),
-        (k::COIN_FLIP_CANCEL_TRAINER_PLAY, E::ApplyEffect),
-        (k::SELF_PREVENT_RETREAT, E::ApplyEffect),
-        (k::DISCARD_ATTACKER_ENERGY_IF_KO, E::ApplyEffect),
-    ]
+    [(k::DISCARD_CARDS, E::Discard), (k::CARDS_TO_HAND, E::PutIntoHand)]
 };
 
 const fn probe_mask() -> KindMask {
@@ -1748,17 +1716,13 @@ const fn probe_kinds(from: &super::event::EventPred) -> KindMask {
 /// A move's probe (counters, an Energy) is about the end its target is: the destination for the counters
 /// (`MoveCounters`, To), the source for an Energy (`MoveOpponentEnergy`, From).
 pub(crate) fn probe_view(g: &Game, id: EffId) -> Option<super::event::EventView> {
-    use super::event::{EventKind as E, EventView, MoveEnd};
+    use super::event::EventView;
     let e = g.e(id);
     let kind = e.kind();
     let ek = B6OLD_PROBES.iter().find(|(k, _)| *k == kind)?.1;
     let b = *e.atk_base()?;
     let t = b.target;
-    let end = match ek {
-        E::MoveEnergy => Some(MoveEnd::From),
-        _ => None,
-    };
-    Some(EventView { card: g.st.slot_pokemon(t.p as usize, t.s), slot: Some(t), end, ..EventView::new(ek, b.cause, t.p, super::event::whose_turn(g)) })
+    Some(EventView { card: g.st.slot_pokemon(t.p as usize, t.s), slot: Some(t), ..EventView::new(ek, b.cause, t.p, super::event::whose_turn(g)) })
 }
 
 /// The `Prevent` declaration `p` of `me` answers the probe `e` it is dispatched (B6-OLD; see [`B6OLD_PROBES`]): it
@@ -2034,14 +1998,11 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_PREVENT),
         E::Damage => Some(crate::effects::k::DECLARES_DAMAGE_PREVENT),
         E::KnockOut => Some(crate::effects::k::DECLARES_KO_PREVENT),
+        E::Attach | E::MoveEnergy | E::MoveTool => Some(crate::effects::k::DECLARES_ATTACH_PREVENT),
+        E::Evolve | E::Devolve | E::Swap => Some(crate::effects::k::DECLARES_POKEMON_PREVENT),
+        E::ApplyEffect => Some(crate::effects::k::DECLARES_APPLY_PREVENT),
         E::LeavePlay => Some(crate::effects::k::DECLARES_LEAVE_PREVENT),
         E::EnterPlay
-        | E::Evolve
-        | E::Devolve
-        | E::Swap
-        | E::Attach
-        | E::MoveEnergy
-        | E::MoveTool
         | E::PlayTrainer
         | E::TakePrizes
         | E::Discard
@@ -2051,7 +2012,6 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::Shuffle
         | E::Look
         | E::Reveal
-        | E::ApplyEffect
         | E::StateCheck
         | E::GameEnd
         | E::Mulligan
@@ -2979,110 +2939,6 @@ fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchS
 
 // ---------------------------------------------------------------------------
 // Heavy Baton
-
-fn heavy_baton(g: &mut Game, me: CardId, e: EffId, h: &HeavyBatonSpec) -> R {
-    use crate::markers::{intern, SourceType, TargetScope};
-    let baton = intern("HEAVY_BATON_MARKER");
-    let active_marker = intern("HEAVY_BATON_ACTIVE_MARKER");
-    // The criteria are checked when the damage is dealt (ruling 1547): an attack that moves the Pokémon to the
-    // Bench before the Knock Out is checked doesn't stop Heavy Baton. The latest damage from an opponent's
-    // attack decides; the marker is consumed by the Knock Out.
-    if let Effect::Damage { b, amount: damage, .. } = *g.e(e) {
-        let t = b.target;
-        if g.st.slot(t.p as usize, t.s).tools.contains(me) {
-            let owner = t.p as usize;
-            if g.st.phase == GamePhase::Attack && b.player as usize != owner {
-                g.st.players[owner].slots[t.s as usize].marker.remove_from(active_marker, me);
-                if g.st.players[owner].active == t.s && damage > 0 && !is_tool_blocked(g, owner, me) {
-                    let cost = crate::engine::retreat::check_retreat_cost_base(g, owner);
-                    let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: owner as u8, cost, no_cost: false, reduction: 0 })?;
-                    if matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == h.retreat_cost) {
-                        // A Trainer's effect on the Pokémon: it stays when the Pokémon moves to the Bench.
-                        g.st.players[owner].slots[t.s as usize].marker.add(active_marker, me, SourceType::Trainer, TargetScope::Pokemon);
-                    }
-                }
-            }
-        }
-        return Ok(());
-    }
-    let (p, t) = match *g.e(e) {
-        Effect::KnockOut { p, target, .. } => (p as usize, target),
-        _ => return Ok(()),
-    };
-    if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
-        return Ok(());
-    }
-    let opponent = 1 - p;
-    if is_tool_blocked(g, p, me) {
-        return Ok(());
-    }
-    if g.st.phase != GamePhase::Attack || g.st.active_player as usize != opponent {
-        return Ok(());
-    }
-    if g.st.slot(t.p as usize, t.s).marker.has(baton) {
-        return Ok(());
-    }
-    // Only when it was damaged by an attack while in the Active Spot with the Retreat Cost and Knocked Out by
-    // damage from an attack.
-    let was_active = g.st.slot(t.p as usize, t.s).marker.has_from(active_marker, me);
-    g.st.players[t.p as usize].slots[t.s as usize].marker.remove_from(active_marker, me);
-    if !was_active || !g.st.players[p].marker.has(crate::markers::DAMAGE_DEALT_MARKER) {
-        return Ok(());
-    }
-    if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
-        return Ok(());
-    }
-    let energy: Vec<CardId> = g
-        .st
-        .slot(t.p as usize, t.s)
-        .cards
-        .iter()
-        .filter(|c| {
-            let d = g.st.cdef(*c);
-            d.is_energy() && d.energy_type == EnergyType::Basic as u8
-        })
-        .collect();
-    if energy.is_empty() {
-        return Ok(());
-    }
-    // Nothing to move the Energy to without a Benched Pokémon.
-    if !g.st.players[p].bench.iter().any(|&b| !g.st.players[p].slots[b as usize].cards.is_empty()) {
-        return Ok(());
-    }
-    g.st.players[t.p as usize].slots[t.s as usize].marker.add(baton, me, SourceType::None, TargetScope::None);
-    let temp = g.alloc_temp(&energy);
-    let mut o = AttachOpts::new(energy.len() as u8);
-    // "up to" from a public zone: at least 1, no cancel (rulings 1607/1778/1853)
-    o.allow_cancel = false;
-    o.min = 1;
-    o.max = h.max;
-    let filter = Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() };
-    let mut slots = SVec::new();
-    slots.push(SlotType::Bench as u8);
-    let mut f = crate::cards::CardFrame::at(HEAVY_BATON_STAGE);
-    f.a[0] = p as i32;
-    f.a[1] = t.s as i32;
-    let id = g.player_id(p);
-    g.prompt(id, "ATTACH_ENERGY_TO_BENCH", PromptKind::AttachEnergy { cards: temp, player_type: PlayerType::BottomPlayer, slots, filter, o }, crate::game::Cont::Card { card: me, frame: f });
-    Ok(())
-}
-
-/// The answer of Heavy Baton's prompt: the Energy moves from the owner's discard pile (the Knock Out has
-/// already discarded the Pokémon) to the chosen Benched Pokémon.
-pub(crate) fn heavy_baton_resume(g: &mut Game, f: crate::cards::CardFrame, results: &[crate::prompts::Res]) -> R {
-    let p = f.a[0] as usize;
-    let s = f.a[1] as crate::state::SlotId;
-    let transfers: SVec<(CardTarget, CardId), 64> = match results.first() {
-        Some(crate::prompts::Res::Attach(t)) => *t,
-        _ => SVec::new(),
-    };
-    g.st.players[p].slots[s as usize].marker.remove(crate::markers::intern("HEAVY_BATON_MARKER"));
-    for (to, c) in transfers.iter().copied() {
-        let target = get_target(&g.st, p, to)?;
-        move_cards(g, ListRef::Discard(p as u8), target.list(), &[c], NO_CARD)?;
-    }
-    Ok(())
-}
 
 // S3-4 appends: attack blocks, play blocks, survive on 10 HP, Shred
 

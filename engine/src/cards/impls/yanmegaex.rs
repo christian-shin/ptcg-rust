@@ -70,6 +70,7 @@ pub static SPEC: CardSpec = CardSpec {
                 max: Num::Min(&Num::Lit(3), &Num::CardCount(ZoneRef(Who::Me, Zone::Attached(MY_ACTIVE)), Pred::Energy)),
                 same_target: true,
                 via_effect: false,
+                kind: EnergyKind::Any,
             }, to: EnergyDest::Stay, ..DiscardEnergySpec::DEFAULT }))],
     }],
     ..CardSpec::NONE

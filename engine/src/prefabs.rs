@@ -424,20 +424,6 @@ pub fn confirmation_prompt(g: &mut Game, p: usize, message: &'static str, cont: 
     g.prompt(id, message, PromptKind::Confirm, cont);
 }
 
-/// `OPPONENT_CANNOT_PLAY_CARDS(store, state, effect, source, options)`:
-/// reduce a `PlayLockEffect` (default durations).
-pub fn opponent_cannot_play_cards(g: &mut Game, atk: EffId, lock: &'static crate::spec::passive::LockDecl) -> R {
-    // An AfterAttackEffect handler passes `new AttackEffect(player, opponent, effect.attack)`
-    // (Chi-Yu MEG): its source is the player's Active.
-    let mut b = match attack_data(g, atk) {
-        Some((p, opp, attack, source)) => AtkBase { attack_effect: atk, player: p, opponent: opp, attack, source, target: source, cause: crate::cause::Cause::of_attack_at(g, p, attack, source) },
-        None => return Ok(()),
-    };
-    b.target = b.source;
-    g.run_fx_unit(Effect::PlayLock { b, lock })?;
-    Ok(())
-}
-
 /// `new ChooseCardsPrompt(player, message, list, filter, options)`, including
 /// the constructor's sort of a non-secret deck or discard.
 pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef, filter: Filter, mut opts: ChooseCardsOpts, cont: Cont) {
@@ -637,79 +623,6 @@ pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb, cause: c
 /// attacker, Weakness/Resistance and survive-on-10-HP effects (rulings 936, 1770) still apply.
 pub fn ignores_defender_effects(g: &Game, b: &AtkBase) -> bool {
     matches!(*g.e(b.attack_effect), Effect::Attack { ignore_defender_effects: true, .. }) && b.target.p == b.opponent
-}
-
-/// `BLOCK_RETREAT(store, state, effect, source)`: reduce a `PreventRetreatEffect`.
-pub fn block_retreat(g: &mut Game, atk: EffId) -> R {
-    let o = match *g.e(atk) {
-        Effect::Attack { opp, .. } => opp as usize,
-        _ => return Ok(()),
-    };
-    let target = SlotRef::new(o, g.st.players[o].active);
-    let b = atk_base_for(g, atk, target);
-    g.run_fx_unit(Effect::PreventRetreat { b })?;
-    Ok(())
-}
-
-/// "During your opponent's next turn, prevent all damage done to this Pokémon by attacks (from ...)": the lasting
-/// `Prevent` `spec` on the attacking Pokémon (`Effect::PreventDamage`, whose target is the attack's source).
-pub fn prevent_damage_next_turn(g: &mut Game, atk: EffId, spec: &'static crate::spec::passive::PreventSpec) -> R {
-    let source = match *g.e(atk) {
-        Effect::Attack { source, .. } => source,
-        _ => return Ok(()),
-    };
-    let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::PreventDamage { b, spec })?;
-    Ok(())
-}
-
-/// `PREVENT_EFFECTS_OF_ATTACKS(store, state, effect, source)` (no options):
-/// reduce a `PreventEffectsOfAttacksEffect` whose target is the attack's source.
-pub fn prevent_effects_of_attacks(g: &mut Game, atk: EffId) -> R {
-    let source = match *g.e(atk) {
-        Effect::Attack { source, .. } => source,
-        _ => return Ok(()),
-    };
-    let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::PreventEffectsOfAttacks { b })?;
-    Ok(())
-}
-
-/// `BLOCK_SELF_RETREAT(store, state, effect, source)`: a
-/// `SelfPreventRetreatEffect` whose target is the attacking Pokémon (phase 4b:
-/// it used to be left at the opponent's Active, where Mist Energy etc.
-/// prevented it).
-pub fn block_self_retreat(g: &mut Game, atk: EffId) -> R {
-    let source = match *g.e(atk) {
-        Effect::Attack { source, .. } => source,
-        _ => return Ok(()),
-    };
-    let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::SelfPreventRetreat { b })?;
-    Ok(())
-}
-
-/// `DISCARD_ATTACKER_ENERGY_IF_THIS_POKEMON_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN`.
-pub fn discard_attacker_energy_if_knocked_out(g: &mut Game, atk: EffId, source_card: CardId) -> R {
-    let source = match *g.e(atk) {
-        Effect::Attack { source, .. } => source,
-        _ => return Ok(()),
-    };
-    let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::DiscardAttackerEnergyIfKnockedOut { b, source_card })?;
-    Ok(())
-}
-
-/// `OPPONENT_POKEMON_WITH_X_OR_LESS_ENERGY_CANNOT_ATTACK(store, state, effect, source, maxEnergy)`:
-/// an `OpponentPokemonCannotAttackDuringTheirNextTurnEffect` (target = the attacker's slot).
-pub fn opponent_pokemon_with_x_or_less_energy_cannot_attack(g: &mut Game, atk: EffId, max_energy: i32) -> R {
-    let source = match *g.e(atk) {
-        Effect::Attack { source, .. } => source,
-        _ => return Ok(()),
-    };
-    let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::OpponentPokemonCannotAttackNextTurn { b, max_energy: Some(max_energy) })?;
-    Ok(())
 }
 
 /// `(card << 4) | index` of an attack, for a card frame slot.

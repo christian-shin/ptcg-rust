@@ -436,9 +436,10 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
 fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
     let name = g.st.cdef(a.card).attacks[a.index as usize].name;
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
-    let o = opp as usize;
-    let target = crate::effects::SlotRef::new(o, g.st.players[o].active);
-    let b = crate::effects::AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target, cause: f.cause };
-    g.run_fx_unit(crate::effects::Effect::OpponentPokemonCannotUseAttack { b, name })?;
+    let effect = crate::spec::ops::state::Lasting::CannotUseAttack(name);
+    let target = crate::engine::apply::target_of(g, p as usize, source, effect);
+    let _ = opp;
+    let card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(attack.card);
+    crate::engine::apply::apply_effect(g, p as usize, target, effect, card, attack, f.cause)?;
     Ok(())
 }

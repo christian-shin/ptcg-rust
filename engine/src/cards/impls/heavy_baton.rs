@@ -4,29 +4,43 @@
 //! Energy cards from that Pokémon to your Benched Pokémon in any way you
 //! like.
 //!
-//! Twinleaf: a KnockOutEffect of a slot holding this tool during the
-//! opponent's ATTACK phase, where the slot is the owner's Active Spot and the
-//! owner carries DAMAGE_DEALT_MARKER (Knocked Out by damage from an attack;
-//! fixed in phase 4b, it used to trigger on any KO), and the current Retreat
-//! Cost (CheckRetreatCostEffect) is exactly 4 (phase 4b: it used to be a
-//! printed Retreat Cost of 4 or more). The Energy list is a copy of the Basic
-//! Energy on the slot, but the transfers move the cards from the owner's
-//! discard pile (the core has already discarded the Pokémon); the slot marker
-//! is removed when the prompt resolves (no cancel, 1 to 3 since phase 4b, any
-//! Benched Pokémon in any combination: no sameTarget since phase 4b; nothing
-//! happens without a Benched Pokémon).
-//!
-//! R7C (ruling 1547): the criteria are checked when the damage is dealt. A PutDamageEffect
-//! from an opponent's attack on a slot holding this tool refreshes `HEAVY_BATON_ACTIVE_MARKER`
-//! (a Trainer-sourced marker, so it survives the switch): set when the slot is the owner's
-//! Active Spot, not prevented, damage > 0 and the Retreat Cost is exactly 4. The Knock Out
-//! consumes it instead of requiring the Active Spot, so an attack that switches the Pokémon
-//! out before the Knock Out is checked (Bayleef's Push Down) still triggers it.
+//! The Active Spot and the Retreat Cost are read when the damage is done (id1992; JP FAQ Heavy Baton): each Damage event
+//! of an opponent's attack on the holder records whether it is Active with a Retreat Cost of exactly 4 (a marker on the
+//! Pokémon, kept when it moves to the Bench; the latest damage decides, so damage done on the Bench clears it). At its KnockOut by damage from an attack from the opponent's Pokémon
+//! (APR D step 2, while it is still in play) with the record, its owner moves 1 to 3 of its Basic Energy cards to their
+//! Benched Pokémon (MoveEnergy events by the Tool; nothing without a Benched Pokémon; the JP FAQ: no choice to decline,
+//! not by devolving).
 use crate::spec::prelude::*;
+
+const ACTIVE_AT_DAMAGE: &str = "HEAVY_BATON_ACTIVE_MARKER";
+const BY_OPP_ATTACK: CausePred = CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack)]);
+
 pub static SPEC: CardSpec = CardSpec {
     class: "HeavyBaton",
-    passives: &[
-        Passive { origin: RuleSource::Tool, modifier: Modifier::HeavyBaton(HeavyBatonSpec { retreat_cost: 4, max: 3 }) },
+    triggers: &[
+        Trigger {
+            origin: RuleSource::Tool,
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Damage), EventPred::Slot(SlotPred::Holder), EventPred::Cause(BY_OPP_ATTACK)])),
+            steps: &[Step::new(Op::If(IfSpec {
+                cond: Cond::All(&[Cond::Slot(SlotExpr::Picked, SlotPred::IsActive), Cond::Cmp(Num::RetreatCostColorless(Who::Me), CmpOp::Eq, Num::Lit(4))]),
+                yes: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Slot(SlotExpr::Picked), name: ACTIVE_AT_DAMAGE, source: RuleSource::TrainerEffect }))],
+                no: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Slot(SlotExpr::Picked), name: ACTIVE_AT_DAMAGE, from: MarkerFrom::This }))],
+            }))],
+        },
+        Trigger {
+            origin: RuleSource::Tool,
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::KnockOut), EventPred::Slot(SlotPred::Holder), EventPred::KoBy(KoBy::AttackDamage), EventPred::Cause(BY_OPP_ATTACK)])),
+            steps: &[Step::new(Op::If(IfSpec {
+                cond: Cond::Slot(SlotExpr::Picked, SlotPred::MarkerFromThis(ACTIVE_AT_DAMAGE)),
+                yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec {
+                    target: SlotTarget::Slot(SlotExpr::Picked),
+                    selection: EnergySelection::ToBench { min: Num::Lit(1), max: Num::Lit(3), same_target: false, via_effect: false, kind: EnergyKind::Basic },
+                    to: EnergyDest::Stay,
+                    ..DiscardEnergySpec::DEFAULT
+                }))],
+                no: &[],
+            }))],
+        },
     ],
     ..CardSpec::NONE
 };

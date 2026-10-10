@@ -18,7 +18,16 @@ attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { 
     // Can only be put into play with Palafin's Zero to Hero.
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::BlockUse(BlockUseSpec {
         binds: Binds::Both,
-        lock: LockDecl::on(EventPred::All(&[EventPred::Any(&[EventPred::Kind(EventKind::EnterPlay), EventPred::Kind(EventKind::Evolve)]), EventPred::This(Role::Card)]), "CANNOT_EVOLVE"),
+        // Put into play, evolved into or swapped in by anything but Palafin's Zero to Hero (JP FAQ Palafin ex: Ditto's
+        // Surprising Transformation can't swap it in, いいえ、できません).
+        lock: LockDecl::on(
+            EventPred::All(&[
+                EventPred::Any(&[EventPred::Kind(EventKind::EnterPlay), EventPred::Kind(EventKind::Evolve), EventPred::Kind(EventKind::Swap)]),
+                EventPred::This(Role::Card),
+                EventPred::Not(&EventPred::Cause(CausePred::All(&[CausePred::Kind(crate::cause::CauseKind::Ability), CausePred::Card(Pred::HasAbilityNamed("Zero to Hero"))]))),
+            ]),
+            "CANNOT_EVOLVE",
+        ),
         while_: &[],
         ability: false,
     }) }],

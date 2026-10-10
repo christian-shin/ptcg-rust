@@ -48,7 +48,34 @@ pub fn attach_view(g: &Game, card: CardId, target: SlotRef, source: RulesZone, m
 /// The MoveEnergy / MoveTool event of `card` from the Pokémon in `from` to the one in `to` (the event's spot). The
 /// event's owner is the Pokémon's owner.
 pub fn move_view(g: &Game, kind: EventKind, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> EventView {
-    EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(kind, cause, from.p, crate::spec::event::whose_turn(g)) }
+    EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), end: Some(MoveEnd::To), ..EventView::new(kind, cause, from.p, crate::spec::event::whose_turn(g)) }
+}
+
+/// The same move as its source sees it (`end: From`, the spot the card leaves): what a prevention on that Pokémon reads.
+pub fn move_from_view(g: &Game, kind: EventKind, card: CardId, from: SlotRef, cause: Cause) -> EventView {
+    EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(from), end: Some(MoveEnd::From), ..EventView::new(kind, cause, from.p, crate::spec::event::whose_turn(g)) }
+}
+
+/// A card that can't go onto a protected Pokémon is discarded instead (id2354: Pleasing Present onto Unaware Skeledirge;
+/// JP FAQ Elgyem's Slight Shift: 「つけ替えたエネルギーをトラッシュし、効果を終わります」, the moved Energy is discarded and
+/// the effect ends). B6-OLD -> batch 7: the Discard event.
+fn discard_instead(g: &mut Game, card: CardId, from: ListRef) {
+    let owner = g.st.owner(card) as u8;
+    g.move_card_to(from, card, ListRef::Discard(owner));
+}
+
+/// The preventions of a move, per end (user decision D3): a protected source keeps the card (`Some(false)`: no move); a
+/// protected destination makes it discarded (`Some(true)`); `None`: the move happens.
+fn move_prevented(g: &mut Game, kind: EventKind, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> R<Option<bool>> {
+    let vf = move_from_view(g, kind, card, from, cause);
+    if crate::derived::event_prevented(g, &vf)? {
+        return Ok(Some(false));
+    }
+    let vt = move_view(g, kind, card, from, to, cause);
+    if crate::derived::event_prevented(g, &vt)? {
+        return Ok(Some(true));
+    }
+    Ok(None)
 }
 
 // ---------------------------------------------------------------------------
@@ -164,6 +191,13 @@ pub fn attach(g: &mut Game, card: CardId, target: SlotRef, cause: Cause) -> R<bo
     if check_attach_with(g, &v)?.is_some() {
         return Ok(false);
     }
+    // An effect's Attach onto a Pokémon a prevention protects: the card is discarded instead (id2354; user decision D3).
+    if crate::derived::event_prevented(g, &v)? {
+        if let Some((from, _)) = crate::engine::enter::source_of(g, card) {
+            discard_instead(g, card, from);
+        }
+        return Ok(false);
+    }
     run_attach(g, card, target, false, cause)?;
     Ok(true)
 }
@@ -207,6 +241,14 @@ pub fn move_energy(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause
     if crate::derived::event_locked(g, &v)?.is_some() {
         return Ok(false);
     }
+    match move_prevented(g, EventKind::MoveEnergy, card, from, to, cause)? {
+        Some(true) => {
+            discard_instead(g, card, from.list());
+            return Ok(false);
+        }
+        Some(false) => return Ok(false),
+        None => {}
+    }
     g.run_fx_unit(Effect::MoveEnergy { p: from.p, card, from, to, cause })?;
     Ok(true)
 }
@@ -225,6 +267,14 @@ pub fn move_tool(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause: 
     let v = move_view(g, EventKind::MoveTool, card, from, to, cause);
     if crate::derived::event_locked(g, &v)?.is_some() {
         return Ok(false);
+    }
+    match move_prevented(g, EventKind::MoveTool, card, from, to, cause)? {
+        Some(true) => {
+            discard_instead(g, card, from.list());
+            return Ok(false);
+        }
+        Some(false) => return Ok(false),
+        None => {}
     }
     g.run_fx_unit(Effect::MoveTool { p: from.p, card, from, to, cause })?;
     Ok(true)

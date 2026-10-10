@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Elgyem BLK 40",
+   "4 Duraludon PRE 69",
+   "4 Mist Energy TEF 161",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Elgyem BLK 40",
+   "4 Duraludon PRE 69",
+   "4 Mist Energy TEF 161",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Elgyem BLK 40",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slight Shift"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Duraludon PRE 69",
+   "energy": [
+    "Mist Energy TEF 161"
+   ],
+   "cite": "official JP FAQ Elgyem (ちょっとずらす onto a Pokémon with Mist Energy: つけ替えたエネルギーをトラッシュし、効果を終わります, the moved Energy is discarded and the effect ends); id2354; a Mist Energy Pokémon's own Energy doesn't move (the effect is done to it)"
+  }
+ ]
+}

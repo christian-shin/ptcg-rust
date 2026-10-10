@@ -508,10 +508,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let Some(slot) = slot_of(g, me, f, dv.slot) else { return Ok(Flow::Next) };
             let (p, s) = (slot.p as usize, slot.s);
             if occupied(g, slot) && g.st.slot_pokemons(p, s).len() > 1 {
-                // An effect of the attack: prevention can stop it (the DevolveProbe).
-                if let Some(b) = atk_base(g, f, slot) {
-                    crate::engine::enter::devolve(g, slot, 1, zone_ref(f, dv.destination), f.cause, Some(b))?;
-                }
+                // The Devolve event by the frame's cause (an attack's: "prevent all effects of attacks" stops it).
+                crate::engine::enter::devolve(g, slot, 1, zone_ref(f, dv.destination), f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -1684,7 +1682,7 @@ fn devolve_resume(g: &mut Game, f: &Frame, d: &DevolveSpec, first: Res) -> R<Flo
     let dest = zone_ref(f, d.destination);
     if let Some(i) = idx {
         // The Devolve event (Strange Timepiece: not an attack's effect, nothing prevents it).
-        crate::engine::enter::devolve(g, t, pokemons.len() - i, dest, f.cause, None)?;
+        crate::engine::enter::devolve(g, t, pokemons.len() - i, dest, f.cause)?;
     }
     Ok(Flow::Next)
 }
@@ -1701,7 +1699,9 @@ fn swap_bottom_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwapPokemonCard
         // The new card goes onto the slot first and the old one leaves after, so the slot is never empty
         // (that would discard its attachments and reset it); the new card takes the old card's place at the
         // bottom of the stack. The same Pokémon (id2372): the Swap event.
-        Some(old) => crate::engine::enter::swap(g, t, old, chosen, zone_ref(f, s.into), crate::engine::enter::SwapPlace::Bottom, me, f.cause)?,
+        Some(old) => {
+            crate::engine::enter::swap(g, t, old, chosen, zone_ref(f, s.into), crate::engine::enter::SwapPlace::Bottom, me, f.cause)?;
+        }
         // No Pokémon there: the card is put onto the empty spot.
         None => {
             crate::engine::enter::enter_play(g, chosen, t, super::super::event::EnterMode::Effect, f.cause)?;

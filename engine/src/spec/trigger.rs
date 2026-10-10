@@ -189,8 +189,8 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
     Some(match *g.e(e) {
         Effect::EnterPlay { p, card, target, source, mode, cause, .. } => EventView { source: Some(source), mode: Some(mode), card: Some(card), slot: Some(target), ..EventView::new(EventKind::EnterPlay, cause, p, turn) },
         Effect::Evolve { p, card, base, target, source, path, cause, base_entered_this_turn, owner_first_turn, .. } => EventView { source: Some(source), path: Some(path), card: Some(card), base: Some(base), slot: Some(target), base_entered_this_turn, owner_first_turn, ..EventView::new(EventKind::Evolve, cause, p, turn) },
-        Effect::Devolve { p, target, ref removed, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: g.st.slot_pokemon(target.p as usize, target.s), base: removed.get(0).copied(), slot: Some(target), ..EventView::new(EventKind::Devolve, cause, p, turn) },
-        Effect::Swap { p, target, old, new, source, cause } => EventView { source: Some(source), card: Some(new), base: Some(old), slot: Some(target), ..EventView::new(EventKind::Swap, cause, p, turn) },
+        Effect::Devolve { p, target, ref removed, dest, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: g.st.slot_pokemon(target.p as usize, target.s), base: removed.get(0).copied(), slot: Some(target), dest: Some(crate::engine::knockout::zone_of(dest)), ..EventView::new(EventKind::Devolve, cause, p, turn) },
+        Effect::Swap { p, target, old, new, source, cause, .. } => EventView { source: Some(source), card: Some(new), base: Some(old), slot: Some(target), ..EventView::new(EventKind::Swap, cause, p, turn) },
         Effect::Attach { p, card, target, source, manual, cause, .. } => EventView { source: Some(source), manual, card: Some(card), slot: Some(target), ..EventView::new(EventKind::Attach, cause, p, turn) },
         Effect::MoveEnergy { p, card, to, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(EventKind::MoveEnergy, cause, p, turn) },
         Effect::MoveTool { p, card, to, cause, .. } => EventView { source: Some(RulesZone::InPlay), card: Some(card), slot: Some(to), ..EventView::new(EventKind::MoveTool, cause, p, turn) },
@@ -203,6 +203,7 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::Damage { b, amount, .. } => crate::engine::damage::damage_view(g, &b, amount),
         Effect::KnockOut { target, ko_by, cause, .. } => crate::engine::knockout::ko_view(g, target, ko_by, cause),
         Effect::LeavePlay { target, dest, cause, .. } => crate::engine::knockout::leave_view(g, target, dest, cause),
+        Effect::ApplyEffect { target, cause, .. } => crate::engine::apply::apply_view(g, target, cause),
         Effect::TakePrizes { p, prizes, cause } => crate::engine::knockout::prizes_view(g, p as usize, prizes.len() as i32, cause),
         // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.
         Effect::MoveCounters { p, cause, .. } => EventView::new(EventKind::MoveCounters, cause, p, turn),

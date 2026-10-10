@@ -33,6 +33,13 @@ pub struct PowerRef {
     pub index: u8,
 }
 
+/// What a lasting effect is put on (the ApplyEffect event): a Pokémon, or a player.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ApplyTarget {
+    Slot(SlotRef),
+    Player(u8),
+}
+
 /// How a Pokémon leaves play (the LeavePlay event): a Knock Out's removal (APR D step 3: its Tools first, its effects and
 /// Special Conditions with it), an effect's ("put it into your hand", "shuffle it into your deck", "discard it"), the
 /// Bench shrinking below its Pokémon (the rule; the cards in today's order: the attached non-Pokémon cards, the Tools, the
@@ -175,11 +182,15 @@ pub enum Effect {
     /// The EnterPlay event (`engine::enter::enter_play`): a Pokémon card goes onto the empty spot `target` of
     /// its owner `p`: played from the hand by the rule, put by an effect, or set up.
     EnterPlay { p: u8, card: CardId, target: SlotRef, from: ListRef, source: crate::spec::event::RulesZone, mode: crate::spec::event::EnterMode, cause: Cause },
-    /// The Devolve event (`engine::enter::devolve`): `removed` (highest Stage first) left the Pokémon for `dest`.
-    Devolve { p: u8, target: SlotRef, removed: SVec<CardId, 3>, dest: ListRef, cause: Cause },
+    /// The Devolve event (`engine::enter::devolve`): the top `count` Evolution cards of the Pokémon leave it for `dest`
+    /// (one event per devolving action, user decision D6); `removed` is filled by the reducer (highest Stage first).
+    Devolve { p: u8, target: SlotRef, count: u8, removed: SVec<CardId, 3>, dest: ListRef, cause: Cause },
     /// The Swap event (`engine::enter::swap`): the Pokémon card `old` in `target` was replaced by `new`, which came
     /// from `source` (its rules zone before the swap).
-    Swap { p: u8, target: SlotRef, old: CardId, new: CardId, source: crate::spec::event::RulesZone, cause: Cause },
+    Swap { p: u8, target: SlotRef, old: CardId, new: CardId, source: crate::spec::event::RulesZone, cause: Cause, from: ListRef, into: ListRef, place: crate::engine::enter::SwapPlace, by: CardId },
+    /// The ApplyEffect event (events batch 6, user decision D4; `engine::apply`): player `p`'s attack `attack` (used by
+    /// `card`) puts the lasting `effect` on `target`.
+    ApplyEffect { p: u8, target: ApplyTarget, effect: crate::spec::ops::state::Lasting, card: CardId, attack: AttackRef, cause: Cause },
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
@@ -218,60 +229,11 @@ pub enum Effect {
     },
     DiscardCards { b: AtkBase, cards: SVec<CardId, 64> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 64> },
-    /// `MoveOpponentEnergyEffect`: an attack's move of an attached card between the opponent's Pokémon, as the
-    /// effect of the attack that prevention reads (`b.target` is the source slot); its reducer produces the
-    /// MoveEnergy event (`engine::attach::move_attached`).
+    /// An attack's move of an Energy between the opponent's Pokémon, held until the attack's damage is done (the attack's
+    /// after-damage window, `Game::defer_after_damage`; `b.target` is the source spot); its reducer produces the MoveEnergy
+    /// event (`engine::attach::move_attached`), whose preventions read both ends (B6-OLD -> batch 7: the window becomes the
+    /// attack's own step).
     MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
-    AddMarker { b: AtkBase, marker: u16, marker_source: CardId },
-    /// `PlayLockEffect` (target = attacker's slot): the opponent gets the lock for their next turn.
-    PlayLock { b: AtkBase, lock: &'static crate::spec::passive::LockDecl },
-    /// `PreventRetreatEffect` (EffectOfAttackEffect): `opponent.active.cannotRetreatNextTurn = true`.
-    PreventRetreat { b: AtkBase },
-    /// `OpponentPokemonCannotUseAttackEffect` (EffectOfAttackEffect):
-    /// `opponent.active.blockedAttackNameNextTurn = name`.
-    OpponentPokemonCannotUseAttack { b: AtkBase, name: &'static str },
-    /// `PreventAttackUntilLeavesActiveEffect` (EffectOfAttackEffect):
-    /// `source.blockedAttackNameUntilLeavesActive = name` (source = target = the attacker's slot).
-    PreventAttackUntilLeavesActive { b: AtkBase, name: &'static str },
-    /// `DefendingPokemonTakesMoreDamageDuringAttackerNextTurnEffect`
-    /// (EffectOfAttackEffect): arms `defendingPokemonExtraDamage*` on the
-    /// opponent's current Active.
-    DefendingPokemonTakesMoreDamage { b: AtkBase, damage_bonus: i32 },
-    /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
-    /// `attackDamageReductionNextTurn = max(0, reduction)`.
-    ReduceDamage { b: AtkBase, reduction: i32 },
-    /// `SelfPreventRetreatEffect` (target = base.source, the attacker):
-    /// `player.active.cannotRetreatNextTurnPending = true`.
-    SelfPreventRetreat { b: AtkBase },
-    /// `DiscardAttackerEnergyIfKnockedOutDuringOpponentsNextTurnEffect`
-    /// (target = base.source; `markerSource` = `source_card`).
-    DiscardAttackerEnergyIfKnockedOut { b: AtkBase, source_card: CardId },
-    /// "During your opponent's next turn, prevent all damage done to this Pokémon by attacks (from ...)": the attack's
-    /// lasting `Prevent` (`spec`) on its own Active Pokémon (B6-OLD -> C6: the ApplyEffect event).
-    PreventDamage { b: AtkBase, spec: &'static crate::spec::passive::PreventSpec },
-    /// `PreventEffectsOfAttacksEffect` (EffectOfAttackEffect, target = attacker):
-    /// `player.active.preventEffectsOfAttacksNextTurnPending = {}` (empty filter only).
-    PreventEffectsOfAttacks { b: AtkBase },
-    /// `ThisPokemonHasNoWeaknessDuringOpponentsNextTurnEffect` (target = attacker):
-    /// `player.active.noWeaknessNextTurnPending = true`.
-    ThisPokemonHasNoWeakness { b: AtkBase },
-    /// `IncreaseDefendingPokemonAttackCostNextTurnEffect` (EffectOfAttackEffect):
-    /// `opponent.active.attackCostIncreaseNextTurnPending = 1` (+ attacker id).
-    IncreaseAttackCostNextTurn { b: AtkBase },
-    /// `IncreaseDefendingPokemonRetreatCostNextTurnEffect` (EffectOfAttackEffect).
-    IncreaseRetreatCostNextTurn { b: AtkBase },
-    /// `CoinFlipCancelTrainerPlayEffect` (EffectOfAttackEffect, target = source):
-    /// `opponent.coinFlipCancelTrainerPlayTurnsRemaining = max(.., 1)`.
-    CoinFlipCancelTrainerPlay { b: AtkBase },
-    /// `OpponentPokemonCannotAttackDuringTheirNextTurnEffect` (target = source):
-    /// `max_energy` None locks all attacks, Some(n) only Pokémon with <= n Energy.
-    OpponentPokemonCannotAttackNextTurn { b: AtkBase, max_energy: Option<i32> },
-    /// `RetaliateOnDamageDuringOpponentsNextTurnEffect` (target = attacker,
-    /// `{ damage }` options): `player.active.retaliateOnDamageNextTurnPending`.
-    RetaliateOnDamage { b: AtkBase, damage: i32, source_card: CardId },
-    /// `DevolveEffect`: the probe that asks whether devolving `b.target` as an effect of an attack (Espeon ex's
-    /// Amethyst) is prevented (Mist Energy and the like). Reducer-less; the Devolve event follows when it isn't.
-    DevolveProbe { b: AtkBase },
 
     // ---- play card ----
     /// The Attach event (events batch 3; `engine::attach`): an Energy or a Pokémon Tool card goes onto the Pokémon
@@ -360,26 +322,10 @@ impl Effect {
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
-            AddMarker { .. } => "ADD_MARKER_EFFECT",
-            PlayLock { .. } => "PLAY_LOCK_EFFECT",
-            PreventRetreat { .. } => "PREVENT_RETREAT_EFFECT",
-            OpponentPokemonCannotUseAttack { .. } => "OPPONENT_POKEMON_CANNOT_USE_ATTACK_EFFECT",
-            PreventAttackUntilLeavesActive { .. } => "EFFECT_OF_ATTACK_EFFECT",
-            DefendingPokemonTakesMoreDamage { .. } => "DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_ATTACKER_NEXT_TURN_EFFECT",
-            ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
-            SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
-            DiscardAttackerEnergyIfKnockedOut { .. } => "DISCARD_ATTACKER_ENERGY_IF_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN_EFFECT",
-            PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
-            PreventEffectsOfAttacks { .. } => "PREVENT_EFFECTS_OF_ATTACKS_EFFECT",
-            ThisPokemonHasNoWeakness { .. } => "THIS_POKEMON_HAS_NO_WEAKNESS_DURING_OPPONENTS_NEXT_TURN_EFFECT",
-            IncreaseAttackCostNextTurn { .. } | IncreaseRetreatCostNextTurn { .. } => "EFFECT_OF_ATTACK_EFFECT",
-            CoinFlipCancelTrainerPlay { .. } => "COIN_FLIP_CANCEL_TRAINER_PLAY_EFFECT",
-            OpponentPokemonCannotAttackNextTurn { .. } => "OPPONENT_POKEMON_CANNOT_ATTACK_DURING_THEIR_NEXT_TURN_EFFECT",
-            RetaliateOnDamage { .. } => "RETALIATE_ON_DAMAGE_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EVENT",
-            DevolveProbe { .. } => "DEVOLVE_EFFECT",
             Devolve { .. } => "DEVOLVE_EVENT",
             Swap { .. } => "SWAP_EVENT",
+            ApplyEffect { .. } => "APPLY_EFFECT_EVENT",
             Attach { .. } => "ATTACH_EVENT",
             MoveEnergy { .. } => "MOVE_ENERGY_EVENT",
             MoveTool { .. } => "MOVE_TOOL_EVENT",
@@ -403,25 +349,7 @@ impl Effect {
     pub fn atk_base(&self) -> Option<&AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. }
-            | DealDamage { b, .. }
-            | PutDamage { b, .. }
-            | Damage { b, .. }
-            | DiscardCards { b, .. }
-            | CardsToHand { b, .. }
-            | MoveOpponentEnergy { b, .. }
-            | AddMarker { b, .. }
-            | PlayLock { b, .. } => Some(b),
-            | PreventRetreat { b } => Some(b),
-            ReduceDamage { b, .. } => Some(b),
-            SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
-            OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
-            DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
-            PreventDamage { b, .. } | PreventEffectsOfAttacks { b } => Some(b),
-            ThisPokemonHasNoWeakness { b } => Some(b),
-            IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
-            OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | DevolveProbe { b } => Some(b),
+            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | DiscardCards { b, .. } | CardsToHand { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -429,25 +357,7 @@ impl Effect {
     pub fn atk_base_mut(&mut self) -> Option<&mut AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. }
-            | DealDamage { b, .. }
-            | PutDamage { b, .. }
-            | Damage { b, .. }
-            | DiscardCards { b, .. }
-            | CardsToHand { b, .. }
-            | MoveOpponentEnergy { b, .. }
-            | AddMarker { b, .. }
-            | PlayLock { b, .. } => Some(b),
-            | PreventRetreat { b } => Some(b),
-            ReduceDamage { b, .. } => Some(b),
-            SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
-            OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
-            DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
-            PreventDamage { b, .. } | PreventEffectsOfAttacks { b } => Some(b),
-            ThisPokemonHasNoWeakness { b } => Some(b),
-            IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
-            OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
-            RetaliateOnDamage { b, .. } | DevolveProbe { b } => Some(b),
+            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | DiscardCards { b, .. } | CardsToHand { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -503,7 +413,6 @@ impl Effect {
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
             MoveOpponentEnergy { .. } => 164,
-            AddMarker { .. } => 46,
             Attach { .. } => 50,
             MoveEnergy { .. } => 64,
             MoveTool { .. } => 65,
@@ -521,26 +430,10 @@ impl Effect {
             TrainerTarget { .. } => 62,
             DiscardToHand { .. } => 63,
             CoinFlipSequence { .. } => 66,
-            PlayLock { .. } => 67,
-            PreventRetreat { .. } => 69,
-            ReduceDamage { .. } => 110,
-            SelfPreventRetreat { .. } => 105,
-            DiscardAttackerEnergyIfKnockedOut { .. } => 106,
-            PreventDamage { .. } => 84,
-            PreventEffectsOfAttacks { .. } => 77,
-            ThisPokemonHasNoWeakness { .. } => 148,
-            RetaliateOnDamage { .. } => 172,
             MoveCounters { .. } => 117,
-            DevolveProbe { .. } => 247,
             Devolve { .. } => 248,
             Swap { .. } => 249,
-            OpponentPokemonCannotUseAttack { .. } => 91,
-            PreventAttackUntilLeavesActive { .. } => 188,
-            DefendingPokemonTakesMoreDamage { .. } => 130,
-            IncreaseAttackCostNextTurn { .. } => 120,
-            IncreaseRetreatCostNextTurn { .. } => 121,
-            CoinFlipCancelTrainerPlay { .. } => 122,
-            OpponentPokemonCannotAttackNextTurn { .. } => 196,
+            ApplyEffect { .. } => 116,
         };
         k
     }
@@ -596,7 +489,6 @@ pub mod k {
     pub const MOVE_OPPONENT_ENERGY: u32 = 164;
     pub const DISCARD_CARDS: u32 = 43;
     pub const CARDS_TO_HAND: u32 = 44;
-    pub const ADD_MARKER: u32 = 46;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
     pub const ATTACH: u32 = 50;
     pub const MOVE_ENERGY: u32 = 64;
@@ -616,14 +508,6 @@ pub mod k {
     pub const TRAINER_TARGET: u32 = 62;
     pub const DISCARD_TO_HAND: u32 = 63;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
-    pub const PLAY_LOCK: u32 = 67;
-    pub const PREVENT_RETREAT: u32 = 69;
-    pub const REDUCE_DAMAGE: u32 = 110;
-    pub const SELF_PREVENT_RETREAT: u32 = 105;
-    pub const DISCARD_ATTACKER_ENERGY_IF_KO: u32 = 106;
-    pub const THIS_POKEMON_HAS_NO_WEAKNESS: u32 = 148;
-    pub const RETALIATE_ON_DAMAGE: u32 = 172;
-    pub const DEVOLVE_PROBE: u32 = 247;
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
     /// The events of events batch 6 (`engine::damage`, `engine::knockout`; KnockOut keeps `KNOCK_OUT`): Damage, PlaceCounters,
@@ -679,15 +563,6 @@ pub mod k {
     pub const PERMIT_FIRST_TURN: u32 = 253;
     pub const PERMIT_BASE_ENTERED: u32 = 254;
     pub const PERMIT_EVOLVES_FROM: u32 = 255;
-    pub const PREVENT_DAMAGE: u32 = 84;
-    pub const PREVENT_EFFECTS_OF_ATTACKS: u32 = 77;
-    pub const OPPONENT_POKEMON_CANNOT_USE_ATTACK: u32 = 91;
-    pub const PREVENT_ATTACK_UNTIL_LEAVES_ACTIVE: u32 = 188;
-    pub const DEFENDING_POKEMON_TAKES_MORE_DAMAGE: u32 = 130;
-    pub const INCREASE_ATTACK_COST_NEXT_TURN: u32 = 120;
-    pub const INCREASE_RETREAT_COST_NEXT_TURN: u32 = 121;
-    pub const COIN_FLIP_CANCEL_TRAINER_PLAY: u32 = 122;
-    pub const OPPONENT_POKEMON_CANNOT_ATTACK_NEXT_TURN: u32 = 196;
 }
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.
@@ -757,6 +632,7 @@ impl Effect {
             | KnockOut { cause, .. }
             | LeavePlay { cause, .. }
             | TakePrizes { cause, .. }
+            | ApplyEffect { cause, .. }
             | GainCondition { cause, .. }
             | RemoveCondition { cause, .. }
             | CoinFlip { cause, .. }

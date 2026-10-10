@@ -239,7 +239,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let (tp, ts) = (t.p as usize, t.s);
             let Some(card) = g.st.slot_pokemon(tp, ts) else { crate::bail!("ILLEGAL_ACTION") };
             g.st.players[tp].slots[ts as usize].damage += amount;
-            g.st.players[tp].marker.add_to_state(crate::markers::DAMAGE_DEALT_MARKER);
             g.st.cards[card as usize].damage_taken_last_turn += amount;
             // The survive-on-10 replacement a full-HP Pokémon's effect armed in the calculation (its remaining HP is 10).
             if survive {

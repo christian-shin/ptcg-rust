@@ -1227,6 +1227,12 @@ impl Game {
         if matches!(kind, k::KNOCK_OUT | k::LEAVE_PLAY | k::TAKE_PRIZES) {
             crate::engine::knockout::reducer(self, id)?;
         }
+        if kind == k::APPLY_EFFECT {
+            crate::engine::apply::reducer(self, id)?;
+        }
+        if matches!(kind, k::DEVOLVE | k::SWAP) {
+            crate::engine::enter::reducer(self, id)?;
+        }
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
             crate::engine::enter::reducer(self, id)?;
         }

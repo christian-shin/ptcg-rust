@@ -383,7 +383,7 @@ pub enum EnergySelection {
     Tools { min: Num, max: Num },
     /// An AttachEnergy prompt over the Pokémon's cards and the owner's Bench: move `min..=max`
     /// Energy to a Benched Pokémon (an effect of the attack on the owner when `via_effect`).
-    ToBench { min: Num, max: Num, same_target: bool, via_effect: bool },
+    ToBench { min: Num, max: Num, same_target: bool, via_effect: bool, kind: EnergyKind },
 }
 
 impl EnergySelection {
@@ -2220,6 +2220,8 @@ fn de_resume_choice(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySp
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EnergyKind {
     Any,
+    /// Basic Energy cards.
+    Basic,
     /// Energy that provides this type as the Pokémon's Energy provides it now (an Energy that
     /// provides every type counts).
     Provides(CardType),
@@ -2254,6 +2256,7 @@ fn ec_energy_cards(g: &mut Game, src: SlotRef, kind: EnergyKind) -> R<Vec<CardId
     let all: Vec<CardId> = g.st.slot(src.p as usize, src.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect();
     Ok(match kind {
         EnergyKind::Any => all,
+        EnergyKind::Basic => all.into_iter().filter(|c| g.st.cdef(*c).energy_type == EnergyType::Basic as u8).collect(),
         EnergyKind::Provides(t) => {
             let providing = energy_cards_that_provide_type(g, src.p as usize, src.s, t)?;
             all.into_iter().filter(|c| providing.contains(c)).collect()
@@ -2378,17 +2381,21 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             ec_apply(g, me, f, e, &ts)?;
             Ok(Flow::Next)
         }
-        EnergySelection::ToBench { min, max, same_target, .. } => {
+        EnergySelection::ToBench { min, max, same_target, kind, .. } => {
             let bench: Vec<SlotRef> = slots_of(g, me, f, &SlotSel::Bench(if p == f.p as usize { Who::Me } else { Who::Opp })).iter().copied().filter(|b| *b != src).collect();
-            let cards = ec_energy_cards(g, src, EnergyKind::Any)?;
+            let cards = ec_energy_cards(g, src, *kind)?;
             if bench.is_empty() || cards.is_empty() {
                 return none(g, f);
             }
-            let total = g.st.slot(p, s).cards.len().min(255) as u8;
+            // Energy cards of a kind: the prompt lists those cards only (a temporary list), "up to" `max` of them.
+            let (list, total, up_to) = match kind {
+                EnergyKind::Any => (ListRef::Slot(p as u8, s), g.st.slot(p, s).cards.len().min(255) as u8, cards.len() as u8),
+                _ => (g.alloc_temp(&cards), cards.len().min(255) as u8, u8::MAX),
+            };
             let mut o = AttachOpts::new(total);
             o.allow_cancel = false;
-            o.max = to_u8(num_m(g, me, f, max)?).min(cards.len() as u8);
-            o.min = to_u8(num_m(g, me, f, min)?).min(o.max);
+            o.max = to_u8(num_m(g, me, f, max)?).min(up_to);
+            o.min = to_u8(num_m(g, me, f, min)?).min(o.max).min(cards.len() as u8);
             o.same_target = *same_target;
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);
@@ -2401,12 +2408,20 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             g.prompt(
                 id,
                 "ATTACH_ENERGY_TO_BENCH",
-                PromptKind::AttachEnergy { cards: ListRef::Slot(p as u8, s), player_type: ptype, slots, filter: Filter::super_type(SuperType::Energy), o },
+                PromptKind::AttachEnergy { cards: list, player_type: ptype, slots, filter: energy_filter(*kind), o },
                 f.cont(me, sub),
             );
             Ok(Flow::Suspend)
         }
         _ => unreachable!("handled by ec_prompt / ec_tools or the DiscardEnergy entries"),
+    }
+}
+
+/// The prompt filter of the Energy cards of a kind.
+fn energy_filter(kind: EnergyKind) -> Filter {
+    match kind {
+        EnergyKind::Basic => Filter { super_type: Some(SuperType::Energy as u8), energy_type: Some(EnergyType::Basic as u8), ..Filter::none() },
+        _ => Filter::super_type(SuperType::Energy),
     }
 }
 

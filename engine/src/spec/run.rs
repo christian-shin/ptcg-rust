@@ -625,9 +625,6 @@ pub fn attack_gate(g: &mut Game, me: CardId, attack: crate::state::AttackRef, p:
 
 /// `CardImpl::resume` of every spec card.
 pub fn resume(g: &mut Game, me: CardId, cf: CardFrame, results: &[Res]) -> R {
-    if cf.stage == passive::HEAVY_BATON_STAGE {
-        return passive::heavy_baton_resume(g, cf, results);
-    }
     let Some(mut f) = Frame::decode(g, me, &cf) else { return Ok(()) };
     let spec = spec_of(g, me);
     let op = &list_at(spec, &f)[f.index()].op;

@@ -455,31 +455,32 @@ fn run_evolve(g: &mut Game, card: CardId, target: SlotRef, path: EvolvePath, cau
     g.run_fx_unit(Effect::Evolve { p: target.p, target, card, base, from, source, path, cause, base_entered_this_turn: v.base_entered_this_turn, owner_first_turn: v.owner_first_turn })
 }
 
-/// Devolve: the top `count` Evolution cards of the Pokémon in `target` go to `dest`, highest Stage first. An
-/// attack's devolving (`atk`) can be prevented as an effect of the attack (the `DevolveProbe`). It counts as
-/// entering play this turn (APR C-13); a Pokémon left with damage counters at least its HP is Knocked Out by
-/// the state check that follows every action.
-pub fn devolve(g: &mut Game, target: SlotRef, count: usize, dest: ListRef, cause: Cause, atk: Option<crate::effects::AtkBase>) -> R {
-    if let Some(b) = atk {
-        let (_, prevented) = g.run_fx(Effect::DevolveProbe { b })?;
-        if prevented {
-            return Ok(());
-        }
+/// The Devolve event of the Pokémon in `target` (its cards going to `dest`), before it happens.
+pub fn devolve_view(g: &Game, target: SlotRef, dest: ListRef, cause: Cause) -> EventView {
+    EventView {
+        source: Some(RulesZone::InPlay),
+        card: g.st.slot_pokemon(target.p as usize, target.s),
+        slot: Some(target),
+        dest: Some(crate::engine::knockout::zone_of(dest)),
+        ..EventView::new(EventKind::Devolve, cause, target.p, crate::spec::event::whose_turn(g))
     }
-    // B6: the routine's shape stays until events batch 6: no lock check before the event, the consequences
-    // (devolve_one) applied before the Devolve effect is dispatched, one event per Stage removed.
-    for _ in 0..count {
-        let (tp, ts) = (target.p as usize, target.s);
-        if g.st.slot_pokemons(tp, ts).len() <= 1 {
-            break;
-        }
-        let removed = devolve_one(g, target, dest, cause)?;
-        if removed.is_empty() {
-            break;
-        }
-        g.run_fx_unit(Effect::Devolve { p: target.p, target, removed, dest, cause })?;
+}
+
+/// Devolve: the top `count` Evolution cards of the Pokémon in `target` go to `dest`, highest Stage first: one event per
+/// devolving action (user decision D6). Checked first: an Evolution card on top, the locks, the preventions (Mist Energy
+/// against Espeon ex's attack: "prevent all effects of attacks"). It counts as entering play this turn (APR C-13); a
+/// Pokémon left with damage counters at least its HP is Knocked Out by the state check that follows every action.
+/// Returns whether it happened.
+pub fn devolve(g: &mut Game, target: SlotRef, count: usize, dest: ListRef, cause: Cause) -> R<bool> {
+    if count == 0 || g.st.slot_pokemons(target.p as usize, target.s).len() <= 1 {
+        return Ok(false);
     }
-    Ok(())
+    let v = devolve_view(g, target, dest, cause);
+    if crate::engine::condition::refused(g, &v)?.is_some() {
+        return Ok(false);
+    }
+    g.run_fx_unit(Effect::Devolve { p: target.p, target, count: count.min(3) as u8, removed: SVec::new(), dest, cause })?;
+    Ok(true)
 }
 
 /// `DEVOLVE_POKEMON(store, state, target, destination)`: the physical devolving of one Stage and its
@@ -539,15 +540,24 @@ pub enum SwapPlace {
     Bottom,
 }
 
-/// Swap: the Pokémon card `old` in `target` is replaced by `new` (from wherever it is); `old` goes to `into`.
-/// The card-bound facts move to the new card, the slot-bound ones stay (4.5; id2372). The physical moves are
-/// `MoveCards` effects, as before.
-pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListRef, place: SwapPlace, me: CardId, cause: Cause) -> R {
-    // B6: the routine's shape stays until events batch 6: no lock check before the event, the physical moves and
-    // the card-bound facts applied before the Swap effect is dispatched.
-    let (p, s) = (target.p as usize, target.s);
+/// Swap: the Pokémon card `old` in `target` is replaced by `new` (from wherever it is); `old` goes to `into`. Checked
+/// first (the locks: Palafin ex can't be put into play except by Zero to Hero, JP FAQ; the preventions), then the event,
+/// whose reducer moves the cards (`MoveCards` effects) and the card-bound facts to the new card, the slot-bound ones
+/// staying (4.5; id2372). Returns whether it happened.
+pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListRef, place: SwapPlace, me: CardId, cause: Cause) -> R<bool> {
     // Where the new card comes from, read before it moves (the event's source).
-    let Some((src, source)) = source_of(g, new) else { return Ok(()) };
+    let Some((src, source)) = source_of(g, new) else { return Ok(false) };
+    let v = EventView { source: Some(source), card: Some(new), base: Some(old), slot: Some(target), ..EventView::new(EventKind::Swap, cause, target.p, crate::spec::event::whose_turn(g)) };
+    if crate::engine::condition::refused(g, &v)?.is_some() {
+        return Ok(false);
+    }
+    g.run_fx_unit(Effect::Swap { p: target.p, target, old, new, source, cause, from: src, into, place, by: me })?;
+    Ok(true)
+}
+
+/// The Swap's consequences: the physical moves and the card-bound facts.
+fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: ListRef, into: ListRef, place: SwapPlace, me: CardId) -> R {
+    let (p, s) = (target.p as usize, target.s);
     let list = target.list();
     let old_index = g.st.slot(p, s).cards.index_of(old);
     crate::prefabs::move_cards(g, src, list, &[new], me)?;
@@ -571,7 +581,7 @@ pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListR
         }
     }
     swap_card_facts(g, p, old, new);
-    g.run_fx_unit(Effect::Swap { p: target.p, target, old, new, source, cause })
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -601,7 +611,28 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             slot.marker.remove_all_except_trainer_effects();
             evolution_consequences(g, target.p as usize, target, cause)
         }
-        // Devolve and Swap act in their routines (the physical moves are MoveCards effects there).
+        Effect::Devolve { target, count, dest, cause, .. } => {
+            let mut all: SVec<CardId, 3> = SVec::new();
+            for _ in 0..count {
+                if g.st.slot_pokemons(target.p as usize, target.s).len() <= 1 {
+                    break;
+                }
+                let removed = devolve_one(g, target, dest, cause)?;
+                if removed.is_empty() {
+                    break;
+                }
+                for c in removed.iter() {
+                    if all.len() < 3 {
+                        all.push(*c);
+                    }
+                }
+            }
+            if let Effect::Devolve { removed, .. } = g.e_mut(id) {
+                *removed = all;
+            }
+            Ok(())
+        }
+        Effect::Swap { target, old, new, from, into, place, by, .. } => swap_moves(g, target, old, new, from, into, place, by),
         _ => Ok(()),
     }
 }

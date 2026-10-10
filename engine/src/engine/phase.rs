@@ -7,7 +7,6 @@
 use crate::effects::*;
 use crate::game::{Cont, Game, OnComplete, R};
 use crate::list::*;
-use crate::markers::*;
 use crate::prompts::*;
 use crate::state::*;
 use crate::types::*;
@@ -261,7 +260,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             g.st.cards[c as usize].damage_taken_last_turn = 0;
         }
     }
-    g.st.players[p].marker.remove(DAMAGE_DEALT_MARKER);
     g.st.players[p].pokemon_knocked_out_during_opponents_last_turn = false;
     g.st.players[p].pokemon_knocked_out_by_attack_during_opponents_last_turn = false;
     g.st.players[p].pokemon_knocked_out_last_turn_entries.clear();

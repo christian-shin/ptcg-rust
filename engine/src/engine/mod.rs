@@ -1,6 +1,7 @@
 //! Built-in rules, ported from Twinleaf `game/store/reducers` and
 //! `game/store/effect-reducers`.
 
+pub mod apply;
 pub mod attach;
 pub mod change_active;
 pub mod condition;
