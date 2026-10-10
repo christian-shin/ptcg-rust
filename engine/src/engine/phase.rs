@@ -46,12 +46,8 @@ pub fn init_next_turn(g: &mut Game) -> R {
     g.run_fx_unit(Effect::BeginTurn { p: p as u8 })?;
 
     let id = g.player_id(p);
-    if g.st.players[p].cannot_draw_at_start_of_turn {
-        g.st.players[p].cannot_draw_at_start_of_turn = false;
-    } else {
-        // The turn's draw (APR H, G step 4): a Draw event by the rule.
-        crate::engine::cards_zone::draw(g, p, 1, crate::cause::Cause::rule(crate::cause::RuleWhich::TurnDraw, p as u8))?;
-    }
+    // The turn's draw (APR H, G step 4): a Draw event by the rule.
+    crate::engine::cards_zone::draw(g, p, 1, crate::cause::Cause::rule(crate::cause::RuleWhich::TurnDraw, p as u8))?;
     g.wait(id, Cont::PhasePlayerTurn);
     Ok(())
 }
@@ -382,7 +378,6 @@ pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
         pl.unlimited_energy_attach_turns_remaining -= 1;
     }
     pl.used_dragons_wish = pl.unlimited_energy_attach_turns_remaining == 1;
-    pl.cannot_draw_at_start_of_turn = false;
 }
 
 pub fn _unused(_: SVec<u8, 1>) {}

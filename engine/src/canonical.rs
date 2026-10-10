@@ -218,7 +218,6 @@ impl Game {
         }
         nd!(used_dragons_wish, "usedDragonsWish");
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
-        nd!(cannot_draw_at_start_of_turn, "cannotDrawAtStartOfTurn");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
         nd!(used_table_turner, "usedTableTurner");
         nd!(chains_of_control_used, "chainsOfControlUsed");
