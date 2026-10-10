@@ -1,0 +1,103 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ralts ASC 87",
+   "1 Kirlia ASC 88",
+   "1 Mega Gardevoir ex ASC 89",
+   "4 Dwebble DRI 11",
+   "1 Acerola's Mischief ASC 180",
+   "1 Strange Timepiece MEG 128",
+   "1 Miraidon ex TEF 122",
+   "1 Lightning Energy MEE 4",
+   "49 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Ralts ASC 87",
+   "1 Kirlia ASC 88",
+   "1 Mega Gardevoir ex ASC 89",
+   "4 Dwebble DRI 11",
+   "1 Acerola's Mischief ASC 180",
+   "1 Strange Timepiece MEG 128",
+   "1 Miraidon ex TEF 122",
+   "1 Lightning Energy MEE 4",
+   "49 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ralts ASC 87",
+   "Kirlia ASC 88",
+   "Mega Gardevoir ex ASC 89"
+  ],
+  "hand": [
+   "Acerola's Mischief ASC 180",
+   "Strange Timepiece MEG 128"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Miraidon ex TEF 122",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "prizes_left": 2
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Acerola's Mischief ASC 180"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "play",
+   "card": "Strange Timepiece MEG 128"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  [
+   2
+  ],
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Repulsion Bolt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Kirlia ASC 88",
+   "damage": 60,
+   "cite": "official JP FAQ (アセロラのいたずら / あやしい時計 / キルリア / メガサーナイトex): 「サポート「アセロラのいたずら」を使い、メガサーナイトexをえらびました。同じ番の中で、グッズ「あやしい時計」を使って、メガサーナイトexをキルリアに退化させた場合、サポート「アセロラのいたずら」の効果はなくなりますか？」「はい、なくなります。」 (devolved the same turn: the Mischief effect is gone); APR C-13: \"Any Special Conditions or effects it had on it are removed\". Repulsion Bolt does its 60 to Kirlia"
+  }
+ ]
+}
