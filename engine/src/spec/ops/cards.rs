@@ -10,7 +10,7 @@
 use super::super::run::{Flow, Frame, CHOICE_NONE, CHOICE_YES, NONE};
 use super::board::encode;
 use super::super::*;
-use crate::effects::{AtkBase, Effect, SlotRef};
+use crate::effects::{Effect, SlotRef};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::prefabs::*;
@@ -1318,10 +1318,11 @@ fn decode_transfers(items: &[u8]) -> Vec<(SlotRef, SlotRef, CardId)> {
 }
 
 fn carry_out_transfers(g: &mut Game, f: &Frame, ts: &[(SlotRef, SlotRef, CardId)]) -> R {
-    let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    if attack_data(g, f.eff).is_none() {
+        return Ok(());
+    }
     for (from, to, c) in ts {
-        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *from, cause: f.cause };
-        g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *to })?;
+        crate::engine::attach::move_attached_by_attack(g, f.eff, *c, *from, *to, f.cause)?;
     }
     Ok(())
 }
@@ -2706,9 +2707,8 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
                 for (a, dst, c) in ts.iter().filter(|t| t.0 == src) {
                     let Some(dst) = dst else { continue };
                     if *via_effect && attack {
-                        if let Some((p, opp, attack, source)) = attack_data(g, f.eff) {
-                            let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: *a, cause: f.cause };
-                            g.run_fx_unit(Effect::MoveOpponentEnergy { b, card: *c, destination: *dst })?;
+                        if attack_data(g, f.eff).is_some() {
+                            crate::engine::attach::move_attached_by_attack(g, f.eff, *c, *a, *dst, f.cause)?;
                         }
                     } else {
                         crate::engine::attach::move_attached(g, *c, *a, *dst, f.cause)?;

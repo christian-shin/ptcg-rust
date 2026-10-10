@@ -58,10 +58,34 @@ pub fn move_from_view(g: &Game, kind: EventKind, card: CardId, from: SlotRef, ca
 
 /// A card that can't go onto a protected Pokémon is discarded instead (id2354: Pleasing Present onto Unaware Skeledirge;
 /// JP FAQ Elgyem's Slight Shift: 「つけ替えたエネルギーをトラッシュし、効果を終わります」, the moved Energy is discarded and
-/// the effect ends). B6-OLD -> batch 7: the Discard event.
-fn discard_instead(g: &mut Game, card: CardId, from: ListRef) {
+/// the effect ends): a Discard from the hand or the deck (a card looked at counts from where it was), a card already in
+/// the discard pile stays there (it isn't discarded again).
+fn discard_instead(g: &mut Game, card: CardId, from: ListRef, cause: Cause) -> R {
     let owner = g.st.owner(card) as u8;
-    g.move_card_to(from, card, ListRef::Discard(owner));
+    if from == ListRef::Discard(owner) {
+        g.move_card_to(from, card, ListRef::Discard(owner));
+        return Ok(());
+    }
+    crate::engine::cards_zone::discard(g, from, &[card], cause)?;
+    Ok(())
+}
+
+/// A moved card that can't go onto a protected Pokémon is discarded instead (the same rulings): the card leaves play
+/// from the Pokémon it is attached to (a LeavePlay, user decision D1).
+fn discard_moved_instead(g: &mut Game, card: CardId, from: SlotRef, cause: Cause) -> R {
+    crate::engine::knockout::leave_play_cards(g, from, &[card], RulesZone::Discard, cause, None)?;
+    Ok(())
+}
+
+/// An attack's move of an Energy between Pokémon (Team Rocket's Zapdos, Elgyem's Slight Shift): the MoveEnergy waits for
+/// the attack's damage while its after-damage window is open (RULES.md "Energy removed as an effect of an attack"; it is
+/// checked when it runs), else happens now.
+pub fn move_attached_by_attack(g: &mut Game, atk: EffId, card: CardId, from: SlotRef, to: SlotRef, cause: Cause) -> R<bool> {
+    if g.st.cdef(card).is_energy() && g.after_damage_open(atk) {
+        g.push_after_damage(atk, crate::game::AfterDmgStep::MoveAttached { card, from, to, cause });
+        return Ok(true);
+    }
+    move_attached(g, card, from, to, cause)
 }
 
 /// The preventions of a move, per end (user decision D3): a protected source keeps the card (`Some(false)`: no move); a
@@ -194,7 +218,7 @@ pub fn attach(g: &mut Game, card: CardId, target: SlotRef, cause: Cause) -> R<bo
     // An effect's Attach onto a Pokémon a prevention protects: the card is discarded instead (id2354; user decision D3).
     if crate::derived::event_prevented(g, &v)? {
         if let Some((from, _)) = crate::engine::enter::source_of(g, card) {
-            discard_instead(g, card, from);
+            discard_instead(g, card, from, cause)?;
         }
         return Ok(false);
     }
@@ -243,7 +267,7 @@ pub fn move_energy(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause
     }
     match move_prevented(g, EventKind::MoveEnergy, card, from, to, cause)? {
         Some(true) => {
-            discard_instead(g, card, from.list());
+            discard_moved_instead(g, card, from, cause)?;
             return Ok(false);
         }
         Some(false) => return Ok(false),
@@ -270,7 +294,7 @@ pub fn move_tool(g: &mut Game, card: CardId, from: SlotRef, to: SlotRef, cause: 
     }
     match move_prevented(g, EventKind::MoveTool, card, from, to, cause)? {
         Some(true) => {
-            discard_instead(g, card, from.list());
+            discard_moved_instead(g, card, from, cause)?;
             return Ok(false);
         }
         Some(false) => return Ok(false),
