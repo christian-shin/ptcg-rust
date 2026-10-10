@@ -37,6 +37,9 @@ pub enum RuleSource {
 }
 
 pub enum Modifier {
+    /// "You may ignore all results of those coin flips and begin flipping those coins again" (events batch 7, user
+    /// decision D7; Backtrack Badge): offered before the results of the flips its event predicate matches are used.
+    Reflip(ReflipSpec),
     DamageDealt(DamageDealtSpec),
     DamageTaken(DamageTakenSpec),
     Prevent(PreventSpec),
@@ -782,6 +785,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             }
         }
         Modifier::BlockUse(b) => block_kinds(&b.lock),
+        Modifier::Reflip(_) => mask(&[k::COIN_FLIP, k::DECLARES_REFLIP]),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
         // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`).
         Modifier::AttachGuard(_) => mask(&[k::CHECK_TABLE_STATE]),
@@ -931,6 +935,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         }
         // Permissions are read where a limit is checked (`engine::enter::permitted`); nothing is dispatched to them.
         Modifier::Permit(_) => Ok(()),
+        // Re-flips are read where a card's flips are made (`engine::condition::flip_coin`); nothing is dispatched to them.
+        Modifier::Reflip(_) => Ok(()),
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
         Modifier::WeaknessOverride(w) => {
             let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
@@ -1869,6 +1875,42 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
 /// design's Prevent reader: the event's routine asks it (through `derived::event_prevented`) after the locks, only
 /// in a game where a card declares a prevention over the event's family (`prevent_marker`), so a game without one
 /// pays a mask test. The sources are walked in the propagation order of the event's kind.
+/// A re-flip declaration (`Modifier::Reflip`): the group of flips it covers (`on`, over the CoinFlip event of the group:
+/// its purpose and cause) and the marker that makes it once per turn (set on its player when used, cleared at the end
+/// of their turn by the card's own trigger). The player asked is the declaring card's owner, who must be the one
+/// flipping.
+pub struct ReflipSpec {
+    pub on: super::event::EventPred,
+    pub once: crate::markers::MarkerName,
+}
+
+/// The re-flip declaration in play that covers the group of flips `v` (a CoinFlip view: purpose, cause, the player
+/// flipping): its card is in place for its origin and not blocked there, its owner is the one flipping, its marker isn't
+/// set, and `on` matches (the view's owner is the player flipping). Returns the marker. A game without one answers `None`
+/// with a mask test.
+pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<crate::markers::MarkerName>> {
+    if !g.kinds_present.has(crate::effects::k::DECLARES_REFLIP) {
+        return Ok(None);
+    }
+    let probe = Effect::EndTurn { p: v.actor() };
+    let order = g.propagation_order(&probe, crate::effects::k::COIN_FLIP);
+    for c in order.iter().copied() {
+        let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives);
+        for ps in passives {
+            let Modifier::Reflip(r) = &ps.modifier else { continue };
+            let Some(at) = locate(g, c, ps.origin) else { continue };
+            if at.owner != v.owner as usize || g.st.players[at.owner].marker.has(r.once) {
+                continue;
+            }
+            if blocked(g, c, ps.origin, at, at.held) || !r.on.eval(g, c, v)? {
+                continue;
+            }
+            return Ok(Some(r.once));
+        }
+    }
+    Ok(None)
+}
+
 pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     let (Some(marker), Some(kind)) = (prevent_marker(v.kind), v.kind.effect_kind()) else { return Ok(false) };
     if !g.kinds_present.has(marker) {
@@ -1960,8 +2002,7 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
                 continue;
             }
             let cause = crate::cause::Cause::of_origin(ps.origin, me, at.owner as u8);
-            let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
-            if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
+            if crate::engine::condition::flip_coin(g, at.owner, crate::game::CoinCb::None, cause)? {
                 heads = true;
             }
         }

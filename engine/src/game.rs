@@ -47,6 +47,8 @@ pub enum Cont {
     Retreat(retreat::RetreatCont),
     /// Coin flip animation wait; then the flip callback runs with `result`.
     CoinFlipWait { cb: CoinCb, result: bool },
+    /// A re-flip offer's answer (`engine::condition::reflip_answer`).
+    Reflip(crate::engine::condition::ReflipAsk),
     TrainerCleanup { p: u8, card: CardId },
     ShuffleApply { p: u8 },
     /// `order => player.deck.applyOrder(order)` with no follow-up wait.
@@ -82,8 +84,11 @@ pub enum CoinCb {
     None,
     Card { card: CardId, frame: CardFrame },
     Attack(attack::AttackCoinCb),
-    /// RUN_COIN_FLIP_SEQUENCE: one flip done; `results` bit i = flip i heads.
-    Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8, cause: crate::cause::Cause },
+    /// RUN_COIN_FLIP_SEQUENCE: one flip done; `results` bit i = flip i heads. `offer`: a re-flip is offered when the
+    /// sequence ends (`engine::condition::flip_sequence`).
+    Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8, cause: crate::cause::Cause, offer: bool },
+    /// One flip whose re-flip is offered after its wait; then the request's callback `callback` (`engine::condition::flip_coin`).
+    Reflip { p: u8, callback: u8, cause: crate::cause::Cause, once: crate::markers::MarkerName },
     /// Final callback of a sequence: card receives (bitmask, count) via `frame.a[2..]`.
     SequenceCard { card: CardId, frame: CardFrame },
     /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).
@@ -726,17 +731,11 @@ impl Game {
         self.fx.as_mut_slice()[id as usize].prevent_default = v;
     }
 
-    /// A coin flip of player `p` for a card's effect (`cause`), whose result goes to `cb`: the B4-OLD request
-    /// (`CoinFlipRequest`, which Backtrack Badge's re-flip hook replaces); the flip is a CoinFlip event.
+    /// A coin flip of player `p` for a card's effect (`cause`), whose result goes to `cb` (`engine::condition::flip_coin`:
+    /// a CoinFlip event, a re-flip offered when a declaration covers it).
     pub fn coin_flip(&mut self, p: usize, cb: CoinCb, cause: crate::cause::Cause) -> R<Option<bool>> {
         let cb = self.tag_coin(cb);
-        self.coin_callbacks.push(cb);
-        let k = (self.coin_callbacks.len() - 1) as u8;
-        let (e, _) = self.run_fx(Effect::CoinFlipRequest { p: p as u8, callback: Some(k), result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
-        Ok(match e {
-            Effect::CoinFlipRequest { result, .. } => result,
-            _ => None,
-        })
+        crate::engine::condition::flip_coin(self, p, cb, cause).map(Some)
     }
 
     /// Create, reduce and release an effect; returns its final value and
@@ -942,6 +941,7 @@ impl Game {
             Cont::UsePower(f) => attack::resume_use_power(self, f),
             Cont::Retreat(rc) => retreat::resume(self, rc, first),
             Cont::CoinFlipWait { cb, result } => self.run_coin_cb(cb, result),
+            Cont::Reflip(a) => crate::engine::condition::reflip_answer(self, a, first.as_bool()),
             Cont::TrainerCleanup { p, card } => {
                 crate::engine::play_trainer::trainer_cleanup(self, p as usize, card);
                 Ok(())
@@ -981,12 +981,16 @@ impl Game {
             CoinCb::DelegSequenceCard { card, source, serial, frame } => crate::copy_attack::resume_deleg(self, card, source, serial, frame, &[], None),
             CoinCb::Attack(a) => attack::coin_cb(self, a, result),
             CoinCb::PlayGate { p, card, target } => crate::engine::play_trainer::gate_coin(self, p, card, target, result),
-            CoinCb::Sequence { p, mode, results, n, callback, cause } => {
+            CoinCb::Reflip { p, callback, cause, once } => {
+                crate::engine::condition::ask_reflip(self, crate::engine::condition::ReflipAsk { p, callback, cause, once, result, results: 0, n: 0, mode: None });
+                Ok(())
+            }
+            CoinCb::Sequence { p, mode, results, n, callback, cause, offer } => {
                 let results = if result { results | (1 << n) } else { results };
                 let n = n + 1;
                 let more = if mode == 0 { result } else { n < mode };
                 if more {
-                    let cb = CoinCb::Sequence { p, mode, results, n, callback, cause };
+                    let cb = CoinCb::Sequence { p, mode, results, n, callback, cause, offer };
                     // The sequence reuses its own slot (the flip copies its callback when it resolves, and
                     // sequences skip the reflip offers that would read it again), so "flip until tails"
                     // takes one slot however many heads come up.
@@ -1001,11 +1005,17 @@ impl Game {
                             (self.coin_callbacks.len() - 1) as u8
                         }
                     };
-                    self.run_fx_unit(Effect::CoinFlipRequest { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause })?;
+                    let _ = k;
+                    crate::engine::condition::flip_raw(self, p as usize, cb, cause)?;
                     return Ok(());
                 }
-                // Reflip offers (stadium/tool) are applied by those cards' handlers
-                // (a card that wraps the final callback, e.g. Backtrack Badge).
+                // The re-flip offer, its declaration asked again now the flips are done.
+                if offer {
+                    if let Some(once) = crate::engine::condition::reflip_offered(self, p as usize, cause)? {
+                        crate::engine::condition::ask_reflip(self, crate::engine::condition::ReflipAsk { p, callback, cause, once, result, results, n, mode: Some(mode) });
+                        return Ok(());
+                    }
+                }
                 self.finish_coin_sequence(callback, results, n, result)
             }
             CoinCb::SequenceCard { card, frame } => cards::resume(self, card, frame, &[]),

@@ -153,9 +153,7 @@ mod tests {
         ("PUT_DAMAGE", k::PUT_DAMAGE),        ("ATTACH", k::ATTACH), ("MOVE_ENERGY", k::MOVE_ENERGY), ("MOVE_TOOL", k::MOVE_TOOL),
         ("ENTER_PLAY", k::ENTER_PLAY), 
         ("ENERGY", k::ENERGY),
-        ("TOOL", k::TOOL), ("STADIUM", k::STADIUM), ("COIN_FLIP_REQUEST", k::COIN_FLIP_REQUEST),
-        ("TRAINER_TARGET", k::TRAINER_TARGET), ("COIN_FLIP_SEQUENCE", k::COIN_FLIP_SEQUENCE),
-        ("DEVOLVE", k::DEVOLVE), ("SWAP", k::SWAP), ("DAMAGE", k::DAMAGE), ("PLACE_COUNTERS", k::PLACE_COUNTERS),
+        ("TOOL", k::TOOL), ("STADIUM", k::STADIUM),        ("TRAINER_TARGET", k::TRAINER_TARGET),        ("DEVOLVE", k::DEVOLVE), ("SWAP", k::SWAP), ("DAMAGE", k::DAMAGE), ("PLACE_COUNTERS", k::PLACE_COUNTERS),
         ("MOVE_COUNTERS_EVENT", k::MOVE_COUNTERS_EVENT), ("LEAVE_PLAY", k::LEAVE_PLAY), ("TAKE_PRIZES", k::TAKE_PRIZES), ("APPLY_EFFECT", k::APPLY_EFFECT),
         ("DISCARD", k::DISCARD), ("PUT_INTO_HAND", k::PUT_INTO_HAND), ("PUT_INTO_DECK", k::PUT_INTO_DECK), ("DRAW", k::DRAW),
         ("PLAY_TRAINER", k::PLAY_TRAINER),
@@ -179,8 +177,7 @@ mod tests {
     /// The dispatch index keys its entries by `kind % 32` (`SLOTS`): two kinds with card listeners looked up in turn on
     /// one entry rebuild each other's list (a kind without listeners is never looked up: `kinds_present`). Prints the
     /// table (`cargo test listener_table -- --nocapture`) and checks ENGINE.md section 12's rule for the events of
-    /// batch 6: an entry whose other kinds have no card listeners, else only listeners of rare events (MoveTool,
-    /// CoinFlipSequence).
+    /// batch 6: an entry whose other kinds have no card listeners, else only listeners of rare events (MoveTool).
     #[test]
     fn listener_table() {
         let n = listeners();
@@ -189,7 +186,7 @@ mod tests {
             println!("entry {:2}: {}", e, row.join(", "));
         }
         let batch6 = [k::DAMAGE, k::PLACE_COUNTERS, k::MOVE_COUNTERS_EVENT, k::LEAVE_PLAY, k::TAKE_PRIZES, k::APPLY_EFFECT];
-        let rare = [k::MOVE_TOOL, k::COIN_FLIP_SEQUENCE];
+        let rare = [k::MOVE_TOOL];
         for kind in batch6 {
             for (name, other) in KINDS {
                 if *other != kind && other % super::SLOTS as u32 == kind % super::SLOTS as u32 && n[kind as usize] > 0 && n[*other as usize] > 0 {

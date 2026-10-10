@@ -2,9 +2,8 @@
 
 use crate::effects::*;
 use crate::engine::attack;
-use crate::game::{CoinCb, Cont, Game, R};
+use crate::game::{Game, R};
 use crate::list::*;
-use crate::prompts::PromptKind;
 use crate::state::*;
 use crate::types::*;
 
@@ -139,27 +138,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 crate::bail!("BLOCKED_BY_EFFECT");
             }
             g.st.players[p as usize].stadium_used_turn = g.st.turn;
-            Ok(())
-        }
-        Effect::CoinFlipSequence { p, mode, callback, cause, .. } => {
-            let cb = CoinCb::Sequence { p, mode, results: 0, n: 0, callback, cause };
-            g.coin_callbacks.push(cb);
-            let k = (g.coin_callbacks.len() - 1) as u8;
-            g.run_fx_unit(Effect::CoinFlipRequest { p, callback: Some(k), result: None, skip_reflip_stadium: true, skip_reflip_tool: true, cause })?;
-            Ok(())
-        }
-        Effect::CoinFlipRequest { p, callback, cause, .. } => {
-            let result = g.rng.coin();
-            if let Effect::CoinFlipRequest { result: r, .. } = g.e_mut(id) {
-                *r = Some(result);
-            }
-            crate::engine::condition::coin_flipped(g, p as usize, crate::spec::event::CoinPurpose::Effect, result, cause)?;
-            let cb = match callback {
-                Some(k) => g.coin_callbacks.as_slice()[k as usize],
-                None => CoinCb::None,
-            };
-            let pid = g.player_id(p as usize);
-            g.prompt(pid, "", PromptKind::Wait, Cont::CoinFlipWait { cb, result });
             Ok(())
         }
         _ => Ok(()),

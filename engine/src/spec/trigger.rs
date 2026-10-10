@@ -24,14 +24,6 @@ pub enum Event {
     OnCheckup(OnCheckupSpec),
     OnEndTurn(OnEndTurnSpec),
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
-    /// A rule no event expresses (Backtrack Badge): the card names the effect kinds it reacts to and
-    /// decides in its own function whether it fires (returning the program's player).
-    Custom(CustomEventSpec),
-}
-
-pub struct CustomEventSpec {
-    pub kinds: &'static [u32],
-    pub fires: fn(&mut Game, CardId, EffId) -> Option<usize>,
 }
 
 /// The Pokémon this card is part of (an Ability) or attached to (a Tool), in the Active Spot, is damaged
@@ -80,7 +72,6 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::On(p) => p.effect_kinds(),
         Event::OnDamagedByAttack(_) => mask(&[k::DAMAGE, k::ATTACK_TRIGGER]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
-        Event::Custom(c) => mask(c.kinds),
         Event::OnAfterAttackTriggers(_) => mask(&[k::AFTER_ATTACK_TRIGGERS]),
     }
 }
@@ -143,7 +134,6 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 _ => None,
             }
         }
-        Event::Custom(c) => (c.fires)(g, me, e).map(|p| (p, None)),
         Event::OnCheckup(_) => match *g.e(e) {
             Effect::BetweenTurns { p, .. } if g.st.phase == crate::types::GamePhase::BetweenTurns => {
                 let p = p as usize;

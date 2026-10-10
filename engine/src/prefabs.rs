@@ -100,8 +100,7 @@ pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize, cause:
             }
             return Ok(());
         }
-        let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: player as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
-        if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
+        if crate::engine::condition::flip_coin(g, player, CoinCb::None, cause)? {
             if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
                 *survive_on_ten_hp = true;
             }
@@ -125,8 +124,7 @@ pub fn resolve_survive_coin_flips(g: &mut Game) -> R {
         }
         // The Pokémon's own Ability ("flip a coin; if heads, it is not Knocked Out").
         let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, g.st.slot_pokemon(tp, ts), owner);
-        let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: owner, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
-        if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
+        if crate::engine::condition::flip_coin(g, owner as usize, CoinCb::None, cause)? {
             crate::engine::damage::survive_on_10(g, t, hp);
         }
     }
@@ -481,11 +479,7 @@ pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
 /// `MULTIPLE_COIN_FLIPS_PROMPT` / `FLIP_UNTIL_TAILS` (`mode` 0 = until tails):
 /// the callback receives the results as a bitmask (bit i = flip i heads) and count.
 pub fn coin_flip_sequence(g: &mut Game, p: usize, mode: u8, cb: CoinCb, cause: crate::cause::Cause) -> R {
-    let cb = g.tag_coin(cb);
-    g.coin_callbacks.push(cb);
-    let k = (g.coin_callbacks.len() - 1) as u8;
-    g.run_fx_unit(Effect::CoinFlipSequence { p: p as u8, mode, callback: k, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
-    Ok(())
+    crate::engine::condition::flip_sequence(g, p, mode, cb, cause)
 }
 
 /// `ignoresDefenderEffects(effect)`: Shred ("isn't affected by any effects on your opponent's Active
