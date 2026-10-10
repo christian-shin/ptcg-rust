@@ -123,8 +123,9 @@ pub mod fx_flag {
 /// A step queued in an attack's after-damage window (`prefabs/after-damage.ts`).
 #[derive(Clone, Copy, Debug)]
 pub enum AfterDmgStep {
-    /// An effect (held by the queue) to reduce after the damage.
-    Fx(EffId),
+    /// An attack's MoveEnergy of `card` from the Pokémon in `from` to the one in `to`, by `cause`, after the damage
+    /// (`engine::attach::move_attached`; checked when it runs).
+    MoveAttached { card: CardId, from: SlotRef, to: SlotRef, cause: crate::cause::Cause },
     /// The LeavePlay of cards attached to the Pokémon in `target` for `zone` of their owner, by `cause`, after the damage
     /// (`engine::knockout::leave_play_cards`; checked when it runs).
     LeaveCards { target: SlotRef, cards: SVec<CardId, 64>, zone: crate::spec::event::RulesZone, cause: crate::cause::Cause },
@@ -668,10 +669,7 @@ impl Game {
         let mut i = 0;
         while i < self.after_dmg.len() {
             if self.after_dmg.as_slice()[i].atk == atk {
-                let d = self.after_dmg.remove_at(i);
-                if let AfterDmgStep::Fx(id) = d.step {
-                    self.release_fx(id);
-                }
+                self.after_dmg.remove_at(i);
             } else {
                 i += 1;
             }
@@ -697,34 +695,13 @@ impl Game {
                 AfterDmgStep::LeaveCards { target, cards, zone, cause } => {
                     crate::engine::knockout::leave_play_cards(self, target, cards.as_slice(), zone, cause, None)?;
                 }
-                AfterDmgStep::Fx(id) => {
-                    let r = self.reduce_effect(id);
-                    self.release_fx(id);
-                    r?;
+                AfterDmgStep::MoveAttached { card, from, to, cause } => {
+                    crate::engine::attach::move_attached(self, card, from, to, cause)?;
                 }
                 AfterDmgStep::Shuffle(p) => crate::prefabs::shuffle_deck(self, p as usize),
             }
         }
         Ok(())
-    }
-
-    /// `DEFER_UNTIL_AFTER_DAMAGE(store, effect)`: queue an Energy removal of an attack whose window is open.
-    fn defer_after_damage(&mut self, id: EffId) -> bool {
-        let atk = match *self.e(id) {
-            Effect::MoveOpponentEnergy { b, card, .. } => {
-                if !self.st.cdef(card).is_energy() {
-                    return false;
-                }
-                b.attack_effect
-            }
-            _ => return false,
-        };
-        if !self.after_damage_open(atk) {
-            return false;
-        }
-        self.retain_fx(id);
-        self.push_after_damage(atk, AfterDmgStep::Fx(id));
-        true
     }
 
     #[inline]
@@ -1146,10 +1123,6 @@ impl Game {
 
     /// `Store.reduceEffect`.
     pub fn reduce_effect(&mut self, id: EffId) -> R {
-        // Energy removed as an effect of an attack waits for the damage (prefabs/after-damage.ts).
-        if self.defer_after_damage(id) {
-            return Ok(());
-        }
         if let Effect::Attack { p, source, attack, .. } = *self.e(id) {
             self.ten_hp = SVec::new();
             self.ten_hp_coin = SVec::new();

@@ -249,11 +249,6 @@ pub enum Effect {
         source_in_play: bool,
         retaliate: Option<crate::state::StoredRetaliate>,
     },
-    /// An attack's move of an Energy between the opponent's Pokémon, held until the attack's damage is done (the attack's
-    /// after-damage window, `Game::defer_after_damage`; `b.target` is the source spot); its reducer produces the MoveEnergy
-    /// event (`engine::attach::move_attached`), whose preventions read both ends (B6-OLD -> batch 7: the window becomes the
-    /// attack's own step).
-    MoveOpponentEnergy { b: AtkBase, card: CardId, destination: SlotRef },
 
     // ---- play card ----
     /// The Attach event (events batch 3; `engine::attach`): an Energy or a Pokémon Tool card goes onto the Pokémon
@@ -334,7 +329,6 @@ impl Effect {
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
             Damage { .. } => "DAMAGE_EVENT",
             AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
-            MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EVENT",
             Devolve { .. } => "DEVOLVE_EVENT",
             Swap { .. } => "SWAP_EVENT",
@@ -356,7 +350,7 @@ impl Effect {
     pub fn atk_base(&self) -> Option<&AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
+            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -364,7 +358,7 @@ impl Effect {
     pub fn atk_base_mut(&mut self) -> Option<&mut AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } | MoveOpponentEnergy { b, .. } => Some(b),
+            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -418,7 +412,6 @@ impl Effect {
             PutDamage { .. } => 39,
             Damage { .. } => 94,
             AttackTrigger { .. } => 246,
-            MoveOpponentEnergy { .. } => 164,
             Attach { .. } => 50,
             MoveEnergy { .. } => 64,
             MoveTool { .. } => 65,
@@ -483,7 +476,6 @@ pub mod k {
     pub const APPLY_WEAKNESS: u32 = 37;
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
-    pub const MOVE_OPPONENT_ENERGY: u32 = 164;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
     pub const ATTACH: u32 = 50;
     pub const MOVE_ENERGY: u32 = 64;
@@ -505,7 +497,7 @@ pub mod k {
     /// The dispatch index keys its entries by `kind % 32` (`dispatch::SLOTS`); the 32 entries are all shared, so each
     /// number takes an entry whose other kinds have no card listeners, else only listeners of rare events (ENGINE.md
     /// section 12; the counts: `dispatch::tests::listener_table`): Damage 30 (TrainerTarget: none), PlaceCounters 4
-    /// (WhoBegins, MoveOpponentEnergy: none), ApplyEffect 20 (Retreat, PlaySupporter: none), TakePrizes 1 (it has no
+    /// (WhoBegins: none), ApplyEffect 20 (Retreat, PlaySupporter: none), TakePrizes 1 (it has no
     /// listener and is never looked up), MoveCounters 1 (MoveTool: rare), LeavePlay 2 (CoinFlipSequence: Backtrack
     /// Badge only). MoveCounters was 117 and LeavePlay 119 (shared with AfterAttackTriggers / PlayStadium and
     /// UseStadium / PlayItem).
@@ -689,7 +681,7 @@ mod marker_tests {
     #[test]
     fn no_marker_is_an_effect_kind() {
         let (kinds, markers) = numbers();
-        assert!(kinds.len() > 60, "every Effect variant's kind is read ({})", kinds.len());
+        assert!(kinds.len() > 50, "every Effect variant's kind is read ({})", kinds.len());
         assert!(markers.len() >= 16, "the markers are read ({})", markers.len());
         for (name, v) in &markers {
             assert!(!kinds.contains(v), "k::{name} = {v} is also an effect kind");

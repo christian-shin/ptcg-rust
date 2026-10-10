@@ -972,8 +972,8 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     }
     let by_attack = ko_by == KoBy::AttackDamage;
     // "If this Pokémon is Knocked Out by damage from an attack during your opponent's next turn, discard an Energy from
-    // the Attacking Pokémon": an effect of the Knocked Out Pokémon's earlier attack (B6-OLD -> batch 7: its discard is
-    // the attack-effect probe).
+    // the Attacking Pokémon": an effect of the Knocked Out Pokémon's earlier attack, its discard a LeavePlay of the Energy
+    // caused by that attack (`game_effect::little_grudge_discard`; B7-OLD -> B8: the stored slot fields become a lasting trigger).
     let (armed, pending, g_attack, g_source, g_owner) = {
         let ts = g.st.slot(target.p as usize, target.s);
         (
