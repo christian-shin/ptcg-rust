@@ -432,7 +432,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                     }
                     if let Some(s) = slot_of(g, me, f, *e) {
                         if occupied(g, s) {
-                            act(g, me, f, op, s)?;
+                            f.outcome = act(g, me, f, op, s)?;
                         }
                     }
                     Ok(Flow::Next)
@@ -444,7 +444,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                         }
                         let s = decode(c.items[0]);
                         if occupied(g, s) {
-                            act(g, me, f, op, s)?;
+                            f.outcome = act(g, me, f, op, s)?;
                         }
                         return Ok(Flow::Next);
                     }
@@ -469,7 +469,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if !occupied(g, slot) {
                 return Ok(Flow::Next);
             }
-            crate::engine::knockout::by_effect(g, slot, f.cause)?;
+            f.outcome = Outcome::of(crate::engine::knockout::by_effect(g, slot, f.cause)?);
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
@@ -599,7 +599,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::Heal(_) | Op::DamageSlot(_) | Op::PlaceCounters(_) => {
             if let Some(s) = first.slots().first().copied() {
                 if occupied(g, s) {
-                    act(g, me, f, op, s)?;
+                    f.outcome = act(g, me, f, op, s)?;
                 }
             }
             Ok(Flow::Next)
@@ -790,14 +790,17 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
 // ---------------------------------------------------------------------------
 // Acting on a chosen Pokémon
 
-fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
-    match op {
+/// The op's event on the Pokémon in `slot`, and what it did (the op's outcome: the heal or the counters happened or
+/// were refused; damage is Done once dealt, whatever the calculation leaves).
+fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R<Outcome> {
+    Ok(match op {
         Op::Heal(h) => {
             let n = num_m(g, me, f, &h.hp)?;
-            crate::engine::condition::heal(g, slot, n, f.cause)?;
+            let healed = crate::engine::condition::heal(g, slot, n, f.cause)?;
             if h.clear_conditions {
                 crate::engine::condition::recover_all(g, slot, f.cause, &[])?;
             }
+            Outcome::of(healed)
         }
         Op::DamageSlot(d) => {
             let mut n = num_m(g, me, f, &d.hp)?;
@@ -805,14 +808,14 @@ fn act(g: &mut Game, me: CardId, f: &Frame, op: &Op, slot: SlotRef) -> R {
                 n += d.target_damage_mul * g.st.slot(slot.p as usize, slot.s).damage;
             }
             damage_by(g, f, d.calc, n, slot)?;
+            Outcome::Done
         }
         Op::PlaceCounters(c) => {
             let n = num_m(g, me, f, &c.counters)? * 10;
-            crate::engine::damage::place(g, slot, n, f.cause)?;
+            Outcome::of(crate::engine::damage::place(g, slot, n, f.cause)?)
         }
-        _ => {}
-    }
-    Ok(())
+        _ => f.outcome,
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -837,7 +840,8 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
                     return Ok(Flow::Next);
                 }
             }
-            inflict_on(g, me, f, slot, cs)?;
+            let gained = inflict_on(g, me, f, slot, cs)?;
+            f.outcome = Outcome::count(cs.len(), gained, cs.len() - gained);
             Ok(Flow::Next)
         }
         ConditionChange::RemoveAll => {
@@ -887,11 +891,12 @@ fn conditions_chosen(g: &mut Game, f: &Frame, me: CardId, c: &ConditionsSpec, fi
 /// The Pokémon in `slot` is now affected by `cs`, by the frame's cause: one GainCondition each
 /// (`engine::condition::gain`), which the preventions over it stop whatever the cause (Slowpoke's Dopey Face vs
 /// Lisia's Appeal; "prevent all effects of attacks" against an attack's).
-fn inflict_on(g: &mut Game, _me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialCondition]) -> R {
+fn inflict_on(g: &mut Game, _me: CardId, f: &Frame, slot: SlotRef, cs: &[SpecialCondition]) -> R<usize> {
+    let mut gained = 0;
     for x in cs {
-        crate::engine::condition::gain(g, slot, *x, f.cause)?;
+        gained += crate::engine::condition::gain(g, slot, *x, f.cause)? as usize;
     }
-    Ok(())
+    Ok(gained)
 }
 
 // ---------------------------------------------------------------------------

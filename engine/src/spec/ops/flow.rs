@@ -187,6 +187,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if !cond_m(g, me, f, &c.before)? {
                 return Ok(Flow::Next);
             }
+            // A coin flip always happens (batch 4: it can't be refused).
+            f.outcome = super::super::run::Outcome::Done;
             let p = f.who(c.flipper);
             match c.flips {
                 Flips::One => {
