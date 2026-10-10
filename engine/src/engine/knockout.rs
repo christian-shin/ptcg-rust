@@ -242,7 +242,7 @@ pub fn leave_play_stadium_by_rule(g: &mut Game, card: CardId, cause: Cause) -> R
     let owner = g.st.owner(card) as u8;
     let mut cs: SVec<CardId, 64> = SVec::new();
     cs.push(card);
-    g.run_fx_unit(Effect::LeavePlay { p: owner, target: None, dest: ListRef::Discard(owner), cause, how: LeaveHow::Stadium, source_card: NO_CARD, cards: cs })
+    g.run_fx_unit(Effect::LeavePlay { p: owner, target: None, dest: ListRef::Discard(owner), cause, how: LeaveHow::Stadium, source_card: NO_CARD, pokemon: NO_CARD, cards: cs })
 }
 
 /// LeavePlay of the Stadium `card` for `zone` of its owner (discarded by an effect; user decision D1), by `cause`. The locks

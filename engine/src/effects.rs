@@ -406,7 +406,7 @@ impl Effect {
             CoinFlip { .. } => 75,
             Evolve { .. } => 29,
             Discard { .. } => 95,
-            PutIntoHand { .. } => 98,
+            PutIntoHand { .. } => 159,
             PutIntoDeck { .. } => 127,
             Draw { .. } => 130,
             EffectOfAbility { .. } => 32,
@@ -520,7 +520,7 @@ pub mod k {
     /// PutIntoDeck 31 (MoveCards, which they replace), PutIntoHand and Draw 2 (DrewTopdeck, CoinFlipSequence: batch 7
     /// removes both).
     pub const DISCARD: u32 = 95;
-    pub const PUT_INTO_HAND: u32 = 98;
+    pub const PUT_INTO_HAND: u32 = 159;
     pub const PUT_INTO_DECK: u32 = 127;
     pub const DRAW: u32 = 130;
     /// A lock over Discard / PutIntoHand / PutIntoDeck / Draw (events batch 7: Poké Vital A's and Neutralization Zone's
