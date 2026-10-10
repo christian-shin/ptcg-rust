@@ -248,7 +248,11 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             // Trainer powers from hand/discard: no pool card has one.
         }
         Action::UseStadium => {
-            let stadium = can_use_stadium(g, p)?;
+            // The UseStadium event's checks (`engine::turn_action::stadium_checks`, the function legality calls).
+            let stadium = match crate::engine::turn_action::stadium_checks(g, p)? {
+                Ok(s) => s,
+                Err(code) => crate::bail!(code),
+            };
             g.run_fx_unit(Effect::UseStadium { p: p as u8, stadium })?;
         }
         Action::PlayCard { .. } => {}

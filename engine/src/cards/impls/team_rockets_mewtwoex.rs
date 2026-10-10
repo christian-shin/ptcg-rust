@@ -14,12 +14,14 @@ use crate::types::tag;
 pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsMewtwoex",
     // Power Saver: this Pokémon can't attack unless you have 4 or more Team Rocket's Pokémon in play.
+    // A lock over its own UseAttack while the condition doesn't hold (events batch 7).
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::BlockAttack(BlockAttackSpec {
-            on: AttackBlockOn::UseAttack,
-            unless: Cond::Cmp(Num::InPlayCount(Who::Me, PlayScope::All, Pred::Tag(tag::TEAM_ROCKET)), CmpOp::Ge, Num::Lit(4)),
-            error: "CANNOT_USE_ATTACK",
+        modifier: Modifier::BlockUse(BlockUseSpec {
+            binds: Binds::Owner,
+            lock: LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::UseAttack), EventPred::This(Role::Card)]), "CANNOT_USE_ATTACK"),
+            while_: &[LockWhile::Unless(&Cond::Cmp(Num::InPlayCount(Who::Me, PlayScope::All, Pred::Tag(tag::TEAM_ROCKET)), CmpOp::Ge, Num::Lit(4)))],
+            ability: true,
         }),
     }],
     attacks: &[AttackSpec {

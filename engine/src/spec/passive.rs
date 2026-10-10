@@ -79,9 +79,6 @@ pub enum Modifier {
     /// An Ability lock that applies while this Pokémon is in the Active Spot, with the Ability lockers'
     /// activation order (a lock that was in effect first suppresses a later one).
     ActiveLock(ActiveLock),
-    // --- S3-4 appends ---
-    /// The card's Pokémon can't attack unless a condition holds.
-    BlockAttack(BlockAttackSpec),
 }
 
 /// The Active-Spot Ability locks.
@@ -324,7 +321,8 @@ pub fn prevent_consulted(kind: u32) -> bool {
 
 /// The event families a lock over events can forbid, each with the marker a lock over it sets (`block_kinds`) and the
 /// query tests (`lock_marker`).
-const LOCK_FAMILIES: [(KindMask, u32); 9] = [
+const LOCK_FAMILIES: [(KindMask, u32); 10] = [
+    (super::event::USE_EVENT_KINDS, crate::effects::k::DECLARES_USE_LOCK),
     (super::event::PLAY_EVENT_KINDS, crate::effects::k::DECLARES_PLAY_LOCK),
     (super::event::CARD_EVENT_KINDS, crate::effects::k::DECLARES_CARD_LOCK),
     (super::event::POKEMON_EVENT_KINDS, crate::effects::k::DECLARES_EVENT_LOCK),
@@ -348,7 +346,7 @@ pub enum Binds {
 
 /// A condition on the lock's source that must hold for the lock to be on. The source also has to be in place
 /// for its origin (a Pokémon with the Ability in play, the Stadium in play, ...), as for every passive.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy)]
 pub enum LockWhile {
     /// The source is its owner's Active Pokémon.
     Active,
@@ -357,6 +355,9 @@ pub enum LockWhile {
     /// The card the action uses is the source itself (the Pokémon evolving into it, the Active Pokémon
     /// that retreats, the Stadium being used).
     CardIsSource,
+    /// "... unless <condition>": the lock holds while the condition (read for the source's owner) doesn't (Team Rocket's
+    /// Mewtwo ex's Power Saver, Slaking ex's Born to Slack: "this Pokémon can't attack unless ...").
+    Unless(&'static Cond),
 }
 
 /// When a lock is a coin: "whenever they try to [do it], they flip a coin; if tails, [it doesn't happen and] they
@@ -785,10 +786,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         }
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
-        Modifier::BlockAttack(b) => match b.on {
-            AttackBlockOn::ActiveAttack => mask(&[k::ATTACK]),
-            AttackBlockOn::UseAttack => mask(&[k::USE_ATTACK]),
-        },
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
         _ => KindMask::EMPTY,
@@ -948,7 +945,6 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
         Modifier::BenchSize(d) => bench_size(g, me, e, ps.origin, d),
-        Modifier::BlockAttack(b) => block_attack(g, me, e, ps.origin, b),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -1743,6 +1739,7 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_LOCK),
         E::Discard | E::Draw | E::PutIntoHand | E::PutIntoDeck => Some(crate::effects::k::DECLARES_CARD_LOCK),
         E::PlayTrainer => Some(crate::effects::k::DECLARES_PLAY_LOCK),
+        E::UseAttack | E::UseAbility | E::UseStadium => Some(crate::effects::k::DECLARES_USE_LOCK),
         E::Damage
         | E::ApplyEffect
         | E::KnockOut
@@ -1758,9 +1755,6 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         | E::BeginTurn
         | E::EndTurn
         | E::Checkup
-        | E::UseAttack
-        | E::UseAbility
-        | E::UseStadium
         | E::Retreat => None,
     }
 }
@@ -2701,77 +2695,6 @@ fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchS
 // Heavy Baton
 
 // S3-4 appends: attack blocks, play blocks, survive on 10 HP, Shred
-
-/// Which effect an attack block reacts to.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum AttackBlockOn {
-    /// Any attack effect while this card is its player's Active Pokémon.
-    ActiveAttack,
-    /// Using an attack of the Pokémon this card is part of.
-    UseAttack,
-}
-
-/// "This Pokémon can't attack unless ...": the attack is refused with `error` unless `unless` holds
-/// (read for the attacking player), while the Ability works.
-pub struct BlockAttackSpec {
-    pub on: AttackBlockOn,
-    pub unless: Cond,
-    pub error: &'static str,
-}
-
-fn block_attack(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &BlockAttackSpec) -> R {
-    let (p, source) = match (b.on, *g.e(e)) {
-        (AttackBlockOn::ActiveAttack, Effect::Attack { p, .. }) => (p as usize, None),
-        (AttackBlockOn::UseAttack, Effect::UseAttack { p, source, .. }) => (p as usize, Some(source)),
-        _ => return Ok(()),
-    };
-    match attack_block_error(g, me, origin, b, p, source) {
-        Some(code) => crate::bail!(code),
-        None => Ok(()),
-    }
-}
-
-/// The error code when the block `b` of `me` stops player `p`'s attack (`source`: the attacking slot of a
-/// `UseAttack`; `None` for the `Attack` effect, which only the Active Pokémon's own block reads).
-fn attack_block_error(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockAttackSpec, p: usize, source: Option<SlotRef>) -> Option<&'static str> {
-    match source {
-        None => {
-            if g.st.active_pokemon(p) != Some(me) {
-                return None;
-            }
-        }
-        Some(src) => {
-            if !g.st.slot(src.p as usize, src.s).cards.contains(me) {
-                return None;
-            }
-        }
-    }
-    let at = locate(g, me, origin)?;
-    if blocked(g, me, origin, at, None) || guard_ok(g, me, origin, p, &b.unless) {
-        return None;
-    }
-    Some(b.error)
-}
-
-/// Legality: does a block declared by `me` (`BlockAttack`) stop player `p` from attacking? Both blocks are
-/// read: the one on the `UseAttack` (the Pokémon's own attacks) and the one on the `Attack` effect (while it
-/// is the Active Pokémon).
-pub fn attack_blocked_by(g: &mut Game, me: CardId, p: usize) -> bool {
-    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
-    let active = SlotRef::new(p, g.st.players[p].active);
-    for ps in passives {
-        if let Modifier::BlockAttack(b) = &ps.modifier {
-            let source = match b.on {
-                AttackBlockOn::ActiveAttack => None,
-                AttackBlockOn::UseAttack => Some(active),
-            };
-            if attack_block_error(g, me, ps.origin, b, p, source).is_some() {
-                return true;
-            }
-        }
-    }
-    false
-}
 
 /// "If the Pokémon has full HP and would be Knocked Out by damage from an opponent's attack, it is not Knocked Out
 /// and its remaining HP becomes 10 instead; then discard this card."

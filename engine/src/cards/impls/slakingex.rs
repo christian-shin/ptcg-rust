@@ -13,12 +13,18 @@ use crate::types::tag;
 pub static SPEC: CardSpec = CardSpec {
     class: "Slakingex",
     // Born to Slack: if your opponent has no Pokémon ex or Pokémon V in play, this Pokémon can't attack.
+    // A lock over its own UseAttack while the opponent has no Pokémon ex or V in play (events batch 7).
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::BlockAttack(BlockAttackSpec {
-            on: AttackBlockOn::ActiveAttack,
-            unless: Cond::InPlay(Who::Opp, PlayScope::All, Pred::OneOf(&[Pred::Tag(tag::POKEMON_EX_LOWER), Pred::Tag(tag::POKEMON_V), Pred::Tag(tag::POKEMON_VMAX), Pred::Tag(tag::POKEMON_VSTAR), Pred::Tag(tag::POKEMON_VUNION)])),
-            error: "BLOCKED_BY_ABILITY",
+        modifier: Modifier::BlockUse(BlockUseSpec {
+            binds: Binds::Owner,
+            lock: LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::UseAttack), EventPred::This(Role::Card)]), "BLOCKED_BY_ABILITY"),
+            while_: &[LockWhile::Unless(&Cond::InPlay(
+                Who::Opp,
+                PlayScope::All,
+                Pred::OneOf(&[Pred::Tag(tag::POKEMON_EX_LOWER), Pred::Tag(tag::POKEMON_V), Pred::Tag(tag::POKEMON_VMAX), Pred::Tag(tag::POKEMON_VSTAR), Pred::Tag(tag::POKEMON_VUNION)]),
+            ))],
+            ability: true,
         }),
     }],
     attacks: &[AttackSpec {

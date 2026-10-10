@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slakoth SSP 145",
+   "4 Vigoroth SSP 146",
+   "4 Slaking ex SSP 147",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Slakoth SSP 145",
+   "4 Vigoroth SSP 146",
+   "4 Slaking ex SSP 147",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Slakoth SSP 145",
+   "Vigoroth SSP 146",
+   "Slaking ex SSP 147"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Slaking ex SSP 147"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Great Swing",
+   "cite": "Slaking ex Born to Slack: the opponent has a Pokemon ex in play, so this Pokemon can attack"
+  }
+ ]
+}

@@ -522,6 +522,8 @@ pub mod k {
     pub const DECLARES_CARD_LOCK: u32 = 218;
     /// A lock over PlayTrainer (events batch 7: "your opponent can't play Item / Supporter / Stadium cards from their hand").
     pub const DECLARES_PLAY_LOCK: u32 = 219;
+    /// A lock over UseAttack / UseAbility / UseStadium (events batch 7: "this Pokémon can't attack unless ...").
+    pub const DECLARES_USE_LOCK: u32 = 220;
     /// A `Prevent` declaration over PlaceCounters / MoveCounters, over Damage, over a KnockOut by an effect, over LeavePlay,
     /// over Attach / MoveEnergy / MoveTool, over Evolve / Devolve / Swap, over ApplyEffect (events batch 6: the event's
     /// routine asks `derived::event_prevented` only in a game with one).
