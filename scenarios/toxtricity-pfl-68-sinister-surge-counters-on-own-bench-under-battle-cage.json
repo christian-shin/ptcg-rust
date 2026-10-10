@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Toxel PFL 67",
+   "1 Toxtricity PFL 68",
+   "2 Marnie's Impidimp DRI 134",
+   "1 Battle Cage PFL 85",
+   "20 Darkness Energy MEE 7",
+   "34 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Toxel PFL 67",
+   "1 Toxtricity PFL 68",
+   "2 Marnie's Impidimp DRI 134",
+   "1 Battle Cage PFL 85",
+   "20 Darkness Energy MEE 7",
+   "34 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Toxel PFL 67",
+   "Toxtricity PFL 68"
+  ],
+  "bench": [
+   {
+    "card": "Marnie's Impidimp DRI 134"
+   }
+  ],
+  "stadium": "Battle Cage PFL 85",
+  "deck_top": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Toxel PFL 67"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Sinister Surge",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Marnie's Impidimp DRI 134",
+   "damage": 20,
+   "energy": 1,
+   "cite": "official JP FAQ (ストリンダー / バトルコロシアム): 「場にスタジアム「バトルコロシアム」が出ているとき、自分のストリンダーの特性「バッドアッパー」を使い、山札から基本悪エネルギーをベンチの悪ポケモンにつけた場合、ダメカンを2個のせますか？」「はい、のせます。スタジアム「バトルコロシアム」が場に出ている場合でも、自分のポケモンの特性の効果でダメカンをのせることになります。」 (your own Ability's counters on your own Benched Pokémon: Battle Cage doesn't stop them)"
+  }
+ ]
+}

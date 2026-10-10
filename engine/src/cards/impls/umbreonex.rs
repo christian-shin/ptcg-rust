@@ -1,11 +1,8 @@
-//! Umbreon ex (PRE, Tera): Moon Mirage — 160; your opponent's Active
-//! Pokémon is now Confused. Onyx — discard all Energy from this Pokémon and
-//! take a Prize card. Tera: no attack damage while on the Bench.
+//! Umbreon ex (PRE 60, Tera): Moon Mirage — 160; your opponent's Active Pokémon is now Confused. Onyx — discard all
+//! Energy from this Pokémon, and take a Prize card.
 //!
-//! Twinleaf: Onyx builds the energy map of `player.active`, reduces a
-//! DiscardCardsEffect (target = the attacker's Active), then TAKE_X_PRIZES
-//! (1): with 1 Prize left it is taken automatically, otherwise a
-//! non-cancellable ChoosePrizePrompt (not secret).
+//! Moon Mirage's Confusion is a GainCondition by the attack. Onyx discards every Energy card on Umbreon ex, then one
+//! TakePrizes event (the Prize prompt, or the last Prize card taken at once). Tera: `TERA_RULE`.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

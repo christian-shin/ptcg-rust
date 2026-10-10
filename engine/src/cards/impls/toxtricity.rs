@@ -1,13 +1,11 @@
-//! Toxtricity (M2 / PFL 68): Sinister Surge — once during your turn, search
-//! your deck for a Basic [D] Energy and attach it to 1 of your Benched [D]
-//! Pokémon, then shuffle; put 2 damage counters on that Pokémon. Thwap — 100.
+//! Toxtricity (PFL 68): Sinister Surge — once during your turn, search your deck for a Basic [D] Energy card and
+//! attach it to 1 of your Benched [D] Pokémon, then shuffle; if you attached Energy in this way, place 2 damage counters
+//! on that Pokémon. Gentle Slap — 100.
 //!
-//! Fixed (phase 4b, W4): Twinleaf also allowed the Active Pokémon as the target;
-//! the card says Benched only.
-//!
-//! Twinleaf: ABILITY_USED and the once-per-turn marker are set in the prompt
-//! callback (so a cancelled prompt still uses the ability); SHUFFLE_DECK runs
-//! before the 20 damage is added directly (`target.damage += 20`).
+//! The attach is an Attach event from the deck (Benched [D] Pokémon only); the 2 damage counters are one PlaceCounters
+//! event by the Ability on the player's own Pokémon (Battle Cage doesn't stop it: JP FAQ ストリンダー / バトルコロシアム
+//! 「はい、のせます。」; a Pokémon with 20 HP or less left is Knocked Out at the state check). The type reads stay printed
+//! types for now (batch 9: one rule for "[X] Pokémon").
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

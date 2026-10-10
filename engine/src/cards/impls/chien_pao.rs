@@ -1,13 +1,10 @@
-//! Chien-Pao (SSP): Snow Sink - when you play this Pokémon from your hand
-//! onto your Bench, you may discard a Stadium in play. Icicle Loop - 120;
-//! put an Energy attached to this Pokémon into your hand.
+//! Chien-Pao (SSP 56): Snow Sink — when you play this Pokémon from your hand onto your Bench during your turn, you may
+//! discard a Stadium in play. Icicle Loop — 120; put an Energy attached to this Pokémon into your hand.
 //!
-//! Twinleaf quirks kept: the ability check runs while the card is still in
-//! hand and the prompt is offered on any turn. Fixed (phase 4b, X1-2): Icicle
-//! Loop used to run in the attack handler, i.e. before the damage step, and
-//! asked for energy covering [C][C] (up to 2 Energy went to the hand, and a
-//! lone 2-unit Special Energy could not be chosen); it now runs on the
-//! AfterAttackEffect and asks for exactly 1 attached Energy card.
+//! Snow Sink is an `On(EnterPlay & This(Card) & Source(Hand) & Mode(Rule) & Slot(IsBench))` trigger with an Ability
+//! origin (playing it from the hand is the player's own action during their turn). Icicle Loop runs after the damage and
+//! puts exactly 1 attached Energy card into the hand. The Stadium's discard and the Energy's move are raw card moves
+//! until the Discard / PutIntoHand events (B7).
 use crate::spec::prelude::*;
 
 const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);

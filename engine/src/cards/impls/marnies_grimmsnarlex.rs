@@ -1,7 +1,12 @@
-//! Marnie's Grimmsnarl ex (DRI): Punk Up — when you evolve into this Pokémon
-//! from your hand, you may search your deck for up to 5 Basic [D] Energy and
-//! attach them to your Marnie's Pokémon, then shuffle. Shadow Bullet — 180,
-//! and 30 damage to 1 of the opponent's Benched Pokémon.
+//! Marnie's Grimmsnarl ex (DRI 136 / ASC 287): Punk Up — when you play this Pokémon from your hand to evolve 1 of your
+//! Pokémon during your turn, you may search your deck for up to 5 Basic [D] Energy cards and attach them to your
+//! Marnie's Pokémon in any way you like, then shuffle. Shadow Bullet — 180; this attack also does 30 damage to 1 of your
+//! opponent's Benched Pokémon.
+//!
+//! Punk Up is an `On(Evolve & This(Card) & Source(Hand))` trigger with an Ability origin (Attach events from the deck).
+//! Shadow Bullet's 30 is the attack's damage to a Benched Pokémon (one Damage event, `DamageCalc::Put`: no Weakness or
+//! Resistance), not damage counters: Battle Cage doesn't stop it (JP FAQ マリィのオーロンゲex / バトルコロシアム
+//! 「はい、できます。」).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
