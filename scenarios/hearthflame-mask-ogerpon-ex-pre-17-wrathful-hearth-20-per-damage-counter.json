@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Fire Energy MEE 2",
+   "57 Grass Energy MEE 1",
+   "1 Hearthflame Mask Ogerpon ex PRE 17",
+   "1 Mega Kangaskhan ex MEG 104"
+  ],
+  [
+   "1 Fire Energy MEE 2",
+   "57 Grass Energy MEE 1",
+   "1 Hearthflame Mask Ogerpon ex PRE 17",
+   "1 Mega Kangaskhan ex MEG 104"
+  ]
+ ],
+ "me": {
+  "active": "Hearthflame Mask Ogerpon ex PRE 17",
+  "active_damage": 60,
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wrathful Hearth"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: 20 damage for each damage counter on this Pokemon (6 counters)"
+  }
+ ]
+}

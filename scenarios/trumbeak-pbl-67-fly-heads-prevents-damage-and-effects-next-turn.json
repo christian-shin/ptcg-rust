@@ -1,0 +1,84 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dragapult ex ASC 160",
+   "1 Drakloak ASC 159",
+   "1 Dreepy ASC 158",
+   "1 Fire Energy MEE 2",
+   "52 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Pikipek PBL 66",
+   "1 Psychic Energy MEE 5",
+   "1 Trumbeak PBL 67"
+  ],
+  [
+   "1 Dragapult ex ASC 160",
+   "1 Drakloak ASC 159",
+   "1 Dreepy ASC 158",
+   "1 Fire Energy MEE 2",
+   "52 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Pikipek PBL 66",
+   "1 Psychic Energy MEE 5",
+   "1 Trumbeak PBL 67"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Pikipek PBL 66",
+   "Trumbeak PBL 67"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dreepy ASC 158",
+   "Drakloak ASC 159",
+   "Dragapult ex ASC 160"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fly"
+  },
+  {
+   "a": "attack",
+   "name": "Phantom Dive"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: if heads, Fly does its 30 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "turn": 1,
+   "cite": "card text: prevent all damage from attacks done to this Pokemon during your opponent's next turn (APR C-16, step 6)"
+  }
+ ]
+}

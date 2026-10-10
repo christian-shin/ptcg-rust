@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Darkness Energy MEE 7",
+   "1 Dreepy ASC 158",
+   "54 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Darkrai ex PBL 48"
+  ],
+  [
+   "3 Darkness Energy MEE 7",
+   "1 Dreepy ASC 158",
+   "54 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Darkrai ex PBL 48"
+  ]
+ ],
+ "me": {
+  "active": "Mega Darkrai ex PBL 48",
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dreepy ASC 158",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Abyss Eye"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 0,
+   "cite": "card text: only if the Active Pokemon is affected by a Special Condition"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dreepy ASC 158",
+   "damage": 0,
+   "cite": "card text: Abyss Eye does no damage"
+  }
+ ]
+}

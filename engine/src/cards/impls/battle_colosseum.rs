@@ -1,14 +1,16 @@
 //! Battle Cage ("Battle Colosseum M2", PFL, stadium): prevent all damage
 //! counters from being placed on Benched Pokémon (both yours and your
 //! opponent's) by effects of attacks and Abilities from the opponent's
-//! Pokémon.
+//! Pokémon. (Damage from attacks is still taken.)
 //!
-//! While this is the stadium in play, a PutCountersEffect (attack), a
-//! MoveCountersEffect or a PlaceDamageCountersEffect (whose source card is
-//! still in play) on a Benched Pokémon from its owner's opponent is prevented
-//! unless the stadium effect is blocked for that target. Counters moved onto
-//! such a Pokémon leave their source and vanish (ruling 2257).
-//!   Using the stadium is not allowed (CANNOT_USE_STADIUM, Advanced Rulebook B-04).
+//! Rule: one `Prevent` over the PlaceCounters event, and over the arriving end of
+//! a MoveCounters event, on a Benched Pokémon whose cause is an attack or an
+//! Ability of the other player's Pokémon (`Actor(NotEventOwner)`). Counters moved
+//! onto such a Pokémon leave their source and vanish (id2257, id79; JP FAQ
+//! Battle Cage PFL 85); Battle Cage only stops the placing (id79).
+//! Counters placed on the Active Pokémon, and damage to a Benched Pokémon, are
+//! not stopped; your own Pokémon's Abilities still place counters on your own
+//! Bench (JP FAQ). Using the stadium is not allowed (APR B-04).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

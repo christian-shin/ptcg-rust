@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "57 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Lillie's Clefairy ex JTG 56",
+   "1 Lillie's Pearl JTG 151"
+  ],
+  [
+   "57 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Lillie's Clefairy ex JTG 56",
+   "1 Lillie's Pearl JTG 151"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "opp": {
+  "active": "Lillie's Clefairy ex JTG 56",
+  "active_damage": 180,
+  "active_tool": "Lillie's Pearl JTG 151",
+  "active_conditions": [
+   "POISONED"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "prizes_taken": 2,
+   "cite": "card text: only a Knock Out by damage from an attack (RULES.md Damage, counters, Knock Outs: a Knock Out by Poison isn't); a Pokemon ex is worth 2 Prize cards"
+  }
+ ]
+}

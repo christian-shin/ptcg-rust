@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Gastly EVO 47",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Psychic Energy MEE 5",
+   "1 Rocky Fighting Energy POR 87",
+   "1 Timburr TWM 103"
+  ],
+  [
+   "1 Gastly EVO 47",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Psychic Energy MEE 5",
+   "1 Rocky Fighting Energy POR 87",
+   "1 Timburr TWM 103"
+  ]
+ ],
+ "me": {
+  "active": "Gastly EVO 47",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Timburr TWM 103",
+  "active_energy": [
+   "Rocky Fighting Energy POR 87"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nightmare"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [],
+   "cite": "card text: prevent all effects of attacks done to the [F] Pokemon (Asleep is an effect, APR C-17)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: Damage is not an effect (Nightmare 20, Timburr weak to Psychic)"
+  }
+ ]
+}

@@ -1,13 +1,11 @@
-//! Crustle (BCR): Sturdy — if this Pokémon has full HP and would be Knocked
+//! Crustle (BCR 85): Sturdy — if this Pokémon has full HP and would be Knocked
 //! Out by damage from an attack, it is not Knocked Out and its remaining HP
-//! becomes 10. Stone Edge — 70+; flip a coin, if heads 20 more damage.
+//! becomes 10 instead. Stone Edge — 70+; flip a coin, if heads 20 more damage.
 //!
-//! SURVIVE_ON_TEN_IF_FULL_HP: on any PutDamageEffect whose target slot holds
-//! this card (not necessarily on top), unless the ability is blocked for the
-//! slot's owner, when the slot has no damage and `effect.damage >=` its HP
-//! (CheckHpEffect by the owner), sets `surviveOnTenHPReason`. The core then
-//! caps the damage at HP - 10 when it reached HP (phase 4b: exactly lethal
-//! damage used to Knock Out anyway).
+//! Rule: `SurviveOnTen(IfFullHp)` is read by the Damage event's calculation
+//! (`damage::survive_on_10`): when the Pokémon has no damage counters and the
+//! damage reaches its HP, it takes HP - 10 instead. It is an Ability, so an
+//! Ability lock turns it off.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

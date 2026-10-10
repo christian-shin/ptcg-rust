@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Darkness Energy MEE 7",
+   "1 Drapion POR 52",
+   "54 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Skorupi POR 51"
+  ],
+  [
+   "3 Darkness Energy MEE 7",
+   "1 Drapion POR 52",
+   "54 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Skorupi POR 51"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Skorupi POR 51",
+   "Drapion POR 52"
+  ],
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hazardous Tail"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 70,
+   "cite": "card text: this Pokemon also does 70 damage to itself"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "PARALYZED",
+    "POISONED"
+   ],
+   "damage": 100,
+   "cite": "card text: your opponent's Active Pokemon is now Paralyzed and Poisoned"
+  }
+ ]
+}

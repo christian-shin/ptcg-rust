@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Darkness Energy MEE 7",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Darkrai ex PBL 48",
+   "1 Mega Kangaskhan ex MEG 104"
+  ],
+  [
+   "2 Darkness Energy MEE 7",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Darkrai ex PBL 48",
+   "1 Mega Kangaskhan ex MEG 104"
+  ]
+ ],
+ "me": {
+  "active": "Mega Darkrai ex PBL 48",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117",
+    "damage": 10
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dusk Raid"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 220,
+   "cite": "card text: if your Benched Pokemon have any damage counters on them, this attack does 110 more damage"
+  }
+ ]
+}

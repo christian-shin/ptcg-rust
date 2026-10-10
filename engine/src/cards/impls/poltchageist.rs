@@ -1,5 +1,13 @@
-//! Poltchageist (PBL / M5): Hide 'n' Sneak. Furtive Drop — place 1 damage
-//! counter on your opponent's Active Pokémon (a PutCountersEffect).
+//! Poltchageist (PBL 5): Hide 'n' Sneak — prevent all effects of your opponent's
+//! Pokémon's attacks and Abilities done to this Pokémon. (Damage is not an effect.)
+//! Furtive Drop — place 1 damage counter on your opponent's Active Pokémon.
+//!
+//! Rule: Hide 'n' Sneak is `Prevent(HIDE_N_SNEAK)`: one declaration over every event with an
+//! effect (counters placed or moved onto it, Special Conditions, switches, discards, ...) whose
+//! cause is an attack or an Ability of the opponent's Pokémon, never Damage (APR C-17). Furtive
+//! Drop is a PlaceCounters event of 1 (cause: this attack; no Weakness or Resistance, APR C-07),
+//! refused by Hide 'n' Sneak, Mist Energy, and nothing else on the Active Pokémon (Battle Cage
+//! protects the Bench only).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

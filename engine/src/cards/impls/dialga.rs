@@ -2,13 +2,10 @@
 //! Energy attached to this Pokémon into your deck and have this attack do 80
 //! more damage.
 //!
-//! Fixed (ruling 1822): Twinleaf asked nothing when the Active had no Energy, so
-//! the 80 more damage was unreachable; the ConfirmPrompt is now always asked and
-//! yes adds 80 (with no Energy nothing moves and the deck is not shuffled).
-//! Twinleaf: a ConfirmPrompt, then one MOVE_CARDS per mapped card (captured
-//! before the prompt; Active to deck), SHUFFLE_DECK and `effect.damage += 80`
-//! (after the shuffle prompt is opened, before it resolves).
-//! R7A (rulings 1580, 1846): the Energy goes back into the deck, and the deck is shuffled, after the damage (`move_cards_after_damage`, `shuffle_deck_after_damage`).
+//! Rule: the choice is always asked (ruling 1822: the 80 more damage doesn't
+//! depend on having Energy; with none nothing moves and the deck isn't shuffled).
+//! Yes adds 80 before the damage; the Energy goes back into the deck, and the deck
+//! is shuffled, after the damage (rulings 1580, 1846).
 use crate::spec::prelude::*;
 
 const CHRONO: &str = "DIALGA_CHRONO_BURST_MARKER";

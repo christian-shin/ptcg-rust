@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "57 Grass Energy MEE 1",
+   "2 Hop's Snorlax JTG 117",
+   "1 Poltchageist PBL 5"
+  ],
+  [
+   "57 Grass Energy MEE 1",
+   "2 Hop's Snorlax JTG 117",
+   "1 Poltchageist PBL 5"
+  ]
+ ],
+ "me": {
+  "active": "Poltchageist PBL 5",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Furtive Drop"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 10,
+   "cite": "card text: place 1 damage counter (APR C-07: counters are not damage, no Weakness)"
+  }
+ ]
+}

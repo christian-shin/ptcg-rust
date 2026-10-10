@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Darkness Energy MEE 7",
+   "53 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Lightning Energy MEE 4",
+   "1 Mega Darkrai ex PBL 48",
+   "1 Terapagos ex SCR 128",
+   "1 Water Energy MEE 3"
+  ],
+  [
+   "2 Darkness Energy MEE 7",
+   "53 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Lightning Energy MEE 4",
+   "1 Mega Darkrai ex PBL 48",
+   "1 Terapagos ex SCR 128",
+   "1 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Terapagos ex SCR 128",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Darkrai ex PBL 48",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crown Opal"
+  },
+  {
+   "a": "attack",
+   "name": "Dusk Raid"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "turn": 1,
+   "cite": "card text: prevent all damage done to this Pokemon by attacks from Basic non-[C] Pokemon (Mega Darkrai ex is a Basic [D] Pokemon); APR C-16, step 6"
+  }
+ ]
+}

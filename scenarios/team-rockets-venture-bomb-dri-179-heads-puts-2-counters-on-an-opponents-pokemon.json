@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "58 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Team Rocket's Venture Bomb DRI 179"
+  ],
+  [
+   "58 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Team Rocket's Venture Bomb DRI 179"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Team Rocket's Venture Bomb DRI 179"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "play",
+   "card": "Team Rocket's Venture Bomb DRI 179"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 20,
+   "cite": "card text: if heads, put 2 damage counters on 1 of your opponent's Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: tails puts the counters on your own Active Pokemon, heads doesn't"
+  }
+ ]
+}

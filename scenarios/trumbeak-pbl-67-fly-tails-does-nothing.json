@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dreepy ASC 158",
+   "56 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Pikipek PBL 66",
+   "1 Trumbeak PBL 67"
+  ],
+  [
+   "1 Dreepy ASC 158",
+   "56 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Pikipek PBL 66",
+   "1 Trumbeak PBL 67"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Pikipek PBL 66",
+   "Trumbeak PBL 67"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dreepy ASC 158",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fly"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: if tails, this attack does nothing"
+  }
+ ]
+}

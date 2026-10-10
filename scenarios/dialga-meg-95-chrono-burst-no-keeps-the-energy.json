@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dialga MEG 95",
+   "55 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "3 Metal Energy MEE 8"
+  ],
+  [
+   "1 Dialga MEG 95",
+   "55 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "3 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Dialga MEG 95",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chrono Burst"
+  },
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: you may; without shuffling the Energy the attack does 80"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 3,
+   "cite": "card text: you may shuffle the Energy; declined"
+  }
+ ]
+}

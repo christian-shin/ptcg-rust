@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Darkness Energy MEE 7",
+   "1 Fighting Energy MEE 6",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Pecharunt SVP 129",
+   "1 Timburr TWM 103"
+  ],
+  [
+   "1 Darkness Energy MEE 7",
+   "1 Fighting Energy MEE 6",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Pecharunt SVP 129",
+   "1 Timburr TWM 103"
+  ]
+ ],
+ "me": {
+  "active": "Pecharunt SVP 129",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Timburr TWM 103",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Poison Chain"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "POISONED"
+   ],
+   "damage": 10,
+   "cite": "card text: your opponent's Active Pokemon is now Poisoned"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text: during your opponent's next turn, that Pokemon can't retreat"
+  }
+ ]
+}

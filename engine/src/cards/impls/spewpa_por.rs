@@ -1,10 +1,10 @@
-//! Spewpa (POR / M3): Hide — flip a coin; if heads, during your opponent's
-//! next turn prevent all damage and effects from attacks done to this
-//! Pokémon.
+//! Spewpa (POR 8): Hide — flip a coin. If heads, during your opponent's next
+//! turn, prevent all damage from and effects of attacks done to this Pokémon.
 //!
-//! Twinleaf: FLIP_COIN_TO_PREVENT_DAMAGE_AND_EFFECTS_DURING_OPPONENTS_NEXT_TURN.
-//! Phase 4b: heads used to call only PREVENT_DAMAGE; it now also calls
-//! PREVENT_EFFECTS_OF_ATTACKS, like Petilil's Hide.
+//! Rule: heads arms the lasting prevention (`Op::Arm`, one ApplyEffect event on
+//! itself): a `Prevent` stored on the Pokémon (`lasting_prevents`) that stops every
+//! damage and effect of the opponent's attacks during their next turn (damage at
+//! step 6, APR C-16; the effects by the same rule as Mist Energy).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

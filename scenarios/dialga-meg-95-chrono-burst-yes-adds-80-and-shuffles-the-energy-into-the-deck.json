@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dialga MEG 95",
+   "55 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "3 Metal Energy MEE 8"
+  ],
+  [
+   "1 Dialga MEG 95",
+   "55 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "3 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Dialga MEG 95",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chrono Burst"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "card text: you may shuffle all Energy attached to this Pokemon into your deck and have this attack do 80 more damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text: the Energy is shuffled into the deck (after the damage, rulings 1580, 1846)"
+  }
+ ]
+}

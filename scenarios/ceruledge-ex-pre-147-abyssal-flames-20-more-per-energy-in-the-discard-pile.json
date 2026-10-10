@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Ceruledge ex PRE 147",
+   "1 Charcadet SCR 29",
+   "1 Fire Energy MEE 2",
+   "53 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "3 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Ceruledge ex PRE 147",
+   "1 Charcadet SCR 29",
+   "1 Fire Energy MEE 2",
+   "53 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "3 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Charcadet SCR 29",
+   "Ceruledge ex PRE 147"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Abyssal Flames"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 90,
+   "cite": "card text: 20 more damage for each Energy card in your discard pile (3)"
+  }
+ ]
+}
