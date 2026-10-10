@@ -8,7 +8,8 @@
 //! to the Active Spot during its owner's turn (a retreat, a switch, a
 //! promotion: APR E-25, whatever moved it), unless the player marker is set:
 //! a question; no → marker; yes → marker, then up to 3 Basic [G] Energy from
-//! the deck onto it (one shuffle per card attached, as recorded). Jet Cyclone: AttachEnergyPrompt (Active →
+//! the deck onto it, then one shuffle (the printed "Then, shuffle your deck"; APR E-19; user decision D8: Twinleaf
+//! shuffled once per card attached, and once more when none was). Jet Cyclone: AttachEnergyPrompt (Active →
 //! Bench, any Energy, sameTarget, no cancel), MOVE_CARDS each. Phase 4b fix:
 //! with no Benched Pokémon the attack does nothing more (the prompt, min 3,
 //! was unanswerable), and min = max = min(3, Energy attached) so a Pokémon
@@ -46,12 +47,12 @@ pub static SPEC: CardSpec = CardSpec {
                             valid_types: &[],
                             max_per_type: 0,
                             cancel: false,
-                            // Twinleaf shuffles after each card moved (and once when none was).
-                            route: AttachRoute::MoveShufflePerCard,
+                            route: AttachRoute::Move,
                             onto: None,
                             cards: CardSel::All,
-                            none_shuffles: true,
+                            none_shuffles: false,
                          different_types: false, })),
+                        Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                     ],
                     no: &[],
                 }))],
