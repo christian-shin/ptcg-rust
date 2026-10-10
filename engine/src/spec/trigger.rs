@@ -202,7 +202,8 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::PlaceCounters { target, amount, cause, .. } => crate::engine::damage::counters_view(g, target, amount, cause),
         Effect::Damage { b, amount, .. } => crate::engine::damage::damage_view(g, &b, amount),
         Effect::KnockOut { target, ko_by, cause, .. } => crate::engine::knockout::ko_view(g, target, ko_by, cause),
-        Effect::LeavePlay { target, dest, cause, .. } => crate::engine::knockout::leave_view(g, target, dest, cause),
+        // The Pokémon as it was when it left (the view is read after the reducer emptied the spot).
+        Effect::LeavePlay { target, pokemon, dest, cause, .. } => EventView { card: Some(pokemon).filter(|c| *c != crate::list::NO_CARD), ..crate::engine::knockout::leave_view(g, target, dest, cause) },
         Effect::ApplyEffect { target, cause, .. } => crate::engine::apply::apply_view(g, target, cause),
         Effect::TakePrizes { p, prizes, cause } => crate::engine::knockout::prizes_view(g, p as usize, prizes.len() as i32, cause),
         // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.

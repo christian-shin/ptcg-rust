@@ -1062,18 +1062,17 @@ fn move_any_resume(g: &mut Game, f: &Frame, _who: Who, first: Res) -> R {
 }
 
 /// Move the counters of `pairs` as one action (`engine::damage::move_counters`): consecutive moves between the same two
-/// Pokémon are one pair (the counters move one at a time either way); an event holds up to 16 pairs.
+/// Pokémon are one pair (the counters move one at a time either way). One action is one event (id66): the pairs are
+/// the runs of the MOVE_DAMAGE answer, at most `prompts::MAX_DAMAGE_RUNS`, which the event carries whole.
 fn move_in_batches(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: crate::cause::Cause) -> R {
-    let mut merged: Vec<(SlotRef, SlotRef, i32)> = Vec::new();
+    let mut merged: SVec<(SlotRef, SlotRef, i32), { crate::prompts::MAX_DAMAGE_RUNS }> = SVec::new();
     for &(a, b, hp) in pairs {
-        match merged.last_mut() {
+        match merged.as_mut_slice().last_mut() {
             Some(l) if l.0 == a && l.1 == b => l.2 += hp,
             _ => merged.push((a, b, hp)),
         }
     }
-    for chunk in merged.chunks(16) {
-        crate::engine::damage::move_counters(g, chunk, cause)?;
-    }
+    crate::engine::damage::move_counters(g, merged.as_slice(), cause)?;
     Ok(())
 }
 

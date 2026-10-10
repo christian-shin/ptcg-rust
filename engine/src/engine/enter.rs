@@ -692,6 +692,31 @@ mod tests {
         assert_eq!(g.st.slot_pokemon(me, s), Some(card));
     }
 
+    /// R6: Palafin ex's Hero's Spirit lock names Swap: no effect but Palafin's Zero to Hero swaps it into play (JP FAQ
+    /// Palafin ex / Ditto's Surprising Transformation: 「いいえ、できません。」).
+    #[test]
+    fn palafin_ex_swaps_in_only_by_zero_to_hero() {
+        let mut names: Vec<&str> = vec!["Finizen TWM 59"; 4];
+        names.extend(["Palafin TWM 60"; 4]);
+        names.extend(["Palafin ex TWM 61"; 4]);
+        names.extend(["Water Energy MEE 3"; 48]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "hand_to_deck": true, "active": ["Finizen TWM 59", "Palafin TWM 60"]}, "opp": {"reset": true, "active": "Finizen TWM 59"}})).unwrap();
+        let me = g.st.active_player as usize;
+        let t = SlotRef::new(me, g.st.players[me].active);
+        let palafin = g.st.slot_pokemon(me, t.s).unwrap();
+        let ex = g.st.players[me].deck.iter().find(|c| g.st.cdef(*c).name == "Palafin ex").unwrap();
+        let other = Cause::new(crate::cause::CauseKind::Trainer, None, me as u8);
+        assert!(!swap(&mut g, t, palafin, ex, ListRef::Deck(me as u8), SwapPlace::OldIndex, NO_CARD, other).unwrap(), "another effect's Swap is locked");
+        assert_eq!(g.st.slot_pokemon(me, t.s), Some(palafin));
+        let zero_to_hero = Cause::new(crate::cause::CauseKind::Ability, Some(palafin), me as u8);
+        assert!(swap(&mut g, t, palafin, ex, ListRef::Deck(me as u8), SwapPlace::OldIndex, palafin, zero_to_hero).unwrap(), "Zero to Hero swaps it in");
+        assert_eq!(g.st.slot_pokemon(me, t.s), Some(ex));
+    }
+
     #[test]
     fn identity_table_declares_every_fact_once() {
         let mut names: Vec<&str> = IDENTITY.iter().map(|f| f.name).collect();
