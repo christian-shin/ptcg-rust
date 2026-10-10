@@ -18,8 +18,8 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Any(&[Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any), Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any)])],
         steps: &[
-            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT }))], no: &[] })),
-            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::All, shuffle_first: true, ..MoveSpec::DEFAULT }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, position: DeckPosition::Bottom, order: DeckOrder::Shuffled, ..PutIntoDeckSpec::DEFAULT }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::True, yes: &[Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::All, position: DeckPosition::Bottom, order: DeckOrder::Shuffled, ..PutIntoDeckSpec::DEFAULT }))], no: &[] })),
             Step::new(Op::Coin(CoinSpec { heads: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(6)) }))], tails: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) }))], ..CoinSpec::DEFAULT })),
             Step::new(Op::Coin(CoinSpec { flipper: Who::Opp, heads: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(6)) }))], tails: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) }))], ..CoinSpec::DEFAULT })),
         ],

@@ -31,7 +31,7 @@ pub static SPEC: CardSpec = CardSpec {
                     msg: "CHOOSE_CARD_TO_ATTACH",
                     ..PickSpec::DEFAULT
                 })),
-                Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), place: Place::AttachTo(SlotExpr::This), ..MoveSpec::DEFAULT })),
+                Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), onto: Some(SlotExpr::This), ..AttachSpec::DEFAULT })),
             ],
             no: &[],
         }))],

@@ -25,7 +25,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_DISCARD",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             // Search your deck for up to 4 [L] Pokémon, reveal them, put them into your hand, shuffle.
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec {

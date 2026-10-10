@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Furfrou",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Hand), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Random(Num::Max(&Num::Lit(0), &Num::Sub(&Num::ZoneSize(ZoneRef(Who::Opp, Zone::Hand)), &Num::Lit(5)))), ..MoveSpec::DEFAULT })),
+            Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::Random(Num::Max(&Num::Lit(0), &Num::Sub(&Num::ZoneSize(ZoneRef(Who::Opp, Zone::Hand)), &Num::Lit(5)))), ..DiscardSpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE

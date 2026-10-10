@@ -28,12 +28,12 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[
                 Step::new(Op::If(IfSpec {
                     cond: Cond::Nonempty(MY_STADIUM, Pred::Any),
-                    yes: &[Step::new(Op::Move(MoveSpec { from: MY_STADIUM, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    yes: &[Step::new(Op::Discard(DiscardSpec { from: MY_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT }))],
                     no: &[],
                 })),
                 Step::new(Op::If(IfSpec {
                     cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
-                    yes: &[Step::new(Op::Move(MoveSpec { from: OPP_STADIUM, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    yes: &[Step::new(Op::Discard(DiscardSpec { from: OPP_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT }))],
                     no: &[],
                 })),
             ],
@@ -52,7 +52,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::after_damage(Op::Move(MoveSpec { from: ATTACHED, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
         ],
     }],
     ..CardSpec::NONE

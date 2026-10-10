@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     ],
     triggers: &[
         Trigger { origin: RuleSource::Energy, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::This(Role::Card)])), steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "IGNITION_ENERGY_MARKER", source: RuleSource::Energy }))] },
-        Trigger { origin: RuleSource::Energy, event: Event::OnCheckup(OnCheckupSpec {}), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::HasMarker { who: Who::Me, name: "IGNITION_ENERGY_MARKER", from: MarkerFrom::This }, Cond::AnySlot(SlotSel::One(SlotExpr::This), SlotPred::Any)]), yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, ..MoveSpec::DEFAULT })), Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "IGNITION_ENERGY_MARKER", from: MarkerFrom::This }))], no: &[] }))] },
+        Trigger { origin: RuleSource::Energy, event: Event::OnCheckup(OnCheckupSpec {}), steps: &[Step::new(Op::If(IfSpec { cond: Cond::All(&[Cond::HasMarker { who: Who::Me, name: "IGNITION_ENERGY_MARKER", from: MarkerFrom::This }, Cond::AnySlot(SlotSel::One(SlotExpr::This), SlotPred::Any)]), yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::This, ..DiscardSpec::DEFAULT })), Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "IGNITION_ENERGY_MARKER", from: MarkerFrom::This }))], no: &[] }))] },
     ],
     ..CardSpec::NONE
 };

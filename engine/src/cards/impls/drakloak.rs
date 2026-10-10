@@ -18,10 +18,10 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::PerTurn("TELLING_SPIRIT_MARKER"),
         needs: &[],
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: TOP, cards: CardSel::Top(Num::Lit(2)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(2)), into: 1, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec { from: TOP, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_HAND", ..PickSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: TOP, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: TOP, to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: TOP, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: TOP, cards: CardSel::All, position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
         ],
     }],
     ..CardSpec::NONE

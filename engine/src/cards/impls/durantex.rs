@@ -19,12 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
             asker: Who::Me,
             when: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Deck), Pred::Any),
             msg: "WANT_TO_USE_ABILITY",
-            yes: &[Step::new(Op::Move(MoveSpec {
-                from: ZoneRef(Who::Opp, Zone::Deck),
-                to: ZoneRef(Who::Opp, Zone::Discard),
-                cards: CardSel::Top(Num::Lit(1)),
-                ..MoveSpec::DEFAULT
-            }))],
+            yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(1)), ..DiscardSpec::DEFAULT }))],
             no: &[],
         }))],
     }],

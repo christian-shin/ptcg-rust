@@ -18,10 +18,10 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[Cond::BenchSpace(Who::Opp), Cond::Nonempty(ZoneRef(Who::Opp, Zone::Deck), Pred::Any)],
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(5)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(5)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Me, Zone::Scratch(0)), predicate: Pred::All(&[Pred::Pokemon, Pred::Basic]), bounds: Bounds { min: Num::Lit(0), max: Num::OpenBench(Who::Opp) }, into: 1, ..PickSpec::DEFAULT })),
             Step::new(Op::PlayFromZone(PlayFromZoneSpec { cards: 1, who: Who::Opp })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck), wait: true })),
         ],
     }),

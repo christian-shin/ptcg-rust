@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::IsActive(SlotExpr::This)],
         // Look at the top 6 cards of your deck, reveal a Supporter there and put it into your hand; shuffle the rest back.
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(6)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(6)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Scratch(0)),
                 predicate: Pred::Supporter,
@@ -25,8 +25,8 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..PutIntoHandSpec::DEFAULT })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
     }],

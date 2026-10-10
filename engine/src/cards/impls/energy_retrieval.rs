@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
             // The Basic Energy available is counted before the discard.
             Step::new(Op::Snapshot(SnapshotSpec { zone: DISCARD, predicate: Pred::BasicEnergy, into: 1 })),
             Step::new(Op::Pick(PickSpec { from: HAND, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: HAND, to: DISCARD, cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec {
                 from: DISCARD,
                 predicate: Pred::BasicEnergy,
@@ -29,7 +29,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::Move(MoveSpec { from: DISCARD, to: HAND, cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: DISCARD, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

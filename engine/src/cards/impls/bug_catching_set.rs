@@ -14,10 +14,10 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[],
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(7)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(7)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Me, Zone::Scratch(0)), predicate: Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PokemonType(crate::types::ct::GRASS)]), Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")])]), bounds: Bounds { min: Num::Lit(0), max: Num::Min(&Num::Add(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PokemonType(crate::types::ct::GRASS)]), Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")])])), &Num::CardCount(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::OneOf(&[Pred::All(&[Pred::Pokemon, Pred::PokemonType(crate::types::ct::GRASS)]), Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")])]))), &Num::Lit(2)) }, into: 1, ..PickSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Chosen(1), reveal: Some(Who::Opp), ..PutIntoHandSpec::DEFAULT })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
     }),
