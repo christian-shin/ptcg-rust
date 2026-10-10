@@ -9,10 +9,18 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] }],
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::ThisByAttack }),
-        // 6 damage counters on the Attacking Pokémon, placed by the Ability (not damage): effects of
-        // the opponent's Abilities on the target are prevented by Hide 'n' Sneak and the like.
-        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(6) }))],
+        // "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon":
+        // its KnockOut (while it is still in play: APR D step 2), the Active Spot read when the damage was done (id1992).
+        event: Event::On(EventPred::All(&[
+            EventPred::Kind(EventKind::KnockOut),
+            EventPred::This(Role::Card),
+            EventPred::DamagedActive,
+            EventPred::KoBy(KoBy::AttackDamage),
+            EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack)])),
+        ])),
+        // 6 damage counters on the Attacking Pokémon wherever it is now (nothing when it left play), placed by the Ability
+        // (not damage): Hide 'n' Sneak and the like prevent them.
+        steps: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::CausePokemon), counters: Num::Lit(6) }))],
     }],
     ..CardSpec::NONE
 };

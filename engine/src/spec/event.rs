@@ -312,6 +312,9 @@ pub enum EventPred {
     KoBy(KoBy),
     /// Where the cards go (LeavePlay, Devolve, TakePrizes).
     Dest(RulesZone),
+    /// KnockOut: the attack's damage was done to the Pokémon while it was in the Active Spot ("if this Pokémon is in the
+    /// Active Spot and is Knocked Out by damage from an attack": the Active Spot is read when the damage is done, id1992).
+    DamagedActive,
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
     Not(&'static EventPred),
@@ -376,12 +379,14 @@ pub struct EventView {
     /// Damage: the attack isn't affected by effects on the damaged Pokémon (Shred, done to the opponent's Pokémon):
     /// its preventions are skipped (APR C-16; RULES.md "Shred").
     pub ignores_defender: bool,
+    /// KnockOut: the attack in progress damaged the Pokémon while it was in the Active Spot.
+    pub damaged_active: bool,
 }
 
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or
@@ -474,6 +479,9 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::PLACE_COUNTERS,
     crate::effects::k::MOVE_COUNTERS_EVENT,
     crate::effects::k::DAMAGE,
+    crate::effects::k::KNOCK_OUT,
+    crate::effects::k::LEAVE_PLAY,
+    crate::effects::k::TAKE_PRIZES,
 ]);
 /// Every event kind with an effect except Damage: what a `Prevent` naming no `Kind` ranges over ("prevent all effects
 /// of attacks"): damage is not an effect (APR C-17 "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398).
@@ -513,7 +521,7 @@ pub const ACTIVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::
 /// read through the dispatch index, by the triggers after the event (`run::after_event`) and by the locks and
 /// preventions the event's routine asks. `Game::reduce_effect` doesn't call the cards for them (events design,
 /// section 9). The batch 2 and 3 events still have dispatch handlers (once-per-turn markers, attach guards).
-pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS).or(COUNTER_EVENT_KINDS);
+pub const INDEX_ONLY_EVENT_KINDS: KindMask = CONDITION_EVENT_KINDS.or(HEAL_EVENT_KINDS).or(COIN_EVENT_KINDS).or(ACTIVE_EVENT_KINDS).or(COUNTER_EVENT_KINDS).or(LEAVE_EVENT_KINDS).or(crate::effects::mask(&[crate::effects::k::TAKE_PRIZES]));
 /// PlaceCounters and MoveCounters (events batch 6): `DECLARES_COUNTER_LOCK` (Patrat's Watchful Eye) / `DECLARES_COUNTER_PREVENT`.
 pub const COUNTER_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::PLACE_COUNTERS, crate::effects::k::MOVE_COUNTERS_EVENT]);
 /// Damage (events batch 6): `DECLARES_DAMAGE_PREVENT` (no lock: no text says a Pokémon can't be damaged).
@@ -667,6 +675,7 @@ impl EventPred {
             EventPred::End(e) => v.end == Some(*e),
             EventPred::KoBy(k) => v.ko_by == Some(*k),
             EventPred::Dest(z) => v.dest == Some(*z),
+            EventPred::DamagedActive => v.damaged_active,
             EventPred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, v)? {

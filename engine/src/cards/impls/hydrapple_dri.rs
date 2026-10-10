@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Hydrapple",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::If(IfSpec { cond: Cond::Cmp(Num::CardCount(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")])), CmpOp::Ge, Num::Lit(6)), yes: &[Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), bounds: Bounds { min: Num::Lit(6), max: Num::Lit(6) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })), Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::Active(Who::Opp), mode: KnockOutMode::Opponent, when: Cond::True }))], no: &[] })),
+            Step::after_damage(Op::If(IfSpec { cond: Cond::Cmp(Num::CardCount(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")])), CmpOp::Ge, Num::Lit(6)), yes: &[Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), bounds: Bounds { min: Num::Lit(6), max: Num::Lit(6) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })), Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })), Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::Active(Who::Opp), when: Cond::True }))], no: &[] })),
         ] },
     ],
     ..CardSpec::NONE

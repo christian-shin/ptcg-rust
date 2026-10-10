@@ -36,7 +36,6 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::after_damage(Op::Coin(CoinSpec {
                 heads: &[Step::new(Op::KnockOut(KnockOutSpec {
                     target: OPP_ACTIVE,
-                    mode: KnockOutMode::Opponent,
                     when: Cond::Slot(OPP_ACTIVE, SlotPred::Basic),
                 }))],
                 tails: &[
@@ -45,7 +44,7 @@ pub static SPEC: CardSpec = CardSpec {
                         among: SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Basic),
                         msg: "CHOOSE_POKEMON_TO_DAMAGE",
                     })),
-                    Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::Picked, mode: KnockOutMode::Opponent, when: Cond::True })),
+                    Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::Picked, when: Cond::True })),
                 ],
                 ..CoinSpec::DEFAULT
             }))],

@@ -34,3 +34,17 @@ g0500006317
 # counter Knocks Out a Pokemon (an extra Prize prompt).
 g0500013416
 g0500014596
+# Events batch 6 C5 (user decision D1; id2089, id810, id2239; JP FAQ Shuppet): a Knock Out by an attack's effect happens at
+# the state check with the others, and its Prize cards are taken there: the Prize prompt is the state check's (secret
+# face-down Prizes), not the immediate public one. Mega Absol ex MEG 86 Terminal Period (9 games), Alolan Exeggutor ex SSP
+# 133 Swinging Sphene (g0500008945); first divergence: the ChoosePrize prompt after the attack.
+g0500002114
+g0500002123
+g0500008168
+g0500008945
+g0500009283
+g0500009307
+g0500012428
+g0500013208
+g0500016482
+g0500016507

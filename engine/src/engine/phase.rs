@@ -5,7 +5,6 @@
 //! they are listed next to the code that would touch them.
 
 use crate::effects::*;
-use crate::engine::check;
 use crate::game::{Cont, Game, OnComplete, R};
 use crate::list::*;
 use crate::markers::*;
@@ -42,7 +41,7 @@ pub fn init_next_turn(g: &mut Game) -> R {
     g.st.phase = GamePhase::Draw;
     if g.st.players[p].deck.is_empty() {
         let winner = if g.st.active_player != 0 { WINNER_P1 } else { WINNER_P2 };
-        end_game(g, winner);
+        crate::engine::knockout::game_end(g, winner, crate::engine::knockout::EndReason::DeckOut);
         return Ok(());
     }
     g.run_fx_unit(Effect::BeginTurn { p: p as u8 })?;
@@ -118,7 +117,7 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
         g.wait_prompt(Cont::BetweenTurnsCheck { oc });
         return Ok(());
     }
-    check::check_state(g, oc)
+    crate::engine::knockout::state_check(g, oc)
 }
 
 /// `oc` for EndTurn's checkState, after KO resolution.
@@ -386,7 +385,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     pl.slots[a as usize].attacks_this_turn = Some(0);
     pl.prizes_taken_last_turn = pl.prizes_taken_this_turn;
     pl.prizes_taken_this_turn = 0;
-    check::check_state(g, OnComplete::AfterEndTurn { p: p as u8 })
+    crate::engine::knockout::state_check(g, OnComplete::AfterEndTurn { p: p as u8 })
 }
 
 /// EndTurnEffect: arm / expire `attackCostIncreaseNextTurn` and

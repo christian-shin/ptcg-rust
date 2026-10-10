@@ -203,12 +203,11 @@ pub struct SwapPokemonCardSpec {
 pub struct SwitchWithActiveSpec {
     pub target: SlotExpr,
 }
-/// Put a Pokémon and all cards attached to it into a zone.
+/// Put a Pokémon and all cards attached to it into a zone: the LeavePlay event (`engine::knockout::leave_play`), by the
+/// frame's cause (an attack's removal is an effect of the attack, which "prevent all effects of attacks" stops).
 pub struct RemoveFromPlaySpec {
     pub slot: SlotExpr,
     pub destination: ZoneRef,
-    /// An effect of the attack being used: effect protection on the Pokémon (Mist Energy and the like) stops it.
-    pub effect_of_attack: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -233,19 +232,10 @@ pub struct ConditionsSpec {
     pub when: Cond,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum KnockOutMode {
-    /// A KnockOutOpponentEffect: the attacker takes the Prizes.
-    Opponent,
-    /// A KnockOutPlayerEffect: the opponent takes the Prizes.
-    Player,
-    /// The Pokémon is Knocked Out at the next check (`damage += 999`).
-    Direct,
-}
-
+/// "Knock Out ..." / "this Pokémon is Knocked Out" by an effect (`engine::knockout::by_effect`): recorded, then Knocked
+/// Out at the next state check (user decision D1); its owner's opponent takes the Prize cards.
 pub struct KnockOutSpec {
     pub target: SlotExpr,
-    pub mode: KnockOutMode,
     pub when: Cond,
 }
 
@@ -325,6 +315,8 @@ fn sel_owner(sel: &SlotSel, f: &Frame) -> usize {
         SlotSel::One(SlotExpr::This | SlotExpr::Marked(_)) => f.p as usize,
         SlotSel::One(SlotExpr::Picked) => (f.slot >> 4) as usize,
         SlotSel::One(SlotExpr::Attached) => (f.attached_to >> 4) as usize,
+        // The program's own player's view of the opponent's Attacking Pokémon (the event's cause).
+        SlotSel::One(SlotExpr::CausePokemon) => 1 - f.p as usize,
         SlotSel::Filtered(inner, _) => sel_owner(inner, f),
         SlotSel::Cancelable(inner) => sel_owner(inner, f),
     }
@@ -411,16 +403,8 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 if !occupied(g, slot) {
                     return Ok(Flow::Next);
                 }
-                crate::cause::compare(g, "RemoveFromPlay.effect_of_attack", &f.cause, if r.effect_of_attack { crate::cause::Old::Attack(None) } else { crate::cause::Old::NotAttack });
-                if r.effect_of_attack {
-                    if let Some((_, _, attack, _)) = attack_data(g, f.eff) {
-                        if attack_effect_prevented_on(g, f.p as usize, slot.p as usize, pack_attack(attack), slot, f.cause)? {
-                            return Ok(Flow::Next);
-                        }
-                    }
-                }
                 let dst = zone_ref(f, r.destination);
-                move_pokemon_off_board(g, slot, dst, me)?;
+                crate::engine::knockout::leave_play(g, slot, dst, f.cause, me)?;
             }
             Ok(Flow::Next)
         }
@@ -483,23 +467,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if !occupied(g, slot) {
                 return Ok(Flow::Next);
             }
-            match k.mode {
-                KnockOutMode::Direct => crate::cause::unseen(g, "KnockOutMode::Direct (damage += 999)", &f.cause),
-                KnockOutMode::Opponent | KnockOutMode::Player => crate::cause::compare(g, "KnockOutMode::Opponent/Player", &f.cause, crate::cause::Old::Attack(None)),
-            }
-            match k.mode {
-                KnockOutMode::Direct => {
-                    g.st.players[slot.p as usize].slots[slot.s as usize].damage += 999;
-                }
-                KnockOutMode::Opponent | KnockOutMode::Player => {
-                    let Some(b) = atk_base(g, f, slot) else { return Ok(Flow::Next) };
-                    if k.mode == KnockOutMode::Opponent {
-                        g.run_fx_unit(Effect::KnockOutOpponent { b, knocked_out: false, prize_count: 0 })?;
-                    } else {
-                        g.run_fx_unit(Effect::KnockOutPlayer { b, knocked_out: false, prize_count: 0 })?;
-                    }
-                }
-            }
+            crate::engine::knockout::by_effect(g, slot, f.cause)?;
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
@@ -1639,12 +1607,10 @@ fn each_act(g: &mut Game, me: CardId, f: &Frame, e: &EachSlotSpec, slots: &[Slot
                 crate::engine::damage::place(g, slot, n, f.cause)?;
             }
             EachWhat::ShuffleIntoDeck => {
-                let Some((p, opp, attack, _)) = attack_data(g, f.eff) else { continue };
-                // An effect of the attack on that Pokémon: Mist Energy and the like prevent it.
-                if attack_effect_prevented_on(g, p as usize, opp as usize, pack_attack(attack), slot, f.cause)? {
+                // The LeavePlay event by the frame's cause (an attack's effect: Mist Energy and the like prevent it).
+                if !crate::engine::knockout::leave_play(g, slot, crate::state::ListRef::Deck(slot.p), f.cause, me)? {
                     continue;
                 }
-                move_pokemon_off_board(g, slot, crate::state::ListRef::Deck(slot.p), me)?;
                 let id = g.player_id(slot.p as usize);
                 g.prompt(id, "", PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApplyNoWait { p: slot.p });
             }

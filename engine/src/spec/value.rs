@@ -49,6 +49,9 @@ pub enum SlotExpr {
     Attached,
     /// The Pokémon in play that carries the marker `name` set by this card (none when it left play).
     Marked(&'static str),
+    /// The Pokémon whose attack or Ability caused the event the program reacts to ("the Attacking Pokémon"), where it is
+    /// now (none when it left play).
+    CausePokemon,
 }
 
 pub enum Num {
@@ -314,6 +317,14 @@ pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> 
         SlotExpr::Active(w) => {
             let p = f.who(w);
             Some(SlotRef::new(p, g.st.players[p].active))
+        }
+        SlotExpr::CausePokemon => {
+            if f.eff as usize >= g.fx.len() {
+                return None;
+            }
+            let c = g.e(f.eff).cause()?.card?;
+            let (q, s) = g.st.find_pokemon_slot(c)?;
+            (g.st.slot_pokemon(q, s) == Some(c)).then(|| SlotRef::new(q, s))
         }
         SlotExpr::Marked(name) => {
             let id = crate::markers::marker_id(name)?;

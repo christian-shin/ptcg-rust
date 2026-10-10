@@ -4,8 +4,7 @@ use crate::effects::*;
 use crate::engine::attack;
 use crate::game::{CoinCb, Cont, Game, R};
 use crate::list::*;
-use crate::markers::*;
-use crate::prompts::{Filter, MoveOpts, PromptKind};
+use crate::prompts::PromptKind;
 use crate::state::*;
 use crate::types::*;
 
@@ -222,140 +221,8 @@ fn move_cards(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
-fn knock_out(g: &mut Game, id: EffId) -> R {
-    let (p, target) = match *g.e(id) {
-        Effect::KnockOut { p, target, .. } => (p as usize, target),
-        _ => return Ok(()),
-    };
-    let card = match g.st.slot_pokemon(target.p as usize, target.s) {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    let d = g.st.cdef(card);
-    let mut extra = 0;
-    if d.has_tag(tag::POKEMON_EX) || d.has_tag(tag::POKEMON_V) || d.has_tag(tag::POKEMON_VSTAR) || d.has_tag(tag::POKEMON_EX_LOWER) || d.has_tag(tag::POKEMON_GX) {
-        extra += 1;
-    }
-    if d.has_tag(tag::POKEMON_SV_MEGA) || d.has_tag(tag::TAG_TEAM) || d.has_tag(tag::DUAL_LEGEND) {
-        extra += 1;
-    }
-    if d.has_tag(tag::POKEMON_VMAX) || d.has_tag(tag::POKEMON_VUNION) {
-        extra += 2;
-    }
-    if let Effect::KnockOut { prize_count, prize_base, .. } = g.e_mut(id) {
-        *prize_count += extra;
-        *prize_base += extra;
-    }
-    // Prize denial / extra prizes: not modeled.
-    // Little Grudge: Mist-blockable DiscardCardsEffect attributed to the arming attack.
-    let (armed, pending, g_attack, g_source, g_owner) = {
-        let ts = g.st.slot(target.p as usize, target.s);
-        (
-            ts.discard_attacker_energy_if_ko_next_turn,
-            ts.discard_attacker_energy_if_ko_next_turn_pending,
-            ts.discard_attacker_energy_if_ko_attack,
-            ts.discard_attacker_energy_if_ko_source_card,
-            ts.discard_attacker_energy_if_ko_attacker,
-        )
-    };
-    if armed && !pending && g.st.players[p].marker.has(DAMAGE_DEALT_MARKER) {
-        if let (Some(attack), Some(source_card), Some(owner)) = (g_attack, g_source, g_owner) {
-            let prize_taker = 1 - p;
-            // "The Attacking Pokémon" is the Pokémon that used the attack, wherever it is by now (ruling 460);
-            // nothing happens when it left play.
-            let attacker_slot = g.attacker_of_knock_out(p).and_then(|a| a.1);
-            let energy: Vec<CardId> = match attacker_slot {
-                Some(sl) => g.st.slot(prize_taker, sl.s).cards.iter().filter(|c| g.st.cdef(*c).is_energy()).collect(),
-                None => Vec::new(),
-            };
-            if energy.len() == 1 {
-                little_grudge_discard(g, owner as usize, prize_taker, attack, source_card, attacker_slot.unwrap(), &energy)?;
-            } else if energy.len() > 1 {
-                let sl = attacker_slot.unwrap();
-                let mut slots = SVec::new();
-                let mut o = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
-                match g.st.players[prize_taker].bench.iter().position(|b| *b == sl.s) {
-                    Some(bi) => {
-                        slots.push(SlotType::Bench as u8);
-                        for i in 0..g.st.players[prize_taker].bench.len() {
-                            if i != bi {
-                                o.blocked_from.push(CardTarget::new(PlayerType::TopPlayer, SlotType::Bench, i as u8));
-                            }
-                        }
-                    }
-                    None => slots.push(SlotType::Active as u8),
-                }
-                let id = g.player_id(p);
-                g.prompt(
-                    id,
-                    "CHOOSE_ENERGIES_TO_DISCARD",
-                    PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter: Filter::super_type(SuperType::Energy), o },
-                    Cont::LittleGrudge { owner, prize_taker: prize_taker as u8, attack, source_card, target: sl },
-                );
-            }
-        }
-    }
-
-    let owner = p;
-    let attacker = 1 - p;
-    let during_opp_turn = matches!(g.st.phase, GamePhase::PlayerTurn | GamePhase::Attack) && g.st.active_player as usize == attacker;
-    let by_attack = g.st.phase == GamePhase::Attack && g.st.active_player as usize == attacker && g.knocked_out_by_attack_damage(owner, target).is_some();
-    if during_opp_turn {
-        g.st.players[owner].pokemon_knocked_out_during_opponents_last_turn = true;
-        let def_id = g.st.cards[card as usize].def;
-        g.st.players[owner].pokemon_knocked_out_last_turn_entries.push(def_id);
-        g.st.players[owner].pokemon_knocked_out_last_turn_by_attack.push(by_attack);
-    }
-    if by_attack {
-        g.st.players[owner].pokemon_knocked_out_by_attack_during_opponents_last_turn = true;
-    }
-    // The Check State step takes the Pokémon out of play after every Knock Out was announced.
-    if matches!(*g.e(id), Effect::KnockOut { defer_removal: true, .. }) {
-        return Ok(());
-    }
-    complete_knock_out(g, id)
-}
-
-/// `completeKnockOut`: takes a Knocked Out Pokémon out of play (tools, effects,
-/// the Pokémon and its attached cards go to the owner's discard pile).
-pub fn complete_knock_out(g: &mut Game, id: EffId) -> R {
-    let (p, target) = match *g.e(id) {
-        Effect::KnockOut { p, target, .. } => (p as usize, target),
-        _ => return Ok(()),
-    };
-    let card = match g.st.slot_pokemon(target.p as usize, target.s) {
-        Some(c) => c,
-        None => return Ok(()),
-    };
-    let d = g.st.cdef(card);
-    let owner = p;
-    let tp = target.p as usize;
-    if g.st.slot(tp, target.s).marker.has(LOST_CITY_MARKER) || d.has_tag(tag::PRISM_STAR) {
-        crate::bail!("LOST_CITY_KO_NOT_PORTED");
-    }
-    let tools: Vec<CardId> = g.st.slot(tp, target.s).tools.iter().collect();
-    for t in tools {
-        g.move_card_to(target.list(), t, ListRef::Discard(owner as u8));
-    }
-    clear_effects(&mut g.st.players[tp].slots[target.s as usize]);
-    // B6: the Pokémon leaves play with its Special Conditions (LeavePlay, events batch 6); not a recovery.
-    g.st.players[tp].slots[target.s as usize].special_conditions.clear();
-    g.run_fx(Effect::MoveCards {
-        source: target.list(),
-        destination: ListRef::Discard(owner as u8),
-        cards: None,
-        count: None,
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card: NO_CARD,
-    })?;
-    Ok(())
-}
-
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::KnockOut { .. } => knock_out(g, id),
         Effect::CheckPokemonStats { target, .. } => {
             if g.st.slot(target.p as usize, target.s).no_weakness_next_turn {
                 if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(id) {

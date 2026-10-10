@@ -358,7 +358,7 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
 /// (twice), then `ConfirmPrompt(WANT_TO_USE_ABILITY)`.
 fn barrage_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     let below = g.waits.len();
-    crate::engine::check::check_state(g, crate::game::OnComplete::None)?;
+    crate::engine::knockout::state_check(g, crate::game::OnComplete::None)?;
     if g.has_prompts() {
         f.stage = stage;
         // The attack resumes after the check's own continuations (its remaining prize and new-Active
@@ -526,47 +526,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 let cause = crate::cause::Cause::attack(opp, Some(r.source_card), r.attack);
                 let _ = (attack, attack_effect, src);
                 crate::engine::damage::place(g, source, r.damage, cause)?;
-            }
-            Ok(())
-        }
-        Effect::KnockOutOpponent { b, .. } => {
-            // KnockOutAttackEffect on the target, then TAKE_X_PRIZES.
-            let t = b.target;
-            if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
-                crate::bail!("ILLEGAL_ACTION");
-            }
-            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, prize_destination: None, attack: Some(b.attack), defer_removal: false })?;
-            if !prevented {
-                let pc = match ko {
-                    Effect::KnockOut { prize_count, .. } => prize_count,
-                    _ => 1,
-                };
-                if let Effect::KnockOutOpponent { knocked_out, prize_count, .. } = g.e_mut(id) {
-                    *knocked_out = true;
-                    *prize_count = pc;
-                }
-                crate::engine::check::take_x_prizes(g, b.player as usize, pc)?;
-            }
-            Ok(())
-        }
-        Effect::KnockOutPlayer { b, .. } => {
-            // KnockOutAttackEffect on the target (the attacker's side), then
-            // TAKE_X_PRIZES for the opponent.
-            let t = b.target;
-            if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
-                crate::bail!("ILLEGAL_ACTION");
-            }
-            let (ko, prevented) = g.run_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, prize_destination: None, attack: Some(b.attack), defer_removal: false })?;
-            if !prevented {
-                let pc = match ko {
-                    Effect::KnockOut { prize_count, .. } => prize_count,
-                    _ => 1,
-                };
-                if let Effect::KnockOutPlayer { knocked_out, prize_count, .. } = g.e_mut(id) {
-                    *knocked_out = true;
-                    *prize_count = pc;
-                }
-                crate::engine::check::take_x_prizes(g, b.opponent as usize, pc)?;
             }
             Ok(())
         }

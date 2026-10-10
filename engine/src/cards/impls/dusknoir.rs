@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
                 target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::PokemonBenchFirst(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
                 counters: Num::Lit(13)
             })),
-            Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, mode: KnockOutMode::Direct, when: Cond::True })),
+            Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, when: Cond::True })),
         ],
     }],
     // Shadow Bind: the Defending Pokémon can't retreat during your opponent's next turn.

@@ -240,7 +240,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::EndGame(e) => {
             let winner = if f.who(e.winner) == 0 { WINNER_P1 } else { WINNER_P2 };
-            crate::engine::phase::end_game(g, winner);
+            crate::engine::knockout::game_end(g, winner, crate::engine::knockout::EndReason::CardEffect);
             Ok(Flow::Next)
         }
         Op::PickAttack(a) => {

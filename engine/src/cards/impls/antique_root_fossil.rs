@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::No,
         needs: &[],
-        steps: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Discard), effect_of_attack: false }))],
+        steps: &[Step::new(Op::RemoveFromPlay(RemoveFromPlaySpec { slot: SlotExpr::This, destination: ZoneRef(Who::Me, Zone::Discard) }))],
     }],
     passives: &[
         // Primal Root: as long as it is Active, attacks used by your opponent's Basic Pokémon cost [C] more.

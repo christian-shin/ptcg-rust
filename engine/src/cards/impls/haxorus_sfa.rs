@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Haxorus@SFA",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::KnockOut(KnockOutSpec { target: SlotExpr::Active(Who::Opp), mode: KnockOutMode::Opponent, when: Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Opp)), EnergyUnit::SpecialEnergyCards), CmpOp::Gt, Num::Lit(0)) })),
+            Step::after_damage(Op::KnockOut(KnockOutSpec { target: SlotExpr::Active(Who::Opp), when: Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Opp)), EnergyUnit::SpecialEnergyCards), CmpOp::Gt, Num::Lit(0)) })),
         ] },
         AttackSpec { index: 1, steps: &[
             Step::after_damage(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Top(Num::Lit(3)), ..MoveSpec::DEFAULT })),

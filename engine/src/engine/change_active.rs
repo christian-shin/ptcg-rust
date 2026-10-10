@@ -196,9 +196,18 @@ pub fn produce(g: &mut Game, c: ChangeActiveView) -> R {
 }
 
 /// The rule's promotion of the Benched Pokémon in `to` to `p`'s empty Active Spot.
+/// The promotion is the rule's, like the recoveries of `condition::recover_by_rule`: no lock or prevention is asked
+/// (none can match a rule's cause: `no_prevention_matches_a_rule_cause`), only the spots. `Ok(false)` when the spots don't
+/// allow it (the Active Spot isn't empty, `to` isn't one of the player's Benched Pokémon).
 pub fn promote(g: &mut Game, p: usize, to: SlotId) -> R<bool> {
     let cause = Cause::rule(crate::cause::RuleWhich::Promotion, p as u8);
-    change_active(g, ChangeActiveView::of(g, p, Some(to), ActiveChange::Promotion, cause))
+    let c = ChangeActiveView::of(g, p, Some(to), ActiveChange::Promotion, cause);
+    let v = view(g, &c);
+    if target_ok(g, &v).is_err() {
+        return Ok(false);
+    }
+    produce(g, c)?;
+    Ok(true)
 }
 
 // ---------------------------------------------------------------------------

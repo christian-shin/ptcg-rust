@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[
-                Step::after_damage(Op::If(IfSpec { cond: Cond::Slot(OPP_ACTIVE, SlotPred::HasCondition), yes: &[Step::new(Op::KnockOut(KnockOutSpec { target: OPP_ACTIVE, mode: KnockOutMode::Opponent, when: Cond::True }))], no: &[] })),
+                Step::after_damage(Op::If(IfSpec { cond: Cond::Slot(OPP_ACTIVE, SlotPred::HasCondition), yes: &[Step::new(Op::KnockOut(KnockOutSpec { target: OPP_ACTIVE, when: Cond::True }))], no: &[] })),
             ],
         },
     ],

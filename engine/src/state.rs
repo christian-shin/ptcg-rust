@@ -160,6 +160,9 @@ pub struct Slot {
     /// (`passive::lasting_prevented`). Effects on this Pokémon: they go when it leaves the Active Spot or play
     /// (`clear_effects`) and at the end of the opponent's turn.
     pub lasting_prevents: SVec<LastingPrevent, 4>,
+    /// An effect Knocked this Pokémon Out ("is Knocked Out", "Knock Out ..."; `engine::knockout::by_effect`): it is
+    /// Knocked Out at the next state check with every other Knock Out (user decision D1), by this cause.
+    pub ko_pending: Option<crate::cause::Cause>,
     pub is_public: bool,
 }
 
@@ -248,6 +251,7 @@ impl Default for Slot {
             retaliate_on_damage_next_turn: None,
             retaliate_on_damage_next_turn_pending: None,
             lasting_prevents: SVec::new(),
+            ko_pending: None,
             is_public: false,
         }
     }
@@ -560,6 +564,8 @@ pub struct State {
     pub turn: i32,
     pub active_player: u8,
     pub winner: Winner,
+    /// Why the game ended (`engine::knockout::game_end`).
+    pub end_reason: Option<crate::engine::knockout::EndReason>,
     pub players: [Player; 2],
     pub cards: [CardInst; MAX_CARDS],
     pub n_cards: u8,
@@ -585,6 +591,7 @@ impl State {
             turn: 0,
             active_player: 0,
             winner: WINNER_NONE,
+            end_reason: None,
             players: [Player::new(1), Player::new(2)],
             cards: [CardInst::default(); MAX_CARDS],
             n_cards: 0,

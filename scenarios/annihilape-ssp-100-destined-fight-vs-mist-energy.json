@@ -1,0 +1,16 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mankey SSP 98", "4 Annihilape SSP 100", "4 Dwebble DRI 11", "4 Mist Energy TEF 161", "44 Fighting Energy MEE 6"],
+  ["4 Mankey SSP 98", "4 Annihilape SSP 100", "4 Dwebble DRI 11", "4 Mist Energy TEF 161", "44 Fighting Energy MEE 6"]
+ ],
+ "me": {"reset": true, "active": ["Mankey SSP 98", "Annihilape SSP 100"], "active_energy": ["2 Fighting Energy MEE 6"], "bench": [{"card": "Dwebble DRI 11"}]},
+ "opp": {"reset": true, "active": "Dwebble DRI 11", "active_energy": ["Mist Energy TEF 161"], "bench": [{"card": "Dwebble DRI 11"}]},
+ "answers": [{"a": "attack", "name": "Destined Fight"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Dwebble DRI 11", "cite": "id2427 (Mist Energy prevents Destined Fight's Knock Out of the Pokémon it is attached to)"},
+  {"at": "turn_end", "who": "me", "prizes_taken": 0, "cite": "id2427"},
+  {"at": "turn_end", "who": "opp", "prizes_taken": 1, "cite": "card text (both Active Pokémon are Knocked Out): Annihilape's own Knock Out isn't the opponent's attack effect"},
+  {"at": "turn_end", "who": "me", "zone": "discard", "contains": ["Annihilape SSP 100"], "cite": "card text"}
+ ]
+}

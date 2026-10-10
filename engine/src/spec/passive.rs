@@ -322,7 +322,9 @@ const fn and(a: KindMask, b: KindMask) -> KindMask {
 
 /// The event families whose routine asks the `Prevent` reader (`event_prevented`), each with the marker a prevention over
 /// it sets (`prevent_kinds`) and the reader tests (`prevent_marker`).
-const PREVENT_FAMILIES: [(KindMask, u32); 6] = [
+const PREVENT_FAMILIES: [(KindMask, u32); 8] = [
+    (super::event::KO_EVENT_KINDS, crate::effects::k::DECLARES_KO_PREVENT),
+    (super::event::LEAVE_EVENT_KINDS, crate::effects::k::DECLARES_LEAVE_PREVENT),
     (super::event::DAMAGE_EVENT_KINDS, crate::effects::k::DECLARES_DAMAGE_PREVENT),
     (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_PREVENT),
     (super::event::HEAL_EVENT_KINDS, crate::effects::k::DECLARES_HEAL_PREVENT),
@@ -690,8 +692,6 @@ pub struct PrizeAdjustSpec {
     pub nonstacking: Option<&'static str>,
     /// Only a Knock Out of the card owner's Pokémon.
     pub owner_only: bool,
-    /// The lock probe is made for the owner's opponent (today's behavior of Mega Gengar ex).
-    pub probe_opponent: bool,
 }
 impl PrizeAdjustSpec {
     pub const DEFAULT: PrizeAdjustSpec = PrizeAdjustSpec {
@@ -703,7 +703,6 @@ impl PrizeAdjustSpec {
         attacker: SlotPred::Any,
         nonstacking: None,
         owner_only: false,
-        probe_opponent: false,
     };
 }
 /// "During Pokémon Checkup, put N more damage counters on each Poisoned Pokémon ..." (Perilous
@@ -1682,7 +1681,7 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
 /// the attack-effect probes, `AtkBase` effects standing for an event the engine doesn't produce as one yet, and the event
 /// each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
 /// ones in `Game::reduce_effect`) with the event's view: one declaration, two readers, until the events exist.
-pub const B6OLD_PROBES: [(u32, super::event::EventKind); 21] = {
+pub const B6OLD_PROBES: [(u32, super::event::EventKind); 19] = {
     use super::event::EventKind as E;
     use crate::effects::k;
     [
@@ -1690,8 +1689,6 @@ pub const B6OLD_PROBES: [(u32, super::event::EventKind); 21] = {
         (k::CARDS_TO_HAND, E::PutIntoHand),
         (k::MOVE_OPPONENT_ENERGY, E::MoveEnergy),
         (k::DEVOLVE_PROBE, E::Devolve),
-        (k::KNOCK_OUT_OPPONENT, E::KnockOut),
-        (k::KNOCK_OUT_PLAYER, E::KnockOut),
         (k::PLAY_LOCK, E::ApplyEffect),
         (k::PREVENT_RETREAT, E::ApplyEffect),
         (k::OPPONENT_POKEMON_CANNOT_USE_ATTACK, E::ApplyEffect),
@@ -1794,8 +1791,8 @@ pub fn probe_lasting_prevented(g: &mut Game, id: EffId) -> R<bool> {
 // Prizes, evolution, attacks
 
 fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
-    let (p, target) = match *g.e(e) {
-        Effect::KnockOut { p, target, .. } => (p as usize, target),
+    let (p, target, ko_by) = match *g.e(e) {
+        Effect::KnockOut { p, target, ko_by, .. } => (p as usize, target, ko_by),
         _ => return Ok(()),
     };
     if !slot_pred_m(g, me, target, &d.subject)? {
@@ -1818,17 +1815,19 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
     if d.owner_only && at.owner != p {
         return Ok(());
     }
-    let probe_at = if d.probe_opponent { Located { owner: 1 - p, ..at } } else { at };
-    if blocked(g, me, origin, probe_at, Some(target)) {
+    if blocked(g, me, origin, at, Some(target)) {
         return Ok(());
     }
-    let by_damage = g.knocked_out_by_attack_damage(p, target);
-    if d.by_attack_damage && by_damage.is_none() {
+    // "Knocked Out by damage from an attack": the KnockOut event's `ko_by`.
+    let by_damage = ko_by == super::event::KoBy::AttackDamage;
+    if d.by_attack_damage && !by_damage {
         return Ok(());
     }
-    if let Some((_, Some(src))) = by_damage {
-        if !slot_pred_m(g, me, src, &d.attacker)? {
-            return Ok(());
+    if by_damage {
+        if let Some((_, Some(src))) = g.knocked_out_by_attack_damage(p, target) {
+            if !slot_pred_m(g, me, src, &d.attacker)? {
+                return Ok(());
+            }
         }
     }
     if !guard_ok(g, me, origin, at.owner, &d.guard) {
@@ -2034,6 +2033,8 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_PREVENT),
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_PREVENT),
         E::Damage => Some(crate::effects::k::DECLARES_DAMAGE_PREVENT),
+        E::KnockOut => Some(crate::effects::k::DECLARES_KO_PREVENT),
+        E::LeavePlay => Some(crate::effects::k::DECLARES_LEAVE_PREVENT),
         E::EnterPlay
         | E::Evolve
         | E::Devolve
@@ -2042,13 +2043,11 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::MoveEnergy
         | E::MoveTool
         | E::PlayTrainer
-        | E::KnockOut
         | E::TakePrizes
         | E::Discard
         | E::Draw
         | E::PutIntoHand
         | E::PutIntoDeck
-        | E::LeavePlay
         | E::Shuffle
         | E::Look
         | E::Reveal

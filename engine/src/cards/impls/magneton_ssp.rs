@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::BasicEnergy, slots: AttachSlots::BenchActive, target: Pred::PokemonType(ct::LIGHTNING), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(3) }, ..AttachSpec::DEFAULT })),
-            Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, mode: KnockOutMode::Direct, when: Cond::True })),
+            Step::new(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, when: Cond::True })),
         ],
     }],
     ..CardSpec::NONE

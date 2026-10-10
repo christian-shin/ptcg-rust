@@ -20,7 +20,6 @@ pub enum Event {
     /// (`run::after_event`). The program runs for the event's owner when the declaring card is a Stadium
     /// ("that player"), else for the declaring card's owner; the event's spot is the picked slot.
     On(super::event::EventPred),
-    OnKnockOut(OnKnockOutSpec),
     OnDamagedByAttack(OnDamagedByAttackSpec),
     OnCheckup(OnCheckupSpec),
     OnEndTurn(OnEndTurnSpec),
@@ -36,19 +35,6 @@ pub struct CustomEventSpec {
     pub fires: fn(&mut Game, CardId, EffId) -> Option<usize>,
 }
 
-/// Whose Knock Out.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum KoWhich {
-    /// This Pokémon, in the Active Spot, is Knocked Out by damage from an attack of the opponent's
-    /// Pokémon. The Attacking Pokémon's slot is the program's picked slot (`SlotExpr::Picked`).
-    ThisByAttack,
-    /// The Active Pokémon of the opponent of this card's owner (this card's Pokémon in play, Ability
-    /// working). The effect stays alive while the program is suspended (a Knock Out waits for a coin flip).
-    OppActive,
-}
-pub struct OnKnockOutSpec {
-    pub which: KoWhich,
-}
 /// The Pokémon this card is part of (an Ability) or attached to (a Tool), in the Active Spot, is damaged
 /// by an attack of the opponent's Pokémon (even if Knocked Out). The trigger resolves after the attack's
 /// own effects (step 7 of the attack flow), in the attack phase, unless the card's lock is on; the
@@ -96,7 +82,6 @@ pub const fn event_kinds(e: &Event) -> KindMask {
     match e {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
         Event::On(p) => p.effect_kinds(),
-        Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
         Event::OnDamagedByAttack(_) => mask(&[k::DAMAGE, k::ATTACK_TRIGGER]),
         Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
@@ -133,32 +118,6 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 Turn::Any => true,
             };
             ok.then_some((owner, None))
-        }
-        Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::OppActive }) => {
-            let Effect::KnockOut { p, target, .. } = *g.e(e) else { return None };
-            let owner = p as usize;
-            if target.s != g.st.players[owner].active {
-                return None;
-            }
-            let at = super::passive::locate(g, me, t.origin)?;
-            if at.owner == owner || super::passive::blocked(g, me, t.origin, at, None) {
-                return None;
-            }
-            Some((at.owner, None))
-        }
-        Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::ThisByAttack }) => {
-            let Effect::KnockOut { p, target, .. } = *g.e(e) else { return None };
-            let (tp, ts) = (target.p as usize, target.s);
-            if !g.st.slot(tp, ts).cards.contains(me) || g.prevented(e) || g.st.slot_pokemon(tp, ts) != Some(me) {
-                return None;
-            }
-            let at = super::passive::Located { owner: p as usize, held: None };
-            if super::passive::blocked(g, me, t.origin, at, None) {
-                return None;
-            }
-            let (_, Some(src)) = g.attack_that_damaged_knocked_out(tp, target)? else { return None };
-            // The program works on the Attacking Pokémon.
-            Some((p as usize, Some(src.p << 4 | src.s)))
         }
         Event::OnDamagedByAttack(d) => {
             // Where the card is: part of the Pokémon (an Ability) or attached to it (a Tool).
@@ -242,6 +201,9 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::ChangeActive { p, from, to, change, cause } => crate::engine::change_active::effect_view(g, p, from, to, change, cause),
         Effect::PlaceCounters { target, amount, cause, .. } => crate::engine::damage::counters_view(g, target, amount, cause),
         Effect::Damage { b, amount, .. } => crate::engine::damage::damage_view(g, &b, amount),
+        Effect::KnockOut { target, ko_by, cause, .. } => crate::engine::knockout::ko_view(g, target, ko_by, cause),
+        Effect::LeavePlay { target, dest, cause, .. } => crate::engine::knockout::leave_view(g, target, dest, cause),
+        Effect::TakePrizes { p, prizes, cause } => crate::engine::knockout::prizes_view(g, p as usize, prizes.len() as i32, cause),
         // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.
         Effect::MoveCounters { p, cause, .. } => EventView::new(EventKind::MoveCounters, cause, p, turn),
         _ => return None,
@@ -265,10 +227,4 @@ pub(crate) fn fires_on(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> crate
     let p = if t.origin == RuleSource::Stadium { v.owner as usize } else { g.st.owner(me) };
     let slot = v.slot.map_or(super::run::NONE, |s| s.p << 4 | s.s);
     Ok(Some((p, slot)))
-}
-
-/// The effect stays alive while the trigger's program is suspended (a Knock Out of the opponent's Active
-/// waits for a coin flip).
-pub(crate) fn retains(t: &Trigger) -> bool {
-    matches!(t.event, Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::OppActive }))
 }

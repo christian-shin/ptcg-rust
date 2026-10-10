@@ -33,8 +33,8 @@ pub enum Cont {
     Setup(setup::SetupFrame),
     /// WaitPrompt after the turn draw: `state.phase = PLAYER_TURN`.
     PhasePlayerTurn,
-    CheckState(check::CheckFrame),
-    TakePrizes { p: u8, destination: ListRef },
+    CheckState(crate::engine::knockout::CheckFrame),
+    TakePrizes { p: u8, cause: [u8; 4] },
     ChooseActive { p: u8 },
     /// handleBenchSizeChange discard prompt: `empty` = bitmask of empty bench slot ids.
     BenchShrink { p: u8, empty: u16 },
@@ -949,14 +949,14 @@ impl Game {
                 self.st.phase = GamePhase::PlayerTurn;
                 Ok(())
             }
-            Cont::CheckState(f) => check::resume(self, f),
-            Cont::TakePrizes { p, destination } => check::take_prizes_cont(self, p, destination, first),
+            Cont::CheckState(f) => crate::engine::knockout::resume(self, f),
+            Cont::TakePrizes { p, cause } => crate::engine::knockout::take_prizes_cont(self, p, cause, first),
             Cont::TriggerOrder { atk } => self.resolve_chosen_trigger(atk, first.as_int()),
             Cont::LittleGrudge { owner, prize_taker, attack, source_card, target } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, target, first),
-            Cont::ChooseActive { p } => check::choose_active_cont(self, p, first),
-            Cont::BenchShrink { p, empty } => check::bench_shrink_cont(self, p, empty, first),
+            Cont::ChooseActive { p } => crate::engine::knockout::choose_active_cont(self, p, first),
+            Cont::BenchShrink { p, empty } => crate::engine::knockout::bench_shrink_cont(self, p, empty, first),
             Cont::BetweenTurnsWait { oc } => phase::run_between_turns_effects(self, oc),
-            Cont::BetweenTurnsCheck { oc } => check::check_state(self, oc),
+            Cont::BetweenTurnsCheck { oc } => crate::engine::knockout::state_check(self, oc),
             Cont::BurnFlip { p, .. } => {
                 let p = p as usize;
                 crate::engine::condition::coin_flipped(self, p, crate::spec::event::CoinPurpose::Burned, first.as_bool(), crate::engine::condition::by_condition(p))?;
@@ -1002,7 +1002,7 @@ impl Game {
             Cont::SuddenDeathCoin => {
                 // The flip for who goes first in the Sudden Death game (player 1 flips; heads, they go first).
                 crate::engine::condition::coin_flipped(self, 0, crate::spec::event::CoinPurpose::FirstPlayer, first.as_bool(), crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, 0))?;
-                check::setup_sudden_death_game(self, if first.as_bool() { 0 } else { 1 })
+                crate::engine::knockout::setup_sudden_death_game(self, if first.as_bool() { 0 } else { 1 })
             }
             Cont::Card { card, frame } => cards::resume(self, card, frame, results),
             Cont::CopyAttack(f) => crate::copy_attack::resume(self, f, first),
@@ -1224,6 +1224,9 @@ impl Game {
         if matches!(kind, k::PLACE_COUNTERS | k::MOVE_COUNTERS_EVENT | k::DAMAGE) {
             crate::engine::damage::reducer(self, id)?;
         }
+        if matches!(kind, k::KNOCK_OUT | k::LEAVE_PLAY | k::TAKE_PRIZES) {
+            crate::engine::knockout::reducer(self, id)?;
+        }
         if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
             crate::engine::enter::reducer(self, id)?;
         }
@@ -1352,7 +1355,7 @@ impl Game {
     fn after_dispatch(&mut self) -> R {
         self.resolve_wait_items()?;
         if self.items.is_empty() {
-            check::check_state(self, OnComplete::None)?;
+            crate::engine::knockout::state_check(self, OnComplete::None)?;
         }
         self.gc();
         Ok(())
@@ -1372,7 +1375,7 @@ impl Game {
         let id = self.prompts.as_slice()[prompt_index].id;
         let r = self.reduce_prompt(id, result);
         if r.is_ok() && self.items.is_empty() {
-            let r2 = check::check_state(self, OnComplete::None);
+            let r2 = crate::engine::knockout::state_check(self, OnComplete::None);
             self.gc();
             return r2;
         }

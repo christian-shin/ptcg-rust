@@ -704,7 +704,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if let Some(c) = f.recorded_choice(g, me) {
                 if c.answer == CHOICE_YES && c.len > 0 {
                     let p = f.who(t.who);
-                    crate::engine::check::take_specific_prizes(g, p, &c.items[..c.len as usize], ListRef::Hand(p as u8), false)?;
+                    crate::engine::knockout::take_prizes_chosen(g, p, &c.items[..c.len as usize], f.cause)?;
                 }
                 return Ok(Flow::Next);
             }
@@ -1407,7 +1407,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::TakePrize(t) => {
             let p = f.who(t.who);
             if let Res::Prizes(ix) = first {
-                crate::engine::check::take_specific_prizes(g, p, ix.as_slice(), ListRef::Hand(p as u8), false)?;
+                crate::engine::knockout::take_prizes_chosen(g, p, ix.as_slice(), f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -2645,7 +2645,7 @@ fn tp_begin(g: &mut Game, me: CardId, f: &mut Frame, t: &TakePrizeSpec, record: 
             if record {
                 f.record_items(g, me, CHOICE_YES, &[i]);
             } else {
-                crate::engine::check::take_specific_prizes(g, p, &[i], ListRef::Hand(p as u8), false)?;
+                crate::engine::knockout::take_prizes_chosen(g, p, &[i], f.cause)?;
             }
         }
         return Ok(Flow::Next);

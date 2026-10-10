@@ -33,6 +33,17 @@ pub struct PowerRef {
     pub index: u8,
 }
 
+/// How a Pokémon leaves play (the LeavePlay event): a Knock Out's removal (APR D step 3: its Tools first, its effects and
+/// Special Conditions with it), an effect's ("put it into your hand", "shuffle it into your deck", "discard it"), the
+/// Bench shrinking below its Pokémon (the rule; the cards in today's order: the attached non-Pokémon cards, the Tools, the
+/// Pokémon cards).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LeaveHow {
+    KnockOut,
+    Effect,
+    BenchShrink,
+}
+
 /// One pair of a MoveCounters event: HP of damage counters `removed` from the Pokémon in `from`, `placed` on the one in
 /// `to` (0 when the destination is protected: they vanish).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -113,7 +124,6 @@ pub enum Effect {
     /// pushed to `attacks` as well; the source is `AttackRef::card`.
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32>, copied: SVec<AttackRef, 32> },
     CheckTableState { bench_sizes: [u8; 2] },
-    CheckPrizesDestination { p: u8, destination: ListRef },
     CheckSpecialConditionRemoval { p: u8, target: SlotRef, preserved: SVec<u8, 5> },
 
     // ---- game ----
@@ -128,9 +138,17 @@ pub enum Effect {
     /// `ignore_defender_effects`: `AttackEffect.ignoreDefenderEffects` (Shred: effects on the damaged
     /// Pokémon don't change this attack's damage; see `prefabs::ignores_defender_effects`).
     Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, barrage_used: bool },
-    /// `defer_removal`: the Check State step announces every Knock Out first and takes the
-    /// Pokémon out of play later (`game_effect::complete_knock_out`).
-    KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, prize_destination: Option<ListRef>, attack: Option<AttackRef>, defer_removal: bool },
+    /// The KnockOut event (events batch 6; `engine::knockout`): the Pokémon in `target` of player `p` is Knocked Out
+    /// (`ko_by`: by damage from an attack, by an effect, otherwise; `cause` the attack, the effect, or the rule), worth
+    /// `prize_count` Prize cards to the opponent (`prize_base` before the adjustments that reduce it). Produced by the
+    /// state check while every Pokémon Knocked Out at the same time is still in play.
+    KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, ko_by: crate::spec::event::KoBy, cause: Cause },
+    /// The LeavePlay event (`engine::knockout::leave_play`): the Pokémon in `target` and every card attached to it leave
+    /// play for `dest` (`how`: a Knock Out's, an effect's, the Bench shrinking). `p` is the Pokémon's owner.
+    LeavePlay { p: u8, target: SlotRef, dest: ListRef, cause: Cause, how: LeaveHow, source_card: CardId },
+    /// The TakePrizes event (`engine::knockout::take_prizes`): player `p` takes the Prize cards `prizes` (Prize list
+    /// indices, in the order taken) into their hand.
+    TakePrizes { p: u8, prizes: crate::list::SVec<u8, 6>, cause: Cause },
     /// The RemoveCounters event (events batch 4; `engine::condition::heal`): `damage` HP of damage counters are
     /// removed from the Pokémon in `target` (healing; APR C-06). Every heal produces it (an attack's, a Trainer's,
     /// an Ability's). `p` is the Pokémon's owner.
@@ -162,7 +180,6 @@ pub enum Effect {
     /// The Swap event (`engine::enter::swap`): the Pokémon card `old` in `target` was replaced by `new`, which came
     /// from `source` (its rules zone before the swap).
     Swap { p: u8, target: SlotRef, old: CardId, new: CardId, source: crate::spec::event::RulesZone, cause: Cause },
-    DrawPrizes { p: u8, prizes: u8, destination: ListRef },
     MoveCards { source: ListRef, destination: ListRef, cards: Option<List<120>>, count: Option<i32>, to_top: bool, to_bottom: bool, skip_cleanup: bool, source_card: CardId },
     EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
     SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
@@ -199,9 +216,6 @@ pub enum Effect {
         source_in_play: bool,
         retaliate: Option<crate::state::StoredRetaliate>,
     },
-    KnockOutOpponent { b: AtkBase, knocked_out: bool, prize_count: i32 },
-    /// `KnockOutPlayerEffect` (KNOCK_OUT_PLAYERS_ACTIVE_POKEMON): the opponent takes the Prizes.
-    KnockOutPlayer { b: AtkBase, knocked_out: bool, prize_count: i32 },
     DiscardCards { b: AtkBase, cards: SVec<CardId, 64> },
     CardsToHand { b: AtkBase, cards: SVec<CardId, 64> },
     /// `MoveOpponentEnergyEffect`: an attack's move of an attached card between the opponent's Pokémon, as the
@@ -317,7 +331,6 @@ impl Effect {
             CheckPokemonPowers { .. } => "CHECK_POKEMON_POWERS_EFFECT",
             CheckPokemonAttacks { .. } => "CHECK_POKEMON_ATTACKS_EFFECT",
             CheckTableState { .. } => "CHECK_TABLE_STATE_EFFECT",
-            CheckPrizesDestination { .. } => "CHECK_PRIZES_DESTINATION_EFFECT",
             CheckSpecialConditionRemoval { .. } => "CHECK_SPECIAL_CONDITION_REMOVAL_EFFECT",
             Retreat { .. } => "RETREAT_EFFECT",
             RetreatStart { .. } => "RETREAT_START_EFFECT",
@@ -326,13 +339,14 @@ impl Effect {
             UsePower { .. } => "USE_POWER_EFFECT",
             Power { .. } => "POWER_EFFECT",
             Attack { .. } => "ATTACK_EFFECT",
-            KnockOut { .. } => "KNOCK_OUT_EFFECT",
+            KnockOut { .. } => "KNOCK_OUT_EVENT",
+            LeavePlay { .. } => "LEAVE_PLAY_EVENT",
+            TakePrizes { .. } => "TAKE_PRIZES_EVENT",
             Heal { .. } => "HEAL_EFFECT",
             GainCondition { .. } => "GAIN_CONDITION_EVENT",
             RemoveCondition { .. } => "REMOVE_CONDITION_EVENT",
             CoinFlip { .. } => "COIN_FLIP_EVENT",
             Evolve { .. } => "EVOLVE_EFFECT",
-            DrawPrizes { .. } => "DRAW_PRIZES_EFFECT",
             MoveCards { .. } => "MOVE_CARDS_EFFECT",
             EffectOfAbility { .. } => "EFFECT_OF_ABILITY_EFFECT",
             SpecialEnergy { .. } => "SPECIAL_ENERGY_EFFECT",
@@ -343,8 +357,6 @@ impl Effect {
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
             Damage { .. } => "DAMAGE_EVENT",
             AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
-            KnockOutOpponent { .. } => "KNOCK_OUT_OPPONENT_EFFECT",
-            KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
             DiscardCards { .. } => "DISCARD_CARD_EFFECT",
             CardsToHand { .. } => "CARDS_TO_HAND_EFFECT",
             MoveOpponentEnergy { .. } => "MOVE_OPPONENT_ENERGY_EFFECT",
@@ -395,8 +407,6 @@ impl Effect {
             | DealDamage { b, .. }
             | PutDamage { b, .. }
             | Damage { b, .. }
-            | KnockOutOpponent { b, .. }
-            | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | MoveOpponentEnergy { b, .. }
@@ -423,8 +433,6 @@ impl Effect {
             | DealDamage { b, .. }
             | PutDamage { b, .. }
             | Damage { b, .. }
-            | KnockOutOpponent { b, .. }
-            | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
             | CardsToHand { b, .. }
             | MoveOpponentEnergy { b, .. }
@@ -466,7 +474,6 @@ impl Effect {
             CheckPokemonPowers { .. } => 14,
             CheckPokemonAttacks { .. } => 15,
             CheckTableState { .. } => 17,
-            CheckPrizesDestination { .. } => 18,
             CheckSpecialConditionRemoval { .. } => 19,
             Retreat { .. } => 20,
             RetreatStart { .. } => 21,
@@ -476,12 +483,13 @@ impl Effect {
             Power { .. } => 25,
             Attack { .. } => 26,
             KnockOut { .. } => 27,
+            LeavePlay { .. } => 119,
+            TakePrizes { .. } => 97,
             Heal { .. } => 28,
             GainCondition { .. } => 73,
             RemoveCondition { .. } => 74,
             CoinFlip { .. } => 75,
             Evolve { .. } => 29,
-            DrawPrizes { .. } => 30,
             MoveCards { .. } => 31,
             EffectOfAbility { .. } => 32,
             SpecialEnergy { .. } => 33,
@@ -492,8 +500,6 @@ impl Effect {
             PutDamage { .. } => 39,
             Damage { .. } => 94,
             AttackTrigger { .. } => 246,
-            KnockOutOpponent { .. } => 42,
-            KnockOutPlayer { .. } => 140,
             DiscardCards { .. } => 43,
             CardsToHand { .. } => 44,
             MoveOpponentEnergy { .. } => 164,
@@ -561,7 +567,6 @@ pub mod k {
     pub const CHECK_POKEMON_POWERS: u32 = 14;
     pub const CHECK_POKEMON_ATTACKS: u32 = 15;
     pub const CHECK_TABLE_STATE: u32 = 17;
-    pub const CHECK_PRIZES_DESTINATION: u32 = 18;
     pub const CHECK_SPECIAL_CONDITION_REMOVAL: u32 = 19;
     pub const RETREAT: u32 = 20;
     pub const RETREAT_START: u32 = 21;
@@ -578,7 +583,6 @@ pub mod k {
     pub const REMOVE_CONDITION: u32 = 74;
     pub const COIN_FLIP: u32 = 75;
     pub const EVOLVE: u32 = 29;
-    pub const DRAW_PRIZES: u32 = 30;
     pub const MOVE_CARDS: u32 = 31;
     pub const EFFECT_OF_ABILITY: u32 = 32;
     pub const SPECIAL_ENERGY: u32 = 33;
@@ -590,8 +594,6 @@ pub mod k {
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
     pub const MOVE_OPPONENT_ENERGY: u32 = 164;
-    pub const KNOCK_OUT_OPPONENT: u32 = 42;
-    pub const KNOCK_OUT_PLAYER: u32 = 140;
     pub const DISCARD_CARDS: u32 = 43;
     pub const CARDS_TO_HAND: u32 = 44;
     pub const ADD_MARKER: u32 = 46;
@@ -752,6 +754,9 @@ impl Effect {
             | EffectOfAbility { cause, .. }
             | PlaceCounters { cause, .. }
             | MoveCounters { cause, .. }
+            | KnockOut { cause, .. }
+            | LeavePlay { cause, .. }
+            | TakePrizes { cause, .. }
             | GainCondition { cause, .. }
             | RemoveCondition { cause, .. }
             | CoinFlip { cause, .. }

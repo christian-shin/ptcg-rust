@@ -10,7 +10,6 @@ pub static SPEC: CardSpec = CardSpec {
             index: 0,
             steps: &[Step::before_damage(Op::KnockOut(KnockOutSpec {
                 target: OPP_ACTIVE,
-                mode: KnockOutMode::Opponent,
                 when: Cond::Cmp(Num::DamageOn(OPP_ACTIVE), CmpOp::Eq, Num::Lit(60)),
             }))],
         },

@@ -35,7 +35,6 @@ pub static SPEC: CardSpec = CardSpec {
             attacker: SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER),
             nonstacking: Some("MEGA_GENGAR_SHADOW_HIDING_APPLIED"),
             owner_only: true,
-            probe_opponent: true,
             ..PrizeAdjustSpec::DEFAULT
         }),
     }],

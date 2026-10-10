@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
     // for that Knock Out (does not stack: the marker is set on the player while the flip is pending).
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnKnockOut(OnKnockOutSpec { which: KoWhich::OppActive }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::KnockOut), EventPred::Owner(Who::Opp), EventPred::Slot(SlotPred::IsActive)])),
         steps: &[Step::new(Op::If(IfSpec {
             cond: Cond::HasMarker { who: Who::Opp, name: "TOGEKISS_KNOCKOUT_FLIP", from: MarkerFrom::Any },
             yes: &[],
