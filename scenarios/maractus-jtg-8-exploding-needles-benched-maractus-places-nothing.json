@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Charizard Y ex ASC 22",
+   "2 Fire Energy MEE 2",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Maractus JTG 8",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Charizard Y ex ASC 22",
+   "2 Fire Energy MEE 2",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Maractus JTG 8",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Charizard Y ex ASC 22",
+  "active_energy": [
+   "2 Fire Energy MEE 2",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Maractus JTG 8"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Explosion Y"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Maractus JTG 8"
+   ],
+   "cite": "Explosion Y: 280 damage to the Benched Maractus (Knocked Out by damage from an attack, but not while Active: id1992)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Mega Charizard Y ex ASC 22",
+   "damage": 0,
+   "cite": "Maractus JTG 8 text (it was not in the Active Spot when the damage was done: id1992)"
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Slowbro ex PBL 31",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Greninja ex CRI 22",
+   "2 Water Energy MEE 3",
+   "1 Mist Energy TEF 161",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Slowbro ex PBL 31",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Greninja ex CRI 22",
+   "2 Water Energy MEE 3",
+   "1 Mist Energy TEF 161",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Slowbro ex PBL 31",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Greninja ex CRI 22",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shellnado Spin"
+  },
+  {
+   "a": "attack",
+   "name": "Ninja Spinner"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "turn": 1,
+   "slot": "active",
+   "card": "Mega Greninja ex CRI 22",
+   "damage": 180,
+   "cite": "id2408 (a delayed effect of an attack is still blocked by Mist Energy)"
+  }
+ ]
+}

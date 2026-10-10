@@ -3,17 +3,11 @@
 //! Pokémon to their other Pokémon in any way you like. Psychic — 10+, 50 more
 //! for each Energy attached to your opponent's Active Pokémon.
 //!
-//! Strange Hacking's Confusion is a GainCondition(Confused) with the attack's
-//! cause (an attack effect). The attack builds maxAllowedDamage from a
-//! CheckHpEffect per opponent Pokémon and opens a MoveDamagePrompt (opponent's
-//! Active + Bench, cancellable, defaults otherwise); each transfer moves 10
-//! damage directly if the source has at least 10. Psychic counts
-//! `provides` of the opponent's CheckProvidedEnergyEffect (their Active).
-//!
-//! Fixed (phase 4b, R7F-6; ruling 1665): the transfers bypassed Mist Energy
-//! and Repelling Veil. Each one now probes the source and the destination with
-//! a PutCountersEffect of 0 counters: a protected source keeps its counter, a protected
-//! destination loses the counter that leaves the source.
+//! Strange Hacking's Confusion is a Special Condition event with the attack as its cause. The move is one MoveCounters
+//! event (one action, both ends asked, APR C-08): Patrat's Watchful Eye stops it and the counters stay (id2350); per
+//! pair a protected source keeps its counters and a protected destination makes them vanish (Mist Energy, Repelling Veil:
+//! id390, id2150, id2192, id2257; Battle Cage on a Benched destination, JP FAQ Battle Cage). The prompt opens over
+//! the opponent's Active and Bench (cancellable). Psychic counts the Energy the opponent's Active Pokémon provides.
 //!
 //! The prompt answers one transfer per damage counter, 20-30 of them for the
 //! bot (any number is valid): `Res::DamageTransfers` is run-length encoded and

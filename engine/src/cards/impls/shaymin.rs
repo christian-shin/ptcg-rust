@@ -2,10 +2,10 @@
 //! Pokémon that don't have a Rule Box by attacks from your opponent's
 //! Pokémon. Smash Kick — 30.
 //!
-//! Twinleaf: every Shaymin instance (any zone) reacts to PutDamageEffect;
-//! "in play" means any Shaymin on the defending player's board; the lock probe
-//! runs on the reacting instance; Rule Box is checked over all cards of the
-//! target slot.
+//! One `Prevent` over `Kind(Damage)` (`DAMAGE_BY_OPP_ATTACKS`) on your Benched Pokémon without a Rule Box, read at step 6
+//! of the damage calculation (APR C-16): any attack of the opponent's Pokémon, damage only (counters are not damage,
+//! APR C-07). It is an Ability: a Shaymin whose Ability is off protects nothing. The Rule Box is read over the target's
+//! cards.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

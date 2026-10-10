@@ -1,7 +1,9 @@
 //! Black Kyurem ex (SSP): Ice Age — 90; if the opponent's Active Pokémon is a
 //! [N] Pokémon (printed type), it is now Paralyzed. Black Frost — 250; this
-//! Pokémon also does 30 damage to itself (a DealDamageEffect aimed at
-//! `player.active`).
+//! Pokémon also does 30 damage to itself.
+//!
+//! Ice Age's Paralysis is a Special Condition event with the attack as its cause. Black Frost's 30 is a Damage event on
+//! this Pokémon (no Weakness or Resistance: it is not an opponent's Pokémon, APR B-08), after the attack's own damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,14 +1,11 @@
-//! Team Rocket's Arbok (DRI): Intimidating Glare — while this Pokémon is
-//! your Active, your opponent can't play Pokémon with Abilities from their
-//! hand (except Team Rocket's Pokémon). Spinning Tail — 30 damage to each of
-//! your opponent's Pokémon.
+//! Team Rocket's Arbok (DRI): Potent Glare — as long as this Pokémon is in
+//! the Active Spot, your opponent can't play any Pokémon that has an Ability
+//! from their hand, except for Team Rocket's Pokémon. Spinning Tail — 30
+//! damage to each of your opponent's Pokémon.
 //!
 //! Evolving (directly or with Rare Candy) is playing a Pokémon from the hand
 //! (rulings id285, id1998, id1133), so the lock covers EnterPlay and Evolve from the hand.
-//!
-//! Twinleaf: any PlayPokemonEffect (bench or evolve) by the player whose
-//! opponent has this card as the Active top card throws when the played card
-//! has an Ability after CheckPokemonPowersEffect.
+//! Spinning Tail's 30 is one Damage event per Pokémon (no Weakness or Resistance for the Benched ones, APR B-08).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
             asker: Who::Me,
             when: Cond::True,
             msg: "WANT_TO_USE_EFFECT_OF_ATTACK",
-            // The 80 more damage is done whether or not a [W] Energy could be taken (ruling 1822).
+            // The 80 more damage is done whether or not a [W] Energy could be taken (id2352).
             yes: &[
                 Step::new(more_damage_if(80, Cond::True)),
                 Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::ChooseToHand { count: 1, ty: crate::types::ct::WATER, up_to: false }, ..DiscardEnergySpec::DEFAULT })),

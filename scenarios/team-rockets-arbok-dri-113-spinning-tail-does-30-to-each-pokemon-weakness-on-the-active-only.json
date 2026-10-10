@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Arbok DRI 113",
+   "3 Darkness Energy MEE 7",
+   "4 Dwebble DRI 11",
+   "2 Cofagrigus WHT 40",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Team Rocket's Arbok DRI 113",
+   "3 Darkness Energy MEE 7",
+   "4 Dwebble DRI 11",
+   "2 Cofagrigus WHT 40",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Arbok DRI 113",
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Cofagrigus WHT 40",
+  "bench": [
+   {
+    "card": "Cofagrigus WHT 40"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spinning Tail"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Cofagrigus WHT 40",
+   "damage": 60,
+   "cite": "Spinning Tail text (30 damage to each of your opponent's Pokémon); Cofagrigus is weak to [D]: APR B-08 (Weakness applies to the Active Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Cofagrigus WHT 40",
+   "damage": 30,
+   "cite": "Spinning Tail text (don't apply Weakness and Resistance for Benched Pokémon)"
+  }
+ ]
+}

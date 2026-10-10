@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Hawlucha ex ASC 116",
+   "2 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Battle Cage PFL 85",
+   "1 Mega Greninja ex CRI 22",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Hawlucha ex ASC 116",
+   "2 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Battle Cage PFL 85",
+   "1 Mega Greninja ex CRI 22",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "stadium": "Battle Cage PFL 85",
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Greninja ex CRI 22",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Somersault Dive"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Greninja ex CRI 22",
+   "damage": 260,
+   "cite": "Mega Hawlucha ex ASC 116 text (a Stadium in play: 140 more damage)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Battle Cage PFL 85"
+   ],
+   "cite": "Mega Hawlucha ex ASC 116 text (then discard that Stadium)"
+  }
+ ]
+}

@@ -2,14 +2,11 @@
 //! 1 of your Benched Pokémon to 1 of your opponent's Pokémon. Perplex — 60;
 //! your opponent's Active Pokémon is now Confused.
 //!
-//! Twinleaf: Extended Damagriiigus does nothing without a damaged Benched
-//! Pokémon. Otherwise a non-cancellable ChoosePokemonPrompt over the Bench
-//! (the Active and undamaged Pokémon blocked), then a second one over the
-//! opponent's Active and Bench. The callback reads the source's damage after
-//! the second prompt; with none left it stops, else a MoveDamageCountersEffect
-//! (preventable) and a MoveCountersAttackEffect (source = the Benched
-//! Pokémon, target = the chosen Pokémon) are reduced; the counters always
-//! leave the source, and reach the target unless the effect was prevented.
+//! Extended Damagriiigus does nothing without a damaged Benched Pokémon; otherwise it chooses one (non-cancellable),
+//! then one of the opponent's Pokémon. The move is one MoveCounters event with the attack as its cause (APR C-08): as many
+//! counters as the source has (id63) leave it and reach the destination unless it is protected (a Mist Energy
+//! destination or Battle Cage on a Benched one makes them vanish, id2257, JP FAQ Battle Cage), and Patrat's Watchful Eye
+//! stops the move with the counters staying (id2350).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

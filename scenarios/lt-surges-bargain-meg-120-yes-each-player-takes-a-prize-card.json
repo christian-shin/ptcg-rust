@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble DRI 11",
+   "1 Lt. Surge's Bargain MEG 120",
+   "55 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dwebble DRI 11",
+   "1 Lt. Surge's Bargain MEG 120",
+   "55 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Dwebble DRI 11",
+  "hand": [
+   "Lt. Surge's Bargain MEG 120"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Lt. Surge's Bargain MEG 120"
+  },
+  true,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "Lt. Surge's Bargain MEG 120 text (if yes, each player takes a Prize card)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "Lt. Surge's Bargain MEG 120 text"
+  }
+ ]
+}

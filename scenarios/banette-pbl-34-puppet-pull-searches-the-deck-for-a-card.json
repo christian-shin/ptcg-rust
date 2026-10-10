@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Shuppet PBL 33",
+   "1 Banette PBL 34",
+   "2 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Pikachu ex ASC 57",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Shuppet PBL 33",
+   "1 Banette PBL 34",
+   "2 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Pikachu ex ASC 57",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Shuppet PBL 33",
+   "Banette PBL 34"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pikachu ex ASC 57",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Puppet Pull"
+  },
+  true,
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Pikachu ex ASC 57",
+   "damage": 80,
+   "cite": "Puppet Pull 80"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "Banette PBL 34 text (you may search your deck for a card and put it into your hand)"
+  }
+ ]
+}

@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Zeraora DRI 78",
+   "1 Lightning Energy MEE 4",
+   "4 Dwebble DRI 11",
+   "1 Maractus JTG 8",
+   "53 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Zeraora DRI 78",
+   "1 Lightning Energy MEE 4",
+   "4 Dwebble DRI 11",
+   "1 Maractus JTG 8",
+   "53 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Maractus JTG 8",
+  "active_damage": 100,
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scratch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Zeraora DRI 78",
+   "damage": 60,
+   "cite": "Maractus JTG 8 text (6 damage counters on the Attacking Pokémon); id1992"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "APR D (Maractus is Knocked Out by the attack's damage: its player's opponent takes the Prize card)"
+  }
+ ]
+}

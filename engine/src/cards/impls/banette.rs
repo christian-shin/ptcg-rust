@@ -1,9 +1,9 @@
 //! Banette (PBL / M5): Hide 'n' Sneak. Puppet Pull — 80; you may search
 //! your deck for a card and put it into your hand, then shuffle.
 //!
-//! Twinleaf: AFTER_ATTACK opens a ConfirmPrompt (WANT_TO_DRAW_CARDS); on yes
-//! with a non-empty deck, SEARCH_DECK_FOR_CARDS_TO_HAND with no filter
-//! (min 1, max 1, no cancel; no reveal).
+//! Hide 'n' Sneak is `Modifier::Prevent(HIDE_N_SNEAK)` (see shuppet.rs). Puppet Pull asks a confirm
+//! (WANT_TO_DRAW_CARDS); on yes with a non-empty deck, one card of any kind (min 1, max 1, no cancel, no reveal), then the
+//! shuffle.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

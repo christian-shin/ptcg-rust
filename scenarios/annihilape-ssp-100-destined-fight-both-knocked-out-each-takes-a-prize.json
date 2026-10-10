@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Annihilape SSP 100",
+   "2 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "53 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Annihilape SSP 100",
+   "2 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "53 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Annihilape SSP 100",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destined Fight"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Annihilape SSP 100"
+   ],
+   "cite": "Annihilape SSP 100 text (both Active Pokémon are Knocked Out); APR D"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Dwebble DRI 11"
+   ],
+   "cite": "Annihilape SSP 100 text"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "APR D (the opponent takes the Prize card for Annihilape)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 1,
+   "cite": "APR D (the Prize card for the Defending Pokémon)"
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Black Kyurem ex SSP 48",
+   "4 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Kyurem SFA 47",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Black Kyurem ex SSP 48",
+   "4 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Kyurem SFA 47",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Black Kyurem ex SSP 48",
+  "active_energy": [
+   "4 Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Kyurem SFA 47",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ice Age"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Kyurem SFA 47",
+   "damage": 90,
+   "conditions": [
+    "PARALYZED"
+   ],
+   "cite": "Black Kyurem ex SSP 48 text (a [N] Pokémon is now Paralyzed)"
+  }
+ ]
+}

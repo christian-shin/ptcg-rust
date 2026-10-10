@@ -2,13 +2,10 @@
 //! first turn: shuffle 1 of your opponent's Benched Pokémon and all attached
 //! cards into their deck. Glide — 30.
 //!
-//! Twinleaf: legal only on `state.turn == 2` (throws CANNOT_USE_ATTACK
-//! otherwise). Fixed (R1-9): it shuffled the opponent's *Active* Pokémon
-//! (and ran `clearEffects()` on the vacated Active slot); it now does nothing
-//! with an empty opposing Bench, otherwise the attacker chooses 1 Benched
-//! Pokémon (ChoosePokemonPrompt, min 1, max 1, no cancel), MOVE_CARDS moves
-//! the whole stack into the opponent's deck, then the opponent's deck
-//! shuffle is prompted (like Sylveon ex's Angelite).
+//! Legal only on turn 2 (`Op::Fail`, CANNOT_USE_ATTACK otherwise). The attacker chooses 1 Benched Pokémon at step D and
+//! nothing happens with an empty opposing Bench. The shuffle is `Op::RemoveFromPlay` of the chosen Pokémon (the whole
+//! stack): one LeavePlay event with the attack as its cause, which "prevent all effects of attacks" (Mist Energy, Hide
+//! 'n' Sneak) refuses, the Pokémon staying; then the opponent's deck is shuffled.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Illumise@TWM",

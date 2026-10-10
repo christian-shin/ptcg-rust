@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "1 Water Energy MEE 3",
+   "1 Battle Cage PFL 85",
+   "53 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "1 Water Energy MEE 3",
+   "1 Battle Cage PFL 85",
+   "53 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Greninja ex CRI 22",
+  "hand": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "stadium": "Battle Cage PFL 85",
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Mortal Shuriken",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Dwebble DRI 11",
+   "damage": 0,
+   "cite": "Battle Cage PFL 85 text and JP FAQ (counters from an Ability can't be placed on a Benched Pokémon); id2264"
+  }
+ ]
+}

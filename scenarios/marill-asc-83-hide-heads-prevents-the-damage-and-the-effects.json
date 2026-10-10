@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Marill ASC 83",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Yamask PLF 55",
+   "1 Cofagrigus WHT 40",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Marill ASC 83",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Yamask PLF 55",
+   "1 Cofagrigus WHT 40",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Marill ASC 83",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Yamask PLF 55",
+   "Cofagrigus WHT 40"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hide"
+  },
+  {
+   "a": "attack",
+   "name": "Perplex"
+  }
+ ],
+ "coins": [
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Marill ASC 83",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Marill ASC 83 text (heads: prevent all damage from and effects of attacks done to this Pokémon during your opponent's next turn)"
+  }
+ ]
+}

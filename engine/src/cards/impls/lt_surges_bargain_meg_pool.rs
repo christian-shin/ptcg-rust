@@ -2,10 +2,8 @@
 //! may take a Prize card. If yes, each player takes a Prize card. If no, you
 //! draw 4 cards.
 //!
-//! Twinleaf: throws SUPPORTER_ALREADY_PLAYED when `supporterTurn > 0`; the
-//! OPPONENT answers a ConfirmPrompt. Yes: TAKE_X_PRIZES(player, 1) with a
-//! callback that runs TAKE_X_PRIZES(opponent, 1) (the callback is skipped when
-//! the player has no Prize cards left). No: DRAW_CARDS(player, 4).
+//! Your opponent answers the confirm. Yes: you take a Prize card, then your opponent does (two TakePrizes events of
+//! the Supporter's effect; the second is skipped when you have no Prize cards left). No: you draw 4.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LtSurgesBargainMEGPool",

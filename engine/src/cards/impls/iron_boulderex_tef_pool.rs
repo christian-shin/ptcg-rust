@@ -3,12 +3,11 @@
 //! put 8 damage counters on the Attacking Pokémon. Power Stomp — 200; discard
 //! 2 Energy from this Pokémon.
 //!
-//! Twinleaf: Repulsor Axe reduces a RetaliateOnDamageDuringOpponentsNextTurn
-//! Effect (`{ damage: 80 }`, target = the attacker's slot) arming
-//! `retaliateOnDamageNextTurnPending` on the attacker's Active; Power Stomp is
-//! DISCARD_X_ENERGY_FROM_THIS_POKEMON(2) (ruling 1652: Energy units, never more cards than 2; no prompt
-//! without Energy on the Active). The revenge itself
-//! lives in the core AfterDamage reducer (see `attack.rs`).
+//! Repulsor Axe arms `Lasting::Retaliate(80)` (an ApplyEffect event on this Pokémon). During the opponent's next turn
+//! each Damage event an attack does to it, even one that Knocks it Out, records the trap; after that attack's damage the
+//! 8 counters are a PlaceCounters event with Repulsor Axe as its cause on the Attacking Pokémon wherever it is now
+//! (id534, id2371; nothing when it left play, id588), so Mist Energy or Hide 'n' Sneak on it refuses them (id2408,
+//! id1958). Power Stomp discards 2 Energy units, never more cards than 2 (id2127).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IronBoulderexTEFPool",

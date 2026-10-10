@@ -3,17 +3,10 @@
 //! hand. Your opponent reveals that card. You may have your opponent switch
 //! those cards. (That Prize card remains face up for the rest of the game.)
 //!
-//! Twinleaf: throws CANNOT_PLAY_THIS_CARD when every non-empty Prize card of
-//! the opponent is already face up and the opponent has no card in hand (phase
-//! 4b, R2: with cards in hand it is playable and you only look at a random
-//! one: a ShowCardsPrompt, then the card is discarded; ruling 1681); the card goes to the supporter zone by
-//! hand (preventDefault). A ChoosePrizePrompt (opponent's Prizes, face-down
-//! only, face-up ones blocked) picks the Prize; its list gets `faceUpPrize`.
-//! An empty opposing hand: ShowCardsPrompt of the Prize card, then the card is
-//! discarded. Otherwise `Chance.index(hand.length)` picks the hand card, a
-//! ShowCardsPrompt shows Prize + hand card, a ConfirmPrompt asks the player;
-//! on yes the Prize card goes to the hand and the hand card into the Prize
-//! list (still face up). Finally the item moves supporter -> discard.
+//! Playable unless the opponent has no face-down Prize card and no card in hand (with cards in hand and none face
+//! down you only look at a random one, id2167). A face-down Prize card of the opponent's is chosen (face-up ones
+//! are not offered) and stays face up; with an empty opposing hand it is only shown; otherwise a random card of their hand
+//! is picked, both are shown and you may have them switch (the hand card goes to the Prize slot, still face up).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

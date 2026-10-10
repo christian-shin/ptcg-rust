@@ -2,14 +2,11 @@
 //! opponent's Pokémon's attacks and Abilities done to this Pokémon (damage is
 //! not an effect). Hang Down — 10.
 //!
-//! Also hosts the shared `hide-n-sneak.ts` helpers (Banette, Poltchageist,
-//! Sinistcha, Dhelmise).
-//!
-//! Rule: every effect of an opponent's attack or Ability done to this Pokémon
-//! is prevented, damage excepted. This covers the Special Condition events an
-//! attack or Ability causes (GainCondition with that cause) and the placing of
-//! damage counters, when the effect's player is not the owner; the ability-lock
-//! probe (for the owner) runs before the owner check.
+//! `Modifier::Prevent(HIDE_N_SNEAK)` (also Banette, Poltchageist, Sinistcha, Dhelmise): one declaration over every event
+//! with an effect (`EFFECT_EVENT_KINDS`) whose cause is an attack or an Ability of the opponent's Pokémon: Special
+//! Conditions, damage counters placed or moved onto it, discards, switches, devolving, lasting effects (APR C-17), a
+//! Knock Out by an effect; never an attack's damage (APR C-17) nor what the damage records. It is an Ability: when it is
+//! off nothing is prevented.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

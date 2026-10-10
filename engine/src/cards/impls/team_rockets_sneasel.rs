@@ -1,8 +1,8 @@
-//! Team Rocket's Sneasel (DRI): Scratch — 20. Backstab — 20 damage to 1 of
-//! your opponent's Benched Pokémon for each damage counter on it.
+//! Team Rocket's Sneasel (DRI): Scratch — 20. Strike the Sleeper — 20 damage to
+//! 1 of your opponent's Benched Pokémon for each damage counter on it.
 //!
-//! Twinleaf: a PutDamageEffect of `target.damage * 2` (read when the prompt
-//! resolves) on the chosen Benched Pokémon.
+//! A Damage event of twice the chosen Pokémon's damage (20 per counter), read when the choice resolves (no Weakness or
+//! Resistance, APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

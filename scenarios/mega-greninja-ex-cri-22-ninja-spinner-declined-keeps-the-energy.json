@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Greninja ex CRI 22",
+   "2 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Greninja ex CRI 22",
+   "2 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Greninja ex CRI 22",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ninja Spinner"
+  },
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 120,
+   "cite": "Mega Greninja ex CRI 22 text (\"you may\": 120 only)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "Mega Greninja ex CRI 22 text"
+  }
+ ]
+}

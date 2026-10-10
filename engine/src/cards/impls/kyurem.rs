@@ -3,14 +3,9 @@
 //! discard all Energy from this Pokémon; 110 damage to 3 of the opponent's
 //! Pokémon.
 //!
-//! Fixed (phase 4b, W4): the target prompt was min 1 max 3; it is now exactly
-//! min(3, opponent's Pokémon in play).
-//!
-//! Fixed (phase 4b, R7F-11; ruling 1581): the cost [C] was an ordinary cost
-//! that Pokémon League Headquarters, Rillaboom's Drum Beating, Antique Root
-//! Fossil, Counter Gain, ... still changed; the Ability now sets it
-//! (CheckAttackCostEffect.setCost), and a set cost is not increased or
-//! decreased.
+//! Trifrost chooses exactly min(3, the opponent's Pokémon in play) targets; each is a Damage event (no Weakness or
+//! Resistance for the Benched ones, APR B-08). Plasma Bane sets the cost to [C] (id2032): a set cost is not
+//! increased or decreased by Pokémon League Headquarters, Rillaboom's Drum Beating, Antique Root Fossil, Counter Gain...
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Kyurem",

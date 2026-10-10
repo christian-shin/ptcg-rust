@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Haxorus SFA 46",
+   "1 Fighting Energy MEE 6",
+   "1 Metal Energy MEE 8",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Haxorus SFA 46",
+   "1 Fighting Energy MEE 6",
+   "1 Metal Energy MEE 8",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Haxorus SFA 46",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dragon Pulse"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 230,
+   "cite": "Dragon Pulse 230 (no Weakness: Dragon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 3,
+   "cite": "Dragon Pulse text (discard the top 3 cards of your deck)"
+  }
+ ]
+}

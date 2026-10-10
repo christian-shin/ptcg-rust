@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Zeraora DRI 78",
+   "1 Lightning Energy MEE 4",
+   "4 Dwebble DRI 11",
+   "2 Fire Energy MEE 2",
+   "1 Heavy Baton TEF 151",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Zeraora DRI 78",
+   "1 Lightning Energy MEE 4",
+   "4 Dwebble DRI 11",
+   "2 Fire Energy MEE 2",
+   "1 Heavy Baton TEF 151",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Zeraora DRI 78",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "active_damage": 60,
+  "active_tool": "Heavy Baton TEF 151",
+  "active_energy": [
+   "2 Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scratch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dwebble DRI 11",
+   "energy": 0,
+   "cite": "Heavy Baton TEF 151 text (a Retreat Cost of exactly 4: Dwebble has 2)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Fire Energy MEE 2",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Heavy Baton TEF 151 text (nothing moves: the Energy is discarded with the Knocked Out Pokémon)"
+  }
+ ]
+}

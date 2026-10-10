@@ -2,11 +2,10 @@
 //! Pokémon by attacks from your opponent's Basic Pokémon ex. Dirty Beam —
 //! 160; also 30 damage to 1 of your opponent's Benched Pokémon.
 //!
-//! Twinleaf quirk kept: Armor Tail reacts to every PutDamageEffect whose
-//! target list contains this card (any source, any phase). Phase 4b: it probes
-//! the lock with a real PowerEffect for the *owner* of this Pokémon (it used
-//! to be the attacking player), and a locked Ability no longer returns early,
-//! so the Tera bench protection (not an Ability) still applies.
+//! Armor Tail is one `Prevent` over `Kind(Damage)` whose cause is a Basic Pokémon ex of the opponent's, read at step 6
+//! of the damage calculation (APR C-16). It is an Ability, so a lock turns it off; the Tera rule is the card's own
+//! `Prevent` (`TERA_RULE`, a card rule) and still protects the Benched Pokémon then. Dirty Beam's 30 is a Damage event
+//! on the chosen Benched Pokémon (no Weakness or Resistance, APR B-08; a protected Pokémon can still be chosen).
 use crate::spec::prelude::*;
 use crate::types::tag;
 
