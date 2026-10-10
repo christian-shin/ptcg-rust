@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Sizzlipede SSP 27",
+   "4 Centiskorch SSP 28",
+   "4 Fezandipiti PRE 45",
+   "20 Darkness Energy MEE 7",
+   "28 Fire Energy MEE 2"
+  ],
+  [
+   "4 Sizzlipede SSP 27",
+   "4 Centiskorch SSP 28",
+   "4 Fezandipiti PRE 45",
+   "20 Darkness Energy MEE 7",
+   "28 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Sizzlipede SSP 27",
+   "Centiskorch SSP 28"
+  ],
+  "active_energy": [
+   "1 Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Fezandipiti PRE 45",
+    "energy": [
+     "Darkness Energy MEE 7"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "bench": [
+   {
+    "card": "Fezandipiti PRE 45"
+   }
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Billowing Heat Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "bench": 0,
+   "card": "Fezandipiti PRE 45",
+   "damage": 30,
+   "cite": "official JP FAQ (キチキギス / サンドパン): 「自分のベンチに特性「アドレナフェロモン」がはたらいているキチキギスがいるとき、自分のサンドパンのワザ「じしん」を使った場合、特性「アドレナフェロモン」の効果でコインを投げますか？」「はい、投げます。このとき、投げたコインがオモテなら、キチキギスはダメージを受けません。」 (your own attack's damage to your Benched Fezandipiti: you flip; on heads it takes no damage); tails: the 30 damage is done"
+  }
+ ]
+}
