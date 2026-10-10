@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
                 ..AttachSpec::DEFAULT
             }))],
         },
-        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn }))] },
+        AttackSpec { index: 1, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This)) }))] },
     ],
     ..CardSpec::NONE
 };

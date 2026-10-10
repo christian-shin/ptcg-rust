@@ -6,7 +6,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Maractus@JTG",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))] }],
     triggers: &[Trigger {
         origin: RuleSource::Ability,
         // "If this Pokémon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pokémon":

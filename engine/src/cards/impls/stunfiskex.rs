@@ -6,7 +6,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Stunfiskex",
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))] },
         // Twinleaf reads `player.active` (the Active Pokémon), not this card's own slot.
         AttackSpec { index: 1, steps: &[Step::before_damage(more_damage_if(100, Cond::Slot(MY_ACTIVE, SlotPred::Damaged)))] },
     ],

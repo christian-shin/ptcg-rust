@@ -264,7 +264,9 @@ fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> b
 fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     let p = f.p as usize;
     let pc = f.cards;
-    let blocked = block_cannot_use_attacks_next_turn(g, p, pc.as_slice());
+    // A lock on the copying Pokémon ("can't use [Attack Name]") doesn't stop copying that attack: copying uses the
+    // copying attack, not the copied one (ruling 381: Copycat copies Flare Strike turn after turn).
+    let blocked: SVec<(u8, u8), 16> = SVec::new();
     if !f.allow_cancel && no_attack_left_to_copy(g, pc.as_slice(), blocked.as_slice()) {
         return Ok(());
     }
@@ -318,40 +320,6 @@ pub fn copy_attack_from_pokemon_list_retries(g: &mut Game, atk: EffId, cards: &[
         return Ok(());
     }
     prompt_list(g, f)
-}
-
-/// `blockCannotUseAttacksNextTurn(player, pokemonCards)` (no extra blocked):
-/// (card index, first attack with the locked name) per locked attack name.
-fn block_cannot_use_attacks_next_turn(g: &Game, p: usize, cards: &[CardId]) -> SVec<(u8, u8), 16> {
-    let mut out: SVec<(u8, u8), 16> = SVec::new();
-    let a = g.st.players[p].active;
-    let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
-    if locked.is_empty() {
-        return out;
-    }
-    for (i, &c) in cards.iter().enumerate() {
-        let d = g.st.cdef(c);
-        if !d.is_pokemon() {
-            continue;
-        }
-        for at in d.attacks.iter() {
-            if !locked.iter().any(|n| *n == at.name) {
-                continue;
-            }
-            let first = d.attacks.iter().position(|x| x.name == at.name).unwrap_or(0) as u8;
-            if out.iter().any(|(bi, ba)| *bi as usize == i && *ba == first) {
-                continue;
-            }
-            out.push((i as u8, first));
-        }
-    }
-    out
-}
-
-fn attack_locked_next_turn(g: &Game, p: usize, a: AttackRef) -> bool {
-    let name = attack::attack_def(g, a).name;
-    let act = g.st.players[p].active;
-    g.st.slot(p, act).cannot_use_attacks_next_turn.iter().any(|n| *n == name)
 }
 
 /// Push onto a blocked list of at most 16 entries (a full list can only miss a
@@ -507,14 +475,6 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                 Res::Attack(a) => a,
                 _ => return Ok(()),
             };
-            if attack_locked_next_turn(g, f.p as usize, a) {
-                if f.retry + 1 >= f.max_retries {
-                    return Ok(());
-                }
-                let mut nf = f;
-                nf.retry += 1;
-                return prompt_list(g, nf);
-            }
             if attack::attack_def(g, a).copycat_attack {
                 return Ok(());
             }

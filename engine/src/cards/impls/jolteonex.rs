@@ -2,7 +2,7 @@
 //! damage for each card discarded. Dravite — 280; during your next turn this Pokémon can't attack.
 //!
 //! Flashing Spear: no prompt without Basic Energy on the Bench; the discarded count is the bonus (before the damage).
-//! Dravite arms `Lasting::CannotAttackNextTurn` (an ApplyEffect event on this Pokémon). The Tera rule is `TERA_RULE`:
+//! Dravite arms `Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn))` (an ApplyEffect event on this Pokémon). The Tera rule is `TERA_RULE`:
 //! a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(Op::Damage(DamageSpec { op: DamageOp::Add, hp: Num::Mul(&Num::Last, &Num::Lit(90)), when: Cond::True })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn)) })),
         ] },
     ],
     passives: &[

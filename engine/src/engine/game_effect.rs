@@ -62,15 +62,8 @@ pub fn clear_effects(slot: &mut Slot) {
     slot.confusion_damage = 30;
     slot.damage_reduction_next_turn = 0;
     slot.healed_this_turn = false;
-    slot.cannot_attack_next_turn = false;
-    slot.cannot_attack_next_turn_pending = false;
-    slot.cannot_retreat_next_turn = false;
-    slot.cannot_retreat_next_turn_pending = false;
-    slot.cannot_use_attacks_next_turn.clear();
-    slot.cannot_use_attacks_next_turn_pending.clear();
+    slot.lasting_locks.clear();
     slot.attack_damage_reduction_next_turn = 0;
-    slot.blocked_attack_name_next_turn = None;
-    slot.blocked_attack_name_until_leaves_active = None;
     clear_prevent_next_turn(slot);
 }
 
@@ -94,15 +87,8 @@ fn clear_prevent_next_turn(slot: &mut Slot) {
 /// `PokemonCardList.removeAttackEffects()` for the modeled fields.
 pub fn remove_attack_effects(slot: &mut Slot) {
     slot.marker.remove_attack_effects();
-    slot.cannot_attack_next_turn = false;
-    slot.cannot_attack_next_turn_pending = false;
-    slot.cannot_retreat_next_turn = false;
-    slot.cannot_retreat_next_turn_pending = false;
-    slot.cannot_use_attacks_next_turn.clear();
-    slot.cannot_use_attacks_next_turn_pending.clear();
+    slot.lasting_locks.clear();
     slot.attack_damage_reduction_next_turn = 0;
-    slot.blocked_attack_name_next_turn = None;
-    slot.blocked_attack_name_until_leaves_active = None;
     slot.damage_reduction_next_turn = 0;
     slot.healed_this_turn = false;
     slot.attack_cost_increase_next_turn = 0;

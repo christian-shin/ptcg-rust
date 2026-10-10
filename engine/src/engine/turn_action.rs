@@ -3,10 +3,10 @@
 //! legality (`legal.rs`) both call, so the two can't drift:
 //!
 //! - [`attack_checks`]: the first turn and the Special Conditions that stop an attack (`attack::can_attack_pre`), the
-//!   lasting "can't attack" effects on the attacking Pokémon and its player (`attack::can_attack_post`; B7-OLD -> B8:
-//!   stored as slot / player fields until batch 8 makes them lasting locks with a timing), the locks over UseAttack
-//!   (`derived::event_locked`: "this Pokémon can't attack unless ..." is `LockDecl::on(Kind(UseAttack) & This(Card))` with
-//!   the condition in `LockWhile::Unless`), then the cost against the Energy the Pokémon provides.
+//!   locks over UseAttack (`derived::event_locked`): in play ("this Pokémon can't attack unless ..." is
+//!   `LockDecl::on(Kind(UseAttack) & This(Card))` with the condition in `LockWhile::Unless`) and left by an attack on the
+//!   Pokémon or its player ("this Pokémon can't attack / can't use [Attack Name] during your next turn", APR C-15:
+//!   `passive::CANT_ATTACK` stored with its turns, user decision D14), then the cost against the Energy it provides.
 //! - [`ability_checks`]: the printed use-from flags, the Ability is there (`derived::has_no_ability`: a locked Ability
 //!   doesn't exist, RULES.md "Has no Abilities"; B7-OLD -> B8: the `Power` probe behind it), the locks over UseAbility (no
 //!   pool card prints "can't use Abilities").
@@ -26,9 +26,14 @@ use crate::state::AttackRef;
 
 /// The UseAttack event of player `p`'s attack from the Pokémon in `attacking` (its top card: the copycat of a copied
 /// attack), as predicates read it.
-pub fn attack_view(g: &Game, p: usize, attacking: SlotRef) -> EventView {
+pub fn attack_view(g: &Game, p: usize, attacking: SlotRef, attack: AttackRef) -> EventView {
     let cause = Cause::rule(RuleWhich::Action, p as u8);
-    EventView { card: g.st.slot_pokemon(attacking.p as usize, attacking.s), slot: Some(attacking), ..EventView::new(EventKind::UseAttack, cause, p as u8, crate::spec::event::whose_turn(g)) }
+    EventView {
+        card: g.st.slot_pokemon(attacking.p as usize, attacking.s),
+        slot: Some(attacking),
+        attack: Some(attack),
+        ..EventView::new(EventKind::UseAttack, cause, p as u8, crate::spec::event::whose_turn(g))
+    }
 }
 
 /// The UseAbility event of player `p`'s Ability `power` of `card` (a Pokémon in play, or a card in the hand or the
@@ -84,11 +89,11 @@ pub fn attack_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, attack: Atta
         Ok(s) => s,
         Err(e) => return Ok(Err(e.0)),
     };
-    let max_energy = if crate::engine::attack::attack_max_energy_applies(c.game(), p) { Some(c.energy_count(attacking)?) } else { None };
-    if let Err(e) = crate::engine::attack::can_attack_post(c.game(), p, attack, attacking, max_energy) {
-        return Ok(Err(e.0));
+    let mut v = attack_view(c.game(), p, attacking, attack);
+    // The Energy count, read only for a lock on the player that reads it (Walrein's Frigid Fangs).
+    if crate::spec::passive::lasting_reads_energy(c.game(), p) {
+        v.energy = Some(c.energy_count(attacking)?);
     }
-    let v = attack_view(c.game(), p, attacking);
     if let Some(code) = c.event_locked(&v)? {
         return Ok(Err(code));
     }

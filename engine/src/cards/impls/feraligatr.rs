@@ -6,13 +6,13 @@
 //! Torrential Heart puts the 5 counters with one PlaceCounters event (the Ability is its cause; the counters aren't damage
 //! and can't be prevented by an attack's protection) and sets the once-per-turn marker; while the marker is on this
 //! Pokémon, the main damage of any of its attacks gets +120 at the attack stage (before Weakness and Resistance). Giant
-//! Wave's "can't use" is an ApplyEffect event on this Pokémon (`Lasting::CannotUseThisAttackNextTurn`).
+//! Wave's "can't use" is an ApplyEffect event on this Pokémon (`Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This))`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Feraligatr",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This)) })),
         ] },
     ],
     powers: &[PowerSpec {

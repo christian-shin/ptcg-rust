@@ -212,13 +212,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 if cards.is_empty() {
                     return Ok(Flow::Next);
                 }
-                // Nothing is chosen when every attack of those Pokémon is locked for the Active.
-                let a = g.st.players[p].active;
-                let locked = g.st.slot(p, a).cannot_use_attacks_next_turn;
-                let any_free = cards.iter().any(|x| g.st.cdef(*x).attacks.iter().any(|at| !locked.iter().any(|n| *n == at.name)));
-                if !any_free {
-                    return Ok(Flow::Next);
-                }
                 crate::copy_attack::copy_attack_from_pokemon_list_retries(g, f.eff, &cards, false, c.retries)?;
                 return Ok(Flow::Next);
             }
@@ -436,7 +429,8 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
 fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
     let name = g.st.cdef(a.card).attacks[a.index as usize].name;
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
-    let effect = crate::spec::ops::state::Lasting::CannotUseAttack(name);
+    use crate::spec::ops::state::{LastingLockSpec, NamedAttack};
+    let effect = crate::spec::ops::state::Lasting::Lock(LastingLockSpec::on_defending(&crate::spec::passive::CANT_ATTACK).naming(NamedAttack::Chosen(name)));
     let target = crate::engine::apply::target_of(g, p as usize, source, effect);
     let _ = opp;
     let card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(attack.card);

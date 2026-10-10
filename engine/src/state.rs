@@ -112,20 +112,13 @@ pub struct Slot {
     /// `attacksThisTurn` (absent until first written).
     pub attacks_this_turn: Option<i32>,
     pub healed_this_turn: bool,
-    pub cannot_attack_next_turn: bool,
-    pub cannot_attack_next_turn_pending: bool,
-    pub cannot_retreat_next_turn: bool,
-    pub cannot_retreat_next_turn_pending: bool,
-    /// `cannotUseAttacksNextTurn` / `...Pending`: attack names.
-    pub cannot_use_attacks_next_turn: SVec<&'static str, 4>,
-    pub cannot_use_attacks_next_turn_pending: SVec<&'static str, 4>,
+    /// The locks an attack left on this Pokémon (APR C-15 "can't use attacks" / "can't use [Attack Name]", "can't
+    /// retreat"; events batch 7, user decision D14), each with its turns left. They go with the Pokémon's other
+    /// effects of attacks when it moves to the Bench, evolves, devolves or leaves play (APR C-15).
+    pub lasting_locks: SVec<LastingLock, 4>,
     pub damage_reduction_next_turn: i32,
     /// `attackDamageReductionNextTurn` (this Pokémon's attacks do N less).
     pub attack_damage_reduction_next_turn: i32,
-    /// `blockedAttackNameNextTurn`.
-    pub blocked_attack_name_next_turn: Option<&'static str>,
-    /// `blockedAttackNameUntilLeavesActive`.
-    pub blocked_attack_name_until_leaves_active: Option<&'static str>,
     /// `discardAttackerEnergyIfKnockedOutNextTurn` (+ `Pending`, `Attack`,
     /// `SourceCard`, `AttackerId` as a player index).
     pub discard_attacker_energy_if_ko_next_turn: bool,
@@ -229,16 +222,9 @@ impl Default for Slot {
             board_effect: SVec::new(),
             attacks_this_turn: None,
             healed_this_turn: false,
-            cannot_attack_next_turn: false,
-            cannot_attack_next_turn_pending: false,
-            cannot_retreat_next_turn: false,
-            cannot_retreat_next_turn_pending: false,
-            cannot_use_attacks_next_turn: SVec::new(),
-            cannot_use_attacks_next_turn_pending: SVec::new(),
+            lasting_locks: SVec::new(),
             damage_reduction_next_turn: 0,
             attack_damage_reduction_next_turn: 0,
-            blocked_attack_name_next_turn: None,
-            blocked_attack_name_until_leaves_active: None,
             discard_attacker_energy_if_ko_next_turn: false,
             discard_attacker_energy_if_ko_next_turn_pending: false,
             discard_attacker_energy_if_ko_attack: None,
@@ -316,14 +302,23 @@ impl Default for CardInst {
     }
 }
 
-/// A play lock an attack left on a player: the declared lock and the player turns it still lasts (it is
-/// dropped at the end of the player's turn in which it reaches 0).
+/// A lock an attack left on a player or on a Pokémon (`Lasting::Lock`): the declared lock and the turns of the locked
+/// player it still lasts (dropped at the end of that player's turn in which it reaches 0; never when it is
+/// [`LastingLock::UNTIL_REMOVED`]: "until it leaves the Active Spot" ends with the Pokémon's other effects).
 #[derive(Clone, Copy, Debug)]
 pub struct LastingLock {
     pub decl: &'static crate::spec::passive::LockDecl,
     pub turns_remaining: i8,
-    /// The card whose attack left it (the declaring card a `LockDecl::forbids` predicate is evaluated for).
+    /// The card whose attack left it: a player lock's `LockDecl::forbids` is evaluated for it, a Pokémon lock's for the
+    /// Pokémon it is on (`This` is that Pokémon).
     pub source: crate::list::CardId,
+    /// "Can't use [Attack Name]" (APR C-15): the attack it names; `None`: what the declaration says.
+    pub attack: Option<&'static str>,
+}
+
+impl LastingLock {
+    /// The turns of a lock that lasts until the Pokémon's effects end ("until it leaves the Active Spot").
+    pub const UNTIL_REMOVED: i8 = i8::MAX;
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -370,14 +365,12 @@ pub struct Player {
     pub pokemon_knocked_out_last_turn_by_attack: SVec<bool, 8>,
     pub can_evolve: bool,
     pub ancient_pokemon_attacked_last_turn: bool,
-    /// The locks an attack left on this player (`Lasting::OppCannotPlay`), each with its turns left.
+    /// The locks an attack left on this player (`Lasting::Lock` on the opponent: "your opponent can't play ...", APR
+    /// C-19; Walrein's "Pokémon that have 2 or less Energy attached can't attack"), each with its turns left.
     pub lasting_locks: [Option<LastingLock>; 6],
     pub used_dragons_wish: bool,
     pub unlimited_energy_attach_turns_remaining: i32,
     pub cannot_draw_at_start_of_turn: bool,
-    pub cannot_attack_turns_remaining: i32,
-    pub cannot_attack_max_energy: Option<i32>,
-    pub cannot_attack_max_energy_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
     /// `usedTableTurner` (Fezandipiti ex; absent until first written).
     pub used_table_turner: bool,
@@ -437,9 +430,6 @@ impl Player {
             used_dragons_wish: false,
             unlimited_energy_attach_turns_remaining: 0,
             cannot_draw_at_start_of_turn: false,
-            cannot_attack_turns_remaining: 0,
-            cannot_attack_max_energy: None,
-            cannot_attack_max_energy_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
             used_table_turner: false,
             chains_of_control_used: false,

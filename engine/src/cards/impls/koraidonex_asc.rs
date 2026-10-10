@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::before_damage(more_damage_if(120, Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: true, tag: None })),
         ] },
         AttackSpec { index: 1, steps: &[
-            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotUseThisAttackNextTurn })),
+            Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This)) })),
         ] },
     ],
     passives: &[

@@ -17,7 +17,7 @@ use crate::types::ct;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Bouffalant",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::CannotAttackNextTurn }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn)) }))] }],
     passives: &[Passive {
         origin: RuleSource::Ability,
         // Each of your Basic [C] Pokémon takes 60 less damage while you have another Bouffalant in play;

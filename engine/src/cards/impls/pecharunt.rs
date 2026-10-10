@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Pecharunt",
     attacks: &[AttackSpec {
         index: 0,
-        steps: &[Step::after_damage(inflict(&[SpecialCondition::Poisoned])), Step::after_damage(Op::Arm(ArmSpec { what: Lasting::PreventRetreat }))],
+        steps: &[Step::after_damage(inflict(&[SpecialCondition::Poisoned])), Step::after_damage(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_defending(&CANT_RETREAT)) }))],
     }],
     passives: &[Passive {
         origin: RuleSource::Ability,

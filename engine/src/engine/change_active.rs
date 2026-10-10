@@ -107,14 +107,6 @@ pub fn target_ok(g: &Game, v: &EventView) -> R {
     Ok(())
 }
 
-/// The Pokémon's own lasting effects that forbid the change (a plain read): "this Pokémon can't retreat during your
-/// opponent's next turn", an attack's effect stored on the spot (`Slot::cannot_retreat_next_turn`; a declaration with
-/// the derived layer, events batch 8). It forbids retreating only: the Pokémon can still be switched (APR C-03).
-pub fn lasting_refusal(g: &Game, v: &EventView) -> Option<&'static str> {
-    let from = v.from?;
-    (v.change == Some(ActiveChange::Retreat) && g.st.slot(from.p as usize, from.s).cannot_retreat_next_turn).then_some("BLOCKED_BY_EFFECT")
-}
-
 /// Where the checks of a ChangeActive read the game: execution on the game itself, legality (`legal.rs Ctx`) on its
 /// scratch game behind its plain-read gates. Both answer through [`check_with`], so they can't drift.
 pub trait ActiveChecks {
@@ -140,17 +132,14 @@ impl ActiveChecks for Game {
     }
 }
 
-/// Every check of a ChangeActive, in order: the spots ([`target_ok`]), the Pokémon's lasting effects
-/// ([`lasting_refusal`]), the locks ("this Pokémon can't retreat": `Change(Retreat) & From(This)`), the preventions
+/// Every check of a ChangeActive, in order: the spots ([`target_ok`]), the locks ("this Pokémon can't retreat":
+/// `Change(Retreat) & From(This)`, in play or left by an attack on the Pokémon: `passive::CANT_RETREAT`), the preventions
 /// ("prevent all effects of attacks done to this Pokémon": Mist Energy against an attack's switch-in of the Benched
 /// Pokémon it is attached to). `Ok(Some(code))` when the event is refused (it doesn't happen); an error of a read is
 /// propagated, never taken for a refusal.
 pub fn check_with<C: ActiveChecks + ?Sized>(c: &mut C, v: &EventView) -> R<Option<&'static str>> {
     if let Err(e) = target_ok(c.game(), v) {
         return Ok(Some(e.0));
-    }
-    if let Some(code) = lasting_refusal(c.game(), v) {
-        return Ok(Some(code));
     }
     if let Some(code) = c.event_locked(v)? {
         return Ok(Some(code));
@@ -305,14 +294,15 @@ mod tests {
         let me = g.st.active_player as usize;
         let old = g.st.players[me].active;
         let b = bench(&g, me, 0);
-        g.st.players[me].slots[old as usize].cannot_attack_next_turn = true;
+        let lock = crate::state::LastingLock { decl: &crate::spec::passive::CANT_ATTACK, turns_remaining: 2, source: 0, attack: None };
+        g.st.players[me].slots[old as usize].lasting_locks.push(lock);
         g.st.players[me].slots[b as usize].healed_this_turn = true;
-        g.st.players[me].slots[b as usize].cannot_attack_next_turn = true;
+        g.st.players[me].slots[b as usize].lasting_locks.push(lock);
         assert!(change(&mut g, me, b, ActiveChange::Retreat, Cause::rule(RuleWhich::Retreat, me as u8)));
         assert_eq!(g.st.players[me].active, b);
         assert!(g.st.slot(me, old).special_conditions.is_empty());
-        assert!(!g.st.slot(me, old).cannot_attack_next_turn);
-        assert!(g.st.slot(me, b).healed_this_turn && g.st.slot(me, b).cannot_attack_next_turn, "the new Active keeps its effects");
+        assert!(g.st.slot(me, old).lasting_locks.is_empty());
+        assert!(g.st.slot(me, b).healed_this_turn && g.st.slot(me, b).lasting_locks.len() == 1, "the new Active keeps its effects");
         let new = g.st.slot_pokemon(me, b).unwrap();
         assert!(g.st.players[me].moved_to_active_this_turn.contains(&new));
     }

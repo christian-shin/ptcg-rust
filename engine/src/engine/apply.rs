@@ -14,8 +14,8 @@ use crate::effects::{ApplyTarget, EffId, Effect, SlotRef};
 use crate::game::{Game, R};
 use crate::list::CardId;
 use crate::spec::event::{EventKind, EventView};
-use crate::spec::ops::state::Lasting;
-use crate::state::{AttackRef, StoredRetaliate};
+use crate::spec::ops::state::{LastingLockSpec, Lasting, LockOn, LockUntil, NamedAttack};
+use crate::state::{AttackRef, LastingLock, StoredRetaliate};
 
 /// The ApplyEffect event as predicates read it: done to the Pokémon (`slot`) or the player (`owner`, no spot).
 pub fn apply_view(g: &Game, target: ApplyTarget, cause: Cause) -> EventView {
@@ -56,18 +56,29 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         ApplyTarget::Player(q) => q as usize,
     };
     let q = player_of(target);
+    if let Lasting::Lock(spec) = effect {
+        let attack_name = match spec.attack {
+            NamedAttack::Any => None,
+            NamedAttack::This => Some(name),
+            NamedAttack::Chosen(n) => Some(n),
+        };
+        // The turns of the locked player it lasts: through the attacker's next turn (its own Pokémon: this turn ends
+        // first), through the opponent's next turn, or until the Pokémon's effects end.
+        let turns = match spec.until {
+            LockUntil::YourNextTurn => 2,
+            LockUntil::OpponentsNextTurn => 1,
+            LockUntil::LeavesActive => LastingLock::UNTIL_REMOVED,
+        };
+        let source = cause.card.unwrap_or(attack.card);
+        match slot_of(target) {
+            Some(t) => add_pokemon_lock(&mut g.st.players[t.p as usize].slots[t.s as usize], LastingLock { decl: spec.lock, turns_remaining: turns, source, attack: attack_name }),
+            None => crate::engine::phase::apply_play_lock(&mut g.st.players[q], spec.lock, turns, source),
+        }
+        return Ok(());
+    }
     if let Some(t) = slot_of(target) {
         let slot = &mut g.st.players[t.p as usize].slots[t.s as usize];
         match effect {
-            Lasting::PreventRetreat => slot.cannot_retreat_next_turn = true,
-            Lasting::CannotAttackNextTurn => slot.cannot_attack_next_turn_pending = true,
-            Lasting::CannotUseThisAttackNextTurn => {
-                if !slot.cannot_use_attacks_next_turn_pending.contains(&name) {
-                    slot.cannot_use_attacks_next_turn_pending.push(name);
-                }
-            }
-            Lasting::CannotUseAttack(n) => slot.blocked_attack_name_next_turn = Some(n),
-            Lasting::BlockThisAttackUntilLeavesActive => slot.blocked_attack_name_until_leaves_active = Some(name),
             Lasting::TakesLessDamage(n) => slot.damage_reduction_next_turn = n,
             Lasting::DealsLessDamage(n) => slot.attack_damage_reduction_next_turn = n.max(0),
             Lasting::TakesMoreDamage(n) => {
@@ -99,21 +110,21 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 slot.retreat_cost_increase_next_turn_attacker = Some(p as u8);
             }
             Lasting::NoWeakness => slot.no_weakness_next_turn_pending = true,
-            Lasting::SelfCannotRetreat => slot.cannot_retreat_next_turn_pending = true,
-            Lasting::OppCannotPlay(_) | Lasting::OppSmallEnergyCannotAttack(_) => {}
+            Lasting::Lock(_) => {}
         }
-        return Ok(());
-    }
-    let pl = &mut g.st.players[q];
-    match effect {
-        Lasting::OppCannotPlay(lock) => crate::engine::phase::apply_play_lock(pl, lock, 1, cause.card.unwrap_or(attack.card)),
-        Lasting::OppSmallEnergyCannotAttack(n) => {
-            pl.cannot_attack_max_energy = Some(n);
-            pl.cannot_attack_max_energy_turns_remaining = pl.cannot_attack_max_energy_turns_remaining.max(1);
-        }
-        _ => {}
     }
     Ok(())
+}
+
+/// A lock on the Pokémon; the same declaration naming the same attack already there keeps the longer.
+fn add_pokemon_lock(slot: &mut crate::state::Slot, l: LastingLock) {
+    if let Some(x) = slot.lasting_locks.as_mut_slice().iter_mut().find(|x| x.decl.same_as(l.decl) && x.attack == l.attack) {
+        x.turns_remaining = x.turns_remaining.max(l.turns_remaining);
+        return;
+    }
+    if slot.lasting_locks.len() < 4 {
+        slot.lasting_locks.push(l);
+    }
 }
 
 /// A lasting `Prevent` on the Pokémon, pending until the end of this turn; a newer one of the same declaration replaces
@@ -130,11 +141,11 @@ fn push_prevent(slot: &mut crate::state::Slot, spec: &'static crate::spec::passi
 pub fn target_of(g: &Game, p: usize, source: SlotRef, effect: Lasting) -> ApplyTarget {
     let o = 1 - p;
     match effect {
-        Lasting::PreventRetreat | Lasting::DealsLessDamage(_) | Lasting::TakesMoreDamage(_) | Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost | Lasting::CannotUseAttack(_) => {
+        Lasting::Lock(LastingLockSpec { on: LockOn::DefendingPokemon, .. }) | Lasting::DealsLessDamage(_) | Lasting::TakesMoreDamage(_) | Lasting::IncreaseAttackCost | Lasting::IncreaseRetreatCost => {
             ApplyTarget::Slot(SlotRef::new(o, g.st.players[o].active))
         }
-        Lasting::BlockThisAttackUntilLeavesActive => ApplyTarget::Slot(source),
-        Lasting::OppCannotPlay(_) | Lasting::OppSmallEnergyCannotAttack(_) => ApplyTarget::Player(o as u8),
+        Lasting::Lock(LastingLockSpec { on: LockOn::ThisPokemon, .. }) => ApplyTarget::Slot(source),
+        Lasting::Lock(LastingLockSpec { on: LockOn::Opponent, .. }) => ApplyTarget::Player(o as u8),
         _ => ApplyTarget::Slot(SlotRef::new(p, g.st.players[p].active)),
     }
 }
