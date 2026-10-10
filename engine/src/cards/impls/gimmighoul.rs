@@ -1,13 +1,8 @@
 //! Gimmighoul (SSP): Minor Errand-Running - search your deck for up to 2
 //! Basic Energy cards, reveal them, put them into your hand, shuffle. Tackle - 50.
 //!
-//! Twinleaf: the ShuffleDeckPrompt is created right after the
-//! ChooseCardsPrompt (before it is answered), with no trailing wait; the
-//! ShowCards info prompt (only when any cards were chosen) is created in the
-//! choose callback.
-//!
-//! Spec: the search shuffles right after its prompt opens, as Twinleaf does
-//! (the replay's shuffle tape matches by deck size).
+//! The printed order: the search (revealed, into the hand), then one shuffle (APR E-19; user decision D9: Twinleaf
+//! opened its shuffle before the choice was answered).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -26,8 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::Hand { reveal: true },
                 msg: "",
                 cancel: false,
-                shuffle_first: true,
-            }))],
+            })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))],
             no: &[],
         }))],
     }],

@@ -22,7 +22,6 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::AttachToPicked,
                 msg: "",
                 cancel: false,
-                shuffle_first: false,
             })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
         ] },
         AttackSpec { index: 1, steps: &[

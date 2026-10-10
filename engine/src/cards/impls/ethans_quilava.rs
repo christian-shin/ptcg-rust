@@ -25,7 +25,6 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::Hand { reveal: true },
                 msg: "CHOOSE_CARD_TO_HAND",
                 cancel: true,
-                shuffle_first: false,
             })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),

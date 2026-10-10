@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Steven's Metagross ex ASC 289",
+   "4 Hop's Snorlax JTG 117",
+   "26 Psychic Energy MEE 5",
+   "26 Metal Energy MEE 8"
+  ],
+  [
+   "4 Steven's Metagross ex ASC 289",
+   "4 Hop's Snorlax JTG 117",
+   "26 Psychic Energy MEE 5",
+   "26 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Steven's Metagross ex ASC 289",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "X-Boot",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  []
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "AttachEnergy",
+    "ShuffleDeck"
+   ],
+   "cite": "Steven's Metagross ex ASC 289 X-Boot: 'search your deck for ... and attach them to your Pokemon in any way you like. Then, shuffle your deck.' APR E-19; ruling 2303 (a search that finds nothing still shuffles); user decision D9 (the printed order: the search, then one shuffle)"
+  }
+ ]
+}

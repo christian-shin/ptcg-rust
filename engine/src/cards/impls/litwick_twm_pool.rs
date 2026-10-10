@@ -14,7 +14,6 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::Bench,
                 msg: "",
                 cancel: true,
-                shuffle_first: false,
             })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] })),
         ] },
     ],

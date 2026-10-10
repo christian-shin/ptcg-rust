@@ -32,7 +32,6 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::Hand { reveal: true },
                 msg: "CHOOSE_CARD_TO_DECK",
                 cancel: false,
-                shuffle_first: false,
             })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
         ],

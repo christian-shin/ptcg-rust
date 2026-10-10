@@ -5,18 +5,14 @@
 //! Fixed (phase 4b, W4): the prompt let the two Energy go to different
 //! Benched Pokémon; it now requires the same target (`sameTarget`).
 //!
-//! Twinleaf: an empty deck makes the attack do nothing (it is still usable:
-//! phase 4b R7E, rulings 337 and 1790; it used to throw CANNOT_USE_ATTACK).
-//! Opens an AttachEnergyPrompt (0..2, no cancel) and, without waiting for it, a
-//! ShuffleDeckPrompt whose callback applies the order (no trailing wait). The
-//! attach callback shuffles again (SHUFFLE_DECK) when nothing was attached.
-//!
-//! Spec: the shuffle comes first (Twinleaf opens its shuffle before the attach answer, which the replay's shuffle tape matches by deck size).
+//! An empty deck makes the attack do nothing (it is still usable: rulings 337 and 1790). The printed order: the search
+//! (an Attach from the deck, 0..2, no cancel), then one shuffle (APR E-19; user decision D9: Twinleaf opened its shuffle
+//! before the attach answer and shuffled again when nothing was attached).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Smoochum",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })), Step::new(Op::Attach(AttachSpec {
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec { cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), yes: &[Step::new(Op::Attach(AttachSpec {
                 chooser: Who::Me,
                 from: ZoneRef(Who::Me, Zone::Deck),
                 predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Psychic Energy")]),
@@ -31,8 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: false,
                 onto: None,
                 cards: CardSel::All,
-                none_shuffles: true,
-             different_types: false, }))], no: &[] }))] }],
+             different_types: false, })), Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))], no: &[] }))] }],
     ..CardSpec::NONE
 };
 

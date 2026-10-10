@@ -16,7 +16,6 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::Hand { reveal: true },
                 msg: "",
                 cancel: false,
-                shuffle_first: false,
             })),
         ],
     }),
