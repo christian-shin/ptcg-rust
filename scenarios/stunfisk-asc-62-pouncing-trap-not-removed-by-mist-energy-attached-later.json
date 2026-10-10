@@ -1,0 +1,83 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Stunfisk ASC 62",
+   "4 Mega Lucario ex ASC 113",
+   "4 Mist Energy TEF 161",
+   "4 Snorunt TWM 51",
+   "5 Lightning Energy MEE 4",
+   "39 Fire Energy MEE 2"
+  ],
+  [
+   "4 Stunfisk ASC 62",
+   "4 Mega Lucario ex ASC 113",
+   "4 Mist Energy TEF 161",
+   "4 Snorunt TWM 51",
+   "5 Lightning Energy MEE 4",
+   "39 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Stunfisk ASC 62",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Lucario ex ASC 113",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "bench": [
+   {
+    "card": "Snorunt TWM 51"
+   }
+  ],
+  "hand": [
+   "Mist Energy TEF 161"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  },
+  {
+   "a": "play",
+   "card": "Mist Energy TEF 161",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Pouncing Trap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "id2341 (Pouncing Trap's effect is blocked by Mist Energy, and Mist Energy attached later doesn't remove it); RULES.md \"Existing effects are not removed\" (Mist Energy's parenthesis; APR C-17): with Mist Energy attached after Pouncing Trap, the Defending Pokemon still can't retreat"
+  },
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "id2341 (Pouncing Trap's effect is blocked by Mist Energy, and Mist Energy attached later doesn't remove it); RULES.md \"Existing effects are not removed\" (Mist Energy's parenthesis; APR C-17): the 100 more damage still applies: 30 + (30 + 100)"
+  }
+ ]
+}

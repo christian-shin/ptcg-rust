@@ -52,13 +52,14 @@ pub enum LeaveHow {
 }
 
 /// One pair of a MoveCounters event: HP of damage counters `removed` from the Pokémon in `from`, `placed` on the one in
-/// `to` (0 when the destination is protected: they vanish).
+/// `to` (0 when the destination is protected: they vanish). `i16`: an event carries up to `prompts::MAX_DAMAGE_RUNS`
+/// pairs within the `Effect` size (ENGINE.md section 12).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct CounterMove {
     pub from: SlotRef,
     pub to: SlotRef,
-    pub removed: i32,
-    pub placed: i32,
+    pub removed: i16,
+    pub placed: i16,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -154,7 +155,8 @@ pub enum Effect {
     KnockOut { p: u8, target: SlotRef, prize_count: i32, prize_base: i32, ko_by: crate::spec::event::KoBy, cause: Cause },
     /// The LeavePlay event (`engine::knockout::leave_play`): the Pokémon in `target` and every card attached to it leave
     /// play for `dest` (`how`: a Knock Out's, an effect's, the Bench shrinking). `p` is the Pokémon's owner.
-    LeavePlay { p: u8, target: SlotRef, dest: ListRef, cause: Cause, how: LeaveHow, source_card: CardId },
+    /// `pokemon`: its top Pokémon card as it leaves (what the triggers after the event read).
+    LeavePlay { p: u8, target: SlotRef, pokemon: CardId, dest: ListRef, cause: Cause, how: LeaveHow, source_card: CardId },
     /// The TakePrizes event (`engine::knockout::take_prizes`): player `p` takes the Prize cards `prizes` (Prize list
     /// indices, in the order taken) into their hand.
     TakePrizes { p: u8, prizes: crate::list::SVec<u8, 6>, cause: Cause },
@@ -201,7 +203,7 @@ pub enum Effect {
     PlaceCounters { p: u8, target: SlotRef, amount: i32, cause: Cause },
     /// The MoveCounters event (events batch 6; `engine::damage::move_counters`): one action moving damage counters between
     /// Pokémon, its pairs as they happened. `p` is the player whose effect moves them.
-    MoveCounters { p: u8, moves: crate::list::SVec<CounterMove, 16>, cause: Cause },
+    MoveCounters { p: u8, moves: crate::list::SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }>, cause: Cause },
     /// The ChangeActive event (events batch 5; `engine::change_active`): player `p`'s Active Pokémon changes: the
     /// Pokémon in the Active Spot `from` (none for a promotion) goes to the Bench and the Benched Pokémon in `to`
     /// becomes the Active Pokémon, as `change` says (retreat, switch, switch-in, switch-out, promotion).

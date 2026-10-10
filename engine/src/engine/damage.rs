@@ -170,8 +170,8 @@ pub fn place(g: &mut Game, target: SlotRef, hp: i32, cause: Cause) -> R<bool> {
 /// MoveCounters: one action moving counters, `pairs` of (from, to, HP) in the order the text or the player gives them.
 /// Each pair moves as much as it can (the counters its source has then, id63). Returns what happened to each pair
 /// (removed from the source, placed on the destination); nothing moves when a lock forbids the action.
-pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cause) -> R<SVec<CounterMove, 16>> {
-    let mut moves: SVec<CounterMove, 16> = SVec::new();
+pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cause) -> R<SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }>> {
+    let mut moves: SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }> = SVec::new();
     let Some(&(first, _, _)) = pairs.first() else { return Ok(moves) };
     // The locks forbid the action (Patrat's Watchful Eye binds both players), asked once.
     let v = move_view(g, first, MoveEnd::From, pairs.iter().map(|x| x.2).sum(), cause);
@@ -203,7 +203,7 @@ pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cau
         set(&mut left, from, d - removed);
         let d = damage_of(g, &left, to);
         set(&mut left, to, d + placed);
-        moves.push(CounterMove { from, to, removed, placed });
+        moves.push(CounterMove { from, to, removed: removed as i16, placed: placed as i16 });
     }
     if !moves.is_empty() {
         g.run_fx_unit(Effect::MoveCounters { p: cause.player, moves, cause })?;
@@ -261,8 +261,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         Effect::MoveCounters { moves, .. } => {
             for m in moves.iter() {
                 let s = &mut g.st.players[m.from.p as usize].slots[m.from.s as usize];
-                s.damage = (s.damage - m.removed).max(0);
-                g.st.players[m.to.p as usize].slots[m.to.s as usize].damage += m.placed;
+                s.damage = (s.damage - m.removed as i32).max(0);
+                g.st.players[m.to.p as usize].slots[m.to.s as usize].damage += m.placed as i32;
             }
         }
         _ => {}
@@ -398,6 +398,41 @@ mod tests {
         // Its counters are an effect: prevented.
         assert!(!place(&mut g, t, 20, b.cause).unwrap());
         assert_eq!(g.st.slot(o, t.s).damage, 60);
+    }
+
+    /// A Special Energy whose text is off declares nothing (id2033: Mist Energy under Temple of Sinnoh doesn't protect)
+    /// but is still a Special Energy card (Bring Down the Axe still counts it). Temple of Sinnoh isn't in the pool: a
+    /// stand-in turns the text off.
+    #[test]
+    fn special_energy_with_its_text_off_declares_nothing() {
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX, "active_energy": [MIST]}}));
+        let me = g.st.active_player as usize;
+        let o = 1 - me;
+        let t = SlotRef::new(o, g.st.players[o].active);
+        let cause = attack_on(&mut g, me, t).cause;
+        assert!(!place(&mut g, t, 10, cause).unwrap(), "Mist Energy prevents the attack's counters");
+        crate::prefabs::TEST_SPECIAL_ENERGY_OFF.with(|b| b.set(true));
+        let placed = place(&mut g, t, 10, cause).unwrap();
+        crate::prefabs::TEST_SPECIAL_ENERGY_OFF.with(|b| b.set(false));
+        assert!(placed, "with its text off it declares nothing");
+        assert_eq!(g.st.slot(o, t.s).damage, 10);
+        assert!(g.st.slot(o, t.s).energies.iter().any(|c| g.st.cdef(c).energy_type == crate::types::EnergyType::Special as u8), "still a Special Energy card");
+    }
+
+    /// One action is one MoveCounters event however many pairs it has (id66): up to `prompts::MAX_DAMAGE_RUNS`, the
+    /// most runs a MOVE_DAMAGE answer holds.
+    #[test]
+    fn one_event_carries_every_pair() {
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX, "active_damage": 100, "bench": [{"card": SNORLAX}]}}));
+        let me = g.st.active_player as usize;
+        let o = 1 - me;
+        let act = SlotRef::new(o, g.st.players[o].active);
+        let b = SlotRef::new(o, g.st.players[o].bench.as_slice()[0]);
+        let cause = attack_on(&mut g, me, act).cause;
+        let pairs: Vec<(SlotRef, SlotRef, i32)> = (0..crate::prompts::MAX_DAMAGE_RUNS).map(|i| if i % 2 == 0 { (act, b, 10) } else { (b, act, 10) }).collect();
+        let m = move_counters(&mut g, &pairs, cause).unwrap();
+        assert_eq!(m.len(), crate::prompts::MAX_DAMAGE_RUNS);
+        assert_eq!((g.st.slot(o, act.s).damage, g.st.slot(o, b.s).damage), (100, 0));
     }
 
     /// Moving counters: a protected destination makes them vanish, a protected source keeps them (events design 4.1).

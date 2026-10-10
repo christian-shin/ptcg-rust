@@ -35,9 +35,10 @@ g0500006317
 g0500013416
 g0500014596
 # Events batch 6 C5 (user decision D1; id2089, id810, id2239; JP FAQ Shuppet): a Knock Out by an attack's effect happens at
-# the state check with the others, and its Prize cards are taken there: the Prize prompt is the state check's (secret
-# face-down Prizes), not the immediate public one. Mega Absol ex MEG 86 Terminal Period (9 games), Alolan Exeggutor ex SSP
-# 133 Swinging Sphene (g0500008945); first divergence: the ChoosePrize prompt after the attack.
+# the state check with the others, and its Prize cards are taken there, face down. First divergence: the ChoosePrize
+# prompt right after the attack, at the same step with the same count; the only difference is its isSecret, false -> true.
+# Mega Absol ex MEG 86 Terminal Period (9 games); g0500008945: Team Rocket's Mimikyu ASC 97's Gemstone Mimicry copying
+# Alolan Exeggutor ex's Swinging Sphene.
 g0500002114
 g0500002123
 g0500008168

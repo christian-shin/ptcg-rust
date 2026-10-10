@@ -130,7 +130,8 @@ pub fn leave_play(g: &mut Game, target: SlotRef, dest: ListRef, cause: Cause, so
     if crate::engine::condition::refused(g, &v)?.is_some() {
         return Ok(false);
     }
-    g.run_fx_unit(Effect::LeavePlay { p: target.p, target, dest, cause, how: LeaveHow::Effect, source_card })?;
+    let pokemon = g.st.slot_pokemon(target.p as usize, target.s).unwrap_or(NO_CARD);
+    g.run_fx_unit(Effect::LeavePlay { p: target.p, target, pokemon, dest, cause, how: LeaveHow::Effect, source_card })?;
     Ok(true)
 }
 
@@ -139,7 +140,8 @@ pub fn leave_play_by_rule(g: &mut Game, target: SlotRef, dest: ListRef, cause: C
     if g.st.slot(target.p as usize, target.s).cards.is_empty() {
         return Ok(());
     }
-    g.run_fx_unit(Effect::LeavePlay { p: target.p, target, dest, cause, how, source_card: NO_CARD })
+    let pokemon = g.st.slot_pokemon(target.p as usize, target.s).unwrap_or(NO_CARD);
+    g.run_fx_unit(Effect::LeavePlay { p: target.p, target, pokemon, dest, cause, how, source_card: NO_CARD })
 }
 
 /// TakePrizes of the Prize cards `prizes` (indices) of player `p` into their hand (the event; no card prevents or locks

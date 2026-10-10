@@ -493,7 +493,17 @@ pub fn is_stadium_effect_blocked(g: &mut Game, p: usize, target: SlotRef, stadiu
 
 /// `IS_SPECIAL_ENERGY_BLOCKED`.
 pub fn is_special_energy_blocked(g: &mut Game, p: usize, card: CardId, attached_to: SlotRef, exempt: bool) -> bool {
+    #[cfg(test)]
+    if TEST_SPECIAL_ENERGY_OFF.with(|b| b.get()) {
+        return true;
+    }
     g.run_fx(Effect::SpecialEnergy { p: p as u8, card, attached_to, exempt }).is_err()
+}
+
+#[cfg(test)]
+thread_local! {
+    /// A stand-in for an effect that turns Special Energy text off (Temple of Sinnoh, not in the pool; id2033).
+    pub static TEST_SPECIAL_ENERGY_OFF: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
 // ---------------------------------------------------------------------------

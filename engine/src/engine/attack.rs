@@ -508,22 +508,14 @@ pub fn resume_use_power(g: &mut Game, f: PowerFrame) -> R {
 
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::AttackTrigger { attack_effect, opp, attack, card, target, source, source_in_play, retaliate: Some(r), .. } => {
+        Effect::AttackTrigger { opp, card, target, source, source_in_play, retaliate: Some(r), .. } => {
             // Resolution of a revenge trap: an EffectOfAttack attributed to the retaliator so Mist Energy blocks it.
             // The Attacking Pokémon must still be in play (ruling 530) and takes the counters wherever it is (rulings
             // 482, 1839); the trap is an effect of the damaged Pokémon, gone when that Pokémon left play.
             if card == r.source_card && r.damage > 0 && source_in_play && g.st.slot(target.p as usize, target.s).cards.contains(r.source_card) {
-                let mut src = target;
-                let ap = r.attacker as usize;
-                for s in g.st.players[ap].in_play().iter() {
-                    if g.st.slot_pokemon(ap, *s) == Some(r.source_card) {
-                        src = SlotRef::new(ap, *s);
-                    }
-                }
                 // The retaliation is an effect of the retaliator's own earlier attack (id2408, id1958): its counters on the
                 // Attacking Pokémon are a PlaceCounters by that attack.
                 let cause = crate::cause::Cause::attack(opp, Some(r.source_card), r.attack);
-                let _ = (attack, attack_effect, src);
                 crate::engine::damage::place(g, source, r.damage, cause)?;
             }
             Ok(())
