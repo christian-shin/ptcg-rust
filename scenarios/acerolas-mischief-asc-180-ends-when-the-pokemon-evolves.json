@@ -1,0 +1,97 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "1 Ralts ASC 87",
+   "1 Kirlia ASC 88",
+   "1 Mega Gardevoir ex ASC 89",
+   "4 Dwebble DRI 11",
+   "1 Acerola's Mischief ASC 180",
+   "1 Strange Timepiece MEG 128",
+   "1 Miraidon ex TEF 122",
+   "1 Lightning Energy MEE 4",
+   "49 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Ralts ASC 87",
+   "1 Kirlia ASC 88",
+   "1 Mega Gardevoir ex ASC 89",
+   "4 Dwebble DRI 11",
+   "1 Acerola's Mischief ASC 180",
+   "1 Strange Timepiece MEG 128",
+   "1 Miraidon ex TEF 122",
+   "1 Lightning Energy MEE 4",
+   "49 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ralts ASC 87",
+   "Kirlia ASC 88"
+  ],
+  "hand": [
+   "Acerola's Mischief ASC 180",
+   "Mega Gardevoir ex ASC 89"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Miraidon ex TEF 122",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "prizes_left": 2
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Acerola's Mischief ASC 180"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "play",
+   "card": "Mega Gardevoir ex ASC 89",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Repulsion Bolt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Mega Gardevoir ex ASC 89",
+   "damage": 60,
+   "cite": "official JP FAQ (ゲコガシラ / ゲッコウガ / 退化スプレー): 「特性による「持続する効果」であっても、ポケモンが進化・退化・レベルアップすることで、なくなります。」 (even a lasting effect ends when the Pokémon evolves, devolves or levels up); with the Acerola's Mischief / Strange Timepiece entry (「はい、なくなります。」): the Mischief effect chosen on Kirlia ends when it evolves. Repulsion Bolt does its 60 to Mega Gardevoir ex"
+  }
+ ]
+}

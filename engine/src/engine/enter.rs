@@ -504,7 +504,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
             crate::engine::condition::recover_by_rule(g, t, cause, &[])?;
             let turn = g.st.turn;
             let slot = &mut g.st.players[tp].slots[ts as usize];
-            crate::engine::game_effect::clear_effects(slot);
+            crate::engine::game_effect::clear_effects_evolving(slot);
             slot.entered_turn = turn;
             return Ok(out);
         }
@@ -522,7 +522,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
         crate::engine::condition::recover_by_rule(g, t, cause, &[])?;
         let turn = g.st.turn;
         let slot = &mut g.st.players[tp].slots[ts as usize];
-        crate::engine::game_effect::clear_effects(slot);
+        crate::engine::game_effect::clear_effects_evolving(slot);
         slot.entered_turn = turn;
         crate::prefabs::reset_once_per_turn_slot(g, t); // id317
     }
@@ -655,8 +655,7 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause)
     // Evolve's cause).
     crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())?;
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
-    crate::engine::game_effect::clear_effects(slot);
-    slot.marker.remove_all_except_trainer_effects();
+    crate::engine::game_effect::clear_effects_evolving(slot);
     slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
     crate::prefabs::reset_once_per_turn_slot(g, target);
     Ok(())

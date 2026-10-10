@@ -41,6 +41,17 @@ pub fn reset_empty_slot(slot: &mut Slot) {
     slot.attacks_this_turn = None;
 }
 
+/// What evolving or devolving does to the effects on the Pokémon: every effect on it ends, a Trainer's included
+/// (APR C-13: "Any Special Conditions or effects it had on it are removed"; A-05; official JP FAQ: Acerola's Mischief on
+/// Mega Gardevoir ex devolved by Strange Timepiece: 「はい、なくなります。」; Greninja's Ability: 「特性による「持続する
+/// 効果」であっても、ポケモンが進化・退化・レベルアップすることで、なくなります。」 = even an Ability's lasting effect ends
+/// when the Pokémon evolves, devolves or levels up). Moving to the Bench keeps a Trainer's or an Ability's effect
+/// ([`clear_effects`]; id2228, id1651).
+pub fn clear_effects_evolving(slot: &mut Slot) {
+    clear_effects(slot);
+    slot.marker.clear();
+}
+
 /// `PokemonCardList.clearEffects()` for the modeled fields, except the Special Conditions: a Pokémon that stays in
 /// play recovers from them through RemoveCondition events (`engine::condition::recover_by_rule`, called first by
 /// every caller), and one leaving play loses them with it (the LeavePlay reducer, `engine::knockout`).
