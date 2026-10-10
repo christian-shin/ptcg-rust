@@ -8,6 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Hoothoot@TEF",
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Reveal(RevealSpec {
                 cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)),
+                by: Who::Opp,
                 to: Who::Me,
                 when_empty: true,
             }))] }],

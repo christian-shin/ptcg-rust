@@ -28,7 +28,7 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_DISCARD",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::Move(MoveSpec { from: OPP_HAND, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: OPP_HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

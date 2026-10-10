@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "LUNAR_CYCLE_MARKER", from: MarkerFrom::Any }), Cond::InPlay(Who::Me, PlayScope::All, Pred::Name("Solrock")), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]))],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
-            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })), Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) })), Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("LUNAR_CYCLE_MARKER") }))], no: &[] })),
+            Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })), Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) })), Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("LUNAR_CYCLE_MARKER") }))], no: &[] })),
         ],
     }],
     triggers: &[

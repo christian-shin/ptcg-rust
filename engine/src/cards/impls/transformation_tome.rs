@@ -39,7 +39,7 @@ pub static SPEC: CardSpec = CardSpec {
             })),
             Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: false, bottom: true })),
             // The second copy is discarded from your hand.
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::First(Pred::Name("Transformation Tome")), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::First(Pred::Name("Transformation Tome")), ..DiscardSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Nonempty(HAND, FIRE_ENERGY), Cond::Any(&[HAS_TOOL, HAS_SPECIAL, STADIUM_IN_PLAY])],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: HAND, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             Step::new(Op::Choose(ChooseSpec {
                 chooser: Who::Me,
                 msg: "DISCARD_STADIUM_OR_TOOL_OR_SPECIAL_ENERGY",
@@ -42,7 +42,7 @@ pub static SPEC: CardSpec = CardSpec {
                             })),
                             // One Tool of the Pokémon, chosen when it has several.
                             Step::new(Op::Pick(PickSpec { from: TOOLS, predicate: Pred::Any, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
-                            Step::new(Op::Move(MoveSpec { from: TOOLS, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                            Step::new(Op::Discard(DiscardSpec { from: TOOLS, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                         ],
                     },
                     ChoiceBranch {
@@ -62,7 +62,7 @@ pub static SPEC: CardSpec = CardSpec {
                                 msg: "CHOOSE_CARD_TO_DISCARD",
                                 ..PickSpec::DEFAULT
                             })),
-                            Step::new(Op::Move(MoveSpec { from: ATTACHED, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                            Step::new(Op::Discard(DiscardSpec { from: ATTACHED, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                         ],
                     },
                     ChoiceBranch {

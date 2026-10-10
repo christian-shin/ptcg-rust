@@ -32,6 +32,8 @@ pub static SPEC: CardSpec = CardSpec {
                         max_per_type: 0,
                         cancel: false,
                         route: AttachRoute::Move,
+                        onto: None,
+                        cards: CardSel::All,
                         none_shuffles: false,
                      different_types: false, })),
                     // Then shuffle, even when no Energy was chosen (ruling 2303).
@@ -44,7 +46,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             // Wonder Cotton: your opponent reveals their hand; 50 damage for each Trainer card there.
             steps: &[
-                Step::before_damage(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), to: Who::Me, when_empty: true })),
+                Step::before_damage(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: true })),
                 Step::before_damage(damage_is(Num::Mul(&Num::CardCount(ZoneRef(Who::Opp, Zone::Hand), Pred::Trainer), &Num::Lit(50)))),
             ],
         },

@@ -6,12 +6,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Vullaby",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Move(MoveSpec {
-                from: ZoneRef(Who::Opp, Zone::Deck),
-                to: ZoneRef(Who::Opp, Zone::Discard),
-                cards: CardSel::Tools(SlotExpr::Active(Who::Opp)),
-                ..MoveSpec::DEFAULT
-            }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Tools(SlotExpr::Active(Who::Opp))), ..DiscardSpec::DEFAULT }))] }],
     ..CardSpec::NONE
 };
 

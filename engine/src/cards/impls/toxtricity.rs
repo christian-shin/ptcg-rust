@@ -30,6 +30,8 @@ pub static SPEC: CardSpec = CardSpec {
                 max_per_type: 0,
                 cancel: true,
                 route: AttachRoute::Move,
+                onto: None,
+                cards: CardSel::All,
                 none_shuffles: true,
              different_types: false, })),
             Step::new(Op::If(IfSpec {

@@ -21,12 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Allure: draw 2 cards.
         AttackSpec {
             index: 0,
-            steps: &[Step::after_damage(Op::Move(MoveSpec {
-                from: ZoneRef(Who::Me, Zone::Deck),
-                to: ZoneRef(Who::Me, Zone::Hand),
-                cards: CardSel::Top(Num::Lit(2)),
-                ..MoveSpec::DEFAULT
-            }))],
+            steps: &[Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(2)), ..PutIntoHandSpec::DEFAULT }))],
         },
         // Ground Melter: if a Stadium is in play, 60 more damage, then discard that Stadium.
         AttackSpec {
@@ -35,12 +30,12 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::before_damage(more_damage_if(60, STADIUM_IN_PLAY)),
                 Step::after_damage(Op::If(IfSpec {
                     cond: Cond::Nonempty(MY_STADIUM, Pred::Any),
-                    yes: &[Step::new(Op::Move(MoveSpec { from: MY_STADIUM, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    yes: &[Step::new(Op::Discard(DiscardSpec { from: MY_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT }))],
                     no: &[],
                 })),
                 Step::after_damage(Op::If(IfSpec {
                     cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
-                    yes: &[Step::new(Op::Move(MoveSpec { from: OPP_STADIUM, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+                    yes: &[Step::new(Op::Discard(DiscardSpec { from: OPP_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT }))],
                     no: &[],
                 })),
             ],

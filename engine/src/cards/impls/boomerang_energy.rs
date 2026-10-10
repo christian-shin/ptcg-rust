@@ -32,7 +32,7 @@ const REATTACH: &[Step] = &[Step::new(Op::If(IfSpec {
     cond: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::MarkerFromThis(DISCARDED)),
     yes: &[
         // "That Pokémon": the one it was attached to, if it is still in play.
-        Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, place: Place::AttachTo(SlotExpr::Marked(DISCARDED)), ..MoveSpec::DEFAULT })),
+        Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::This, onto: Some(SlotExpr::Marked(DISCARDED)), ..AttachSpec::DEFAULT })),
         Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::EveryPokemon(Who::Me), name: DISCARDED, from: MarkerFrom::This })),
     ],
     no: &[],

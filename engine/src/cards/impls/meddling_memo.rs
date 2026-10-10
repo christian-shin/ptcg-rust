@@ -9,14 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Item,
         needs: &[],
         steps: &[
-            Step::new(Op::Move(MoveSpec {
-                from: ZoneRef(Who::Opp, Zone::Hand),
-                to: ZoneRef(Who::Opp, Zone::Deck),
-                cards: CardSel::All,
-                into: Some(0),
-                shuffle_first: true,
-                ..MoveSpec::DEFAULT
-            })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::All, position: DeckPosition::Bottom, order: DeckOrder::Shuffled, into: Some(0), ..PutIntoDeckSpec::DEFAULT })),
             Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::RegCount(0)) })),
         ],
     }),

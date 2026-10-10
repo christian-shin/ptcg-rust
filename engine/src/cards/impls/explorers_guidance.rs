@@ -23,7 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: LOOKED_AT, cards: CardSel::Top(Num::Lit(6)), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(6)), into: 1, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec {
                 from: LOOKED_AT,
                 bounds: Bounds { min: Num::Min(&Num::Lit(2), &Num::ZoneSize(LOOKED_AT)), max: Num::Lit(2) },
@@ -37,8 +37,8 @@ pub static SPEC: CardSpec = CardSpec {
                 yes: &[Step::new(Op::SetFlag(SetFlagSpec { who: Who::Me, flag: PlayerFlag::AncientSupporter, value: true }))],
                 no: &[],
             })),
-            Step::new(Op::Move(MoveSpec { from: LOOKED_AT, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: LOOKED_AT, to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: LOOKED_AT, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: LOOKED_AT, cards: CardSel::All, ..DiscardSpec::DEFAULT })),
         ],
     }),
     triggers: &[Trigger {

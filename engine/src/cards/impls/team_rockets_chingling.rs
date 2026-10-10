@@ -7,12 +7,7 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsChingling",
-    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Move(MoveSpec {
-                from: ZoneRef(Who::Opp, Zone::Hand),
-                to: ZoneRef(Who::Opp, Zone::Discard),
-                cards: CardSel::Random(Num::Lit(1)),
-                ..MoveSpec::DEFAULT
-            }))] }],
+    attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::Random(Num::Lit(1)), ..DiscardSpec::DEFAULT }))] }],
     ..CardSpec::NONE
 };
 

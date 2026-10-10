@@ -21,29 +21,70 @@ use crate::types::*;
 // ---------------------------------------------------------------------------
 // Records
 
-/// Move cards from one zone to another.
-pub struct MoveSpec {
+/// "Discard ...": the cards `cards` of `from` go to their owner's discard pile (APR C-01): from the hand or the deck (or
+/// cards looked at) a Discard event; attached to a Pokémon (`Zone::Attached` / `AttachedEnergy` / `Tools`) or the
+/// Stadium in play, a LeavePlay (user decision D1). `into` receives the cards selected.
+pub struct DiscardSpec {
     pub from: ZoneRef,
-    pub to: ZoneRef,
     pub cards: CardSel,
-    pub place: Place,
-    /// Show the moved cards to this player before they move.
-    pub reveal: Option<Who>,
-    /// Register that receives the cards moved.
     pub into: Option<u8>,
-    /// Shuffle the selected cards first, with the game RNG ("they shuffle their hand").
-    pub shuffle_first: bool,
 }
-impl MoveSpec {
-    pub const DEFAULT: MoveSpec = MoveSpec {
+impl DiscardSpec {
+    pub const DEFAULT: DiscardSpec = DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, into: None };
+}
+/// "Put ... into your hand": the cards go to their owner's hand (APR C-02; a PutIntoHand, or a LeavePlay for cards
+/// attached to a Pokémon), shown to `reveal` first ("reveal it and put it into your hand": the reveal comes first, id1131).
+pub struct PutIntoHandSpec {
+    pub from: ZoneRef,
+    pub cards: CardSel,
+    pub reveal: Option<Who>,
+    pub into: Option<u8>,
+}
+impl PutIntoHandSpec {
+    pub const DEFAULT: PutIntoHandSpec = PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, reveal: None, into: None };
+}
+/// "Put ... on the top / bottom of your deck", "shuffle ... into your deck": the cards go into their owner's deck at
+/// `position` (APR C-02, E-35, E-36; a PutIntoDeck, or a LeavePlay for cards attached to a Pokémon), in `order`.
+pub struct PutIntoDeckSpec {
+    pub from: ZoneRef,
+    pub cards: CardSel,
+    pub position: crate::spec::event::DeckPosition,
+    pub order: DeckOrder,
+    pub reveal: Option<Who>,
+    /// The register that receives the cards selected; with `DeckOrder::ChosenBy` from a zone that isn't a register, the
+    /// register they are set aside in while the order is chosen.
+    pub into: Option<u8>,
+}
+impl PutIntoDeckSpec {
+    pub const DEFAULT: PutIntoDeckSpec = PutIntoDeckSpec {
         from: ZoneRef(Who::Me, Zone::Hand),
-        to: ZoneRef(Who::Me, Zone::Discard),
         cards: CardSel::All,
-        place: Place::End,
+        position: crate::spec::event::DeckPosition::Bottom,
+        order: DeckOrder::AsIs,
         reveal: None,
         into: None,
-        shuffle_first: false,
     };
+}
+/// The order cards are put into a deck in.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum DeckOrder {
+    /// As they were taken.
+    AsIs,
+    /// Shuffled first ("shuffle the other cards and put them on the bottom of your deck": APR E-35), with the game RNG.
+    Shuffled,
+    /// In the order this player chooses ("in any order": an OrderCards prompt).
+    ChosenBy(Who),
+}
+/// "Look at the top N cards of your deck", cards searched for and set aside: the cards are staged in register `into`
+/// (never a zone: they keep the zone they came from, design section 11 item 5); `viewer` looks at them.
+pub struct LookSpec {
+    pub from: ZoneRef,
+    pub cards: CardSel,
+    pub viewer: Who,
+    pub into: u8,
+}
+impl LookSpec {
+    pub const DEFAULT: LookSpec = LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::All, viewer: Who::Me, into: 0 };
 }
 pub enum CardSel {
     All,
@@ -55,22 +96,11 @@ pub enum CardSel {
     Random(Num),
     /// The cards of a register.
     Chosen(u8),
-    /// The Pokémon Tools attached to the Pokémon (`from` is ignored); one move per Tool.
-    Tools(SlotExpr),
     /// This card itself, from wherever it is (`from` is ignored).
     This,
     /// The first card of the zone matching the predicate (the resolving card never counts); nothing is asked.
     First(Pred),
 }
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Place {
-    /// Appended to the destination (the bottom of a deck).
-    End,
-    Top,
-    /// Attached to this Pokémon (`to` is ignored).
-    AttachTo(SlotExpr),
-}
-
 /// Choose cards of a zone without moving them.
 pub struct PickSpec {
     pub chooser: Who,
@@ -144,9 +174,10 @@ pub struct ShuffleSpec {
     /// Wait for the answer of the shuffle prompt (otherwise the next step runs while it is still open).
     pub wait: bool,
 }
-/// Show cards to a player (an information screen, not a decision).
+/// "Reveal ...": player `by` shows the cards to player `to` (an information screen, not a decision; the Reveal routine).
 pub struct RevealSpec {
     pub cards: RevealWhat,
+    pub by: Who,
     pub to: Who,
     /// Show even when there are no cards (the card text says "reveals their hand").
     pub when_empty: bool,
@@ -196,12 +227,6 @@ pub struct SnapshotSpec {
     pub predicate: Pred,
     pub into: u8,
 }
-/// Put the cards of a register in the order `who` picks (an OrderCards prompt).
-pub struct OrderSpec {
-    pub who: Who,
-    pub zone: ZoneRef,
-    pub msg: &'static str,
-}
 /// Attach Energy chosen from a zone to Pokémon in play (an AttachEnergy prompt).
 pub struct AttachSpec {
     pub chooser: Who,
@@ -222,6 +247,11 @@ pub struct AttachSpec {
     pub max_per_type: u8,
     pub cancel: bool,
     pub route: AttachRoute,
+    /// "Attach it to this Pokémon" / "to that Pokémon": the cards `cards` of `from` go onto the Pokémon this names, with no
+    /// prompt (the cards were chosen before). `None`: the AttachEnergy prompt chooses cards and Pokémon.
+    pub onto: Option<SlotExpr>,
+    /// The cards attached with `onto`.
+    pub cards: CardSel,
     /// Shuffle the chooser's deck again when nothing was attached (today's behavior of
     /// Smoochum and Cinderace, whose search shuffles before the answer).
     pub none_shuffles: bool,
@@ -242,6 +272,8 @@ impl AttachSpec {
         max_per_type: 0,
         cancel: false,
         route: AttachRoute::Move,
+        onto: None,
+        cards: CardSel::All,
         none_shuffles: false,
     };
 }
@@ -539,10 +571,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
             Ok(Flow::Next)
         }
-        Op::Move(m) => {
-            do_move(g, me, f, m)?;
-            Ok(Flow::Next)
-        }
+        Op::Discard(d) => verb(g, me, f, d.from, &d.cards, d.into, DeckOrder::AsIs, None, Dest::Discard),
+        Op::PutIntoHand(h) => verb(g, me, f, h.from, &h.cards, h.into, DeckOrder::AsIs, h.reveal, Dest::Hand),
+        Op::PutIntoDeck(d) => verb(g, me, f, d.from, &d.cards, d.into, d.order, d.reveal, Dest::Deck(d.position)),
+        Op::Look(l) => verb(g, me, f, l.from, &l.cards, None, DeckOrder::AsIs, None, Dest::Look(l.into)),
         Op::Snapshot(s) => {
             let cards: Vec<CardId> = zone_cards(g, me, f, s.zone).into_iter().filter(|c| pred(g, *c, &s.predicate)).collect();
             set_reg(g, f, s.into, &cards);
@@ -587,6 +619,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             open_shuffle(g, me, f, p, 1);
             Ok(Flow::Suspend)
         }
+        Op::Attach(a) if a.onto.is_some() => attach_onto(g, me, f, a, a.onto.unwrap()),
         Op::Attach(a) => {
             if let Some(c) = f.recorded_choice(g, me) {
                 // Chosen at step D: carry it out now.
@@ -676,18 +709,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             shuffle_hand_into_deck_then_draw(g, p, exclude, n, Some((me, f.frame_at(1))), f.cause)?;
             Ok(Flow::Suspend)
         }
-        Op::Order(o) => {
-            if zone_is_unset(f, o.zone) {
-                return Ok(Flow::Next);
-            }
-            let list = zone_ref(f, o.zone);
-            if g.lst(list).is_empty() {
-                return Ok(Flow::Next);
-            }
-            let id = g.player_id(f.who(o.who));
-            g.prompt(id, o.msg, PromptKind::OrderCards { cards: list, allow_cancel: false }, f.cont(me, 1));
-            Ok(Flow::Suspend)
-        }
         Op::BotherBot(b) => bother_exec(g, me, f, b),
         Op::PrizeBonus(pb) => {
             // The Knock Out (a trigger's effect) takes `n` more Prize cards.
@@ -744,25 +765,16 @@ fn p_msg(p: &PickSpec, fallback: &'static str) -> &'static str {
     }
 }
 
-fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
-    // Where the cards come from and which of them move.
-    let (src, mut cards): (ListRef, Vec<CardId>) = match &m.cards {
-        CardSel::Tools(s) => match slot_of(g, me, f, *s) {
-            Some(slot) => (slot.list(), g.st.slot(slot.p as usize, slot.s).tools.iter().collect()),
-            None => return Ok(()),
-        },
-        CardSel::This => match g.st.locate(me) {
-            Some(l) => (l, vec![me]),
-            None => return Ok(()),
-        },
+/// The cards a verb op takes (`sel` of `from`) and the list they physically are in; `None` when the zone names no list
+/// (an unset register, a Pokémon not in play) or the card is nowhere. A random choice uses the game RNG.
+fn select(g: &mut Game, me: CardId, f: &Frame, from: ZoneRef, sel: &CardSel) -> Option<(ListRef, Vec<CardId>)> {
+    match sel {
+        CardSel::This => g.st.locate(me).map(|l| (l, vec![me])),
         sel => {
-            if zone_is_unset(f, m.from) {
-                if let Some(r) = m.into {
-                    set_reg(g, f, r, &[]);
-                }
-                return Ok(());
+            if zone_is_unset(f, from) {
+                return None;
             }
-            let zc = zone_cards(g, me, f, m.from);
+            let zc = zone_cards(g, me, f, from);
             let cards = match sel {
                 CardSel::All => zc,
                 CardSel::Top(n) => zc.into_iter().take(num(g, me, f, n).max(0) as usize).collect(),
@@ -782,51 +794,124 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
                 }
                 CardSel::Chosen(r) => reg_list(g, f, *r).to_vec(),
                 CardSel::First(pr) => zc.into_iter().filter(|c| pred(g, *c, pr)).take(1).collect(),
-                CardSel::Tools(_) | CardSel::This => unreachable!(),
+                CardSel::This => unreachable!(),
             };
-            match zone_list(g, me, f, m.from, true) {
-                Some(l) => (l, cards),
-                None => return Ok(()),
+            zone_list(g, me, f, from, true).map(|l| (l, cards))
+        }
+    }
+}
+
+/// Where a verb op's cards go.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Dest {
+    Discard,
+    Hand,
+    Deck(crate::spec::event::DeckPosition),
+    /// Staged in register `r` (Look).
+    Look(u8),
+}
+
+/// The common part of the verb ops (`Op::Discard`, `PutIntoHand`, `PutIntoDeck`, `Look`): the cards are selected, shuffled
+/// first when the text shuffles them before they are put (APR E-35), recorded in `into`, shown to `reveal` (before they
+/// move, id1131), then the event moves them (`move_cards_event`). The order prompt of `DeckOrder::ChosenBy` suspends here.
+#[allow(clippy::too_many_arguments)]
+fn verb(g: &mut Game, me: CardId, f: &mut Frame, from: ZoneRef, sel: &CardSel, into: Option<u8>, order: DeckOrder, reveal: Option<Who>, dest: Dest) -> R<Flow> {
+    let Some((src, mut cards)) = select(g, me, f, from, sel) else {
+        if let Some(r) = into {
+            if !matches!(sel, CardSel::This) {
+                set_reg(g, f, r, &[]);
             }
         }
+        return Ok(Flow::Next);
     };
-    if m.shuffle_first && !cards.is_empty() {
+    if order == DeckOrder::Shuffled && !cards.is_empty() {
         let n = cards.len();
         let mut perm = [0u8; 120];
         g.rng.shuffle(n, &mut perm);
         cards = (0..n).map(|i| cards[perm[i] as usize]).collect();
     }
-    if let Some(r) = m.into {
+    if let DeckOrder::ChosenBy(w) = order {
+        return order_prompt(g, me, f, src, &cards, w, into);
+    }
+    if let Some(r) = into {
         set_reg(g, f, r, &cards);
     }
     if cards.is_empty() {
-        return Ok(());
+        return Ok(Flow::Next);
     }
-    if let Some(w) = m.reveal {
+    if let Some(w) = reveal {
         show_to(g, f.who(w), cards.len());
     }
-    if let Zone::Scratch(r) = m.to.1 {
-        if f.cards[r as usize] == NONE {
-            set_reg(g, f, r, &[]);
+    let dst = match dest {
+        Dest::Look(r) => {
+            if f.cards[r as usize] == NONE {
+                set_reg(g, f, r, &[]);
+            }
+            ListRef::Temp(f.cards[r as usize])
         }
-    }
-    if let Place::AttachTo(e) = m.place {
-        let Some(slot) = slot_of(g, me, f, e) else { return Ok(()) };
-        return attach_moved(g, f, src, slot, &cards, me);
-    }
-    let Some(dst) = zone_list(g, me, f, m.to, false) else { return Ok(()) };
-    if let ListRef::Slot(tp, ts) = dst {
-        // Onto a Pokémon: an Energy or a Tool is attached (or moved, from another Pokémon), one event per card.
-        return attach_moved(g, f, src, SlotRef { p: tp, s: ts }, &cards, me);
-    }
-    move_cards_event(g, f, src, &cards, dst, m.place == Place::Top)
+        Dest::Discard => ListRef::Discard(0),
+        Dest::Hand => ListRef::Hand(0),
+        Dest::Deck(_) => ListRef::Deck(0),
+    };
+    let position = match dest {
+        Dest::Deck(p) => p,
+        _ => crate::spec::event::DeckPosition::Bottom,
+    };
+    move_cards_event(g, f, src, &cards, dst, position)?;
+    Ok(Flow::Next)
 }
 
-/// The event that moves `cards` from `src` to the zone of `dst` (its owner's, APR C-01 / C-02): staged for a register
-/// (Look); a LeavePlay for cards attached to a Pokémon or the Stadium (user decision D1); a Discard, PutIntoHand or
-/// PutIntoDeck otherwise (`engine::cards_zone`).
-fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst: ListRef, top: bool) -> R {
-    use crate::spec::event::{DeckPosition, RulesZone};
+/// `DeckOrder::ChosenBy`: the cards are set aside (staged in register `into` unless they already are in a register) and
+/// player `w` puts them in the order they choose (the OrderCards prompt); the op resumes at 1 and puts them into the deck.
+fn order_prompt(g: &mut Game, me: CardId, f: &mut Frame, src: ListRef, cards: &[CardId], w: Who, into: Option<u8>) -> R<Flow> {
+    let list = match src {
+        ListRef::Temp(_) => src,
+        _ => {
+            let Some(r) = into else { crate::bail!("DeckOrder::ChosenBy from a zone needs a staging register (`into`)") };
+            if f.cards[r as usize] == NONE {
+                set_reg(g, f, r, &[]);
+            }
+            let t = ListRef::Temp(f.cards[r as usize]);
+            if !cards.is_empty() {
+                crate::engine::cards_zone::stage(g, src, cards, t);
+            }
+            t
+        }
+    };
+    if g.lst(list).is_empty() {
+        return Ok(Flow::Next);
+    }
+    let id = g.player_id(f.who(w));
+    g.prompt(id, "CHOOSE_CARDS_ORDER", PromptKind::OrderCards { cards: list, allow_cancel: false }, f.cont(me, 1));
+    Ok(Flow::Suspend)
+}
+
+/// The register list a `DeckOrder::ChosenBy` put its cards in (`order_prompt`).
+fn order_list(f: &Frame, from: ZoneRef, into: Option<u8>) -> Option<ListRef> {
+    let r = match from.1 {
+        Zone::Scratch(r) => r,
+        _ => into?,
+    };
+    (f.cards[r as usize] != NONE).then(|| ListRef::Temp(f.cards[r as usize]))
+}
+
+/// Attach the cards `sel` of `from` to the Pokémon `onto` names (an `Op::Attach` with a fixed target: "attach it to this
+/// Pokémon", "attach it to that Pokémon"; no prompt).
+fn attach_onto(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, onto: SlotExpr) -> R<Flow> {
+    let Some((src, cards)) = select(g, me, f, a.from, &a.cards) else { return Ok(Flow::Next) };
+    if cards.is_empty() {
+        return Ok(Flow::Next);
+    }
+    let Some(slot) = slot_of(g, me, f, onto) else { return Ok(Flow::Next) };
+    attach_moved(g, f, src, slot, &cards, me)?;
+    Ok(Flow::Next)
+}
+
+/// The event that moves `cards` from `src` to the zone of `dst` (its owner's, APR C-01 / C-02: only the kind of `dst`
+/// counts): staged for a register (Look); a LeavePlay for cards attached to a Pokémon or the Stadium (user decision D1); a
+/// Discard, PutIntoHand or PutIntoDeck otherwise (`engine::cards_zone`).
+fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst: ListRef, position: crate::spec::event::DeckPosition) -> R {
+    use crate::spec::event::RulesZone;
     if let ListRef::Temp(_) = dst {
         crate::engine::cards_zone::stage(g, src, cards, dst);
         return Ok(());
@@ -846,7 +931,7 @@ fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst
                 crate::engine::cards_zone::put_into_hand(g, src, cards, f.cause)?;
             }
             RulesZone::Deck => {
-                crate::engine::cards_zone::put_into_deck(g, src, cards, if top { DeckPosition::Top } else { DeckPosition::Bottom }, f.cause)?;
+                crate::engine::cards_zone::put_into_deck(g, src, cards, position, f.cause)?;
             }
             _ => {
                 crate::engine::cards_zone::discard(g, src, cards, f.cause)?;
@@ -856,9 +941,8 @@ fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst
     Ok(())
 }
 
-/// `Move` onto a Pokémon (`Place::AttachTo`, a `Zone::Attached` destination): each Energy or Tool card is attached
-/// (`engine::attach::attach`: an Attach event from its zone, or a MoveEnergy / MoveTool from another Pokémon);
-/// anything else (never a pool card) moves physically.
+/// Cards put onto a Pokémon: each Energy or Tool card is attached (`engine::attach::attach`: an Attach event from its
+/// zone, or a MoveEnergy / MoveTool from another Pokémon); anything else (never a pool card) moves physically.
 fn attach_moved(g: &mut Game, f: &Frame, src: ListRef, target: SlotRef, cards: &[CardId], me: CardId) -> R {
     for &c in cards {
         let d = g.st.cdef(c);
@@ -1408,11 +1492,15 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::DiscardEnergy(d) => de_resume(g, me, f, d, first),
         // Resumed after the prefab's draw.
         Op::HandShuffleDraw(_) => Ok(Flow::Next),
-        Op::Order(o) => {
-            if let Res::Order(ord) = first {
-                if let ListRef::Temp(i) = zone_ref(f, o.zone) {
-                    crate::game::apply_order(&mut g.temps[i as usize], ord.as_slice());
-                }
+        Op::PutIntoDeck(d) => {
+            // The order chosen (`DeckOrder::ChosenBy`): the set-aside cards go into the deck in that order.
+            let Some(list) = order_list(f, d.from, d.into) else { return Ok(Flow::Next) };
+            if let (Res::Order(ord), ListRef::Temp(i)) = (first, list) {
+                crate::game::apply_order(&mut g.temps[i as usize], ord.as_slice());
+            }
+            let cards: Vec<CardId> = g.lst(list).to_vec();
+            if !cards.is_empty() {
+                move_cards_event(g, f, list, &cards, ListRef::Deck(0), d.position)?;
             }
             Ok(Flow::Next)
         }
@@ -1459,8 +1547,9 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
         Op::DiscardEnergy(d) if d.selection.is_moved() => ec_begin(g, me, f, d, true),
         Op::DiscardEnergy(d) => de_choice(g, me, f, d),
         Op::TakePrize(t) => tp_begin(g, me, f, t, true),
-        // Cards from the deck are chosen after the damage (the deck is hidden until it resolves).
-        Op::Attach(a) if a.from.1 != Zone::Deck => {
+        // Cards from the deck are chosen after the damage (the deck is hidden until it resolves); a fixed target asks
+        // nothing.
+        Op::Attach(a) if a.from.1 != Zone::Deck && a.onto.is_none() => {
             // A zone an earlier step fills can't be asked about yet.
             if zone_is_unset(f, a.from) {
                 return Ok(Flow::Next);
@@ -1533,10 +1622,14 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         },
         Op::Pick(p) => pick_possible(g, me, f, p, i32::MAX),
         Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)),
-        Op::Move(m) => match &m.cards {
+        Op::Discard(DiscardSpec { from, cards, .. })
+        | Op::PutIntoHand(PutIntoHandSpec { from, cards, .. })
+        | Op::PutIntoDeck(PutIntoDeckSpec { from, cards, .. })
+        | Op::Look(LookSpec { from, cards, .. })
+        | Op::Attach(AttachSpec { from, cards, onto: Some(_), .. }) => match cards {
             CardSel::Chosen(_) => true,
-            CardSel::Tools(_) | CardSel::This => true,
-            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) | CardSel::First(_) => !zone_cards(g, me, f, m.from).is_empty() || zone_is_unset(f, m.from),
+            CardSel::This => true,
+            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) | CardSel::First(_) => !zone_cards(g, me, f, *from).is_empty() || zone_is_unset(f, *from),
         },
         Op::Attach(a) => {
             let cards = zone_cards(g, me, f, a.from);
@@ -2026,13 +2119,14 @@ fn move_energy_own_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnerg
     true
 }
 
-/// "Discard a Stadium in play": the Stadium (only one is in play) goes to its owner's discard pile.
+/// "Discard a Stadium in play": the Stadium (only one is in play) leaves play for its owner's discard pile (a LeavePlay,
+/// user decision D1).
 pub const DISCARD_STADIUM: Op = Op::If(IfSpec {
     cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Stadium), Pred::Any),
-    yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Stadium), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+    yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Stadium), ..DiscardSpec::DEFAULT }))],
     no: &[Step::new(Op::If(IfSpec {
         cond: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Stadium), Pred::Any),
-        yes: &[Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Opp, Zone::Stadium), to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT }))],
+        yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Stadium), ..DiscardSpec::DEFAULT }))],
         no: &[],
     }))],
 });

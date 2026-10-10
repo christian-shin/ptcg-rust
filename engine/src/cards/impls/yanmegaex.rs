@@ -48,6 +48,8 @@ pub static SPEC: CardSpec = CardSpec {
                             cancel: false,
                             // Twinleaf shuffles after each card moved (and once when none was).
                             route: AttachRoute::MoveShufflePerCard,
+                            onto: None,
+                            cards: CardSel::All,
                             none_shuffles: true,
                          different_types: false, })),
                     ],

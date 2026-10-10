@@ -26,8 +26,8 @@ pub static SPEC: CardSpec = CardSpec {
         // Today's behavior kept: the top card is always discarded (Twinleaf answers the info prompt
         // with a yes), there is no real "you may".
         steps: &[
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Deck), to: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::Top(Num::Lit(1)), ..MoveSpec::DEFAULT })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), to: ZoneRef(Who::Me, Zone::Discard), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(1)), into: 0, ..LookSpec::DEFAULT })),
+            Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), ..DiscardSpec::DEFAULT })),
         ],
     }],
     ..CardSpec::NONE

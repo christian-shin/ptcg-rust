@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::If(IfSpec {
             cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
             yes: &[
-                Step::new(Op::Move(MoveSpec { from: OPP_STADIUM, to: ZoneRef(Who::Opp, Zone::Discard), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+                Step::new(Op::Discard(DiscardSpec { from: OPP_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT })),
                 Step::new(Op::If(IfSpec {
                     cond: Cond::Not(&Cond::Nonempty(OPP_STADIUM, Pred::Any)),
                     yes: &[Step::new(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::of(&[LockedAction::PlayStadium])) }))],

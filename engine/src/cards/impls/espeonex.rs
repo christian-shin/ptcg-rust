@@ -14,12 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Psych Out: discard 1 random card from your opponent's hand.
         AttackSpec {
             index: 0,
-            steps: &[Step::after_damage(Op::Move(MoveSpec {
-                from: ZoneRef(Who::Opp, Zone::Hand),
-                to: ZoneRef(Who::Opp, Zone::Discard),
-                cards: CardSel::Random(Num::Lit(1)),
-                ..MoveSpec::DEFAULT
-            }))],
+            steps: &[Step::after_damage(Op::Discard(DiscardSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::Random(Num::Lit(1)), ..DiscardSpec::DEFAULT }))],
         },
         // Amazez: devolve each of your opponent's evolved Pokémon by shuffling the highest Stage
         // Evolution card into their deck.

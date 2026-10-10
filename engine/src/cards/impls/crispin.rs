@@ -35,8 +35,8 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), to: Who::Opp, when_empty: true })),
-            Step::new(Op::Move(MoveSpec { from: DECK, to: HELD, cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(0), by: Who::Me, to: Who::Opp, when_empty: true })),
+            Step::new(Op::Look(LookSpec { from: DECK, cards: CardSel::Chosen(0), into: 1, ..LookSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Cmp(Num::RegCount(1), CmpOp::Eq, Num::Lit(2)),
@@ -50,7 +50,7 @@ pub static SPEC: CardSpec = CardSpec {
                 }))],
                 no: &[],
             })),
-            Step::new(Op::Move(MoveSpec { from: HELD, to: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoHand(PutIntoHandSpec { from: HELD, cards: CardSel::All, ..PutIntoHandSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE

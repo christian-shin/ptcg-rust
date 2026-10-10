@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
                 yes: &[
-                    Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Hand), to: ZoneRef(Who::Me, Zone::Discard), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+                    Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                     Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::UntilHandSize(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::TypeIs(crate::types::ct::PSYCHIC))) })),
                 ],
                 no: &[],

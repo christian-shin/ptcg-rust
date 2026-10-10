@@ -9,13 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::If(IfSpec {
                 cond: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any),
                 yes: &[
-                    Step::new(Op::Move(MoveSpec {
-                        from: ZoneRef(Who::Opp, Zone::Hand),
-                        to: ZoneRef(Who::Opp, Zone::Deck),
-                        cards: CardSel::Random(Num::Lit(1)),
-                        reveal: Some(Who::Me),
-                        ..MoveSpec::DEFAULT
-                    })),
+                    Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::Random(Num::Lit(1)), position: DeckPosition::Bottom, reveal: Some(Who::Me), ..PutIntoDeckSpec::DEFAULT })),
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Opp, Zone::Deck), wait: true })),
                 ],
                 no: &[],

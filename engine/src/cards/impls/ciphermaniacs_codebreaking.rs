@@ -22,10 +22,10 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARDS",
                 ..PickSpec::DEFAULT
             })),
-            Step::new(Op::Move(MoveSpec { from: DECK, to: ZoneRef(Who::Me, Zone::Scratch(1)), cards: CardSel::Chosen(0), ..MoveSpec::DEFAULT })),
+            // The found cards are set aside while the deck is shuffled, then put on top in the order chosen.
+            Step::new(Op::Look(LookSpec { from: DECK, cards: CardSel::Chosen(0), into: 1, ..LookSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: DECK, wait: true })),
-            Step::new(Op::Order(OrderSpec { who: Who::Me, zone: ZoneRef(Who::Me, Zone::Scratch(1)), msg: "CHOOSE_CARDS_ORDER" })),
-            Step::new(Op::Move(MoveSpec { from: ZoneRef(Who::Me, Zone::Scratch(1)), to: DECK, cards: CardSel::All, place: Place::Top, ..MoveSpec::DEFAULT })),
+            Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(1)), cards: CardSel::All, position: DeckPosition::Top, order: DeckOrder::ChosenBy(Who::Me), ..PutIntoDeckSpec::DEFAULT })),
         ],
     }),
     ..CardSpec::NONE
