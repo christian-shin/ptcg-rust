@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Meowth ex POR 62",
+   "1 Feebas TWM 49",
+   "1 Milotic TWM 50",
+   "2 Hop's Snorlax JTG 117",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Meowth ex POR 62",
+   "1 Feebas TWM 49",
+   "1 Milotic TWM 50",
+   "2 Hop's Snorlax JTG 117",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Meowth ex POR 62",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Feebas TWM 49",
+     "Milotic TWM 50"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Tuck Tail"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Meowth ex POR 62",
+   "energy": 3,
+   "cite": "Milotic TWM 50 card text (Mentally Calm: your opponent's Pokémon in play and all attached cards can't be put into your opponent's hand); id2129 (the effect that tries it still happens otherwise): Tuck Tail's 60 damage is done, Meowth ex and its cards stay in play"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 60,
+   "cite": "Milotic TWM 50 card text (Mentally Calm: your opponent's Pokémon in play and all attached cards can't be put into your opponent's hand); id2129 (the effect that tries it still happens otherwise): Tuck Tail's 60 damage is done, Meowth ex and its cards stay in play"
+  }
+ ]
+}

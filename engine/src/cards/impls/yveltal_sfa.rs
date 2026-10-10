@@ -1,11 +1,10 @@
-//! Yveltal (SFA 35): Corrosive Winds — put 2 damage counters on each of your
-//! opponent's Pokémon that has any damage counters. Destructive Beam — 100;
-//! flip a coin, if heads discard an Energy from the opponent's Active.
+//! Yveltal (SFA 35): Corrosive Winds — put 2 damage counters on each of your opponent's Pokémon that has any damage
+//! counters on it. Destructive Beam — 100; flip a coin, if heads, discard an Energy from your opponent's Active Pokémon.
 //!
-//! Twinleaf: no coin flip when the Active has no Energy card; the discard is
-//! a ChooseCardsPrompt on the Active then a DiscardCardsEffect.
-//!
-//! Fixed (phase 4b, W4): printed data only, Resistance is Fighting -30 (was -20).
+//! Corrosive Winds is a PlaceCounters event per damaged Pokémon by the attack (each Pokémon's protections asked: Hide 'n'
+//! Sneak, Mist Energy, Battle Cage on the Bench). Destructive Beam: the discard is a raw move until the Discard event
+//! (B7). Twinleaf quirk kept (reported, no ruling found): no coin is flipped when the Active Pokémon has no Energy card;
+//! the printed text always flips (changing it changes the RNG order).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

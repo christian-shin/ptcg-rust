@@ -1,15 +1,11 @@
-//! Espeon ex (PRE, Tera): Psych Out - 160; discard 1 random card from your
-//! opponent's hand. Amethyst - devolve each of your opponent's evolved
-//! Pokémon by shuffling the highest Stage Evolution card into their deck.
-//! Tera: no attack damage while on the Bench.
+//! Espeon ex (PRE 34, Tera): Psych Out — 160; discard a random card from your opponent's hand. Amazez — devolve each
+//! of your opponent's evolved Pokémon by shuffling the highest Stage Evolution card on it into your opponent's deck.
 //!
-//! Twinleaf: the random discard uses `Chance.index`; the ShuffleDeckPrompt
-//! has no trailing wait.
-//!
-//! Fixed (phase 4b, W4): Amethyst's ShuffleDeckPrompt belonged to the
-//! attacking player and its order was applied to the attacker's deck, leaving
-//! the opponent's deck (which received the Evolution cards) unshuffled; it now
-//! shuffles the opponent's deck. Resistance is Fighting -30 (was -20).
+//! Amazez is one Devolve event per evolved Pokémon by the attack's effect (APR C-13): the preventions are asked ("prevent
+//! all effects of attacks" keeps the Pokémon evolved, scenario rule-C13-amethyst-mist-energy-prevents-devolve-aud-c);
+//! the devolved Pokémon keeps its counters and is Knocked Out at the state check if they reach its HP; its effects end
+//! (`clear_effects_evolving`). The opponent's deck is shuffled after. Psych Out's random discard is a raw move until the
+//! Discard event (B7). Tera: `TERA_RULE`.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -25,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 ..MoveSpec::DEFAULT
             }))],
         },
-        // Amethyst: devolve each of your opponent's evolved Pokémon by shuffling the highest Stage
+        // Amazez: devolve each of your opponent's evolved Pokémon by shuffling the highest Stage
         // Evolution card into their deck.
         AttackSpec {
             index: 1,

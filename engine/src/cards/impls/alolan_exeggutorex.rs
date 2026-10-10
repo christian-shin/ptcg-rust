@@ -1,20 +1,17 @@
-//! Alolan Exeggutor ex (SSP, Tera): Tropical Fever — 150; attach any number
-//! of Basic Energy from your hand to your Pokémon in any way. Swinging
-//! Sphene — flip a coin; heads: Knock Out the opponent's Active if it is
-//! Basic; tails: Knock Out 1 of the opponent's Benched Pokémon.
+//! Alolan Exeggutor ex (SSP 133, Tera): Tropical Frenzy — 150; you may attach any number of Basic Energy cards from
+//! your hand to your Pokémon in any way you like. Swinging Sphene — flip a coin; heads: Knock Out your opponent's
+//! Active Basic Pokémon; tails: Knock Out 1 of your opponent's Benched Basic Pokémon.
 //!
-//! Twinleaf: tails opens a ChoosePokemonPrompt over the opponent's Bench with
-//! the non-Basic Benched Pokémon blocked, and does nothing when no Benched
-//! Basic exists (phase 4b fix: `blocked.push()` pushed nothing, so any Benched
-//! Pokémon could be Knocked Out, and an empty Bench left the prompt
-//! unanswerable). Tropical Fever's AttachEnergyPrompt has the default `max` =
-//! hand size.
+//! Swinging Sphene's Knock Outs are by the attack's effect (`Op::KnockOut`): the KnockOut event's preventions are asked
+//! (Mist Energy and the other "prevent all effects of attacks" stop it, id2427) and the Pokémon is Knocked Out at the
+//! next state check with every other Knock Out, its Prize cards taken there (user decision D1; id2089, id810). Tails
+//! asks for a Benched Basic Pokémon only, nothing without one. Tera: `TERA_RULE`.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "AlolanExeggutorex",
     attacks: &[
-        // Tropical Fever: attach any number of Basic Energy from your hand to your Pokémon in any way.
+        // Tropical Frenzy: attach any number of Basic Energy from your hand to your Pokémon in any way.
         AttackSpec {
             index: 0,
             steps: &[Step::after_damage(Op::If(IfSpec {

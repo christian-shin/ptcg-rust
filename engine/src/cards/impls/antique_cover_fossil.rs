@@ -1,23 +1,12 @@
-//! Antique Cover Fossil (SCR, support card): play this card as a 60 HP [C]
-//! Basic Pokémon (at any time during your turn you may discard it from play);
-//! Protective Cover — prevent all effects of attacks used by your opponent's
-//! Pokémon done to this Pokémon. (Damage is not an effect.)
+//! Antique Cover Fossil (SCR): play this card as if it were a 60-HP Basic [C] Pokémon; it can't be affected by any
+//! Special Conditions and can't retreat; at any time during your turn, you may discard it from play. Protective Cover —
+//! prevent all effects of attacks used by your opponent's Pokémon done to this Pokémon. (Damage is not an effect.)
 //!
-//! Fixed (W1-D): the Trainer Ability used to be copied from the Poké Doll
-//! (CANNOT_USE_POWER unless this card was the first card of the Active slot,
-//! then put on the bottom of the deck via a toBottom MoveCardsEffect that also
-//! duplicated it and dropped the deck's top card). It now discards this card
-//! from play, with its attached cards, wherever it is (like Antique Root
-//! Fossil), via one MoveCardsEffect of the whole slot. On its
-//! own PlayItemEffect the card reduces a PlayPokemonEffect into the first
-//! empty Bench slot; a RetreatEffect with it Active throws. Every attack
-//! effect (AbstractAttackEffect) of an attack used by the opponent's Pokémon,
-//! aimed at a slot holding this card as its top Pokémon, is prevented after a
-//! lock probe for the owner, except Weakness/Resistance, Put Damage and Deal
-//! Damage. Fixed (user 2026-10-08, as the text): the owner's own attacks are
-//! no longer blocked. Fixed: it can't be affected by Special Conditions (printed text):
-//! a `Prevent` over GainCondition (events batch 4: every cause, so the old sweep of conditions added
-//! directly went), as for Antique Root Fossil.
+//! Protective Cover is one `Prevent` naming no kind (`EFFECTS_OF_OPP_ATTACKS`): every event with an effect the
+//! opponent's attacks cause to it (Special Conditions, counters, discards, switches, a lasting effect, a Knock Out by an
+//! effect), never Damage (APR C-17). "Can't be affected by any Special Conditions" is a `Prevent` over GainCondition,
+//! whatever the cause (events batch 4). The discard action removes it from play with its attached cards (a LeavePlay
+//! by its own effect). It can't retreat (`BlockUse::RETREAT_THIS_ACTIVE`).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
