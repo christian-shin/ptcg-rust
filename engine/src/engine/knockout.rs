@@ -1025,4 +1025,33 @@ mod tests {
         assert!(g.prompts.iter().any(|p| p.result.is_none() && matches!(p.kind, PromptKind::ChoosePrize { count: 1, .. })));
         assert!(g.st.slot_pokemon(o, misty.s).is_some());
     }
+
+    /// Milotic TWM 50's Mentally Calm refuses the LeavePlay of the opponent's Pokémon to the hand before it happens,
+    /// whatever the cause: the Pokémon stays with its card-bound records (id2129); to the deck it leaves.
+    #[test]
+    fn mentally_calm_refuses_leave_play_to_the_hand() {
+        let names = [SNORLAX, "Milotic TWM 50"];
+        let mut deck_names: Vec<&str> = Vec::new();
+        for n in names {
+            deck_names.extend(std::iter::repeat(n).take(4));
+        }
+        while deck_names.len() < 60 {
+            deck_names.push("Psychic Energy MEE 5");
+        }
+        let deck: Vec<u16> = deck_names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &json!({"me": {"reset": true, "active": SNORLAX, "bench": [{"card": SNORLAX}]}, "opp": {"reset": true, "active": "Milotic TWM 50"}})).unwrap();
+        let me = g.st.active_player as usize;
+        let t = SlotRef::new(me, g.st.players[me].active);
+        let card = g.st.slot_pokemon(me, t.s).unwrap();
+        g.st.cards[card as usize].damage_taken_last_turn = 30;
+        let trainer = Cause::new(CauseKind::Trainer, None, me as u8);
+        assert!(!leave_play(&mut g, t, ListRef::Hand(me as u8), trainer, NO_CARD).unwrap(), "Mentally Calm refuses it");
+        assert_eq!(g.st.slot_pokemon(me, t.s), Some(card));
+        assert_eq!(g.st.cards[card as usize].damage_taken_last_turn, 30, "nothing happened: no record reset");
+        let b = SlotRef::new(me, g.st.players[me].bench.as_slice()[0]);
+        assert!(leave_play(&mut g, b, ListRef::Deck(me as u8), trainer, NO_CARD).unwrap(), "into the deck: not prevented");
+    }
 }

@@ -3707,8 +3707,9 @@ mod prevent_marker_tests {
         // declaration over the cause each, the batch 5 ChangeActive ones merged into it): Mist Energy, Rocky Fighting Energy,
         // Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca, Acerola's Mischief, Antique Cover Fossil, the
         // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (21 cards), Sylveon, Crustle DRI, Shaymin,
-        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin).
-        assert_eq!(n, 50);
+        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin); over
+        // LeavePlay: Milotic TWM 50 (closeout).
+        assert_eq!(n, 51);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
