@@ -18,8 +18,8 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::PreventDamage(PreventDamageSpec { subject: SlotPred::Holder, source: SlotPred::All(&[SlotPred::Basic, SlotPred::Tag(tag::POKEMON_EX_LOWER)]), ..PreventDamageSpec::DEFAULT }) },
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Pokemon(SlotPred::All(&[SlotPred::Basic, SlotPred::Tag(tag::POKEMON_EX_LOWER)])))]))) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) },
     ],
     ..CardSpec::NONE
 };

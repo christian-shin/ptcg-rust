@@ -26,14 +26,10 @@ pub static SPEC: CardSpec = CardSpec {
         // Cornerstone Stance: attacks from Pokémon that have an Ability.
         Passive {
             origin: RuleSource::Ability,
-            modifier: Modifier::PreventDamage(PreventDamageSpec {
-                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-                source: SlotPred::PrintsPower,
-                ..PreventDamageSpec::DEFAULT
-            }),
+            modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Pokemon(SlotPred::PrintsPower))]))),
         },
         // Tera: a card rule, not part of the Ability (it stays while the Ability is locked).
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) },
     ],
     ..CardSpec::NONE
 };

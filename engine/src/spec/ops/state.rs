@@ -9,11 +9,11 @@ use super::super::run::{Flow, Frame};
 use super::super::*;
 use crate::effects::{AtkBase, Effect, SlotRef};
 use crate::game::{Game, R};
-use crate::list::{CardId, SVec};
+use crate::list::CardId;
 use crate::markers::{MarkerName, SourceType, TargetScope};
 use crate::prefabs::*;
 use crate::prompts::Res;
-use crate::types::{ct, Stage};
+use crate::types::Stage;
 
 // ---------------------------------------------------------------------------
 // AttackFlag
@@ -56,23 +56,17 @@ pub enum DamageSource {
 }
 
 impl DamageSource {
-    fn filter(self) -> Option<crate::state::PreventFilter> {
-        let mut f = crate::state::PreventFilter::default();
+    /// The lasting `Prevent` "during your opponent's next turn, prevent all damage done to this Pokémon by attacks from
+    /// <these> Pokémon" (the attacking Pokémon where it is now: `CausePred::Pokemon`).
+    pub const fn spec(self) -> &'static crate::spec::passive::PreventSpec {
+        use crate::spec::passive as ps;
         match self {
-            DamageSource::Any => return None,
-            DamageSource::Stage(s) => f.source_stage = Some(s as u8),
-            DamageSource::Evolution => f.source_stage = Some(crate::state::PreventFilter::SOURCE_IS_EVOLUTION),
-            DamageSource::HasAbility => f.source_has_ability = true,
-            DamageSource::BasicNonColorless => {
-                f.source_stage = Some(Stage::Basic as u8);
-                let mut types = SVec::new();
-                for t in [ct::GRASS, ct::FIRE, ct::WATER, ct::LIGHTNING, ct::PSYCHIC, ct::FIGHTING, ct::DARK, ct::METAL, ct::FAIRY, ct::DRAGON] {
-                    types.push(t);
-                }
-                f.source_card_types = Some(types);
-            }
+            DamageSource::Any => &ps::LASTING_PREVENT_DAMAGE,
+            DamageSource::Stage(Stage::Basic) => &ps::LASTING_PREVENT_DAMAGE_FROM_BASIC,
+            DamageSource::Stage(_) | DamageSource::Evolution => &ps::LASTING_PREVENT_DAMAGE_FROM_EVOLUTION,
+            DamageSource::HasAbility => &ps::LASTING_PREVENT_DAMAGE_FROM_ABILITY,
+            DamageSource::BasicNonColorless => &ps::LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS,
         }
-        Some(f)
     }
 }
 
@@ -250,10 +244,7 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
                 g.run_fx_unit(Effect::DefendingPokemonTakesMoreDamage { b, damage_bonus: n })?;
             }
         }
-        Lasting::PreventDamage(src) => match src.filter() {
-            Some(filter) => prevent_damage_filtered(g, atk, filter)?,
-            None => prevent_damage(g, atk)?,
-        },
+        Lasting::PreventDamage(src) => prevent_damage_next_turn(g, atk, src.spec())?,
         Lasting::Retaliate(n) => {
             if let Some(b) = attack_base(g, atk, source) {
                 g.run_fx_unit(Effect::RetaliateOnDamage { b, damage: n, source_card: me })?;

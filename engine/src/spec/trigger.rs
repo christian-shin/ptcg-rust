@@ -97,7 +97,7 @@ pub const fn event_kinds(e: &Event) -> KindMask {
         Event::OnEndTurn(_) => mask(&[k::END_TURN]),
         Event::On(p) => p.effect_kinds(),
         Event::OnKnockOut(_) => mask(&[k::KNOCK_OUT]),
-        Event::OnDamagedByAttack(_) => mask(&[k::AFTER_DAMAGE, k::ATTACK_TRIGGER]),
+        Event::OnDamagedByAttack(_) => mask(&[k::DAMAGE, k::ATTACK_TRIGGER]),
         Event::OnDiscarded(_) => mask(&[k::DISCARD_CARDS]),
         Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
         Event::Custom(c) => mask(c.kinds),
@@ -167,7 +167,7 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 _ => g.st.slot(target.p as usize, target.s).cards.contains(me),
             };
             match *g.e(e) {
-                Effect::AfterDamage { b, damage } => {
+                Effect::Damage { b, amount: damage, .. } => {
                     // Record the step 7 trigger; it resolves later as an AttackTrigger effect.
                     let t0 = b.target;
                     if holds(g, t0) && damage > 0 && b.player != t0.p && g.st.players[t0.p as usize].active == t0.s {
@@ -241,6 +241,7 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::CoinFlip { p, purpose, heads, cause } => crate::engine::condition::coin_view(g, p as usize, purpose, heads, cause),
         Effect::ChangeActive { p, from, to, change, cause } => crate::engine::change_active::effect_view(g, p, from, to, change, cause),
         Effect::PlaceCounters { target, amount, cause, .. } => crate::engine::damage::counters_view(g, target, amount, cause),
+        Effect::Damage { b, amount, .. } => crate::engine::damage::damage_view(g, &b, amount),
         // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.
         Effect::MoveCounters { p, cause, .. } => EventView::new(EventKind::MoveCounters, cause, p, turn),
         _ => return None,

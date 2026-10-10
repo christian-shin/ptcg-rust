@@ -581,23 +581,19 @@ fn atk_base_for(g: &Game, atk: EffId, target: SlotRef) -> AtkBase {
     }
 }
 
-/// DealDamageEffect on the opponent's Active, PutDamageEffect elsewhere.
+/// The attack's damage to `target` (the Damage event, `engine::damage::deal`): dealt to the opponent's Active Pokémon,
+/// put on the others.
 pub fn deal_or_put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef) -> R {
     let b = atk_base_for(g, atk, target);
     let o = b.opponent as usize;
-    if target.p as usize == o && target.s == g.st.players[o].active {
-        g.run_fx_unit(Effect::DealDamage { b, damage })?;
-    } else {
-        g.run_fx_unit(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
-    }
-    Ok(())
+    let deal = target.p as usize == o && target.s == g.st.players[o].active;
+    crate::engine::damage::deal(g, b, damage, deal)
 }
 
-/// `PutDamageEffect(effect, damage)` on `target` (no Weakness for the Bench).
+/// The attack's damage put on `target` (the Damage event without the attacker-side passes).
 pub fn put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef) -> R {
     let b = atk_base_for(g, atk, target);
-    g.run_fx_unit(Effect::PutDamage { b, damage, weakness_applied: false, survive_on_ten_hp: false })?;
-    Ok(())
+    crate::engine::damage::deal(g, b, damage, false)
 }
 
 // ---------------------------------------------------------------------------
@@ -643,25 +639,6 @@ pub fn ignores_defender_effects(g: &Game, b: &AtkBase) -> bool {
     matches!(*g.e(b.attack_effect), Effect::Attack { ignore_defender_effects: true, .. }) && b.target.p == b.opponent
 }
 
-/// `TERA_RULE(effect, state, source)`: prevent attack damage put on this
-/// Pokémon while it is on the Bench.
-pub fn tera_rule(g: &mut Game, e: EffId, me: CardId) {
-    if let Effect::PutDamage { b, .. } = *g.e(e) {
-        if ignores_defender_effects(g, &b) {
-            return;
-        }
-        let t = b.target;
-        if g.st.slot(t.p as usize, t.s).cards.contains(me) && g.st.slot_pokemon(t.p as usize, t.s) == Some(me) {
-            let pl = b.player as usize;
-            let op = 1 - pl;
-            if (t.p as usize == pl && t.s == g.st.players[pl].active) || (t.p as usize == op && t.s == g.st.players[op].active) {
-                return;
-            }
-            g.set_prevent(e, true);
-        }
-    }
-}
-
 /// `BLOCK_RETREAT(store, state, effect, source)`: reduce a `PreventRetreatEffect`.
 pub fn block_retreat(g: &mut Game, atk: EffId) -> R {
     let o = match *g.e(atk) {
@@ -674,26 +651,15 @@ pub fn block_retreat(g: &mut Game, atk: EffId) -> R {
     Ok(())
 }
 
-/// `PREVENT_DAMAGE(store, state, effect, source)` (no options): reduce a
-/// `PreventDamageEffect` whose target is the attack's source.
-pub fn prevent_damage(g: &mut Game, atk: EffId) -> R {
+/// "During your opponent's next turn, prevent all damage done to this Pokémon by attacks (from ...)": the lasting
+/// `Prevent` `spec` on the attacking Pokémon (`Effect::PreventDamage`, whose target is the attack's source).
+pub fn prevent_damage_next_turn(g: &mut Game, atk: EffId, spec: &'static crate::spec::passive::PreventSpec) -> R {
     let source = match *g.e(atk) {
         Effect::Attack { source, .. } => source,
         _ => return Ok(()),
     };
     let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::PreventDamage { b })?;
-    Ok(())
-}
-
-/// `PREVENT_DAMAGE(store, state, effect, source, options)` with non-empty options.
-pub fn prevent_damage_filtered(g: &mut Game, atk: EffId, filter: crate::state::PreventFilter) -> R {
-    let source = match *g.e(atk) {
-        Effect::Attack { source, .. } => source,
-        _ => return Ok(()),
-    };
-    let b = atk_base_for(g, atk, source);
-    g.run_fx_unit(Effect::PreventDamageFiltered { b, filter })?;
+    g.run_fx_unit(Effect::PreventDamage { b, spec })?;
     Ok(())
 }
 

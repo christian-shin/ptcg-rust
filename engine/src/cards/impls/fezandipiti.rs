@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::CoinFlip, subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon, SlotPred::Provides(ct::DARK)]), ..PreventDamageSpec::DEFAULT }) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on_coin(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon, SlotPred::Provides(ct::DARK)]), DAMAGE_BY_OPP_ATTACKS)) },
     ],
     ..CardSpec::NONE
 };

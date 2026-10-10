@@ -125,12 +125,6 @@ pub struct Slot {
     pub blocked_attack_name_next_turn: Option<&'static str>,
     /// `blockedAttackNameUntilLeavesActive`.
     pub blocked_attack_name_until_leaves_active: Option<&'static str>,
-    /// `preventDamageNextTurn` / `...Pending` (only the empty filter `{}` is modeled).
-    pub prevent_damage_next_turn: bool,
-    pub prevent_damage_next_turn_pending: bool,
-    /// The filters of `preventDamageNextTurn` / `...Pending` when the bools are set.
-    pub prevent_damage_filter: PreventFilter,
-    pub prevent_damage_filter_pending: PreventFilter,
     /// `discardAttackerEnergyIfKnockedOutNextTurn` (+ `Pending`, `Attack`,
     /// `SourceCard`, `AttackerId` as a player index).
     pub discard_attacker_energy_if_ko_next_turn: bool,
@@ -165,7 +159,7 @@ pub struct Slot {
     /// batch 6): `Prevent` declarations an attack left on the Pokémon, read by the `Prevent` reader with the in-play ones
     /// (`passive::lasting_prevented`). Effects on this Pokémon: they go when it leaves the Active Spot or play
     /// (`clear_effects`) and at the end of the opponent's turn.
-    pub lasting_prevents: SVec<LastingPrevent, 2>,
+    pub lasting_prevents: SVec<LastingPrevent, 4>,
     pub is_public: bool,
 }
 
@@ -203,43 +197,6 @@ pub struct NextTurnAttackDamageBonus {
     pub source_card_name: &'static str,
 }
 
-/// `PreventDamageFilter` (the modeled keys; `{}` = default).
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct PreventFilter {
-    pub source_stage: Option<u8>,
-    pub source_card_types: Option<SVec<CardType, 12>>,
-    /// `sourceHasAbility: true` (the attacker's Pokémon has an Ability).
-    pub source_has_ability: bool,
-}
-
-impl PreventFilter {
-    /// `source_stage` sentinel standing for `{ sourceIsEvolution: true }`
-    /// (no `sourceStage`): any non-Basic source matches.
-    pub const SOURCE_IS_EVOLUTION: u8 = 0xFE;
-
-    /// `sourceMatchesPreventFilter` for the modeled keys.
-    pub fn matches(&self, stage: u8, types: &[CardType], has_ability: bool) -> bool {
-        if let Some(st) = self.source_stage {
-            if st == Self::SOURCE_IS_EVOLUTION {
-                if stage == crate::types::Stage::Basic as u8 {
-                    return false;
-                }
-            } else if stage != st {
-                return false;
-            }
-        }
-        if let Some(ts) = &self.source_card_types {
-            if !types.iter().any(|t| ts.as_slice().contains(t)) {
-                return false;
-            }
-        }
-        if self.source_has_ability && !has_ability {
-            return false;
-        }
-        true
-    }
-}
-
 impl Default for Slot {
     fn default() -> Self {
         Slot {
@@ -269,10 +226,6 @@ impl Default for Slot {
             attack_damage_reduction_next_turn: 0,
             blocked_attack_name_next_turn: None,
             blocked_attack_name_until_leaves_active: None,
-            prevent_damage_next_turn: false,
-            prevent_damage_next_turn_pending: false,
-            prevent_damage_filter: PreventFilter::default(),
-            prevent_damage_filter_pending: PreventFilter::default(),
             discard_attacker_energy_if_ko_next_turn: false,
             discard_attacker_energy_if_ko_next_turn_pending: false,
             discard_attacker_energy_if_ko_attack: None,

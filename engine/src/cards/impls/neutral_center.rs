@@ -9,7 +9,14 @@ pub static SPEC: CardSpec = CardSpec {
         Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
         Passive {
             origin: RuleSource::Stadium,
-            modifier: Modifier::PreventDamage(PreventDamageSpec { subject: SlotPred::Not(&SlotPred::RuleBox), source: SlotPred::RuleBox, ..PreventDamageSpec::DEFAULT }),
+            modifier: Modifier::Prevent(PreventSpec::on(
+                SlotPred::Not(&SlotPred::RuleBox),
+                EventPred::All(&[
+                    EventPred::Kind(EventKind::Damage),
+                    EventPred::Actor(Party::NotEventOwner),
+                    EventPred::Cause(CausePred::All(&[CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Pokemon(SlotPred::RuleBox)])),
+                ]),
+            )),
         },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::ThisCardFromDiscard, ..PreventSpec::NONE }) },
     ],

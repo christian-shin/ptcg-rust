@@ -16,11 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] }],
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::PreventDamage(PreventDamageSpec {
-            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]),
-            source: SlotPred::Tag(tag::POKEMON_EX_LOWER),
-            ..PreventDamageSpec::DEFAULT
-        }),
+        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Card(Pred::Tag(tag::POKEMON_EX_LOWER)))]))),
     }],
     ..CardSpec::NONE
 };

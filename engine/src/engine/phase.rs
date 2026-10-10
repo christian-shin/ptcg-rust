@@ -271,10 +271,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     for s in g.st.players[o].in_play().iter() {
         let slot = &mut g.st.players[o].slots[*s as usize];
         slot.damage_reduction_next_turn = 0;
-        slot.prevent_damage_next_turn = false;
-        slot.prevent_damage_next_turn_pending = false;
-        slot.prevent_damage_filter = Default::default();
-        slot.prevent_damage_filter_pending = Default::default();
         slot.no_weakness_next_turn = false;
         slot.retaliate_on_damage_next_turn = None;
         // The preventions the opponent's attack left on its Pokémon end with this turn (armed during its turn: pending
@@ -318,12 +314,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             }
         }
         let slot = &mut g.st.players[p].slots[*s as usize];
-        if slot.prevent_damage_next_turn_pending {
-            slot.prevent_damage_next_turn = true;
-            slot.prevent_damage_next_turn_pending = false;
-            slot.prevent_damage_filter = slot.prevent_damage_filter_pending;
-            slot.prevent_damage_filter_pending = Default::default();
-        }
         // A prevention armed during this turn is in force during the opponent's next turn.
         for l in slot.lasting_prevents.as_mut_slice().iter_mut() {
             l.pending = false;
@@ -364,10 +354,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
             slot.cannot_retreat_next_turn_pending = false;
         }
         slot.blocked_attack_name_next_turn = None;
-        if slot.prevent_damage_next_turn_pending {
-            slot.prevent_damage_next_turn = true;
-            slot.prevent_damage_next_turn_pending = false;
-        }
         // Replace the previous bonus with one armed during this turn, or clear it.
         slot.next_turn_attack_damage_bonus = slot.next_turn_attack_damage_bonus_pending;
         slot.next_turn_attack_damage_bonus_pending = None;

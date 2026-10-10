@@ -93,7 +93,7 @@ fn should_delegate(g: &Game, s: &CopySession, id: EffId) -> bool {
         Effect::DealDamage { b, .. } => target_includes(g, b.target, s.copycat),
         Effect::PutDamage { b, .. } => target_includes(g, b.target, s.copycat) || is_session_clone(s, b.attack),
         Effect::PlaceCounters { target, cause, .. } => target_includes(g, target, s.copycat) || cause.attack.map_or(false, |a| is_session_clone(s, a)),
-        Effect::AfterDamage { b, .. } => is_session_clone(s, b.attack),
+        Effect::Damage { b, .. } => is_session_clone(s, b.attack),
         Effect::Attack { attack, .. } | Effect::BeforeDoingDamage { attack, .. } | Effect::AfterAttack { attack, .. } => is_session_clone(s, attack),
         _ => false,
     }
@@ -451,7 +451,7 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
             if damage > 0 {
                 let target = SlotRef::new(opp as usize, g.st.players[opp as usize].active);
                 let b = AtkBase { attack_effect: f.atk, player: p, opponent: opp, attack: f.attack, source: f.src_slot, target, cause: crate::cause::Cause::of_attack_at(g, p, f.attack, f.src_slot) };
-                let r = g.run_fx(Effect::DealDamage { b, damage }).map(|_| ());
+                let r = crate::engine::damage::deal(g, b, damage, true);
                 return finish_step(g, f, r, wait_if_prompts);
             }
             next_stage(g, f)

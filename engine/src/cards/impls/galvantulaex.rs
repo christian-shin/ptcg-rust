@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) }
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) }
     ],
     ..CardSpec::NONE
 };

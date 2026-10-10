@@ -67,10 +67,6 @@ pub fn clear_effects(slot: &mut Slot) {
 fn clear_prevent_next_turn(slot: &mut Slot) {
     slot.no_weakness_next_turn = false;
     slot.no_weakness_next_turn_pending = false;
-    slot.prevent_damage_next_turn = false;
-    slot.prevent_damage_next_turn_pending = false;
-    slot.prevent_damage_filter = Default::default();
-    slot.prevent_damage_filter_pending = Default::default();
     slot.discard_attacker_energy_if_ko_next_turn = false;
     slot.discard_attacker_energy_if_ko_next_turn_pending = false;
     slot.discard_attacker_energy_if_ko_attack = None;

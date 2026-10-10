@@ -181,7 +181,10 @@ pub enum Effect {
     ApplyWeakness { b: AtkBase, damage: i32, ignore_weakness: bool, ignore_resistance: bool },
     DealDamage { b: AtkBase, damage: i32 },
     PutDamage { b: AtkBase, damage: i32, weakness_applied: bool, survive_on_ten_hp: bool },
-    AfterDamage { b: AtkBase, damage: i32 },
+    /// The Damage event (events batch 6; `engine::damage::deal`): the attack of `b` puts `amount` damage on the Pokémon
+    /// in `b.target`, after the whole calculation and its preventions (APR A-01 step 6). `survive`: a survive-on-10
+    /// replacement armed in the calculation.
+    Damage { b: AtkBase, amount: i32, survive: bool },
     /// `AttackTriggerEffect`: a step 7 trigger resolves (`target` is the damaged Pokémon, `source` the Attacking
     /// Pokémon). Only `card` reacts. Has no AtkBase: it is not an effect of the attack for Mist Energy.
     AttackTrigger {
@@ -223,18 +226,15 @@ pub enum Effect {
     /// `ReduceDamageEffect` (EffectOfAttackEffect): the opponent's Active gets
     /// `attackDamageReductionNextTurn = max(0, reduction)`.
     ReduceDamage { b: AtkBase, reduction: i32 },
-    /// `PreventDamageEffect` with non-empty `PreventDamageOptions` (same
-    /// Twinleaf class/kind as [`Effect::PreventDamage`]).
-    PreventDamageFiltered { b: AtkBase, filter: crate::state::PreventFilter },
     /// `SelfPreventRetreatEffect` (target = base.source, the attacker):
     /// `player.active.cannotRetreatNextTurnPending = true`.
     SelfPreventRetreat { b: AtkBase },
     /// `DiscardAttackerEnergyIfKnockedOutDuringOpponentsNextTurnEffect`
     /// (target = base.source; `markerSource` = `source_card`).
     DiscardAttackerEnergyIfKnockedOut { b: AtkBase, source_card: CardId },
-    /// `PreventDamageEffect` (EffectOfAttackEffect, target = attacker):
-    /// `player.active.preventDamageNextTurnPending = {}` (empty filter only).
-    PreventDamage { b: AtkBase },
+    /// "During your opponent's next turn, prevent all damage done to this Pokémon by attacks (from ...)": the attack's
+    /// lasting `Prevent` (`spec`) on its own Active Pokémon (B6-OLD -> C6: the ApplyEffect event).
+    PreventDamage { b: AtkBase, spec: &'static crate::spec::passive::PreventSpec },
     /// `PreventEffectsOfAttacksEffect` (EffectOfAttackEffect, target = attacker):
     /// `player.active.preventEffectsOfAttacksNextTurnPending = {}` (empty filter only).
     PreventEffectsOfAttacks { b: AtkBase },
@@ -341,7 +341,7 @@ impl Effect {
             ApplyWeakness { .. } => "APPLY_WEAKNESS_EFFECT",
             DealDamage { .. } => "DEAL_DAMAGE_EFFECT",
             PutDamage { .. } => "PUT_DAMAGE_EFFECT",
-            AfterDamage { .. } => "AFTER_DAMAGE_EFFECT",
+            Damage { .. } => "DAMAGE_EVENT",
             AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
             KnockOutOpponent { .. } => "KNOCK_OUT_OPPONENT_EFFECT",
             KnockOutPlayer { .. } => "KNOCK_OUT_PLAYER_EFFECT",
@@ -355,7 +355,6 @@ impl Effect {
             PreventAttackUntilLeavesActive { .. } => "EFFECT_OF_ATTACK_EFFECT",
             DefendingPokemonTakesMoreDamage { .. } => "DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_ATTACKER_NEXT_TURN_EFFECT",
             ReduceDamage { .. } => "REDUCE_DAMAGE_EFFECT",
-            PreventDamageFiltered { .. } => "PREVENT_DAMAGE_EFFECT",
             SelfPreventRetreat { .. } => "SELF_PREVENT_RETREAT_EFFECT",
             DiscardAttackerEnergyIfKnockedOut { .. } => "DISCARD_ATTACKER_ENERGY_IF_KNOCKED_OUT_DURING_OPPONENTS_NEXT_TURN_EFFECT",
             PreventDamage { .. } => "PREVENT_DAMAGE_EFFECT",
@@ -395,7 +394,7 @@ impl Effect {
             ApplyWeakness { b, .. }
             | DealDamage { b, .. }
             | PutDamage { b, .. }
-            | AfterDamage { b, .. }
+            | Damage { b, .. }
             | KnockOutOpponent { b, .. }
             | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
@@ -405,10 +404,10 @@ impl Effect {
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } => Some(b),
-            PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
+            SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
             DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
-            PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
+            PreventDamage { b, .. } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
@@ -423,7 +422,7 @@ impl Effect {
             ApplyWeakness { b, .. }
             | DealDamage { b, .. }
             | PutDamage { b, .. }
-            | AfterDamage { b, .. }
+            | Damage { b, .. }
             | KnockOutOpponent { b, .. }
             | KnockOutPlayer { b, .. }
             | DiscardCards { b, .. }
@@ -433,10 +432,10 @@ impl Effect {
             | PlayLock { b, .. } => Some(b),
             | PreventRetreat { b } => Some(b),
             ReduceDamage { b, .. } => Some(b),
-            PreventDamageFiltered { b, .. } | SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
+            SelfPreventRetreat { b } | DiscardAttackerEnergyIfKnockedOut { b, .. } => Some(b),
             OpponentPokemonCannotUseAttack { b, .. } | PreventAttackUntilLeavesActive { b, .. } => Some(b),
             DefendingPokemonTakesMoreDamage { b, .. } => Some(b),
-            PreventDamage { b } | PreventEffectsOfAttacks { b } => Some(b),
+            PreventDamage { b, .. } | PreventEffectsOfAttacks { b } => Some(b),
             ThisPokemonHasNoWeakness { b } => Some(b),
             IncreaseAttackCostNextTurn { b } | IncreaseRetreatCostNextTurn { b } | CoinFlipCancelTrainerPlay { b } => Some(b),
             OpponentPokemonCannotAttackNextTurn { b, .. } => Some(b),
@@ -491,7 +490,7 @@ impl Effect {
             ApplyWeakness { .. } => 37,
             DealDamage { .. } => 38,
             PutDamage { .. } => 39,
-            AfterDamage { .. } => 40,
+            Damage { .. } => 94,
             AttackTrigger { .. } => 246,
             KnockOutOpponent { .. } => 42,
             KnockOutPlayer { .. } => 140,
@@ -519,7 +518,6 @@ impl Effect {
             PlayLock { .. } => 67,
             PreventRetreat { .. } => 69,
             ReduceDamage { .. } => 110,
-            PreventDamageFiltered { .. } => 84,
             SelfPreventRetreat { .. } => 105,
             DiscardAttackerEnergyIfKnockedOut { .. } => 106,
             PreventDamage { .. } => 84,
@@ -591,7 +589,6 @@ pub mod k {
     pub const APPLY_WEAKNESS: u32 = 37;
     pub const DEAL_DAMAGE: u32 = 38;
     pub const PUT_DAMAGE: u32 = 39;
-    pub const AFTER_DAMAGE: u32 = 40;
     pub const MOVE_OPPONENT_ENERGY: u32 = 164;
     pub const KNOCK_OUT_OPPONENT: u32 = 42;
     pub const KNOCK_OUT_PLAYER: u32 = 140;

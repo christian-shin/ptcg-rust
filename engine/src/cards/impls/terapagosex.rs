@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Terapagosex",
     passives: &[
         // Tera: no attack damage while Benched.
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::PreventDamage(PreventDamageSpec { how: PreventHow::Tera, ..PreventDamageSpec::DEFAULT }) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) },
     ],
     attacks: &[
         AttackSpec {

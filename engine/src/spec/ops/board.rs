@@ -1362,7 +1362,7 @@ fn damage_by(g: &mut Game, f: &Frame, calc: DamageCalc, n: i32, slot: SlotRef) -
         DamageCalc::Put => put_damage(g, f.eff, n, slot)?,
         DamageCalc::Deal => {
             if let Some(b) = atk_base(g, f, slot) {
-                g.run_fx_unit(Effect::DealDamage { b, damage: n })?;
+                crate::engine::damage::deal(g, b, n, true)?;
             }
         }
     }

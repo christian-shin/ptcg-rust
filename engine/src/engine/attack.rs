@@ -260,7 +260,7 @@ fn deal_damage(g: &mut Game, mut f: AttackFrame) -> R {
     };
     if damage > 0 {
         let b = atk_base(g, f.atk);
-        g.run_fx_unit(Effect::DealDamage { b, damage })?;
+        crate::engine::damage::deal(g, b, damage, true)?;
         if g.has_prompts() {
             f.stage = AtkStage::AfterDealDamage;
             g.wait_prompt(Cont::UseAttack(f));
@@ -507,161 +507,8 @@ pub fn resume_use_power(g: &mut Game, f: PowerFrame) -> R {
 // ---------------------------------------------------------------------------
 // attackReducer
 
-fn apply_put_damage(g: &mut Game, id: EffId) -> R {
-    let (b, damage) = match *g.e(id) {
-        Effect::PutDamage { b, damage, .. } => (b, damage),
-        _ => return Ok(()),
-    };
-    let t = b.target;
-    let target_card = match g.st.slot_pokemon(t.p as usize, t.s) {
-        Some(c) => c,
-        None => crate::bail!("ILLEGAL_ACTION"),
-    };
-    let damage = damage.max(0);
-    g.st.players[t.p as usize].slots[t.s as usize].damage += damage;
-    if damage > 0 {
-        g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-        g.st.cards[target_card as usize].damage_taken_last_turn += damage;
-        // `surviveOnTenHPReason` set by a card (e.g. SURVIVE_ON_TEN_IF_FULL_HP):
-        // CheckHpEffect(effect.player, target); at or over HP → HP - 10.
-        let survive = matches!(*g.e(id), Effect::PutDamage { survive_on_ten_hp: true, .. });
-        if survive {
-            let (tp, ts) = (t.p as usize, t.s);
-            let card = g.st.slot_pokemon(tp, ts);
-            if card.is_some() {
-                g.st.players[tp].slots[ts as usize].hp_bonus = 0;
-            }
-            g.run_fx_unit(Effect::CheckHp { p: b.player, target: t, card })?;
-            let hp = crate::engine::check::hp_of(g, tp, ts, card);
-            if g.st.slot(tp, ts).damage >= hp {
-                g.st.players[tp].slots[ts as usize].damage = hp - 10;
-                if !g.ten_hp.contains(&SlotRef::new(tp, ts)) {
-                    g.ten_hp.push(SlotRef::new(tp, ts));
-                }
-            }
-        }
-        let mut ab = b;
-        ab.target = t;
-        g.run_fx_unit(Effect::AfterDamage { b: ab, damage })?;
-    }
-    Ok(())
-}
-
-/// `shouldPreventAttackDamage(target, source)` (sourceStage / sourceCardTypes filters modeled).
-pub fn should_prevent_attack_damage(g: &Game, t: SlotRef, source: SlotRef) -> bool {
-    g.st.slot(t.p as usize, t.s).prevent_damage_next_turn
-        && match g.st.slot_pokemon(source.p as usize, source.s) {
-            Some(sc) => {
-                let d = g.st.cdef(sc);
-                g.st.slot(t.p as usize, t.s).prevent_damage_filter.matches(d.stage, d.card_type, d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8))
-            }
-            None => false,
-        }
-}
-
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::PutDamage { b, damage, weakness_applied, .. } => {
-            let t = b.target;
-            if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
-                crate::bail!("ILLEGAL_ACTION");
-            }
-            let opp = 1 - b.player as usize;
-            let shred = crate::prefabs::ignores_defender_effects(g, &b);
-            let mut damage = damage;
-            // Defending Pokémon's attacks do N less (before W/R), direct PutDamage only.
-            let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
-            if !weakness_applied && src_red > 0 {
-                damage = (damage - src_red).max(0);
-            }
-            if t.p as usize == opp && t.s == g.st.players[opp].active && !weakness_applied {
-                let (ig_w, ig_r) = match *g.e(b.attack_effect) {
-                    Effect::Attack { ignore_weakness, ignore_resistance, .. } => (ignore_weakness, ignore_resistance),
-                    _ => (false, false),
-                };
-                let mut wb = b;
-                wb.target = t;
-                let (e, _) = g.run_fx(Effect::ApplyWeakness { b: wb, damage, ignore_weakness: ig_w, ignore_resistance: ig_r })?;
-                if let Effect::ApplyWeakness { damage: d, .. } = e {
-                    damage = d;
-                }
-                g.st.players[t.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-            }
-            // shouldPreventAttackDamage (sourceStage / sourceCardTypes filters modeled).
-            let prevent = !shred && g.st.phase == GamePhase::Attack && should_prevent_attack_damage(g, t, b.source);
-            if prevent {
-                if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
-                    *d = damage;
-                }
-                return Ok(());
-            }
-            let red = g.st.slot(t.p as usize, t.s).damage_reduction_next_turn;
-            // Step 5 (Advanced Rulebook B-05): the effects on the Pokémon taking the damage are summed, floored once below.
-            if !shred && red != 0 {
-                damage -= red;
-            }
-            // "During your next turn, the Defending Pokémon takes N more damage."
-            {
-                let ts = g.st.slot(t.p as usize, t.s);
-                if !shred && ts.defending_extra_damage_next_turn > 0 && !ts.defending_extra_damage_pending && ts.defending_extra_damage_attacker == Some(b.player) {
-                    damage += ts.defending_extra_damage_next_turn;
-                }
-            }
-            damage = damage.max(0);
-            if let Effect::PutDamage { damage: d, .. } = g.e_mut(id) {
-                *d = damage;
-            }
-            apply_put_damage(g, id)
-        }
-        Effect::DealDamage { b, damage } => {
-            let mut damage = damage;
-            let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
-            if src_red > 0 {
-                damage = (damage - src_red).max(0);
-                if let Effect::DealDamage { damage: d, .. } = g.e_mut(id) {
-                    *d = damage;
-                }
-            }
-            let (ig_w, ig_r) = match *g.e(b.attack_effect) {
-                Effect::Attack { ignore_weakness, ignore_resistance, .. } => (ignore_weakness, ignore_resistance),
-                _ => (false, false),
-            };
-            let (e, _) = g.run_fx(Effect::ApplyWeakness { b, damage, ignore_weakness: ig_w, ignore_resistance: ig_r })?;
-            let d = match e {
-                Effect::ApplyWeakness { damage, .. } => damage,
-                _ => damage,
-            };
-            g.run_fx_unit(Effect::PutDamage { b, damage: d, weakness_applied: true, survive_on_ten_hp: false })?;
-            Ok(())
-        }
-        Effect::AfterDamage { b, damage } => {
-            g.st.players[b.target.p as usize].marker.add_to_state(DAMAGE_DEALT_MARKER);
-            if damage > 0 && b.target.p != b.player && g.st.phase == GamePhase::Attack {
-                if let Some(la) = g.last_attack.as_mut() {
-                    if !la.damaged.contains(&b.target) {
-                        la.damaged.push(b.target);
-                    }
-                }
-            }
-            if damage > 0 && b.target.p != b.player && g.st.players[b.target.p as usize].active == b.target.s && g.st.phase == GamePhase::Attack {
-                if let Some(la) = g.last_attack.as_mut() {
-                    if !la.damaged_active.contains(&b.target) {
-                        la.damaged_active.push(b.target);
-                    }
-                }
-            }
-            // Revenge trap (getActiveRetaliateOnDamage; `{ damage }` options only). Step 7 of the attack flow chart:
-            // recorded now, resolved after the attack's own effects (AttackTrigger below).
-            let t = b.target;
-            let slot = g.st.slot(t.p as usize, t.s);
-            let active = if slot.retaliate_on_damage_next_turn_pending.is_some() { None } else { slot.retaliate_on_damage_next_turn };
-            if let Some(r) = active {
-                if damage > 0 && t.p != b.player && g.st.phase == GamePhase::Attack && r.damage > 0 {
-                    g.attack_trigger(b, damage, r.source_card, Some(r), false)?;
-                }
-            }
-            Ok(())
-        }
         Effect::AttackTrigger { attack_effect, opp, attack, card, target, source, source_in_play, retaliate: Some(r), .. } => {
             // Resolution of a revenge trap: an EffectOfAttack attributed to the retaliator so Mist Energy blocks it.
             // The Attacking Pokémon must still be in play (ruling 530) and takes the counters wherever it is (rulings
@@ -786,19 +633,16 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.players[o].slots[a as usize].cannot_retreat_next_turn = true;
             Ok(())
         }
-        Effect::PreventDamage { b } => {
-            // EffectOfAttackEffect.applyEffect(): the attacker's current Active.
+        Effect::PreventDamage { b, spec } => {
+            // "During your opponent's next turn, prevent all damage done to this Pokémon by attacks (from ...)": a `Prevent`
+            // stored with the attacker's current Active Pokémon, pending until the end of this turn. A newer one of the same
+            // declaration replaces the older.
             let p = b.player as usize;
             let a = g.st.players[p].active;
-            g.st.players[p].slots[a as usize].prevent_damage_next_turn_pending = true;
-            Ok(())
-        }
-        Effect::PreventDamageFiltered { b, filter } => {
-            let p = b.player as usize;
-            let a = g.st.players[p].active;
-            let slot = &mut g.st.players[p].slots[a as usize];
-            slot.prevent_damage_next_turn_pending = true;
-            slot.prevent_damage_filter_pending = filter;
+            let source = b.cause.card.unwrap_or(b.attack.card);
+            let l = &mut g.st.players[p].slots[a as usize].lasting_prevents;
+            l.retain(|x| !std::ptr::eq(x.spec, spec));
+            l.push(crate::state::LastingPrevent { spec, source, pending: true });
             Ok(())
         }
         Effect::PreventEffectsOfAttacks { b } => {

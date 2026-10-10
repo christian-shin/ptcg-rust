@@ -77,12 +77,6 @@ impl Game {
         if !s.cannot_use_attacks_next_turn_pending.is_empty() {
             o.insert("cannotUseAttacksNextTurnPending".into(), json!(s.cannot_use_attacks_next_turn_pending.as_slice()));
         }
-        if s.prevent_damage_next_turn {
-            o.insert("preventDamageNextTurn".into(), prevent_filter_json(&s.prevent_damage_filter));
-        }
-        if s.prevent_damage_next_turn_pending {
-            o.insert("preventDamageNextTurnPending".into(), prevent_filter_json(&s.prevent_damage_filter_pending));
-        }
         // The preventions an attack left on the Pokémon (events batch 6), by the card that left them.
         if !s.lasting_prevents.is_empty() {
             let v: Vec<Value> = s.lasting_prevents.iter().map(|l| json!({"source": self.card_ref(l.source), "pending": l.pending})).collect();
@@ -486,24 +480,6 @@ pub fn _phase_name(p: GamePhase) -> u8 {
 }
 
 /// `preventFilterFromOptions` output for the modeled keys.
-fn prevent_filter_json(f: &crate::state::PreventFilter) -> Value {
-    let mut o = Map::new();
-    if let Some(st) = f.source_stage {
-        if st == crate::state::PreventFilter::SOURCE_IS_EVOLUTION {
-            o.insert("sourceIsEvolution".into(), json!(true));
-        } else {
-            o.insert("sourceStage".into(), json!(st));
-        }
-    }
-    if let Some(ts) = &f.source_card_types {
-        o.insert("sourceCardTypes".into(), json!(ts.as_slice()));
-    }
-    if f.source_has_ability {
-        o.insert("sourceHasAbility".into(), json!(true));
-    }
-    Value::Object(o)
-}
-
 fn next_turn_bonus_json(b: &crate::state::NextTurnAttackDamageBonus) -> Value {
     json!({ "attackName": b.attack_name, "bonusDamage": b.bonus_damage, "sourceCardName": b.source_card_name })
 }

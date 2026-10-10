@@ -40,7 +40,6 @@ pub enum RuleSource {
 pub enum Modifier {
     DamageDealt(DamageDealtSpec),
     DamageTaken(DamageTakenSpec),
-    PreventDamage(PreventDamageSpec),
     Prevent(PreventSpec),
     BlockUse(BlockUseSpec),
     AbilityLock(AbilityLockSpec),
@@ -236,40 +235,6 @@ impl DamageTakenSpec {
     };
 }
 
-/// How prevented damage is removed.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum PreventHow {
-    /// The `PutDamage` is prevented.
-    Prevent,
-    /// The damage is set to 0 (`DealDamage` and `PutDamage`).
-    Zero,
-    /// Tera: damage put on this Pokémon while it is on the Bench.
-    Tera,
-    /// "Flip a coin; if heads, prevent that damage" (the card's owner flips; no flip without damage).
-    CoinFlip,
-}
-
-/// "Prevent all damage done to ... by attacks from ..." (vocabulary P3).
-pub struct PreventDamageSpec {
-    pub how: PreventHow,
-    /// The damaged Pokémon.
-    pub subject: SlotPred,
-    /// The attacking Pokémon (always the opponent's).
-    pub source: SlotPred,
-    pub side: Side,
-    pub guard: Cond,
-}
-
-impl PreventDamageSpec {
-    pub const DEFAULT: PreventDamageSpec = PreventDamageSpec {
-        how: PreventHow::Prevent,
-        subject: SlotPred::Holder,
-        source: SlotPred::Any,
-        side: Side::Any,
-        guard: Cond::True,
-    };
-}
-
 /// What a `Prevent` passive stops.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum PreventWhat {
@@ -297,15 +262,30 @@ pub struct PreventSpec {
     pub what: PreventWhat,
     pub protects: SlotPred,
     pub from: super::event::EventPred,
+    /// "Flip a coin; if heads, prevent that damage" (Fezandipiti's Adrena-Pheromone; user decision D8): the declaring
+    /// card's owner flips, only for damage no other prevention stops and only when there is damage
+    /// (`coin_prevented`, after `event_prevented`); the hard reader skips it.
+    pub coin: bool,
 }
 
 impl PreventSpec {
     /// No prevention: write `..PreventSpec::NONE` for the fields a declaration doesn't use.
-    pub const NONE: PreventSpec = PreventSpec { what: PreventWhat::None, protects: SlotPred::Any, from: super::event::EventPred::NEVER };
+    pub const NONE: PreventSpec = PreventSpec { what: PreventWhat::None, protects: SlotPred::Any, from: super::event::EventPred::NEVER, coin: false };
 
     /// The events `from` don't happen to the Pokémon matching `protects`.
     pub const fn on(protects: SlotPred, from: super::event::EventPred) -> PreventSpec {
-        PreventSpec { what: PreventWhat::None, protects, from }
+        PreventSpec { what: PreventWhat::None, protects, from, coin: false }
+    }
+
+    /// The events `from` don't happen to the Pokémon matching `protects` if the declaring card's owner flips heads.
+    pub const fn on_coin(protects: SlotPred, from: super::event::EventPred) -> PreventSpec {
+        PreventSpec { what: PreventWhat::None, protects, from, coin: true }
+    }
+}
+
+impl std::fmt::Debug for PreventSpec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "PreventSpec {{ what: {:?}, coin: {} }}", self.what, self.coin)
     }
 }
 
@@ -342,7 +322,8 @@ const fn and(a: KindMask, b: KindMask) -> KindMask {
 
 /// The event families whose routine asks the `Prevent` reader (`event_prevented`), each with the marker a prevention over
 /// it sets (`prevent_kinds`) and the reader tests (`prevent_marker`).
-const PREVENT_FAMILIES: [(KindMask, u32); 5] = [
+const PREVENT_FAMILIES: [(KindMask, u32); 6] = [
+    (super::event::DAMAGE_EVENT_KINDS, crate::effects::k::DECLARES_DAMAGE_PREVENT),
     (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_PREVENT),
     (super::event::HEAL_EVENT_KINDS, crate::effects::k::DECLARES_HEAL_PREVENT),
     (super::event::COIN_EVENT_KINDS, crate::effects::k::DECLARES_COIN_PREVENT),
@@ -824,7 +805,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
         Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
-        Modifier::HeavyBaton(_) => mask(&[k::KNOCK_OUT, k::PUT_DAMAGE]),
+        Modifier::HeavyBaton(_) => mask(&[k::KNOCK_OUT, k::DAMAGE]),
         Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
         Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::EFFECT_OF_ABILITY]),
         Modifier::Permit(pm) => {
@@ -844,10 +825,6 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         },
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
         Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
-        Modifier::PreventDamage(p) => match p.how {
-            PreventHow::Zero => mask(&[k::DEAL_DAMAGE, k::PUT_DAMAGE]),
-            _ => mask(&[k::PUT_DAMAGE]),
-        },
         _ => KindMask::EMPTY,
     }
 }
@@ -939,7 +916,6 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::AttackFlags(a) => attack_flags(g, me, e, ps.origin, a),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
-        Modifier::PreventDamage(d) => prevent_damage(g, me, e, ps.origin, d),
         Modifier::BlockUse(_) => {
             // The same query legality asks (`play_locked`), restricted to this source.
             let Some((p, card, actions)) = effect_actions(g, e) else { return Ok(()) };
@@ -1136,7 +1112,7 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
             Effect::PutDamage { damage, .. } => damage,
             _ => 0,
         };
-        if g.prevented(e) || damage_now <= 0 || crate::engine::attack::should_prevent_attack_damage(g, b.target, b.source) {
+        if damage_now <= 0 || crate::engine::damage::would_be_prevented(g, &b, damage_now)? {
             return Ok(());
         }
     }
@@ -1150,45 +1126,6 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
         let t = b.target;
         let owner = t.p;
         move_cards(g, ListRef::Slot(t.p, t.s), ListRef::Discard(owner), &[me], NO_CARD)?;
-    }
-    Ok(())
-}
-
-fn prevent_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PreventDamageSpec) -> R {
-    if d.how == PreventHow::Tera {
-        // `TERA_RULE`: only for the card on top of its Pokémon.
-        if let Effect::PutDamage { .. } = *g.e(e) {
-            tera_rule(g, e, me);
-        }
-        return Ok(());
-    }
-    if (d.how == PreventHow::Prevent || d.how == PreventHow::CoinFlip) && !matches!(*g.e(e), Effect::PutDamage { .. }) {
-        return Ok(());
-    }
-    let Some((_, at)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, false)? else { return Ok(()) };
-    if d.how == PreventHow::CoinFlip {
-        let damage = match *g.e(e) {
-            Effect::PutDamage { damage, .. } => damage,
-            _ => 0,
-        };
-        if damage <= 0 {
-            return Ok(());
-        }
-        let cause = crate::cause::Cause::of_origin(origin, me, at.owner as u8);
-        let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
-        if let Effect::CoinFlipRequest { result: Some(false), .. } = c {
-            return Ok(());
-        }
-        g.set_prevent(e, true);
-        return Ok(());
-    }
-    match d.how {
-        PreventHow::Prevent => g.set_prevent(e, true),
-        PreventHow::CoinFlip | PreventHow::Tera => {}
-        _ => match g.e_mut(e) {
-            Effect::DealDamage { damage, .. } | Effect::PutDamage { damage, .. } => *damage = 0,
-            _ => {}
-        },
     }
     Ok(())
 }
@@ -1683,6 +1620,53 @@ pub const HIDE_N_SNEAK: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::
 /// its own Pokémon: `Lasting::PreventAttackEffects`), stored on the Pokémon (`Slot::lasting_prevents`).
 pub static LASTING_PREVENT_EFFECTS: PreventSpec = PreventSpec::on(SlotPred::Any, EFFECTS_OF_OPP_ATTACKS);
 
+/// "Prevent all damage done to ... by attacks from your opponent's Pokémon": the Damage event caused by the opponent's
+/// attacks.
+pub const DAMAGE_BY_OPP_ATTACKS: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::Damage),
+    super::event::EventPred::Cause(super::event::CausePred::All(&[super::event::CausePred::By(Who::Opp), super::event::CausePred::Kind(crate::cause::CauseKind::Attack)])),
+]);
+
+/// The Tera rule ("As long as this Pokémon is on your Bench, prevent all damage done to this Pokémon by attacks (both
+/// yours and your opponent's)"): a card rule, not an Ability.
+pub const TERA_RULE: PreventSpec = PreventSpec::on(
+    SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon, SlotPred::IsBench]),
+    super::event::EventPred::Kind(super::event::EventKind::Damage),
+);
+
+/// The lasting "during your opponent's next turn, prevent all damage done to this Pokémon by attacks (from <these>
+/// Pokémon)" an attack leaves on its Pokémon (`DamageSource::spec`), stored with it (`Slot::lasting_prevents`). The
+/// attacking Pokémon is read where it is now (`CausePred::Pokemon`).
+pub static LASTING_PREVENT_DAMAGE: PreventSpec = PreventSpec::on(SlotPred::Any, DAMAGE_BY_OPP_ATTACKS);
+pub static LASTING_PREVENT_DAMAGE_FROM_BASIC: PreventSpec = PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::Basic))]));
+pub static LASTING_PREVENT_DAMAGE_FROM_EVOLUTION: PreventSpec =
+    PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::Not(&SlotPred::Basic)))]));
+/// "Pokémon that have an Ability": a Pokémon whose Abilities are locked has none.
+pub static LASTING_PREVENT_DAMAGE_FROM_ABILITY: PreventSpec =
+    PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::HasAbility))]));
+/// "Basic Pokémon that aren't [C]" (printed types, as the Pokémon's card says).
+pub static LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS: PreventSpec = PreventSpec::on(
+    SlotPred::Any,
+    super::event::EventPred::All(&[
+        DAMAGE_BY_OPP_ATTACKS,
+        super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::All(&[
+            SlotPred::Basic,
+            SlotPred::Top(Pred::OneOf(&[
+                Pred::PokemonType(crate::types::ct::GRASS),
+                Pred::PokemonType(crate::types::ct::FIRE),
+                Pred::PokemonType(crate::types::ct::WATER),
+                Pred::PokemonType(crate::types::ct::LIGHTNING),
+                Pred::PokemonType(crate::types::ct::PSYCHIC),
+                Pred::PokemonType(crate::types::ct::FIGHTING),
+                Pred::PokemonType(crate::types::ct::DARK),
+                Pred::PokemonType(crate::types::ct::METAL),
+                Pred::PokemonType(crate::types::ct::FAIRY),
+                Pred::PokemonType(crate::types::ct::DRAGON),
+            ])),
+        ]))),
+    ]),
+);
+
 /// Does a `Prevent` over `from` range over events of `kind` (the mask test the reader makes before evaluating it)? An
 /// event kind with no effect yet (Discard, PutIntoHand: events batch 7) is in range of a declaration that ranges over
 /// every effect.
@@ -1698,7 +1682,7 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
 /// the attack-effect probes, `AtkBase` effects standing for an event the engine doesn't produce as one yet, and the event
 /// each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
 /// ones in `Game::reduce_effect`) with the event's view: one declaration, two readers, until the events exist.
-pub const B6OLD_PROBES: [(u32, super::event::EventKind); 25] = {
+pub const B6OLD_PROBES: [(u32, super::event::EventKind); 21] = {
     use super::event::EventKind as E;
     use crate::effects::k;
     [
@@ -1708,11 +1692,6 @@ pub const B6OLD_PROBES: [(u32, super::event::EventKind); 25] = {
         (k::DEVOLVE_PROBE, E::Devolve),
         (k::KNOCK_OUT_OPPONENT, E::KnockOut),
         (k::KNOCK_OUT_PLAYER, E::KnockOut),
-        (k::DEAL_DAMAGE, E::Damage),
-        (k::PUT_DAMAGE, E::Damage),
-        (k::APPLY_WEAKNESS, E::Damage),
-        // B6-OLD -> C4: today's record of the damage is answered as an effect (as the attack-effect probe did).
-        (k::AFTER_DAMAGE, E::ApplyEffect),
         (k::PLAY_LOCK, E::ApplyEffect),
         (k::PREVENT_RETREAT, E::ApplyEffect),
         (k::OPPONENT_POKEMON_CANNOT_USE_ATTACK, E::ApplyEffect),
@@ -1782,8 +1761,7 @@ pub(crate) fn probe_view(g: &Game, id: EffId) -> Option<super::event::EventView>
         E::MoveEnergy => Some(MoveEnd::From),
         _ => None,
     };
-    let ignores_defender = ek == E::Damage && ignores_defender_effects(g, &b);
-    Some(EventView { card: g.st.slot_pokemon(t.p as usize, t.s), slot: Some(t), end, ignores_defender, ..EventView::new(ek, b.cause, t.p, super::event::whose_turn(g)) })
+    Some(EventView { card: g.st.slot_pokemon(t.p as usize, t.s), slot: Some(t), end, ..EventView::new(ek, b.cause, t.p, super::event::whose_turn(g)) })
 }
 
 /// The `Prevent` declaration `p` of `me` answers the probe `e` it is dispatched (B6-OLD; see [`B6OLD_PROBES`]): it
@@ -1792,7 +1770,7 @@ pub(crate) fn probe_view(g: &Game, id: EffId) -> Option<super::event::EventView>
 /// (Shred) is not prevented (APR C-16; RULES.md "Shred").
 fn probe_prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
     let Some(v) = probe_view(g, e) else { return Ok(()) };
-    if p.from.is_never() || !ranges(&p.from, v.kind) || (v.kind == super::event::EventKind::Damage && v.ignores_defender) {
+    if p.from.is_never() || p.coin || !ranges(&p.from, v.kind) {
         return Ok(());
     }
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
@@ -1810,9 +1788,6 @@ fn probe_prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &Pre
 /// `Game::reduce_effect` before the probe is dispatched).
 pub fn probe_lasting_prevented(g: &mut Game, id: EffId) -> R<bool> {
     let Some(v) = probe_view(g, id) else { return Ok(false) };
-    if v.kind == super::event::EventKind::Damage && v.ignores_defender {
-        return Ok(false);
-    }
     lasting_prevented(g, &v)
 }
 // ---------------------------------------------------------------------------
@@ -2058,6 +2033,7 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_PREVENT),
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_PREVENT),
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_PREVENT),
+        E::Damage => Some(crate::effects::k::DECLARES_DAMAGE_PREVENT),
         E::EnterPlay
         | E::Evolve
         | E::Devolve
@@ -2066,7 +2042,6 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         | E::MoveEnergy
         | E::MoveTool
         | E::PlayTrainer
-        | E::Damage
         | E::KnockOut
         | E::TakePrizes
         | E::Discard
@@ -2120,7 +2095,7 @@ pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     let n = g.st.slot(t.p as usize, t.s).lasting_prevents.len();
     for i in 0..n {
         let l = g.st.slot(t.p as usize, t.s).lasting_prevents.as_slice()[i];
-        if l.pending || !ranges(&l.spec.from, v.kind) {
+        if l.pending || l.spec.coin || !ranges(&l.spec.from, v.kind) {
             continue;
         }
         if l.spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &l.spec.protects)? {
@@ -2138,7 +2113,7 @@ fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool
         let Modifier::Prevent(p) = &ps.modifier else { continue };
         // The kinds it ranges over first (a mask test): "prevent all effects of attacks" names no kind and never
         // prevents Damage (APR C-17).
-        if p.from.is_never() || !ranges(&p.from, v.kind) {
+        if p.from.is_never() || p.coin || !ranges(&p.from, v.kind) {
             continue;
         }
         if !p.from.eval(g, me, v)? {
@@ -2154,6 +2129,45 @@ fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool
         }
     }
     Ok(false)
+}
+
+/// The coin-flip preventions over the event ("flip a coin; if heads, prevent that damage": `PreventSpec::coin`), asked
+/// after the others found none (user decision D8): each matching one in place for its origin and not blocked makes its
+/// card's owner flip (a CoinFlip by its origin); heads prevents the event.
+pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
+    let (Some(marker), Some(kind)) = (prevent_marker(v.kind), v.kind.effect_kind()) else { return Ok(false) };
+    if !g.kinds_present.has(marker) {
+        return Ok(false);
+    }
+    let probe = Effect::PlayItem { p: v.owner, card: v.card.unwrap_or(0), target: None };
+    let order = g.propagation_order(&probe, kind);
+    let mut heads = false;
+    for me in order.iter().copied() {
+        let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+        for ps in passives {
+            let Modifier::Prevent(p) = &ps.modifier else { continue };
+            if !p.coin || !ranges(&p.from, v.kind) {
+                continue;
+            }
+            let Some(at) = locate(g, me, ps.origin) else { continue };
+            if !p.from.eval(g, me, v)? {
+                continue;
+            }
+            let protected = match v.slot {
+                Some(s) => slot_pred_m(g, me, s, &p.protects)?,
+                None => matches!(p.protects, SlotPred::Any),
+            };
+            if !protected || blocked(g, me, ps.origin, at, v.slot) {
+                continue;
+            }
+            let cause = crate::cause::Cause::of_origin(ps.origin, me, at.owner as u8);
+            let (c, _) = g.run_fx(Effect::CoinFlipRequest { p: at.owner as u8, callback: None, result: None, skip_reflip_stadium: false, skip_reflip_tool: false, cause })?;
+            if let Effect::CoinFlipRequest { result: Some(true), .. } = c {
+                heads = true;
+            }
+        }
+    }
+    Ok(heads)
 }
 
 /// [`event_locked`] for one in-play lock source `me`.
@@ -2974,13 +2988,13 @@ fn heavy_baton(g: &mut Game, me: CardId, e: EffId, h: &HeavyBatonSpec) -> R {
     // The criteria are checked when the damage is dealt (ruling 1547): an attack that moves the Pokémon to the
     // Bench before the Knock Out is checked doesn't stop Heavy Baton. The latest damage from an opponent's
     // attack decides; the marker is consumed by the Knock Out.
-    if let Effect::PutDamage { b, damage, .. } = *g.e(e) {
+    if let Effect::Damage { b, amount: damage, .. } = *g.e(e) {
         let t = b.target;
         if g.st.slot(t.p as usize, t.s).tools.contains(me) {
             let owner = t.p as usize;
             if g.st.phase == GamePhase::Attack && b.player as usize != owner {
                 g.st.players[owner].slots[t.s as usize].marker.remove_from(active_marker, me);
-                if g.st.players[owner].active == t.s && !g.prevented(e) && damage > 0 && !is_tool_blocked(g, owner, me) {
+                if g.st.players[owner].active == t.s && damage > 0 && !is_tool_blocked(g, owner, me) {
                     let cost = crate::engine::retreat::check_retreat_cost_base(g, owner);
                     let (rc, _) = g.run_fx(Effect::CheckRetreatCost { p: owner as u8, cost, no_cost: false, reduction: 0 })?;
                     if matches!(rc, Effect::CheckRetreatCost { cost, .. } if cost.len() == h.retreat_cost) {
@@ -3830,8 +3844,9 @@ mod prevent_marker_tests {
         // Batch 4: Slowpoke, Hoothoot, the two Antique Fossils, Bubbly Water Energy, Festival Grounds, Yveltal; batch 6 (one
         // declaration over the cause each, the batch 5 ChangeActive ones merged into it): Mist Energy, Rocky Fighting Energy,
         // Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca, Acerola's Mischief, Antique Cover Fossil, the
-        // four Hide 'n' Sneak Pokémon, Battle Cage.
-        assert_eq!(n, 21);
+        // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (21 cards), Sylveon, Crustle DRI, Shaymin,
+        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin).
+        assert_eq!(n, 50);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.

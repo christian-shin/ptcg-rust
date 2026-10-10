@@ -13,11 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[Passive {
         origin: RuleSource::Ability,
         // Your Benched Pokémon that don't have a Rule Box.
-        modifier: Modifier::PreventDamage(PreventDamageSpec {
-            subject: SlotPred::All(&[SlotPred::IsBench, SlotPred::Not(&SlotPred::RuleBox)]),
-            side: Side::Owner,
-            ..PreventDamageSpec::DEFAULT
-        }),
+        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::OnMySide, SlotPred::IsBench, SlotPred::Not(&SlotPred::RuleBox)]), DAMAGE_BY_OPP_ATTACKS)),
     }],
     ..CardSpec::NONE
 };

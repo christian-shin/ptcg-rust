@@ -17,11 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Prevent all damage done by your opponent's attacks to the Benched [D] Pokémon this is attached to.
         Passive {
             origin: RuleSource::Energy,
-            modifier: Modifier::PreventDamage(PreventDamageSpec {
-                how: PreventHow::Zero,
-                subject: SlotPred::All(&[SlotPred::Holder, SlotPred::IsBench, SlotPred::TypeIs(ct::DARK)]),
-                ..PreventDamageSpec::DEFAULT
-            }),
+            modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsBench, SlotPred::TypeIs(ct::DARK)]), DAMAGE_BY_OPP_ATTACKS)),
         },
     ],
     ..CardSpec::NONE
