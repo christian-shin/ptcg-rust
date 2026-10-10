@@ -1608,6 +1608,12 @@ pub const HIDE_N_SNEAK: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::
 /// its own Pokémon: `Lasting::PreventAttackEffects`), stored on the Pokémon (`Slot::lasting_prevents`).
 pub static LASTING_PREVENT_EFFECTS: PreventSpec = PreventSpec::on(SlotPred::Any, EFFECTS_OF_OPP_ATTACKS);
 
+/// "Is damaged by an attack" (no owner named: any attack's damage, its own player's included; Fezandipiti).
+pub const DAMAGE_BY_ATTACKS: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::Damage),
+    super::event::EventPred::Cause(super::event::CausePred::Kind(crate::cause::CauseKind::Attack)),
+]);
+
 /// "Prevent all damage done to ... by attacks from your opponent's Pokémon": the Damage event caused by the opponent's
 /// attacks.
 pub const DAMAGE_BY_OPP_ATTACKS: super::event::EventPred = super::event::EventPred::All(&[
