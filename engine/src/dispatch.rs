@@ -132,3 +132,74 @@ impl Game {
         self.dispatch.cands[slot]
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::effects::k;
+
+    /// Every effect kind that is dispatched or whose index entry a reader looks up (the event routines' locks and
+    /// preventions read `propagation_order` with the event's kind), with its name.
+    const KINDS: &[(&str, u32)] = &[
+        ("BEGIN_TURN", k::BEGIN_TURN), ("DRAW_CARD_FOR_TURN", k::DRAW_CARD_FOR_TURN), ("DREW_TOPDECK", k::DREW_TOPDECK),
+        ("END_TURN", k::END_TURN), ("WHO_BEGINS", k::WHO_BEGINS), ("BETWEEN_TURNS", k::BETWEEN_TURNS), ("AFTER_ATTACK", k::AFTER_ATTACK),
+        ("AFTER_ATTACK_TRIGGERS", k::AFTER_ATTACK_TRIGGERS), ("ATTACK_TRIGGER", k::ATTACK_TRIGGER), ("BEFORE_DOING_DAMAGE", k::BEFORE_DOING_DAMAGE),
+        ("CHECK_HP", k::CHECK_HP), ("CHECK_POKEMON_STATS", k::CHECK_POKEMON_STATS), ("CHECK_POKEMON_TYPE", k::CHECK_POKEMON_TYPE),
+        ("CHECK_RETREAT_COST", k::CHECK_RETREAT_COST), ("CHECK_ATTACK_COST", k::CHECK_ATTACK_COST), ("CHECK_PROVIDED_ENERGY", k::CHECK_PROVIDED_ENERGY),
+        ("CHECK_POKEMON_POWERS", k::CHECK_POKEMON_POWERS), ("CHECK_POKEMON_ATTACKS", k::CHECK_POKEMON_ATTACKS), ("CHECK_TABLE_STATE", k::CHECK_TABLE_STATE),
+        ("CHECK_SPECIAL_CONDITION_REMOVAL", k::CHECK_SPECIAL_CONDITION_REMOVAL), ("RETREAT", k::RETREAT), ("RETREAT_START", k::RETREAT_START),
+        ("USE_ATTACK", k::USE_ATTACK), ("USE_STADIUM", k::USE_STADIUM), ("USE_POWER", k::USE_POWER), ("POWER", k::POWER), ("ATTACK", k::ATTACK),
+        ("KNOCK_OUT", k::KNOCK_OUT), ("HEAL", k::HEAL), ("GAIN_CONDITION", k::GAIN_CONDITION), ("REMOVE_CONDITION", k::REMOVE_CONDITION),
+        ("COIN_FLIP", k::COIN_FLIP), ("EVOLVE", k::EVOLVE), ("MOVE_CARDS", k::MOVE_CARDS), ("EFFECT_OF_ABILITY", k::EFFECT_OF_ABILITY),
+        ("SPECIAL_ENERGY", k::SPECIAL_ENERGY), ("CHANGE_ACTIVE", k::CHANGE_ACTIVE), ("APPLY_WEAKNESS", k::APPLY_WEAKNESS), ("DEAL_DAMAGE", k::DEAL_DAMAGE),
+        ("PUT_DAMAGE", k::PUT_DAMAGE), ("MOVE_OPPONENT_ENERGY", k::MOVE_OPPONENT_ENERGY), ("DISCARD_CARDS", k::DISCARD_CARDS),
+        ("CARDS_TO_HAND", k::CARDS_TO_HAND), ("ATTACH", k::ATTACH), ("MOVE_ENERGY", k::MOVE_ENERGY), ("MOVE_TOOL", k::MOVE_TOOL),
+        ("ENTER_PLAY", k::ENTER_PLAY), ("PLAY_SUPPORTER", k::PLAY_SUPPORTER), ("PLAY_STADIUM", k::PLAY_STADIUM),
+        ("ATTACH_POKEMON_TOOL", k::ATTACH_POKEMON_TOOL), ("PLAY_ITEM", k::PLAY_ITEM), ("TRAINER", k::TRAINER), ("ENERGY", k::ENERGY),
+        ("TOOL", k::TOOL), ("STADIUM", k::STADIUM), ("SUPPORTER", k::SUPPORTER), ("COIN_FLIP_REQUEST", k::COIN_FLIP_REQUEST),
+        ("TRAINER_TARGET", k::TRAINER_TARGET), ("DISCARD_TO_HAND", k::DISCARD_TO_HAND), ("COIN_FLIP_SEQUENCE", k::COIN_FLIP_SEQUENCE),
+        ("DEVOLVE", k::DEVOLVE), ("SWAP", k::SWAP), ("DAMAGE", k::DAMAGE), ("PLACE_COUNTERS", k::PLACE_COUNTERS),
+        ("MOVE_COUNTERS_EVENT", k::MOVE_COUNTERS_EVENT), ("LEAVE_PLAY", k::LEAVE_PLAY), ("TAKE_PRIZES", k::TAKE_PRIZES), ("APPLY_EFFECT", k::APPLY_EFFECT),
+    ];
+
+    /// The cards (every card of the database: the pool and its support cards) with a handler for each kind.
+    fn listeners() -> [u32; 256] {
+        let mut n = [0u32; 256];
+        for d in 0..crate::carddb::cards().len() {
+            if let Some(imp) = crate::cards::impl_for(d as crate::carddb::DefId) {
+                for (_, kind) in KINDS {
+                    if imp.mask.has(*kind) {
+                        n[*kind as usize] += 1;
+                    }
+                }
+            }
+        }
+        n
+    }
+
+    /// The dispatch index keys its entries by `kind % 32` (`SLOTS`): two kinds with card listeners looked up in turn on
+    /// one entry rebuild each other's list (a kind without listeners is never looked up: `kinds_present`). Prints the
+    /// table (`cargo test listener_table -- --nocapture`) and checks ENGINE.md section 12's rule for the events of
+    /// batch 6: an entry whose other kinds have no card listeners, else only listeners of rare events (MoveTool,
+    /// CoinFlipSequence).
+    #[test]
+    fn listener_table() {
+        let n = listeners();
+        for e in 0..super::SLOTS as u32 {
+            let row: Vec<String> = KINDS.iter().filter(|(_, kd)| kd % super::SLOTS as u32 == e).map(|(name, kd)| format!("{} {} ({})", name, kd, n[*kd as usize])).collect();
+            println!("entry {:2}: {}", e, row.join(", "));
+        }
+        let batch6 = [k::DAMAGE, k::PLACE_COUNTERS, k::MOVE_COUNTERS_EVENT, k::LEAVE_PLAY, k::TAKE_PRIZES, k::APPLY_EFFECT];
+        let rare = [k::MOVE_TOOL, k::COIN_FLIP_SEQUENCE];
+        for kind in batch6 {
+            for (name, other) in KINDS {
+                if *other != kind && other % super::SLOTS as u32 == kind % super::SLOTS as u32 && n[kind as usize] > 0 && n[*other as usize] > 0 {
+                    assert!(rare.contains(other) && !batch6.contains(other), "kind {} shares its dispatch entry with {} {}, which has card listeners", kind, name, other);
+                }
+            }
+        }
+        let mut seen = std::collections::HashSet::new();
+        for (name, kd) in KINDS {
+            assert!(seen.insert(*kd), "{} {}: two kinds with one number", name, kd);
+        }
+    }
+}

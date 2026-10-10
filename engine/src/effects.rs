@@ -399,7 +399,7 @@ impl Effect {
             Power { .. } => 25,
             Attack { .. } => 26,
             KnockOut { .. } => 27,
-            LeavePlay { .. } => 119,
+            LeavePlay { .. } => 98,
             TakePrizes { .. } => 97,
             Heal { .. } => 28,
             GainCondition { .. } => 73,
@@ -436,7 +436,7 @@ impl Effect {
             TrainerTarget { .. } => 62,
             DiscardToHand { .. } => 63,
             CoinFlipSequence { .. } => 66,
-            MoveCounters { .. } => 117,
+            MoveCounters { .. } => 129,
             Devolve { .. } => 248,
             Swap { .. } => 249,
             ApplyEffect { .. } => 116,
@@ -518,13 +518,17 @@ pub mod k {
     pub const SWAP: u32 = 249;
     /// The events of events batch 6 (`engine::damage`, `engine::knockout`; KnockOut keeps `KNOCK_OUT`): Damage, PlaceCounters,
     /// MoveCounters, LeavePlay, TakePrizes, and ApplyEffect (a lasting effect put on a Pokémon or a player, user decision D4).
-    /// Each number's dispatch-index entry (`kind % 32`) is one no hot kind uses (ENGINE.md section 12): Damage 30
-    /// (TrainerTarget), PlaceCounters 4 (WhoBegins), TakePrizes 1 (DrawCardForTurn), ApplyEffect 20 (Retreat),
-    /// MoveCounters 21, LeavePlay 23 (PlayItem).
+    /// The dispatch index keys its entries by `kind % 32` (`dispatch::SLOTS`); the 32 entries are all shared, so each
+    /// number takes an entry whose other kinds have no card listeners, else only listeners of rare events (ENGINE.md
+    /// section 12; the counts: `dispatch::tests::listener_table`): Damage 30 (TrainerTarget: none), PlaceCounters 4
+    /// (WhoBegins, MoveOpponentEnergy: none), ApplyEffect 20 (Retreat, PlaySupporter: none), TakePrizes 1 (it has no
+    /// listener and is never looked up), MoveCounters 1 (MoveTool: rare), LeavePlay 2 (CoinFlipSequence: Backtrack
+    /// Badge only). MoveCounters was 117 and LeavePlay 119 (shared with AfterAttackTriggers / PlayStadium and
+    /// UseStadium / PlayItem).
     pub const DAMAGE: u32 = 94;
     pub const PLACE_COUNTERS: u32 = 100;
-    pub const MOVE_COUNTERS_EVENT: u32 = 117;
-    pub const LEAVE_PLAY: u32 = 119;
+    pub const MOVE_COUNTERS_EVENT: u32 = 129;
+    pub const LEAVE_PLAY: u32 = 98;
     pub const TAKE_PRIZES: u32 = 97;
     pub const APPLY_EFFECT: u32 = 116;
     /// A `Prevent` declaration over PlaceCounters / MoveCounters, over Damage, over a KnockOut by an effect, over LeavePlay,

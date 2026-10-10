@@ -171,11 +171,20 @@ pub struct Slot {
 /// whose attack left it (the card its predicates are evaluated for: "your opponent" is that card's owner's opponent),
 /// and whether it is still pending (armed during its owner's turn, in force from the end of that turn until the end of
 /// the opponent's next turn).
+/// The declaration is an index into `passive::LASTING_PREVENTS` (3 bytes, not a 16-byte reference: `Slot` is copied
+/// on every fork).
 #[derive(Clone, Copy)]
 pub struct LastingPrevent {
-    pub spec: &'static crate::spec::passive::PreventSpec,
+    pub spec: u8,
     pub source: CardId,
     pub pending: bool,
+}
+
+impl LastingPrevent {
+    /// The declaration.
+    pub fn spec(&self) -> &'static crate::spec::passive::PreventSpec {
+        crate::spec::passive::LASTING_PREVENTS[self.spec as usize]
+    }
 }
 
 impl std::fmt::Debug for LastingPrevent {
