@@ -91,6 +91,10 @@ impl EventKind {
             EventKind::LeavePlay => Some(k::LEAVE_PLAY),
             EventKind::TakePrizes => Some(k::TAKE_PRIZES),
             EventKind::ApplyEffect => Some(k::APPLY_EFFECT),
+            EventKind::Discard => Some(k::DISCARD),
+            EventKind::PutIntoHand => Some(k::PUT_INTO_HAND),
+            EventKind::PutIntoDeck => Some(k::PUT_INTO_DECK),
+            EventKind::Draw => Some(k::DRAW),
             _ => None,
         }
     }
@@ -110,6 +114,30 @@ pub enum CoinPurpose {
     Asleep,
     /// Who goes first (setup, and the Sudden Death game).
     FirstPlayer,
+}
+
+/// How a Trainer card's effect comes to be used (the PlayTrainer event; APR B-01..B-04, E-26).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum TrainerUse {
+    /// Played from the hand by the game rule (APR B-01 step 2: chosen from the hand and revealed): the turn's limits
+    /// apply (one Supporter, one Stadium), "can't play ... from their hand" locks read it, and it counts for "if you
+    /// played a Supporter card from your hand this turn" (E-26).
+    Played,
+    /// Its effect is used by another card without playing it (Mr. Mime's Look-Alike Show: "use the effect of a Supporter
+    /// card you find there as the effect of this attack"): it keeps its printed conditions and none of the play rules
+    /// (id2225, id2226, id2376).
+    Used,
+}
+
+/// Where cards put into a deck go (the PutIntoDeck event; APR E-35, E-36).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum DeckPosition {
+    /// On top ("put them on top of your deck").
+    Top,
+    /// On the bottom ("put them on the bottom of your deck"; a plain "put them into your deck" the text doesn't shuffle).
+    Bottom,
+    /// Shuffled in ("shuffle them into your deck", APR E-36): the cards go in; the deck's shuffle is the printed one.
+    ShuffledIn,
 }
 
 /// How the Active Pokémon changes (the ChangeActive event), named from the rulebook. Which Pokémon the change is
@@ -261,6 +289,10 @@ pub enum CausePred {
     Pokemon(SlotPred),
     /// The cause is the attack of this name (Unown's own Mysterious Signal).
     Attack(&'static str),
+    /// The causing card is the Pokémon that holds the declaring card ("the Pokémon this card is attached to": Backtrack
+    /// Badge's "an attack of the [C] Pokémon this card is attached to"). False when the declaring card isn't attached to
+    /// a Pokémon.
+    Holder,
     All(&'static [CausePred]),
     Any(&'static [CausePred]),
     Not(&'static CausePred),
@@ -315,6 +347,14 @@ pub enum EventPred {
     /// KnockOut: the attack's damage was done to the Pokémon while it was in the Active Spot ("if this Pokémon is in the
     /// Active Spot and is Knocked Out by damage from an attack": the Active Spot is read when the damage is done, id1992).
     DamagedActive,
+    /// PlayTrainer: played from the hand by the rule, or used by another card's effect ("can't play ... from their hand"
+    /// is `Use(Played) & Source(Hand)`, one conjunct per clause).
+    Use(TrainerUse),
+    /// The cause's card is the Pokémon in the event's spot (its top Pokémon card): "discarded by an effect of an attack of
+    /// the Pokémon it is attached to" (Boomerang Energy), read on the spot the card left.
+    CauseOnSlot,
+    /// CoinFlip: what the coin is flipped for.
+    Purpose(CoinPurpose),
     All(&'static [EventPred]),
     Any(&'static [EventPred]),
     Not(&'static EventPred),
@@ -381,12 +421,16 @@ pub struct EventView {
     pub ignores_defender: bool,
     /// KnockOut: the attack in progress damaged the Pokémon while it was in the Active Spot.
     pub damaged_active: bool,
+    /// PlayTrainer: played from the hand or used by another card's effect.
+    pub trainer_use: Option<TrainerUse>,
+    /// PutIntoDeck: where the cards go.
+    pub position: Option<DeckPosition>,
 }
 
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false, trainer_use: None, position: None }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or
@@ -441,6 +485,10 @@ impl CausePred {
                 _ => false,
             },
             CausePred::Attack(name) => c.attack.map_or(false, |a| crate::engine::attack::attack_def(g, a).name == *name),
+            CausePred::Holder => match (c.card, g.st.find_pokemon_slot(me)) {
+                (Some(x), Some((q, s))) => x != me && g.st.slot_pokemon(q, s) == Some(x),
+                _ => false,
+            },
             CausePred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, c)? {
@@ -483,21 +531,40 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::LEAVE_PLAY,
     crate::effects::k::TAKE_PRIZES,
     crate::effects::k::APPLY_EFFECT,
+    crate::effects::k::DISCARD,
+    crate::effects::k::PUT_INTO_HAND,
+    crate::effects::k::PUT_INTO_DECK,
+    crate::effects::k::DRAW,
 ]);
-/// Every event kind with an effect except Damage: what a `Prevent` naming no `Kind` ranges over ("prevent all effects
-/// of attacks"): damage is not an effect (APR C-17 "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398).
-/// A prevention of damage names `Kind(Damage)`.
-pub const EFFECT_EVENT_KINDS: KindMask = without(
-    EVENT_KINDS.or(crate::effects::mask(&[
-        crate::effects::k::PLACE_COUNTERS,
-        crate::effects::k::MOVE_COUNTERS_EVENT,
-        crate::effects::k::KNOCK_OUT,
-        crate::effects::k::LEAVE_PLAY,
-        crate::effects::k::TAKE_PRIZES,
-        crate::effects::k::APPLY_EFFECT,
-    ])),
-    crate::effects::k::DAMAGE,
-);
+/// The events with an effect done to a Pokémon or its cards, which a `Prevent` naming no `Kind` ranges over ("prevent all
+/// effects of attacks done to X"): an explicit list (events batch 7). Not Damage: damage is not an effect (APR C-17
+/// "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398; a prevention of damage names `Kind(Damage)`). Not
+/// the events that aren't done to a Pokémon (user decision D1: Discard and Draw are cards from the hand or the deck,
+/// PutIntoHand / PutIntoDeck cards from the deck, the discard pile or the Prizes; a card leaving a Pokémon is that
+/// Pokémon's LeavePlay), nor PlayTrainer and the turn actions: a cause-only prevention can't match them.
+pub const EFFECT_EVENT_KINDS: KindMask = crate::effects::mask(&[
+    crate::effects::k::ENTER_PLAY,
+    crate::effects::k::EVOLVE,
+    crate::effects::k::DEVOLVE,
+    crate::effects::k::SWAP,
+    crate::effects::k::ATTACH,
+    crate::effects::k::MOVE_ENERGY,
+    crate::effects::k::MOVE_TOOL,
+    crate::effects::k::GAIN_CONDITION,
+    crate::effects::k::REMOVE_CONDITION,
+    crate::effects::k::HEAL,
+    crate::effects::k::COIN_FLIP,
+    crate::effects::k::CHANGE_ACTIVE,
+    crate::effects::k::PLACE_COUNTERS,
+    crate::effects::k::MOVE_COUNTERS_EVENT,
+    crate::effects::k::KNOCK_OUT,
+    crate::effects::k::LEAVE_PLAY,
+    crate::effects::k::TAKE_PRIZES,
+    crate::effects::k::APPLY_EFFECT,
+]);
+/// The card-movement events of events batch 7 (Discard, PutIntoHand, PutIntoDeck, Draw): a lock over them sets
+/// `DECLARES_CARD_LOCK` (Poké Vital A, Neutralization Zone). No `Prevent` ranges over them (they aren't done to a Pokémon).
+pub const CARD_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::DISCARD, crate::effects::k::PUT_INTO_HAND, crate::effects::k::PUT_INTO_DECK, crate::effects::k::DRAW]);
 
 /// `m` without the kind `k`.
 pub const fn without(m: KindMask, k: u32) -> KindMask {
@@ -562,7 +629,7 @@ impl EventPred {
     /// does.
     pub const fn reads_cause(&self) -> bool {
         match self {
-            EventPred::Cause(_) | EventPred::This(_) => true,
+            EventPred::Cause(_) | EventPred::This(_) | EventPred::CauseOnSlot => true,
             EventPred::All(ps) | EventPred::Any(ps) => {
                 let mut i = 0;
                 while i < ps.len() {
@@ -679,6 +746,12 @@ impl EventPred {
             EventPred::KoBy(k) => v.ko_by == Some(*k),
             EventPred::Dest(z) => v.dest == Some(*z),
             EventPred::DamagedActive => v.damaged_active,
+            EventPred::Use(u) => v.trainer_use == Some(*u),
+            EventPred::CauseOnSlot => match (v.cause.card, v.slot) {
+                (Some(c), Some(s)) => g.st.slot_pokemon(s.p as usize, s.s) == Some(c),
+                _ => false,
+            },
+            EventPred::Purpose(p) => v.purpose == Some(*p),
             EventPred::All(ps) => {
                 for p in ps.iter() {
                     if !p.eval(g, me, v)? {
@@ -908,6 +981,53 @@ mod tests {
         assert!(!CausePred::Attack("No Such Attack").eval(&mut g, me, &opp_attack).unwrap());
         // The cause's card is not a Pokémon in play: `Pokemon(..)` is false whatever the spot predicate.
         assert!(!CausePred::Pokemon(SlotPred::Any).eval(&mut g, me, &opp_attack).unwrap());
+    }
+
+    /// The batch 7 attributes: played vs used (PlayTrainer), the cause's card in the event's spot (Boomerang Energy's "an
+    /// attack of the Pokémon it is attached to"), the coin's purpose, the Pokémon holding the declaring card (Backtrack
+    /// Badge's "the Pokémon this card is attached to").
+    #[test]
+    fn batch_7_attributes() {
+        let mut g = game();
+        let sc = serde_json::json!({
+            "me": {"reset": true, "active": "Slowpoke MEP 86", "active_energy": ["Psychic Energy MEE 5"]},
+            "opp": {"reset": true, "active": "Duskull PRE 35"}
+        });
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let me = g.st.active_player as usize;
+        let a = g.st.players[me].active;
+        let slowpoke = g.st.slot_pokemon(me, a).unwrap();
+        let energy = g.st.slot(me, a).cards.iter().find(|&c| g.st.cdef(c).is_energy()).unwrap();
+        let o = 1 - me;
+        let duskull = g.st.slot_pokemon(o, g.st.players[o].active).unwrap();
+        let attack = |card| Cause::attack(me as u8, Some(card), AttackRef { card, index: 0 });
+        let left = |cause| EventView { card: Some(energy), slot: Some(SlotRef::new(me, a)), ..EventView::new(EventKind::LeavePlay, cause, me as u8, me as u8) };
+        assert!(ev(&EventPred::CauseOnSlot, &mut g, energy, &left(attack(slowpoke))));
+        assert!(!ev(&EventPred::CauseOnSlot, &mut g, energy, &left(attack(duskull))), "another Pokémon's attack");
+        assert!(!ev(&EventPred::CauseOnSlot, &mut g, energy, &EventView { slot: None, ..left(attack(slowpoke)) }));
+        // Holder: the attacking Pokémon holds the declaring card.
+        assert!(CausePred::Holder.eval(&mut g, energy, &attack(slowpoke)).unwrap());
+        assert!(!CausePred::Holder.eval(&mut g, energy, &attack(duskull)).unwrap());
+        assert!(!CausePred::Holder.eval(&mut g, slowpoke, &attack(slowpoke)).unwrap(), "a Pokémon doesn't hold itself");
+        // Played vs used.
+        let play = |u| EventView { trainer_use: Some(u), source: Some(RulesZone::Hand), ..EventView::new(EventKind::PlayTrainer, Cause::rule(RuleWhich::Action, 0), 0, 0) };
+        assert!(ev(&EventPred::Use(TrainerUse::Played), &mut g, slowpoke, &play(TrainerUse::Played)));
+        assert!(!ev(&EventPred::Use(TrainerUse::Played), &mut g, slowpoke, &play(TrainerUse::Used)));
+        // A coin's purpose.
+        let v = crate::engine::condition::coin_view(&g, 0, CoinPurpose::Confusion, false, Cause::rule(RuleWhich::Action, 0));
+        assert!(ev(&EventPred::Purpose(CoinPurpose::Confusion), &mut g, slowpoke, &v) && !ev(&EventPred::Purpose(CoinPurpose::Effect), &mut g, slowpoke, &v));
+        assert!(EventPred::CauseOnSlot.reads_cause());
+    }
+
+    /// The card-movement events aren't done to a Pokémon (user decision D1): a cause-only prevention never ranges over
+    /// them; a lock over them is listed under their kinds.
+    #[test]
+    fn card_events_are_not_effects_on_a_pokemon() {
+        for k in [EventKind::Discard, EventKind::PutIntoHand, EventKind::PutIntoDeck, EventKind::Draw] {
+            let x = k.effect_kind().unwrap();
+            assert!(EVENT_KINDS.has(x) && !EFFECT_EVENT_KINDS.has(x) && CARD_EVENT_KINDS.has(x), "{k:?}");
+        }
+        assert!(EFFECT_EVENT_KINDS.has(crate::effects::k::LEAVE_PLAY) && !EFFECT_EVENT_KINDS.has(crate::effects::k::DAMAGE));
     }
 
     /// A CoinFlip has no card: a lock or prevention naming a card (`EventPred::Card`) never matches it, whatever the
