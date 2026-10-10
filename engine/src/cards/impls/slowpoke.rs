@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
             destination: SearchDestination::Hand { reveal: true },
             msg: "CHOOSE_CARD_TO_HAND",
             cancel: false,
-            shuffle_first: false,
         }))],
     }],
     ..CardSpec::NONE

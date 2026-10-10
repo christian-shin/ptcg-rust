@@ -31,14 +31,13 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: true,
                 onto: None,
                 cards: CardSel::All,
-                none_shuffles: true,
              different_types: false, })),
+            // Then shuffle (whatever was found: APR E-19; user decision D9); if you attached Energy in this way, 2 damage
+            // counters on that Pokémon.
+            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
             Step::new(Op::If(IfSpec {
                 cond: Cond::Slot(SlotExpr::Attached, SlotPred::Any),
-                yes: &[
-                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
-                    Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Attached), counters: Num::Lit(2) })),
-                ],
+                yes: &[Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Attached), counters: Num::Lit(2) }))],
                 no: &[],
             })),
         ],

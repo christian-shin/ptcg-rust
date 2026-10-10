@@ -20,7 +20,6 @@ pub static SPEC: CardSpec = CardSpec {
                 destination: SearchDestination::Bench,
                 msg: "",
                 cancel: false,
-                shuffle_first: false,
             }))] }],
     ..CardSpec::NONE
 };

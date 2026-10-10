@@ -49,7 +49,6 @@ pub static SPEC: CardSpec = CardSpec {
                             cancel: false,
                             onto: None,
                             cards: CardSel::All,
-                            none_shuffles: false,
                          different_types: false, })),
                         Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                     ],

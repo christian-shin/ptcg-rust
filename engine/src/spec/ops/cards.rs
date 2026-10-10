@@ -193,9 +193,6 @@ pub struct SearchSpec {
     pub msg: &'static str,
     /// The prompt can be cancelled (`allowCancel`, as the oracle prompt has it).
     pub cancel: bool,
-    /// Shuffle the chooser's deck as soon as the prompt opens, before it is answered
-    /// (Twinleaf's order for Gimmighoul; the prompt then lists the shuffled deck).
-    pub shuffle_first: bool,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SearchDestination {
@@ -249,9 +246,6 @@ pub struct AttachSpec {
     pub onto: Option<SlotExpr>,
     /// The cards attached with `onto`.
     pub cards: CardSel,
-    /// Shuffle the chooser's deck again when nothing was attached (today's behavior of
-    /// Smoochum and Cinderace, whose search shuffles before the answer).
-    pub none_shuffles: bool,
 }
 impl AttachSpec {
     pub const DEFAULT: AttachSpec = AttachSpec {
@@ -270,7 +264,6 @@ impl AttachSpec {
         cancel: false,
         onto: None,
         cards: CardSel::All,
-        none_shuffles: false,
     };
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -1023,9 +1016,6 @@ fn search_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec) -> R<Flo
         return Ok(Flow::Next);
     }
     if ask_pick(g, me, f, &s.pick, search_room(g, f, s), search_msg(s), 1, s.cancel) {
-        if s.shuffle_first {
-            open_shuffle(g, me, f, f.who(s.pick.chooser), 9);
-        }
         Ok(Flow::Suspend)
     } else {
         set_reg(g, f, s.pick.into, &[]);
@@ -1316,27 +1306,6 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             set_reg(g, f, p.into, first.cards());
             Ok(Flow::Next)
         }
-        Op::Search(s) if f.sub == 9 => {
-            // The early shuffle's answer: apply it and keep waiting for the choice.
-            if let Res::Order(o) = first {
-                let p = f.who(s.pick.chooser);
-                crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-                // The open choice lists the reordered deck: its blocked positions follow the cards.
-                let deck: Vec<CardId> = g.st.players[p].deck.as_slice().to_vec();
-                let blocked: Vec<u8> = (0..deck.len()).filter(|i| !pred(g, deck[*i], &s.pick.predicate)).map(|i| i as u8).collect();
-                for pr in g.prompts.as_mut_slice().iter_mut() {
-                    if let PromptKind::ChooseCards { cards: ListRef::Deck(d), opts, .. } = &mut pr.kind {
-                        if *d as usize == p && pr.result.is_none() {
-                            opts.blocked = Blocked::default();
-                            for i in &blocked {
-                                opts.blocked.push(*i);
-                            }
-                        }
-                    }
-                }
-            }
-            Ok(Flow::Suspend)
-        }
         Op::Search(s) if f.sub == 2 => {
             // The target of searched cards that are attached: they leave the deck for that Pokémon, one Attach event
             // per card.
@@ -1369,22 +1338,12 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
         Op::Attach(a) => {
             let p = f.who(a.chooser);
             f.attached_to = NONE;
-            if f.sub == 2 {
-                if let Res::Order(o) = first {
-                    crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
-                }
-                return Ok(Flow::Next);
-            }
             let ts: SVec<(CardTarget, CardId), 64> = match first {
                 Res::Attach(t) => t,
                 _ => SVec::new(),
             };
             f.last = ts.len() as i32;
             if ts.is_empty() {
-                if a.none_shuffles && !g.st.players[p].deck.is_empty() {
-                    open_shuffle(g, me, f, p, 2);
-                    return Ok(Flow::Suspend);
-                }
                 return Ok(Flow::Next);
             }
             let mut slots: Vec<(SlotRef, CardId)> = Vec::new();

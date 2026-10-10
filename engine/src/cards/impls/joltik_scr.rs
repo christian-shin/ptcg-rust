@@ -27,7 +27,6 @@ pub static SPEC: CardSpec = CardSpec {
                 cancel: true,
                 onto: None,
                 cards: CardSel::All,
-                none_shuffles: false,
              different_types: false, })),
             Step::after_damage(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true }))] }],
     ..CardSpec::NONE
