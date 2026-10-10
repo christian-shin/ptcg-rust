@@ -175,10 +175,12 @@ pub enum Cond {
     // --- S3 agent 3 appends ---
     /// This card's Pokémon moved from the Bench to the Active Spot this turn.
     ThisMovedToActive,
-    /// "If you do": the last op that reports an outcome did what it says (events batch 5: `Op::Switch` /
-    /// `Op::SwitchWithActive`, the ChangeActive happened; a refused one, prevented or with nothing to switch with,
-    /// didn't). Design section 7 extends it to every op.
+    /// "If you do": the last op that makes events did at least part of what it says (`run::Outcome::Done | Partial`; APR
+    /// E-20: having done part of the first half is enough). A refused event, or nothing to do it to, isn't "doing it".
     Done,
+    /// "If you can't ... (in full)": the last op that makes events did all it says (`run::Outcome::Done`; APR E-33 specific
+    /// case: Lurantis-style "if you can't discard 2 cards in this way, this attack does nothing" negates it).
+    DidAll,
     /// The Stadium in play matches the predicate.
     StadiumInPlay(Pred),
     /// The Pokémon is not protected from this Trainer's effect (a TrainerTarget probe): a checked read.
@@ -514,7 +516,8 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::InPlay(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, top, _)| pred(g, *top, p)),
         Cond::InPlayAny(w, scope, p) => in_play(g, f.who(*w), *scope).iter().any(|(_, _, stack)| stack.iter().any(|c| pred(g, *c, p))),
         Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
-        Cond::Done => f.done,
+        Cond::Done => f.outcome.did(),
+        Cond::DidAll => f.outcome == super::run::Outcome::Done,
         Cond::StadiumInPlay(p) => g.st.stadium_card().map(|c| pred(g, c, p)).unwrap_or(false),
         Cond::TrainerTargetOk(_) => panic!("Cond::TrainerTargetOk needs a checked read (cond_m)"),
         Cond::RareCandyUsable => panic!("Cond::RareCandyUsable needs a checked read (cond_m)"),
