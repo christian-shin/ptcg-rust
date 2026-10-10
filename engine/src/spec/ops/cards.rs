@@ -489,7 +489,7 @@ fn zone_cards(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId> {
 }
 
 fn show_to(g: &mut Game, viewer: usize, n: usize) {
-    show_cards_to_player(g, viewer, n);
+    crate::engine::cards_zone::reveal(g, viewer, n);
 }
 
 fn to_u8(n: i32) -> u8 {
@@ -535,7 +535,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32,
             };
             if n > 0 {
-                draw_cards(g, p, n as usize)?;
+                crate::engine::cards_zone::draw(g, p, n as usize, f.cause)?;
             }
             Ok(Flow::Next)
         }
@@ -655,7 +655,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::PrizeVisibility(pv) => {
             match pv.action {
-                PrizeAction::RedealThroughDeck => redeal_prizes(g, f.p as usize),
+                PrizeAction::RedealThroughDeck => redeal_prizes(g, f.p as usize, f.cause)?,
                 PrizeAction::FaceUp(owner) => {
                     if f.prize != NONE {
                         let (p, i) = (f.who(owner), f.prize as usize);
@@ -673,7 +673,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             // played); a Supporter used through Mr. Mime's attack is still in the opponent's hand
             // and is shuffled in with it (Twinleaf Judge: excludeCard on the player's side only).
             let exclude = if matches!(h.who, Who::Me) { me } else { NO_CARD };
-            shuffle_hand_into_deck_then_draw_ex(g, p, exclude, NO_CARD, n, Some((me, f.frame_at(1))))?;
+            shuffle_hand_into_deck_then_draw(g, p, exclude, n, Some((me, f.frame_at(1))), f.cause)?;
             Ok(Flow::Suspend)
         }
         Op::Order(o) => {
@@ -819,29 +819,41 @@ fn do_move(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveSpec) -> R {
         // Onto a Pokémon: an Energy or a Tool is attached (or moved, from another Pokémon), one event per card.
         return attach_moved(g, f, src, SlotRef { p: tp, s: ts }, &cards, me);
     }
-    if matches!(m.cards, CardSel::Tools(_)) {
-        for c in cards {
-            move_cards(g, src, dst, &[c], me)?;
-        }
+    move_cards_event(g, f, src, &cards, dst, m.place == Place::Top)
+}
+
+/// The event that moves `cards` from `src` to the zone of `dst` (its owner's, APR C-01 / C-02): staged for a register
+/// (Look); a LeavePlay for cards attached to a Pokémon or the Stadium (user decision D1); a Discard, PutIntoHand or
+/// PutIntoDeck otherwise (`engine::cards_zone`).
+fn move_cards_event(g: &mut Game, f: &Frame, src: ListRef, cards: &[CardId], dst: ListRef, top: bool) -> R {
+    use crate::spec::event::{DeckPosition, RulesZone};
+    if let ListRef::Temp(_) = dst {
+        crate::engine::cards_zone::stage(g, src, cards, dst);
         return Ok(());
     }
-    match m.place {
-        Place::AttachTo(_) => unreachable!(),
-        Place::End => move_cards(g, src, dst, &cards, me),
-        Place::Top => {
-            g.run_fx(Effect::MoveCards {
-                source: src,
-                destination: dst,
-                cards: Some(List::from_slice(&cards)),
-                count: None,
-                to_top: true,
-                to_bottom: false,
-                skip_cleanup: false,
-                source_card: me,
-            })?;
-            Ok(())
+    let zone = crate::engine::knockout::zone_of(dst);
+    match src {
+        ListRef::Slot(p, s) => {
+            crate::engine::knockout::leave_play_cards(g, SlotRef { p, s }, cards, zone, f.cause, None)?;
         }
+        ListRef::Stadium(_) => {
+            for &c in cards {
+                crate::engine::knockout::leave_play_stadium(g, c, zone, f.cause)?;
+            }
+        }
+        _ => match zone {
+            RulesZone::Hand => {
+                crate::engine::cards_zone::put_into_hand(g, src, cards, f.cause)?;
+            }
+            RulesZone::Deck => {
+                crate::engine::cards_zone::put_into_deck(g, src, cards, if top { DeckPosition::Top } else { DeckPosition::Bottom }, f.cause)?;
+            }
+            _ => {
+                crate::engine::cards_zone::discard(g, src, cards, f.cause)?;
+            }
+        },
     }
+    Ok(())
 }
 
 /// `Move` onto a Pokémon (`Place::AttachTo`, a `Zone::Attached` destination): each Energy or Tool card is attached
@@ -854,7 +866,8 @@ fn attach_moved(g: &mut Game, f: &Frame, src: ListRef, target: SlotRef, cards: &
             crate::engine::attach::attach(g, c, target, f.cause)?;
         } else {
             debug_assert!(false, "a card that is neither an Energy nor a Tool moved onto a Pokémon");
-            move_cards(g, src, target.list(), &[c], me)?;
+            let _ = me;
+            crate::engine::cards_zone::move_physical(g, src, &[c], target.list());
         }
     }
     Ok(())
@@ -975,15 +988,15 @@ fn finish_search(g: &mut Game, me: CardId, f: &mut Frame, s: &SearchSpec, chosen
         }
         SearchDestination::Hand { reveal: r } => {
             reveal(g, r);
-            move_cards(g, from, ListRef::Hand(p as u8), chosen, me)?;
+            crate::engine::cards_zone::put_into_hand(g, from, chosen, f.cause)?;
         }
         SearchDestination::Discard { reveal: r } => {
             reveal(g, r);
-            move_cards(g, from, ListRef::Discard(p as u8), chosen, me)?;
+            crate::engine::cards_zone::discard(g, from, chosen, f.cause)?;
         }
         SearchDestination::Deck { reveal: r } => {
             reveal(g, r);
-            move_cards(g, from, ListRef::Deck(p as u8), chosen, me)?;
+            crate::engine::cards_zone::put_into_deck(g, from, chosen, crate::spec::event::DeckPosition::Bottom, f.cause)?;
         }
         // The cards wait in the pick's register for the target (`search_attach_prompt`).
         SearchDestination::AttachToPicked => {}
@@ -1595,19 +1608,15 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
     Ok(true)
 }
 
-/// A DiscardCards effect of the attack on the Pokémon.
+/// The attack's removal of cards attached to the Pokémon in `slot` to their owner's discard pile or hand: a LeavePlay of
+/// the attached cards (user decision D1), which the attack-effect preventions on that Pokémon stop; an all-Energy removal
+/// waits for the attack's damage.
 fn discard_chosen(g: &mut Game, f: &Frame, slot: SlotRef, cards: &[CardId], to_hand: bool) -> R {
-    let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
-    let mut cs: SVec<CardId, 64> = SVec::new();
-    for c in cards {
-        cs.push(*c);
+    if attack_data(g, f.eff).is_none() {
+        return Ok(());
     }
-    let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: slot, cause: f.cause };
-    if to_hand {
-        g.run_fx_unit(Effect::CardsToHand { b, cards: cs })?;
-    } else {
-        g.run_fx_unit(Effect::DiscardCards { b, cards: cs })?;
-    }
+    let zone = if to_hand { crate::spec::event::RulesZone::Hand } else { crate::spec::event::RulesZone::Discard };
+    crate::engine::knockout::leave_play_cards(g, slot, cards, zone, f.cause, Some((f.eff, true)))?;
     Ok(())
 }
 
@@ -1719,10 +1728,11 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
             *damage = transfers.len() as i32 * a.damage_per;
         }
     }
+    let _ = me;
     if a.after_damage {
         for (from, c) in transfers.iter().copied() {
             let s = get_target(&g.st, p, from)?;
-            move_cards_after_damage(g, f.eff, s.list(), ListRef::Discard(p as u8), &[c], me)?;
+            crate::engine::knockout::leave_play_cards(g, s, &[c], crate::spec::event::RulesZone::Discard, f.cause, Some((f.eff, false)))?;
         }
         return Ok(());
     }
@@ -1738,10 +1748,11 @@ fn among_resume(g: &mut Game, me: CardId, f: &Frame, a: &AmongSpec, first: Res) 
             }
         }
     }
-    let Some((_, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
+    if attack_data(g, f.eff).is_none() {
+        return Ok(());
+    }
     for (target, cards) in groups {
-        let b = AtkBase { attack_effect: f.eff, player: p as u8, opponent: opp, attack, source, target, cause: f.cause };
-        g.run_fx_unit(Effect::DiscardCards { b, cards })?;
+        crate::engine::knockout::leave_play_cards(g, target, cards.as_slice(), crate::spec::event::RulesZone::Discard, f.cause, Some((f.eff, true)))?;
     }
     Ok(())
 }
@@ -1835,22 +1846,17 @@ fn energy_chosen(_f: &Frame, first: Res) -> Vec<CardId> {
     }
 }
 
-/// One DiscardCards effect per Pokémon the cards are on (first seen first).
+/// The cards leave play from the Pokémon they are attached to, one LeavePlay per Pokémon (first seen first), for their
+/// owner's discard pile (APR C-01; an Ability's cost took the frame player's pile before: no pool card discards another
+/// player's card this way). An attack's all-Energy removal waits for its damage.
 fn discard_cards_from_slots(g: &mut Game, me: CardId, f: &Frame, cards: &[CardId]) -> R {
+    let _ = me;
     let attack = if matches!(f.prog, crate::spec::run::Prog::Attack(_)) { attack_data(g, f.eff) } else { None };
     crate::cause::compare(g, "discard: f.prog == Attack", &f.cause, match attack {
         Some((p, ..)) => crate::cause::Old::Attack(Some(p)),
         None => crate::cause::Old::NotAttack,
     });
-    let Some((p, opp, attack, source)) = attack else {
-        // An Ability's cost: the cards move to the discard pile.
-        for c in cards {
-            if let Some(src) = g.st.locate(*c) {
-                move_cards(g, src, ListRef::Discard(f.p), &[*c], me)?;
-            }
-        }
-        return Ok(());
-    };
+    let window = attack.map(|_| (f.eff, true));
     let mut groups: Vec<(SlotRef, SVec<CardId, 64>)> = Vec::new();
     for c in cards {
         let Some(ListRef::Slot(q, s)) = g.st.locate(*c) else { continue };
@@ -1865,8 +1871,7 @@ fn discard_cards_from_slots(g: &mut Game, me: CardId, f: &Frame, cards: &[CardId
         }
     }
     for (target, cards) in groups {
-        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target, cause: f.cause };
-        g.run_fx_unit(Effect::DiscardCards { b, cards })?;
+        crate::engine::knockout::leave_play_cards(g, target, cards.as_slice(), crate::spec::event::RulesZone::Discard, f.cause, window)?;
     }
     Ok(())
 }
@@ -1906,17 +1911,15 @@ fn opp_tools_items(g: &Game, f: &Frame, ts: &[(CardTarget, CardId)]) -> Vec<u8> 
 }
 
 fn opp_tools_carry_out(g: &mut Game, me: CardId, f: &Frame, items: &[u8]) -> R {
-    let p = f.p as usize;
-    let Some((_, _, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
-    let source_card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(me);
+    let _ = me;
+    if attack_data(g, f.eff).is_none() {
+        return Ok(());
+    }
     for pair in items.chunks(2).filter(|c| c.len() == 2) {
         let t = SlotRef::new((pair[0] >> 4) as usize, pair[0] & 15);
-        let owner = t.p as usize;
-        // An effect of the attack on that Pokémon: Mist Energy and the like prevent it (ruling 1843).
-        if attack_effect_prevented_on(g, p, owner, pack_attack(attack), t, f.cause)? {
-            continue;
-        }
-        move_cards(g, ListRef::Slot(owner as u8, t.s), ListRef::Discard(owner as u8), &[pair[1]], source_card)?;
+        // The Tool leaves play (a LeavePlay of the attached card), an effect of the attack on that Pokémon: Mist Energy and
+        // the like prevent it (ruling 1843).
+        crate::engine::knockout::leave_play_cards(g, t, &[pair[1]], crate::spec::event::RulesZone::Discard, f.cause, None)?;
     }
     Ok(())
 }
@@ -1924,11 +1927,17 @@ fn opp_tools_carry_out(g: &mut Game, me: CardId, f: &Frame, items: &[u8]) -> R {
 // ---------------------------------------------------------------------------
 // PrizeVisibility::RedealThroughDeck (S3 agent 3)
 
-fn redeal_prizes(g: &mut Game, p: usize) {
+/// Redeemable Ticket: "Shuffle your Prize cards and put them on the bottom of your deck. Then, put that many cards from
+/// the top of your deck face down as your Prize cards": the Prize cards are shuffled (a Shuffle of the Prizes, the game
+/// RNG), put on the bottom of the deck (a PutIntoDeck from the Prizes), then as many cards from the top of the deck become
+/// the Prize cards, in the first empty Prize positions (SetPrizes, user decision D12), face down.
+fn redeal_prizes(g: &mut Game, p: usize, cause: crate::cause::Cause) -> R {
     let pc = g.st.players[p].prize_count as usize;
-    let mut all: Vec<CardId> = Vec::new();
+    let mut all: Vec<(CardId, u8)> = Vec::new();
     for i in 0..pc {
-        all.extend(g.st.players[p].prizes[i].iter());
+        for c in g.st.players[p].prizes[i].iter() {
+            all.push((c, i as u8));
+        }
     }
     let count = all.len();
     let mut perm = [0u8; 120];
@@ -1937,27 +1946,26 @@ fn redeal_prizes(g: &mut Game, p: usize) {
     for i in 0..all.len() {
         all[i] = copy[perm[i] as usize];
     }
-    // Each goes onto the bottom of the deck, in that order.
-    let mut deck: Vec<CardId> = g.st.players[p].deck.iter().collect();
-    deck.extend(all.iter().copied());
-    for i in 0..pc {
-        g.st.players[p].prizes[i].set_from(&[]);
+    if count > 0 {
+        // The shuffled Prize cards, set aside in that order, then put on the bottom of the deck.
+        let temp = g.alloc_temp(&[]);
+        for (c, i) in all.iter().copied() {
+            crate::engine::cards_zone::relocate(g, ListRef::Prize(p as u8, i), &[c], temp, false);
+        }
+        let cards: Vec<CardId> = all.iter().map(|x| x.0).collect();
+        crate::engine::cards_zone::put_into_deck(g, temp, &cards, crate::spec::event::DeckPosition::Bottom, cause)?;
     }
     // The new Prizes come from the top of the deck, into the first empty Prize slots.
     for _ in 0..count {
-        if deck.is_empty() {
-            continue;
-        }
-        let c = deck.remove(0);
-        match (0..pc).find(|i| g.st.players[p].prizes[*i].is_empty()) {
-            Some(i) => g.st.players[p].prizes[i].set_from(&[c]),
-            None => deck.insert(0, c),
+        let Some(c) = g.st.players[p].deck.get(0) else { continue };
+        if let Some(i) = (0..pc).find(|i| g.st.players[p].prizes[*i].is_empty()) {
+            crate::engine::cards_zone::set_prize(g, ListRef::Deck(p as u8), c, p, i as u8);
         }
     }
-    g.st.players[p].deck.set_from(&deck);
     // The new Prizes are face down.
     g.st.players[p].prize_public = [false; 6];
     g.st.players[p].prize_face_up = [false; 6];
+    Ok(())
 }
 
 /// Ability: move an Energy from one of your Pokémon to another (or to `to`).
@@ -2088,7 +2096,7 @@ fn de_exec(g: &mut Game, me: CardId, f: &mut Frame, d: &DiscardEnergySpec) -> R<
             let (p, s) = (slot.p as usize, slot.s);
             let energies: Vec<CardId> = g.st.slot(p, s).energies.iter().collect();
             if !energies.is_empty() {
-                move_cards_after_damage(g, f.eff, ListRef::Slot(p as u8, s), ListRef::Deck(p as u8), &energies, me)?;
+                crate::engine::knockout::leave_play_cards(g, SlotRef::new(p, s), &energies, crate::spec::event::RulesZone::Deck, f.cause, Some((f.eff, false)))?;
             }
             shuffle_deck_after_damage(g, f.eff, p);
         }
@@ -2597,7 +2605,6 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
         }
     }
     let attack = ec_attack_context(g, f);
-    let me_p = f.p as usize;
     for src in sources {
         let cards: Vec<CardId> = ts.iter().filter(|t| t.0 == src).map(|t| t.2).collect();
         match (&e.selection, e.to) {
@@ -2614,22 +2621,19 @@ fn ec_apply(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, ts: 
                     }
                 }
             }
+            // The cards leave play from the Pokémon for their owner's zone (APR C-01, C-02; Hand / Deck took the frame
+            // player's before: every pool user moves its own player's cards). An attack's all-Energy discard waits for
+            // its damage.
             (_, EnergyDest::Discard) => {
-                if attack {
-                    if let Some((p, opp, attack, source)) = attack_data(g, f.eff) {
-                        let b = AtkBase { attack_effect: f.eff, player: p, opponent: opp, attack, source, target: src, cause: f.cause };
-                        let mut cs: SVec<CardId, 64> = SVec::new();
-                        for c in &cards {
-                            cs.push(*c);
-                        }
-                        g.run_fx_unit(Effect::DiscardCards { b, cards: cs })?;
-                    }
-                } else {
-                    move_cards(g, src.list(), ListRef::Discard(src.p), &cards, me)?;
-                }
+                let window = if attack { Some((f.eff, true)) } else { None };
+                crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Discard, f.cause, window)?;
             }
-            (_, EnergyDest::Hand) => move_cards(g, src.list(), ListRef::Hand(me_p as u8), &cards, me)?,
-            (_, EnergyDest::Deck) => move_cards(g, src.list(), ListRef::Deck(me_p as u8), &cards, me)?,
+            (_, EnergyDest::Hand) => {
+                crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Hand, f.cause, None)?;
+            }
+            (_, EnergyDest::Deck) => {
+                crate::engine::knockout::leave_play_cards(g, src, &cards, crate::spec::event::RulesZone::Deck, f.cause, None)?;
+            }
             (_, EnergyDest::Slot(x)) => {
                 if let Some(dst) = slot_of(g, me, f, x) {
                     for c in &cards {
@@ -2784,10 +2788,13 @@ fn bother_resume(g: &mut Game, me: CardId, f: &mut Frame, pp: &BotherBotSpec, fi
             let st = g.spec_choices.remove_at(i);
             if first.as_bool() {
                 let (idx, hand_card) = (st.items[0], st.items[1] as CardId);
+                // The Prize card into its owner's hand (a PutIntoHand from the Prizes), the hand card into that Prize position
+                // (SetPrizes, user decision D12).
                 let prize = ListRef::Prize(o as u8, idx);
                 let prize_cards: Vec<CardId> = g.lst(prize).to_vec();
-                move_cards(g, prize, ListRef::Hand(o as u8), &prize_cards, me)?;
-                move_cards(g, ListRef::Hand(o as u8), prize, &[hand_card], me)?;
+                let _ = me;
+                crate::engine::cards_zone::put_into_hand(g, prize, &prize_cards, f.cause)?;
+                crate::engine::cards_zone::set_prize(g, ListRef::Hand(o as u8), hand_card, o, idx);
                 g.st.players[o].prize_face_up[idx as usize] = true;
                 g.st.players[o].prize_public[idx as usize] = true;
             }

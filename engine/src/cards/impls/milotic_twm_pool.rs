@@ -1,17 +1,17 @@
 //! Milotic (TWM 50): Mentally Calm — your opponent's Pokémon in play and all
 //! attached cards can't be put into your opponent's hand. Hydro Splash — 100.
 //!
-//! Twinleaf: reacts to every MoveCardsEffect whose source is a Pokémon slot
-//! (any card of any copy): this card must be the top Pokémon of a slot (found
-//! with findCardList; any failure returns), the destination must be the
-//! hand of its owner's opponent, the source slot must be one of that
-//! opponent's occupied Pokémon slots, and the owner's generic Ability probe
-//! must pass; then preventDefault.
+//! Mentally Calm is a `Prevent` over the opponent's Pokémon's LeavePlay into their hand (events batch 7, user decision D1:
+//! a whole Pokémon, and every card attached to one, leaving play is a LeavePlay whose destination is a consequence; the
+//! hand is always the owner's, APR C-02). Whatever the cause: the opponent's own effects too.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "MiloticTWMPool",
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec { what: PreventWhat::MoveToHandFromOppPlay, ..PreventSpec::NONE }) }],
+    passives: &[Passive {
+        origin: RuleSource::Ability,
+        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Not(&SlotPred::OnMySide), EventPred::All(&[EventPred::Kind(EventKind::LeavePlay), EventPred::Dest(RulesZone::Hand)]))),
+    }],
     ..CardSpec::NONE
 };
 

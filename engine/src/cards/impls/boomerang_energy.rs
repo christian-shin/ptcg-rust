@@ -16,8 +16,12 @@
 //! AttackEffect, but the attacker's own handler runs before its attached
 //! Energy sees that effect, so a discard made synchronously by the attack
 //! (Volt Strike, "discard all Energy") happened before the marker existed and
-//! the card was never re-attached. It is now armed directly by a
-//! DiscardCardsEffect from the Active holding this card that lists this card.
+//! the card was never re-attached.
+//!
+//! Events batch 7: "if this card is discarded by an effect of an attack of the Pokémon it is attached to" is a trigger
+//! over its own LeavePlay to the discard pile (an attached card leaving play, user decision D1), caused by an attack whose
+//! Pokémon is the one it was attached to (`CauseOnSlot`, read on the spot it left), whatever route discards it (an
+//! after-damage removal included). Its Energy origin is judged as it was attached there (`trigger::fires_on`).
 use crate::spec::prelude::*;
 
 const DISCARDED: &str = "BOOMERANG_DISCARDED_MARKER";
@@ -39,7 +43,13 @@ pub static SPEC: CardSpec = CardSpec {
     triggers: &[
         Trigger {
             origin: RuleSource::Energy,
-            event: Event::OnDiscarded(OnDiscardedSpec {}),
+            event: Event::On(EventPred::All(&[
+                EventPred::Kind(EventKind::LeavePlay),
+                EventPred::This(Role::Card),
+                EventPred::Dest(RulesZone::Discard),
+                EventPred::Cause(CausePred::Kind(crate::cause::CauseKind::Attack)),
+                EventPred::CauseOnSlot,
+            ])),
             // The marker stays on the Pokémon through a switch (a TrainerEffect source marker is kept).
             steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Slot(SlotExpr::Picked), name: DISCARDED, source: RuleSource::TrainerEffect }))],
         },
@@ -86,21 +96,8 @@ mod tests {
         let card = g.st.slot(me, slot).cards.iter().find(|&c| g.st.cdef(c).name == "Boomerang Energy").unwrap();
         let source = SlotRef::new(me, slot);
         let attack = AttackRef { card: g.st.slot_pokemon(me, slot).unwrap(), index: 0 };
-        let atk = g.new_fx(Effect::Attack {
-            p: me as u8,
-            opp: (1 - me) as u8,
-            attack,
-            damage: 0,
-            ignore_weakness: false,
-            ignore_resistance: false,
-            ignore_defender_effects: false,
-            source,
-            barrage_used: false,
-        });
-        let b = AtkBase { attack_effect: atk, player: me as u8, opponent: (1 - me) as u8, attack, source, target: source, cause: crate::cause::Cause::of_attack_at(&g, me as u8, attack, source) };
-        let mut cards = SVec::new();
-        cards.push(card);
-        g.run_fx(Effect::DiscardCards { b, cards }).unwrap();
+        let cause = crate::cause::Cause::of_attack_at(&g, me as u8, attack, source);
+        crate::engine::knockout::leave_play_cards(&mut g, source, &[card], crate::spec::event::RulesZone::Discard, cause, None).unwrap();
         assert!(g.st.players[me].discard.contains(card), "discarded");
         after(&mut g, me);
         g.run_fx(Effect::AfterAttackTriggers { p: me as u8, opp: (1 - me) as u8, attack }).unwrap();

@@ -93,6 +93,17 @@ pub fn leave_view(g: &Game, target: SlotRef, dest: ListRef, cause: Cause) -> Eve
     EventView { card: g.st.slot_pokemon(target.p as usize, target.s), slot: Some(target), dest: Some(zone_of(dest)), ..EventView::new(EventKind::LeavePlay, cause, target.p, crate::spec::event::whose_turn(g)) }
 }
 
+/// The LeavePlay of one card that leaves play without its Pokémon (`LeaveHow::Attached`: a card attached to the Pokémon in
+/// `target`, whose owner the event is about; `LeaveHow::Stadium`: the Stadium, no spot), as predicates read it.
+pub fn card_leave_view(g: &Game, target: Option<SlotRef>, card: CardId, how: LeaveHow, dest: ListRef, cause: Cause) -> EventView {
+    let (source, owner) = match (how, target) {
+        (LeaveHow::Stadium, _) | (_, None) => (RulesZone::Stadium, g.st.owner(card) as u8),
+        (_, Some(t)) => (RulesZone::InPlay, t.p),
+    };
+    let dest = if matches!(dest, ListRef::Discard(_)) && g.st.cdef(card).has_tag(tag::PRISM_STAR) { RulesZone::LostZone } else { zone_of(dest) };
+    EventView { card: Some(card), slot: target, source: Some(source), dest: Some(dest), ..EventView::new(EventKind::LeavePlay, cause, owner, crate::spec::event::whose_turn(g)) }
+}
+
 /// The TakePrizes event of player `p` (`count` Prize cards).
 pub fn prizes_view(g: &Game, p: usize, count: i32, cause: Cause) -> EventView {
     EventView { amount: count, dest: Some(RulesZone::Hand), ..EventView::new(EventKind::TakePrizes, cause, p as u8, crate::spec::event::whose_turn(g)) }
@@ -130,7 +141,7 @@ pub fn leave_play(g: &mut Game, target: SlotRef, dest: ListRef, cause: Cause, so
     if crate::engine::condition::refused(g, &v)?.is_some() {
         return Ok(false);
     }
-    g.run_fx_unit(Effect::LeavePlay { p: target.p, target, dest, cause, how: LeaveHow::Effect, source_card })?;
+    g.run_fx_unit(Effect::LeavePlay { p: target.p, target: Some(target), dest, cause, how: LeaveHow::Effect, source_card, cards: SVec::new() })?;
     Ok(true)
 }
 
@@ -139,7 +150,106 @@ pub fn leave_play_by_rule(g: &mut Game, target: SlotRef, dest: ListRef, cause: C
     if g.st.slot(target.p as usize, target.s).cards.is_empty() {
         return Ok(());
     }
-    g.run_fx_unit(Effect::LeavePlay { p: target.p, target, dest, cause, how, source_card: NO_CARD })
+    g.run_fx_unit(Effect::LeavePlay { p: target.p, target: Some(target), dest, cause, how, source_card: NO_CARD, cards: SVec::new() })
+}
+
+/// The list of `zone` of `owner` a card leaving play goes to (its owner's zone: APR C-01, C-02).
+pub fn owner_list(owner: u8, zone: RulesZone) -> ListRef {
+    match zone {
+        RulesZone::Hand => ListRef::Hand(owner),
+        RulesZone::Deck => ListRef::Deck(owner),
+        RulesZone::LostZone => ListRef::LostZone(owner),
+        _ => ListRef::Discard(owner),
+    }
+}
+
+/// Is `card` attached to the Pokémon in `target` (its Energy, its Tools, or another card in its spot)?
+fn attached_to(g: &Game, target: SlotRef, card: CardId) -> bool {
+    let sl = g.st.slot(target.p as usize, target.s);
+    (sl.cards.contains(card) || sl.energies.contains(card) || sl.tools.contains(card)) && g.st.slot_pokemon(target.p as usize, target.s) != Some(card)
+}
+
+/// LeavePlay of cards attached to the Pokémon in `target` (an Energy or a Tool discarded, put into the hand or into the
+/// deck; user decision D1), for `zone` of their owner, by `cause`. One event per owner carrying the cards in order; each
+/// card is checked (still attached, the locks, the preventions on the Pokémon: "prevent all effects of attacks" keeps an
+/// attack's discard off it, ruling 1843; id2393 Hide 'n' Sneak) and a refused one stays (D3). An attack's Energy removal
+/// waits for its damage (`window`: the attack's effect, and whether only an all-Energy removal waits): the call is queued
+/// in the after-damage window and checked when it runs (RULES.md "Energy removed as an effect of an attack").
+pub fn leave_play_cards(g: &mut Game, target: SlotRef, cards: &[CardId], zone: RulesZone, cause: Cause, window: Option<(EffId, bool)>) -> R<crate::spec::run::Outcome> {
+    use crate::spec::run::Outcome;
+    if let Some((atk, energy_only)) = window {
+        if !cards.is_empty() && g.after_damage_open(atk) && (!energy_only || cards.iter().all(|c| g.st.cdef(*c).is_energy())) {
+            let mut cs: SVec<CardId, 64> = SVec::new();
+            for &c in cards {
+                cs.push(c);
+            }
+            g.push_after_damage(atk, crate::game::AfterDmgStep::LeaveCards { target, cards: cs, zone, cause });
+            return Ok(Outcome::Done);
+        }
+    }
+    let mut asked = 0;
+    let mut moved = 0;
+    let mut refused = 0;
+    for owner in 0..2u8 {
+        let mut ok: SVec<CardId, 64> = SVec::new();
+        for &c in cards {
+            if g.st.owner(c) as u8 != owner || ok.contains(&c) {
+                continue;
+            }
+            asked += 1;
+            if !attached_to(g, target, c) {
+                continue;
+            }
+            let dest = owner_list(owner, zone);
+            let v = card_leave_view(g, Some(target), c, LeaveHow::Attached, dest, cause);
+            if crate::engine::condition::refused(g, &v)?.is_some() {
+                refused += 1;
+                continue;
+            }
+            ok.push(c);
+        }
+        if ok.is_empty() {
+            continue;
+        }
+        moved += ok.len();
+        g.run_fx_unit(Effect::LeavePlay { p: target.p, target: Some(target), dest: owner_list(owner, zone), cause, how: LeaveHow::Attached, source_card: NO_CARD, cards: ok })?;
+    }
+    Ok(Outcome::count(asked, moved, refused))
+}
+
+/// LeavePlay of cards attached to the Pokémon in `target` by the rule (the Retreat Cost paid, APR A-03): never refused,
+/// like the rule's other LeavePlays (a cost is paid as a whole).
+pub fn leave_play_cards_by_rule(g: &mut Game, target: SlotRef, cards: &[CardId], zone: RulesZone, cause: Cause) -> R {
+    for owner in 0..2u8 {
+        let mut ok: SVec<CardId, 64> = SVec::new();
+        for &c in cards {
+            if g.st.owner(c) as u8 == owner && !ok.contains(&c) && attached_to(g, target, c) {
+                ok.push(c);
+            }
+        }
+        if !ok.is_empty() {
+            g.run_fx_unit(Effect::LeavePlay { p: target.p, target: Some(target), dest: owner_list(owner, zone), cause, how: LeaveHow::Attached, source_card: NO_CARD, cards: ok })?;
+        }
+    }
+    Ok(())
+}
+
+/// LeavePlay of the Stadium `card` for `zone` of its owner (discarded by an effect; user decision D1), by `cause`. The locks
+/// are asked (no `Prevent` protects a Stadium: it isn't a Pokémon). Returns whether it left play.
+pub fn leave_play_stadium(g: &mut Game, card: CardId, zone: RulesZone, cause: Cause) -> R<bool> {
+    if g.st.stadium_card() != Some(card) {
+        return Ok(false);
+    }
+    let owner = g.st.owner(card) as u8;
+    let dest = owner_list(owner, zone);
+    let v = card_leave_view(g, None, card, LeaveHow::Stadium, dest, cause);
+    if crate::derived::event_locked(g, &v)?.is_some() {
+        return Ok(false);
+    }
+    let mut cs: SVec<CardId, 64> = SVec::new();
+    cs.push(card);
+    g.run_fx_unit(Effect::LeavePlay { p: owner, target: None, dest, cause, how: LeaveHow::Stadium, source_card: NO_CARD, cards: cs })?;
+    Ok(true)
 }
 
 /// TakePrizes of the Prize cards `prizes` (indices) of player `p` into their hand (the event; no card prevents or locks
@@ -919,7 +1029,25 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
 /// Star card to the Lost Zone), the Pokémon's Special Conditions and effects go with it, the spot is reset (its pending
 /// Knock Out with it), and the facts bound to the removed cards are cleared.
 fn leave(g: &mut Game, id: EffId) -> R {
-    let Effect::LeavePlay { p, target, dest, how, source_card, .. } = *g.e(id) else { return Ok(()) };
+    let Effect::LeavePlay { p, target, dest, how, source_card, cards, .. } = *g.e(id) else { return Ok(()) };
+    match how {
+        // An attached card: it leaves the Pokémon's spot for its owner's zone; the Ability locks that read attached cards
+        // are re-stamped (`passive::lock_sync_attached`, as after an Attach).
+        LeaveHow::Attached => {
+            let Some(t) = target else { return Ok(()) };
+            crate::engine::cards_zone::relocate(g, t.list(), cards.as_slice(), dest, false);
+            crate::spec::passive::lock_sync_attached(g);
+            return Ok(());
+        }
+        // The Stadium: to its owner's zone (a Prism Star card to the Lost Zone); a Stadium can hold an Ability lock.
+        LeaveHow::Stadium => {
+            let q = g.st.owner(cards.as_slice()[0]) as u8;
+            crate::engine::cards_zone::move_physical(g, ListRef::Stadium(q), cards.as_slice(), dest);
+            return Ok(());
+        }
+        _ => {}
+    }
+    let Some(target) = target else { return Ok(()) };
     let (tp, ts) = (target.p as usize, target.s);
     let removed: SVec<CardId, 60> = {
         let mut v = SVec::new();
@@ -943,26 +1071,30 @@ fn leave(g: &mut Game, id: EffId) -> R {
             }
             crate::engine::game_effect::clear_effects(&mut g.st.players[tp].slots[ts as usize]);
             g.st.players[tp].slots[ts as usize].special_conditions.clear();
-            crate::prefabs::move_pokemon_off_board(g, target, dest, NO_CARD)?;
+            crate::engine::cards_zone::relocate_spot(g, target, dest);
+            crate::engine::cards_zone::settle(g);
         }
         LeaveHow::Effect => {
-            crate::prefabs::move_pokemon_off_board(g, target, dest, source_card)?;
+            let _ = source_card;
+            crate::engine::cards_zone::relocate_spot(g, target, dest);
+            crate::engine::cards_zone::settle(g);
         }
         LeaveHow::BenchShrink => {
             let pokemons = g.st.slot_pokemons(tp, ts);
             let slot = *g.st.slot(tp, ts);
             let others: Vec<CardId> = slot.cards.iter().filter(|c| !g.st.cdef(*c).is_pokemon() && !pokemons.contains(c) && !slot.tools.contains(*c)).collect();
             if !others.is_empty() {
-                crate::prefabs::move_cards(g, target.list(), dest, &others, NO_CARD)?;
+                crate::engine::cards_zone::move_physical(g, target.list(), &others, dest);
             }
             let tools: Vec<CardId> = g.st.slot(tp, ts).tools.iter().collect();
             for t in tools {
                 g.move_card_to(target.list(), t, dest);
             }
             if !pokemons.is_empty() {
-                crate::prefabs::move_cards(g, target.list(), dest, pokemons.as_slice(), NO_CARD)?;
+                crate::engine::cards_zone::move_physical(g, target.list(), pokemons.as_slice(), dest);
             }
         }
+        LeaveHow::Attached | LeaveHow::Stadium => unreachable!(),
     }
     let _ = p;
     // A Pokémon that left play is a new object (event-audit #19): its card-bound records go.
