@@ -1330,6 +1330,27 @@ impl Game {
         if out.iter().any(|(f, t, _)| !slots.contains(&(f.slot as u8)) || !slots.contains(&(t.slot as u8))) {
             return Err(invalid);
         }
+        // Each counter moves from a Pokémon that has one at that point of the sequence (counters it received earlier in
+        // the same answer included): a move from a Pokémon without any would do nothing, so it isn't a valid answer.
+        let mut left: SVec<(crate::effects::SlotRef, i32), 18> = SVec::new();
+        for (f, t, k) in out.iter() {
+            let fs = get_target(&self.st, p, *f).map_err(|_| invalid)?;
+            let ts = get_target(&self.st, p, *t).map_err(|_| invalid)?;
+            for _ in 0..*k {
+                let at = |left: &SVec<(crate::effects::SlotRef, i32), 18>, s: crate::effects::SlotRef| left.iter().find(|x| x.0 == s).map_or(self.st.slot(s.p as usize, s.s).damage, |x| x.1);
+                let df = at(&left, fs);
+                if df < 10 {
+                    return Err(invalid);
+                }
+                let dt = at(&left, ts);
+                for (s, d) in [(fs, df - 10), (ts, dt + 10)] {
+                    match left.as_mut_slice().iter_mut().find(|x| x.0 == s) {
+                        Some(x) => x.1 = d,
+                        None => left.push((s, d)),
+                    }
+                }
+            }
+        }
         Ok(Res::DamageTransfers(out))
     }
 

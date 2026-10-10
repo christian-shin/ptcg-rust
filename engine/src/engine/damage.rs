@@ -435,6 +435,31 @@ mod tests {
         assert_eq!((g.st.slot(o, act.s).damage, g.st.slot(o, b.s).damage), (100, 0));
     }
 
+    /// A counter-move answer moves each counter from a Pokémon that has one at that point (counters it received earlier
+    /// in the answer included): a move from a Pokémon without any would do nothing and isn't a valid answer (Munkidori,
+    /// Alakazam TWM; legality = declared validity).
+    #[test]
+    fn a_counter_moves_only_from_a_pokemon_that_has_one() {
+        use crate::prompts::*;
+        use crate::types::{PlayerType, SlotType};
+        let mut g = game(json!({"me": {"reset": true, "active": SNORLAX}, "opp": {"reset": true, "active": SNORLAX, "active_damage": 20, "bench": [{"card": SNORLAX}, {"card": SNORLAX}]}}));
+        let me = g.st.active_player as usize;
+        let mut slots = SVec::new();
+        slots.push(SlotType::Active as u8);
+        slots.push(SlotType::Bench as u8);
+        let id = g.player_id(me);
+        g.prompt(id, "MOVE_DAMAGE", PromptKind::MoveDamage { player_type: PlayerType::TopPlayer, slots, max_allowed: SVec::new(), o: MoveOpts::default(), single_source: false, single_destination: false, damage_multiple: 10 }, crate::game::Cont::Noop);
+        let pr = *g.prompts.as_slice().last().unwrap();
+        let act = json!({"player": 1, "slot": 1, "index": 0});
+        let b0 = json!({"player": 1, "slot": 2, "index": 0});
+        let b1 = json!({"player": 1, "slot": 2, "index": 1});
+        let mv = |f: &serde_json::Value, t: &serde_json::Value| json!({"from": f, "to": t});
+        assert!(g.decode_answer(&pr, &json!([mv(&act, &b0), mv(&act, &b0)])).is_ok());
+        assert!(g.decode_answer(&pr, &json!([mv(&act, &b0), mv(&b0, &b1)])).is_ok(), "counters received earlier can move on");
+        assert!(g.decode_answer(&pr, &json!([mv(&b1, &b0)])).is_err(), "no counter on the source: nothing to move");
+        assert!(g.decode_answer(&pr, &json!([mv(&act, &b0), mv(&act, &b0), mv(&act, &b0)])).is_err(), "only 2 counters there");
+    }
+
     /// Moving counters: a protected destination makes them vanish, a protected source keeps them (events design 4.1).
     #[test]
     fn move_counters_ends() {

@@ -1030,9 +1030,18 @@ fn move_any_exec(g: &mut Game, me: CardId, f: &mut Frame, who: Who) -> R<Flow> {
     let owner = f.who(who);
     let player_type = if owner == f.p as usize { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
     let mut max_allowed: SVec<(CardTarget, i32), 16> = SVec::new();
+    // With no damage counters on that side there is nothing to move: nothing is asked. Otherwise each counter moves
+    // from a Pokémon that has one at that point of the answer (`Game::decode_move_damage`): a Pokémon without any can
+    // still be a source after it received counters in the same answer, so no source is blocked up front.
+    let o = MoveOpts::default();
+    let mut any = false;
     for (sl, _, t) in for_each_pokemon(g, owner, player_type).iter().copied() {
         let hp = crate::derived::hp(g, owner, sl)?;
         max_allowed.push((t, hp));
+        any |= g.st.slot(owner, sl).damage > 0;
+    }
+    if !any {
+        return Ok(Flow::Next);
     }
     let mut slots = SVec::new();
     slots.push(SlotType::Active as u8);
@@ -1041,7 +1050,7 @@ fn move_any_exec(g: &mut Game, me: CardId, f: &mut Frame, who: Who) -> R<Flow> {
     g.prompt(
         id,
         "MOVE_DAMAGE",
-        PromptKind::MoveDamage { player_type, slots, max_allowed, o: MoveOpts::default(), single_source: false, single_destination: false, damage_multiple: 10 },
+        PromptKind::MoveDamage { player_type, slots, max_allowed, o, single_source: false, single_destination: false, damage_multiple: 10 },
         f.cont(me, 1),
     );
     Ok(Flow::Suspend)
@@ -1182,6 +1191,8 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
         max_allowed.push((t, hp));
     }
     let mut opts = MoveOpts { allow_cancel: false, min: 1, max: Some(max), ..Default::default() };
+    // A source must have the counters it gives (`Game::decode_move_damage`; the Ability needs a damaged Pokémon,
+    // `Cond::AnySlot(.., Damaged)`).
     for (_, _, t) in mine.iter().copied() {
         opts.blocked_to.push(t);
     }

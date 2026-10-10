@@ -288,54 +288,6 @@
    {
     "from": {
      "player": 1,
-     "slot": 1,
-     "index": 0
-    },
-    "to": {
-     "player": 1,
-     "slot": 2,
-     "index": 1
-    }
-   },
-   {
-    "from": {
-     "player": 1,
-     "slot": 1,
-     "index": 0
-    },
-    "to": {
-     "player": 1,
-     "slot": 2,
-     "index": 1
-    }
-   },
-   {
-    "from": {
-     "player": 1,
-     "slot": 1,
-     "index": 0
-    },
-    "to": {
-     "player": 1,
-     "slot": 2,
-     "index": 1
-    }
-   },
-   {
-    "from": {
-     "player": 1,
-     "slot": 1,
-     "index": 0
-    },
-    "to": {
-     "player": 1,
-     "slot": 2,
-     "index": 1
-    }
-   },
-   {
-    "from": {
-     "player": 1,
      "slot": 2,
      "index": 0
     },
