@@ -1,14 +1,16 @@
-//! Cornerstone Mask Ogerpon ex (TWM 112): Cornerstone Stance — prevent all
-//! damage done to this Pokémon by attacks from your opponent's Pokémon that
-//! have an Ability. Demolish — 140, not affected by Weakness, Resistance or
-//! effects on the opponent's Active. Tera.
+//! Cornerstone Mask Ogerpon ex (TWM 112 / PRE 58): Cornerstone Stance —
+//! prevent all damage from attacks done to this Pokémon by your opponent's
+//! Pokémon that have an Ability. Demolish — 140; this attack's damage isn't
+//! affected by Weakness or Resistance, or by any effects on your opponent's
+//! Active Pokémon. Tera: as long as this Pokémon is on your Bench, prevent all
+//! damage done to it by attacks.
 //!
-//! Twinleaf: Demolish sets `ignoreDefenderEffects` and ignores Weakness and
-//! Resistance on the AttackEffect (phase 4b R7B: it used to add 140 straight
-//! to the Active, skipping the attacker's effects). Cornerstone
-//! Stance checks the source's printed `powers` (any kind) and an ability
-//! probe for this card's owner. The Tera bench protection is a card rule
-//! (printed above the Ability), so Ability locks don't touch it.
+//! Rule: Demolish sets the attack flags IgnoreDefenderEffects, NoWeakness and
+//! NoResistance (Shred: step 6's preventions on the Defending Pokémon don't
+//! apply to it, APR C-16). Cornerstone Stance is a `Prevent` over `Kind(Damage)`
+//! with the attacker as the cause (`CausePred::Pokemon(PrintsPower)`, the causing
+//! Pokémon where it is now); it is an Ability, so an Ability lock turns it off.
+//! The Tera rule is `TERA_RULE`, a card rule that Ability locks don't touch.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Eevee PRE 74",
+   "2 Fighting Energy MEE 6",
+   "53 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Lucario 30C 83",
+   "1 Riolu SCR 81",
+   "1 Sylveon PRE 40"
+  ],
+  [
+   "1 Eevee PRE 74",
+   "2 Fighting Energy MEE 6",
+   "53 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Lucario 30C 83",
+   "1 Riolu SCR 81",
+   "1 Sylveon PRE 40"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Riolu SCR 81",
+   "Lucario 30C 83"
+  ],
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Eevee PRE 74",
+   "Sylveon PRE 40"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Aura Sphere"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 100,
+   "cite": "card text: 100 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 60,
+   "cite": "card text: also does 60 damage to 1 of your opponent's Benched Pokemon (Don't apply Weakness and Resistance for Benched Pokemon: Snorlax is weak to Fighting); APR B-08"
+  }
+ ]
+}

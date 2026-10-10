@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Bagon EVS 107",
+   "1 Fire Energy MEE 2",
+   "53 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Salamence ex JTG 114",
+   "1 Shelgon JTG 113",
+   "1 Water Energy MEE 3"
+  ],
+  [
+   "1 Bagon EVS 107",
+   "1 Fire Energy MEE 2",
+   "53 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Salamence ex JTG 114",
+   "1 Shelgon JTG 113",
+   "1 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Bagon EVS 107",
+   "Shelgon JTG 113",
+   "Salamence ex JTG 114"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Grass Energy MEE 1",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dragon Impact"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 2,
+   "cite": "card text: discard 2 Energy from this Pokemon"
+  }
+ ]
+}

@@ -1,10 +1,11 @@
-//! Salamence ex (JTG): Wide Blast — 50 damage to each of the opponent's
-//! Benched Pokémon (no Weakness/Resistance). Dragon Impact — 300; discard 2
-//! Energy from this Pokémon (ChooseEnergyPrompt for [C][C], no cancel).
+//! Salamence ex (JTG 114): Wide Blast — 50 damage to each of your opponent's
+//! Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+//! Dragon Impact — 300; discard 2 Energy from this Pokémon.
 //!
-//! Twinleaf: Dragon Impact returns early when the Active has no Energy cards
-//! attached; otherwise the prompt/discard is the same as
-//! DISCARD_X_ENERGY_FROM_THIS_POKEMON(2).
+//! Rule: Wide Blast is one Damage event of 50 per Benched Pokémon (cause: this
+//! attack; no Weakness or Resistance, APR B-08; each protected Pokémon refuses its
+//! own at step 6). Dragon Impact discards 2 Energy of this Pokémon after the
+//! damage (you choose which; nothing happens with no Energy attached).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

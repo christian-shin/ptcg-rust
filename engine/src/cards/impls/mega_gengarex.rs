@@ -3,6 +3,14 @@
 //! Pokémon ex, that player takes 1 fewer Prize card (doesn't stack).
 //! Void Gale — 230; move an Energy from this Pokémon to 1 of your Benched
 //! Pokémon.
+//!
+//! Rule: Shadowy Concealment is a `PrizeAdjust` over the KnockOut view: it applies to
+//! a Knock Out of your [D] Pokémon (`owner_only`) whose `ko_by` is AttackDamage and
+//! whose attacker, where it is now, is a Pokémon ex (a Mega Evolution ex too, id2244);
+//! it is read when the Prizes are taken, so it works for a Knock Out that Knocks this
+//! Pokémon out too (id2262), and it doesn't stack (`nonstacking`: one reduction per
+//! Knocked Out Pokémon, however many copies). Void Gale's Energy move is a MoveEnergy
+//! event after the damage (cause: this attack, APR C-10 onto your own Pokémon).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -27,7 +35,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[Passive {
         origin: RuleSource::Ability,
         // 1 fewer Prize card for a Knock Out of your [D] Pokémon by damage from an opponent's Pokémon ex;
-        // it doesn't stack. Today's behavior kept: the lock probe is made for the opponent.
+        // it doesn't stack.
         modifier: Modifier::PrizeAdjust(PrizeAdjustSpec {
             delta: -1,
             subject: SlotPred::TypeIs(crate::types::ct::DARK),

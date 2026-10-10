@@ -1,10 +1,13 @@
-//! Hydrapple (DRI 18): Hydra Breath — discard 6 Basic [G] Energy from your
-//! hand in order to Knock Out your opponent's Active Pokémon. Whip Smash — 140.
+//! Hydrapple (DRI 18): Hydra Breath — discard 6 Basic [G] Energy cards from
+//! your hand, and Knock Out your opponent's Active Pokémon. If you can't discard 6
+//! cards in this way, this attack does nothing. Whip Smash — 140.
 //!
-//! Twinleaf: counts Basic energy cards named 'Grass Energy' in hand; with 6+
-//! a non-cancellable ChooseCardsPrompt (exactly 6) from hand, then
-//! MOVE_CARDS to the discard and a KnockOutOpponentEffect on the opponent's
-//! Active.
+//! Rule: with fewer than 6 Basic Grass Energy in hand nothing is discarded and
+//! nothing happens (id2158); with 6 or more you choose exactly 6 (Discard), then
+//! `Op::KnockOut` on the opponent's Active Pokémon: a Knock Out by an effect, resolved
+//! at the next state check with every other Knock Out (D1, id2089). "Prevent all
+//! effects of attacks" refuses it, and the discard has happened (id2427: the rest of
+//! the effect goes on).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Hydrapple",

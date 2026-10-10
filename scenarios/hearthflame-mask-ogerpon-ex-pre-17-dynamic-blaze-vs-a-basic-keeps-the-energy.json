@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Fire Energy MEE 2",
+   "55 Grass Energy MEE 1",
+   "1 Hearthflame Mask Ogerpon ex PRE 17",
+   "1 Mega Kangaskhan ex MEG 104"
+  ],
+  [
+   "3 Fire Energy MEE 2",
+   "55 Grass Energy MEE 1",
+   "1 Hearthflame Mask Ogerpon ex PRE 17",
+   "1 Mega Kangaskhan ex MEG 104"
+  ]
+ ],
+ "me": {
+  "active": "Hearthflame Mask Ogerpon ex PRE 17",
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dynamic Blaze"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 140,
+   "cite": "card text: 140 more damage and the discard only if the opponent's Active Pokemon is an Evolution Pokemon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 3,
+   "cite": "card text: the discard depends on the same condition"
+  }
+ ]
+}

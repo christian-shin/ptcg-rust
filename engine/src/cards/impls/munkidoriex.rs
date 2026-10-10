@@ -1,14 +1,12 @@
-//! Munkidori ex (SFA): Oh No You Don't — if this Pokémon is Knocked Out and
-//! you have Pecharunt ex in play, the opponent takes 1 fewer Prize card.
-//! Dirty Headbutt — 190; during your next turn this Pokémon can't use it.
+//! Munkidori ex (SFA 37): Oh No You Don't — if this Pokémon is Knocked Out by
+//! damage from an attack from your opponent's Pokémon, and if you have any
+//! Pecharunt ex in play, your opponent takes 1 fewer Prize card. Dirty Headbutt —
+//! 190; during your next turn, this Pokémon can't use Dirty Headbutt.
 //!
-//! Twinleaf (phase 4b): a KnockOutEffect on this card's slot counts only
-//! during the opponent's ATTACK phase with the owner carrying
-//! DAMAGE_DEALT_MARKER (Knocked Out by damage from an attack; it used to count
-//! any KO, e.g. Poison), and "Pecharunt ex in play" is a scan of the owner's
-//! Pokémon (it used the owner's `pecharuntexIsInPlay` flag, which Pecharunt ex
-//! set only while its owner's Active had a Special Condition and never
-//! cleared).
+//! Rule: a `PrizeAdjust` over the KnockOut view with `ko_by` AttackDamage (Poison
+//! or an effect that Knocks it Out doesn't count) and the guard "Pecharunt ex in
+//! play" (a scan of your Pokémon when the Prizes are taken). Dirty Headbutt arms
+//! `CannotUseThisAttackNextTurn` (one ApplyEffect event on this Pokémon).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

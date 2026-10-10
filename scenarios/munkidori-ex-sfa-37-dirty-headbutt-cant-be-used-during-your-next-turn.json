@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "3 Darkness Energy MEE 7",
+   "54 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Munkidori ex SFA 37"
+  ],
+  [
+   "3 Darkness Energy MEE 7",
+   "54 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Munkidori ex SFA 37"
+  ]
+ ],
+ "me": {
+  "active": "Munkidori ex SFA 37",
+  "active_energy": [
+   "3 Darkness Energy MEE 7"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dirty Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 190,
+   "cite": "card text: 190 damage"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Dirty Headbutt",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokemon can't use Dirty Headbutt"
+  }
+ ]
+}

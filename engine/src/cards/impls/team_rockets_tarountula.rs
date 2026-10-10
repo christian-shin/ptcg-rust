@@ -1,8 +1,9 @@
-//! Team Rocket's Tarountula (DRI): Take Down — 30; this Pokémon also does 10
-//! damage to itself.
+//! Team Rocket's Tarountula (DRI 19 / ASC 18): Take Down — 30; this Pokémon also
+//! does 10 damage to itself.
 //!
-//! Twinleaf: a DealDamageEffect(effect, 10) targeting the attacker's current
-//! Active, reduced during the AttackEffect (before the main damage).
+//! Rule: after the damage this Pokémon takes a Damage event of 10 (cause: this
+//! attack): the attacker's DealDamage modifiers apply and Weakness and Resistance
+//! don't, since it isn't the opponent's Active Pokémon (APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

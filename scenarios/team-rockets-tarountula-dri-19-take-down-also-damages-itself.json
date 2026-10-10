@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "58 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Team Rocket's Tarountula DRI 19"
+  ],
+  [
+   "58 Grass Energy MEE 1",
+   "1 Mega Kangaskhan ex MEG 104",
+   "1 Team Rocket's Tarountula DRI 19"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Tarountula DRI 19",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Take Down"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: 30 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "card text: this Pokemon also does 10 damage to itself (no Weakness or Resistance, APR B-08)"
+  }
+ ]
+}

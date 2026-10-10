@@ -2,14 +2,12 @@
 //! times; 20 damage each time, not affected by Weakness or Resistance.
 //! Aroma Shot — 160; this Pokémon recovers from all Special Conditions.
 //!
-//! Twinleaf: Oil Salvo is a non-cancellable PutDamagePrompt (120 damage in
-//! multiples of 20, per-target cap = printed HP + 120), then
-//! DAMAGE_OPPONENT_POKEMON per entry, so the Active's share goes through a
-//! DealDamageEffect. Fixed (R1-1): the attack sets `ignoreWeakness` and
-//! `ignoreResistance` (the damage isn't affected by Weakness or Resistance),
-//! and Aroma Shot removes all five Special Conditions from the attacker's
-//! Active (RemoveSpecialConditionsEffect(effect, undefined); it used to have
-//! no handler).
+//! Rule: each chosen Pokémon takes one Damage event (cause: this attack) per
+//! 20; the attack flags NoWeakness / NoResistance keep Weakness and Resistance off
+//! the Active Pokémon's share (APR B-08). A Pokémon "prevent all damage" protects
+//! is still chosen and takes nothing (step 6, APR C-16). Aroma Shot removes all
+//! five Special Conditions from this Pokémon (RemoveCondition events, cause: its
+//! own attack).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

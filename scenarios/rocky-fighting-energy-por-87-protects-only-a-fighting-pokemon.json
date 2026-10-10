@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Dreepy ASC 158",
+   "1 Gastly EVO 47",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Psychic Energy MEE 5",
+   "1 Rocky Fighting Energy POR 87"
+  ],
+  [
+   "1 Dreepy ASC 158",
+   "1 Gastly EVO 47",
+   "55 Grass Energy MEE 1",
+   "1 Hop's Snorlax JTG 117",
+   "1 Psychic Energy MEE 5",
+   "1 Rocky Fighting Energy POR 87"
+  ]
+ ],
+ "me": {
+  "active": "Gastly EVO 47",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dreepy ASC 158",
+  "active_energy": [
+   "Rocky Fighting Energy POR 87"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Nightmare"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "conditions": [
+    "ASLEEP"
+   ],
+   "cite": "card text: the Pokemon this card is attached to must be an [F] Pokemon"
+  }
+ ]
+}

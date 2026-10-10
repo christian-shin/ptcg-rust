@@ -1,8 +1,11 @@
 //! Lucario (30C): Aura Sphere — 100, and 60 damage to 1 of your opponent's
 //! Benched Pokémon.
 //!
-//! THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_YOUR_OPPONENTS_BENCHED_POKEMON, only
-//! when the opponent has a Benched Pokémon.
+//! (Don't apply Weakness and Resistance for Benched Pokémon.)
+//!
+//! Rule: after the damage, with a Benched Pokémon on the opponent's side, you choose one
+//! and it takes a Damage event of 60 (cause: this attack; no Weakness or Resistance, APR
+//! B-08; a prevention on it, the Tera rule's, still refuses it at step 6).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

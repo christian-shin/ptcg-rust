@@ -1,10 +1,11 @@
-//! Trumbeak (M5): Fly — 30; flip a coin. If tails, this attack does nothing.
-//! If heads, during your opponent's next turn, prevent all damage from and
-//! effects of attacks done to this Pokémon.
+//! Trumbeak (PBL 67): Fly — 30; flip a coin. If tails, this attack does nothing.
+//! If heads, during your opponent's next turn, prevent all damage from and effects
+//! of attacks done to this Pokémon.
 //!
-//! Twinleaf FLIP_COIN_FOR_FLY: tails sets the attack damage to 0; heads
-//! reduces a PreventDamageEffect and a PreventEffectsOfAttacksEffect (both
-//! with the empty filter, target = the attacker's slot).
+//! Rule: the coin comes before the damage. Tails sets the damage to 0; heads arms
+//! the lasting prevention (`Op::Arm` x2, ApplyEffect events on itself): a `Prevent`
+//! stored on the Pokémon that stops every damage (step 6, APR C-16) and effect of the
+//! opponent's attacks during their next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

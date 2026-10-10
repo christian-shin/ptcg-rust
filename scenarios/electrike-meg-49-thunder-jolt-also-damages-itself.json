@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Electrike MEG 49",
+   "57 Grass Energy MEE 1",
+   "1 Lightning Energy MEE 4",
+   "1 Mega Kangaskhan ex MEG 104"
+  ],
+  [
+   "1 Electrike MEG 49",
+   "57 Grass Energy MEE 1",
+   "1 Lightning Energy MEE 4",
+   "1 Mega Kangaskhan ex MEG 104"
+  ]
+ ],
+ "me": {
+  "active": "Electrike MEG 49",
+  "active_energy": [
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Thunder Jolt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: 30 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "card text: this Pokemon also does 10 damage to itself (no Weakness or Resistance, APR B-08)"
+  }
+ ]
+}

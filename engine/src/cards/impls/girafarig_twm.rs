@@ -1,9 +1,11 @@
-//! Girafarig (TWM): Dual Headbutt — 30; this attack also does 10 damage to 1
-//! of your Benched Pokémon.
+//! Girafarig (TWM 83): Dual Headbutt — 30; this attack also does 10 damage to 1
+//! of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched
+//! Pokémon.)
 //!
-//! Twinleaf (twilight-masquerade file): no Benched Pokémon → nothing;
-//! otherwise ChoosePokemonPrompt (your Bench, no cancel) and a
-//! PutDamageEffect(10) on the chosen Pokémon.
+//! Rule: after the damage, with a Benched Pokémon, you choose one and it takes a
+//! Damage event of 10 (cause: this attack; the attacker's own Bench, so no Weakness,
+//! Resistance or "does N more" applies, APR B-08), which a prevention on it (Tera
+//! rule, Sacred Charm) still refuses at step 6.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
