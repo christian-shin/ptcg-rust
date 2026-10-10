@@ -563,12 +563,10 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
     Ok(steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op)))
 }
 
-/// The declared checks of playing a Trainer (`reduce` and legality both make them): the one-Supporter rule
-/// and the card's `needs` and implied preconditions.
+/// The declared checks of a Trainer's effect (`reduce` and legality both make them): the card's `needs` and implied
+/// preconditions (the turn's rules, one Supporter per turn, are the PlayTrainer's own checks, `engine::play_trainer`; a
+/// used Supporter has none of them).
 pub(crate) fn check_play(g: &mut Game, me: CardId, play: &PlaySpec, f: &Frame) -> R {
-    if play.kind == PlayKind::Supporter && g.st.players[f.p as usize].supporter_turn > 0 {
-        crate::bail!("SUPPORTER_ALREADY_PLAYED");
-    }
     if !usable(g, me, f, play.needs, play.steps)? {
         crate::bail!("CANNOT_PLAY_THIS_CARD");
     }

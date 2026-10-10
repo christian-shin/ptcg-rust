@@ -30,48 +30,15 @@ pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<(SlotRef, 
     Ok((t, true))
 }
 
-/// Check only: the turn rules for playing this Supporter (first turn, one per turn).
-pub fn can_play_supporter_card(g: &Game, p: usize, card: CardId) -> R {
-    if g.st.turn == 1 && !g.st.cdef(card).first_turn {
-        crate::bail!("CANNOT_PLAY_THIS_CARD");
-    }
-    if !g.st.players[p].supporter.is_empty() {
-        crate::bail!("SUPPORTER_ALREADY_PLAYED");
-    }
-    Ok(())
-}
-
-/// Check only: the turn rules for playing this Stadium (one per turn, not the one in play).
-pub fn can_play_stadium_card(g: &Game, p: usize, card: CardId) -> R {
-    let d = g.st.cdef(card);
-    let stadium = g.st.stadium_card();
-    let hyperrogue = d.name == "Hyperrogue Ange Floette" && stadium.map(|s| g.st.cdef(s).name == "Prism Tower").unwrap_or(false);
-    if g.st.players[p].stadium_played_turn == g.st.turn && !hyperrogue {
-        crate::bail!("STADIUM_ALREADY_PLAYED");
-    }
-    if let Some(s) = stadium {
-        if g.st.cdef(s).name == d.name {
-            crate::bail!("SAME_STADIUM_ALREADY_IN_PLAY");
-        }
-    }
-    Ok(())
-}
-
-/// Check only: a Tool needs a Pokémon target.
-pub fn can_play_tool_card(target: Option<SlotRef>) -> R<SlotRef> {
-    match target {
-        Some(t) => Ok(t),
-        None => crate::bail!("INVALID_TARGET"),
-    }
-}
-
-/// Check only: using the Stadium in play (once per turn, needs one).
+/// Check only: using the Stadium in play (APR B-04: once during each player's turn, a Stadium whose card says it can be
+/// used: `CardSpec::use_stadium`; one without use text can't be used).
 pub fn can_use_stadium(g: &Game, p: usize) -> R<CardId> {
     if g.st.players[p].stadium_used_turn == g.st.turn {
         crate::bail!("STADIUM_ALREADY_USED");
     }
     match g.st.stadium_card() {
-        Some(s) => Ok(s),
+        Some(s) if crate::cards::spec_for(g.st.cards[s as usize].def).map_or(false, |sp| sp.use_stadium.is_some()) => Ok(s),
+        Some(_) => crate::bail!("CANNOT_USE_STADIUM"),
         None => crate::bail!("NO_STADIUM_IN_PLAY"),
     }
 }
@@ -118,22 +85,9 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
         return crate::engine::enter::play_from_hand(g, p, card, t);
     }
     if d.is_trainer() {
+        // The PlayTrainer event (`engine::play_trainer`): its checks, then the play.
         let t = find_pokemon_target(g, p, target);
-        let e = match d.trainer_type() {
-            TrainerType::Supporter => {
-                can_play_supporter_card(g, p, card)?;
-                Effect::PlaySupporter { p: p as u8, card, target: t }
-            }
-            TrainerType::Stadium => {
-                can_play_stadium_card(g, p, card)?;
-                g.st.players[p].stadium_played_turn = g.st.turn;
-                Effect::PlayStadium { p: p as u8, card }
-            }
-            TrainerType::Tool => Effect::AttachPokemonTool { p: p as u8, card, target: can_play_tool_card(t)? },
-            TrainerType::Item => Effect::PlayItem { p: p as u8, card, target: t },
-        };
-        g.run_fx_unit(e)?;
-        return Ok(());
+        return crate::engine::play_trainer::play_from_hand(g, p, card, t);
     }
     g.move_card_to(ListRef::Hand(p as u8), card, ListRef::Supporter(p as u8));
     Ok(())

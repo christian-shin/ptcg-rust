@@ -348,8 +348,8 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     cost_increase_end_of_turn(g, p);
     tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];
-    pl.supporter_turn = 0;
-    pl.rocket_supporter = false;
+    // The turn's record of the Trainer cards played from the hand ends with it.
+    pl.played_this_turn.clear();
     let a = pl.active;
     pl.slots[a as usize].attacks_this_turn = Some(0);
     pl.prizes_taken_last_turn = pl.prizes_taken_this_turn;
@@ -427,9 +427,6 @@ pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
     }
     if pl.stadium_and_tool_have_no_effect_turns_remaining > 0 {
         pl.stadium_and_tool_have_no_effect_turns_remaining -= 1;
-    }
-    if pl.coin_flip_cancel_trainer_play_turns_remaining > 0 {
-        pl.coin_flip_cancel_trainer_play_turns_remaining -= 1;
     }
     if pl.cannot_attack_turns_remaining > 0 {
         pl.cannot_attack_turns_remaining -= 1;

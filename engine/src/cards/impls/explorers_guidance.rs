@@ -11,7 +11,9 @@
 //! `ancientSupporter`, moves the chosen cards to the hand and the rest to the
 //! discard pile.
 //!
-//! R7C: `ancient_supporter` is not set when used as the effect of an attack (ruling 1727).
+//! Events batch 7: playing it from the hand is recorded by the PlayTrainer event (the played-this-turn record that "if
+//! you played an Ancient Supporter card from your hand this turn" reads, APR E-26); its effect used by an attack isn't a
+//! play (id2225).
 use crate::spec::prelude::*;
 
 const LOOKED_AT: ZoneRef = ZoneRef(Who::Me, Zone::Scratch(1));
@@ -31,21 +33,10 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_CARD_TO_HAND",
                 ..PickSpec::DEFAULT
             })),
-            // Using the effect of a Supporter as the effect of an attack is not playing it from the hand.
-            Step::new(Op::If(IfSpec {
-                cond: Cond::Not(&Cond::TrainerViaAttack),
-                yes: &[Step::new(Op::SetFlag(SetFlagSpec { who: Who::Me, flag: PlayerFlag::AncientSupporter, value: true }))],
-                no: &[],
-            })),
             Step::new(Op::PutIntoHand(PutIntoHandSpec { from: LOOKED_AT, cards: CardSel::Chosen(0), ..PutIntoHandSpec::DEFAULT })),
             Step::new(Op::Discard(DiscardSpec { from: LOOKED_AT, cards: CardSel::All, ..DiscardSpec::DEFAULT })),
         ],
     }),
-    triggers: &[Trigger {
-        origin: RuleSource::TrainerEffect,
-        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
-        steps: &[Step::new(Op::SetFlag(SetFlagSpec { who: Who::Me, flag: PlayerFlag::AncientSupporter, value: false }))],
-    }],
     ..CardSpec::NONE
 };
 

@@ -27,7 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
                 Step::new(Op::Discard(DiscardSpec { from: OPP_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT })),
                 Step::new(Op::If(IfSpec {
                     cond: Cond::Not(&Cond::Nonempty(OPP_STADIUM, Pred::Any)),
-                    yes: &[Step::new(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::of(&[LockedAction::PlayStadium])) }))],
+                    yes: &[Step::new(Op::Arm(ArmSpec { what: Lasting::OppCannotPlay(&LockDecl::on(PLAY_STADIUM_FROM_HAND, "BLOCKED_BY_EFFECT")) }))],
                     no: &[],
                 })),
             ],

@@ -114,7 +114,7 @@ impl CardSpec {
             m = with(m, k::USE_STADIUM);
         }
         if self.play.is_some() {
-            m = with(m, k::TRAINER);
+            m = with(m, k::PLAY_TRAINER);
         }
         let mut i = 0;
         while i < self.passives.len() {
@@ -315,7 +315,6 @@ pub enum Op {
     SpreadDamage(SpreadDamageSpec),
     // ops/state.rs
     AbilityUsed(AbilityUsedSpec),
-    SetFlag(SetFlagSpec),
     /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
     /// `count` and the Pokémon to pick from).
     /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.

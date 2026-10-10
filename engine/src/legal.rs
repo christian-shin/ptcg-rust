@@ -19,26 +19,26 @@
 //! * Pokémon (Basic, evolve): the event the play produces (`enter::hand_play_view`), its locks
 //!   (`event_locked`), and for an Evolve the evolution rules (`enter::evolve_rules`: evolves from, the
 //!   rule's limits with the permissions, the restrictions).
-//! * Item / Supporter / Stadium: the turn rules and flags (`can_play_*`), the play locks, and the card's declared
-//!   `needs` and implied preconditions evaluated in the state its effect would see. Tool: the Attach event the
-//!   play produces (the spot, one Tool per Pokémon, its locks).
+//! * Trainer: the PlayTrainer the play produces and the checks its routine makes (`engine::play_trainer::check_with`:
+//!   the turn's rules, a Tool's Attach, the locks over PlayTrainer), then the card's declared `needs` and implied
+//!   preconditions evaluated in the state its effect would see.
 //! * Attack: the attack list read, `can_attack_pre/post`, the max-Energy rule, blocks (`BlockAttack`), the
 //!   leading `Fail` steps, the cost against the provided Energy.
 //! * Ability: the power list read, the core use rule, the lock probe, once per turn, `needs` and implied
 //!   preconditions.
-//! * Use Stadium: `can_use_stadium`, the play locks, the Stadium's own `needs`.
+//! * Use Stadium: `can_use_stadium` (a Stadium that declares a use, once per turn), the Stadium's own `needs`.
 //! * Retreat: `can_retreat`, the ChangeActive's checks (`engine::change_active::check_with`: the Pokémon's lasting
 //!   "can't retreat", the locks over the event), the cost against the provided Energy.
 //! * Pass: always.
 
 use crate::carddb::DefId;
 use crate::effects::*;
-use crate::engine::{attack, play, retreat, turn};
+use crate::engine::{attack, retreat, turn};
 use crate::game::{Action, Fork, Game};
 use crate::list::*;
 use crate::prompts::get_target;
 use crate::state::AttackRef;
-use crate::spec::passive::{self, LockedAction};
+use crate::spec::passive;
 use crate::spec::run::Gate;
 use crate::types::*;
 use std::sync::OnceLock;
@@ -46,7 +46,6 @@ use std::sync::OnceLock;
 // ---------------------------------------------------------------------------
 // Which cards declare something legality reads
 
-const F_BLOCK_USE: u8 = 1;
 const F_BLOCK_ATTACK: u8 = 2;
 const F_ATTACK_FAIL: u8 = 8;
 const F_ATTACH_GUARD: u8 = 16;
@@ -62,8 +61,6 @@ fn def_flags(def: DefId) -> u8 {
                 let mut f = 0;
                 for ps in spec.passives {
                     f |= match &ps.modifier {
-                        // A lock over actions (a lock over events is asked through `derived::event_locked`).
-                        passive::Modifier::BlockUse(b) if !b.lock.actions.is_empty() => F_BLOCK_USE,
                         passive::Modifier::BlockAttack(_) => F_BLOCK_ATTACK,
                         passive::Modifier::AttachGuard(_) => F_ATTACH_GUARD,
                         _ => 0,
@@ -87,7 +84,6 @@ fn def_flags(def: DefId) -> u8 {
 /// The cards of the game that declare a lock-like check, by kind (found once per decision).
 #[derive(Default)]
 struct Sources {
-    block_use: SVec<CardId, 120>,
     block_attack: SVec<CardId, 120>,
 }
 
@@ -131,9 +127,6 @@ impl<'a> Ctx<'a> {
             let mut s = Sources::default();
             for c in 0..g.st.n_cards {
                 let f = def_flags(g.st.cards[c as usize].def);
-                if f & F_BLOCK_USE != 0 {
-                    s.block_use.push(c);
-                }
                 if f & F_BLOCK_ATTACK != 0 {
                     s.block_attack.push(c);
                 }
@@ -190,21 +183,6 @@ impl<'a> Ctx<'a> {
         r
     }
 
-    /// Is `action` with `card` locked by a declared play lock (`passive::play_locked`)?
-    fn play_locked(&mut self, card: CardId, action: &[LockedAction]) -> bool {
-        let p = self.p;
-        if !action.iter().any(|a| self.g.kinds_present.has(a.kind())) || self.sources().block_use.is_empty() {
-            return false;
-        }
-        for i in 0..self.sources().block_use.len() {
-            let src = self.sources().block_use[i];
-            if passive::play_locked_by(self.sc(), src, p, card, action).is_some() {
-                return true;
-            }
-        }
-        false
-    }
-
     /// Is the event forbidden by a declared lock? The one query execution makes (`derived::event_locked`, which
     /// the event's routine calls), on the scratch game, made only when a lock over events can exist
     /// (`passive::may_lock_event`).
@@ -237,6 +215,21 @@ impl crate::engine::attach::AttachChecks for Ctx<'_> {
         }
         // An error of the read stops the play, as in the trial.
         Ok(crate::engine::attach::AttachChecks::guard_refuses(self.sc(), v).unwrap_or(true))
+    }
+}
+
+/// The checks of the PlayTrainer a Trainer play produces (`engine::play_trainer::check_with`, the function execution
+/// calls): the turn's rules on the game, the Tool's Attach and the locks on the scratch game behind their plain-read gates.
+impl crate::engine::play_trainer::PlayChecks for Ctx<'_> {
+    fn game(&self) -> &Game {
+        self.g
+    }
+    fn event_locked(&mut self, v: &crate::spec::event::EventView) -> crate::game::R<Option<&'static str>> {
+        Ok(self.event_lock(v))
+    }
+    fn tool_attach(&mut self, card: CardId, target: SlotRef) -> crate::game::R<Option<&'static str>> {
+        let v = crate::engine::attach::attach_view(self.g, card, target, crate::spec::event::RulesZone::Hand, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, self.p as u8));
+        crate::engine::attach::check_attach_with(self, &v)
     }
 }
 
@@ -333,11 +326,15 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
     let g = ctx.g;
     let p = ctx.p;
     let d = g.st.cdef(card);
+    // The PlayTrainer the play produces and the checks its routine makes (the turn's rules, a Tool's Attach, the locks).
+    let t = get_target(&g.st, p, target).ok();
+    let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8);
+    let v = crate::engine::play_trainer::play_view(g, card, crate::spec::event::TrainerUse::Played, crate::spec::event::RulesZone::Hand, cause);
+    if !matches!(crate::engine::play_trainer::check_with(ctx, &v, t), Ok(None)) {
+        return Some(false);
+    }
     match d.trainer_type() {
         TrainerType::Item => {
-            if play::can_play_item_with(g, p, Some(card)).is_err() || ctx.play_locked(card, &[LockedAction::PlayItem]) {
-                return Some(false);
-            }
             if def_flags(d_def(g, card)) & F_PLAY_SPEC == 0 {
                 return Some(true);
             }
@@ -359,8 +356,8 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             // The Item has left the hand for the play area when its effect runs.
             let sc = ctx.sc();
             let (hand, supporter) = (sc.st.players[p].hand, sc.st.players[p].supporter);
-            play::enter_item_play(sc, p, card);
-            let e = sc.new_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: false });
+            crate::engine::play_trainer::enter_item_play(sc, p, card);
+            let e = sc.new_fx(Effect::PlayTrainer { p: p as u8, card, target: None, use_: crate::spec::event::TrainerUse::Played, cause });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
             // The lists go back by assignment: the layout tracking (the dispatch index) learns it here.
@@ -373,33 +370,23 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             Some(ok)
         }
         TrainerType::Supporter => {
-            if turn::can_play_supporter_card(g, p, card).is_err() || play::can_play_supporter_with(g, p, Some(card)).is_err() || ctx.play_locked(card, &[LockedAction::PlaySupporter]) {
-                return Some(false);
-            }
             if def_flags(d_def(g, card)) & F_PLAY_SPEC == 0 {
                 return Some(true);
             }
             let sc = ctx.sc();
-            let e = sc.new_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: false });
+            let e = sc.new_fx(Effect::PlayTrainer { p: p as u8, card, target: None, use_: crate::spec::event::TrainerUse::Played, cause });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
             Some(ok)
         }
-        TrainerType::Stadium => Some(
-            turn::can_play_stadium_card(g, p, card).is_ok() && play::can_play_stadium_with(g, p, Some(card)).is_ok() && !ctx.play_locked(card, &[LockedAction::PlayStadium]),
-        ),
+        TrainerType::Stadium => Some(true),
         TrainerType::Tool => {
             // No Tool declares a play spec: its effects are passives (a Tool with one would need the state
             // after it is attached).
             if def_flags(d_def(g, card)) & F_PLAY_SPEC != 0 {
                 return ctx.none("tool with a play spec");
             }
-            let t = get_target(&g.st, p, target).ok();
-            let Ok(t) = turn::can_play_tool_card(t) else { return Some(false) };
-            // The Attach the play produces (`engine::attach::check_tool_play`, `check_attach_with`): the spot (one
-            // Tool per Pokémon), the locks, the card's own guard.
-            let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));
-            Some(matches!(crate::engine::attach::check_attach_with(ctx, &v), Ok(None)))
+            Some(true)
         }
     }
 }
@@ -530,9 +517,6 @@ fn fast_use_stadium(ctx: &mut Ctx) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
     let Ok(stadium) = turn::can_use_stadium(g, p) else { return Some(false) };
-    if ctx.play_locked(stadium, &[LockedAction::UseStadium]) {
-        return Some(false);
-    }
     let sc = ctx.sc();
     let e = sc.new_fx(Effect::UseStadium { p: p as u8, stadium });
     let ok = crate::spec::run::use_stadium_check(sc, stadium, p, e).is_ok();

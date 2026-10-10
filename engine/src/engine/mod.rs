@@ -14,7 +14,7 @@ pub mod knockout;
 pub mod game_effect;
 pub mod ops;
 pub mod phase;
-pub mod play;
+pub mod play_trainer;
 pub mod retreat;
 pub mod setup;
 pub mod turn;

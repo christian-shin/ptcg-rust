@@ -197,10 +197,17 @@ impl Game {
                 }
             };
         }
-        nd!(supporter_turn, "supporterTurn");
+        // The played-this-turn record (events batch 7), as the keys the state always had (none is observable).
+        let played = |f: &dyn Fn(&crate::carddb::CardDef) -> bool| pl.played_this_turn.iter().filter(|c| f(self.st.cdef(**c))).count();
+        let supporters = played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8);
+        if supporters > 0 {
+            o.insert("supporterTurn".into(), json!(supporters));
+        }
         nd!(retreated_turn, "retreatedTurn");
         nd!(energy_played_turn, "energyPlayedTurn");
-        nd!(stadium_played_turn, "stadiumPlayedTurn");
+        if played(&|d| d.trainer_type == crate::types::TrainerType::Stadium as u8) > 0 {
+            o.insert("stadiumPlayedTurn".into(), json!(self.st.turn));
+        }
         nd!(stadium_used_turn, "stadiumUsedTurn");
         nd!(used_vstar, "usedVSTAR");
         nd!(used_gx, "usedGX");
@@ -211,22 +218,13 @@ impl Game {
         nd!(pokemon_knocked_out_by_attack_during_opponents_last_turn, "pokemonKnockedOutByAttackDuringOpponentsLastTurn");
         nd!(can_evolve, "canEvolve");
         nd!(ancient_pokemon_attacked_last_turn, "ancientPokemonAttackedLastTurn");
-        nd!(ancient_supporter, "ancientSupporter");
-        // The locks an attack left, as the keys the state always had (what they stop, and the turns left). The
-        // locks over events (`LockDecl::forbids`: playing or evolving Pokémon, events batch 2; attaching from the
-        // hand, batch 3, whose keys were `cannotPlayToolCards` / `cannotPlayEnergyCards`) have no key: these keys
-        // are Twinleaf's, outside the observable projection the golden comparator hashes.
-        {
-            use crate::spec::passive::LockedAction as A;
-            let stops = |a: A| pl.lasting_locks.iter().flatten().any(|l| l.decl.actions.contains(&a));
-            for (a, key) in [(A::PlayItem, "cannotPlayItemCards"), (A::PlaySupporter, "cannotPlaySupporterCards"), (A::PlayStadium, "cannotPlayStadiumCards")] {
-                if stops(a) {
-                    o.insert(key.into(), json!(true));
-                }
-            }
-            if let Some(t) = pl.lasting_locks.iter().flatten().map(|l| l.turns_remaining).max() {
-                o.insert("playLocksTurnsRemaining".into(), json!(t));
-            }
+        if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::ANCIENT)) > 0 {
+            o.insert("ancientSupporter".into(), json!(true));
+        }
+        // The locks an attack left: the turns left (what they stop is the declaration, `LockDecl::forbids`; outside the
+        // observable projection the golden comparator hashes).
+        if let Some(t) = pl.lasting_locks.iter().flatten().map(|l| l.turns_remaining).max() {
+            o.insert("playLocksTurnsRemaining".into(), json!(t));
         }
         nd!(used_dragons_wish, "usedDragonsWish");
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
@@ -235,13 +233,14 @@ impl Game {
         nd!(cannot_attack_max_energy, "cannotAttackMaxEnergy");
         nd!(cannot_attack_max_energy_turns_remaining, "cannotAttackMaxEnergyTurnsRemaining");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
-        nd!(coin_flip_cancel_trainer_play_turns_remaining, "coinFlipCancelTrainerPlayTurnsRemaining");
         nd!(used_table_turner, "usedTableTurner");
         nd!(chains_of_control_used, "chainsOfControlUsed");
         nd!(pecharuntex_is_in_play, "pecharuntexIsInPlay");
         nd!(used_run_errand, "usedRunErrand");
         nd!(used_lunar_cycle, "usedLunarCycle");
-        nd!(rocket_supporter, "rocketSupporter");
+        if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::TEAM_ROCKET)) > 0 {
+            o.insert("rocketSupporter".into(), json!(true));
+        }
         nd!(legacy_energy_used, "legacyEnergyUsed");
         nd!(used_fan_call, "usedFanCall");
         nd!(played_canari, "playedCanari");

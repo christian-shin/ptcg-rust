@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 0,
             steps: &[Step::before_damage(Op::Coin(CoinSpec { flips: Flips::Count(4), per_heads: PerHeads::DamageIs(30), ..CoinSpec::DEFAULT }))],
         },
-        AttackSpec { index: 1, steps: &[Step::before_damage(more_damage_if(100, Cond::RocketSupporterPlayed(Who::Me)))] },
+        AttackSpec { index: 1, steps: &[Step::before_damage(more_damage_if(100, Cond::PlayedThisTurn(Who::Me, Pred::All(&[Pred::Supporter, Pred::Tag(crate::types::tag::TEAM_ROCKET)]))))] },
     ],
     ..CardSpec::NONE
 };

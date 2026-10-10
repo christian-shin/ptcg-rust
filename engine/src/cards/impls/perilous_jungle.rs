@@ -5,7 +5,6 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "PerilousJungle",
     passives: &[
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
         Passive {
             origin: RuleSource::Stadium,
             modifier: Modifier::CheckupDamage(CheckupDamageSpec {

@@ -15,7 +15,6 @@ pub static SPEC: CardSpec = CardSpec {
     class: "DangerousRuins",
     passives: &[
         // Automatically active: it can't be announced and used.
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
     ],
     // Whenever any player puts a Basic non-[D] Pokémon onto their Bench during their turn, place 2 damage
     // counters on that Pokémon.

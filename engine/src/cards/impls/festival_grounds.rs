@@ -16,7 +16,6 @@ pub static SPEC: CardSpec = CardSpec {
         // affected by any.
         Passive { origin: RuleSource::Stadium, modifier: Modifier::Recover(RecoverSpec { conds: &[], subject: SlotPred::HasEnergy }) },
         Passive { origin: RuleSource::Stadium, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::HasEnergy, EventPred::Kind(EventKind::GainCondition))) },
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
     ],
     ..CardSpec::NONE
 };

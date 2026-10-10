@@ -57,7 +57,7 @@ pub fn observe(g: &Game, viewer: usize) -> Vec<f32> {
     v[1] = (st.active_player as usize == viewer) as u8 as f32;
     v[2] = st.phase as u8 as f32;
     v[3] = st.stadium_card().map(|c| card_code(g, c)).unwrap_or(0.0);
-    v[4] = (st.players[viewer].supporter_turn > 0) as u8 as f32;
+    v[4] = st.players[viewer].played_this_turn.iter().any(|c| st.cdef(*c).trainer_type == crate::types::TrainerType::Supporter as u8) as u8 as f32;
     v[5] = (st.players[viewer].energy_played_turn == st.turn) as u8 as f32;
     v[6] = (st.players[viewer].retreated_turn == st.turn) as u8 as f32;
     for (k, p) in [viewer, 1 - viewer].into_iter().enumerate() {

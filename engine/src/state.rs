@@ -348,10 +348,12 @@ pub struct Player {
     pub active: SlotId,
     pub bench: SVec<SlotId, MAX_BENCH>,
 
-    pub supporter_turn: i32,
+    /// The Trainer cards the player played from their hand this turn (events batch 7, the PlayTrainer event's record;
+    /// cleared at the end of their turn): the one source of "if you played a Supporter card from your hand this turn"
+    /// (APR E-26) and of the turn's limits (one Supporter, one Stadium). A used card (Look-Alike Show) isn't played.
+    pub played_this_turn: SVec<CardId, 60>,
     pub retreated_turn: i32,
     pub energy_played_turn: i32,
-    pub stadium_played_turn: i32,
     pub stadium_used_turn: i32,
     pub marker: PlayerMarker,
     pub used_vstar: bool,
@@ -368,8 +370,6 @@ pub struct Player {
     pub pokemon_knocked_out_last_turn_by_attack: SVec<bool, 8>,
     pub can_evolve: bool,
     pub ancient_pokemon_attacked_last_turn: bool,
-    /// `Player.ancientSupporter` (Explorer's Guidance / Professor Sada's Vitality).
-    pub ancient_supporter: bool,
     /// The locks an attack left on this player (`Lasting::OppCannotPlay`), each with its turns left.
     pub lasting_locks: [Option<LastingLock>; 6],
     pub used_dragons_wish: bool,
@@ -379,7 +379,6 @@ pub struct Player {
     pub cannot_attack_max_energy: Option<i32>,
     pub cannot_attack_max_energy_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
-    pub coin_flip_cancel_trainer_play_turns_remaining: i32,
     /// `usedTableTurner` (Fezandipiti ex; absent until first written).
     pub used_table_turner: bool,
     /// Pecharunt ex's `chainsOfControlUsed` (absent until first written).
@@ -390,8 +389,6 @@ pub struct Player {
     pub used_run_errand: bool,
     /// `usedLunarCycle` (Lunatone M1L; absent on fresh players).
     pub used_lunar_cycle: bool,
-    /// `rocketSupporter` (Team Rocket's Petrel; cleared at its owner's end of turn).
-    pub rocket_supporter: bool,
     /// `legacyEnergyUsed` (Legacy Energy TWM; once per game, never reset).
     pub legacy_energy_used: bool,
     /// `usedFanCall` (Fan Rotom SCR; cleared by Fan Rotom at any end of turn).
@@ -418,10 +415,9 @@ impl Player {
             slot_used: [false; MAX_SLOTS],
             active: 0,
             bench: SVec::new(),
-            supporter_turn: 0,
+            played_this_turn: SVec::new(),
             retreated_turn: 0,
             energy_played_turn: 0,
-            stadium_played_turn: 0,
             stadium_used_turn: 0,
             marker: Marker::default(),
             used_vstar: false,
@@ -437,7 +433,6 @@ impl Player {
             pokemon_knocked_out_last_turn_by_attack: SVec::new(),
             can_evolve: false,
             ancient_pokemon_attacked_last_turn: false,
-            ancient_supporter: false,
             lasting_locks: [None; 6],
             used_dragons_wish: false,
             unlimited_energy_attach_turns_remaining: 0,
@@ -446,13 +441,11 @@ impl Player {
             cannot_attack_max_energy: None,
             cannot_attack_max_energy_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
-            coin_flip_cancel_trainer_play_turns_remaining: 0,
             used_table_turner: false,
             chains_of_control_used: false,
             pecharuntex_is_in_play: false,
             used_run_errand: false,
             used_lunar_cycle: false,
-            rocket_supporter: false,
             legacy_energy_used: false,
             used_fan_call: false,
             played_canari: false,

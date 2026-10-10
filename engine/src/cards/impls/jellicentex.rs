@@ -7,8 +7,8 @@
 //! ability probe for the *opponent of the player* passes (i.e. the Ability is not blocked).
 //!
 //! Events batch 3: "Pokémon Tool cards from their hand" is the Attach event of a Tool from the hand,
-//! whatever attaches it (id25, id230); a Tool put on by an effect from another zone isn't stopped. Items
-//! keep the action form until PlayTrainer (batch 7).
+//! whatever attaches it (id25, id230); a Tool put on by an effect from another zone isn't stopped. Events batch 7:
+//! "Item cards from their hand" is their PlayTrainer (`Use(Played) & Source(Hand) & Card(Item)`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Jellicentex",
@@ -20,13 +20,10 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         Passive { origin: RuleSource::Ability, modifier: Modifier::BlockUse(BlockUseSpec {
             binds: Binds::Opponent,
-            lock: LockDecl {
-                actions: &[LockedAction::PlayItem],
-                card: Pred::Any,
-                except: Pred::False,
-                error: "BLOCKED_BY_ABILITY",
-                forbids: EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::Source(RulesZone::Hand), EventPred::Card(Pred::Tool)]),
-            },
+            lock: LockDecl::on(
+                EventPred::Any(&[PLAY_ITEM_FROM_HAND, EventPred::All(&[EventPred::Kind(EventKind::Attach), EventPred::Source(RulesZone::Hand), EventPred::Card(Pred::Tool)])]),
+                "BLOCKED_BY_ABILITY",
+            ),
             while_: &[LockWhile::Active],
             ability: true,
         }) },

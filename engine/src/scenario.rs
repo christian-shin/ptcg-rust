@@ -186,15 +186,21 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         dress(g, p, s, &b["energy"], &b["tool"], &b["damage"], &b["conditions"], &b["played"])?;
     }
     let turn = g.st.turn;
-    let pl = &mut g.st.players[p];
-    if side["supporter_played"].as_bool() == Some(true) {
-        pl.supporter_turn = turn;
+    // "Has played a Supporter / Stadium this turn": a card of that kind joins the played-this-turn record (the player's
+    // own copy when there is one, else any). With no card of the kind in the game nothing can be played that the record
+    // would refuse, so the flag is left out.
+    for (key, tt) in [("supporter_played", crate::types::TrainerType::Supporter), ("stadium_played", crate::types::TrainerType::Stadium)] {
+        if side[key].as_bool() == Some(true) {
+            let of_kind = |c: CardId| g.st.cdef(c).is_trainer() && g.st.cdef(c).trainer_type == tt as u8;
+            let card = (0..g.st.n_cards).find(|&c| of_kind(c) && g.st.owner(c) == p).or_else(|| (0..g.st.n_cards).find(|&c| of_kind(c)));
+            if let Some(card) = card {
+                g.st.players[p].played_this_turn.push(card);
+            }
+        }
     }
+    let pl = &mut g.st.players[p];
     if side["energy_attached"].as_bool() == Some(true) {
         pl.energy_played_turn = turn;
-    }
-    if side["stadium_played"].as_bool() == Some(true) {
-        pl.stadium_played_turn = turn;
     }
     if side["retreated"].as_bool() == Some(true) {
         pl.retreated_turn = turn;

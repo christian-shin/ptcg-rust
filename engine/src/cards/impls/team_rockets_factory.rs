@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Once during each player's turn, if they played a Team Rocket's Supporter from their hand this turn, they may draw 2 cards.
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
-        needs: &[Cond::RocketSupporterPlayed(Who::Me), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[Cond::PlayedThisTurn(Who::Me, Pred::All(&[Pred::Supporter, Pred::Tag(crate::types::tag::TEAM_ROCKET)])), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
         steps: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(2)) }))],
     }),
     ..CardSpec::NONE
