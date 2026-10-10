@@ -307,8 +307,6 @@ pub enum AttachRoute {
     /// Attach; the chooser's Active Pokémon is now Poisoned (directly) when a card went to it
     /// (Janine's Secret Art).
     MovePoisonActive,
-    /// Attach, and the deck is shuffled after each card (today's behavior of Yanmega ex's Buzz Boost).
-    MoveShufflePerCard,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
 /// effect that effect-prevention can stop.
@@ -1255,10 +1253,6 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
         // One Attach event per card, from the zone the card is in (a card attached to a Pokémon is moved:
         // MoveEnergy, id1653); a refused one doesn't happen, nor does what the text does with the attached card.
         let attached = crate::engine::attach::attach(g, c, target, f.cause)?;
-        if a.route == AttachRoute::MoveShufflePerCard {
-            // The RNG order of the route (a shuffle per card chosen), refused or not.
-            shuffle_deck(g, p);
-        }
         if !attached {
             continue;
         }
