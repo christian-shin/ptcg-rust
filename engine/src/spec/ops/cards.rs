@@ -98,8 +98,6 @@ pub enum CardSel {
     Chosen(u8),
     /// This card itself, from wherever it is (`from` is ignored).
     This,
-    /// The first card of the zone matching the predicate (the resolving card never counts); nothing is asked.
-    First(Pred),
 }
 /// Choose cards of a zone without moving them.
 pub struct PickSpec {
@@ -793,7 +791,6 @@ fn select(g: &mut Game, me: CardId, f: &Frame, from: ZoneRef, sel: &CardSel) -> 
                     out
                 }
                 CardSel::Chosen(r) => reg_list(g, f, *r).to_vec(),
-                CardSel::First(pr) => zc.into_iter().filter(|c| pred(g, *c, pr)).take(1).collect(),
                 CardSel::This => unreachable!(),
             };
             zone_list(g, me, f, from, true).map(|l| (l, cards))
@@ -1629,7 +1626,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         | Op::Attach(AttachSpec { from, cards, onto: Some(_), .. }) => match cards {
             CardSel::Chosen(_) => true,
             CardSel::This => true,
-            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) | CardSel::First(_) => !zone_cards(g, me, f, *from).is_empty() || zone_is_unset(f, *from),
+            CardSel::Random(_) | CardSel::All | CardSel::Top(_) | CardSel::Bottom(_) => !zone_cards(g, me, f, *from).is_empty() || zone_is_unset(f, *from),
         },
         Op::Attach(a) => {
             let cards = zone_cards(g, me, f, a.from);

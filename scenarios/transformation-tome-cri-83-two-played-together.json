@@ -1,0 +1,80 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Transformation Tome CRI 83",
+   "4 Duraludon PRE 69",
+   "4 Feebas TWM 49",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Transformation Tome CRI 83",
+   "4 Duraludon PRE 69",
+   "4 Feebas TWM 49",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Transformation Tome CRI 83",
+   "Transformation Tome CRI 83"
+  ],
+  "discard": [
+   "Feebas TWM 49"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Transformation Tome CRI 83"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  [
+   0
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Feebas TWM 49",
+   "cite": "Transformation Tome card text (switch a Basic in play with one in your discard pile)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Transformation Tome CRI 83",
+    "Transformation Tome CRI 83",
+    "Duraludon PRE 69"
+   ],
+   "cite": "Transformation Tome: 'You must play 2 Transformation Tome cards at once' (both are played and both are discarded after the effect; JP FAQ Seismitoad + 変化の書: 2枚同時に使う場合、コインは1回投げます, the two are one play)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Transformation Tome CRI 83"
+   ],
+   "cite": "Transformation Tome: 'You must play 2 Transformation Tome cards at once'"
+  }
+ ]
+}

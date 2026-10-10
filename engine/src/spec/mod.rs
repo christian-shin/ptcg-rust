@@ -61,6 +61,10 @@ pub struct CardSpec {
     /// effect, `This(Role::CauseCard)`; or the card itself, `This(Role::Card)`). No permission lifts them
     /// (id1144, id1815; Grand Tree: official JP Q&A 2026-10-09).
     pub restricts: &'static [Restrict],
+    /// "You must play 2 X cards at once" (Transformation Tome): the card is played with a companion from the hand matching
+    /// the predicate, in one PlayTrainer carrying both (user decision D11: both are played, one coin for a coin-gated lock,
+    /// both locks; JP FAQ Seismitoad + 変化の書); it can't be played without one.
+    pub together: Option<Pred>,
 }
 
 /// A restriction a card declares on events (events design 4.2): when `on` matches, each of `limits` that
@@ -71,7 +75,7 @@ pub struct Restrict {
 }
 
 impl CardSpec {
-    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[], restricts: &[] };
+    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[], restricts: &[], together: None };
 
     /// The registry entry: the shared interpreter, subscribed to exactly the
     /// effect kinds this spec reacts to.

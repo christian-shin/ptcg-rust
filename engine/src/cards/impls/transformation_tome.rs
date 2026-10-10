@@ -13,17 +13,20 @@
 //! is discarded after (the slot is never empty, so nothing is discarded or reset;
 //! Twinleaf used to empty the slot first), the new card takes the old card's place
 //! at the bottom of the stack and gets its `damageTakenLastTurn` and
-//! `movedToActiveThisTurn` (card flag and the player's id lists). The second copy
-//! is discarded from hand.
+//! `movedToActiveThisTurn` (card flag and the player's id lists).
+//!
+//! Events batch 7 (user decision D11): "You must play 2 Transformation Tome cards at once" is the card's play rule
+//! (`CardSpec::together`): both are played, in one PlayTrainer (one coin under Seismitoad's Quaking Fist: JP FAQ
+//! ガマゲロゲ + 変化の書 「1回投げます」), both go to the play area at once and both are discarded after the effect
+//! (Twinleaf discarded the second copy from the hand as the effect's last step).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "TransformationTome",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        // Play 2 at once: a second copy in the hand, a Basic Pokémon in play and one in the discard pile.
+        // A Basic Pokémon in play and one in the discard pile (the second copy is the play's companion).
         needs: &[
-            Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Name("Transformation Tome")),
             Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Basic),
             Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::Pokemon, Pred::Basic])),
         ],
@@ -38,10 +41,10 @@ pub static SPEC: CardSpec = CardSpec {
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::SwapPokemonCard(SwapPokemonCardSpec { cards: 0, slot: SlotExpr::Picked, into: ZoneRef(Who::Me, Zone::Discard), keep_index: false, bottom: true })),
-            // The second copy is discarded from your hand.
-            Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::First(Pred::Name("Transformation Tome")), ..DiscardSpec::DEFAULT })),
         ],
     }),
+    // "You must play 2 Transformation Tome cards at once."
+    together: Some(Pred::Name("Transformation Tome")),
     ..CardSpec::NONE
 };
 
