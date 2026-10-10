@@ -10,7 +10,7 @@
 //! The ops evaluate their numbers and guards with `num_m` / `cond_m`
 //! (checked reads: Energy provided, types as the game checks them).
 
-use super::super::run::{Flow, Frame, Phase, CHOICE_NONE, CHOICE_YES, NONE};
+use super::super::run::{Flow, Frame, Outcome, Phase, CHOICE_NONE, CHOICE_YES, NONE};
 use super::super::*;
 use crate::effects::{AtkBase, Effect, SlotRef};
 use crate::game::{Game, R};
@@ -558,12 +558,12 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::SwitchWithActive(w) => {
             // "Switch it with your Active Pokémon" (Iron Leaves ex's Rapid Vernier): the player's own switch.
-            f.done = false;
+            f.outcome = Outcome::Impossible;
             if let Some(s) = slot_of(g, me, f, w.target) {
                 let p = s.p as usize;
                 if g.st.players[p].bench_index_of(s.s).is_some() {
                     let c = crate::engine::change_active::ChangeActiveView::of(g, p, Some(s.s), crate::spec::event::ActiveChange::Switch, f.cause);
-                    f.done = crate::engine::change_active::change_active(g, c)?;
+                    f.outcome = Outcome::of(crate::engine::change_active::change_active(g, c)?);
                 }
             }
             Ok(Flow::Next)
@@ -603,7 +603,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             Ok(Flow::Next)
         }
         Op::Switch(s) => {
-            f.done = false;
+            f.outcome = Outcome::Impossible;
             if let Some(slot) = first.slots().first().copied() {
                 switch_act(g, f, s, slot)?;
             }
@@ -927,7 +927,7 @@ fn switch_out_refused(g: &mut Game, f: &Frame, s: &SwitchSpec) -> R<bool> {
 }
 
 fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flow> {
-    f.done = false;
+    f.outcome = Outcome::Impossible;
     if s.among == SwitchAmong::Picked {
         if let Some(slot) = slot_of(g, me, f, SlotExpr::Picked) {
             if occupied(g, slot) {
@@ -956,7 +956,7 @@ fn switch_exec(g: &mut Game, me: CardId, f: &mut Frame, s: &SwitchSpec) -> R<Flo
 
 /// The switch with the chosen Benched Pokémon: the ChangeActive event (`engine::change_active`), which the locks and
 /// preventions can refuse (a switch-in by an opponent's attack or Ability of a Pokémon protected from them: APR C-05,
-/// id2155, JP Q&A on Hariyama's Heave-Ho Catcher); `f.done` says whether it happened.
+/// id2155, JP Q&A on Hariyama's Heave-Ho Catcher); `f.outcome` says whether it happened.
 fn switch_act(g: &mut Game, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
     let side = f.who(s.side());
     // The Pokémon that leaves the Active Spot is the picked slot afterwards (for effects on it).
@@ -966,7 +966,7 @@ fn switch_act(g: &mut Game, f: &mut Frame, s: &SwitchSpec, slot: SlotRef) -> R {
         return Ok(());
     }
     let c = switch_change(g, f, s, Some(slot.s));
-    f.done = crate::engine::change_active::change_active(g, c)?;
+    f.outcome = Outcome::of(crate::engine::change_active::change_active(g, c)?);
     Ok(())
 }
 

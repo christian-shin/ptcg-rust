@@ -332,7 +332,8 @@ pub fn prevent_consulted(kind: u32) -> bool {
 
 /// The event families a lock over events can forbid, each with the marker a lock over it sets (`block_kinds`) and the
 /// query tests (`lock_marker`).
-const LOCK_FAMILIES: [(KindMask, u32); 7] = [
+const LOCK_FAMILIES: [(KindMask, u32); 8] = [
+    (super::event::CARD_EVENT_KINDS, crate::effects::k::DECLARES_CARD_LOCK),
     (super::event::POKEMON_EVENT_KINDS, crate::effects::k::DECLARES_EVENT_LOCK),
     (super::event::ATTACH_EVENT_KINDS, crate::effects::k::DECLARES_ATTACH_LOCK),
     (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_LOCK),
@@ -1666,14 +1667,15 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
     }
 }
 
-/// B6-OLD -> batch 7 (Discard, PutIntoHand): the attack-effect probes, `AtkBase` effects standing for an event the
-/// engine doesn't produce as one yet (an attack's discard of, or return to the hand of, cards of the opponent's Pokémon),
-/// and the event each stands for. The `Prevent` declarations answer them (`probe_prevent`, on the probe's dispatch, and the lasting
-/// ones in `Game::reduce_effect`) with the event's view: one declaration, two readers, until the events exist.
+/// B6-OLD -> batch 7 (LeavePlay of attached cards): the attack-effect probes, `AtkBase` effects standing for an event the
+/// engine doesn't produce as one yet (an attack's discard of, or return to the hand of, cards attached to the opponent's
+/// Pokémon: those cards leave play, user decision D1), and the event each stands for. The `Prevent` declarations answer
+/// them (`probe_prevent`, on the probe's dispatch, and the lasting ones in `Game::reduce_effect`) with the event's view: one
+/// declaration, two readers, until the events exist.
 pub const B6OLD_PROBES: [(u32, super::event::EventKind); 2] = {
     use super::event::EventKind as E;
     use crate::effects::k;
-    [(k::DISCARD_CARDS, E::Discard), (k::CARDS_TO_HAND, E::PutIntoHand)]
+    [(k::DISCARD_CARDS, E::LeavePlay), (k::CARDS_TO_HAND, E::LeavePlay)]
 };
 
 const fn probe_mask() -> KindMask {
@@ -1950,15 +1952,12 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_LOCK),
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_LOCK),
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_LOCK),
+        E::Discard | E::Draw | E::PutIntoHand | E::PutIntoDeck => Some(crate::effects::k::DECLARES_CARD_LOCK),
         E::PlayTrainer
         | E::Damage
         | E::ApplyEffect
         | E::KnockOut
         | E::TakePrizes
-        | E::Discard
-        | E::Draw
-        | E::PutIntoHand
-        | E::PutIntoDeck
         | E::LeavePlay
         | E::Shuffle
         | E::Look
@@ -3709,10 +3708,15 @@ mod prevent_marker_tests {
     #[test]
     fn effects_declarations_and_damage() {
         assert!(!ranges(&EFFECTS_OF_OPP_ATTACKS, E::Damage));
-        assert!(ranges(&EFFECTS_OF_OPP_ATTACKS, E::GainCondition) && ranges(&EFFECTS_OF_OPP_ATTACKS, E::PlaceCounters) && ranges(&EFFECTS_OF_OPP_ATTACKS, E::Discard));
+        assert!(ranges(&EFFECTS_OF_OPP_ATTACKS, E::GainCondition) && ranges(&EFFECTS_OF_OPP_ATTACKS, E::PlaceCounters) && ranges(&EFFECTS_OF_OPP_ATTACKS, E::LeavePlay));
         let both = EventPred::All(&[DAMAGE_OR_EFFECTS, EFFECTS_OF_OPP_ATTACKS]);
-        assert!(ranges(&both, E::Damage) && ranges(&both, E::ChangeActive) && ranges(&both, E::Discard));
-        assert!(!ranges(&EventPred::Kind(E::Damage), E::Discard));
+        assert!(ranges(&both, E::Damage) && ranges(&both, E::ChangeActive) && ranges(&both, E::LeavePlay));
+        assert!(!ranges(&EventPred::Kind(E::Damage), E::LeavePlay));
+        // Cards from the hand or the deck aren't done to a Pokémon (user decision D1): no cause-only prevention ranges
+        // over Discard, Draw, PutIntoHand or PutIntoDeck.
+        for k in [E::Discard, E::Draw, E::PutIntoHand, E::PutIntoDeck] {
+            assert!(!ranges(&EFFECTS_OF_OPP_ATTACKS, k) && !ranges(&both, k), "{k:?}");
+        }
     }
 
     /// The preventions that make an affected Pokémon recover when they come into force (id289): the cause-free ones

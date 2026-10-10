@@ -525,6 +525,17 @@ pub mod k {
     pub const LEAVE_PLAY: u32 = 119;
     pub const TAKE_PRIZES: u32 = 97;
     pub const APPLY_EFFECT: u32 = 116;
+    /// The card-movement events of events batch 7 (`engine::cards_zone`): Discard (cards from the hand or the deck),
+    /// PutIntoHand, PutIntoDeck, Draw. Their dispatch-index entries (`kind % 32`) are ones no hot kind uses: Discard and
+    /// PutIntoDeck 31 (MoveCards, which they replace), PutIntoHand and Draw 2 (DrewTopdeck, CoinFlipSequence: batch 7
+    /// removes both).
+    pub const DISCARD: u32 = 95;
+    pub const PUT_INTO_HAND: u32 = 98;
+    pub const PUT_INTO_DECK: u32 = 127;
+    pub const DRAW: u32 = 130;
+    /// A lock over Discard / PutIntoHand / PutIntoDeck / Draw (events batch 7: Poké Vital A's and Neutralization Zone's
+    /// "this card can't be put into your hand or deck from the discard pile").
+    pub const DECLARES_CARD_LOCK: u32 = 218;
     /// A `Prevent` declaration over PlaceCounters / MoveCounters, over Damage, over a KnockOut by an effect, over LeavePlay,
     /// over Attach / MoveEnergy / MoveTool, over Evolve / Devolve / Swap, over ApplyEffect (events batch 6: the event's
     /// routine asks `derived::event_prevented` only in a game with one).

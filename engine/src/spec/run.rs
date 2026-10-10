@@ -60,12 +60,68 @@ pub(crate) enum Phase {
     Choices = 3,
 }
 
+/// What the last op that makes events did (events design section 7; APR II.A "do as much as you can", E-20): `Done` it
+/// did all it says, `Partial` some of it (fewer cards than asked, a card refused), `Prevented` nothing because every
+/// event was refused (a lock, a prevention), `Impossible` nothing because there was nothing to do it to. "If you do"
+/// (`Cond::Done`) is `Done | Partial` (E-20: having done part of the first half is enough); "if you can't ... (in full)"
+/// (`Cond::DidAll`) reads `Done`. Ops that make no event leave it as it was.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Outcome {
+    Done = 0,
+    Partial = 1,
+    Prevented = 2,
+    Impossible = 3,
+}
+
+impl Outcome {
+    /// "If you do": the op did at least part of what it says.
+    #[inline]
+    pub const fn did(self) -> bool {
+        matches!(self, Outcome::Done | Outcome::Partial)
+    }
+
+    /// One event that happened or was refused.
+    #[inline]
+    pub const fn of(happened: bool) -> Outcome {
+        if happened {
+            Outcome::Done
+        } else {
+            Outcome::Prevented
+        }
+    }
+
+    /// `done` of `asked` cards moved (a refused one stays where it was): Done, Partial, Prevented (some asked, none moved
+    /// because each was refused) or Impossible (nothing asked).
+    pub const fn count(asked: usize, done: usize, refused: usize) -> Outcome {
+        if asked == 0 {
+            Outcome::Impossible
+        } else if done >= asked {
+            Outcome::Done
+        } else if done > 0 {
+            Outcome::Partial
+        } else if refused > 0 {
+            Outcome::Prevented
+        } else {
+            Outcome::Impossible
+        }
+    }
+
+    const fn from_bits(b: i32) -> Outcome {
+        match b & 3 {
+            0 => Outcome::Done,
+            1 => Outcome::Partial,
+            2 => Outcome::Prevented,
+            _ => Outcome::Impossible,
+        }
+    }
+}
+
 /// A program's position and registers, round-tripped through `CardFrame`.
 ///
 /// Layout (`CardFrame { a: [i32; 4], e: [u8; 2], l: [u8; 2] }`):
 /// - `a[0]`: bits 0-15 program code, 16-19 depth, 20-23 heads, 24-31 resume point (`sub`);
 /// - `a[1]`: the path, one byte per level;
-/// - `a[2]`: bit 0 player `p`, 1-4 prize pile (15: none), 5 `via_attack`,
+/// - `a[2]`: bit 0 player `p`, 1-4 prize pile (15: none), 5 `via_attack`, 6-7 `outcome`,
 ///   8-15 `attached_to`, 16-31 `last`;
 /// - `a[3]`: the loop counters, one byte per level;
 /// - `e[0]`: the effect; `e[1]`: the picked slot (`p << 4 | slot`);
@@ -100,9 +156,9 @@ pub struct Frame {
     pub(crate) last: i32,
     /// The Trainer is used as the effect of an attack (Look-Alike Show); fixed when it starts.
     pub(crate) via_attack: bool,
-    /// "If you do": the last op that reports whether it did what it says did it (`Cond::Done`; events batch 5: the
-    /// switch ops, true when the ChangeActive happened).
-    pub(crate) done: bool,
+    /// What the last op that makes events did (`Cond::Done`, `Cond::DidAll`; events batch 7). `Impossible` until one
+    /// reports.
+    pub(crate) outcome: Outcome,
     /// What the program's events are caused by (docs/design/events-design.md, section 3): set once when
     /// the frame is created (`frame_cause`), from what starts the program. Not encoded: a resumed frame
     /// computes it again from the same fixed fields.
@@ -111,7 +167,7 @@ pub struct Frame {
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize, cause: Cause) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, done: false, cause }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, outcome: Outcome::Impossible, cause }
     }
 
     /// The frame a passive of card `me` (owned by `owner`) evaluates its conditions and numbers in. It runs no
@@ -145,7 +201,7 @@ impl Frame {
         f.a[2] = (self.p as i32 & 1)
             | ((self.prize & 15) as i32) << 1
             | (self.via_attack as i32) << 5
-            | (self.done as i32) << 6
+            | (self.outcome as i32) << 6
             | (self.attached_to as i32) << 8
             | ((self.last & 0xFFFF) << 16);
         f.a[3] = i32::from_le_bytes(self.iter);
@@ -190,7 +246,7 @@ impl Frame {
                 n => n as u8,
             },
             via_attack: (f.a[2] >> 5) & 1 != 0,
-            done: (f.a[2] >> 6) & 1 != 0,
+            outcome: Outcome::from_bits(f.a[2] >> 6),
             attached_to: ((f.a[2] >> 8) & 0xFF) as u8,
             last: (f.a[2] >> 16) as i16 as i32,
             cards: f.l,
@@ -704,6 +760,32 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
             Flow::Next => f.advance(),
             Flow::Enter(sel) => f.enter(sel),
             Flow::Suspend => return Ok(()),
+        }
+    }
+}
+
+#[cfg(test)]
+mod outcome_tests {
+    use super::*;
+
+    /// The outcome of an op that moves cards (events design section 7), and its round trip through the card frame.
+    #[test]
+    fn outcomes() {
+        assert_eq!(Outcome::count(0, 0, 0), Outcome::Impossible);
+        assert_eq!(Outcome::count(2, 2, 0), Outcome::Done);
+        assert_eq!(Outcome::count(2, 1, 1), Outcome::Partial);
+        assert_eq!(Outcome::count(2, 0, 2), Outcome::Prevented);
+        assert_eq!(Outcome::count(2, 0, 0), Outcome::Impossible);
+        assert!(Outcome::Done.did() && Outcome::Partial.did() && !Outcome::Prevented.did() && !Outcome::Impossible.did());
+        let g = crate::game::Game::new(1);
+        for o in [Outcome::Done, Outcome::Partial, Outcome::Prevented, Outcome::Impossible] {
+            let mut f = Frame::new(Prog::Play, Phase::Use, 0, 1, Cause::rule(crate::cause::RuleWhich::Action, 1));
+            f.outcome = o;
+            f.via_attack = true;
+            f.attached_to = 0x13;
+            let back = Frame::decode(&g, 0, &f.frame_at(5)).unwrap();
+            assert_eq!(back.outcome, o);
+            assert!(back.via_attack && back.attached_to == 0x13 && back.p == 1);
         }
     }
 }
