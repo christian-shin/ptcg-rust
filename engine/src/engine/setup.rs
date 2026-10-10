@@ -2,7 +2,7 @@
 //! hands, mulligans, starting Pokémon, prizes, mulligan draws.
 
 use crate::carddb::{def, DefId};
-use crate::effects::{Effect, SlotRef};
+use crate::effects::SlotRef;
 use crate::game::{Cont, Game, R};
 use crate::list::*;
 use crate::prompts::*;
@@ -194,12 +194,8 @@ fn after_mulligan_draw(g: &mut Game, other: usize, mut f: SetupFrame, has: bool)
 }
 
 pub fn start(g: &mut Game) -> R {
-    let (who, _) = g.run_fx(Effect::WhoBegins { player: None })?;
+    // The coin flip for who goes first (APR G).
     let frame = SetupFrame { stage: Stage::Coin, who_begins: false, pm: 0, om: 0, php: false, ohp: false, branch: 0, shown: 0 };
-    if let Effect::WhoBegins { player: Some(p) } = who {
-        g.st.active_player = p;
-        return deal(g, frame);
-    }
     let id = g.player_id(0);
     g.prompt(id, "SETUP_WHO_BEGINS_FLIP", PromptKind::CoinFlip, Cont::Setup(frame));
     Ok(())
@@ -234,7 +230,6 @@ fn put_starting_pokemons_and_prizes(g: &mut Game, p: usize, cards: &[CardId]) ->
     if cards.is_empty() {
         return Ok(());
     }
-    let pl = p as u8;
     let active = g.st.players[p].active;
     crate::engine::enter::put_at_setup(g, cards[0], SlotRef::new(p, active))?;
     // A card that can't be Benched stays in hand.
@@ -247,14 +242,19 @@ fn put_starting_pokemons_and_prizes(g: &mut Game, p: usize, cards: &[CardId]) ->
         crate::engine::enter::put_at_setup(g, c, SlotRef::new(p, b))?;
         benched += 1;
     }
-    for i in 0..6u8 {
-        g.move_to(ListRef::Deck(pl), ListRef::Prize(pl, i), Some(1));
-    }
+    crate::engine::cards_zone::set_prizes(g, p);
+    Ok(())
+}
+
+/// The rule's draws of the setup (APR G: 7 cards; a mulligan's new hand; the cards drawn for the opponent's mulligans): a
+/// Draw event by the rule.
+fn setup_draw(g: &mut Game, p: usize, n: usize) -> R {
+    crate::engine::cards_zone::draw(g, p, n, crate::cause::Cause::rule(crate::cause::RuleWhich::Setup, p as u8))?;
     Ok(())
 }
 
 fn mulligan_shuffle(g: &mut Game, p: usize, mut f: SetupFrame, next: Stage) {
-    g.move_to(ListRef::Hand(p as u8), ListRef::Deck(p as u8), None);
+    crate::engine::cards_zone::mulligan(g, p);
     f.stage = next;
     let id = g.player_id(p);
     g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Setup(f));
@@ -388,8 +388,8 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
                     crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
                 }
             }
-            for p in 0..2u8 {
-                g.move_to(ListRef::Deck(p), ListRef::Hand(p), Some(7));
+            for p in 0..2 {
+                setup_draw(g, p, 7)?;
             }
             eval_p0(g, f)
         }
@@ -421,7 +421,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             if let Res::Order(o) = first {
                 crate::game::apply_order(&mut g.st.players[other].deck, o.as_slice());
             }
-            g.move_to(ListRef::Deck(other as u8), ListRef::Hand(other as u8), Some(7));
+            setup_draw(g, other, 7)?;
             if needs_starter_confirm(g, other) {
                 starter_confirm(g, other, f, if other == 1 { Stage::ConfA } else { Stage::ConfB });
                 return Ok(());
@@ -450,7 +450,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             let extra = if f.branch == 0 { f.om - f.pm } else { f.pm - f.om };
             let choice = first.as_int() as u8;
             let n = extra.saturating_sub(choice);
-            g.move_to(ListRef::Deck(drawer as u8), ListRef::Hand(drawer as u8), Some(n as usize));
+            setup_draw(g, drawer, n as usize)?;
             allow_extra_bench_placement(g, drawer, f)
         }
         Stage::ExtraBench => {

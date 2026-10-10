@@ -370,7 +370,6 @@ pub struct Player {
     pub lasting_locks: [Option<LastingLock>; 6],
     pub used_dragons_wish: bool,
     pub unlimited_energy_attach_turns_remaining: i32,
-    pub cannot_draw_at_start_of_turn: bool,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
     /// `usedTableTurner` (Fezandipiti ex; absent until first written).
     pub used_table_turner: bool,
@@ -429,7 +428,6 @@ impl Player {
             lasting_locks: [None; 6],
             used_dragons_wish: false,
             unlimited_energy_attach_turns_remaining: 0,
-            cannot_draw_at_start_of_turn: false,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
             used_table_turner: false,
             chains_of_control_used: false,

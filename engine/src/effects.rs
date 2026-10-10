@@ -111,7 +111,6 @@ pub enum Effect {
     // ---- game phase ----
     BeginTurn { p: u8 },
     EndTurn { p: u8 },
-    WhoBegins { player: Option<u8> },
     BetweenTurns { p: u8, poison_damage: i32, burn_damage: i32 },
     /// `atk` is the attack's own AttackEffect (`AfterAttackEffect.attackEffect`): effect text asked after the damage keeps
     /// the attack's state through it.
@@ -280,7 +279,6 @@ impl Effect {
         match self {
             BeginTurn { .. } => "BEGIN_TURN_EFFECT",
             EndTurn { .. } => "END_TURN_EFFECT",
-            WhoBegins { .. } => "END_TURN_EFFECT",
             BetweenTurns { .. } => "BETWEEN_TURNS_EFFECT",
             AfterAttack { .. } => "AFTER_ATTACK_EFFECT",
             AfterAttackTriggers { .. } => "AFTER_ATTACK_TRIGGERS_EFFECT",
@@ -361,7 +359,6 @@ impl Effect {
         let k = match self {
             BeginTurn { .. } => 0,
             EndTurn { .. } => 3,
-            WhoBegins { .. } => 4,
             BetweenTurns { .. } => 5,
             AfterAttack { .. } => 6,
             AfterAttackTriggers { .. } => 245,
@@ -426,7 +423,6 @@ impl Effect {
 pub mod k {
     pub const BEGIN_TURN: u32 = 0;
     pub const END_TURN: u32 = 3;
-    pub const WHO_BEGINS: u32 = 4;
     pub const BETWEEN_TURNS: u32 = 5;
     pub const AFTER_ATTACK: u32 = 6;
     pub const AFTER_ATTACK_TRIGGERS: u32 = 245;

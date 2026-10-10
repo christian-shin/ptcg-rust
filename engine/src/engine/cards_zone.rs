@@ -377,6 +377,29 @@ pub fn shuffle_deck(g: &mut Game, p: usize) {
     g.prompt(id, "", crate::prompts::PromptKind::ShuffleDeck, crate::game::Cont::ShuffleApply { p: p as u8 });
 }
 
+/// Mulligan (APR G): player `p`'s hand goes back into the deck (its shuffle follows as the ShuffleDeck prompt). No card
+/// reacts to it (user decision D2): a routine, not dispatched.
+pub fn mulligan(g: &mut Game, p: usize) {
+    let hand: SVec<CardId, 64> = {
+        let mut v = SVec::new();
+        for &c in g.st.players[p].hand.as_slice().iter().take(64) {
+            v.push(c);
+        }
+        v
+    };
+    relocate(g, ListRef::Hand(p as u8), hand.as_slice(), ListRef::Deck(p as u8), false);
+}
+
+/// SetPrizes (APR G): the top 6 cards of player `p`'s deck become their Prize cards, one per position. No card reacts to
+/// it (user decision D2).
+pub fn set_prizes(g: &mut Game, p: usize) {
+    for i in 0..6u8 {
+        let Some(&c) = g.st.players[p].deck.as_slice().first() else { return };
+        relocate(g, ListRef::Deck(p as u8), &[c], ListRef::Prize(p as u8, i), false);
+    }
+    settle(g);
+}
+
 /// SetPrizes: `card` (in `from`) becomes player `p`'s Prize card in Prize position `index` (Bother-Bot's switch, user
 /// decision D12). No card reacts to it.
 pub fn set_prize(g: &mut Game, from: ListRef, card: CardId, p: usize, index: u8) {

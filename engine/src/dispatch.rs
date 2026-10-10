@@ -140,7 +140,7 @@ mod tests {
     /// Every effect kind that is dispatched or whose index entry a reader looks up (the event routines' locks and
     /// preventions read `propagation_order` with the event's kind), with its name.
     const KINDS: &[(&str, u32)] = &[
-        ("BEGIN_TURN", k::BEGIN_TURN), ("END_TURN", k::END_TURN), ("WHO_BEGINS", k::WHO_BEGINS), ("BETWEEN_TURNS", k::BETWEEN_TURNS), ("AFTER_ATTACK", k::AFTER_ATTACK),
+        ("BEGIN_TURN", k::BEGIN_TURN), ("END_TURN", k::END_TURN), ("BETWEEN_TURNS", k::BETWEEN_TURNS), ("AFTER_ATTACK", k::AFTER_ATTACK),
         ("AFTER_ATTACK_TRIGGERS", k::AFTER_ATTACK_TRIGGERS), ("ATTACK_TRIGGER", k::ATTACK_TRIGGER), ("BEFORE_DOING_DAMAGE", k::BEFORE_DOING_DAMAGE),
         ("CHECK_HP", k::CHECK_HP), ("CHECK_POKEMON_STATS", k::CHECK_POKEMON_STATS), ("CHECK_POKEMON_TYPE", k::CHECK_POKEMON_TYPE),
         ("CHECK_RETREAT_COST", k::CHECK_RETREAT_COST), ("CHECK_ATTACK_COST", k::CHECK_ATTACK_COST), ("CHECK_PROVIDED_ENERGY", k::CHECK_PROVIDED_ENERGY),
