@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Illumise TWM 10",
+   "1 Grass Energy MEE 1",
+   "4 Dwebble DRI 11",
+   "1 Psychic Energy MEE 5",
+   "53 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Illumise TWM 10",
+   "1 Grass Energy MEE 1",
+   "4 Dwebble DRI 11",
+   "1 Psychic Energy MEE 5",
+   "53 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Illumise TWM 10",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "energy": [
+     "Psychic Energy MEE 5"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slowing Perfume"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench_count": 0,
+   "cite": "Illumise TWM 10 text (shuffle 1 of your opponent's Benched Pokémon and all attached cards into their deck)"
+  }
+ ]
+}

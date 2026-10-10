@@ -1,0 +1,110 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Zeraora DRI 78",
+   "1 Magnemite SSP 58",
+   "1 Magneton SSP 59",
+   "3 Lightning Energy MEE 4",
+   "4 Dwebble DRI 11",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Zeraora DRI 78",
+   "1 Magnemite SSP 58",
+   "1 Magneton SSP 59",
+   "3 Lightning Energy MEE 4",
+   "4 Dwebble DRI 11",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Zeraora DRI 78",
+  "bench": [
+   {
+    "card": [
+     "Magnemite SSP 58",
+     "Magneton SSP 59"
+    ]
+   }
+  ],
+  "discard": [
+   "3 Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Overvolt Discharge",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 0
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 1
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 2
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Zeraora DRI 78",
+   "energy": 3,
+   "cite": "Magneton SSP 59 text (up to 3 Basic Energy cards from the discard pile to your [L] Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Magneton SSP 59"
+   ],
+   "cite": "Magneton SSP 59 text (if you use this Ability, this Pokémon is Knocked Out); APR D"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "Magneton SSP 59 text; APR D (the opponent takes the Prize card for the Knocked Out Magneton)"
+  }
+ ]
+}

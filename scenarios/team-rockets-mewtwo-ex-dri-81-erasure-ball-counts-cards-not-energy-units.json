@@ -1,0 +1,79 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Mewtwo ex DRI 81",
+   "3 Psychic Energy MEE 5",
+   "3 Team Rocket's Sneasel DRI 128",
+   "1 Team Rocket's Energy DRI 182",
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "47 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Team Rocket's Mewtwo ex DRI 81",
+   "3 Psychic Energy MEE 5",
+   "3 Team Rocket's Sneasel DRI 128",
+   "1 Team Rocket's Energy DRI 182",
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "47 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Mewtwo ex DRI 81",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Sneasel DRI 128",
+    "energy": [
+     "Team Rocket's Energy DRI 182"
+    ]
+   },
+   {
+    "card": "Team Rocket's Sneasel DRI 128"
+   },
+   {
+    "card": "Team Rocket's Sneasel DRI 128"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Greninja ex CRI 22",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Erasure Ball"
+  },
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 1
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Greninja ex CRI 22",
+   "damage": 220,
+   "cite": "JP FAQ Team Rocket's Mewtwo ex (discarding 1 Team Rocket's Energy, which provides 2 Energy, counts as 1 card: 160 + 60 = 220)"
+  }
+ ]
+}

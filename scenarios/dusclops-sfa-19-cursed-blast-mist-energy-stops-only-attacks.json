@@ -1,0 +1,77 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Duskull PRE 35",
+   "1 Dusclops SFA 19",
+   "4 Dwebble DRI 11",
+   "1 Mist Energy TEF 161",
+   "53 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Duskull PRE 35",
+   "1 Dusclops SFA 19",
+   "4 Dwebble DRI 11",
+   "1 Mist Energy TEF 161",
+   "53 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Duskull PRE 35",
+   "Dusclops SFA 19"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dwebble DRI 11",
+   "damage": 50,
+   "cite": "Mist Energy TEF 161 text (effects of attacks only); Cursed Blast is an Ability (APR C-17)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "Dusclops SFA 19 text"
+  }
+ ]
+}

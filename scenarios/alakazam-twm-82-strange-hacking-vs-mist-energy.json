@@ -1,0 +1,154 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Alakazam TWM 82",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "2 Mist Energy TEF 161",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Alakazam TWM 82",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "2 Mist Energy TEF 161",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Alakazam TWM 82",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "active_damage": 30,
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 30
+   },
+   {
+    "card": "Dwebble DRI 11",
+    "damage": 20,
+    "energy": [
+     "Mist Energy TEF 161"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Strange Hacking"
+  },
+  [
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 1,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   },
+   {
+    "from": {
+     "player": 1,
+     "slot": 2,
+     "index": 0
+    },
+    "to": {
+     "player": 1,
+     "slot": 2,
+     "index": 1
+    }
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Dwebble DRI 11",
+   "damage": 30,
+   "conditions": [],
+   "cite": "id390, id2150, id2192 (counters moved from a Pokémon that blocks the effect stay there); Mist Energy TEF 161"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Dwebble DRI 11",
+   "damage": 0,
+   "cite": "id2257, id390 (counters moved to a Pokémon that blocks the effect disappear)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "card": "Dwebble DRI 11",
+   "damage": 20,
+   "cite": "id2257, id390"
+  }
+ ]
+}

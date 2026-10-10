@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dwebble DRI 11",
+   "1 Fezandipiti ex SFA 38",
+   "1 Psychic Energy MEE 5",
+   "1 Heavy Baton TEF 151",
+   "1 Scoop Up Cyclone TWM 162",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dwebble DRI 11",
+   "1 Fezandipiti ex SFA 38",
+   "1 Psychic Energy MEE 5",
+   "1 Heavy Baton TEF 151",
+   "1 Scoop Up Cyclone TWM 162",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Dwebble DRI 11",
+  "hand": [
+   "Scoop Up Cyclone TWM 162"
+  ],
+  "bench": [
+   {
+    "card": "Fezandipiti ex SFA 38",
+    "energy": [
+     "Psychic Energy MEE 5"
+    ],
+    "tool": "Heavy Baton TEF 151"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Scoop Up Cyclone TWM 162"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "contains": [
+    "Fezandipiti ex SFA 38",
+    "Psychic Energy MEE 5",
+    "Heavy Baton TEF 151"
+   ],
+   "cite": "Scoop Up Cyclone TWM 162 text (put 1 of your Pokémon and all cards attached to it into your hand)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench_count": 0,
+   "cite": "Scoop Up Cyclone TWM 162 text"
+  }
+ ]
+}

@@ -2,11 +2,9 @@
 //! from this Pokémon and place 12 damage counters on 1 of your opponent's
 //! Pokémon.
 //!
-//! Twinleaf: DISCARD_ALL_ENERGY_FROM_POKEMON (one DiscardCardsEffect with the
-//! Active's CheckProvidedEnergy map), then a non-cancellable ChoosePokemonPrompt
-//! whose callback reduces a PutCountersEffect (120) on the chosen Pokémon. The
-//! Energy discard is queued with the attack; the Pokémon is chosen in
-//! AfterAttack (after the damage; user rule 2026-10-07).
+//! The Energy is discarded, then the Pokémon is chosen (non-cancellable, at step D of the attack). The counters are a
+//! PlaceCounters event with the attack as its cause (APR C-07: not damage): a Pokémon protected from the effects of
+//! attacks can be chosen and gets none, and Battle Cage refuses them on a Benched Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Rillaboom TWM 16",
+   "2 Grass Energy MEE 1",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Rillaboom TWM 16",
+   "2 Grass Energy MEE 1",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Rillaboom TWM 16",
+  "active_energy": [
+   "2 Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wood Hammer"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 180,
+   "cite": "Wood Hammer 180"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Rillaboom TWM 16",
+   "damage": 50,
+   "cite": "Rillaboom TWM 16 text (this Pokémon also does 50 damage to itself); APR B-08"
+  }
+ ]
+}

@@ -2,12 +2,9 @@
 //! 4 or more Team Rocket's Pokémon in play. Erasure Ball — 160+; discard up
 //! to 2 Energy from your Benched Pokémon, 60 more damage for each.
 //!
-//! Twinleaf: Power Saver reacts to any UseAttackEffect whose source slot
-//! holds this card (after the Ability-lock check). Erasure Ball's prompt
-//! allows any Energy (phase 4b: the filter used to be Basic only, but the text
-//! says "Energy"), is skipped without a Benched Pokémon, and each chosen card
-//! is a separate MOVE_CARDS to the discard pile.
-//! R7A (ruling 1874): the Energy is chosen first, the damage is done, then the Energy is discarded (`move_cards_after_damage`).
+//! Power Saver blocks using the attack while this Pokémon's Ability works. Erasure Ball offers any Energy (the text says
+//! "Energy"), is skipped without a Benched Pokémon, and, id2423: the Energy is chosen first, the damage is done,
+//! then the Energy is discarded.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

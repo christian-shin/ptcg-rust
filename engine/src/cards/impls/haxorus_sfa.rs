@@ -1,7 +1,9 @@
 //! Haxorus (SFA): Bring Down the Axe — if the opponent's Active has any
-//! Special Energy attached it is Knocked Out (Mist-blockable
-//! KnockOutOpponentEffect). Dragon Pulse — 230; discard the top 3 cards of
-//! your deck (deck -> scratch CardList -> discard, two MOVE_CARDS).
+//! Special Energy attached it is Knocked Out. Dragon Pulse — 230; discard the
+//! top 3 cards of your deck.
+//!
+//! Bring Down the Axe is `Op::KnockOut` on the opponent's Active Pokémon: a KnockOut by an effect, asked the preventions
+//! when the attack's effect runs (Mist Energy stops it, id2427) and otherwise waiting for the state check (D1).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Haxorus@SFA",

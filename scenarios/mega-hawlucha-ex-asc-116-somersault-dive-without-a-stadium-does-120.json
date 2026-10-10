@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Hawlucha ex ASC 116",
+   "2 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Greninja ex CRI 22",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Hawlucha ex ASC 116",
+   "2 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Greninja ex CRI 22",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Hawlucha ex ASC 116",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Greninja ex CRI 22",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Somersault Dive"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Greninja ex CRI 22",
+   "damage": 120,
+   "cite": "Mega Hawlucha ex ASC 116 text (no Stadium: 120)"
+  }
+ ]
+}

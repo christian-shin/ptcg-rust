@@ -3,15 +3,10 @@
 //! any way you like. If you use this Ability, this Pokémon is Knocked Out.
 //! Electric Ball — 40.
 //!
-//! Twinleaf: throws CANNOT_USE_POWER without a basic Energy in the discard;
-//! a non-cancellable AttachEnergyPrompt (discard → Bench/Active, basic
-//! Energy, min 1 (phase 4b R7E: "up to 3" in an Ability takes at least 1,
-//! rulings 1853/1778; it was min 0) max 3, non-[L] Pokémon blocked); MOVE_CARDS each transfer,
-//! then `damage += 999` on this card's slot. No once-per-turn marker, no
-//! ABILITY_USED.
-//!
-//! Fixed (phase 4b, R2): with no transfer (0 chosen) Magneton was not Knocked
-//! Out; the text says it is Knocked Out whenever the Ability is used.
+//! "Up to 3" in an Ability takes at least 1 (id2399, id2301); only [L] Pokémon are offered. Each card is an Attach
+//! event by the Ability. Using the Ability Knocks this Pokémon Out whatever was attached: `Op::KnockOut` on it is a
+//! KnockOut by an effect that waits for the state check with every other Knock Out (D1), the opponent taking the Prize.
+//! No once-per-turn marker: the card leaves play.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Magneton@SSP",

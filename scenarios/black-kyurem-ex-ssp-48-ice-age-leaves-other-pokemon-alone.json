@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Black Kyurem ex SSP 48",
+   "4 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Pikachu ex ASC 57",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Black Kyurem ex SSP 48",
+   "4 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Pikachu ex ASC 57",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Black Kyurem ex SSP 48",
+  "active_energy": [
+   "4 Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pikachu ex ASC 57",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ice Age"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Pikachu ex ASC 57",
+   "damage": 90,
+   "conditions": [],
+   "cite": "Black Kyurem ex SSP 48 text (only a [N] Pokémon is Paralyzed)"
+  }
+ ]
+}

@@ -2,12 +2,9 @@
 //! more Pokémon with Hide 'n' Sneak in your discard pile, place 4 damage
 //! counters on each of your opponent's Pokémon.
 //!
-//! Twinleaf: attack damage is zeroed first; then
-//! PUT_X_DAMAGE_COUNTERS_ON_ALL_YOUR_OPPONENTS_POKEMON(4): one PutCountersEffect
-//! (an effect of the attack) on the opponent's Active, then one per Benched
-//! Pokémon. Fixed (phase 4b, R3): this used to be one PlaceDamageCountersEffect
-//! (source = this card) per Pokémon, which Mist Energy and Spherical Shield
-//! don't see.
+//! Hide 'n' Sneak is `Modifier::Prevent(HIDE_N_SNEAK)` (see shuppet.rs). Matcha Spin does no damage; the counters are one
+//! PlaceCounters event per Pokémon with the attack as its cause (APR C-07: no Weakness, Resistance or damage modifiers).
+//! Mist Energy or Hide 'n' Sneak on a Pokémon refuses its counters and the others still get theirs.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,9 +1,8 @@
 //! Scoop Up Cyclone (TWM, ACE SPEC): put 1 of your Pokémon and all cards
 //! attached to it into your hand.
 //!
-//! Twinleaf: the Trainer play is prevented (the card is never discarded by
-//! the card itself); a non-cancellable ChoosePokemonPrompt over the Active and
-//! Bench, then one MOVE_POKEMON_OFF_BOARD to the hand.
+//! A non-cancellable choice among your Active and Benched Pokémon, then `Op::RemoveFromPlay` to the hand: one LeavePlay
+//! event of that Pokémon (the whole stack) with the Item as its cause.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

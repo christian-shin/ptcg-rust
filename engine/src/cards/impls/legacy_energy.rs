@@ -3,11 +3,9 @@
 //! damage from an attack from your opponent's Pokémon, that player takes 1
 //! fewer Prize card (once per game).
 //!
-//! Twinleaf: provides [ANY] on every CheckProvidedEnergyEffect of its slot.
-//! On a KnockOutEffect of its slot during the ATTACK phase of the KO'd
-//! Pokémon's opponent (any KO then, not only from damage), unless the
-//! special energy is blocked, `prizeCount -= 1` once per game
-//! (`player.legacyEnergyUsed`).
+//! A `PrizeAdjustOnce` (-1) over the KnockOut view: it applies to a KnockOut whose `ko_by` is AttackDamage (a Knock Out by
+//! an effect or by Poison or Burn doesn't count, rule-E04) of the holder, once per game for the player the Energy
+//! belongs to, while its Special Energy effect works.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LegacyEnergy",

@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Haxorus BLK 70",
+   "2 Fighting Energy MEE 6",
+   "1 Metal Energy MEE 8",
+   "4 Dwebble DRI 11",
+   "1 Fezandipiti ex SFA 38",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Haxorus BLK 70",
+   "2 Fighting Energy MEE 6",
+   "1 Metal Energy MEE 8",
+   "4 Dwebble DRI 11",
+   "1 Fezandipiti ex SFA 38",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Haxorus BLK 70",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Metal Energy MEE 8",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Fezandipiti ex SFA 38",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cross-Cut"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Fezandipiti ex SFA 38",
+   "damage": 80,
+   "cite": "Cross-Cut text (a Basic Pokémon: no extra damage)"
+  }
+ ]
+}

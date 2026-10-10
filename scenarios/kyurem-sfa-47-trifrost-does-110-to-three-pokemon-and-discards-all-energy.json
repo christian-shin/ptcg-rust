@@ -1,0 +1,106 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Kyurem SFA 47",
+   "2 Water Energy MEE 3",
+   "2 Metal Energy MEE 8",
+   "1 Psychic Energy MEE 5",
+   "1 Mega Lucario ex ASC 113",
+   "1 Fezandipiti ex SFA 38",
+   "1 Mega Hawlucha ex ASC 116",
+   "4 Dwebble DRI 11",
+   "47 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Kyurem SFA 47",
+   "2 Water Energy MEE 3",
+   "2 Metal Energy MEE 8",
+   "1 Psychic Energy MEE 5",
+   "1 Mega Lucario ex ASC 113",
+   "1 Fezandipiti ex SFA 38",
+   "1 Mega Hawlucha ex ASC 116",
+   "4 Dwebble DRI 11",
+   "47 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Kyurem SFA 47",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "bench": [
+   {
+    "card": "Fezandipiti ex SFA 38"
+   },
+   {
+    "card": "Mega Hawlucha ex ASC 116"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Trifrost"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   },
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   },
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 1
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 110,
+   "cite": "Kyurem SFA 47 text (110 damage to 3 of your opponent's Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Fezandipiti ex SFA 38",
+   "damage": 110,
+   "cite": "Kyurem SFA 47 text"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 1,
+   "card": "Mega Hawlucha ex ASC 116",
+   "damage": 110,
+   "cite": "Kyurem SFA 47 text"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "Kyurem SFA 47 text (discard all Energy from this Pokémon)"
+  }
+ ]
+}

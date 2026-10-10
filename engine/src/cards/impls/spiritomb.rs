@@ -2,11 +2,9 @@
 //! Hide 'n' Sneak Ability in your discard pile, choose 2 of your opponent's
 //! Pokémon and quadruple the number of damage counters on each of them.
 //!
-//! Twinleaf: attack damage is zeroed first; the ChoosePokemonPrompt needs
-//! exactly min(2, the opponent's Pokémon in play) targets (phase 4b: it needed
-//! 2 even with a lone opposing Pokémon, a prompt with no valid answer); each
-//! chosen Pokémon with damage gets one
-//! PlaceDamageCountersEffect (source = this card) adding 3x its damage.
+//! The attack's own damage is zeroed. Exactly min(2, the opponent's Pokémon in play) targets are chosen; each chosen
+//! Pokémon with damage counters gets 3 times its counters added, one PlaceCounters event each with the attack as its
+//! cause (APR C-07: Mist Energy and Hide 'n' Sneak refuse them, and Battle Cage on a Benched Pokémon).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

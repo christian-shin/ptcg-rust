@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Mewtwo ex DRI 81",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Team Rocket's Sneasel DRI 128",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Team Rocket's Mewtwo ex DRI 81",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Team Rocket's Sneasel DRI 128",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Mewtwo ex DRI 81",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   },
+   {
+    "card": "Team Rocket's Sneasel DRI 128"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Erasure Ball",
+   "is": false,
+   "cite": "Team Rocket's Mewtwo ex DRI 81 text (can't attack unless you have 4 or more Team Rocket's Pokémon in play: 2 here)"
+  }
+ ]
+}

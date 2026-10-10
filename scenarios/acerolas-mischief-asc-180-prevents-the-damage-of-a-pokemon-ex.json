@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Duraludon PRE 69",
+   "1 Acerola's Mischief ASC 180",
+   "1 Miraidon ex TEF 122",
+   "1 Lightning Energy MEE 4",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Duraludon PRE 69",
+   "1 Acerola's Mischief ASC 180",
+   "1 Miraidon ex TEF 122",
+   "1 Lightning Energy MEE 4",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Acerola's Mischief ASC 180"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "prizes_left": 2,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Acerola's Mischief ASC 180"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Repulsion Bolt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "damage": 0,
+   "cite": "Acerola's Mischief ASC 180 text (prevent all damage from attacks done to that Pokémon by your opponent's Pokémon ex); APR C-16"
+  }
+ ]
+}

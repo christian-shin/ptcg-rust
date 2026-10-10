@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Charizard Y ex ASC 22",
+   "2 Fire Energy MEE 2",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Shaymin DRI 10",
+   "1 Fezandipiti ex SFA 38",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Charizard Y ex ASC 22",
+   "2 Fire Energy MEE 2",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Shaymin DRI 10",
+   "1 Fezandipiti ex SFA 38",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Charizard Y ex ASC 22",
+  "active_energy": [
+   "2 Fire Energy MEE 2",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Shaymin DRI 10"
+   },
+   {
+    "card": "Fezandipiti ex SFA 38"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Explosion Y"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 1
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Fezandipiti ex SFA 38"
+   ],
+   "cite": "Shaymin DRI 10 text (a Pokémon ex has a Rule Box: Knocked Out by the 280 damage)"
+  }
+ ]
+}

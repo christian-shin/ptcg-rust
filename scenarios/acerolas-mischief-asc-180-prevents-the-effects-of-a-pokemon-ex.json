@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Kyurem SFA 47",
+   "1 Acerola's Mischief ASC 180",
+   "1 Black Kyurem ex SSP 48",
+   "3 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Kyurem SFA 47",
+   "1 Acerola's Mischief ASC 180",
+   "1 Black Kyurem ex SSP 48",
+   "3 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Kyurem SFA 47",
+  "hand": [
+   "Acerola's Mischief ASC 180"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Black Kyurem ex SSP 48",
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "prizes_left": 2,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Acerola's Mischief ASC 180"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Ice Age"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Kyurem SFA 47",
+   "damage": 0,
+   "conditions": [],
+   "cite": "Acerola's Mischief ASC 180 text (prevent all damage from and effects of attacks); APR C-17"
+  }
+ ]
+}

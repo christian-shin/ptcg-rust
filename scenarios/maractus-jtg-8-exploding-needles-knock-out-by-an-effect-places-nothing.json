@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Haxorus SFA 46",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Maractus JTG 8",
+   "1 Growing Grass Energy POR 86",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Haxorus SFA 46",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Maractus JTG 8",
+   "1 Growing Grass Energy POR 86",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Haxorus SFA 46",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Maractus JTG 8",
+  "active_energy": [
+   "Growing Grass Energy POR 86"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Bring Down the Axe"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Maractus JTG 8"
+   ],
+   "cite": "Bring Down the Axe text (it is Knocked Out)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Haxorus SFA 46",
+   "damage": 0,
+   "cite": "Maractus JTG 8 text (Knocked Out by damage from an attack: a Knock Out by an effect is not; RULES.md \"Knocked Out by damage from an attack\")"
+  }
+ ]
+}

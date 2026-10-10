@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Sneasel DRI 128",
+   "2 Darkness Energy MEE 7",
+   "4 Dwebble DRI 11",
+   "1 Cofagrigus WHT 40",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Team Rocket's Sneasel DRI 128",
+   "2 Darkness Energy MEE 7",
+   "4 Dwebble DRI 11",
+   "1 Cofagrigus WHT 40",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Sneasel DRI 128",
+  "active_energy": [
+   "2 Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Cofagrigus WHT 40",
+    "damage": 30
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Strike the Sleeper"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Cofagrigus WHT 40",
+   "damage": 90,
+   "cite": "Strike the Sleeper text (20 damage for each damage counter on that Pokémon: 3 counters = 60 more; no Weakness or Resistance for a Benched Pokémon: Cofagrigus is weak to [D])"
+  }
+ ]
+}

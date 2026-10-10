@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Lucario ex ASC 113",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Farigiraf ex TEF 108",
+   "53 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Lucario ex ASC 113",
+   "1 Fighting Energy MEE 6",
+   "4 Dwebble DRI 11",
+   "1 Farigiraf ex TEF 108",
+   "53 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Lucario ex ASC 113",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Farigiraf ex TEF 108",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Aura Jab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Farigiraf ex TEF 108",
+   "damage": 130,
+   "cite": "Farigiraf ex TEF 108 text (only a Basic Pokémon ex's attacks)"
+  }
+ ]
+}

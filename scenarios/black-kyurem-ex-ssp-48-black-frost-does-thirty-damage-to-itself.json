@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Black Kyurem ex SSP 48",
+   "4 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Black Kyurem ex SSP 48",
+   "4 Water Energy MEE 3",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Black Kyurem ex SSP 48",
+  "active_energy": [
+   "4 Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Black Frost"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 250,
+   "cite": "Black Frost 250"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Black Kyurem ex SSP 48",
+   "damage": 30,
+   "cite": "Black Kyurem ex SSP 48 text (this Pokémon also does 30 damage to itself); APR B-08 (no Weakness or Resistance: not an opponent's Pokémon)"
+  }
+ ]
+}

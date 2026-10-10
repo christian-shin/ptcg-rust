@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Fezandipiti ex SFA 38",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Pikachu ex ASC 57",
+   "1 Cofagrigus WHT 40",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Fezandipiti ex SFA 38",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Pikachu ex ASC 57",
+   "1 Cofagrigus WHT 40",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Fezandipiti ex SFA 38",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Pikachu ex ASC 57",
+  "bench": [
+   {
+    "card": "Cofagrigus WHT 40"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cruel Arrow"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Cofagrigus WHT 40",
+   "damage": 100,
+   "cite": "Cruel Arrow text (100 damage to 1 of your opponent's Pokémon; don't apply Weakness and Resistance for Benched Pokémon: Cofagrigus is weak to [D]); APR B-08"
+  }
+ ]
+}

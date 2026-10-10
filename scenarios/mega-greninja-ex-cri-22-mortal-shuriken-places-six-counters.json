@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "1 Water Energy MEE 3",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "1 Water Energy MEE 3",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Mega Greninja ex CRI 22",
+  "hand": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Mortal Shuriken",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   0
+  ],
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Dwebble DRI 11",
+   "damage": 60,
+   "cite": "Mega Greninja ex CRI 22 text (place 6 damage counters on 1 of your opponent's Pokémon); PlaceCounters by the Ability (APR C-07: not damage)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "Mega Greninja ex CRI 22 text (discard a Basic [W] Energy card from your hand)"
+  }
+ ]
+}

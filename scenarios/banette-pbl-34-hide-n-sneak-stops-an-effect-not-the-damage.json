@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Yamask PLF 55",
+   "1 Cofagrigus WHT 40",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Shuppet PBL 33",
+   "1 Banette PBL 34",
+   "49 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Yamask PLF 55",
+   "1 Cofagrigus WHT 40",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Shuppet PBL 33",
+   "1 Banette PBL 34",
+   "49 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Yamask PLF 55",
+   "Cofagrigus WHT 40"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Shuppet PBL 33",
+   "Banette PBL 34"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Perplex"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Banette PBL 34",
+   "damage": 60,
+   "conditions": [],
+   "cite": "Banette PBL 34 text (prevent all effects of attacks done to this Pokémon; damage is not an effect); APR C-17"
+  }
+ ]
+}

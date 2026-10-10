@@ -1,0 +1,102 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Team Rocket's Mewtwo ex DRI 81",
+   "3 Psychic Energy MEE 5",
+   "3 Team Rocket's Sneasel DRI 128",
+   "2 Darkness Energy MEE 7",
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "46 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Team Rocket's Mewtwo ex DRI 81",
+   "3 Psychic Energy MEE 5",
+   "3 Team Rocket's Sneasel DRI 128",
+   "2 Darkness Energy MEE 7",
+   "1 Mega Greninja ex CRI 22",
+   "4 Dwebble DRI 11",
+   "46 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Mewtwo ex DRI 81",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Team Rocket's Sneasel DRI 128",
+    "energy": [
+     "2 Darkness Energy MEE 7"
+    ]
+   },
+   {
+    "card": "Team Rocket's Sneasel DRI 128"
+   },
+   {
+    "card": "Team Rocket's Sneasel DRI 128"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Greninja ex CRI 22",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Erasure Ball"
+  },
+  [
+   {
+    "from": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 1
+   },
+   {
+    "from": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 2
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Erasure Ball",
+   "cite": "Team Rocket's Mewtwo ex DRI 81 text (4 Team Rocket's Pokémon, itself included: it can attack); JP FAQ Team Rocket's Mewtwo ex (Power Saver counts the attacking Mewtwo ex)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Greninja ex CRI 22",
+   "damage": 280,
+   "cite": "Erasure Ball text (160 + 60 for each of the 2 Energy cards discarded); id2423 (the damage is done, then the Energy is discarded)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "card": "Team Rocket's Sneasel DRI 128",
+   "energy": 0,
+   "cite": "Erasure Ball text (discard up to 2 Energy from your Benched Pokémon)"
+  }
+ ]
+}

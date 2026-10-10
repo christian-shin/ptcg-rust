@@ -1,0 +1,84 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Spiritomb PBL 35",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "4 Banette PBL 34",
+   "4 Shuppet PBL 33",
+   "4 Poltchageist PBL 5",
+   "1 Mega Lucario ex ASC 113",
+   "1 Fezandipiti ex SFA 38",
+   "1 Cofagrigus WHT 40",
+   "39 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Spiritomb PBL 35",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "4 Banette PBL 34",
+   "4 Shuppet PBL 33",
+   "4 Poltchageist PBL 5",
+   "1 Mega Lucario ex ASC 113",
+   "1 Fezandipiti ex SFA 38",
+   "1 Cofagrigus WHT 40",
+   "39 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Spiritomb PBL 35",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "discard": [
+   "4 Banette PBL 34",
+   "4 Shuppet PBL 33",
+   "4 Poltchageist PBL 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "active_damage": 20,
+  "bench": [
+   {
+    "card": "Fezandipiti ex SFA 38",
+    "damage": 30
+   },
+   {
+    "card": "Cofagrigus WHT 40"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spiritual End"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 20,
+   "cite": "Spiritomb PBL 35 text (only with 13 or more)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Fezandipiti ex SFA 38",
+   "damage": 30,
+   "cite": "Spiritomb PBL 35 text"
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Duskull PRE 35",
+   "1 Dusclops SFA 19",
+   "4 Dwebble DRI 11",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Duskull PRE 35",
+   "1 Dusclops SFA 19",
+   "4 Dwebble DRI 11",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Duskull PRE 35",
+   "Dusclops SFA 19"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Dwebble DRI 11",
+   "damage": 50,
+   "cite": "Dusclops SFA 19 text; RULES.md counters (PlaceCounters by the Ability, not damage, APR C-07)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Dusclops SFA 19"
+   ],
+   "cite": "Dusclops SFA 19 text (this Pokémon is Knocked Out); APR D (state check)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "Dusclops SFA 19 text; APR D (the opponent takes the Prize card for the Knocked Out Dusclops)"
+  }
+ ]
+}

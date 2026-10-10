@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Duraludon PRE 69",
+   "1 Acerola's Mischief ASC 180",
+   "1 Marill ASC 83",
+   "2 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Duraludon PRE 69",
+   "1 Acerola's Mischief ASC 180",
+   "1 Marill ASC 83",
+   "2 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Acerola's Mischief ASC 180"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Marill ASC 83",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "prizes_left": 2,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Acerola's Mischief ASC 180"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Flop"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "turn": 1,
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "damage": 20,
+   "cite": "Acerola's Mischief ASC 180 text (only the damage and effects of a Pokémon ex's attacks)"
+  }
+ ]
+}

@@ -1,6 +1,9 @@
 //! Haxorus (SV11B / BLK 70): Cross-Cut — 80+; 80 more if the opponent's
-//! Active is not a Basic Pokémon. Axe Bomber — if the opponent's Active is a
-//! Basic Pokémon it is Knocked Out (Mist-blockable KnockOutOpponentEffect).
+//! Active is an Evolution Pokémon (not a Basic Pokémon). Axe Blast — if the
+//! opponent's Active is a Basic Pokémon it is Knocked Out.
+//!
+//! Axe Blast is `Op::KnockOut` on the opponent's Active Pokémon: a KnockOut by an effect, asked the preventions when the
+//! attack's effect runs (Mist Energy stops it, id2427) and otherwise waiting for the state check (D1).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

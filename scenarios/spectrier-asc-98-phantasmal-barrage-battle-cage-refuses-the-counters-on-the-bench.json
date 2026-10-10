@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Spectrier ASC 98",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Battle Cage PFL 85",
+   "1 Mega Lucario ex ASC 113",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Spectrier ASC 98",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Battle Cage PFL 85",
+   "1 Mega Lucario ex ASC 113",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Spectrier ASC 98",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "stadium": "Battle Cage PFL 85",
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Mega Lucario ex ASC 113"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Phantasmal Barrage"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 0,
+   "cite": "Battle Cage PFL 85 JP FAQ (Dragapult ex's Phantom Dive can't put its counters on the Bench: the same for an attack's counters); id2264"
+  }
+ ]
+}

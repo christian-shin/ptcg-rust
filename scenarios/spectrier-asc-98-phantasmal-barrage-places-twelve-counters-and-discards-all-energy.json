@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Spectrier ASC 98",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Spectrier ASC 98",
+   "3 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Spectrier ASC 98",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Mega Lucario ex ASC 113"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Phantasmal Barrage"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 120,
+   "cite": "Spectrier ASC 98 text (place 12 damage counters on 1 of your opponent's Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "Spectrier ASC 98 text (discard all Energy from this Pokémon)"
+  }
+ ]
+}

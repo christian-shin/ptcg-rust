@@ -1,5 +1,8 @@
 //! Centiskorch (SSP): Billowing Heat Wave — 130; also 30 damage to each of
-//! your Benched Pokémon (PutDamageEffect, no Weakness/Resistance). Heat Blast — 80.
+//! your Benched Pokémon (no Weakness or Resistance, APR B-08). Heat Blast — 80.
+//!
+//! Each 30 is its own Damage event on one of your Benched Pokémon: a "takes N less" and a prevention of damage on a
+//! Benched Pokémon of yours apply (rule-B09).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

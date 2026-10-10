@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Abra TWM 80",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Abra TWM 80",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Abra TWM 80",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Teleporter",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Dwebble DRI 11",
+   "energy": 0,
+   "cite": "Abra TWM 80 text (shuffle it and all attached cards into your deck)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "Abra TWM 80 text (it is put into the deck, not the discard pile)"
+  }
+ ]
+}

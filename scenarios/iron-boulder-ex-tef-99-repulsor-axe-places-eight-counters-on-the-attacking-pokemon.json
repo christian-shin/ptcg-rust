@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Iron Boulder ex TEF 99",
+   "1 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Iron Boulder ex TEF 99",
+   "1 Fighting Energy MEE 6",
+   "1 Psychic Energy MEE 5",
+   "4 Dwebble DRI 11",
+   "1 Mega Lucario ex ASC 113",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Iron Boulder ex TEF 99",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Lucario ex ASC 113",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Dwebble DRI 11"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Repulsor Axe"
+  },
+  {
+   "a": "attack",
+   "name": "Aura Jab"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "turn": 1,
+   "slot": "active",
+   "card": "Mega Lucario ex ASC 113",
+   "damage": 140,
+   "cite": "Iron Boulder ex TEF 99 text (60 + 8 damage counters on the Attacking Pokémon); PlaceCounters by the attack"
+  }
+ ]
+}
