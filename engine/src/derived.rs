@@ -53,8 +53,9 @@ pub struct Derived {
 }
 
 /// The effect kinds after which the facts may have changed (the events of the design's list as today's
-/// effects carry them): enter or leave play, attach and move attached cards (MOVE_CARDS, ENTER_PLAY, ATTACH,
-/// MOVE_ENERGY, MOVE_TOOL, ATTACH_POKEMON_TOOL, DISCARD_CARDS, KNOCK_OUT), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
+/// effects carry them): enter or leave play, attach and move attached cards (ENTER_PLAY, ATTACH,
+/// MOVE_ENERGY, MOVE_TOOL, ATTACH_POKEMON_TOOL, KNOCK_OUT), every card move (the batch 7 events DISCARD, PUT_INTO_HAND,
+/// PUT_INTO_DECK, DRAW: today's timing, batch 8 narrows it), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
 /// (CHANGE_ACTIVE), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
 /// END_TURN), the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
 /// runs after the same kinds), the events batch 4 events a continuous effect can read: a Special Condition
@@ -62,13 +63,15 @@ pub struct Derived {
 /// and damage counters placed or moved (remaining HP), a Pokémon leaving play, an effect put on a Pokémon or a
 /// player (ApplyEffect). A CoinFlip changes no fact.
 pub const INVALIDATING_KINDS: KindMask = mask(&[
-    k::MOVE_CARDS,
+    k::DISCARD,
+    k::PUT_INTO_HAND,
+    k::PUT_INTO_DECK,
+    k::DRAW,
     k::ENTER_PLAY,
     k::ATTACH,
     k::MOVE_ENERGY,
     k::MOVE_TOOL,
     k::ATTACH_POKEMON_TOOL,
-    k::DISCARD_CARDS,
     k::KNOCK_OUT,
     k::EVOLVE,
     k::DEVOLVE,

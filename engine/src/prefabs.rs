@@ -11,54 +11,36 @@ use crate::types::*;
 
 #[derive(Clone, Copy, Debug)]
 pub enum PrefabCont {
-    /// SHUFFLE_HAND_INTO_DECK_THEN_DRAW: hand→deck animation wait done.
-    /// `after`: the `afterDraw` callback, a card continuation resumed with no results.
-    ShuffleThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
+    /// "Shuffle your hand into your deck, then draw": the hand is in the deck and its wait is done; shuffle, then draw.
+    /// `after`: a card continuation resumed with no results after the draw; `cause` packed (`Cause::pack`).
+    ShuffleThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: [u8; 4] },
     /// Shuffle order chosen: apply, then wait, then draw.
-    ShuffleOrderThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
-    DrawAfterWait { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)> },
+    ShuffleOrderThenDraw { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: [u8; 4] },
+    DrawAfterWait { p: u8, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: [u8; 4] },
     /// THIS_ATTACK_DOES_X_DAMAGE_TO_1_OF_YOUR_OPPONENTS_[BENCHED_]POKEMON.
     DamageChosen { atk: EffId, damage: i32 },
-    /// SEARCH_DECK_FOR_CARDS_TO_HAND.
-    SearchToHand { p: u8, source: CardId, show: bool },
-    /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND.
-    SearchPokemonToHand { p: u8 },
-    /// SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH: empty slots at prompt time.
-    SearchToBench { p: u8, slots: SVec<SlotId, 8>, cause: crate::cause::Cause },
 }
 
 pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
     let first = results.first().copied().unwrap_or(Res::Null);
     match c {
-        PrefabCont::ShuffleThenDraw { p, draw, after } => {
-            shuffle_then_draw(g, p as usize, draw, after);
+        PrefabCont::ShuffleThenDraw { p, draw, after, cause } => {
+            shuffle_then_draw(g, p as usize, draw, after, cause);
             Ok(())
         }
-        PrefabCont::ShuffleOrderThenDraw { p, draw, after } => {
+        PrefabCont::ShuffleOrderThenDraw { p, draw, after, cause } => {
             if let Res::Order(o) = first {
                 crate::game::apply_order(&mut g.st.players[p as usize].deck, o.as_slice());
             }
             let id = g.player_id(p as usize);
-            g.wait(id, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after }));
+            g.wait(id, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after, cause }));
             Ok(())
         }
-        PrefabCont::DrawAfterWait { p, draw, after } => {
-            draw_cards(g, p as usize, draw as usize)?;
+        PrefabCont::DrawAfterWait { p, draw, after, cause } => {
+            crate::engine::cards_zone::draw(g, p as usize, draw as usize, crate::cause::Cause::unpack(cause))?;
             if let Some((card, frame)) = after {
                 crate::cards::resume(g, card, frame, &[])?;
             }
-            Ok(())
-        }
-        PrefabCont::SearchPokemonToHand { p } => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            show_cards_to_player(g, 1 - p as usize, cards.len());
-            for c in cards {
-                // MOVE_CARD_TO: findCardList(card).moveCardTo(card, hand).
-                if let Some(src) = g.st.locate(c) {
-                    g.move_card_to(src, c, ListRef::Hand(p));
-                }
-            }
-            shuffle_deck(g, p as usize);
             Ok(())
         }
         PrefabCont::DamageChosen { atk, damage } => {
@@ -74,28 +56,6 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
             let r = deal_or_put_damage(g, atk, damage, t);
             g.release_fx(atk);
             r
-        }
-        PrefabCont::SearchToHand { p, source, show } => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            if show {
-                show_cards_to_player(g, 1 - p as usize, cards.len());
-            }
-            move_cards(g, ListRef::Deck(p), ListRef::Hand(p), &cards, source)?;
-            shuffle_deck(g, p as usize);
-            Ok(())
-        }
-        PrefabCont::SearchToBench { p, slots, cause } => {
-            let cards: Vec<CardId> = first.cards().to_vec();
-            for (i, c) in cards.iter().enumerate() {
-                let s = match slots.get(i) {
-                    Some(s) => *s,
-                    // The prompt's `max` is clamped to the empty slots.
-                    None => break,
-                };
-                crate::engine::enter::enter_play(g, *c, SlotRef::new(p as usize, s), crate::spec::event::EnterMode::Effect, cause)?;
-            }
-            shuffle_deck(g, p as usize);
-            Ok(())
         }
     }
 }
@@ -284,39 +244,9 @@ pub fn blocked_non_type_energy(g: &mut Game, p: usize, s: SlotId, ty: CardType) 
 }
 
 // ---------------------------------------------------------------------------
-// Card movement
+// Card movement (the events are `engine::cards_zone`'s and `engine::knockout`'s)
 
-/// `MOVE_CARDS(store, state, source, destination, { cards })`.
-pub fn move_cards(g: &mut Game, src: ListRef, dst: ListRef, cards: &[CardId], source_card: CardId) -> R {
-    let cs: List<120> = List::from_slice(cards);
-    g.run_fx(Effect::MoveCards {
-        source: src,
-        destination: dst,
-        cards: Some(cs),
-        count: None,
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card,
-    })?;
-    Ok(())
-}
-
-/// `MOVE_CARDS(store, state, source, destination, { cards, afterDamageOf: attackEffect })`: Energy removed
-/// as an effect of an attack leaves after the damage (queued while the attack's window is open).
-pub fn move_cards_after_damage(g: &mut Game, atk: EffId, src: ListRef, dst: ListRef, cards: &[CardId], source_card: CardId) -> R {
-    if !g.after_damage_open(atk) {
-        return move_cards(g, src, dst, cards, source_card);
-    }
-    let mut cs: SVec<CardId, 64> = SVec::new();
-    for &c in cards {
-        cs.push(c);
-    }
-    g.push_after_damage(atk, crate::game::AfterDmgStep::Move { source: src, destination: dst, source_card, cards: cs });
-    Ok(())
-}
-
-/// `SHUFFLE_DECK_AFTER_DAMAGE(store, state, attackEffect, player)`.
+/// `SHUFFLE_DECK_AFTER_DAMAGE(store, state, attackEffect, player)`: the Shuffle waits for the attack's damage.
 pub fn shuffle_deck_after_damage(g: &mut Game, atk: EffId, p: usize) {
     if g.after_damage_open(atk) {
         g.push_after_damage(atk, crate::game::AfterDmgStep::Shuffle(p as u8));
@@ -325,93 +255,37 @@ pub fn shuffle_deck_after_damage(g: &mut Game, atk: EffId, p: usize) {
     }
 }
 
-/// `MOVE_CARDS(..., { count })`.
-pub fn move_count(g: &mut Game, src: ListRef, dst: ListRef, count: usize) -> R {
-    move_count_from(g, src, dst, count, NO_CARD)
-}
-
-/// `MOVE_CARDS(..., { count, sourceCard })`.
-pub fn move_count_from(g: &mut Game, src: ListRef, dst: ListRef, count: usize, source_card: CardId) -> R {
-    g.run_fx(Effect::MoveCards {
-        source: src,
-        destination: dst,
-        cards: None,
-        count: Some(count as i32),
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card,
-    })?;
-    Ok(())
-}
-
-/// `DRAW_CARDS`.
-pub fn draw_cards(g: &mut Game, p: usize, count: usize) -> R {
-    let n = count.min(g.st.players[p].deck.len());
-    if n == 0 {
-        return Ok(());
-    }
-    move_count(g, ListRef::Deck(p as u8), ListRef::Hand(p as u8), n)
-}
-
-/// `SHUFFLE_DECK`: shuffle prompt, then a silent wait.
+/// The Shuffle routine (`engine::cards_zone::shuffle_deck`): the ShuffleDeck prompt, then a silent wait.
 pub fn shuffle_deck(g: &mut Game, p: usize) {
-    let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApply { p: p as u8 });
+    crate::engine::cards_zone::shuffle_deck(g, p);
 }
 
-fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>) {
+fn shuffle_then_draw(g: &mut Game, p: usize, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: [u8; 4]) {
     let id = g.player_id(p);
-    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after }));
+    g.prompt(id, "", PromptKind::ShuffleDeck, Cont::Prefab(PrefabCont::ShuffleOrderThenDraw { p: p as u8, draw, after, cause }));
 }
 
-/// `SHUFFLE_HAND_INTO_DECK_THEN_DRAW` with `sourceCard` and an `afterDraw`
-/// callback (a card continuation resumed with no results after the draw).
-pub fn shuffle_hand_into_deck_then_draw_ex(
-    g: &mut Game,
-    p: usize,
-    exclude: CardId,
-    source_card: CardId,
-    draw: u8,
-    after: Option<(CardId, crate::cards::CardFrame)>,
-) -> R {
-    let cards: Vec<CardId> = g.st.players[p].hand.iter().filter(|c| *c != exclude).collect();
-    if !cards.is_empty() {
-        let cs: List<120> = List::from_slice(&cards);
-        let (_, prevented) = g.run_fx(Effect::MoveCards {
-            source: ListRef::Hand(p as u8),
-            destination: ListRef::Deck(p as u8),
-            cards: Some(cs),
-            count: None,
-            to_top: false,
-            to_bottom: false,
-            skip_cleanup: false,
-            source_card,
-        })?;
-        if prevented {
-            return Ok(());
+/// "Shuffle your hand into your deck. Then, draw N cards" (Judge, Lacey, Lillie's Determination, ...): the hand (without
+/// `exclude`, the resolving card) is put into the deck (a PutIntoDeck, `ShuffledIn`), then the deck is shuffled (the
+/// ShuffleDeck prompt after the move's wait), then the Draw; `after` is resumed after the draw. With an empty hand the
+/// shuffle and the draw still happen.
+pub fn shuffle_hand_into_deck_then_draw(g: &mut Game, p: usize, exclude: CardId, draw: u8, after: Option<(CardId, crate::cards::CardFrame)>, cause: crate::cause::Cause) -> R {
+    let cards: SVec<CardId, 64> = {
+        let mut v = SVec::new();
+        for c in g.st.players[p].hand.iter() {
+            if c != exclude {
+                v.push(c);
+            }
         }
+        v
+    };
+    if !cards.is_empty() {
+        crate::engine::cards_zone::put_into_deck(g, ListRef::Hand(p as u8), cards.as_slice(), crate::spec::event::DeckPosition::ShuffledIn, cause)?;
         let id = g.player_id(p);
-        g.wait(id, Cont::Prefab(PrefabCont::ShuffleThenDraw { p: p as u8, draw, after }));
+        g.wait(id, Cont::Prefab(PrefabCont::ShuffleThenDraw { p: p as u8, draw, after, cause: cause.pack() }));
         return Ok(());
     }
-    shuffle_then_draw(g, p, draw, after);
-    Ok(())
-}
-
-/// `MOVE_POKEMON_OFF_BOARD(store, state, slot, { pokemonDestination, sourceCard })`
-/// with no separate `attachedDestination`: one full-stack MOVE_CARDS.
-pub fn move_pokemon_off_board(g: &mut Game, slot: SlotRef, destination: ListRef, source_card: CardId) -> R {
-    g.run_fx(Effect::MoveCards {
-        source: slot.list(),
-        destination,
-        cards: None,
-        count: None,
-        to_top: false,
-        to_bottom: false,
-        skip_cleanup: false,
-        source_card,
-    })?;
+    shuffle_then_draw(g, p, draw, after, cause.pack());
     Ok(())
 }
 
@@ -592,15 +466,6 @@ pub fn put_damage(g: &mut Game, atk: EffId, damage: i32, target: SlotRef) -> R {
 // ---------------------------------------------------------------------------
 // Deck search
 
-/// `SHOW_CARDS_TO_PLAYER(store, state, player, cards)`: info prompt if any.
-pub fn show_cards_to_player(g: &mut Game, p: usize, n_cards: usize) {
-    if n_cards == 0 {
-        return;
-    }
-    let id = g.player_id(p);
-    g.prompt(id, "CARDS_SHOWED_BY_THE_OPPONENT", PromptKind::ShowCards, Cont::Noop);
-}
-
 /// `GET_PLAYER_BENCH_SLOTS`: empty bench slots in order.
 pub fn empty_bench_slots(g: &Game, p: usize) -> SVec<SlotId, 8> {
     let pl = &g.st.players[p];
@@ -635,17 +500,4 @@ pub fn ignores_defender_effects(g: &Game, b: &AtkBase) -> bool {
 /// `(card << 4) | index` of an attack, for a card frame slot.
 pub fn pack_attack(a: AttackRef) -> i32 {
     ((a.card as i32) << 4) | (a.index as i32 & 15)
-}
-
-/// Does something prevent the effect of the attack `attack` (used by player `p`
-/// against `o`) on the Pokémon in `target`? A DiscardCardsEffect without cards
-/// on a fresh AttackEffect asks (Mist Energy and the like; R7F-17, ruling 1843).
-pub fn attack_effect_prevented_on(g: &mut Game, p: usize, o: usize, packed_attack: i32, target: SlotRef, cause: crate::cause::Cause) -> R<bool> {
-    let attack = AttackRef { card: (packed_attack >> 4) as CardId, index: (packed_attack & 15) as u8 };
-    let source = SlotRef::new(p, g.st.players[p].active);
-    let atk = g.new_fx(Effect::Attack { p: p as u8, opp: o as u8, attack, damage: 0, ignore_weakness: false, ignore_resistance: false, ignore_defender_effects: false, source, barrage_used: false });
-    let b = AtkBase { attack_effect: atk, player: p as u8, opponent: o as u8, attack, source, target, cause };
-    let r = g.run_fx(Effect::DiscardCards { b, cards: SVec::new() });
-    g.release_fx(atk);
-    Ok(r?.1)
 }

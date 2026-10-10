@@ -497,7 +497,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
                 return Ok(out);
             }
             let cards: Vec<CardId> = pokemons.iter().copied().filter(|c| g.st.cdef(*c).name == d.name).collect();
-            crate::prefabs::move_cards(g, t.list(), dest, &cards, NO_CARD)?;
+            crate::engine::cards_zone::move_physical(g, t.list(), &cards, dest);
             for c in cards.iter().rev().take(3) {
                 out.push(*c);
             }
@@ -542,7 +542,7 @@ pub enum SwapPlace {
 
 /// Swap: the Pokémon card `old` in `target` is replaced by `new` (from wherever it is); `old` goes to `into`. Checked
 /// first (the locks: Palafin ex can't be put into play except by Zero to Hero, JP FAQ; the preventions), then the event,
-/// whose reducer moves the cards (`MoveCards` effects) and the card-bound facts to the new card, the slot-bound ones
+/// whose reducer moves the cards (`cards_zone::move_physical`) and the card-bound facts to the new card, the slot-bound ones
 /// staying (4.5; id2372). Returns whether it happened.
 pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListRef, place: SwapPlace, me: CardId, cause: Cause) -> R<bool> {
     // Where the new card comes from, read before it moves (the event's source).
@@ -560,8 +560,9 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
     let (p, s) = (target.p as usize, target.s);
     let list = target.list();
     let old_index = g.st.slot(p, s).cards.index_of(old);
-    crate::prefabs::move_cards(g, src, list, &[new], me)?;
-    crate::prefabs::move_cards(g, list, into, &[old], me)?;
+    let _ = me;
+    crate::engine::cards_zone::move_physical(g, src, &[new], list);
+    crate::engine::cards_zone::move_physical(g, list, &[old], into);
     match place {
         SwapPlace::Top => {}
         SwapPlace::OldIndex => {

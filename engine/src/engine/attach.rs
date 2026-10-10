@@ -300,9 +300,11 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
         Effect::MoveEnergy { card, from, to, .. } => {
             g.move_card_to(from.list(), card, to.list());
-            // A card that can't be on the new Pokémon is discarded at the move (Team Rocket's Energy).
+            // A card that can't be on the new Pokémon is discarded at the move (Team Rocket's Energy): it leaves play by
+            // its own rule (a LeavePlay of the attached card, user decision D1).
             if passive::attach_guard_discards(g, card, to)? {
-                crate::prefabs::move_cards(g, to.list(), ListRef::Discard(to.p), &[card], card)?;
+                let cause = Cause::of_origin(crate::spec::passive::RuleSource::Energy, card, g.st.owner(card) as u8);
+                crate::engine::knockout::leave_play_cards(g, to, &[card], RulesZone::Discard, cause, None)?;
             }
             Ok(())
         }

@@ -125,8 +125,9 @@ pub mod fx_flag {
 pub enum AfterDmgStep {
     /// An effect (held by the queue) to reduce after the damage.
     Fx(EffId),
-    /// `MOVE_CARDS(source, destination, { cards, sourceCard })` after the damage (`afterDamageOf`).
-    Move { source: ListRef, destination: ListRef, source_card: CardId, cards: SVec<CardId, 64> },
+    /// The LeavePlay of cards attached to the Pokémon in `target` for `zone` of their owner, by `cause`, after the damage
+    /// (`engine::knockout::leave_play_cards`; checked when it runs).
+    LeaveCards { target: SlotRef, cards: SVec<CardId, 64>, zone: crate::spec::event::RulesZone, cause: crate::cause::Cause },
     /// `SHUFFLE_DECK(player)` after the damage.
     Shuffle(u8),
 }
@@ -693,17 +694,8 @@ impl Game {
         }
         for step in steps.iter() {
             match *step {
-                AfterDmgStep::Move { source, destination, source_card, cards } => {
-                    self.run_fx(Effect::MoveCards {
-                        source,
-                        destination,
-                        cards: Some(List::from_slice(cards.as_slice())),
-                        count: None,
-                        to_top: false,
-                        to_bottom: false,
-                        skip_cleanup: false,
-                        source_card,
-                    })?;
+                AfterDmgStep::LeaveCards { target, cards, zone, cause } => {
+                    crate::engine::knockout::leave_play_cards(self, target, cards.as_slice(), zone, cause, None)?;
                 }
                 AfterDmgStep::Fx(id) => {
                     let r = self.reduce_effect(id);
@@ -721,12 +713,6 @@ impl Game {
         let atk = match *self.e(id) {
             Effect::MoveOpponentEnergy { b, card, .. } => {
                 if !self.st.cdef(card).is_energy() {
-                    return false;
-                }
-                b.attack_effect
-            }
-            Effect::DiscardCards { b, ref cards } | Effect::CardsToHand { b, ref cards } => {
-                if cards.is_empty() || !cards.iter().all(|c| self.st.cdef(*c).is_energy()) {
                     return false;
                 }
                 b.attack_effect
@@ -1191,12 +1177,6 @@ impl Game {
 
         // Propagate to cards.
         let kind = self.e(id).kind();
-        // B6-OLD: an attack-effect probe a lasting prevention on its target answers ("during your opponent's next turn,
-        // prevent all effects of attacks done to this Pokémon"; `passive::B6OLD_PROBES`); the in-play preventions answer it
-        // on its dispatch.
-        if crate::spec::passive::B6OLD_PROBE_MASK.has(kind) && crate::spec::passive::probe_lasting_prevented(self, id)? {
-            self.set_prevent(id, true);
-        }
         let class = prop_class(self.e(id));
         // The batch 4 / 5 events have no dispatch handler: their declarations are read through the index.
         let order = if self.kinds_present.has(kind) && !crate::spec::event::INDEX_ONLY_EVENT_KINDS.has(kind) { self.listeners(class, kind) } else { SVec::new() };
@@ -1224,6 +1204,9 @@ impl Game {
         if matches!(kind, k::PLACE_COUNTERS | k::MOVE_COUNTERS_EVENT | k::DAMAGE) {
             crate::engine::damage::reducer(self, id)?;
         }
+        if matches!(kind, k::DISCARD | k::PUT_INTO_HAND | k::PUT_INTO_DECK | k::DRAW) {
+            crate::engine::cards_zone::reducer(self, id)?;
+        }
         if matches!(kind, k::KNOCK_OUT | k::LEAVE_PLAY | k::TAKE_PRIZES) {
             crate::engine::knockout::reducer(self, id)?;
         }
@@ -1246,7 +1229,10 @@ impl Game {
         }
         if matches!(
             kind,
-            k::MOVE_CARDS
+            k::DISCARD
+                | k::PUT_INTO_HAND
+                | k::PUT_INTO_DECK
+                | k::DRAW
                 | k::ENTER_PLAY
                 | k::EVOLVE
                 | k::DEVOLVE

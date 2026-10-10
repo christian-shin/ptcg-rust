@@ -509,19 +509,42 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
     if !crate::spec::event::EVENT_KINDS.has(kind) || g.prevented(e) {
         return Ok(());
     }
-    if g.kinds_present.has(kind) {
-        let order = g.listeners(crate::game::prop_class(g.e(e)), kind);
-        for &c in order.iter() {
-            let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
-            for (i, t) in spec.triggers.iter().enumerate() {
-                if !matches!(t.event, trigger::Event::On(_)) {
-                    continue;
-                }
-                if let Some((p, slot)) = trigger::fires_on(g, c, e, t)? {
-                    let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
-                    f.slot = slot;
-                    run(g, c, f)?;
-                }
+    if !g.kinds_present.has(kind) {
+        return Ok(());
+    }
+    // An event carrying several cards (events batch 7, user decision D3) is seen per card: "when this card is discarded"
+    // fires once for that card.
+    let cards: Option<crate::list::SVec<CardId, 64>> = crate::engine::cards_zone::event_cards(g.e(e)).copied();
+    match cards {
+        Some(cs) => {
+            for &card in cs.iter() {
+                fire_on(g, e, kind, Some(card))?;
+            }
+        }
+        None => fire_on(g, e, kind, None)?,
+    }
+    Ok(())
+}
+
+/// The `Event::On` triggers over one view of the event `e` (the view of `card` of an event carrying cards), in the
+/// propagation order of the declaring cards. The view is read for each trigger, as the board is when it is asked.
+fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
+    let order = g.listeners(crate::game::prop_class(g.e(e)), kind);
+    for &c in order.iter() {
+        let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
+        for (i, t) in spec.triggers.iter().enumerate() {
+            if !matches!(t.event, trigger::Event::On(_)) {
+                continue;
+            }
+            let v = match card {
+                Some(x) => crate::engine::cards_zone::view_of(g, g.e(e), x),
+                None => trigger::event_view(g, e),
+            };
+            let Some(v) = v else { continue };
+            if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
+                let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
+                f.slot = slot;
+                run(g, c, f)?;
             }
         }
     }
