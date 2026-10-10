@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Rowlet POR 10",
+   "2 Dartrix POR 11",
+   "2 Cornerstone Mask Ogerpon ex PRE 58",
+   "2 Walking Wake TWM 63",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "2 Rowlet POR 10",
+   "2 Dartrix POR 11",
+   "2 Cornerstone Mask Ogerpon ex PRE 58",
+   "2 Walking Wake TWM 63",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Rowlet POR 10",
+   "Dartrix POR 11"
+  ],
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Cornerstone Mask Ogerpon ex PRE 58",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Feather Shot"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Cornerstone Mask Ogerpon ex PRE 58",
+   "damage": 180,
+   "cite": "APR B-08: Weakness applies to the opponent's Active Pokémon (it is weak to Grass: 90 x2)"
+  }
+ ]
+}

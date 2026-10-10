@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Yamask PLF 55",
+   "2 Cofagrigus SSP 83",
+   "2 Hop's Snorlax JTG 117",
+   "2 Team Rocket's Articuno DRI 51",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Yamask PLF 55",
+   "2 Cofagrigus SSP 83",
+   "2 Hop's Snorlax JTG 117",
+   "2 Team Rocket's Articuno DRI 51",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Yamask PLF 55",
+   "Cofagrigus SSP 83"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Team Rocket's Articuno DRI 51",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Law of the Underworld"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text (Repelling Veil): damage counters an attack puts on the Pokémon are an effect of the attack (APR C-07, C-17)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 60,
+   "cite": "card text (Law of the Underworld): the other Pokémon with an Ability get the counters"
+  }
+ ]
+}

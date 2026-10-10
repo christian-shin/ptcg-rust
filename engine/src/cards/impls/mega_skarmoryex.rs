@@ -1,6 +1,8 @@
-//! Mega Skarmory ex (POR / M3): Sonic Ripper — shuffle all Energy from this
-//! Pokémon into your deck; 220 damage to 1 of your opponent's Pokémon (no
-//! Weakness/Resistance for the Bench).
+//! Mega Skarmory ex (POR / M3): Sonic Ripper — shuffle all Energy from this Pokémon into your deck; 220 damage to 1 of
+//! your opponent's Pokémon (no Weakness or Resistance for a Benched Pokémon, APR B-08).
+//!
+//! The Energy is shuffled into the deck first; the chosen Pokémon (no cancel) then takes a Damage event of 220 caused by
+//! the attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

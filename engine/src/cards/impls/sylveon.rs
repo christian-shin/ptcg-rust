@@ -1,9 +1,10 @@
-//! Sylveon (PRE): Safeguard - prevent all damage done to this Pokémon by
-//! attacks from your opponent's Pokémon ex. Magical Shot - 100.
+//! Sylveon (PRE): Safeguard - prevent all damage done to this Pokémon by attacks from your opponent's Pokémon ex.
+//! Magical Shot - 100.
 //!
-//! Twinleaf: any PutDamageEffect on a slot holding this card (with this card
-//! on top) during the ATTACK phase, from another player's ex Pokémon (source
-//! top card tagged `POKEMON_ex`), is prevented unless the Ability is blocked.
+//! A `Prevent` over `Kind(Damage)` whose cause is an attack of the opponent's Pokémon tagged ex
+//! (`CausePred::Card`), read at step 6 of the damage calculation (APR C-16); not while the Ability is blocked, and not
+//! against an attack that ignores the effects on the Defending Pokémon (id2095, Demolish). Effects of those attacks
+//! still happen.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

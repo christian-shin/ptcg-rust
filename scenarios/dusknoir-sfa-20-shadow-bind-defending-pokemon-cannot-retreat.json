@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Duskull SFA 18",
+   "2 Dusclops SFA 19",
+   "2 Dusknoir SFA 20",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "50 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Duskull SFA 18",
+   "2 Dusclops SFA 19",
+   "2 Dusknoir SFA 20",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "50 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Duskull SFA 18",
+   "Dusclops SFA 19",
+   "Dusknoir SFA 20"
+  ],
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Shadow Bind"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Zacian ex JTG 111",
+   "damage": 150,
+   "cite": "card text (Shadow Bind): 150 damage"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "legal": "retreat",
+   "is": false,
+   "cite": "card text (Shadow Bind): the Defending Pokémon can't retreat during your opponent's next turn"
+  }
+ ]
+}

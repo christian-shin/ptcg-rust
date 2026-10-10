@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Rellor TEF 23",
+   "2 Walking Wake TWM 63",
+   "56 Grass Energy MEE 1"
+  ],
+  [
+   "2 Rellor TEF 23",
+   "2 Walking Wake TWM 63",
+   "56 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Rellor TEF 23",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slight Intrusion"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: 30 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "card text (Slight Intrusion): this Pokémon also does 10 damage to itself; no Weakness or Resistance (APR B-08)"
+  }
+ ]
+}

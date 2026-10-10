@@ -1,12 +1,9 @@
-//! Jolteon ex (PRE, Tera): Flashing Spear — 60+; you may discard up to 2
-//! Basic Energy from your Benched Pokémon, 90 more damage for each card
-//! discarded. Dravite — 280; during your next turn this Pokémon can't attack.
+//! Jolteon ex (PRE, Tera): Flashing Spear — 60+; you may discard up to 2 Basic Energy from your Benched Pokémon, 90 more
+//! damage for each card discarded. Dravite — 280; during your next turn this Pokémon can't attack.
 //!
-//! Twinleaf: Flashing Spear resets `damage = 60`, then
-//! DISCARD_UP_TO_X_ENERGY_FROM_YOUR_POKEMON(2, { energyType: BASIC }, 0,
-//! [BENCH]) — no prompt without Basic Energy on the Bench; one
-//! DiscardCardsEffect per source slot (first-seen order), then
-//! `damage = 60 + 90 * transfers`. Dravite: THIS_POKEMON_CANNOT_ATTACK_NEXT_TURN.
+//! Flashing Spear: no prompt without Basic Energy on the Bench; the discarded count is the bonus (before the damage).
+//! Dravite arms `Lasting::CannotAttackNextTurn` (an ApplyEffect event on this Pokémon). The Tera rule is `TERA_RULE`:
+//! a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Jolteonex",

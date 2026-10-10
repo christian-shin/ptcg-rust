@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Eevee TWM 135",
+   "2 Sylveon PRE 40",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "2 Eevee TWM 135",
+   "2 Sylveon PRE 40",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Eevee TWM 135",
+   "Sylveon PRE 40"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text (Safeguard): prevent all damage done to this Pokémon by attacks from the opponent's Pokémon ex (step 6, APR C-16)"
+  }
+ ]
+}

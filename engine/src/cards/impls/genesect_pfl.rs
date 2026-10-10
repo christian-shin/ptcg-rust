@@ -1,12 +1,9 @@
-//! Genesect (M2 / PFL 8): Bug's Cannon — choose 1 of your opponent's
-//! Pokémon; 20 damage to it for each [G] Energy attached to this Pokémon.
-//! Speed Attack — 110.
+//! Genesect (M2 / PFL 8): Bug's Cannon — choose 1 of your opponent's Pokémon; 20 damage to it for each [G] Energy attached
+//! to this Pokémon. Speed Attack — 110.
 //!
-//! Twinleaf: counts GRASS / ANY `provides` on `player.active`, then a
-//! non-cancellable ChoosePokemonPrompt (min 1, max 1) and
-//! DAMAGE_OPPONENT_POKEMON (DealDamage on the Active, PutDamage on the
-//! Bench), even for 0 damage. Two `Genesect` classes exist; this port is
-//! bound to PFL.
+//! Bug's Cannon: the chosen Pokémon (no cancel) takes a Damage event caused by the attack, even for 0 damage; Weakness
+//! and Resistance apply only if it is the Active Pokémon (APR B-08). Two `Genesect` classes exist; this port is bound
+//! to PFL.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Genesect@PFL",

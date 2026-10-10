@@ -1,0 +1,83 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Froakie SCR 39",
+   "2 Frogadier SCR 40",
+   "2 Greninja ex TWM 106",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Hop's Snorlax JTG 117",
+   "50 Water Energy MEE 3"
+  ],
+  [
+   "2 Froakie SCR 39",
+   "2 Frogadier SCR 40",
+   "2 Greninja ex TWM 106",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Hop's Snorlax JTG 117",
+   "50 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Froakie SCR 39",
+   "Frogadier SCR 40",
+   "Greninja ex TWM 106"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mirage Barrage"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   },
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: 120 damage to 2 of the opponent's Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 120,
+   "cite": "card text: 120 damage, no Weakness or Resistance for a Benched Pokémon: APR B-08"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 1,
+   "cite": "card text: discard 2 Energy from this Pokémon"
+  }
+ ]
+}

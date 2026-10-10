@@ -1,10 +1,8 @@
-//! Team Rocket's Honchkrow (M2a): Rocket Feathers — discard any number of
-//! "Team Rocket" Supporters from your hand; 60 damage for each. Hammer In —
-//! 100.
+//! Team Rocket's Honchkrow (M2a): Rocket Feathers — discard any number of "Team Rocket" Supporters from your hand; 60
+//! damage for each. Hammer In — 100.
 //!
-//! Twinleaf: the hand prompt (Trainer filter, non-Team Rocket Supporters
-//! blocked, max = their count) is shown even when there are none; choosing
-//! nothing sets the damage to 0.
+//! The hand prompt (Supporters with "Team Rocket" in the name, up to their count) is shown even when there are none;
+//! choosing nothing sets the damage to 0. No counters or Knock Out here.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

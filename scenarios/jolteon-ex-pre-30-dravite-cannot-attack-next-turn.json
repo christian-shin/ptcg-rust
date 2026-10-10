@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Eevee TWM 135",
+   "2 Jolteon ex PRE 30",
+   "2 Greninja ex TWM 106",
+   "2 Walking Wake TWM 63",
+   "18 Fire Energy MEE 2",
+   "17 Water Energy MEE 3",
+   "17 Lightning Energy MEE 4"
+  ],
+  [
+   "2 Eevee TWM 135",
+   "2 Jolteon ex PRE 30",
+   "2 Greninja ex TWM 106",
+   "2 Walking Wake TWM 63",
+   "18 Fire Energy MEE 2",
+   "17 Water Energy MEE 3",
+   "17 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Eevee TWM 135",
+   "Jolteon ex PRE 30"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Greninja ex TWM 106",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dravite"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 280,
+   "hp_left": 30,
+   "cite": "card text: 280 damage"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Dravite",
+   "is": false,
+   "cite": "card text: during your next turn, this Pokémon can't attack"
+  }
+ ]
+}

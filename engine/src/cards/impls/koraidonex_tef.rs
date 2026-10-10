@@ -1,10 +1,9 @@
-//! Koraidon ex (TEF): Retribution Strike — 20+, 10 more for each damage
-//! counter on this Pokémon. Kaiser Tackle — 280; this Pokémon does 60 damage
-//! to itself.
+//! Koraidon ex (TEF): Retribution Strike — 20+, 10 more for each damage counter on this Pokémon. Kaiser Tackle — 280;
+//! this Pokémon does 60 damage to itself.
 //!
-//! Twinleaf (temporal-forces file): Retribution Strike adds
-//! `player.active.damage` (the Active, not necessarily this Pokémon);
-//! Kaiser Tackle reduces a DealDamageEffect(60) targeting `player.active`.
+//! Retribution Strike reads the counters on this Pokémon (the Active Pokémon, as it attacks). Kaiser Tackle's self
+//! damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance, APR B-08); this Pokémon
+//! can be Knocked Out by it at the state check.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,16 +1,10 @@
-//! Walking Wake (TWM): Aurora Gain — 20; heal 20 damage from this Pokémon
-//! (a HealEffect on the Active). Undulating Slice — put up to 9 damage
-//! counters on this Pokémon; 20 damage for each counter placed.
+//! Walking Wake (TWM): Aurora Gain — 20; heal 20 damage from this Pokémon. Undulating Slice — put up to 9 damage counters
+//! on this Pokémon; 20 damage for each counter placed.
 //!
-//! Twinleaf: Undulating Slice is a non-cancellable PutDamagePrompt (90 in
-//! multiples of 10, partial placement allowed, Active slot only) with a
-//! per-Pokémon cap of CheckHp + 90 for every Pokémon in play; each entry is a
-//! PutCountersEffect on the chosen target and `effect.damage = placed * 2`
-//! (the last entry wins).
-//!
-//! Fixed (phase 4b, W4): the printed damage is 20 ("20×", as on the card), so
-//! the resume sets `effect.damage = 0` before the entries (placing no counters
-//! does 0 damage, not the printed 20).
+//! Undulating Slice is a PutDamage prompt (up to 90 in multiples of 10, partial placement allowed, this Pokémon only,
+//! cap = its HP + 90, id1984): one PlaceCounters event caused by the attack (counters are not damage, APR C-07), then
+//! the attack's damage is 20 per counter placed (0 placing none: the printed 20 is "20x"). Counters beyond its HP are
+//! allowed; the state check Knocks it Out at the end of the attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

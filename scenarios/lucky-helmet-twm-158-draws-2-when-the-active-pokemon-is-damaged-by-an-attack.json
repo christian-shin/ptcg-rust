@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "2 Lucky Helmet TWM 158",
+   "54 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "2 Lucky Helmet TWM 158",
+   "54 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "active_tool": "Lucky Helmet TWM 158",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: whenever the Pokémon this card is attached to is your Active Pokémon and is damaged by an opponent's attack, draw 2 cards"
+  }
+ ]
+}

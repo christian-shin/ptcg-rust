@@ -1,10 +1,9 @@
-//! Hop's Zacian ex (JTG 111): Insta-Strike — 30, and 30 damage to 1 of your
-//! opponent's Benched Pokémon. Brave Slash — 240; during your next turn this
-//! Pokémon can't use Brave Slash.
+//! Hop's Zacian ex (JTG 111): Insta-Strike — 30, and 30 damage to 1 of your opponent's Benched Pokémon. Brave Slash —
+//! 240; during your next turn this Pokémon can't use Brave Slash.
 //!
-//! Twinleaf: no prompt without a Benched Pokémon; ChoosePokemonPrompt (bench,
-//! no cancel) then a PutDamageEffect of 30. Brave Slash pushes its name onto
-//! the Active's `cannotUseAttacksNextTurnPending` if missing.
+//! Insta-Strike: no prompt without a Benched Pokémon; the chosen Benched Pokémon takes a Damage event of 30 caused by
+//! the attack, with no Weakness or Resistance (APR B-08). Brave Slash arms `Lasting::CannotUseThisAttackNextTurn` (an
+//! ApplyEffect event on this Pokémon: `Lasting::CannotUseAttack`).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HopsZacianex",

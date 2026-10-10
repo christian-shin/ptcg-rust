@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Eevee TWM 135",
+   "2 Sylveon PRE 40",
+   "2 Cornerstone Mask Ogerpon ex PRE 58",
+   "54 Fighting Energy MEE 6"
+  ],
+  [
+   "2 Eevee TWM 135",
+   "2 Sylveon PRE 40",
+   "2 Cornerstone Mask Ogerpon ex PRE 58",
+   "54 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Eevee TWM 135",
+   "Sylveon PRE 40"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Cornerstone Mask Ogerpon ex PRE 58",
+  "active_energy": [
+   "3 Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Demolish"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Sylveon PRE 40"
+   ],
+   "cite": "id2095: Safeguard is an effect on Sylveon, and Demolish ignores effects on the opponent's Active Pokémon (140 damage Knocks Out Sylveon)"
+  }
+ ]
+}

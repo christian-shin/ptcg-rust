@@ -1,10 +1,10 @@
-//! Cofagrigus (SSP): Law of the Underworld — put 6 damage counters on each
-//! Pokémon that has an Ability (both yours and your opponent's). Spooky
-//! Shot — 100.
+//! Cofagrigus (SSP): Law of the Underworld — put 6 damage counters on each Pokémon that has an Ability (both yours and
+//! your opponent's). Spooky Shot — 100.
 //!
-//! Twinleaf: for each of the player's Pokémon (Active then Bench), then the
-//! opponent's, a CheckPokemonPowersEffect is run and, if any power is an
-//! Ability, a PutCountersEffect of 60 is applied.
+//! Law of the Underworld is two ForEach loops (yours, then the opponent's) of `Op::PlaceCounters`: one PlaceCounters
+//! event per Pokémon, caused by the attack. Counters are not damage (APR C-07: no Weakness, Resistance or damage
+//! modifiers), and "prevent all effects of attacks" (Hide 'n' Sneak, Mist Energy) refuses the placement on that Pokémon
+//! without stopping the others.
 use crate::spec::prelude::*;
 
 const HAS_COUNTERS: Op = Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::Picked), counters: Num::Lit(6) });

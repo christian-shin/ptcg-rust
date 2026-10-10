@@ -1,11 +1,9 @@
-//! Unown (30C): Mysterious Signal — 40; if your opponent's Pokémon is
-//! Knocked Out by damage from this attack, take 1 more Prize card.
+//! Unown (30C): Mysterious Signal — 40; if your opponent's Pokémon is Knocked Out by damage from this attack, take 1 more
+//! Prize card.
 //!
-//! Twinleaf: IF_OPPONENTS_POKEMON_KO_BY_ATTACK_DAMAGE_TAKE_MORE_PRIZES with
-//! `attackName`; every Unown copy (any zone) reacts to the KnockOutEffect:
-//! the target must be a Pokémon in the owner's Active/Bench, the phase must
-//! be ATTACK with the attacker active, the owner carries DAMAGE_DEALT_MARKER
-//! and the attacker's `playerLastAttack` is this card's Mysterious Signal.
+//! `Modifier::PrizeAdjust` over the KnockOut event: `ko_by` = AttackDamage and the attack that did the damage is
+//! Mysterious Signal of this Unown's player (`by_own_attack`). Any of the opponent's Pokémon counts, Active or Benched.
+//! Damage prevented to 0, or counters instead of damage, don't count as "Knocked Out by damage".
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

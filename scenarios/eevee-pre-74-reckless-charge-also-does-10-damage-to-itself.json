@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Eevee PRE 74",
+   "2 Walking Wake TWM 63",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Eevee PRE 74",
+   "2 Walking Wake TWM 63",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Eevee PRE 74",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Reckless Charge"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text: 30 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "cite": "card text (Reckless Charge): this Pokémon also does 10 damage to itself; no Weakness or Resistance (APR B-08)"
+  }
+ ]
+}

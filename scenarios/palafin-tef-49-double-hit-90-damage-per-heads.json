@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Finizen TWM 59",
+   "2 Palafin TEF 49",
+   "2 Hop's Zacian ex JTG 111",
+   "54 Water Energy MEE 3"
+  ],
+  [
+   "2 Finizen TWM 59",
+   "2 Palafin TEF 49",
+   "2 Hop's Zacian ex JTG 111",
+   "54 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Finizen TWM 59",
+   "Palafin TEF 49"
+  ],
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "reset": true
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Double Hit"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 90,
+   "cite": "card text: flip 2 coins, 90 damage for each heads (1 heads)"
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Zacian ex SVP 198",
+   "2 Dwebble DRI 11",
+   "2 Crustle BLK 52",
+   "54 Metal Energy MEE 8"
+  ],
+  [
+   "2 Zacian ex SVP 198",
+   "2 Dwebble DRI 11",
+   "2 Crustle BLK 52",
+   "54 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Zacian ex SVP 198",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Dwebble DRI 11",
+   "Crustle BLK 52"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Slashing Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Crustle BLK 52",
+   "damage": 140,
+   "hp_left": 10,
+   "cite": "card text (Sturdy): full HP and would be Knocked Out by damage from an attack: not Knocked Out, remaining HP becomes 10"
+  }
+ ]
+}

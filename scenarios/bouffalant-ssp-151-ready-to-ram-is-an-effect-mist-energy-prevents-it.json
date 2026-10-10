@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Bouffalant SSP 151",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Mist Energy TEF 161",
+   "27 Fire Energy MEE 2",
+   "27 Metal Energy MEE 8"
+  ],
+  [
+   "2 Bouffalant SSP 151",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Mist Energy TEF 161",
+   "27 Fire Energy MEE 2",
+   "27 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Bouffalant SSP 151",
+  "active_energy": [
+   "2 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8",
+   "Mist Energy TEF 161"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ready to Ram"
+  },
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "opp",
+   "slot": "active",
+   "damage": 40,
+   "cite": "id2408, id1958: the counters are an effect of Bouffalant's attack; Mist Energy prevents all effects of attacks done to the Pokémon it is attached to"
+  }
+ ]
+}

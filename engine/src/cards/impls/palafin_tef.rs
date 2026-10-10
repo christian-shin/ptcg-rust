@@ -1,7 +1,7 @@
-//! Palafin (TEF): Vanguard Punch — 130; this Pokémon also does 10 damage to
-//! itself for each damage counter on it (DealDamageEffect of `active.damage`
-//! on the Active, computed before the main damage). Double Hit — 90x; flip 2
-//! coins (`effect.damage = 90 * heads`).
+//! Palafin (TEF): Vanguard Punch — 130; this Pokémon also does 10 damage to itself for each damage counter on it (read
+//! before the main damage). Double Hit — 90x; flip 2 coins, 90 damage for each heads.
+//!
+//! The self damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance, APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

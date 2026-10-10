@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Iron Crown ex PRE 158",
+   "2 Mega Skarmory ex POR 55",
+   "2 Walking Wake TWM 63",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Iron Crown ex PRE 158",
+   "2 Mega Skarmory ex POR 55",
+   "2 Walking Wake TWM 63",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": "Iron Crown ex PRE 158"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Skarmory ex POR 55",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "card text (Cobalt Command): only your Future Pokémon's attacks"
+  }
+ ]
+}

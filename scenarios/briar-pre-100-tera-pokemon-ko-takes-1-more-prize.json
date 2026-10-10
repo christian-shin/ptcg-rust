@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Teal Mask Ogerpon ex PRE 12",
+   "2 Briar PRE 100",
+   "2 Budew ASC 16",
+   "54 Grass Energy MEE 1"
+  ],
+  [
+   "2 Teal Mask Ogerpon ex PRE 12",
+   "2 Briar PRE 100",
+   "2 Budew ASC 16",
+   "54 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Teal Mask Ogerpon ex PRE 12",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "hand": [
+   "Briar PRE 100"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Budew ASC 16",
+  "bench": [
+   {
+    "card": "Budew ASC 16"
+   }
+  ],
+  "prizes_left": 2,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Briar PRE 100"
+  },
+  {
+   "a": "attack",
+   "name": "Myriad Leaf Shower"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "prizes_taken": 2,
+   "cite": "card text (Briar): the opponent's Active Pokémon is Knocked Out by damage from an attack of your Tera Pokémon: 1 more Prize card"
+  }
+ ]
+}

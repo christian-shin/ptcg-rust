@@ -1,0 +1,65 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Piplup PFL 27",
+   "2 Prinplup BRS 36",
+   "2 Empoleon ex PFL 70",
+   "2 Staryu POR 20",
+   "2 Mega Starmie ex POR 21",
+   "25 Metal Energy MEE 8",
+   "25 Water Energy MEE 3"
+  ],
+  [
+   "2 Piplup PFL 27",
+   "2 Prinplup BRS 36",
+   "2 Empoleon ex PFL 70",
+   "2 Staryu POR 20",
+   "2 Mega Starmie ex POR 21",
+   "25 Metal Energy MEE 8",
+   "25 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Piplup PFL 27",
+   "Prinplup BRS 36",
+   "Empoleon ex PFL 70"
+  ],
+  "active_energy": [
+   "2 Metal Energy MEE 8",
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Staryu POR 20",
+   "Mega Starmie ex POR 21"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Iron Feathers"
+  },
+  {
+   "a": "attack",
+   "name": "Jetting Blow"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 60,
+   "cite": "card text (Iron Feathers): during your opponent's next turn this Pokémon takes 60 less damage from attacks (120 - 60)"
+  }
+ ]
+}

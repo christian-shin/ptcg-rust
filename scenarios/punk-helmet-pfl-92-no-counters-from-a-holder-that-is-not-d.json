@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "2 Punk Helmet PFL 92",
+   "54 Metal Energy MEE 8"
+  ],
+  [
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "2 Punk Helmet PFL 92",
+   "54 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Zacian ex JTG 111",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Walking Wake TWM 63",
+  "active_tool": "Punk Helmet PFL 92",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Insta-Strike"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 0,
+   "cite": "card text: only if the [D] Pokémon the card is attached to is damaged"
+  }
+ ]
+}

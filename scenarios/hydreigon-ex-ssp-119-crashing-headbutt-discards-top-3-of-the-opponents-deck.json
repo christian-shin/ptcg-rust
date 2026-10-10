@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Deino SSP 117",
+   "2 Zweilous SSP 118",
+   "2 Hydreigon ex SSP 119",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "25 Darkness Energy MEE 7",
+   "25 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Deino SSP 117",
+   "2 Zweilous SSP 118",
+   "2 Hydreigon ex SSP 119",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "25 Darkness Energy MEE 7",
+   "25 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Deino SSP 117",
+   "Zweilous SSP 118",
+   "Hydreigon ex SSP 119"
+  ],
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Crashing Headbutt"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 200,
+   "cite": "card text: 200 damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 3,
+   "cite": "card text: discard the top 3 cards of your opponent's deck"
+  }
+ ]
+}

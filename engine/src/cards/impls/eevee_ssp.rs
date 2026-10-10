@@ -9,6 +9,9 @@
 //! reminder text: id2327). Rare Candy and Grand Tree keep their own
 //! restriction (id1144, id1815; Grand Tree: official JP Q&A 2026-10-09,
 //! "on your first turn you can't use Grand Tree's effect").
+//!
+//! Reckless Charge's self damage is a Damage event caused by the attack on this Pokémon (no Weakness or Resistance,
+//! APR B-08).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

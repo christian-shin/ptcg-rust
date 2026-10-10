@@ -1,0 +1,87 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Duskull SFA 18",
+   "2 Dusclops SFA 19",
+   "2 Dusknoir SFA 20",
+   "2 Walking Wake TWM 63",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Duskull SFA 18",
+   "2 Dusclops SFA 19",
+   "2 Dusknoir SFA 20",
+   "2 Walking Wake TWM 63",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Duskull SFA 18",
+   "Dusclops SFA 19",
+   "Dusknoir SFA 20"
+  ],
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 130,
+   "cite": "card text (Cursed Blast): 13 damage counters on 1 of the opponent's Pokémon (counters, so no Weakness: APR C-07)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Dusknoir SFA 20"
+   ],
+   "cite": "card text (Cursed Blast): then this Pokémon is Knocked Out"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "prizes_taken": 1,
+   "cite": "APR D (the opponent takes a Prize card for the Knocked Out Dusknoir)"
+  }
+ ]
+}

@@ -1,16 +1,12 @@
-//! Greninja ex (TWM, Tera): Shinobi Blade — 170; you may search your deck
-//! for a card and put it into your hand, then shuffle. Mirage Barrage —
-//! discard 2 Energy from this Pokémon; 120 damage to 2 of your opponent's
-//! Pokémon.
+//! Greninja ex (TWM, Tera): Shinobi Blade — 170; you may search your deck for a card and put it into your hand, then
+//! shuffle. Mirage Barrage — discard 2 Energy from this Pokémon; 120 damage to 2 of your opponent's Pokémon.
 //!
-//! Fixed (phase 4b): Shinobi Blade skips the search on an empty deck (it
-//! threw CANNOT_USE_POWER, making the attack unusable). Otherwise a Confirm (SEARCH_DECK_FOR_CARD); yes → ChooseCardsPrompt (min 1, max 1, no
-//! filter) → MOVE_CARDS deck→hand → bare ShuffleDeckPrompt. Mirage Barrage:
-//! ChooseEnergyPrompt ([C][C] over the Active's energy map) → ChoosePokemon
-//! (opponent, Active/Bench, min = max = min(2, the opponent's Pokémon in play);
-//! phase 4b: min used to be 1) → DAMAGE_OPPONENT_POKEMON(120) and
-//! only then the DiscardCardsEffect of the chosen energy (target Active).
-//! The Tera rule prevents PutDamageEffects on this Pokémon on the Bench.
+//! Shinobi Blade skips the search on an empty deck; otherwise a yes / no, then 1 card to the hand (a searcher must take
+//! a card, id1980) and a shuffle.
+//! Mirage Barrage: 2 targets (min = max = min(2, the opponent's Pokémon in play)), each a Damage event caused by the
+//! attack (Weakness and Resistance only for the Active Pokémon, APR B-08), and the Energy is discarded after the
+//! damage (id2002: a Double Turbo Energy discarded for it still reduces the damage). The Tera rule is
+//! `TERA_RULE`: a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Greninjaex",

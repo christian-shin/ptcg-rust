@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Eevee TWM 135",
+   "2 Sylveon PRE 40",
+   "2 Swablu SSP 148",
+   "54 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Eevee TWM 135",
+   "2 Sylveon PRE 40",
+   "2 Swablu SSP 148",
+   "54 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Eevee TWM 135",
+   "Sylveon PRE 40"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Swablu SSP 148",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Disarming Voice"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 1,
+   "who": "me",
+   "slot": "active",
+   "damage": 10,
+   "conditions": [
+    "CONFUSED"
+   ],
+   "cite": "card text (Safeguard): only attacks from Pokémon ex are prevented"
+  }
+ ]
+}

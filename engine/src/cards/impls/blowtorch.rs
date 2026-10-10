@@ -1,13 +1,9 @@
-//! Blowtorch (PFL): discard a Basic [R] Energy card from your hand to use
-//! this card. Discard a Pokémon Tool or Special Energy card from 1 of your
-//! opponent's Pokémon, or discard a Stadium in play.
+//! Blowtorch (PFL): Item. You can use this card only if you discard a Basic [R] Energy card from your hand.
+//! Discard a Pokémon Tool or Special Energy card from 1 of your opponent's Pokémon, or discard a Stadium in play.
 //!
-//! Twinleaf: the energy choice (min 1, name "Fire Energy") is queued without
-//! waiting; the SelectPrompt offers Tool / Special Energy / Stadium from the
-//! counts taken when the card was played (the Special Energy blocked list is
-//! taken after the energy discard). After the chosen action queues its
-//! prompt (or discards the Stadium), the card moves supporter→discard.
-//! Spec: with several Tools on the Pokémon, one Tool is chosen and only it is discarded.
+//! The Energy is the cost: it is picked and discarded first. The choice that follows lists only the kinds that exist
+//! (a Tool, a Special Energy card, a Stadium). With several Tools on the Pokémon, one Tool is chosen and only it is
+//! discarded. No damage, counters or Knock Out here: nothing changed in events batch 6.
 use crate::spec::prelude::*;
 
 const HAND: ZoneRef = ZoneRef(Who::Me, Zone::Hand);

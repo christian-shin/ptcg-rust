@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Joltik SCR 50",
+   "2 Galvantula ex SCR 51",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "26 Lightning Energy MEE 4",
+   "26 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Joltik SCR 50",
+   "2 Galvantula ex SCR 51",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Walking Wake TWM 63",
+   "26 Lightning Energy MEE 4",
+   "26 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Joltik SCR 50",
+   "Galvantula ex SCR 51"
+  ],
+  "active_energy": [
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Charged Web"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 220,
+   "cite": "card text: 110 + 110 more if the opponent's Active Pokémon is a Pokémon ex"
+  }
+ ]
+}

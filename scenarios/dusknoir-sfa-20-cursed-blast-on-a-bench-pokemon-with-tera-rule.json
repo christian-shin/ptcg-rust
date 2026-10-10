@@ -1,0 +1,82 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Duskull SFA 18",
+   "2 Dusclops SFA 19",
+   "2 Dusknoir SFA 20",
+   "2 Walking Wake TWM 63",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Greninja ex TWM 106",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "2 Duskull SFA 18",
+   "2 Dusclops SFA 19",
+   "2 Dusknoir SFA 20",
+   "2 Walking Wake TWM 63",
+   "2 Hop's Zacian ex JTG 111",
+   "2 Greninja ex TWM 106",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Duskull SFA 18",
+   "Dusclops SFA 19",
+   "Dusknoir SFA 20"
+  ],
+  "bench": [
+   {
+    "card": "Walking Wake TWM 63"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Greninja ex TWM 106"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Cursed Blast",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "card": "Greninja ex TWM 106",
+   "damage": 130,
+   "cite": "APR C-07: the Tera rule prevents damage done by attacks, not damage counters an Ability places"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Dusknoir SFA 20"
+   ],
+   "cite": "card text (Cursed Blast)"
+  }
+ ]
+}

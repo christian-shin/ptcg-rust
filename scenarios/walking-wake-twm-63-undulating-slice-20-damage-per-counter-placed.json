@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Walking Wake TWM 63",
+   "2 Hop's Zacian ex JTG 111",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "2 Walking Wake TWM 63",
+   "2 Hop's Zacian ex JTG 111",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Walking Wake TWM 63",
+  "active_energy": [
+   "3 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Undulating Slice"
+  },
+  [
+   {
+    "target": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "damage": 40
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 40,
+   "cite": "card text: put up to 9 damage counters on this Pokémon (4 placed); counters, not damage: APR C-07"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: 20 damage for each damage counter placed in this way"
+  }
+ ]
+}
