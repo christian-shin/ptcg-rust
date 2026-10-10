@@ -357,7 +357,11 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             let sc = ctx.sc();
             let (hand, supporter) = (sc.st.players[p].hand, sc.st.players[p].supporter);
             crate::engine::play_trainer::enter_item_play(sc, p, card);
-            let e = sc.new_fx(Effect::PlayTrainer { p: p as u8, card, target: None, use_: crate::spec::event::TrainerUse::Played, cause });
+            let with = crate::engine::play_trainer::companion(sc, p, card);
+            if let Some(w) = with {
+                crate::engine::play_trainer::enter_item_play(sc, p, w);
+            }
+            let e = sc.new_fx(Effect::PlayTrainer { p: p as u8, card, target: None, use_: crate::spec::event::TrainerUse::Played, cause, with });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
             // The lists go back by assignment: the layout tracking (the dispatch index) learns it here.
@@ -374,7 +378,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
                 return Some(true);
             }
             let sc = ctx.sc();
-            let e = sc.new_fx(Effect::PlayTrainer { p: p as u8, card, target: None, use_: crate::spec::event::TrainerUse::Played, cause });
+            let e = sc.new_fx(Effect::PlayTrainer { p: p as u8, card, target: None, use_: crate::spec::event::TrainerUse::Played, cause, with: None });
             let ok = crate::spec::run::trainer_play_check(sc, card, p, e).is_ok();
             sc.release_fx(e);
             Some(ok)
