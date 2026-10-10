@@ -44,10 +44,7 @@ fn choose_supporter(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
 fn copy_effect(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
     let p = f.p as usize;
     let Some(card) = results.first().and_then(|r| r.cards().first().copied()) else { return Ok(Flow::Next) };
-    let supporter_turn = g.st.players[p].supporter_turn;
-    g.st.players[p].supporter_turn = 0;
-    let r = g.run_fx(Effect::Trainer { p: p as u8, card, target: None, via_attack: true });
-    g.st.players[p].supporter_turn = supporter_turn;
+    let r = crate::engine::play_trainer::use_effect(g, p, card, f.cause);
     match r {
         Ok(_) => Ok(Flow::Next),
         // A GameError (not a TypeError) means this Supporter's effect can't be used now: choose another.

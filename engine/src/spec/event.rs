@@ -95,6 +95,7 @@ impl EventKind {
             EventKind::PutIntoHand => Some(k::PUT_INTO_HAND),
             EventKind::PutIntoDeck => Some(k::PUT_INTO_DECK),
             EventKind::Draw => Some(k::DRAW),
+            EventKind::PlayTrainer => Some(k::PLAY_TRAINER),
             _ => None,
         }
     }
@@ -535,6 +536,7 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::PUT_INTO_HAND,
     crate::effects::k::PUT_INTO_DECK,
     crate::effects::k::DRAW,
+    crate::effects::k::PLAY_TRAINER,
 ]);
 /// The events with an effect done to a Pokémon or its cards, which a `Prevent` naming no `Kind` ranges over ("prevent all
 /// effects of attacks done to X"): an explicit list (events batch 7). Not Damage: damage is not an effect (APR C-17
@@ -565,6 +567,9 @@ pub const EFFECT_EVENT_KINDS: KindMask = crate::effects::mask(&[
 /// The card-movement events of events batch 7 (Discard, PutIntoHand, PutIntoDeck, Draw): a lock over them sets
 /// `DECLARES_CARD_LOCK` (Poké Vital A, Neutralization Zone). No `Prevent` ranges over them (they aren't done to a Pokémon).
 pub const CARD_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::DISCARD, crate::effects::k::PUT_INTO_HAND, crate::effects::k::PUT_INTO_DECK, crate::effects::k::DRAW]);
+/// PlayTrainer (events batch 7): a lock over it sets `DECLARES_PLAY_LOCK`. No `Prevent` ranges over it (it isn't done to
+/// a Pokémon; a used Supporter's effects are the attack's, on the Pokémon they reach: id2025).
+pub const PLAY_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::PLAY_TRAINER]);
 
 /// `m` without the kind `k`.
 pub const fn without(m: KindMask, k: u32) -> KindMask {

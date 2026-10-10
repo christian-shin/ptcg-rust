@@ -265,21 +265,14 @@ pub enum Effect {
     MoveEnergy { p: u8, card: CardId, from: SlotRef, to: SlotRef, cause: Cause },
     /// The MoveTool event (`engine::attach::move_tool`): an attached Pokémon Tool moves between Pokémon.
     MoveTool { p: u8, card: CardId, from: SlotRef, to: SlotRef, cause: Cause },
-    PlaySupporter { p: u8, card: CardId, target: Option<SlotRef> },
-    PlayStadium { p: u8, card: CardId },
-    /// Playing a Pokémon Tool card from the hand onto `target` (the Trainer play: Seismitoad's coin flip, then
-    /// the Tool's `Attach` and its `Trainer` effect). Events batch 7 makes it a PlayTrainer.
-    AttachPokemonTool { p: u8, card: CardId, target: SlotRef },
-    PlayItem { p: u8, card: CardId, target: Option<SlotRef> },
-    /// `via_attack` = `usedAsAttackEffect`: a Supporter's effect used as the effect of an attack
-    /// (Mr. Mime's Look-Alike Show; rulings 1727, 1728, 1844, 1853).
-    Trainer { p: u8, card: CardId, target: Option<SlotRef>, via_attack: bool },
+    /// The PlayTrainer event (events batch 7; `engine::play_trainer`): player `p` plays the Trainer `card` from the hand
+    /// (`use_: Played`; `target` a Tool's Pokémon) or uses its effect as the effect of an attack (`Used`: Mr. Mime's
+    /// Look-Alike Show; id2225, id2226, id2376). The card's own program is its handler (`spec::run::reduce`).
+    PlayTrainer { p: u8, card: CardId, target: Option<SlotRef>, use_: crate::spec::event::TrainerUse, cause: Cause },
     Energy { p: u8, card: CardId },
     Tool { p: u8, card: CardId },
     Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },
-    Supporter { p: u8, card: CardId },
     TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
-    DiscardToHand { p: u8, card: CardId },
     /// B4-OLD: a request for a sequence of flips (each is a `CoinFlipRequest`, each flip a CoinFlip event).
     /// `mode`: 0 = until tails, n = n flips. `callback` indexes `coin_callbacks`.
     CoinFlipSequence { p: u8, mode: u8, callback: u8, skip_reflip_stadium: bool, skip_reflip_tool: bool, cause: Cause },
@@ -347,17 +340,11 @@ impl Effect {
             MoveEnergy { .. } => "MOVE_ENERGY_EVENT",
             MoveTool { .. } => "MOVE_TOOL_EVENT",
             EnterPlay { .. } => "ENTER_PLAY_EVENT",
-            PlaySupporter { .. } => "PLAY_SUPPORTER_EFFECT",
-            PlayStadium { .. } => "PLAY_STADIUM_EFFECT",
-            AttachPokemonTool { .. } => "PLAY_POKEMON_TOOL_EFFECT",
-            PlayItem { .. } => "PLAY_ITEM_EFFECT",
-            Trainer { .. } => "TRAINER_EFFECT",
+            PlayTrainer { .. } => "PLAY_TRAINER_EVENT",
             Energy { .. } => "ENERGY_EFFECT",
             Tool { .. } => "TOOL_EFFECT",
             Stadium { .. } => "STADIUM_EFFECT",
-            Supporter { .. } => "SUPPORTER_EFFECT",
             TrainerTarget { .. } => "TRAINER_TARGET_EFFECT",
-            DiscardToHand { .. } => "DISCARD_TO_HAND_EFFECT",
             CoinFlipSequence { .. } => "COIN_FLIP_SEQUENCE_EFFECT",
             CoinFlipRequest { .. } => "COIN_FLIP_EFFECT",
         }
@@ -433,18 +420,12 @@ impl Effect {
             MoveEnergy { .. } => 64,
             MoveTool { .. } => 65,
             EnterPlay { .. } => 51,
-            PlaySupporter { .. } => 52,
-            PlayStadium { .. } => 53,
-            AttachPokemonTool { .. } => 54,
-            PlayItem { .. } => 55,
-            Trainer { .. } => 56,
+            PlayTrainer { .. } => 56,
             Energy { .. } => 57,
             Tool { .. } => 58,
             Stadium { .. } => 59,
-            Supporter { .. } => 60,
             CoinFlipRequest { .. } => 61,
             TrainerTarget { .. } => 62,
-            DiscardToHand { .. } => 63,
             CoinFlipSequence { .. } => 66,
             MoveCounters { .. } => 117,
             Devolve { .. } => 248,
@@ -505,19 +486,14 @@ pub mod k {
     pub const MOVE_ENERGY: u32 = 64;
     pub const MOVE_TOOL: u32 = 65;
     pub const ENTER_PLAY: u32 = 51;
-    pub const PLAY_SUPPORTER: u32 = 52;
-    pub const PLAY_STADIUM: u32 = 53;
-    pub const ATTACH_POKEMON_TOOL: u32 = 54;
-    pub const PLAY_ITEM: u32 = 55;
-    pub const TRAINER: u32 = 56;
+    /// The PlayTrainer event (events batch 7): the number the Trainer effect had (the Trainer's program is its handler).
+    pub const PLAY_TRAINER: u32 = 56;
     pub const ENERGY: u32 = 57;
     pub const TOOL: u32 = 58;
     pub const STADIUM: u32 = 59;
-    pub const SUPPORTER: u32 = 60;
     /// B4-OLD: the request for one coin flip (Backtrack Badge's re-flip hook reads it).
     pub const COIN_FLIP_REQUEST: u32 = 61;
     pub const TRAINER_TARGET: u32 = 62;
-    pub const DISCARD_TO_HAND: u32 = 63;
     pub const COIN_FLIP_SEQUENCE: u32 = 66;
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
@@ -543,6 +519,8 @@ pub mod k {
     /// A lock over Discard / PutIntoHand / PutIntoDeck / Draw (events batch 7: Poké Vital A's and Neutralization Zone's
     /// "this card can't be put into your hand or deck from the discard pile").
     pub const DECLARES_CARD_LOCK: u32 = 218;
+    /// A lock over PlayTrainer (events batch 7: "your opponent can't play Item / Supporter / Stadium cards from their hand").
+    pub const DECLARES_PLAY_LOCK: u32 = 219;
     /// A `Prevent` declaration over PlaceCounters / MoveCounters, over Damage, over a KnockOut by an effect, over LeavePlay,
     /// over Attach / MoveEnergy / MoveTool, over Evolve / Devolve / Swap, over ApplyEffect (events batch 6: the event's
     /// routine asks `derived::event_prevented` only in a game with one).
@@ -653,6 +631,7 @@ impl Effect {
             | MoveCounters { cause, .. }
             | KnockOut { cause, .. }
             | LeavePlay { cause, .. }
+            | PlayTrainer { cause, .. }
             | Discard { cause, .. }
             | PutIntoHand { cause, .. }
             | PutIntoDeck { cause, .. }

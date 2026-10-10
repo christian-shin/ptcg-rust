@@ -100,9 +100,6 @@ pub enum Lasting {
     /// The opponent can't do these actions with these cards (a [`LockDecl`], the declaration an in-play lock
     /// uses) during their next turn.
     OppCannotPlay(&'static LockDecl),
-    /// During the opponent's next turn, whenever they try to use a Trainer from
-    /// their hand, they flip a coin; on tails it is discarded instead.
-    CoinFlipCancelTrainer,
     // --- S3 agent 3 appends ---
     /// During the opponent's next turn, attacks used by the Defending Pokémon cost [C] more.
     IncreaseAttackCost,
@@ -228,13 +225,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             ability_used(g, f.p as usize, me);
             Ok(Flow::Next)
         }
-        Op::SetFlag(s) => {
-            let p = f.who(s.who);
-            match s.flag {
-                PlayerFlag::AncientSupporter => g.st.players[p].ancient_supporter = s.value,
-            }
-            Ok(Flow::Next)
-        }
         Op::SetMarker(m) => {
             let w = match m.scope {
                 MarkerScope::Player(w) => w,
@@ -318,18 +308,6 @@ pub struct AbilityUsedSpec {
     pub marker: Option<&'static str>,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum PlayerFlag {
-    /// "The player played an Ancient Supporter this turn."
-    AncientSupporter,
-}
-
-/// Set or clear a flag of a player.
-pub struct SetFlagSpec {
-    pub who: Who,
-    pub flag: PlayerFlag,
-    pub value: bool,
-}
 
 /// The Barrage flag of the attack being used (Festival Lead): on while Festival Grounds is in play
 /// and the Ability isn't blocked.

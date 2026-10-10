@@ -234,6 +234,15 @@ pub fn leave_play_cards_by_rule(g: &mut Game, target: SlotRef, cards: &[CardId],
     Ok(())
 }
 
+/// The Stadium in play leaves play by the rule (a new Stadium is played: APR B-04; user decision D1): to its owner's
+/// discard pile (a Prism Star card to the Lost Zone), never refused.
+pub fn leave_play_stadium_by_rule(g: &mut Game, card: CardId, cause: Cause) -> R {
+    let owner = g.st.owner(card) as u8;
+    let mut cs: SVec<CardId, 64> = SVec::new();
+    cs.push(card);
+    g.run_fx_unit(Effect::LeavePlay { p: owner, target: None, dest: ListRef::Discard(owner), cause, how: LeaveHow::Stadium, source_card: NO_CARD, cards: cs })
+}
+
 /// LeavePlay of the Stadium `card` for `zone` of its owner (discarded by an effect; user decision D1), by `cause`. The locks
 /// are asked (no `Prevent` protects a Stadium: it isn't a Pokémon). Returns whether it left play.
 pub fn leave_play_stadium(g: &mut Game, card: CardId, zone: RulesZone, cause: Cause) -> R<bool> {

@@ -181,16 +181,16 @@ pub fn transfer_pokemon_card_state(g: &mut Game, p: usize, old: CardId, new: Car
     }
 }
 
-/// `effect.usedAsAttackEffect` of a TrainerEffect: the Supporter's effect is used as the
-/// effect of an attack (Mr. Mime's Look-Alike Show), so "up to" prompts may choose zero.
+/// The PlayTrainer event uses the Supporter's effect as the effect of an attack (`TrainerUse::Used`: Mr. Mime's Look-Alike
+/// Show), so "up to" prompts may choose zero (APR D-05).
 pub fn trainer_via_attack(g: &Game, e: EffId) -> bool {
-    matches!(*g.e(e), Effect::Trainer { via_attack: true, .. })
+    matches!(*g.e(e), Effect::PlayTrainer { use_: crate::spec::event::TrainerUse::Used, .. })
 }
 
-/// `effect instanceof TrainerEffect && effect.trainerCard === this`: the player.
+/// The PlayTrainer event of `me` (played or used): the player whose program it is.
 pub fn trainer_played(g: &Game, e: EffId, me: CardId) -> Option<usize> {
     match *g.e(e) {
-        Effect::Trainer { p, card, .. } if card == me => Some(p as usize),
+        Effect::PlayTrainer { p, card, .. } if card == me => Some(p as usize),
         _ => None,
     }
 }

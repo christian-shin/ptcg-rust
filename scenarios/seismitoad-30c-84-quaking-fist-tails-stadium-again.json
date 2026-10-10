@@ -1,0 +1,82 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Duraludon PRE 69",
+   "4 Seismitoad 30C 84",
+   "4 Lumiose City POR 77",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Duraludon PRE 69",
+   "4 Seismitoad 30C 84",
+   "4 Lumiose City POR 77",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Seismitoad 30C 84",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Lumiose City POR 77",
+   "Lumiose City POR 77"
+  ]
+ },
+ "coins": [
+  false,
+  true
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Quaking Fist"
+  },
+  {
+   "a": "play",
+   "name": "Lumiose City POR 77"
+  },
+  {
+   "a": "play",
+   "name": "Lumiose City POR 77"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "opp",
+   "legal": "play",
+   "name": "Lumiose City POR 77",
+   "cite": "JP FAQ Seismitoad (ガマゲロゲ) with Lumiose City (ミアレシティ): after tails discards the Stadium, may another Stadium be played? Yes, even one with the same name (the play didn't happen: it isn't the turn's Stadium)"
+  },
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Lumiose City POR 77"
+   ],
+   "cite": "Seismitoad 30C 84 Quaking Fist: if tails, your opponent discards that Trainer card instead of using it"
+  },
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "not_contains": [
+    "Lumiose City POR 77"
+   ],
+   "cite": "JP FAQ Seismitoad (ガマゲロゲ): heads, the Trainer card is used as usual (the second Lumiose City is in play)"
+  }
+ ]
+}

@@ -164,8 +164,10 @@ pub enum Cond {
     NonemptyOther(ZoneRef, Pred),
     /// Card register `r` holds cards.
     Chosen(u8),
-    /// The player played an Ancient Supporter this turn.
-    AncientSupporterPlayed(Who),
+    /// The player played a card matching the predicate from their hand this turn ("if you played a Supporter / Team
+    /// Rocket's Supporter / Ancient Supporter card from your hand this turn": the played-this-turn record, APR E-26; a
+    /// Supporter's effect used by an attack doesn't count, id2225).
+    PlayedThisTurn(Who, Pred),
     /// At least `at_least` cards named `name` in the player's discard pile and in play.
     KnownCopies { who: Who, name: &'static str, at_least: i32 },
     /// A Pokémon in play whose top card matches.
@@ -190,8 +192,6 @@ pub enum Cond {
     /// A Pokémon of the player is being Knocked Out by an attack of the other player's Pokémon
     /// and that attacking Pokémon card matches.
     AttackerOfKnockOut { who: Who, pred: Pred },
-    /// The player has played a Supporter this turn.
-    SupporterPlayed(Who),
     /// The player has a Prize card that is still face down and secret.
     FaceDownPrize(Who),
     /// The Trainer being resolved is used as the effect of an attack (Look-Alike Show).
@@ -214,8 +214,6 @@ pub enum Cond {
     ToolBlocked,
     /// This Stadium's effect is blocked on the Pokémon (the lock probe). A checked read.
     StadiumBlocked(SlotExpr),
-    /// The player played a Team Rocket's Supporter from their hand this turn.
-    RocketSupporterPlayed(Who),
     /// Some Pokémon of the player in play has an Evolution somewhere in the card pool.
     HasEvolutionInPool(Who),
 }
@@ -504,7 +502,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         }
         Cond::NonemptyOther(z, p) => zone_cards_of(g, me, f, *z).iter().any(|c| *c != me && pred(g, *c, p)),
         Cond::Chosen(r) => !reg_list(g, f, *r).is_empty(),
-        Cond::AncientSupporterPlayed(w) => g.st.players[f.who(*w)].ancient_supporter,
+        Cond::PlayedThisTurn(w, pr) => g.st.players[f.who(*w)].played_this_turn.iter().any(|c| pred(g, *c, pr)),
         Cond::KnownCopies { who, name, at_least } => {
             let p = f.who(*who);
             let mut n = g.lst(ListRef::Discard(p as u8)).iter().filter(|c| g.st.cdef(**c).name == *name).count() as i32;
@@ -531,7 +529,6 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                     && tag.map_or(true, |t| crate::carddb::def(*d).has_tag(t))
             })
         }
-        Cond::SupporterPlayed(w) => g.st.players[f.who(*w)].supporter_turn > 0,
         Cond::FaceDownPrize(w) => {
             let pl = &g.st.players[f.who(*w)];
             (0..pl.prize_count as usize).any(|i| !pl.prize_public[i] && !pl.prize_face_up[i] && !pl.prizes[i].is_empty())
@@ -565,7 +562,6 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             in_play(g, f.who(*names_of), PlayScope::All).iter().all(|(_, top, _)| known(g.st.cdef(*top).name) >= 4)
         }
         Cond::StadiumBlocked(_) => panic!("Cond::StadiumBlocked needs a checked read (cond_m)"),
-        Cond::RocketSupporterPlayed(w) => g.st.players[f.who(*w)].rocket_supporter,
         Cond::HasEvolutionInPool(w) => {
             let p = f.who(*w);
             for (_, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {

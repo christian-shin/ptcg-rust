@@ -54,9 +54,9 @@ pub struct Derived {
 
 /// The effect kinds after which the facts may have changed (the events of the design's list as today's
 /// effects carry them): enter or leave play, attach and move attached cards (ENTER_PLAY, ATTACH,
-/// MOVE_ENERGY, MOVE_TOOL, ATTACH_POKEMON_TOOL, KNOCK_OUT), every card move (the batch 7 events DISCARD, PUT_INTO_HAND,
+/// MOVE_ENERGY, MOVE_TOOL, KNOCK_OUT), every card move (the batch 7 events DISCARD, PUT_INTO_HAND,
 /// PUT_INTO_DECK, DRAW: today's timing, batch 8 narrows it), evolve, devolve and swap (EVOLVE, DEVOLVE, SWAP), Active changes
-/// (CHANGE_ACTIVE), the Stadium (PLAY_STADIUM), the turn (BEGIN_TURN,
+/// (CHANGE_ACTIVE), the Stadium and Tool plays (`play_trainer` settles after them), the turn (BEGIN_TURN,
 /// END_TURN), the state check where Ability locks are re-stamped (CHECK_TABLE_STATE; `lock_sync`
 /// runs after the same kinds), the events batch 4 events a continuous effect can read: a Special Condition
 /// gained or removed (Gutsy Swing's cost reads it) and healing (remaining HP), and the events batch 6 ones: damage
@@ -71,13 +71,11 @@ pub const INVALIDATING_KINDS: KindMask = mask(&[
     k::ATTACH,
     k::MOVE_ENERGY,
     k::MOVE_TOOL,
-    k::ATTACH_POKEMON_TOOL,
     k::KNOCK_OUT,
     k::EVOLVE,
     k::DEVOLVE,
     k::SWAP,
     k::CHANGE_ACTIVE,
-    k::PLAY_STADIUM,
     k::BEGIN_TURN,
     k::END_TURN,
     k::CHECK_TABLE_STATE,
@@ -215,10 +213,3 @@ pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<boo
     crate::spec::passive::event_prevented(g, v)
 }
 
-/// The in-play or lasting lock that forbids player `p` doing one of `actions` with `card`, if any
-/// (`passive::play_locked_as`).
-#[inline]
-pub fn play_locked(g: &mut Game, p: usize, card: crate::list::CardId, actions: &[crate::spec::passive::LockedAction]) -> Option<&'static str> {
-    g.derived.fresh();
-    crate::spec::passive::play_locked_as(g, p, card, actions)
-}

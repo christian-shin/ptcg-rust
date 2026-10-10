@@ -100,14 +100,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Lasting::NoWeakness => slot.no_weakness_next_turn_pending = true,
             Lasting::SelfCannotRetreat => slot.cannot_retreat_next_turn_pending = true,
-            Lasting::OppCannotPlay(_) | Lasting::CoinFlipCancelTrainer | Lasting::OppSmallEnergyCannotAttack(_) => {}
+            Lasting::OppCannotPlay(_) | Lasting::OppSmallEnergyCannotAttack(_) => {}
         }
         return Ok(());
     }
     let pl = &mut g.st.players[q];
     match effect {
         Lasting::OppCannotPlay(lock) => crate::engine::phase::apply_play_lock(pl, lock, 1, cause.card.unwrap_or(attack.card)),
-        Lasting::CoinFlipCancelTrainer => pl.coin_flip_cancel_trainer_play_turns_remaining = pl.coin_flip_cancel_trainer_play_turns_remaining.max(1),
         Lasting::OppSmallEnergyCannotAttack(n) => {
             pl.cannot_attack_max_energy = Some(n);
             pl.cannot_attack_max_energy_turns_remaining = pl.cannot_attack_max_energy_turns_remaining.max(1);
@@ -134,7 +133,7 @@ pub fn target_of(g: &Game, p: usize, source: SlotRef, effect: Lasting) -> ApplyT
             ApplyTarget::Slot(SlotRef::new(o, g.st.players[o].active))
         }
         Lasting::BlockThisAttackUntilLeavesActive => ApplyTarget::Slot(source),
-        Lasting::OppCannotPlay(_) | Lasting::CoinFlipCancelTrainer | Lasting::OppSmallEnergyCannotAttack(_) => ApplyTarget::Player(o as u8),
+        Lasting::OppCannotPlay(_) | Lasting::OppSmallEnergyCannotAttack(_) => ApplyTarget::Player(o as u8),
         _ => ApplyTarget::Slot(SlotRef::new(p, g.st.players[p].active)),
     }
 }

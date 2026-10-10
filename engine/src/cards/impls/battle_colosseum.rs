@@ -15,7 +15,6 @@ pub static SPEC: CardSpec = CardSpec {
     class: "BattleColosseum",
     passives: &[
         // Automatically active: it can't be announced and used.
-        Passive { origin: RuleSource::Stadium, modifier: Modifier::BlockUse(BlockUseSpec::USE_STADIUM) },
         // Damage counters placed on a Benched Pokémon, or moved onto one (they leave their source and vanish: id2257, JP FAQ
         // Battle Cage x3), by an effect of an attack or Ability from the Pokémon of that Pokémon's owner's opponent.
         Passive {

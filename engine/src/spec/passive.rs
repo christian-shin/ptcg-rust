@@ -324,7 +324,8 @@ pub fn prevent_consulted(kind: u32) -> bool {
 
 /// The event families a lock over events can forbid, each with the marker a lock over it sets (`block_kinds`) and the
 /// query tests (`lock_marker`).
-const LOCK_FAMILIES: [(KindMask, u32); 8] = [
+const LOCK_FAMILIES: [(KindMask, u32); 9] = [
+    (super::event::PLAY_EVENT_KINDS, crate::effects::k::DECLARES_PLAY_LOCK),
     (super::event::CARD_EVENT_KINDS, crate::effects::k::DECLARES_CARD_LOCK),
     (super::event::POKEMON_EVENT_KINDS, crate::effects::k::DECLARES_EVENT_LOCK),
     (super::event::ATTACH_EVENT_KINDS, crate::effects::k::DECLARES_ATTACH_LOCK),
@@ -345,36 +346,6 @@ pub enum Binds {
     Both,
 }
 
-/// An action a lock can stop. The card the lock's `card` / `except` predicates read is the card the action
-/// uses: the card played from the hand, the Pokémon retreating, the Stadium being used.
-///
-/// Actions are named from the rules, not from engine paths: a lock declares the words of its text, and every
-/// way of doing the action asks for all the actions it is an instance of. Playing, putting into play and
-/// evolving Pokémon, and attaching an Energy or a Tool, are events (EnterPlay, Evolve, Attach), which locks forbid
-/// with `LockDecl::forbids`.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum LockedAction {
-    /// Play an Item card from the hand.
-    PlayItem,
-    PlaySupporter,
-    PlayStadium,
-    /// Use the Stadium in play (the card is the Stadium).
-    UseStadium,
-}
-
-impl LockedAction {
-    /// The effect kind that carries this action.
-    pub const fn kind(self) -> u32 {
-        use crate::effects::k;
-        match self {
-            LockedAction::PlayItem => k::PLAY_ITEM,
-            LockedAction::PlaySupporter => k::PLAY_SUPPORTER,
-            LockedAction::PlayStadium => k::PLAY_STADIUM,
-            LockedAction::UseStadium => k::USE_STADIUM,
-        }
-    }
-}
-
 /// A condition on the lock's source that must hold for the lock to be on. The source also has to be in place
 /// for its origin (a Pokémon with the Ability in play, the Stadium in play, ...), as for every passive.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -388,60 +359,72 @@ pub enum LockWhile {
     CardIsSource,
 }
 
-/// What a lock stops, declared as data, and the code the stopped action fails with. The in-play locks
-/// ([`BlockUseSpec`]) and the locks an attack leaves on the opponent (`Lasting::OppCannotPlay`, stored on the
-/// locked player as a [`crate::state::LastingLock`]) are this one declaration. Two forms, either or both:
-/// - `forbids`: the events it forbids (`Lock { forbids: EventPred }`, events design section 5; events batch 2:
-///   EnterPlay, Evolve, Devolve, Swap; batch 3 the attaching events), evaluated for the lock's source card; the
-///   locked player is the event's actor (`EventView::actor`, the `Cause` player: id25, id230, id959).
-///   `EventPred::NEVER` when it has none.
-/// - `actions` (the turn actions not yet carried by events: Item, Supporter, Stadium, Tool, Energy, retreat,
-///   Stadium use), with a predicate over the card the action uses (`card`, minus `except`).
+/// When a lock is a coin: "whenever they try to [do it], they flip a coin; if tails, [it doesn't happen and] they
+/// discard that card instead" (Seismitoad's Quaking Fist; JP FAQ ガマゲロゲ). A coin-gated lock isn't a legality check
+/// (heads lets the action through): `event_locked` doesn't answer it; the event's routine flips (`coin_gate`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CoinGate {
+    /// Not a coin: the lock forbids.
+    No,
+    /// Flip when trying: tails, the event doesn't happen and the card is discarded instead.
+    TailsDiscardsCard,
+}
+
+/// A lock (events design section 5: `Lock { forbids }`), and the code the stopped action fails with: the events it
+/// forbids (`forbids`), evaluated for the lock's source card; the locked player is the event's actor
+/// (`EventView::actor`, the `Cause` player: id25, id230, id959). The in-play locks ([`BlockUseSpec`]) and the locks an
+/// attack leaves on the opponent (`Lasting::OppCannotPlay`, stored on the locked player as a
+/// [`crate::state::LastingLock`]) are this one declaration. Events batch 7: the play locks are over PlayTrainer ("your
+/// opponent can't play Item cards from their hand": `Kind(PlayTrainer) & Use(Played) & Source(Hand) & Card(Item)`).
 pub struct LockDecl {
-    pub actions: &'static [LockedAction],
-    pub card: Pred,
-    pub except: Pred,
     pub error: &'static str,
     pub forbids: super::event::EventPred,
+    pub coin: CoinGate,
 }
 
 impl LockDecl {
-    /// No actions and no events (with `..LockDecl::NONE`).
-    pub const NONE: LockDecl = LockDecl { actions: &[], card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_EFFECT", forbids: super::event::EventPred::NEVER };
-
-    /// A lock on every card of these actions, failing with BLOCKED_BY_EFFECT.
-    pub const fn of(actions: &'static [LockedAction]) -> LockDecl {
-        LockDecl { actions, card: Pred::Any, except: Pred::False, error: "BLOCKED_BY_EFFECT", forbids: super::event::EventPred::NEVER }
-    }
+    /// No events (with `..LockDecl::NONE`).
+    pub const NONE: LockDecl = LockDecl { error: "BLOCKED_BY_EFFECT", forbids: super::event::EventPred::NEVER, coin: CoinGate::No };
 
     /// A lock on the events matching `forbids`, failing with `error`.
     pub const fn on(forbids: super::event::EventPred, error: &'static str) -> LockDecl {
-        LockDecl { actions: &[], card: Pred::Any, except: Pred::False, error, forbids }
+        LockDecl { error, forbids, coin: CoinGate::No }
     }
 
-    /// Does the lock stop one of these actions with `card` (`None`: any card of the action, which a lock on
-    /// every card of its actions answers)?
-    pub fn stops(&self, g: &Game, card: Option<CardId>, asked: &[LockedAction]) -> bool {
-        if !self.actions.iter().any(|a| asked.contains(a)) {
-            return false;
-        }
-        match card {
-            Some(c) => pred(g, c, &self.card) && !pred(g, c, &self.except),
-            None => matches!(self.card, Pred::Any) && matches!(self.except, Pred::False),
-        }
-    }
-
-    /// Two locks that stop the same cards the same way (so one stands for both).
+    /// Two locks that are one declaration (so one stands for both).
     pub fn same_as(&self, o: &LockDecl) -> bool {
         std::ptr::eq(self, o)
-            || (self.actions == o.actions
-                && self.forbids.is_never()
-                && o.forbids.is_never()
-                && self.error == o.error
-                && matches!((&self.card, &o.card), (Pred::Any, Pred::Any))
-                && matches!((&self.except, &o.except), (Pred::False, Pred::False)))
     }
 }
+
+/// "Your opponent can't play Item cards from their hand" (Tyranitar, Jellicent ex's Items half, Budew, Frillish,
+/// Galvantula ex): PlayTrainer of an Item played from the hand.
+pub const PLAY_ITEM_FROM_HAND: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::PlayTrainer),
+    super::event::EventPred::Use(super::event::TrainerUse::Played),
+    super::event::EventPred::Source(super::event::RulesZone::Hand),
+    super::event::EventPred::Card(Pred::Item),
+]);
+/// "... can't play Supporter cards from their hand" (Scream Tail ex).
+pub const PLAY_SUPPORTER_FROM_HAND: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::PlayTrainer),
+    super::event::EventPred::Use(super::event::TrainerUse::Played),
+    super::event::EventPred::Source(super::event::RulesZone::Hand),
+    super::event::EventPred::Card(Pred::Supporter),
+]);
+/// "... can't play Stadium cards from their hand" (Chi-Yu MEG).
+pub const PLAY_STADIUM_FROM_HAND: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::PlayTrainer),
+    super::event::EventPred::Use(super::event::TrainerUse::Played),
+    super::event::EventPred::Source(super::event::RulesZone::Hand),
+    super::event::EventPred::Card(Pred::Stadium),
+]);
+/// "... use a Trainer card from their hand" (Seismitoad's Quaking Fist): PlayTrainer of any Trainer played from the hand.
+pub const PLAY_TRAINER_FROM_HAND: super::event::EventPred = super::event::EventPred::All(&[
+    super::event::EventPred::Kind(super::event::EventKind::PlayTrainer),
+    super::event::EventPred::Use(super::event::TrainerUse::Played),
+    super::event::EventPred::Source(super::event::RulesZone::Hand),
+]);
 
 impl PartialEq for LockDecl {
     fn eq(&self, o: &LockDecl) -> bool {
@@ -451,11 +434,11 @@ impl PartialEq for LockDecl {
 impl Eq for LockDecl {}
 impl std::fmt::Debug for LockDecl {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "LockDecl({:?}, {})", self.actions, self.error)
+        write!(f, "LockDecl({}, {:?})", self.error, self.coin)
     }
 }
 
-/// A play or use lock of a card in play, declared as data (`play_locked` evaluates it for execution and for
+/// A lock of a card in play, declared as data (`event_locked` evaluates it for execution and for
 /// legality): the players it `binds`, what it stops (`lock`), the source's conditions (`while_`), and whether
 /// the source's Ability has to be on (`ability`: a lock whose source has no Ability is off, so Jellicent ex's
 /// Item lock ends when Iron Thorns ex removes its Ability).
@@ -467,13 +450,6 @@ pub struct BlockUseSpec {
 }
 
 impl BlockUseSpec {
-    /// The Stadium in play can't be used (it has no use text of its own).
-    pub const USE_STADIUM: BlockUseSpec = BlockUseSpec {
-        binds: Binds::Both,
-        lock: LockDecl { actions: &[LockedAction::UseStadium], card: Pred::Any, except: Pred::False, error: "CANNOT_USE_STADIUM", ..LockDecl::NONE },
-        while_: &[LockWhile::CardIsSource],
-        ability: false,
-    };
     /// "This card can't be put into your hand or deck from the discard pile" (Poké Vital A, Neutralization Zone): a lock
     /// over this card's PutIntoHand and PutIntoDeck from the discard pile (events batch 7), binding both players (the
     /// card's own rule, from the discard pile: origin `CardRule`).
@@ -507,10 +483,9 @@ impl BlockUseSpec {
     };
 }
 
-/// The kinds a lock's source is listed under (its dispatch mask; `play_locked_as` walks the sources of the
-/// asked actions' kinds), plus the marker of a lock over events.
+/// The kinds a lock's source is listed under (its dispatch mask: `event_locked` walks the sources of the event's
+/// kind), plus the marker of a lock over events.
 const fn block_kinds(lock: &LockDecl) -> KindMask {
-    let actions = lock.actions;
     let mut m = KindMask::EMPTY;
     if !lock.forbids.is_never() {
         // The kinds it forbids, restricted to the families the lock query is asked for, each with its marker.
@@ -524,11 +499,6 @@ const fn block_kinds(lock: &LockDecl) -> KindMask {
             }
             i += 1;
         }
-    }
-    let mut i = 0;
-    while i < actions.len() {
-        m = crate::spec::with(m, actions[i].kind());
-        i += 1;
     }
     m
 }
@@ -912,14 +882,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::AttackFlags(a) => attack_flags(g, me, e, ps.origin, a),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
-        Modifier::BlockUse(_) => {
-            // The same query legality asks (`play_locked`), restricted to this source.
-            let Some((p, card, actions)) = effect_actions(g, e) else { return Ok(()) };
-            match play_locked_by(g, me, p, card, actions) {
-                Some(code) => crate::bail!(code),
-                None => Ok(()),
-            }
-        }
+        // Locks are read by the event's routine and legality (`event_locked`); nothing is dispatched to them.
+        Modifier::BlockUse(_) => Ok(()),
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
         Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
         Modifier::AttachGuard(a) => attach_guard(g, me, e, a),
@@ -1728,63 +1692,9 @@ fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 // Blocked plays
 
 // ---------------------------------------------------------------------------
-// Play and use locks (`Modifier::BlockUse`), declared as data
+// Locks (`Modifier::BlockUse`, the lasting ones), declared as data
 //
-// `play_locked` is the one query: execution (the passive's handler, per lock source, via
-// `play_locked_by`) and legality (all sources) read the same declarations, so they can't drift.
-
-/// The actions an effect is an instance of when a lock can stop it: (the acting player, the card the action
-/// uses, the actions). Attaching a Tool or an Energy counts only when the card is in the hand ("played from
-/// the hand"; a card put on by an effect from the deck or the discard pile isn't). An Evolve effect whose card
-/// comes from the hand is both a play of a Pokémon from the hand and an evolving.
-pub(crate) fn effect_actions(g: &Game, e: EffId) -> Option<(usize, CardId, &'static [LockedAction])> {
-    use LockedAction as A;
-    Some(match *g.e(e) {
-        Effect::PlayItem { p, card, .. } => (p as usize, card, &[A::PlayItem]),
-        Effect::PlaySupporter { p, card, .. } => (p as usize, card, &[A::PlaySupporter]),
-        Effect::PlayStadium { p, card } => (p as usize, card, &[A::PlayStadium]),
-        // EnterPlay, Evolve, Attach, MoveEnergy, MoveTool: their routines check the locks before the event
-        // (`event_locked`).
-        // Retreating: the ChangeActive's routine checks the locks over it (`event_locked`).
-        Effect::UseStadium { p, stadium } => (p as usize, stadium, &[A::UseStadium]),
-        _ => return None,
-    })
-}
-
-/// Is player `p` stopped from doing `action` with `card` (the card played from the hand, the retreating
-/// Pokémon, the Stadium being used)? The error code of the first lock that stops it, in the order the
-/// effect reaches the lock sources (the game's propagation order), then the locks an attack left on the
-/// player ([`lasting_locked`], which the core reducers check at their own point); `None` when no lock does.
-///
-/// Walks every card with a `BlockUse` declaration for the action and evaluates it (`lock_blocks`). A lock
-/// whose source has no Ability is off. A card in the hand is judged by its printed data.
-pub fn play_locked(g: &mut Game, p: usize, card: CardId, action: LockedAction) -> Option<&'static str> {
-    play_locked_as(g, p, card, &[action])
-}
-
-/// `play_locked` for a way of acting that is an instance of several actions (it asks for all of them).
-pub fn play_locked_as(g: &mut Game, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
-    if let Some(first) = actions.first() {
-        if actions.iter().any(|a| g.kinds_present.has(a.kind())) {
-            // The order only depends on the kind (every action's effect ranks cards by their super type).
-            let probe = Effect::PlayItem { p: p as u8, card, target: None };
-            let order = g.propagation_order(&probe, first.kind());
-            for c in order.iter().copied() {
-                if let Some(code) = play_locked_by(g, c, p, card, actions) {
-                    return Some(code);
-                }
-            }
-        }
-    }
-    lasting_locked(g, p, Some(card), actions)
-}
-
-/// The locks an attack left on player `p` ("your opponent can't play Item cards from their hand during their
-/// next turn"): the error code of the first one that stops one of these actions with `card` (`None`: any card
-/// of the action). The core reducers ask this at the point they always checked it.
-pub fn lasting_locked(g: &Game, p: usize, card: Option<CardId>, actions: &[LockedAction]) -> Option<&'static str> {
-    g.st.players[p].lasting_locks.iter().flatten().find(|l| l.decl.stops(g, card, actions)).map(|l| l.decl.error)
-}
+// `event_locked` is the one query: the event's routine and legality read the same declarations, so they can't drift.
 
 /// The lock that forbids an event, if any: the error code of the first one. The locked player is the event's
 /// actor (`EventView::actor`, the `Cause` player: who does the play, the attach, ...), not the owner of the
@@ -1798,14 +1708,13 @@ pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'sta
     if v.card.is_none() && v.kind != super::event::EventKind::CoinFlip {
         return Ok(None);
     }
-    let card = v.card.unwrap_or(crate::list::NO_CARD);
     let p = v.actor() as usize;
     if !may_lock_event(g, p, v.kind) {
         return Ok(None);
     }
     if let (Some(marker), Some(kind)) = (lock_marker(v.kind), v.kind.effect_kind()) {
         if g.kinds_present.has(marker) {
-            let probe = Effect::PlayItem { p: p as u8, card, target: None };
+            let probe = Effect::EndTurn { p: p as u8 };
             let order = g.propagation_order(&probe, kind);
             for c in order.iter().copied() {
                 if let Some(code) = event_locked_by(g, c, v)? {
@@ -1833,8 +1742,8 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_LOCK),
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_LOCK),
         E::Discard | E::Draw | E::PutIntoHand | E::PutIntoDeck => Some(crate::effects::k::DECLARES_CARD_LOCK),
-        E::PlayTrainer
-        | E::Damage
+        E::PlayTrainer => Some(crate::effects::k::DECLARES_PLAY_LOCK),
+        E::Damage
         | E::ApplyEffect
         | E::KnockOut
         | E::TakePrizes
@@ -1915,7 +1824,7 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     if !g.kinds_present.has(marker) {
         return Ok(false);
     }
-    let probe = Effect::PlayItem { p: v.owner, card: v.card.unwrap_or(0), target: None };
+    let probe = Effect::EndTurn { p: v.owner };
     let order = g.propagation_order(&probe, kind);
     for c in order.iter().copied() {
         if prevented_by(g, c, v)? {
@@ -1978,7 +1887,7 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     if !g.kinds_present.has(marker) {
         return Ok(false);
     }
-    let probe = Effect::PlayItem { p: v.owner, card: v.card.unwrap_or(0), target: None };
+    let probe = Effect::EndTurn { p: v.owner };
     let order = g.propagation_order(&probe, kind);
     let mut heads = false;
     for me in order.iter().copied() {
@@ -2027,11 +1936,30 @@ pub fn lasting_event_locked(g: &mut Game, v: &super::event::EventView) -> R<Opti
     let p = v.actor() as usize;
     for i in 0..g.st.players[p].lasting_locks.len() {
         let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
-        if !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
+        if l.decl.coin == CoinGate::No && !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
             return Ok(Some(l.decl.error));
         }
     }
     Ok(None)
+}
+
+/// A coin-gated lock an attack left on the event's actor that the event matches (Seismitoad's Quaking Fist: "whenever
+/// they try to use a Trainer card from their hand, they flip a coin"): the cause of the coin (the lock's source's
+/// attack, by its owner), or `None` when no such lock applies.
+pub fn coin_gate(g: &mut Game, v: &super::event::EventView) -> R<Option<crate::cause::Cause>> {
+    let p = v.actor() as usize;
+    for i in 0..g.st.players[p].lasting_locks.len() {
+        let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
+        if l.decl.coin != CoinGate::No && l.decl.forbids.eval(g, l.source, v)? {
+            return Ok(Some(crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8)));
+        }
+    }
+    Ok(None)
+}
+
+/// The cause of the coin-gated lock on player `p` (its tails' discard), if one is there.
+pub fn coin_gate_cause(g: &Game, p: usize) -> Option<crate::cause::Cause> {
+    g.st.players[p].lasting_locks.iter().flatten().find(|l| l.decl.coin != CoinGate::No).map(|l| crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8))
 }
 
 /// Does the in-play lock `b` of `me` forbid the event (`LockDecl::forbids`)?
@@ -2057,54 +1985,6 @@ pub(crate) fn event_lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b:
         return Ok(None);
     }
     Ok(Some(b.lock.error))
-}
-
-/// `play_locked` for one lock source: the passive handler of `me` calls this, at the point the effect
-/// reaches it.
-pub(crate) fn play_locked_by(g: &mut Game, me: CardId, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
-    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
-    for ps in passives {
-        if let Modifier::BlockUse(b) = &ps.modifier {
-            if let Some(code) = lock_blocks(g, me, ps.origin, b, p, card, actions) {
-                return Some(code);
-            }
-        }
-    }
-    None
-}
-
-/// Does the lock `b`, declared by `me`, stop player `p` from doing `action` with `card`?
-fn lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, p: usize, card: CardId, actions: &[LockedAction]) -> Option<&'static str> {
-    if !b.lock.actions.iter().any(|a| actions.contains(a)) {
-        return None;
-    }
-    let at = locate(g, me, origin)?;
-    let binds = match b.binds {
-        Binds::Opponent => p == 1 - at.owner,
-        Binds::Owner => p == at.owner,
-        Binds::Both => true,
-    };
-    if !binds {
-        return None;
-    }
-    for w in b.while_ {
-        let on = match w {
-            LockWhile::Active => g.st.active_pokemon(at.owner) == Some(me),
-            LockWhile::HasTool => at.held.map_or(false, |h| !g.st.slot(h.p as usize, h.s).tools.is_empty()),
-            LockWhile::CardIsSource => card == me,
-        };
-        if !on {
-            return None;
-        }
-    }
-    // The card is judged by its printed data.
-    if !pred(g, card, &b.lock.card) || pred(g, card, &b.lock.except) {
-        return None;
-    }
-    if b.ability && !source_ability_on(g, at.owner, me) {
-        return None;
-    }
-    Some(b.lock.error)
 }
 
 /// Does the lock source `me` have its Ability: the stored lock state when it can say, else the probe
@@ -3125,11 +3005,19 @@ mod ace_spec_tests {
 
 #[cfg(test)]
 mod play_lock_tests {
-    //! `play_locked` and `ability_off` on the lock cards (the query execution and legality share).
+    //! `event_locked` and `ability_off` on the lock cards (the query execution and legality share).
     use super::*;
     use serde_json::json;
 
-    const NAMES: [&str; 19] = [
+    /// The lock answer for player `p` playing the Trainer `card` from the hand (the PlayTrainer event).
+    fn play_locked(g: &mut Game, p: usize, card: CardId) -> Option<&'static str> {
+        let cause = crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8);
+        let v = crate::engine::play_trainer::play_view(g, card, crate::spec::event::TrainerUse::Played, crate::spec::event::RulesZone::Hand, cause);
+        event_locked(g, &v).unwrap()
+    }
+
+    const NAMES: [&str; 20] = [
+        "Boss's Orders ASC 183",
         "Frillish WHT 44",
         "Jellicent ex WHT 45",
         "Iron Thorns ex PRE 32",
@@ -3165,7 +3053,7 @@ mod play_lock_tests {
 
     fn hand(g: &Game, p: usize, name: &str) -> CardId {
         let def = crate::carddb::def_by_full_name(name).unwrap();
-        g.st.players[p].hand.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap()
+        g.st.players[p].hand.iter().find(|c| g.st.cards[*c as usize].def == def).unwrap_or_else(|| panic!("no {name} in the hand"))
     }
 
     fn active(g: &Game, p: usize) -> CardId {
@@ -3218,34 +3106,48 @@ mod play_lock_tests {
     #[test]
     fn attack_locks_stop_what_their_text_says_and_expire() {
         use crate::engine::phase::{apply_play_lock, tick_play_locks_at_end_of_turn};
-        use LockedAction as A;
-        // (the card's declaration, the one action it stops)
-        static ITEM: LockDecl = LockDecl::of(&[A::PlayItem]);
-        static SUPPORTER: LockDecl = LockDecl::of(&[A::PlaySupporter]);
-        static STADIUM: LockDecl = LockDecl::of(&[A::PlayStadium]);
-        let cases: [(&'static LockDecl, A); 3] = [
-            (&ITEM, A::PlayItem),           // Budew, Frillish, Galvantula ex
-            (&SUPPORTER, A::PlaySupporter), // Scream Tail ex
-            (&STADIUM, A::PlayStadium), // Chi-Yu
-        ];
-        let all = [A::PlayItem, A::PlaySupporter, A::PlayStadium, A::UseStadium];
-        let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83", "Noctowl PRE 78"]},
+        // (the card's declaration, the card it stops, the cards it doesn't)
+        static ITEM: LockDecl = LockDecl::on(PLAY_ITEM_FROM_HAND, "BLOCKED_BY_EFFECT");
+        static SUPPORTER: LockDecl = LockDecl::on(PLAY_SUPPORTER_FROM_HAND, "BLOCKED_BY_EFFECT");
+        static STADIUM: LockDecl = LockDecl::on(PLAY_STADIUM_FROM_HAND, "BLOCKED_BY_EFFECT");
+        let mut g = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83", "Noctowl PRE 78", "Team Rocket's Watchtower ASC 210", "Boss's Orders ASC 183"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let me = g.st.active_player as usize;
         let potion = hand(&g, me, "Potion POR 83");
+        let tower = hand(&g, me, "Team Rocket's Watchtower ASC 210");
+        let research = hand(&g, me, "Boss's Orders ASC 183");
+        let cases: [(&'static LockDecl, CardId); 3] = [
+            (&ITEM, potion),         // Budew, Frillish, Galvantula ex
+            (&SUPPORTER, research), // Scream Tail ex
+            (&STADIUM, tower),       // Chi-Yu
+        ];
         for (decl, stops) in cases {
             apply_play_lock(&mut g.st.players[me], decl, 1, 0);
-            for a in all {
-                let want = (a == stops).then_some("BLOCKED_BY_EFFECT");
-                assert_eq!(lasting_locked(&g, me, Some(potion), &[a]), want, "{a:?} under a lock on {stops:?}");
+            for c in [potion, research, tower] {
+                let want = (c == stops).then_some("BLOCKED_BY_EFFECT");
+                assert_eq!(play_locked(&mut g, me, c), want, "{} under a lock on {}", g.st.cdef(c).name, g.st.cdef(stops).name);
             }
             // The opponent of the locked player isn't stopped.
-            assert_eq!(lasting_locked(&g, 1 - me, Some(potion), &[stops]), None);
+            assert_eq!(play_locked(&mut g, 1 - me, stops), None);
             tick_play_locks_at_end_of_turn(&mut g.st.players[1 - me]);
-            assert!(lasting_locked(&g, me, Some(potion), &[stops]).is_some(), "the other player's turn doesn't end it");
+            assert!(play_locked(&mut g, me, stops).is_some(), "the other player's turn doesn't end it");
             tick_play_locks_at_end_of_turn(&mut g.st.players[me]);
-            assert_eq!(lasting_locked(&g, me, Some(potion), &[stops]), None, "gone at the end of the locked player's turn");
+            assert_eq!(play_locked(&mut g, me, stops), None, "gone at the end of the locked player's turn");
         }
+        // A used Supporter isn't played (id2226: "can't play Supporter cards" doesn't stop Look-Alike Show).
+        apply_play_lock(&mut g.st.players[me], &SUPPORTER, 1, 0);
+        let attack = crate::cause::Cause::attack(me as u8, None, crate::state::AttackRef { card: 0, index: 0 });
+        let used = crate::engine::play_trainer::play_view(&g, research, crate::spec::event::TrainerUse::Used, crate::spec::event::RulesZone::Hand, attack);
+        assert_eq!(event_locked(&mut g, &used).unwrap(), None);
+        // Seismitoad's coin-gated lock isn't a legality check (heads lets the play through): the lock query doesn't answer
+        // it; the play flips (`coin_gate`).
+        static QUAKING: LockDecl = LockDecl { error: "BLOCKED_BY_EFFECT", forbids: PLAY_TRAINER_FROM_HAND, coin: CoinGate::TailsDiscardsCard };
+        let mut g2 = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83"]}, "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let potion = hand(&g2, me, "Potion POR 83");
+        apply_play_lock(&mut g2.st.players[me], &QUAKING, 1, 0);
+        assert_eq!(play_locked(&mut g2, me, potion), None);
+        let v = crate::engine::play_trainer::play_view(&g2, potion, crate::spec::event::TrainerUse::Played, crate::spec::event::RulesZone::Hand, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8));
+        assert!(coin_gate(&mut g2, &v).unwrap().is_some());
         // Bronzong's lock is over events: evolving from the hand (Rare Candy too), not putting onto the Bench.
         use crate::spec::event::{EventKind, EventPred, RulesZone};
         static EVOLVE: LockDecl = LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::Source(RulesZone::Hand)]), "BLOCKED_BY_EFFECT");
@@ -3263,21 +3165,20 @@ mod play_lock_tests {
             "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"]}}));
         let me = g.st.active_player as usize;
         let (potion, charm) = (hand(&g, me, "Potion POR 83"), hand(&g, me, "Sacred Charm PFL 93"));
-        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), Some("BLOCKED_BY_ABILITY"));
+        assert_eq!(play_locked(&mut g, me, potion), Some("BLOCKED_BY_ABILITY"));
         // A Tool from the hand: the Attach event from the hand, whatever attaches it (id25, id230).
         assert_eq!(attach_lock(&mut g, me, charm, rule(me)), Some("BLOCKED_BY_ABILITY"));
         assert_eq!(attach_lock(&mut g, me, charm, ability(me)), Some("BLOCKED_BY_ABILITY"));
         // A Tool put on by an effect from the deck isn't played from the hand.
         let from_deck = in_deck(&g, me, "Sacred Charm PFL 93");
         assert_eq!(attach_lock(&mut g, me, from_deck, ability(me)), None);
-        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlaySupporter), None);
         // Its owner is not stopped.
-        assert_eq!(play_locked(&mut g, 1 - me, potion, LockedAction::PlayItem), None);
+        assert_eq!(play_locked(&mut g, 1 - me, potion), None);
         // On the Bench it doesn't lock.
         let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Potion POR 83"]},
             "opp": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": ["Frillish WHT 44", "Jellicent ex WHT 45"]}]}}));
         let potion = hand(&g, me, "Potion POR 83");
-        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None);
+        assert_eq!(play_locked(&mut g, me, potion), None);
     }
 
     #[test]
@@ -3288,13 +3189,13 @@ mod play_lock_tests {
         let potion = hand(&g, me, "Potion POR 83");
         let jellicent = active(&g, 1 - me);
         assert_eq!(ability_off(&g, jellicent), Some(true));
-        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None);
+        assert_eq!(play_locked(&mut g, me, potion), None);
         // The same with Flutter Mane Active (mine): Midnight Fluttering turns it off.
         let mut g = game(json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "hand": ["Potion POR 83"]},
             "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"]}}));
         let potion = hand(&g, me, "Potion POR 83");
         assert_eq!(ability_off(&g, active(&g, 1 - me)), Some(true));
-        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None);
+        assert_eq!(play_locked(&mut g, me, potion), None);
     }
 
     #[test]
@@ -3341,7 +3242,7 @@ mod play_lock_tests {
         assert_eq!(attach_lock(&mut g, me, charm, rule(me)), Some("BLOCKED_BY_EFFECT"));
         // An Ability attaching it from the hand is stopped too (id25, id230; RULES.md, decided 2026-10-09).
         assert_eq!(attach_lock(&mut g, me, charm, ability(me)), Some("BLOCKED_BY_EFFECT"));
-        assert_eq!(play_locked(&mut g, me, potion, LockedAction::PlayItem), None, "not an ACE SPEC card");
+        assert_eq!(play_locked(&mut g, me, potion), None, "not an ACE SPEC card");
         // Genesect without a Tool doesn't lock.
         let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": ["Enriching Energy SSP 191"]},
             "opp": {"reset": true, "active": "Genesect SFA 40"}}));
@@ -3393,9 +3294,10 @@ mod play_lock_tests {
         let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "stadium": "Team Rocket's Watchtower ASC 210"},
             "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let me = g.st.active_player as usize;
-        let stadium = g.st.stadium_card().unwrap();
-        assert_eq!(play_locked(&mut g, me, stadium, LockedAction::UseStadium), Some("CANNOT_USE_STADIUM"));
-        assert_eq!(play_locked(&mut g, 1 - me, stadium, LockedAction::UseStadium), Some("CANNOT_USE_STADIUM"));
+        g.st.players[me].stadium_used_turn = -1;
+        g.st.players[1 - me].stadium_used_turn = -1;
+        assert_eq!(crate::engine::turn::can_use_stadium(&g, me), Err(crate::game::GameError("CANNOT_USE_STADIUM")));
+        assert_eq!(crate::engine::turn::can_use_stadium(&g, 1 - me), Err(crate::game::GameError("CANNOT_USE_STADIUM")));
     }
 
     #[test]
