@@ -268,7 +268,8 @@ pub enum Effect {
     /// The PlayTrainer event (events batch 7; `engine::play_trainer`): player `p` plays the Trainer `card` from the hand
     /// (`use_: Played`; `target` a Tool's Pokémon) or uses its effect as the effect of an attack (`Used`: Mr. Mime's
     /// Look-Alike Show; id2225, id2226, id2376). The card's own program is its handler (`spec::run::reduce`).
-    PlayTrainer { p: u8, card: CardId, target: Option<SlotRef>, use_: crate::spec::event::TrainerUse, cause: Cause },
+    /// `with`: the companion played together with it ("you must play 2 X cards at once", `CardSpec::together`).
+    PlayTrainer { p: u8, card: CardId, target: Option<SlotRef>, use_: crate::spec::event::TrainerUse, cause: Cause, with: Option<CardId> },
     Energy { p: u8, card: CardId },
     Tool { p: u8, card: CardId },
     Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },

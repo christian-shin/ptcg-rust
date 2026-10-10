@@ -98,14 +98,34 @@ pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
     None
 }
 
-/// Every check of playing `card` from the hand (`v`, a `Played` view), in order: the turn's rules, a Tool's Attach (the
-/// spot, one Tool per Pokémon, the Attach's locks), the locks over PlayTrainer (a coin-gated lock isn't one: it may let
-/// the play through). `Ok(Some(code))` when the play is refused (the action is illegal).
+/// The companion a card that must be played with another ("you must play 2 X cards at once", `CardSpec::together`) takes
+/// from its player's hand: the first other card matching, `None` for a card without the rule or when there is none.
+pub fn companion(g: &Game, p: usize, card: CardId) -> Option<CardId> {
+    let pr = crate::cards::spec_for(g.st.cards[card as usize].def)?.together.as_ref()?;
+    g.st.players[p].hand.iter().find(|c| *c != card && crate::spec::value::pred(g, *c, pr))
+}
+
+/// Does the card have to be played with a companion (`CardSpec::together`)?
+fn needs_companion(g: &Game, card: CardId) -> bool {
+    crate::cards::spec_for(g.st.cards[card as usize].def).map_or(false, |s| s.together.is_some())
+}
+
+/// Every check of playing `card` from the hand (`v`, a `Played` view), in order: the turn's rules, a companion when the
+/// card must be played with one, a Tool's Attach (the spot, one Tool per Pokémon, the Attach's locks), the locks over
+/// PlayTrainer for the card and its companion (a coin-gated lock isn't one: it may let the play through). `Ok(Some(code))`
+/// when the play is refused (the action is illegal).
 pub fn check_with<C: PlayChecks + ?Sized>(c: &mut C, v: &EventView, target: Option<SlotRef>) -> R<Option<&'static str>> {
     let (Some(card), Some(TrainerUse::Played)) = (v.card, v.trainer_use) else { return Ok(None) };
     let p = v.actor() as usize;
     if let Some(code) = turn_rules(c.game(), p, card) {
         return Ok(Some(code));
+    }
+    if needs_companion(c.game(), card) {
+        let Some(w) = companion(c.game(), p, card) else { return Ok(Some("CANNOT_PLAY_THIS_CARD")) };
+        let vw = EventView { card: Some(w), ..*v };
+        if let Some(code) = c.event_locked(&vw)? {
+            return Ok(Some(code));
+        }
     }
     if c.game().st.cdef(card).trainer_type() == TrainerType::Tool {
         let Some(t) = target else { return Ok(Some("INVALID_TARGET")) };
@@ -160,7 +180,7 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
     let cause = Cause::rule(RuleWhich::Action, pu);
     match g.st.cdef(card).trainer_type() {
         TrainerType::Supporter => {
-            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause })?;
+            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with: None })?;
             restore_played_trainer(g, p, card);
             let keep = g.st.rules.supporter_cleanup_at_end_turn;
             finalize_trainer_cleanup(g, p, card, keep);
@@ -175,7 +195,7 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
             }
             g.st.players[p].stadium_used_turn = 0;
             g.move_card_to(ListRef::Hand(pu), card, ListRef::Stadium(pu));
-            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target: None, use_: TrainerUse::Played, cause })?;
+            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target: None, use_: TrainerUse::Played, cause, with: None })?;
             // A Stadium coming into play can hold or lift an Ability lock.
             crate::engine::cards_zone::settle(g);
             Ok(())
@@ -184,16 +204,26 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
             let Some(t) = target else { return Ok(()) };
             // The Tool is attached from the hand (the Attach event, checked with the play), then the event.
             crate::engine::attach::run_attach(g, card, t, false, cause)?;
-            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target: Some(t), use_: TrainerUse::Played, cause })?;
+            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target: Some(t), use_: TrainerUse::Played, cause, with: None })?;
             crate::engine::cards_zone::settle(g);
             Ok(())
         }
         TrainerType::Item => {
+            // Played together with its companion (D11): both go to the play area at once, both are discarded after.
+            let with = companion(g, p, card);
             enter_item_play(g, p, card);
-            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause })?;
+            if let Some(w) = with {
+                enter_item_play(g, p, w);
+            }
+            g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with })?;
             restore_played_trainer(g, p, card);
             finalize_trainer_cleanup(g, p, card, false);
             record(g, p, card);
+            if let Some(w) = with {
+                restore_played_trainer(g, p, w);
+                finalize_trainer_cleanup(g, p, w, false);
+                record(g, p, w);
+            }
             Ok(())
         }
     }
@@ -202,7 +232,7 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
 /// Use the effect of the Trainer `card` (wherever it is: the opponent's hand for Look-Alike Show) as the effect of `cause`'s
 /// attack (`TrainerUse::Used`): no play rule applies, the card doesn't move, its program keeps its printed conditions.
 pub fn use_effect(g: &mut Game, p: usize, card: CardId, cause: Cause) -> R {
-    g.run_fx_unit(Effect::PlayTrainer { p: p as u8, card, target: None, use_: TrainerUse::Used, cause })
+    g.run_fx_unit(Effect::PlayTrainer { p: p as u8, card, target: None, use_: TrainerUse::Used, cause, with: None })
 }
 
 /// An Item being played leaves the hand for the play area before its effect runs (legality evaluates the card's declared
@@ -260,4 +290,55 @@ pub fn reducer(g: &mut Game, id: crate::effects::EffId) -> R {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    //! The routine against hand-built boards.
+    use super::*;
+    use serde_json::json;
+
+    const TOME: &str = "Transformation Tome CRI 83";
+
+    fn game(sc: serde_json::Value) -> Game {
+        let mut names: Vec<&str> = Vec::new();
+        for (n, k) in [(TOME, 4), ("Duraludon PRE 69", 4), ("Feebas TWM 49", 4)] {
+            names.extend(std::iter::repeat(n).take(k));
+        }
+        while names.len() < 60 {
+            names.push("Metal Energy MEE 8");
+        }
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        g
+    }
+
+    fn copies(g: &Game, l: ListRef, name: &str) -> Vec<CardId> {
+        let def = crate::carddb::def_by_full_name(name).unwrap();
+        g.lst(l).iter().copied().filter(|c| g.st.cards[*c as usize].def == def).collect()
+    }
+
+    /// "You must play 2 Transformation Tome cards at once" (user decision D11; JP FAQ ガマゲロゲ + 変化の書: two played
+    /// together flip one coin): both are played, both are in the play area while the effect resolves, and a single copy
+    /// can't be played.
+    #[test]
+    fn transformation_tome_two_cards_played_together() {
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": [TOME, TOME], "discard": ["Feebas TWM 49"]}, "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let me = g.st.active_player as usize;
+        let tomes = copies(&g, ListRef::Hand(me as u8), TOME);
+        assert_eq!(tomes.len(), 2);
+        play_from_hand(&mut g, me, tomes[0], None).unwrap();
+        assert!(g.has_prompts(), "the effect asks which Pokémon to switch");
+        assert_eq!(copies(&g, ListRef::Hand(me as u8), TOME).len(), 0, "the companion isn't in the hand any more");
+        assert_eq!(copies(&g, ListRef::Supporter(me as u8), TOME).len(), 2, "both in the play area");
+        assert_eq!(g.st.players[me].played_this_turn.len(), 2, "both played");
+        // One copy alone can't be played.
+        let mut g = game(json!({"me": {"reset": true, "active": "Duraludon PRE 69", "hand": [TOME], "discard": ["Feebas TWM 49"]}, "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
+        let tome = copies(&g, ListRef::Hand(me as u8), TOME)[0];
+        let v = play_view(&g, tome, TrainerUse::Played, RulesZone::Hand, Cause::rule(RuleWhich::Action, me as u8));
+        assert_eq!(check_with(&mut g, &v, None).unwrap(), Some("CANNOT_PLAY_THIS_CARD"));
+    }
 }
