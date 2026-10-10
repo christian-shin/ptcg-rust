@@ -1025,7 +1025,7 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
     if blocked(g, me, origin, at, Some(affected)) {
         return Ok(());
     }
-    if !slot_pred_m(g, me, source, &d.attacker)? || !guard_ok(g, me, origin, at.owner, &d.guard) {
+    if !slot_pred_m(g, me, source, &d.attacker)? || !guard_ok_m(g, me, origin, at.owner, &d.guard)? {
         return Ok(());
     }
     if let Some(t) = target {
@@ -1661,6 +1661,21 @@ pub static LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS: PreventSpec = Preven
     ]),
 );
 
+/// Every lasting `Prevent` an attack can leave on a Pokémon (`Slot::lasting_prevents` stores an index into it).
+pub static LASTING_PREVENTS: [&PreventSpec; 6] = [
+    &LASTING_PREVENT_EFFECTS,
+    &LASTING_PREVENT_DAMAGE,
+    &LASTING_PREVENT_DAMAGE_FROM_BASIC,
+    &LASTING_PREVENT_DAMAGE_FROM_EVOLUTION,
+    &LASTING_PREVENT_DAMAGE_FROM_ABILITY,
+    &LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS,
+];
+
+/// The index of a lasting `Prevent` in [`LASTING_PREVENTS`].
+pub fn lasting_index(spec: &'static PreventSpec) -> u8 {
+    LASTING_PREVENTS.iter().position(|s| std::ptr::eq(*s, spec)).expect("a lasting Prevent is in LASTING_PREVENTS") as u8
+}
+
 /// Does a `Prevent` over `from` range over events of `kind` (the mask test the reader makes before evaluating it)? An
 /// event kind with no effect yet (Discard, PutIntoHand: events batch 7) is in range of a declaration that ranges over
 /// every effect.
@@ -2061,10 +2076,11 @@ pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     let n = g.st.slot(t.p as usize, t.s).lasting_prevents.len();
     for i in 0..n {
         let l = g.st.slot(t.p as usize, t.s).lasting_prevents.as_slice()[i];
-        if l.pending || l.spec.coin || !ranges(&l.spec.from, v.kind) {
+        let spec = l.spec();
+        if l.pending || spec.coin || !ranges(&spec.from, v.kind) {
             continue;
         }
-        if l.spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &l.spec.protects)? {
+        if spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &spec.protects)? {
             return Ok(true);
         }
     }

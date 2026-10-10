@@ -121,7 +121,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 /// the older. Evaluated for the attacking Pokémon (its owner's opponent is "your opponent").
 fn push_prevent(slot: &mut crate::state::Slot, spec: &'static crate::spec::passive::PreventSpec, cause: Cause, attack: AttackRef) {
     let source = cause.card.unwrap_or(attack.card);
-    slot.lasting_prevents.retain(|x| !std::ptr::eq(x.spec, spec));
+    let spec = crate::spec::passive::lasting_index(spec);
+    slot.lasting_prevents.retain(|x| x.spec != spec);
     slot.lasting_prevents.push(crate::state::LastingPrevent { spec, source, pending: true });
 }
 

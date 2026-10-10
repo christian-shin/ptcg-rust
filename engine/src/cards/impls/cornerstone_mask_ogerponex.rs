@@ -8,8 +8,9 @@
 //! Rule: Demolish sets the attack flags IgnoreDefenderEffects, NoWeakness and
 //! NoResistance (Shred: step 6's preventions on the Defending Pokémon don't
 //! apply to it, APR C-16). Cornerstone Stance is a `Prevent` over `Kind(Damage)`
-//! with the attacker as the cause (`CausePred::Pokemon(PrintsPower)`, the causing
-//! Pokémon where it is now); it is an Ability, so an Ability lock turns it off.
+//! with the attacker as the cause (`CausePred::Pokemon(HasAbility)`, the causing
+//! Pokémon where it is now, with an Ability after effects: a Pokémon whose Abilities an effect removes has none, id141,
+//! id2260); it is an Ability, so an Ability lock turns it off.
 //! The Tera rule is `TERA_RULE`, a card rule that Ability locks don't touch.
 use crate::spec::prelude::*;
 
@@ -28,7 +29,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Cornerstone Stance: attacks from Pokémon that have an Ability.
         Passive {
             origin: RuleSource::Ability,
-            modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Pokemon(SlotPred::PrintsPower))]))),
+            modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Pokemon(SlotPred::HasAbility))]))),
         },
         // Tera: a card rule, not part of the Ability (it stays while the Ability is locked).
         Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) },

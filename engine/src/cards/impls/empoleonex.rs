@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         // Emperor's Stance: every event the opponent's attacks cause to this Pokémon, the switches included (APR
         // C-04 / C-05, id2025, id2155); damage is not an effect.
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, EFFECTS_OF_OPP_ATTACKS)) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS)) },
     ],
     ..CardSpec::NONE
 };

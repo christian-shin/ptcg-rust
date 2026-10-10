@@ -685,8 +685,6 @@ pub enum SlotPred {
     Evolution,
     /// The Pokémon has an Ability after effects: a checked read.
     HasAbility,
-    /// The Pokémon prints a power of any kind.
-    PrintsPower,
     /// The top Pokémon is this card.
     IsThisPokemon,
     /// The top Pokémon has this name.
@@ -750,7 +748,6 @@ impl SlotPred {
             | SlotPred::Basic
             | SlotPred::StageIs(_)
             | SlotPred::Evolution
-            | SlotPred::PrintsPower
             | SlotPred::IsThisPokemon
             | SlotPred::Named(_)
             | SlotPred::Condition(_)
@@ -861,7 +858,6 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Basic => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false),
         SlotPred::StageIs(st) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).stage == *st as u8).unwrap_or(false),
         SlotPred::Evolution => g.st.slot_pokemon(p, id).map(|c| !g.st.cdef(c).evolves_from.is_empty()).unwrap_or(true),
-        SlotPred::PrintsPower => g.st.slot_pokemon(p, id).map(|c| !g.st.cdef(c).powers.is_empty()).unwrap_or(false),
         SlotPred::IsThisPokemon => g.st.slot_pokemon(p, id) == Some(me),
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
         SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
