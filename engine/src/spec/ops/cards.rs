@@ -2387,10 +2387,13 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
             if bench.is_empty() || cards.is_empty() {
                 return none(g, f);
             }
-            // Energy cards of a kind: the prompt lists those cards only (a temporary list), "up to" `max` of them.
-            let (list, total, up_to) = match kind {
-                EnergyKind::Any => (ListRef::Slot(p as u8, s), g.st.slot(p, s).cards.len().min(255) as u8, cards.len() as u8),
-                _ => (g.alloc_temp(&cards), cards.len().min(255) as u8, u8::MAX),
+            // Energy cards of a kind: the prompt lists those cards only (a temporary list). Either way the player moves
+            // `min` to `max` of the cards there are, never more than there are (Heavy Baton: 1 to min(3, its Basic
+            // Energy cards), no cancel).
+            let up_to = cards.len().min(255) as u8;
+            let (list, total) = match kind {
+                EnergyKind::Any => (ListRef::Slot(p as u8, s), g.st.slot(p, s).cards.len().min(255) as u8),
+                _ => (g.alloc_temp(&cards), up_to),
             };
             let mut o = AttachOpts::new(total);
             o.allow_cancel = false;

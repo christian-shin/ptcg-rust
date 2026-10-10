@@ -48,11 +48,19 @@ g0500012428
 g0500013208
 g0500016482
 g0500016507
-# Events batch 6 C6 (Heavy Baton TEF 151 card text; APR D step 2; id1992): the Basic Energy cards chosen at Heavy Baton's
-# prompt move to the Benched Pokémon while the Knocked Out Pokémon is still in play; the old routine answered the prompt
-# but moved nothing (it looked for the Energy in the discard pile), so the Energy stayed in the discard pile. First
-# divergence: the chosen Energy on the Benched Pokémon at the next turn decision (g0500011670: the final state).
+# Events batch 6 C6 + closeout (Heavy Baton TEF 151 card text; APR D step 2; id1992): the Basic Energy cards chosen at
+# Heavy Baton's prompt move to the Benched Pokémon while the Knocked Out Pokémon is still in play; the old routine answered
+# the prompt but moved nothing (it looked for the Energy in the discard pile), so the Energy stayed in the discard pile.
+# The closeout clamps the prompt: min 1, max = min(3, the Basic Energy cards on the Pokémon), no cancel.
+# 6 games whose Pokémon had 3 or more Basic Energy cards (the same prompt): first divergence, the chosen Energy on the
+# Benched Pokémon at the next turn decision (g0500011670: the final state).
 g0500000810
+g0500011670
+g0500011730
+g0500012690
+g0500014216
+g0500016590
+# 20 games whose Pokémon had 1 or 2 Basic Energy cards: first divergence, Heavy Baton's prompt (max 1 or 2, not 3).
 g0500000930
 g0500003150
 g0500003421
@@ -63,14 +71,9 @@ g0500007027
 g0500010634
 g0500010643
 g0500010830
-g0500011670
-g0500011730
-g0500012690
 g0500014130
 g0500014212
-g0500014216
 g0500014234
-g0500016590
 g0500017130
 g0500017310
 g0500017834
