@@ -160,8 +160,9 @@ fn after_eval(g: &mut Game, mut f: SetupFrame) -> R {
     if !f.php && !f.ohp {
         f.pm += 1;
         f.om += 1;
-        g.move_to(ListRef::Hand(0), ListRef::Deck(0), None);
-        g.move_to(ListRef::Hand(1), ListRef::Deck(1), None);
+        // Both players mulligan (APR G): each hand goes back into its deck (the Mulligan routine, user decision D2).
+        crate::engine::cards_zone::mulligan(g, 0);
+        crate::engine::cards_zone::mulligan(g, 1);
         return deal(g, f);
     }
     if f.php && !f.ohp {

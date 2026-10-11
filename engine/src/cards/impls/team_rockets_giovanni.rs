@@ -7,7 +7,7 @@
 //! as the effect of an attack (Look-Alike Show), the switch-in is the attack's effect, which Mist Energy and the like
 //! on the chosen Pokémon prevent (id2025).
 //!
-//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
+//! Used as the effect of an attack it isn't played, so it isn't "a Team Rocket's Supporter played this turn" (`Cond::PlayedThisTurn`; id2225).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

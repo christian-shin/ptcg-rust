@@ -185,12 +185,18 @@ mod tests {
             let row: Vec<String> = KINDS.iter().filter(|(_, kd)| kd % super::SLOTS as u32 == e).map(|(name, kd)| format!("{} {} ({})", name, kd, n[*kd as usize])).collect();
             println!("entry {:2}: {}", e, row.join(", "));
         }
-        let batch6 = [k::DAMAGE, k::PLACE_COUNTERS, k::MOVE_COUNTERS_EVENT, k::LEAVE_PLAY, k::TAKE_PRIZES, k::APPLY_EFFECT];
+        // The events of batches 6 and 7: an event kind with card listeners shares its entry only with kinds without any, or
+        // with a rare one (ENGINE.md section 12).
+        let events = [k::DAMAGE, k::PLACE_COUNTERS, k::MOVE_COUNTERS_EVENT, k::LEAVE_PLAY, k::TAKE_PRIZES, k::APPLY_EFFECT, k::DISCARD, k::PUT_INTO_HAND, k::PUT_INTO_DECK, k::DRAW, k::PLAY_TRAINER];
         let rare = [k::MOVE_TOOL];
-        for kind in batch6 {
+        // Known sharings left to batch 8's per-kind lists (open-items.md): PutIntoHand / PutIntoDeck on entry 31 (index-only,
+        // but the lock reader alternates them when a card-lock declarer is in the game), PlayTrainer / Devolve on entry 24.
+        let known = [(k::PUT_INTO_HAND, k::PUT_INTO_DECK), (k::PUT_INTO_DECK, k::PUT_INTO_HAND), (k::PLAY_TRAINER, k::DEVOLVE)];
+        for kind in events {
             for (name, other) in KINDS {
                 if *other != kind && other % super::SLOTS as u32 == kind % super::SLOTS as u32 && n[kind as usize] > 0 && n[*other as usize] > 0 {
-                    assert!(rare.contains(other) && !batch6.contains(other), "kind {} shares its dispatch entry with {} {}, which has card listeners", kind, name, other);
+                    let ok = (rare.contains(other) && !events.contains(other)) || known.contains(&(kind, *other));
+                    assert!(ok, "kind {} shares its dispatch entry with {} {}, which has card listeners", kind, name, other);
                 }
             }
         }

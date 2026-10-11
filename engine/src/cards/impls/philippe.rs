@@ -20,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
                     from: ZoneRef(Who::Me, Zone::Discard),
                     predicate: Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::METAL)]),
                     // "Up to 2" from a public zone takes at least 1 when played from the hand; through
-                    // an attack it may be 0 (rulings 1778, 1844, 1853).
+                    // an attack it may be 0 (id2301, id2376, id2399).
                     bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Min(&Num::Lit(2), &Num::CardCount(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::METAL)]))) },
                     into: 0,
                     soft: true,

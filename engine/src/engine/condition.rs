@@ -435,7 +435,7 @@ mod tests {
         let mut g = Game::new(7);
         g.start([&deck, &deck]).unwrap();
         g.settle().ok();
-        let sc = json!({"me": {"reset": true, "active": SNORLAX, "active_tool": BADGE, "bench": [{"card": SLOWPOKE, "tool": BADGE}]}, "opp": {"reset": true, "active": SLOWPOKE}});
+        let sc = json!({"me": {"reset": true, "active": SNORLAX, "active_tool": BADGE, "bench": [{"card": SLOWPOKE, "tool": BADGE}, {"card": SNORLAX}]}, "opp": {"reset": true, "active": SLOWPOKE}});
         crate::scenario::apply(&mut g, &sc).unwrap();
         let me = g.st.active_player as usize;
         let snorlax = g.st.slot_pokemon(me, g.st.players[me].active).unwrap();
@@ -444,6 +444,13 @@ mod tests {
         let once = crate::markers::COIN_REFLIP_AGAIN_USED;
         assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), Some(once), "an attack of the [C] Pokémon holding it");
         assert_eq!(reflip_offered(&mut g, me, atk(slowpoke)).unwrap(), None, "the attacking Pokémon isn't [C]");
+        // A copied attack (JP FAQ Backtrack Badge, Slowking's Seek Inspiration using Stoutland's attack): the attacking
+        // Pokémon decides, not the Pokémon whose attack is used.
+        let copied = |by: crate::list::CardId, of: crate::list::CardId| Cause::attack(me as u8, Some(by), crate::state::AttackRef { card: of, index: 0 });
+        assert_eq!(reflip_offered(&mut g, me, copied(slowpoke, snorlax)).unwrap(), None, "a non-[C] Pokémon holding it uses a [C] Pokémon's attack");
+        assert_eq!(reflip_offered(&mut g, me, copied(snorlax, slowpoke)).unwrap(), Some(once), "the [C] Pokémon holding it uses another Pokémon's attack");
+        let bare = g.st.slot_pokemon(me, g.st.players[me].bench.as_slice()[1]).unwrap();
+        assert_eq!(reflip_offered(&mut g, me, atk(bare)).unwrap(), None, "a [C] Pokémon not holding it");
         let ability = Cause::new(CauseKind::Ability, Some(snorlax), me as u8);
         assert_eq!(reflip_offered(&mut g, me, ability).unwrap(), None, "an Ability's flips");
         assert_eq!(reflip_offered(&mut g, 1 - me, atk(snorlax)).unwrap(), None, "only its owner's flips");

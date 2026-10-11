@@ -2063,7 +2063,7 @@ fn opp_tools_carry_out(g: &mut Game, me: CardId, f: &Frame, items: &[u8]) -> R {
     for pair in items.chunks(2).filter(|c| c.len() == 2) {
         let t = SlotRef::new((pair[0] >> 4) as usize, pair[0] & 15);
         // The Tool leaves play (a LeavePlay of the attached card), an effect of the attack on that Pokémon: Mist Energy and
-        // the like prevent it (ruling 1843).
+        // the like prevent it (id2375; APR C-17).
         crate::engine::knockout::leave_play_cards(g, t, &[pair[1]], crate::spec::event::RulesZone::Discard, f.cause, None)?;
     }
     Ok(())

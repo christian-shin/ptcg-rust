@@ -6,8 +6,8 @@
 //! routines fill it with their rule (turn draw, retreat, promotion, Checkup, setup). Ops never pick a
 //! cause per card.
 //!
-//! Since events batch 6 the readers use the Cause only (the `Prevent` reader, `derived::event_prevented`; the
-//! B6-OLD probes for an attack's Discard / PutIntoHand -> batch 7). `PTCG_VERIFY_CACHE=1` still compares it with the
+//! Since events batch 6 the readers use the Cause only (the `Prevent` reader, `derived::event_prevented`; events batch 7
+//! removed the B6-OLD probes for an attack's Discard / PutIntoHand). `PTCG_VERIFY_CACHE=1` still compares it with the
 //! old `AtkBase` inference where that remains and counts the disagreements per class (`mismatch`, `report`).
 
 use crate::list::CardId;

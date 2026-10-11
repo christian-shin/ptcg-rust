@@ -1142,6 +1142,49 @@ mod consequence_tests {
 }
 
 #[cfg(test)]
+mod deferred_tests {
+    //! An attack's removal of attached cards waits for its damage (`knockout::leave_play_cards` with a window) and reports
+    //! `Done` when queued: no attack may read "if you do" after one, or it would read the queued answer.
+    use super::*;
+
+    fn defers(op: &Op) -> bool {
+        matches!(op, Op::DiscardEnergy(_)) || matches!(op, Op::Discard(DiscardSpec { from: ZoneRef(_, Zone::Attached(_) | Zone::AttachedEnergy(_) | Zone::Tools(_)), .. }))
+    }
+
+    fn reads_done_after(steps: &[Step], seen: &mut bool) -> bool {
+        for s in steps {
+            if *seen && matches!(&s.op, Op::If(i) if ops::reads_done(&i.cond)) {
+                return true;
+            }
+            if defers(&s.op) {
+                *seen = true;
+            }
+            for sel in 0..=8 {
+                if reads_done_after(ops::child(&s.op, sel), seen) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    #[test]
+    fn no_if_you_do_after_a_deferred_removal() {
+        let mut bad = Vec::new();
+        for (i, d) in crate::carddb::cards().iter().enumerate() {
+            let Some(spec) = crate::cards::spec_for(i as u16) else { continue };
+            for a in spec.attacks {
+                if reads_done_after(a.steps, &mut false) {
+                    bad.push(format!("{} attack {}", d.full_name, a.index));
+                }
+            }
+        }
+        bad.dedup();
+        assert!(bad.is_empty(), "an attack reads \"if you do\" after a removal deferred to after its damage: {:?}", bad);
+    }
+}
+
+#[cfg(test)]
 mod outcome_tests {
     use super::*;
 

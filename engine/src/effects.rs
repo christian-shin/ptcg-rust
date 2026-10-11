@@ -469,7 +469,7 @@ pub mod k {
     pub const ENERGY: u32 = 57;
     pub const TOOL: u32 = 58;
     pub const STADIUM: u32 = 59;
-    /// B4-OLD: the request for one coin flip (Backtrack Badge's re-flip hook reads it).
+    /// The Devolve and Swap events (events batch 2).
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
     /// The events of events batch 6 (`engine::damage`, `engine::knockout`; KnockOut keeps `KNOCK_OUT`): Damage, PlaceCounters,
@@ -478,8 +478,8 @@ pub mod k {
     /// number takes an entry whose other kinds have no card listeners, else only listeners of rare events (ENGINE.md
     /// section 12; the counts: `dispatch::tests::listener_table`): Damage 30 (TrainerTarget: none), PlaceCounters 4
     /// (WhoBegins: none), ApplyEffect 20 (Retreat, PlaySupporter: none), TakePrizes 1 (it has no
-    /// listener and is never looked up), MoveCounters 1 (MoveTool: rare), LeavePlay 2 (CoinFlipSequence: Backtrack
-    /// Badge only). MoveCounters was 117 and LeavePlay 119 (shared with AfterAttackTriggers / PlayStadium and
+    /// listener and is never looked up), MoveCounters 1 (MoveTool: rare), LeavePlay 2 (shared with Draw since events batch 7,
+    /// which removed CoinFlipSequence). MoveCounters was 117 and LeavePlay 119 (shared with AfterAttackTriggers / PlayStadium and
     /// UseStadium / PlayItem).
     pub const DAMAGE: u32 = 94;
     pub const PLACE_COUNTERS: u32 = 100;
@@ -488,15 +488,16 @@ pub mod k {
     pub const TAKE_PRIZES: u32 = 97;
     pub const APPLY_EFFECT: u32 = 116;
     /// The card-movement events of events batch 7 (`engine::cards_zone`): Discard (cards from the hand or the deck),
-    /// PutIntoHand, PutIntoDeck, Draw. Their dispatch-index entries (`kind % 32`) are ones no hot kind uses: Discard and
-    /// PutIntoDeck 31 (MoveCards, which they replace), PutIntoHand and Draw 2 (DrewTopdeck, CoinFlipSequence: batch 7
-    /// removes both).
+    /// PutIntoHand, PutIntoDeck, Draw. Their dispatch-index entries (`kind % 32`) are ones no hot kind uses: Discard,
+    /// PutIntoDeck and PutIntoHand 31 (MoveCards, which they replace; otherwise only the marker PERMIT_EVOLVES_FROM), Draw 2
+    /// (with LeavePlay; DrewTopdeck and CoinFlipSequence, its old sharers, are gone).
     pub const DISCARD: u32 = 95;
     pub const PUT_INTO_HAND: u32 = 159;
     pub const PUT_INTO_DECK: u32 = 127;
     pub const DRAW: u32 = 130;
-    /// A lock over Discard / PutIntoHand / PutIntoDeck / Draw (events batch 7: Poké Vital A's and Neutralization Zone's
-    /// "this card can't be put into your hand or deck from the discard pile").
+    /// A lock over Discard / PutIntoHand / PutIntoDeck / Draw / LeavePlay (events batch 7: Poké Vital A's and Neutralization
+    /// Zone's "this card can't be put into your hand or deck from the discard pile", Milotic TWM 50's "can't be put into your
+    /// opponent's hand").
     pub const DECLARES_CARD_LOCK: u32 = 218;
     /// A lock over PlayTrainer (events batch 7: "your opponent can't play Item / Supporter / Stadium cards from their hand").
     pub const DECLARES_PLAY_LOCK: u32 = 219;

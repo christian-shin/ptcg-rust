@@ -131,7 +131,7 @@ pub fn by_effect(g: &mut Game, target: SlotRef, cause: Cause) -> R<bool> {
 }
 
 /// LeavePlay by an effect: the Pokémon in `target` and every card attached to it go to `dest`, unless the event is
-/// refused (a prevention: Mist Energy against an attack's removal; Milotic's "can't be put into the hand"). Returns
+/// refused (a prevention: Mist Energy against an attack's removal; a lock: Milotic's "can't be put into the hand"). Returns
 /// whether it left play.
 pub fn leave_play(g: &mut Game, target: SlotRef, dest: ListRef, cause: Cause, source_card: CardId) -> R<bool> {
     if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
@@ -174,9 +174,12 @@ fn attached_to(g: &Game, target: SlotRef, card: CardId) -> bool {
 /// LeavePlay of cards attached to the Pokémon in `target` (an Energy or a Tool discarded, put into the hand or into the
 /// deck; user decision D1), for `zone` of their owner, by `cause`. One event per owner carrying the cards in order; each
 /// card is checked (still attached, the locks, the preventions on the Pokémon: "prevent all effects of attacks" keeps an
-/// attack's discard off it, ruling 1843; id2393 Hide 'n' Sneak) and a refused one stays (D3). An attack's Energy removal
+/// attack's move off it, id2375; APR C-17, id2393 Hide 'n' Sneak) and a refused one stays (D3). An attack's Energy removal
 /// waits for its damage (`window`: the attack's effect, and whether only an all-Energy removal waits): the call is queued
-/// in the after-damage window and checked when it runs (RULES.md "Energy removed as an effect of an attack").
+/// in the after-damage window and checked when it runs (RULES.md "Energy removed as an effect of an attack"). Queued, it
+/// returns `Done` (the removal is asked for); its own outcome exists only when it runs, and no attack reads "if you do"
+/// after a deferred removal (unit test `spec::run::deferred_tests::no_if_you_do_after_a_deferred_removal`; id2370: the
+/// choice made is what the text needs).
 pub fn leave_play_cards(g: &mut Game, target: SlotRef, cards: &[CardId], zone: RulesZone, cause: Cause, window: Option<(EffId, bool)>) -> R<crate::spec::run::Outcome> {
     use crate::spec::run::Outcome;
     if let Some((atk, energy_only)) = window {

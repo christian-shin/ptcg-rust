@@ -346,8 +346,10 @@ pub fn put_into_deck(g: &mut Game, from: ListRef, cards: &[CardId], position: De
 /// Draw: player `p` draws `n` cards (as many as the deck has; APR H), by `cause`.
 pub fn draw(g: &mut Game, p: usize, n: usize, cause: Cause) -> R<crate::spec::run::Outcome> {
     let k = n.min(g.st.players[p].deck.len());
+    // Nothing to draw (an empty deck, or a count of 0: "draw a card for each of your opponent's Benched Pokémon" with none)
+    // isn't drawing: "if you drew" is false.
     if k == 0 {
-        return Ok(if n == 0 { crate::spec::run::Outcome::Done } else { crate::spec::run::Outcome::Impossible });
+        return Ok(crate::spec::run::Outcome::Impossible);
     }
     let mut top: SVec<CardId, 64> = SVec::new();
     for &c in g.st.players[p].deck.as_slice()[..k.min(64)].iter() {
@@ -527,5 +529,7 @@ mod tests {
         assert_eq!(draw(&mut g, me, 3, Cause::new(CauseKind::Trainer, None, me as u8)).unwrap(), Outcome::Partial);
         assert_eq!(g.st.players[me].hand.len(), n + 2);
         assert_eq!(draw(&mut g, me, 1, Cause::new(CauseKind::Trainer, None, me as u8)).unwrap(), Outcome::Impossible);
+        // A count of 0 draws nothing: not done.
+        assert_eq!(draw(&mut g, me, 0, Cause::new(CauseKind::Trainer, None, me as u8)).unwrap(), Outcome::Impossible);
     }
 }
