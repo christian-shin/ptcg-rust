@@ -886,6 +886,11 @@ impl Game {
         if sel.max_count <= 1 {
             // Single pick: offer options the prompt and the card's callback accept.
             let mask: Vec<bool> = (0..n).map(|j| self.is_accepted_answer(sel, &[j])).collect();
+            for j in 0..n {
+                if self.is_valid_answer(sel, &[j]) && !mask[j] {
+                    self.probe_rejected(sel, "single");
+                }
+            }
             let stop = sel.min_count == 0 && self.is_accepted_answer(sel, &[]);
             return (mask, stop);
         }
@@ -932,6 +937,7 @@ impl Game {
             if trial.answer_with(sel, buf, false).is_ok() {
                 return true;
             }
+            self.probe_rejected(sel, "multi");
         }
         if buf.len() >= sel.max_count {
             return false;
@@ -951,5 +957,26 @@ impl Game {
             }
         }
         false
+    }
+}
+
+static PROBE: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+
+impl Game {
+    fn probe_rejected(&self, sel: &SelectData, what: &str) {
+        let Source::Prompt(i, _, _) = &sel.source else { return };
+        let pr = &self.prompts.as_slice()[*i];
+        let cont = self.items.iter().find(|it| it.ids.contains(&pr.id)).map(|it| format!("{:?}", it.cont)).unwrap_or_default();
+        let cname: String = cont.chars().take_while(|c| c.is_alphanumeric()).collect();
+        let key = format!("{} {} {} {}", what, pr.kind_name_probe(), pr.message, cname);
+        let mut v = PROBE.lock().unwrap();
+        if !v.contains(&key) {
+            eprintln!("PROBE-REJECT {} || {}", key, &cont[..cont.len().min(300)]);
+            v.push(key.clone());
+        }
+        drop(v);
+        if std::env::var("PTCG_PROBE_PANIC").is_ok() || true {
+            panic!("PROBE {}", key);
+        }
     }
 }

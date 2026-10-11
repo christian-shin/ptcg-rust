@@ -387,6 +387,11 @@ impl Res {
 }
 
 impl PromptRec {
+    pub fn kind_name_probe(&self) -> String {
+        let d = format!("{:?}", self.kind);
+        d.chars().take_while(|c| c.is_alphanumeric()).collect()
+    }
+
     pub fn type_name(&self) -> &'static str {
         match self.kind {
             PromptKind::ShuffleDeck => "Shuffle deck",
