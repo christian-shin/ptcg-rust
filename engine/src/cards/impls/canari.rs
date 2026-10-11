@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Canari",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any), Cond::Nonempty(DECK, Pred::Any)],
+        needs: &[Cond::Printed(&Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any)), Cond::Nonempty(DECK, Pred::Any)],
         steps: &[
             // Discard another card from your hand.
             Step::new(Op::Pick(PickSpec {

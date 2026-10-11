@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Hassel",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: false, tag: None }],
+        needs: &[Cond::Printed(&Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: false, tag: None })],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(8)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), bounds: Bounds { min: Num::If(&Cond::TrainerViaAttack, &Num::Lit(0), &Num::Lit(1)), max: Num::Lit(3) }, into: 1, msg: "CHOOSE_CARD_TO_HAND", ..PickSpec::DEFAULT })),

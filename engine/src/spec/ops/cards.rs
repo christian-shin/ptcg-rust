@@ -688,6 +688,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Suspend)
         }
         Op::BotherBot(b) => bother_exec(g, me, f, b),
+        Op::UseTrainer(u) => use_trainer_exec(g, me, f, u),
         Op::PrizeBonus(pb) => {
             // The Knock Out (a trigger's effect) takes `n` more Prize cards.
             // "Take 1 more Prize card" needs a Prize card to take (ruling 336): the Knock Out's count
@@ -1319,6 +1320,15 @@ fn carry_out_transfers(g: &mut Game, f: &Frame, ts: &[(SlotRef, SlotRef, CardId)
 pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
+        Op::UseTrainer(_) => {
+            let Some(card) = first.cards().first().copied() else {
+                f.outcome = Outcome::Impossible;
+                return Ok(Flow::Next);
+            };
+            crate::engine::play_trainer::use_effect(g, f.p as usize, card, f.cause)?;
+            f.outcome = Outcome::Done;
+            Ok(Flow::Next)
+        }
         Op::Pick(p) => {
             set_reg(g, f, p.into, first.cards());
             f.outcome = if first.cards().is_empty() { Outcome::Impossible } else { Outcome::Done };
@@ -1600,6 +1610,29 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
         Op::MoveEnergyOwn(m) => move_energy_own_possible(g, me, f, m),
         _ => true,
     }
+}
+
+/// `Op::UseTrainer`: the choice among the Trainers of `kind` in `from`, those whose printed conditions fail for their Used
+/// view blocked.
+fn use_trainer_exec(g: &mut Game, me: CardId, f: &mut Frame, u: &UseTrainerSpec) -> R<Flow> {
+    let p = f.p as usize;
+    let Some(list) = zone_list(g, me, f, u.from, true) else { return Ok(Flow::Next) };
+    let ty = match u.kind {
+        PlayKind::Supporter => TrainerType::Supporter,
+        PlayKind::Item | PlayKind::Tool => TrainerType::Item,
+        PlayKind::Stadium => TrainerType::Stadium,
+    };
+    let mut filter = Filter::super_type(SuperType::Trainer);
+    filter.trainer_type = Some(ty as u8);
+    let mut opts = ChooseCardsOpts::new(0, 1, false);
+    let cards: Vec<CardId> = g.lst(list).to_vec();
+    for (i, c) in cards.iter().enumerate() {
+        if g.st.cdef(*c).trainer_type == ty as u8 && !crate::spec::run::used_trainer_conditions(g, *c, p, f.eff)? {
+            opts.blocked.push(i as u8);
+        }
+    }
+    choose_cards(g, p, u.msg, list, filter, opts, f.cont(me, 1));
+    Ok(Flow::Suspend)
 }
 
 /// Would the op change the game now (`ops::effect_possible`)? A choice (Pick, Snapshot, PickPrize) is not an effect by
@@ -2910,4 +2943,16 @@ pub struct PrizeBonusSpec {
 /// random card of their hand, and you may have them switch those cards.
 pub struct BotherBotSpec {
     pub whose: Who,
+}
+
+/// "You may use the effect of a Supporter card you find there as the effect of this attack" (Mr. Mime's Look-Alike Show;
+/// events batch 7, user decision D5): the cards of `from` are shown to the attacker (a ChooseCards over them), who may
+/// choose one Trainer of `kind` among them (0 or 1, APR D-05; id2376) whose printed conditions hold for its Used view
+/// (official JP FAQ, Fire Energy MEE 2 / Mela: "if the player can't meet the condition for using the Supporter, they
+/// can't use its effect"); its effect is then used as this attack's effect (a PlayTrainer, Used: no play rule, the card
+/// stays where it is; id2225, id2226). A Supporter whose effect would do nothing can be chosen and does nothing.
+pub struct UseTrainerSpec {
+    pub from: ZoneRef,
+    pub kind: PlayKind,
+    pub msg: &'static str,
 }

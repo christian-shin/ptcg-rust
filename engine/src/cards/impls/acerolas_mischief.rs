@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "AcerolasMischief",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Le, Num::Lit(2))],
+        needs: &[Cond::Printed(&Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Le, Num::Lit(2)))],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Me), msg: "CHOOSE_POKEMON" })),
             // A Trainer effect: it stays when the Pokémon moves to the Bench or switches.

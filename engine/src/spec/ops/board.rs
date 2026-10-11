@@ -781,7 +781,12 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
     };
     // An op on the Pokémon an earlier op picked or attached to counts through that op.
     let dependent = |t: Option<&SlotTarget>| matches!(t, Some(SlotTarget::Slot(SlotExpr::Picked | SlotExpr::Attached)));
-    if dependent(target_of(op)) {
+    let on_dependent = match op {
+        Op::Conditions(c) => matches!(c.target, SlotExpr::Picked | SlotExpr::Attached),
+        Op::KnockOut(k) => matches!(k.target, SlotExpr::Picked | SlotExpr::Attached),
+        _ => false,
+    };
+    if on_dependent || dependent(target_of(op)) {
         return None;
     }
     Some(match op {

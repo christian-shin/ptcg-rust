@@ -314,7 +314,6 @@ pub enum Op {
     CopyAttack(CopyAttackSpec),
     EndTurn(EndTurnSpec),
     EndGame(EndGameSpec),
-    Custom(CustomSpec),
     // ops/state.rs
     AttackFlag(AttackFlagSpec),
     SetMarker(SetMarkerSpec),
@@ -340,6 +339,7 @@ pub enum Op {
     // S3-4 appends (ops/cards.rs)
     PrizeBonus(PrizeBonusSpec),
     BotherBot(BotherBotSpec),
+    UseTrainer(UseTrainerSpec),
     // S3-4 appends (ops/flow.rs)
 }
 

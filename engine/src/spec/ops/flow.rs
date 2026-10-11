@@ -122,13 +122,6 @@ pub struct EndTurnSpec {
 pub struct EndGameSpec {
     pub winner: Who,
 }
-/// Code kept in a card file for a rule no op expresses (Mr. Mime, Backtrack Badge): the card's own
-/// exec and resume functions, run as one op of a program (`resume` continues after the prompt it
-/// opened, `Frame::cont`). The state a suspended program needs travels in the frame.
-pub struct CustomSpec {
-    pub exec: fn(&mut Game, CardId, &mut Frame) -> R<Flow>,
-    pub resume: fn(&mut Game, CardId, &mut Frame, &[Res]) -> R<Flow>,
-}
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
     match op {
         Op::May(m) => {
@@ -152,7 +145,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 Ok(if i.no.is_empty() { Flow::Next } else { Flow::Enter(1) })
             }
         }
-        Op::Custom(c) => (c.exec)(g, me, f),
         Op::Choose(c) => {
             let mut mask = 0u8;
             let mut labels: SVec<&'static str, 8> = SVec::new();
@@ -276,10 +268,9 @@ fn flips_done(g: &mut Game, f: &mut Frame, c: &CoinSpec, heads: u8) {
     }
 }
 
-pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
+pub(crate) fn resume(g: &mut Game, _me: CardId, f: &mut Frame, op: &Op, results: &[Res]) -> R<Flow> {
     let first = results.first().copied().unwrap_or(Res::Null);
     match op {
-        Op::Custom(c) => (c.resume)(g, me, f, results),
         Op::Choose(c) => {
             let idx = first.as_int();
             let mask = f.sub & 0x7F;

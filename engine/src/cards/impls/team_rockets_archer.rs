@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsArcher",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::KnockedOutLastTurn { who: Who::Me, tag: Some(tag::TEAM_ROCKET), by_attack_damage: false }],
+        needs: &[Cond::Printed(&Cond::KnockedOutLastTurn { who: Who::Me, tag: Some(tag::TEAM_ROCKET), by_attack_damage: false })],
         // Each player shuffles their hand into their deck; you draw 5 cards and your opponent draws 3.
         steps: &[
             Step::new(Op::HandShuffleDraw(HandShuffleDrawSpec { who: Who::Opp, draw: Num::Lit(3) })),
