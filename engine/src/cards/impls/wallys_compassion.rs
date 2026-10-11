@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "WallysCompassion",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::Damaged, SlotPred::Top(Pred::All(&[Pred::Tag(tag::POKEMON_SV_MEGA), Pred::Tag(tag::POKEMON_EX_LOWER)]))]))],
+        needs: &[],
         // Heal all damage from 1 of your Mega Evolution Pokémon ex; if you do, put all Energy attached to it into your hand.
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec {

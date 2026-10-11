@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("TWM_CHANDELURE_ALLURING_LIGHT"),
-        needs: &[Cond::Not(&Cond::All(&[Cond::ZoneIs(ZoneRef(Who::Me, Zone::Deck), 0), Cond::ZoneIs(ZoneRef(Who::Opp, Zone::Deck), 0)]))],
+        needs: &[],
         steps: &[
             Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(1)) })),
             Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(1)) })),

@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("X_BOOT_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         // Search your deck for a Basic [P] Energy, a Basic [M] Energy, or 1 of each and attach them to your [P] and [M]
         // Pokémon in any way, then shuffle.
         steps: &[

@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Flip a coin; if heads, discard an Energy attached to 1 of your opponent's Pokémon.
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::AnySlot(TARGETS, SlotPred::HasEnergy)],
+        needs: &[],
         steps: &[Step::new(Op::Coin(CoinSpec {
             heads: &[
                 Step::new(Op::PickSlot(PickSlotSpec {

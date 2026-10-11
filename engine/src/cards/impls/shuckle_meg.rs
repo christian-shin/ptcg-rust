@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("FERMENTED_JUICE_MARKER"),
-        needs: &[Cond::Slot(SlotExpr::This, SlotPred::Provides(ct::GRASS)), Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Damaged)],
+        needs: &[Cond::Slot(SlotExpr::This, SlotPred::Provides(ct::GRASS))],
         steps: &[Step::new(Op::Heal(HealSpec {
             target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Damaged), msg: "CHOOSE_POKEMON_TO_HEAL" }),
             hp: Num::Lit(30),

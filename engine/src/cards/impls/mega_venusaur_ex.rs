@@ -9,10 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,
-        needs: &[
-            Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::HasCard(Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]))),
-            Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Any), CmpOp::Ge, Num::Lit(2)),
-        ],
+        needs: &[],
         steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: None, energy: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), cancel: false, used_always: false }))],
     }],
     ..CardSpec::NONE

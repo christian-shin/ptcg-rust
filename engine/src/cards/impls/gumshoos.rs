@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,
-        needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "GATHER_EVIDENCE_MARKER", from: MarkerFrom::This }), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::Any)],
+        needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "GATHER_EVIDENCE_MARKER", from: MarkerFrom::This }), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, cancel: true, into: 0, msg: "CHOOSE_CARD_TO_DECK", ..PickSpec::DEFAULT })),
             Step::new(Op::If(IfSpec { cond: Cond::Chosen(0), yes: &[Step::new(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(1)), ..PutIntoHandSpec::DEFAULT })), Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), position: DeckPosition::Top, ..PutIntoDeckSpec::DEFAULT })), Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: Some("GATHER_EVIDENCE_MARKER") }))], no: &[] })),

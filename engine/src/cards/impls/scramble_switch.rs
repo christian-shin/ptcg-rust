@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "ScrambleSwitch",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Cmp(Num::BenchCount(Who::Me), CmpOp::Gt, Num::Lit(0))],
+        needs: &[],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Me), msg: "CHOOSE_POKEMON_TO_SWITCH" })),
             // You may move as many Energy as you like from the old Active Pokémon to the new one.

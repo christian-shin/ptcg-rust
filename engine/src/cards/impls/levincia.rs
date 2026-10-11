@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Levincia",
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::BasicEnergy, Pred::Provides(ct::LIGHTNING)]))],
+        needs: &[],
         steps: &[Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Lightning Energy")]), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) }, ..PickSpec::DEFAULT },
                 destination: SearchDestination::Hand { reveal: false },

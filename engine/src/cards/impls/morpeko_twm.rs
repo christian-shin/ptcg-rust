@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("SNACK_SEARCH_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         // Today's behavior kept: the top card is always discarded (Twinleaf answers the info prompt
         // with a yes), there is no real "you may".
         steps: &[

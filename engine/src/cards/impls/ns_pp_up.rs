@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "NsPPUp",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::InPlayAny(Who::Me, PlayScope::Bench, Pred::Tag(crate::types::tag::NS))],
+        needs: &[],
         steps: &[
             Step::new(Op::Attach(AttachSpec {
                 chooser: Who::Me,

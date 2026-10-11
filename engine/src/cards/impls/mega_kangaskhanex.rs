@@ -19,7 +19,6 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[
             Cond::IsActive(SlotExpr::This),
             Cond::Not(&Cond::HasMarker { who: Who::Me, name: "RUN_ERRAND_USED_MARKER", from: MarkerFrom::Any }),
-            Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
         ],
         steps: &[
             Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(2)) })),

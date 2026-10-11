@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     // an empty deck, id1124).
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         steps: &[
             // An empty hand with a non-empty deck is playable (id1125).
             Step::new(Op::If(IfSpec {

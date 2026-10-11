@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "JaninesSecretTechnique",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::InPlay(Who::Me, PlayScope::All, Pred::PokemonType(ct::DARK))],
+        needs: &[],
         steps: &[
             Step::new(Op::Attach(AttachSpec { predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]), slots: AttachSlots::BenchActive, target: Pred::PokemonType(ct::DARK), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, different_targets: true, ..AttachSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),

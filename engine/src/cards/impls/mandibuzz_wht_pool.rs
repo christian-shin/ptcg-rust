@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::PerTurn("WHT_MANDIBUZZ_LOOK_FOR_PREY"),
         // Their open Bench is public knowledge: with it full the Ability can't be used.
-        needs: &[Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any), Cond::BenchSpace(Who::Opp)],
+        needs: &[Cond::BenchSpace(Who::Opp)],
         // "Your opponent reveals their hand, and you put a Basic Pokémon ... that you find there onto your opponent's Bench."
         steps: &[Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: true })), Step::new(Op::If(IfSpec {
             cond: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::All(&[Pred::Basic, Pred::HpAtMost(70)])),

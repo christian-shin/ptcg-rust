@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Trade 1 of the other cards in your hand for up to 2 Basic Energy cards from your discard pile.
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Nonempty(DISCARD, Pred::BasicEnergy), Cond::NonemptyOther(HAND, Pred::Any)],
+        needs: &[],
         steps: &[
             // The Basic Energy available is counted before the discard.
             Step::new(Op::Snapshot(SnapshotSpec { zone: DISCARD, predicate: Pred::BasicEnergy, into: 1 })),

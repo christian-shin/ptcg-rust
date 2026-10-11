@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "PokeBall",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         steps: &[
             Step::new(Op::Coin(CoinSpec {
                 heads: &[Step::new(Op::Search(SearchSpec {

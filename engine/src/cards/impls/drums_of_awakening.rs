@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "DrumsOfAwakening",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         steps: &[Step::new(Op::Draw(DrawSpec {
             who: Who::Me,
             amount: DrawAmount::Count(Num::InPlayCount(Who::Me, PlayScope::All, Pred::Tag(crate::types::tag::ANCIENT))),

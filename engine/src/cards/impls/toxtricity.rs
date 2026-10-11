@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("BAD_BOOST_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::PrintedTypeIs(ct::DARK))],
+        needs: &[],
         // Attach a Basic [D] Energy from your deck to 1 of your Benched [D] Pokémon, then shuffle; put 2 damage counters on that Pokémon.
         steps: &[
             Step::new(Op::Attach(AttachSpec {

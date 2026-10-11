@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Salvatore",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::HasEvolutionInPool(Who::Me)],
+        needs: &[Cond::HasEvolutionInPool(Who::Me)],
         steps: &[
             // A Pokémon without an Ability that evolves from 1 of your Pokémon in play (the choice can be cancelled).
             Step::new(Op::Pick(PickSpec {

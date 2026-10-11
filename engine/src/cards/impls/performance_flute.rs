@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "PerformanceFlute",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::BenchSpace(Who::Opp), Cond::Nonempty(ZoneRef(Who::Opp, Zone::Deck), Pred::Any)],
+        needs: &[Cond::BenchSpace(Who::Opp)],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(5)), into: 0, ..LookSpec::DEFAULT })),
             // "Reveal the top 5 cards": both players see them.

@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // there is one, unless used as the effect of an attack, id2376).
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Nonempty(OPP_HAND, Pred::Any)],
+        needs: &[],
         steps: &[
             // "Your opponent reveals their hand"
             Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: true })),

@@ -12,8 +12,6 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[
             Cond::Not(&Cond::HasMarker { who: Who::Me, name: "CHAINS_OF_CONTROL_USED_MARKER", from: MarkerFrom::Any }),
-            Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::PrintedTypeIs(crate::types::ct::DARK), SlotPred::Not(&SlotPred::Named("Pecharunt ex"))])),
-            Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::PrintedTypeIs(crate::types::ct::DARK)), CmpOp::Gt, Num::Lit(1)),
         ],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec {

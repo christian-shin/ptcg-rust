@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsGiovanni",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Slot(MY_ACTIVE, SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET))), Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET)))],
+        needs: &[Cond::Slot(MY_ACTIVE, SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET)))],
         steps: &[
             // Switch your Active Team Rocket's Pokémon with 1 of your Benched Team Rocket's Pokémon...
             Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::Top(Pred::Tag(tag::TEAM_ROCKET))), msg: "CHOOSE_POKEMON_TO_SWITCH" })),

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsAriana",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         // Draw until you have 5 cards in hand, or 8 if all of your Pokémon in play are Team Rocket's Pokémon.
         steps: &[Step::new(Op::Draw(DrawSpec {
             who: Who::Me,

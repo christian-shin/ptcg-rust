@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::PerTurn("BOOM_BOOM_DRUM_MARKER"),
         // If your Active Pokémon has the Festival Lead Ability.
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Slot(MY_ACTIVE, SlotPred::Top(Pred::HasAbilityNamed("Festival Lead")))],
+        needs: &[Cond::Slot(MY_ACTIVE, SlotPred::Top(Pred::HasAbilityNamed("Festival Lead")))],
         steps: &[
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, ..PickSpec::DEFAULT },

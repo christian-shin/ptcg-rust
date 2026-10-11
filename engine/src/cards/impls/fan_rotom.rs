@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurnShared("FAN_CALL_MARKER"),
-        needs: &[Cond::Cmp(Num::Turn, CmpOp::Le, Num::Lit(2)), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[Cond::Cmp(Num::Turn, CmpOp::Le, Num::Lit(2))],
         steps: &[
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::COLORLESS), Pred::HpAtMost(100)]), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(3) }, caps: &[Cap { kind: CapKind::Pokemon, max: Num::Min(&Num::CardCount(ZoneRef(Who::Me, Zone::Deck), Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::COLORLESS), Pred::HpAtMost(100)])), &Num::Lit(3)) }], ..PickSpec::DEFAULT },

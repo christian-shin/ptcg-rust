@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Ruffian",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::OneOf(&[SlotPred::AnyTool(Pred::Any), SlotPred::HasCard(Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]))]))],
+        needs: &[],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec {
                 chooser: Who::Me,

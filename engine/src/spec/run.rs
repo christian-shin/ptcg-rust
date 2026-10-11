@@ -552,30 +552,21 @@ fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
     Ok(())
 }
 
-/// A Trainer, Ability or Stadium can be used when its declared needs (read
-/// as the game checks them: types, provided Energy) and the preconditions its
-/// top-level ops imply hold.
+/// A Trainer, Ability or Stadium can be used when its declared `needs` hold (its printed conditions, and what the rules'
+/// walk doesn't derive yet: types, provided Energy, checked reads) and the rules' usability holds (`usable_by_rules`; user
+/// decision D10).
 fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -> R<bool> {
     for c in needs {
         if !cond_m(g, me, f, c)? {
             return Ok(false);
         }
     }
-    let old = steps.iter().filter(|s| s.at != RuleStep::Consequence).all(|s| ops::implied_ok(g, me, f, &s.op));
-    // User decision D10, step 1: the rules' usability is computed beside today's under VERIFY and every difference is
-    // recorded (`usability_report`); today's answer stands until the switch is approved.
-    if crate::cause::on(g) {
-        let new = usable_by_rules(g, me, f, steps);
-        if new != old {
-            record_usability_difference(g, me, f, old, new);
-        }
-    }
-    Ok(old)
+    Ok(usable_by_rules(g, me, f, steps))
 }
 
 /// The rules' usability of a Trainer's or an Ability's program (events design section 7; APR A-02, B-01, D-02, E-20, E-30;
-/// id925, id956: "you cannot play a Trainer card for no net effect"), the card's `needs` aside (its printed conditions,
-/// checked first): every cost can be paid (`Step::cost`), every choice the program starts with has something to choose
+/// id925, id956: "you cannot play a Trainer card for no net effect"; user decision D10), the card's `needs` aside (checked
+/// first by `usable`): every cost can be paid (`Step::cost`), every choice the program starts with has something to choose
 /// (a Pick, a PickSlot: the program's gates), and at least one of its effects would change the game (an op under
 /// `If(Done)` counts only through the op it depends on: E-20's "If you do"). A program with no effect op is usable.
 pub(crate) fn usable_by_rules(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
@@ -702,51 +693,6 @@ impl RulesWalk {
         }
         out
     }
-}
-
-/// The differences between today's usability and the rules' one met under VERIFY, by card and answers, each with a count
-/// and up to three situations (`usability_report`).
-static USABILITY: std::sync::Mutex<std::collections::BTreeMap<String, (u64, Vec<String>)>> = std::sync::Mutex::new(std::collections::BTreeMap::new());
-
-#[cold]
-fn record_usability_difference(g: &Game, me: CardId, f: &Frame, old: bool, new: bool) {
-    let p = f.p as usize;
-    let pl = &g.st.players[p];
-    let o = &g.st.players[1 - p];
-    let key = format!("{} ({}): today {}, rules {}", g.st.cdef(me).full_name, match f.prog { Prog::Play => "play", Prog::Power(_) => "Ability", _ => "use" }, old, new);
-    let situation = format!(
-        "turn {} deck {} hand {} (without it) discard {} bench {} | opp hand {} deck {} bench {}",
-        g.st.turn,
-        pl.deck.len(),
-        pl.hand.iter().filter(|c| *c != me).count(),
-        pl.discard.len(),
-        pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count(),
-        o.hand.len(),
-        o.deck.len(),
-        o.bench.iter().filter(|b| !o.slots[**b as usize].cards.is_empty()).count()
-    );
-    let mut m = USABILITY.lock().unwrap();
-    let e = m.entry(key).or_insert((0, Vec::new()));
-    e.0 += 1;
-    if e.1.len() < 3 && !e.1.contains(&situation) {
-        e.1.push(situation);
-    }
-}
-
-/// The usability differences of a VERIFY run (empty when there were none).
-pub fn usability_report() -> String {
-    let m = USABILITY.lock().unwrap();
-    if m.is_empty() {
-        return String::new();
-    }
-    let mut s = format!("usability differences (D10): {} cards\n", m.len());
-    for (k, (n, sits)) in m.iter() {
-        s.push_str(&format!("{:>8}  {}\n", n, k));
-        for x in sits {
-            s.push_str(&format!("          {}\n", x));
-        }
-    }
-    s
 }
 
 /// The declared checks of a Trainer's effect (`reduce` and legality both make them): the card's `needs` and implied

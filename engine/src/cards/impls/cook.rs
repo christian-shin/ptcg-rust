@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Cook",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Slot(MY_ACTIVE, SlotPred::Damaged)],
+        needs: &[],
         steps: &[
             Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(70), clear_conditions: false })),
         ],

@@ -9,7 +9,6 @@ pub static SPEC: CardSpec = CardSpec {
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
         needs: &[
-            Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::Energy),
             // It must draw at least 1 card: the [P] Pokémon in play over the hand without the discarded Energy, up to the deck.
             Cond::Cmp(
                 Num::Min(&Num::Sub(&Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::TypeIs(crate::types::ct::PSYCHIC)), &Num::Sub(&Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), &Num::Lit(1))), &Num::ZoneSize(ZoneRef(Who::Me, Zone::Deck))),

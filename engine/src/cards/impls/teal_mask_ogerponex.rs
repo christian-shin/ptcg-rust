@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("TEAL_DANCE_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Provides(ct::GRASS)]))],
+        needs: &[],
         // Attach a Basic [G] Energy card from your hand to this Pokémon; if you did, draw a card.
         steps: &[
             Step::new(Op::Pick(PickSpec {

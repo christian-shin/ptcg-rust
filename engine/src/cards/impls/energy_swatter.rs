@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "EnergySwatter",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any)],
+        needs: &[],
         steps: &[
             Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: false })),
             Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Opp, Zone::Hand), predicate: Pred::Energy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, soft: true, ..PickSpec::DEFAULT })),

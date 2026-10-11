@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "OgresMaskPREPool",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::Pokemon, Pred::Tag(crate::types::tag::POKEMON_EX_LOWER), Pred::NameContains("Ogerpon")])), Cond::InPlay(Who::Me, PlayScope::All, Pred::All(&[Pred::Pokemon, Pred::Tag(crate::types::tag::POKEMON_EX_LOWER), Pred::NameContains("Ogerpon")]))],
+        needs: &[],
         steps: &[
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Discard),

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("CHARGE_UP_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy)],
+        needs: &[],
         // Attach a Basic Energy from your discard pile to this Pokémon.
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::BasicEnergy, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_ATTACH", ..PickSpec::DEFAULT })),

@@ -14,10 +14,9 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TransformationTome",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        // A Basic Pokémon in play and one in the discard pile (the second copy is the play's companion).
+        // A Basic Pokémon in play (the one in the discard pile is the Pick's to find; the second copy is the play's companion).
         needs: &[
             Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Basic),
-            Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::All(&[Pred::Pokemon, Pred::Basic])),
         ],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Basic), msg: "CHOOSE_POKEMON_TO_SWITCH" })),

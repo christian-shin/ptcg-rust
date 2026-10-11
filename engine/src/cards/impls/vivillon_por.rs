@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("BIG_WINGS_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Opp, Zone::Hand), Pred::Any)],
+        needs: &[],
         // Your opponent shuffles their hand and puts it on the bottom of their deck; if they did, they draw 4 cards.
         steps: &[
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Opp, Zone::Hand), position: DeckPosition::Bottom, order: DeckOrder::Shuffled, ..PutIntoDeckSpec::DEFAULT })),

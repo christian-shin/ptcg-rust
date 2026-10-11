@@ -1,12 +1,13 @@
-//! User decision D10: the unit sweep over every Trainer play, Ability and Stadium use on synthetic boards, comparing today's
-//! usability (every `needs` entry and every op's implied precondition) with the rules' one (`run::usable_by_rules`, with
-//! the same `needs`). Boards vary what usability reads: empty or small hand / deck / discard pile / Bench, a full Bench,
-//! no Energy, damage, the Prize count, the turn, a Supporter played this turn, a Stadium in play, both sides.
+//! User decision D10: the unit sweep over every Trainer play, Ability and Stadium use on synthetic boards. Boards vary what
+//! usability reads: empty or small hand / deck / discard pile / Bench, a full Bench, no Energy, damage, the Prize count, the
+//! turn, Pokémon Knocked Out last turn, a Supporter played this turn, a Stadium in play, both sides.
 //!
-//! Every difference must be ruling-backed and listed in `RULING_BACKED` (card, program, today's answer, the rules' one)
-//! with the ruling that decides it; `D10_SWEEP_OUT=<file>` writes the full list with sample situations,
-//! `D10_NEEDS_OUT=<file>` the card `needs` entries that decide where the rules alone say "yes" (per entry: boards where it
-//! fails, and where that decides), `D10_COVERAGE=1` prints each program's counts. Most cards of a board come from the decks
+//! Before the switch (closeout 4a) it compared the old usability (every `needs` entry and every op's implied precondition)
+//! with `run::usable_by_rules`: no difference on 27,814 boards. Since the switch usability is `needs` + the rules' walk, and
+//! the sweep keeps `needs` honest: a non-printed entry that fails on boards where the rules alone already say "no" only
+//! restates usability and must go (the switch removed 67). `D10_NEEDS_OUT=<file>` writes, per entry, the boards where it
+//! fails and where it decides (the rules alone say "yes"), with sample situations; `D10_COVERAGE=1` prints each program's
+//! counts. Most cards of a board come from the decks
 //! the card is played in (engine/bench/spec.json, decks/), the rest from the whole pool.
 
 use super::run::{usable_by_rules, Frame, Phase, Prog};
@@ -17,9 +18,6 @@ use crate::list::{CardId, CardList};
 use crate::types::{Stage, TrainerType};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
-
-/// The differences the rulings decide (card, program, today, rules), each with its ruling. Empty: none is left.
-const RULING_BACKED: &[(&str, &str, bool, bool, &str)] = &[];
 
 /// A small deterministic generator (xorshift).
 struct Rng(u64);
@@ -198,9 +196,9 @@ fn side(r: &mut Rng, pl: &Pools, active: u16, on_bench: Option<u16>, in_hand: &[
     (s, deck_left)
 }
 
-/// Today's usability and the rules' one of `subject` of card `me` for player `p` (`None`: the card's own `needs` fail, or
-/// a check errs: then both answers are "no").
-fn answers(g: &mut Game, me: CardId, p: usize, subject: Subject) -> Option<(bool, bool, Vec<usize>)> {
+/// The usability of `subject` of card `me` for player `p` and the non-printed `needs` entries that fail, `usize::MAX` last
+/// when the rules alone would say "yes" (`None`: a printed condition fails, or a check errs).
+fn answers(g: &mut Game, me: CardId, p: usize, subject: Subject) -> Option<(bool, Vec<usize>)> {
     let spec = crate::cards::spec_for(g.st.cards[me as usize].def)?;
     let (prog, needs, steps, e) = match subject {
         Subject::Play => {
@@ -236,14 +234,13 @@ fn answers(g: &mut Game, me: CardId, p: usize, subject: Subject) -> Option<(bool
             failing.push(i);
         }
     }
-    let old = failing.is_empty() && steps.iter().filter(|s| s.at != RuleStep::Consequence).all(|s| ops::implied_ok(g, me, &f, &s.op));
     let new = failing.is_empty() && usable_by_rules(g, me, &f, steps);
     // The rules' answer with the printed conditions only: where it differs from `new`, a non-printed `needs` entry decides.
     let bare = usable_by_rules(g, me, &f, steps);
     if bare != new {
         failing.push(usize::MAX);
     }
-    Some((old, new, failing))
+    Some((new, failing))
 }
 
 fn situation(g: &Game, p: usize, me: CardId) -> String {
@@ -372,7 +369,7 @@ fn finish(r: &mut Rng, pl: &Pools, card: u16, d: &crate::carddb::CardDef, subjec
 }
 
 /// Every program's differences on `boards` synthetic boards each: (card, program, today, rules) -> (count, situations).
-pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, bool, bool), (usize, Vec<String>)>, [usize; 4]) {
+pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, usize), (usize, usize)>, [usize; 4]) {
     // Programs, boards built, boards whose needs held (answered), answered boards where an answer is "yes".
     let mut stats = [0usize; 4];
     let all = pools();
@@ -380,7 +377,6 @@ pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, bool, bool), (u
     let mut needs_out: BTreeMap<(String, String, String), (usize, Vec<String>)> = BTreeMap::new();
     // Per non-printed `needs` entry: boards where it fails, and where it fails while the rules alone say yes.
     let mut entries: BTreeMap<(String, String, usize), (usize, usize)> = BTreeMap::new();
-    let mut out: BTreeMap<(String, String, bool, bool), (usize, Vec<String>)> = BTreeMap::new();
     let mut seen = std::collections::HashSet::new();
     for (i, d) in crate::carddb::cards().iter().enumerate() {
         let card = i as u16;
@@ -411,7 +407,7 @@ pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, bool, bool), (u
                 let Some((mut g, p, me)) = board(&mut r, &all, &rel, card, subject) else { continue };
                 stats[1] += 1;
                 let sit = situation(&g, p, me);
-                let Some((old, new, failing)) = answers(&mut g, me, p, subject) else { continue };
+                let Some((new, failing)) = answers(&mut g, me, p, subject) else { continue };
                 let decisive = failing.last() == Some(&usize::MAX);
                 for &i in failing.iter().filter(|i| **i != usize::MAX) {
                     let e = entries.entry((d.full_name.to_string(), label.clone(), i)).or_insert((0, 0));
@@ -427,20 +423,13 @@ pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, bool, bool), (u
                     }
                 }
                 stats[2] += 1;
-                stats[3] += (old || new) as usize;
+                stats[3] += new as usize;
                 cov[0] += 1;
-                cov[1] += old as usize;
+                cov[1] += failing.is_empty() as usize;
                 cov[2] += new as usize;
-                if old != new {
-                    let e = out.entry((d.full_name.to_string(), label.clone(), old, new)).or_insert((0, Vec::new()));
-                    e.0 += 1;
-                    if e.1.len() < 3 {
-                        e.1.push(sit);
-                    }
-                }
             }
             if std::env::var("D10_COVERAGE").is_ok() {
-                eprintln!("COVERAGE {} ({}): needs held {} / {}, today yes {}, rules yes {}", d.full_name, label, cov[0], boards, cov[1], cov[2]);
+                eprintln!("COVERAGE {} ({}): printed conditions held {} / {}, every needs entry held {}, usable {}", d.full_name, label, cov[0], boards, cov[1], cov[2]);
             }
         }
     }
@@ -458,28 +447,19 @@ pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, bool, bool), (u
         }
         std::fs::write(path, s).unwrap();
     }
-    (out, stats)
+    (entries, stats)
 }
 
 #[test]
-fn d10_sweep_differences_are_ruling_backed() {
-    let (diffs, stats) = sweep(160);
-    let mut report = format!("programs {}, boards built {}, needs held {}, usable by either {}\n", stats[0], stats[1], stats[2], stats[3]);
-    let mut unbacked = Vec::new();
-    for ((card, prog, old, new), (n, sits)) in &diffs {
-        let backed = RULING_BACKED.iter().find(|b| b.0 == card && b.1 == prog && b.2 == *old && b.3 == *new);
-        report.push_str(&format!("{} ({}): today {}, rules {}; {} boards; {}\n", card, prog, old, new, n, backed.map_or("NO RULING", |b| b.4)));
-        for s in sits {
-            report.push_str(&format!("    {}\n", s));
-        }
-        if backed.is_none() {
-            unbacked.push(format!("{} ({}): today {}, rules {}", card, prog, old, new));
-        }
-    }
-    if let Ok(path) = std::env::var("D10_SWEEP_OUT") {
-        std::fs::write(path, &report).unwrap();
-    }
-    // The boards must reach the programs: most build, and most programs' needs hold on some.
-    assert!(stats[1] * 2 > stats[0] * 160 && stats[2] * 2 > stats[1], "sweep coverage collapsed: {}", report.lines().next().unwrap_or(""));
-    assert!(unbacked.is_empty(), "usability differences without a ruling:\n{}", report);
+fn d10_no_needs_entry_restates_usability() {
+    let (entries, stats) = sweep(160);
+    let head = format!("programs {}, boards built {}, printed conditions held {}, usable {}", stats[0], stats[1], stats[2], stats[3]);
+    // The boards must reach the programs: most build, and most pass the printed conditions.
+    assert!(stats[1] * 2 > stats[0] * 160 && stats[2] * 2 > stats[1], "sweep coverage collapsed: {}", head);
+    // An entry that fails on 10 boards or more and never decides restates what the rules' walk derives.
+    let restating: Vec<String> = entries.iter().filter(|(_, (n, k))| *n >= 10 && *k == 0).map(|((c, p, i), (n, _))| format!("{} ({}) needs[{}]: fails on {} boards, never decides", c, p, i, n)).collect();
+    assert!(restating.is_empty(), "{}
+needs entries that only restate usability (remove them):
+{}", head, restating.join("
+"));
 }

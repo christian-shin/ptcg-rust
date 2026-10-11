@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Discard a Special Energy attached to 1 of your opponent's Pokémon.
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::HasSpecialEnergy)],
+        needs: &[],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec {
                 chooser: Who::Me,

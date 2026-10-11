@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurnShared("FLIP_THE_SCRIPT_MARKER"),
-        needs: &[Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: false, tag: None }, Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[Cond::KnockedOutLastTurn { who: Who::Me, by_attack_damage: false, tag: None }],
         steps: &[
             Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) })),
         ],

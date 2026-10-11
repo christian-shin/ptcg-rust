@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     // Draw 3 cards.
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         steps: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) }))],
     }),
     ..CardSpec::NONE

@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("CROWD_PULLER_MARKER"),
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::IsActive(SlotExpr::This)],
+        needs: &[Cond::IsActive(SlotExpr::This)],
         // Look at the top 6 cards of your deck, reveal a Supporter there and put it into your hand; shuffle the rest back.
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(6)), into: 0, ..LookSpec::DEFAULT })),

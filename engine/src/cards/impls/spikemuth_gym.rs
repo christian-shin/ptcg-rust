@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "SpikemuthGym",
     use_stadium: Some(PlaySpec {
         kind: PlayKind::Stadium,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        needs: &[],
         steps: &[
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::All(&[Pred::Pokemon, Pred::Tag(tag::MARNIES)]), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
