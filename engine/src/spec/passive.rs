@@ -2042,8 +2042,7 @@ pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<cra
     if !g.kinds_present.has(crate::effects::k::DECLARES_REFLIP) {
         return Ok(None);
     }
-    let probe = Effect::EndTurn { p: v.actor() };
-    let order = g.propagation_order(&probe, crate::effects::k::COIN_FLIP);
+    let order = crate::decl::kind_listeners(g, crate::effects::k::COIN_FLIP);
     for c in order.iter().copied() {
         let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives);
         for ps in passives {
@@ -2066,8 +2065,7 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     if !g.kinds_present.has(marker) {
         return Ok(false);
     }
-    let probe = Effect::EndTurn { p: v.owner };
-    let order = g.propagation_order(&probe, kind);
+    let order = crate::decl::kind_listeners(g, kind);
     for c in order.iter().copied() {
         if prevented_by(g, c, v)? {
             return Ok(true);
@@ -2130,8 +2128,7 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     if !g.kinds_present.has(marker) {
         return Ok(false);
     }
-    let probe = Effect::EndTurn { p: v.owner };
-    let order = g.propagation_order(&probe, kind);
+    let order = crate::decl::kind_listeners(g, kind);
     let mut heads = false;
     for me in order.iter().copied() {
         let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);

@@ -425,7 +425,6 @@ impl Player {
             p.slots[i].is_public = true;
             p.bench.push(i as SlotId);
         }
-        touch();
         p
     }
 
@@ -472,14 +471,12 @@ impl Player {
             if !self.slot_used[i] {
                 self.slot_used[i] = true;
                 self.slots[i] = Slot::default();
-                touch();
                 return i as SlotId;
             }
         }
         panic!("slot arena exhausted");
     }
     pub fn free_slot(&mut self, s: SlotId) {
-        touch();
         self.slot_used[s as usize] = false;
     }
 }

@@ -165,7 +165,6 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         let bi = pl.bench_index_of(s).ok_or("scenario: no Bench spot")?;
         pl.bench.as_mut_slice()[bi] = pl.active;
         pl.active = s;
-        crate::list::touch();
         g.st.bump_layout();
         let a = s;
         dress(g, p, a, &side["active_energy"], &side["active_tool"], &side["active_damage"], &side["active_conditions"], &side["active_played"])?;

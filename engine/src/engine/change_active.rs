@@ -25,7 +25,6 @@
 use crate::cause::Cause;
 use crate::effects::{EffId, Effect, SlotRef};
 use crate::game::{Game, R};
-use crate::list::*;
 use crate::markers::*;
 use crate::spec::event::*;
 use crate::state::*;
@@ -224,7 +223,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     let pl = &mut g.st.players[p];
     pl.active = to;
     pl.bench.as_mut_slice()[bi] = from;
-    touch();
     g.st.bump_layout();
     if let Some(c) = g.st.slot_pokemon(p, to) {
         if !g.st.players[p].moved_to_active_this_turn.contains(&c) {

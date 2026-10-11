@@ -5,151 +5,8 @@ use std::fmt;
 pub type CardId = u8;
 pub const NO_CARD: CardId = u8::MAX;
 
-/// What the card layout tracking keeps per thread: a generation counter bumped by every change, the
-/// generation of the last change of the whole layout (the Active/Bench slots, a list replaced wholesale),
-/// and per card id the generation of the last change of that card's place (it entered or left a zone
-/// list, or the cards of its list were reordered). A value computed from the places of some cards (the
-/// dispatch index: the cards with a handler for an effect kind, in zone order) is still good while none
-/// of those cards and not the whole layout changed since it was made ([`unchanged_since`]).
-pub struct LayoutTrack {
-    gen: std::cell::Cell<u64>,
-    layout: std::cell::Cell<u64>,
-    thread: std::cell::Cell<u64>,
-    moved: [std::cell::Cell<u64>; 256],
-}
-
-thread_local! {
-    static TRACK: LayoutTrack = const {
-        LayoutTrack {
-            gen: std::cell::Cell::new(1),
-            layout: std::cell::Cell::new(1),
-            thread: std::cell::Cell::new(0),
-            moved: [const { std::cell::Cell::new(0) }; 256],
-        }
-    };
-}
-
-/// Records that the card layout of the board changed as a whole (the Active/Bench slot ids, a whole
-/// slot or list assigned, a list's cards rewritten in place). Zone lists record their own changes card
-/// by card; code that changes the layout in another way calls this by hand.
-#[inline]
-pub fn touch() {
-    TRACK.with(|t| {
-        let g = t.gen.get() + 1;
-        t.gen.set(g);
-        t.layout.set(g);
-    });
-}
-
-/// Records that card `c` entered or left a zone list (zone lists do this themselves; code that puts a
-/// card back by assigning a saved list calls it by hand).
-#[inline]
-pub fn mark(c: CardId) {
-    TRACK.with(|t| {
-        let g = t.gen.get() + 1;
-        t.gen.set(g);
-        t.moved[c as usize].set(g);
-    });
-}
-
-/// Records that each of `cards` changed its place (one generation for all).
-#[inline]
-pub fn mark_all(cards: &[CardId]) {
-    TRACK.with(|t| {
-        let g = t.gen.get() + 1;
-        t.gen.set(g);
-        for &c in cards {
-            t.moved[c as usize].set(g);
-        }
-    });
-}
-
-/// A counter that changes whenever the card layout of any game on this thread changes.
-#[inline]
-pub fn zone_gen() -> u64 {
-    TRACK.with(|t| t.gen.get())
-}
-
-/// This thread's id for [`unchanged_since`] stamps (generations of different threads don't compare).
-#[inline]
-pub fn layout_thread() -> u64 {
-    TRACK.with(|t| match t.thread.get() {
-        0 => {
-            static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
-            let id = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-            t.thread.set(id);
-            id
-        }
-        id => id,
-    })
-}
-
-/// Have the places of the cards in `cards` (a bit per card id) and the whole layout stayed the same since
-/// generation `since` of thread `thread` (a [`zone_gen`] read on that thread)?
-#[inline]
-pub fn unchanged_since(thread: u64, since: u64, cards: u128) -> bool {
-    TRACK.with(|t| {
-        if t.thread.get() != thread || t.layout.get() > since {
-            return false;
-        }
-        let mut m = cards;
-        while m != 0 {
-            let c = m.trailing_zeros() as usize;
-            if t.moved[c].get() > since {
-                return false;
-            }
-            m &= m - 1;
-        }
-        true
-    })
-}
-
-/// Marks what `set_from` changes: the cards that left or entered the list, and all the cards that stay if
-/// their order changed.
-fn mark_replaced(old: &[CardId], new: &[CardId]) {
-    let bits = |l: &[CardId]| {
-        let mut m = [0u64; 4];
-        for &c in l {
-            m[(c >> 6) as usize] |= 1 << (c & 63);
-        }
-        m
-    };
-    let (mo, mn) = (bits(old), bits(new));
-    let has = |m: &[u64; 4], c: CardId| (m[(c >> 6) as usize] >> (c & 63)) & 1 != 0;
-    TRACK.with(|t| {
-        let g = t.gen.get() + 1;
-        t.gen.set(g);
-        for &c in old {
-            if !has(&mn, c) {
-                t.moved[c as usize].set(g);
-            }
-        }
-        for &c in new {
-            if !has(&mo, c) {
-                t.moved[c as usize].set(g);
-            }
-        }
-        // The cards in both lists: same relative order?
-        let mut a = old.iter().copied().filter(|&c| has(&mn, c));
-        let mut b = new.iter().copied().filter(|&c| has(&mo, c));
-        let same = loop {
-            match (a.next(), b.next()) {
-                (None, None) => break true,
-                (x, y) if x == y => continue,
-                _ => break false,
-            }
-        };
-        if !same {
-            for &c in old {
-                if has(&mn, c) {
-                    t.moved[c as usize].set(g);
-                }
-            }
-        }
-    });
-}
-
-/// A card list. `Z` marks a zone (hand, deck, discard, prizes, a slot's cards): its mutations [`touch`].
+/// A card list. `Z` marks a zone list of the board (hand, deck, discard, prizes, a slot's cards); the layout's changes are
+/// counted per game (`State::layout_gen`), not by the list.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct List<const N: usize, const Z: bool = false> {
     len: u8,
@@ -221,32 +78,20 @@ impl<const N: usize, const Z: bool> CardList for List<N, Z> {
     }
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [CardId] {
-        if Z {
-            touch();
-        }
         &mut self.items[..self.len as usize]
     }
     #[inline]
     fn as_permutable_slice(&mut self) -> &mut [CardId] {
-        if Z {
-            mark_all(&self.items[..self.len as usize]);
-        }
         &mut self.items[..self.len as usize]
     }
     #[inline]
     fn push(&mut self, c: CardId) {
         assert!((self.len as usize) < N, "List<{}> overflow", N);
-        if Z {
-            mark(c);
-        }
         self.items[self.len as usize] = c;
         self.len += 1;
     }
     fn insert(&mut self, i: usize, c: CardId) {
         assert!((self.len as usize) < N, "List<{}> overflow", N);
-        if Z {
-            mark(c);
-        }
         let len = self.len as usize;
         self.items.copy_within(i..len, i + 1);
         self.items[i] = c;
@@ -255,9 +100,6 @@ impl<const N: usize, const Z: bool> CardList for List<N, Z> {
     fn remove_at(&mut self, i: usize) -> CardId {
         let len = self.len as usize;
         let c = self.items[i];
-        if Z {
-            mark(c);
-        }
         self.items.copy_within(i + 1..len, i);
         self.len -= 1;
         self.items[self.len as usize] = NO_CARD;
@@ -265,16 +107,10 @@ impl<const N: usize, const Z: bool> CardList for List<N, Z> {
     }
     #[inline]
     fn clear(&mut self) {
-        if Z {
-            mark_all(&self.items[..self.len as usize]);
-        }
         self.len = 0;
     }
     fn set_from(&mut self, cards: &[CardId]) {
         assert!(cards.len() <= N, "List<{}> overflow", N);
-        if Z {
-            mark_replaced(&self.items[..self.len as usize], cards);
-        }
         self.items[..cards.len()].copy_from_slice(cards);
         self.len = cards.len() as u8;
     }

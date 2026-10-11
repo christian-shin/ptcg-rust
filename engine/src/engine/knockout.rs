@@ -850,7 +850,6 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
             let s = g.st.players[p].alloc_slot();
             g.st.players[p].slots[s as usize].is_public = true;
             g.st.players[p].bench.push(s);
-            touch();
             g.st.bump_layout();
         }
         if g.st.players[p].bench.len() == size {
@@ -872,7 +871,6 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
                 let s = pl.bench.as_slice()[i];
                 if empty.contains(&s) {
                     pl.bench.remove_at(i);
-                    touch();
                     pl.free_slot(s);
                 }
             }
@@ -918,7 +916,6 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
         let pl = &mut g.st.players[pu];
         if let Some(j) = pl.bench.position(&s) {
             pl.bench.remove_at(j);
-            touch();
         }
         pl.free_slot(s);
         g.st.bump_layout();
@@ -965,7 +962,6 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         let cards: Vec<CardId> = deck.iter().collect();
         g.st.players[p as usize] = Player::new(id);
         g.st.players[p as usize].deck = deck;
-        touch();
         g.st.bump_layout();
         for c in cards {
             let inst = &mut g.st.cards[c as usize];

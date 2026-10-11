@@ -284,8 +284,6 @@ pub struct Game {
     /// Attack choices made at step D, before the damage, by spec cards
     ///: read when the effects are carried out after the damage.
     pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
-    /// The per-kind dispatch index (`dispatch.rs`).
-    pub dispatch: crate::dispatch::DispatchIndex,
     /// The derived layer (`derived.rs`).
     pub derived: crate::derived::Derived,
     /// The declaration index (`decl.rs`): per reader family, the cards of the game that declare one (set by `start`).
@@ -388,7 +386,6 @@ impl Game {
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
                 trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
-                dispatch,
                 derived: _,
                 decls,
             } = src;
@@ -420,7 +417,6 @@ impl Game {
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
             // The index comes along with the layout it describes (each entry carries its own generation).
-            f!((*d).dispatch).write(*dispatch);
             f!((*d).decls).write(*decls);
             // The derived facts are not copied: another line of play may reach the same version numbers.
             (*d).derived.clear();
@@ -454,7 +450,6 @@ impl Game {
             ten_hp_coin: SVec::new(),
             last_attack: None,
             spec_choices: SVec::new(),
-            dispatch: crate::dispatch::DispatchIndex::new(),
             derived: crate::derived::Derived::new(),
             decls: crate::decl::DeclIndex::new(),
         }
@@ -1150,13 +1145,17 @@ impl Game {
             }
         }
 
-        // Propagate to cards.
+        // The cards the effect reaches (batch 8 C5: no handler walk over every card that lists the kind): the acting card's
+        // program and the declarations the effect is read by, in the propagation order.
         let kind = self.e(id).kind();
         let class = prop_class(self.e(id));
-        // The batch 4 / 5 events have no dispatch handler: their declarations are read through the index.
-        let order = if self.kinds_present.has(kind) && !crate::spec::event::INDEX_ONLY_EVENT_KINDS.has(kind) { self.listeners(class, kind) } else { SVec::new() };
+        let order = self.handler_cards(id, kind, class);
         for &c in order.iter() {
-            self.call_card(c, id, kind)?;
+            // A card's own handler never runs as a delegate.
+            let saved = self.deleg.take();
+            let r = crate::spec::run::reduce(self, c, id);
+            self.deleg = saved;
+            r?;
             if !read {
                 // A card's handler may write (markers, records): the next one reads fresh facts.
                 self.st.bump();
@@ -1174,41 +1173,24 @@ impl Game {
             // The handlers ran (they may write); the reducers below write the event's consequences.
             self.st.bump();
         }
-        phase::reducer(self, id)?;
-        if matches!(kind, k::GAIN_CONDITION | k::REMOVE_CONDITION | k::HEAL | k::COIN_FLIP) {
-            crate::engine::condition::reducer(self, id)?;
+        // The effect's consequences: one reducer per kind.
+        match kind {
+            k::END_TURN | k::AFTER_ATTACK | k::BETWEEN_TURNS => phase::reducer(self, id)?,
+            k::GAIN_CONDITION | k::REMOVE_CONDITION | k::HEAL | k::COIN_FLIP => crate::engine::condition::reducer(self, id)?,
+            k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL => crate::engine::attach::reducer(self, id)?,
+            k::CHANGE_ACTIVE => crate::engine::change_active::reducer(self, id)?,
+            k::PLACE_COUNTERS | k::MOVE_COUNTERS_EVENT | k::DAMAGE => crate::engine::damage::reducer(self, id)?,
+            k::DISCARD | k::PUT_INTO_HAND | k::PUT_INTO_DECK | k::DRAW => crate::engine::cards_zone::reducer(self, id)?,
+            k::KNOCK_OUT | k::LEAVE_PLAY | k::TAKE_PRIZES => crate::engine::knockout::reducer(self, id)?,
+            k::APPLY_EFFECT => crate::engine::apply::reducer(self, id)?,
+            k::DEVOLVE | k::SWAP | k::ENTER_PLAY | k::EVOLVE => crate::engine::enter::reducer(self, id)?,
+            k::PLAY_TRAINER => crate::engine::play_trainer::reducer(self, id)?,
+            k::RETREAT => retreat::reducer(self, id)?,
+            k::USE_ATTACK | k::USE_POWER | k::USE_STADIUM => crate::engine::game_effect::reducer(self, id)?,
+            k::ATTACK_TRIGGER => attack::reducer(self, id)?,
+            k::CHECK_ATTACK_COST | k::CHECK_RETREAT_COST | k::CHECK_PROVIDED_ENERGY => check::check_state_reducer(self, id)?,
+            _ => {}
         }
-        if matches!(kind, k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL) {
-            crate::engine::attach::reducer(self, id)?;
-        }
-        if kind == k::CHANGE_ACTIVE {
-            crate::engine::change_active::reducer(self, id)?;
-        }
-        if matches!(kind, k::PLACE_COUNTERS | k::MOVE_COUNTERS_EVENT | k::DAMAGE) {
-            crate::engine::damage::reducer(self, id)?;
-        }
-        if matches!(kind, k::DISCARD | k::PUT_INTO_HAND | k::PUT_INTO_DECK | k::DRAW) {
-            crate::engine::cards_zone::reducer(self, id)?;
-        }
-        if matches!(kind, k::KNOCK_OUT | k::LEAVE_PLAY | k::TAKE_PRIZES) {
-            crate::engine::knockout::reducer(self, id)?;
-        }
-        if kind == k::APPLY_EFFECT {
-            crate::engine::apply::reducer(self, id)?;
-        }
-        if matches!(kind, k::DEVOLVE | k::SWAP) {
-            crate::engine::enter::reducer(self, id)?;
-        }
-        if matches!(kind, k::ENTER_PLAY | k::EVOLVE) {
-            crate::engine::enter::reducer(self, id)?;
-        }
-        if kind == k::PLAY_TRAINER {
-            crate::engine::play_trainer::reducer(self, id)?;
-        }
-        retreat::reducer(self, id)?;
-        crate::engine::game_effect::reducer(self, id)?;
-        attack::reducer(self, id)?;
-        check::check_state_reducer(self, id)?;
         if matches!(
             kind,
             k::DISCARD
@@ -1236,22 +1218,42 @@ impl Game {
         Ok(())
     }
 
-    #[inline]
-    fn call_card(&mut self, c: CardId, id: EffId, kind: u32) -> R {
-        if self.deleg.is_some() {
-            // A card's own handler never runs as a delegate.
-            let saved = self.deleg.take();
-            let r = self.call_card(c, id, kind);
-            self.deleg = saved;
-            return r;
+    /// The cards effect `id` (of kind `kind`, rank class `class`) reaches, in the propagation order: the acting card's
+    /// program (the attack's, the Ability's, the Trainer's, the Stadium's; the card entering play or evolving, whose
+    /// once-per-turn marks reset; a step-7 trigger's card) and the declarations its kind is read by (the Attack-stage
+    /// damage bonuses, the next-turn bonus and Shred on an `Attack`; the Ability locks on a `Power`; the end-of-turn,
+    /// Checkup, first-turn and damaged-by-an-attack handlers; the check effects of the slow path). An event the routines
+    /// and the triggers after it read reaches no card (its declarations are read through `decl::kind_listeners`).
+    fn handler_cards(&self, id: EffId, kind: u32, class: u16) -> SVec<CardId, 120> {
+        if !self.kinds_present.has(kind) {
+            return SVec::new();
         }
-        let d = self.st.cards[c as usize].def;
-        if let Some(imp) = cards::impl_for(d) {
-            if imp.mask.has(kind) {
-                return (imp.reduce)(self, c, id);
-            }
+        let all = self.decls.kind(kind);
+        if all == 0 {
+            return SVec::new();
         }
-        Ok(())
+        let bit = |c: CardId| if (c as usize) < MAX_CARDS { 1u128 << c } else { 0 };
+        let locks = (self.lock_cards[0] as u128) | (self.lock_cards[1] as u128) << 64;
+        let set = match *self.e(id) {
+            Effect::Attack { attack, .. } => (bit(attack.card) | self.decls.attack_passives) & all,
+            Effect::AfterAttack { attack, .. } => bit(attack.card) & all,
+            Effect::Power { card, .. } => (bit(card) | locks) & all,
+            Effect::PlayTrainer { card, .. } => bit(card) & all,
+            Effect::UseStadium { stadium, .. } => bit(stadium) & all,
+            Effect::EnterPlay { card, .. } | Effect::Evolve { card, .. } => bit(card) & all,
+            Effect::AttackTrigger { card, .. } => bit(card) & all,
+            // Read by their routines and by the triggers after the event, never by a handler (`decl::UNHANDLED_KINDS`).
+            _ if crate::decl::UNHANDLED_KINDS.has(kind) => 0,
+            _ => all,
+        };
+        let out = crate::decl::kind_order(self, set, class);
+        if verify_cache() {
+            // A subsequence of the broadcast (every card of the game whose handler mask has the kind), in its order.
+            let slow = self.propagation_order_slow(class, kind);
+            let mut it = slow.iter();
+            assert!(out.iter().all(|c| it.any(|x| x == c)), "the cards effect kind {kind} reaches aren't in the broadcast's order");
+        }
+        out
     }
 
     // -----------------------------------------------------------------------
