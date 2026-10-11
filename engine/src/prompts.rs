@@ -1235,9 +1235,17 @@ impl Game {
     pub(crate) fn decode_move_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = self.st.player_index_by_id(pr.perspective_id());
+        // The destinations the prompt blocks (`MoveOpts::blocked_to`; Bubble Gathering's "to this Pokémon").
+        let blocked_to = match pr.kind {
+            PromptKind::MoveEnergy { o, .. } => o.blocked_to,
+            _ => SVec::new(),
+        };
         let mut out: SVec<(CardTarget, CardTarget, CardId), 64> = SVec::new();
         for it in items {
             let (from, to, i) = it.ok_or(invalid)?;
+            if in_targets(blocked_to.as_slice(), to) {
+                return Err(invalid);
+            }
             let s = get_target(&self.st, p, from)?;
             let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
             // Each card is moved at most once.

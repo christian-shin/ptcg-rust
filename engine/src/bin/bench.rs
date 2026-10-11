@@ -80,6 +80,7 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
     }
     let mut decisions = 0u64;
     let mut opts = Vec::new();
+    let mut mask: Vec<bool> = Vec::new();
     for _ in 0..MAX_STEPS {
         if g.st.turn > MAX_TURNS {
             break;
@@ -110,7 +111,7 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                 let mut picks: Vec<usize> = Vec::new();
                 let mut ok = true;
                 loop {
-                    let (mask, stop) = g.pick_mask(&sel, &picks);
+                    let stop = g.pick_mask_into(&sel, &picks, &mut mask);
                     let allowed: Vec<usize> = (0..n).filter(|j| mask[*j]).collect();
                     let choices = allowed.len() + stop as usize;
                     if choices == 0 {
@@ -135,7 +136,7 @@ fn random_game_inner(decks: [&[DefId]; 2], seed: u32) -> (u64, bool, i8, bool) {
                     if g.resolve(pi, res).and_then(|_| g.settle()).is_err() {
                         return fail(decisions, "empty answer");
                     }
-                } else if g.answer(&sel, &picks).is_err() || g.settle().is_err() {
+                } else if g.answer_no_rollback(&sel, &picks).is_err() || g.settle().is_err() {
                     return fail(decisions, "answer");
                 }
             }
