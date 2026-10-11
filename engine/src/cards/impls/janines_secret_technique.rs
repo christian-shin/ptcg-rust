@@ -1,14 +1,11 @@
-//! Janine's Secret Art (SFA): choose up to 2 of your [D] Pokémon. For each of
-//! those Pokémon, search your deck for a Basic [D] Energy card and attach it
-//! to that Pokémon. Then, shuffle your deck. If you attached Energy to your
-//! Active Pokémon in this way, it is now Poisoned.
+//! Janine's Secret Art (SFA / PRE): choose up to 2 of your [D] Pokémon. For each of those Pokémon, search your deck for a Basic
+//! [D] Energy card and attach it to that Pokémon. Then, shuffle your deck. If you attached Energy to your Active Pokémon in
+//! this way, it is now Poisoned.
 //!
-//! Twinleaf: throws when a Supporter was already played or the deck is empty (phase 4b); the card moves to
-//! the Supporter area and the play is prevented; throws without a [D]
-//! Pokémon in play; one AttachEnergyPrompt over the deck (Basic Energy named
-//! 'Darkness Energy', non-[D] Pokémon blocked, different targets, 0-2, no
-//! cancel), one Attach event per Energy, then the shuffle, then the Poison: the Active Pokémon is now Poisoned when an
-//! Energy was attached to it (printed order; `SlotExpr::Attached` is the Active Pokémon once a card went there).
+//! The Search is one Attach event per Energy from the deck (caused by the Supporter; each to a different [D] Pokémon, 0 to 2,
+//! none required: a search for a kind). The shuffle follows the search (APR E-19), then the Active Pokémon that got an Energy
+//! is Poisoned (a Pokémon that can't be affected, like one with Boost Energy Ancient, still gets the Energy: JP FAQ Janine's
+//! Secret Art). With an empty deck the card has no effect (id925).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "JaninesSecretTechnique",

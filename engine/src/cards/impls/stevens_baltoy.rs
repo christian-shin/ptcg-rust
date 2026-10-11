@@ -1,11 +1,9 @@
-//! Steven's Baltoy (DRI): Summoning Sign — search your deck for up to 2 Basic
-//! Steven's Pokémon and put them onto your Bench. Then, shuffle your deck.
-//! Psychic Sphere — 20.
+//! Steven's Baltoy (DRI): Summoning Sign — search your deck for up to 2 Basic Steven's Pokémon and put them onto your Bench.
+//! Then, shuffle your deck. Psychic Sphere — 20.
 //!
-//! Twinleaf: no-op without a free Bench slot; otherwise a ChooseCardsPrompt on
-//! the deck (Basic Pokémon, 0..min(slots, 2), no cancel) with every non-Steven's
-//! card blocked by deck index; the callback plays each card into the slot it
-//! saw at prompt time, then SHUFFLE_DECK (even when nothing was chosen).
+//! With no empty Bench space the whole effect fails (id362: public knowledge), no search and no shuffle. Otherwise up to as
+//! many Pokémon as there is room for (at most 2) enter play on the Bench from the deck (an EnterPlay caused by the attack), then
+//! the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

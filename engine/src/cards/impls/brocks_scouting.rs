@@ -1,10 +1,9 @@
-//! Brock's Scouting (JTG): search your deck for up to 2 Basic Pokémon or 1
-//! Evolution Pokémon, reveal them, put them into your hand, then shuffle.
+//! Brock's Scouting (JTG): search your deck for up to 2 Basic Pokémon or 1 Evolution Pokémon, reveal them, put them into
+//! your hand. Then, shuffle your deck.
 //!
-//! Twinleaf order kept: the card moves itself to the supporter pile; the
-//! final ShuffleDeckPrompt has no trailing WaitPrompt. Fixed (R1-16, rulings
-//! 779 and 851): it can't be played with an empty deck (CANNOT_PLAY_THIS_CARD,
-//! before the card moves).
+//! A Supporter: the Search puts the cards into the hand (a PutIntoHand of the Supporter's effect, revealed) and the shuffle
+//! follows it (APR E-19). Searching a deck known to be empty is impossible, so the card can't be played with an empty deck
+//! (id840, id925).
 use crate::spec::prelude::*;
 
 const EVOLUTION: Pred = Pred::All(&[Pred::Pokemon, Pred::Not(&Pred::Basic)]);

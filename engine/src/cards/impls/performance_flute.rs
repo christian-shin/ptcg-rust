@@ -1,15 +1,9 @@
-//! Accompanying Flute (TWM): reveal the top 5 cards of your opponent's deck,
-//! and put any number of Basic Pokémon you find there onto your opponent's
-//! Bench. Then, they shuffle the remaining cards back into their deck.
+//! Accompanying Flute (TWM): reveal the top 5 cards of your opponent's deck. You may choose any number of Basic Pokémon you
+//! find there and put those Pokémon onto their Bench. Your opponent shuffles the other cards back into their deck.
 //!
-//! Twinleaf quirks kept: the chosen cards are moved straight into the empty
-//! Bench slots (MOVE_CARDS, no PlayPokemon effect) with `pokemonPlayedTurn`
-//! set; with nothing chosen the opponent is shown the cards, they go back to
-//! the deck, and the opponent's deck is shuffled. Neither shuffle has a
-//! trailing wait.
-//!
-//! Fixed (phase 4b, W4): with nothing chosen Twinleaf shuffled the player's own
-//! deck and left the opponent's top 5 cards at the bottom, in order.
+//! The Look sets the 5 cards aside; the chosen Basic Pokémon enter play on the opponent's Bench from there (an EnterPlay
+//! caused by this Item, at most as many as there is room for), the others go back to the opponent's deck (a PutIntoDeck) and
+//! the opponent's deck is shuffled. It needs room on their Bench and a card in their deck (id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

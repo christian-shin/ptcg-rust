@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Porygon DRI 153",
+   "56 Water Energy MEE 3"
+  ],
+  [
+   "4 Team Rocket's Porygon DRI 153",
+   "56 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Team Rocket's Porygon DRI 153",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "hand": [
+   "2 Water Energy MEE 3"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Team Rocket's Porygon DRI 153",
+  "hand": [
+   "3 Water Energy MEE 3"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hacking"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "cite": "card text: Discard a card from your hand. If you do, your opponent discards a card from their hand (APR E-20)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: Discard a card from your hand. If you do, your opponent discards a card from their hand (APR E-20)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: Discard a card from your hand. If you do, your opponent discards a card from their hand (APR E-20)"
+  }
+ ]
+}

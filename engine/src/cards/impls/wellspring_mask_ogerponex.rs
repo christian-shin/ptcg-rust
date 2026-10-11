@@ -6,7 +6,7 @@
 //!
 //! The Tera rule is `TERA_RULE`: a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench. Torrential Pump
 //! asks the Energy first (priced as [C][C][C]) and the bench target right after, the main damage is done, then the Energy
-//! goes back into the deck and the deck is shuffled (ruling 1580); the 120 is one Damage event on the chosen Benched
+//! goes back into the deck and the deck is shuffled (id2031); the 120 is one Damage event on the chosen Benched
 //! Pokémon (no Weakness or Resistance).
 use crate::spec::prelude::*;
 

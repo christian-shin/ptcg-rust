@@ -1,9 +1,7 @@
-//! Lumiose City (POR / M3, stadium): once during each player's turn, that
-//! player may search their deck for a Basic Pokémon and put it onto their
-//! Bench, then shuffle. If they do, their turn ends.
+//! Lumiose City (POR, Stadium): once during each player's turn, that player may search their deck for a Basic Pokémon and put
+//! it onto their Bench. Then, that player shuffles their deck. If a player searches their deck in this way, their turn ends.
 //!
-//! Twinleaf: the turn ends (EndTurnEffect) after the shuffle even when no
-//! Pokémon was chosen; the shuffle has no animation wait.
+//! A Stadium use (UseStadium). The turn ends after the shuffle even when no Pokémon was chosen (JP FAQ Lumiose City).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LumioiseCity",

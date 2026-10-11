@@ -1,16 +1,7 @@
-//! Larvitar (JTG): Crunch — 20; flip a coin. If heads, discard an Energy
-//! from your opponent's Active Pokémon. Ported so Tyranitar (JTG) can evolve
-//! in check decks.
+//! Larvitar (JTG): Crunch — 20; flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
 //!
-//! Twinleaf: on heads with an Energy card in the Defending Pokémon's list, a
-//! ChooseCardsPrompt (Energy, exactly 1) on that list; the callback reduces a
-//! DiscardCardsEffect.
-//!
-//! Fixed (phase 4b, R2): the prompt could be cancelled, so the discard that
-//! the card text makes mandatory could be skipped. The coin flip and the
-//! discard came before the damage (the Defending Pokémon's Spiky Energy was
-//! already gone); they now run in AfterAttackEffect (a fresh AttackEffect's
-//! data).
+//! The coin and the Discard run after the damage; the Energy is chosen (no cancel) and leaves the Defending Pokémon in a
+//! LeavePlay caused by the attack.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Larvitar",

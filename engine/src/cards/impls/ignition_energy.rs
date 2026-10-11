@@ -1,13 +1,10 @@
-//! Ignition Energy (SV11W, Special): provides [C]; [C][C][C] on an Evolution
-//! Pokémon. If attached to 1 of your Pokémon, discard it at the end of your
-//! turn.
+//! Ignition Energy (PFL / WHT, Special): provides [C]; on an Evolution Pokémon it provides [C][C][C] instead. If this card is
+//! attached to 1 of your Pokémon, discard it at the end of your turn.
 //!
-//! Twinleaf: attaching (AttachEnergyEffect of this card) adds a player
-//! marker sourced by this card; between turns, for the player holding it,
-//! every in-play slot holding the card discards it and removes the marker
-//! (the marker stays if the card is no longer in play). No Special Energy
-//! block probe anywhere. Stage is read from the slot's top Pokémon; not
-//! Basic and not Restored gives [C][C][C].
+//! Attaching it (a trigger on the Attach event of this card) sets the owner's marker; at the end of the turn (the Checkup
+//! trigger, `Event::OnCheckup`: B7-OLD -> B8) a card still attached is discarded from its Pokémon (a LeavePlay caused by
+//! the card's own rule) and the marker cleared. The Pokémon's top card gives the stage: not Basic and not Restored provides
+//! [C][C][C] (JP FAQ Ignition Energy).
 use crate::spec::prelude::*;
 use crate::types::Stage;
 

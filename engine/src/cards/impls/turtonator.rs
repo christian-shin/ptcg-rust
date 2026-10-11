@@ -1,14 +1,7 @@
-//! Turtonator (SSP): Fully Singe — discard an Energy from your opponent's
-//! Active Pokémon ex. Steaming Stomp — 100.
+//! Turtonator (SSP): Fully Singe — discard an Energy from your opponent's Active Pokémon ex. Steaming Stomp — 100.
 //!
-//! Fully Singe: when the opponent's Active is a Pokémon ex with an Energy
-//! card attached, a non-cancellable ChooseCardsPrompt (min 1, max 1) over
-//! that Active's Energy, then a DiscardCardsEffect on the chosen card.
-//!
-//! Fixed (phase 4b, W4): Twinleaf tested `activeCard.cardTag.includes(
-//! CardTag.POKEMON_ex)` — the deprecated `cardTag` array, which is empty for
-//! every pool Pokémon — so the attack never had an effect. It now uses
-//! `hasTag(POKEMON_ex)`. Steaming Stomp costs [F][C][C] (printed data, was [R]).
+//! When the opponent's Active Pokémon is an ex with an Energy attached, one Energy is chosen (no cancel) and leaves the
+//! Pokémon in a LeavePlay caused by the attack, after the damage.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

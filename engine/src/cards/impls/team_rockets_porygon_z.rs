@@ -1,11 +1,9 @@
-//! Team Rocket's Porygon-Z (DRI): Reconstitute — discard 2 cards from your
-//! hand; once during your turn, draw a card. R Command — 20 damage for each
-//! Team Rocket Supporter in your discard pile.
+//! Team Rocket's Porygon-Z (DRI): Reconstitute — you must discard 2 cards from your hand in order to use this Ability. Once
+//! during your turn, you may draw a card. R Command — 20×; this attack does 20 damage for each Supporter card that has "Team
+//! Rocket" in its name in your discard pile.
 //!
-//! Twinleaf: POWER_ALREADY_USED with the marker, CANNOT_USE_POWER with
-//! fewer than 2 cards in hand or an empty deck, then a non-cancellable
-//! ChooseCardsPrompt (exactly 2) on the hand; the callback marks, adds the
-//! ability-used board effect, discards the pair and draws 1.
+//! The discard is the Ability's cost, `Step::cost` (APR E-30): it needs 2 cards in the hand and a card in the deck (a card
+//! that can't draw has no effect: id2231). The Draw is one Draw event of the Ability's effect.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

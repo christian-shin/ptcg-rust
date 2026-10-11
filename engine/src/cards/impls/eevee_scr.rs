@@ -1,9 +1,9 @@
-//! Eevee (SCR): Call for Family — search your deck for a Basic Pokémon and
-//! put it onto your Bench, then shuffle. Gnaw — 20.
+//! Eevee (SCR): Call for Family — search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.
+//! Gnaw — 20.
 //!
-//! Twinleaf has several `Eevee` classes; this port is bound to SCR. With no
-//! empty Bench slot the attack does nothing (no prompt, no shuffle); the
-//! prompt is cancellable.
+//! With no empty Bench space the whole effect fails, the search included (id362: public knowledge); the search itself can
+//! be declined (a search for a kind). The Pokémon enters play from the deck (an EnterPlay caused by the attack), then the
+//! shuffle follows (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

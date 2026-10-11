@@ -178,3 +178,7 @@ g0500017183  # step 77 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refu
 g0500017419  # step 106 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
 g0500017433  # step 32 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
 g0500018023  # step 22 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+# Events batch 7 B74, Kofu SCR 138 (against baseline 1e9b0c8): "(If you can't put 2 cards from your hand on the bottom of your
+# deck, you can't use this card.)" is a printed condition (Cond::Printed), so Look-Alike Show keeps it (user decision D5; JP FAQ
+# Fire Energy MEE 2 / Mela): with fewer than 2 cards in the attacker's hand Kofu can't be chosen (the recording chose it and drew 4).
+g0500009465  # step 184 prompt; Look-Alike Show with an empty hand: Kofu SCR 138#72 no longer selectable (printed condition)

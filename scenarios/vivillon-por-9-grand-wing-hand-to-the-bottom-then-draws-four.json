@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scatterbug POR 7",
+   "4 Spewpa POR 8",
+   "4 Vivillon POR 9",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Scatterbug POR 7",
+   "4 Spewpa POR 8",
+   "4 Vivillon POR 9",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Scatterbug POR 7",
+   "Spewpa POR 8",
+   "Vivillon POR 9"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Scatterbug POR 7",
+  "hand": [
+   "3 Grass Energy MEE 1"
+  ]
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Grand Wing",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 4,
+   "cite": "card text: your opponent shuffles their hand and puts it on the bottom of their deck; if they put any cards there, they draw 4 (APR E-20)"
+  }
+ ]
+}

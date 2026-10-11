@@ -1,10 +1,9 @@
-//! Charcadet (M2 / PFL): Gather Power — search your deck for up to 2 Basic
-//! Energy cards and put them into your hand. Chop — 10.
+//! Charcadet (PFL): Gather Strength — search your deck for up to 2 Basic Energy cards, reveal them, put them into your hand.
+//! Then, shuffle your deck. Chop — 10.
 //!
-//! Fixed (phase 4b): an empty deck does nothing (it threw CANNOT_USE_ATTACK,
-//! making the attack unusable); the up-to-2 choice (cancel not allowed) is
-//! moved to hand, revealed to the opponent, and the deck is shuffled (both
-//! were missing).
+//! With an empty deck the attack does nothing: a deck known to be empty can't be searched (id840, id362). Otherwise the
+//! Search puts up to 2 cards into the hand (a PutIntoHand of the attack's effect, revealed, none required: a search for a
+//! kind) and the shuffle follows (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

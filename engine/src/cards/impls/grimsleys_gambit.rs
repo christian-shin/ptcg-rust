@@ -1,17 +1,12 @@
-//! Grimsley's Move (PFL / M2, class GrimsleysGambit): look at the top 7
-//! cards of your deck and put a [D] Pokémon you find there onto your Bench;
-//! shuffle the other cards and put them on the bottom of your deck. Can't be
-//! used on your first turn.
+//! Grimsley's Move (PFL; class GrimsleysGambit): look at the top 7 cards of your deck and put a [D] Pokémon you find there onto
+//! your Bench. Shuffle the other cards and put them on the bottom of your deck. You can't use this card during your first
+//! turn.
 //!
-//! Fixed (phase 4b): at least 1 when a [D] Pokémon is among the 7 looked-at cards
-//! and the card is played from the hand (rulings 1778/1853; 0 through Look-Alike Show).
-//!
-//! Twinleaf: no move to the supporter pile and no preventDefault (the core
-//! discards the Supporter normally); checks in order: Supporter played, empty
-//! deck, full Bench, turn 1/2. The other cards are shuffled with Chance.shuffle before they go to
-//! the bottom (aud-d fix; Twinleaf's ShuffleDeckPrompt used to be applied to nothing). The Supporter pile → discard move
-//! runs before the prompt answers, and the new Pokémon gets
-//! `pokemonPlayedTurn = turn` (no PlayPokemonEffect).
+//! "You can't use this card during your first turn" is printed (`Cond::Printed`), so it binds the card even when its effect
+//! is used by Look-Alike Show (D5). The Look sets the 7 cards aside (no zone change); the [D] Pokémon (an Evolution too: JP FAQ
+//! Grimsley's Move) enters play on the Bench from there, and the other cards go to the bottom of the deck shuffled (a
+//! PutIntoDeck, order Shuffled). Played from the hand, a [D] Pokémon among the cards must be taken (the text isn't a "may"; scenarios
+//! fix-grimsleys-move-*-r7d); used through Look-Alike Show none is required.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "GrimsleysGambit",

@@ -1,13 +1,8 @@
-//! Smoochum (SSP): Delightful Kiss ("Happy Kiss") — search your deck for up to
-//! 2 Basic [P] Energy cards and attach them to 1 of your Benched Pokémon.
-//! Then, shuffle your deck.
+//! Smoochum (SSP): Delightful Kiss — search your deck for up to 2 Basic [P] Energy cards and attach them to 1 of your Benched
+//! Pokémon. Then, shuffle your deck.
 //!
-//! Fixed (phase 4b, W4): the prompt let the two Energy go to different
-//! Benched Pokémon; it now requires the same target (`sameTarget`).
-//!
-//! An empty deck makes the attack do nothing (it is still usable: rulings 337 and 1790). The printed order: the search
-//! (an Attach from the deck, 0..2, no cancel), then one shuffle (APR E-19; user decision D9: Twinleaf opened its shuffle
-//! before the attach answer and shuffled again when nothing was attached).
+//! An empty deck makes the attack do nothing (it is still usable: id362, id2313). Otherwise the Search is one Attach event
+//! per Energy from the deck (0 to 2, both to the same Benched Pokémon, no cancel), then one shuffle (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

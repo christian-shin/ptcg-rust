@@ -1,8 +1,8 @@
-//! Max Rod (PRE, ACE SPEC): choose up to 5 in any combination of Pokémon and
-//! Basic Energy cards from your discard pile and put them into your hand.
+//! Max Rod (PRE, ACE SPEC Item): put up to 5 in any combination of Pokémon and Basic Energy cards from your discard pile into
+//! your hand.
 //!
-//! Twinleaf: other cards are blocked; the choice is min 1 / max 5 with no
-//! cancel on the (sorted) discard; the reveal comes before MOVE_CARDS.
+//! A PutIntoHand of the Item's effect from the discard pile. The discard pile is known, so a Trainer's "up to"
+//! takes at least 1 (id2301); with none of those cards there the card has no effect (id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,5 +1,7 @@
-//! Dudunsparce (TEF, PRE): Run Away Draw — draw 3 cards, then shuffle this
-//! Pokémon and all attached cards into your deck. Needs a card in the deck.
+//! Dudunsparce (TEF / PRE): Run Away Draw — draw 3 cards, then shuffle this Pokémon and all attached cards into your deck.
+//!
+//! The Draw is a Draw event of the Ability's effect; then the Pokémon and every card attached leave play into the deck
+//! (a LeavePlay, caused by the Ability) and the deck is shuffled. Needs a card in the deck (id2231).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

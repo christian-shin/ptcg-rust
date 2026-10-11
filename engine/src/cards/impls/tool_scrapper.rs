@@ -1,9 +1,8 @@
-//! Tool Scrapper (DRX): choose up to 2 Pokémon Tools attached to Pokémon in
-//! play (yours or your opponent's) and discard them. Phase 4b (rulings 1778/1853): the prompt can't
-//! be cancelled (a cancel was choosing 0).
+//! Tool Scrapper (CRI / DRX): choose up to 2 Pokémon Tool cards attached to Pokémon in play (yours or your opponent's) and
+//! discard them.
 //!
-//! Fixed (phase 4b, F1): the choice is over the Tools (one DiscardEnergyPrompt with a Pokémon Tool
-//! filter, min 1, max min(2, Tools in play)), not over Pokémon.
+//! Each Tool leaves its Pokémon in a LeavePlay of the Item's effect (to its owner's discard pile). The Item needs a Tool in
+//! play; as a Trainer's effect "up to 2" takes at least 1 (id2301, id2399), no cancel.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

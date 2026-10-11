@@ -1,8 +1,5 @@
-//! Team Rocket's Chingling (DRI): Ring Ring Noise — discard a random card
-//! from your opponent's hand.
-//!
-//! Twinleaf: on AFTER_ATTACK, `Chance.index(hand.length)` picks the card and
-//! MOVE_CARDS discards it.
+//! Team Rocket's Chingling (DRI): Chiming Commotion — discard a random card from your opponent's hand (a Discard of the
+//! attack's effect, after the damage).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

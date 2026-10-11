@@ -1,12 +1,9 @@
-//! Ethan's Quilava (DRI): Adventure Bound — once during your turn, you may
-//! search your deck for an Ethan's Adventure, reveal it and put it into your
-//! hand, then shuffle. Combustion — 40.
+//! Ethan's Quilava (DRI): Bonded by the Journey — once during your turn, you may search your deck for an Ethan's Adventure
+//! card, reveal it, put it into your hand. Then, shuffle your deck. Combustion — 40.
 //!
-//! Twinleaf: the marker check (BLOCKED_BY_EFFECT) and empty-deck check
-//! (NO_CARDS_IN_DECK) come first (no ability-lock probe here); the choice is
-//! cancellable (0-1); declining only shuffles. Taking the card shows it to the
-//! opponent, moves it, adds the marker (player marker sourced by this card),
-//! marks the ability used and shuffles.
+//! The search can be declined (a search for a kind) and then only the shuffle happens (APR E-19); the Ability counts as used,
+//! and the once-a-turn marker is set, when a card is taken. The card goes into the hand as a PutIntoHand of the Ability's
+//! effect, revealed.
 use crate::spec::prelude::*;
 
 const BOUND: &str = "ADVENTURE_BOUND";

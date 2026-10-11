@@ -1,11 +1,8 @@
-//! Exeggcute (SSP 1): Precocious Evolution (usable on the first turn) —
-//! search your deck for a card that evolves from this Pokémon and put it
-//! onto this Pokémon to evolve it, then shuffle.
+//! Exeggcute (SSP 1): Precocious Evolution (usable on the first turn) — search your deck for a card that evolves from this
+//! Pokémon and put it onto this Pokémon to evolve it. Then, shuffle your deck.
 //!
-//! Two `Exeggcute` classes exist; this port is bound to SSP. Twinleaf: a
-//! non-cancellable ChooseCardsPrompt (min 0, max 1); an empty deck skips everything (no shuffle); the evolution is a
-//! plain MOVE_CARDS onto the player's Active followed by `clearEffects()` and
-//! `pokemonPlayedTurn = turn` (no EvolveEffect); the shuffle has no wait.
+//! An empty deck can't be searched (id840): nothing happens, no shuffle. The evolving is an Evolve event from the deck (not
+//! played from the hand), caused by the attack; the choice can be declined (a search for a kind).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

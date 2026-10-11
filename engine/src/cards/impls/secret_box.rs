@@ -1,18 +1,18 @@
-//! Secret Box (TWM, ACE SPEC): discard 3 other cards from your hand; search
-//! your deck for an Item, a Pokémon Tool, a Supporter and a Stadium, reveal
-//! them, put them into your hand, then shuffle.
+//! Secret Box (TWM, ACE SPEC Item): you can use this card only if you discard 3 other cards from your hand. Search your deck for
+//! an Item card, a Pokémon Tool card, a Supporter card, and a Stadium card, reveal them, put them into your hand. Then,
+//! shuffle your deck.
 //!
-//! Twinleaf quirks kept: a MOVE_CARDS hand->supporter of the card (already in
-//! the supporter pile) is reduced; the final ShuffleDeckPrompt has no trailing
-//! WaitPrompt. Fixed (phase 4b, R3): choosing nothing from the deck no longer
-//! skips the shuffle.
+//! The printed condition is 3 cards other than this one in the hand (`Cond::Printed`, so it binds the card when its effect is
+//! used by another card too); the discard is a cost, `Step::cost` (APR E-30; id1124). The Search takes one of each kind or
+//! fewer (none required: JP FAQ Secret Box) into the hand revealed; the shuffle follows (APR E-19). With an empty deck it
+//! can't be used: the cost is paid for no effect (id1124, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "SecretBox",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Cmp(Num::ZoneSize(ZoneRef(Who::Me, Zone::Hand)), CmpOp::Ge, Num::Lit(3))],
+        needs: &[Cond::Printed(&Cond::Cmp(Num::OthersCount(ZoneRef(Who::Me, Zone::Hand), Pred::Any), CmpOp::Ge, Num::Lit(3)))],
         steps: &[
             Step::new(Op::Pick(PickSpec { chooser: Who::Me, from: ZoneRef(Who::Me, Zone::Hand), predicate: Pred::Any, bounds: Bounds { min: Num::Lit(3), max: Num::Lit(3) }, into: 0, ..PickSpec::DEFAULT })),
             Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

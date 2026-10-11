@@ -1,7 +1,8 @@
-//! Kadabra (M1S): Psychic Draw — when you play this Pokémon from your hand to
-//! evolve, you may draw 2 cards. Super Psy Bolt — 30.
+//! Kadabra (MEG): Psychic Draw — once during your turn, when you play this Pokémon from your hand to evolve 1 of your
+//! Pokémon, you may use this Ability. Draw 2 cards. Super Psy Bolt — 30.
 //!
-//! Twinleaf: fires on any EvolveEffect for this card (Rare Candy included).
+//! A trigger on the Evolve event of this card with Source Hand (evolving from the deck, by Grand Tree or an attack, doesn't
+//! fire it); the Draw is one Draw event of the Ability's effect.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Kadabra",

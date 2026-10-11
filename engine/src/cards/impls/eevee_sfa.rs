@@ -1,14 +1,8 @@
-//! Eevee (SFA): Colorful Catch — search your deck for up to 3 Basic Energy
-//! cards of different types, reveal them, and put them into your hand, then
-//! shuffle. Headbutt — 20.
+//! Eevee (SFA): Colorful Catch — search your deck for up to 3 Basic Energy cards of different types, reveal them, put them
+//! into your hand. Then, shuffle your deck. Headbutt — 20.
 //!
-//! Twinleaf has several `Eevee` classes; this port is bound to SFA. The
-//! prompt's max is the number of distinct `provides[0]` among the deck's
-//! Basic Energy (capped at 3). Fixed (R1-5): an empty deck no longer makes
-//! the attack fail (nothing happens), the cards are revealed (ShowCards for
-//! the opponent) and the deck is shuffled (the generator never resumed after
-//! the prompt callback, so neither ever happened); the unreachable
-//! CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES throw is gone.
+//! The most that can be taken is the number of distinct Energy types in the deck (at most 3). An empty deck can't be searched
+//! (id840): nothing happens. The Search is a PutIntoHand of the attack's effect, revealed; the shuffle follows (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
