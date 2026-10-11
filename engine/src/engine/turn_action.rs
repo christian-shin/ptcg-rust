@@ -7,9 +7,10 @@
 //!   `LockDecl::on(Kind(UseAttack) & This(Card))` with the condition in `LockWhile::Unless`) and left by an attack on the
 //!   Pokémon or its player ("this Pokémon can't attack / can't use [Attack Name] during your next turn", APR C-15:
 //!   `passive::CANT_ATTACK` stored with its turns, user decision D14), then the cost against the Energy it provides.
-//! - [`ability_checks`]: the printed use-from flags, the Ability is there (`derived::has_no_ability`: a locked Ability
-//!   doesn't exist, RULES.md "Has no Abilities"; B7-OLD -> B8: the `Power` probe behind it), the locks over UseAbility (no
-//!   pool card prints "can't use Abilities").
+//! - [`ability_checks`]: the printed use-from flags (`turn::can_use_ability_core`), the Ability is there (a locked Ability
+//!   doesn't exist, RULES.md "Has no Abilities"; B7-OLD -> B8: read by the `Power` probe, `attack::power_use_blocked`,
+//!   until has-no-Ability is a stored derived fact), the locks over UseAbility (no pool card prints "can't use
+//!   Abilities"). The once-per-turn marker and the card's own `needs` are the program's checks (`spec::run::check_power`).
 //! - [`stadium_checks`]: once per turn, a Stadium that declares a use (`CardSpec::use_stadium`), the locks over
 //!   UseStadium.
 //!
@@ -62,6 +63,9 @@ pub trait ActionChecks {
     fn energy_count(&mut self, slot: SlotRef) -> R<i32>;
     /// Can the Pokémon in `slot` pay the cost of `attack` (the checked cost against the Energy it provides)?
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool>;
+    /// Has `card` (player `p`'s) lost the Ability `power` to an Ability lock? (B7-OLD -> B8: the `Power` probe,
+    /// `attack::power_use_blocked`; `derived::has_no_ability` once the fact is stored.)
+    fn ability_gone(&mut self, p: usize, power: PowerRef, card: CardId) -> bool;
 }
 
 impl ActionChecks for Game {
@@ -77,6 +81,9 @@ impl ActionChecks for Game {
     }
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool> {
         crate::engine::attack::attack_payable(self, slot.p as usize, attack, slot)
+    }
+    fn ability_gone(&mut self, p: usize, power: PowerRef, card: CardId) -> bool {
+        crate::engine::attack::power_use_blocked(self, p, power, card)
     }
 }
 
@@ -103,9 +110,16 @@ pub fn attack_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, attack: Atta
     Ok(Ok(attacking))
 }
 
-/// The locks over player `p` using the Ability `power` of `card` (the UseAbility event; no pool card prints "can't use
-/// Abilities": an Ability lock means the Ability isn't there, `derived::has_no_ability`).
-pub fn ability_locked<C: ActionChecks + ?Sized>(c: &mut C, p: usize, power: PowerRef, card: CardId) -> R<Option<&'static str>> {
+/// Every check of player `p` using the Ability `power` of `card` from `zone` (the UseAbility event), in order: the printed
+/// use-from flags, the Ability is there (an Ability lock means it isn't, RULES.md "Has no Abilities"), the locks over
+/// UseAbility (no pool card prints "can't use Abilities"). `Some(code)` when the use is refused (the action is illegal).
+pub fn ability_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, power: PowerRef, card: CardId, zone: crate::types::SlotType) -> R<Option<&'static str>> {
+    if let Err(e) = crate::engine::turn::can_use_ability_core(c.game(), power, zone) {
+        return Ok(Some(e.0));
+    }
+    if c.ability_gone(p, power, card) {
+        return Ok(Some("CANNOT_USE_POWER"));
+    }
     let v = ability_view(c.game(), p, power, card);
     c.event_locked(&v)
 }

@@ -230,6 +230,9 @@ impl crate::engine::turn_action::ActionChecks for Ctx<'_> {
         let Ok(map) = self.provided(slot.s) else { return Ok(false) };
         Ok(crate::energy::check_enough_energy(map.as_slice(), cost.as_slice()))
     }
+    fn ability_gone(&mut self, p: usize, power: crate::effects::PowerRef, card: CardId) -> bool {
+        attack::power_use_blocked(self.sc(), p, power, card)
+    }
 }
 
 /// The checks of a ChangeActive the retreat produces (`engine::change_active::check_with`, the function execution
@@ -466,7 +469,7 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
         return ctx.none("ability: two powers with one name");
     }
     let mut power = PowerRef { card, index: i as u8 };
-    if turn::can_use_ability_core(g, power, target.slot).is_err() || crate::spec::run::power_once_check(g, card, power.index, p).is_err() {
+    if crate::spec::run::power_once_check(g, card, power.index, p).is_err() {
         return Some(false);
     }
     // The powers the card has now (CheckPokemonPowers).
@@ -484,11 +487,8 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
             Err(_) => return Some(false),
         }
     }
-    let sc = ctx.sc();
-    if attack::power_use_blocked(sc, p, power, card) {
-        return Some(false);
-    }
-    if !matches!(crate::engine::turn_action::ability_locked(sc, p, power, card), Ok(None)) {
+    // The UseAbility event's checks (`engine::turn_action::ability_checks`, the function execution calls).
+    if !matches!(crate::engine::turn_action::ability_checks(ctx, p, power, card, target.slot), Ok(None)) {
         return Some(false);
     }
     let sc = ctx.sc();

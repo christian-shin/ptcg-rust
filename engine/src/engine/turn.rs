@@ -240,7 +240,10 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
                     Some(r) => *r,
                     None => crate::bail!("UNKNOWN_POWER"),
                 };
-                can_use_ability_core(g, power, target.slot)?;
+                // The UseAbility event's checks (`engine::turn_action::ability_checks`, the function legality calls).
+                if let Some(code) = crate::engine::turn_action::ability_checks(g, p, power, c, target.slot)? {
+                    crate::bail!(code);
+                }
                 g.run_fx_unit(Effect::UsePower { p: p as u8, power, card: c, target, bench_target: None })?;
             }
         }

@@ -429,8 +429,9 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
     }
 }
 
-/// The lock probe made before an Ability is used: a stand-in `Power` effect every card sees; a lock refuses it
-/// (B7-OLD -> B8: `Effect::Power { probe }` behind `derived::has_no_ability`, until the derived layer stores the fact).
+/// The lock probe made before an Ability is used (`turn_action::ability_checks`): a stand-in `Power` effect every card
+/// sees; a lock refuses it (B7-OLD -> B8: `Effect::Power { probe }`, until has-no-Ability is a stored derived fact read
+/// through `derived::has_no_ability`).
 pub fn power_use_blocked(g: &mut Game, p: usize, power: PowerRef, card: CardId) -> bool {
     g.run_fx(Effect::Power { p: p as u8, power, card, target: None, probe: true }).is_err()
 }
@@ -440,15 +441,7 @@ pub fn start_use_power(g: &mut Game, id: EffId) -> R {
         Effect::UsePower { p, power, card, target, bench_target } => (p as usize, power, card, target, bench_target),
         _ => return Ok(()),
     };
-    // The Ability isn't there when an Ability lock covers it (RULES.md "Has no Abilities"; B7-OLD -> B8: the `Power`
-    // probe behind `derived::has_no_ability`).
-    if power_use_blocked(g, p, power, card) {
-        crate::bail!("CANNOT_USE_POWER");
-    }
-    // The locks over the UseAbility event.
-    if let Some(code) = crate::engine::turn_action::ability_locked(g, p, power, card)? {
-        crate::bail!(code);
-    }
+    // The UseAbility checks were made before the event (`turn_action::ability_checks`, from the turn action).
     let f = PowerFrame { p: p as u8, power, card, bench_target };
     if target.slot == SlotType::Active || target.slot == SlotType::Bench {
         let pid = g.player_id(p);
