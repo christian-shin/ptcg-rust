@@ -919,7 +919,7 @@ pub fn slot_pred_m(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<boo
             }
             false
         }
-        SlotPred::StadiumEffectActive => !is_stadium_effect_blocked(g, s.p as usize, s, me),
+        SlotPred::StadiumEffectActive => !crate::derived::stadium_off(g),
         SlotPred::TypeIs(t) => crate::derived::types(g, s)?.contains(t),
         SlotPred::Provides(t) => crate::derived::provided_energy(g, s.p as usize, s)?.iter().any(|m| m.provides.contains(t) || m.provides.contains(&ct::ANY)),
         SlotPred::NoEnergyProvided => crate::derived::provided_energy(g, s.p as usize, s)?.is_empty(),
@@ -1101,13 +1101,13 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
         Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, me, f.p as usize)?,
         Cond::AbilityBlocked => crate::derived::has_no_ability(g, f.p as usize, me, None),
         Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
-        Cond::ToolBlocked => is_tool_blocked(g, f.p as usize, me),
+        Cond::ToolBlocked => crate::derived::tool_off(g, f.p as usize, me),
         Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
             None => false,
         },
         Cond::StadiumBlocked(e) => match slot_of(g, me, f, *e) {
-            Some(s) => is_stadium_effect_blocked(g, s.p as usize, s, me),
+            Some(_) => crate::derived::stadium_off(g),
             None => false,
         },
         Cond::AnySlot(sel, sp) => {

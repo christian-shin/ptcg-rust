@@ -493,10 +493,10 @@ pub fn powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
 
 /// Does `card` (player `p`'s) have no Ability (power `power_index`, or the generic probe) now? (The lock pass with
 /// take-hold stamps; RULES.md "Ability locks".) Not memoized while a copied attack's source code runs (its copycat has
-/// no Ability of its own) or while the stamps are being synced.
+/// no Ability of its own); a stamp changed by `lock_sync` is a write (a version bump).
 #[inline]
 pub fn has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    if g.deleg.is_some() || g.lock_syncing || card as usize >= MAX_CARDS {
+    if g.deleg.is_some() || card as usize >= MAX_CARDS {
         return compute_has_no_ability(g, p, card, power_index);
     }
     let bit = match power_index {
@@ -752,11 +752,78 @@ fn compute_attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
     Ok(r)
 }
 
+/// The powers the card has (batch 8 C3b): the Ability locks' removals, by direct code (`passive::powers_now`).
 fn compute_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-    slow_powers(g, p, card)
+    let r = crate::spec::passive::powers_now(g, p, card)?;
+    against_slow(g, "powers", &r, |g| slow_powers(g, p, card));
+    Ok(r)
 }
+
+/// "Has no Ability" (batch 8 C3b): the lock pass for the generic probe or the power (`passive::power_blocked`), no
+/// effect dispatched.
 fn compute_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    slow_has_no_ability(g, p, card, power_index)
+    let power = PowerRef { card, index: power_index.unwrap_or(crate::prefabs::PROBE_GENERIC) };
+    let r = crate::spec::passive::power_blocked(g, p, power, card, true);
+    if crate::game::verify_cache() {
+        assert_eq!(r, slow_has_no_ability(g, p, card, power_index), "derived::has_no_ability: the lock pass differs from the Power probe (card {card}, power {power_index:?})");
+    }
+    r
+}
+
+/// Is the text of the Tool `card` (player `p`'s) off: "Pokémon Tools have no effect" for some turns (an attack's lasting
+/// effect), or a declaration that turns Tools off in place (Jamming Tower: `PreventWhat::ToolEffects`, unless its own
+/// Stadium effect is off on the Pokémon holding the Tool)? (Batch 8 C3b; the Tool probe was `prefabs::is_tool_blocked`.)
+pub fn tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
+    let r = compute_tool_off(g, p, card);
+    if crate::game::verify_cache() {
+        assert_eq!(r, slow_tool_off(g, p, card), "derived::tool_off differs from the Tool probe (card {card})");
+    }
+    r
+}
+
+fn compute_tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
+    use crate::spec::passive::{Modifier, PreventWhat};
+    if stadium_off(g) {
+        return true;
+    }
+    if g.decls.sets[crate::decl::fam::TOOLS_OFF] == 0 {
+        return false;
+    }
+    for me in crate::decl::in_place(g, crate::decl::fam::TOOLS_OFF, 0).iter().copied() {
+        for ps in crate::decl::passives(g, me) {
+            let Modifier::Prevent(pv) = &ps.modifier else { continue };
+            if pv.what != PreventWhat::ToolEffects || crate::spec::passive::locate(g, me, ps.origin).is_none() {
+                continue;
+            }
+            // The Pokémon of player `p` holding the Tool: the Stadium's own effect off there spares it.
+            let held = crate::prefabs::for_each_pokemon(g, p, crate::types::PlayerType::BottomPlayer).iter().any(|(s, _, _)| g.st.slot(p, *s).tools.contains(card));
+            if held && stadium_off(g) {
+                continue;
+            }
+            return true;
+        }
+    }
+    false
+}
+
+/// Is a Stadium's text off on the Pokémon it would affect: "Stadium and Pokémon Tool cards have no effect" for some turns
+/// (no declaration in the pool turns a Stadium's effect off on a Pokémon; batch 8 C3b, the Stadium probe had no
+/// handler).
+#[inline]
+pub fn stadium_off(g: &Game) -> bool {
+    g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0)
+}
+
+/// Is the text of the attached Special Energy `card` off? No declaration in the pool turns it off (batch 8 C3b: the
+/// SpecialEnergy and Energy probes had no handler); the unit tests' stand-in for one (Temple of Sinnoh, id2033) says so.
+#[inline]
+pub fn special_energy_off(g: &Game, card: CardId) -> bool {
+    let _ = (g, card);
+    #[cfg(test)]
+    if crate::prefabs::TEST_SPECIAL_ENERGY_OFF.with(|b| b.get()) {
+        return true;
+    }
+    false
 }
 fn compute_preserved_conditions(g: &mut Game, p: usize, target: SlotRef) -> R<SVec<u8, 5>> {
     slow_preserved_conditions(g, p, target)
@@ -825,6 +892,11 @@ pub fn slow_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>>
 /// The `Power` probe (`prefabs::is_ability_blocked`).
 pub fn slow_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
     crate::prefabs::is_ability_blocked(g, p, card, power_index)
+}
+
+/// The Tool probe (`prefabs::tool_probe_blocked`).
+pub fn slow_tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
+    crate::prefabs::tool_probe_blocked(g, p, card)
 }
 
 /// `CheckSpecialConditionRemoval`.

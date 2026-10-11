@@ -27,7 +27,9 @@ pub mod fam {
     pub const RETREAT_COST: usize = 5;
     /// `GrantAttacks`, `BenchAttacks`.
     pub const GRANT_ATTACKS: usize = 6;
-    pub const N: usize = 7;
+    /// `Prevent` with `PreventWhat::ToolEffects` ("Pokémon Tools have no effect": Jamming Tower).
+    pub const TOOLS_OFF: usize = 7;
+    pub const N: usize = 8;
 }
 
 /// The family a passive's modifier is read in, if it is one of the index's.
@@ -40,6 +42,7 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::AttackCost(_) => fam::ATTACK_COST,
         Modifier::RetreatCost(_) => fam::RETREAT_COST,
         Modifier::GrantAttacks(_) | Modifier::BenchAttacks(_) => fam::GRANT_ATTACKS,
+        Modifier::Prevent(p) if matches!(p.what, crate::spec::passive::PreventWhat::ToolEffects) => fam::TOOLS_OFF,
         _ => return None,
     })
 }

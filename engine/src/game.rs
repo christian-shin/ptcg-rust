@@ -257,8 +257,6 @@ pub struct Game {
     pub temp_used: [bool; MAX_TEMPS],
     /// Callbacks referenced by pending `CoinFlipEffect`s.
     pub coin_callbacks: SVec<CoinCb, 16>,
-    /// `probingStadiumEffect` (stadium-effect.ts module state).
-    pub probing_stadium: bool,
     /// A legality trial (options.rs): work that can't change whether the
     /// action is legal is skipped (`PTCG_VERIFY_LEGAL=1` checks this).
     pub trial: bool,
@@ -288,8 +286,6 @@ pub struct Game {
     /// Attack choices made at step D, before the damage, by spec cards
     ///: read when the effects are carried out after the damage.
     pub spec_choices: SVec<crate::spec::SpecChoice, 16>,
-    /// `lock_sync` is running (it probes Abilities, which must not start another sync).
-    pub lock_syncing: bool,
     /// The per-kind dispatch index (`dispatch.rs`).
     pub dispatch: crate::dispatch::DispatchIndex,
     /// The derived layer (`derived.rs`).
@@ -393,7 +389,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                probing_stadium, trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
+                trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
                 dispatch,
                 derived: _,
                 decls,
@@ -412,7 +408,6 @@ impl Game {
             f!((*d).temps).write(*temps);
             f!((*d).temp_used).write(*temp_used);
             coin_callbacks.copy_live_to(f!((*d).coin_callbacks));
-            f!((*d).probing_stadium).write(*probing_stadium);
             f!((*d).trial).write(*trial);
             f!((*d).kinds_present).write(*kinds_present);
             f!((*d).lock_cards).write(*lock_cards);
@@ -426,7 +421,6 @@ impl Game {
             ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
-            f!((*d).lock_syncing).write(*lock_syncing);
             // The index comes along with the layout it describes (each entry carries its own generation).
             f!((*d).dispatch).write(*dispatch);
             f!((*d).decls).write(*decls);
@@ -449,7 +443,6 @@ impl Game {
             temps: [List::new(); MAX_TEMPS],
             temp_used: [false; MAX_TEMPS],
             coin_callbacks: SVec::new(),
-            probing_stadium: false,
             trial: false,
             kinds_present: crate::effects::KindMask::EMPTY,
             lock_cards: [0; 4],
@@ -463,7 +456,6 @@ impl Game {
             ten_hp_coin: SVec::new(),
             last_attack: None,
             spec_choices: SVec::new(),
-            lock_syncing: false,
             dispatch: crate::dispatch::DispatchIndex::new(),
             derived: crate::derived::Derived::new(),
             decls: crate::decl::DeclIndex::new(),

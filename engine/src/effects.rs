@@ -211,8 +211,6 @@ pub enum Effect {
     PutIntoDeck { p: u8, cards: SVec<CardId, 64>, from: ListRef, source: crate::spec::event::RulesZone, position: crate::spec::event::DeckPosition, cause: Cause },
     /// The Draw event (`engine::cards_zone::draw`): player `p` draws `cards` (the top of their deck) into their hand.
     Draw { p: u8, cards: SVec<CardId, 64>, cause: Cause },
-    EffectOfAbility { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, cause: Cause },
-    SpecialEnergy { p: u8, card: CardId, attached_to: SlotRef, exempt: bool },
     /// The PlaceCounters event (events batch 6; `engine::damage::place`): `amount` HP of damage counters are put on the
     /// Pokémon in `target` (APR C-07), whatever causes it. `p` is the Pokémon's owner.
     PlaceCounters { p: u8, target: SlotRef, amount: i32, cause: Cause },
@@ -266,9 +264,7 @@ pub enum Effect {
     /// Look-Alike Show; id2225, id2226, id2376). The card's own program is its handler (`spec::run::reduce`).
     /// `with`: the companion played together with it ("you must play 2 X cards at once", `CardSpec::together`).
     PlayTrainer { p: u8, card: CardId, target: Option<SlotRef>, use_: crate::spec::event::TrainerUse, cause: Cause, with: Option<CardId> },
-    Energy { p: u8, card: CardId },
     Tool { p: u8, card: CardId },
-    Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },
 }
 
 impl Effect {
@@ -311,8 +307,6 @@ impl Effect {
             PutIntoHand { .. } => "PUT_INTO_HAND_EVENT",
             PutIntoDeck { .. } => "PUT_INTO_DECK_EVENT",
             Draw { .. } => "DRAW_EVENT",
-            EffectOfAbility { .. } => "EFFECT_OF_ABILITY_EFFECT",
-            SpecialEnergy { .. } => "SPECIAL_ENERGY_EFFECT",
             PlaceCounters { .. } => "PLACE_COUNTERS_EVENT",
             ChangeActive { .. } => "CHANGE_ACTIVE_EVENT",
             ApplyWeakness { .. } => "APPLY_WEAKNESS_EFFECT",
@@ -329,9 +323,7 @@ impl Effect {
             MoveTool { .. } => "MOVE_TOOL_EVENT",
             EnterPlay { .. } => "ENTER_PLAY_EVENT",
             PlayTrainer { .. } => "PLAY_TRAINER_EVENT",
-            Energy { .. } => "ENERGY_EFFECT",
             Tool { .. } => "TOOL_EFFECT",
-            Stadium { .. } => "STADIUM_EFFECT",
         }
     }
 
@@ -350,11 +342,7 @@ impl Effect {
             | CheckPokemonPowers { .. }
             | CheckPokemonAttacks { .. }
             | CheckSpecialConditionRemoval { .. }
-            | EffectOfAbility { .. }
-            | SpecialEnergy { .. }
-            | Energy { .. }
-            | Tool { .. }
-            | Stadium { .. } => true,
+            | Tool { .. } => true,
             Power { probe: true, .. } => true,
             _ => false,
         }
@@ -415,8 +403,6 @@ impl Effect {
             PutIntoHand { .. } => 159,
             PutIntoDeck { .. } => 127,
             Draw { .. } => 130,
-            EffectOfAbility { .. } => 32,
-            SpecialEnergy { .. } => 33,
             PlaceCounters { .. } => 100,
             ChangeActive { .. } => 48,
             ApplyWeakness { .. } => 37,
@@ -429,9 +415,7 @@ impl Effect {
             MoveTool { .. } => 65,
             EnterPlay { .. } => 51,
             PlayTrainer { .. } => 56,
-            Energy { .. } => 57,
             Tool { .. } => 58,
-            Stadium { .. } => 59,
             MoveCounters { .. } => 129,
             Devolve { .. } => 248,
             Swap { .. } => 249,
@@ -475,8 +459,6 @@ pub mod k {
     pub const REMOVE_CONDITION: u32 = 74;
     pub const COIN_FLIP: u32 = 75;
     pub const EVOLVE: u32 = 29;
-    pub const EFFECT_OF_ABILITY: u32 = 32;
-    pub const SPECIAL_ENERGY: u32 = 33;
     /// The ChangeActive event (events batch 5). 48, not the old MovedToActive's 35: the dispatch index keys its
     /// entries by `kind % 32` (`dispatch::SLOTS`), and 35 shared its entry with END_TURN (3), which games with a
     /// ChangeActive handler (every attack-effect protection) then rebuilt in turn; nothing else uses entry 16.
@@ -491,9 +473,7 @@ pub mod k {
     pub const ENTER_PLAY: u32 = 51;
     /// The PlayTrainer event (events batch 7): the number the Trainer effect had (the Trainer's program is its handler).
     pub const PLAY_TRAINER: u32 = 56;
-    pub const ENERGY: u32 = 57;
     pub const TOOL: u32 = 58;
-    pub const STADIUM: u32 = 59;
     /// The Devolve and Swap events (events batch 2).
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
@@ -635,7 +615,6 @@ impl Effect {
             ChangeActive { cause, .. }
             | Heal { cause, .. }
             | Evolve { cause, .. }
-            | EffectOfAbility { cause, .. }
             | PlaceCounters { cause, .. }
             | MoveCounters { cause, .. }
             | KnockOut { cause, .. }

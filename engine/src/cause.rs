@@ -294,7 +294,6 @@ fn unseen_now(g: &crate::game::Game, site: &str, c: &Cause) {
 /// effect created outside legality trials when VERIFY is on):
 /// - the `AtkBase` makes an effect "an effect of the attack by `b.player`" (Hide 'n' Sneak, Mist Energy,
 ///   "prevent all effects of attacks", the attack reducer's own check);
-/// - `EffectOfAbility` is an Ability of `p`;
 /// - an opponent's attack or Ability effect on a Pokémon whose kind no `Prevent` reader consults (an event family's
 ///   routine or a B6-OLD probe: `passive::prevent_consulted`) escapes Hide 'n' Sneak and Mist Energy.
 #[inline]
@@ -313,10 +312,6 @@ fn verify_effect_now(g: &crate::game::Game, e: &crate::effects::Effect) {
         return;
     }
     let target = match *e {
-        Effect::EffectOfAbility { p, target, .. } => {
-            compare_now(g, "EFFECT_OF_ABILITY (probe = Ability)", &c, Old::Ability(Some(p)));
-            target
-        }
         Effect::Heal { target, .. } | Effect::Evolve { target, .. } | Effect::Attach { target, .. } => Some(target),
         // ChangeActive asks the `Prevent` reader itself (events batch 5): no kind list to escape.
         _ => None,

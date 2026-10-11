@@ -339,35 +339,13 @@ pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
     }
 }
 
-/// `IS_TOOL_BLOCKED`.
-pub fn is_tool_blocked(g: &mut Game, p: usize, card: CardId) -> bool {
+/// `IS_TOOL_BLOCKED` the slow way: the Tool probe dispatched to the cards (`derived::slow_tool_off`, the reference of
+/// `derived::tool_off` until the batch 8 closeout).
+pub fn tool_probe_blocked(g: &mut Game, p: usize, card: CardId) -> bool {
     if g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0) {
         return true;
     }
     g.run_fx(Effect::Tool { p: p as u8, card }).is_err()
-}
-
-/// `IS_STADIUM_EFFECT_BLOCKED`.
-pub fn is_stadium_effect_blocked(g: &mut Game, p: usize, target: SlotRef, stadium: CardId) -> bool {
-    if g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0) {
-        return true;
-    }
-    if g.probing_stadium {
-        return g.run_fx(Effect::Stadium { p: p as u8, target: Some(target), stadium, skip_ability_lock_check: true }).is_err();
-    }
-    g.probing_stadium = true;
-    let r = g.run_fx(Effect::Stadium { p: p as u8, target: Some(target), stadium, skip_ability_lock_check: false });
-    g.probing_stadium = false;
-    r.is_err()
-}
-
-/// `IS_SPECIAL_ENERGY_BLOCKED`.
-pub fn is_special_energy_blocked(g: &mut Game, p: usize, card: CardId, attached_to: SlotRef, exempt: bool) -> bool {
-    #[cfg(test)]
-    if TEST_SPECIAL_ENERGY_OFF.with(|b| b.get()) {
-        return true;
-    }
-    g.run_fx(Effect::SpecialEnergy { p: p as u8, card, attached_to, exempt }).is_err()
 }
 
 #[cfg(test)]
