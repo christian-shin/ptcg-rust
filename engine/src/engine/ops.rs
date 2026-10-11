@@ -37,6 +37,7 @@ impl Game {
     /// Energy card, also record it in the slot's energies.
     fn push_to(&mut self, dst: ListRef, c: CardId, energy_check: bool) {
         self.lst_mut(dst).push(c);
+        self.st.put_at(c, dst);
         if let Some((p, s)) = Self::slot_of(dst) {
             if energy_check && self.is_energy(c) {
                 let e = &mut self.st.players[p].slots[s as usize].energies;
@@ -73,6 +74,7 @@ impl Game {
             }
             for &c in orphans.iter() {
                 self.lst_mut(dst).push(c);
+                self.st.put_at(c, dst);
             }
             for &c in en_moved.iter() {
                 self.st.players[p].slots[s as usize].energies.remove(c);
@@ -98,6 +100,7 @@ impl Game {
         }
         for &c in moved.iter() {
             self.lst_mut(dst).push(c);
+            self.st.put_at(c, dst);
         }
         if let Some((dp, ds)) = Self::slot_of(dst) {
             for &c in en_moved.iter() {
@@ -157,6 +160,7 @@ impl Game {
             } else if let Some(i) = self.st.players[p].slots[s as usize].energies.index_of(c) {
                 self.st.players[p].slots[s as usize].energies.remove_at(i);
                 self.lst_mut(dst).push(c);
+                self.st.put_at(c, dst);
                 if let Some((dp, ds)) = Self::slot_of(dst) {
                     let e = &mut self.st.players[dp].slots[ds as usize].energies;
                     if !e.contains(c) {

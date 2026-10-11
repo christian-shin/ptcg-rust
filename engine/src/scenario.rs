@@ -71,6 +71,8 @@ fn dress(g: &mut Game, p: usize, s: SlotId, energy: &Value, tool: &Value, damage
     }
     for n in stack(tool) {
         let c = mv(g, p, n, ListRef::Slot(pu, s))?;
+        g.st.bump_layout();
+        g.st.at[c as usize] = crate::state::Loc::tool(p, s);
         let slot = &mut g.st.players[p].slots[s as usize];
         slot.cards.remove(c);
         slot.tools.push(c);
@@ -164,6 +166,7 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         pl.bench.as_mut_slice()[bi] = pl.active;
         pl.active = s;
         crate::list::touch();
+        g.st.bump_layout();
         let a = s;
         dress(g, p, a, &side["active_energy"], &side["active_tool"], &side["active_damage"], &side["active_conditions"], &side["active_played"])?;
     } else {
@@ -243,6 +246,8 @@ pub fn apply(g: &mut Game, sc: &Value) -> Result<(), String> {
     }
     apply_side(g, me, &sc["me"])?;
     apply_side(g, 1 - me, &sc["opp"])?;
+    // The scenario's edits write the state directly: every derived fact and the layout are stale.
+    g.st.bump_layout();
     let coins: Vec<bool> = sc["coins"].as_array().map(|a| a.iter().filter_map(|x| x.as_bool()).collect()).unwrap_or_default();
     if sc["sudden_death"].as_bool() == Some(true) {
         g.st.is_sudden_death = true;

@@ -888,6 +888,7 @@ impl Game {
     }
 
     fn run_cont(&mut self, c: Cont, results: &[Res]) -> R {
+        self.st.bump();
         let first = results.first().copied().unwrap_or(Res::Null);
         match c {
             Cont::Noop => Ok(()),
@@ -1118,6 +1119,7 @@ impl Game {
 
     /// `Store.reduceEffect`.
     pub fn reduce_effect(&mut self, id: EffId) -> R {
+        self.st.bump();
         if let Effect::Attack { p, source, attack, .. } = *self.e(id) {
             self.ten_hp = SVec::new();
             self.ten_hp_coin = SVec::new();
@@ -1216,6 +1218,7 @@ impl Game {
             // Only when an attached card can turn a lock source's Ability on or off.
             crate::spec::passive::lock_sync_attached(self);
         }
+        self.st.bump();
         if crate::spec::event::EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
         }
@@ -1251,6 +1254,7 @@ impl Game {
                 let c = base + i as u8;
                 self.st.cards[c as usize] = CardInst { def: *d, owner: p as u8, ..Default::default() };
                 self.st.players[p].deck.push(c);
+                self.st.put_at(c, ListRef::Deck(p as u8));
                 if cards::spec_for(*d).map_or(false, |s| crate::spec::passive::declares_ability_lock(s.passives)) {
                     self.lock_cards[(c >> 6) as usize] |= 1u64 << (c & 63);
                 }
@@ -1269,6 +1273,7 @@ impl Game {
             }
         }
         self.st.phase = GamePhase::Setup;
+        self.st.bump_layout();
         setup::start(self)?;
         self.after_dispatch()
     }
@@ -1294,6 +1299,7 @@ impl Game {
     /// Resolve a prompt (`ResolvePromptAction` with a decoded result).
     pub fn resolve(&mut self, prompt_index: usize, result: Res) -> R {
         let id = self.prompts.as_slice()[prompt_index].id;
+        self.st.bump();
         let r = self.reduce_prompt(id, result);
         if r.is_ok() && self.items.is_empty() {
             let r2 = crate::engine::knockout::state_check(self, OnComplete::None);
@@ -1310,6 +1316,7 @@ impl Game {
             bail!("ACTION_IN_PROGRESS");
         }
         self.items.clear();
+        self.st.bump();
         turn::play_card_reducer(self, action)?;
         turn::player_turn_reducer(self, action)?;
         self.after_dispatch()
@@ -1330,6 +1337,7 @@ impl Game {
         if self.prompts.iter().any(|p| p.result.is_none()) {
             bail!("ACTION_IN_PROGRESS");
         }
+        self.st.bump();
         if !rollback {
             self.items.clear();
             turn::play_card_reducer(self, action)?;

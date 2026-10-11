@@ -345,6 +345,10 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 /// Energy.
 fn put_attached(g: &mut Game, card: CardId, target: SlotRef) {
     let tool = is_tool(g, card);
+    g.st.bump_layout();
+    if tool {
+        g.st.at[card as usize] = crate::state::Loc::tool(target.p as usize, target.s);
+    }
     let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
     if tool {
         slot.cards.remove(card);

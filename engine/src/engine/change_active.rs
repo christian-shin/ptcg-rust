@@ -225,6 +225,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     pl.active = to;
     pl.bench.as_mut_slice()[bi] = from;
     touch();
+    g.st.bump_layout();
     if let Some(c) = g.st.slot_pokemon(p, to) {
         if !g.st.players[p].moved_to_active_this_turn.contains(&c) {
             g.st.players[p].moved_to_active_this_turn.push(c);

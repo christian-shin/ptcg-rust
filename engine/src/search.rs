@@ -61,6 +61,7 @@ pub fn set_hidden(g: &mut Game, viewer: usize, owner: usize, deck: &[CardId], pr
         }
         pl.hand.set_from(h);
     }
+    g.st.bump_layout();
     Ok(())
 }
 

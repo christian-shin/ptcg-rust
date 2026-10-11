@@ -553,6 +553,90 @@ pub struct State {
     /// before its AddPlayerAction adds the player).
     pub players_added: u8,
     pub ability_lock_order_counter: u16,
+    /// Events batch 8: a counter bumped by every write to the game (the event routines, the physical moves, every
+    /// interpreter op step and continuation, every action and answer): a derived fact computed at this version is still
+    /// good (`derived.rs`; `PTCG_VERIFY_CACHE=1` checks a digest of the state against a missed bump).
+    pub version: u32,
+    /// Bumped where a card enters or leaves a zone list, a list is reordered, or the Active / Bench layout changes (the
+    /// physical moves, `Game::lst_mut`, the Bench edits): what the in-place filter of the declaration sets and the
+    /// lock-stamp gate read.
+    pub layout_gen: u32,
+    /// Per card id: the list the card was last put into ([`Loc`]), a hint every location read validates (the card must
+    /// still be there) before trusting it, so a write that doesn't update it costs a scan, never a wrong answer
+    /// (`PTCG_VERIFY_CACHE=1` checks every answer against the scan).
+    pub at: [Loc; MAX_CARDS],
+}
+
+/// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`
+/// for a card in a staging list or not known. One byte: the player in bit 7, the list in bits 0..6.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Loc(pub u8);
+
+impl Loc {
+    pub const NONE: Loc = Loc(0xFF);
+    const DECK: u8 = 0;
+    const HAND: u8 = 1;
+    const DISCARD: u8 = 2;
+    const LOST: u8 = 3;
+    const STADIUM: u8 = 4;
+    const SUPPORTER: u8 = 5;
+    const PRIZE: u8 = 6;
+    const SLOT: u8 = 12;
+    const TOOL: u8 = 21;
+
+    /// The location of a card put into the list `r` (`NONE` for a staging list).
+    #[inline]
+    pub fn of(r: ListRef) -> Loc {
+        let (p, k) = match r {
+            ListRef::Deck(p) => (p, Self::DECK),
+            ListRef::Hand(p) => (p, Self::HAND),
+            ListRef::Discard(p) => (p, Self::DISCARD),
+            ListRef::LostZone(p) => (p, Self::LOST),
+            ListRef::Stadium(p) => (p, Self::STADIUM),
+            ListRef::Supporter(p) => (p, Self::SUPPORTER),
+            ListRef::Prize(p, i) => (p, Self::PRIZE + i),
+            ListRef::Slot(p, s) => (p, Self::SLOT + s),
+            ListRef::SlotEnergies(..) | ListRef::Temp(_) => return Loc::NONE,
+        };
+        Loc(p << 7 | k)
+    }
+
+    /// A Tool attached to the Pokémon in spot `s` of player `p`.
+    #[inline]
+    pub fn tool(p: usize, s: SlotId) -> Loc {
+        Loc((p as u8) << 7 | (Self::TOOL + s))
+    }
+
+    /// The list (not a Tool's place).
+    #[inline]
+    pub fn list(self) -> Option<ListRef> {
+        if self == Loc::NONE {
+            return None;
+        }
+        let p = self.0 >> 7;
+        let k = self.0 & 0x7F;
+        Some(match k {
+            Self::DECK => ListRef::Deck(p),
+            Self::HAND => ListRef::Hand(p),
+            Self::DISCARD => ListRef::Discard(p),
+            Self::LOST => ListRef::LostZone(p),
+            Self::STADIUM => ListRef::Stadium(p),
+            Self::SUPPORTER => ListRef::Supporter(p),
+            k if k < Self::SLOT => ListRef::Prize(p, k - Self::PRIZE),
+            k if k < Self::TOOL => ListRef::Slot(p, k - Self::SLOT),
+            _ => return None,
+        })
+    }
+
+    /// The spot whose Tools the card is among.
+    #[inline]
+    pub fn tool_slot(self) -> Option<(usize, SlotId)> {
+        let k = self.0 & 0x7F;
+        if self == Loc::NONE || k < Self::TOOL || k >= Self::TOOL + MAX_SLOTS as u8 {
+            return None;
+        }
+        Some(((self.0 >> 7) as usize, k - Self::TOOL))
+    }
 }
 
 impl State {
@@ -575,7 +659,38 @@ impl State {
             bench_size_change_handled: false,
             players_added: 2,
             ability_lock_order_counter: 0,
+            version: 0,
+            layout_gen: 0,
+            at: [Loc::NONE; MAX_CARDS],
         }
+    }
+
+    /// A write happened: facts derived at the previous version are stale (`derived.rs`).
+    #[inline]
+    pub fn bump(&mut self) {
+        self.version = self.version.wrapping_add(1);
+    }
+
+    /// A card entered or left a zone list, a list was reordered, or the Active / Bench layout changed (also a write).
+    #[inline]
+    pub fn bump_layout(&mut self) {
+        self.layout_gen = self.layout_gen.wrapping_add(1);
+        self.version = self.version.wrapping_add(1);
+    }
+
+    /// Card `c` was put into the list `r` (a hint for [`State::locate`]).
+    #[inline]
+    pub fn put_at(&mut self, c: CardId, r: ListRef) {
+        if (c as usize) < MAX_CARDS {
+            self.at[c as usize] = Loc::of(r);
+        }
+    }
+
+    /// Is spot `s` of player `p` the Active Spot or a Bench spot?
+    #[inline]
+    pub fn spot_in_play(&self, p: usize, s: SlotId) -> bool {
+        let pl = &self.players[p];
+        pl.active == s || pl.bench.contains(&s)
     }
 
     #[inline]
@@ -618,17 +733,17 @@ impl State {
         out
     }
 
-    /// `getPokemonCard()`: the top Pokémon of the slot.
+    /// `getPokemonCard()`: the top Pokémon of the slot (the last Pokémon card of its list: scanned from the end).
+    #[inline]
     pub fn slot_pokemon(&self, p: usize, s: SlotId) -> Option<CardId> {
         let slot = self.slot(p, s);
-        let mut top = None;
-        for c in slot.cards.iter() {
+        for &c in slot.cards.as_slice().iter().rev() {
             let f = crate::carddb::pokemon_flags(self.cards[c as usize].def);
-            if (f & PF_POKEMON != 0 && !slot.tools.contains(c) && !slot.energies.contains(c)) || f & PF_FOSSIL != 0 {
-                top = Some(c);
+            if f & PF_FOSSIL != 0 || (f & PF_POKEMON != 0 && !slot.tools.contains(c) && !slot.energies.contains(c)) {
+                return Some(c);
             }
         }
-        top
+        None
     }
 
     /// Does any spot of either player hold a Special Condition (a plain read: a gate before the walks that look for
@@ -642,8 +757,69 @@ impl State {
         self.slot_pokemon(p, self.players[p].active)
     }
 
-    /// Where a card currently is (for `findCardList` style lookups).
+    /// Where a card currently is (for `findCardList` style lookups): the first of the Active Spot, deck, discard pile,
+    /// hand, Lost Zone, Stadium, Supporter, Bench spots and Prizes of player 0, then of player 1, that holds it (a Tool is
+    /// in none). Answered from the hint [`State::at`] when the card is still there, else by the scan.
+    #[inline]
     pub fn locate(&self, c: CardId) -> Option<ListRef> {
+        let r = self.locate_hinted(c);
+        if crate::game::verify_cache() {
+            assert_eq!(r, self.locate_scan(c), "State::at answered differently from the scan for card {c}");
+        }
+        r
+    }
+
+    #[inline]
+    fn locate_hinted(&self, c: CardId) -> Option<ListRef> {
+        if let Some(r) = self.at.get(c as usize).and_then(|l| l.list()) {
+            if self.holds(r, c) {
+                return Some(r);
+            }
+        }
+        self.locate_scan(c)
+    }
+
+    /// Does the list `r` hold `c`, as [`State::locate`] scans it (only the in-play spots and the Prizes in use)?
+    #[inline]
+    fn holds(&self, r: ListRef, c: CardId) -> bool {
+        match r {
+            ListRef::Slot(p, s) => self.spot_in_play(p as usize, s) && self.players[p as usize].slots[s as usize].cards.contains(c),
+            ListRef::Prize(p, i) => i < self.players[p as usize].prize_count && self.players[p as usize].prizes[i as usize].contains(c),
+            ListRef::SlotEnergies(..) | ListRef::Temp(_) => false,
+            _ => self.list(r).contains(c),
+        }
+    }
+
+    /// The spot whose Tools hold the Tool `c`, among the Pokémon in play (Active first, then the Bench, player 0 first).
+    #[inline]
+    pub fn tool_spot(&self, c: CardId) -> Option<(usize, SlotId)> {
+        if let Some((p, s)) = self.at.get(c as usize).and_then(|l| l.tool_slot()) {
+            let slot = &self.players[p].slots[s as usize];
+            if self.spot_in_play(p, s) && !slot.cards.is_empty() && slot.tools.contains(c) {
+                if crate::game::verify_cache() {
+                    assert_eq!(Some((p, s)), self.tool_spot_scan(c), "State::at answered differently from the scan for Tool {c}");
+                }
+                return Some((p, s));
+            }
+        }
+        self.tool_spot_scan(c)
+    }
+
+    fn tool_spot_scan(&self, c: CardId) -> Option<(usize, SlotId)> {
+        for p in 0..2 {
+            let pl = &self.players[p];
+            for &s in std::iter::once(&pl.active).chain(pl.bench.iter()) {
+                let slot = &pl.slots[s as usize];
+                if !slot.cards.is_empty() && slot.tools.contains(c) {
+                    return Some((p, s));
+                }
+            }
+        }
+        None
+    }
+
+    /// [`State::locate`] the slow way: every list scanned.
+    pub fn locate_scan(&self, c: CardId) -> Option<ListRef> {
         for p in 0..2 {
             let pl = &self.players[p];
             if pl.slots[pl.active as usize].cards.contains(c) {
@@ -722,6 +898,7 @@ impl State {
     }
 
     pub fn list_mut(&mut self, r: ListRef) -> &mut dyn CardList {
+        self.bump_layout();
         match r {
             ListRef::Deck(p) => &mut self.players[p as usize].deck,
             ListRef::Hand(p) => &mut self.players[p as usize].hand,

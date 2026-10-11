@@ -852,10 +852,29 @@ fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> O
 }
 
 pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+    let r = locate_at(g, me, origin);
+    if crate::game::verify_cache() {
+        let slow = locate_slow(g, me, origin);
+        assert_eq!(r.map(|l| (l.owner, l.held)), slow.map(|l| (l.owner, l.held)), "passive::locate differs from the scan for card {me} ({origin:?})");
+    }
+    r
+}
+
+/// [`locate`] from the card's location (`State::locate`, `State::tool_spot`): no walk of the board.
+#[inline]
+fn locate_at(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
     match origin {
-        RuleSource::Tool => slot_where(g, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Energy => slot_where(g, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Ability => slot_where(g, |sl, p, s| sl.cards.contains(me) && g.st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Tool => g.st.tool_spot(me).map(|(p, s)| Located { owner: p, held: Some(SlotRef::new(p, s)) }),
+        RuleSource::Energy | RuleSource::Ability => {
+            // A card in a Pokémon's spot that is in play (`State::locate` finds only those).
+            let Some(ListRef::Slot(p, s)) = g.st.locate(me) else { return None };
+            let (p, sl) = (p as usize, &g.st.players[p as usize].slots[s as usize]);
+            let ok = match origin {
+                RuleSource::Energy => !sl.tools.contains(me),
+                _ => g.st.slot_pokemon(p, s) == Some(me),
+            };
+            ok.then(|| Located { owner: p, held: Some(SlotRef::new(p, s)) })
+        }
         RuleSource::Stadium => {
             if g.st.stadium_card() == Some(me) {
                 let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
@@ -866,6 +885,27 @@ pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located
         }
         RuleSource::TrainerEffect | RuleSource::CardRule => {
             let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            Some(Located { owner, held: None })
+        }
+    }
+}
+
+/// [`locate`] the slow way (`PTCG_VERIFY_CACHE=1` checks every answer against it).
+fn locate_slow(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+    match origin {
+        RuleSource::Tool => slot_where(g, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Energy => slot_where(g, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Ability => slot_where(g, |sl, p, s| sl.cards.contains(me) && g.st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Stadium => {
+            if g.st.stadium_card() == Some(me) {
+                let owner = g.st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+                Some(Located { owner, held: None })
+            } else {
+                None
+            }
+        }
+        RuleSource::TrainerEffect | RuleSource::CardRule => {
+            let owner = g.st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
             Some(Located { owner, held: None })
         }
     }

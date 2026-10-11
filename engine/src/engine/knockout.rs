@@ -791,6 +791,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
             g.st.players[p].slots[s as usize].is_public = true;
             g.st.players[p].bench.push(s);
             touch();
+            g.st.bump_layout();
         }
         if g.st.players[p].bench.len() == size {
             continue;
@@ -815,6 +816,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
                     pl.free_slot(s);
                 }
             }
+            g.st.bump_layout();
             continue;
         }
         // More Pokémon than the new size: the player discards some.
@@ -859,6 +861,7 @@ pub fn bench_shrink_cont(g: &mut Game, p: u8, empty: u16, res: Res) -> R {
             touch();
         }
         pl.free_slot(s);
+        g.st.bump_layout();
     }
     Ok(())
 }
@@ -903,6 +906,7 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         g.st.players[p as usize] = Player::new(id);
         g.st.players[p as usize].deck = deck;
         touch();
+        g.st.bump_layout();
         for c in cards {
             let inst = &mut g.st.cards[c as usize];
             inst.moved_to_active_this_turn = false;

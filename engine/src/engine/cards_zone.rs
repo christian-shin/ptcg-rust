@@ -114,6 +114,7 @@ fn clean_spot(g: &mut Game, p: u8, s: crate::state::SlotId) {
             g.move_card_to(ListRef::Slot(p, s), c, ListRef::Discard(p));
         }
     }
+    g.st.bump_layout();
     g.st.players[pu].slots[su as usize].energies.clear();
     let tools: SVec<CardId, 4> = {
         let mut v = SVec::new();

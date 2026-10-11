@@ -567,6 +567,7 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
     let _ = me;
     crate::engine::cards_zone::move_physical(g, src, &[new], list);
     crate::engine::cards_zone::move_physical(g, list, &[old], into);
+    g.st.bump_layout();
     match place {
         SwapPlace::Top => {}
         SwapPlace::OldIndex => {

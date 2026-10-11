@@ -932,7 +932,10 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
             f.advance();
             continue;
         }
+        // Every op step may write (markers, flags, the slot fields of lasting effects): the derived facts are stale.
+        g.st.bump();
         let flow = if f.phase == Phase::Choices { ops::choice(g, me, &mut f, &step.op)? } else { ops::exec(g, me, &mut f, &step.op)? };
+        g.st.bump();
         match flow {
             Flow::Next => f.advance(),
             Flow::Enter(sel) => f.enter(sel),
