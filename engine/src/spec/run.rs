@@ -561,7 +561,7 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
             return Ok(false);
         }
     }
-    let old = steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op));
+    let old = steps.iter().filter(|s| s.at != RuleStep::Consequence).all(|s| ops::implied_ok(g, me, f, &s.op));
     // User decision D10, step 1: the rules' usability is computed beside today's under VERIFY and every difference is
     // recorded (`usability_report`); today's answer stands until the switch is approved.
     if crate::cause::on(g) {
@@ -623,6 +623,10 @@ impl RulesWalk {
             _ => {}
         };
         for s in steps {
+            // "If you use this Ability, ...": a consequence of using it, neither a gate nor an effect.
+            if s.at == RuleStep::Consequence {
+                continue;
+            }
             if let Op::Pick(p) = &s.op {
                 if p.from == ZoneRef(Who::Me, Zone::Hand) {
                     self.left_hand += crate::spec::value::num(g, me, f, &p.bounds.min).max(0);
@@ -1042,6 +1046,73 @@ mod usability_tests {
 }
 
 #[cfg(test)]
+mod consequence_tests {
+    //! "If you use this Ability, this Pokémon is Knocked Out" (`Step::consequence`): never counted toward usability, always
+    //! carried out.
+    use super::*;
+    use serde_json::json;
+
+    /// The rules' usability of the first Ability of the Pokémon `card` in play for the turn player, on the board `sc` (decks:
+    /// 4 of each name, Lightning Energy to 60).
+    fn power_rules(names: &[&str], sc: serde_json::Value, card: &str) -> bool {
+        let mut deck: Vec<&str> = Vec::new();
+        for n in names {
+            deck.extend(std::iter::repeat(*n).take(4));
+        }
+        while deck.len() < 60 {
+            deck.push("Lightning Energy MEE 4");
+        }
+        let deck: Vec<u16> = deck.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let p = g.st.active_player as usize;
+        let def = crate::carddb::def_by_full_name(card).unwrap();
+        let me = g.st.players[p].slots.iter().flat_map(|s| s.cards.iter()).find(|c| g.st.cards[*c as usize].def == def).expect("the Pokémon in play");
+        let pw = &crate::cards::spec_for(def).unwrap().powers[0];
+        let f = Frame::start(&g, me, Prog::Power(0), Phase::Use, 0, p, false);
+        usable_by_rules(&g, me, &f, pw.steps)
+    }
+
+    /// Official JP FAQ (related: レアコイル): 「トラッシュに基本エネルギーが1枚もないとき、レアコイルの特性「かじょうほうでん」を使う
+    /// ことはできますか？」「いいえ、できません。」 = with no Basic Energy in the discard pile, Overvolt Discharge can't be used:
+    /// its Knock Out is a consequence of using it, not an effect that makes it usable.
+    #[test]
+    fn magneton_overvolt_discharge_needs_basic_energy_in_the_discard_pile() {
+        let names = ["Magneton SSP 59", "Hop's Snorlax JTG 117"];
+        let sc = |discard: Vec<&str>| json!({"me": {"reset": true, "active": "Magneton SSP 59", "discard": discard}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+        assert!(!power_rules(&names, sc(vec![]), "Magneton SSP 59"));
+        assert!(!power_rules(&names, sc(vec!["Hop's Snorlax JTG 117"]), "Magneton SSP 59"));
+        assert!(power_rules(&names, sc(vec!["Lightning Energy MEE 4"]), "Magneton SSP 59"));
+    }
+
+    /// Dusknoir / Dusclops PRE 37 / 36 Cursed Blast: usable whenever the counters can be put on an opponent's Pokémon; the
+    /// Knock Out is not what makes it usable.
+    #[test]
+    fn cursed_blast_usable_by_its_counters() {
+        for card in ["Dusknoir PRE 37", "Dusclops PRE 36"] {
+            let sc = json!({"me": {"reset": true, "active": card}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+            assert!(power_rules(&[card, "Hop's Snorlax JTG 117"], sc, card));
+        }
+    }
+
+    /// Psyduck ASC 39's Damp removes "any Ability that requires the Pokémon using it to Knock Out itself": exactly the
+    /// Abilities whose program has a consequence Knocking this Pokémon Out (the card data's `knocks_out_self`).
+    #[test]
+    fn damp_names_the_consequence_knock_outs() {
+        for (i, d) in crate::carddb::cards().iter().enumerate() {
+            let Some(spec) = crate::cards::spec_for(i as u16) else { continue };
+            for pw in spec.powers {
+                let ko = pw.steps.iter().any(|s| s.at == RuleStep::Consequence && matches!(&s.op, Op::KnockOut(k) if k.target == SlotExpr::This));
+                let flagged = d.powers.get(pw.index as usize).map_or(false, |x| x.knocks_out_self);
+                assert_eq!(ko, flagged, "{}: consequence Knock Out {} vs knocks_out_self {}", d.full_name, ko, flagged);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
 mod outcome_tests {
     use super::*;
 
@@ -1075,5 +1146,6 @@ fn runs_in(at: RuleStep, phase: Phase) -> bool {
             | (RuleStep::AfterDamage, Phase::Choices)
             | (RuleStep::Use, Phase::Use)
             | (RuleStep::Cost, Phase::Use)
+            | (RuleStep::Consequence, Phase::Use)
     )
 }

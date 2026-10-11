@@ -227,6 +227,15 @@ impl Step {
     pub const fn cost(op: Op) -> Step {
         Step { at: RuleStep::Cost, op }
     }
+    /// A consequence of using an Ability ("If you use this Ability, this Pokémon is Knocked Out": Magneton SSP 59, Dusclops
+    /// / Dusknoir PRE 36 / 37): it runs where `new` steps run, always, whatever the Ability's effect did, and it never
+    /// counts toward whether the Ability can be used (official JP FAQ レアコイル: with no Basic Energy in the discard pile
+    /// Overvolt Discharge can't be used; id2264, id2425 and JP FAQ ヨノワール / バトルコロシアム: the Knock Out happens even
+    /// when the counters are prevented; Psyduck ASC 39's Damp names these Abilities: "requires the Pokémon using it to
+    /// Knock Out itself").
+    pub const fn consequence(op: Op) -> Step {
+        Step { at: RuleStep::Consequence, op }
+    }
 }
 
 /// Where a step runs.
@@ -239,6 +248,8 @@ pub enum RuleStep {
     AfterDamage,
     /// A cost of a Trainer or an Ability (`Step::cost`); runs as a `Use` step.
     Cost,
+    /// A consequence of using an Ability (`Step::consequence`); runs as a `Use` step.
+    Consequence,
     /// Trainer, Ability, trigger, or a step inside a nested list.
     Use,
 }
