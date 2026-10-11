@@ -122,6 +122,25 @@ pub fn in_place(g: &Game, f: usize, class: u16) -> SVec<CardId, 120> {
     ordered(g, cards, class)
 }
 
+/// The cards of the game whose spec reacts to effect kind `kind` (its handler mask: the lock sources of an event family
+/// are listed under the kinds they forbid), in the propagation order (rank class 0). The readers that look declarations
+/// up by kind on a `&Game` use it (batch 8 C3d: the lock query; C5 gives every reader a family set).
+pub fn kind_listeners(g: &Game, kind: u32) -> SVec<CardId, 120> {
+    let mut cards: SVec<CardId, 120> = SVec::new();
+    if !g.kinds_present.has(kind) {
+        return cards;
+    }
+    for c in 0..g.st.n_cards {
+        if crate::cards::impl_for(g.st.cards[c as usize].def).is_some_and(|imp| imp.mask.has(kind)) {
+            cards.push(c);
+        }
+    }
+    if cards.is_empty() {
+        return cards;
+    }
+    ordered(g, cards, 0)
+}
+
 /// The cards in the propagation order (`Game::propagation_order_fresh`): by player, zone (Stadium, Supporter, the Active
 /// Pokémon's cards then its Tools, each Benched Pokémon's cards then Tools, the Prizes in use, hand, deck, discard pile)
 /// and index in the zone, then a stable sort by the rank class. A card in the Lost Zone or a staging list isn't visited.

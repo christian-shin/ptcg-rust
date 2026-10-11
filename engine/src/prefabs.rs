@@ -151,6 +151,9 @@ pub fn real_attack(g: &Game, e: EffId) -> EffId {
 /// `new AttackEffect(player, opponent, effect.attack)` that a card builds in an
 /// AfterAttackEffect handler (its source is the player's Active).
 pub fn attack_data(g: &Game, e: EffId) -> Option<(u8, u8, AttackRef, SlotRef)> {
+    if e as usize >= g.fx.len() {
+        return None;
+    }
     match *g.e(e) {
         Effect::Attack { p, opp, attack, source, .. } => Some((p, opp, attack, source)),
         Effect::AfterAttack { p, opp, attack, .. } => Some((p, opp, attack, SlotRef::new(p as usize, g.st.players[p as usize].active))),

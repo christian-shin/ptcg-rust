@@ -391,7 +391,7 @@ pub(crate) fn reads_done(c: &Cond) -> bool {
 }
 
 /// Does the `Fail` op's condition hold (the use may go on)? Read by the executor and by legality.
-pub(crate) fn fail_holds(g: &mut Game, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
+pub(crate) fn fail_holds<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
     cond_m(g, me, f, &x.unless)
 }
 

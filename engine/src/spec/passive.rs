@@ -909,16 +909,16 @@ fn locate_slow(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
 
 /// Is the card's effect off: the lock probe derived from its origin. `affected`
 /// is the Pokémon the effect is about (a Stadium's probe is per Pokémon).
-pub(crate) fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
+pub(crate) fn blocked<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
     match origin {
-        RuleSource::Ability => crate::derived::has_no_ability(g, at.owner, me, None),
-        RuleSource::Tool => crate::derived::tool_off(g, at.owner, me),
+        RuleSource::Ability => g.has_no_ability(at.owner, me, None),
+        RuleSource::Tool => g.tool_off(at.owner, me),
         RuleSource::Energy => match at.held {
-            Some(_) => crate::derived::special_energy_off(g, me),
+            Some(_) => crate::derived::special_energy_off(g.g(), me),
             None => false,
         },
         RuleSource::Stadium => match affected {
-            Some(_) => crate::derived::stadium_off(g),
+            Some(_) => crate::derived::stadium_off(g.g()),
             None => false,
         },
         RuleSource::TrainerEffect | RuleSource::CardRule => false,
@@ -1000,8 +1000,8 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
 
 /// The `TypeOverride` of `me` on the Pokémon in `target`: the types it gets, when the declaration applies there (the
 /// derived layer's `types`).
-pub(crate) fn type_override(g: &mut Game, me: CardId, origin: RuleSource, t: &TypeOverrideSpec, target: SlotRef) -> R<Option<&'static [CardType]>> {
-    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+pub(crate) fn type_override<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, t: &TypeOverrideSpec, target: SlotRef) -> R<Option<&'static [CardType]>> {
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
     if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, origin, at, Some(target)) {
         return Ok(None);
     }
@@ -1011,23 +1011,23 @@ pub(crate) fn type_override(g: &mut Game, me: CardId, origin: RuleSource, t: &Ty
 /// The `WeaknessOverride` of `me` on the Pokémon in `target` (the derived layer's Weakness): the type it sets, when it
 /// applies. The Ability's lock probe is made for the checked Pokémon's owner, first; then whether the effect of the
 /// Ability reaches the Pokémon (`effect_of_ability_reaches`; the continuous-effect `Prevent` view replaces it in C11).
-pub(crate) fn weakness_override(g: &mut Game, me: CardId, origin: RuleSource, w: &WeaknessOverrideSpec, target: SlotRef) -> R<Option<CardType>> {
+pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, w: &WeaknessOverrideSpec, target: SlotRef) -> R<Option<CardType>> {
     let player = target.p as usize;
-    if crate::derived::has_no_ability(g, player, me, None) {
+    if g.has_no_ability(player, me, None) {
         return Ok(None);
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
     if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
         return Ok(None);
     }
     let _ = origin;
-    Ok(effect_of_ability_reaches(g, me, crate::effects::PowerRef { card: me, index: 0 }, target).then_some(w.weakness))
+    Ok(effect_of_ability_reaches(g.g(), me, crate::effects::PowerRef { card: me, index: 0 }, target).then_some(w.weakness))
 }
 
 /// The HP `HpBonus` / `HpMod` of `me` gives the Pokémon in `target` (0 when it doesn't apply): the derived layer's `hp`
 /// adds them up.
-pub(crate) fn hp_mod_delta(g: &mut Game, me: CardId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
-    let Some(at) = locate(g, me, origin) else { return Ok(0) };
+pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(0) };
     if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, origin, at.owner, guard)? {
         return Ok(0);
     }
@@ -1173,12 +1173,12 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
 // Energy
 
 /// `ProvidesEnergy` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
-pub(crate) fn provides_energy_into(g: &mut Game, me: CardId, pe: &ProvidesEnergySpec, p: u8, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
-    if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
+pub(crate) fn provides_energy_into<F: crate::derived::Facts>(g: &mut F, me: CardId, pe: &ProvidesEnergySpec, p: u8, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
+    if !g.g().st.slot(source.p as usize, source.s).cards.contains(me) {
         return Ok(());
     }
     let _ = p;
-    if pe.probe && crate::derived::special_energy_off(g, me) {
+    if pe.probe && crate::derived::special_energy_off(g.g(), me) {
         return Ok(());
     }
     for entry in pe.entries {
@@ -1207,20 +1207,20 @@ fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) 
 }
 
 /// `ProvidesEnergyBoost` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
-pub(crate) fn provides_energy_boost_into(g: &mut Game, me: CardId, origin: RuleSource, b: &ProvidesEnergyBoostSpec, p: usize, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+pub(crate) fn provides_energy_boost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, b: &ProvidesEnergyBoostSpec, p: usize, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
     if at.owner != p || blocked(g, me, origin, at, Some(source)) {
         return Ok(());
     }
     let cards: SVec<CardId, 60> = {
         let mut v = SVec::new();
-        for c in g.st.slot(source.p as usize, source.s).cards.iter() {
+        for c in g.g().st.slot(source.p as usize, source.s).cards.iter() {
             v.push(c);
         }
         v
     };
     for &c in cards.iter() {
-        if !pred(g, c, &b.energy) {
+        if !pred(g.g(), c, &b.energy) {
             continue;
         }
         if map.iter().any(|m| m.card == c) {
@@ -1248,14 +1248,14 @@ fn provides_energy_boost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource,
 }
 
 /// May the Energy `me` be attached to `target` (its own `AttachGuard`)?
-pub(crate) fn attach_guard_allows(g: &mut Game, me: CardId, target: SlotRef, a: &AttachGuardSpec) -> R<bool> {
+pub(crate) fn attach_guard_allows<F: crate::derived::Facts>(g: &mut F, me: CardId, target: SlotRef, a: &AttachGuardSpec) -> R<bool> {
     slot_pred_m(g, me, target, &a.allow)
 }
 
 /// Is attaching the Energy card `card` to `target` stopped by its own `AttachGuard` (the Attach routine refuses
 /// it with `CANNOT_PLAY_THIS_CARD`, `engine::attach::check_attach_with`; legality asks the same)?
-pub fn attach_guard_refuses(g: &mut Game, card: CardId, target: SlotRef) -> R<bool> {
-    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[card as usize].def).map_or(&[], |s| s.passives);
+pub fn attach_guard_refuses<F: crate::derived::Facts>(g: &mut F, card: CardId, target: SlotRef) -> R<bool> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.g().st.cards[card as usize].def).map_or(&[], |s| s.passives);
     for ps in passives {
         if let Modifier::AttachGuard(a) = &ps.modifier {
             if !attach_guard_allows(g, card, target, a)? {
@@ -1323,28 +1323,28 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
 
 /// `AttackCost` of `me`: its change to the cost being computed (`check::AttackCostAcc`; the derived layer's
 /// `attack_cost`).
-pub(crate) fn attack_cost_into(g: &mut Game, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::AttackCostAcc) -> R {
+pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::AttackCostAcc) -> R {
     let (p, attack) = (acc.p as usize, acc.attack);
     if let Some(i) = c.attack {
-        if attack != my_attack(g, me, i) {
+        if attack != my_attack(g.g(), me, i) {
             return Ok(());
         }
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
     if c.side == Side::Owner && at.owner != p || c.side == Side::Opponent && at.owner == p {
         return Ok(());
     }
-    let active = SlotRef::new(p, g.st.players[p].active);
+    let active = SlotRef::new(p, g.g().st.players[p].active);
     if !slot_pred_m(g, me, active, &c.subject)? || blocked(g, me, origin, at, Some(active)) {
         return Ok(());
     }
     let n = {
-        let f = run::Frame::passive(g, me, at.owner, origin);
-        if !cond(g, me, &f, &c.guard) {
+        let f = run::Frame::passive(g.g(), me, at.owner, origin);
+        if !cond(g.g(), me, &f, &c.guard) {
             return Ok(());
         }
         match &c.change {
-            CostChange::Reduce(n) => num(g, me, &f, n),
+            CostChange::Reduce(n) => num(g.g(), me, &f, n),
             _ => 0,
         }
     };
@@ -1394,16 +1394,16 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
 
 /// `RetreatCost` of `me`: its change to the Retreat Cost being computed (`check::RetreatCostAcc`; the derived layer's
 /// `retreat_cost`).
-pub(crate) fn retreat_cost_into(g: &mut Game, me: CardId, origin: RuleSource, c: &RetreatCostSpec, acc: &mut crate::engine::check::RetreatCostAcc) -> R {
+pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &RetreatCostSpec, acc: &mut crate::engine::check::RetreatCostAcc) -> R {
     let p = acc.p as usize;
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
     if (c.side == Side::Owner && at.owner != p) || (c.side == Side::Opponent && at.owner == p) {
         return Ok(());
     }
     let mut matched = None;
     let sides: &[usize] = if c.which == RetreatWhich::Mine { &[p] } else { &[p, 1 - p] };
     for q in sides {
-        let active = SlotRef::new(*q, g.st.players[*q].active);
+        let active = SlotRef::new(*q, g.g().st.players[*q].active);
         if slot_pred_m(g, me, active, &c.subject)? {
             matched = Some(active);
             break;
@@ -1414,12 +1414,12 @@ pub(crate) fn retreat_cost_into(g: &mut Game, me: CardId, origin: RuleSource, c:
         return Ok(());
     }
     let n = {
-        let f = run::Frame::passive(g, me, at.owner, origin);
-        if !cond(g, me, &f, &c.guard) {
+        let f = run::Frame::passive(g.g(), me, at.owner, origin);
+        if !cond(g.g(), me, &f, &c.guard) {
             return Ok(());
         }
         match &c.change {
-            CostChange::Reduce(n) => num(g, me, &f, n),
+            CostChange::Reduce(n) => num(g.g(), me, &f, n),
             _ => 0,
         }
     };
@@ -1487,24 +1487,24 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
 }
 
 /// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?
-fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<bool> {
-    let owner = locker_owner(g, me, l.locker);
+fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<bool> {
+    let owner = locker_owner(g.g(), me, l.locker);
     let Some(owner) = owner else { return Ok(false) };
-    let slot = match g.st.locate(card) {
-        None => return Ok(pred(g, card, &l.missing)),
+    let slot = match g.g().st.locate(card) {
+        None => return Ok(pred(g.g(), card, &l.missing)),
         Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
         Some(_) => return Ok(false),
     };
-    if !pred(g, card, &l.card) {
+    if !pred(g.g(), card, &l.card) {
         return Ok(false);
     }
     // A lock source's Ability is turned off only by a lock that wins over it.
-    if lock_passives(g, card).next().is_some() && !lock_beats(g, me, card)? {
+    if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
         return Ok(false);
     }
     match l.probe {
         LockerProbe::Generic => {
-            if !slot_pred_m(g, me, slot, &l.slot)? || crate::derived::has_no_ability(g, owner, me, None) {
+            if !slot_pred_m(g, me, slot, &l.slot)? || g.has_no_ability(owner, me, None) {
                 return Ok(false);
             }
         }
@@ -1519,7 +1519,7 @@ fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<b
             }
         }
         LockerProbe::StadiumOnSlot => {
-            if crate::derived::stadium_off(g) {
+            if crate::derived::stadium_off(g.g()) {
                 return Ok(false);
             }
             match slot_pred_m(g, me, slot, &l.slot) {
@@ -1529,7 +1529,7 @@ fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<b
                     }
                 }
                 // The type check failed: the printed data decides.
-                Err(_) => return Ok(pred(g, card, &l.missing)),
+                Err(_) => return Ok(pred(g.g(), card, &l.missing)),
             }
         }
     }
@@ -1834,17 +1834,17 @@ fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 }
 
 /// `GrantAttacks` of `me` (Relicanth's Memory Dive): the attacks it adds to player `p`'s attack list.
-pub(crate) fn grant_attacks_into(g: &mut Game, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+pub(crate) fn grant_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
     if at.owner != p || blocked(g, me, origin, at, None) {
         return Ok(());
     }
     let mut add: SVec<AttackRef, 32> = SVec::new();
-    let active = g.st.players[p].active;
-    if let Some(top) = g.st.slot_pokemon(p, active) {
-        if g.st.cdef(top).stage != Stage::Basic as u8 {
-            for c in g.st.slot(p, active).cards.iter() {
-                let d = g.st.cdef(c);
+    let active = g.g().st.players[p].active;
+    if let Some(top) = g.g().st.slot_pokemon(p, active) {
+        if g.g().st.cdef(top).stage != Stage::Basic as u8 {
+            for c in g.g().st.slot(p, active).cards.iter() {
+                let d = g.g().st.cdef(c);
                 if d.is_pokemon() && c != top {
                     for i in 0..d.attacks.len() {
                         add.push(AttackRef { card: c, index: i as u8 });
@@ -1872,7 +1872,7 @@ pub(crate) fn grant_attacks_into(g: &mut Game, me: CardId, origin: RuleSource, p
 /// card (id25, id230, id959, id20). Asked by the event's routine before the event, and by legality (the same
 /// declarations): the locks over events (`LockDecl::forbids`) in play, in propagation order, then the lasting
 /// ones on the actor.
-pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
+pub fn event_locked<F: crate::derived::Facts>(g: &mut F, v: &super::event::EventView) -> R<Option<&'static str>> {
     // A Pokémon event or an Attach without a card is one whose card isn't chosen yet (legality asks it only with
     // one). A CoinFlip has no card (a coin isn't a card): `EventPred::Card(..)` is false on it (`v.card` stays None;
     // test `coin_flip_has_no_card`); the probe below only orders the lock cards, whatever its card.
@@ -1880,13 +1880,14 @@ pub fn event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'sta
         return Ok(None);
     }
     let p = v.actor() as usize;
-    if !may_lock_event(g, p, v.kind) {
+    if !may_lock_event(g.g(), p, v.kind) {
         return Ok(None);
     }
     if let (Some(marker), Some(kind)) = (lock_marker(v.kind), v.kind.effect_kind()) {
-        if g.kinds_present.has(marker) {
-            let probe = Effect::EndTurn { p: p as u8 };
-            let order = g.propagation_order(&probe, kind);
+        if g.g().kinds_present.has(marker) {
+            // The lock sources of the event's kind, in the propagation order (`decl::kind_listeners`: no dispatch index,
+            // a plain read).
+            let order = crate::decl::kind_listeners(g.g(), kind);
             for c in order.iter().copied() {
                 if let Some(code) = event_locked_by(g, c, v)? {
                     return Ok(Some(code));
@@ -2131,8 +2132,8 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
 }
 
 /// [`event_locked`] for one in-play lock source `me`.
-pub(crate) fn event_locked_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<Option<&'static str>> {
-    let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+pub(crate) fn event_locked_by<F: crate::derived::Facts>(g: &mut F, me: CardId, v: &super::event::EventView) -> R<Option<&'static str>> {
+    let passives: &'static [Passive] = crate::cards::spec_for(g.g().st.cards[me as usize].def).map_or(&[], |s| s.passives);
     for ps in passives {
         if let Modifier::BlockUse(b) = &ps.modifier {
             if let Some(code) = event_lock_blocks(g, me, ps.origin, b, v)? {
@@ -2146,26 +2147,26 @@ pub(crate) fn event_locked_by(g: &mut Game, me: CardId, v: &super::event::EventV
 /// [`event_locked`] for the locks an attack left: on the event's actor (the locked player), and on the Pokémon the event
 /// is about (its spot, a retreat's leaving Pokémon: "this Pokémon can't attack / retreat during your next turn", APR
 /// C-15), evaluated for that Pokémon; a lock naming an attack forbids only that attack.
-pub fn lasting_event_locked(g: &mut Game, v: &super::event::EventView) -> R<Option<&'static str>> {
+pub fn lasting_event_locked<F: crate::derived::Facts>(g: &mut F, v: &super::event::EventView) -> R<Option<&'static str>> {
     let p = v.actor() as usize;
-    for i in 0..g.st.players[p].lasting_locks.len() {
-        let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
+    for i in 0..g.g().st.players[p].lasting_locks.len() {
+        let Some(l) = g.g().st.players[p].lasting_locks[i] else { continue };
         if l.decl.coin == CoinGate::No && !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
             return Ok(Some(l.decl.error));
         }
     }
     let spots = [v.slot, v.from.filter(|f| Some(*f) != v.slot)];
     for s in spots.into_iter().flatten() {
-        let n = g.st.slot(s.p as usize, s.s).lasting_locks.len();
+        let n = g.g().st.slot(s.p as usize, s.s).lasting_locks.len();
         if n == 0 {
             continue;
         }
-        let Some(me) = g.st.slot_pokemon(s.p as usize, s.s) else { continue };
+        let Some(me) = g.g().st.slot_pokemon(s.p as usize, s.s) else { continue };
         for i in 0..n {
-            let l = g.st.slot(s.p as usize, s.s).lasting_locks.as_slice()[i];
+            let l = g.g().st.slot(s.p as usize, s.s).lasting_locks.as_slice()[i];
             let named = match l.attack {
                 None => true,
-                Some(name) => v.attack.map_or(false, |a| crate::engine::attack::attack_def(g, a).name == name),
+                Some(name) => v.attack.map_or(false, |a| crate::engine::attack::attack_def(g.g(), a).name == name),
             };
             if named && l.decl.coin == CoinGate::No && l.decl.forbids.eval(g, me, v)? {
                 return Ok(Some(l.decl.error));
@@ -2195,11 +2196,11 @@ pub fn coin_gate_cause(g: &Game, p: usize) -> Option<crate::cause::Cause> {
 }
 
 /// Does the in-play lock `b` of `me` forbid the event (`LockDecl::forbids`)?
-pub(crate) fn event_lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b: &BlockUseSpec, v: &super::event::EventView) -> R<Option<&'static str>> {
+pub(crate) fn event_lock_blocks<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, b: &BlockUseSpec, v: &super::event::EventView) -> R<Option<&'static str>> {
     if b.lock.forbids.is_never() {
         return Ok(None);
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
     // The locked player is the actor (`EventView::actor`).
     let p = v.actor() as usize;
     let binds = match b.binds {
@@ -2207,7 +2208,7 @@ pub(crate) fn event_lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b:
         Binds::Owner => p == at.owner,
         Binds::Both => true,
     };
-    if !binds || !crate::engine::enter::while_ok(g, me, at, b.while_, v.card) {
+    if !binds || !crate::engine::enter::while_ok(g.g(), me, at, b.while_, v.card) {
         return Ok(None);
     }
     if !b.lock.forbids.eval(g, me, v)? {
@@ -2220,34 +2221,34 @@ pub(crate) fn event_lock_blocks(g: &mut Game, me: CardId, origin: RuleSource, b:
 }
 
 /// Does the lock source `me` have its Ability (`derived::has_no_ability`, the lock pass)?
-fn source_ability_on(g: &mut Game, owner: usize, me: CardId) -> bool {
-    !crate::derived::has_no_ability(g, owner, me, None)
+fn source_ability_on<F: crate::derived::Facts>(g: &mut F, owner: usize, me: CardId) -> bool {
+    !g.has_no_ability(owner, me, None)
 }
 
 /// The lock pass for one use of a power (what the `Power` effect's handlers decided; a lock probe when `probe`, a real
 /// use otherwise): is it blocked? A copied attack's source code, run for the copycat, can't use the copycat's own
 /// Abilities; otherwise each Ability lock of the game (`Game::lock_cards`, any zone: each checks where its source is) is
 /// asked, undelegated as the card handlers were. A blocked answer of one lock, or an error of its reads, blocks.
-pub(crate) fn power_blocked(g: &mut Game, p: usize, power: crate::effects::PowerRef, card: CardId, probe: bool) -> bool {
-    if matches!(g.deleg, Some(d) if d.attacks && d.copycat == card) {
+pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, p: usize, power: crate::effects::PowerRef, card: CardId, probe: bool) -> bool {
+    if matches!(g.g().deleg, Some(d) if d.attacks && d.copycat == card) {
         return true;
     }
     if !probe && crate::game::verify_cache() {
         // A lock's "a real use of its own power" probe: no program would run (none of the pool's lock sources has one).
-        assert!(!crate::spec::run::power_has_program(g, power), "a lock probe of power {power:?}, which has a program");
+        assert!(!crate::spec::run::power_has_program(g.g(), power), "a lock probe of power {power:?}, which has a program");
     }
-    let saved = g.deleg.take();
-    let lockers = g.lock_cards;
+    let lockers = g.g().lock_cards;
+    g.undelegated(|g| {
     let mut blocked = false;
     'cards: for (w, bits) in lockers.iter().enumerate() {
         let mut b = *bits;
         while b != 0 {
             let c = (w * 64 + b.trailing_zeros() as usize) as CardId;
             b &= b - 1;
-            for ps in lock_passives(g, c) {
+            for ps in lock_passives(g.g(), c) {
                 let hit = match &ps.modifier {
-                    Modifier::ActiveLock(l) => active_lock_subject(g, *l, power, probe) && !matches!(active_lock_applies(g, c, *l, p, card, true), Ok(false)),
-                    Modifier::AbilityLock(l) => power_subject(g, &l.powers, power) && !matches!(is_locked(g, c, card, l), Ok(false)),
+                    Modifier::ActiveLock(l) => active_lock_subject(g.g(), *l, power, probe) && !matches!(active_lock_applies(g, c, *l, p, card, true), Ok(false)),
+                    Modifier::AbilityLock(l) => power_subject(g.g(), &l.powers, power) && !matches!(is_locked(g, c, card, l), Ok(false)),
                     _ => false,
                 };
                 if hit {
@@ -2257,19 +2258,19 @@ pub(crate) fn power_blocked(g: &mut Game, p: usize, power: crate::effects::Power
             }
         }
     }
-    g.deleg = saved;
     blocked
+    })
 }
 
 /// The powers player `p`'s Pokémon card `card` has now: its printed ones, less those each Ability lock of the game takes
 /// away (`CheckPokemonPowers`' handlers), in the propagation order of that check.
-pub(crate) fn powers_now(g: &mut Game, p: usize, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
+pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
     let mut powers: SVec<crate::effects::PowerRef, 8> = SVec::new();
-    for i in 0..g.st.cdef(card).powers.len() {
+    for i in 0..g.g().st.cdef(card).powers.len() {
         powers.push(crate::effects::PowerRef { card, index: i as u8 });
     }
     let mut cards: SVec<CardId, 120> = SVec::new();
-    for (w, bits) in g.lock_cards.iter().enumerate() {
+    for (w, bits) in g.g().lock_cards.iter().enumerate() {
         let mut b = *bits;
         while b != 0 {
             cards.push((w * 64 + b.trailing_zeros() as usize) as CardId);
@@ -2279,17 +2280,16 @@ pub(crate) fn powers_now(g: &mut Game, p: usize, card: CardId) -> R<SVec<crate::
     if cards.is_empty() {
         return Ok(powers);
     }
-    let order = crate::decl::ordered(g, cards, crate::game::PROP_CHECK_POWERS);
-    let saved = g.deleg.take();
-    let r = (|| -> R<SVec<crate::effects::PowerRef, 8>> {
+    let order = crate::decl::ordered(g.g(), cards, crate::game::PROP_CHECK_POWERS);
+    g.undelegated(|g| -> R<SVec<crate::effects::PowerRef, 8>> {
         for c in order.iter().copied() {
-            for ps in lock_passives(g, c) {
+            for ps in lock_passives(g.g(), c) {
                 match &ps.modifier {
                     Modifier::ActiveLock(l) => {
                         if active_lock_applies(g, c, *l, p, card, false)? {
                             let mut out = SVec::new();
                             for pw in powers.iter() {
-                                if !active_lock_subject(g, *l, *pw, false) {
+                                if !active_lock_subject(g.g(), *l, *pw, false) {
                                     out.push(*pw);
                                 }
                             }
@@ -2300,7 +2300,7 @@ pub(crate) fn powers_now(g: &mut Game, p: usize, card: CardId) -> R<SVec<crate::
                         if is_locked(g, c, card, l)? {
                             let mut out = SVec::new();
                             for pw in powers.iter() {
-                                if !power_subject(g, &l.powers, *pw) {
+                                if !power_subject(g.g(), &l.powers, *pw) {
                                     out.push(*pw);
                                 }
                             }
@@ -2312,9 +2312,7 @@ pub(crate) fn powers_now(g: &mut Game, p: usize, card: CardId) -> R<SVec<crate::
             }
         }
         Ok(powers)
-    })();
-    g.deleg = saved;
-    r
+    })
 }
 
 /// Does the effect of `card`'s Ability `power` reach the Pokémon in `target` (what the `EffectOfAbility` probe's
@@ -2456,9 +2454,9 @@ fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &Atta
 }
 
 /// Does `me` (an Ability on the attacking player's Active Pokémon) let `p`'s attacks be used on the first turn?
-fn first_turn_grants(g: &mut Game, me: CardId, origin: RuleSource, a: &AttackFlagsSpec, p: usize) -> bool {
-    let active = g.st.players[p].active;
-    if !a.first_turn || !g.st.slot(p, active).cards.contains(me) || g.st.turn != 1 {
+fn first_turn_grants<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, a: &AttackFlagsSpec, p: usize) -> bool {
+    let active = g.g().st.players[p].active;
+    if !a.first_turn || !g.g().st.slot(p, active).cards.contains(me) || g.g().st.turn != 1 {
         return false;
     }
     let at = Located { owner: p, held: None };
@@ -2467,17 +2465,17 @@ fn first_turn_grants(g: &mut Game, me: CardId, origin: RuleSource, a: &AttackFla
 
 /// Legality: will an Ability on `p`'s Active Pokémon let the attack be used on the first turn (the flag
 /// `attack_flags` writes when the `UseAttack` effect reaches it)?
-pub fn grants_first_turn_attack(g: &mut Game, p: usize) -> bool {
-    if g.st.turn != 1 || !g.kinds_present.has(crate::effects::k::USE_ATTACK) {
+pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize) -> bool {
+    if g.g().st.turn != 1 || !g.g().kinds_present.has(crate::effects::k::USE_ATTACK) {
         return false;
     }
-    let active = g.st.players[p].active;
+    let active = g.g().st.players[p].active;
     let mut cards: SVec<CardId, 8> = SVec::new();
-    for c in g.st.slot(p, active).cards.iter() {
+    for c in g.g().st.slot(p, active).cards.iter() {
         cards.push(c);
     }
     for me in cards.iter().copied() {
-        let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
+        let passives: &'static [Passive] = crate::cards::spec_for(g.g().st.cards[me as usize].def).map_or(&[], |s| s.passives);
         for ps in passives {
             if let Modifier::AttackFlags(a) = &ps.modifier {
                 if a.shred.is_none() && first_turn_grants(g, me, ps.origin, a, p) {
@@ -2502,15 +2500,15 @@ fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
 
 /// `BenchAttacks` of `me` (Mew ex's Memory Helix): the Benched Pokémon's attacks it adds to player `p`'s attack list, as
 /// copied ones.
-pub(crate) fn bench_attacks_into(g: &mut Game, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
-    if g.st.active_pokemon(p) != Some(me) || blocked(g, me, origin, Located { owner: p, held: None }, None) {
+pub(crate) fn bench_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
+    if g.g().st.active_pokemon(p) != Some(me) || blocked(g, me, origin, Located { owner: p, held: None }, None) {
         return Ok(());
     }
     let mut add: SVec<AttackRef, 32> = SVec::new();
-    let bench: Vec<crate::state::SlotId> = g.st.players[p].bench.iter().copied().collect();
+    let bench: Vec<crate::state::SlotId> = g.g().st.players[p].bench.iter().copied().collect();
     for b in bench {
-        if let Some(c) = g.st.slot_pokemon(p, b) {
-            for i in 0..g.st.cdef(c).attacks.len() {
+        if let Some(c) = g.g().st.slot_pokemon(p, b) {
+            for i in 0..g.g().st.cdef(c).attacks.len() {
                 add.push(AttackRef { card: c, index: i as u8 });
             }
         }
@@ -2584,31 +2582,31 @@ fn first_ability(g: &Game, c: CardId) -> Option<crate::effects::PowerRef> {
 
 /// Would lock `pa` of `a`, in place, turn off the Ability of lock source `s` where it is now? Position and
 /// coverage only: the lock's own probes aren't run.
-fn lock_covers(g: &mut Game, a: CardId, pa: &Passive, s: CardId) -> R<bool> {
-    let Some(owner) = lock_position(g, a, pa) else { return Ok(false) };
-    let Some(power) = first_ability(g, s) else { return Ok(false) };
-    let slot = match g.st.locate(s) {
+fn lock_covers<F: crate::derived::Facts>(g: &mut F, a: CardId, pa: &Passive, s: CardId) -> R<bool> {
+    let Some(owner) = lock_position(g.g(), a, pa) else { return Ok(false) };
+    let Some(power) = first_ability(g.g(), s) else { return Ok(false) };
+    let slot = match g.g().st.locate(s) {
         Some(ListRef::Slot(q, sl)) => SlotRef::new(q as usize, sl),
         _ => return Ok(false),
     };
     match &pa.modifier {
         Modifier::ActiveLock(l) => {
-            if !active_lock_subject(g, *l, power, false) {
+            if !active_lock_subject(g.g(), *l, power, false) {
                 return Ok(false);
             }
             Ok(match l {
                 ActiveLock::MidnightFluttering => {
                     // Hide 'n' Sneak takes precedence over Midnight Fluttering.
-                    slot == SlotRef::new(1 - owner, g.st.players[1 - owner].active) && !g.st.cdef(s).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak")
+                    slot == SlotRef::new(1 - owner, g.g().st.players[1 - owner].active) && !g.g().st.cdef(s).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak")
                 }
                 ActiveLock::Initialization => {
-                    let d = g.st.cdef(s);
+                    let d = g.g().st.cdef(s);
                     !d.has_tag(tag::FUTURE) && d.has_rule_box()
                 }
             })
         }
         Modifier::AbilityLock(l) => {
-            if !power_subject(g, &l.powers, power) || !pred(g, s, &l.card) {
+            if !power_subject(g.g(), &l.powers, power) || !pred(g.g(), s, &l.card) {
                 return Ok(false);
             }
             Ok(slot_pred_m(g, a, slot, &l.slot).unwrap_or(false))
@@ -2637,28 +2635,28 @@ fn lock_turn_order(g: &Game, c: CardId) -> (bool, CardId) {
 
 /// Lock `a` covers lock source `s`: does it win? It does when `s` can't turn `a` off in return, or `a` took
 /// hold first.
-fn lock_beats(g: &mut Game, a: CardId, s: CardId) -> R<bool> {
+fn lock_beats<F: crate::derived::Facts>(g: &mut F, a: CardId, s: CardId) -> R<bool> {
     let mut mutual = false;
-    for ps in lock_passives(g, s) {
+    for ps in lock_passives(g.g(), s) {
         if lock_covers(g, s, ps, a)? {
             mutual = true;
             break;
         }
     }
-    Ok(!mutual || lock_earlier(g, a, s))
+    Ok(!mutual || lock_earlier(g.g(), a, s))
 }
 
 /// Does the source of lock `p` have its Ability (it is in place, `owner`'s)? Probed as the lock itself does.
 /// A Stadium has none to turn off.
-fn lock_has_ability(g: &mut Game, c: CardId, p: &Passive, owner: usize) -> bool {
+fn lock_has_ability<F: crate::derived::Facts>(g: &mut F, c: CardId, p: &Passive, owner: usize) -> bool {
     if p.origin != RuleSource::Ability {
         return true;
     }
-    let real = |g: &mut Game, index: u8| !power_blocked(g, owner, crate::effects::PowerRef { card: c, index }, c, false);
+    let real = |g: &mut F, index: u8| !power_blocked(g, owner, crate::effects::PowerRef { card: c, index }, c, false);
     match &p.modifier {
         Modifier::ActiveLock(_) => real(g, 0),
         Modifier::AbilityLock(l) => match l.probe {
-            LockerProbe::Generic => !crate::derived::has_no_ability(g, owner, c, None),
+            LockerProbe::Generic => !g.has_no_ability(owner, c, None),
             LockerProbe::OwnPower(i) => real(g, i),
             LockerProbe::StadiumOnSlot => true,
         },
@@ -2807,46 +2805,46 @@ fn active_lock_subject(g: &Game, l: ActiveLock, power: crate::effects::PowerRef,
 
 /// The `HANDLE_ABILITY_LOCK` callback: is `card`'s Ability locked by `me`? `player` is the player of the
 /// effect being checked, `power_effect` whether it is a use of an Ability.
-fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, card: CardId, power_effect: bool) -> R<bool> {
+fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: ActiveLock, player: usize, card: CardId, power_effect: bool) -> R<bool> {
     let own = crate::effects::PowerRef { card: me, index: 0 };
     match l {
         ActiveLock::MidnightFluttering => {
             // Only a Flutter Mane in its owner's Active Spot locks, and only the opponent's Active Pokémon; a card
             // anywhere else (a deck, a list of cards being looked at) is neither.
-            let Some(owner) = g.st.locate(me).and_then(|l| l.owner()) else { return Ok(false) };
-            if g.st.active_pokemon(owner) != Some(me) {
+            let Some(owner) = g.g().st.locate(me).and_then(|l| l.owner()) else { return Ok(false) };
+            if g.g().st.active_pokemon(owner) != Some(me) {
                 return Ok(false);
             }
             let opponent = 1 - owner;
-            if g.st.locate(card) != Some(ListRef::Slot(opponent as u8, g.st.players[opponent].active)) {
+            if g.g().st.locate(card) != Some(ListRef::Slot(opponent as u8, g.g().st.players[opponent].active)) {
                 return Ok(false);
             }
             // Hide 'n' Sneak takes precedence over Midnight Fluttering.
-            if g.st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
+            if g.g().st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
                 return Ok(false);
             }
             // LOCKER_ABILITY_APPLIES: a lock source is turned off only by a lock that wins over it.
-            if lock_passives(g, card).next().is_some() && !lock_beats(g, me, card)? {
+            if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
                 return Ok(false);
             }
             Ok(!power_blocked(g, owner, own, me, false))
         }
         ActiveLock::Initialization => {
-            if g.st.active_pokemon(player) != Some(me) && g.st.active_pokemon(1 - player) != Some(me) {
+            if g.g().st.active_pokemon(player) != Some(me) && g.g().st.active_pokemon(1 - player) != Some(me) {
                 return Ok(false);
             }
             // A card in the hand is judged by its printed data (docs/rulings/RULES.md): only Pokémon in play are locked.
-            let slot = match g.st.locate(card) {
+            let slot = match g.g().st.locate(card) {
                 Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
                 _ => return Ok(false),
             };
-            let d = g.st.cdef(card);
+            let d = g.g().st.cdef(card);
             if d.has_tag(tag::FUTURE) || !d.has_rule_box() {
                 return Ok(false);
             }
-            let locker_owner = if g.st.active_pokemon(player) == Some(me) { player } else { 1 - player };
+            let locker_owner = if g.g().st.active_pokemon(player) == Some(me) { player } else { 1 - player };
             // LOCKER_ABILITY_APPLIES
-            if lock_passives(g, card).next().is_some() && !lock_beats(g, me, card)? {
+            if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
                 return Ok(false);
             }
             if power_blocked(g, locker_owner, own, me, false) {
@@ -2854,7 +2852,7 @@ fn active_lock_applies(g: &mut Game, me: CardId, l: ActiveLock, player: usize, c
             }
             if power_effect {
                 // CAN_APPLY_LOCK_TO_TARGET
-                return Ok(effect_of_ability_reaches(g, me, own, slot));
+                return Ok(effect_of_ability_reaches(g.g(), me, own, slot));
             }
             Ok(true)
         }
@@ -2887,8 +2885,8 @@ fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
 }
 
 /// A guard evaluated with checked reads (Energy provided, types as the game checks them).
-fn guard_ok_m(g: &mut Game, me: CardId, origin: RuleSource, owner: usize, guard: &Cond) -> R<bool> {
-    let f = run::Frame::passive(g, me, owner, origin);
+fn guard_ok_m<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, owner: usize, guard: &Cond) -> R<bool> {
+    let f = run::Frame::passive(g.g(), me, owner, origin);
     cond_m(g, me, &f, guard)
 }
 

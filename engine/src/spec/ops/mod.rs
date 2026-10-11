@@ -126,7 +126,7 @@ pub(crate) fn any_effect_possible(g: &Game, me: CardId, f: &Frame, steps: &[Step
 }
 
 /// Does the condition of a `Fail` op hold (read by the executor and by legality)?
-pub(crate) fn fail_holds(g: &mut Game, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
+pub(crate) fn fail_holds<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
     flow::fail_holds(g, me, f, x)
 }
 

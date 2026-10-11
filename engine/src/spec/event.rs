@@ -466,8 +466,8 @@ fn who_is(g: &Game, me: CardId, w: Who, player: u8) -> bool {
 }
 
 /// Does the spot match, with a checked read when the predicate needs one (never fails open)?
-fn slot_matches(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<bool> {
-    Ok(match slot_pred(g, me, s, sp) {
+fn slot_matches<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, sp: &SlotPred) -> R<bool> {
+    Ok(match slot_pred(g.g(), me, s, sp) {
         Some(b) => b,
         None => slot_pred_m(g, me, s, sp)?,
     })
@@ -486,19 +486,19 @@ impl CausePred {
 
     /// Does the cause match, for the card `me` that declares the predicate? A spot predicate on the causing Pokémon
     /// (`Pokemon`) makes a checked read where it needs one (never fails open).
-    pub fn eval(&self, g: &mut Game, me: CardId, c: &Cause) -> R<bool> {
+    pub fn eval<F: crate::derived::Facts>(&self, g: &mut F, me: CardId, c: &Cause) -> R<bool> {
         Ok(match self {
             CausePred::Kind(k) => c.kind == *k,
             CausePred::Rule => matches!(c.kind, CauseKind::Rule { .. }),
-            CausePred::By(w) => who_is(g, me, *w, c.player),
-            CausePred::Card(p) => c.card.map_or(false, |x| pred(g, x, p)),
-            CausePred::Pokemon(sp) => match c.card.and_then(|x| g.st.find_pokemon_slot(x)) {
-                Some((q, s)) if g.st.slot_pokemon(q, s) == c.card => slot_matches(g, me, SlotRef::new(q, s), sp)?,
+            CausePred::By(w) => who_is(g.g(), me, *w, c.player),
+            CausePred::Card(p) => c.card.map_or(false, |x| pred(g.g(), x, p)),
+            CausePred::Pokemon(sp) => match c.card.and_then(|x| g.g().st.find_pokemon_slot(x)) {
+                Some((q, s)) if g.g().st.slot_pokemon(q, s) == c.card => slot_matches(g, me, SlotRef::new(q, s), sp)?,
                 _ => false,
             },
-            CausePred::Attack(name) => c.attack.map_or(false, |a| crate::engine::attack::attack_def(g, a).name == *name),
-            CausePred::Holder => match (c.card, g.st.find_pokemon_slot(me)) {
-                (Some(x), Some((q, s))) => x != me && g.st.slot_pokemon(q, s) == Some(x),
+            CausePred::Attack(name) => c.attack.map_or(false, |a| crate::engine::attack::attack_def(g.g(), a).name == *name),
+            CausePred::Holder => match (c.card, g.g().st.find_pokemon_slot(me)) {
+                (Some(x), Some((q, s))) => x != me && g.g().st.slot_pokemon(q, s) == Some(x),
                 _ => false,
             },
             CausePred::All(ps) => {
@@ -747,7 +747,7 @@ impl EventPred {
     /// Does the event match, for the card `me` that declares the predicate? A slot predicate that needs a
     /// checked read (`SlotPred::TypeIs`, `HasAbility`, ...) makes it: a predicate never fails open (events
     /// design, section 11 item 1).
-    pub fn eval(&self, g: &mut Game, me: CardId, v: &EventView) -> R<bool> {
+    pub fn eval<F: crate::derived::Facts>(&self, g: &mut F, me: CardId, v: &EventView) -> R<bool> {
         Ok(match self {
             EventPred::Kind(k) => v.kind == *k,
             EventPred::Manual(m) => v.manual == *m,
@@ -755,8 +755,8 @@ impl EventPred {
             EventPred::Source(z) => v.source == Some(*z),
             EventPred::Path(p) => v.path == Some(*p),
             EventPred::Cause(c) => c.eval(g, me, &v.cause)?,
-            EventPred::Card(p) => v.card.map_or(false, |c| pred(g, c, p)),
-            EventPred::Base(p) => v.base.map_or(false, |c| pred(g, c, p)),
+            EventPred::Card(p) => v.card.map_or(false, |c| pred(g.g(), c, p)),
+            EventPred::Base(p) => v.base.map_or(false, |c| pred(g.g(), c, p)),
             EventPred::This(Role::Card) => v.card == Some(me),
             EventPred::This(Role::Base) => v.base == Some(me),
             EventPred::This(Role::CauseCard) => v.cause.card == Some(me),
@@ -764,12 +764,12 @@ impl EventPred {
                 None => false,
                 Some(s) => slot_matches(g, me, s, sp)?,
             },
-            EventPred::Owner(w) => who_is(g, me, *w, v.owner),
+            EventPred::Owner(w) => who_is(g.g(), me, *w, v.owner),
             EventPred::Turn(t) => match t {
                 TurnOf::EventOwner => v.turn == v.owner,
                 TurnOf::NotEventOwner => v.turn != v.owner,
-                TurnOf::Me => v.turn == g.st.owner(me) as u8,
-                TurnOf::Opp => v.turn == 1 - g.st.owner(me) as u8,
+                TurnOf::Me => v.turn == g.g().st.owner(me) as u8,
+                TurnOf::Opp => v.turn == 1 - g.g().st.owner(me) as u8,
             },
             EventPred::Condition(c) => v.condition == Some(*c),
             EventPred::Change(c) => v.change == Some(*c),
@@ -789,7 +789,7 @@ impl EventPred {
             EventPred::DamagedActive => v.damaged_active,
             EventPred::Use(u) => v.trainer_use == Some(*u),
             EventPred::CauseOnSlot => match (v.cause.card, v.slot) {
-                (Some(c), Some(s)) => g.st.slot_pokemon(s.p as usize, s.s) == Some(c),
+                (Some(c), Some(s)) => g.g().st.slot_pokemon(s.p as usize, s.s) == Some(c),
                 _ => false,
             },
             EventPred::Purpose(p) => v.purpose == Some(*p),

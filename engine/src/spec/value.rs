@@ -311,7 +311,12 @@ pub fn zone_cards_of(g: &Game, me: CardId, f: &Frame, z: ZoneRef) -> Vec<CardId>
     if let Zone::Tools(e) = z.1 {
         return slot_of(g, me, f, e).map(|s| g.st.slot(s.p as usize, s.s).tools.iter().collect()).unwrap_or_default();
     }
-    zone_list(g, me, f, z, false).map(|l| g.lst(l).to_vec()).unwrap_or_default()
+    match zone_list(g, me, f, z, false) {
+        // A legality check's played Item and its companion are out of the hand (`Frame::excl`).
+        Some(l @ ListRef::Hand(_)) if f.excl[0] != crate::list::NO_CARD => g.lst(l).iter().copied().filter(|c| !f.out_of_hand(*c)).collect(),
+        Some(l) => g.lst(l).to_vec(),
+        None => Vec::new(),
+    }
 }
 
 pub fn slot_of(g: &Game, me: CardId, f: &Frame, s: SlotExpr) -> Option<SlotRef> {
@@ -415,7 +420,7 @@ pub fn num(g: &Game, me: CardId, f: &Frame, n: &Num) -> i32 {
             let mut types: Vec<u8> = Vec::new();
             for c in g.lst(zone_ref(f, *z)).iter() {
                 let d = g.st.cdef(*c);
-                if pred(g, *c, p) {
+                if !f.out_of_hand(*c) && pred(g, *c, p) {
                     if let Some(t) = d.provides.first() {
                         if !types.contains(t) {
                             types.push(*t);
@@ -488,7 +493,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::ZoneIs(z, n) => zone_cards_of(g, me, f, *z).len() as i32 == *n,
         Cond::LastCardInHand(w) => {
             let hand = &g.st.players[f.who(*w)].hand;
-            hand.contains(me) && hand.iter().all(|c| c == me)
+            !f.out_of_hand(me) && hand.contains(me) && hand.iter().filter(|c| !f.out_of_hand(*c)).all(|c| c == me)
         }
         Cond::TypesShared(a, b) => {
             let printed = |sel: &SlotSel| -> Vec<CardType> {
@@ -900,7 +905,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
 }
 
 /// Slot predicate with checked reads.
-pub fn slot_pred_m(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<bool> {
+pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, sp: &SlotPred) -> R<bool> {
     Ok(match sp {
         SlotPred::Not(q) => !slot_pred_m(g, me, s, q)?,
         SlotPred::All(qs) => {
@@ -919,27 +924,27 @@ pub fn slot_pred_m(g: &mut Game, me: CardId, s: SlotRef, sp: &SlotPred) -> R<boo
             }
             false
         }
-        SlotPred::StadiumEffectActive => !crate::derived::stadium_off(g),
-        SlotPred::TypeIs(t) => crate::derived::types(g, s)?.contains(t),
-        SlotPred::Provides(t) => crate::derived::provided_energy(g, s.p as usize, s)?.iter().any(|m| m.provides.contains(t) || m.provides.contains(&ct::ANY)),
-        SlotPred::NoEnergyProvided => crate::derived::provided_energy(g, s.p as usize, s)?.is_empty(),
+        SlotPred::StadiumEffectActive => !crate::derived::stadium_off(g.g()),
+        SlotPred::TypeIs(t) => g.types(s)?.contains(t),
+        SlotPred::Provides(t) => g.provided_energy(s.p as usize, s)?.iter().any(|m| m.provides.contains(t) || m.provides.contains(&ct::ANY)),
+        SlotPred::NoEnergyProvided => g.provided_energy(s.p as usize, s)?.is_empty(),
         SlotPred::RemainingHpAtMost(n) => {
-            if g.st.slot_pokemon(s.p as usize, s.s).is_none() {
+            if g.g().st.slot_pokemon(s.p as usize, s.s).is_none() {
                 return Ok(false);
             }
-            let hp = crate::derived::hp(g, s.p as usize, s.s)?;
-            hp - g.st.slot(s.p as usize, s.s).damage <= *n
+            let hp = g.hp(s.p as usize, s.s)?;
+            hp - g.g().st.slot(s.p as usize, s.s).damage <= *n
         }
         SlotPred::HasAbility => {
-            let Some(src) = g.st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
-            crate::derived::powers(g, s.p as usize, src)?.iter().any(|r| g.st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
+            let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
+            g.powers(s.p as usize, src)?.iter().any(|r| g.g().st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
         }
-        _ => slot_pred(g, me, s, sp).expect("pure slot predicate"),
+        _ => slot_pred(g.g(), me, s, sp).expect("pure slot predicate"),
     })
 }
 
 /// The selected Pokémon, with checked reads in the filters.
-pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
+pub fn slots_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>> {
     match sel {
         SlotSel::Filtered(inner, sp) => {
             let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
@@ -951,12 +956,12 @@ pub fn slots_m(g: &mut Game, me: CardId, f: &Frame, sel: &SlotSel) -> R<SVec<Slo
             Ok(out)
         }
         SlotSel::Cancelable(inner) => slots_m(g, me, f, inner),
-        _ => Ok(slots_of(g, me, f, sel)),
+        _ => Ok(slots_of(g.g(), me, f, sel)),
     }
 }
 
 /// `num` with checked reads (CheckProvidedEnergy, CheckPokemonType).
-pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
+pub fn num_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, n: &Num) -> R<i32> {
     Ok(match n {
         Num::Add(a, b) => num_m(g, me, f, a)? + num_m(g, me, f, b)?,
         Num::Sub(a, b) => num_m(g, me, f, a)? - num_m(g, me, f, b)?,
@@ -984,17 +989,18 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
             for s in slots_m(g, me, f, sel)?.iter() {
                 total += match unit {
                     EnergyUnit::SpecialEnergyCards => g
+                        .g()
                         .st
                         .slot(s.p as usize, s.s)
                         .cards
                         .iter()
                         .filter(|c| {
-                            let d = g.st.cdef(*c);
+                            let d = g.g().st.cdef(*c);
                             d.is_energy() && d.energy_type == EnergyType::Special as u8
                         })
                         .count() as i32,
                     EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::MatchingEntries(_) | EnergyUnit::ProvidedCards => {
-                        let energy_map = crate::derived::provided_energy(g, s.p as usize, *s)?;
+                        let energy_map = g.provided_energy(s.p as usize, *s)?;
                         let mut k = 0;
                         for em in energy_map.iter() {
                             k += match unit {
@@ -1012,13 +1018,13 @@ pub fn num_m(g: &mut Game, me: CardId, f: &Frame, n: &Num) -> R<i32> {
         }
         Num::RetreatCostColorless(w) => {
             let o = f.who(*w);
-            crate::derived::retreat_cost(g, o)?.iter().filter(|t| **t == ct::COLORLESS).count() as i32
+            g.retreat_cost(o)?.iter().filter(|t| **t == ct::COLORLESS).count() as i32
         }
         Num::CostNow => {
-            let Some((p, _, attack, _)) = crate::prefabs::attack_data(g, f.eff) else { return Ok(0) };
-            crate::derived::attack_cost(g, p as usize, attack)?.len() as i32
+            let Some((p, _, attack, _)) = crate::prefabs::attack_data(g.g(), f.eff) else { return Ok(0) };
+            g.attack_cost(p as usize, attack)?.len() as i32
         }
-        _ => num(g, me, f, n),
+        _ => num(g.g(), me, f, n),
     })
 }
 
@@ -1067,7 +1073,7 @@ pub fn cond_stable(c: &Cond) -> bool {
 }
 
 /// `cond` with checked reads.
-pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
+pub fn cond_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
     Ok(match c {
         Cond::Not(c) => !cond_m(g, me, f, c)?,
         Cond::Printed(c) => cond_m(g, me, f, c)?,
@@ -1099,15 +1105,15 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
             }
         }
         Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, me, f.p as usize)?,
-        Cond::AbilityBlocked => crate::derived::has_no_ability(g, f.p as usize, me, None),
+        Cond::AbilityBlocked => g.has_no_ability(f.p as usize, me, None),
         Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
-        Cond::ToolBlocked => crate::derived::tool_off(g, f.p as usize, me),
-        Cond::Slot(e, sp) => match slot_of(g, me, f, *e) {
+        Cond::ToolBlocked => g.tool_off(f.p as usize, me),
+        Cond::Slot(e, sp) => match slot_of(g.g(), me, f, *e) {
             Some(s) => slot_pred_m(g, me, s, sp)?,
             None => false,
         },
-        Cond::StadiumBlocked(e) => match slot_of(g, me, f, *e) {
-            Some(_) => crate::derived::stadium_off(g),
+        Cond::StadiumBlocked(e) => match slot_of(g.g(), me, f, *e) {
+            Some(_) => crate::derived::stadium_off(g.g()),
             None => false,
         },
         Cond::AnySlot(sel, sp) => {
@@ -1130,7 +1136,7 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
             }
             true
         }
-        _ => cond(g, me, f, c),
+        _ => cond(g.g(), me, f, c),
     })
 }
 

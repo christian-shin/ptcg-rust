@@ -164,11 +164,31 @@ pub struct Frame {
     /// the frame is created (`frame_cause`), from what starts the program. Not encoded: a resumed frame
     /// computes it again from the same fixed fields.
     pub(crate) cause: Cause,
+    /// The cards out of the hand while the program resolves, for a legality check made before the play (`for_check`: a
+    /// played Item and its companion are in the play area); `NO_CARD` otherwise. Not encoded (a check suspends nothing).
+    pub(crate) excl: [CardId; 2],
 }
+
+/// The effect of a frame that has none in the arena (a legality check's, `Frame::for_check`).
+pub(crate) const NO_EFF: EffId = EffId::MAX;
 
 impl Frame {
     pub(crate) fn new(prog: Prog, phase: Phase, eff: EffId, p: usize, cause: Cause) -> Frame {
-        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, outcome: Outcome::Impossible, cause }
+        Frame { prog, phase, path: [0; MAX_DEPTH], depth: 0, iter: [0; MAX_DEPTH], sub: 0, eff, p: p as u8, cards: [NONE; 2], heads: 0, slot: NONE, prize: NONE, attached_to: NONE, last: 0, via_attack: false, outcome: Outcome::Impossible, cause, excl: [NO_CARD; 2] }
+    }
+
+    /// The frame legality reads a card's checks in, before the card is used (batch 8 C3d: no scratch game): no effect in
+    /// the arena (`NO_EFF`), the cause the program would have, and the cards out of the hand while it resolves (`excl`).
+    pub(crate) fn for_check(prog: Prog, phase: Phase, p: usize, cause: Cause, excl: [CardId; 2]) -> Frame {
+        let mut f = Frame::new(prog, phase, NO_EFF, p, cause);
+        f.excl = excl;
+        f
+    }
+
+    /// Is card `c` out of the hand for this program (a legality check's played Item or its companion)?
+    #[inline]
+    pub(crate) fn out_of_hand(&self, c: CardId) -> bool {
+        c != NO_CARD && (self.excl[0] == c || self.excl[1] == c)
     }
 
     /// The frame a passive of card `me` (owned by `owner`) evaluates its conditions and numbers in. It runs no
@@ -252,6 +272,7 @@ impl Frame {
             last: (f.a[2] >> 16) as i16 as i32,
             cards: f.l,
             cause: Cause::rule(crate::cause::RuleWhich::Setup, 0),
+            excl: [NO_CARD; 2],
         })
         .map(|mut fr| {
             fr.cause = frame_cause(g, me, fr.prog, fr.p, fr.eff, fr.via_attack);
@@ -563,13 +584,13 @@ fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
 /// A Trainer, Ability or Stadium can be used when its declared `needs` hold (its printed conditions, and what the rules'
 /// walk doesn't derive yet: types, provided Energy, checked reads) and the rules' usability holds (`usable_by_rules`; user
 /// decision D10).
-fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -> R<bool> {
+fn usable<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -> R<bool> {
     for c in needs {
         if !cond_m(g, me, f, c)? {
             return Ok(false);
         }
     }
-    Ok(usable_by_rules(g, me, f, steps))
+    Ok(usable_by_rules(g.g(), me, f, steps))
 }
 
 /// The rules' usability of a Trainer's or an Ability's program (events design section 7; APR A-02, B-01, D-02, E-20, E-30;
@@ -706,7 +727,7 @@ impl RulesWalk {
 /// The declared checks of a Trainer's effect (`reduce` and legality both make them): the card's `needs` and implied
 /// preconditions (the turn's rules, one Supporter per turn, are the PlayTrainer's own checks, `engine::play_trainer`; a
 /// used Supporter has none of them).
-pub(crate) fn check_play(g: &mut Game, me: CardId, play: &PlaySpec, f: &Frame) -> R {
+pub(crate) fn check_play<F: crate::derived::Facts>(g: &mut F, me: CardId, play: &PlaySpec, f: &Frame) -> R {
     // A Trainer whose effect is used by another card (Look-Alike Show) keeps its printed conditions only (user decision
     // D5; official JP FAQ, Fire Energy MEE 2 / Mela): it may do nothing.
     if f.via_attack {
@@ -738,8 +759,8 @@ pub(crate) fn used_trainer_conditions(g: &mut Game, me: CardId, p: usize, atk: E
 }
 
 /// The declared checks of using an Ability: once per turn, then its `needs` and implied preconditions.
-pub(crate) fn check_power(g: &mut Game, me: CardId, pw: &PowerSpec, f: &Frame) -> R {
-    check_once(g, me, pw, f.p as usize)?;
+pub(crate) fn check_power<F: crate::derived::Facts>(g: &mut F, me: CardId, pw: &PowerSpec, f: &Frame) -> R {
+    check_once(g.g(), me, pw, f.p as usize)?;
     if !usable(g, me, f, pw.needs, pw.steps)? {
         crate::bail!("CANNOT_USE_POWER");
     }
@@ -765,7 +786,7 @@ fn check_once(g: &Game, me: CardId, pw: &PowerSpec, p: usize) -> R {
 }
 
 /// The declared checks of using the Stadium in play.
-pub(crate) fn check_use_stadium(g: &mut Game, me: CardId, us: &PlaySpec, f: &Frame) -> R {
+pub(crate) fn check_use_stadium<F: crate::derived::Facts>(g: &mut F, me: CardId, us: &PlaySpec, f: &Frame) -> R {
     if !usable(g, me, f, us.needs, us.steps)? {
         crate::bail!("CANNOT_USE_STADIUM");
     }
@@ -776,11 +797,12 @@ pub(crate) fn check_use_stadium(g: &mut Game, me: CardId, us: &PlaySpec, f: &Fra
 // Legality: the declared checks of a card, evaluated without running its program. `e` is the effect the
 // use would carry (made by the caller on its scratch game); each returns `Ok` for a card that declares none.
 
-/// A Trainer's play checks (`trainer_played`'s card, player `p`).
-pub fn trainer_play_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+/// A Trainer's play checks: player `p` plays `me` from the hand; `excl` the cards out of the hand while it resolves (a
+/// played Item and its companion are in the play area).
+pub fn trainer_play_check<F: crate::derived::Facts>(g: &mut F, me: CardId, p: usize, excl: [CardId; 2]) -> R {
+    let Some(spec) = crate::cards::spec_for(g.g().st.cards[me as usize].def) else { return Ok(()) };
     let Some(play) = &spec.play else { return Ok(()) };
-    let f = Frame::start(g, me, Prog::Play, Phase::Use, e, p, trainer_via_attack(g, e));
+    let f = Frame::for_check(Prog::Play, Phase::Use, p, Cause::of_trainer(g.g(), me, p as u8), excl);
     check_play(g, me, play, &f)
 }
 
@@ -793,23 +815,23 @@ pub fn power_once_check(g: &Game, me: CardId, index: u8, p: usize) -> R {
     }
 }
 
-/// The checks of using the power with printed index `index` of `me`.
-pub fn power_check(g: &mut Game, me: CardId, index: u8, p: usize, e: EffId) -> R {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+/// The checks of using the power with printed index `index` of `me` (player `p`).
+pub fn power_check<F: crate::derived::Facts>(g: &mut F, me: CardId, index: u8, p: usize) -> R {
+    let Some(spec) = crate::cards::spec_for(g.g().st.cards[me as usize].def) else { return Ok(()) };
     for (i, pw) in spec.powers.iter().enumerate() {
         if pw.index == index {
-            let f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
+            let f = Frame::for_check(Prog::Power(i as u8), Phase::Use, p, Cause::new(CauseKind::Ability, Some(me), p as u8), [NO_CARD; 2]);
             return check_power(g, me, pw, &f);
         }
     }
     Ok(())
 }
 
-/// The checks of using the Stadium `me` in play.
-pub fn use_stadium_check(g: &mut Game, me: CardId, p: usize, e: EffId) -> R {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
+/// The checks of using the Stadium `me` in play (player `p`).
+pub fn use_stadium_check<F: crate::derived::Facts>(g: &mut F, me: CardId, p: usize) -> R {
+    let Some(spec) = crate::cards::spec_for(g.g().st.cards[me as usize].def) else { return Ok(()) };
     let Some(us) = &spec.use_stadium else { return Ok(()) };
-    let f = Frame::start(g, me, Prog::UseStadium, Phase::Use, e, p, false);
+    let f = Frame::for_check(Prog::UseStadium, Phase::Use, p, Cause::new(CauseKind::Stadium, Some(me), p as u8), [NO_CARD; 2]);
     check_use_stadium(g, me, us, &f)
 }
 
@@ -837,13 +859,13 @@ pub fn plays_as_pokemon(spec: &CardSpec) -> bool {
     spec.play.as_ref().map_or(false, |p| p.steps.iter().any(|s| matches!(s.op, Op::PlayAsPokemon(_))))
 }
 
-/// The leading `Fail` steps of attack `attack`'s text before the damage (`e`: the `Attack` effect the use
-/// would carry; `p` the attacking player; `me` the card whose program runs: the attack's card, or the
-/// copycat when the attack is copied from a Benched Pokémon), evaluated as `run` does.
-pub fn attack_gate(g: &mut Game, me: CardId, attack: crate::state::AttackRef, p: usize, e: EffId) -> R<Gate> {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[attack.card as usize].def) else { return Ok(Gate::Open) };
+/// The leading `Fail` steps of attack `attack`'s text before the damage (`p` the attacking player; `me` the card whose
+/// program runs: the attack's card, or the copycat when the attack is copied from a Benched Pokémon), evaluated as `run`
+/// does, in the frame the attack's program would have (its cause; no effect: the leading conditions read none).
+pub fn attack_gate<F: crate::derived::Facts>(g: &mut F, me: CardId, attack: crate::state::AttackRef, p: usize) -> R<Gate> {
+    let Some(spec) = crate::cards::spec_for(g.g().st.cards[attack.card as usize].def) else { return Ok(Gate::Open) };
     let Some((i, a)) = spec.attacks.iter().enumerate().find(|(_, a)| a.index == attack.idx() as u8) else { return Ok(Gate::Open) };
-    let f = Frame::start(g, me, Prog::Attack(i as u8), Phase::BeforeDamage, e, p, false);
+    let f = Frame::for_check(Prog::Attack(i as u8), Phase::BeforeDamage, p, Cause { kind: CauseKind::Attack, card: Some(me), player: p as u8, attack: Some(attack) }, [NO_CARD; 2]);
     let mut leading = true;
     for s in a.steps {
         match &s.op {

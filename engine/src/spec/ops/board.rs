@@ -1379,22 +1379,22 @@ fn evolves_from_any(name: &str) -> bool {
 /// a Basic Pokémon that was put into play this turn"): the card's own restriction (`CardSpec::restricts`, which
 /// no permission lifts: official JP Q&A 2026-10-09), asked before the card is chosen
 /// (`engine::enter::evolve_limits`).
-fn from_deck_refused(g: &mut Game, t: SlotRef, cause: crate::cause::Cause) -> R<bool> {
-    let Some(v) = crate::engine::enter::evolve_view(g, None, t, super::super::event::RulesZone::Deck, super::super::event::EvolvePath::Effect, cause) else { return Ok(true) };
+fn from_deck_refused<F: crate::derived::Facts>(g: &mut F, t: SlotRef, cause: crate::cause::Cause) -> R<bool> {
+    let Some(v) = crate::engine::enter::evolve_view(g.g(), None, t, super::super::event::RulesZone::Deck, super::super::event::EvolvePath::Effect, cause) else { return Ok(true) };
     Ok(crate::engine::enter::evolve_limits(g, &v)?.is_some())
 }
 
 /// Whether some Basic Pokémon of `p` can evolve now (the cause card's restrictions allow it) into a card the
 /// game knows, and the Pokémon prompt's blocked targets.
-pub(crate) fn evolve_targets(g: &mut Game, p: usize, cause: crate::cause::Cause) -> R<(bool, TargetList)> {
+pub(crate) fn evolve_targets<F: crate::derived::Facts>(g: &mut F, p: usize, cause: crate::cause::Cause) -> R<(bool, TargetList)> {
     let mut any = false;
     let mut blocked: TargetList = SVec::new();
-    for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if g.st.cdef(c).stage != Stage::Basic as u8 || from_deck_refused(g, SlotRef::new(p, s), cause)? {
+    for (s, c, t) in for_each_pokemon(g.g(), p, PlayerType::BottomPlayer).iter().copied() {
+        if g.g().st.cdef(c).stage != Stage::Basic as u8 || from_deck_refused(g, SlotRef::new(p, s), cause)? {
             blocked.push(t);
             continue;
         }
-        if evolves_from_any(g.st.cdef(c).name) {
+        if evolves_from_any(g.g().st.cdef(c).name) {
             any = true;
         }
     }
@@ -1404,13 +1404,13 @@ pub(crate) fn evolve_targets(g: &mut Game, p: usize, cause: crate::cause::Cause)
 /// Can the effect (`cause`) evolve the Pokémon in `t` with `card` from `source`: it evolves from the Pokémon,
 /// and the Evolve event's checks allow it (`enter::check_evolve`: the locks, the card's own
 /// restrictions). An effect offers only cards it can put onto the Pokémon.
-fn effect_can_evolve(g: &mut Game, t: SlotRef, card: CardId, source: super::super::event::RulesZone, cause: crate::cause::Cause) -> R<bool> {
+fn effect_can_evolve<F: crate::derived::Facts>(g: &mut F, t: SlotRef, card: CardId, source: super::super::event::RulesZone, cause: crate::cause::Cause) -> R<bool> {
     use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
-    let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
-    if !evolves_into(g, base, card, Reach::Next) {
+    let Some(base) = g.g().st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
+    if !evolves_into(g.g(), base, card, Reach::Next) {
         return Ok(false);
     }
-    let Some(v) = evolve_view(g, Some(card), t, source, super::super::event::EvolvePath::Effect, cause) else { return Ok(false) };
+    let Some(v) = evolve_view(g.g(), Some(card), t, source, super::super::event::EvolvePath::Effect, cause) else { return Ok(false) };
     Ok(check_evolve(g, &v, Reach::Next).is_ok())
 }
 
@@ -1480,14 +1480,14 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
 /// Can Rare Candy (`cause`) evolve the Basic Pokémon in `t` with one of `stage2` (cards in the hand)? The Evolve
 /// event's checks on the rule path, skipping the Stage 1: the locks on evolving from the hand (id1133, id285,
 /// id1998), the rule's limits and Rare Candy's own restriction (no permission lifts it: id1144, id1815).
-pub(crate) fn candy_can_evolve(g: &mut Game, cause: crate::cause::Cause, t: SlotRef, stage2: &[CardId]) -> R<bool> {
+pub(crate) fn candy_can_evolve<F: crate::derived::Facts>(g: &mut F, cause: crate::cause::Cause, t: SlotRef, stage2: &[CardId]) -> R<bool> {
     use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
-    let Some(base) = g.st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
+    let Some(base) = g.g().st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
     for &c in stage2 {
-        if !evolves_into(g, base, c, Reach::SkipStage1) {
+        if !evolves_into(g.g(), base, c, Reach::SkipStage1) {
             continue;
         }
-        let Some(v) = evolve_view(g, Some(c), t, super::super::event::RulesZone::Hand, super::super::event::EvolvePath::Rule, cause) else { return Ok(false) };
+        let Some(v) = evolve_view(g.g(), Some(c), t, super::super::event::RulesZone::Hand, super::super::event::EvolvePath::Rule, cause) else { return Ok(false) };
         if check_evolve(g, &v, Reach::SkipStage1).is_ok() {
             return Ok(true);
         }
@@ -1497,14 +1497,14 @@ pub(crate) fn candy_can_evolve(g: &mut Game, cause: crate::cause::Cause, t: Slot
 
 /// `canUseRareCandy`: some Basic Pokémon of `p` can evolve with a Stage 2 card in the hand
 /// ([`candy_can_evolve`]); `me` is the Rare Candy card.
-pub fn rare_candy_usable(g: &mut Game, me: CardId, p: usize) -> R<bool> {
-    let stage2 = stage2_in_hand(g, p);
+pub fn rare_candy_usable<F: crate::derived::Facts>(g: &mut F, me: CardId, p: usize) -> R<bool> {
+    let stage2 = stage2_in_hand(g.g(), p);
     if stage2.is_empty() {
         return Ok(false);
     }
-    let cause = crate::cause::Cause::of_trainer(g, me, p as u8);
-    for (s, c, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-        if g.st.cdef(c).stage == Stage::Basic as u8 && candy_can_evolve(g, cause, SlotRef::new(p, s), &stage2)? {
+    let cause = crate::cause::Cause::of_trainer(g.g(), me, p as u8);
+    for (s, c, _) in for_each_pokemon(g.g(), p, PlayerType::BottomPlayer).iter().copied() {
+        if g.g().st.cdef(c).stage == Stage::Basic as u8 && candy_can_evolve(g, cause, SlotRef::new(p, s), &stage2)? {
             return Ok(true);
         }
     }

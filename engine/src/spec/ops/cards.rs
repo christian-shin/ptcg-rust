@@ -472,9 +472,10 @@ fn set_reg(g: &mut Game, f: &mut Frame, r: u8, cards: &[CardId]) {
     }
 }
 
-/// Cards in the player's hand, not counting the resolving card (a Trainer is out of the hand while it resolves).
-fn hand_len_without(g: &Game, p: usize, me: CardId) -> i32 {
-    g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32
+/// Cards in the player's hand, not counting the resolving card (a Trainer is out of the hand while it resolves) nor a
+/// legality check's cards out of the hand (`Frame::excl`).
+fn hand_len_without(g: &Game, f: &Frame, p: usize, me: CardId) -> i32 {
+    g.st.players[p].hand.iter().filter(|c| *c != me && !f.out_of_hand(*c)).count() as i32
 }
 
 fn zone_is_unset(f: &Frame, z: ZoneRef) -> bool {
@@ -537,7 +538,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             let p = f.who(d.who);
             let n = match &d.amount {
                 DrawAmount::Count(n) => num_m(g, me, f, n)?,
-                DrawAmount::UntilHandSize(n) => num_m(g, me, f, n)? - hand_len_without(g, p, me),
+                DrawAmount::UntilHandSize(n) => num_m(g, me, f, n)? - hand_len_without(g, f, p, me),
                 DrawAmount::UntilHandSizeOthers(n) => num(g, me, f, n) - g.st.players[p].hand.iter().filter(|c| *c != me).count() as i32,
             };
             f.outcome = if n > 0 { crate::engine::cards_zone::draw(g, p, n as usize, f.cause)? } else { Outcome::Impossible };
@@ -1579,7 +1580,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             DrawAmount::Count(n) => num_uses_reg(n) || num_is_checked(n) || num(g, me, f, n) > 0,
             // A checked count can't be read here: assumed possible.
             DrawAmount::UntilHandSize(n) if num_is_checked(n) => true,
-            DrawAmount::UntilHandSize(n) => num(g, me, f, n) - hand_len_without(g, f.who(d.who), me) > 0,
+            DrawAmount::UntilHandSize(n) => num(g, me, f, n) - hand_len_without(g, f, f.who(d.who), me) > 0,
             // The card's own steps make room to draw (Naveen discards first): its `needs` decide.
             DrawAmount::UntilHandSizeOthers(_) => true,
         },
@@ -1673,7 +1674,7 @@ pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec,
         return false;
     }
     match &d.amount {
-        DrawAmount::UntilHandSize(n) if !num_is_checked(n) => num(g, me, f, n) - (hand_len_without(g, p, me) - removed) > 0,
+        DrawAmount::UntilHandSize(n) if !num_is_checked(n) => num(g, me, f, n) - (hand_len_without(g, f, p, me) - removed) > 0,
         DrawAmount::Count(n) => num_uses_reg(n) || num_is_checked(n) || num(g, me, f, n) > 0,
         _ => true,
     }

@@ -58,12 +58,12 @@ pub struct AttackCostAcc {
 
 /// The last steps of an attack's cost: the lasting increase (Rillaboom's Drum Beating), the "[C] less" reductions, the
 /// "1 Energy less" of any type against the Energy the attacker provides, and a set or ignored cost.
-pub fn finish_attack_cost(g: &mut Game, mut acc: AttackCostAcc) -> R<Cost> {
+pub fn finish_attack_cost<F: crate::derived::Facts>(g: &mut F, mut acc: AttackCostAcc) -> R<Cost> {
     let p = acc.p;
     // attackCostIncreaseWhileActive / ignoreAttackCostCardTypes: not modeled.
     // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
-    let a = g.st.players[p as usize].active;
-    let n = g.st.slot(p as usize, a).attack_cost_increase_next_turn;
+    let a = g.g().st.players[p as usize].active;
+    let n = g.g().st.slot(p as usize, a).attack_cost_increase_next_turn;
     {
         let AttackCostAcc { cost, reduction, .. } = &mut acc;
         for _ in 0..n.max(0) {
@@ -84,7 +84,7 @@ pub fn finish_attack_cost(g: &mut Game, mut acc: AttackCostAcc) -> R<Cost> {
     // cost slot, one slot may stay open.
     let cost_now = acc.cost;
     if acc.any_reduction && cost_now.len() > 0 {
-        let energy_map = crate::derived::provided_energy(g, p as usize, SlotRef::new(p as usize, a))?;
+        let energy_map = g.provided_energy(p as usize, SlotRef::new(p as usize, a))?;
         let mut available: Vec<CardType> = Vec::new();
         for en in energy_map.iter() {
             for t in en.provides.iter() {

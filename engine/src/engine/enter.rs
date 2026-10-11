@@ -201,13 +201,13 @@ pub(crate) fn while_ok(g: &Game, me: CardId, at: passive::Located, while_: &[Loc
 }
 
 /// Does the permission `ps` of card `me` lift `limit` for the event (`Modifier::Permit`)?
-fn permit_lifts(g: &mut Game, me: CardId, ps: &Passive, v: &EventView, limit: Limit) -> R<bool> {
+fn permit_lifts<F: crate::derived::Facts>(g: &mut F, me: CardId, ps: &Passive, v: &EventView, limit: Limit) -> R<bool> {
     let Modifier::Permit(pm) = &ps.modifier else { return Ok(false) };
     if !pm.lifts.contains(&limit) {
         return Ok(false);
     }
-    let Some(at) = passive::locate(g, me, ps.origin) else { return Ok(false) };
-    if !while_ok(g, me, at, pm.while_, v.card) || !pm.for_.eval(g, me, v)? {
+    let Some(at) = passive::locate(g.g(), me, ps.origin) else { return Ok(false) };
+    if !while_ok(g.g(), me, at, pm.while_, v.card) || !pm.for_.eval(g, me, v)? {
         return Ok(false);
     }
     Ok(!passive::blocked(g, me, ps.origin, at, v.slot))
@@ -231,24 +231,24 @@ pub fn may_permit(g: &Game, limit: Limit) -> bool {
 
 /// Is `limit` lifted for the event by a permission in force (a card in play: a Pokémon's Ability, a Tool,
 /// an Energy, the Stadium)?
-pub fn permitted(g: &mut Game, v: &EventView, limit: Limit) -> R<bool> {
-    if !may_permit(g, limit) {
+pub fn permitted<F: crate::derived::Facts>(g: &mut F, v: &EventView, limit: Limit) -> R<bool> {
+    if !may_permit(g.g(), limit) {
         return Ok(false);
     }
     let mut cands: SVec<CardId, 120> = SVec::new();
-    if let Some(s) = g.st.stadium_card() {
+    if let Some(s) = g.g().st.stadium_card() {
         cands.push(s);
     }
     for q in 0..2 {
-        for s in g.st.players[q].in_play().iter() {
-            let slot = g.st.slot(q, *s);
+        for s in g.g().st.players[q].in_play().iter() {
+            let slot = g.g().st.slot(q, *s);
             for c in slot.cards.iter().chain(slot.tools.iter()) {
                 cands.push(c);
             }
         }
     }
     for c in cands.iter().copied() {
-        for ps in spec_passives(g, c) {
+        for ps in spec_passives(g.g(), c) {
             if permit_lifts(g, c, ps, v, limit)? {
                 return Ok(true);
             }
@@ -260,7 +260,7 @@ pub fn permitted(g: &mut Game, v: &EventView, limit: Limit) -> R<bool> {
 /// The rule's limits on evolving (APR A-05) that apply to the event and that no permission lifts: the error of
 /// the first, or `None`. Only a rule-path Evolve is subject to them; an effect ignores them (APR C-12) unless
 /// its card restricts itself (`CardSpec::restricts`: Rare Candy, Grand Tree), which nothing lifts.
-pub fn rule_limits(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
+pub fn rule_limits<F: crate::derived::Facts>(g: &mut F, v: &EventView) -> R<Option<&'static str>> {
     if v.path != Some(EvolvePath::Rule) {
         return Ok(None);
     }
@@ -286,9 +286,9 @@ fn event_cards(v: &EventView) -> SVec<CardId, 2> {
 /// Does a card of the event (its cause card, its card) restrict it ("you can't use this card during your
 /// first turn or on a Basic Pokémon that was put into play this turn")? No permission lifts a restriction
 /// (id1144, id1815).
-pub fn restricted(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
+pub fn restricted<F: crate::derived::Facts>(g: &mut F, v: &EventView) -> R<Option<&'static str>> {
     for c in event_cards(v).iter().copied() {
-        for r in spec_restricts(g, c) {
+        for r in spec_restricts(g.g(), c) {
             let Some(l) = r.limits.iter().copied().find(|l| limit_applies(v, *l)) else { continue };
             if r.on.eval(g, c, v)? {
                 return Ok(Some(limit_error(l)));
@@ -306,7 +306,7 @@ pub fn may_be_restricted(g: &Game, v: &EventView) -> bool {
 
 /// The limits of an Evolve event whose card isn't chosen yet (an effect asks before offering cards: Grand
 /// Tree's Pokémon prompt): the rule's limits with the permissions in force (rule path), then the restrictions.
-pub fn evolve_limits(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
+pub fn evolve_limits<F: crate::derived::Facts>(g: &mut F, v: &EventView) -> R<Option<&'static str>> {
     if let Some(code) = rule_limits(g, v)? {
         return Ok(Some(code));
     }
@@ -316,9 +316,9 @@ pub fn evolve_limits(g: &mut Game, v: &EventView) -> R<Option<&'static str>> {
 /// The evolution rules of an Evolve event, after the locks: the card evolves from the Pokémon (rule path;
 /// unless a permission lifts it), the rule's limits (rule path; unless permissions lift them), the
 /// restrictions (any path; nothing lifts them).
-pub fn evolve_rules(g: &mut Game, v: &EventView, reach: Reach) -> R {
+pub fn evolve_rules<F: crate::derived::Facts>(g: &mut F, v: &EventView, reach: Reach) -> R {
     let (Some(card), Some(base)) = (v.card, v.base) else { crate::bail!("INVALID_TARGET") };
-    if v.path == Some(EvolvePath::Rule) && !evolves_into(g, base, card, reach) && !(reach == Reach::Next && permitted(g, v, Limit::EvolvesFrom)?) {
+    if v.path == Some(EvolvePath::Rule) && !evolves_into(g.g(), base, card, reach) && !(reach == Reach::Next && permitted(g, v, Limit::EvolvesFrom)?) {
         crate::bail!("INVALID_TARGET");
     }
     if let Some(code) = rule_limits(g, v)? {
@@ -358,7 +358,7 @@ pub fn evolve_rules_fast(g: &Game, v: &EventView, reach: Reach) -> Option<bool> 
 }
 
 /// Every check of an Evolve event: the locks, then [`evolve_rules`].
-pub fn check_evolve(g: &mut Game, v: &EventView, reach: Reach) -> R {
+pub fn check_evolve<F: crate::derived::Facts>(g: &mut F, v: &EventView, reach: Reach) -> R {
     if let Some(code) = crate::derived::event_locked(g, v)? {
         crate::bail!(code);
     }
@@ -366,9 +366,9 @@ pub fn check_evolve(g: &mut Game, v: &EventView, reach: Reach) -> R {
 }
 
 /// Every check of an EnterPlay event: an empty spot, the locks, the restrictions.
-pub fn check_enter(g: &mut Game, v: &EventView) -> R {
+pub fn check_enter<F: crate::derived::Facts>(g: &mut F, v: &EventView) -> R {
     let Some(t) = v.slot else { crate::bail!("INVALID_TARGET") };
-    if !g.st.slot(t.p as usize, t.s).cards.is_empty() {
+    if !g.g().st.slot(t.p as usize, t.s).cards.is_empty() {
         crate::bail!("INVALID_TARGET");
     }
     if let Some(code) = crate::derived::event_locked(g, v)? {
