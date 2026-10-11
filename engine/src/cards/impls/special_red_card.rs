@@ -13,7 +13,9 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Le, Num::Lit(3))],
         steps: &[
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::All, position: DeckPosition::Bottom, order: DeckOrder::Shuffled, ..PutIntoDeckSpec::DEFAULT })),
-            Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) })),
+            // "If they put any cards on the bottom of their deck in this way, they draw 3 cards" (id2365: the draw depends
+            // on the put).
+            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) }))], no: &[] })),
         ],
     }),
     ..CardSpec::NONE

@@ -697,6 +697,8 @@ fn main() {
     for (k, v) in firsts {
         println!("  first divergence {}: {}", k, v);
     }
+    // Under VERIFY: today's usability against the rules' one (user decision D10), for the difference list.
+    print!("{}", ptcg::spec::run::usability_report());
     if fail > 0 || exp_failed > 0 {
         std::process::exit(1);
     }

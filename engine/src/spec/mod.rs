@@ -220,6 +220,13 @@ impl Step {
     pub const fn after_damage(op: Op) -> Step {
         Step { at: RuleStep::AfterDamage, op }
     }
+    /// A cost of a Trainer or an Ability ("discard 2 cards from your hand in order to play this card"; "You can use this
+    /// card only if you discard ..."): it runs where `new` steps run, it must be possible for the card to be used, and it
+    /// isn't the card's effect (APR E-30; id1124, id1188, id1094, id1103, id1836, id2362, id255: "discarding is a cost, not
+    /// the effect").
+    pub const fn cost(op: Op) -> Step {
+        Step { at: RuleStep::Cost, op }
+    }
 }
 
 /// Where a step runs.
@@ -230,6 +237,8 @@ pub enum RuleStep {
     BeforeDamage,
     /// Attack effects, carried out after the damage.
     AfterDamage,
+    /// A cost of a Trainer or an Ability (`Step::cost`); runs as a `Use` step.
+    Cost,
     /// Trainer, Ability, trigger, or a step inside a nested list.
     Use,
 }

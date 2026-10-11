@@ -359,6 +359,47 @@ pub(crate) fn implied_ok(_g: &Game, _me: CardId, _f: &Frame, _op: &Op) -> bool {
     true
 }
 
+/// Would the op change the game now (`ops::effect_possible`)? A flow op does what one of its lists does; an `If` on
+/// `Cond::Done` ("If you do") counts only through the op it depends on; a coin flip is an effect.
+pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    let any = |lists: &[&'static [Step]]| {
+        let mut out = None;
+        for l in lists {
+            match super::any_effect_possible(g, me, f, l) {
+                Some(true) => return Some(true),
+                Some(false) => out = Some(false),
+                None => {}
+            }
+        }
+        out
+    };
+    match op {
+        Op::If(i) if reads_done(&i.cond) => None,
+        Op::If(i) if cond_stable(&i.cond) => any(&[if cond(g, me, f, &i.cond) { i.yes } else { i.no }]),
+        Op::If(i) => any(&[i.yes, i.no]),
+        Op::May(m) => any(&[m.yes, m.no]),
+        Op::Choose(c) => {
+            let lists: Vec<&'static [Step]> = c.options.iter().map(|o| o.body).collect();
+            any(&lists)
+        }
+        Op::ForEach(fe) => any(&[fe.body]),
+        Op::Coin(_) => Some(true),
+        // A choice, a precondition, and "your turn ends" (a consequence of the effect) aren't effects by themselves.
+        Op::Fail(_) | Op::PickAttack(_) | Op::EndTurn(_) => None,
+        _ => Some(true),
+    }
+}
+
+/// Does the condition read what the last op did ("If you do": `Cond::Done`, `Cond::DidAll`)?
+pub(crate) fn reads_done(c: &Cond) -> bool {
+    match c {
+        Cond::Done | Cond::DidAll => true,
+        Cond::All(cs) | Cond::Any(cs) => cs.iter().any(reads_done),
+        Cond::Not(c) => reads_done(c),
+        _ => false,
+    }
+}
+
 /// Does the `Fail` op's condition hold (the use may go on)? Read by the executor and by legality.
 pub(crate) fn fail_holds(g: &mut Game, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
     cond_m(g, me, f, &x.unless)

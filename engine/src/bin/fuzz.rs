@@ -161,6 +161,7 @@ fn main() {
     ptcg::legal_stats::print_table();
     if ptcg::cause::verify() {
         print!("{}", ptcg::cause::report());
+        print!("{}", ptcg::spec::run::usability_report());
     }
     if !t.failures.is_empty() {
         std::process::exit(1);

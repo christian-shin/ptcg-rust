@@ -10,7 +10,8 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Opp, Zone::Hand), cards: CardSel::All, position: DeckPosition::Bottom, order: DeckOrder::Shuffled, into: Some(0), ..PutIntoDeckSpec::DEFAULT })),
-            Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::RegCount(0)) })),
+            // "If they do, they draw that many cards" (E-20: the draw depends on the put).
+            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::RegCount(0)) }))], no: &[] })),
         ],
     }),
     ..CardSpec::NONE

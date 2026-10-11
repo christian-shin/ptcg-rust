@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
             // An empty hand with a non-empty deck is playable (ruling 1038).
             Step::new(Op::If(IfSpec {
                 cond: Cond::NonemptyOther(ZoneRef(Who::Me, Zone::Hand), Pred::Any),
-                yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, ..DiscardSpec::DEFAULT }))],
+                yes: &[Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::All, ..DiscardSpec::DEFAULT }))],
                 no: &[],
             })),
             Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(5)) })),

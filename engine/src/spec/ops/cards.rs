@@ -1602,6 +1602,51 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
     }
 }
 
+/// Would the op change the game now (`ops::effect_possible`)? A choice (Pick, Snapshot, PickPrize) is not an effect by
+/// itself; an op on the cards an earlier op chose or set aside is possible when that choice is (a gate); moving cards needs cards
+/// to move; a search and a draw need a deck with a card.
+pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    let deck = |w: Who| !g.st.players[f.who(w)].deck.is_empty();
+    let dependent = |from: &ZoneRef, cards: &CardSel| matches!(cards, CardSel::Chosen(_)) || matches!(from.1, Zone::Scratch(_));
+    Some(match op {
+        Op::Pick(_) | Op::Snapshot(_) | Op::PickPrize(_) | Op::PrizeVisibility(_) => return None,
+        Op::Discard(DiscardSpec { from, cards, .. })
+        | Op::PutIntoHand(PutIntoHandSpec { from, cards, .. })
+        | Op::PutIntoDeck(PutIntoDeckSpec { from, cards, .. })
+        | Op::Look(LookSpec { from, cards, .. })
+        | Op::Attach(AttachSpec { from, cards, onto: Some(_), .. })
+            if dependent(from, cards) =>
+        {
+            true
+        }
+        Op::Attach(a) if matches!(a.from.1, Zone::Scratch(_)) => true,
+        Op::Draw(d) => deck(d.who) && implied_ok(g, me, f, op),
+        Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)) && (s.pick.from.1 != Zone::Deck || deck(s.pick.from.0)),
+        // "Then, shuffle your deck" randomizes it after its contents were seen (APR E-19): not an effect by itself.
+        Op::Shuffle(_) => return None,
+        Op::Reveal(r) => match &r.cards {
+            RevealWhat::Zone(z) => !zone_cards(g, me, f, *z).is_empty() || r.when_empty,
+            RevealWhat::Chosen(_) => true,
+        },
+        Op::HandShuffleDraw(_) => true,
+        _ => implied_ok(g, me, f, op),
+    })
+}
+
+/// A Draw after `removed` cards left the player's hand (`ops::draw_possible_after`): a card in the deck, and a count
+/// still above 0 for "draw until you have N cards in your hand".
+pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec, removed: i32) -> bool {
+    let p = f.who(d.who);
+    if g.st.players[p].deck.is_empty() {
+        return false;
+    }
+    match &d.amount {
+        DrawAmount::UntilHandSize(n) if !num_is_checked(n) => num(g, me, f, n) - (hand_len_without(g, p, me) - removed) > 0,
+        DrawAmount::Count(n) => num_uses_reg(n) || num_is_checked(n) || num(g, me, f, n) > 0,
+        _ => true,
+    }
+}
+
 /// A Trainer or Ability that only chooses cards needs something to choose: a deck
 /// that holds a card, or enough eligible cards of a known zone (a Pokémon needs room).
 fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) -> bool {

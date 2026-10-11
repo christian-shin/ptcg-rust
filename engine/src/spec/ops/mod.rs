@@ -86,6 +86,40 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
     }
 }
 
+/// Would the op change the game now (`Some`), or is it not an effect by itself (`None`: a choice the following ops act
+/// on, a marker, a flag)? The rules' usability (`run::usable_by_rules`) needs one effect that would change the game.
+pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    match family(op) {
+        Family::Cards => cards::effect_possible(g, me, f, op),
+        Family::Board => board::effect_possible(g, me, f, op),
+        Family::Flow => flow::effect_possible(g, me, f, op),
+        Family::State => None,
+    }
+}
+
+/// Does the condition read what the last op did ("If you do")?
+pub(crate) fn reads_done(c: &Cond) -> bool {
+    flow::reads_done(c)
+}
+
+/// A Draw after `removed` cards left the player's hand earlier in the program (`run::usable_by_rules`).
+pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec, removed: i32) -> bool {
+    cards::draw_possible_after(g, me, f, d, removed)
+}
+
+/// Any op of the list would change the game (`None` when none is an effect).
+pub(crate) fn any_effect_possible(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> Option<bool> {
+    let mut out = None;
+    for s in steps {
+        match effect_possible(g, me, f, &s.op) {
+            Some(true) => return Some(true),
+            Some(false) => out = Some(false),
+            None => {}
+        }
+    }
+    out
+}
+
 /// Does the condition of a `Fail` op hold (read by the executor and by legality)?
 pub(crate) fn fail_holds(g: &mut Game, me: CardId, f: &Frame, x: &FailSpec) -> R<bool> {
     flow::fail_holds(g, me, f, x)
