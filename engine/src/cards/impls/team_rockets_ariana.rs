@@ -1,9 +1,9 @@
-//! Team Rocket's Ariana (DRI): draw until you have 5 cards in hand, or 8 if
-//! all of your Pokémon in play are Team Rocket's Pokémon.
+//! Team Rocket's Ariana (DRI): draw cards until you have 5 cards in your hand. If all of your Pokémon in play are Team Rocket's
+//! Pokémon, draw cards until you have 8 cards in your hand instead.
 //!
-//! Twinleaf: sets `rocketSupporter` (not when used as the effect of an attack);
-//! the draw is one MOVE_CARDS per card. Fixed (phase 4b, R7C): a card that would
-//! draw nothing can't be played (rulings 851, 959).
+//! One Draw (a Draw event carrying the cards, D3). A card that would draw nothing can't be used (usability needs a card in the
+//! deck). Played from the hand it is the turn's Team Rocket's Supporter that Team Rocket's Factory reads
+//! (`Cond::PlayedThisTurn`); used through Look-Alike Show it isn't played (D5).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

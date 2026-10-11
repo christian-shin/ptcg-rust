@@ -1,9 +1,7 @@
-//! Team Rocket's Transceiver (DRI, Item): search your deck for a Team Rocket
-//! Supporter, reveal it, put it into your hand, then shuffle.
+//! Team Rocket's Transceiver (DRI, Item): search your deck for a Team Rocket Supporter, reveal it, and put it into your hand.
+//! Then, shuffle your deck.
 //!
-//! Twinleaf: the empty-deck check throws after MOVE_CARDS to the supporter
-//! pile; the ShowCards prompt is awaited before the shuffle is created; the
-//! shuffle has no animation wait.
+//! One Search op revealing what it finds, then one shuffle after it (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

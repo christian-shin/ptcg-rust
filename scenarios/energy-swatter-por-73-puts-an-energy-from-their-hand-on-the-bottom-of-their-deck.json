@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Energy Swatter POR 73",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Energy Swatter POR 73",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Energy Swatter POR 73"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Metal Energy MEE 8",
+   "Duraludon PRE 69"
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Energy Swatter POR 73"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "zone": "hand",
+   "cite": "card text: choose an Energy card you find there and put it on the bottom of their deck",
+   "at": "turn_end",
+   "count": 1,
+   "not_contains": [
+    "Metal Energy MEE 8"
+   ]
+  }
+ ]
+}

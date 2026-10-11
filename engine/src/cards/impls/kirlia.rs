@@ -1,9 +1,7 @@
-//! Kirlia (M1S / ASC): Call Sign - search your deck for up to 3 Pokémon and
-//! put them into your hand, then shuffle. Psyshot - 30.
+//! Kirlia (M1S / ASC): Call Sign - search your deck for up to 3 Pokémon and put them into your hand. Then, shuffle your deck.
+//! Psyshot - 30.
 //!
-//! Twinleaf: a ChooseCardsPrompt over the deck (Pokémon, min 0, max 3, no
-//! cancel; nothing is revealed), MOVE_CARDS to the hand, then a bare
-//! ShuffleDeckPrompt (no trailing wait).
+//! One Search op (nothing revealed: the text doesn't say reveal), then one shuffle after it (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

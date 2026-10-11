@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Tarountula DRI 19",
+   "4 Team Rocket's Spidops DRI 20",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Team Rocket's Tarountula DRI 19",
+   "4 Team Rocket's Spidops DRI 20",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Team Rocket's Tarountula DRI 19",
+   "Team Rocket's Spidops DRI 20"
+  ],
+  "discard": [
+   "Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Charging Up",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 1,
+   "cite": "card text: once during your turn, attach a Basic Energy card from your discard pile to this Pok\u00e9mon"
+  }
+ ]
+}

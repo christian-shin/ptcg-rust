@@ -1,10 +1,9 @@
-//! Goldeen (TWM): Festival Lead. Whirlpool — 10; flip a coin, if heads
-//! discard an Energy from the opponent's Active Pokémon.
+//! Goldeen (TWM): Festival Lead. Whirlpool - 10; flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
 //!
-//! Twinleaf: Festival Lead's runtime `barrage` flag is written on every use
-//! (fixed in phase 4b, R4: it used to be skipped when the opponent's Active had
-//! no Energy card, and left unchanged while the Ability was blocked), before
-//! the no-Energy return. The coin flip is still skipped without Energy.
+//! Festival Lead (with Festival Grounds in play, use an attack twice) is a separate Ability; Whirlpool only clears its attack
+//! flag before the damage. The coin is flipped only when the
+//! Defending Pokémon has an Energy; on heads the discard is a LeavePlay (to the discard pile) of the Energy the attacker chooses,
+//! caused by this attack (D1).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Goldeen@TWM|PRE",

@@ -1,11 +1,8 @@
-//! Chandelure (TWM 38): Alluring Light — once during your turn, you may have
-//! each player draw a card. Mind Ruler — 30 damage for each card in your
-//! opponent's hand.
+//! Chandelure (TWM 38): Alluring Light - once during your turn, you may have each player draw a card. Mind Ruler - 30
+//! damage for each card in your opponent's hand.
 //!
-//! Twinleaf: the marker is removed on PlayPokemon of this card and at the end
-//! of each turn; the ability throws BLOCKED_BY_EFFECT when blocked,
-//! POWER_ALREADY_USED with the marker, CANNOT_USE_POWER with both decks empty;
-//! then marker + ABILITY_USED, you draw 1, then your opponent draws 1.
+//! The Ability's once-per-turn marker is the `Once::PerTurn` entry; it is usable while either deck has a card (a Draw that
+//! would draw nothing changes nothing). You draw first, then your opponent: two Draw events, each carrying its card (D3).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

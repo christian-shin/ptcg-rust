@@ -1,9 +1,7 @@
-//! Firebreather (M2 / PFL): search your deck for up to 7 Basic [R] Energy
-//! cards, reveal them, put them into your hand, shuffle.
+//! Firebreather (M2 / PFL): search your deck for up to 7 Basic [R] Energy cards, reveal them, put them into your hand. Then,
+//! shuffle your deck.
 //!
-//! Twinleaf: the empty-deck check comes before the Supporter-played check;
-//! the filter is Basic Energy named "Fire Energy"; ShowCards only when
-//! something was taken; the final shuffle prompt has no wait.
+//! One Search op over Basic Fire Energy cards, revealed, then one shuffle after it (APR E-19, id2303).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Firebreather",

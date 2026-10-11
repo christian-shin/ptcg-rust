@@ -1,5 +1,7 @@
-//! Xerosic's Machinations (SFA): your opponent discards cards from their
-//! hand until they have 3 cards in their hand.
+//! Xerosic's Machinations (SFA 64): your opponent discards cards from their hand until they have 3 cards in their hand.
+//!
+//! The opponent chooses what to discard (a pick of as many as they hold beyond 3), then one Discard from their hand (D3). Usable
+//! while their hand holds more than 3.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

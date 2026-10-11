@@ -1,10 +1,8 @@
-//! Roto-Stick (PRE, Item): look at the top 4 cards of your deck; reveal any
-//! number of Supporters there and put them into your hand; shuffle the rest
-//! back into your deck.
+//! Roto-Stick (PRE 127, Item): look at the top 4 cards of your deck. You may reveal any number of Supporter cards you find there
+//! and put them into your hand. Shuffle the other cards back into your deck.
 //!
-//! Twinleaf: the chosen cards are moved, the rest put back, then (if any
-//! were chosen) a ShowCards prompt is awaited before the final shuffle,
-//! which has no animation wait.
+//! Look sets the 4 cards aside (a register, nothing reacts to it, D2); the Supporters chosen are revealed and put into your hand
+//! (PutIntoHand), the others go back into the deck and the deck is shuffled, also when every card was taken (id2377).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

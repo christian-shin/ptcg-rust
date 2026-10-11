@@ -1,13 +1,10 @@
-//! Ceruledge ex (PRE 147 / SSP 36, Tera): Abyssal Flames — 30+; 20 more
-//! damage for each Energy card in your discard pile. Raging Amethyst — 280;
-//! discard all Energy from this Pokémon. Tera: as long as this Pokémon is on your
-//! Bench, prevent all damage done to it by attacks.
+//! Ceruledge ex (PRE 147 / SSP 36, Tera): Abyssal Flames - 30+; 20 more damage for each Energy card in your discard pile.
+//! Raging Amethyst - 280; discard all Energy from this Pokémon. Tera: as long as this Pokémon is on your Bench, prevent all
+//! damage done to it by attacks.
 //!
-//! Rule: Raging Amethyst's discard is the attack's own effect after the damage
-//! (Discard events of the Energy provided by this Pokémon, cause: this attack).
-//! The Tera rule is `TERA_RULE`, a card rule (printed above the Ability line, so
-//! Ability locks don't touch it): a `Prevent` over `Kind(Damage)` on this
-//! Pokémon while Benched (step 6, APR C-16).
+//! Raging Amethyst's discard is the attack's own effect after the damage: a LeavePlay (to the discard pile) of each Energy
+//! attached to this Pokémon, caused by this attack (D1). The Tera rule is `TERA_RULE`, a card rule (printed above the Ability
+//! line, so Ability locks don't touch it): a `Prevent` over `Kind(Damage)` on this Pokémon while Benched (step 6, APR C-16).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

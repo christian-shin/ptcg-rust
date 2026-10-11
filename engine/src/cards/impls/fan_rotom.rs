@@ -1,14 +1,9 @@
-//! Fan Rotom (SCR): Fan Call — once during your first turn, search your deck
-//! for up to 3 [C] Pokémon with 100 HP or less, reveal them, and put them
-//! into your hand, then shuffle (1 Fan Call per turn). Assault Landing —
-//! 70; does nothing if there is no Stadium in play.
+//! Fan Rotom (SCR): Fan Call - once during your first turn, you may search your deck for up to 3 [C] Pokémon with 100 HP or
+//! less, reveal them, and put them into your hand. Then, shuffle your deck. You can't use more than 1 Fan Call Ability during
+//! your turn. Assault Landing - 70; if there is no Stadium in play, this attack does nothing.
 //!
-//! Twinleaf: `player.usedFanCall` is set as soon as the Ability is used (phase
-//! 4b: it used to be set only when cards were taken, so the Ability could be
-//! used again after taking none) and cleared at every end of turn; "first turn"
-//! is `state.turn <= 2`. ABILITY_USED is set in the choose callback; the
-//! ShuffleDeckPrompt follows the (non-yielding) ShowCardsPrompt with no wait.
-//! Assault Landing sets the damage to exactly 0 or 70.
+//! "Your first turn" is game turn 1 or 2; the shared once-per-turn marker is what stops a second Fan Call. One Search op
+//! revealing what it finds, one shuffle after it (APR E-19). Assault Landing's damage is exactly 0 or 70.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "FanRotom",

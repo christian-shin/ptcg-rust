@@ -1,8 +1,8 @@
-//! Toxel (M2 / PFL 67): Call For Family — search your deck for up to 2 Basic
-//! Pokémon and put them onto your Bench, then shuffle. Rascal Kick — 20.
+//! Toxel (M2 / PFL 67): Call For Family - search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle
+//! your deck. Rascal Kick - 20.
 //!
-//! Twinleaf: nothing happens (no shuffle) with a full Bench; the empty
-//! slots are fixed when the attack starts; the shuffle has no animation wait.
+//! With a full Bench nothing happens (no search, no shuffle); otherwise one Search op onto the Bench, at most the open spots (each
+//! Pokémon an EnterPlay), then one shuffle after it (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,7 +1,6 @@
-//! Rellor (SSP): Collect — draw a card. Rollout — 10.
+//! Rellor (SSP): Collect - draw a card. Rollout - 10.
 //!
-//! Twinleaf: returns early with an empty deck, otherwise MOVE_CARDS
-//! (count 1, sourceCard) from deck to hand.
+//! One Draw of 1 card after the damage (a Draw event; with an empty deck nothing is drawn).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

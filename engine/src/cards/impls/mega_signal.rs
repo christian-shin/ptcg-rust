@@ -1,5 +1,7 @@
-//! Mega Signal (MEG): search your deck for a Mega Evolution Pokémon ex,
-//! reveal it, and put it into your hand. Then, shuffle your deck.
+//! Mega Signal (MEG): search your deck for a Mega Evolution Pokémon ex, reveal it, and put it into your hand. Then, shuffle your
+//! deck.
+//!
+//! One Search op revealing what it finds, then one shuffle after it (APR E-19, id2303).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

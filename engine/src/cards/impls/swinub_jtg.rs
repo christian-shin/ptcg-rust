@@ -1,10 +1,8 @@
-//! Swinub (JTG): Call For Family — search your deck for up to 2 Basic
-//! Pokémon and put them onto your Bench, then shuffle. Lunge Out — 10.
+//! Swinub (JTG): Call For Family - search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your
+//! deck. Lunge Out - 10.
 //!
-//! Twinleaf `useCallForFamily`: with no empty Bench slot nothing happens
-//! (no prompt, no shuffle); otherwise ChooseCardsPrompt (min 0,
-//! max min(empty, 2), no cancel), one PlayPokemonFromDeckEffect per card into
-//! the empty slots taken before the prompt, then a bare ShuffleDeckPrompt.
+//! With a full Bench nothing happens (no search, no shuffle); otherwise one Search op onto the Bench, at most the open spots (each
+//! Pokémon an EnterPlay), then one shuffle after it (APR E-19, id2303).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

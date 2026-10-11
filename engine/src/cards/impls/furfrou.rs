@@ -1,7 +1,7 @@
-//! Furfrou (M3): Hand Trim — discard random cards from your opponent's hand
-//! until they have 5 cards in their hand. Headbutt — 30.
+//! Furfrou (M3): Hand Trim - discard random cards from your opponent's hand until they have 5 cards in their hand. Headbutt - 30.
 //!
-//! Twinleaf draws each discard with `Chance.index(hand.length)`.
+//! One Discard (from the opponent's hand, random cards, as many as it holds beyond 5; D3: one event per owner carrying its cards),
+//! an effect of the attack after the damage.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Furfrou",

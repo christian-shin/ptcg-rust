@@ -1,11 +1,8 @@
-//! Team Rocket's Spidops (DRI): Charge Up — once during your turn, attach a
-//! Basic Energy from your discard pile to this Pokémon. Rocket Rush — 30
-//! damage for each of your Team Rocket's Pokémon in play.
+//! Team Rocket's Spidops (DRI): Charging Up - once during your turn, you may attach a Basic Energy card from your discard pile to
+//! this Pokémon. Rocket Rush - 30x; 30 damage for each of your Team Rocket's Pokémon in play.
 //!
-//! Twinleaf: the once-per-turn marker (player marker sourced by this card)
-//! is removed at every EndTurnEffect for the ending player; it is only added
-//! (with the MOVE_CARDS) once a card is chosen. The discard check precedes
-//! the marker check. No ABILITY_USED board effect.
+//! The attach is one Attach event of the card chosen from the discard pile onto this Pokémon (a pick of 1, public zone); the Ability
+//! is once per turn by its marker.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chi-Yu MEG 31",
+   "4 Dreepy ASC 158",
+   "4 Prism Tower CRI 80",
+   "4 Lumiose City POR 77",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Chi-Yu MEG 31",
+   "4 Dreepy ASC 158",
+   "4 Prism Tower CRI 80",
+   "4 Lumiose City POR 77",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chi-Yu MEG 31",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dreepy ASC 158",
+  "stadium": "Prism Tower CRI 80",
+  "hand": [
+   "Lumiose City POR 77"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scorching Earth"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "zone": "discard",
+   "cite": "card text: if your opponent has a Stadium in play, discard it",
+   "count": 1,
+   "contains": [
+    "Prism Tower CRI 80"
+   ],
+   "at": "turn_end"
+  },
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "play",
+   "name": "Lumiose City POR 77",
+   "is": false,
+   "cite": "Chi-Yu MEG 31 text: if you do (the Stadium was discarded), your opponent can't play Stadium cards from their hand during their next turn; APR E-20"
+  }
+ ]
+}

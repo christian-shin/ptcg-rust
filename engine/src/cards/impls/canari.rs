@@ -1,11 +1,9 @@
-//! Canari (ASC / M2a): discard another card from your hand; search your deck
-//! for up to 4 [L] Pokémon, reveal them, put them into your hand, shuffle.
+//! Canari (ASC / M2a): "You can use this card only if you discard another card from your hand." Discard it; search your deck
+//! for up to 4 [L] Pokémon, reveal them, put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: `playedCanari` is set on play (before any check) and cleared on
-//! every EndTurnEffect for that player; the discard prompt runs on a copy of
-//! the hand; the deck prompt blocks everything but [L] Pokémon (max 4 or the
-//! number present); ShowCards only when something was taken; the final
-//! shuffle prompt has no wait.
+//! The discard is the printed cost (`Step::cost`: payable, not the effect, APR E-30); having another card in hand is the printed
+//! condition (`Cond::Printed`). The search is one Search op revealing what it finds, then one shuffle after it, also when
+//! nothing was found (APR E-19, id2303); the pick is up to 4 or as many as the deck holds.
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

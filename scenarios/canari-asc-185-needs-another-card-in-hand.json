@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Canari ASC 185",
+   "4 Duraludon PRE 69",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Canari ASC 185",
+   "4 Duraludon PRE 69",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Canari ASC 185"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Canari ASC 185",
+   "is": false,
+   "cite": "card text: you can use this card only if you discard another card from your hand"
+  }
+ ]
+}

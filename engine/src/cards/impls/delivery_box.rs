@@ -1,12 +1,8 @@
-//! Boxed Order (TEF): search your deck for up to 2 Item cards, reveal them,
-//! and put them into your hand. Then, shuffle your deck. Your turn ends.
+//! Boxed Order (TEF 143): search your deck for up to 2 Item cards, reveal them, and put them into your hand. Then, shuffle
+//! your deck. Your turn ends.
 //!
-//! Fixed (A-PC3): the turn ends after the search, reveal and shuffle, in the
-//! printed order (Twinleaf ended it before the search was answered).
-//! Fixed (phase 4b): the deck is shuffled after the reveal (the shuffle was
-//! only reached when no card was chosen). Fixed (R3): min is 0 (it was 1 when
-//! the deck held an Item); a search may find fewer cards, even none
-//! (Rulings Compendium 780), and it is unplayable with an empty deck (779).
+//! One Search op revealing what it finds (min 0: it may find fewer, even none), one shuffle after it, then the turn ends: the
+//! end of the turn is the last step (id1963: it ends the turn even when no Item was found).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

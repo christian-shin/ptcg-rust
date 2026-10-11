@@ -1,12 +1,9 @@
-//! Gwynn (M5 / PBL): discard up to 2 Pokémon that don't have a Rule Box from
-//! your hand, and draw 3 cards for each card discarded.
+//! Gwynn (PBL 78 / M5): discard up to 2 Pokémon that don't have a Rule Box from your hand, and draw 3 cards for each card you
+//! discarded in this way.
 //!
-//! Twinleaf: needs 1 selectable card (else CANNOT_PLAY_THIS_CARD, after the
-//! card moved to the supporter zone; fixed in phase 4b, R4: it needed 2 though
-//! the text says up to 2); the prompt is `min: 1, max: 2`.
-//!
-//! R7C: as the effect of an attack (Mr. Mime's Look-Alike Show) the prompt is min 0
-//! (rulings 1844, 1853); played from the hand it is min 1.
+//! Pick then Discard (from the hand, D1: Discard is hand and deck cards); the Draw counts the cards chosen. Played from the hand
+//! it takes at least 1 when able (id2301: a Trainer's "up to"); used through Look-Alike Show it may take 0 (D5, APR D-05). A
+//! draw with an empty deck still discards (id2419: do as much as you can).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Gwynn",
