@@ -17,7 +17,6 @@ pub static SPEC: CardSpec = CardSpec {
         steps: &[Step::after_damage(Op::Conditions(ConditionsSpec {
             target: MY_ACTIVE,
             change: ConditionChange::Add(&[SpecialCondition::Confused]),
-            gate: Gate::None,
             when: Cond::True,
         }))],
     }],

@@ -357,8 +357,8 @@ pub enum EnergySelection {
     /// "Shuffle all Energy from this Pokémon into your deck": every Energy card of the Pokémon goes
     /// to the deck, which is then shuffled (both after the damage of an attack).
     AllIntoDeck,
-    /// Like `Choose`, but the cards go to the hand of the Pokémon's owner (a CardsToHand effect
-    /// of the attack); with `up_to` the payment is at most `count` (fewer when the Pokémon
+    /// Like `Choose`, but the cards go to the hand of the Pokémon's owner (a LeavePlay of the attached cards
+    /// for that hand); with `up_to` the payment is at most `count` (fewer when the Pokémon
     /// provides fewer Energy).
     ChooseToHand { count: u8, ty: CardType, up_to: bool },
     /// "Discard up to `max` Pokémon Tools from your opponent's Pokémon" (`target` is ignored): a
@@ -406,7 +406,7 @@ pub struct AmongSpec {
     /// At most this many cards (otherwise as many as there are to choose).
     pub max: Option<u8>,
     pub damage_per: i32,
-    /// The Energy leaves after the damage, one move per card (otherwise one DiscardCards effect
+    /// The Energy leaves after the damage, one move per card (otherwise one LeavePlay
     /// per Pokémon, at once).
     pub after_damage: bool,
 }
@@ -2373,7 +2373,7 @@ pub enum PromptScope {
 /// Where the chosen Energy goes.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EnergyDest {
-    /// The Pokémon owner's discard pile (the attack's DiscardCards effect in an attack).
+    /// The Pokémon owner's discard pile (a LeavePlay for the discard pile).
     Discard,
     /// The hand of the player the program runs for.
     Hand,

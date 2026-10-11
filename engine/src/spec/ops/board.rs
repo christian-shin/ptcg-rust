@@ -220,17 +220,9 @@ pub enum ConditionChange {
     RemoveChosen,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Gate {
-    None,
-    /// A TrainerTargetEffect on the Pokémon must not be blocked.
-    TrainerTarget,
-}
-
 pub struct ConditionsSpec {
     pub target: SlotExpr,
     pub change: ConditionChange,
-    pub gate: Gate,
     pub when: Cond,
 }
 
@@ -861,12 +853,6 @@ fn conditions(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, c: &ConditionsSp
     let (p, s) = (slot.p as usize, slot.s);
     match c.change {
         ConditionChange::Add(cs) => {
-            if c.gate == Gate::TrainerTarget {
-                let (t, prevented) = g.run_fx(Effect::TrainerTarget { p: f.p, card: me, target: Some(slot) })?;
-                if prevented || matches!(t, Effect::TrainerTarget { target: None, .. }) {
-                    return Ok(Flow::Next);
-                }
-            }
             let gained = inflict_on(g, me, f, slot, cs)?;
             f.outcome = Outcome::count(cs.len(), gained, cs.len() - gained);
             Ok(Flow::Next)
@@ -1182,7 +1168,7 @@ pub const MY_ACTIVE: SlotExpr = SlotExpr::Active(Who::Me);
 
 /// The opponent's Active Pokémon is now affected by these Special Conditions (by the frame's cause).
 pub const fn inflict(cs: &'static [SpecialCondition]) -> Op {
-    Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(cs), gate: Gate::None, when: Cond::True })
+    Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(cs), when: Cond::True })
 }
 
 /// "This Pokémon also does N damage to itself."

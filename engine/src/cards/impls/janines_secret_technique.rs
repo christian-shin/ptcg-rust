@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
             // "If you attached Energy to your Active Pokémon in this way, it is now Poisoned."
             Step::new(Op::If(IfSpec {
                 cond: Cond::Slot(SlotExpr::Attached, SlotPred::IsActive),
-                yes: &[Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Attached, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), gate: Gate::None, when: Cond::True }))],
+                yes: &[Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Attached, change: ConditionChange::Add(&[SpecialCondition::Poisoned]), when: Cond::True }))],
                 no: &[],
             })),
         ],

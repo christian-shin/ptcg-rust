@@ -257,8 +257,6 @@ pub struct Game {
     pub temp_used: [bool; MAX_TEMPS],
     /// Callbacks referenced by pending `CoinFlipEffect`s.
     pub coin_callbacks: SVec<CoinCb, 16>,
-    /// Trainer whose effect is creating prompts (`Store.resolvingTrainer`).
-    pub resolving_trainer: Option<(u8, CardId)>,
     /// `probingStadiumEffect` (stadium-effect.ts module state).
     pub probing_stadium: bool,
     /// A legality trial (options.rs): work that can't change whether the
@@ -368,7 +366,7 @@ impl Game {
             use std::ptr::addr_of_mut as f;
             let Game {
                 st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
-                resolving_trainer, probing_stadium, trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
+                probing_stadium, trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
                 dispatch,
                 derived: _,
             } = src;
@@ -386,7 +384,6 @@ impl Game {
             f!((*d).temps).write(*temps);
             f!((*d).temp_used).write(*temp_used);
             coin_callbacks.copy_live_to(f!((*d).coin_callbacks));
-            f!((*d).resolving_trainer).write(*resolving_trainer);
             f!((*d).probing_stadium).write(*probing_stadium);
             f!((*d).trial).write(*trial);
             f!((*d).kinds_present).write(*kinds_present);
@@ -423,7 +420,6 @@ impl Game {
             temps: [List::new(); MAX_TEMPS],
             temp_used: [false; MAX_TEMPS],
             coin_callbacks: SVec::new(),
-            resolving_trainer: None,
             probing_stadium: false,
             trial: false,
             kinds_present: crate::effects::KindMask::EMPTY,
@@ -791,7 +787,7 @@ impl Game {
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
-        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
+        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
@@ -804,7 +800,7 @@ impl Game {
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
             let kind = construct_prompt(kind);
-            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None, trainer: self.resolving_trainer });
+            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });
@@ -868,27 +864,16 @@ impl Game {
         let r: R = (|| {
             if all {
                 let mut results: SVec<Res, 4> = SVec::new();
-                let mut source = None;
                 for pid in item.ids.iter() {
                     if let Some(p) = self.prompts.iter().find(|p| p.id == *pid).copied() {
-                        let r = self.filter_trainer_result(&p, p.result.unwrap())?;
-                        results.push(r);
-                        if p.trainer.is_some() {
-                            source = p.trainer;
-                        }
+                        results.push(p.result.unwrap());
                     }
                 }
                 // Resolved prompts are no longer needed.
                 self.prompts.retain(|p| !item.ids.contains(&p.id));
                 // Twinleaf runs `then` while the item is still queued and
                 // splices it afterwards at the index computed beforehand.
-                let prev = self.resolving_trainer;
-                if source.is_some() {
-                    self.resolving_trainer = source;
-                }
-                let rc = self.run_cont(item.cont, results.as_slice());
-                self.resolving_trainer = prev;
-                rc?;
+                self.run_cont(item.cont, results.as_slice())?;
                 self.items.remove_at(ii);
             }
             self.resolve_wait_items()
@@ -1249,49 +1234,10 @@ impl Game {
         let d = self.st.cards[c as usize].def;
         if let Some(imp) = cards::impl_for(d) {
             if imp.mask.has(kind) {
-                if let Effect::PlayTrainer { p, card, .. } = *self.e(id) {
-                    if card == c {
-                        let prev = self.resolving_trainer;
-                        self.resolving_trainer = Some((p, c));
-                        let r = (imp.reduce)(self, c, id);
-                        self.resolving_trainer = prev;
-                        return r;
-                    }
-                }
                 return (imp.reduce)(self, c, id);
             }
         }
         Ok(())
-    }
-
-    /// `filterTrainerPromptResult`: drop opponent slots whose TrainerTargetEffect is blocked.
-    fn filter_trainer_result(&mut self, pr: &PromptRec, res: Res) -> R<Res> {
-        let (tp, tc) = match pr.trainer {
-            Some(t) => t,
-            None => return Ok(res),
-        };
-        if let (PromptKind::ChoosePokemon { .. }, Res::Slots(sel)) = (pr.kind, res) {
-            let o = 1 - tp;
-            let mut out: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
-            let mut blocked: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
-            let mut seen: SVec<SlotRef, { crate::state::MAX_SLOT_REFS }> = SVec::new();
-            for s in sel.iter() {
-                if s.p == o && !seen.contains(s) {
-                    seen.push(*s);
-                    let (e, prevented) = self.run_fx(Effect::TrainerTarget { p: tp, card: tc, target: Some(*s) })?;
-                    if prevented || matches!(e, Effect::TrainerTarget { target: None, .. }) {
-                        blocked.push(*s);
-                    }
-                }
-            }
-            for s in sel.iter() {
-                if !blocked.contains(s) {
-                    out.push(*s);
-                }
-            }
-            return Ok(Res::Slots(out));
-        }
-        Ok(res)
     }
 
     // -----------------------------------------------------------------------

@@ -219,17 +219,10 @@ impl Game {
         nd!(used_dragons_wish, "usedDragonsWish");
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
         nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
-        nd!(used_table_turner, "usedTableTurner");
-        nd!(chains_of_control_used, "chainsOfControlUsed");
-        nd!(pecharuntex_is_in_play, "pecharuntexIsInPlay");
-        nd!(used_run_errand, "usedRunErrand");
-        nd!(used_lunar_cycle, "usedLunarCycle");
         if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::TEAM_ROCKET)) > 0 {
             o.insert("rocketSupporter".into(), json!(true));
         }
         nd!(legacy_energy_used, "legacyEnergyUsed");
-        nd!(used_fan_call, "usedFanCall");
-        nd!(played_canari, "playedCanari");
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }

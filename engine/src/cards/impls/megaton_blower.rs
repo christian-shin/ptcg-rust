@@ -12,8 +12,8 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::ForEach(ForEachSpec {
                 over: SlotSel::Pokemon(Who::Opp),
                 body: &[Step::new(Op::If(IfSpec {
-                    // A Pokémon protected from this Trainer's effect is skipped.
-                    cond: Cond::TrainerTargetOk(SlotExpr::Picked),
+                    // A protection from this Trainer's effect is a Prevent read by each Discard / LeavePlay (batch 6/7).
+                    cond: Cond::True,
                     yes: &[
                         Step::new(Op::Snapshot(SnapshotSpec { zone: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), predicate: Pred::All(&[Pred::Energy, Pred::Not(&Pred::BasicEnergy)]), into: 0 })),
                         Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Attached(SlotExpr::Picked)), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),

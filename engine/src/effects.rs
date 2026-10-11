@@ -269,7 +269,6 @@ pub enum Effect {
     Energy { p: u8, card: CardId },
     Tool { p: u8, card: CardId },
     Stadium { p: u8, target: Option<SlotRef>, stadium: CardId, skip_ability_lock_check: bool },
-    TrainerTarget { p: u8, card: CardId, target: Option<SlotRef> },
 }
 
 impl Effect {
@@ -333,7 +332,6 @@ impl Effect {
             Energy { .. } => "ENERGY_EFFECT",
             Tool { .. } => "TOOL_EFFECT",
             Stadium { .. } => "STADIUM_EFFECT",
-            TrainerTarget { .. } => "TRAINER_TARGET_EFFECT",
         }
     }
 
@@ -409,7 +407,6 @@ impl Effect {
             Energy { .. } => 57,
             Tool { .. } => 58,
             Stadium { .. } => 59,
-            TrainerTarget { .. } => 62,
             MoveCounters { .. } => 129,
             Devolve { .. } => 248,
             Swap { .. } => 249,
@@ -473,7 +470,6 @@ pub mod k {
     pub const TOOL: u32 = 58;
     pub const STADIUM: u32 = 59;
     /// B4-OLD: the request for one coin flip (Backtrack Badge's re-flip hook reads it).
-    pub const TRAINER_TARGET: u32 = 62;
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
     /// The events of events batch 6 (`engine::damage`, `engine::knockout`; KnockOut keeps `KNOCK_OUT`): Damage, PlaceCounters,

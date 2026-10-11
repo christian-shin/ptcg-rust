@@ -625,7 +625,7 @@ pub const POKEMON_PREVENT_KINDS: KindMask = crate::effects::mask(&[crate::effect
 pub const APPLY_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::APPLY_EFFECT]);
 
 impl EventPred {
-    /// Matches no event (`LockDecl::forbids` of a lock that declares only old `LockedAction`s).
+    /// Matches no event (the `forbids` of an empty declaration).
     pub const NEVER: EventPred = EventPred::Any(&[]);
     /// Matches every event.
     pub const ALWAYS: EventPred = EventPred::All(&[]);

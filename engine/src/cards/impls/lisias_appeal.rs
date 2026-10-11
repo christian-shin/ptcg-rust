@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Basic)],
         steps: &[
             Step::new(Op::Switch(SwitchSpec { change: ActiveChange::SwitchIn, among: SwitchAmong::BenchBasic, msg: "CHOOSE_POKEMON_TO_SWITCH", required: false })),
-            Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Active(Who::Opp), change: ConditionChange::Add(&[SpecialCondition::Confused]), gate: Gate::TrainerTarget, when: Cond::Done })),
+            Step::new(Op::Conditions(ConditionsSpec { target: SlotExpr::Active(Who::Opp), change: ConditionChange::Add(&[SpecialCondition::Confused]), when: Cond::Done })),
         ],
     }),
     ..CardSpec::NONE

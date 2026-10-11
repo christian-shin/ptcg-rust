@@ -22,6 +22,7 @@ pub enum Event {
     On(super::event::EventPred),
     OnDamagedByAttack(OnDamagedByAttackSpec),
     OnCheckup(OnCheckupSpec),
+    // B7-OLD -> B8: OnEndTurn / OnCheckup become lasting effects stored with a timing.
     OnEndTurn(OnEndTurnSpec),
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
 }

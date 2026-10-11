@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Any(&[Cond::Slot(MY_ACTIVE, SlotPred::Damaged), Cond::Slot(MY_ACTIVE, SlotPred::HasCondition)])],
         steps: &[
             Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(MY_ACTIVE), hp: Num::Lit(20), clear_conditions: false })),
-            Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::RemoveChosen, gate: Gate::None, when: Cond::True })),
+            Step::new(Op::Conditions(ConditionsSpec { target: MY_ACTIVE, change: ConditionChange::RemoveChosen, when: Cond::True })),
         ],
     }),
     ..CardSpec::NONE

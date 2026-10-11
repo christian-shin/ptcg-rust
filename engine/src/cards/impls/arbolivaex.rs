@@ -37,7 +37,6 @@ pub static SPEC: CardSpec = CardSpec {
             steps: &[Step::after_damage(Op::Conditions(ConditionsSpec {
                 target: MY_ACTIVE,
                 change: ConditionChange::RemoveAll,
-                gate: Gate::None,
                 when: Cond::True,
             }))],
         },

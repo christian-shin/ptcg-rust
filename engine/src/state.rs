@@ -371,21 +371,8 @@ pub struct Player {
     pub used_dragons_wish: bool,
     pub unlimited_energy_attach_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
-    /// `usedTableTurner` (Fezandipiti ex; absent until first written).
-    pub used_table_turner: bool,
-    /// Pecharunt ex's `chainsOfControlUsed` (absent until first written).
-    pub chains_of_control_used: bool,
-    /// `pecharuntexIsInPlay` (set by Pecharunt ex, never cleared).
-    pub pecharuntex_is_in_play: bool,
-    /// Mega Kangaskhan ex's `usedRunErrand` (absent until set).
-    pub used_run_errand: bool,
-    /// `usedLunarCycle` (Lunatone M1L; absent on fresh players).
-    pub used_lunar_cycle: bool,
     /// `legacyEnergyUsed` (Legacy Energy TWM; once per game, never reset).
     pub legacy_energy_used: bool,
-    /// `usedFanCall` (Fan Rotom SCR; cleared by Fan Rotom at any end of turn).
-    pub used_fan_call: bool,
-    pub played_canari: bool,
 }
 
 impl Player {
@@ -429,14 +416,7 @@ impl Player {
             used_dragons_wish: false,
             unlimited_energy_attach_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
-            used_table_turner: false,
-            chains_of_control_used: false,
-            pecharuntex_is_in_play: false,
-            used_run_errand: false,
-            used_lunar_cycle: false,
             legacy_energy_used: false,
-            used_fan_call: false,
-            played_canari: false,
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;

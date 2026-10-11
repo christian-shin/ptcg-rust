@@ -315,8 +315,6 @@ pub struct PromptRec {
     pub message: &'static str,
     pub kind: PromptKind,
     pub result: Option<Res>,
-    /// Trainer whose resolution created this prompt (not serialized).
-    pub trainer: Option<(u8, CardId)>,
 }
 
 /// Decoded prompt result (what Twinleaf stores in `prompt.result`).

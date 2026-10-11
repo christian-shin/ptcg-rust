@@ -189,8 +189,6 @@ pub enum Cond {
     DidAll,
     /// The Stadium in play matches the predicate.
     StadiumInPlay(Pred),
-    /// The Pokémon is not protected from this Trainer's effect (a TrainerTarget probe): a checked read.
-    TrainerTargetOk(SlotExpr),
     /// Rare Candy can be used by the player (a checked read).
     RareCandyUsable,
     /// A Pokémon of the player is being Knocked Out by an attack of the other player's Pokémon
@@ -522,7 +520,6 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::DidAll => f.outcome == super::run::Outcome::Done,
         Cond::Printed(c) => cond(g, me, f, c),
         Cond::StadiumInPlay(p) => g.st.stadium_card().map(|c| pred(g, c, p)).unwrap_or(false),
-        Cond::TrainerTargetOk(_) => panic!("Cond::TrainerTargetOk needs a checked read (cond_m)"),
         Cond::RareCandyUsable => panic!("Cond::RareCandyUsable needs a checked read (cond_m)"),
         Cond::TrainerViaAttack => f.via_attack,
         Cond::Attached => f.attached_to != super::run::NONE,
@@ -1130,13 +1127,6 @@ pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
             }
         }
         Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, me, f.p as usize)?,
-        Cond::TrainerTargetOk(e) => match slot_of(g, me, f, *e) {
-            Some(slot) => {
-                let (t, prevented) = g.run_fx(Effect::TrainerTarget { p: f.p, card: me, target: Some(slot) })?;
-                !(prevented || matches!(t, Effect::TrainerTarget { target: None, .. }))
-            }
-            None => false,
-        },
         Cond::AbilityBlocked => is_ability_blocked(g, f.p as usize, me, None),
         Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
         Cond::ToolBlocked => is_tool_blocked(g, f.p as usize, me),

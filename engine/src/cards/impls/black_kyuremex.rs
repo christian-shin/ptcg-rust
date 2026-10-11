@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Paralyzed]), gate: Gate::None, when: Cond::Slot(OPP_ACTIVE, SlotPred::PrintedTypeIs(ct::DRAGON)) })),
+                Step::after_damage(Op::Conditions(ConditionsSpec { target: OPP_ACTIVE, change: ConditionChange::Add(&[SpecialCondition::Paralyzed]), when: Cond::Slot(OPP_ACTIVE, SlotPred::PrintedTypeIs(ct::DRAGON)) })),
             ],
         },
         AttackSpec {

@@ -24,13 +24,11 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::Conditions(ConditionsSpec {
                 target: MY_ACTIVE,
                 change: ConditionChange::Add(&[SpecialCondition::Confused]),
-                gate: Gate::None,
                 when: MY_NON_DARK,
             })),
             Step::new(Op::Conditions(ConditionsSpec {
                 target: OPP_ACTIVE,
                 change: ConditionChange::Add(&[SpecialCondition::Confused]),
-                gate: Gate::TrainerTarget,
                 when: OPP_NON_DARK,
             })),
         ],

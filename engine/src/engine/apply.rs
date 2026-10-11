@@ -93,6 +93,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Lasting::PreventDamage(src) => push_prevent(slot, src.spec(), cause, attack),
             Lasting::PreventAttackEffects => push_prevent(slot, &crate::spec::passive::LASTING_PREVENT_EFFECTS, cause, attack),
+            // B7-OLD -> B8: Retaliate and DiscardAttackerEnergyIfKnockedOut are stored on the slot until batch 8 stores
+            // lasting triggers with a timing (they fire inside the attack's step-7 trigger machinery).
             Lasting::Retaliate(n) => slot.retaliate_on_damage_next_turn_pending = Some(StoredRetaliate { damage: n, attack, source_card: card, attacker: p as u8 }),
             Lasting::DiscardAttackerEnergyIfKnockedOut => {
                 slot.discard_attacker_energy_if_ko_next_turn = true;

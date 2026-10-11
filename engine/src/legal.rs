@@ -9,7 +9,7 @@
 //! [`legal_fast`] answers one action: `Some(legal)` when every rule that could reject it is declared and was
 //! evaluated, `None` when one is not (the caller then plays the action on a copy, a counted fallback). It
 //! calls the same `can_x()` checks the executing reducers call (`turn.rs`, `play.rs`, `retreat.rs`,
-//! `attack.rs`), the same play-lock query (`passive::play_locked`) and the same declared card checks
+//! `attack.rs`), the same lock query (`derived::event_locked`, through the events' check functions) and the same declared card checks
 //! (`spec::run`: `needs` / implied preconditions, once per turn, leading `Fail` steps), so the answer and the
 //! execution can't drift apart. `PTCG_VERIFY_LEGAL=1` compares every answer with the full trial.
 //!
