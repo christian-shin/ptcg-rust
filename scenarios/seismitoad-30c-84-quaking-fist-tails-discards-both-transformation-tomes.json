@@ -1,0 +1,81 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Seismitoad 30C 84",
+   "4 Transformation Tome CRI 83",
+   "4 Duraludon PRE 69",
+   "4 Feebas TWM 49",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Seismitoad 30C 84",
+   "4 Transformation Tome CRI 83",
+   "4 Duraludon PRE 69",
+   "4 Feebas TWM 49",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Seismitoad 30C 84",
+  "active_energy": [
+   "Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Transformation Tome CRI 83",
+   "Transformation Tome CRI 83"
+  ],
+  "discard": [
+   "Feebas TWM 49"
+  ]
+ },
+ "coins": [
+  false
+ ],
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Quaking Fist"
+  },
+  {
+   "a": "play",
+   "card": "Transformation Tome CRI 83"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Transformation Tome CRI 83",
+    "Transformation Tome CRI 83"
+   ],
+   "cite": "Seismitoad 30C 84 Quaking Fist: \"If tails, your opponent discards that Trainer card instead of using it\"; two Transformation Tomes played together are one play with one flip (JP FAQ ガマゲロゲ + 変化の書: 「…グッズ「変化の書」を2枚同時に使う場合、コインは何回投げますか？」「1回投げます。」 = played 2 at once, the coin is flipped once), so on tails both are discarded"
+  },
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "not_contains": [
+    "Transformation Tome CRI 83"
+   ],
+   "cite": "Seismitoad 30C 84 + Transformation Tome CRI 83: the companion doesn't stay in the hand on tails (one play)"
+  },
+  {
+   "at": "next_turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "cite": "Quaking Fist tails: the Tomes are discarded instead of being used, so nothing is switched"
+  }
+ ]
+}

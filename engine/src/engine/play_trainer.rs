@@ -160,15 +160,28 @@ pub fn play_from_hand(g: &mut Game, p: usize, card: CardId, target: Option<SlotR
 
 /// The coin of a coin-gated lock (`CoinCb::PlayGate`): heads, the card is played; tails, the play doesn't happen (it
 /// isn't recorded: the same Stadium may be played again, another Supporter may be played; JP FAQ ガマゲロゲ + ミアレシティ)
-/// and the card is discarded instead (a Discard by the lock's cause).
+/// and the card is discarded instead (one Discard by the lock's cause). A card played with its companion (Transformation
+/// Tome, "You must play 2 ... at once") is one play with one flip (JP FAQ ガマゲロゲ + 変化の書: 「…2枚同時に使う場合、コインは
+/// 何回投げますか？」「1回投げます。」), so on tails both cards are discarded.
 pub fn gate_coin(g: &mut Game, p: u8, card: CardId, target: Option<SlotRef>, heads: bool) -> R {
     if heads {
         return resolve(g, p as usize, card, target);
     }
     let cause = crate::spec::passive::coin_gate_cause(g, p as usize).unwrap_or(Cause::rule(RuleWhich::Action, p));
+    let mut play: SVec<CardId, 2> = SVec::new();
+    play.push(card);
+    if let Some(w) = companion(g, p as usize, card) {
+        play.push(w);
+    }
     for from in [ListRef::Hand(p), ListRef::Supporter(p)] {
-        if g.lst(from).contains(&card) {
-            crate::engine::cards_zone::discard(g, from, &[card], cause)?;
+        let mut here: SVec<CardId, 2> = SVec::new();
+        for &c in play.iter() {
+            if g.lst(from).contains(&c) {
+                here.push(c);
+            }
+        }
+        if !here.is_empty() {
+            crate::engine::cards_zone::discard(g, from, here.as_slice(), cause)?;
         }
     }
     Ok(())
