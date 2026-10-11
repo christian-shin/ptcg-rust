@@ -1191,10 +1191,13 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
         max_allowed.push((t, hp));
     }
     let mut opts = MoveOpts { allow_cancel: false, min: 1, max: Some(max), ..Default::default() };
-    // A source must have the counters it gives (`Game::decode_move_damage`; the Ability needs a damaged Pokémon,
-    // `Cond::AnySlot(.., Damaged)`).
-    for (_, _, t) in mine.iter().copied() {
+    // "From 1 of your Pokémon": one source per use (`single_source`), and a Pokémon with no damage counters isn't
+    // offered as a source (an option that does nothing isn't legal, `Game::decode_move_damage`).
+    for (s, _, t) in mine.iter().copied() {
         opts.blocked_to.push(t);
+        if g.st.slot(p, s).damage <= 0 {
+            opts.blocked_from.push(t);
+        }
     }
     for (_, _, t) in for_each_pokemon(g, o, PlayerType::TopPlayer).iter().copied() {
         opts.blocked_from.push(t);
@@ -1203,7 +1206,7 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
     let id = g.player_id(p);
-    g.prompt(id, "MOVE_DAMAGE", PromptKind::RemoveDamage { player_type: PlayerType::Any, slots, max_allowed, o: opts, same_target: true }, f.cont(me, 1));
+    g.prompt(id, "MOVE_DAMAGE", PromptKind::RemoveDamage { player_type: PlayerType::Any, slots, max_allowed, o: opts, same_target: true, single_source: true }, f.cont(me, 1));
     Ok(Flow::Suspend)
 }
 
@@ -1761,5 +1764,43 @@ mod effect_evolve_tests {
         assert!(!evolve_with(&mut g, t, palafin_ex, cause).unwrap());
         assert_eq!(g.st.slot_pokemon(me, t.s).map(|c| g.st.cdef(c).name), Some("Finizen"));
         assert!(evolve_with(&mut g, t, palafin, cause).unwrap());
+    }
+}
+
+#[cfg(test)]
+mod adrena_brain_tests {
+    //! Munkidori TWM 95's Adrena-Brain: "move up to 3 damage counters from 1 of your Pokémon": one source per use, and
+    //! a Pokémon without damage counters isn't offered as the source (an option that does nothing isn't legal).
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn adrena_brain_one_damaged_source_per_use() {
+        let mut names: Vec<&str> = vec!["Munkidori TWM 95"; 4];
+        names.extend(["Hop's Snorlax JTG 117"; 4]);
+        names.extend(["Darkness Energy MEE 7"; 52]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sn = "Hop's Snorlax JTG 117";
+        crate::scenario::apply(
+            &mut g,
+            &json!({"me": {"reset": true, "active": "Munkidori TWM 95", "active_energy": ["Darkness Energy MEE 7"], "bench": [{"card": sn, "damage": 20}, {"card": sn, "damage": 20}, {"card": sn}]},
+                    "opp": {"reset": true, "active": sn}}),
+        )
+        .unwrap();
+        let me = g.st.active_player as usize;
+        let card = g.st.slot_pokemon(me, g.st.players[me].active).unwrap();
+        let mut f = Frame::passive(&g, card, me, crate::spec::passive::RuleSource::Ability);
+        mine_to_opp_exec(&mut g, card, &mut f, 3).unwrap();
+        let pr = *g.prompts.as_slice().last().unwrap();
+        let tg = |p: u8, s: u8, i: u8| json!({"player": p, "slot": s, "index": i});
+        let (act, b0, b1, b2, opp) = (tg(2, 1, 0), tg(2, 2, 0), tg(2, 2, 1), tg(2, 2, 2), tg(1, 1, 0));
+        let mv = |f: &serde_json::Value, t: &serde_json::Value| json!({"from": f, "to": t});
+        assert!(g.decode_answer(&pr, &json!([mv(&b0, &opp), mv(&b0, &opp)])).is_ok());
+        assert!(g.decode_answer(&pr, &json!([mv(&b0, &opp), mv(&b1, &opp)])).is_err(), "one source per use");
+        assert!(g.decode_answer(&pr, &json!([mv(&b2, &opp)])).is_err(), "an undamaged source is not offered");
+        assert!(g.decode_answer(&pr, &json!([mv(&act, &opp)])).is_err());
     }
 }

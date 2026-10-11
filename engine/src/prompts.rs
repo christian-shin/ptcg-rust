@@ -242,7 +242,7 @@ pub enum PromptKind {
     MoveEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: MoveOpts },
     PutDamage { player_type: PlayerType, slots: SVec<u8, 3>, damage: i32, max_allowed: SVec<(CardTarget, i32), 16>, allow_cancel: bool, blocked: SVec<CardTarget, 16>, allow_partial: bool, damage_multiple: i32 },
     MoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, single_source: bool, single_destination: bool, damage_multiple: i32 },
-    RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool },
+    RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool, single_source: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
     ChooseAttack { cards: SVec<CardId, 64>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
@@ -1056,12 +1056,13 @@ impl Game {
                 m.insert("damageMultiple".into(), json!(damage_multiple));
                 base.insert("options".into(), Value::Object(m));
             }
-            PromptKind::RemoveDamage { player_type, slots, max_allowed, o, same_target } => {
+            PromptKind::RemoveDamage { player_type, slots, max_allowed, o, same_target, single_source } => {
                 base.insert("playerType".into(), json!(player_type as u8));
                 base.insert("slots".into(), json!(slots.as_slice()));
                 base.insert("maxAllowedDamage".into(), damage_map_json(max_allowed.as_slice()));
                 let mut m = move_opts_json(&o, true);
                 m.insert("sameTarget".into(), json!(same_target));
+                m.insert("singleSourceTarget".into(), json!(single_source));
                 base.insert("options".into(), Value::Object(m));
             }
             PromptKind::OrderCards { cards, allow_cancel } => {
@@ -1288,7 +1289,7 @@ impl Game {
             PromptKind::MoveDamage { player_type, slots, o, single_source, single_destination, .. } => {
                 (player_type, slots, o, single_source, single_destination)
             }
-            PromptKind::RemoveDamage { player_type, slots, o, same_target, .. } => (player_type, slots, o, false, same_target),
+            PromptKind::RemoveDamage { player_type, slots, o, same_target, single_source, .. } => (player_type, slots, o, single_source, same_target),
             _ => return Err(invalid),
         };
         // Run-length encoded (see `Res::DamageTransfers`); `n` counts the transfers.
