@@ -1,8 +1,7 @@
-//! Glalie (TWM 52): Damage Beat — 20 damage for each damage counter on your
-//! opponent's Active Pokémon. Crazy Headbutt — 140; discard an Energy from
-//! this Pokémon.
+//! Glalie (TWM 52): Damage Beat: 20 damage for each damage counter on your opponent's Active Pokémon. Crazy Headbutt: 140;
+//! discard an Energy from this Pokémon.
 //!
-//! Twinleaf: Crazy Headbutt is DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(1, {}, 1).
+//! Crazy Headbutt discards one Energy after the damage (a LeavePlay event, this attack its cause).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "GlalieTWMPool",

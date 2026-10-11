@@ -1,5 +1,9 @@
-//! Megaton Blower (SSP, ACE SPEC): discard all Pokémon Tools and Special
-//! Energy from all of your opponent's Pokémon, and discard a Stadium in play.
+//! Megaton Blower (SSP 182, ACE SPEC): discard all Pokémon Tools and Special Energy from all of your opponent's Pokémon,
+//! and discard a Stadium in play.
+//!
+//! The Stadium, then each of the opponent's Pokémon's Special Energy and Tools, leave play (LeavePlay events, this Item
+//! their cause); a protection from this Trainer's effect is a Prevent read by each event. Usable when there is a Stadium or
+//! an opponent's Pokémon has a Tool or Special Energy (usability by the rules, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,12 +1,11 @@
-//! Scizor ex (TEF 111): Steel Wing — 70; during your opponent's next turn
-//! this Pokémon takes 50 less damage from attacks. Cross Breaker — 120x;
-//! discard up to 2 [M] Energy from this Pokémon, 120 damage for each card
-//! discarded.
+//! Scizor ex (TEF 111): Steel Wing: 70; during your opponent's next turn this Pokémon takes 50 less damage from attacks (after
+//! applying Weakness and Resistance). Cross Breaker: 120x; discard up to 2 [M] Energy from this Pokémon, 120 damage for each
+//! card discarded in this way.
 //!
-//! Steel Wing is an ApplyEffect event on this Pokémon (`Lasting::TakesLessDamage(50)`), read in the damage calculation
-//! after Weakness and Resistance until the end of the opponent's next turn. Cross Breaker asks for the Energy first
-//! (0 to 2; the prompt appears even with none), the damage is then 120 for each chosen (ruling 1874), and the Energy is
-//! discarded after the damage.
+//! Steel Wing is an ApplyEffect event on this Pokémon (`Lasting::TakesLessDamage(50)`), read in the damage calculation after
+//! Weakness and Resistance until the end of the opponent's next turn. Cross Breaker asks for the Energy first (0 to 2; the
+//! prompt appears even with none), the damage is then 120 for each chosen, and the Energy is discarded after the damage
+//! (id2423; LeavePlay events, this attack their cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

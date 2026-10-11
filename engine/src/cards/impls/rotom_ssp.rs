@@ -1,6 +1,8 @@
-//! Rotom (SSP): Crushing Pulse — your opponent reveals their hand; discard
-//! all Item and Pokémon Tool cards you find there. Energy Short — 20× the
-//! Energy attached to your opponent's Active Pokémon.
+//! Rotom (SSP 61): Crushing Pulse: your opponent reveals their hand. Discard all Item cards and Pokémon Tool cards you find
+//! there. Energy Short: 20 damage for each Energy attached to your opponent's Active Pokémon.
+//!
+//! The opponent reveals their hand (a Reveal routine), then every Item and Pokémon Tool card in it is discarded (one Discard
+//! event over their hand, this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

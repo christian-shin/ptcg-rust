@@ -1,9 +1,9 @@
-//! Banette (PBL / M5): Hide 'n' Sneak. Puppet Pull — 80; you may search
-//! your deck for a card and put it into your hand, then shuffle.
+//! Banette (PBL 34): Hide 'n' Sneak. Puppet Pull: 80; you may search your deck for a card and put it into your hand. Then,
+//! shuffle your deck.
 //!
-//! Hide 'n' Sneak is `Modifier::Prevent(HIDE_N_SNEAK)` (see shuppet.rs). Puppet Pull asks a confirm
-//! (WANT_TO_DRAW_CARDS); on yes with a non-empty deck, one card of any kind (min 1, max 1, no cancel, no reveal), then the
-//! shuffle.
+//! Hide 'n' Sneak is `Modifier::Prevent(HIDE_N_SNEAK)` (see shuppet.rs). Puppet Pull asks first (a "may"); on yes with a
+//! non-empty deck (id840) one card of any kind goes into the hand (a PutIntoHand event, this attack its cause; nothing is
+//! revealed, the text doesn't say so), then the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

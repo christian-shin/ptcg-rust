@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "4 Team Rocket's Archer DRI 170",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "4 Team Rocket's Archer DRI 170",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Team Rocket's Archer DRI 170"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Team Rocket's Archer DRI 170",
+   "is": false,
+   "cite": "Team Rocket's Archer DRI 170 text: you can use this card only if any of your Team Rocket's Pokémon were Knocked Out during your opponent's last turn"
+  }
+ ]
+}

@@ -1,11 +1,8 @@
-//! Dragonair (M2a / ASC 151): Evolutionary Guidance — once during your turn,
-//! if this Pokémon has any Energy attached, search your deck for an Evolution
-//! Pokémon (non-Basic Pokémon; every other card is blocked by deck index),
-//! reveal it, put it into your hand and shuffle. Tail Snap — 60.
+//! Dragonair (ASC 151): Evolutionary Guidance: once during your turn, if this Pokémon has any Energy attached, you may
+//! search your deck for an Evolution Pokémon, reveal it, and put it into your hand. Then, shuffle your deck. Tail Snap: 60.
 //!
-//! Twinleaf order: ability-blocked probe, in-play lookup, energy check,
-//! marker check; then SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_INTO_HAND (throws
-//! on an empty deck before the marker is set), marker, board effect.
+//! An Ability (once per turn): needs this Pokémon to have Energy attached; the chosen Evolution Pokémon (any non-Basic Pokémon)
+//! is revealed and goes into the hand (a PutIntoHand event, this Ability its cause), then the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

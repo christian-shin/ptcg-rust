@@ -1,9 +1,9 @@
-//! Eri (TEF): your opponent reveals their hand. Discard up to 2 Item cards
-//! you find there.
+//! Eri (TEF 146): your opponent reveals their hand. Discard up to 2 Item cards you find there.
 //!
-//! Twinleaf: the card moves itself to the supporter pile, then to the discard
-//! when the prompt is answered; chosen Items are discarded one MOVE_CARDS each.
-//! Fixed (phase 4b, R3): min 1 when the opponent's hand holds an Item (it was 0).
+//! The Items are chosen from the opponent's hand (at least 1 when there is one, unless the Supporter's effect is used by
+//! an attack: "up to" may take 0, id2376) and discarded from it (a Discard
+//! event over the opponent's hand, this Supporter or the attack using it its cause). NOTE: this file has no Reveal op
+//! for "reveals their hand" (the Pick shows the hand to the chooser only).
 use crate::spec::prelude::*;
 
 const OPP_HAND: ZoneRef = ZoneRef(Who::Opp, Zone::Hand);
@@ -11,7 +11,7 @@ const OPP_HAND: ZoneRef = ZoneRef(Who::Opp, Zone::Hand);
 pub static SPEC: CardSpec = CardSpec {
     class: "Eri",
     // Your opponent reveals their hand. Discard up to 2 Item cards you find there (at least 1 when
-    // there is one, unless used as the effect of an attack, ruling 1844).
+    // there is one, unless used as the effect of an attack, id2376).
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Nonempty(OPP_HAND, Pred::Any)],

@@ -1,8 +1,7 @@
-//! Sacred Ash (FLF): shuffle 5 Pokémon from your discard pile into your deck.
+//! Sacred Ash (FLF 96): shuffle 5 Pokémon from your discard pile into your deck.
 //!
-//! Twinleaf: `min = max = min(5, Pokémon in discard)`, cancellable (a cancel
-//! ends the effect; the card is still cleaned up as played); the final
-//! ShuffleDeckPrompt has no trailing wait.
+//! Exactly min(5, Pokémon in the discard pile) are chosen (the choice can be cancelled, which ends the effect) and put into the
+//! deck (PutIntoDeck), then the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

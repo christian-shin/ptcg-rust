@@ -1,13 +1,8 @@
-//! Team Rocket's Houndoom (DRI 38): Cruel Coal — your opponent's Active
-//! Pokémon is now Burned and Confused. Scorching Fire — 120; discard an
-//! Energy from this Pokémon.
+//! Team Rocket's Houndoom (DRI 38): Cruel Coal: your opponent's Active Pokémon is now Burned and Confused. Scorching Fire:
+//! 120; discard an Energy from this Pokémon.
 //!
-//! Rule: Cruel Coal is two GainConditions (Burned, Confused) with the attack's cause.
-//! Scorching Fire: DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON(1, {},
-//! 1): no prompt without Energy on the Active; otherwise a non-cancellable
-//! DiscardEnergyPrompt (min = min(1, available), max = min(1, available)),
-//! then one DiscardCardsEffect per source slot. Shared by Galarian Obstagoon
-//! and Iron Boulder ex.
+//! Cruel Coal gives the two Special Conditions (a GainCondition event each, this attack its cause); Scorching Fire discards
+//! one Energy after the damage (a LeavePlay event, this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

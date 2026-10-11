@@ -1,10 +1,8 @@
-//! Hop's Bag (JTG): search your deck for up to 2 Basic Hop's Pokémon and put
-//! them onto your Bench. Then, shuffle your deck.
+//! Hop's Bag (JTG 147): search your deck for up to 2 Basic Hop's Pokémon and put them onto your Bench. Then, shuffle your
+//! deck.
 //!
-//! Twinleaf: deck cards without the Hop's tag are blocked (filter: Basic
-//! Pokémon); each chosen card is played with a PlayPokemonFromDeckEffect into
-//! the empty Bench slots taken before the prompt; the card then moves
-//! supporter→discard before a wait-less shuffle.
+//! The chosen Pokémon enter play from the deck (EnterPlay events, this Item their cause); the deck is shuffled after the
+//! search whatever was found (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

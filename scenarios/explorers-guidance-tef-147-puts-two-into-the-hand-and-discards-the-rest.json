@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Explorer's Guidance TEF 147",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Explorer's Guidance TEF 147",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Explorer's Guidance TEF 147"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Explorer's Guidance TEF 147"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 5,
+   "contains": [
+    "Explorer's Guidance TEF 147"
+   ],
+   "cite": "Explorer's Guidance TEF 147 text: look at the top 6, put 2 into your hand, discard the other 4 (and the Supporter itself)"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards"
+   ],
+   "absent": [
+    "ShuffleDeck"
+   ],
+   "cite": "Explorer's Guidance TEF 147 text (a Look is not a search: no shuffle)"
+  }
+ ]
+}

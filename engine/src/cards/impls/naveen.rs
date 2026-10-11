@@ -1,5 +1,9 @@
-//! Naveen (POR, supporter): discard any number of cards from your hand, then
-//! draw cards until you have 5 cards in your hand.
+//! Naveen (POR 79): draw cards until you have 5 cards in your hand. Before drawing cards, you may discard any number of
+//! cards from your hand. (If you can't draw any cards in this way, you can't use this card.)
+//!
+//! Not usable with an empty deck (the printed parenthetical; official JP FAQ, ピュール). The discard is chosen before the
+//! draw (a Discard event over the hand, a hand of 5 or more must discard enough to draw; JP FAQ), then the Draw event takes
+//! cards until the hand has 5 (the Supporter itself isn't counted).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

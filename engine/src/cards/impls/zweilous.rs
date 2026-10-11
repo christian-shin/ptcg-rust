@@ -1,4 +1,6 @@
-//! Zweilous (SSP): Stomp Off — discard the top 2 cards of your opponent's deck.
+//! Zweilous (SSP 118): Stomp Off: discard the top 2 cards of your opponent's deck. Darkness Fang: 60.
+//!
+//! A Discard event over the opponent's deck (this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

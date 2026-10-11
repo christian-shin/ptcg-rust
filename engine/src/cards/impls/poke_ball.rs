@@ -1,6 +1,9 @@
-//! Poké Ball (JU): flip a coin. If heads, you may search your deck for any
-//! Basic Pokémon or Evolution card, show it to your opponent, and put it
-//! into your hand. Shuffle your deck afterward.
+//! Poké Ball (JU 64): flip a coin. If heads, you may search your deck for any Basic Pokémon or Evolution card. Show that
+//! card to your opponent, then put it into your hand. Shuffle your deck afterward.
+//!
+//! Usable with a card in the deck (id840). On heads the chosen Pokémon is shown and put into the hand (PutIntoHand, this
+//! Item its cause); the deck is shuffled afterward on heads and on tails, as printed ("Shuffle your deck afterward" isn't
+//! part of the heads branch).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -18,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
                 }))],
                 ..CoinSpec::DEFAULT
             })),
-            // Today's behavior kept: the deck is shuffled on tails too.
+            // "Shuffle your deck afterward": after the coin, on heads (with or without a card found) and on tails.
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
     }),

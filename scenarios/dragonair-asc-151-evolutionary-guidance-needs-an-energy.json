@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Dratini ASC 150",
+   "4 Dragonair ASC 151",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Dratini ASC 150",
+   "Dragonair ASC 151"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Evolutionary Guidance",
+   "is": false,
+   "cite": "Dragonair ASC 151 text: if this Pokémon has any Energy attached"
+  }
+ ]
+}

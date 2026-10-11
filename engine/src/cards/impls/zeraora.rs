@@ -1,9 +1,9 @@
-//! Zeraora (DRI): Scratch — 20. Thunder Raid — discard all Energy from this
-//! Pokémon; 210 damage to 1 of the opponent's Benched Pokémon ex.
+//! Zeraora (DRI 78): Scratch: 20. Thunder Raid: discard all Energy from this Pokémon. This attack does 210 damage to 1 of your
+//! opponent's Benched Pokémon ex.
 //!
-//! Only the opponent's Benched Pokémon count as "Benched ex" (an ex Active Pokémon alone doesn't make the target
-//! reachable). With no Benched ex the attack is still usable (ruling 1790): the Energy is discarded and there is no damage
-//! and no prompt. Otherwise one Damage event on the chosen Benched ex (no Weakness or Resistance), with the attack as its
+//! Only the opponent's Benched Pokémon count as "Benched ex" (an ex Active Pokémon alone doesn't make the target reachable).
+//! With no Benched ex the attack is still usable (id362): the Energy is discarded (LeavePlay events, this attack their cause) and there
+//! is no damage and no prompt. Otherwise one Damage event on the chosen Benched ex (no Weakness or Resistance), this attack its
 //! cause.
 use crate::spec::prelude::*;
 use crate::types::tag;

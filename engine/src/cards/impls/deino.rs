@@ -1,4 +1,6 @@
-//! Deino (SSP): Stomp Off — discard the top card of your opponent's deck.
+//! Deino (SSP 117): Stomp Off: discard the top card of your opponent's deck.
+//!
+//! A Discard event over the opponent's deck (this attack its cause); no look, no shuffle (nothing in the text).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

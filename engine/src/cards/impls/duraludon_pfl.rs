@@ -1,8 +1,7 @@
-//! Duraludon (PFL / M2 74): Hyper Beam — 70; discard an Energy from your
-//! opponent's Active Pokémon.
+//! Duraludon (PFL 74): Hyper Beam: 70; discard an Energy from your opponent's Active Pokémon.
 //!
-//! Twinleaf: DISCARD_AN_ENERGY_FROM_OPPONENTS_ACTIVE_POKEMON (no prompt when
-//! the Active has no Energy card).
+//! The Energy is chosen from the Defending Pokémon's attached cards and discarded after the damage (a LeavePlay event, this
+//! attack its cause: Mist Energy or Hide 'n' Sneak refuse it). No Energy: nothing happens.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,18 +1,11 @@
-//! Crispin (SCR): search your deck for up to 2 Basic Energy cards of
-//! different types, reveal them, put 1 into your hand and attach the other to
-//! 1 of your Pokémon, then shuffle.
+//! Crispin (SCR 133): search your deck for up to 2 Basic Energy cards of different types, reveal them, and put 1 of them
+//! into your hand. Attach the other to 1 of your Pokémon. Then, shuffle your deck.
 //!
-//! Fixed (phase 4b): the search prompt is `differentTypes` (a duplicate type
-//! can't be picked any more, so the old CAN_ONLY_SELECT_TWO_DIFFERENT_ENERGY_TYPES
-//! throw in its callback is gone).
-//!
-//! Fixed (R1-17, rulings 779 and 851): it can't be played with an empty deck
-//! (CANNOT_PLAY_THIS_CARD, before the card moves).
-//!
-//! Twinleaf order kept: the ShowCards, AttachEnergy and ShuffleDeck prompts
-//! are all created by the search callback (the shuffle before the attach is
-//! answered); the final shuffle has no trailing WaitPrompt; the ShowCards
-//! prompt is created even when nothing was selected.
+//! The search needs a deck with a card in it (id840). The chosen cards (at most one per type) are revealed to the opponent,
+//! then set aside (a Look into the scratch zone 1, not yet in any hand). With two cards the player chooses which one is
+//! attached (an Attach event onto one of their Pokémon, the Supporter its cause) and the other goes into the hand
+//! (PutIntoHand); with one card it goes into the hand. The text puts the shuffle last; here it comes right after the
+//! set-aside (the deck holds the same cards either way, so only the prompt order differs; noted by the B73 sweep).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 N's Zorua JTG 97",
+   "4 N's Zoroark ex JTG 98",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 N's Zorua JTG 97",
+   "4 N's Zoroark ex JTG 98",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "N's Zorua JTG 97",
+   "N's Zoroark ex JTG 98"
+  ],
+  "hand": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Trade",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "cite": "N's Zoroark ex JTG 98 text: you must discard a card from your hand in order to use this Ability"
+  }
+ ]
+}

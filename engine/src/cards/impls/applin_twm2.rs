@@ -1,8 +1,9 @@
-//! Applin (TWM 126): Find a Friend — search your deck for a Pokémon, reveal
-//! it, put it into your hand, then shuffle. Rolling Tackle — 30.
+//! Applin (TWM 126): Find a Friend: search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle
+//! your deck. Rolling Tackle: 30.
 //!
-//! Twinleaf: the ShowCardsPrompt to the opponent is created even when no
-//! card was chosen; the ShuffleDeckPrompt follows with no trailing wait.
+//! The search shows the chosen card to the opponent before it moves (id1131) and puts it into the hand (a PutIntoHand event,
+//! this attack its cause); the shuffle follows (APR E-19). An empty deck can't be searched (id840): the attack then does
+//! nothing, with no search and no shuffle.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

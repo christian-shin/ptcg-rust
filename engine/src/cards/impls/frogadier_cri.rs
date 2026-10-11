@@ -1,13 +1,9 @@
-//! Frogadier (CRI, Frogadier M4): Summoning Jutsu — search your deck for up
-//! to 3 Pokémon, reveal them, and put them into your hand. Then, shuffle your
-//! deck. Aqua Edge — 50.
+//! Frogadier (CRI 21): Summoning Jutsu: search your deck for up to 3 Pokémon, reveal them, and put them into your hand.
+//! Then, shuffle your deck. Aqua Edge: 50.
 //!
-//! Twinleaf (chaos-rising file): an empty deck → nothing happens (no shuffle);
-//! phase 4b R7E (rulings 336, 779, 1764): a deck without a Pokémon is still
-//! searched and shuffled (it used to return); ChooseCardsPrompt min 0, max min(3, Pokémon in deck), no
-//! cancel; the chosen cards are revealed (fixed in phase 4b, R4: there was
-//! no reveal prompt); one MOVE_CARDS per chosen card (sourceCard = the
-//! attacking Pokémon); a final ShuffleDeckPrompt with no wait.
+//! An empty deck can't be searched (id840: nothing happens, no shuffle); a deck without a Pokémon is searched (nothing
+//! found) and shuffled. The chosen Pokémon (0 to 3) are revealed and put into the hand (PutIntoHand, this attack its cause),
+//! then the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

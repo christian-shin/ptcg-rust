@@ -1,10 +1,8 @@
-//! Energy Retrieval (BS): trade 1 of the other cards in your hand for
-//! up to 2 basic Energy cards from your discard pile.
+//! Energy Retrieval (BS 81): trade 1 of the other cards in your hand for up to 2 basic Energy cards from your discard pile.
 //!
-//! Twinleaf: throws with no Basic Energy in the discard or no other card in
-//! hand (phase 4b fix; the prompt was unanswerable); the hand card is
-//! chosen from a temporary copy of the hand (min 1, no cancel); the second
-//! prompt's max is min(2, Basic Energy counted before the discard), min 1.
+//! Usable with a Basic Energy card in the discard pile and another card in the hand (usability by the rules: a Trainer
+//! isn't played for no effect, id925). The hand card is discarded (a Discard event), then up to 2 basic Energy cards (at
+//! least 1; at most the count before the discard) go from the discard pile into the hand (PutIntoHand).
 use crate::spec::prelude::*;
 
 const HAND: ZoneRef = ZoneRef(Who::Me, Zone::Hand);

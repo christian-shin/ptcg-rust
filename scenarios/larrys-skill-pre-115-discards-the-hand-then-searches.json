@@ -1,0 +1,70 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Larry's Skill PRE 115",
+   "1 Fire Energy MEE 2",
+   "4 Rowlet POR 10",
+   "39 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Larry's Skill PRE 115",
+   "1 Fire Energy MEE 2",
+   "4 Rowlet POR 10",
+   "39 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Larry's Skill PRE 115",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Larry's Skill PRE 115"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "APR E-19 (Then, shuffle your deck: the deck is shuffled after the search)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Larry's Skill PRE 115",
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Larry's Skill PRE 115 text: discard your hand (the hand is discarded before the search)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Fire Energy MEE 2"
+   ],
+   "cite": "Larry's Skill PRE 115 text: the only Fire Energy was discarded with the hand"
+  }
+ ]
+}

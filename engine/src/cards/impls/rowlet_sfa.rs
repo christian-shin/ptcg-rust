@@ -1,7 +1,6 @@
-//! Rowlet (SFA): Add On — draw a card. Leafage — 10.
+//! Rowlet (SFA 3): Add On: draw a card. Leafage: 10.
 //!
-//! Twinleaf: MOVE_CARDS (count 1, sourceCard) from deck to hand, with no
-//! empty-deck check.
+//! The draw is a Draw event (this attack its cause); with an empty deck nothing is drawn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

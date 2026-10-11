@@ -1,19 +1,10 @@
-//! Explorer's Guidance (TEF, Ancient Supporter): look at the top 6 cards of
-//! your deck and put 2 of them into your hand. Discard the other cards.
+//! Explorer's Guidance (TEF 147, Ancient Supporter): look at the top 6 cards of your deck and put 2 of them into your hand.
+//! Discard the other cards.
 //!
-//! Twinleaf: any EndTurnEffect for a player with `ancientSupporter` clears
-//! it. On play: throws when a Supporter was already played; the card moves
-//! to the Supporter area and the play is prevented; throws on an empty deck
-//! (after that move); 6 cards go to a temporary list; the non-cancellable
-//! ChooseCardsPrompt takes `min = min(2, looked at)` (fixed in phase 4b, R4:
-//! it was 1 when the deck had at most 1 card left after taking the 6) and up
-//! to 2; the callback sets
-//! `ancientSupporter`, moves the chosen cards to the hand and the rest to the
-//! discard pile.
-//!
-//! Events batch 7: playing it from the hand is recorded by the PlayTrainer event (the played-this-turn record that "if
-//! you played an Ancient Supporter card from your hand this turn" reads, APR E-26); its effect used by an attack isn't a
-//! play (id2225).
+//! A Look of the top 6 (set aside in the scratch zone 1; not a search: no shuffle); exactly min(2, cards looked at) are
+//! chosen and put into the hand (PutIntoHand); the others are discarded (a Discard event). Played from the hand it is the turn's
+//! Supporter play, recorded by its PlayTrainer event (the played-this-turn record that "if you played an Ancient Supporter
+//! card from your hand this turn" reads, APR E-26); its effect used by an attack isn't a play (id2225).
 use crate::spec::prelude::*;
 
 const LOOKED_AT: ZoneRef = ZoneRef(Who::Me, Zone::Scratch(1));

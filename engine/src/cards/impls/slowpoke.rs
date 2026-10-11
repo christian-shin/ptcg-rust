@@ -1,13 +1,8 @@
-//! Slowpoke (SCR): Dangle Tail — put a Pokémon from your discard pile into
-//! your hand.
+//! Slowpoke (SCR 57): Dangle Tail: put a Pokémon from your discard pile into your hand.
 //!
-//! Fixed (W1-E): the chosen card is moved from the discard pile itself
-//! (Twinleaf moved it from a fresh CardList, so it stayed in the discard pile
-//! as well as going to the hand). Phase 4b (R4, Meta-Rulings): the chosen cards
-//! are revealed to the opponent before they are moved (cards moving from the
-//! discard pile to the hand are revealed). Phase 4b (R7E, ruling 1790): an attack
-//! can be used even if its effect can't be carried out, so with no Pokémon in the
-//! discard pile it is usable and does nothing (it used to be unusable).
+//! The chosen Pokémon goes from the discard pile into the hand (a PutIntoHand event, this attack its cause), shown to the
+//! opponent (cards that leave the discard pile for the hand are shown, as RULES.md records). An attack can be used even when
+//! its effect can't be carried out (id362): with no Pokémon in the discard pile it does nothing.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

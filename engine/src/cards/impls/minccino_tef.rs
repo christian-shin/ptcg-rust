@@ -1,5 +1,7 @@
-//! Minccino (TEF): Beat — 10. Cleaning Up — discard up to 2 Pokémon Tools
-//! from your opponent's Pokémon.
+//! Minccino (TEF 136): Beat: 10. Cleaning Up: discard up to 2 Pokémon Tools from your opponent's Pokémon.
+//!
+//! The Tools are chosen among the opponent's Pokémon and discarded (LeavePlay events, this attack their cause; Mist Energy or
+//! Hide 'n' Sneak on a Pokémon keep its Tool).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

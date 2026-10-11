@@ -1,8 +1,7 @@
-//! Slowpoke (PBL, Slowpoke M5): All-You-Can-Yeet — you may discard any number
-//! of cards from your hand. Headbutt — 20.
+//! Slowpoke (PBL 29): All-You-Can-Yeet: you may discard any number of cards from your hand. Headbutt: 20.
 //!
-//! Spec: any card of the hand may be chosen (the printed text says any number
-//! of cards, not only Energy), min 0; the chosen cards are discarded.
+//! Any cards of the hand may be chosen (0 to all; the text says cards, not only Energy) and are discarded (one Discard event
+//! over the hand, this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

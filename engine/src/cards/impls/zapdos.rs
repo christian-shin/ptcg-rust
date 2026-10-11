@@ -1,15 +1,9 @@
-//! Zapdos (TWM): Thunder Wave — flip a coin, if heads the opponent's Active
-//! Pokémon is now Paralyzed. Thunderbolt — 190; discard all Energy from this
-//! Pokémon.
+//! Zapdos (TWM 65): Thunder Wave: flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed. Thunderbolt: 190;
+//! discard all Energy from this Pokémon.
 //!
-//! Rule: a CoinFlip; on heads GainCondition(Paralyzed) on the opponent's Active
-//! with the attack's cause; the
-//! discard is one DiscardCardsEffect with every card of the Active's
-//! CheckProvidedEnergy map, aimed at `player.active`.
-//!
-//! Fixed (phase 4b, R2): Thunderbolt discarded the Energy in the attack
-//! handler, before the damage (Voltaic Lightning Energy's +20 was lost); it
-//! now discards in AfterAttackEffect with a fresh AttackEffect's data.
+//! Thunder Wave is a coin flip, on heads a GainCondition (Paralyzed) on the opponent's Active (this attack its cause).
+//! Thunderbolt discards after the damage (id2423's order: damage first, then the discard; LeavePlay events, this attack their
+//! cause), so the Energy counts for the damage (Voltaic Lightning Energy's +20).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

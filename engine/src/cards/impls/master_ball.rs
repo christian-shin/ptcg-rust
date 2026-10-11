@@ -1,5 +1,8 @@
-//! Master Ball (TEF, ACE SPEC): search your deck for a Pokémon, reveal it,
-//! and put it into your hand. Then, shuffle your deck.
+//! Master Ball (TEF 153, ACE SPEC): search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle
+//! your deck.
+//!
+//! The chosen card is revealed before it moves (id1131) and goes into the hand (PutIntoHand, this Item its cause); the deck
+//! is shuffled after the search (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

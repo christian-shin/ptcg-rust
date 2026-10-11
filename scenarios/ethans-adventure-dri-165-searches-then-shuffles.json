@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Ethan's Adventure DRI 165",
+   "4 Ethan's Cyndaquil DRI 32",
+   "6 Fire Energy MEE 2",
+   "34 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Ethan's Adventure DRI 165",
+   "4 Ethan's Cyndaquil DRI 32",
+   "6 Fire Energy MEE 2",
+   "34 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Ethan's Adventure DRI 165"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Ethan's Adventure DRI 165"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "APR E-19 (Then, shuffle your deck: the deck is shuffled after the search)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Ethan's Adventure DRI 165"
+   ],
+   "cite": "card text (a Supporter is discarded after it is played)"
+  }
+ ]
+}
