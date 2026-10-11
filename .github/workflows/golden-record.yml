@@ -1,0 +1,63 @@
+# Record a new golden corpus with the engine of this commit and publish it as the release golden-<name>.
+#
+# The recording is `fuzz tools/golden-spec.json --games 20000 --seed 5000 --out traces --keep` (the spec and seeds of
+# the previous baselines); the archive is `<name>.tar.zst` (spec.json + traces/, zstd -3, as tools/golden_pack.py packs
+# it) plus SHA256SUMS. After it: write <name> into tools/golden-corpus.txt and reset tools/golden-expected.txt.
+#
+# Run it with `gh workflow run golden-record.yml --ref <branch> -f name=<short hash>` once the file is on the default
+# branch, or push a branch named ci/golden-record (a push has no inputs: the name is the short commit hash).
+name: golden-record
+run-name: golden-record ${{ inputs.name || github.sha }}
+
+on:
+  push:
+    branches: ["ci/golden-record"]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Corpus name (the short commit hash); empty: the short hash of the run's commit"
+        default: ""
+      games:
+        description: "Games to record"
+        default: "20000"
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release --manifest-path engine/Cargo.toml --bins
+      - name: Record
+        env:
+          GAMES: ${{ inputs.games || '20000' }}
+        run: |
+          N="${{ inputs.name }}"
+          if [ -z "$N" ]; then N=$(git rev-parse --short HEAD); fi
+          echo "NAME=$N" >> "$GITHUB_ENV"
+          mkdir -p "golden/$N/traces"
+          cp tools/golden-spec.json "golden/$N/spec.json"
+          # fuzz exits 1 on any engine error, stuck prompt or invariant failure: a corpus with one is not a baseline.
+          time engine/target/release/fuzz "golden/$N/spec.json" --games "$GAMES" --seed 5000 --out "golden/$N/traces" --keep --threads "$(nproc)"
+          ls "golden/$N/traces" | wc -l
+          cat "golden/$N/traces/summary.json"
+      - name: Pack
+        run: |
+          N="$NAME"
+          mkdir -p out
+          tar -C "golden/$N" -cf - spec.json traces | zstd -3 -T0 -q -f > "out/$N.tar.zst"
+          (cd out && sha256sum "$N.tar.zst" > SHA256SUMS && cat SHA256SUMS && ls -l)
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          N="$NAME"
+          gh release create "golden-$N" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Golden corpus $N" \
+            --notes "Golden-corpus replay traces (spec.json + traces/), recorded at $N. SHA256SUMS holds the archive digest." \
+            "out/$N.tar.zst" out/SHA256SUMS
