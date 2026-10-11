@@ -1,11 +1,9 @@
-//! Slowking (SCR): Seek Inspiration — discard the top card of your deck; if
-//! it is a Pokémon without a Rule Box, choose 1 of its attacks and use it as
-//! this attack (COPY_ATTACK_FROM_POKEMON_LIST, see `copy_attack.rs`).
-//! Super Psy Bolt — 120.
+//! Slowking (SCR 58): Seek Inspiration - discard the top card of your deck, and if that card is a Pokémon that doesn't
+//! have a Rule Box, choose 1 of its attacks and use it as this attack. Super Psy Bolt - 120.
 //!
-//! Fixed (phase 4b, R3): the attack choice can't be cancelled (it used to
-//! allow it, so the copied attack could be skipped), and nothing is chosen
-//! when every attack of the Pokémon is locked.
+//! One Discard event from the deck (cause: this attack); the discarded card is remembered. A copied attack
+//! is this attack using that attack (see `copy_attack.rs`): the choice can't be cancelled, and nothing is chosen when
+//! every attack of the Pokémon is locked.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

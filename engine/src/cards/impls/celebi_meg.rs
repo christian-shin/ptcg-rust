@@ -1,11 +1,8 @@
-//! Celebi (MEG 12): Traverse Time — search your deck for up to 3 in any
-//! combination of [G] Pokémon and Stadium cards, reveal them, and put them
-//! into your hand; then shuffle. Solar Cutter — 30.
+//! Celebi (MEG 12): Traverse Time - search your deck for up to 3 in any combination of [G] Pokémon and Stadium cards,
+//! reveal them, and put them into your hand; then shuffle. Solar Cutter - 30.
 //!
-//! Twinleaf: SEARCH_DECK_FOR_CARDS_TO_HAND with an empty filter and every
-//! other card blocked. Fixed in phase 4b (R4): the cards are revealed (the
-//! prefab only revealed with a non-empty filter; Celebi now passes
-//! `reveal = true`).
+//! An attack's "up to 3" may be 0 (id2301). The cards are revealed and put into the hand (a PutIntoHand event, cause: this
+//! attack), then the deck is shuffled once (APR E-19). With an empty deck there is nothing to search.
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

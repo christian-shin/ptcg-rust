@@ -1,11 +1,7 @@
-//! Sacred Ash (DRI, as Sacred Ash FA POR): shuffle up to 5 Pokémon from your
-//! discard pile into your deck.
+//! Sacred Ash (POR 115, as in DRI): Item. Shuffle up to 5 Pokémon from your discard pile into your deck.
 //!
-//! Twinleaf (destined-rivals file): `min 1, max min(5, Pokémon in discard)`, not cancellable since
-//! phase 4b (it was: a cancel is choosing 0, rulings 1778/1853); the final
-//! ShuffleDeckPrompt has no trailing wait. Phase 4b (R4, Meta-Rulings): the chosen
-//! Pokémon are revealed to the opponent before they are moved (discard pile to
-//! deck); up to 5 / min 1 is right (erratum, Rulings Compendium 1689).
+//! The erratum is "up to 5" (id2176): an Item's "up to" is 1 to 5 (id2301). The chosen Pokémon are shown to the opponent
+//! and put into the deck by one PutIntoDeck event from the discard pile (cause: this Item), then the deck is shuffled.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

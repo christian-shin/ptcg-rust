@@ -1,9 +1,8 @@
-//! Dawn (M2 / PFL): search your deck for a Basic Pokémon, a Stage 1 Pokémon
-//! and a Stage 2 Pokémon, reveal them, put them into your hand, then shuffle.
+//! Dawn (PFL 87): Supporter. Search your deck for a Basic Pokémon, a Stage 1 Pokémon, and a Stage 2 Pokémon, reveal them,
+//! and put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: non-matching deck cards are blocked, `max` is the number of
-//! stages present, with `maxBasics` / `maxStage1` / `maxStage2`; ShowCards
-//! only when something was taken; no trailing wait after the shuffle.
+//! At most one card of each stage (the caps); the cards are revealed and put into the hand (a PutIntoHand event), then the
+//! deck is shuffled once (APR E-19). With an empty deck there is nothing to search (id840).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

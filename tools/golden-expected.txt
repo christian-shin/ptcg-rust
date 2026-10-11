@@ -165,3 +165,16 @@ g0500019725  # end of the recording (an extra prompt); Look-Alike Show: at step 
 # (both replayed locally). Scenario wallys-compassion-meg-132-refused-heal-keeps-the-energy-attached.
 g0500003008  # step 258 obs; Wally's Compassion (step 256) vs Yveltal's Life-Locked: the Energy stays attached, the recording put it into the hand
 g0500005723  # step 67 obs; Wally's Compassion (step 65) vs Yveltal's Life-Locked: the Energy stays attached, the recording put it into the hand
+g0500000023  # step 87 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500006443  # step 76 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500006619  # step 40 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500010219  # step 158 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500013223  # step 30 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500013583  # step 156 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500013833  # step 190 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500014423  # step 123 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500016823  # step 196 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500017183  # step 77 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500017419  # step 106 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500017433  # step 32 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)
+g0500018023  # step 22 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refuses the heal and "If you do" (APR E-20) now keeps the Energy the recording discarded (B72)

@@ -1,11 +1,10 @@
-//! Dialga (MEG 95): Beam — 30. Chrono Burst — 80+; you may shuffle all
-//! Energy attached to this Pokémon into your deck and have this attack do 80
-//! more damage.
+//! Dialga (MEG 95): Beam - 30. Chrono Burst - 80+; you may shuffle all Energy attached to this Pokémon into your deck
+//! and have this attack do 80 more damage.
 //!
-//! Rule: the choice is always asked (ruling 1822: the 80 more damage doesn't
-//! depend on having Energy; with none nothing moves and the deck isn't shuffled).
-//! Yes adds 80 before the damage; the Energy goes back into the deck, and the deck
-//! is shuffled, after the damage (rulings 1580, 1846).
+//! The choice is always asked: the 80 more damage doesn't depend on having Energy, and with none attached nothing moves
+//! and the deck isn't shuffled (id2352: do as much as you can). Yes adds 80 before the damage; the Energy goes back into
+//! the deck after the damage (id2031, id2385: the Energy is still attached when the damage is done): a LeavePlay per
+//! card (D1), then the deck is shuffled.
 use crate::spec::prelude::*;
 
 const CHRONO: &str = "DIALGA_CHRONO_BURST_MARKER";

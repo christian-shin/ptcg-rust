@@ -1,10 +1,8 @@
-//! Blissey ex (TWM): Happy Switch — once during your turn, you may move a
-//! Basic Energy from 1 of your Pokémon to another of your Pokémon.
-//! Return — 180; you may draw until you have 6 cards in hand.
+//! Blissey ex (TWM 134): Happy Switch - once during your turn, you may move a Basic Energy from 1 of your Pokémon to
+//! another of your Pokémon. Return - 180; you may draw cards until you have 6 cards in your hand.
 //!
-//! Twinleaf: the once-per-turn marker (BLISSFUL_SWAP_MARKER) and
-//! ABILITY_USED are set inside the transfer loop; Return's ConfirmPrompt
-//! draws one card at a time with MOVE_CARDS.
+//! Happy Switch is a MoveEnergy between your own Pokémon (APR C-10), once per turn (the marker is the usage record).
+//! Return's draw is one Draw event of the cards missing from 6, after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

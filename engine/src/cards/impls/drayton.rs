@@ -1,13 +1,9 @@
-//! Drayton (SSP): look at the top 7 cards of your deck. Choose a Pokémon and
-//! a Trainer card from those cards, reveal them, and put them into your
-//! hand. Shuffle the other cards back into your deck.
+//! Drayton (PRE 172): Supporter. Look at the top 7 cards of your deck. You may reveal a Pokémon and a Trainer card you
+//! find there and put them into your hand. Shuffle the other cards back into your deck.
 //!
-//! Twinleaf: throws on an empty deck; no Supporter-already-played check; the
-//! card moves to the Supporter area and the play is prevented; 7 cards go to a
-//! temporary list in which Energy cards are blocked, with `maxTrainers` and
-//! `maxPokemons` of min(count, 1) each (different types required); the chosen
-//! cards go to the hand, the rest to the bottom of the deck; ShowCards for the
-//! opponent only when something was taken; a final wait-less shuffle.
+//! The 7 cards are set aside (`Op::Look`); at most one Pokémon and one Trainer card may be taken (none is allowed: "You
+//! may"), put into the hand by one PutIntoHand event and revealed; the others go back into the deck (PutIntoDeck) and
+//! the deck is shuffled once.
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

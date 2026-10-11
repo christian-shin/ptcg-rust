@@ -1,10 +1,8 @@
-//! Slither Wing (SFA): Iron Buster — 20+; 120 more if your opponent has a
-//! Future Pokémon in play. Smashing Wings — 130, discard 2 Energy from this
-//! Pokémon.
+//! Slither Wing (SFA 26): Iron Smasher - 20+; if your opponent has any Future Pokémon in play, 120 more damage. Smashing
+//! Wing - 130; discard 2 Energy from this Pokémon.
 //!
-//! DISCARD_X_ENERGY_FROM_THIS_POKEMON(2): ChooseEnergyPrompt over the
-//! Active's CheckProvidedEnergy map for [C][C] (no cancel), then a
-//! DiscardCardsEffect aimed at the attacker's Active.
+//! Smashing Wing discards 2 Energy cards after the damage: a LeavePlay per card (D1), the player chooses which, cause: this
+//! attack.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

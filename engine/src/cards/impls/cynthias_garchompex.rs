@@ -1,6 +1,9 @@
-//! Cynthia's Garchomp ex (DRI, ASC): Corkscrew Dive - 100; you may draw cards
-//! until you have 6 cards in your hand. Draconic Buster - 260; discard all
-//! Energy from this Pokémon.
+//! Cynthia's Garchomp ex (ASC 111): Corkscrew Dive - 100; you may draw cards until you have 6 cards in your hand.
+//! Draconic Buster - 260; discard all Energy from this Pokémon.
+//!
+//! The draw is one Draw event (cause: this attack), asked only when it would draw something (6 or more cards in hand, or an
+//! empty deck, ask nothing). Draconic Buster discards every Energy card on the Pokémon after the damage: a LeavePlay per
+//! card (D1).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

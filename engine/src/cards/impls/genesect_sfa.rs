@@ -1,17 +1,11 @@
-//! Genesect (SFA 40): Ace Canceller — if this Pokémon has a Pokémon Tool
-//! attached, your opponent can't play any ACE SPEC cards from their hand.
-//! Magnet Blast — 100.
+//! Genesect (SFA 40): ACE Nullifier - if this Pokémon has a Pokémon Tool attached, your opponent can't play any ACE SPEC
+//! cards from their hand. Magnetic Blast - 100.
 //!
-//! Twinleaf: PlayItemEffect / AttachPokemonToolEffect / AttachEnergyEffect /
-//! PlayStadiumEffect whose card has the ACE SPEC tag: when this card is the
-//! top Pokémon of a slot with a tool on the playing player's opponent's side,
-//! the ability-lock probe runs for the *playing* player, and
-//! BLOCKED_BY_EFFECT is thrown when it passes. Only cards played from the hand: an Energy or
-//! Tool attached by an effect from the deck or discard pile is not blocked.
-//!
-//! Events batch 3: attaching an ACE SPEC Energy or Tool is the Attach event from the hand, whatever
-//! attaches it (the turn's attachment, an Ability, an attack: id25, id230; RULES.md "Locks on playing
-//! cards"). Events batch 7: an ACE SPEC Trainer played from the hand is its PlayTrainer.
+//! A lock on the opponent while this Pokémon has a Tool and its Ability: over an ACE SPEC Trainer played from the hand
+//! (its PlayTrainer, `Use(Played) & Source(Hand)`) and over an ACE SPEC card attached from the hand (the Attach event,
+//! whatever attaches it: the turn's attachment, an Ability, an attack; id25, id230; RULES.md "Cards moving between zones;
+//! Trainer plays; turn actions"). An ACE SPEC card attached by an effect from the deck or the discard pile, or a Supporter
+//! used through Look-Alike Show (not played, id2226), isn't covered.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

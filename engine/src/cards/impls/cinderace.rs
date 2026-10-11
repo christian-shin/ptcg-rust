@@ -1,14 +1,10 @@
-//! Cinderace (M1L): Explosiveness (setup, core `PLAY_DURING_SETUP` tag).
-//! Flame Turbo — 50; search your deck for up to 3 Basic Energy cards and
-//! attach them to your Benched Pokémon in any way you like, then shuffle.
+//! Cinderace (MEG 28): Explosiveness (setup, core `PLAY_DURING_SETUP` tag). Turbo Flare - 50; search your deck for up to 3
+//! Basic Energy cards and attach them to your Benched Pokémon in any way you like, then shuffle your deck.
 //!
-//! The printed order: the search (an Attach from the deck to the Bench, min 0 / max 3, no cancel), then one shuffle (APR
-//! E-19; user decision D9: Twinleaf shuffled before the answer and again when nothing was attached).
-//!
-//! Fixed (phase 4b, W4): with an empty deck the attack threw
-//! CANNOT_USE_ATTACK (unusable, no damage); it now just does its 50 damage.
-//! Fixed (phase 4b, F1): with no Benched Pokémon the prompt had no target; the attack now does its
-//! damage and nothing else (rulings 1790, 336).
+//! The printed order: the search (an Attach from the deck to the Bench, one Attach event per card; min 0 / max 3, an
+//! attack's "up to", id2301), then one shuffle after it (APR E-19, user decision D9). With an empty deck or no Benched
+//! Pokémon the attack does its 50 damage and nothing else: an attack stays usable when its effect can't happen (APR D-01;
+//! id2313, id361: you can't search a deck you know holds nothing to find).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,11 +1,8 @@
-//! Thwackey (TWM): Boom Boom Groove — once during your turn, if your Active
-//! Pokémon has the Festival Lead Ability, search your deck for a card and put
-//! it into your hand, then shuffle. Beat — 50.
+//! Thwackey (TWM 15): Boom Boom Groove - once during your turn, if your Active Pokémon has the Festival Lead Ability, you
+//! may search your deck for a card and put it into your hand. Then, shuffle your deck. Beat - 50.
 //!
-//! Twinleaf: Festival Lead is looked up by name on the Active's printed
-//! powers; with no Active Pokémon the ability silently does nothing. The
-//! marker is cleared when this card is played and at its owner's end of
-//! turn. The final ShuffleDeckPrompt has no trailing wait.
+//! The search is for any card, so at least 1 is chosen (id2301); it is put into the hand by a PutIntoHand event (cause: this
+//! Ability, not revealed), then the deck is shuffled once (APR E-19). Once per turn is the usage marker.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

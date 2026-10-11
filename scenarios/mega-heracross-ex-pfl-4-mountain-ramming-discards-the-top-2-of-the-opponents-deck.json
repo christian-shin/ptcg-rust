@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Heracross ex PFL 4",
+   "24 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Lightning Energy MEE 4",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Mega Heracross ex PFL 4",
+   "24 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Lightning Energy MEE 4",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Mega Heracross ex PFL 4",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Heracross ex PFL 4",
+  "deck_top": [
+   "Fire Energy MEE 2",
+   "Lightning Energy MEE 4"
+  ],
+  "prizes": [
+   "6 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Mountain Ramming"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Fire Energy MEE 2",
+    "Lightning Energy MEE 4"
+   ],
+   "cite": "card text: discard the top 2 cards of your opponent's deck"
+  }
+ ]
+}

@@ -1,6 +1,8 @@
-//! Mega Charizard Y ex (ASC / MC): Explosion Y — discard 3 Energy from this
-//! Pokémon, and 280 damage to 1 of your opponent's Pokémon (the Bench takes no
-//! Weakness/Resistance).
+//! Mega Charizard Y ex (ASC 22): Explosion Y - discard 3 Energy from this Pokémon, and 280 damage to 1 of your opponent's
+//! Pokémon (the Bench takes no Weakness/Resistance).
+//!
+//! The damage to the chosen Pokémon is one Damage event (cause: this attack), then the 3 Energy are discarded after it:
+//! a LeavePlay per card (D1), the player chooses which.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

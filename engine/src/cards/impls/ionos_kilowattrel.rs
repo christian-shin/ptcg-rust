@@ -1,16 +1,10 @@
-//! Iono's Kilowattrel (JTG / ASC): Flashing Draw - you must discard a Basic
-//! [L] Energy from this Pokémon to use this Ability; once during your turn,
-//! draw cards until you have 6 cards in your hand. Mach Bolt - 70.
+//! Iono's Kilowattrel (ASC 72): Flashing Draw - you must discard a Basic [L] Energy from this Pokémon in order to use
+//! this Ability; once during your turn, you may draw cards until you have 6 cards in your hand. Mach Bolt - 70.
 //!
-//! Twinleaf quirks kept: the player marker RUMBLING_ENGINE_MARKER (source
-//! this card) is cleared on this card's PlayPokemonEffect and on *every*
-//! EndTurnEffect (whoever's turn it is, for that effect's player). The
-//! Ability throws at 6+ cards in hand or with no cards in the deck (phase 4b,
-//! ruling n=1633: the effect is to draw cards), when already used, or without a
-//! "Lightning Energy" named basic Energy on the Pokémon. With exactly one
-//! such Energy it is discarded without a prompt; otherwise a ChooseCards
-//! prompt over the slot (min 0, max 1, cancellable; an empty answer does
-//! nothing). Draw is a plain `deck.moveTo(hand, n)`.
+//! The Energy is the cost (`Step::cost`, APR E-30): a LeavePlay (D1) caused by this Ability, and the Ability can't be used
+//! without one. The `needs` entries (fewer than 6 cards in hand, a card in the deck) restate that an Ability that can't
+//! have any effect can't be used (id2108) and go at the D10 switch; the once-per-turn marker is cleared at the end of the
+//! owner's turns. The draw is one Draw event of the cards missing from 6.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IonosKilowattrel",

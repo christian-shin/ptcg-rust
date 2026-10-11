@@ -1,9 +1,9 @@
-//! Hand Trimmer (TEF): both players discard cards from their hand until they
-//! each have 5 cards in hand (opponent first).
+//! Hand Trimmer (TEF 150): Item. Each player discards cards from their hand until they have 5 cards in their hand. Your
+//! opponent discards first. (A player with 5 or fewer cards doesn't discard.)
 //!
-//! Twinleaf: both ChooseCardsPrompts are queued at once (opponent's first),
-//! each only when that hand has more than 5 cards; each callback discards
-//! the chosen cards.
+//! Each player with more than 5 cards (not counting this card for you) chooses the cards to discard and discards them
+//! by one Discard event from their hand (cause: this Item), the opponent first. The `needs` entry (some hand over 5)
+//! restates that a Trainer that can't have any effect can't be played (id925, id1042) and goes at the D10 switch.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "HandTrimmer",

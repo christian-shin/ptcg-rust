@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Kangaskhan ex MEG 104",
+   "26 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Mega Kangaskhan ex MEG 104",
+   "26 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Run Errand",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: Run Errand: draw 2 cards"
+  }
+ ]
+}

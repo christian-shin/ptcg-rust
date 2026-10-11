@@ -1,7 +1,6 @@
-//! Ralts (M1S / ASC): Collect - draw a card. Headbutt - 10.
+//! Ralts (MEG / ASC): Collect - draw a card. Headbutt - 10.
 //!
-//! Twinleaf: MOVE_CARDS from the deck to the hand with `count: 1` and
-//! `sourceCard` this.
+//! One Draw event of 1 card (cause: this attack), after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

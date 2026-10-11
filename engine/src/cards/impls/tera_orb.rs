@@ -1,9 +1,8 @@
-//! Tera Orb (SSP): search your deck for a Tera Pokémon, reveal it, and put
-//! it into your hand. Then, shuffle your deck.
+//! Tera Orb (SSP 189): Item. Search your deck for a Tera Pokémon, reveal it, and put it into your hand. Then, shuffle your
+//! deck.
 //!
-//! Twinleaf: no preventDefault (the item is discarded by the default
-//! handling right away); non-Tera Pokémon are blocked; MOVE_CARDS (even with
-//! nothing chosen), then the reveal, then the ShuffleDeckPrompt.
+//! The card is revealed and put into the hand (a PutIntoHand event, cause: this Item), then the deck is shuffled once
+//! (APR E-19); a Tera Pokémon may fail to be found.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

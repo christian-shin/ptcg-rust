@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Super Potion JTG 158",
+   "4 Duraludon PRE 69",
+   "24 Metal Energy MEE 8",
+   "4 Yveltal 30C 100",
+   "24 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Super Potion JTG 158",
+   "4 Duraludon PRE 69",
+   "24 Metal Energy MEE 8",
+   "4 Yveltal 30C 100",
+   "24 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "active_damage": 80,
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "hand": [
+   "Super Potion JTG 158"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Yveltal 30C 100",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Super Potion JTG 158"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 80,
+   "energy": 1,
+   "cite": "Yveltal 30C 100 Life-Locked: the Active Pokémon can't be healed; \"If you do\" (APR E-20): nothing is healed, no Energy is discarded"
+  }
+ ]
+}

@@ -1,11 +1,11 @@
-//! Bug Catching Set (TWM): look at the top 7 cards of your deck; you may
-//! reveal up to 2 [G] Pokémon / Basic [G] Energy there and put them into your
-//! hand, then shuffle the other cards back into your deck.
+//! Bug Catching Set (PRE 102): Item. Look at the top 7 cards of your deck. You may reveal up to 2 in any combination of
+//! [G] Pokémon and Basic [G] Energy cards you find there and put them into your hand. Shuffle the other cards back into
+//! your deck.
 //!
-//! Twinleaf quirks kept: `max` counts matching cards in the whole deck and the
-//! remaining cards are put on the bottom of the deck. Fixed in phase 4b (R4):
-//! the deck is also shuffled when nothing is taken, and the card can't be played
-//! with an empty deck (Rulings Compendium 779/851).
+//! The 7 cards are set aside (`Op::Look`, never a zone); the cards taken are a PutIntoHand event (revealed to the
+//! opponent), the others go back to the deck (a PutIntoDeck event) and the deck is shuffled once (also when nothing was
+//! taken). "You may" lets you take none. The card can't be played with an empty deck: you can't look at cards that
+//! aren't there and a Trainer that can't have any effect can't be played (id840, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

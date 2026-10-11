@@ -1,13 +1,9 @@
-//! Hilda (SV11W / WHT): search your deck for an Evolution Pokémon and an
-//! Energy card, reveal them, put them into your hand, then shuffle.
+//! Hilda (WHT 84): Supporter. Search your deck for an Evolution Pokémon and an Energy card, reveal them, and put them
+//! into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: every non-(Evolution Pokémon / Energy) deck card is blocked,
-//! `max = min(evolutions,1) + min(energies,1)` with `maxPokemons` /
-//! `maxEnergies`; ShowCards only when something was taken; the final
-//! ShuffleDeckPrompt has no trailing wait.
-//!
-//! Fixed (phase 4b, R2): playable with an empty deck; it now throws
-//! CANNOT_PLAY_THIS_CARD before any state change (rulings 779, 851).
+//! At most one Evolution Pokémon and one Energy card (the caps); the cards are revealed and put into the hand (a
+//! PutIntoHand event), then the deck is shuffled once (APR E-19). It can't be played with an empty deck: you can't search
+//! cards that aren't there (id840, id925).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Hilda",

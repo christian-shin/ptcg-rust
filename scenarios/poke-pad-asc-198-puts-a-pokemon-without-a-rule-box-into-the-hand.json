@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Poké Pad ASC 198",
+   "4 Duraludon PRE 69",
+   "4 Pikachu ex SSP 57",
+   "22 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "22 Water Energy MEE 3"
+  ],
+  [
+   "4 Poké Pad ASC 198",
+   "4 Duraludon PRE 69",
+   "4 Pikachu ex SSP 57",
+   "22 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "22 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Poké Pad ASC 198"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Poké Pad ASC 198"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Pikachu ex SSP 57"
+   ],
+   "cite": "card text: a Pokémon that doesn't have a Rule Box (Pikachu ex has one); a search may find none"
+  }
+ ]
+}

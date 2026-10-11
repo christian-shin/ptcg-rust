@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Genesect ex BLK 67",
+   "1 Gholdengo SSP 131",
+   "4 Luxio FST 92",
+   "23 Metal Energy MEE 8",
+   "4 Hop's Snorlax JTG 117",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Genesect ex BLK 67",
+   "1 Gholdengo SSP 131",
+   "4 Luxio FST 92",
+   "23 Metal Energy MEE 8",
+   "4 Hop's Snorlax JTG 117",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Genesect ex BLK 67",
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Metallic Signal",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Luxio FST 92"
+   ],
+   "cite": "card text: up to 2 Evolution [M] Pokémon (Gholdengo yes, Luxio is not [M]); a search may find fewer"
+  }
+ ]
+}

@@ -1,14 +1,10 @@
-//! Zacian ex (SVP 198): Steel Armament — 20; search your deck for a Basic
-//! [M] Energy card and attach it to this Pokémon, then shuffle. Slashing
-//! Strike — 210; during your next turn this Pokémon can't use Slashing Strike.
+//! Zacian ex (SVP 198): Steel Armament - 20; search your deck for a Basic [M] Energy card and attach it to this Pokémon.
+//! Then, shuffle your deck. Slashing Strike - 210; during your next turn this Pokémon can't use Slashing Strike.
 //!
-//! Twinleaf: ATTACH_UP_TO_X_ENERGY_FROM_DECK_TO_Y_OF_YOUR_POKEMON(1, 1, {
-//! destinationSlots: [ACTIVE], energyFilter: { energyType: BASIC, name:
-//! 'Metal Energy' } }): no prompt on an empty deck; a non-cancellable
-//! AttachEnergyPrompt on the deck (min 0, max 1); every transfer is an
-//! AttachEnergyEffect, whose reducer only moves cards out of the HAND. A card
-//! chosen from the deck therefore stays in the deck while being listed in the
-//! slot's `energies` (Twinleaf bug kept). Then SHUFFLE_DECK.
+//! Steel Armament: one Attach event of the Energy from the deck to this Pokémon (cause: this attack; none may be found),
+//! then one shuffle after it (APR E-19). Slashing Strike places a lasting lock naming this attack on this Pokémon until
+//! the end of your next turn (D14); it goes with the Pokémon's other effects of attacks when it moves to the Bench or
+//! evolves (APR C-15).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
