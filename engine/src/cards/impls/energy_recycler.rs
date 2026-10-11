@@ -1,8 +1,7 @@
-//! Energy Recycler (BST): shuffle up to 5 basic Energy cards from your
-//! discard pile into your deck.
+//! Energy Recycler (BST 124): shuffle up to 5 basic Energy cards from your discard pile into your deck.
 //!
-//! Twinleaf: the prompt requires at least 1 card (min 1, max 5); the final
-//! ShuffleDeckPrompt has no animation wait.
+//! The chosen cards (at least 1 when the discard pile has any) go from the discard pile into the deck (PutIntoDeck), then
+//! the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

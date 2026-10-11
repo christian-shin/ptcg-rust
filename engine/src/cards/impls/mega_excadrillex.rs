@@ -1,6 +1,7 @@
-//! Mega Excadrill ex (PBL / M5): Undermine — 90, discard the top 2 cards of
-//! your opponent's deck. Maximum Drilling — 200+, 130 more if this Pokémon
-//! has at least 2 extra Energy attached.
+//! Mega Excadrill ex (PBL 65): Undermine: 90; discard the top 2 cards of your opponent's deck. Maximum Drilling: 200+; if
+//! this Pokémon has at least 2 extra Energy attached (in addition to this attack's cost), this attack does 130 more damage.
+//!
+//! Undermine discards from the top of the opponent's deck after the damage (a Discard event, this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Charcadet SSP 32",
+   "4 Ceruledge SSP 35",
+   "2 Spiky Energy JTG 159",
+   "2 Mist Energy TEF 161",
+   "36 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Charcadet SSP 32",
+   "4 Ceruledge SSP 35",
+   "2 Spiky Energy JTG 159",
+   "2 Mist Energy TEF 161",
+   "36 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Charcadet SSP 32",
+   "Ceruledge SSP 35"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "Mist Energy TEF 161"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117",
+    "energy": [
+     "Spiky Energy JTG 159"
+    ]
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Cursed Edge"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "energy": [
+    "Mist Energy TEF 161"
+   ],
+   "cite": "Mist Energy TEF 161 text: prevents all effects of attacks done to the Pokémon it is attached to (id2222)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "energy": 0,
+   "cite": "Ceruledge SSP 35 text: the Benched Pokémon without Mist Energy loses its Special Energy"
+  }
+ ]
+}

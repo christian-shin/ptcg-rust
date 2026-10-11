@@ -1,5 +1,8 @@
-//! Prism Tower (CRI / M4, stadium): once during each player's turn, that
-//! player may discard 2 cards from their hand in order to draw a card.
+//! Prism Tower (CRI 80, Stadium): once during each player's turn, that player may discard 2 cards from their hand in order to
+//! draw a card.
+//!
+//! A Stadium use (UseStadium by either player, once per turn each): the 2 discarded cards are a cost (`Step::cost`, APR E-30;
+//! id2362: not usable with an empty deck, no discard for no effect), a Discard event over the user's hand; the Draw follows.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

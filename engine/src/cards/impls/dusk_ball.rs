@@ -1,15 +1,10 @@
-//! Dusk Ball (SSP): look at the 7 cards from the bottom of your deck; choose
-//! 1 Pokémon there, show it to your opponent, and put it into your hand.
-//! Put the rest back and shuffle your deck.
+//! Dusk Ball (SSP 175): look at the 7 cards from the bottom of your deck. Choose 1 Pokémon you find there, show it to your
+//! opponent, and put it into your hand. Put the remaining cards back on top of your deck. Shuffle your deck afterward.
 //!
-//! Twinleaf: the bottom cards are spliced into a temporary list directly (no
-//! MOVE_CARDS). With nothing chosen, the `temp.cards.forEach` loop runs once
-//! (its first MOVE_CARDS empties the array) if anything was looked at. With
-//! a Pokémon chosen, the reveal is queued without waiting. The card is moved
-//! supporter→discard (again) before the wait-less shuffle.
-//!
-//! Fixed (phase 4b, R3): "choose 1 Pokémon you find there" is required when
-//! one of the looked-at cards is a Pokémon (min 1; it used to be min 0).
+//! A Look of the bottom 7 (set aside in the scratch zone 0, not yet in the hand; a Look is not a search); one Pokémon is
+//! required when there is one (min 1), shown to the opponent and put into the hand (PutIntoHand); the rest go back
+//! into the deck (PutIntoDeck) and the whole deck is shuffled afterward as printed, so where the rest are put back (the
+//! bottom here, the text says top) can't be seen.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

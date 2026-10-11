@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Energy Retrieval BS 81",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Energy Retrieval BS 81",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Energy Retrieval BS 81",
+   "Hop's Snorlax JTG 117"
+  ],
+  "discard": [
+   "Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Energy Retrieval BS 81"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "contains": [
+    "Energy Retrieval BS 81",
+    "Hop's Snorlax JTG 117"
+   ],
+   "not_contains": [
+    "Water Energy MEE 3"
+   ],
+   "cite": "Energy Retrieval BS 81 text: trade 1 of the other cards in your hand for up to 2 basic Energy cards from your discard pile: the traded card and the Item are discarded, the Energy leaves"
+  }
+ ]
+}

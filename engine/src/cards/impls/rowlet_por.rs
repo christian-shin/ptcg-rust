@@ -1,5 +1,8 @@
-//! Rowlet (POR / M3): Find a Friend — search your deck for a Pokémon, reveal
-//! it, put it into your hand, then shuffle. Tackle — 30.
+//! Rowlet (POR 10): Find a Friend: search your deck for a Pokémon, reveal it, and put it into your hand. Then, shuffle your
+//! deck. Tackle: 30.
+//!
+//! The chosen Pokémon is revealed before it moves (id1131) and goes into the hand (PutIntoHand, this attack its cause); an
+//! empty deck can't be searched (id840), otherwise the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

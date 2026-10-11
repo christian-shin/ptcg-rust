@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Ralts MEG 58",
+   "4 Kirlia MEG 59",
+   "4 Mega Gardevoir ex MEG 60",
+   "12 Psychic Energy MEE 5",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Ralts MEG 58",
+   "4 Kirlia MEG 59",
+   "4 Mega Gardevoir ex MEG 60",
+   "12 Psychic Energy MEE 5",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Ralts MEG 58",
+   "Kirlia MEG 59",
+   "Mega Gardevoir ex MEG 60"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Overflowing Wishes"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "AttachEnergy",
+    "ShuffleDeck"
+   ],
+   "cite": "Mega Gardevoir ex MEG 60 text: for each of your Benched Pokémon, search your deck for a Basic [P] Energy and attach it; then shuffle your deck (APR E-19)"
+  }
+ ]
+}

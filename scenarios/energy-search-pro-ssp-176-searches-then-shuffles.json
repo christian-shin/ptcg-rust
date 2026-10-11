@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "1 Energy Search Pro SSP 176",
+   "10 Fire Energy MEE 2",
+   "10 Lightning Energy MEE 4",
+   "27 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "1 Energy Search Pro SSP 176",
+   "10 Fire Energy MEE 2",
+   "10 Lightning Energy MEE 4",
+   "27 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Energy Search Pro SSP 176"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Energy Search Pro SSP 176"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "APR E-19 (Then, shuffle your deck: the deck is shuffled after the search)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Energy Search Pro SSP 176"
+   ],
+   "cite": "card text (an Item is discarded after it is played)"
+  }
+ ]
+}

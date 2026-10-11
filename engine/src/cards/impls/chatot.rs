@@ -1,10 +1,9 @@
-//! Chatot (TEF): A Capella — search your deck for up to 3 Basic Pokémon and
-//! put them onto your Bench, then shuffle. Gust — 20.
+//! Chatot (TEF 132): A Cappella: search your deck for up to 3 Basic Pokémon and put them onto your Bench. Then, shuffle your
+//! deck. Gust: 20.
 //!
-//! Twinleaf: with no empty Bench slot the attack does nothing, with no search
-//! and no shuffle (phase 4b R7E, ruling 337; it used to open a prompt with max
-//! 0 and shuffle); no empty-deck check; the ShuffleDeckPrompt has no trailing
-//! wait.
+//! With no empty Bench spot the attack ends without a search and without a shuffle (APR C-11, id362: the whole effect fails);
+//! an empty deck can't be searched (id840). Otherwise the chosen Pokémon enter play from the deck (EnterPlay events, this
+//! attack their cause) and the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

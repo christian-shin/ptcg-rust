@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Poké Ball JU 64",
+   "4 Rowlet POR 10",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Poké Ball JU 64",
+   "4 Rowlet POR 10",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Poké Ball JU 64"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "coins": [
+  true
+ ],
+ "answers": [
+  {
+   "a": "play",
+   "card": "Poké Ball JU 64"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "Coin",
+    "ChooseCards",
+    "ShowCards",
+    "ShuffleDeck"
+   ],
+   "cite": "Poké Ball JU 64 text: if heads, you may search your deck ...; shuffle your deck afterward"
+  }
+ ]
+}

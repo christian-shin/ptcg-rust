@@ -1,5 +1,6 @@
-//! Cottonee (MEP 18): Collect — draw a card. Ported so Whimsicott ex
-//! (SV11W) can be evolved in pool games.
+//! Cottonee (MEP 18): Collect: draw a card. Ported so Whimsicott ex (SV11W) can be evolved in pool games.
+//!
+//! The draw is a Draw event (this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

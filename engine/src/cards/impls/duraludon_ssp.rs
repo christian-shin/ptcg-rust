@@ -1,9 +1,7 @@
-//! Duraludon (SSP 129): Confront — 50. Duralubeam — 130; discard 2 Energy
-//! from this Pokémon.
+//! Duraludon (SSP 129): Confront: 50. Duralubeam: 130; discard 2 Energy from this Pokémon.
 //!
-//! Twinleaf: ChooseEnergyPrompt over the Active's CheckProvidedEnergy map for
-//! [C][C] (no cancel), then a DiscardCardsEffect aimed at `player.active`
-//! (the same shape as DISCARD_X_ENERGY_FROM_THIS_POKEMON).
+//! The 2 Energy are discarded from this Pokémon after the damage (LeavePlay events, this attack their cause): up to 2 cards,
+//! never more than the 2 Energy units the text names (id2127's pattern for multi-Energy cards).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

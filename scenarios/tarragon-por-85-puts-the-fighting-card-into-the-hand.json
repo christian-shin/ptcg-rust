@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Tarragon POR 85",
+   "2 Fighting Energy MEE 6",
+   "42 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Tarragon POR 85",
+   "2 Fighting Energy MEE 6",
+   "42 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Tarragon POR 85"
+  ],
+  "discard": [
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Tarragon POR 85"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Tarragon POR 85"
+   ],
+   "not_contains": [
+    "Fighting Energy MEE 6"
+   ],
+   "cite": "Tarragon POR 85 text: put up to 4 [F] Pokémon and Basic [F] Energy from the discard pile into your hand (at least 1 when played from the hand: id2376)"
+  }
+ ]
+}

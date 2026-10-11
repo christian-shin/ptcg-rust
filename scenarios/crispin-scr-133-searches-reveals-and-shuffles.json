@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Crispin SCR 133",
+   "6 Fire Energy MEE 2",
+   "6 Lightning Energy MEE 4",
+   "32 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Crispin SCR 133",
+   "6 Fire Energy MEE 2",
+   "6 Lightning Energy MEE 4",
+   "32 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Crispin SCR 133"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Crispin SCR 133"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "Crispin SCR 133 text: search your deck for up to 2 Basic Energy cards of different types ...; then shuffle your deck (APR E-19)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Crispin SCR 133"
+   ],
+   "cite": "card text (a Supporter is discarded after it is played)"
+  }
+ ]
+}

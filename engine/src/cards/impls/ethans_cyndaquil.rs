@@ -1,4 +1,6 @@
-//! Ethan's Cyndaquil (DRI): Ember — 30; discard an Energy from this Pokémon.
+//! Ethan's Cyndaquil (DRI 32): Ember: 30; discard an Energy from this Pokémon.
+//!
+//! The Energy is chosen and discarded after the damage (a LeavePlay event, this attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

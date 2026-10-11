@@ -1,12 +1,8 @@
-//! Energy Search Pro (SSP, ACE SPEC): search your deck for any number of
-//! Basic Energy cards of different types, reveal them, and put them into
-//! your hand. Then, shuffle your deck.
+//! Energy Search Pro (SSP 176, ACE SPEC): search your deck for any number of Basic Energy cards of different types, reveal
+//! them, and put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: no preventDefault (the item is discarded right away); max =
-//! number of distinct `provides[0]` among the deck's Basic Energy. In the
-//! prompt callback: same-name check on the first two cards (throws),
-//! SHOW_CARDS_TO_PLAYER, MOVE_CARDS, then (fixed in phase 4b: the callback
-//! never called `next()`) the generator continues and shuffles the deck.
+//! The chosen cards (at most one per type) are revealed and go from the deck into the hand (PutIntoHand, this Item its
+//! cause); the deck is shuffled after the search (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

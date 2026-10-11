@@ -1,6 +1,8 @@
-//! Metagross (TEF): Meteor Mash — 60; during your next turn, this Pokémon's
-//! Meteor Mash attack does 60 more damage. Luster Blast — 200; discard 2
-//! Energy from this Pokémon.
+//! Metagross (TEF 115): Meteor Mash: 60; during your next turn, this Pokémon's Meteor Mash attack does 60 more damage.
+//! Luster Blast: 200; discard 2 Energy from this Pokémon.
+//!
+//! Meteor Mash is a `NextTurnBonus` passive; Luster Blast discards 2 Energy after the damage (LeavePlay events, this attack
+//! their cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

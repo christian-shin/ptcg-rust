@@ -1,20 +1,10 @@
-//! Love Ball (TWM): search your deck for a Pokémon with the same name as 1
-//! of your opponent's Pokémon in play, reveal it, and put it into your hand.
-//! Then, shuffle your deck.
+//! Love Ball (TWM 156): search your deck for a Pokémon with the same name as 1 of your opponent's Pokémon in play, reveal
+//! it, and put it into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf quirks kept: no preventDefault; the choice is min 1 / max 1 and
-//! can be cancelled; MOVE_CARDS runs even with nothing chosen, then the
-//! reveal, then the shuffle.
-//!
-//! Fixed (phase 4b, rulings 336/1285): unplayable when all 4 copies of every name the
-//! opponent has in play are in known zones.
-//!
-//! Fixed (phase 4b, R2): the allowed names were only the name of
-//! `opponent.active.cards[0]` (the bottom card of the stack, so the Basic of
-//! an evolved Pokémon) because `opponent.bench.filter(card instanceof
-//! PokemonCard)` is always empty (bench entries are card lists); the allowed
-//! names are now the top Pokémon's name of every Pokémon the opponent has in
-//! play (forEachPokemon).
+//! Usable only when a Pokémon with a name an opponent's Pokémon in play has can still be in the deck: when all 4 copies of
+//! every such name are in known zones the effect can't be done (id361: a search for a card known not to be there isn't
+//! made; usability by the rules, id925). The chosen Pokémon is revealed and goes into the hand (PutIntoHand), then the deck
+//! is shuffled (APR E-19).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LoveBall",

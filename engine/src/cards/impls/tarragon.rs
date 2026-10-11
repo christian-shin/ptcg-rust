@@ -1,12 +1,9 @@
-//! Tarragon (POR, supporter): put up to 4 in any combination of [F] Pokémon
-//! and Basic [F] Energy cards from your discard pile into your hand.
+//! Tarragon (POR 85): put up to 4 in any combination of [F] Pokémon and Basic [F] Energy cards from your discard pile into
+//! your hand.
 //!
-//! Twinleaf: DiscardToHandEffect is probed first (a prevented effect just
-//! leaves the card to be discarded); the supporter check follows, then the
-//! card moves to the supporter pile. Energy counts only when it is a Basic
-//! card named 'Fighting Energy'; Pokémon by `pokemonHasCardType`. The
-//! prompt allows 1 to 4 from the hand, 0 to 4 through Look-Alike Show (maxPokemons/maxEnergies = min(count, 4)); the cards
-//! are moved to the hand first and shown to the opponent afterwards.
+//! The chosen cards (at least 1 when played from the hand; any number, even 0, when the Supporter's effect is used by an
+//! attack, id2376 and APR D-05) go from the discard pile into the hand (PutIntoHand, shown to the
+//! opponent as cards that leave the discard pile for the hand are).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -16,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[],
         steps: &[
             // Up to 4 in any combination of [F] Pokémon and Basic [F] Energy cards from the discard pile: at
-            // least 1 when played from the hand, any number through Look-Alike Show (ruling 1844).
+            // least 1 when played from the hand, any number through Look-Alike Show (id2376).
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Discard),
                 predicate: Pred::OneOf(&[Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]), Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::FIGHTING)])]),

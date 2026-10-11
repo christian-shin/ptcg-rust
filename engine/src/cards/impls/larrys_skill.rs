@@ -1,13 +1,9 @@
-//! Larry's Skill (PRE 115): discard your hand and search your deck for a
-//! Pokémon, a Supporter card, and a Basic Energy card, reveal them, and put
-//! them into your hand. Then, shuffle your deck.
+//! Larry's Skill (PRE 115): discard your hand and search your deck for a Pokémon, a Supporter card, and a Basic Energy card,
+//! reveal them, and put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf order kept: the card moves itself to the supporter pile and
-//! cancels the default discard; the whole rest of the hand is discarded
-//! before the search. `blocked` holds the deck positions (unsorted deck
-//! order) of cards that are neither Pokémon, Supporters nor Basic Energy;
-//! the prompt caps each kind at 1. The final ShuffleDeckPrompt has no
-//! trailing WaitPrompt.
+//! Discarding the hand is a cost (APR E-30; id1124: the Supporter can't be played for no net effect), done before the search (a
+//! Discard event over the hand); one card per kind (at most 1 Pokémon, 1 Supporter, 1 Basic Energy card) is revealed and put
+//! into the hand (PutIntoHand), then the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LarrysSkill",

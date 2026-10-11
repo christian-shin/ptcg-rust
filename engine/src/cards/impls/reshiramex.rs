@@ -1,6 +1,8 @@
-//! Reshiram ex (SV11W): Slash — 50. Blaze Burst — 130+; 50 more damage for
-//! each Prize card your opponent has taken (6 - opponent.getPrizeLeft(), an
-//! opponent-side count as written in Twinleaf). Discard an Energy from this Pokémon.
+//! Reshiram ex (WHT 20): Slash: 50. Blazing Burst: 130+; this attack does 50 more damage for each Prize card your opponent
+//! has taken. Discard an Energy from this Pokémon.
+//!
+//! The bonus counts the Prize cards the opponent has taken; the Energy is discarded after the damage (a LeavePlay event, this
+//! attack its cause).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

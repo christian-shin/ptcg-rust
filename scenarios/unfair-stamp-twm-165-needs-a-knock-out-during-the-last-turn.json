@@ -1,0 +1,36 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "1 Unfair Stamp TWM 165",
+   "55 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "1 Unfair Stamp TWM 165",
+   "55 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Unfair Stamp TWM 165"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Unfair Stamp TWM 165",
+   "is": false,
+   "cite": "Unfair Stamp TWM 165 text: you can use this card only if one of your Pokémon was Knocked Out during your opponent's last turn"
+  }
+ ]
+}

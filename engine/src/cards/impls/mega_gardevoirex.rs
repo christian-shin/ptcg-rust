@@ -1,7 +1,9 @@
-//! Mega Gardevoir ex (M1S / ASC): Overflowing Wishes - for each of your
-//! Benched Pokémon, search your deck for a Basic [P] Energy and attach it to
-//! that Pokémon, then shuffle. Mega Symphonia - 50 damage for each [P] Energy
+//! Mega Gardevoir ex (MEG 60): Overflowing Wishes: for each of your Benched Pokémon, search your deck for a Basic [P]
+//! Energy card and attach it to that Pokémon. Then, shuffle your deck. Mega Symphonia: 50 damage for each [P] Energy
 //! attached to all of your Pokémon.
+//!
+//! One Basic [P] Energy per Benched Pokémon (one Attach event each, this attack its cause), then the deck is shuffled
+//! (APR E-19; an empty deck can't be searched, id840).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

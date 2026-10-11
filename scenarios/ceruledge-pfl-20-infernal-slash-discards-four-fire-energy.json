@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Charcadet PFL 19",
+   "4 Ceruledge PFL 20",
+   "4 Reshiram ex WHT 20",
+   "12 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Charcadet PFL 19",
+   "4 Ceruledge PFL 20",
+   "4 Reshiram ex WHT 20",
+   "12 Fire Energy MEE 2",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Charcadet PFL 19",
+   "Ceruledge PFL 20"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "hand": [
+   "4 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Reshiram ex WHT 20",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Infernal Slash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 4,
+   "cite": "Ceruledge PFL 20 text: discard 4 Basic [R] Energy cards from your hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "Ceruledge PFL 20 text: the 4 cards left the hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 220,
+   "hp_left": 10,
+   "cite": "Ceruledge PFL 20 text: 220 damage"
+  }
+ ]
+}

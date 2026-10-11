@@ -1,6 +1,8 @@
-//! N's Zoroark ex (JTG): Trade - discard a card from your hand to draw 2,
-//! once during your turn; Night Joker - choose 1 of your Benched N's
-//! Pokémon's attacks and use it as this attack.
+//! N's Zoroark ex (JTG 98): Trade: you must discard a card from your hand in order to use this Ability. Once during your
+//! turn, you may draw 2 cards. Night Joker: choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
+//!
+//! Trade: the discard is a cost (`Step::cost`, APR E-30; id2115: it can't be used when no card can be drawn), the draw is the
+//! effect. Night Joker copies a Benched N's Pokémon's attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -17,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::PerTurn("TRADE_MARKER"),
-        // Discarding is a cost, drawing the effect (ruling 1640).
+        // Discarding is a cost, drawing the effect (id2115).
         needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::Any), Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Hand), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),

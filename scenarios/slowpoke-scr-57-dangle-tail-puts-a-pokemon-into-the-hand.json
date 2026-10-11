@@ -1,0 +1,60 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Slowpoke SCR 57",
+   "2 Deino SSP 117",
+   "42 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 Slowpoke SCR 57",
+   "2 Deino SSP 117",
+   "42 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Slowpoke SCR 57",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "discard": [
+   "Deino SSP 117"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Dangle Tail"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 1,
+   "contains": [
+    "Deino SSP 117"
+   ],
+   "cite": "Slowpoke SCR 57 text: put a Pokémon from your discard pile into your hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "Slowpoke SCR 57 text: the Pokémon left the discard pile"
+  }
+ ]
+}

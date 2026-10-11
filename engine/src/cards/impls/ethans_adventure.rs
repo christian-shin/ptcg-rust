@@ -1,16 +1,8 @@
-//! Ethan's Adventure (DRI): search your deck for up to 3 in any combination
-//! of Ethan's Pokémon and Basic [R] Energy, reveal them, put them into your
-//! hand, shuffle.
+//! Ethan's Adventure (DRI 165): search your deck for up to 3 in any combination of Ethan's Pokémon and Basic [R] Energy
+//! cards, reveal them, and put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: the card moves to the supporter pile, the empty-deck check
-//! follows, non-matching cards are blocked (Energy must be a Basic card
-//! named "Fire Energy"). The Supporter is discarded right after the prompt
-//! is created, before it is answered; the callback (when something was
-//! chosen) creates the ShowCards prompt, moves the cards and SHUFFLE_DECKs
-//! (shuffle + silent wait).
-//!
-//! Fixed (phase 4b, R3): the deck is shuffled even when nothing was taken
-//! (the callback used to return before SHUFFLE_DECK).
+//! The chosen cards are revealed and go into the hand (PutIntoHand, this Supporter its cause); the deck is shuffled after
+//! the search, even when nothing was taken (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

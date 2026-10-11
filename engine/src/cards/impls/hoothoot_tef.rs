@@ -1,7 +1,7 @@
-//! Hoothoot (TEF): Silent Wing — 20; your opponent reveals their hand.
+//! Hoothoot (TEF 126): Silent Wing: 20; your opponent reveals their hand.
 //!
-//! Twinleaf has several `Hoothoot` classes; this port is bound to TEF. The
-//! ShowCardsPrompt goes to the attacker (even for an empty hand).
+//! The opponent shows their hand to the attacker after the damage (a Reveal routine; no card reacts to it), even when the
+//! hand is empty ("reveals their hand").
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

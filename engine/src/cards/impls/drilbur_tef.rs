@@ -1,13 +1,9 @@
-//! Drilbur (TEF): Dig Dig Dig — when you play this Pokémon from your hand
-//! onto your Bench during your turn, you may search your deck for up to 3
-//! Basic [F] Energy cards and discard them, then shuffle. Sand Spray — 20.
+//! Drilbur (TEF 85): Dig Dig Dig: when you play this Pokémon from your hand onto your Bench during your turn, you may
+//! search your deck for up to 3 Basic [F] Energy cards and discard them. Then, shuffle your deck. Sand Spray: 20.
 //!
-//! Twinleaf: on its PlayPokemonEffect (returns early on an empty deck or a
-//! blocked ability, checked while the card is still in hand) a Confirm
-//! prompt; yes → ChooseCardsPrompt (min 0, max 3, no cancel, basic energy
-//! named "Fighting Energy"); MOVE_CARDS deck→discard when any was chosen, then
-//! a bare ShuffleDeckPrompt (phase 4b: choosing nothing used to skip the
-//! shuffle).
+//! A trigger over this card's EnterPlay from the hand to the Bench by the rules (not an effect). It asks first (a "may", only
+//! with a card in the deck); the chosen Energy go from the deck to the discard pile (a Discard event, this Ability its cause),
+//! then the deck is shuffled, even when none was taken (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

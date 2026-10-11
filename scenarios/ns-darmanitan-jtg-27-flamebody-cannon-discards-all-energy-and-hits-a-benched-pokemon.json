@@ -1,0 +1,73 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 N's Darumaka JTG 26",
+   "4 N's Darmanitan JTG 27",
+   "4 Reshiram ex WHT 20",
+   "8 Fire Energy MEE 2",
+   "28 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Snorlax JTG 117",
+   "6 Fire Energy MEE 2",
+   "2 Grass Energy MEE 1",
+   "4 N's Darumaka JTG 26",
+   "4 N's Darmanitan JTG 27",
+   "4 Reshiram ex WHT 20",
+   "8 Fire Energy MEE 2",
+   "28 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "N's Darumaka JTG 26",
+   "N's Darmanitan JTG 27"
+  ],
+  "active_energy": [
+   "3 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Reshiram ex WHT 20",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flamebody Cannon"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "N's Darmanitan JTG 27 text: discard all Energy from this Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "damage": 90,
+   "cite": "N's Darmanitan JTG 27 text: this attack also does 90 damage to 1 of your opponent's Benched Pokémon (no Weakness or Resistance)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 90,
+   "cite": "N's Darmanitan JTG 27 text: 90 damage to the Active Pokémon"
+  }
+ ]
+}

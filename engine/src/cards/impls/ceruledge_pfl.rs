@@ -1,10 +1,9 @@
-//! Ceruledge (M2 / PFL): Purgatory Slash — 220; discard 4 Basic [R] Energy
-//! cards from your hand or this attack does nothing.
+//! Ceruledge (PFL 20): Infernal Slash: 220; discard 4 Basic [R] Energy cards from your hand or this attack does nothing.
 //!
-//! Twinleaf: with fewer than 4 "Fire Energy" basics in hand the damage is set
-//! to 0 at once; otherwise a non-cancellable ChooseCardsPrompt (exactly 4)
-//! whose callback discards them (or zeroes the damage if the filtered result
-//! is not exactly 4).
+//! With fewer than 4 Basic [R] Energy cards in hand nothing is discarded and the damage is set to 0 (id2158: the cards are
+//! discarded in full or not at all); otherwise exactly 4 are chosen and discarded after the damage (one Discard event carrying
+//! the 4 cards, this attack its cause). The discard is the attack's effect, not a cost (a cost is a Trainer's or an
+//! Ability's, APR E-30).
 use crate::spec::prelude::*;
 
 const FIRE_ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Fire Energy")]);

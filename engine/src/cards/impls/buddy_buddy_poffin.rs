@@ -1,5 +1,8 @@
-//! Buddy-Buddy Poffin (TEF): search your deck for up to 2 Basic Pokémon with
-//! 70 HP or less and put them onto your Bench. Then, shuffle your deck.
+//! Buddy-Buddy Poffin (TEF 144): search your deck for up to 2 Basic Pokémon with 70 HP or less and put them onto your Bench.
+//! Then, shuffle your deck.
+//!
+//! The chosen Pokémon enter play from the deck (EnterPlay events, this Item their cause); the deck is shuffled after the
+//! search whatever was found (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

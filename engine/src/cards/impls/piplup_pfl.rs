@@ -1,5 +1,8 @@
-//! Piplup (PFL 27): Call for Support — search your deck for a Supporter
-//! card, reveal it, and put it into your hand; then shuffle. Tackle — 20.
+//! Piplup (PFL 27): Call for Support: search your deck for a Supporter card, reveal it, and put it into your hand. Then,
+//! shuffle your deck. Tackle: 20.
+//!
+//! The chosen Supporter is revealed before it moves (id1131) and goes into the hand (PutIntoHand, this attack its cause); an
+//! empty deck can't be searched (id840), otherwise the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

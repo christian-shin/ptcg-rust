@@ -1,12 +1,10 @@
-//! Iron Leaves (TWM): Recovery Net — choose up to 2 Pokémon from your discard
-//! pile, reveal them, and put them into your hand. Avenging Edge — 100+; 60
-//! more if any of your Pokémon were Knocked Out by attack damage during your
-//! opponent's last turn.
+//! Iron Leaves (TWM 19): Recovery Net: choose up to 2 Pokémon from your discard pile, reveal them, and put them into your
+//! hand. Avenging Edge: 100+; 60 more if any of your Pokémon were Knocked Out by damage from an attack during your opponent's
+//! last turn.
 //!
-//! Twinleaf: Recovery Net does nothing with no Pokémon in the discard pile;
-//! otherwise a non-cancellable ChooseCardsPrompt (min 0 since phase 4b R7E:
-//! "up to 2" in an attack may take 0, rulings 1721/1778; max min(2, count))
-//! and MOVE_CARDS to hand, with no reveal prompt.
+//! Recovery Net: 0 to min(2, Pokémon in the discard pile) are chosen ("up to" in an attack's effect may take 0, id2219, id2301) and
+//! go from the discard pile into the hand (a PutIntoHand event, this attack its cause). NOTE: the text says "reveal them" and
+//! this file reveals nothing (`reveal: false`); reported by the events batch 7 fan-out (B73), not changed.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IronLeaves@TWM",

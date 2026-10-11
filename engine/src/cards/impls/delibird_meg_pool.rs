@@ -1,9 +1,8 @@
-//! Delibird (MEG 105): Quick Gift (usable on the first turn when going first)
-//! — search your deck for a card and put it into your hand, then shuffle.
-//! Gentle Slap — 30.
+//! Delibird (MEG 105): Quick Gift (if you go first, you can use it during your first turn): search your deck for a card and
+//! put it into your hand. Then, shuffle your deck. Gentle Slap: 30.
 //!
-//! Twinleaf: SEARCH_DECK_FOR_CARDS_TO_HAND with an empty filter (so the pick is
-//! not shown), min 1, max 1, no cancel; nothing happens with an empty deck.
+//! One card of any kind goes into the hand (a PutIntoHand event, this attack its cause; nothing is revealed); an empty deck
+//! can't be searched (id840: the attack then does nothing, no shuffle); otherwise the deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

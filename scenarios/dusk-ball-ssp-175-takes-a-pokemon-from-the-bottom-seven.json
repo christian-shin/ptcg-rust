@@ -1,0 +1,75 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dusk Ball SSP 175",
+   "4 Hop's Snorlax JTG 117",
+   "4 Abra TWM 80",
+   "4 Tapu Bulu SFA 6",
+   "4 Joltik SCR 50",
+   "4 Mankey SSP 98",
+   "4 Cottonee MEP 18",
+   "4 Froakie CRI 20",
+   "4 Rowlet POR 10",
+   "4 Dreepy ASC 158",
+   "4 Elgyem BLK 40",
+   "4 Flittle SSP 94",
+   "6 Fire Energy MEE 2",
+   "6 Water Energy MEE 3"
+  ],
+  [
+   "4 Dusk Ball SSP 175",
+   "4 Hop's Snorlax JTG 117",
+   "4 Abra TWM 80",
+   "4 Tapu Bulu SFA 6",
+   "4 Joltik SCR 50",
+   "4 Mankey SSP 98",
+   "4 Cottonee MEP 18",
+   "4 Froakie CRI 20",
+   "4 Rowlet POR 10",
+   "4 Dreepy ASC 158",
+   "4 Elgyem BLK 40",
+   "4 Flittle SSP 94",
+   "6 Fire Energy MEE 2",
+   "6 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Dusk Ball SSP 175"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Dusk Ball SSP 175"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShowCards",
+    "ShuffleDeck"
+   ],
+   "cite": "Dusk Ball SSP 175 text: look at the bottom 7, choose 1 Pokémon you find there (required when there is one), show it to your opponent, put it into your hand; shuffle your deck afterward"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Dusk Ball SSP 175"
+   ],
+   "cite": "card text (an Item is discarded after it is played)"
+  }
+ ]
+}

@@ -1,10 +1,11 @@
-//! Mega Absol ex (M1L / MEG 86): Terminal Period — if the opponent's Active
-//! has exactly 6 damage counters, it is Knocked Out. Claw of Darkness — 200,
-//! the opponent reveals their hand and you discard a card from it.
+//! Mega Absol ex (MEG 86): Terminal Period: if your opponent's Active Pokémon has exactly 6 damage counters on it, that Pokémon
+//! is Knocked Out. Claw of Darkness: 200; your opponent reveals their hand, and you discard a card you find there.
 //!
-//! Terminal Period is a KnockOut event on the opponent's Active Pokémon when it has exactly 60 damage (the Knock Out
-//! waits for the state check, D1); Mist Energy prevents it (id2427). Claw of Darkness discards the chosen card from the
-//! opponent's revealed hand after the damage.
+//! Terminal Period is a KnockOut event on the opponent's Active Pokémon when it has exactly 60 damage (the Knock Out waits for
+//! the state check, D1); Mist Energy prevents it (id2427). Claw of Darkness: after the damage the attacker chooses a card of the
+//! opponent's hand and it is discarded from it (a Discard event over the opponent's hand, this attack its cause). NOTE: the text
+//! says the opponent reveals their hand and this file has no Reveal op (the Pick shows the hand to the chooser only); reported
+//! by the events batch 7 fan-out (B73), not changed.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
