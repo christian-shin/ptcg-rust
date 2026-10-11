@@ -1,5 +1,8 @@
-//! Crushing Hammer (SVI): flip a coin; if heads, discard an Energy attached
-//! to 1 of your opponent's Pokémon.
+//! Crushing Hammer (PBL 105): Item. Flip a coin. If heads, discard an Energy attached to 1 of your opponent's Pokémon.
+//!
+//! On heads the Energy is a LeavePlay (D1) caused by this Item, to its owner's discard pile; on tails nothing happens.
+//! The card needs an opposing Pokémon with an Energy attached (a Trainer that can't have any effect can't be played,
+//! id925).
 use crate::spec::prelude::*;
 
 const TARGETS: SlotSel = SlotSel::Pokemon(Who::Opp);

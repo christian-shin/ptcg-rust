@@ -1,12 +1,12 @@
-//! Genesect ex (BLK / SV11B): Metal Signal — once during your turn, search
-//! your deck for up to 2 [M] Evolution Pokémon, reveal them, put them into
-//! your hand, then shuffle. Protect Charge — 150; during your opponent's next
-//! turn this Pokémon takes 30 less damage from attacks.
+//! Genesect ex (BLK 67): Metallic Signal - once during your turn, you may search your deck for up to 2 Evolution [M]
+//! Pokémon, reveal them, and put them into your hand. Then, shuffle your deck. Protect Charge - 150; during your
+//! opponent's next turn, this Pokémon takes 30 less damage from attacks (after Weakness and Resistance).
 //!
-//! Twinleaf: the once-per-turn marker lives on the player (per card); the
-//! blocked indices are computed on the unsorted deck ("Evolution" = non-empty
-//! `evolvesFrom`, not LV.X). Protect Charge writes `damageReductionNextTurn`
-//! on the player's Active (whatever it is).
+//! A search of the hidden deck may find fewer cards than "up to 2", or none (APR D-05, id2301: the choice among cards you
+//! can see is 1 to N; a deck you can't see may fail to hold them). The cards are revealed and put into the hand (a
+//! PutIntoHand event, cause: this Ability), then the deck is shuffled once (APR E-19); once per turn is the usage marker. "Evolution" is a
+//! non-Basic Pokémon that isn't a LV.X. Protect Charge is a lasting damage reduction on this Pokémon until the end of the
+//! opponent's next turn.
 use crate::spec::prelude::*;
 use crate::types::Stage;
 

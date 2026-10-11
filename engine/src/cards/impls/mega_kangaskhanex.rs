@@ -1,6 +1,9 @@
-//! Mega Kangaskhan ex (M1S, Basic Mega ex): Run Errand - once during your
-//! turn, if this Pokémon is Active, draw 2 cards (1 Run Errand per turn).
-//! Rapid-Fire Combo - 200+, flip until tails, 50 more per heads.
+//! Mega Kangaskhan ex (MEG 104): Run Errand - once during your turn, if this Pokémon is in the Active Spot, you may use
+//! this Ability: draw 2 cards; you can't use more than 1 Run Errand Ability each turn. Rapid-Fire Combo - 200+; flip a
+//! coin until you get tails; 50 more damage for each heads.
+//!
+//! Run Errand is one Draw event of 2 (cause: this Ability); the marker is per player (any copy) and is cleared at the end
+//! of the owner's turn. Rapid-Fire Combo flips before the damage and adds 50 per heads.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

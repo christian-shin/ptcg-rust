@@ -1,9 +1,11 @@
-//! Blowtorch (PFL): Item. You can use this card only if you discard a Basic [R] Energy card from your hand.
+//! Blowtorch (PFL 86): Item. You can use this card only if you discard a Basic [R] Energy card from your hand.
 //! Discard a Pokémon Tool or Special Energy card from 1 of your opponent's Pokémon, or discard a Stadium in play.
 //!
-//! The Energy is the cost: it is picked and discarded first. The choice that follows lists only the kinds that exist
-//! (a Tool, a Special Energy card, a Stadium). With several Tools on the Pokémon, one Tool is chosen and only it is
-//! discarded. No damage, counters or Knock Out here: nothing changed in events batch 6.
+//! The Energy is the cost (`Step::cost`, APR E-30): it is picked and discarded first, and the card can't be played
+//! without one. The first two `needs` restate what usability derives (a payable cost, an effect that changes the game;
+//! they go at the D10 switch). The choice that follows lists only the kinds that exist (a Tool, a Special Energy card, a
+//! Stadium). Each discard from a Pokémon or the Stadium is a LeavePlay (D1) caused by this Item, to its owner's discard
+//! pile; with several Tools on the Pokémon, one Tool is chosen and only it is discarded.
 use crate::spec::prelude::*;
 
 const HAND: ZoneRef = ZoneRef(Who::Me, Zone::Hand);

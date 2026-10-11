@@ -1,8 +1,8 @@
-//! Ciphermaniac's Codebreaking (TEF): search your deck for 2 cards, shuffle
-//! your deck, then put those cards on top of it in any order.
+//! Ciphermaniac's Codebreaking (PRE 104): Supporter. Search your deck for 2 cards, shuffle your deck, then put those
+//! cards on top of it in any order.
 //!
-//! Fixed (phase 4b): the search is for min(2, deck size) cards (min 2 was
-//! unanswerable with a single card in the deck).
+//! The 2 cards are chosen (all of the deck when it holds fewer), set aside while the deck is shuffled (APR E-19), then
+//! put on top by one PutIntoDeck event, ordered by the player (`DeckOrder::ChosenBy`).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

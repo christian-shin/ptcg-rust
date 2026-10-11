@@ -1,8 +1,7 @@
-//! Trubbish (M4 / CRI 56): Acid Spray — 10; flip a coin, if heads discard an
-//! Energy attached to your opponent's Active Pokémon.
+//! Trubbish (CRI 56): Acid Spray - 10; flip a coin. If heads, discard an Energy from your opponent's Active Pokémon.
 //!
-//! Twinleaf: DISCARD_AN_ENERGY_FROM_OPPONENTS_ACTIVE_POKEMON in the coin
-//! callback (no prompt when the Active has no Energy card).
+//! On heads the Energy is a LeavePlay (D1) caused by this attack, to its owner's discard pile (the attacker chooses
+//! which); on tails nothing happens; an Active Pokémon without Energy loses none.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

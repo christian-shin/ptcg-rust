@@ -1,12 +1,11 @@
-//! Hassel (TWM): only if any of your Pokémon were Knocked Out during your
-//! opponent's last turn. Look at the top 8 cards of your deck; put up to 3
-//! into your hand and shuffle the rest into your deck.
+//! Hassel (TWM 151): Supporter. You can use this card only if any of your Pokémon were Knocked Out during your
+//! opponent's last turn. Look at the top 8 cards of your deck and put up to 3 of them into your hand. Shuffle the other
+//! cards back into your deck.
 //!
-//! Twinleaf: every Hassel copy (in any zone) adds its own HASSEL_MARKER to its
-//! owner when that player's Pokémon is Knocked Out during the opponent's
-//! turn; the marker check comes after the Supporter moves to the supporter
-//! pile. The remaining top cards go back to the deck bottom before the
-//! (wait-less) shuffle is answered.
+//! The printed condition is `Cond::Printed` (it still binds a Hassel used through Look-Alike Show, D5). The 8 cards are
+//! set aside (`Op::Look`); a Supporter's "up to 3" is 1 to 3 (id2301; 0 when used through Look-Alike Show, which may
+//! choose a card that would do nothing, APR D-05); the cards taken are one PutIntoHand event, the others go back into the
+//! deck (PutIntoDeck) and the deck is shuffled once.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Hassel",

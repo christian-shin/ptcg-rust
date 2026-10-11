@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tera Orb SSP 189",
+   "4 Duraludon PRE 69",
+   "1 Pikachu ex SSP 57",
+   "23 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Tera Orb SSP 189",
+   "4 Duraludon PRE 69",
+   "1 Pikachu ex SSP 57",
+   "23 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Tera Orb SSP 189"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Tera Orb SSP 189"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "not_contains": [
+    "Duraludon PRE 69",
+    "Boss's Orders ASC 183"
+   ],
+   "cite": "card text: search your deck for a Tera Pokémon (a search may find none, but never a non-Tera Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "contains": [
+    "Tera Orb SSP 189"
+   ],
+   "cite": "card text: the Item is discarded after it is played"
+  }
+ ]
+}

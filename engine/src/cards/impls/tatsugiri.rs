@@ -1,11 +1,10 @@
-//! Tatsugiri (TWM): Attract Customers - once during your turn, if this
-//! Pokémon is in the Active Spot, look at the top 6 cards of your deck,
-//! reveal a Supporter there and put it into your hand; shuffle the rest back.
+//! Tatsugiri (TWM 131): Attract Customers - once during your turn, if this Pokémon is in the Active Spot, you may look at
+//! the top 6 cards of your deck, reveal a Supporter card you find there, and put it into your hand. Shuffle the other cards
+//! back into your deck. Surf - 50.
 //!
-//! Twinleaf quirk kept: the Active check is `player.active.cards[0] === this`.
-//! Fixed (phase 4b): the prompt cannot be cancelled (`min: 0` already allows
-//! taking nothing; cancelling moved every looked-at card into the hand and
-//! crashed), and the deck is shuffled after the reveal as well.
+//! The 6 cards are set aside (`Op::Look`); the Supporter taken (none is allowed: "you may") is revealed and put into the
+//! hand by one PutIntoHand event (cause: this Ability); the others go back into the deck (PutIntoDeck) and the deck is
+//! shuffled once.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

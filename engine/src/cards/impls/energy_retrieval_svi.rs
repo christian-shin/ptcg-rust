@@ -1,11 +1,8 @@
-//! Energy Retrieval (SVI, as Energy Retrieval FA CRI): put 2 basic Energy
-//! cards from your discard pile into your hand.
+//! Energy Retrieval (CRI 108): Item. Put up to 2 Basic Energy cards from your discard pile into your hand.
 //!
-//! Twinleaf (scarlet-and-violet file): a DiscardToHandEffect probe first (if
-//! prevented, nothing happens); throws with no Basic Energy in the discard;
-//! ChooseCardsPrompt min 1, max min(2, Basic Energy), no cancel. The callback
-//! moves the cards, shows them to the opponent (ShowCardsPrompt), then runs
-//! the same MOVE_CARDS again (the cards are no longer in the discard).
+//! An Item's "up to 2" is 1 or 2 (id2301). The chosen cards are shown to the opponent and put into the hand by one
+//! PutIntoHand event from the discard pile (cause: this Item). It can't be played without a Basic Energy card in the
+//! discard pile (a Trainer that can't have any effect can't be played, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

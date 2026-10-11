@@ -1,17 +1,11 @@
-//! Iris's Fighting Spirit (JTG / ASC): you can use this card only if you
-//! discard another card from your hand. Draw cards until you have 6 cards in
-//! your hand.
+//! Iris's Fighting Spirit (ASC 190): Supporter. You can use this card only if you discard another card from your hand.
+//! Draw cards until you have 6 cards in your hand.
 //!
-//! Fixed (phase 4b #39): `reduceEffect` throws SUPPORTER_ALREADY_PLAYED after
-//! another Supporter and CANNOT_PLAY_THIS_CARD without another card in the
-//! hand; the discard prompt is min 1, max 1, no cancel (it used to allow an
-//! empty choice, which played the card for nothing). The Supporter has left
-//! the hand by the time the prompt is answered, so only other cards are
-//! listed. Then DRAW_CARDS_UNTIL_CARDS_IN_HAND (plain `deck.moveTo(hand, n)`)
-//! unless the hand already has 6 or more cards.
-//!
-//! R7C: unplayable when it would draw nothing (empty deck, or 7 or more other cards in
-//! the hand so that 6 are left after discarding one; rulings 851, 959, 1037).
+//! The discard is the cost (`Step::cost`, APR E-30): one Discard event of the chosen card from the hand (cause: this
+//! Supporter); another card is required (`Cond::Printed`: it still binds a copy used through Look-Alike Show, D5), and
+//! the Supporter itself isn't in the hand when the card is chosen. Then one Draw event of the cards missing from 6. The
+//! other `needs` entries (a card to draw: fewer than 7 other cards in hand, a card in the deck) restate that a Trainer
+//! that can't have any effect can't be played (id925, id1124) and go at the D10 switch.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IrisFightingSpirit",

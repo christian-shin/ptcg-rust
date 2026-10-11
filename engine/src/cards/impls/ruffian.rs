@@ -1,5 +1,8 @@
-//! Ruffian (JTG, supporter): discard a Pokémon Tool and a Special Energy
-//! from 1 of your opponent's Pokémon.
+//! Ruffian (JTG 157): Supporter. Discard a Pokémon Tool and a Special Energy from 1 of your opponent's Pokémon.
+//!
+//! One target Pokémon is chosen (one that has a Tool or a Special Energy card); each card discarded is a LeavePlay (D1)
+//! caused by this Supporter, to its owner's discard pile: one Tool (chosen when there are several), then one Special
+//! Energy card. The part that can be done is done (APR II.A: do as much as you can).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

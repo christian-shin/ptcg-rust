@@ -1,15 +1,9 @@
-//! Luxray ex (TWM): Piercing Gaze — 120; look at your opponent's hand and
-//! discard 1 card you find there. Volt Strike — 250; discard all Energy from
-//! this Pokémon.
+//! Luxray ex (TWM 68): Piercing Gaze - 120; your opponent reveals their hand; discard a card you find there. Volt Strike -
+//! 250; discard all Energy from this Pokémon.
 //!
-//! Twinleaf: nothing on an empty opponent's hand, else a ChooseCardsPrompt
-//! (CHOOSE_CARD_TO_DECK, min 1 max 1, no cancel) on it; a pick is
-//! MOVE_CARDS'd to their discard, followed by a no-op
-//! MOVE_CARDS(player.supporter → player.discard, [this]) (quirk kept).
-//! Volt Strike: CheckProvidedEnergyEffect on the Active → DiscardCardsEffect.
-//!
-//! Fixed (phase 4b, W4): the prompt was min 0, so the attacker could discard
-//! nothing; the card says "Discard a card you find there".
+//! Piercing Gaze: the attacker looks at the hand and chooses 1 card (one is required: "a card"), which is one Discard
+//! event from the opponent's hand (cause: this attack); an empty hand does nothing. Volt Strike discards every Energy card
+//! on the Pokémon after the damage: a LeavePlay per card (D1).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

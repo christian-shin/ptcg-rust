@@ -1,10 +1,8 @@
-//! Dedenne (SSP): Electromagnetic Sonar - put a Trainer card from your discard
-//! pile into your hand. Gnaw - 30.
+//! Dedenne (SSP 87): Electromagnetic Sonar - put a Trainer card from your discard pile into your hand. Gnaw - 30.
 //!
-//! Twinleaf: ChooseCardsPrompt (max 1, no cancel) over the discard pile; the
-//! chosen cards are shown to the opponent (info prompt only when any) and
-//! moved. Fixed in phase 4b (R4): min is 1 when the discard pile holds a
-//! Trainer card (it was always 0, so the Trainer could be declined).
+//! The Trainer card is chosen (one is required when the discard pile holds a Trainer card: no "up to"), revealed to the
+//! opponent, and put into the hand by a PutIntoHand event from the discard pile (cause: this attack). Poké Vital A and
+//! Neutralization Zone refuse that event for their own card (a lock over PutIntoHand).
 use crate::spec::prelude::*;
 
 const DISCARD: ZoneRef = ZoneRef(Who::Me, Zone::Discard);

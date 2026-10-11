@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lucian TWM 157",
+   "4 Duraludon PRE 69",
+   "26 Fire Energy MEE 2",
+   "26 Water Energy MEE 3"
+  ],
+  [
+   "4 Lucian TWM 157",
+   "4 Duraludon PRE 69",
+   "26 Fire Energy MEE 2",
+   "26 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Lucian TWM 157",
+   "2 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "2 Water Energy MEE 3"
+  ],
+  "reset": true
+ },
+ "coins": [
+  true,
+  false
+ ],
+ "answers": [
+  {
+   "a": "play",
+   "card": "Lucian TWM 157"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 6,
+   "cite": "card text: each player shuffles their hand to the bottom of their deck, then flips: heads draws 6, tails draws 3"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 3,
+   "cite": "card text: each player shuffles their hand to the bottom of their deck, then flips: heads draws 6, tails draws 3"
+  }
+ ]
+}

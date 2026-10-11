@@ -1,11 +1,10 @@
-//! Lunatone (M1L): Lunar Cycle — once during your turn, if you have Solrock
-//! in play, you may discard a Basic [F] Energy card from your hand in order
-//! to use this Ability. Draw 3 cards (1 Lunar Cycle per turn). Power Gem — 50.
+//! Lunatone (MEG 74 / ASC 105): Lunar Cycle - once during your turn, if you have Solrock in play, you may discard a Basic
+//! [F] Energy card from your hand in order to use this Ability. Draw 3 cards. You can't use more than 1 Lunar Cycle Ability
+//! each turn. Power Gem - 50.
 //!
-//! Twinleaf keeps the flag on the player (`usedLunarCycle`, set only after a
-//! discard); every copy resets it at the end of its owner's turn. Solrock may
-//! be Active or Benched (matched by name). Cancelling the discard prompt
-//! uses nothing.
+//! The Energy card is the cost (`Step::cost`, APR E-30): one Discard event from the hand (cause: this Ability); declining to
+//! choose one uses nothing. Then one Draw event of 3. The marker is per player (any copy), cleared at the end of the
+//! owner's turn. Solrock may be Active or Benched (by name).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Lunatone@MEG|ASC",

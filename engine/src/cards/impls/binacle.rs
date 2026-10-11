@@ -1,5 +1,7 @@
-//! Binacle (M3 / POR 42): Double Draw — draw 2 cards (on AfterAttackEffect).
-//! Scratch — 30.
+//! Binacle (POR 42): Double Draw - draw 2 cards. Scratch - 30.
+//!
+//! Double Draw is one Draw event of 2 cards (cause: this attack), after the damage. A short deck draws what is left: an
+//! attack stays usable when its effect can't happen in full (APR D-01).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

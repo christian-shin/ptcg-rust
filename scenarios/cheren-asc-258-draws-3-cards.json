@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cheren ASC 258",
+   "4 Duraludon PRE 69",
+   "24 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "24 Water Energy MEE 3"
+  ],
+  [
+   "4 Cheren ASC 258",
+   "4 Duraludon PRE 69",
+   "24 Fire Energy MEE 2",
+   "4 Hop's Snorlax JTG 117",
+   "24 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Cheren ASC 258"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Cheren ASC 258"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 3,
+   "cite": "card text: draw 3 cards"
+  }
+ ]
+}

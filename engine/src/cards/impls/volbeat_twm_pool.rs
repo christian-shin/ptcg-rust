@@ -1,11 +1,9 @@
-//! Volbeat (TWM 9): Quick Sign (usable on the first turn when going first) —
-//! search your deck for up to 2 Basic Pokémon and put them onto your Bench,
-//! then shuffle. Coordinated Strike — 20+; 60 more damage if Illumise is on
-//! your Bench.
+//! Volbeat (TWM 9): Quick Sign - if you go first, you can use this attack during your first turn. Search your deck for up
+//! to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck. Coordinated Strike - 20+; if Illumise is on
+//! your Bench, 60 more damage.
 //!
-//! Twinleaf: Quick Sign does nothing (no shuffle) with an empty deck or a full
-//! Bench; else SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH({ stage: BASIC },
-//! { min: 0, max: min(2, open slots) }) (cancellable).
+//! Each Pokémon goes onto the Bench through the EnterPlay event (source the deck, mode effect); an attack's "up to 2" may
+//! be 0 (id2301); the deck is shuffled once (APR E-19). With an empty deck or a full Bench the attack does nothing.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,11 +1,9 @@
-//! Levincia (JTG / DRI, stadium): once during each player's turn, that player
-//! may put up to 2 Basic [L] Energy cards from their discard pile into their
-//! hand.
+//! Levincia (DRI 244, Stadium): once during each player's turn, that player may put up to 2 Basic [L] Energy cards from
+//! their discard pile into their hand.
 //!
-//! Twinleaf: throws CANNOT_USE_POWER unless the discard pile holds a basic
-//! Energy providing [L]; the ChooseCardsPrompt (name "Lightning Energy",
-//! min 1, max 2, no cancel: up to 2 from a public zone, rulings 1778/1853) is followed by a MOVE_CARDS to the hand (an
-//! empty selection still reduces a MoveCardsEffect).
+//! A Stadium use (UseStadium), once per turn for each player. The Stadium's "up to 2" is 1 or 2 (id2301). The chosen cards
+//! are put into the hand by one PutIntoHand event from the discard pile (cause: the Stadium). It can be used only with a
+//! Basic [L] Energy card in the discard pile (an effect that can't change the game can't be used, id925).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Levincia",

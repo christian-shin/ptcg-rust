@@ -1,5 +1,8 @@
-//! Mega Charizard X ex (M2 / PFL): Inferno X — discard any amount of [R]
-//! Energy from among your Pokémon; 90 damage for each card discarded.
+//! Mega Charizard X ex (PFL 13): Inferno X - discard any amount of [R] Energy from among your Pokémon; 90 damage for each
+//! card discarded.
+//!
+//! An attack's "any amount" may be 0 (id2301). The Energy is chosen before the damage, each card is a LeavePlay (D1) that
+//! happens after the damage is dealt (the count sets the damage).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

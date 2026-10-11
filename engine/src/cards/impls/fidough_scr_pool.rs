@@ -1,9 +1,8 @@
-//! Fidough (SCR 66): Pleasant Aroma — search your deck for a Basic Pokémon and
-//! put it onto your Bench, then shuffle. Stampede — 10.
+//! Fidough (SCR 66): Pleasant Aroma - search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle
+//! your deck. Stampede - 10.
 //!
-//! Twinleaf: returns without effect when the deck is empty or the Bench is
-//! full (no throw); else SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH
-//! ({ stage: BASIC }, { min: 0, max: 1 }).
+//! The Pokémon goes onto the Bench through the EnterPlay event (source the deck, mode effect), then the deck is shuffled
+//! once (APR E-19). With an empty deck or a full Bench the attack does nothing (no search, no shuffle).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "FidoughSCRPool",

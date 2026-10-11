@@ -1,10 +1,8 @@
-//! Miraculous Intercom (SSP, ACE SPEC Item): put up to 2 Supporter cards
-//! from your discard pile into your hand.
+//! Miracle Headset (SSP 183): Item. Put up to 2 Supporter cards from your discard pile into your hand.
 //!
-//! Twinleaf quirks kept: the prompt requires at least 1 card; the card is
-//! MOVE_CARDS'd hand -> supporter pile (already there), then after the
-//! reveal hand -> discard (a no-op), the chosen cards discard -> hand, and
-//! finally supporter pile -> discard.
+//! An Item's "up to 2" is 1 or 2 (id2301). The chosen cards are shown to the opponent and put into the hand by one
+//! PutIntoHand event from the discard pile (cause: this Item). It can't be played without a Supporter in the discard pile
+//! (a Trainer that can't have any effect can't be played, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

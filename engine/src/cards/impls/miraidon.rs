@@ -1,15 +1,9 @@
-//! Miraidon (TEF): Peak Acceleration — 40; search your deck for up to 2 Basic
-//! Energy and attach them to your Future Pokémon in any way, then shuffle.
-//! Sparking Strike — 160.
+//! Miraidon (TEF 121): Peak Acceleration - 40; search your deck for up to 2 Basic Energy cards and attach them to your
+//! Future Pokémon in any way you like. Then, shuffle your deck. Sparking Strike - 160.
 //!
-//! Twinleaf: AttachEnergyPrompt over the deck (Bench + Active, no cancel,
-//! min 0, max 2). blockedTo lists every non-Future Pokémon (phase 4b fix: it
-//! used to offer them and the Energy then threw INVALID_TARGET). No transfers
-//! -> SHUFFLE_DECK. Otherwise each transfer is checked in order
-//! (`target.cards[0]` must be a Future Pokémon, else throws INVALID_TARGET
-//! after the earlier ones already moved) and the Energy is moved with
-//! MOVE_CARDS (no AttachEnergyEffect); then a bare ShuffleDeckPrompt (no
-//! trailing wait prompt).
+//! The Energy is attached from the deck to the Future Pokémon in play (Active or Benched): one Attach event per card
+//! (cause: this attack); an attack's "up to 2" may be 0 (id2301). The deck is shuffled once after the attaching (APR E-19,
+//! D9), also when nothing was attached.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

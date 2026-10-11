@@ -1,8 +1,8 @@
-//! Bronzong (TEF): Evolution Jammer — 30; during your opponent's next turn,
-//! they can't play Pokémon from their hand to evolve. Super Psy Bolt — 100.
+//! Bronzong (TEF 69): Evolution Jammer - 30; during your opponent's next turn, they can't play Pokémon from their
+//! hand to evolve their Pokémon. Super Psy Bolt - 100.
 //!
-//! Twinleaf: OPPONENT_CANNOT_EVOLVE_POKEMON is a PlayLockEffect with the
-//! `evolve` flag (player-level).
+//! A lasting lock on the opponent over `Evolve` events whose source is the hand (`Lasting::Lock`, D14), placed by the
+//! attack's ApplyEffect and ending with the opponent's next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

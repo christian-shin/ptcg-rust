@@ -1,5 +1,8 @@
-//! Lillie's Determination (M1L): shuffle your hand into your deck, then draw
-//! 6 cards (8 if you have exactly 6 Prize cards remaining).
+//! Lillie's Determination (ASC 192): Supporter. Shuffle your hand into your deck. Then, draw 6 cards. If you have exactly 6
+//! Prize cards remaining, draw 8 cards instead.
+//!
+//! The hand goes into the deck by one PutIntoDeck event (cause: this Supporter), the deck is shuffled once, then one Draw
+//! event of 6 cards (8 with exactly 6 Prize cards left, read when the draw starts).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

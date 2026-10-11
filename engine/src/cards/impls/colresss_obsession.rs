@@ -1,10 +1,8 @@
-//! Colress's Tenacity (SFA): search your deck for a Stadium card and an
-//! Energy card, reveal them, put them into your hand, shuffle.
+//! Colress's Tenacity (SFA 57): Supporter. Search your deck for a Stadium card and an Energy card, reveal them, and put
+//! them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: every deck card that is neither a Stadium nor an Energy is
-//! blocked; `max = min(stadiums,1) + min(energies,1)` with `maxTrainers` /
-//! `maxEnergies`; ShowCards only when something was taken; the final shuffle
-//! prompt has no wait.
+//! At most one Stadium and one Energy card (the caps); the cards are revealed and put into the hand (a PutIntoHand event),
+//! then the deck is shuffled once (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

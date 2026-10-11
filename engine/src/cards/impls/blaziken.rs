@@ -1,5 +1,9 @@
-//! Blaziken (DRI): Heat Blast — 70. Inferno Kick Flurry — 120; discard 2 Energy from
-//! this Pokémon, and 120 damage to 1 of your opponent's Benched Pokémon.
+//! Blaziken (DRI 42): Heat Blast - 70. Inferno Kick Flurry - 120; discard 2 Energy from this Pokémon, and 120 damage
+//! to 1 of your opponent's Benched Pokémon.
+//!
+//! The Bench damage is part of the attack: one Damage event on the chosen Benched Pokémon (no Weakness or Resistance on
+//! the Bench, APR B-08; the target is chosen before the Energy). The 2 Energy are then discarded from this Pokémon: a
+//! LeavePlay per card (D1), the player chooses which, cause: this attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
