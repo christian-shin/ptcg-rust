@@ -1046,9 +1046,6 @@ fn initiate_sudden_death(g: &mut Game) -> R {
         for c in cards {
             let inst = &mut g.st.cards[c as usize];
             inst.moved_to_active_this_turn = false;
-            inst.extra_prizes = false;
-            inst.strafe_used = false;
-            inst.discarded_stadium_card = false;
             inst.damage_taken_last_turn = 0;
         }
         g.prompt(id, "", PromptKind::ShuffleDeck, Cont::ShuffleApplyNoWait { p });

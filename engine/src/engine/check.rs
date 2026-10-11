@@ -7,32 +7,29 @@ use crate::list::*;
 use crate::state::*;
 use crate::types::*;
 
-/// `CheckHpEffect`: constructing it resets `hpBonus`; returns the final HP.
+/// The HP the `CheckHp` effect gives (the derived layer's slow path): the printed HP and the bonus its handlers add.
 pub fn check_hp(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
     let card = g.st.slot_pokemon(p, s);
-    if card.is_some() {
-        g.st.players[p].slots[s as usize].hp_bonus = 0;
-    }
+    let printed = card.map_or(0, |c| g.st.cdef(c).hp);
     // With no card that reacts to CheckHp in the game, no session or trace to feed, the dispatch changes
     // nothing: the HP is the printed one (`PTCG_VERIFY_CACHE=1` dispatches anyway and compares).
     let quiet = !g.kinds_present.has(k::CHECK_HP) && g.copy_sessions.is_empty() && !g.trace_effects;
-    let printed = hp_of(g, p, s, card);
     if quiet && !crate::game::verify_cache() {
         return Ok(printed);
     }
-    g.run_fx_unit(Effect::CheckHp { p: p as u8, target: SlotRef::new(p, s), card })?;
-    let hp = hp_of(g, p, s, card);
+    let id = g.new_fx(Effect::CheckHp { p: p as u8, target: SlotRef::new(p, s), card, bonus: 0 });
+    let r = g.reduce_effect(id);
+    let bonus = match *g.e(id) {
+        Effect::CheckHp { bonus, .. } => bonus,
+        _ => 0,
+    };
+    g.release_fx(id);
+    r?;
+    let hp = if card.is_some() { printed + bonus } else { 0 };
     if quiet {
         assert_eq!(hp, printed, "CheckHp changed the HP although no card reacts to it");
     }
     Ok(hp)
-}
-
-pub fn hp_of(g: &Game, p: usize, s: SlotId, card: Option<CardId>) -> i32 {
-    match card {
-        Some(c) => g.st.cdef(c).hp + g.st.slot(p, s).hp_bonus,
-        None => 0,
-    }
 }
 
 // ---------------------------------------------------------------------------

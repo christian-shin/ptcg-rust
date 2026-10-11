@@ -24,13 +24,14 @@ fn card_code(g: &Game, c: CardId) -> f32 {
     (g.st.cards[c as usize].def as f32) + 1.0
 }
 
-fn slot_features(g: &Game, p: usize, s: SlotId, out: &mut [f32]) {
+fn slot_features(g: &Game, facts: &mut crate::legal::Ctx, p: usize, s: SlotId, out: &mut [f32]) {
     let slot = g.st.slot(p, s);
     let top = g.st.slot_pokemon(p, s);
     if let Some(c) = top {
         let d = g.st.cdef(c);
         out[0] = card_code(g, c);
-        out[1] = (d.hp + slot.hp_bonus) as f32 / 100.0;
+        // The HP with its modifiers (the derived layer over the game, no memo).
+        out[1] = crate::derived::compute_hp(facts, p, s).unwrap_or(d.hp) as f32 / 100.0;
         out[2] = slot.damage as f32 / 100.0;
         out[3] = g.st.slot_pokemons(p, s).len() as f32;
         // Energy by type (grass..metal), then other.
@@ -52,6 +53,7 @@ fn slot_features(g: &Game, p: usize, s: SlotId, out: &mut [f32]) {
 /// Observation for `viewer` (player index). Length [`OBS_SIZE`].
 pub fn observe(g: &Game, viewer: usize) -> Vec<f32> {
     let mut v = vec![0f32; OBS_SIZE];
+    let mut facts = crate::legal::Ctx::new(g);
     let st = &g.st;
     v[0] = st.turn as f32;
     v[1] = (st.active_player as usize == viewer) as u8 as f32;
@@ -74,7 +76,7 @@ pub fn observe(g: &Game, viewer: usize) -> Vec<f32> {
         let slots = pl.all_slots();
         for (i, s) in slots.iter().enumerate().take(SLOTS) {
             let o = base + 16 + i * SLOT_FEATURES;
-            slot_features(g, p, *s, &mut v[o..o + SLOT_FEATURES]);
+            slot_features(g, &mut facts, p, *s, &mut v[o..o + SLOT_FEATURES]);
         }
         let d0 = base + 16 + SLOTS * SLOT_FEATURES;
         for (i, c) in pl.discard.iter().take(MAX_DISCARD).enumerate() {

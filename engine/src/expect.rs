@@ -5,7 +5,6 @@
 //! (`next_turn`, after Checkup). Format: docs/ENGINE.md, "Scenarios and expect" (local).
 
 use crate::carddb::en_key;
-use crate::engine::check::hp_of;
 use crate::game::Game;
 use crate::list::{CardId, CardList};
 use crate::state::SlotId;
@@ -314,7 +313,8 @@ fn check_slot(g: &Game, a: &Value, me: usize) -> Result<(), String> {
         }
     }
     if let Some(n) = a["hp_left"].as_i64() {
-        let left = hp_of(g, p, s, Some(top)) - slot.damage;
+        // The HP with its modifiers now (the derived layer over the game).
+        let left = crate::derived::compute_hp(&mut crate::legal::Ctx::new(g), p, s).unwrap_or(0) - slot.damage;
         if left as i64 != n {
             return Err(format!("{} hp_left: expected {}, actual {}", sel, n, left));
         }

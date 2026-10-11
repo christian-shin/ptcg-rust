@@ -120,8 +120,8 @@ pub enum Effect {
     BeforeDoingDamage { attack_effect: EffId, p: u8, opp: u8, attack: AttackRef },
 
     // ---- checks ----
-    /// B6-OLD -> batch 8 (HP from the derived layer).
-    CheckHp { p: u8, target: SlotRef, card: Option<CardId> },
+    /// The derived layer's slow path for the HP (`derived::slow_hp`): the HP modifiers add to `bonus`.
+    CheckHp { p: u8, target: SlotRef, card: Option<CardId>, bonus: i32 },
     CheckPokemonStats { target: SlotRef, weakness: SVec<WeaknessV, 4>, resistance: SVec<ResistanceV, 4> },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
     CheckRetreatCost { p: u8, cost: Cost, no_cost: bool, reduction: u8 },

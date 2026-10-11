@@ -92,8 +92,6 @@ pub struct Slot {
     pub energies: ZoneList<60>,
     pub tools: ZoneList<4>,
     pub damage: i32,
-    pub hp: i32,
-    pub hp_bonus: i32,
     /// Order matters (between-turns processing iterates it).
     pub special_conditions: SVec<u8, 5>,
     pub poison_damage: i32,
@@ -125,8 +123,6 @@ impl Default for Slot {
             energies: List::new(),
             tools: List::new(),
             damage: 0,
-            hp: 0,
-            hp_bonus: 0,
             special_conditions: SVec::new(),
             poison_damage: 10,
             burn_damage: 20,
@@ -151,26 +147,8 @@ pub struct CardInst {
     pub owner: u8,
     pub moved_to_active_this_turn: bool,
     pub damage_taken_last_turn: i32,
-    /// Briar's `extraPrizes` instance field.
-    pub extra_prizes: bool,
-    /// `this.attacks[i].barrage` written at runtime (Festival Lead cards);
-    /// bit i = attack i. Card-object state: never reset, not canonical.
+    /// "This attack can be used twice" written at runtime (Festival Lead: `Op::AttackFlag(Barrage)`); bit i = attack i.
     pub attack_barrage: u8,
-    /// Attacks whose serialized object now differs from the printed card
-    /// (canonical `cards[...].attacks`, with a `barrage` key).
-    pub attack_barrage_shown: u8,
-    /// `this.attacks[i].shredAttack = true` written at runtime (Walking Wake ex's
-    /// Azure Wave); bit i = attack i. Card-object state: never reset, canonical
-    /// `cards[...].attacks` (a `shredAttack` key).
-    pub attack_shred: u8,
-    /// Runtime `this.evolvesFromBase` write (Eevee ex PRE); `None` = printed value.
-    /// Card-object state: canonical `cards[...].evolvesFromBase` when it differs.
-    pub evolves_from_base: Option<&'static [&'static str]>,
-    /// Mega Latias ex's `strafeUsed` instance field (canonical when true).
-    pub strafe_used: bool,
-    /// Ting-Lu's `discardedStadiumCard` instance field (never reset except
-    /// by its own handler; canonical when true).
-    pub discarded_stadium_card: bool,
     /// Take-hold stamp of an Ability lock (docs/rulings/RULES.md, precedence between locks): the order in which
     /// the lock's source took hold, 0 while it doesn't hold. Kept up to date by `lock_sync`.
     pub lock_stamp: u16,
@@ -185,7 +163,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_shred: 0, lock_stamp: 0, staged_from: None, staged_in: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, attack_barrage: 0, lock_stamp: 0, staged_from: None, staged_in: None }
     }
 }
 

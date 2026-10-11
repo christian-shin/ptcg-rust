@@ -144,8 +144,7 @@ fn hit<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, memo: T, again:
 }
 
 /// A digest of everything a fact can read in the state (`PTCG_VERIFY_CACHE=1` only): the zones, the spots and their
-/// records, the players' records, the cards' instance fields, the globals. Not `Slot::hp_bonus` (written by the HP read
-/// itself until it is computed directly), nor the version counters and the location hints.
+/// records, the players' records, the cards' instance fields, the globals. Not the version counters and the location hints.
 pub fn state_digest(st: &crate::state::State) -> u64 {
     use std::hash::{Hash, Hasher};
     struct H(u64);
@@ -233,10 +232,9 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         h.write_u8(ci.owner);
         h.write_u8(ci.moved_to_active_this_turn as u8);
         h.write_i32(ci.damage_taken_last_turn);
-        for b in [ci.extra_prizes as u8, ci.attack_barrage, ci.attack_barrage_shown, ci.attack_shred, ci.strafe_used as u8, ci.discarded_stadium_card as u8] {
+        for b in [ci.attack_barrage] {
             h.write_u8(b);
         }
-        h.write_usize(ci.evolves_from_base.map_or(0, |s| s.as_ptr() as usize));
         h.write_u16(ci.lock_stamp);
         std::mem::discriminant(&ci.staged_from).hash(&mut h);
         if let Some(z) = ci.staged_from {
@@ -265,7 +263,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
             l(&mut h, sl.cards.as_slice());
             l(&mut h, sl.energies.as_slice());
             l(&mut h, sl.tools.as_slice());
-            for x in [sl.damage, sl.hp, sl.poison_damage, sl.burn_damage, sl.confusion_damage, sl.entered_turn, sl.sleep_flips] {
+            for x in [sl.damage, sl.poison_damage, sl.burn_damage, sl.confusion_damage, sl.entered_turn, sl.sleep_flips] {
                 h.write_i32(x);
             }
             l(&mut h, sl.special_conditions.as_slice());
@@ -611,11 +609,6 @@ fn against_slow<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, r: &T,
 
 fn game_hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
     let r = compute_hp(g, p, s)?;
-    if let Some(card) = g.st.slot_pokemon(p, s) {
-        // The last HP read's bonus stays on the spot (the observation and the canonical JSON read it; batch 8 C7
-        // removes the field).
-        g.st.players[p].slots[s as usize].hp_bonus = r - g.st.cdef(card).hp;
-    }
     against_slow(g, "hp", &r, |g| slow_hp(g, p, s));
     Ok(r)
 }

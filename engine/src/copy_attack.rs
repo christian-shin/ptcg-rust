@@ -569,22 +569,17 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
     }
 }
 
-/// A runtime write `this.attacks[i].barrage = ...` by card code running as
-/// `me`. While delegated source code runs with the clones installed as the
-/// copycat's `attacks`, the write lands on the clone (the session's flags);
-/// otherwise on `me`'s own attack (`attack_barrage`, shown in the canonical
-/// state through `attack_barrage_shown`). `f(barrage, shown)` edits the
-/// target's flag bits; the clone has no canonical `shown` bit.
-pub fn write_barrage(g: &mut Game, me: CardId, f: impl FnOnce(&mut u8, &mut u8)) {
+/// "This attack can be used twice" written by card code running as `me` (Festival Lead). While delegated source code
+/// runs with the clones installed as the copycat's attacks, the write lands on the clone (the session's flags);
+/// otherwise on `me`'s own attack (`CardInst::attack_barrage`). `f` edits the target's flag bits.
+pub fn write_barrage(g: &mut Game, me: CardId, f: impl FnOnce(&mut u8)) {
     if let Some(d) = g.deleg {
         if d.copycat == me && d.attacks {
             if let Some(s) = g.copy_sessions.as_mut_slice().iter_mut().find(|x| x.copycat == d.copycat && x.serial == d.serial) {
-                let mut dummy = 0u8;
-                f(&mut s.barrage, &mut dummy);
+                f(&mut s.barrage);
             }
             return;
         }
     }
-    let inst = &mut g.st.cards[me as usize];
-    f(&mut inst.attack_barrage, &mut inst.attack_barrage_shown);
+    f(&mut g.st.cards[me as usize].attack_barrage);
 }

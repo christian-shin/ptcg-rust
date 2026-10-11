@@ -235,13 +235,12 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
     match op {
         Op::AttackFlag(a) if a.flag == AttackFlagKind::Barrage => {
             // Festival Lead: the attack may be used twice (read by the core's attack use).
-            crate::copy_attack::write_barrage(g, me, |b, shown| {
+            crate::copy_attack::write_barrage(g, me, |b| {
                 if a.value {
                     *b |= 1;
                 } else {
                     *b &= !1;
                 }
-                *shown |= 1;
             });
             Ok(Flow::Next)
         }
@@ -256,7 +255,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
                 }
             }
             if a.flag == AttackFlagKind::FestivalLead {
-                festival_lead_flag(g, f, me, a.value);
+                festival_lead_flag(g, f, me);
             }
             Ok(Flow::Next)
         }
@@ -358,22 +357,17 @@ pub struct AbilityUsedSpec {
 
 /// The Barrage flag of the attack being used (Festival Lead): on while Festival Grounds is in play
 /// and the Ability isn't blocked.
-fn festival_lead_flag(g: &mut Game, f: &Frame, me: CardId, pristine_has_key: bool) {
+fn festival_lead_flag(g: &mut Game, f: &Frame, me: CardId) {
     let idx = match *g.e(f.eff) {
         Effect::Attack { attack, .. } => attack.idx(),
         _ => return,
     };
     let on = !crate::derived::has_no_ability(g, f.p as usize, me, None) && g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
-    crate::copy_attack::write_barrage(g, me, |b, shown| {
+    crate::copy_attack::write_barrage(g, me, |b| {
         if on {
             *b |= 1 << idx;
         } else {
             *b &= !(1 << idx);
-        }
-        if on || !pristine_has_key {
-            *shown |= 1 << idx;
-        } else {
-            *shown &= !(1 << idx);
         }
     });
 }

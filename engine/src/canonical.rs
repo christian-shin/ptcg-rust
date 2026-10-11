@@ -134,8 +134,6 @@ impl Game {
             };
         }
         nd!(damage, "damage");
-        nd!(hp, "hp");
-        nd!(hp_bonus, "hpBonus");
         nd!(poison_damage, "poisonDamage");
         nd!(burn_damage, "burnDamage");
         nd!(confusion_damage, "confusionDamage");
@@ -275,46 +273,6 @@ impl Game {
                 if inst.damage_taken_last_turn != 0 {
                     diff.insert("damageTakenLastTurn".into(), json!(inst.damage_taken_last_turn));
                 }
-            }
-            if let Some(efb) = inst.evolves_from_base {
-                if efb != d.evolves_from_base {
-                    diff.insert("evolvesFromBase".into(), json!(efb));
-                }
-            }
-            if inst.extra_prizes {
-                diff.insert("extraPrizes".into(), json!(true));
-            }
-            if inst.strafe_used {
-                diff.insert("strafeUsed".into(), json!(true));
-            }
-            if inst.discarded_stadium_card {
-                diff.insert("discardedStadiumCard".into(), json!(true));
-            }
-            if inst.attack_barrage_shown != 0 || inst.attack_shred != 0 {
-                // Runtime `this.attacks[i].barrage` / `shredAttack` writes: the whole attacks array.
-                let atks: Vec<Value> = d
-                    .attacks
-                    .iter()
-                    .enumerate()
-                    .map(|(i, a)| {
-                        let mut o = Map::new();
-                        o.insert("name".into(), json!(a.name));
-                        o.insert("cost".into(), json!(a.cost));
-                        o.insert("damage".into(), json!(a.damage));
-                        o.insert("text".into(), json!(a.text));
-                        if let Some(dc) = a.damage_calculation {
-                            o.insert("damageCalculation".into(), json!(dc));
-                        }
-                        if inst.attack_shred & (1 << i) != 0 {
-                            o.insert("shredAttack".into(), json!(true));
-                        }
-                        if inst.attack_barrage_shown & (1 << i) != 0 {
-                            o.insert("barrage".into(), json!(inst.attack_barrage & (1 << i) != 0));
-                        }
-                        Value::Object(o)
-                    })
-                    .collect();
-                diff.insert("attacks".into(), Value::Array(atks));
             }
             if !diff.is_empty() {
                 out.insert(self.card_ref(c), Value::Object(diff));

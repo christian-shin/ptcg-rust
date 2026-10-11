@@ -1048,9 +1048,11 @@ fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subjec
         _ => return Ok(()),
     };
     let d = hp_mod_delta(g, me, origin, n, subject, guard, target)?;
-    // HP is only changed for a Pokémon actually being checked (`effect.hp += n` writes only then).
+    // HP is only changed for a Pokémon actually being checked.
     if card.is_some() {
-        g.st.players[target.p as usize].slots[target.s as usize].hp_bonus += d;
+        if let Effect::CheckHp { bonus, .. } = g.e_mut(e) {
+            *bonus += d;
+        }
     }
     Ok(())
 }
@@ -2977,18 +2979,13 @@ fn survive_on_ten_tool(g: &mut Game, me: CardId, origin: RuleSource, acc: &mut D
 
 /// Shred: the damage of the attacks of Pokémon matching `attacker` isn't affected by effects on the Defending Pokémon.
 fn shred_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, attacker: &SlotPred) -> R {
-    let (source, attack) = match *g.e(e) {
-        Effect::Attack { source, attack, .. } => (source, attack),
+    let source = match *g.e(e) {
+        Effect::Attack { source, .. } => source,
         _ => return Ok(()),
     };
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     if !slot_pred_m(g, me, source, attacker)? || blocked(g, me, origin, at, None) {
         return Ok(());
-    }
-    // `effect.attack.shredAttack = true` (a per-card attack object write; a copy-attack clone carries its own flag).
-    if !attack.is_clone() && !g.st.cdef(attack.card).attacks[attack.idx()].shred_attack {
-        g.st.cards[attack.card as usize].attack_shred |= 1u8 << attack.idx();
-        g.st.bump();
     }
     if let Effect::Attack { ignore_defender_effects, .. } = g.e_mut(e) {
         *ignore_defender_effects = true;
