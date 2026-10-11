@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Briar",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Eq, Num::Lit(2))],
+        needs: &[Cond::Printed(&Cond::Cmp(Num::PrizesLeft(Who::Opp), CmpOp::Eq, Num::Lit(2)))],
         steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BRIAR, source: RuleSource::TrainerEffect }))],
     }),
     // This turn, if the opponent's Active Pokémon is Knocked Out by damage from an attack of your

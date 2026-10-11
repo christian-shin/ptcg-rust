@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
     // from a deck known to hold cards), put them into your hand, shuffle.
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::LastCardInHand(Who::Me)],
+        needs: &[Cond::Printed(&Cond::LastCardInHand(Who::Me))],
         steps: &[
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) }, ..PickSpec::DEFAULT },

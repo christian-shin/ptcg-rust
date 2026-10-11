@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "GrimsleysGambit",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2)), Cond::BenchSpace(Who::Me)],
+        needs: &[Cond::Printed(&Cond::Cmp(Num::Turn, CmpOp::Gt, Num::Lit(2))), Cond::BenchSpace(Who::Me)],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(7)), into: 0, ..LookSpec::DEFAULT })),
             Step::new(Op::Pick(PickSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), predicate: Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::DARK)]), bounds: Bounds { min: Num::If(&Cond::All(&[Cond::Not(&Cond::TrainerViaAttack), Cond::Nonempty(ZoneRef(Who::Me, Zone::Scratch(0)), Pred::All(&[Pred::Pokemon, Pred::PokemonType(ct::DARK)]))]), &Num::Lit(1), &Num::Lit(0)), max: Num::Lit(1) }, into: 1, msg: "CHOOSE_CARD_TO_PUT_ONTO_BENCH", ..PickSpec::DEFAULT })),

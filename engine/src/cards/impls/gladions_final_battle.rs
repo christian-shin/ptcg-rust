@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         // Usable only as the last card in your hand.
-        needs: &[Cond::LastCardInHand(Who::Me)],
+        needs: &[Cond::Printed(&Cond::LastCardInHand(Who::Me))],
         steps: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: MARKER, source: RuleSource::TrainerEffect }))],
     }),
     passives: &[Passive {

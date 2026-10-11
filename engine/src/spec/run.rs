@@ -639,6 +639,8 @@ impl RulesWalk {
                 | Op::PutIntoHand(PutIntoHandSpec { from, cards, .. })
                 | Op::PutIntoDeck(PutIntoDeckSpec { from, cards, .. })
                 | Op::Attach(AttachSpec { from, cards, onto: Some(_), .. }) => self.on_reg(from, cards),
+                Op::Reveal(RevealSpec { cards: RevealWhat::Chosen(r), .. }) => Some(self.reg(*r).unwrap_or(true)),
+                Op::PlayFromZone(pz) => Some(self.reg(pz.cards).unwrap_or(true) && ops::implied_ok(g, me, f, &s.op)),
                 Op::Look(l) => {
                     let v = match self.on_reg(&l.from, &l.cards) {
                         Some(v) => v,
@@ -737,10 +739,34 @@ pub fn usability_report() -> String {
 /// preconditions (the turn's rules, one Supporter per turn, are the PlayTrainer's own checks, `engine::play_trainer`; a
 /// used Supporter has none of them).
 pub(crate) fn check_play(g: &mut Game, me: CardId, play: &PlaySpec, f: &Frame) -> R {
+    // A Trainer whose effect is used by another card (Look-Alike Show) keeps its printed conditions only (user decision
+    // D5; official JP FAQ, Fire Energy MEE 2 / Mela): it may do nothing.
+    if f.via_attack {
+        for c in play.needs.iter().filter(|c| matches!(c, Cond::Printed(_))) {
+            if !cond_m(g, me, f, c)? {
+                crate::bail!("CANNOT_PLAY_THIS_CARD");
+            }
+        }
+        return Ok(());
+    }
     if !usable(g, me, f, play.needs, play.steps)? {
         crate::bail!("CANNOT_PLAY_THIS_CARD");
     }
     Ok(())
+}
+
+/// Do the printed conditions of Trainer `me` hold for its Used view, its effect used by player `p`'s attack `atk`
+/// (`Op::UseTrainer`)?
+pub(crate) fn used_trainer_conditions(g: &mut Game, me: CardId, p: usize, atk: EffId) -> R<bool> {
+    let Some(play) = crate::cards::spec_for(g.st.cards[me as usize].def).and_then(|s| s.play.as_ref()) else { return Ok(true) };
+    let mut f = Frame::new(Prog::Play, Phase::Use, atk, p, frame_cause(g, me, Prog::Play, p as u8, atk, true));
+    f.via_attack = true;
+    for c in play.needs.iter().filter(|c| matches!(c, Cond::Printed(_))) {
+        if !cond_m(g, me, &f, c)? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }
 
 /// The declared checks of using an Ability: once per turn, then its `needs` and implied preconditions.

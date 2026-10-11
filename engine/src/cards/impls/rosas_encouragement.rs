@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[
-            Cond::Cmp(Num::PrizesLeft(Who::Me), CmpOp::Gt, Num::PrizesLeft(Who::Opp)),
+            Cond::Printed(&Cond::Cmp(Num::PrizesLeft(Who::Me), CmpOp::Gt, Num::PrizesLeft(Who::Opp))),
             Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy),
             Cond::InPlay(Who::Me, PlayScope::All, Pred::StageIs(crate::types::Stage::Stage2)),
         ],

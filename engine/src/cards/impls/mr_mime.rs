@@ -2,64 +2,19 @@
 //! use the effect of a Supporter card you find there as the effect of this
 //! attack. Eerie Wave — 20; your opponent's Active Pokémon is now Confused.
 //!
-//! The one choice no vocabulary item expresses (a card chosen from the opponent's hand whose effect
-//! is then run as this attack's, re-asking when that effect can't be used): the card's own steps,
-//! a Custom op. The Supporter's effect is not "playing" it: the one-Supporter rule is bypassed
-//! (rulings 1727, 1844, 1853); a Supporter whose effect can't be used right now is blocked in the
-//! prompt, which is asked again.
-use crate::cards::prelude::*;
+//! Look-Alike Show is `Op::UseTrainer` over the opponent's hand (events batch 7, user decision D5): the Supporter's effect
+//! is used, not played (no play rule: id2225, id2226; 0 or 1, id2376), its printed conditions still apply (official JP
+//! FAQ, Fire Energy MEE 2 / Mela), and it is the attack's effect done to whatever it affects (id2025). Twinleaf's trial
+//! loop (re-asking after a Supporter whose effect threw) is gone: a Supporter whose effect would do nothing can be chosen.
 use crate::spec::prelude::*;
-use crate::spec::run::{Flow, Frame, NONE};
 
 pub static SPEC: CardSpec = CardSpec {
     class: "MrMime",
     attacks: &[
-        AttackSpec { index: 0, steps: &[Step::after_damage(Op::Custom(CustomSpec { exec: choose_supporter, resume: copy_effect }))] },
+        AttackSpec { index: 0, steps: &[Step::after_damage(Op::UseTrainer(UseTrainerSpec { from: ZoneRef(Who::Opp, Zone::Hand), kind: PlayKind::Supporter, msg: "CHOOSE_CARD_TO_COPY_EFFECT" }))] },
         AttackSpec { index: 1, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused]))] },
     ],
     ..CardSpec::NONE
 };
 
 pub static IMPL: CardImpl = SPEC.card_impl();
-
-/// The choice among the Supporters in the opponent's hand (none is also an answer).
-fn choose_supporter(g: &mut Game, me: CardId, f: &mut Frame) -> R<Flow> {
-    let p = f.p as usize;
-    let opp = 1 - p;
-    let mut filter = Filter::super_type(SuperType::Trainer);
-    filter.trainer_type = Some(TrainerType::Supporter as u8);
-    let mut opts = ChooseCardsOpts::new(0, 1, false);
-    if f.cards[0] != NONE {
-        let tried: Vec<CardId> = g.lst(ListRef::Temp(f.cards[0])).to_vec();
-        for (i, c) in g.st.players[opp].hand.iter().enumerate() {
-            if tried.contains(&c) {
-                opts.blocked.push(i as u8);
-            }
-        }
-    }
-    choose_cards(g, p, "CHOOSE_CARD_TO_COPY_EFFECT", ListRef::Hand(opp as u8), filter, opts, f.cont(me, 1));
-    Ok(Flow::Suspend)
-}
-
-fn copy_effect(g: &mut Game, me: CardId, f: &mut Frame, results: &[Res]) -> R<Flow> {
-    let p = f.p as usize;
-    let Some(card) = results.first().and_then(|r| r.cards().first().copied()) else { return Ok(Flow::Next) };
-    let r = crate::engine::play_trainer::use_effect(g, p, card, f.cause);
-    match r {
-        Ok(_) => Ok(Flow::Next),
-        // A GameError (not a TypeError) means this Supporter's effect can't be used now: choose another.
-        Err(e) if !e.0.starts_with("TypeError") => {
-            if f.cards[0] == NONE {
-                if let ListRef::Temp(i) = g.alloc_temp(&[]) {
-                    f.cards[0] = i;
-                }
-            }
-            let list = ListRef::Temp(f.cards[0]);
-            let mut tried: Vec<CardId> = g.lst(list).to_vec();
-            tried.push(card);
-            g.lst_mut(list).set_from(&tried);
-            choose_supporter(g, me, f)
-        }
-        Err(e) => Err(e),
-    }
-}

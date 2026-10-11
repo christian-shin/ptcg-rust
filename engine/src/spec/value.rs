@@ -131,6 +131,10 @@ pub enum CmpOp {
 }
 
 pub enum Cond {
+    /// A printed condition of a Trainer ("You can use this card only if ...", "You can't use this card during your first
+    /// turn"): true when the condition is. Unlike the rest of `PlaySpec::needs` (what usability derives), it binds a
+    /// Trainer whose effect another card uses (Look-Alike Show; user decision D5; official JP FAQ, Fire Energy MEE 2 / Mela).
+    Printed(&'static Cond),
     True,
     False,
     Not(&'static Cond),
@@ -516,6 +520,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::ThisMovedToActive => g.st.players[f.p as usize].moved_to_active_this_turn.contains(&me),
         Cond::Done => f.outcome.did(),
         Cond::DidAll => f.outcome == super::run::Outcome::Done,
+        Cond::Printed(c) => cond(g, me, f, c),
         Cond::StadiumInPlay(p) => g.st.stadium_card().map(|c| pred(g, c, p)).unwrap_or(false),
         Cond::TrainerTargetOk(_) => panic!("Cond::TrainerTargetOk needs a checked read (cond_m)"),
         Cond::RareCandyUsable => panic!("Cond::RareCandyUsable needs a checked read (cond_m)"),
@@ -1096,6 +1101,7 @@ pub fn cond_stable(c: &Cond) -> bool {
 pub fn cond_m(g: &mut Game, me: CardId, f: &Frame, c: &Cond) -> R<bool> {
     Ok(match c {
         Cond::Not(c) => !cond_m(g, me, f, c)?,
+        Cond::Printed(c) => cond_m(g, me, f, c)?,
         Cond::All(cs) => {
             for c in cs.iter() {
                 if !cond_m(g, me, f, c)? {
