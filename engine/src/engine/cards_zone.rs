@@ -176,9 +176,9 @@ pub fn relocate_spot(g: &mut Game, spot: crate::effects::SlotRef, dst: ListRef) 
 }
 
 /// What follows every card move (today's timing, B7; batch 8 narrows it to moves in and out of play and the Stadium):
-/// the derived layer is stale and the Ability-lock stamps are re-synced.
+/// a write (the derived facts are stale) and the Ability-lock stamps are re-synced.
 pub fn settle(g: &mut Game) {
-    g.derived.invalidate();
+    g.st.bump();
     crate::spec::passive::lock_sync(g);
 }
 

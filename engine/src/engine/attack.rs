@@ -123,8 +123,8 @@ pub fn provided_energy_read(g: &mut Game, p: usize, source: SlotRef) -> R<Energy
 /// The cost reads of an attack (`CheckAttackCost`, then `CheckProvidedEnergy`
 /// for the attacker) and whether the Energy covers the cost.
 pub fn attack_payable(g: &mut Game, p: usize, attack: AttackRef, attacking: SlotRef) -> R<bool> {
-    let cost = attack_cost_read(g, p, attack)?;
-    let emap = provided_energy_read(g, p, attacking)?;
+    let cost = crate::derived::attack_cost(g, p, attack)?;
+    let emap = crate::derived::provided_energy(g, p, attacking)?;
     Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))
 }
 
@@ -360,20 +360,8 @@ fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
             }
         }
     }
-    let mut cost: Cost = SVec::new();
-    for &c in ad.cost {
-        cost.push(c);
-    }
-    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: f.p, attack: f.attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: f.p, source: attacking, energy_map: SVec::new() })?;
-    let cost = match ce {
-        Effect::CheckAttackCost { cost, .. } => cost,
-        _ => SVec::new(),
-    };
-    let emap = match pe {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    };
+    let cost = crate::derived::attack_cost(g, f.p as usize, f.attack)?;
+    let emap = crate::derived::provided_energy(g, f.p as usize, attacking)?;
     Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))
 }
 
@@ -433,7 +421,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
 /// sees; a lock refuses it (B7-OLD -> B8: `Effect::Power { probe }`, until has-no-Ability is a stored derived fact read
 /// through `derived::has_no_ability`).
 pub fn power_use_blocked(g: &mut Game, p: usize, power: PowerRef, card: CardId) -> bool {
-    g.run_fx(Effect::Power { p: p as u8, power, card, target: None, probe: true }).is_err()
+    debug_assert_eq!(power.card, card);
+    crate::derived::has_no_ability(g, p, card, Some(power.index))
 }
 
 pub fn start_use_power(g: &mut Game, id: EffId) -> R {

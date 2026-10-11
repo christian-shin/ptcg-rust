@@ -84,11 +84,11 @@ pub fn retreat_cost_read(g: &mut Game, p: usize) -> R<Cost> {
 /// (`CheckProvidedEnergy`; the map is empty otherwise, as no read is run).
 pub fn retreat_read(g: &mut Game, p: usize) -> R<(Cost, EnergyMap)> {
     let active = g.st.players[p].active;
-    let cost = retreat_cost_read(g, p)?;
+    let cost = crate::derived::retreat_cost(g, p)?;
     if cost.is_empty() {
         return Ok((cost, SVec::new()));
     }
-    let map = crate::engine::attack::provided_energy_read(g, p, SlotRef::new(p, active))?;
+    let map = crate::derived::provided_energy(g, p, SlotRef::new(p, active))?;
     Ok((cost, map))
 }
 

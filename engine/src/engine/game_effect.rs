@@ -113,16 +113,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Ok(())
         }
         Effect::ApplyWeakness { b, damage, ignore_weakness, ignore_resistance } => {
-            let (t, _) = g.run_fx(Effect::CheckPokemonType { target: b.source, card_types: pokemon_types(g, b.source) })?;
-            let (s, _) = g.run_fx(stats_effect(g, b.target))?;
-            let types = match t {
-                Effect::CheckPokemonType { card_types, .. } => card_types,
-                _ => SVec::new(),
-            };
-            let (w, r) = match s {
-                Effect::CheckPokemonStats { weakness, resistance, .. } => (weakness, resistance),
-                _ => (SVec::new(), SVec::new()),
-            };
+            let types = crate::derived::types(g, b.source)?;
+            let (w, r) = crate::derived::weakness_resistance(g, b.target)?;
             let weak: &[WeaknessV] = if ignore_weakness { &[] } else { w.as_slice() };
             let res: &[ResistanceV] = if ignore_resistance { &[] } else { r.as_slice() };
             let dmg = apply_weakness_and_resistance(damage, types.as_slice(), weak, res);

@@ -362,7 +362,7 @@ fn festival_lead_flag(g: &mut Game, f: &Frame, me: CardId, pristine_has_key: boo
         Effect::Attack { attack, .. } => attack.idx(),
         _ => return,
     };
-    let on = !crate::prefabs::is_ability_blocked(g, f.p as usize, me, None) && g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
+    let on = !crate::derived::has_no_ability(g, f.p as usize, me, None) && g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
     crate::copy_attack::write_barrage(g, me, |b, shown| {
         if on {
             *b |= 1 << idx;

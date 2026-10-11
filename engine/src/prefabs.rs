@@ -214,13 +214,11 @@ pub fn for_each_pokemon(g: &Game, p: usize, player_type: PlayerType) -> SVec<(Sl
 /// (CheckProvidedEnergyEffect); an Energy that provides every type (Legacy Energy, Prism Energy on a Basic Pokémon)
 /// is a [R] Energy, a [W] Energy, ... for every "[X] Energy" in card text (Advanced Rulebook D-08).
 pub fn energy_cards_that_provide_type(g: &mut Game, p: usize, s: SlotId, ty: CardType) -> R<SVec<CardId, 64>> {
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: SlotRef::new(p, s), energy_map: SVec::new() })?;
+    let energy_map = crate::derived::provided_energy(g, p, SlotRef::new(p, s))?;
     let mut cards: SVec<CardId, 64> = SVec::new();
-    if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-        for m in energy_map.iter() {
-            if (m.provides.contains(&ty) || m.provides.contains(&ct::ANY)) && !cards.contains(&m.card) {
-                cards.push(m.card);
-            }
+    for m in energy_map.iter() {
+        if (m.provides.contains(&ty) || m.provides.contains(&ct::ANY)) && !cards.contains(&m.card) {
+            cards.push(m.card);
         }
     }
     Ok(cards)

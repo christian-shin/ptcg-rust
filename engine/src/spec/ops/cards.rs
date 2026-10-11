@@ -1141,9 +1141,8 @@ fn blocked_to(g: &mut Game, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> 
         TargetScan::EffectiveTypes(types) => {
             for (slot, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
                 let target = SlotRef::new(p, slot);
-                let now = crate::engine::game_effect::pokemon_types(g, target);
-                let (te, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: now })?;
-                let ok = matches!(te, Effect::CheckPokemonType { card_types, .. } if types.iter().any(|x| card_types.contains(x)));
+                let card_types = crate::derived::types(g, target)?;
+                let ok = types.iter().any(|x| card_types.contains(x));
                 if !ok {
                     out.push(t);
                 }
@@ -1160,9 +1159,7 @@ fn blocked_to(g: &mut Game, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> 
                     continue;
                 }
                 let target = SlotRef::new(p, s);
-                let types = crate::engine::game_effect::pokemon_types(g, target);
-                let (t, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: types })?;
-                let ok = matches!(t, Effect::CheckPokemonType { card_types, .. } if card_types.contains(&want));
+                let ok = crate::derived::types(g, target)?.contains(&want);
                 if !ok {
                     out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, index as u8));
                 }
@@ -1721,11 +1718,7 @@ fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) ->
 
 /// The Energy a Pokémon provides, as the game checks it.
 fn provided_energy(g: &mut Game, slot: SlotRef) -> R<SVec<crate::effects::EnergyEntry, 64>> {
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: slot.p, source: slot, energy_map: SVec::new() })?;
-    Ok(match pe {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    })
+    crate::derived::provided_energy(g, slot.p as usize, slot)
 }
 
 // DiscardEnergy::Choose
@@ -2505,11 +2498,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
         }
         EnergySelection::Cost { n, ty } => {
             let n = num_m(g, me, f, n)?.max(0);
-            let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: src, energy_map: SVec::new() })?;
-            let energy = match pe {
-                Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-                _ => SVec::new(),
-            };
+            let energy = crate::derived::provided_energy(g, p as usize, src)?;
             let mut cost = SVec::new();
             for _ in 0..n {
                 cost.push(*ty);
@@ -2523,11 +2512,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                 return Ok(Flow::Next);
             }
             let cards: Vec<CardId> = if *provided {
-                let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source: src, energy_map: SVec::new() })?;
-                match pe {
-                    Effect::CheckProvidedEnergy { energy_map, .. } => energy_map.iter().map(|m| m.card).collect(),
-                    _ => Vec::new(),
-                }
+                crate::derived::provided_energy(g, p as usize, src)?.iter().map(|m| m.card).collect()
             } else {
                 ec_energy_cards(g, src, EnergyKind::Any)?
             };

@@ -649,11 +649,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 /// Rare Candy counts as evolving (id1045).
 fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause) -> R {
     use crate::markers::*;
-    let (e, _) = g.run_fx(Effect::CheckSpecialConditionRemoval { p: p as u8, target, preserved: SVec::new() })?;
-    let preserved = match e {
-        Effect::CheckSpecialConditionRemoval { preserved, .. } => preserved,
-        _ => SVec::new(),
-    };
+    let preserved = crate::derived::preserved_conditions(g, p, target)?;
     // player.removePokemonEffects(target)
     g.st.players[p].marker.remove(KNOCKOUT_MARKER);
     g.st.players[p].marker.remove(CLEAR_KNOCKOUT_MARKER);

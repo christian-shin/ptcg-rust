@@ -659,7 +659,7 @@ impl State {
             bench_size_change_handled: false,
             players_added: 2,
             ability_lock_order_counter: 0,
-            version: 0,
+            version: 1,
             layout_gen: 0,
             at: [Loc::NONE; MAX_CARDS],
         }
@@ -668,14 +668,15 @@ impl State {
     /// A write happened: facts derived at the previous version are stale (`derived.rs`).
     #[inline]
     pub fn bump(&mut self) {
-        self.version = self.version.wrapping_add(1);
+        // 0 marks an empty memo entry (`derived.rs`).
+        self.version = self.version.wrapping_add(1).max(1);
     }
 
     /// A card entered or left a zone list, a list was reordered, or the Active / Bench layout changed (also a write).
     #[inline]
     pub fn bump_layout(&mut self) {
         self.layout_gen = self.layout_gen.wrapping_add(1);
-        self.version = self.version.wrapping_add(1);
+        self.version = self.version.wrapping_add(1).max(1);
     }
 
     /// Card `c` was put into the list `r` (a hint for [`State::locate`]).

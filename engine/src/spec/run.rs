@@ -347,6 +347,14 @@ pub enum Flow {
 /// The spec being run for `me`: its own, or, while a copied attack runs the
 /// source card's text as the copycat's (`copy_attack.rs` delegation), the
 /// source's.
+/// Does the power have a program (a `PowerSpec`): would a `Power` effect for it run anything?
+pub fn power_has_program(g: &Game, power: crate::effects::PowerRef) -> bool {
+    if power.card as usize >= crate::state::MAX_CARDS {
+        return false;
+    }
+    crate::cards::spec_for(g.st.cards[power.card as usize].def).map_or(false, |s| s.powers.iter().any(|pw| pw.index == power.index))
+}
+
 fn spec_of(g: &Game, me: CardId) -> &'static CardSpec {
     let card = match g.deleg {
         Some(d) if d.copycat == me => d.source,

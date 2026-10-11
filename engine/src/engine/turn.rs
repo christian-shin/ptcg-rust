@@ -139,7 +139,7 @@ pub fn assemble_available_attacks(g: &Game, p: usize, checked: &CheckedAttacks) 
 
 /// Attacks available to the active player (the read, then the list).
 pub fn available_attacks(g: &mut Game, p: usize) -> R<SVec<(AttackRef, bool), 64>> {
-    let checked = read_attack_list(g, p)?;
+    let checked = crate::derived::attacks(g, p)?;
     Ok(assemble_available_attacks(g, p, &checked))
 }
 
@@ -227,15 +227,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
         Action::UseAbility { name, target } => {
             let card = ability_source(g, p, target)?;
             if let Some(c) = card {
-                let mut powers = SVec::new();
-                for i in 0..g.st.cdef(c).powers.len() {
-                    powers.push(PowerRef { card: c, index: i as u8 });
-                }
-                let (e, _) = g.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: c, powers })?;
-                let powers = match e {
-                    Effect::CheckPokemonPowers { powers, .. } => powers,
-                    _ => SVec::new(),
-                };
+                let powers = crate::derived::powers(g, p, c)?;
                 let power = match powers.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
                     Some(r) => *r,
                     None => crate::bail!("UNKNOWN_POWER"),

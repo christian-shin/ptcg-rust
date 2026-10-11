@@ -226,7 +226,7 @@ impl crate::engine::turn_action::ActionChecks for Ctx<'_> {
     }
     fn payable(&mut self, attack_ref: AttackRef, slot: SlotRef) -> crate::game::R<bool> {
         let p = self.p;
-        let Ok(cost) = attack::attack_cost_read(self.sc(), p, attack_ref) else { return Ok(false) };
+        let Ok(cost) = crate::derived::attack_cost(self.sc(), p, attack_ref) else { return Ok(false) };
         let Ok(map) = self.provided(slot.s) else { return Ok(false) };
         Ok(crate::energy::check_enough_energy(map.as_slice(), cost.as_slice()))
     }
@@ -371,6 +371,7 @@ fn fast_trainer(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool>
             crate::list::mark_all(sc.st.players[p].supporter.as_slice());
             sc.st.players[p].hand = hand;
             sc.st.players[p].supporter = supporter;
+            sc.st.bump_layout();
             crate::list::mark_all(hand.as_slice());
             crate::list::mark_all(supporter.as_slice());
             Some(ok)
@@ -474,16 +475,11 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
     }
     // The powers the card has now (CheckPokemonPowers).
     if g.kinds_present.has(k::CHECK_POKEMON_POWERS) {
-        let mut powers: SVec<PowerRef, 8> = SVec::new();
-        for i in 0..g.st.cdef(card).powers.len() {
-            powers.push(PowerRef { card, index: i as u8 });
-        }
-        match ctx.sc().run_fx(Effect::CheckPokemonPowers { p: p as u8, target: card, powers }) {
-            Ok((Effect::CheckPokemonPowers { powers: after, .. }, _)) => match after.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
+        match crate::derived::powers(ctx.sc(), p, card) {
+            Ok(after) => match after.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
                 Some(r) => power = *r,
                 None => return Some(false),
             },
-            Ok(_) => {}
             Err(_) => return Some(false),
         }
     }

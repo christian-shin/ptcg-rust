@@ -915,7 +915,7 @@ fn locate_slow(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
 /// is the Pokémon the effect is about (a Stadium's probe is per Pokémon).
 pub(crate) fn blocked(g: &mut Game, me: CardId, origin: RuleSource, at: Located, affected: Option<SlotRef>) -> bool {
     match origin {
-        RuleSource::Ability => is_ability_blocked(g, at.owner, me, None),
+        RuleSource::Ability => crate::derived::has_no_ability(g, at.owner, me, None),
         RuleSource::Tool => is_tool_blocked(g, at.owner, me),
         RuleSource::Energy => match at.held {
             Some(held) => is_special_energy_blocked(g, at.owner, me, held, false),
@@ -984,7 +984,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
             let player = target.p as usize;
             // Today's behavior: the Ability's lock probe is made for the checked Pokémon's owner, first.
-            if is_ability_blocked(g, player, me, None) {
+            if crate::derived::has_no_ability(g, player, me, None) {
                 return Ok(());
             }
             let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
@@ -1450,7 +1450,7 @@ fn is_locked(g: &mut Game, me: CardId, card: CardId, l: &AbilityLockSpec) -> R<b
     }
     match l.probe {
         LockerProbe::Generic => {
-            if !slot_pred_m(g, me, slot, &l.slot)? || is_ability_blocked(g, owner, me, None) {
+            if !slot_pred_m(g, me, slot, &l.slot)? || crate::derived::has_no_ability(g, owner, me, None) {
                 return Ok(false);
             }
         }
@@ -2147,7 +2147,7 @@ fn source_ability_on(g: &mut Game, owner: usize, me: CardId) -> bool {
     match off {
         Some(off) if !verify_ability_off() => !off,
         _ => {
-            let blocked = is_ability_blocked(g, owner, me, None);
+            let blocked = crate::derived::has_no_ability(g, owner, me, None);
             if let Some(off) = off {
                 assert_eq!(off, blocked, "ability_off differs from the lock probe for card {me}");
             }
@@ -2581,7 +2581,7 @@ fn lock_has_ability(g: &mut Game, c: CardId, p: &Passive, owner: usize) -> bool 
     match &p.modifier {
         Modifier::ActiveLock(_) => real(g, 0),
         Modifier::AbilityLock(l) => match l.probe {
-            LockerProbe::Generic => !is_ability_blocked(g, owner, c, None),
+            LockerProbe::Generic => !crate::derived::has_no_ability(g, owner, c, None),
             LockerProbe::OwnPower(i) => real(g, i),
             LockerProbe::StadiumOnSlot => true,
         },
@@ -2694,6 +2694,8 @@ pub(crate) fn lock_sync(g: &mut Game) {
             let stamp = g.st.cards[c as usize].lock_stamp;
             if !holds && stamp != 0 {
                 g.st.cards[c as usize].lock_stamp = 0;
+                // A stamp is a fact the locks read (a write: `State::version`).
+                g.st.bump();
                 changed = true;
             } else if holds && stamp == 0 {
                 taking.push(c);
@@ -2703,6 +2705,7 @@ pub(crate) fn lock_sync(g: &mut Game) {
         for c in taking {
             g.st.ability_lock_order_counter = g.st.ability_lock_order_counter.saturating_add(1);
             g.st.cards[c as usize].lock_stamp = g.st.ability_lock_order_counter;
+            g.st.bump();
             changed = true;
         }
         if !changed {

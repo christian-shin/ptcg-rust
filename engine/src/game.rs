@@ -401,8 +401,8 @@ impl Game {
             f!((*d).lock_syncing).write(*lock_syncing);
             // The index comes along with the layout it describes (each entry carries its own generation).
             f!((*d).dispatch).write(*dispatch);
-            // The derived facts are not copied: the copy starts stale.
-            (*d).derived.invalidate();
+            // The derived facts are not copied: another line of play may reach the same version numbers.
+            (*d).derived.clear();
         }
     }
 }
@@ -1119,7 +1119,14 @@ impl Game {
 
     /// `Store.reduceEffect`.
     pub fn reduce_effect(&mut self, id: EffId) -> R {
-        self.st.bump();
+        // A read (a check effect, a probe) writes nothing a fact reads: the derived facts stay fresh through it.
+        let read = match *self.e(id) {
+            Effect::Power { probe: false, power, .. } => !crate::spec::run::power_has_program(self, power),
+            ref e => e.is_read(),
+        };
+        if !read {
+            self.st.bump();
+        }
         if let Effect::Attack { p, source, attack, .. } = *self.e(id) {
             self.ten_hp = SVec::new();
             self.ten_hp_coin = SVec::new();
@@ -1161,6 +1168,10 @@ impl Game {
             return Ok(());
         }
 
+        if !read {
+            // The handlers ran (they may write); the reducers below write the event's consequences.
+            self.st.bump();
+        }
         phase::reducer(self, id)?;
         if matches!(kind, k::GAIN_CONDITION | k::REMOVE_CONDITION | k::HEAL | k::COIN_FLIP) {
             crate::engine::condition::reducer(self, id)?;
@@ -1196,9 +1207,6 @@ impl Game {
         crate::engine::game_effect::reducer(self, id)?;
         attack::reducer(self, id)?;
         check::check_state_reducer(self, id)?;
-        if crate::derived::INVALIDATING_KINDS.has(kind) {
-            self.derived.invalidate();
-        }
         if matches!(
             kind,
             k::DISCARD
@@ -1218,7 +1226,9 @@ impl Game {
             // Only when an attached card can turn a lock source's Ability on or off.
             crate::spec::passive::lock_sync_attached(self);
         }
-        self.st.bump();
+        if !read {
+            self.st.bump();
+        }
         if crate::spec::event::EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
         }
@@ -1279,6 +1289,7 @@ impl Game {
     }
 
     fn after_dispatch(&mut self) -> R {
+        self.st.bump();
         self.resolve_wait_items()?;
         if self.items.is_empty() {
             crate::engine::knockout::state_check(self, OnComplete::None)?;
@@ -1302,6 +1313,7 @@ impl Game {
         self.st.bump();
         let r = self.reduce_prompt(id, result);
         if r.is_ok() && self.items.is_empty() {
+            self.st.bump();
             let r2 = crate::engine::knockout::state_check(self, OnComplete::None);
             self.gc();
             return r2;

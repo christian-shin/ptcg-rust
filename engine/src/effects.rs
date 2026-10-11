@@ -335,6 +335,31 @@ impl Effect {
         }
     }
 
+    /// A read: a check effect or a probe, which writes nothing a derived fact reads (its handlers adjust the effect; the HP
+    /// read also leaves `Slot::hp_bonus`). `Game::reduce_effect` doesn't bump `State::version` for one; it also takes a
+    /// `Power` effect for a power with no program as one (a lock's "a real use of its own power" probe runs nothing).
+    pub fn is_read(&self) -> bool {
+        use Effect::*;
+        match self {
+            CheckHp { .. }
+            | CheckPokemonStats { .. }
+            | CheckPokemonType { .. }
+            | CheckRetreatCost { .. }
+            | CheckAttackCost { .. }
+            | CheckProvidedEnergy { .. }
+            | CheckPokemonPowers { .. }
+            | CheckPokemonAttacks { .. }
+            | CheckSpecialConditionRemoval { .. }
+            | EffectOfAbility { .. }
+            | SpecialEnergy { .. }
+            | Energy { .. }
+            | Tool { .. }
+            | Stadium { .. } => true,
+            Power { probe: true, .. } => true,
+            _ => false,
+        }
+    }
+
     pub fn atk_base(&self) -> Option<&AtkBase> {
         use Effect::*;
         match self {

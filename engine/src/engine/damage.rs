@@ -229,9 +229,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             g.st.cards[card as usize].damage_taken_last_turn += amount;
             // The survive-on-10 replacement a full-HP Pokémon's effect armed in the calculation (its remaining HP is 10).
             if survive {
-                g.st.players[tp].slots[ts as usize].hp_bonus = 0;
-                g.run_fx_unit(Effect::CheckHp { p: b.player, target: t, card: Some(card) })?;
-                let hp = crate::engine::check::hp_of(g, tp, ts, Some(card));
+                // The damage was just placed: the HP is read after it (a write).
+                g.st.bump();
+                let hp = crate::derived::hp(g, tp, ts)?;
                 if g.st.slot(tp, ts).damage >= hp {
                     survive_on_10(g, t, hp);
                 }

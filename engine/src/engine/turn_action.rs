@@ -76,7 +76,7 @@ impl ActionChecks for Game {
         crate::derived::event_locked(self, v)
     }
     fn energy_count(&mut self, slot: SlotRef) -> R<i32> {
-        let map = crate::engine::attack::provided_energy_read(self, slot.p as usize, slot)?;
+        let map = crate::derived::provided_energy(self, slot.p as usize, slot)?;
         Ok(crate::engine::attack::max_energy_count(&map))
     }
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool> {

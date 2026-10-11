@@ -67,13 +67,11 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
                 _ => unreachable!(),
             };
             if any_reduction && cost_now.len() > 0 {
-                let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p, source: SlotRef::new(p as usize, a), energy_map: SVec::new() })?;
+                let energy_map = crate::derived::provided_energy(g, p as usize, SlotRef::new(p as usize, a))?;
                 let mut available: Vec<CardType> = Vec::new();
-                if let Effect::CheckProvidedEnergy { energy_map, .. } = pe {
-                    for en in energy_map.iter() {
-                        for t in en.provides.iter() {
-                            available.push(*t);
-                        }
+                for en in energy_map.iter() {
+                    for t in en.provides.iter() {
+                        available.push(*t);
                     }
                 }
                 let mut contained: Vec<CardType> = Vec::new();
