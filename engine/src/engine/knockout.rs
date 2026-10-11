@@ -492,6 +492,69 @@ fn attribution(g: &Game, t: SlotRef, by_hp: bool) -> (KoBy, Cause) {
     (KoBy::Other, by_state_check(owner))
 }
 
+/// The table-state step of the state check (batch 8 C3c; it was the CheckTableState effect): in the propagation order of
+/// the declaring cards (`decl::fam::TABLE_STATE`, any zone: each checks where its card is), the Bench size each
+/// player's Stadium rule gives (`BenchSize`), the recoveries ("recovers from all Special Conditions": `Recover`; a
+/// Pokémon protected from a condition it has, id289: `recover_protected`), an Energy on a Pokémon it can't be on is
+/// discarded (`AttachGuard`); then the Ability-lock stamps are re-synced. Returns the Bench sizes.
+pub(crate) fn table_state(g: &mut Game) -> R<[u8; 2]> {
+    use crate::spec::passive::{self, Modifier};
+    let mut sizes = [5u8, 5];
+    let order = crate::decl::all(g, crate::decl::fam::TABLE_STATE, 0);
+    if !order.is_empty() {
+        let saved = g.deleg.take();
+        let r = (|| -> R {
+            for c in order.iter().copied() {
+                for ps in crate::decl::passives(g, c) {
+                    match &ps.modifier {
+                        Modifier::BenchSize(d) => passive::bench_size_into(g, c, ps.origin, d, &mut sizes),
+                        Modifier::Recover(r) => passive::recover_now(g, c, ps.origin, r)?,
+                        Modifier::AttachGuard(a) => passive::attach_guard_now(g, c, a)?,
+                        Modifier::Prevent(p) if passive::prevention_recovers(p) => {
+                            if g.st.any_special_condition() {
+                                passive::recover_protected(g, c, ps.origin, p)?;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            Ok(())
+        })();
+        g.deleg = saved;
+        r?;
+    }
+    g.st.bump();
+    passive::lock_sync(g);
+    Ok(sizes)
+}
+
+/// The Prize adjustments of the KnockOut `id` ("takes N more / fewer Prize cards": `PrizeAdjust`, Legacy Energy's
+/// `PrizeAdjustOnce`; batch 8 C3c, they were the KnockOut's dispatch handlers), in the propagation order of the
+/// declaring cards (any zone: each checks where its card is), before the event is produced.
+fn prize_adjustments(g: &mut Game, id: EffId) -> R {
+    use crate::spec::passive::{self, Modifier};
+    let order = crate::decl::all(g, crate::decl::fam::PRIZE, 0);
+    if order.is_empty() {
+        return Ok(());
+    }
+    let saved = g.deleg.take();
+    let r = (|| -> R {
+        for c in order.iter().copied() {
+            for ps in crate::decl::passives(g, c) {
+                match &ps.modifier {
+                    Modifier::PrizeAdjust(d) => passive::prize_adjust(g, c, id, ps.origin, d)?,
+                    Modifier::PrizeAdjustOnce(d) => passive::prize_adjust_once(g, c, id, ps.origin, d)?,
+                    _ => {}
+                }
+            }
+        }
+        Ok(())
+    })();
+    g.deleg = saved;
+    r
+}
+
 /// Every Knock Out is announced while all Pokémon are still in play (a Pokémon Knocked
 /// Out at the same time still has its Ability: ruling 1623), then they leave play and
 /// the Prizes are counted (R7F-16).
@@ -501,6 +564,7 @@ fn ko_loop(g: &mut Game, mut f: CheckFrame) -> R {
         let by_hp = *f.by_hp.get(f.idx as usize).unwrap();
         let (ko_by, cause) = attribution(g, t, by_hp);
         let id = g.new_fx(Effect::KnockOut { p: t.p, target: t, prize_count: 1, prize_base: 1, ko_by, cause });
+        prize_adjustments(g, id)?;
         g.reduce_effect(id)?;
         f.ko_fx = id;
         if g.has_prompts() {
@@ -549,11 +613,7 @@ fn finish_ko(g: &mut Game, f: &mut CheckFrame) {
 }
 
 fn after_kos(g: &mut Game, mut f: CheckFrame) -> R {
-    let (e, _) = g.run_fx(Effect::CheckTableState { bench_sizes: [5, 5] })?;
-    let sizes = match e {
-        Effect::CheckTableState { bench_sizes } => bench_sizes,
-        _ => [5, 5],
-    };
+    let sizes = table_state(g)?;
     handle_bench_size_change(g, sizes);
     if g.has_prompts() {
         f.stage = CheckStage::AfterBenchSize;
@@ -931,6 +991,7 @@ pub fn setup_sudden_death_game(g: &mut Game, first: u8) -> R {
     g.st.turn = 0;
     g.st.phase = GamePhase::Setup;
     g.st.is_sudden_death = true;
+    g.st.bump();
     crate::engine::setup::start(g)
 }
 

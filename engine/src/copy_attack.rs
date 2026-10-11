@@ -506,6 +506,7 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                 // cannot be used after all (its own conditions): choose another.
                 Err(e) if !e.0.starts_with("TypeError") => {
                     g.st.phase = phase;
+                    g.st.bump();
                     let index = f.cards.iter().position(|c| *c == a.card).unwrap_or(0) as u8;
                     let mut nf = f;
                     push_blocked(&mut nf.blocked, (index, a.idx() as u8));

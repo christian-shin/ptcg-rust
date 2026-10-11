@@ -17,6 +17,8 @@ pub fn end_game(g: &mut Game, winner: Winner) {
     }
     g.st.winner = winner;
     g.st.phase = GamePhase::Finished;
+    // The game flow's writes are writes too (the derived facts are stale: `State::version`).
+    g.st.bump();
     crate::expect::on_game_end(g);
 }
 
@@ -32,12 +34,15 @@ pub fn init_next_turn(g: &mut Game) -> R {
     g.st.turn += 1;
     g.st.players[p].moved_to_active_this_turn.clear();
     g.st.players[p].moved_from_active_to_bench_this_turn.clear();
+    g.st.bump();
 
     if g.st.turn == 1 && !g.st.rules.first_turn_draw_card {
         g.st.phase = GamePhase::PlayerTurn;
+        g.st.bump();
         return Ok(());
     }
     g.st.phase = GamePhase::Draw;
+    g.st.bump();
     if g.st.players[p].deck.is_empty() {
         let winner = if g.st.active_player != 0 { WINNER_P1 } else { WINNER_P2 };
         crate::engine::knockout::game_end(g, winner, crate::engine::knockout::EndReason::DeckOut);
@@ -65,6 +70,7 @@ pub fn between_turns(g: &mut Game, oc: OnComplete) -> R {
     let entered = g.st.phase == GamePhase::PlayerTurn || g.st.phase == GamePhase::Attack;
     if entered {
         g.st.phase = GamePhase::BetweenTurns;
+        g.st.bump();
         let id = g.player_id(g.st.active_player as usize);
         g.wait(id, Cont::BetweenTurnsWait { oc });
         return Ok(());

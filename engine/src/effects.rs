@@ -135,9 +135,6 @@ pub enum Effect {
     /// `copied`: the attacks of other Pokémon that the Active Pokémon uses as its own (Mew ex Memory Helix),
     /// pushed to `attacks` as well; the source is `AttackRef::card`.
     CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32>, copied: SVec<AttackRef, 32> },
-    /// B6-OLD -> batch 8 (Bench size and Prize count adjustments from the derived layer).
-    CheckTableState { bench_sizes: [u8; 2] },
-    CheckSpecialConditionRemoval { p: u8, target: SlotRef, preserved: SVec<u8, 5> },
 
     // ---- game ----
     Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
@@ -286,8 +283,6 @@ impl Effect {
             CheckProvidedEnergy { .. } => "CHECK_ENOUGH_ENERGY_EFFECT",
             CheckPokemonPowers { .. } => "CHECK_POKEMON_POWERS_EFFECT",
             CheckPokemonAttacks { .. } => "CHECK_POKEMON_ATTACKS_EFFECT",
-            CheckTableState { .. } => "CHECK_TABLE_STATE_EFFECT",
-            CheckSpecialConditionRemoval { .. } => "CHECK_SPECIAL_CONDITION_REMOVAL_EFFECT",
             Retreat { .. } => "RETREAT_EFFECT",
             RetreatStart { .. } => "RETREAT_START_EFFECT",
             UseAttack { .. } => "USE_ATTACK_EFFECT",
@@ -341,7 +336,6 @@ impl Effect {
             | CheckProvidedEnergy { .. }
             | CheckPokemonPowers { .. }
             | CheckPokemonAttacks { .. }
-            | CheckSpecialConditionRemoval { .. }
             | Tool { .. } => true,
             Power { probe: true, .. } => true,
             _ => false,
@@ -382,8 +376,6 @@ impl Effect {
             CheckProvidedEnergy { .. } => 13,
             CheckPokemonPowers { .. } => 14,
             CheckPokemonAttacks { .. } => 15,
-            CheckTableState { .. } => 17,
-            CheckSpecialConditionRemoval { .. } => 19,
             Retreat { .. } => 20,
             RetreatStart { .. } => 21,
             UseAttack { .. } => 22,
@@ -442,8 +434,6 @@ pub mod k {
     pub const CHECK_PROVIDED_ENERGY: u32 = 13;
     pub const CHECK_POKEMON_POWERS: u32 = 14;
     pub const CHECK_POKEMON_ATTACKS: u32 = 15;
-    pub const CHECK_TABLE_STATE: u32 = 17;
-    pub const CHECK_SPECIAL_CONDITION_REMOVAL: u32 = 19;
     pub const RETREAT: u32 = 20;
     pub const RETREAT_START: u32 = 21;
     pub const USE_ATTACK: u32 = 22;
@@ -666,7 +656,8 @@ mod marker_tests {
     #[test]
     fn no_marker_is_an_effect_kind() {
         let (kinds, markers) = numbers();
-        assert!(kinds.len() > 50, "every Effect variant's kind is read ({})", kinds.len());
+        // (Batch 8 removed the probes and the table-state checks: 50 kinds left.)
+        assert!(kinds.len() >= 45, "every Effect variant's kind is read ({})", kinds.len());
         assert!(markers.len() >= 16, "the markers are read ({})", markers.len());
         for (name, v) in &markers {
             assert!(!kinds.contains(v), "k::{name} = {v} is also an effect kind");

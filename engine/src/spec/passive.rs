@@ -289,10 +289,6 @@ const fn prevent_kinds(p: &PreventSpec) -> KindMask {
         }
         i += 1;
     }
-    if prevention_recovers(p) {
-        // The recovery while the protection is in force (`recover_protected`), at the table-state check.
-        m = crate::spec::with(m, crate::effects::k::CHECK_TABLE_STATE);
-    }
     m
 }
 
@@ -789,9 +785,9 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::BlockUse(b) => block_kinds(&b.lock),
         Modifier::Reflip(_) => mask(&[k::COIN_FLIP, k::DECLARES_REFLIP]),
         Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
-        // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`).
-        Modifier::AttachGuard(_) => mask(&[k::CHECK_TABLE_STATE]),
-        Modifier::Recover(_) => mask(&[k::CHECK_TABLE_STATE]),
+        // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`); the discard and the
+        // recovery are the state check's (`knockout::table_state`, through the declaration index).
+        Modifier::AttachGuard(_) | Modifier::Recover(_) => KindMask::EMPTY,
         Modifier::AbilityLock(l) => {
             if lock_reads_attached(l) {
                 mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::DECLARES_ATTACHED_LOCK])
@@ -820,7 +816,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
         Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
         Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
-        Modifier::BenchSize(_) => mask(&[k::CHECK_TABLE_STATE]),
+        Modifier::BenchSize(_) => KindMask::EMPTY,
         _ => KindMask::EMPTY,
     }
 }
@@ -956,9 +952,11 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::BlockUse(_) => Ok(()),
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
         Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
-        Modifier::AttachGuard(a) => attach_guard(g, me, e, a),
+        // Read by the state check (`knockout::table_state`) and the Attach routine; nothing is dispatched to it.
+        Modifier::AttachGuard(_) => Ok(()),
         Modifier::AttackCost(c) => attack_cost(g, me, e, ps.origin, c),
-        Modifier::Recover(c) => recover(g, me, e, ps.origin, c),
+        // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
+        Modifier::Recover(_) => Ok(()),
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::TypeOverride(t) => {
@@ -988,27 +986,14 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             }
             Ok(())
         }
+        // The KnockOut routine reads the game's Prize adjustments (`knockout::prize_adjustments`); a copied attack's source
+        // card, run for the copycat (`copy_attack::resolve_sessions`), still reaches its own here.
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
-        Modifier::PrizeAdjustOnce(d) => {
-            let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
-            let p = p as usize;
-            if g.st.players[p].legacy_energy_used {
-                return Ok(());
-            }
-            let before = match *g.e(e) {
-                Effect::KnockOut { prize_count, .. } => prize_count,
-                _ => 0,
-            };
-            prize_adjust(g, me, e, ps.origin, d)?;
-            if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
-                g.st.players[p].legacy_energy_used = true;
-                g.st.bump();
-            }
-            Ok(())
-        }
+        Modifier::PrizeAdjustOnce(d) => prize_adjust_once(g, me, e, ps.origin, d),
         Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
         Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
-        Modifier::BenchSize(d) => bench_size(g, me, e, ps.origin, d),
+        // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
+        Modifier::BenchSize(_) => Ok(()),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }
@@ -1299,24 +1284,20 @@ pub fn attach_guard_discards(g: &mut Game, card: CardId, target: SlotRef) -> R<b
     Ok(false)
 }
 
-fn attach_guard(g: &mut Game, me: CardId, e: EffId, a: &AttachGuardSpec) -> R {
-    match *g.e(e) {
-        Effect::CheckTableState { .. } => {
-            for p in 0..2usize {
-                for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                    let t = SlotRef::new(p, s);
-                    if !g.st.slot(p, s).cards.contains(me) || crate::derived::special_energy_off(g, me) {
-                        continue;
-                    }
-                    if g.st.slot_pokemon(p, s).is_some() && !slot_pred_m(g, me, t, &a.allow)? {
-                        // "Discard this card": it leaves play by its own rule (a LeavePlay of the attached card).
-                        let cause = crate::cause::Cause::of_origin(RuleSource::Energy, me, p as u8);
-                        crate::engine::knockout::leave_play_cards(g, t, &[me], super::event::RulesZone::Discard, cause, None)?;
-                    }
-                }
+/// The Energy's own `AttachGuard` at the table-state check of the state check: attached to a Pokémon it can't be on, it
+/// is discarded ("discard this card": a LeavePlay of the attached card by its own rule).
+pub(crate) fn attach_guard_now(g: &mut Game, me: CardId, a: &AttachGuardSpec) -> R {
+    for p in 0..2usize {
+        for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
+            let t = SlotRef::new(p, s);
+            if !g.st.slot(p, s).cards.contains(me) || crate::derived::special_energy_off(g, me) {
+                continue;
+            }
+            if g.st.slot_pokemon(p, s).is_some() && !slot_pred_m(g, me, t, &a.allow)? {
+                let cause = crate::cause::Cause::of_origin(RuleSource::Energy, me, p as u8);
+                crate::engine::knockout::leave_play_cards(g, t, &[me], super::event::RulesZone::Discard, cause, None)?;
             }
         }
-        _ => {}
     }
     Ok(())
 }
@@ -1465,10 +1446,10 @@ pub(crate) fn retreat_cost_into(g: &mut Game, me: CardId, origin: RuleSource, c:
 // ---------------------------------------------------------------------------
 // Special Conditions
 
-/// "Recovers from all Special Conditions": at every table-state check, each Pokémon matching the subject recovers
-/// (one RemoveCondition per condition, by the card's effect).
-fn recover(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RecoverSpec) -> R {
-    if matches!(*g.e(e), Effect::CheckTableState { .. }) && g.st.any_special_condition() {
+/// "Recovers from all Special Conditions": at every table-state check of the state check, each Pokémon matching the
+/// subject recovers (one RemoveCondition per condition, by the card's effect).
+pub(crate) fn recover_now(g: &mut Game, me: CardId, origin: RuleSource, c: &RecoverSpec) -> R {
+    if g.st.any_special_condition() {
         let Some(at) = locate(g, me, origin) else { return Ok(()) };
         for p in 0..2usize {
             for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
@@ -1601,13 +1582,13 @@ pub const DAMP: AbilityLockSpec = AbilityLockSpec {
 /// recovers (id289: Virizion-EX's Verdant Wind removes the Special Conditions of a Pokémon affected when the
 /// protection starts; Festival Grounds and Bubbly Water Energy print it). A prevention that depends on the cause
 /// ("effects of attacks used by your opponent's Pokémon": Mist Energy, "Existing effects are not removed") doesn't.
-const fn prevention_recovers(p: &PreventSpec) -> bool {
+pub(crate) const fn prevention_recovers(p: &PreventSpec) -> bool {
     !p.from.is_never() && p.from.effect_kinds().has(crate::effects::k::GAIN_CONDITION) && !p.from.reads_cause()
 }
 
 /// The recovery of [`prevention_recovers`], at the table-state check (where `Modifier::Recover` runs): each Pokémon
 /// the declaration protects from a condition it has recovers from it (RemoveCondition by the protecting card).
-fn recover_protected(g: &mut Game, me: CardId, origin: RuleSource, p: &PreventSpec) -> R {
+pub(crate) fn recover_protected(g: &mut Game, me: CardId, origin: RuleSource, p: &PreventSpec) -> R {
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     let cause = crate::cause::Cause::of_origin(origin, me, at.owner as u8);
     for q in 0..2usize {
@@ -1628,9 +1609,6 @@ fn recover_protected(g: &mut Game, me: CardId, origin: RuleSource, p: &PreventSp
 }
 
 fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSpec) -> R {
-    if matches!(*g.e(e), Effect::CheckTableState { .. }) && g.st.any_special_condition() && prevention_recovers(p) {
-        return recover_protected(g, me, origin, p);
-    }
     // A declaration over events is read by the event's routine (`event_prevented`), not here.
     if matches!(p.what, PreventWhat::None) {
         return Ok(());
@@ -1764,7 +1742,27 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
 // ---------------------------------------------------------------------------
 // Prizes, evolution, attacks
 
-fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
+/// `PrizeAdjustOnce` (Legacy Energy): the adjustment, once per game for the Knocked Out Pokémon's player.
+pub(crate) fn prize_adjust_once(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
+    let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
+    let p = p as usize;
+    if g.st.players[p].legacy_energy_used {
+        return Ok(());
+    }
+    let before = match *g.e(e) {
+        Effect::KnockOut { prize_count, .. } => prize_count,
+        _ => 0,
+    };
+    prize_adjust(g, me, e, origin, d)?;
+    if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
+        g.st.players[p].legacy_energy_used = true;
+        g.st.bump();
+    }
+    Ok(())
+}
+
+/// `PrizeAdjust` of `me` over the KnockOut `e`: its change to the Prize count.
+pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
     let (p, target, ko_by) = match *g.e(e) {
         Effect::KnockOut { p, target, ko_by, .. } => (p as usize, target, ko_by),
         _ => return Ok(()),
@@ -2896,21 +2894,16 @@ fn guard_ok_m(g: &mut Game, me: CardId, origin: RuleSource, owner: usize, guard:
 
 /// A Benched Pokémon whose counters come from the opponent's Pokémon (Battle Cage).
 
-fn bench_size(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &BenchSizeSpec) -> R {
-    let Effect::CheckTableState { bench_sizes } = *g.e(e) else { return Ok(()) };
+/// The Bench size the Stadium's rule gives each player whose guard holds (the table-state check of the state check).
+pub(crate) fn bench_size_into(g: &mut Game, me: CardId, origin: RuleSource, d: &BenchSizeSpec, sizes: &mut [u8; 2]) {
     if locate(g, me, origin).is_none() {
-        return Ok(());
+        return;
     }
-    let mut sizes = bench_sizes;
     for (p, size) in sizes.iter_mut().enumerate() {
         if guard_ok(g, me, origin, p, &d.guard) {
             *size = d.size;
         }
     }
-    if let Effect::CheckTableState { bench_sizes } = g.e_mut(e) {
-        *bench_sizes = sizes;
-    }
-    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -3663,7 +3656,8 @@ mod prevent_marker_tests {
             for p in s.passives {
                 if let Modifier::Prevent(pr) = &p.modifier {
                     if prevention_recovers(pr) {
-                        assert!(s.card_impl().mask.has(crate::effects::k::CHECK_TABLE_STATE), "{}: the recovery is never dispatched", s.class);
+                        // Read by the state check through the declaration index (`decl::fam::TABLE_STATE`).
+                        assert_eq!(crate::decl::modifier_family(&p.modifier), Some(crate::decl::fam::TABLE_STATE), "{}: the recovery is never read", s.class);
                         recovering.push(s.class);
                     }
                 }

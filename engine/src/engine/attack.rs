@@ -153,6 +153,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
 fn begin_attack(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
     g.st.phase = GamePhase::Attack;
+    g.st.bump();
     let ad = attack_def(g, f.attack);
     let atk = g.new_fx(Effect::Attack {
         p: f.p,

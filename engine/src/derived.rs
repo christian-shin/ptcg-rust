@@ -533,10 +533,12 @@ pub fn has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<
     r
 }
 
-/// The Special Conditions the Pokémon in `target` keeps when it evolves (`CheckSpecialConditionRemoval`; read once per
-/// Evolve: not memoized).
+/// The Special Conditions the Pokémon in `target` keeps when it evolves (APR A-05: it recovers from all of them, unless a
+/// card says otherwise). No declaration in the pool keeps one (batch 8 C3c: the CheckSpecialConditionRemoval effect had
+/// no handler); a card that does needs a modifier read here.
 pub fn preserved_conditions(g: &mut Game, p: usize, target: SlotRef) -> R<SVec<u8, 5>> {
-    compute_preserved_conditions(g, p, target)
+    let _ = (g, p, target);
+    Ok(SVec::new())
 }
 
 /// The lock that forbids an event, if any (`passive::event_locked`): the one query the event's routine asks before the
@@ -825,9 +827,6 @@ pub fn special_energy_off(g: &Game, card: CardId) -> bool {
     }
     false
 }
-fn compute_preserved_conditions(g: &mut Game, p: usize, target: SlotRef) -> R<SVec<u8, 5>> {
-    slow_preserved_conditions(g, p, target)
-}
 
 // ---------------------------------------------------------------------------
 // The slow path: the check effects dispatched to the cards (kept until the batch 8 closeout as the reference).
@@ -899,11 +898,3 @@ pub fn slow_tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
     crate::prefabs::tool_probe_blocked(g, p, card)
 }
 
-/// `CheckSpecialConditionRemoval`.
-pub fn slow_preserved_conditions(g: &mut Game, p: usize, target: SlotRef) -> R<SVec<u8, 5>> {
-    let (e, _) = g.run_fx(Effect::CheckSpecialConditionRemoval { p: p as u8, target, preserved: SVec::new() })?;
-    Ok(match e {
-        Effect::CheckSpecialConditionRemoval { preserved, .. } => preserved,
-        _ => SVec::new(),
-    })
-}

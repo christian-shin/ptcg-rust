@@ -29,7 +29,12 @@ pub mod fam {
     pub const GRANT_ATTACKS: usize = 6;
     /// `Prevent` with `PreventWhat::ToolEffects` ("Pokémon Tools have no effect": Jamming Tower).
     pub const TOOLS_OFF: usize = 7;
-    pub const N: usize = 8;
+    /// What the state check's table-state step reads: `BenchSize`, `Recover`, `AttachGuard`, and a cause-free `Prevent`
+    /// over a Special Condition (the affected Pokémon recovers when it comes into force, id289).
+    pub const TABLE_STATE: usize = 8;
+    /// `PrizeAdjust`, `PrizeAdjustOnce` (read by the KnockOut routine).
+    pub const PRIZE: usize = 9;
+    pub const N: usize = 10;
 }
 
 /// The family a passive's modifier is read in, if it is one of the index's.
@@ -43,6 +48,9 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::RetreatCost(_) => fam::RETREAT_COST,
         Modifier::GrantAttacks(_) | Modifier::BenchAttacks(_) => fam::GRANT_ATTACKS,
         Modifier::Prevent(p) if matches!(p.what, crate::spec::passive::PreventWhat::ToolEffects) => fam::TOOLS_OFF,
+        Modifier::Prevent(p) if crate::spec::passive::prevention_recovers(p) => fam::TABLE_STATE,
+        Modifier::BenchSize(_) | Modifier::Recover(_) | Modifier::AttachGuard(_) => fam::TABLE_STATE,
+        Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => fam::PRIZE,
         _ => return None,
     })
 }
@@ -82,6 +90,21 @@ impl Default for DeclIndex {
 #[inline]
 pub fn passives(g: &Game, c: CardId) -> &'static [Passive] {
     crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives)
+}
+
+/// The cards of family `f`, in any zone, in the propagation order of rank class `class` (for the readers whose
+/// declarations check where their card is themselves).
+pub fn all(g: &Game, f: usize, class: u16) -> SVec<CardId, 120> {
+    let mut set = g.decls.sets[f];
+    let mut cards: SVec<CardId, 120> = SVec::new();
+    while set != 0 {
+        cards.push(set.trailing_zeros() as CardId);
+        set &= set - 1;
+    }
+    if cards.is_empty() {
+        return cards;
+    }
+    ordered(g, cards, class)
 }
 
 /// The cards of family `f` with a declaration of the family in place for its origin, in the propagation order of rank

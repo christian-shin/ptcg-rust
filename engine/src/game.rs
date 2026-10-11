@@ -917,6 +917,7 @@ impl Game {
             Cont::Setup(f) => setup::resume(self, f, results),
             Cont::PhasePlayerTurn => {
                 self.st.phase = GamePhase::PlayerTurn;
+                self.st.bump();
                 Ok(())
             }
             Cont::CheckState(f) => crate::engine::knockout::resume(self, f),
@@ -1220,7 +1221,6 @@ impl Game {
                 | k::EVOLVE
                 | k::DEVOLVE
                 | k::CHANGE_ACTIVE
-                | k::CHECK_TABLE_STATE
         ) && !(kind == k::ENTER_PLAY && self.st.phase == GamePhase::Setup)
         {
             // The Pokémon put down at setup take hold together when setup ends (`setup::finish`).
