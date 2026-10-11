@@ -1,3 +1,160 @@
 # Games of the golden corpus (tools/golden-corpus.txt) that the engine is expected to diverge on,
 # each a rules fix against the recording. Update in the same commit as a rules fix.
 # baseline 1e9b0c8 recorded 2026-10-11 after the counter-move validity fix; the previous baseline bf9d0ae's 58 attributed divergences are banked in git history
+# Events batch 7 C8b, user decision D8 (against baseline 1e9b0c8): Yanmega ex DRI 3 Buzzing Boost ("search your deck for up
+# to 3 Basic Grass Energy cards and attach them to this Pokemon. Then, shuffle your deck."; APR E-19) shuffles once after
+# attaching; the recording shuffled once per card. Each game diverges at C8b and not at C7 (both replayed locally).
+g0500000113  # step 206 obs; Buzzing Boost at step 197 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500001187  # step 138 obs; Buzzing Boost at step 132 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500001192  # step 64 obs; Buzzing Boost at step 58 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500001206  # step 71 obs; Buzzing Boost at step 65 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500001433  # step 92 obs; Buzzing Boost at step 85 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500001913  # step 78 obs; Buzzing Boost at step 69 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500003713  # step 108 obs; Buzzing Boost at step 102 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500003893  # step 88 obs; Buzzing Boost at step 84 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004788  # step 79 obs; Buzzing Boost at step 75 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004804  # step 156 obs; Buzzing Boost at step 147 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004826  # step 123 obs; Buzzing Boost at step 116 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004831  # step 143 obs; Buzzing Boost at step 140 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004836  # step 106 obs; Buzzing Boost at step 98 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004839  # step 85 obs; Buzzing Boost at step 70 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500004973  # step 72 obs; Buzzing Boost at step 29 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500006173  # step 38 obs; Buzzing Boost at step 35 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500006653  # step 124 obs; Buzzing Boost at step 113 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500007313  # step 65 obs; Buzzing Boost at step 55 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500007793  # step 92 obs; Buzzing Boost at step 84 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500008381  # step 155 obs; Buzzing Boost at step 146 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500008387  # step 86 obs; Buzzing Boost at step 74 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500008389  # step 77 obs; Buzzing Boost at step 74 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500009053  # step 158 obs; Buzzing Boost at step 150 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500009113  # step 119 obs; Buzzing Boost at step 109 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500009953  # step 33 obs; Buzzing Boost at step 28 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500010073  # step 89 obs; Buzzing Boost at step 81 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500011333  # step 119 obs; Buzzing Boost at step 103 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500011573  # step 61 obs; Buzzing Boost at step 55 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500011988  # step 115 obs; Buzzing Boost at step 110 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500011991  # step 137 obs; Buzzing Boost at step 131 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500012593  # step 77 obs; Buzzing Boost at step 73 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500012893  # step 68 obs; Buzzing Boost at step 65 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500014873  # step 49 obs; Buzzing Boost at step 45 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500015053  # step 180 obs; Buzzing Boost at step 170 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500015353  # step 97 obs; Buzzing Boost at step 93 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500015591  # step 146 obs; Buzzing Boost at step 140 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500015592  # step 168 obs; Buzzing Boost at step 157 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500015599  # step 115 obs; Buzzing Boost at step 107 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500015618  # step 205 obs; Buzzing Boost at step 188 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500015620  # step 143 obs; Buzzing Boost at step 132 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500015628  # step 76 obs; Buzzing Boost at step 71 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500015636  # step 197 obs; Buzzing Boost at step 181 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500016733  # step 264 obs; Buzzing Boost at step 255 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500017213  # step 137 obs; Buzzing Boost at step 130 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019133  # step 125 obs; Buzzing Boost at step 121 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019180  # step 150 obs; Buzzing Boost at step 144 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500019196  # step 183 obs; Buzzing Boost at step 177 attached 2 Basic Grass Energy (one shuffle, not 2)
+g0500019208  # step 117 obs; Buzzing Boost at step 111 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019209  # step 85 obs; Buzzing Boost at step 76 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019213  # step 261 obs; Buzzing Boost at step 251 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019214  # step 115 obs; Buzzing Boost at step 111 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019220  # step 26 obs; Buzzing Boost at step 19 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019228  # step 26 obs; Buzzing Boost at step 23 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019229  # step 209 obs; Buzzing Boost at step 169 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019231  # step 87 obs; Buzzing Boost at step 83 attached 3 Basic Grass Energy (one shuffle, not 3)
+g0500019973  # step 68 obs; Buzzing Boost at step 64 attached 3 Basic Grass Energy (one shuffle, not 3)
+# Events batch 7 C5, user decision D5 (against baseline 1e9b0c8): Mr. Mime TEF 63 Look-Alike Show is Op::UseTrainer: a
+# Supporter whose printed condition fails ("You can use this card only if ...") is blocked up front, any other can be
+# chosen and is used with its printed conditions only (official JP FAQ, Fire Energy MEE 2 / Mela; id2225, id2226, id2376);
+# the recording ran the effect, caught its error and asked again. Each game diverges at C5 and not at C10 (replayed locally).
+g0500000285  # step 172 prompt; Look-Alike Show: at step 172 Team Rocket's Archer now blocked up front by its printed condition
+g0500000645  # step 15 prompt; Look-Alike Show: at step 15 Cassiopeia now blocked up front by its printed condition
+g0500000721  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 171) the recording chose Briar, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500000747  # step 98 prompt; Look-Alike Show: at step 98 Gladion's Final Battle now blocked up front by its printed condition
+g0500000751  # step 28 prompt; Look-Alike Show: at step 28 Briar now blocked up front by its printed condition
+g0500000754  # step 100 obs; Look-Alike Show: at step 97 the recording chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500000758  # step 12 prompt; Look-Alike Show: at step 12 Team Rocket's Archer now blocked up front by its printed condition
+g0500000945  # step 103 obs; Look-Alike Show: at step 100 the recording chose Cook, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500001065  # end of the recording (an extra prompt); Look-Alike Show: at step 137 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500001965  # step 116 prompt; Look-Alike Show: at step 116 Rosa's Encouragement now blocked up front by its printed condition
+g0500002445  # step 159 prompt; Look-Alike Show: at step 159 Gladion's Final Battle now blocked up front by its printed condition
+g0500003585  # step 53 prompt; Look-Alike Show: at step 53 Team Rocket's Archer now blocked up front by its printed condition
+g0500004065  # step 265 prompt; Look-Alike Show: at step 264 Cook now blocked up front by its printed condition
+g0500004304  # step 15 obs; Look-Alike Show: at step 9 the recording chose Cassiopeia, Cassiopeia, Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004311  # step 77 prompt; Look-Alike Show: at step 75 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004329  # end of the recording (an extra prompt); Look-Alike Show: at step 219 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004330  # step 140 prompt; Look-Alike Show: at step 140 Rust Syndicate Grunt now blocked up front by its printed condition
+g0500004343  # end of the recording (an extra prompt); Look-Alike Show: at step 76 the recording chose Cassiopeia, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004349  # end of the recording (an extra prompt); Look-Alike Show: at step 142 the recording chose Team Rocket's Archer, Team Rocket's Archer, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004355  # step 151 prompt; Look-Alike Show: at step 151 Hassel now blocked up front by its printed condition
+g0500004485  # step 97 prompt; Look-Alike Show: at step 97 Gladion's Final Battle now blocked up front by its printed condition
+g0500004785  # step 176 prompt; Look-Alike Show: at step 176 Rust Syndicate Grunt now blocked up front by its printed condition
+g0500005265  # step 204 prompt; Look-Alike Show: at step 204 Briar now blocked up front by its printed condition
+g0500005685  # step 210 obs; Look-Alike Show: at step 204 the recording chose Wally's Compassion, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500005745  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 217) the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500006045  # step 36 prompt; Look-Alike Show: at step 36 Gladion's Final Battle now blocked up front by its printed condition
+g0500006705  # step 84 prompt; Look-Alike Show: at step 84 Gladion's Final Battle now blocked up front by its printed condition
+g0500006945  # step 67 prompt; Look-Alike Show: at step 67 Team Rocket's Archer now blocked up front by its printed condition
+g0500007065  # step 20 prompt; Look-Alike Show: at step 20 Briar, Cassiopeia now blocked up front by its printed condition
+g0500007845  # step 30 prompt; Look-Alike Show: at step 30 Cassiopeia now blocked up front by its printed condition
+g0500007910  # step 24 prompt; Look-Alike Show: at step 24 Briar now blocked up front by its printed condition
+g0500007911  # end of the recording (an extra prompt); Look-Alike Show: at step 88 the recording chose Team Rocket's Giovanni, Jacinthe, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500007912  # end of the recording (an extra prompt); Look-Alike Show: at step 25 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500007931  # step 101 obs; Look-Alike Show: at step 99 the recording chose Kofu, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500007935  # step 65 prompt; Look-Alike Show: at step 65 Hassel now blocked up front by its printed condition
+g0500007943  # step 165 prompt; Look-Alike Show: at step 165 Cassiopeia now blocked up front by its printed condition
+g0500007947  # step 111 prompt; Look-Alike Show: at step 111 Gladion's Final Battle now blocked up front by its printed condition
+g0500007951  # step 100 prompt; Look-Alike Show: at step 100 Briar, Cassiopeia now blocked up front by its printed condition
+g0500007952  # step 175 prompt; Look-Alike Show: at step 175 Iris's Fighting Spirit now blocked up front by its printed condition
+g0500008385  # step 30 prompt; Look-Alike Show: at step 30 Rust Syndicate Grunt now blocked up front by its printed condition
+g0500009165  # step 44 prompt; Look-Alike Show: at step 44 Rosa's Encouragement now blocked up front by its printed condition
+g0500009645  # step 294 obs; Look-Alike Show: at its earlier use (step 237) the recording chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500009705  # step 121 prompt; Look-Alike Show: at step 121 Hassel now blocked up front by its printed condition
+g0500009945  # step 128 prompt; Look-Alike Show: at step 128 Morty's Conviction now blocked up front by its printed condition
+g0500010005  # step 42 prompt; Look-Alike Show: at step 42 Cassiopeia now blocked up front by its printed condition
+g0500010545  # step 186 prompt; Look-Alike Show: at step 186 Team Rocket's Archer now blocked up front by its printed condition
+g0500010665  # step 77 prompt; Look-Alike Show: at step 77 Briar, Cassiopeia now blocked up front by its printed condition
+g0500011445  # step 183 obs; Look-Alike Show: at step 177 the recording chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500011521  # step 159 prompt; Look-Alike Show: at step 159 Briar now blocked up front by its printed condition
+g0500011530  # step 207 prompt; Look-Alike Show: at step 207 Gladion's Final Battle now blocked up front by its printed condition
+g0500011535  # step 123 prompt; Look-Alike Show: at step 123 Hassel now blocked up front by its printed condition
+g0500011538  # step 241 prompt; Look-Alike Show: at step 241 Cassiopeia now blocked up front by its printed condition
+g0500011547  # step 292 prompt; Look-Alike Show: at step 292 Gladion's Final Battle now blocked up front by its printed condition
+g0500011553  # step 12 prompt; Look-Alike Show: at step 12 Team Rocket's Archer now blocked up front by its printed condition
+g0500011985  # step 35 prompt; Look-Alike Show: at step 35 Rust Syndicate Grunt now blocked up front by its printed condition
+g0500012105  # step 133 prompt; Look-Alike Show: at step 133 Briar now blocked up front by its printed condition
+g0500012285  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 45) the recording chose Janine's Secret Art, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500012465  # end of the recording (an extra prompt); Look-Alike Show: at step 250 the recording chose Bianca's Devotion, Jacinthe, Briar, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500012645  # step 36 prompt; Look-Alike Show: at step 36 Morty's Conviction now blocked up front by its printed condition
+g0500012765  # step 30 prompt; Look-Alike Show: at step 30 Rosa's Encouragement now blocked up front by its printed condition
+g0500014025  # step 50 prompt; Look-Alike Show: at step 50 Gladion's Final Battle now blocked up front by its printed condition
+g0500014265  # step 180 prompt; Look-Alike Show: at step 180 Briar, Cassiopeia now blocked up front by its printed condition
+g0500014385  # step 88 prompt; Look-Alike Show: at step 88 Team Rocket's Archer now blocked up front by its printed condition
+g0500014685  # step 131 prompt; Look-Alike Show: at step 131 Team Rocket's Archer now blocked up front by its printed condition
+g0500014985  # step 91 obs; Look-Alike Show: at step 87 the recording chose Tarragon, Tarragon, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500015101  # step 49 obs; Look-Alike Show: at step 46 the recording chose Cook, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500015104  # step 22 prompt; Look-Alike Show: at step 22 Cassiopeia now blocked up front by its printed condition
+g0500015121  # step 57 prompt; Look-Alike Show: at step 57 Briar now blocked up front by its printed condition
+g0500015130  # step 225 prompt; Look-Alike Show: at step 225 Gladion's Final Battle, Rust Syndicate Grunt now blocked up front by its printed condition
+g0500015137  # step 197 obs; Look-Alike Show: at step 195 the recording chose Tarragon, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500015149  # step 134 prompt; Look-Alike Show: at step 134 Team Rocket's Archer now blocked up front by its printed condition
+g0500015153  # step 149 prompt; Look-Alike Show: at step 149 Cassiopeia now blocked up front by its printed condition
+g0500015155  # step 176 obs; Look-Alike Show: at its earlier use (step 169) the recording chose Grimsley's Move, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500015158  # step 57 prompt; Look-Alike Show: at step 57 Team Rocket's Archer now blocked up front by its printed condition
+g0500015525  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 132) the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500016305  # step 13 prompt; Look-Alike Show: at step 12 Iris's Fighting Spirit now blocked up front by its printed condition
+g0500018045  # step 78 obs; Look-Alike Show: at step 76 the recording chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500018105  # step 114 prompt; Look-Alike Show: at step 114 Hassel now blocked up front by its printed condition
+g0500018710  # step 85 prompt; Look-Alike Show: at step 85 Briar now blocked up front by its printed condition
+g0500018711  # end of the recording (an extra prompt); Look-Alike Show: at step 39 the recording chose Team Rocket's Giovanni, Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500018713  # step 45 prompt; Look-Alike Show: at step 45 Rust Syndicate Grunt now blocked up front by its printed condition
+g0500018721  # step 35 prompt; Look-Alike Show: at step 35 Briar now blocked up front by its printed condition
+g0500018726  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 169) the recording chose Rosa's Encouragement, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500018729  # end of the recording (an extra prompt); Look-Alike Show: at step 211 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500018730  # step 127 prompt; Look-Alike Show: at step 127 Gladion's Final Battle, Rust Syndicate Grunt now blocked up front by its printed condition
+g0500018734  # step 152 prompt; Look-Alike Show: at step 152 Gladion's Final Battle now blocked up front by its printed condition
+g0500018745  # step 160 prompt; Look-Alike Show: at step 160 Gladion's Final Battle now blocked up front by its printed condition
+g0500018747  # step 200 prompt; Look-Alike Show: at step 200 Gladion's Final Battle now blocked up front by its printed condition
+g0500018749  # step 209 prompt; Look-Alike Show: at step 209 Team Rocket's Archer now blocked up front by its printed condition
+g0500018753  # step 64 prompt; Look-Alike Show: at step 64 Cassiopeia now blocked up front by its printed condition
+g0500018755  # step 128 prompt; Look-Alike Show: at step 128 Hassel now blocked up front by its printed condition
+g0500018758  # step 165 prompt; Look-Alike Show: at step 165 Team Rocket's Archer now blocked up front by its printed condition
+g0500019125  # end of the recording (an extra prompt); Look-Alike Show: at step 61 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500019725  # end of the recording (an extra prompt); Look-Alike Show: at step 35 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
