@@ -115,10 +115,8 @@ pub struct EffSlot {
 
 /// [`EffSlot::flags`] bits.
 pub mod fx_flag {
-    /// `DealDamageEffect.damageIncreased` (Hop's Snorlax).
+    /// A non-stacking damage bonus was applied to the attack's damage (Hop's Snorlax; also `passive::DamageAcc::flags`).
     pub const DAMAGE_INCREASED: u8 = 1 << 0;
-    /// `PutDamageEffect.nonstackingDamageReducers` contains 'Curly Wall' (Bouffalant SCR).
-    pub const CURLY_WALL: u8 = 1 << 1;
     /// `AttackEffect.afterDamageEffects` is defined (the attack's after-damage window is open).
     pub const AFTER_DMG_OPEN: u8 = 1 << 2;
     /// `AttackEffect.attackTriggers` is defined (the attack's step 7 trigger window is open).

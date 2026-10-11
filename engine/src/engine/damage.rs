@@ -15,7 +15,8 @@
 //!   counters are placed first, id1547).
 //!
 //! - [`deal`]: an attack's damage to a Pokémon (APR A-01, B-01..B-09, Damage Calculation Order 1-6): the calculation
-//!   (steps 2-5 as today's passes, `DealDamage` / `ApplyWeakness` / `PutDamage`: B6-OLD -> batch 8, the derived layer),
+//!   (step 2 the attacker-side declarations, steps 3-4 Weakness and Resistance from the derived layer, step 5 the
+//!   defender-side declarations and survive-on-10 replacements; batch 8 C4, no dispatched pass),
 //!   then step 6, the preventions of damage (`Prevent` naming `Kind(Damage)`: "prevent all damage done to ..."; APR
 //!   C-16: the damage becomes 0 and the calculation ends), skipped when the attack ignores the effects on the damaged
 //!   Pokémon (Shred), then the Damage event: the counters, the damage-taken records, and the "is damaged by an attack"
@@ -68,10 +69,9 @@ pub fn damage_view(g: &Game, b: &AtkBase, amount: i32) -> EventView {
 // The routines
 
 /// Damage: the attack of `b` does `amount` damage to the Pokémon in `b.target`, in one calculation order (APR Damage
-/// Calculation Order 1-6). `deal`: the attack's damage calculated in full (the `DealDamage` route: the attacker-side
-/// modifiers, and Weakness and Resistance when the target is in an Active Spot); otherwise put on the Pokémon (the
-/// `PutDamage` route, `DamageCalc::Put`: no attacker-side modifiers, no Weakness or Resistance). The passes are
-/// today's (B6-OLD -> batch 8, derived reads). Nothing happens when the final damage is 0 or a prevention applies.
+/// Calculation Order 1-6). `deal`: the attack's damage calculated in full (the attacker-side modifiers, and Weakness and
+/// Resistance when the target is in an Active Spot); otherwise put on the Pokémon (`DamageCalc::Put`: no attacker-side
+/// modifiers, no Weakness or Resistance). Nothing happens when the final damage is 0 or a prevention applies.
 pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     let t = b.target;
     let mut d = amount;
@@ -79,13 +79,12 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
         Effect::Attack { ignore_weakness, ignore_resistance, .. } => (ignore_weakness, ignore_resistance),
         _ => (false, false),
     };
-    // Step 2: the effects on the Pokémon doing the damage: the attacker-side modifiers (DamageDealt passives), then
+    // Step 2: the effects on the Pokémon doing the damage: the attacker-side modifiers (DamageDealt at the Deal stage), then
     // "the Defending Pokémon's attacks do N less damage".
     if deal {
-        let (e, _) = g.run_fx(Effect::DealDamage { b, damage: d })?;
-        if let Effect::DealDamage { damage, .. } = e {
-            d = damage;
-        }
+        let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: true, survive: false, flags: 0 };
+        attacker_side(g, &mut acc)?;
+        d = acc.damage;
     }
     let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
     if src_red > 0 {
@@ -95,21 +94,14 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     // attack's damage to the attacker itself too (APR B-09: "Weakness, Resistance, and other effects on the Pokémon
     // still apply"); never to a Benched Pokémon unless the text says so (APR B-08, B-09).
     if deal && t.s == g.st.players[t.p as usize].active {
-        let (e, _) = g.run_fx(Effect::ApplyWeakness { b, damage: d, ignore_weakness: ig_w, ignore_resistance: ig_r })?;
-        if let Effect::ApplyWeakness { damage, .. } = e {
-            d = damage;
-        }
+        d = crate::engine::game_effect::weakness_and_resistance(g, &b, d, ig_w, ig_r)?;
     }
-    // Step 5: the effects on the damaged Pokémon: the defender-side modifiers (DamageTaken passives), the survive-on-10
-    // replacements of a full-HP Pokémon, then the lasting "takes N less / more damage".
-    let (e, _) = g.run_fx(Effect::PutDamage { b, damage: d, weakness_applied: deal, survive_on_ten_hp: false })?;
-    let survive = match e {
-        Effect::PutDamage { damage, survive_on_ten_hp, .. } => {
-            d = damage;
-            survive_on_ten_hp
-        }
-        _ => false,
-    };
+    // Step 5: the effects on the damaged Pokémon: the defender-side modifiers (DamageTaken), the survive-on-10
+    // replacements of a full-HP Pokémon (SurviveOnTen), then the lasting "takes N less / more damage".
+    let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: deal, survive: false, flags: 0 };
+    defender_side(g, &mut acc)?;
+    d = acc.damage;
+    let survive = acc.survive;
     if g.st.slot_pokemon(t.p as usize, t.s).is_none() {
         crate::bail!("ILLEGAL_ACTION");
     }
@@ -140,6 +132,50 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
         return Ok(());
     }
     g.run_fx_unit(Effect::Damage { b, amount: d, survive })
+}
+
+/// Step 2's declarations: every card of the game with an attacker-side modifier at the Deal stage (`decl::fam::DAMAGE_DEALT`,
+/// any zone: each checks where its card is), in the propagation order, run undelegated as the card handlers were; then a
+/// copied attack's source card run for the copycat (`copy_attack::delegate_damage`).
+fn attacker_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
+    use crate::spec::passive::Modifier;
+    let order = crate::decl::all(g, crate::decl::fam::DAMAGE_DEALT, 0);
+    if !order.is_empty() {
+        crate::derived::Facts::undelegated(g, |g| -> R {
+            for c in order.iter().copied() {
+                for ps in crate::decl::passives(g, c) {
+                    if let Modifier::DamageDealt(d) = &ps.modifier {
+                        crate::spec::passive::damage_dealt_deal(g, c, ps.origin, d, acc)?;
+                    }
+                }
+            }
+            Ok(())
+        })?;
+    }
+    crate::copy_attack::delegate_damage(g, acc, false)
+}
+
+/// Step 5's declarations: every card with a defender-side modifier or a survive-on-10 replacement
+/// (`decl::fam::DAMAGE_TAKEN`, any zone), in the propagation order, undelegated; then a copied attack's source card run
+/// for the copycat.
+fn defender_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
+    use crate::spec::passive::Modifier;
+    let order = crate::decl::all(g, crate::decl::fam::DAMAGE_TAKEN, 0);
+    if !order.is_empty() {
+        crate::derived::Facts::undelegated(g, |g| -> R {
+            for c in order.iter().copied() {
+                for ps in crate::decl::passives(g, c) {
+                    match &ps.modifier {
+                        Modifier::DamageTaken(d) => crate::spec::passive::damage_taken_into(g, c, ps.origin, d, acc)?,
+                        Modifier::SurviveOnTen(s) => crate::spec::passive::survive_on_ten_into(g, c, ps.origin, s, acc)?,
+                        _ => {}
+                    }
+                }
+            }
+            Ok(())
+        })?;
+    }
+    crate::copy_attack::delegate_damage(g, acc, true)
 }
 
 /// Would the attack's damage `amount` to `b.target` be prevented now (the step 6 preventions without the coin flips)? A

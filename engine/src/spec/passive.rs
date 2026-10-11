@@ -125,7 +125,7 @@ pub struct BenchAttacksSpec {}
 /// Where in the damage calculation a bonus applies.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum DamageStage {
-    /// `DealDamage`: the damage to the Defending Pokémon, before Weakness and Resistance.
+    /// The damage to the Pokémon, before Weakness and Resistance (the Damage routine's step 2).
     Deal,
     /// `Attack`: the attack's damage, before it is dealt.
     Attack,
@@ -151,10 +151,13 @@ pub enum NonStack {
 impl NonStack {
     const fn flag(self) -> u8 {
         match self {
-            NonStack::CurlyWall => fx_flag::CURLY_WALL,
+            NonStack::CurlyWall => CURLY_WALL,
         }
     }
 }
+
+/// `DamageAcc::flags`: Bouffalant's Curly Wall already reduced this damage.
+const CURLY_WALL: u8 = 1 << 1;
 
 /// "This attack does N more damage" (vocabulary P1).
 pub struct DamageDealtSpec {
@@ -766,12 +769,13 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
     use crate::effects::k;
     match m {
         Modifier::HpBonus(_) | Modifier::HpMod(_) => mask(&[k::CHECK_HP]),
+        // The Deal stage, the defender-side modifiers and the survive-on-10 replacements are read by the Damage routine's
+        // calculation through the declaration index (`decl::fam::DAMAGE_DEALT`, `DAMAGE_TAKEN`).
         Modifier::DamageDealt(d) => match d.stage {
-            DamageStage::Deal => mask(&[k::DEAL_DAMAGE]),
+            DamageStage::Deal => KindMask::EMPTY,
             DamageStage::Attack => mask(&[k::ATTACK]),
         },
-        Modifier::DamageTaken(_) => mask(&[k::PUT_DAMAGE]),
-        Modifier::SurviveOnTen(_) => mask(&[k::PUT_DAMAGE]),
+        Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => KindMask::EMPTY,
         Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
         Modifier::NextTurnBonus(_) => mask(&[k::ATTACK]),
         Modifier::BenchAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
@@ -941,13 +945,15 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
     match &ps.modifier {
         Modifier::HpBonus(n) => hp_mod(g, me, e, ps.origin, *n, &SlotPred::Holder, &Cond::True),
         Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
-        Modifier::SurviveOnTen(s) => survive_on_ten(g, me, e, ps.origin, s),
+        // Read by the Damage routine's calculation (`engine::damage::deal`); nothing is dispatched to it.
+        Modifier::SurviveOnTen(_) => Ok(()),
         Modifier::CheckupDamage(c) => checkup_damage(g, me, e, ps.origin, c),
         Modifier::NextTurnBonus(b) => next_turn_bonus(g, me, e, b),
         Modifier::BenchAttacks(_) => bench_attacks(g, me, e, ps.origin),
         Modifier::AttackFlags(a) => attack_flags(g, me, e, ps.origin, a),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
-        Modifier::DamageTaken(d) => damage_taken(g, me, e, ps.origin, d),
+        // Read by the Damage routine's calculation (`engine::damage::deal`); nothing is dispatched to it.
+        Modifier::DamageTaken(_) => Ok(()),
         // Locks are read by the event's routine and legality (`event_locked`); nothing is dispatched to them.
         Modifier::BlockUse(_) => Ok(()),
         Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
@@ -1047,13 +1053,49 @@ fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subjec
     Ok(())
 }
 
+/// An attack's damage to one Pokémon being calculated (the Damage routine's steps 2 and 5, `engine::damage::deal`): what
+/// the attacker-side and defender-side declarations read and change.
+#[derive(Clone, Copy, Debug)]
+pub struct DamageAcc {
+    pub b: AtkBase,
+    pub damage: i32,
+    /// The damage was calculated in full (the attacker-side modifiers, and Weakness and Resistance when in an Active Spot).
+    pub weakness_applied: bool,
+    /// A survive-on-10 replacement of a full-HP Pokémon is armed.
+    pub survive: bool,
+    /// The non-stacking modifiers already applied (`fx_flag::DAMAGE_INCREASED`, `CURLY_WALL`).
+    pub flags: u8,
+}
+
+/// `DamageDealt` at the Attack stage, over the `Attack` effect ("this attack does N more damage" before it is dealt).
 fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &DamageDealtSpec) -> R {
-    // (player, source slot, damaged slot, damage so far, the attack)
-    let (player, source, target, damage, attack) = match (d.stage, *g.e(e)) {
-        (DamageStage::Deal, Effect::DealDamage { b, damage }) => (b.player as usize, b.source, Some(b.target), damage, b.attack),
-        (DamageStage::Attack, Effect::Attack { p, source, damage, attack, .. }) => (p as usize, source, None, damage, attack),
+    let (player, source, damage, attack) = match (d.stage, *g.e(e)) {
+        (DamageStage::Attack, Effect::Attack { p, source, damage, attack, .. }) => (p as usize, source, damage, attack),
         _ => return Ok(()),
     };
+    let (mut dmg, mut flags) = (damage, g.fx_flags(e));
+    damage_dealt_core(g, me, origin, d, player, source, None, attack, &mut dmg, &mut flags)?;
+    if let Effect::Attack { damage, .. } = g.e_mut(e) {
+        *damage = dmg;
+    }
+    if flags & fx_flag::DAMAGE_INCREASED != 0 {
+        g.set_fx_flag(e, fx_flag::DAMAGE_INCREASED);
+    }
+    Ok(())
+}
+
+/// `DamageDealt` at the Deal stage: the attacker-side modifier of `me` on the damage being calculated (step 2).
+pub(crate) fn damage_dealt_deal(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDealtSpec, acc: &mut DamageAcc) -> R {
+    if d.stage != DamageStage::Deal {
+        return Ok(());
+    }
+    let b = acc.b;
+    damage_dealt_core(g, me, origin, d, b.player as usize, b.source, Some(b.target), b.attack, &mut acc.damage, &mut acc.flags)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDealtSpec, player: usize, source: SlotRef, target: Option<SlotRef>, attack: AttackRef, damage_now: &mut i32, flags: &mut u8) -> R {
+    let damage = *damage_now;
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     if d.side == Side::Owner && at.owner != player {
         return Ok(());
@@ -1082,15 +1124,12 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
             return Ok(());
         }
     }
-    if d.nonstacking && g.fx_flags(e) & fx_flag::DAMAGE_INCREASED != 0 {
+    if d.nonstacking && *flags & fx_flag::DAMAGE_INCREASED != 0 {
         return Ok(());
     }
-    match g.e_mut(e) {
-        Effect::DealDamage { damage, .. } | Effect::Attack { damage, .. } => *damage += d.amount,
-        _ => {}
-    }
+    *damage_now += d.amount;
     if d.nonstacking {
-        g.set_fx_flag(e, fx_flag::DAMAGE_INCREASED);
+        *flags |= fx_flag::DAMAGE_INCREASED;
     }
     Ok(())
 }
@@ -1098,10 +1137,11 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
 /// The preconditions both "takes less" and "prevent" share: damage put on a
 /// Pokémon by an attack of the opponent's Pokémon, during the attack phase,
 /// not ignored by Shred. Returns the attack base and the card's place.
+#[allow(clippy::too_many_arguments)]
 fn damage_taken_prelude(
     g: &mut Game,
     me: CardId,
-    e: EffId,
+    b: AtkBase,
     origin: RuleSource,
     side: Side,
     subject: &SlotPred,
@@ -1109,10 +1149,6 @@ fn damage_taken_prelude(
     guard: &Cond,
     from_any_attack: bool,
 ) -> R<Option<(AtkBase, Located)>> {
-    let b = match *g.e(e) {
-        Effect::PutDamage { b, .. } | Effect::DealDamage { b, .. } => b,
-        _ => return Ok(None),
-    };
     if ignores_defender_effects(g, &b) || !is_attack_phase(g) {
         return Ok(None);
     }
@@ -1133,31 +1169,24 @@ fn damage_taken_prelude(
     Ok(Some((b, at)))
 }
 
-fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &DamageTakenSpec) -> R {
-    if !matches!(*g.e(e), Effect::PutDamage { .. }) {
-        return Ok(());
-    }
-    let Some((b, _)) = damage_taken_prelude(g, me, e, origin, d.side, &d.subject, &d.source, &d.guard, d.from_any_attack)? else { return Ok(()) };
+/// `DamageTaken` of `me`: the defender-side modifier on the damage being calculated (step 5).
+pub(crate) fn damage_taken_into(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageTakenSpec, acc: &mut DamageAcc) -> R {
+    let Some((b, _)) = damage_taken_prelude(g, me, acc.b, origin, d.side, &d.subject, &d.source, &d.guard, d.from_any_attack)? else { return Ok(()) };
     if let Some(ns) = d.nonstacking {
-        if g.fx_flags(e) & ns.flag() != 0 {
+        if acc.flags & ns.flag() != 0 {
             return Ok(());
         }
     }
     if d.then_discard {
         // "If the Pokémon is damaged": with no damage taken the Tool stays.
-        let damage_now = match *g.e(e) {
-            Effect::PutDamage { damage, .. } => damage,
-            _ => 0,
-        };
+        let damage_now = acc.damage;
         if damage_now <= 0 || crate::engine::damage::would_be_prevented(g, &b, damage_now)? {
             return Ok(());
         }
     }
-    if let Effect::PutDamage { damage, .. } = g.e_mut(e) {
-        *damage -= d.amount;
-    }
+    acc.damage -= d.amount;
     if let Some(ns) = d.nonstacking {
-        g.set_fx_flag(e, ns.flag());
+        acc.flags |= ns.flag();
     }
     if d.then_discard {
         // "Then, discard this card": the Tool leaves play by its own text (a LeavePlay of the attached card, user decision
@@ -2333,13 +2362,11 @@ pub(crate) fn effect_of_ability_reaches(g: &Game, card: CardId, power: crate::ef
 // ---------------------------------------------------------------------------
 // Survive on 10 (S3 agent 3)
 
-fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: &SurviveOnTenSpec) -> R {
-    let (t, damage) = match *g.e(e) {
-        Effect::PutDamage { b, damage, .. } => (b.target, damage),
-        _ => return Ok(()),
-    };
+/// `SurviveOnTen` of `me`: a survive-on-10 replacement armed for the damage being calculated (step 5).
+pub(crate) fn survive_on_ten_into(g: &mut Game, me: CardId, origin: RuleSource, spec: &SurviveOnTenSpec, acc: &mut DamageAcc) -> R {
+    let (t, damage) = (acc.b.target, acc.damage);
     if spec.kind == SurviveKind::ToolIfFullHp {
-        return survive_on_ten_tool(g, me, e, origin);
+        return survive_on_ten_tool(g, me, origin, acc);
     }
     let owner = t.p as usize;
     if !g.st.slot(owner, t.s).cards.contains(me) {
@@ -2356,7 +2383,7 @@ fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: 
             if g.st.slot_pokemon(owner, t.s) != Some(me) {
                 return Ok(());
             }
-            survive_on_ten_on_coin_flip(g, e, owner, crate::cause::Cause::of_origin(origin, me, owner as u8))?
+            survive_on_ten_on_coin_flip(g, acc, owner, crate::cause::Cause::of_origin(origin, me, owner as u8))?
         }
         SurviveKind::IfFullHp => {
             if g.st.slot(owner, t.s).damage != 0 {
@@ -2364,9 +2391,7 @@ fn survive_on_ten(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, spec: 
             }
             let hp = crate::derived::hp(g, owner, t.s)?;
             if damage >= hp {
-                if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
-                    *survive_on_ten_hp = true;
-                }
+                acc.survive = true;
             }
         }
     }
@@ -2911,11 +2936,8 @@ pub(crate) fn bench_size_into(g: &mut Game, me: CardId, origin: RuleSource, d: &
 
 /// "If the Pokémon has full HP and would be Knocked Out by damage from an opponent's attack, it is not Knocked Out
 /// and its remaining HP becomes 10 instead; then discard this card."
-fn survive_on_ten_tool(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let (t, damage, attacker) = match *g.e(e) {
-        Effect::PutDamage { b, damage, .. } => (b.target, damage, b.player as usize),
-        _ => return Ok(()),
-    };
+fn survive_on_ten_tool(g: &mut Game, me: CardId, origin: RuleSource, acc: &mut DamageAcc) -> R {
+    let (t, damage, attacker) = (acc.b.target, acc.damage, acc.b.player as usize);
     if !g.st.slot(t.p as usize, t.s).tools.contains(me) {
         return Ok(());
     }
@@ -2932,9 +2954,7 @@ fn survive_on_ten_tool(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -
     if damage < hp {
         return Ok(());
     }
-    if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
-        *survive_on_ten_hp = true;
-    }
+    acc.survive = true;
     for (s, _, _) in for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().copied() {
         if g.st.slot(owner, s).tools.contains(me) {
             // "Then, discard this card": a LeavePlay of the attached Tool by its own text.

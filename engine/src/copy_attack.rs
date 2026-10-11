@@ -90,8 +90,6 @@ fn should_delegate(g: &Game, s: &CopySession, id: EffId) -> bool {
     match *g.e(id) {
         Effect::EndTurn { .. } | Effect::BetweenTurns { .. } | Effect::BeginTurn { .. } => true,
         Effect::KnockOut { .. } => g.st.phase == GamePhase::Attack && g.st.active_player == s.player,
-        Effect::DealDamage { b, .. } => target_includes(g, b.target, s.copycat),
-        Effect::PutDamage { b, .. } => target_includes(g, b.target, s.copycat) || is_session_clone(s, b.attack),
         Effect::PlaceCounters { target, cause, .. } => target_includes(g, target, s.copycat) || cause.attack.map_or(false, |a| is_session_clone(s, a)),
         Effect::Damage { b, .. } => is_session_clone(s, b.attack),
         Effect::Attack { attack, .. } | Effect::BeforeDoingDamage { attack, .. } | Effect::AfterAttack { attack, .. } => is_session_clone(s, attack),
@@ -113,6 +111,52 @@ fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
     let r = (imp.reduce)(g, s.copycat, id);
     g.deleg = saved;
     r
+}
+
+/// `resolveCopyAttackSessions` for the damage calculation's steps (they were the DealDamage / PutDamage effects; batch 8 C4,
+/// the same order and the same sessions): after the game's own declarations, each live session's source card, run for
+/// the copycat (the copied attack's lifecycle), adds its declarations of the step when the damaged Pokémon is the copycat
+/// (step 5 also for the copied attack's own damage). A session whose copycat left play is dropped, as the effect's
+/// fan-out dropped it.
+pub fn delegate_damage(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc, defender: bool) -> R {
+    use crate::spec::passive::Modifier;
+    let mut i = g.copy_sessions.len();
+    while i > 0 {
+        i -= 1;
+        let s = match g.copy_sessions.get(i) {
+            Some(s) => *s,
+            None => crate::bail!("TypeError: Cannot read properties of undefined (reading 'copycatCard')"),
+        };
+        if !copycat_in_play(g, s.copycat) {
+            g.copy_sessions.remove_at(i);
+            continue;
+        }
+        let hit = target_includes(g, acc.b.target, s.copycat) || (defender && is_session_clone(&s, acc.b.attack));
+        if !hit {
+            continue;
+        }
+        let Some(spec) = cards::spec_for(g.st.cards[s.source as usize].def) else { continue };
+        let fam = if defender { crate::decl::fam::DAMAGE_TAKEN } else { crate::decl::fam::DAMAGE_DEALT };
+        if !spec.passives.iter().any(|ps| crate::decl::modifier_family(&ps.modifier) == Some(fam)) {
+            continue;
+        }
+        let saved = g.deleg;
+        g.deleg = Some(Deleg { copycat: s.copycat, source: s.source, serial: s.serial, attacks: true });
+        let r = (|| -> R {
+            for ps in spec.passives {
+                match (&ps.modifier, defender) {
+                    (Modifier::DamageDealt(d), false) => crate::spec::passive::damage_dealt_deal(g, s.copycat, ps.origin, d, acc)?,
+                    (Modifier::DamageTaken(d), true) => crate::spec::passive::damage_taken_into(g, s.copycat, ps.origin, d, acc)?,
+                    (Modifier::SurviveOnTen(x), true) => crate::spec::passive::survive_on_ten_into(g, s.copycat, ps.origin, x, acc)?,
+                    _ => {}
+                }
+            }
+            Ok(())
+        })();
+        g.deleg = saved;
+        r?;
+    }
+    Ok(())
 }
 
 /// `resolveCopyAttackSessions` (runs after every effect's fan-out).

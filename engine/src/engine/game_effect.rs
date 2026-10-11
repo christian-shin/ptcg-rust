@@ -101,6 +101,16 @@ pub fn remove_attack_effects(slot: &mut Slot) {
     slot.next_turn_attack_damage_bonus_pending = None;
 }
 
+/// Steps 3-4 of the damage calculation (APR B-06, B-07): the damage after the Weakness and Resistance of the Pokémon in
+/// `b.target` against the types of the attacking Pokémon (`ignore_*`: the attack's own text ignores them).
+pub fn weakness_and_resistance(g: &mut Game, b: &AtkBase, damage: i32, ignore_weakness: bool, ignore_resistance: bool) -> R<i32> {
+    let types = crate::derived::types(g, b.source)?;
+    let (w, r) = crate::derived::weakness_resistance(g, b.target)?;
+    let weak: &[WeaknessV] = if ignore_weakness { &[] } else { w.as_slice() };
+    let res: &[ResistanceV] = if ignore_resistance { &[] } else { r.as_slice() };
+    Ok(apply_weakness_and_resistance(damage, types.as_slice(), weak, res))
+}
+
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::CheckPokemonStats { target, .. } => {
@@ -110,17 +120,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
             }
             // weaknessOverride / opponent weakness aura: not modeled.
-            Ok(())
-        }
-        Effect::ApplyWeakness { b, damage, ignore_weakness, ignore_resistance } => {
-            let types = crate::derived::types(g, b.source)?;
-            let (w, r) = crate::derived::weakness_resistance(g, b.target)?;
-            let weak: &[WeaknessV] = if ignore_weakness { &[] } else { w.as_slice() };
-            let res: &[ResistanceV] = if ignore_resistance { &[] } else { r.as_slice() };
-            let dmg = apply_weakness_and_resistance(damage, types.as_slice(), weak, res);
-            if let Effect::ApplyWeakness { damage, .. } = g.e_mut(id) {
-                *damage = dmg;
-            }
             Ok(())
         }
         Effect::UseAttack { .. } => attack::start_use_attack(g, id),

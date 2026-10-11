@@ -220,11 +220,6 @@ pub enum Effect {
     ChangeActive { p: u8, from: crate::state::SlotId, to: crate::state::SlotId, change: crate::spec::event::ActiveChange, cause: Cause },
 
     // ---- attack sub-effects ----
-    /// The damage calculation passes of `engine::damage::deal` (B6-OLD -> batch 8: the damage modifiers and Weakness /
-    /// Resistance as derived reads; the Damage event itself is `Effect::Damage`).
-    ApplyWeakness { b: AtkBase, damage: i32, ignore_weakness: bool, ignore_resistance: bool },
-    DealDamage { b: AtkBase, damage: i32 },
-    PutDamage { b: AtkBase, damage: i32, weakness_applied: bool, survive_on_ten_hp: bool },
     /// The Damage event (events batch 6; `engine::damage::deal`): the attack of `b` puts `amount` damage on the Pokémon
     /// in `b.target`, after the whole calculation and its preventions (APR A-01 step 6). `survive`: a survive-on-10
     /// replacement armed in the calculation.
@@ -304,9 +299,6 @@ impl Effect {
             Draw { .. } => "DRAW_EVENT",
             PlaceCounters { .. } => "PLACE_COUNTERS_EVENT",
             ChangeActive { .. } => "CHANGE_ACTIVE_EVENT",
-            ApplyWeakness { .. } => "APPLY_WEAKNESS_EFFECT",
-            DealDamage { .. } => "DEAL_DAMAGE_EFFECT",
-            PutDamage { .. } => "PUT_DAMAGE_EFFECT",
             Damage { .. } => "DAMAGE_EVENT",
             AttackTrigger { .. } => "ATTACK_TRIGGER_EFFECT",
             MoveCounters { .. } => "MOVE_COUNTERS_EVENT",
@@ -345,7 +337,7 @@ impl Effect {
     pub fn atk_base(&self) -> Option<&AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } => Some(b),
+            Damage { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -353,7 +345,7 @@ impl Effect {
     pub fn atk_base_mut(&mut self) -> Option<&mut AtkBase> {
         use Effect::*;
         match self {
-            ApplyWeakness { b, .. } | DealDamage { b, .. } | PutDamage { b, .. } | Damage { b, .. } => Some(b),
+            Damage { b, .. } => Some(b),
             _ => None,
         }
     }
@@ -397,9 +389,6 @@ impl Effect {
             Draw { .. } => 130,
             PlaceCounters { .. } => 100,
             ChangeActive { .. } => 48,
-            ApplyWeakness { .. } => 37,
-            DealDamage { .. } => 38,
-            PutDamage { .. } => 39,
             Damage { .. } => 94,
             AttackTrigger { .. } => 246,
             Attach { .. } => 50,
@@ -453,9 +442,6 @@ pub mod k {
     /// entries by `kind % 32` (`dispatch::SLOTS`), and 35 shared its entry with END_TURN (3), which games with a
     /// ChangeActive handler (every attack-effect protection) then rebuilt in turn; nothing else uses entry 16.
     pub const CHANGE_ACTIVE: u32 = 48;
-    pub const APPLY_WEAKNESS: u32 = 37;
-    pub const DEAL_DAMAGE: u32 = 38;
-    pub const PUT_DAMAGE: u32 = 39;
     /// The Attach event (events batch 3); the number the old AttachEnergy effect had.
     pub const ATTACH: u32 = 50;
     pub const MOVE_ENERGY: u32 = 64;

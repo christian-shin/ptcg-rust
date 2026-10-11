@@ -34,7 +34,11 @@ pub mod fam {
     pub const TABLE_STATE: usize = 8;
     /// `PrizeAdjust`, `PrizeAdjustOnce` (read by the KnockOut routine).
     pub const PRIZE: usize = 9;
-    pub const N: usize = 10;
+    /// `DamageDealt` at the Deal stage (the Damage routine's step 2).
+    pub const DAMAGE_DEALT: usize = 10;
+    /// `DamageTaken`, `SurviveOnTen` (the Damage routine's step 5).
+    pub const DAMAGE_TAKEN: usize = 11;
+    pub const N: usize = 12;
 }
 
 /// The family a passive's modifier is read in, if it is one of the index's.
@@ -51,6 +55,8 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::Prevent(p) if crate::spec::passive::prevention_recovers(p) => fam::TABLE_STATE,
         Modifier::BenchSize(_) | Modifier::Recover(_) | Modifier::AttachGuard(_) => fam::TABLE_STATE,
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => fam::PRIZE,
+        Modifier::DamageDealt(d) if matches!(d.stage, crate::spec::passive::DamageStage::Deal) => fam::DAMAGE_DEALT,
+        Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => fam::DAMAGE_TAKEN,
         _ => return None,
     })
 }

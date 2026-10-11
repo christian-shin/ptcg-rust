@@ -87,11 +87,8 @@ pub fn was_attack_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
 /// `resolve_survive_coin_flips`). Outside an attack the coin is flipped right away (`CoinFlipEffect.result`, no
 /// callback: a callback would run after the flip's wait prompt, i.e. after the damage was applied); heads sets
 /// `surviveOnTenHPReason`.
-pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize, cause: crate::cause::Cause) -> R {
-    let (t, damage) = match *g.e(e) {
-        Effect::PutDamage { b, damage, .. } => (b.target, damage),
-        _ => return Ok(()),
-    };
+pub fn survive_on_ten_on_coin_flip(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc, player: usize, cause: crate::cause::Cause) -> R {
+    let (t, damage) = (acc.b.target, acc.damage);
     let hp = crate::derived::hp(g, player, t.s)?;
     if g.st.slot(t.p as usize, t.s).damage + damage >= hp {
         if g.st.phase == GamePhase::Attack {
@@ -101,9 +98,7 @@ pub fn survive_on_ten_on_coin_flip(g: &mut Game, e: EffId, player: usize, cause:
             return Ok(());
         }
         if crate::engine::condition::flip_coin(g, player, CoinCb::None, cause)? {
-            if let Effect::PutDamage { survive_on_ten_hp, .. } = g.e_mut(e) {
-                *survive_on_ten_hp = true;
-            }
+            acc.survive = true;
         }
     }
     Ok(())
