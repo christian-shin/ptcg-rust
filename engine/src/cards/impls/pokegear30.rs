@@ -1,9 +1,8 @@
-//! Pokégear 3.0 (SVI): look at the top 7 cards of your deck; you may reveal
-//! a Supporter card there and put it into your hand. Shuffle the others back.
+//! Pokégear 3.0 (SVI / BLK): look at the top 7 cards of your deck. You may reveal a Supporter card you find there and put it
+//! into your hand. Shuffle the other cards back into your deck.
 //!
-//! Twinleaf: the looked-at cards return to the bottom of the deck before the
-//! reveal and the (wait-less) shuffle; the hand→supporter MOVE_CARDS is a
-//! no-op (items are already in the supporter pile).
+//! The Look sets the cards aside; the chosen Supporter goes to the hand revealed (a PutIntoHand of the Item's effect), the
+//! others back into the deck (a PutIntoDeck) and the deck is shuffled.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

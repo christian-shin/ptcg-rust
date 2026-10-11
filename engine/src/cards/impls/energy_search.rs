@@ -1,8 +1,8 @@
-//! Energy Search (SVI): search your deck for a Basic Energy card, reveal it,
-//! and put it into your hand. Then, shuffle your deck.
+//! Energy Search (SVI / POR): search your deck for a Basic Energy card, reveal it, and put it into your hand. Then, shuffle
+//! your deck.
 //!
-//! Twinleaf order: MOVE_CARDS (even with nothing chosen), then the reveal,
-//! then the ShuffleDeckPrompt.
+//! An Item: the Search puts the card into the hand (a PutIntoHand of the Item's effect, revealed); the deck is shuffled
+//! after it even when nothing was found (id2303, APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

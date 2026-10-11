@@ -1,6 +1,4 @@
-//! Marnie's Impidimp (DRI): Filch — draw a card. Corkscrew Punch — 10.
-//!
-//! Twinleaf draws in AFTER_ATTACK (after damage).
+//! Marnie's Impidimp (DRI): Filch — draw a card (one Draw event of the attack's effect, after the damage). Corkscrew Punch — 10.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

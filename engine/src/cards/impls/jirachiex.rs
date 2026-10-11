@@ -1,13 +1,8 @@
-//! Jirachi ex (30C): Wish Granter — draw cards until you have 7 cards in your
-//! hand. Swift — 150; not affected by Weakness or Resistance, or by effects
-//! on the opponent's Active Pokémon.
+//! Jirachi ex (30C): Wish Granter — draw cards until you have 7 cards in your hand. Swift — 150; this attack's damage isn't
+//! affected by Weakness or Resistance, or by any effects on your opponent's Active Pokémon.
 //!
-//! Twinleaf: DRAW_CARDS_UNTIL_CARDS_IN_HAND is a plain `deck.moveTo(hand, n)`
-//! (no MoveCardsEffect). Swift uses THIS_ATTACKS_DAMAGE_ISNT_AFFECTED_BY_EFFECTS
-//! with `ignoreWeaknessAndResistance` (phase 4b; Weakness and Resistance used
-//! to apply, despite the text) and sets `ignoreDefenderEffects` (phase 4b R7B:
-//! the damage used to be added straight to the Active, skipping the effects on
-//! the attacker too).
+//! Wish Granter is one Draw event of the attack's effect (nothing with 7 or more cards in the hand). Swift sets the attack's
+//! three flags before the damage.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Jirachiex",

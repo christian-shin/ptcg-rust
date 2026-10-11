@@ -1,9 +1,8 @@
-//! Dwebble (DRI): Ascension — search your deck for a card that evolves from
-//! this Pokémon and put it onto this Pokémon to evolve it, then shuffle.
+//! Dwebble (DRI): Ascension — search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to
+//! evolve it. Then, shuffle your deck.
 //!
-//! Twinleaf: an empty deck skips everything (no shuffle); the evolution is a
-//! plain MOVE_CARDS onto the player's Active followed by `clearEffects()` and
-//! `pokemonPlayedTurn = turn` (no EvolveEffect); the shuffle has no wait.
+//! An empty deck can't be searched (id840): nothing happens, no shuffle. The evolving is an Evolve event from the deck
+//! (not played from the hand: id1133, id2037), caused by the attack; the choice can be declined (a search for a kind).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

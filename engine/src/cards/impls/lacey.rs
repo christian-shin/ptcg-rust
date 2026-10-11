@@ -1,8 +1,8 @@
-//! Lacey (SCR, supporter): shuffle your hand into your deck, then draw 4
-//! cards (8 if your opponent has 3 or fewer Prize cards remaining).
+//! Lacey (PRE): shuffle your hand into your deck. Then, draw 4 cards. If your opponent has 3 or fewer Prize cards remaining,
+//! draw 8 cards instead.
 //!
-//! Twinleaf: SHUFFLE_HAND_INTO_DECK_THEN_DRAW excluding this card; the draw
-//! count uses `getPrizeLeft() > 3`.
+//! `Op::HandShuffleDraw`: the hand (without Lacey) goes into the deck, the deck is shuffled, then one Draw event of 4 cards
+//! (8 when the opponent has 3 or fewer Prize cards left).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Lacey",

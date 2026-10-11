@@ -1,5 +1,5 @@
-//! N's Purrloin (JTG): Pilfer - 30; your opponent reveals their hand, put a
-//! card you find there on the bottom of their deck.
+//! N's Purrloin (JTG): Thieving Swipe — 30; your opponent reveals their hand, and you choose a card you find there and put it
+//! on the bottom of their deck (a PutIntoDeck of the attack's effect, from the opponent's hand to the opponent's deck).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

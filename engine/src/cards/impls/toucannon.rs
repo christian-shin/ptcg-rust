@@ -1,8 +1,7 @@
-//! Toucannon (M5): Aerial Draw — once during your turn, draw a card.
-//! Feather Rondo — 60+, 20 more for each Benched Pokémon (both sides).
+//! Toucannon (PBL): Aerial Draw — once during your turn, you may use this Ability. Draw a card. Feather Rondo — 60+; 20 more
+//! damage for each Benched Pokémon, both yours and your opponent's.
 //!
-//! Twinleaf: IS_ABILITY_BLOCKED → BLOCKED_BY_EFFECT, then
-//! USE_ABILITY_ONCE_PER_TURN, then an empty deck throws CANNOT_USE_POWER.
+//! The Draw is one Draw event of the Ability's effect; with an empty deck it can't be used (id2231).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

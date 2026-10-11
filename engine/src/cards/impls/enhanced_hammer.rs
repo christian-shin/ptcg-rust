@@ -1,9 +1,7 @@
-//! Enhanced Hammer (TWM): discard a Special Energy attached to 1 of your
-//! opponent's Pokémon.
+//! Enhanced Hammer (TWM): discard a Special Energy attached to 1 of your opponent's Pokémon.
 //!
-//! Twinleaf: Pokémon without a Special Energy in `energies` are blocked; the
-//! card choice is on the target's `energies` list (energyType SPECIAL, min 1,
-//! no cancel) and the energy moves from the slot to the opponent's discard.
+//! The Discard of an attached card is a LeavePlay of the Item's effect: the Energy goes from the Pokémon to its owner's
+//! discard pile. It needs a Pokémon of the opponent with a Special Energy attached (else it has no effect: id925).
 use crate::spec::prelude::*;
 
 const ATTACHED: ZoneRef = ZoneRef(Who::Opp, Zone::AttachedEnergy(SlotExpr::Picked));

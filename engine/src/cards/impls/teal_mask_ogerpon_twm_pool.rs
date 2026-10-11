@@ -1,10 +1,8 @@
-//! Teal Mask Ogerpon (TWM 24): Mountain Stroll — search your deck for up to 2
-//! Basic Energy cards, reveal them and put them into your hand, then shuffle.
-//! Ogre Comeback — 20+; 20 more damage for each of your opponent's Benched
-//! Pokémon.
+//! Teal Mask Ogerpon (TWM 24): Mountain Stroll — search your deck for up to 2 Basic Energy cards, reveal them, put them into
+//! your hand. Then, shuffle your deck. Ogre Comeback — 20+; 20 more damage for each of your opponent's Benched Pokémon.
 //!
-//! Twinleaf: SEARCH_DECK_FOR_CARDS_TO_HAND with a { superType: ENERGY,
-//! energyType: BASIC } filter (shown to the opponent), min 0, max 2, no cancel.
+//! An empty deck can't be searched (id840): nothing happens. Otherwise the Search is a PutIntoHand of the attack's effect,
+//! revealed, none required (a search for a kind); the shuffle follows (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

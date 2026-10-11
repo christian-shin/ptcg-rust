@@ -1,10 +1,9 @@
-//! Drakloak (TWM): Recon Directive - once during your turn, look at the top 2
-//! cards of your deck and put 1 of them into your hand; the other goes on the
-//! bottom of your deck.
+//! Drakloak (TWM / ASC): Recon Directive — once during your turn, you may look at the top 2 cards of your deck and put 1 of
+//! them into your hand. Put the other card on the bottom of your deck.
 //!
-//! Fixed (phase 4b, R3): the choice can't be cancelled (it used to be
-//! cancellable, and cancelling made the first MOVE_CARDS move every
-//! looked-at card into the hand).
+//! The Look sets the cards aside (no zone change); the chosen one goes to the hand (a PutIntoHand of the Ability's effect)
+//! and the other to the bottom (a PutIntoDeck). With 1 card left in the deck the Ability can be used and takes it (JP FAQ
+//! Drakloak). The choice can't be cancelled.
 use crate::spec::prelude::*;
 
 const TOP: ZoneRef = ZoneRef(Who::Me, Zone::Scratch(1));

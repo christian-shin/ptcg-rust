@@ -158,3 +158,7 @@ g0500018755  # step 128 prompt; Look-Alike Show: at step 128 Hassel now blocked 
 g0500018758  # step 165 prompt; Look-Alike Show: at step 165 Team Rocket's Archer now blocked up front by its printed condition
 g0500019125  # end of the recording (an extra prompt); Look-Alike Show: at step 61 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500019725  # end of the recording (an extra prompt); Look-Alike Show: at step 35 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+# Events batch 7 B74, Kofu SCR 138 (against baseline 1e9b0c8): "(If you can't put 2 cards from your hand on the bottom of your
+# deck, you can't use this card.)" is a printed condition (Cond::Printed), so Look-Alike Show keeps it (user decision D5; JP FAQ
+# Fire Energy MEE 2 / Mela): with fewer than 2 cards in the attacker's hand Kofu can't be chosen (the recording chose it and drew 4).
+g0500009465  # step 184 prompt; Look-Alike Show with an empty hand: Kofu SCR 138#72 no longer selectable (printed condition)

@@ -1,13 +1,8 @@
-//! Joltik (SCR): Jolting Charge — search your deck for up to 2 Basic [G]
-//! Energy and up to 2 Basic [L] Energy and attach them to your Pokémon in
-//! any way you like, then shuffle.
+//! Joltik (SCR): Jolting Charge — search your deck for up to 2 Basic [G] Energy cards and up to 2 Basic [L] Energy cards and
+//! attach them to your Pokémon in any way you like. Then, shuffle your deck.
 //!
-//! Twinleaf: a cancellable AttachEnergyPrompt on the deck (basic Energy,
-//! max 4, validCardTypes [G, L], maxPerType 2; the old differentTypes option
-//! is dropped: it limited the answer to one Energy per type once the validCardTypes
-//! early return was fixed, but the card allows 2 of each). No transfer
-//! → SHUFFLE_DECK; otherwise a MOVE_CARDS per transfer, then a
-//! ShuffleDeckPrompt.
+//! The Search is one Attach event per Energy from the deck (caused by the attack): 0 to 4 cards, at most 2 of each type, to any
+//! of your Pokémon; the search can be declined (a search for a kind). The shuffle follows (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

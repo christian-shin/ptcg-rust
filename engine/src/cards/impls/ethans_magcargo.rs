@@ -1,13 +1,8 @@
-//! Ethan's Magcargo (DRI 36 / ASC 24): Melt and Flow — if this Pokémon has no
-//! Energy attached, it has no Retreat Cost. Lava Burst — 70x; discard up to 5
-//! [R] Energy from this Pokémon, 70 damage for each card discarded.
+//! Ethan's Magcargo (ASC / DRI): Melt Away — if this Pokémon has no Energy attached, it has no Retreat Cost. Lava Burst —
+//! 70×; discard up to 5 [R] Energy from this Pokémon. This attack does 70 damage for each card you discarded in this way.
 //!
-//! Twinleaf: Melt and Flow reacts to CheckRetreatCostEffect when this card is
-//! in its player's Active (generic Ability probe, then a CheckProvidedEnergy on
-//! the Active: no entries -> `cost = []`). Lava Burst runs a CheckProvidedEnergy
-//! (unused), a non-cancellable DiscardEnergyPrompt (Active, Energy cards that
-//! don't provide [R] blocked, min 0, max 5), then one DiscardCardsEffect (possibly with
-//! no cards) aimed at `player.active` and `damage = 70 * cards`.
+//! The Energy is discarded before the damage (each card a LeavePlay caused by the attack; "up to" is 0 to 5 for an
+//! attack, id2301) and the damage counts the cards discarded.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

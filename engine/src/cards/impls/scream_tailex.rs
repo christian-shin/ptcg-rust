@@ -1,15 +1,10 @@
-//! Scream Tail ex (TWM): Scream — can only be used if you go second, during
-//! your first turn; during your opponent's next turn, they can't play any
-//! Supporter cards from their hand. Crunch — 120; discard an Energy from your
+//! Scream Tail ex (TWM): Scream — you can use this attack only if you go second, and only during your first turn. Your
+//! opponent can't play any Supporter cards from their hand during their next turn. Crunch — 120; discard an Energy from your
 //! opponent's Active Pokémon.
 //!
-//! Twinleaf: Scream throws CANNOT_USE_ATTACK unless `state.turn === 2`. Crunch
-//! opens a non-cancellable ChooseCardsPrompt on the Defending Pokémon (when it
-//! has an Energy card) and reduces a DiscardCardsEffect in the callback.
-//!
-//! Fixed (phase 4b, R2): Crunch discarded in the attack handler, before the
-//! damage (the Defending Pokémon's Spiky Energy was already gone); it now runs
-//! in AfterAttackEffect with a fresh AttackEffect's data.
+//! Scream is usable only on turn 2 (a printed condition of the attack); it arms a lasting lock on the opponent over PlayTrainer
+//! (a Supporter played from the hand). Crunch's Discard runs after the damage (a LeavePlay of the chosen Energy caused by the
+//! attack; no cancel).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

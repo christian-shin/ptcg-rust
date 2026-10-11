@@ -1,5 +1,4 @@
-//! Ethan's Pichu (DRI): Sparking Draw — 30; draw a card (AFTER_ATTACK →
-//! DRAW_CARDS(player, 1)).
+//! Ethan's Pichu (DRI): Zapping Draw — 30; draw a card (one Draw event of the attack's effect, after the damage).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

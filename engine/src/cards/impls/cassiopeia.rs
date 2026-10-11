@@ -1,11 +1,8 @@
-//! Cassiopeia (SFA): only when it is the last card in your hand; search your
-//! deck for up to 2 cards, put them into your hand, shuffle.
+//! Cassiopeia (SFA): you can use this card only when it is the last card in your hand (printed: `Cond::Printed`). Search your
+//! deck for up to 2 cards and put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: no Supporter-already-played check in the card (the core rejects
-//! it), no move to the supporter pile, no preventDefault, no reveal; the
-//! prompt takes 1-2 cards (R5 had made it 0-2; phase 4b, rulings 325/892/1778/1792:
-//! a search for "any card" of an unspecified kind in a deck known to hold cards
-//! must take at least 1) and the shuffle prompt has no wait.
+//! Searching for "a card" of any kind in a deck known to hold cards takes at least 1 (id2301, id347, id968; JP FAQ
+//! Cassiopeia); the shuffle always follows the search (APR E-19).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

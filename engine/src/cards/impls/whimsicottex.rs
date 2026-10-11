@@ -1,12 +1,10 @@
-//! Whimsicott ex (SV11W 5): Energy Gift — search your deck for up to 3
-//! Basic Energy cards and attach them to your Pokémon in any way you like,
-//! then shuffle. Wonder Cotton — your opponent reveals their hand; 50
-//! damage for each Trainer card there.
+//! Whimsicott ex (WHT 5): Energy Gift — search your deck for up to 3 Basic Energy cards and attach them to your Pokémon in any way
+//! you like. Then, shuffle your deck. Wondrous Cotton — 50×; your opponent reveals their hand; 50 damage for each Trainer card
+//! you find there.
 //!
-//! An empty deck skips Energy Gift; after a search of a nonempty deck the deck
-//! is shuffled even when no Energy is chosen (ruling 2303). Wonder Cotton
-//! always shows the opponent's hand (even when empty) and sets
-//! `effect.damage` when the prompt resolves.
+//! An empty deck can't be searched (id840): Energy Gift does nothing. Otherwise the Search is one Attach event per Energy from
+//! the deck (caused by the attack) and the deck is shuffled even when no Energy was chosen (id2303, APR E-19). Wondrous Cotton
+//! always shows the opponent's hand, even an empty one.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -34,7 +32,7 @@ pub static SPEC: CardSpec = CardSpec {
                         onto: None,
                         cards: CardSel::All,
                      different_types: false, })),
-                    // Then shuffle, even when no Energy was chosen (ruling 2303).
+                    // Then shuffle, even when no Energy was chosen (id2303).
                     Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
                 ],
                 no: &[],

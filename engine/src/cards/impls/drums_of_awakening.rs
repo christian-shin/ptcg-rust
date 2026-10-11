@@ -1,8 +1,7 @@
-//! Awakening Drum (TEF, ACE SPEC): draw a card for each of your Ancient
-//! Pokémon in play.
+//! Awakening Drum (TEF, ACE SPEC Item): draw a card for each of your Ancient Pokémon in play.
 //!
-//! Twinleaf: one MOVE_CARDS deck→hand with `count`; since phase 4b the card is
-//! unplayable with no Ancient Pokémon in play or an empty deck (rulings 851/1733).
+//! One Draw event of the Item's effect. A card with no effect can't be played: with no Ancient Pokémon in play, or an empty
+//! deck, it can't be (id925, id2231; JP FAQ Awakening Drum).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

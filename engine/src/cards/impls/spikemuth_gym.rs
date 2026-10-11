@@ -1,10 +1,8 @@
-//! Spikemuth Gym (DRI, Stadium): once during each player's turn, that player
-//! may search their deck for a Marnie's Pokémon, reveal it, put it into their
-//! hand, then shuffle.
+//! Spikemuth Gym (DRI, Stadium): once during each player's turn, that player may search their deck for a Marnie's Pokémon,
+//! reveal it, and put it into their hand. Then, that player shuffles their deck.
 //!
-//! Twinleaf: the search callback creates the ShowCards prompt (if a card was
-//! chosen), moves the card and creates the shuffle prompt without waiting;
-//! the shuffle has no animation wait.
+//! A Stadium use (UseStadium): the Search puts the card into the hand revealed (a PutIntoHand of the Stadium's effect, none
+//! required: a search for a kind); the shuffle follows (APR E-19). It needs a card in the deck.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

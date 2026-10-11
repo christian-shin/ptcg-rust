@@ -1,7 +1,8 @@
-//! Snorunt (TWM): Astonish — 20; choose a random card from your opponent's
-//! hand (`Chance.index`), your opponent reveals it (ShowCardsPrompt for the
-//! attacker) and shuffles it into their deck (MOVE_CARD_TO, no effect;
-//! SHUFFLE_DECK for the opponent).
+//! Snorunt (TWM): Astonish — 20; choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it
+//! into their deck.
+//!
+//! The random card goes from the opponent's hand into their deck, revealed to you (a PutIntoDeck caused by the attack), and
+//! their deck is shuffled (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

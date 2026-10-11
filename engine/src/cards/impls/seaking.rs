@@ -1,10 +1,9 @@
-//! Seaking (PRE): Festival Lead. Rapid Draw — 60; draw 2 cards.
+//! Seaking (PRE): Festival Lead — if Festival Grounds is in play, this Pokémon may use an attack it has twice. If the first
+//! attack Knocks Out your opponent's Active Pokémon, you may attack again after your opponent chooses a new Active Pokémon.
+//! Rapid Draw — 60; draw 2 cards.
 //!
-//! Twinleaf: the draw is MOVE_CARDS(count 2); Festival Lead is the attack's
-//! runtime `barrage` flag (see Dipplin TWM).
-//!
-//! Fixed (phase 4b, R2): with the Ability blocked the flag was left as an
-//! earlier use had set it; it is now cleared, so a blocked Seaking attacks once.
+//! Festival Lead is the attack's repeat flag, set before the damage while Festival Grounds is in play and the Ability works
+//! (cleared otherwise: a blocked Seaking attacks once). Rapid Draw is one Draw event of the attack's effect, after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

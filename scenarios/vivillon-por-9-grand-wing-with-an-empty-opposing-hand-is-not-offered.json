@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scatterbug POR 7",
+   "4 Spewpa POR 8",
+   "4 Vivillon POR 9",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Scatterbug POR 7",
+   "4 Spewpa POR 8",
+   "4 Vivillon POR 9",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Scatterbug POR 7",
+   "Spewpa POR 8",
+   "Vivillon POR 9"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Scatterbug POR 7"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Grand Wing",
+   "is": false,
+   "cite": "id2306: with no cards in their hand the Ability can't be used"
+  }
+ ]
+}
