@@ -27,7 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     triggers: &[Trigger {
         origin: RuleSource::CardRule,
-        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
         steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "CHAINS_OF_CONTROL_USED_MARKER", from: MarkerFrom::Any }))],
     }],
     ..CardSpec::NONE

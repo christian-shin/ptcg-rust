@@ -21,9 +21,6 @@ pub enum Event {
     /// ("that player"), else for the declaring card's owner; the event's spot is the picked slot.
     On(super::event::EventPred),
     OnDamagedByAttack(OnDamagedByAttackSpec),
-    OnCheckup(OnCheckupSpec),
-    // B7-OLD -> B8: OnEndTurn / OnCheckup become lasting effects stored with a timing.
-    OnEndTurn(OnEndTurnSpec),
     OnAfterAttackTriggers(OnAfterAttackTriggersSpec),
 }
 
@@ -43,36 +40,15 @@ pub struct OnDamagedByAttackSpec {
 impl OnDamagedByAttackSpec {
     pub const DEFAULT: OnDamagedByAttackSpec = OnDamagedByAttackSpec { as_attacker: false, removes_attacker_energy: false, attacker_required: true };
 }
-/// Pokémon Checkup (between turns); the program's player is the player being checked. An Ability fires for each
-/// Pokémon in play that has it, in its owner's part of the Checkup, while it works (Froslass's Freezing Shroud: each
-/// Froslass applies it separately, id2302); a card rule or a Trainer's effect fires for every copy of the card in any
-/// zone (it clears its own markers).
-pub struct OnCheckupSpec {}
 /// The attack's after-attack triggers of the player run (step 7 window).
 pub struct OnAfterAttackTriggersSpec {}
-
-/// Whose turn ending fires the trigger, relative to the card's owner.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Turn {
-    Owner,
-    Opp,
-    Any,
-}
-
-/// The end of a turn (any copy of the card, in any zone, as for the markers
-/// it clears).
-pub struct OnEndTurnSpec {
-    pub whose: Turn,
-}
 
 /// The effect kinds an event reacts to.
 pub const fn event_kinds(e: &Event) -> KindMask {
     use crate::effects::k;
     match e {
-        Event::OnEndTurn(_) => mask(&[k::END_TURN]),
         Event::On(p) => p.effect_kinds(),
         Event::OnDamagedByAttack(_) => mask(&[k::DAMAGE, k::ATTACK_TRIGGER]),
-        Event::OnCheckup(_) => mask(&[k::BETWEEN_TURNS]),
         Event::OnAfterAttackTriggers(_) => mask(&[k::AFTER_ATTACK_TRIGGERS]),
     }
 }
@@ -88,24 +64,6 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
     match &t.event {
         // Run after the event is done (`run::after_event`, `fires_on`).
         Event::On(_) => None,
-        Event::OnEndTurn(w) => {
-            let Effect::EndTurn { p } = *g.e(e) else { return None };
-            let p = p as usize;
-            let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
-            // A Tool or an Energy reacts only while attached, unless its lock probe fails.
-            if matches!(t.origin, RuleSource::Tool | RuleSource::Energy) {
-                let at = super::passive::locate(g, me, t.origin)?;
-                if super::passive::blocked(g, me, t.origin, at, at.held) {
-                    return None;
-                }
-            }
-            let ok = match w.whose {
-                Turn::Owner => p == owner,
-                Turn::Opp => p != owner,
-                Turn::Any => true,
-            };
-            ok.then_some((owner, None))
-        }
         Event::OnDamagedByAttack(d) => {
             // Where the card is: part of the Pokémon (an Ability) or attached to it (a Tool).
             let holds = |g: &Game, target: crate::effects::SlotRef| match t.origin {
@@ -135,19 +93,6 @@ fn fires_in(g: &mut Game, me: CardId, e: EffId, t: &Trigger) -> Option<(usize, O
                 _ => None,
             }
         }
-        Event::OnCheckup(_) => match *g.e(e) {
-            Effect::BetweenTurns { p, .. } if g.st.phase == crate::types::GamePhase::BetweenTurns => {
-                let p = p as usize;
-                if t.origin == RuleSource::Ability {
-                    let at = super::passive::locate(g, me, t.origin)?;
-                    if at.owner != p || super::passive::blocked(g, me, t.origin, at, None) {
-                        return None;
-                    }
-                }
-                Some((p, None))
-            }
-            _ => None,
-        },
         Event::OnAfterAttackTriggers(_) => match *g.e(e) {
             Effect::AfterAttackTriggers { p, .. } => Some((p as usize, None)),
             _ => None,
@@ -185,6 +130,11 @@ pub fn event_view(g: &Game, e: EffId) -> Option<super::event::EventView> {
         Effect::TakePrizes { p, prizes, cause } => crate::engine::knockout::prizes_view(g, p as usize, prizes.len() as i32, cause),
         // The whole action (its pairs are in the effect); a trigger over one end would read `end` / `slot` per pair.
         Effect::MoveCounters { p, cause, .. } => EventView::new(EventKind::MoveCounters, cause, p, turn),
+        // The turn-structure events (batch 8): the player whose turn begins or ends, the player being checked (nobody's
+        // turn at Checkup, APR F).
+        Effect::BeginTurn { p } => EventView::new(EventKind::BeginTurn, crate::cause::Cause::rule(crate::cause::RuleWhich::BeginTurn, p), p, turn),
+        Effect::EndTurn { p } => EventView::new(EventKind::EndTurn, crate::cause::Cause::rule(crate::cause::RuleWhich::EndTurn, p), p, turn),
+        Effect::BetweenTurns { p, .. } => EventView::new(EventKind::Checkup, crate::cause::Cause::rule(crate::cause::RuleWhich::Checkup, p), p, turn),
         _ => return None,
     })
 }

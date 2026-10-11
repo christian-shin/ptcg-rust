@@ -41,6 +41,14 @@ pub const UNHANDLED_KINDS: crate::effects::KindMask = crate::effects::mask(&[
     crate::effects::k::USE_POWER,
     crate::effects::k::BEFORE_DOING_DAMAGE,
     crate::effects::k::BEGIN_TURN,
+    // Batch 8 C5b: the end of the turn (the once-per-turn marks are its consequence, its triggers run after it), the
+    // Checkup (the Checkup routine reads the "more damage counters" declarations), entering play and evolving (the
+    // once-per-turn marks reset in their reducer), using an attack (the first-turn permission is read by its checks).
+    crate::effects::k::END_TURN,
+    crate::effects::k::BETWEEN_TURNS,
+    crate::effects::k::ENTER_PLAY,
+    crate::effects::k::EVOLVE,
+    crate::effects::k::USE_ATTACK,
 ]);
 
 /// The reader families (C3a: the derived facts' modifiers).
@@ -70,7 +78,12 @@ pub mod fam {
     pub const DAMAGE_DEALT: usize = 10;
     /// `DamageTaken`, `SurviveOnTen` (the Damage routine's step 5).
     pub const DAMAGE_TAKEN: usize = 11;
-    pub const N: usize = 12;
+    /// `CheckupDamage` (read by the Checkup routine).
+    pub const CHECKUP_DAMAGE: usize = 12;
+    /// `AttackFlags` with `first_turn` ("if you go first, this Pokémon can attack during your first turn": the UseAttack's
+    /// checks read it).
+    pub const FIRST_TURN: usize = 13;
+    pub const N: usize = 14;
 }
 
 /// The family a passive's modifier is read in, if it is one of the index's.
@@ -89,6 +102,8 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => fam::PRIZE,
         Modifier::DamageDealt(d) if matches!(d.stage, crate::spec::passive::DamageStage::Deal) => fam::DAMAGE_DEALT,
         Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => fam::DAMAGE_TAKEN,
+        Modifier::CheckupDamage(_) => fam::CHECKUP_DAMAGE,
+        Modifier::AttackFlags(a) if a.first_turn => fam::FIRST_TURN,
         _ => return None,
     })
 }
@@ -128,11 +143,14 @@ pub struct DeclIndex {
     /// The cards declaring an attacker-side modifier at the Attack stage, the next-turn bonus or Shred: what an `Attack`
     /// effect reaches besides the attacking card's program.
     pub attack_passives: u128,
+    /// The cards with a once-per-turn Ability (`Once::PerTurn` / `PerTurnShared`): their marks are cleared at the end of
+    /// the turn (the EndTurn event's consequence).
+    pub once_per_turn: u128,
 }
 
 impl DeclIndex {
     pub const fn new() -> DeclIndex {
-        DeclIndex { sets: [0; fam::N], kinds: [0; KIND_SLOTS], attack_passives: 0 }
+        DeclIndex { sets: [0; fam::N], kinds: [0; KIND_SLOTS], attack_passives: 0, once_per_turn: 0 }
     }
 
     /// The index of the game's cards (`Game::start`, after the decks are in).
@@ -154,6 +172,9 @@ impl DeclIndex {
                 if attack_side {
                     ix.attack_passives |= 1u128 << c;
                 }
+            }
+            if crate::cards::spec_for(g.st.cards[c as usize].def).is_some_and(|s| s.powers.iter().any(|pw| matches!(pw.once, crate::spec::Once::PerTurn(_) | crate::spec::Once::PerTurnShared(_)))) {
+                ix.once_per_turn |= 1u128 << c;
             }
             if let Some(imp) = crate::cards::impl_for(g.st.cards[c as usize].def) {
                 for (w, word) in imp.mask.0.iter().enumerate() {
@@ -197,7 +218,12 @@ pub fn passives(g: &Game, c: CardId) -> &'static [Passive] {
 /// The cards of family `f`, in any zone, in the propagation order of rank class `class` (for the readers whose
 /// declarations check where their card is themselves).
 pub fn all(g: &Game, f: usize, class: u16) -> SVec<CardId, 120> {
-    let mut set = g.decls.sets[f];
+    all_of(g, g.decls.sets[f], class)
+}
+
+/// The cards of `set` (a bit per card id), in any zone of the board, in the propagation order of rank class `class`.
+pub fn all_of(g: &Game, set: u128, class: u16) -> SVec<CardId, 120> {
+    let mut set = set;
     let mut cards: SVec<CardId, 120> = SVec::new();
     while set != 0 {
         cards.push(set.trailing_zeros() as CardId);
@@ -285,6 +311,11 @@ pub fn ordered(g: &Game, cards: SVec<CardId, 120>, class: u16) -> SVec<CardId, 1
     out
 }
 
+/// Is the card in a zone of the board the propagation order visits (not the Lost Zone, not set aside in a staging list)?
+pub fn in_a_zone(g: &Game, c: CardId) -> bool {
+    prop_key(g, c).is_some()
+}
+
 /// The card's place in the zone order: player (bit 20), zone (bits 8..19), index in the zone (bits 0..7).
 fn prop_key(g: &Game, c: CardId) -> Option<u32> {
     let key = |p: u8, zone: u32, list: &[CardId]| -> Option<u32> {
@@ -331,8 +362,9 @@ mod tests {
                 let m = crate::spec::passive::modifier_kinds(&ps.modifier);
                 if m.intersects(UNHANDLED_KINDS) {
                     assert!(
-                        // (The Prize adjustments are read by the KnockOut routine, `knockout::prize_adjustments`.)
-                        matches!(ps.modifier, Modifier::BlockUse(_) | Modifier::Prevent(_) | Modifier::Permit(_) | Modifier::Reflip(_) | Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_)),
+                        // (The Prize adjustments are read by the KnockOut routine, `knockout::prize_adjustments`; the "more damage
+                        // counters" at Checkup by the Checkup routine, `phase::checkup_damage`.)
+                        matches!(ps.modifier, Modifier::BlockUse(_) | Modifier::Prevent(_) | Modifier::Permit(_) | Modifier::Reflip(_) | Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) | Modifier::CheckupDamage(_)),
                         "{}: a passive handling an unhandled kind",
                         s.class
                     );
@@ -365,6 +397,24 @@ mod tests {
                 }
                 if m.has(k::POWER) {
                     assert!(matches!(ps.modifier, Modifier::AbilityLock(_) | Modifier::ActiveLock(_)), "{}: a passive over Power effects that isn't a lock", s.class);
+                }
+            }
+        }
+    }
+
+    /// No declaration naming no kind ranges over the turn-structure events (BeginTurn, EndTurn, Checkup): they aren't in the
+    /// base of a kind-free predicate (`EVENT_KINDS`, `EFFECT_EVENT_KINDS`), and a trigger reads them only by naming them.
+    #[test]
+    fn no_kind_free_declaration_ranges_over_the_turn_structure() {
+        let turn = crate::effects::mask(&[k::BEGIN_TURN, k::END_TURN, k::BETWEEN_TURNS]);
+        assert!(!crate::spec::event::EVENT_KINDS.intersects(turn));
+        assert!(!crate::spec::event::EFFECT_EVENT_KINDS.intersects(turn));
+        for s in crate::cards::registry::SPECS.iter() {
+            for t in s.triggers {
+                if let Event::On(p) = &t.event {
+                    if p.effect_kinds().intersects(turn) {
+                        assert!(!p.effect_kinds().intersects(crate::spec::event::EVENT_KINDS), "{}: a trigger over a turn-structure event and others", s.class);
+                    }
                 }
             }
         }

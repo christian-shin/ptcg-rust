@@ -39,7 +39,7 @@ pub static SPEC: CardSpec = CardSpec {
         },
         Trigger {
             origin: RuleSource::CardRule,
-            event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
             steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "TRUMP_CARD_MARKER", from: MarkerFrom::Any }))],
         },
     ],

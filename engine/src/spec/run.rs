@@ -439,7 +439,8 @@ fn trigger_cause(g: &Game, me: CardId, t: &trigger::Trigger, eff: crate::effects
         return Cause::of_origin(t.origin, me, owner);
     }
     match &t.event {
-        trigger::Event::OnEndTurn(_) => Cause::new(CauseKind::Rule { which: crate::cause::RuleWhich::EndTurn }, Some(me), owner),
+        // The end of the turn's bookkeeping of a card's own text (`Rule { EndTurn }`).
+        trigger::Event::On(_) if (eff as usize) < g.fx.len() && matches!(*g.e(eff), Effect::EndTurn { .. }) => Cause::new(CauseKind::Rule { which: crate::cause::RuleWhich::EndTurn }, Some(me), owner),
         trigger::Event::OnAfterAttackTriggers(_) | trigger::Event::OnDamagedByAttack(_) => {
             let attack = if (eff as usize) < g.fx.len() {
                 match *g.e(eff) {
@@ -536,7 +537,7 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
 /// Ruins after the Pokémon is on the Bench).
 pub fn after_event(g: &mut Game, e: EffId) -> R {
     let kind = g.e(e).kind();
-    if !crate::spec::event::EVENT_KINDS.has(kind) || g.prevented(e) {
+    if !crate::spec::event::TRIGGER_EVENT_KINDS.has(kind) || g.prevented(e) {
         return Ok(());
     }
     if !g.kinds_present.has(kind) {
@@ -552,6 +553,25 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
             }
         }
         None => fire_on(g, e, kind, None)?,
+    }
+    Ok(())
+}
+
+/// The `Event::On` triggers of card `c` over the event `e` (a turn-structure event: one view), run for `c`: a copy-attack
+/// session's source card run for the copycat (`copy_attack::delegate`, which sets the delegation) fires its own the way
+/// the game's cards fire theirs after the event.
+pub fn fire_card_on(g: &mut Game, e: EffId, c: CardId) -> R {
+    let spec = spec_of(g, c);
+    for (i, t) in spec.triggers.iter().enumerate() {
+        if !matches!(t.event, trigger::Event::On(_)) {
+            continue;
+        }
+        let Some(v) = trigger::event_view(g, e) else { continue };
+        if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
+            let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
+            f.slot = slot;
+            run(g, c, f)?;
+        }
     }
     Ok(())
 }

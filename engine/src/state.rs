@@ -269,9 +269,6 @@ pub struct CardInst {
     /// Attacks whose serialized object now differs from the printed card
     /// (canonical `cards[...].attacks`, with a `barrage` key).
     pub attack_barrage_shown: u8,
-    /// `this.attacks[i].canUseOnFirstTurn = true` written at runtime (Meloetta ex);
-    /// bit i = attack i. Card-object state: never reset, canonical `cards[...].attacks`.
-    pub attack_first_turn: u8,
     /// `this.attacks[i].shredAttack = true` written at runtime (Walking Wake ex's
     /// Azure Wave); bit i = attack i. Card-object state: never reset, canonical
     /// `cards[...].attacks` (a `shredAttack` key).
@@ -298,7 +295,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_first_turn: 0, attack_shred: 0, lock_stamp: 0, staged_from: None, staged_in: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, extra_prizes: false, attack_barrage: 0, attack_barrage_shown: 0, evolves_from_base: None, discarded_stadium_card: false, strafe_used: false, attack_shred: 0, lock_stamp: 0, staged_from: None, staged_in: None }
     }
 }
 

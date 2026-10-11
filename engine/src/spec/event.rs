@@ -99,6 +99,11 @@ impl EventKind {
             EventKind::UseAttack => Some(k::USE_ATTACK),
             EventKind::UseAbility => Some(k::USE_POWER),
             EventKind::UseStadium => Some(k::USE_STADIUM),
+            // Trigger-only (batch 8): not in `EVENT_KINDS` (no declaration naming no kind ranges over them), no lock or
+            // prevention marker; the phase routines make them.
+            EventKind::BeginTurn => Some(k::BEGIN_TURN),
+            EventKind::EndTurn => Some(k::END_TURN),
+            EventKind::Checkup => Some(k::BETWEEN_TURNS),
             _ => None,
         }
     }
@@ -552,6 +557,11 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::USE_POWER,
     crate::effects::k::USE_STADIUM,
 ]);
+/// The events the triggers after an event read (`run::after_event`): every event of [`EVENT_KINDS`] and the turn-structure
+/// events the phase routines make (BeginTurn, EndTurn, Checkup: batch 8), which only a trigger naming them reads (they
+/// aren't in `EVENT_KINDS`, the base of a predicate naming no kind: no kind-free declaration ranges over them).
+pub const TRIGGER_EVENT_KINDS: KindMask = EVENT_KINDS.or(crate::effects::mask(&[crate::effects::k::BEGIN_TURN, crate::effects::k::END_TURN, crate::effects::k::BETWEEN_TURNS]));
+
 /// The events with an effect done to a Pokémon or its cards, which a `Prevent` naming no `Kind` ranges over ("prevent all
 /// effects of attacks done to X"): an explicit list (events batch 7). Not Damage: damage is not an effect (APR C-17
 /// "(Damage is not an effect)", B-08 / B-09; id2289, id2333, id2398; a prevention of damage names `Kind(Damage)`). Not

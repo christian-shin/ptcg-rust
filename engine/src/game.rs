@@ -1161,7 +1161,10 @@ impl Game {
                 self.st.bump();
             }
         }
-        if !self.copy_sessions.is_empty() {
+        // A copy-attack session's source code runs for the copycat after the game's cards (the turn-structure events: after
+        // their triggers, below).
+        let late_sessions = matches!(kind, k::BEGIN_TURN | k::END_TURN | k::BETWEEN_TURNS);
+        if !late_sessions && !self.copy_sessions.is_empty() {
             crate::copy_attack::resolve_sessions(self, id)?;
         }
 
@@ -1175,7 +1178,7 @@ impl Game {
         }
         // The effect's consequences: one reducer per kind.
         match kind {
-            k::END_TURN | k::AFTER_ATTACK | k::BETWEEN_TURNS => phase::reducer(self, id)?,
+            k::END_TURN | k::AFTER_ATTACK => phase::reducer(self, id)?,
             k::GAIN_CONDITION | k::REMOVE_CONDITION | k::HEAL | k::COIN_FLIP => crate::engine::condition::reducer(self, id)?,
             k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL => crate::engine::attach::reducer(self, id)?,
             k::CHANGE_ACTIVE => crate::engine::change_active::reducer(self, id)?,
@@ -1212,8 +1215,11 @@ impl Game {
         if !read {
             self.st.bump();
         }
-        if crate::spec::event::EVENT_KINDS.has(kind) {
+        if crate::spec::event::TRIGGER_EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
+        }
+        if late_sessions && !self.copy_sessions.is_empty() {
+            crate::copy_attack::resolve_sessions(self, id)?;
         }
         Ok(())
     }

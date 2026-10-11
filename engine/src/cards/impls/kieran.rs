@@ -23,7 +23,7 @@ pub static SPEC: CardSpec = CardSpec {
         Passive { origin: RuleSource::TrainerEffect, modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 30, target: SlotPred::OneOf(&[SlotPred::Tag(tag::POKEMON_V), SlotPred::Tag(tag::POKEMON_VSTAR), SlotPred::Tag(tag::POKEMON_VMAX), SlotPred::Tag(tag::POKEMON_EX_LOWER)]), needs_damage: true, guard: Cond::HasMarker { who: Who::Me, name: "KIERAN_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
     ],
     triggers: &[
-        Trigger { origin: RuleSource::Ability, event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }), steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "KIERAN_MARKER", from: MarkerFrom::This }))] },
+        Trigger { origin: RuleSource::CardRule, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])), steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "KIERAN_MARKER", from: MarkerFrom::This }))] },
     ],
     ..CardSpec::NONE
 };

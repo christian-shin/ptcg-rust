@@ -559,6 +559,22 @@ pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListR
     Ok(true)
 }
 
+/// A card that enters play or evolves is a new Pokémon: its once-per-turn marks reset (id317; its player's marks named by
+/// its once-per-turn Abilities, `Once::PerTurn` and `PerTurnShared`). As the cards' handlers did (batch 8 C5b moved it here
+/// from them): for a card in a zone of the board when the event is made (a card set aside by a search isn't; its
+/// `PerTurn` marks reset with the move into the spot, `prefabs::reset_once_per_turn`).
+fn reset_entering_marks(g: &mut Game, p: usize, card: CardId) {
+    if g.decls.once_per_turn & (1u128 << card) == 0 || !crate::decl::in_a_zone(g, card) {
+        return;
+    }
+    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return };
+    for pw in spec.powers.iter() {
+        if let crate::spec::Once::PerTurn(name) | crate::spec::Once::PerTurnShared(name) = pw.once {
+            g.st.players[p].marker.remove_from(crate::markers::intern(name), card);
+        }
+    }
+}
+
 /// The Swap's consequences: the physical moves and the card-bound facts.
 fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: ListRef, into: ListRef, place: SwapPlace, me: CardId) -> R {
     let (p, s) = (target.p as usize, target.s);
@@ -595,6 +611,9 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
 
 /// The reducer of the Pokémon events: what each does to the game.
 pub fn reducer(g: &mut Game, id: EffId) -> R {
+    if let Effect::EnterPlay { p, card, .. } | Effect::Evolve { p, card, .. } = *g.e(id) {
+        reset_entering_marks(g, p as usize, card);
+    }
     match *g.e(id) {
         Effect::EnterPlay { card, target, from, .. } => {
             if !g.st.slot(target.p as usize, target.s).cards.is_empty() {

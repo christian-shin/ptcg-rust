@@ -66,14 +66,12 @@ pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
 /// attacks (a Benched one for a use-on-Bench attack) and the flags that block
 /// it. Returns the attacking slot. Same order as `start_use_attack` always had.
 ///
-/// `granted_first_turn`: an Ability that lets the attack be used on the first turn (Meloetta ex) will write
-/// the flag when the `UseAttack` effect reaches it (execution passes `false`: the flag is written by then);
-/// legality asks `passive::grants_first_turn_attack` for it.
+/// `granted_first_turn`: an Ability lets the attack be used on the first turn (Meloetta ex's permission,
+/// `passive::grants_first_turn_attack`, which execution and legality both read).
 pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool, granted_first_turn: bool) -> R<SlotRef> {
     let ad = attack_def(g, attack);
-    // `attack.canUseOnFirstTurn` (printed, or written at runtime by Meloetta ex).
-    let first_turn_ok = granted_first_turn || g.st.cards[attack.card as usize].attack_first_turn & (1u8 << attack.idx()) != 0;
-    if g.st.turn == 1 && !ad.can_use_on_first_turn && !first_turn_ok && !g.st.rules.attack_first_turn {
+    // Printed "can be used on the first turn", or the permission.
+    if g.st.turn == 1 && !ad.can_use_on_first_turn && !granted_first_turn && !g.st.rules.attack_first_turn {
         crate::bail!("CANNOT_ATTACK_ON_FIRST_TURN");
     }
     let active = g.st.players[p].active;
@@ -136,7 +134,8 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     let active = g.st.players[p].active;
     let sp = g.st.slot(p, active).special_conditions;
     // The UseAttack event's checks (`engine::turn_action::attack_checks`, the function legality calls).
-    let attacking = match crate::engine::turn_action::attack_checks(g, p, attack, ignore_status, false)? {
+    let granted = crate::spec::passive::grants_first_turn_attack(g, p);
+    let attacking = match crate::engine::turn_action::attack_checks(g, p, attack, ignore_status, granted)? {
         Ok(s) => s,
         Err(code) => crate::bail!(code),
     };
@@ -304,7 +303,7 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
     }
     g.release_fx(f.atk);
     g.release_fx(f.origin);
-    g.run_fx_unit(Effect::EndTurn { p: f.p })?;
+    crate::engine::phase::end_turn_event(g, f.p as usize)?;
     Ok(())
 }
 
@@ -335,7 +334,7 @@ fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     if attack_barrage(g, f.attack) && !barrage_can_attack_again(g, &f)? {
         g.release_fx(f.atk);
         g.release_fx(f.origin);
-        g.run_fx_unit(Effect::EndTurn { p: f.p })?;
+        crate::engine::phase::end_turn_event(g, f.p as usize)?;
         return Ok(());
     }
     f.stage = AtkStage::AfterBarrageConfirm;
@@ -373,7 +372,7 @@ fn barrage_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
     g.release_fx(f.atk);
     g.release_fx(f.origin);
     if !want {
-        g.run_fx_unit(Effect::EndTurn { p: f.p })?;
+        crate::engine::phase::end_turn_event(g, f.p as usize)?;
         return Ok(());
     }
     let p = f.p as usize;
@@ -400,7 +399,7 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
                 // (phase 4b, ruling n=1621): the playerLastAttack stamp is voided.
                 g.st.player_last_attack_turn[p] = -1;
                 g.release_fx(f.origin);
-                g.run_fx_unit(Effect::EndTurn { p: f.p })?;
+                crate::engine::phase::end_turn_event(g, f.p as usize)?;
                 return Ok(());
             }
             begin_attack(g, f)

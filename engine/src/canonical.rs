@@ -278,8 +278,8 @@ impl Game {
             if inst.discarded_stadium_card {
                 diff.insert("discardedStadiumCard".into(), json!(true));
             }
-            if inst.attack_barrage_shown != 0 || inst.attack_first_turn != 0 || inst.attack_shred != 0 {
-                // Runtime `this.attacks[i].barrage` / `canUseOnFirstTurn` / `shredAttack` writes: the whole attacks array.
+            if inst.attack_barrage_shown != 0 || inst.attack_shred != 0 {
+                // Runtime `this.attacks[i].barrage` / `shredAttack` writes: the whole attacks array.
                 let atks: Vec<Value> = d
                     .attacks
                     .iter()
@@ -292,9 +292,6 @@ impl Game {
                         o.insert("text".into(), json!(a.text));
                         if let Some(dc) = a.damage_calculation {
                             o.insert("damageCalculation".into(), json!(dc));
-                        }
-                        if inst.attack_first_turn & (1 << i) != 0 {
-                            o.insert("canUseOnFirstTurn".into(), json!(true));
                         }
                         if inst.attack_shred & (1 << i) != 0 {
                             o.insert("shredAttack".into(), json!(true));

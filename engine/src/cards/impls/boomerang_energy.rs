@@ -42,7 +42,7 @@ pub static SPEC: CardSpec = CardSpec {
         // After the attack's effects (and the Energy choices they ask) are done; the end of the
         // turn is the fallback for a discard no after-attack window followed.
         Trigger { origin: RuleSource::Energy, event: Event::OnAfterAttackTriggers(OnAfterAttackTriggersSpec {}), steps: REATTACH },
-        Trigger { origin: RuleSource::Energy, event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }), steps: REATTACH },
+        Trigger { origin: RuleSource::Energy, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])), steps: REATTACH },
     ],
     ..CardSpec::NONE
 };

@@ -48,6 +48,7 @@ pub fn init_next_turn(g: &mut Game) -> R {
         crate::engine::knockout::game_end(g, winner, crate::engine::knockout::EndReason::DeckOut);
         return Ok(());
     }
+    // The BeginTurn event (batch 8: no card reacts to it in the pool).
     g.run_fx_unit(Effect::BeginTurn { p: p as u8 })?;
 
     let id = g.player_id(p);
@@ -82,8 +83,17 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
     for p in 0..2 {
         let a = g.st.players[p].active;
         let slot = g.st.slot(p, a);
-        let e = Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage };
-        g.run_fx_unit(e)?;
+        // The Checkup event of player `p` (batch 8: its triggers run after it), carrying the Poison and Burn amounts the
+        // "N more damage counters" declarations raise (`checkup_damage`, read before it); then the Special Conditions.
+        let id = g.new_fx(Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage });
+        let r = checkup_damage(g, id).and_then(|_| g.reduce_effect(id));
+        let (poison, burn) = match *g.e(id) {
+            Effect::BetweenTurns { poison_damage, burn_damage, .. } => (poison_damage, burn_damage),
+            _ => (10, 20),
+        };
+        g.release_fx(id);
+        r?;
+        handle_special_conditions(g, p, poison, burn)?;
     }
     if g.has_prompts() {
         g.wait_prompt(Cont::BetweenTurnsCheck { oc });
@@ -143,11 +153,30 @@ pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) 
     })
 }
 
-fn handle_special_conditions(g: &mut Game, id: EffId) -> R {
-    let (p, poison, burn) = match *g.e(id) {
-        Effect::BetweenTurns { p, poison_damage, burn_damage } => (p as usize, poison_damage, burn_damage),
-        _ => return Ok(()),
-    };
+/// The "put N more damage counters on each Poisoned / Burned Pokémon during Pokémon Checkup" declarations
+/// (`Modifier::CheckupDamage`: Perilous Jungle, Pecharunt, Magmortar), in the propagation order of the declaring cards (any
+/// zone: each checks where its card is), on the Checkup event `id` of a player before it is made.
+fn checkup_damage(g: &mut Game, id: EffId) -> R {
+    use crate::spec::passive::Modifier;
+    let order = crate::decl::all(g, crate::decl::fam::CHECKUP_DAMAGE, 0);
+    if order.is_empty() {
+        return Ok(());
+    }
+    crate::derived::Facts::undelegated(g, |g| -> R {
+        for c in order.iter().copied() {
+            for ps in crate::decl::passives(g, c) {
+                if let Modifier::CheckupDamage(_) = &ps.modifier {
+                    crate::spec::passive::apply(g, c, id, ps)?;
+                }
+            }
+        }
+        Ok(())
+    })
+}
+
+/// Pokémon Checkup's Special Conditions for player `p`'s Active Pokémon, with the Poison and Burn amounts of its Checkup
+/// event.
+fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> R {
     let pid = g.player_id(p);
     // Iterate over a snapshot, like `for...of` over the original array.
     let a0 = g.st.players[p].active;
@@ -182,9 +211,37 @@ fn handle_special_conditions(g: &mut Game, id: EffId) -> R {
     Ok(())
 }
 
+/// The end of player `p`'s turn: the EndTurn event (its consequences, then the triggers "at the end of your turn"),
+/// then the end-of-turn processing (`end_turn`: the turn's records, the lasting effects' timing, the state check, the
+/// next turn). Every way a turn ends calls it.
+pub fn end_turn_event(g: &mut Game, p: usize) -> R {
+    g.run_fx_unit(Effect::EndTurn { p: p as u8 })?;
+    end_turn(g, p)
+}
+
+/// The EndTurn event's consequence: the once-per-turn marks of player `p`'s Abilities (the cards with a once-per-turn
+/// Ability, `decl::once_per_turn`) are cleared.
+fn end_turn_marks(g: &mut Game, p: usize) {
+    for c in crate::decl::all_of(g, g.decls.once_per_turn, 0).iter().copied() {
+        let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
+        for pw in spec.powers.iter() {
+            if let crate::spec::Once::PerTurn(name) | crate::spec::Once::PerTurnShared(name) = pw.once {
+                let m = &mut g.st.players[p].marker;
+                let id = crate::markers::intern(name);
+                if m.has_from(id, c) {
+                    m.remove_from(id, c);
+                }
+            }
+        }
+    }
+}
+
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::EndTurn { p } => end_turn(g, p as usize),
+        Effect::EndTurn { p } => {
+            end_turn_marks(g, p as usize);
+            Ok(())
+        }
         Effect::AfterAttack { opp, .. } => {
             // A Pokémon that survived this attack on 10 HP keeps 10 HP when an effect of the
             // attack lowered its maximum HP (survive-on-ten.ts; ruling 1589).
@@ -209,7 +266,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
-        Effect::BetweenTurns { .. } => handle_special_conditions(g, id),
         _ => Ok(()),
     }
 }

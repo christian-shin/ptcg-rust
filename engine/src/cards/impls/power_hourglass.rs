@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "PowerHourglass",
     triggers: &[Trigger {
         origin: RuleSource::Tool,
-        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
         steps: &[Step::new(Op::If(IfSpec {
             cond: Cond::All(&[Cond::Slot(MY_ACTIVE, SlotPred::Holder), Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), Pred::BasicEnergy)]),
             yes: &[Step::new(Op::Attach(AttachSpec {

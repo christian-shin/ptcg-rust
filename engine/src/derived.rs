@@ -224,7 +224,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         h.write_u8(ci.owner);
         h.write_u8(ci.moved_to_active_this_turn as u8);
         h.write_i32(ci.damage_taken_last_turn);
-        for b in [ci.extra_prizes as u8, ci.attack_barrage, ci.attack_barrage_shown, ci.attack_first_turn, ci.attack_shred, ci.strafe_used as u8, ci.discarded_stadium_card as u8] {
+        for b in [ci.extra_prizes as u8, ci.attack_barrage, ci.attack_barrage_shown, ci.attack_shred, ci.strafe_used as u8, ci.discarded_stadium_card as u8] {
             h.write_u8(b);
         }
         h.write_usize(ci.evolves_from_base.map_or(0, |s| s.as_ptr() as usize));

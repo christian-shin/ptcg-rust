@@ -38,7 +38,7 @@ pub static SPEC: CardSpec = CardSpec {
     // The markers end with the opponent's next turn.
     triggers: &[Trigger {
         origin: RuleSource::TrainerEffect,
-        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Opp }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Opp)])),
         steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::EveryPokemon(Who::Me), name: MISCHIEF, from: MarkerFrom::This }))],
     }],
     ..CardSpec::NONE

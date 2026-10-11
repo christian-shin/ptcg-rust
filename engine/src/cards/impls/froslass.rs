@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Froslass",
     triggers: &[Trigger {
         origin: RuleSource::Ability,
-        event: Event::OnCheckup(OnCheckupSpec {}),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Checkup), EventPred::Owner(Who::Me)])),
         steps: &[
             Step::new(Op::ForEach(ForEachSpec {
                 over: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), NOT_FROSLASS_WITH_ABILITY),

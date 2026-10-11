@@ -34,7 +34,7 @@ pub static SPEC: CardSpec = CardSpec {
     // The marker lasts through the opponent's next turn.
     triggers: &[Trigger {
         origin: RuleSource::CardRule,
-        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Opp }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Opp)])),
         steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: MARKER, from: MarkerFrom::This }))],
     }],
     ..CardSpec::NONE

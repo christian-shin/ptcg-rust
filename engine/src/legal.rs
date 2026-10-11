@@ -476,7 +476,7 @@ fn fast_attack(ctx: &mut Ctx, name: &'static str, from: Option<&'static str>) ->
         return ctx.none("attack: a copy-attack clone");
     }
     // The first-turn flag an Ability writes as the attack is used (Meloetta ex).
-    let granted = g.st.turn == 1 && g.kinds_present.has(k::USE_ATTACK) && passive::grants_first_turn_attack(ctx, p);
+    let granted = passive::grants_first_turn_attack(ctx, p);
     // The UseAttack's checks (`engine::turn_action::attack_checks`, the function execution calls).
     let attacking = match crate::engine::turn_action::attack_checks(ctx, p, attack, false, granted) {
         Ok(Ok(s)) => s,

@@ -193,7 +193,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
     let p = g.st.active_player as usize;
     match a {
         Action::Pass => {
-            g.run_fx_unit(Effect::EndTurn { p: p as u8 })?;
+            crate::engine::phase::end_turn_event(g, p)?;
         }
         Action::Retreat { bench_index } => {
             g.run_fx(Effect::Retreat {

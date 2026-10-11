@@ -108,7 +108,11 @@ fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
     }
     let saved = g.deleg;
     g.deleg = Some(Deleg { copycat: s.copycat, source: s.source, serial: s.serial, attacks: true });
-    let r = (imp.reduce)(g, s.copycat, id);
+    let mut r = (imp.reduce)(g, s.copycat, id);
+    // The turn-structure events: the source's triggers over them, run for the copycat (they were its dispatch triggers).
+    if r.is_ok() && matches!(*g.e(id), Effect::EndTurn { .. } | Effect::BetweenTurns { .. } | Effect::BeginTurn { .. }) {
+        r = crate::spec::run::fire_card_on(g, id, s.copycat);
+    }
     g.deleg = saved;
     r
 }

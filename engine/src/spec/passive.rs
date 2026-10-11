@@ -779,9 +779,10 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
         Modifier::NextTurnBonus(_) => mask(&[k::ATTACK]),
         Modifier::BenchAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
+        // The first-turn permission is read by the UseAttack's checks (`grants_first_turn_attack`).
         Modifier::AttackFlags(a) => {
             if a.first_turn {
-                mask(&[k::USE_ATTACK])
+                KindMask::EMPTY
             } else {
                 mask(&[k::ATTACK])
             }
@@ -2459,20 +2460,11 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) ->
 }
 
 fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &AttackFlagsSpec) -> R {
-    if let Some(attacker) = &a.shred {
-        return shred_flags(g, me, e, origin, attacker);
+    match &a.shred {
+        Some(attacker) => shred_flags(g, me, e, origin, attacker),
+        // The first-turn permission is a declaration the UseAttack's checks read (`grants_first_turn_attack`).
+        None => Ok(()),
     }
-    let Effect::UseAttack { p, attack, .. } = *g.e(e) else { return Ok(()) };
-    let p = p as usize;
-    if !first_turn_grants(g, me, origin, a, p) {
-        return Ok(());
-    }
-    // A copy-attack clone carries its own flag (nothing reads it).
-    if !attack.is_clone() {
-        g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
-        g.st.bump();
-    }
-    Ok(())
 }
 
 /// Does `me` (an Ability on the attacking player's Active Pokémon) let `p`'s attacks be used on the first turn?
@@ -2485,10 +2477,11 @@ fn first_turn_grants<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: Ru
     !blocked(g, me, origin, at, None)
 }
 
-/// Legality: will an Ability on `p`'s Active Pokémon let the attack be used on the first turn (the flag
-/// `attack_flags` writes when the `UseAttack` effect reaches it)?
+/// The first-turn attack permission ("if you go first, this Pokémon can attack during your first turn": Meloetta ex's Live
+/// Debut, `AttackFlags { first_turn }`): does an Ability on player `p`'s Active Pokémon let its attacks be used on the
+/// first turn now? The UseAttack's checks read it (execution and legality alike).
 pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize) -> bool {
-    if g.g().st.turn != 1 || !g.g().kinds_present.has(crate::effects::k::USE_ATTACK) {
+    if g.g().st.turn != 1 || g.g().decls.sets[crate::decl::fam::FIRST_TURN] == 0 {
         return false;
     }
     let active = g.g().st.players[p].active;

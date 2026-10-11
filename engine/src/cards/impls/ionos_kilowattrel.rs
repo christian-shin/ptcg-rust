@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         ],
     }],
     triggers: &[
-        Trigger { origin: RuleSource::Ability, event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }), steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "RUMBLING_ENGINE_MARKER", from: MarkerFrom::This }))] },
+        Trigger { origin: RuleSource::CardRule, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])), steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "RUMBLING_ENGINE_MARKER", from: MarkerFrom::This }))] },
     ],
     ..CardSpec::NONE
 };

@@ -43,7 +43,7 @@ pub static SPEC: CardSpec = CardSpec {
     ],
     triggers: &[Trigger {
         origin: RuleSource::CardRule,
-        event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
         // The marker is kept through the following turn of its player, then cleared.
         steps: &[
             Step::new(Op::If(IfSpec {

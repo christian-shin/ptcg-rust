@@ -38,6 +38,8 @@ pub enum RuleWhich {
     /// The state check (APR D): a Pokémon whose HP reached 0 (damage counters, a Special Condition, an HP change) is
     /// Knocked Out by the rule (events batch 6); the cause of that KnockOut, for the Knocked Out Pokémon's opponent.
     StateCheck,
+    /// The start of a player's turn (the BeginTurn event; batch 8).
+    BeginTurn,
 }
 
 /// The kind of thing that caused an event.
@@ -111,7 +113,7 @@ impl Cause {
 
     /// The inverse of [`Cause::pack`].
     pub const fn unpack(b: [u8; 4]) -> Cause {
-        const WHICH: [RuleWhich; 9] = [
+        const WHICH: [RuleWhich; 10] = [
             RuleWhich::TurnDraw,
             RuleWhich::Retreat,
             RuleWhich::Promotion,
@@ -121,6 +123,7 @@ impl Cause {
             RuleWhich::EndTurn,
             RuleWhich::CardRule,
             RuleWhich::StateCheck,
+            RuleWhich::BeginTurn,
         ];
         let kind = match b[0] & 7 {
             0 => CauseKind::Attack,
@@ -349,7 +352,7 @@ mod tests {
 
     #[test]
     fn pack_round_trips() {
-        let whiches = [RuleWhich::TurnDraw, RuleWhich::Retreat, RuleWhich::Promotion, RuleWhich::Checkup, RuleWhich::Setup, RuleWhich::Action, RuleWhich::EndTurn, RuleWhich::CardRule, RuleWhich::StateCheck];
+        let whiches = [RuleWhich::TurnDraw, RuleWhich::Retreat, RuleWhich::Promotion, RuleWhich::Checkup, RuleWhich::Setup, RuleWhich::Action, RuleWhich::EndTurn, RuleWhich::CardRule, RuleWhich::StateCheck, RuleWhich::BeginTurn];
         let mut all = vec![
             Cause::attack(1, Some(17), AttackRef { card: 17, index: 1 }),
             Cause::attack(0, None, AttackRef { card: 3, index: 0x90 }),

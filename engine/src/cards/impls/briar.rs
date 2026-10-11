@@ -34,7 +34,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     triggers: &[Trigger {
         origin: RuleSource::TrainerEffect,
-        event: Event::OnCheckup(OnCheckupSpec {}),
+        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::Checkup), EventPred::Owner(Who::Me)])),
         steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BRIAR, from: MarkerFrom::This }))],
     }],
     ..CardSpec::NONE

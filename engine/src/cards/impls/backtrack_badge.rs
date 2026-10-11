@@ -34,7 +34,7 @@ pub static SPEC: CardSpec = CardSpec {
         // The once-per-turn use ends with the turn.
         Trigger {
             origin: RuleSource::Tool,
-            event: Event::OnEndTurn(OnEndTurnSpec { whose: Turn::Owner }),
+            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
             steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "COIN_REFLIP_AGAIN_USED", from: MarkerFrom::Any }))],
         },
     ],

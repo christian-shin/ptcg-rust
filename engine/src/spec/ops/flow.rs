@@ -161,7 +161,7 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Suspend)
         }
         Op::EndTurn(t) => {
-            g.run_fx_unit(crate::effects::Effect::EndTurn { p: f.who(t.who) as u8 })?;
+            crate::engine::phase::end_turn_event(g, f.who(t.who))?;
             Ok(Flow::Next)
         }
         Op::ForEach(fe) => {
