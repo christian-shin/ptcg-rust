@@ -1,11 +1,10 @@
-//! Illumise (TWM): Slowing Perfume — only if you go second, during your
-//! first turn: shuffle 1 of your opponent's Benched Pokémon and all attached
-//! cards into their deck. Glide — 30.
+//! Illumise (TWM 10): Slowing Perfume - "You can use this attack only if you go second, and only during your first turn." Shuffle
+//! 1 of your opponent's Benched Pokémon and all attached cards into their deck. Glide - 30.
 //!
-//! Legal only on turn 2 (`Op::Fail`, CANNOT_USE_ATTACK otherwise). The attacker chooses 1 Benched Pokémon at step D and
-//! nothing happens with an empty opposing Bench. The shuffle is `Op::RemoveFromPlay` of the chosen Pokémon (the whole
-//! stack): one LeavePlay event with the attack as its cause, which "prevent all effects of attacks" (Mist Energy, Hide
-//! 'n' Sneak) refuses, the Pokémon staying; then the opponent's deck is shuffled.
+//! Usable only on game turn 2 (id1983; `Op::Fail`). The attacker chooses 1 Benched Pokémon at step D, and nothing happens with an
+//! empty opposing Bench. The shuffle is `Op::RemoveFromPlay` of the chosen Pokémon (the whole stack): a LeavePlay with the attack
+//! as its cause, which "prevent all effects of attacks" (Mist Energy, Hide 'n' Sneak) refuses, the Pokémon staying; then the
+//! opponent's deck is shuffled.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Illumise@TWM",

@@ -158,3 +158,10 @@ g0500018755  # step 128 prompt; Look-Alike Show: at step 128 Hassel now blocked 
 g0500018758  # step 165 prompt; Look-Alike Show: at step 165 Team Rocket's Archer now blocked up front by its printed condition
 g0500019125  # end of the recording (an extra prompt); Look-Alike Show: at step 61 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500019725  # end of the recording (an extra prompt); Look-Alike Show: at step 35 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
+# Events batch 7 B71, Wally's Compassion MEG 132 ("Heal all damage from 1 of your Mega Evolution Pokemon ex. If you healed any
+# damage in this way, put all Energy attached to that Pokemon into your hand."; APR E-20): "if you healed" reads the Heal's
+# outcome (`Cond::Done`). Yveltal 30C 100's Life-Locked refuses the heal of the Active Pokemon, so the Energy stays attached;
+# the recording moved it to the hand regardless. Each game diverges at the decision after the Supporter and not at d02ca0b
+# (both replayed locally). Scenario wallys-compassion-meg-132-refused-heal-keeps-the-energy-attached.
+g0500003008  # step 258 obs; Wally's Compassion (step 256) vs Yveltal's Life-Locked: the Energy stays attached, the recording put it into the hand
+g0500005723  # step 67 obs; Wally's Compassion (step 65) vs Yveltal's Life-Locked: the Energy stays attached, the recording put it into the hand

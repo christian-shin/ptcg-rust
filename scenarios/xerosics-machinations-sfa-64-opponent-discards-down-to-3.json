@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Xerosic's Machinations SFA 64",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Xerosic's Machinations SFA 64",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Xerosic's Machinations SFA 64"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "6 Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Xerosic's Machinations SFA 64"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "zone": "hand",
+   "cite": "card text: your opponent discards cards from their hand until they have 3 cards",
+   "at": "turn_end",
+   "count": 3
+  },
+  {
+   "who": "opp",
+   "zone": "discard",
+   "cite": "card text",
+   "at": "turn_end",
+   "count": 3
+  }
+ ]
+}

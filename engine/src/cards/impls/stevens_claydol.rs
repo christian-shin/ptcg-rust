@@ -1,8 +1,9 @@
-//! Steven's Claydol (DRI): Eerie Light — 20; your opponent's Active Pokémon is
-//! now Confused. Clay Blast — 220; discard all Energy from this Pokémon.
+//! Steven's Claydol (DRI): Eerie Light - 20; your opponent's Active Pokémon is now Confused. Clay Blast - 220; discard all Energy
+//! from this Pokémon.
 //!
-//! The Special Condition is an effect of the attack: Mist Energy and other
-//! attack-effect protection prevent it.
+//! The Special Condition is an effect of the attack: Mist Energy and other attack-effect protection prevent it. Clay Blast's
+//! discard is an effect after the damage: a LeavePlay (to the discard pile) of each Energy attached to this Pokémon, caused by
+//! this attack (D1).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

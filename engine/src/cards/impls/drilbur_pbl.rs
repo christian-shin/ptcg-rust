@@ -1,10 +1,9 @@
-//! Drilbur (PBL / M5): Call for Family — search your deck for up to 2 Basic
-//! Pokémon and put them onto your Bench, then shuffle. Dig Claws — 50.
+//! Drilbur (PBL / M5): Call for Family - search your deck for up to 2 Basic Pokémon and put them onto your Bench. Then,
+//! shuffle your deck. Dig Claws - 50.
 //!
-//! SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH({ stage: BASIC },
-//! { min: 0, max: 2 }): throws on an empty deck or a full Bench, except during
-//! an attack (phase 4b R7E, rulings 336/337/1790: the attack is usable, the
-//! search just fails; the prefab returns without searching, in both engines).
+//! An attack that searches with a full Bench or an empty deck is still usable: it does its damage and the search finds nothing
+//! (the guard skips the search and the shuffle). Otherwise one Search op onto the Bench (each Pokémon an EnterPlay), then one
+//! shuffle after the search (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

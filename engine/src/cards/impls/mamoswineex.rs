@@ -1,7 +1,7 @@
-//! Mamoswine ex (JTG): Mammoth Hauler — once during your turn, you may
-//! search your deck for a Pokémon, reveal it, and put it into your hand,
-//! then shuffle. Rumbling March — 180 + 40 for each Stage 2 Pokémon on your
-//! Bench.
+//! Mamoswine ex (JTG): Mammoth Hauler - once during your turn, you may search your deck for a Pokémon, reveal it, and put it into
+//! your hand. Then, shuffle your deck. Rumbling March - 180+; 40 more damage for each Stage 2 Pokémon on your Bench.
+//!
+//! One Search op revealing what it finds, then one shuffle after it (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

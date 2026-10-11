@@ -1,6 +1,7 @@
-//! Judge (FST, SVI as POR): each player shuffles their hand into their deck and draws 4
-//! cards (the player first; the opponent's sequence starts after the
-//! player's draw, as Twinleaf's `afterDraw` callback).
+//! Judge (POR 76; also FST, SVI): each player shuffles their hand into their deck and draws 4 cards.
+//!
+//! Each player's hand (this card is already in play, so not in it) is shuffled into their deck (`HandShuffleDraw`) and they draw
+//! 4: yours first, then the opponent's. Usable when either you have another card in hand or the deck is not empty.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Judge@FST|POR",

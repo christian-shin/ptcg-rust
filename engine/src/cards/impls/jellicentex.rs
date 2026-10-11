@@ -1,14 +1,11 @@
-//! Jellicent ex (WHT / SV11W): Oceanic Curse - while this Pokémon is your
-//! Active, your opponent can't play Item cards or attach Pokémon Tools.
-//! Power Press - 80+; 80 more with at least 2 extra Energy.
+//! Jellicent ex (WHT 45 / SV11W): Oceanic Curse - as long as this Pokémon is in the Active Spot, your opponent can't play any Item
+//! cards or Pokémon Tool cards from their hand. Power Press - 80+; 80 more damage if it has at least 2 extra Energy attached (in
+//! addition to this attack's cost).
 //!
-//! Twinleaf: the extra Energy sums the provided Energy of the Active minus the
-//! checked attack cost. The lock throws BLOCKED_BY_ABILITY when the
-//! ability probe for the *opponent of the player* passes (i.e. the Ability is not blocked).
-//!
-//! Events batch 3: "Pokémon Tool cards from their hand" is the Attach event of a Tool from the hand,
-//! whatever attaches it (id25, id230); a Tool put on by an effect from another zone isn't stopped. Events batch 7:
-//! "Item cards from their hand" is their PlayTrainer (`Use(Played) & Source(Hand) & Card(Item)`).
+//! The extra Energy is the Energy provided by the Active Pokémon minus the attack's cost now. The Ability is one lock over the
+//! opponent's events while this Pokémon is Active (an Ability lock stops it): "Item cards from their hand" is their PlayTrainer
+//! (`Use(Played) & Source(Hand) & Card(Item)`; Fossils too, id2325); "Pokémon Tool cards from their hand" is the Attach of a Tool
+//! from the hand, whatever attaches it (id25, id230); a Tool put on by an effect from another zone isn't stopped.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Jellicentex",

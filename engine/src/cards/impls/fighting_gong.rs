@@ -1,10 +1,8 @@
-//! Fighting Gong (M1L, item): search your deck for a Basic [F] Pokémon or a
-//! Basic [F] Energy card, reveal it, and put it into your hand; then shuffle.
+//! Fighting Gong (M1L): search your deck for a Basic [F] Pokémon or a Basic [F] Energy card, reveal it, and put it into your
+//! hand. Then, shuffle your deck.
 //!
-//! Twinleaf quirks kept: the item is moved to the supporter pile (and never
-//! discarded by the card); the energy count is passed as `maxTrainers`, so
-//! `max = min(pokemon,1) || min(energy,1)`; ShowCards only when something
-//! was taken.
+//! One Search op: one card, either kind (the per-kind caps are what the pick lists); revealed, then one shuffle after the search
+//! (APR E-19, id2303).
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

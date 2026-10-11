@@ -1,7 +1,6 @@
-//! Vullaby (RCL): Pluck — 10; before doing damage, discard all Pokémon Tools
-//! from your opponent's Active Pokémon (one MOVE_CARDS per Tool).
+//! Vullaby (RCL): Pluck - 10; before doing damage, discard all Pokémon Tools from your opponent's Active Pokémon.
 //!
-//! Spec: a plain move per Tool (today's behavior; making it an attack effect that Mist Energy stops is planned change B-PC-13).
+//! The Tools leave play to the discard pile before the damage: a LeavePlay of each Tool (D1), caused by this attack.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

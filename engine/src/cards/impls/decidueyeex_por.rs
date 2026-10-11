@@ -1,20 +1,10 @@
-//! Decidueye ex (POR / M3): Sniper's Eye — if your opponent has exactly 4
-//! cards in their hand, ignore all [C] Energy in the costs of attacks used by
-//! this Pokémon. Crushing Arrow — 240; discard an Energy from your
-//! opponent's Active Pokémon.
+//! Decidueye ex (POR / M3): Sniper's Eye - if your opponent has exactly 4 cards in their hand, ignore all [C] Energy in the
+//! costs of attacks used by this Pokémon. Crushing Arrow - 240; discard an Energy from your opponent's Active Pokémon.
 //!
-//! Fixed (phase 4b, R3): Sniper's Eye now checks Ability locks (IS_ABILITY_BLOCKED
-//! for the owner before reading the opponent's hand), is not an activated
-//! Ability (`use_when_in_play` false in the card DB), and Crushing Arrow's
-//! discard is DISCARD_AN_ENERGY_FROM_OPPONENTS_ACTIVE_POKEMON on a fresh
-//! AttackEffect (a DiscardCardsEffect, so Mist Energy can prevent it) instead
-//! of a bare MOVE_CARDS.
-//!
-//! Twinleaf: Sniper's Eye strips every [C] from any CheckAttackCostEffect
-//! while this card is the player's Active Pokémon (R7F-11: and sets
-//! `ignoreColorless`, so a [C] added later by another effect is ignored too). Crushing Arrow
-//! (AFTER_ATTACK) prompts (non-cancellable ChooseCardsPrompt, Energy, over the
-//! opponent's Active) only when the Active holds an Energy card.
+//! Sniper's Eye is an Ability passive (an Ability lock stops it; it isn't activated) that strips the [C] of the attack cost
+//! while the opponent's hand holds 4 cards. Crushing Arrow's discard is an effect of the attack after the damage: a LeavePlay
+//! (to the discard pile) of the Energy the attacker chooses, caused by this attack, so Mist Energy and Hide 'n' Sneak refuse
+//! it (id2393). With no Energy on the Defending Pokémon nothing is asked.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

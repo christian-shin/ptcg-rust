@@ -1,12 +1,9 @@
-//! Slaking ex (SSP): Born to Slack — if your opponent has no Pokémon ex or
-//! Pokémon V in play, this Pokémon can't attack. Great Swing — 280; discard
-//! an Energy from this Pokémon.
+//! Slaking ex (SSP 147): Born to Slack - if your opponent has no Pokémon ex or Pokémon V in play, this Pokémon can't attack.
+//! Great Swing - 280; discard an Energy from this Pokémon.
 //!
-//! Twinleaf: any AttackEffect while this card is the attacker's Active
-//! Pokémon throws BLOCKED_BY_ABILITY unless the opponent has an ex / V /
-//! VMAX / VSTAR / V-UNION in play or the ability is blocked. Great Swing
-//! prices the discard as [C] with a non-cancellable ChooseEnergyPrompt and
-//! reduces a DiscardCardsEffect on `player.active`.
+//! Born to Slack is a lock over this Pokémon's own UseAttack (`Kind(UseAttack) & This(Card)`), held while the opponent has no ex /
+//! V / VMAX / VSTAR / V-UNION in play (`LockWhile::Unless`, an Ability lock stops it). Great Swing's discard is an effect after
+//! the damage: a LeavePlay of 1 Energy (priced as [C]) caused by this attack.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

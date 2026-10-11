@@ -1,12 +1,9 @@
-//! Team Rocket's Proton (DRI): usable on the first turn if you go first.
-//! Search your deck for up to 3 Basic Team Rocket's Pokémon, reveal them,
-//! put them into your hand, then shuffle.
+//! Team Rocket's Proton (DRI): if you go first, you may use this card during your first turn. Search your deck for up to 3
+//! Basic Team Rocket's Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
 //!
-//! Twinleaf: sets `rocketSupporter`; the prompt message is
-//! CHOOSE_CARD_TO_PUT_ONTO_BENCH; non-Team Rocket cards are blocked (by
-//! first index), the filter is Basic Pokémon.
-//!
-//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
+//! The first-turn permission is the card's `first_turn` flag (read by the play rule). One Search op revealing what it finds, then one
+//! shuffle after it (APR E-19). A Team Rocket's Supporter played from the hand is read from the turn's play record
+//! (`Cond::PlayedThisTurn`); used through Look-Alike Show it isn't played (D5).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

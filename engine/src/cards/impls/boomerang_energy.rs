@@ -1,27 +1,13 @@
-//! Boomerang Energy (TWM): provides [C]. If discarded by an effect of an
-//! attack of the Pokémon it is attached to, attach it from the discard pile
-//! to that Pokémon after attacking.
+//! Boomerang Energy (TWM 166): provides [C]. If this card is discarded by an effect of an attack used by the Pokémon it is
+//! attached to, attach it from the discard pile to that Pokémon after attacking.
 //!
-//! Fixed (phase 4 wave 2, B-PC-7): it is re-attached to the Pokémon it was attached to (the marker
-//! is kept on that Pokémon), if that Pokémon is still in play; nothing otherwise.
-//!
-//! Fixed (phase 4b, R7F-10; ruling 1650): it was re-attached at EndTurn; it is
-//! now re-attached in AfterAttackTriggersEffect, once the attack's effects and the
-//! Energy choices they ask after the damage are done (EndTurn stays as the fallback
-//! for a discard no AfterAttackTriggersEffect followed), before the effects that trigger
-//! on the Defending Pokémon (Handheld Fan) resolve: AfterAttackEffect reaches
-//! Pokémon, then Energy, then Trainers.
-//!
-//! Fixed (phase 4b, W4): the re-attach was armed by a marker set on the
-//! AttackEffect, but the attacker's own handler runs before its attached
-//! Energy sees that effect, so a discard made synchronously by the attack
-//! (Volt Strike, "discard all Energy") happened before the marker existed and
-//! the card was never re-attached.
-//!
-//! Events batch 7: "if this card is discarded by an effect of an attack of the Pokémon it is attached to" is a trigger
-//! over its own LeavePlay to the discard pile (an attached card leaving play, user decision D1), caused by an attack whose
-//! Pokémon is the one it was attached to (`CauseOnSlot`, read on the spot it left), whatever route discards it (an
-//! after-damage removal included). Its Energy origin is judged as it was attached there (`trigger::fires_on`).
+//! Event: its own LeavePlay to the discard pile (an attached card leaving play, D1), caused by an attack whose Pokémon is the
+//! one it was attached to (`CauseOnSlot`, read on the spot it left), whatever route discards it (an after-damage removal and
+//! Volt Strike's "discard all Energy" included). The trigger marks that Pokémon; the marker stays through a switch. The
+//! re-attach runs in the after-attack window, once the attack's effects and the Energy choices they ask are done and before the
+//! effects that trigger on the Defending Pokémon (Handheld Fan, id2125); the end of the turn is the fallback for a discard no
+//! window followed. It goes back to the Pokémon it was attached to if that Pokémon is still in play, otherwise it stays in the
+//! discard pile. Its Energy origin is judged as it was attached there (`trigger::fires_on`).
 use crate::spec::prelude::*;
 
 const DISCARDED: &str = "BOOMERANG_DISCARDED_MARKER";

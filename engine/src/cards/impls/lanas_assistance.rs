@@ -1,13 +1,8 @@
-//! Lana's Aid (TWM, supporter): put up to 3 in any combination of Pokémon
-//! without a Rule Box and Basic Energy cards from your discard pile into
-//! your hand.
+//! Lana's Aid (TWM 155): put up to 3 in any combination of Pokémon that don't have a Rule Box and Basic Energy cards from your
+//! discard pile into your hand.
 //!
-//! Twinleaf: DiscardToHandEffect is probed before the supporter check; the
-//! card moves to the supporter pile before the "no target" failure; the
-//! cards are shown to the opponent and then moved.
-//!
-//! R7C: as the effect of an attack (Mr. Mime's Look-Alike Show) the prompt is min 0
-//! (rulings 1844, 1853); played from the hand it is min 1.
+//! One Search op over the discard pile, revealed (a PutIntoHand from the discard pile: public zone, at least 1 when played from the
+//! hand, id2199, id2301); used through Look-Alike Show it may take 0 (D5, APR D-05).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LanasAssistance",

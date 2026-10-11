@@ -1,16 +1,9 @@
-//! Chi-Yu (MEG 31): Scorching Earth — 40; if your opponent has a Stadium in
-//! play, discard it. If you do, your opponent can't play any Stadium cards
-//! from their hand during their next turn.
+//! Chi-Yu (MEG 31): Scorching Earth - 40; if your opponent has a Stadium in play, discard it. If you do, your opponent can't
+//! play any Stadium cards from their hand during their next turn.
 //!
-//! Twinleaf: the Stadium is discarded only when it sits on the opponent's
-//! side (MOVE_CARDS stadium → owner's discard); if it left play, a
-//! PlayLockEffect `{ stadium: true }` follows.
-//!
-//! Fixed (phase 4b, R7F-4; ruling 1589): the Stadium was discarded in the
-//! attack handler, before the damage; like every Stadium discard of an
-//! attack it now happens in AfterAttackEffect (after the damage, before the
-//! Knock Out check), and the play lock is built from a fresh AttackEffect's
-//! data like the other AfterAttackEffect handlers do.
+//! Like every Stadium discard of an attack it happens after the damage, before the Knock Out check: a LeavePlay of the Stadium to its owner's discard pile (D1), caused by this attack. "If you do" reads that
+//! event's outcome (`Cond::Done`, APR E-20): a refused discard arms no lock. The lock is a lasting `Lock` on the opponent over
+//! PlayTrainer of a Stadium from the hand (D14).
 use crate::spec::prelude::*;
 
 const OPP_STADIUM: ZoneRef = ZoneRef(Who::Opp, Zone::Stadium);
@@ -25,8 +18,9 @@ pub static SPEC: CardSpec = CardSpec {
             cond: Cond::Nonempty(OPP_STADIUM, Pred::Any),
             yes: &[
                 Step::new(Op::Discard(DiscardSpec { from: OPP_STADIUM, cards: CardSel::All, ..DiscardSpec::DEFAULT })),
+                // "If you do": the Stadium's discard happened (a refused discard arms nothing).
                 Step::new(Op::If(IfSpec {
-                    cond: Cond::Not(&Cond::Nonempty(OPP_STADIUM, Pred::Any)),
+                    cond: Cond::Done,
                     yes: &[Step::new(Op::Arm(ArmSpec { what: Lasting::Lock(LastingLockSpec::on_opponent(&LockDecl::on(PLAY_STADIUM_FROM_HAND, "BLOCKED_BY_EFFECT"))) }))],
                     no: &[],
                 })),

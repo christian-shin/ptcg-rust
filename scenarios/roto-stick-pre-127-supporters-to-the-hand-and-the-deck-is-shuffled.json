@@ -1,0 +1,78 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Roto-Stick PRE 127",
+   "1 Cheren ASC 258",
+   "1 Hilda WHT 84",
+   "1 Judge POR 76",
+   "1 Xerosic's Machinations SFA 64",
+   "4 Duraludon PRE 69",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Roto-Stick PRE 127",
+   "1 Cheren ASC 258",
+   "1 Hilda WHT 84",
+   "1 Judge POR 76",
+   "1 Xerosic's Machinations SFA 64",
+   "4 Duraludon PRE 69",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Roto-Stick PRE 127"
+  ],
+  "prizes": [
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8",
+   "Metal Energy MEE 8"
+  ],
+  "deck_top": [
+   "Cheren ASC 258",
+   "Hilda WHT 84",
+   "Judge POR 76",
+   "Xerosic's Machinations SFA 64"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Roto-Stick PRE 127"
+  },
+  [
+   0,
+   1,
+   2,
+   3
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "who": "me",
+   "zone": "hand",
+   "cite": "card text: you may reveal any number of Supporter cards you find there and put them into your hand",
+   "at": "turn_end",
+   "count": 4,
+   "contains": [
+    "Cheren ASC 258",
+    "Hilda WHT 84",
+    "Judge POR 76",
+    "Xerosic's Machinations SFA 64"
+   ]
+  }
+ ]
+}

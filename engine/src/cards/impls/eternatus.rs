@@ -1,11 +1,9 @@
-//! Eternatus (SSP): Dynablast — 10+; 80 more if the opponent's Active is a
-//! Pokémon ex. World's End — 230; discard a Stadium in play (to its owner's
-//! discard); with no Stadium the damage is set to 0.
+//! Eternatus (SSP 141): Dyna-Blast - 10+; 80 more damage if your opponent's Active Pokémon is a Pokémon ex. World Ender - 230;
+//! discard a Stadium in play. If you can't, this attack does nothing.
 //!
-//! Fixed (phase 4b, R7F-3; ruling 1589): the Stadium was discarded in the
-//! attack handler, before the damage (a Stadium that raises the target's HP
-//! or reduces damage was already gone); it is now discarded in
-//! AfterAttackEffect, after the damage and before the Knock Out check.
+//! World Ender: with no Stadium in play the damage is 0. The discard happens after the damage, before the Knock Out check
+//! (like every Stadium discard of an attack; a Stadium that raises HP or reduces damage is still there for the damage):
+//! a LeavePlay of the Stadium to its owner's discard pile (D1), caused by this attack.
 use crate::spec::prelude::*;
 
 const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);

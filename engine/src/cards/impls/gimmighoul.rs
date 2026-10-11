@@ -1,8 +1,8 @@
-//! Gimmighoul (SSP): Minor Errand-Running - search your deck for up to 2
-//! Basic Energy cards, reveal them, put them into your hand, shuffle. Tackle - 50.
+//! Gimmighoul (SSP 97): Minor Errand-Running - search your deck for up to 2 Basic Energy cards, reveal them, put them into your
+//! hand. Then, shuffle your deck. Tackle - 50.
 //!
-//! The printed order: the search (revealed, into the hand), then one shuffle (APR E-19; user decision D9: Twinleaf
-//! opened its shuffle before the choice was answered).
+//! The printed order: the search (revealed, into the hand), then one shuffle after it (APR E-19, D9). With an empty deck the
+//! attack just does its damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

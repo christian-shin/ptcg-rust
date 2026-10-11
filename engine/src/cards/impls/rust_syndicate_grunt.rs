@@ -1,11 +1,8 @@
-//! Rust Syndicate Grunt (PBL, supporter): only if any of your Pokémon were
-//! Knocked Out during your opponent's last turn; discard an Energy from 1 of
-//! your opponent's Pokémon.
+//! Rust Syndicate Grunt (PBL 81, Supporter): "You can use this card only if any of your Pokémon were Knocked Out during your
+//! opponent's last turn." Discard an Energy from 1 of your opponent's Pokémon.
 //!
-//! Fixed (phase 4b #38): Twinleaf also required an otherwise empty hand,
-//! which the card text does not say; that check is gone. The effect is
-//! prevented after the checks, then the card moves to the supporter pile; the
-//! Supporter is discarded by CLEAN_UP_SUPPORTER when the prompts finish.
+//! The Knock Out is the printed condition (`Cond::Printed`); an opposing Pokémon with an Energy is what usability adds. The
+//! discard is a LeavePlay (to the discard pile) of the Energy you choose, caused by this Supporter (D1).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

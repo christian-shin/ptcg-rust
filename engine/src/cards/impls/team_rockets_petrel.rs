@@ -1,11 +1,9 @@
-//! Team Rocket's Petrel (DRI): search your deck for a Trainer card, reveal
-//! it, put it into your hand, then shuffle.
+//! Team Rocket's Petrel (DRI): search your deck for a Trainer card, reveal it, and put it into your hand. Then, shuffle your
+//! deck.
 //!
-//! Twinleaf sets `player.rocketSupporter` (read by Team Rocket's Factory)
-//! before the search; every Petrel copy clears it at the end of that
-//! player's turn.
-//!
-//! R7C: `rocket_supporter` is not set when used as the effect of an attack (ruling 1727).
+//! One Search op revealing what it finds, then one shuffle after it (APR E-19). Being a Team Rocket's Supporter played from the
+//! hand is read from the turn's play record by Team Rocket's Factory (`Cond::PlayedThisTurn`); used through Look-Alike Show it isn't
+//! played (D5).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

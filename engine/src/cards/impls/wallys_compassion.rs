@@ -1,11 +1,9 @@
-//! Wally's Compassion (MEG / M1S): heal all damage from 1 of your Mega
-//! Evolution Pokémon ex; if you do, put all Energy attached to it into your
-//! hand.
+//! Wally's Compassion (MEG 132 / M1S, Supporter): heal all damage from 1 of your Mega Evolution Pokémon ex. If you healed any
+//! damage in this way, put all Energy attached to that Pokémon into your hand.
 //!
-//! Twinleaf: only damaged Mega ex are selectable (the rest are blocked);
-//! HealEffect for the slot's full damage, then every Energy card in the slot
-//! (checked after the heal) moves to the hand in one MOVE_CARDS, whether or
-//! not the heal did anything.
+//! The Heal and the move are separate events: "if you healed" reads the Heal's outcome (`Cond::Done`, APR E-20), so a refused heal
+//! moves no Energy. The Energy go to the hand as a LeavePlay of each attached card (to the hand, D1). Usability needs a damaged
+//! Mega ex (an effect must change the game).
 use crate::spec::prelude::*;
 use crate::types::tag;
 
@@ -22,7 +20,12 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "CHOOSE_POKEMON_TO_HEAL",
             })),
             Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::DamageOn(SlotExpr::Picked), clear_conditions: false })),
-            Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::All { provided: false }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT })),
+            // "If you healed any damage in this way": the Heal's outcome.
+            Step::new(Op::If(IfSpec {
+                cond: Cond::Done,
+                yes: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Picked), selection: EnergySelection::All { provided: false }, to: EnergyDest::Hand, ..DiscardEnergySpec::DEFAULT }))],
+                no: &[],
+            })),
         ],
     }),
     ..CardSpec::NONE

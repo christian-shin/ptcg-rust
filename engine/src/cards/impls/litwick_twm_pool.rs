@@ -1,9 +1,8 @@
-//! Litwick (TWM 36): Call for Family — search your deck for a Basic Pokémon
-//! and put it onto your Bench, then shuffle. Live Coal — 20.
+//! Litwick (TWM 36): Call for Family - search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck.
+//! Live Coal - 20.
 //!
-//! Twinleaf: nothing (no shuffle) with an empty deck or a full Bench; else
-//! SEARCH_YOUR_DECK_FOR_POKEMON_AND_PUT_ONTO_BENCH({ stage: BASIC },
-//! { min: 0, max: 1 }) (cancellable).
+//! The attack just does its damage with an empty deck or a full Bench; otherwise one Search op onto the Bench (an EnterPlay), then
+//! one shuffle after it (APR E-19). The search can be declined.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "LitwickTWMPool",

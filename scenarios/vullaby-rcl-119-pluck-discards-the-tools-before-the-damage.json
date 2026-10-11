@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Vullaby RCL 119",
+   "4 Duraludon PRE 69",
+   "1 Sacred Charm PFL 93",
+   "51 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Vullaby RCL 119",
+   "4 Duraludon PRE 69",
+   "1 Sacred Charm PFL 93",
+   "51 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Vullaby RCL 119",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "active_tool": "Sacred Charm PFL 93"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pluck"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "tool": null,
+   "cite": "card text: discard all Pok\u00e9mon Tools from your opponent's Active Pok\u00e9mon"
+  },
+  {
+   "who": "opp",
+   "zone": "discard",
+   "cite": "card text",
+   "at": "turn_end",
+   "contains": [
+    "Sacred Charm PFL 93"
+   ]
+  }
+ ]
+}

@@ -1,9 +1,8 @@
-//! Energy Swatter (POR): your opponent reveals their hand, and you choose an
-//! Energy card you find there and put it on the bottom of their deck.
+//! Energy Swatter (POR 73): your opponent reveals their hand, and you choose an Energy card you find there and put it on the
+//! bottom of their deck.
 //!
-//! Twinleaf: a no-op hand→discard MOVE_CARDS of the card (it already sits in
-//! the supporter pile), the reveal to the player is queued without waiting,
-//! and with no Energy in the opponent's hand nothing else happens.
+//! The reveal is a routine (no card reacts to it); the card you choose goes from their hand to the bottom of their deck: one
+//! PutIntoDeck event (position Bottom) on the opponent's side. With no Energy there nothing is chosen.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

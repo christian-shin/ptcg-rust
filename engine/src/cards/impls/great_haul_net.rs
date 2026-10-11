@@ -1,11 +1,8 @@
-//! Great Haul Net / Big Catch Net (CRI): choose 1 or both — shuffle up to 3
-//! [W] Pokémon and/or up to 3 Basic [W] Energy cards from your discard pile
-//! into your deck.
+//! Great Haul Net / Big Catch Net (CRI 78): choose 1 or both: shuffle up to 3 [W] Pokémon from your discard pile into your
+//! deck; shuffle up to 3 Basic [W] Energy cards from your discard pile into your deck.
 //!
-//! Twinleaf: one ChooseCardsPrompt (min 1 since phase 4b, rulings 1778/1853: public zone; max 6, maxPokemons 3,
-//! maxBasicEnergies 3) over the discard with the other cards blocked; then
-//! the card moves from wherever it is to the discard before a wait-less
-//! shuffle.
+//! One pick of 1 to 6 cards over the discard pile (public zone: at least 1 when able, id2199), at most 3 Pokémon and at most 3 Basic
+//! Energy; they go into the deck, then one shuffle (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

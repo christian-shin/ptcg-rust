@@ -1,10 +1,9 @@
-//! Gumshoos (M1L): Gather Evidence — once during your turn, switch a card
-//! from your hand with the top card of your deck. Bite — 50.
+//! Gumshoos (M1L): Evidence Gathering - once during your turn, you may use this Ability. Switch a card from your hand with the
+//! top card of your deck. Bite - 50.
 //!
-//! Twinleaf: CANNOT_USE_POWER with an empty deck or hand, POWER_ALREADY_USED
-//! with the marker, then a cancellable ChooseCardsPrompt on the hand. On a
-//! pick: MOVE_CARDS deck→hand (count 1), then the picked card is spliced out
-//! of the hand and unshifted onto the deck directly, marker + ABILITY_USED.
+//! The switch is simultaneous (id2209: you don't look at the top card first): the top card goes to the hand (PutIntoHand), the
+//! chosen card goes on top of the deck (PutIntoDeck, position Top). Usable with a card in hand and in the deck; once per turn
+//! by its marker, cleared at the end of the turn.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Gumshoos",

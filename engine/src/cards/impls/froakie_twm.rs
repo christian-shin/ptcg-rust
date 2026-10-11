@@ -1,9 +1,8 @@
-//! Froakie (TWM): Flock — search your deck for up to 2 Froakie and put them
-//! onto your Bench, then shuffle. Flop — 10.
+//! Froakie (TWM): Flock - search your deck for up to 2 Froakie and put them onto your Bench. Then, shuffle your deck. Flop - 10.
 //!
-//! Twinleaf: same shape as Chatot's A Capella (no empty-deck check; with a full
-//! Bench the attack does nothing, with no search and no shuffle: phase 4b R7E,
-//! ruling 337; also with all 4 Froakie in known zones, ruling 336; the prompt max is min(empty bench slots, 2)), with a name filter.
+//! The attack's search runs with room on the Bench and while a Froakie can still be in the deck: with all 4 Froakie in zones
+//! that are known to be out of it, the attack is usable and finds nothing (no search, no shuffle). The Pokémon found are put on
+//! the Bench (each an EnterPlay), then one shuffle after the search (APR E-19, id2303).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

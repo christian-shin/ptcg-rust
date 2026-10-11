@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Furfrou POR 67",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Furfrou POR 67",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Furfrou POR 67",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "8 Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hand Trim"
+  }
+ ],
+ "expect": [
+  {
+   "who": "opp",
+   "zone": "hand",
+   "cite": "card text: discard random cards from your opponent's hand until they have 5 cards",
+   "at": "turn_end",
+   "count": 5
+  },
+  {
+   "who": "opp",
+   "zone": "discard",
+   "cite": "card text",
+   "at": "turn_end",
+   "count": 3
+  }
+ ]
+}

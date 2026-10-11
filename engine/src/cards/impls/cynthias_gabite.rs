@@ -1,11 +1,8 @@
-//! Cynthia's Gabite (DRI): Champion's Call - once during your turn, search
-//! your deck for a Cynthia's Pokémon, reveal it, put it into your hand, then
-//! shuffle. Dragon Slice - 40.
+//! Cynthia's Gabite (DRI): Champion's Call - once during your turn, search your deck for a Cynthia's Pokémon, reveal it, put
+//! it into your hand. Then, shuffle your deck. Dragon Slice - 40.
 //!
-//! Twinleaf: ABILITY_USED runs before the prompt; the choice is min 0 / max 1
-//! with no cancel (non-Cynthia's Pokémon blocked, works on an empty deck);
-//! the reveal to the opponent and the ShuffleDeckPrompt are queued together;
-//! the once-per-turn marker is only added in the shuffle callback.
+//! One Search op revealing what it finds (min 0: a hidden zone may be searched without finding), then one shuffle after it
+//! (APR E-19). The Ability needs no card in the deck to be used.
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

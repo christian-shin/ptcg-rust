@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Dragonite ex ASC 152",
+   "4 Duraludon PRE 69",
+   "26 Water Energy MEE 3",
+   "26 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Mega Dragonite ex ASC 152",
+   "4 Duraludon PRE 69",
+   "26 Water Energy MEE 3",
+   "26 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Dragonite ex ASC 152",
+  "active_energy": [
+   "Water Energy MEE 3",
+   "4 Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Ryuno Glide"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 3,
+   "cite": "card text: discard 2 Energy from this Pok\u00e9mon"
+  }
+ ]
+}

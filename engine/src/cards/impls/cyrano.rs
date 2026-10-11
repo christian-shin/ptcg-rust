@@ -1,9 +1,8 @@
-//! Cyrano (SSP): search your deck for up to 3 Pokémon ex, reveal them, put
-//! them into your hand, then shuffle.
+//! Cyrano (SSP 170): search your deck for up to 3 Pokémon ex, reveal them, and put them into your hand. Then, shuffle your
+//! deck.
 //!
-//! Twinleaf quirks kept: no supporter-turn check, the card stays in hand
-//! until the search resolves (then it is moved hand → discard), and the
-//! shuffle is a bare ShuffleDeckPrompt (no trailing wait).
+//! One Search op revealing what it finds, then one shuffle after it, also when nothing was found (APR E-19, id2303). The
+//! Supporter's own play (one per turn, the discard afterward) is PlayTrainer, not this card's business.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

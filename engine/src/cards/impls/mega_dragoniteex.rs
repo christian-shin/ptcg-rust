@@ -1,6 +1,8 @@
-//! Mega Dragonite ex (M2a / ASC 152): Sky Transport — once during your turn,
-//! switch your Active Pokémon with 1 of your Benched Pokémon. Ryuno Glide —
-//! 330; DISCARD_X_ENERGY_FROM_THIS_POKEMON(2).
+//! Mega Dragonite ex (M2a / ASC 152): Sky Transport - once during your turn, switch your Active Pokémon with 1 of your Benched
+//! Pokémon. Ryuno Glide - 330; discard 2 Energy from this Pokémon.
+//!
+//! Ryuno Glide's discard is an effect of the attack after the damage: a LeavePlay (to the discard pile) of 2 Energy attached
+//! to it, caused by this attack (D1).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

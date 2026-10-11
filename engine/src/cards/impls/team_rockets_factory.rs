@@ -1,9 +1,8 @@
-//! Team Rocket's Factory (DRI, stadium): once during each player's turn, if
-//! they played a "Team Rocket" Supporter from their hand this turn, they may
-//! draw 2 cards.
+//! Team Rocket's Factory (DRI, Stadium): once during each player's turn, if they played a Supporter card that has "Team Rocket" in
+//! its name from their hand this turn, they may draw 2 cards.
 //!
-//! Twinleaf reads `player.rocketSupporter` (set by Team Rocket's Petrel);
-//! the FACTORY_USED_MARKER is only bookkeeping (cleared at end of turn).
+//! The condition is `Cond::PlayedThisTurn(Who::Me, Supporter & Team Rocket's)` (the turn's play record from PlayTrainer; a Supporter
+//! used through Look-Alike Show isn't played, D5). One Draw of 2 cards; once per player turn by the Stadium's use rule.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

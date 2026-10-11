@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Chi-Yu MEG 31",
+   "4 Dreepy ASC 158",
+   "4 Prism Tower CRI 80",
+   "4 Lumiose City POR 77",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Chi-Yu MEG 31",
+   "4 Dreepy ASC 158",
+   "4 Prism Tower CRI 80",
+   "4 Lumiose City POR 77",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Chi-Yu MEG 31",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Dreepy ASC 158",
+  "hand": [
+   "Lumiose City POR 77"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Scorching Earth"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 1,
+   "who": "opp",
+   "legal": "play",
+   "name": "Lumiose City POR 77",
+   "is": true,
+   "cite": "Chi-Yu MEG 31 text: without a Stadium to discard, 'if you do' is false and no lock is placed; APR E-20"
+  }
+ ]
+}

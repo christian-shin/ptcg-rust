@@ -1,11 +1,9 @@
-//! Lampent (PBL / M5): Spreading Light - search your deck for up to 3 Lampent
-//! and put them onto your Bench, then shuffle.
+//! Lampent (PBL / M5): Spreading Light - search your deck for up to 3 Lampent and put them onto your Bench. Then, shuffle your
+//! deck.
 //!
-//! Twinleaf: max = min(3, empty Bench slots); nothing happens (no shuffle)
-//! when the deck is empty or the Bench is full. Each chosen card is placed with
-//! a PlayPokemonFromDeckEffect into the i-th empty slot; SHUFFLE_DECK follows.
-//! Phase 4b R7E (ruling 336): with all 4 Lampent in known zones (discard pile,
-//! in play) the attack is usable and fails without searching.
+//! The search runs with room on the Bench and while a Lampent can still be in the deck (with all 4 in zones known to be out of
+//! it, the attack is usable and finds nothing). The pick is at most the open Bench spots, up to 3; each Lampent put on the Bench is
+//! an EnterPlay, then one shuffle after the search (APR E-19).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Lampent",
