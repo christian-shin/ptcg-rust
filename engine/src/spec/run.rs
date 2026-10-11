@@ -627,13 +627,18 @@ impl RulesWalk {
             if s.at == RuleStep::Consequence {
                 continue;
             }
+            // A choice a nested list (a coin's result, an "If") starts with that has nothing to choose: the rest of that
+            // list can't happen.
+            if !top && matches!(s.op, Op::Pick(_) | Op::PickSlot(_)) && !ops::implied_ok(g, me, f, &s.op) {
+                return if out == Some(true) { Some(true) } else { Some(false) };
+            }
             if let Op::Pick(p) = &s.op {
                 if p.from == ZoneRef(Who::Me, Zone::Hand) {
                     self.left_hand += crate::spec::value::num(g, me, f, &p.bounds.min).max(0);
                 }
                 let v = match p.from.1 {
                     Zone::Scratch(r) => self.reg(r).unwrap_or(true),
-                    _ => ops::implied_ok(g, me, f, &s.op),
+                    _ => ops::pick_finds(g, me, f, p),
                 };
                 self.set_reg(p.into, v);
             }
@@ -678,6 +683,11 @@ impl RulesWalk {
                     let a = self.walk(g, me, f, m.yes, false);
                     let b = self.walk(g, me, f, m.no, false);
                     if a == Some(true) || b == Some(true) { Some(true) } else { a.or(b) }
+                }
+                // A coin flip counts through what its results do (id925; `flow::effect_possible`).
+                Op::Coin(c) => {
+                    let r = [self.walk(g, me, f, c.heads, false), self.walk(g, me, f, c.tails, false), self.walk(g, me, f, c.then, false)];
+                    if r.contains(&Some(true)) { Some(true) } else { r.iter().copied().flatten().next() }
                 }
                 op => ops::effect_possible(g, me, f, op),
             };
@@ -993,7 +1003,19 @@ mod usability_tests {
 
     fn rules(sc: serde_json::Value, card: &str) -> bool {
         let mut names: Vec<&str> = Vec::new();
-        for n in ["Ultra Ball 30C 128", "Lillie's Determination ASC 192", "Carmine PRE 103", "Special Red Card CRI 82", "Hop's Snorlax JTG 117"] {
+        for n in [
+            "Ultra Ball 30C 128",
+            "Lillie's Determination ASC 192",
+            "Carmine PRE 103",
+            "Special Red Card CRI 82",
+            "Hop's Snorlax JTG 117",
+            "Iris's Fighting Spirit ASC 190",
+            "Kofu SCR 138",
+            "Judge POR 76",
+            "Energy Swatter POR 73",
+            "Eri PRE 136",
+            "Crushing Hammer PBL 105",
+        ] {
             names.extend(std::iter::repeat(n).take(4));
         }
         while names.len() < 60 {
@@ -1035,6 +1057,67 @@ mod usability_tests {
         let sc = |hand: Vec<&str>| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Special Red Card CRI 82"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand}});
         assert!(!rules(sc(vec![]), "Special Red Card CRI 82"));
         assert!(rules(sc(vec!["Psychic Energy MEE 5"]), "Special Red Card CRI 82"));
+    }
+
+    /// id956 (Captivating Poke Puff: "You cannot play a Trainer card for no net effect"): Energy Swatter with no cards in the
+    /// opponent's hand can't be played; with any card it can (revealing the hand is an effect).
+    #[test]
+    fn energy_swatter_empty_opponent_hand() {
+        let sc = |hand: Vec<&str>| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Energy Swatter POR 73"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand}});
+        assert!(!rules(sc(vec![]), "Energy Swatter POR 73"));
+        assert!(rules(sc(vec!["Psychic Energy MEE 5"]), "Energy Swatter POR 73"));
+    }
+
+    /// id1492 (APR E-20, the first half): "Your opponent reveals their hand" with no cards in it isn't revealing it, so Eri
+    /// can't be played (Drone Rotom: "you can't play Drone Rotom in the first place").
+    #[test]
+    fn eri_reveal_of_an_empty_hand() {
+        let sc = |hand: Vec<&str>| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Eri PRE 136"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand}});
+        assert!(!rules(sc(vec![]), "Eri PRE 136"));
+        assert!(rules(sc(vec!["Ultra Ball 30C 128"]), "Eri PRE 136"));
+    }
+
+    /// id1042 (Hugh: "draw until" that changes nothing can't be played): Iris's Fighting Spirit discards another card, then
+    /// draws until 6. With 7 other cards the hand is 6 after the cost: nothing to draw. With 6 others it draws 1.
+    #[test]
+    fn iris_draw_until_that_changes_nothing() {
+        let sc = |n: usize| {
+            let mut hand = vec!["Iris's Fighting Spirit ASC 190"];
+            hand.extend(std::iter::repeat("Psychic Energy MEE 5").take(n));
+            json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}})
+        };
+        assert!(!rules(sc(7), "Iris's Fighting Spirit ASC 190"));
+        assert!(rules(sc(6), "Iris's Fighting Spirit ASC 190"));
+    }
+
+    /// id1063 (Lost Blender: a cost of 2 needs 2 cards): Kofu puts 2 cards from the hand on the bottom of the deck; with 1
+    /// other card it can't be played.
+    #[test]
+    fn kofu_needs_two_cards() {
+        let sc = |n: usize| {
+            let mut hand = vec!["Kofu SCR 138"];
+            hand.extend(std::iter::repeat("Psychic Energy MEE 5").take(n));
+            json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}})
+        };
+        assert!(!rules(sc(1), "Kofu SCR 138"));
+        assert!(rules(sc(2), "Kofu SCR 138"));
+    }
+
+    /// id966 (Colress with zero cards in both hands and no Benched Pokémon: "Yes, you can"): Judge with no other card in
+    /// either hand still shuffles the "hand of zero cards" and draws, so it can be played.
+    #[test]
+    fn judge_with_zero_hands() {
+        let sc = json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Judge POR 76"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+        assert!(rules(sc, "Judge POR 76"));
+    }
+
+    /// id925 ("you cannot play a card if it is obvious that you cannot do what the card is supposed to do"): Crushing Hammer's
+    /// coin flip alone isn't what it does; with no Energy on the opponent's Pokémon it can't be played.
+    #[test]
+    fn crushing_hammer_no_energy() {
+        let sc = |energy: Vec<&str>| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Crushing Hammer PBL 105"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "active_energy": energy}});
+        assert!(!rules(sc(vec![]), "Crushing Hammer PBL 105"));
+        assert!(rules(sc(vec!["Psychic Energy MEE 5"]), "Crushing Hammer PBL 105"));
     }
 
     /// E-36 specific case, id2420: Lillie's Determination as the only card in the hand is playable.

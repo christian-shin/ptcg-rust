@@ -1657,8 +1657,10 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
         Op::Search(s) => pick_possible(g, me, f, &s.pick, search_room(g, f, s)) && (s.pick.from.1 != Zone::Deck || deck(s.pick.from.0)),
         // "Then, shuffle your deck" randomizes it after its contents were seen (APR E-19): not an effect by itself.
         Op::Shuffle(_) => return None,
+        // Revealing an empty hand isn't revealing it (id1492: with no cards in the opponent's hand Drone Rotom can't be
+        // played); `when_empty` is how an attack's reveal resolves, not an effect.
         Op::Reveal(r) => match &r.cards {
-            RevealWhat::Zone(z) => !zone_cards(g, me, f, *z).is_empty() || r.when_empty,
+            RevealWhat::Zone(z) => !zone_cards(g, me, f, *z).is_empty(),
             RevealWhat::Chosen(_) => true,
         },
         Op::HandShuffleDraw(_) => true,
@@ -1678,6 +1680,22 @@ pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec,
         DrawAmount::Count(n) => num_uses_reg(n) || num_is_checked(n) || num(g, me, f, n) > 0,
         _ => true,
     }
+}
+
+/// Would the pick find a card (`run::usable_by_rules`: what the ops on its register can do)? A pick that may take none
+/// ("up to", "a card you find there") finds none in a known zone with no eligible card, or in an empty deck.
+pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, pick: &PickSpec) -> bool {
+    if zone_is_unset(f, pick.from) {
+        return true;
+    }
+    if !pick_possible(g, me, f, pick, i32::MAX) {
+        return false;
+    }
+    let cards = zone_cards(g, me, f, pick.from);
+    if pick.from.1 == Zone::Deck {
+        return !cards.is_empty();
+    }
+    cards.iter().any(|c| pick_ok(g, f, pick, *c))
 }
 
 /// A Trainer or Ability that only chooses cards needs something to choose: a deck

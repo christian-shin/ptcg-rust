@@ -32,6 +32,8 @@ pub mod passive;
 pub mod run;
 pub mod trigger;
 pub mod value;
+#[cfg(test)]
+mod usability_sweep;
 
 pub use ops::board::*;
 pub use ops::cards::*;

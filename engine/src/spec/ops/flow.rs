@@ -347,7 +347,10 @@ pub(crate) fn implied_ok(_g: &Game, _me: CardId, _f: &Frame, _op: &Op) -> bool {
 }
 
 /// Would the op change the game now (`ops::effect_possible`)? A flow op does what one of its lists does; an `If` on
-/// `Cond::Done` ("If you do") counts only through the op it depends on; a coin flip is an effect.
+/// `Cond::Done` ("If you do") counts only through the op it depends on. A coin flip counts through what its results do:
+/// a card can't be played when "it is obvious that you cannot do what the card is supposed to do" (id925), and the flip
+/// alone isn't what the card does (Crushing Hammer with no Energy on the opponent's Pokémon, Pokémon Catcher with no
+/// Benched Pokémon). Once the card is used its flip always happens (RULES.md).
 pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
     let any = |lists: &[&'static [Step]]| {
         let mut out = None;
@@ -370,7 +373,7 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
             any(&lists)
         }
         Op::ForEach(fe) => any(&[fe.body]),
-        Op::Coin(_) => Some(true),
+        Op::Coin(c) => any(&[c.heads, c.tails, c.then]),
         // A choice, a precondition, and "your turn ends" (a consequence of the effect) aren't effects by themselves.
         Op::Fail(_) | Op::PickAttack(_) | Op::EndTurn(_) => None,
         _ => Some(true),

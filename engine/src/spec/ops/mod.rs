@@ -107,6 +107,11 @@ pub(crate) fn draw_possible_after(g: &Game, me: CardId, f: &Frame, d: &DrawSpec,
     cards::draw_possible_after(g, me, f, d, removed)
 }
 
+/// Would the pick find a card (`run::usable_by_rules`)?
+pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, p: &PickSpec) -> bool {
+    cards::pick_finds(g, me, f, p)
+}
+
 /// Any op of the list would change the game (`None` when none is an effect).
 pub(crate) fn any_effect_possible(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> Option<bool> {
     let mut out = None;
