@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mr. Mime TEF 63",
+   "4 Cassiopeia SFA 56",
+   "4 Gladion's Final Battle PBL 77",
+   "4 Hop's Snorlax JTG 117",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Mr. Mime TEF 63",
+   "4 Cassiopeia SFA 56",
+   "4 Gladion's Final Battle PBL 77",
+   "4 Hop's Snorlax JTG 117",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mr. Mime TEF 63",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "hand": []
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Gladion's Final Battle PBL 77"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Look-Alike Show"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 0,
+   "cite": "Cassiopeia SFA 56 / Gladion's Final Battle PBL 77 print \"You can use this card only if it is the last card in your hand\": used through Mr. Mime TEF 63's Look-Alike Show the card is in the opponent's hand, never in yours, so the printed condition never holds and the card can't be chosen, even with an empty hand (closeout decision 7a, RULES.md; printed conditions bind a used Supporter: user decision D5, JP FAQ Fire Energy MEE 2 / Mela)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "deck",
+   "count": 52,
+   "cite": "Cassiopeia SFA 56 / Gladion's Final Battle PBL 77 print \"You can use this card only if it is the last card in your hand\": used through Mr. Mime TEF 63's Look-Alike Show the card is in the opponent's hand, never in yours, so the printed condition never holds and the card can't be chosen, even with an empty hand (closeout decision 7a, RULES.md; printed conditions bind a used Supporter: user decision D5, JP FAQ Fire Energy MEE 2 / Mela): nothing is searched"
+  }
+ ]
+}

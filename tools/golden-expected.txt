@@ -77,11 +77,11 @@ g0500001965  # step 116 prompt; Look-Alike Show: at step 116 Rosa's Encouragemen
 g0500002445  # step 159 prompt; Look-Alike Show: at step 159 Gladion's Final Battle now blocked up front by its printed condition
 g0500003585  # step 53 prompt; Look-Alike Show: at step 53 Team Rocket's Archer now blocked up front by its printed condition
 g0500004065  # step 265 prompt; Look-Alike Show: at step 264 the recording chose Iris's Fighting Spirit, which threw, and was asked again; that choice is now used (printed conditions only): Rust's step 265 is Iris's own discard from the hand
-g0500004304  # step 15 obs; Look-Alike Show: at step 9 the recording chose Cassiopeia, Cassiopeia, Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004304  # step 15 obs; Look-Alike Show: at steps 9 and 10 the recording chose Cassiopeia (both copies), which threw, as Rust now refuses them (its printed condition names "this card ... in your hand", never met by a card used from the opponent's hand (closeout 7a, RULES.md)); at step 11 it chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500004311  # step 77 prompt; Look-Alike Show: at step 75 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500004329  # end of the recording (an extra prompt); Look-Alike Show: at step 219 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500004330  # step 140 prompt; Look-Alike Show: at step 140 Rust Syndicate Grunt now blocked up front by its printed condition
-g0500004343  # end of the recording (an extra prompt); Look-Alike Show: at step 76 the recording chose Cassiopeia, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500004343  # extra prompt (diff step -1); Look-Alike Show: at step 12 the recording chose Jacinthe, which threw, and was asked again; that choice is now used (printed conditions only): Rust asks Jacinthe's Pokémon to heal. (At step 76 the recording's Cassiopeia threw, as Rust now refuses it: its printed condition names "this card ... in your hand", never met by a card used from the opponent's hand (closeout 7a, RULES.md))
 g0500004349  # end of the recording (an extra prompt); Look-Alike Show: at step 142 the recording chose Team Rocket's Archer, Team Rocket's Archer, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500004355  # step 151 prompt; Look-Alike Show: at step 151 Hassel now blocked up front by its printed condition
 g0500004485  # step 97 prompt; Look-Alike Show: at step 97 Gladion's Final Battle now blocked up front by its printed condition
@@ -89,7 +89,7 @@ g0500004785  # step 176 prompt; Look-Alike Show: at step 176 Rust Syndicate Grun
 g0500005265  # step 204 prompt; Look-Alike Show: at step 204 Briar now blocked up front by its printed condition
 g0500005685  # step 210 obs; Look-Alike Show: at step 204 the recording chose Wally's Compassion, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500005745  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 217) the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
-g0500006045  # step 36 prompt; Look-Alike Show: at step 36 Gladion's Final Battle now blocked up front by its printed condition
+g0500006045  # step 29 prompt; Look-Alike Show: Gladion's Final Battle now blocked up front with an empty hand: its printed condition names "this card ... in your hand", never met by a card used from the opponent's hand (closeout 7a, RULES.md)
 g0500006705  # step 84 prompt; Look-Alike Show: at step 84 Gladion's Final Battle now blocked up front by its printed condition
 g0500006945  # step 67 prompt; Look-Alike Show: at step 67 Team Rocket's Archer now blocked up front by its printed condition
 g0500007065  # step 20 prompt; Look-Alike Show: at step 20 Briar, Cassiopeia now blocked up front by its printed condition
@@ -105,7 +105,7 @@ g0500007951  # step 100 prompt; Look-Alike Show: at step 100 Briar, Cassiopeia n
 g0500007952  # step 175 prompt; Look-Alike Show: at step 175 Iris's Fighting Spirit now blocked up front by its printed condition
 g0500008385  # step 30 prompt; Look-Alike Show: at step 30 Rust Syndicate Grunt now blocked up front by its printed condition
 g0500009165  # step 44 prompt; Look-Alike Show: at step 44 Rosa's Encouragement now blocked up front by its printed condition
-g0500009645  # step 294 obs; Look-Alike Show: at its earlier use (step 237) the recording chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500009645  # step 253 prompt; Look-Alike Show: Gladion's Final Battle now blocked up front with an empty hand: its printed condition names "this card ... in your hand", never met by a card used from the opponent's hand (closeout 7a, RULES.md)
 g0500009705  # step 121 prompt; Look-Alike Show: at step 121 Hassel now blocked up front by its printed condition
 g0500009945  # step 128 prompt; Look-Alike Show: at step 128 Morty's Conviction now blocked up front by its printed condition
 g0500010005  # step 42 prompt; Look-Alike Show: at step 42 Cassiopeia now blocked up front by its printed condition
@@ -182,3 +182,10 @@ g0500018023  # step 22 obs; Super Potion JTG 158: Yveltal 30C's Life-Locked refu
 # deck, you can't use this card.)" is a printed condition (Cond::Printed), so Look-Alike Show keeps it (user decision D5; JP FAQ
 # Fire Energy MEE 2 / Mela): with fewer than 2 cards in the attacker's hand Kofu can't be chosen (the recording chose it and drew 4).
 g0500009465  # step 184 prompt; Look-Alike Show with an empty hand: Kofu SCR 138#72 no longer selectable (printed condition)
+# Events batch 7 closeout 7a (against baseline 1e9b0c8): Cassiopeia SFA 56 / Gladion's Final Battle PBL 77 ("You can use this
+# card only if it is the last card in your hand") through Mr. Mime TEF 63's Look-Alike Show: the card is in the opponent's
+# hand, never "in your hand", so the printed condition never holds (Cond::LastCardInHand no longer holds vacuously for an
+# empty hand). Each game replayed locally.
+g0500000745  # step 196 prompt; Look-Alike Show with an empty hand: Gladion's Final Battle PBL-77#19 no longer selectable
+g0500003465  # step 88 prompt; Look-Alike Show with an empty hand: Cassiopeia SFA-56#73 no longer selectable
+g0500007934  # step 92 prompt; Look-Alike Show with an empty hand: Gladion's Final Battle PBL-77#20, #21 no longer selectable

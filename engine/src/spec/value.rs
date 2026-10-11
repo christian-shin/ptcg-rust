@@ -162,7 +162,9 @@ pub enum Cond {
     HasMarker { who: Who, name: &'static str, from: super::ops::state::MarkerFrom },
     /// Exactly `n` cards are in the zone.
     ZoneIs(ZoneRef, i32),
-    /// Every card in the player's hand is this card (or the hand is empty).
+    /// This card is in the player's hand and is the last card there ("You can use this card only if it is the last card in
+    /// your hand": Cassiopeia, Gladion's Final Battle). Never for a Trainer whose effect is used from elsewhere (Look-Alike
+    /// Show uses it from the opponent's hand: it is never "in your hand"; RULES.md).
     LastCardInHand(Who),
     /// Like `Nonempty`, not counting the resolving card.
     NonemptyOther(ZoneRef, Pred),
@@ -484,7 +486,10 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         },
         Cond::HasMarker { who, name, from } => super::ops::state::has_marker(g, me, f.who(*who), name, *from),
         Cond::ZoneIs(z, n) => zone_cards_of(g, me, f, *z).len() as i32 == *n,
-        Cond::LastCardInHand(w) => g.st.players[f.who(*w)].hand.iter().all(|c| c == me),
+        Cond::LastCardInHand(w) => {
+            let hand = &g.st.players[f.who(*w)].hand;
+            hand.contains(me) && hand.iter().all(|c| c == me)
+        }
         Cond::TypesShared(a, b) => {
             let printed = |sel: &SlotSel| -> Vec<CardType> {
                 let mut out: Vec<CardType> = Vec::new();
