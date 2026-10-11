@@ -1296,7 +1296,7 @@ mod tests {
         state_check(&mut g, OnComplete::None).unwrap();
         assert!(g.st.slot_pokemon(o, t.s).is_none(), "Knocked Out at the state check");
         assert_eq!(g.st.players[me].prize_left(), left, "the Prize card is chosen next");
-        assert!(g.prompts.iter().any(|p| p.result.is_none() && matches!(p.kind, PromptKind::ChoosePrize { count: 1, .. })));
+        assert!(g.prompts.iter().any(|p| !p.answered && matches!(p.kind, PromptKind::ChoosePrize { count: 1, .. })));
         assert!(g.st.slot_pokemon(o, misty.s).is_some());
     }
 

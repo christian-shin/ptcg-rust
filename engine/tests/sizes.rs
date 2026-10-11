@@ -14,4 +14,6 @@ fn sizes() {
     // Events batch 8 C8: the large payloads (the slow path's Energy map, attack list, Weakness / Resistance; the moved
     // damage counters) live in `Game::fxp`; a card list (65 B) stays inline (392 -> 88 B).
     assert!(size_of::<ptcg::effects::Effect>() <= 96, "Effect grew: {} B", size_of::<ptcg::effects::Effect>());
+    // The answers of a group's prompts wait in `Game::answers`, not in the prompt (1,040 -> 584 B).
+    assert!(size_of::<ptcg::prompts::PromptRec>() <= 584, "PromptRec grew: {} B", size_of::<ptcg::prompts::PromptRec>());
 }

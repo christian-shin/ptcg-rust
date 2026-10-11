@@ -295,6 +295,9 @@ pub struct Game {
     pub order_cache: crate::decl::OrderCache,
     /// The large payloads of the effects in flight (`effects::EffectPayloads`).
     pub fxp: crate::effects::EffectPayloads,
+    /// The answers of the prompts answered while others of their group wait (by prompt id; batch 8 C8: out of
+    /// `PromptRec`).
+    pub answers: SVec<(u32, Res), 8>,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
@@ -401,6 +404,7 @@ impl Game {
                 decls,
                 order_cache: _,
                 fxp,
+                answers,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -433,6 +437,7 @@ impl Game {
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
             fxp.copy_live_to(f!((*d).fxp));
+            answers.copy_live_to(f!((*d).answers));
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
             // another (a fork restored into its own game has it already).
             if (*d).decls.id != decls.id {
@@ -477,6 +482,7 @@ impl Game {
             decls: crate::decl::DeclIndex::new(),
             order_cache: crate::decl::OrderCache::new(),
             fxp: crate::effects::EffectPayloads::default(),
+            answers: SVec::new(),
         }
     }
 
@@ -868,7 +874,7 @@ impl Game {
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
-        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None });
+        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
@@ -881,7 +887,7 @@ impl Game {
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
             let kind = construct_prompt(kind);
-            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, result: None });
+            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });
@@ -934,24 +940,28 @@ impl Game {
             Some(i) => i,
             None => return Ok(()),
         };
-        if self.prompts.as_slice()[pi].result.is_some() {
+        if self.prompts.as_slice()[pi].answered {
             bail!("PROMPT_ALREADY_RESOLVED");
         }
-        self.prompts.as_mut_slice()[pi].result = Some(result);
+        self.prompts.as_mut_slice()[pi].answered = true;
+        self.answers.push((id, result));
         let item = self.items.as_slice()[ii];
         let all = item.ids.iter().all(|pid| {
-            self.prompts.iter().find(|p| p.id == *pid).map(|p| p.result.is_some()).unwrap_or(false)
+            self.prompts.iter().find(|p| p.id == *pid).map(|p| p.answered).unwrap_or(false)
         });
         let r: R = (|| {
             if all {
                 let mut results: SVec<Res, 4> = SVec::new();
                 for pid in item.ids.iter() {
-                    if let Some(p) = self.prompts.iter().find(|p| p.id == *pid).copied() {
-                        results.push(p.result.unwrap());
+                    if self.prompts.iter().any(|p| p.id == *pid) {
+                        if let Some((_, a)) = self.answers.iter().find(|(x, _)| x == pid) {
+                            results.push(*a);
+                        }
                     }
                 }
                 // Resolved prompts are no longer needed.
                 self.prompts.retain(|p| !item.ids.contains(&p.id));
+                self.answers.retain(|(x, _)| !item.ids.contains(x));
                 // Twinleaf runs `then` while the item is still queued and
                 // splices it afterwards at the index computed beforehand.
                 self.run_cont(item.cont, results.as_slice())?;
@@ -961,6 +971,7 @@ impl Game {
         })();
         if r.is_err() {
             self.prompts.retain(|p| !item.ids.contains(&p.id));
+            self.answers.retain(|(x, _)| !item.ids.contains(x));
             if let Some(idx) = self.items.iter().position(|it| it.ids.contains(&id)) {
                 self.items.remove_at(idx);
             }
@@ -1400,7 +1411,7 @@ impl Game {
 
     /// A turn action on a scratch copy the caller discards on error (no backup).
     pub fn act_trial(&mut self, action: Action) -> R {
-        if self.prompts.iter().any(|p| p.result.is_none()) {
+        if self.prompts.iter().any(|p| !p.answered) {
             bail!("ACTION_IN_PROGRESS");
         }
         self.items.clear();
@@ -1422,7 +1433,7 @@ impl Game {
     }
 
     fn act_with(&mut self, action: Action, rollback: bool) -> R {
-        if self.prompts.iter().any(|p| p.result.is_none()) {
+        if self.prompts.iter().any(|p| !p.answered) {
             bail!("ACTION_IN_PROGRESS");
         }
         self.st.bump();
@@ -1454,7 +1465,7 @@ impl Game {
         }
         let mut decision = None;
         for (i, p) in self.prompts.iter().enumerate() {
-            if p.result.is_some() {
+            if p.answered {
                 continue;
             }
             match p.class() {

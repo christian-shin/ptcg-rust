@@ -314,7 +314,8 @@ pub struct PromptRec {
     pub perspective: Option<u8>,
     pub message: &'static str,
     pub kind: PromptKind,
-    pub result: Option<Res>,
+    /// Answered (its answer waits in `Game::answers` for the other prompts of its group).
+    pub answered: bool,
 }
 
 /// Decoded prompt result (what Twinleaf stores in `prompt.result`).
