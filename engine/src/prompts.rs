@@ -291,11 +291,14 @@ pub struct MoveOpts {
     pub blocked_to: SVec<CardTarget, 18>,
     /// (source, blocked card indices).
     pub blocked_map: SVec<(CardTarget, Blocked), 18>,
+    /// The blocked destinations are a requirement of the continuation ("move an Energy ... to this Pokémon": it refuses
+    /// any other), so the decode refuses them; otherwise they are shown only (the recorded answers use them).
+    pub to_required: bool,
 }
 
 impl Default for MoveOpts {
     fn default() -> Self {
-        MoveOpts { allow_cancel: true, min: 0, max: None, blocked_from: SVec::new(), blocked_to: SVec::new(), blocked_map: SVec::new() }
+        MoveOpts { allow_cancel: true, min: 0, max: None, blocked_from: SVec::new(), blocked_to: SVec::new(), blocked_map: SVec::new(), to_required: false }
     }
 }
 
@@ -1235,9 +1238,17 @@ impl Game {
     pub(crate) fn decode_move_energy(&self, pr: &PromptRec, items: impl Iterator<Item = Option<(CardTarget, CardTarget, usize)>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = self.st.player_index_by_id(pr.perspective_id());
+        // The destinations the continuation refuses (`MoveOpts::to_required`: Bubble Gathering's "to this Pokémon").
+        let blocked_to = match pr.kind {
+            PromptKind::MoveEnergy { o, .. } if o.to_required => o.blocked_to,
+            _ => SVec::new(),
+        };
         let mut out: SVec<(CardTarget, CardTarget, CardId), 64> = SVec::new();
         for it in items {
             let (from, to, i) = it.ok_or(invalid)?;
+            if in_targets(blocked_to.as_slice(), to) {
+                return Err(invalid);
+            }
             let s = get_target(&self.st, p, from)?;
             let c = *self.st.slot(s.p as usize, s.s).cards.as_slice().get(i).ok_or(invalid)?;
             // Each card is moved at most once.

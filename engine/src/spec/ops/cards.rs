@@ -2137,6 +2137,8 @@ fn move_energy_own_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnerg
     let p = f.p as usize;
     let mut o = MoveOpts { allow_cancel: m.cancel, min: if m.cancel { 0 } else { 1 }, max: Some(1), ..Default::default() };
     if let Some(dest) = m.to.and_then(|e| slot_of(g, me, f, e)) {
+        // The continuation refuses any other destination (INVALID_TARGET).
+        o.to_required = true;
         for (s, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
             if s == dest.s {
                 o.blocked_from.push(t);

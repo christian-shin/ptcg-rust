@@ -645,6 +645,16 @@ impl Game {
         self.answer_with(sel, chosen, true)
     }
 
+    /// [`Game::answer`] for a driver whose answer is valid by construction (picked from the masks: self-play, the
+    /// benchmark): no backup copy (a rejected answer leaves the game half done; `PTCG_VERIFY_LEGAL=1` asserts none is).
+    pub fn answer_no_rollback(&mut self, sel: &SelectData, chosen: &[usize]) -> R {
+        let r = self.answer_with(sel, chosen, false);
+        if crate::options::verify_legal() {
+            assert!(r.is_ok(), "an answer picked from the masks was rejected: {:?}", r);
+        }
+        r
+    }
+
     /// [`Game::answer`]; `rollback` false skips the backup copy that restores the game when the answer
     /// is rejected (a caller working on a copy it throws away).
     fn answer_with(&mut self, sel: &SelectData, chosen: &[usize], rollback: bool) -> R {
@@ -874,30 +884,42 @@ impl Game {
         }
     }
 
-    /// For a pick-by-pick answer: which options can be picked next so that a
-    /// valid answer is still reachable, and whether `picks` can be submitted
-    /// as is (STOP). Bounded search; if the bound is hit an option is assumed
-    /// reachable.
+    /// For a pick-by-pick answer: which options can be picked next so that a valid answer is still reachable, and
+    /// whether `picks` can be submitted as is (STOP). Bounded search; if the bound is hit an option is assumed reachable.
+    ///
+    /// Declared validity (events batch 8 C9): an answer is accepted when the prompt's decode accepts it. The decode reads
+    /// what the prompt declares (its cards and filter, the blocked sources, destinations and cards, the counts, the
+    /// cost), the same restrictions its continuation checks, so no answer is resolved on a copy of the game.
+    /// `PTCG_VERIFY_LEGAL=1` resolves every option and every completion found on a copy and asserts the continuation
+    /// accepts exactly the declared answers.
     pub fn pick_mask(&self, sel: &SelectData, picks: &[usize]) -> (Vec<bool>, bool) {
+        let mut mask = Vec::new();
+        let stop = self.pick_mask_into(sel, picks, &mut mask);
+        (mask, stop)
+    }
+
+    /// [`Game::pick_mask`] into a caller's buffer (no allocation once it has the room); returns STOP.
+    pub fn pick_mask_into(&self, sel: &SelectData, picks: &[usize], mask: &mut Vec<bool>) -> bool {
         let n = sel.options.len();
+        mask.clear();
         if !matches!(sel.source, Source::Prompt(..)) {
-            return (vec![true; n], false);
+            mask.resize(n, true);
+            return false;
         }
         if sel.max_count <= 1 {
-            // Single pick: offer options the prompt and the card's callback accept.
-            let mask: Vec<bool> = (0..n).map(|j| self.is_accepted_answer(sel, &[j])).collect();
-            let stop = sel.min_count == 0 && self.is_accepted_answer(sel, &[]);
-            return (mask, stop);
+            // Single pick: the options the prompt accepts.
+            mask.extend((0..n).map(|j| self.is_declared_answer(sel, &[j])));
+            return sel.min_count == 0 && self.is_declared_answer(sel, &[]);
         }
         let repeats = sel.allows_repeats();
         let exact = match &sel.source {
             Source::Prompt(i, _, _) => matches!(self.prompts.as_slice()[*i].kind, PromptKind::ChooseEnergy { .. }),
             _ => false,
         };
-        let stop = picks.len() >= sel.min_count && self.is_accepted_answer(sel, picks);
-        let mut mask = vec![false; n];
+        let stop = picks.len() >= sel.min_count && self.is_declared_answer(sel, picks);
+        mask.resize(n, false);
         if picks.len() >= sel.max_count {
-            return (mask, stop);
+            return stop;
         }
         let mut buf: Vec<usize> = picks.to_vec();
         for j in 0..n {
@@ -914,7 +936,22 @@ impl Game {
             mask[j] = self.completable(sel, &mut buf, 0, repeats, &mut budget);
             buf.pop();
         }
-        (mask, stop)
+        stop
+    }
+
+    /// The prompt accepts `chosen` (its decode does: declared validity). `PTCG_VERIFY_LEGAL=1`: resolving it on a copy
+    /// agrees.
+    fn is_declared_answer(&self, sel: &SelectData, chosen: &[usize]) -> bool {
+        let ok = self.is_valid_answer(sel, chosen);
+        if crate::options::verify_legal() {
+            let mut trial = self.fork();
+            let accepted = ok && trial.answer_with(sel, chosen, false).is_ok();
+            assert_eq!(ok, accepted, "declared validity differs from the continuation for {:?} of {:?}", chosen, self.describe_prompt(&self.prompts.as_slice()[match &sel.source {
+                Source::Prompt(i, _, _) => *i,
+                _ => 0,
+            }]));
+        }
+        ok
     }
 
     /// Depth-first search for a valid superset of `buf`; the added options are
@@ -927,11 +964,8 @@ impl Game {
         if !self.extendable(sel, buf) {
             return false;
         }
-        if buf.len() >= sel.min_count && self.is_valid_answer(sel, buf) {
-            let mut trial = self.fork();
-            if trial.answer_with(sel, buf, false).is_ok() {
-                return true;
-            }
+        if buf.len() >= sel.min_count && self.is_declared_answer(sel, buf) {
+            return true;
         }
         if buf.len() >= sel.max_count {
             return false;

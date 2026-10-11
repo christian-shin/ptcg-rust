@@ -333,7 +333,7 @@ fn describe_for_verify(g: &Game, a: Action) -> String {
 }
 
 /// `PTCG_VERIFY_LEGAL=1`: check every answer against the full trial.
-fn verify_legal() -> bool {
+pub(crate) fn verify_legal() -> bool {
     static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *V.get_or_init(|| std::env::var("PTCG_VERIFY_LEGAL").map_or(false, |v| v == "1"))
 }
