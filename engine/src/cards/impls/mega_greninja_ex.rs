@@ -36,7 +36,7 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
                 yes: &[
-                    Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
+                    Step::cost(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
                     Step::new(Op::PlaceCounters(PlaceCountersSpec {
                         target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
                         counters: Num::Lit(6)

@@ -772,6 +772,28 @@ pub(crate) fn resume_choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, re
     }
 }
 
+/// Would the op change the game now (`ops::effect_possible`)? A PickSlot is a choice, not an effect; a heal needs a
+/// Pokémon with damage counters (or a Special Condition to recover from, when it clears them).
+pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
+    let healable = |s: SlotRef, h: &HealSpec| {
+        let sl = g.st.slot(s.p as usize, s.s);
+        sl.damage > 0 || (h.clear_conditions && !sl.special_conditions.is_empty())
+    };
+    // An op on the Pokémon an earlier op picked or attached to counts through that op.
+    let dependent = |t: Option<&SlotTarget>| matches!(t, Some(SlotTarget::Slot(SlotExpr::Picked | SlotExpr::Attached)));
+    if dependent(target_of(op)) {
+        return None;
+    }
+    Some(match op {
+        Op::PickSlot(_) => return None,
+        Op::Heal(h) => match &h.target {
+            SlotTarget::Pick(p) => slots_of(g, me, f, &p.among).iter().any(|s| healable(*s, h)),
+            SlotTarget::Slot(e) => slot_of(g, me, f, *e).map_or(true, |s| healable(s, h)),
+        },
+        _ => implied_ok(g, me, f, op),
+    })
+}
+
 pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
     match op {
         Op::Heal(h) => match &h.target {

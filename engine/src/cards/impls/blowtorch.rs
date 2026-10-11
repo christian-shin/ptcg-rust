@@ -26,7 +26,7 @@ pub static SPEC: CardSpec = CardSpec {
         needs: &[Cond::Nonempty(HAND, FIRE_ENERGY), Cond::Any(&[HAS_TOOL, HAS_SPECIAL, STADIUM_IN_PLAY])],
         steps: &[
             Step::new(Op::Pick(PickSpec { from: HAND, predicate: FIRE_ENERGY, bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) }, into: 0, msg: "CHOOSE_CARD_TO_DISCARD", ..PickSpec::DEFAULT })),
-            Step::new(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
+            Step::cost(Op::Discard(DiscardSpec { from: HAND, cards: CardSel::Chosen(0), ..DiscardSpec::DEFAULT })),
             Step::new(Op::Choose(ChooseSpec {
                 chooser: Who::Me,
                 msg: "DISCARD_STADIUM_OR_TOOL_OR_SPECIAL_ENERGY",

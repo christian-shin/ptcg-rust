@@ -561,7 +561,176 @@ fn usable(g: &mut Game, me: CardId, f: &Frame, needs: &[Cond], steps: &[Step]) -
             return Ok(false);
         }
     }
-    Ok(steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op)))
+    let old = steps.iter().all(|s| ops::implied_ok(g, me, f, &s.op));
+    // User decision D10, step 1: the rules' usability is computed beside today's under VERIFY and every difference is
+    // recorded (`usability_report`); today's answer stands until the switch is approved.
+    if crate::cause::on(g) {
+        let new = usable_by_rules(g, me, f, steps);
+        if new != old {
+            record_usability_difference(g, me, f, old, new);
+        }
+    }
+    Ok(old)
+}
+
+/// The rules' usability of a Trainer's or an Ability's program (events design section 7; APR A-02, B-01, D-02, E-20, E-30;
+/// id925, id956: "you cannot play a Trainer card for no net effect"), the card's `needs` aside (its printed conditions,
+/// checked first): every cost can be paid (`Step::cost`), every choice the program starts with has something to choose
+/// (a Pick, a PickSlot: the program's gates), and at least one of its effects would change the game (an op under
+/// `If(Done)` counts only through the op it depends on: E-20's "If you do"). A program with no effect op is usable.
+pub(crate) fn usable_by_rules(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
+    let mut w = RulesWalk { left_hand: 0, gates_ok: true, regs: [None; 4] };
+    let fx = w.walk(g, me, f, steps, true);
+    w.gates_ok && fx != Some(false)
+}
+
+/// The walk of `usable_by_rules`: the cards the program takes from its player's hand so far (they leave it: "draw until
+/// you have 6 cards" counts after the discard), and whether every top-level cost and choice can be made.
+struct RulesWalk {
+    left_hand: i32,
+    gates_ok: bool,
+    /// Per card register: whether the op that fills it would find cards (`None`: not filled by the program yet).
+    regs: [Option<bool>; 4],
+}
+
+impl RulesWalk {
+    fn reg(&self, r: u8) -> Option<bool> {
+        self.regs.get(r as usize).copied().flatten()
+    }
+    fn set_reg(&mut self, r: u8, v: bool) {
+        if let Some(x) = self.regs.get_mut(r as usize) {
+            *x = Some(v);
+        }
+    }
+    /// An op on the cards a register holds or a register stands for: possible when what filled it found cards.
+    fn on_reg(&self, from: &ZoneRef, cards: &crate::spec::ops::cards::CardSel) -> Option<bool> {
+        use crate::spec::ops::cards::CardSel;
+        match (cards, from.1) {
+            (CardSel::Chosen(r), _) => Some(self.reg(*r).unwrap_or(true)),
+            (_, Zone::Scratch(r)) => Some(self.reg(r).unwrap_or(true)),
+            _ => None,
+        }
+    }
+}
+
+impl RulesWalk {
+    /// Would one effect of `steps` change the game (`None`: no effect op)? Top-level costs and choices are gates.
+    fn walk(&mut self, g: &Game, me: CardId, f: &Frame, steps: &[Step], top: bool) -> Option<bool> {
+        let mut out = None;
+        let join = |out: &mut Option<bool>, x: Option<bool>| match x {
+            Some(true) => *out = Some(true),
+            Some(false) if out.is_none() => *out = Some(false),
+            _ => {}
+        };
+        for s in steps {
+            if let Op::Pick(p) = &s.op {
+                if p.from == ZoneRef(Who::Me, Zone::Hand) {
+                    self.left_hand += crate::spec::value::num(g, me, f, &p.bounds.min).max(0);
+                }
+                let v = match p.from.1 {
+                    Zone::Scratch(r) => self.reg(r).unwrap_or(true),
+                    _ => ops::implied_ok(g, me, f, &s.op),
+                };
+                self.set_reg(p.into, v);
+            }
+            // The cards an op takes from a register: what filled it.
+            let reg_fx = match &s.op {
+                Op::Discard(DiscardSpec { from, cards, .. })
+                | Op::PutIntoHand(PutIntoHandSpec { from, cards, .. })
+                | Op::PutIntoDeck(PutIntoDeckSpec { from, cards, .. })
+                | Op::Attach(AttachSpec { from, cards, onto: Some(_), .. }) => self.on_reg(from, cards),
+                Op::Look(l) => {
+                    let v = match self.on_reg(&l.from, &l.cards) {
+                        Some(v) => v,
+                        None => ops::implied_ok(g, me, f, &s.op),
+                    };
+                    self.set_reg(l.into, v);
+                    Some(v)
+                }
+                _ => None,
+            };
+            if s.at == RuleStep::Cost {
+                // "Discard your hand" can always be paid: a player always has a hand, even of zero cards (id2420).
+                let whole = matches!(&s.op, Op::Discard(DiscardSpec { cards: CardSel::All, .. }) | Op::PutIntoDeck(PutIntoDeckSpec { cards: CardSel::All, .. }));
+                self.gates_ok &= whole || ops::implied_ok(g, me, f, &s.op);
+                continue;
+            }
+            let fx = match &s.op {
+                _ if reg_fx.is_some() => reg_fx,
+                Op::Draw(d) if self.left_hand > 0 => Some(ops::draw_possible_after(g, me, f, d, self.left_hand)),
+                Op::If(i) if ops::reads_done(&i.cond) => None,
+                Op::If(i) if crate::spec::value::cond_stable(&i.cond) => {
+                    let l = if crate::spec::value::cond(g, me, f, &i.cond) { i.yes } else { i.no };
+                    self.walk(g, me, f, l, false)
+                }
+                Op::If(i) => {
+                    let a = self.walk(g, me, f, i.yes, false);
+                    let b = self.walk(g, me, f, i.no, false);
+                    if a == Some(true) || b == Some(true) { Some(true) } else { a.or(b) }
+                }
+                Op::May(m) => {
+                    let a = self.walk(g, me, f, m.yes, false);
+                    let b = self.walk(g, me, f, m.no, false);
+                    if a == Some(true) || b == Some(true) { Some(true) } else { a.or(b) }
+                }
+                op => ops::effect_possible(g, me, f, op),
+            };
+            match fx {
+                None => {
+                    if top && !matches!(s.op, Op::If(_) | Op::May(_)) {
+                        self.gates_ok &= ops::implied_ok(g, me, f, &s.op);
+                    }
+                }
+                x => join(&mut out, x),
+            }
+        }
+        out
+    }
+}
+
+/// The differences between today's usability and the rules' one met under VERIFY, by card and answers, each with a count
+/// and up to three situations (`usability_report`).
+static USABILITY: std::sync::Mutex<std::collections::BTreeMap<String, (u64, Vec<String>)>> = std::sync::Mutex::new(std::collections::BTreeMap::new());
+
+#[cold]
+fn record_usability_difference(g: &Game, me: CardId, f: &Frame, old: bool, new: bool) {
+    let p = f.p as usize;
+    let pl = &g.st.players[p];
+    let o = &g.st.players[1 - p];
+    let key = format!("{} ({}): today {}, rules {}", g.st.cdef(me).full_name, match f.prog { Prog::Play => "play", Prog::Power(_) => "Ability", _ => "use" }, old, new);
+    let situation = format!(
+        "turn {} deck {} hand {} (without it) discard {} bench {} | opp hand {} deck {} bench {}",
+        g.st.turn,
+        pl.deck.len(),
+        pl.hand.iter().filter(|c| *c != me).count(),
+        pl.discard.len(),
+        pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count(),
+        o.hand.len(),
+        o.deck.len(),
+        o.bench.iter().filter(|b| !o.slots[**b as usize].cards.is_empty()).count()
+    );
+    let mut m = USABILITY.lock().unwrap();
+    let e = m.entry(key).or_insert((0, Vec::new()));
+    e.0 += 1;
+    if e.1.len() < 3 && !e.1.contains(&situation) {
+        e.1.push(situation);
+    }
+}
+
+/// The usability differences of a VERIFY run (empty when there were none).
+pub fn usability_report() -> String {
+    let m = USABILITY.lock().unwrap();
+    if m.is_empty() {
+        return String::new();
+    }
+    let mut s = format!("usability differences (D10): {} cards\n", m.len());
+    for (k, (n, sits)) in m.iter() {
+        s.push_str(&format!("{:>8}  {}\n", n, k));
+        for x in sits {
+            s.push_str(&format!("          {}\n", x));
+        }
+    }
+    s
 }
 
 /// The declared checks of a Trainer's effect (`reduce` and legality both make them): the card's `needs` and implied
@@ -787,6 +956,66 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
 }
 
 #[cfg(test)]
+mod usability_tests {
+    //! The rules' usability (`usable_by_rules`, user decision D10) against the rulings' cases.
+    use super::*;
+    use serde_json::json;
+
+    fn rules(sc: serde_json::Value, card: &str) -> bool {
+        let mut names: Vec<&str> = Vec::new();
+        for n in ["Ultra Ball 30C 128", "Lillie's Determination ASC 192", "Carmine PRE 103", "Special Red Card CRI 82", "Hop's Snorlax JTG 117"] {
+            names.extend(std::iter::repeat(n).take(4));
+        }
+        while names.len() < 60 {
+            names.push("Psychic Energy MEE 5");
+        }
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let p = g.st.active_player as usize;
+        let def = crate::carddb::def_by_full_name(card).unwrap();
+        let me = g.st.players[p].hand.iter().find(|c| g.st.cards[*c as usize].def == def).expect("the card in hand");
+        let play = crate::cards::spec_for(def).unwrap().play.as_ref().unwrap();
+        let f = Frame::start(&g, me, Prog::Play, Phase::Use, 0, p, false);
+        usable_by_rules(&g, me, &f, play.steps)
+    }
+
+    /// id1188: Ultra Ball with an empty deck can't be played (the discard is a cost, not the effect).
+    #[test]
+    fn ultra_ball_empty_deck() {
+        let base = |n: u64| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Ultra Ball 30C 128", "Psychic Energy MEE 5", "Psychic Energy MEE 5"], "deck_left": n}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+        assert!(!rules(base(0), "Ultra Ball 30C 128"));
+        assert!(rules(base(10), "Ultra Ball 30C 128"));
+    }
+
+    /// id1124 (Professor Juniper; Carmine's "Discard your hand and draw 5 cards" alike): with an empty deck only the cost is
+    /// left; with a deck, an empty hand still pays it (id2420: a player always has a hand).
+    #[test]
+    fn carmine_discard_is_a_cost() {
+        let sc = |n: u64, hand: Vec<&str>| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand, "deck_left": n}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+        assert!(!rules(sc(0, vec!["Carmine PRE 103", "Psychic Energy MEE 5"]), "Carmine PRE 103"));
+        assert!(rules(sc(10, vec!["Carmine PRE 103"]), "Carmine PRE 103"));
+    }
+
+    /// id2365: Special Red Card with an empty opponent's hand can't be played.
+    #[test]
+    fn special_red_card_empty_opponent_hand() {
+        let sc = |hand: Vec<&str>| json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Special Red Card CRI 82"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": hand}});
+        assert!(!rules(sc(vec![]), "Special Red Card CRI 82"));
+        assert!(rules(sc(vec!["Psychic Energy MEE 5"]), "Special Red Card CRI 82"));
+    }
+
+    /// E-36 specific case, id2420: Lillie's Determination as the only card in the hand is playable.
+    #[test]
+    fn lillies_determination_only_card() {
+        let sc = json!({"me": {"reset": true, "active": "Hop's Snorlax JTG 117", "hand": ["Lillie's Determination ASC 192"]}, "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}});
+        assert!(rules(sc, "Lillie's Determination ASC 192"));
+    }
+}
+
+#[cfg(test)]
 mod outcome_tests {
     use super::*;
 
@@ -819,5 +1048,6 @@ fn runs_in(at: RuleStep, phase: Phase) -> bool {
             | (RuleStep::AfterDamage, Phase::AfterDamage)
             | (RuleStep::AfterDamage, Phase::Choices)
             | (RuleStep::Use, Phase::Use)
+            | (RuleStep::Cost, Phase::Use)
     )
 }
