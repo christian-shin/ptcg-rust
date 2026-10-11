@@ -541,6 +541,13 @@ pub trait Facts {
     fn powers(&mut self, p: usize, card: CardId) -> R<SVec<PowerRef, 8>>;
     fn has_no_ability(&mut self, p: usize, card: CardId, power_index: Option<u8>) -> bool;
     fn tool_off(&mut self, p: usize, card: CardId) -> bool;
+    /// The cards of declaration family `f` in place, in the propagation order of rank class `class` (`decl::in_place`,
+    /// through the provider's order cache).
+    fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120>;
+    /// The cards of `set` in the propagation order of rank class `class` (`decl::kind_order`, through the cache).
+    fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120>;
+    /// The readers' sources of effect kind `kind` (`decl::kind_listeners`, through the cache).
+    fn decl_kind_listeners(&mut self, kind: u32) -> SVec<CardId, 120>;
 }
 
 impl Facts for Game {
@@ -590,6 +597,18 @@ impl Facts for Game {
     #[inline]
     fn tool_off(&mut self, p: usize, card: CardId) -> bool {
         tool_off(self, p, card)
+    }
+    #[inline]
+    fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
+        Game::decl_in_place(self, f, class)
+    }
+    #[inline]
+    fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
+        Game::decl_ordered(self, set, class)
+    }
+    #[inline]
+    fn decl_kind_listeners(&mut self, kind: u32) -> SVec<CardId, 120> {
+        Game::decl_kind_listeners(self, kind)
     }
 }
 
@@ -670,11 +689,11 @@ fn game_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option
 
 /// The family's cards in place, in the propagation order of the check effects (rank class 0); none without a declarer.
 #[inline]
-fn declarers(g: &Game, f: usize) -> SVec<CardId, 120> {
-    if g.decls.sets[f] == 0 {
+fn declarers<F: Facts>(g: &mut F, f: usize) -> SVec<CardId, 120> {
+    if g.g().decls.sets[f] == 0 {
         return SVec::new();
     }
-    crate::decl::in_place(g, f, 0)
+    g.decl_in_place(f, 0)
 }
 
 /// The HP of the Pokémon in slot `s` of player `p`: its printed HP and each in-place `HpBonus` / `HpMod` that applies.
@@ -684,7 +703,7 @@ pub fn compute_hp<F: Facts>(g: &mut F, p: usize, s: crate::state::SlotId) -> R<i
     let target = SlotRef::new(p, s);
     let bonus = g.undelegated(|g| -> R<i32> {
         let mut bonus = 0;
-        let ds = declarers(g.g(), crate::decl::fam::HP);
+        let ds = declarers(g, crate::decl::fam::HP);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 bonus += match &ps.modifier {
@@ -705,7 +724,7 @@ pub fn compute_provided_energy<F: Facts>(g: &mut F, p: usize, source: SlotRef) -
     use crate::spec::passive::Modifier;
     let mut map: EnergyMap = SVec::new();
     g.undelegated(|g| -> R {
-        let ds = declarers(g.g(), crate::decl::fam::PROVIDES);
+        let ds = declarers(g, crate::decl::fam::PROVIDES);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 match &ps.modifier {
@@ -727,7 +746,7 @@ pub fn compute_types<F: Facts>(g: &mut F, target: SlotRef) -> R<SVec<CardType, 4
     use crate::spec::passive::Modifier;
     let mut types = crate::engine::game_effect::pokemon_types(g.g(), target);
     g.undelegated(|g| -> R {
-        let ds = declarers(g.g(), crate::decl::fam::TYPE);
+        let ds = declarers(g, crate::decl::fam::TYPE);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 if let Modifier::TypeOverride(t) = &ps.modifier {
@@ -754,7 +773,7 @@ pub fn compute_weakness_resistance<F: Facts>(g: &mut F, target: SlotRef) -> R<(S
         _ => (SVec::new(), SVec::new()),
     };
     g.undelegated(|g| -> R {
-        let ds = declarers(g.g(), crate::decl::fam::STATS);
+        let ds = declarers(g, crate::decl::fam::STATS);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 if let Modifier::WeaknessOverride(w) = &ps.modifier {
@@ -780,7 +799,7 @@ pub fn compute_retreat_cost<F: Facts>(g: &mut F, p: usize) -> R<Cost> {
     use crate::spec::passive::Modifier;
     let mut acc = crate::engine::check::RetreatCostAcc { p: p as u8, cost: crate::engine::retreat::check_retreat_cost_base(g.g(), p), no_cost: false, reduction: 0 };
     g.undelegated(|g| -> R {
-        let ds = declarers(g.g(), crate::decl::fam::RETREAT_COST);
+        let ds = declarers(g, crate::decl::fam::RETREAT_COST);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 if let Modifier::RetreatCost(c) = &ps.modifier {
@@ -802,7 +821,7 @@ pub fn compute_attacks<F: Facts>(g: &mut F, p: usize) -> R<crate::engine::turn::
         _ => (SVec::new(), SVec::new()),
     };
     g.undelegated(|g| -> R {
-        let ds = declarers(g.g(), crate::decl::fam::GRANT_ATTACKS);
+        let ds = declarers(g, crate::decl::fam::GRANT_ATTACKS);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 match &ps.modifier {
@@ -827,7 +846,7 @@ pub fn compute_attack_cost<F: Facts>(g: &mut F, p: usize, attack: AttackRef) -> 
     }
     let mut acc = crate::engine::check::AttackCostAcc { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false };
     g.undelegated(|g| -> R {
-        let ds = declarers(g.g(), crate::decl::fam::ATTACK_COST);
+        let ds = declarers(g, crate::decl::fam::ATTACK_COST);
         for me in ds.iter().copied() {
             for ps in crate::decl::passives(g.g(), me) {
                 if let Modifier::AttackCost(c) = &ps.modifier {

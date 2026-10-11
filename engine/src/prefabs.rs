@@ -31,6 +31,7 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
         PrefabCont::ShuffleOrderThenDraw { p, draw, after, cause } => {
             if let Res::Order(o) = first {
                 crate::game::apply_order(&mut g.st.players[p as usize].deck, o.as_slice());
+                g.st.bump_layout();
             }
             let id = g.player_id(p as usize);
             g.wait(id, Cont::Prefab(PrefabCont::DrawAfterWait { p, draw, after, cause }));

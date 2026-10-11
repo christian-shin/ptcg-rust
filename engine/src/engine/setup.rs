@@ -388,6 +388,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             for (p, r) in results.iter().enumerate().take(2) {
                 if let Res::Order(o) = r {
                     crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
+                    g.st.bump_layout();
                 }
             }
             for p in 0..2 {
@@ -422,6 +423,7 @@ pub fn resume(g: &mut Game, mut f: SetupFrame, results: &[Res]) -> R {
             let other = if f.stage == Stage::AMulliganed { 1 } else { 0 };
             if let Res::Order(o) = first {
                 crate::game::apply_order(&mut g.st.players[other].deck, o.as_slice());
+                g.st.bump_layout();
             }
             setup_draw(g, other, 7)?;
             if needs_starter_confirm(g, other) {

@@ -136,7 +136,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
 /// copied attack's source card run for the copycat (`copy_attack::delegate_damage`).
 fn attacker_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
     use crate::spec::passive::Modifier;
-    let order = crate::decl::all(g, crate::decl::fam::DAMAGE_DEALT, 0);
+    let order = g.decl_all(crate::decl::fam::DAMAGE_DEALT, 0);
     if !order.is_empty() {
         crate::derived::Facts::undelegated(g, |g| -> R {
             for c in order.iter().copied() {
@@ -157,7 +157,7 @@ fn attacker_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
 /// for the copycat.
 fn defender_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
     use crate::spec::passive::Modifier;
-    let order = crate::decl::all(g, crate::decl::fam::DAMAGE_TAKEN, 0);
+    let order = g.decl_all(crate::decl::fam::DAMAGE_TAKEN, 0);
     if !order.is_empty() {
         crate::derived::Facts::undelegated(g, |g| -> R {
             for c in order.iter().copied() {

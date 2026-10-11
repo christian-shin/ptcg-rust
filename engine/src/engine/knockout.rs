@@ -562,7 +562,7 @@ fn attribution(g: &Game, t: SlotRef, by_hp: bool) -> (KoBy, Cause) {
 /// Pokémon protected from a condition it has, id289: `recover_protected`), an Energy on a Pokémon it can't be on is
 /// discarded (`AttachGuard`); then the Ability-lock stamps are re-synced. Returns the Bench sizes.
 pub(crate) fn table_state(g: &mut Game) -> R<[u8; 2]> {
-    let order = if g.decls.sets[crate::decl::fam::TABLE_STATE] == 0 { SVec::new() } else { crate::decl::in_place(g, crate::decl::fam::TABLE_STATE, 0) };
+    let order = g.decl_in_place(crate::decl::fam::TABLE_STATE, 0);
     if crate::game::verify_cache() && g.decls.sets[crate::decl::fam::TABLE_STATE] != 0 {
         // The declarations in place (C6) do what all of them did (each handler checks its card's place first).
         let (mut a, mut b) = (g.fork(), g.fork());
@@ -608,7 +608,7 @@ fn table_state_over(g: &mut Game, order: SVec<CardId, 120>) -> R<[u8; 2]> {
 /// declaring cards (any zone: each checks where its card is), before the event is produced.
 fn prize_adjustments(g: &mut Game, id: EffId) -> R {
     use crate::spec::passive::{self, Modifier};
-    let order = crate::decl::all(g, crate::decl::fam::PRIZE, 0);
+    let order = g.decl_all(crate::decl::fam::PRIZE, 0);
     if order.is_empty() {
         return Ok(());
     }

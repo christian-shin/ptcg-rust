@@ -570,7 +570,8 @@ pub fn fire_card_on(g: &mut Game, e: EffId, c: CardId) -> R {
 /// The `Event::On` triggers over one view of the event `e` (the view of `card` of an event carrying cards), in the
 /// propagation order of the declaring cards. The view is read for each trigger, as the board is when it is asked.
 fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
-    let order = crate::decl::kind_order(g, g.decls.kind(kind), crate::game::prop_class(g.e(e)));
+    let class = crate::game::prop_class(g.e(e));
+    let order = g.decl_ordered(g.decls.kind(kind), class);
     for &c in order.iter() {
         let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
         for (i, t) in spec.triggers.iter().enumerate() {
