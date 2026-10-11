@@ -3721,6 +3721,59 @@ mod attached_lock_tests {
         }
     }
 
+    /// Card predicates `lock_sync`'s gate (`State::lock_synced`: the layout generation, the turn, the turn player,
+    /// "Stadium and Tool cards have no effect") accounts for: the printed card.
+    fn layout_pred(p: &crate::spec::value::Pred) -> bool {
+        use crate::spec::value::Pred as P;
+        match p {
+            P::Not(q) => layout_pred(q),
+            P::All(qs) | P::OneOf(qs) => qs.iter().all(layout_pred),
+            P::Any | P::False | P::Pokemon | P::Basic | P::Energy | P::BasicEnergy | P::Trainer | P::Item | P::Supporter
+            | P::Tool | P::Stadium | P::Name(_) | P::Tag(_) | P::Stage(_) | P::NameContains(_) | P::StageIs(_)
+            | P::PrintedType(_) | P::PokemonType(_) | P::RuleBox | P::SpecialEnergy | P::PrintsAbility => true,
+            _ => false,
+        }
+    }
+
+    /// Spot predicates the gate accounts for: the position, the printed cards of the spot, and the type as the game
+    /// checks it (changed only by attached cards and the Stadium: the layout, and the Stadium / Tool switch).
+    fn layout_slot_pred(p: &crate::spec::value::SlotPred) -> bool {
+        use crate::spec::value::SlotPred as S;
+        match p {
+            S::Not(q) => layout_slot_pred(q),
+            S::All(qs) | S::OneOf(qs) => qs.iter().all(layout_slot_pred),
+            S::Top(q) => layout_pred(q),
+            S::Any | S::IsActive | S::IsBench | S::PrintedTypeIs(_) | S::TypeIs(_) | S::Tag(_) | S::RuleBox | S::Basic
+            | S::StageIs(_) | S::Named(_) | S::IsThisPokemon | S::OnMySide | S::Evolution | S::Evolved | S::CardBelowThis(_) => true,
+            _ => false,
+        }
+    }
+
+    /// `lock_sync` is skipped while the layout generation, the turn, the turn player and the Stadium / Tool switch are
+    /// those of the last sync (batch 8 C6): sound only while every lock source holds by what those determine. A lock
+    /// reading damage, markers, Special Conditions, Prizes or hands needs its read in the gate's key first.
+    #[test]
+    fn lock_predicates_are_layout_determined() {
+        let mut locks = Vec::new();
+        for s in crate::cards::registry::SPECS.iter() {
+            for ps in s.passives.iter() {
+                match &ps.modifier {
+                    Modifier::AbilityLock(l) => {
+                        assert!(layout_pred(&l.card) && layout_pred(&l.missing), "{}: an Ability lock's card predicate outside the gate's key", s.class);
+                        assert!(layout_slot_pred(&l.slot), "{}: an Ability lock's spot predicate outside the gate's key", s.class);
+                        // Every probe reads the lock pass (locks over the locker) or the Stadium's effect on the spot.
+                        assert!(matches!(l.probe, LockerProbe::Generic | LockerProbe::OwnPower(_) | LockerProbe::StadiumOnSlot));
+                        locks.push(s.class);
+                    }
+                    // The Active Spot, the printed card, its Rule Box and tags.
+                    Modifier::ActiveLock(ActiveLock::MidnightFluttering | ActiveLock::Initialization) => locks.push(s.class),
+                    _ => {}
+                }
+            }
+        }
+        assert!(!locks.is_empty());
+    }
+
     #[test]
     fn which_locks_read_attached_cards() {
         let marked: Vec<&str> =

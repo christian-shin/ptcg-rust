@@ -129,7 +129,8 @@ pub fn delegate_damage(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc, 
         i -= 1;
         let s = match g.copy_sessions.get(i) {
             Some(s) => *s,
-            None => crate::bail!("TypeError: Cannot read properties of undefined (reading 'copycatCard')"),
+            // A session removed by a step's code: nothing to delegate.
+            None => continue,
         };
         if !copycat_in_play(g, s.copycat) {
             g.copy_sessions.remove_at(i);
@@ -170,8 +171,8 @@ pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
         i -= 1;
         let s = match g.copy_sessions.get(i) {
             Some(s) => *s,
-            // `copyAttackSessions[i]` spliced away by a nested reduce.
-            None => crate::bail!("TypeError: Cannot read properties of undefined (reading 'copycatCard')"),
+            // Sessions removed by a nested effect: this one is gone, nothing to delegate.
+            None => continue,
         };
         if !copycat_in_play(g, s.copycat) {
             g.copy_sessions.remove_at(i);

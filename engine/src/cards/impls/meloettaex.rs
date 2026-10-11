@@ -1,4 +1,4 @@
-//! Meloetta ex (SV11B): Live Debut — if you go first, this Pokémon can attack
+//! Meloetta ex (BLK 44): Debut Performance — if you go first, this Pokémon can attack
 //! on your first turn. Echoed Voice — 30; during your next turn, this
 //! Pokémon's Echoed Voice attack does 80 more damage.
 use crate::spec::prelude::*;

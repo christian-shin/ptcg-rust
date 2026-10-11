@@ -119,6 +119,7 @@ pub fn after_end_turn(g: &mut Game, p: usize) -> R {
         slot.discard_attacker_energy_if_ko_source_card = None;
         slot.discard_attacker_energy_if_ko_attacker = None;
     }
+    g.st.bump();
     if g.st.phase == GamePhase::Finished {
         return Ok(());
     }
@@ -220,9 +221,15 @@ pub fn end_turn_event(g: &mut Game, p: usize) -> R {
 }
 
 /// The EndTurn event's consequence: the once-per-turn marks of player `p`'s Abilities (the cards with a once-per-turn
-/// Ability, `decl::once_per_turn`) are cleared.
+/// Ability in a zone of the board, `DeclIndex::once_per_turn`) are cleared, in no particular order.
 fn end_turn_marks(g: &mut Game, p: usize) {
-    for c in crate::decl::all_of(g, g.decls.once_per_turn, 0).iter().copied() {
+    let mut set = g.decls.once_per_turn;
+    while set != 0 {
+        let c = set.trailing_zeros() as CardId;
+        set &= set - 1;
+        if !crate::decl::in_a_zone(g, c) {
+            continue;
+        }
         let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
         for pw in spec.powers.iter() {
             if let crate::spec::Once::PerTurn(name) | crate::spec::Once::PerTurnShared(name) = pw.once {
@@ -271,6 +278,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 }
 
 fn end_turn(g: &mut Game, p: usize) -> R {
+    // The turn's records are written below outside any event (no longer the EndTurn reducer since batch 8 C5b): a new
+    // version before them and before the state check reads the facts.
+    g.st.bump();
     let o = 1 - p;
     // Only an attack used during this turn counts (phase 4b: a turn that ended
     // without an attack kept the previous attack's flag).
@@ -362,6 +372,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     pl.slots[a as usize].attacks_this_turn = Some(0);
     pl.prizes_taken_last_turn = pl.prizes_taken_this_turn;
     pl.prizes_taken_this_turn = 0;
+    g.st.bump();
     crate::engine::knockout::state_check(g, OnComplete::AfterEndTurn { p: p as u8 })
 }
 

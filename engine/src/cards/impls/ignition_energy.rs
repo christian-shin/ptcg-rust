@@ -1,8 +1,9 @@
 //! Ignition Energy (PFL / WHT, Special): provides [C]; on an Evolution Pokémon it provides [C][C][C] instead. If this card is
 //! attached to 1 of your Pokémon, discard it at the end of your turn.
 //!
-//! Attaching it (a trigger on the Attach event of this card) sets the owner's marker; at the end of the turn (the Checkup
-//! trigger, `Event::OnCheckup`: B7-OLD -> B8) a card still attached is discarded from its Pokémon (a LeavePlay caused by
+//! Attaching it (a trigger on the Attach event of this card) sets the owner's marker; at the owner's Pokémon Checkup (a
+//! trigger on the Checkup event, as it was recorded; APR E-21 puts "at the end of your turn" before Checkup: an 8b rules
+//! fix) a card still attached is discarded from its Pokémon (a LeavePlay caused by
 //! the card's own rule) and the marker cleared. The Pokémon's top card gives the stage: not Basic and not Restored provides
 //! [C][C][C] (JP FAQ Ignition Energy).
 use crate::spec::prelude::*;

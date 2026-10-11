@@ -105,17 +105,6 @@ impl CardSpec {
         if !self.powers.is_empty() {
             m = with(m, k::POWER);
         }
-        let mut i = 0;
-        while i < self.powers.len() {
-            if matches!(self.powers[i].once, Once::PerTurn(_) | Once::PerTurnShared(_)) {
-                // The once-per-turn marker is cleared at the end of the turn, and when
-                // the card enters play or evolves again (a new Pokémon, id317).
-                m = with(m, k::END_TURN);
-                m = with(m, k::ENTER_PLAY);
-                m = with(m, k::EVOLVE);
-            }
-            i += 1;
-        }
         if self.use_stadium.is_some() {
             m = with(m, k::USE_STADIUM);
         }

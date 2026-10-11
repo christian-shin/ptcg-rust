@@ -122,6 +122,15 @@ fn stored(g: &mut Game) {
     }
 }
 
+/// `PTCG_VERIFY_CACHE=1`: no write since the last store at this version (checked where routines that write outside an
+/// event hand over to readers: the entry of the state check).
+#[inline]
+pub fn verify_version(g: &Game, at: &str) {
+    if crate::game::verify_cache() && g.derived.dig_v == g.st.version {
+        assert_eq!(g.derived.dig, state_digest(&g.st), "{at}: the state was written without a version bump (version {})", g.st.version);
+    }
+}
+
 /// A memo hit: under VERIFY, the state is the one the fact was computed in (same digest) and the recompute agrees.
 #[inline]
 fn hit<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, memo: T, again: impl FnOnce(&mut Game) -> T) -> T {

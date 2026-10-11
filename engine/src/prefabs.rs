@@ -400,16 +400,6 @@ pub fn reset_once_per_turn_slot(g: &mut Game, t: SlotRef) {
     }
 }
 
-/// `REMOVE_MARKER_AT_END_OF_TURN(effect, marker, source)` (player marker).
-pub fn remove_marker_at_end_of_turn(g: &mut Game, e: EffId, marker: crate::markers::MarkerName, source: CardId) {
-    if let Effect::EndTurn { p } = *g.e(e) {
-        let m = &mut g.st.players[p as usize].marker;
-        if m.has_from(marker, source) {
-            m.remove_from(marker, source);
-        }
-    }
-}
-
 // ---------------------------------------------------------------------------
 // Attack helpers
 

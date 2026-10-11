@@ -146,17 +146,24 @@ pub struct DeclIndex {
     /// The cards with a once-per-turn Ability (`Once::PerTurn` / `PerTurnShared`): their marks are cleared at the end of
     /// the turn (the EndTurn event's consequence).
     pub once_per_turn: u128,
+    /// The index's identity (a number per build, 0 for none): `Game::copy_from` copies the index only into a game holding
+    /// another one (the index is fixed per game; a fork of the same game has it already).
+    pub id: u64,
 }
+
+/// The next `DeclIndex::id`.
+static NEXT_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
 impl DeclIndex {
     pub const fn new() -> DeclIndex {
-        DeclIndex { sets: [0; fam::N], kinds: [0; KIND_SLOTS], attack_passives: 0, once_per_turn: 0 }
+        DeclIndex { sets: [0; fam::N], kinds: [0; KIND_SLOTS], attack_passives: 0, once_per_turn: 0, id: 0 }
     }
 
     /// The index of the game's cards (`Game::start`, after the decks are in).
     pub fn build(g: &Game) -> DeclIndex {
         use crate::spec::passive::DamageStage;
         let mut ix = DeclIndex::new();
+        ix.id = NEXT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let slots = kind_slots();
         for c in 0..g.st.n_cards {
             for ps in passives(g, c) {
@@ -322,12 +329,27 @@ fn prop_key(g: &Game, c: CardId) -> Option<u32> {
         let i = list.iter().position(|x| *x == c)? as u32;
         Some((p as u32) << 20 | zone << 8 | i)
     };
-    if let Some((p, s)) = g.st.tool_spot(c) {
+    let tool_key = |p: usize, s: crate::state::SlotId| -> Option<u32> {
         let pl = &g.st.players[p];
         let zone = if pl.active == s { 3 } else { 5 + 2 * pl.bench.position(&s)? as u32 };
-        return key(p as u8, zone, pl.slots[s as usize].tools.as_slice());
-    }
-    let r = g.st.locate(c)?;
+        key(p as u8, zone, pl.slots[s as usize].tools.as_slice())
+    };
+    // The Tool hint first; a card in a zone list is in no Tool list, so the Tool lists are asked only when the card is
+    // in no zone list (a stale hint).
+    let r = if g.st.at[c as usize].tool_slot().is_some() {
+        if let Some((p, s)) = g.st.tool_spot(c) {
+            return tool_key(p, s);
+        }
+        g.st.locate(c)?
+    } else {
+        match g.st.locate(c) {
+            Some(r) => r,
+            None => {
+                let (p, s) = g.st.tool_spot(c)?;
+                return tool_key(p, s);
+            }
+        }
+    };
     let pl = |p: u8| &g.st.players[p as usize];
     match r {
         ListRef::Stadium(p) => key(p, 0, pl(p).stadium.as_slice()),
@@ -397,6 +419,32 @@ mod tests {
                 }
                 if m.has(k::POWER) {
                     assert!(matches!(ps.modifier, Modifier::AbilityLock(_) | Modifier::ActiveLock(_)), "{}: a passive over Power effects that isn't a lock", s.class);
+                }
+            }
+        }
+    }
+
+    /// A `PlayTrainer`, a `UseStadium`, an `AfterAttack` and an `AttackTrigger` reach only the acting card (the played
+    /// Trainer, the used Stadium, the attack's card, the step-7 trigger's card: `Game::handler_cards`): no other card's
+    /// passive or dispatch trigger is over them (an `Event::On` trigger is read after the event, `run::after_event`; a
+    /// damaged-by-an-attack trigger records its card, which the AttackTrigger names).
+    #[test]
+    fn acting_card_kinds_have_no_other_handler() {
+        let acting = crate::effects::mask(&[k::PLAY_TRAINER, k::USE_STADIUM, k::AFTER_ATTACK, k::ATTACK_TRIGGER]);
+        for s in crate::cards::registry::SPECS.iter() {
+            for ps in s.passives {
+                if crate::spec::passive::modifier_kinds(&ps.modifier).intersects(acting) {
+                    // (The locks, preventions, permissions and re-flips are read by the routines: `derived::event_locked`.)
+                    assert!(
+                        matches!(ps.modifier, Modifier::BlockUse(_) | Modifier::Prevent(_) | Modifier::Permit(_) | Modifier::Reflip(_)),
+                        "{}: a passive over an effect that reaches only its acting card",
+                        s.class
+                    );
+                }
+            }
+            for t in s.triggers {
+                if crate::spec::trigger::event_kinds(&t.event).intersects(acting) {
+                    assert!(matches!(t.event, Event::On(_) | Event::OnDamagedByAttack(_)), "{}: a dispatch trigger over an effect that reaches only its acting card", s.class);
                 }
             }
         }

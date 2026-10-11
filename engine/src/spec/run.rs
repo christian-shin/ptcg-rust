@@ -487,15 +487,6 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
         }
     }
     for (i, pw) in spec.powers.iter().enumerate() {
-        if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
-            remove_marker_at_end_of_turn(g, e, crate::markers::intern(name), me);
-            // A card that enters play or evolves is a new Pokémon (id317).
-            if let Effect::EnterPlay { p, card, .. } | Effect::Evolve { p, card, .. } = *g.e(e) {
-                if card == me {
-                    g.st.players[p as usize].marker.remove_from(crate::markers::intern(name), me);
-                }
-            }
-        }
         if was_power_used(g, e, pw.index, me) {
             let p = match *g.e(e) {
                 Effect::Power { p, .. } => p as usize,

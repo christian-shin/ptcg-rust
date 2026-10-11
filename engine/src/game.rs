@@ -416,8 +416,11 @@ impl Game {
             ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
-            // The index comes along with the layout it describes (each entry carries its own generation).
-            f!((*d).decls).write(*decls);
+            // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
+            // another (a fork restored into its own game has it already).
+            if (*d).decls.id != decls.id {
+                f!((*d).decls).write(*decls);
+            }
             // The derived facts are not copied: another line of play may reach the same version numbers.
             (*d).derived.clear();
         }
@@ -1225,8 +1228,7 @@ impl Game {
     }
 
     /// The cards effect `id` (of kind `kind`, rank class `class`) reaches, in the propagation order: the acting card's
-    /// program (the attack's, the Ability's, the Trainer's, the Stadium's; the card entering play or evolving, whose
-    /// once-per-turn marks reset; a step-7 trigger's card) and the declarations its kind is read by (the Attack-stage
+    /// program (the attack's, the Ability's, the Trainer's, the Stadium's; a step-7 trigger's card) and the declarations its kind is read by (the Attack-stage
     /// damage bonuses, the next-turn bonus and Shred on an `Attack`; the Ability locks on a `Power`; the end-of-turn,
     /// Checkup, first-turn and damaged-by-an-attack handlers; the check effects of the slow path). An event the routines
     /// and the triggers after it read reaches no card (its declarations are read through `decl::kind_listeners`).
@@ -1246,7 +1248,6 @@ impl Game {
             Effect::Power { card, .. } => (bit(card) | locks) & all,
             Effect::PlayTrainer { card, .. } => bit(card) & all,
             Effect::UseStadium { stadium, .. } => bit(stadium) & all,
-            Effect::EnterPlay { card, .. } | Effect::Evolve { card, .. } => bit(card) & all,
             Effect::AttackTrigger { card, .. } => bit(card) & all,
             // Read by their routines and by the triggers after the event, never by a handler (`decl::UNHANDLED_KINDS`).
             _ if crate::decl::UNHANDLED_KINDS.has(kind) => 0,

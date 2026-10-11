@@ -790,15 +790,26 @@ impl State {
     }
 
     /// The spot whose Tools hold the Tool `c`, among the Pokémon in play (Active first, then the Bench, player 0 first).
+    /// Answered from the hint [`State::at`]: a Tool location that still holds it, or a zone list that still holds the
+    /// card (a card in a zone list is in no Tool list: `attach::put_attached` takes an attached Tool out of the spot's
+    /// cards); else by the scan.
     #[inline]
     pub fn tool_spot(&self, c: CardId) -> Option<(usize, SlotId)> {
-        if let Some((p, s)) = self.at.get(c as usize).and_then(|l| l.tool_slot()) {
+        let hint = self.at.get(c as usize).copied().unwrap_or(Loc::NONE);
+        if let Some((p, s)) = hint.tool_slot() {
             let slot = &self.players[p].slots[s as usize];
             if self.spot_in_play(p, s) && !slot.cards.is_empty() && slot.tools.contains(c) {
                 if crate::game::verify_cache() {
                     assert_eq!(Some((p, s)), self.tool_spot_scan(c), "State::at answered differently from the scan for Tool {c}");
                 }
                 return Some((p, s));
+            }
+        } else if let Some(r) = hint.list() {
+            if self.holds(r, c) {
+                if crate::game::verify_cache() {
+                    assert_eq!(None, self.tool_spot_scan(c), "card {c} is in a zone list and in a Tool list");
+                }
+                return None;
             }
         }
         self.tool_spot_scan(c)

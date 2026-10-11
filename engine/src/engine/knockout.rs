@@ -370,6 +370,7 @@ pub struct CheckFrame {
 
 /// The state check (APR D): see the module documentation.
 pub fn state_check(g: &mut Game, oc: OnComplete) -> R {
+    crate::derived::verify_version(g, "the state check");
     if !matches!(g.st.phase, GamePhase::PlayerTurn | GamePhase::Attack | GamePhase::BetweenTurns) {
         return on_complete(g, oc);
     }
@@ -561,9 +562,19 @@ fn attribution(g: &Game, t: SlotRef, by_hp: bool) -> (KoBy, Cause) {
 /// Pokémon protected from a condition it has, id289: `recover_protected`), an Energy on a Pokémon it can't be on is
 /// discarded (`AttachGuard`); then the Ability-lock stamps are re-synced. Returns the Bench sizes.
 pub(crate) fn table_state(g: &mut Game) -> R<[u8; 2]> {
+    let order = if g.decls.sets[crate::decl::fam::TABLE_STATE] == 0 { SVec::new() } else { crate::decl::in_place(g, crate::decl::fam::TABLE_STATE, 0) };
+    if crate::game::verify_cache() && g.decls.sets[crate::decl::fam::TABLE_STATE] != 0 {
+        // The declarations in place (C6) do what all of them did (each handler checks its card's place first).
+        let (mut a, mut b) = (g.fork(), g.fork());
+        let (ra, rb) = (table_state_over(&mut a, crate::decl::all(g, crate::decl::fam::TABLE_STATE, 0)), table_state_over(&mut b, order.clone()));
+        assert!(ra.as_ref().ok() == rb.as_ref().ok() && crate::derived::state_digest(&a.st) == crate::derived::state_digest(&b.st), "the table-state step over the declarations in place differs from all of them");
+    }
+    table_state_over(g, order)
+}
+
+fn table_state_over(g: &mut Game, order: SVec<CardId, 120>) -> R<[u8; 2]> {
     use crate::spec::passive::{self, Modifier};
     let mut sizes = [5u8, 5];
-    let order = if g.decls.sets[crate::decl::fam::TABLE_STATE] == 0 { SVec::new() } else { crate::decl::in_place(g, crate::decl::fam::TABLE_STATE, 0) };
     if !order.is_empty() {
         let saved = g.deleg.take();
         let r = (|| -> R {
