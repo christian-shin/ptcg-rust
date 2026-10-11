@@ -111,11 +111,12 @@ pub fn attack_cost_read(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
 
 /// The checked read of the Energy a Pokémon provides (`CheckProvidedEnergy`): an attack's and a retreat's payment.
 pub fn provided_energy_read(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    let (pe, _) = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, energy_map: SVec::new() })?;
-    Ok(match pe {
-        Effect::CheckProvidedEnergy { energy_map, .. } => energy_map,
-        _ => SVec::new(),
-    })
+    g.fxp.energy.push(SVec::new());
+    let buf = (g.fxp.energy.len() - 1) as u8;
+    let r = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, buf });
+    let map = g.fxp.energy.pop().unwrap_or_default();
+    r?;
+    Ok(map)
 }
 
 /// The cost reads of an attack (`CheckAttackCost`, then `CheckProvidedEnergy`

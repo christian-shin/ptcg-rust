@@ -106,6 +106,31 @@ pub struct AtkBase {
     pub cause: Cause,
 }
 
+/// The payloads too large for an [`Effect`] (batch 8 C8: an effect is copied on every read of the arena): per kind a
+/// stack of the effects in flight (nested reads push above), indexed by the effect's `buf`. Pushed when the effect is
+/// made, popped when its maker has read it back.
+#[derive(Clone, Copy, Default)]
+pub struct EffectPayloads {
+    pub energy: SVec<EnergyMap, 4>,
+    pub attacks: SVec<crate::engine::turn::CheckedAttacks, 4>,
+    pub stats: SVec<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>), 4>,
+    pub moves: SVec<SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }>, 4>,
+}
+
+impl EffectPayloads {
+    /// Copy the live entries of `src` into `dst` (`Game::copy_from`).
+    ///
+    /// # Safety
+    /// `dst` must be valid for writes and properly aligned.
+    pub unsafe fn copy_live_to(&self, dst: *mut Self) {
+        use std::ptr::addr_of_mut as f;
+        self.energy.copy_live_to(f!((*dst).energy));
+        self.attacks.copy_live_to(f!((*dst).attacks));
+        self.stats.copy_live_to(f!((*dst).stats));
+        self.moves.copy_live_to(f!((*dst).moves));
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum Effect {
     // ---- game phase ----
@@ -122,7 +147,8 @@ pub enum Effect {
     // ---- checks ----
     /// The derived layer's slow path for the HP (`derived::slow_hp`): the HP modifiers add to `bonus`.
     CheckHp { p: u8, target: SlotRef, card: Option<CardId>, bonus: i32 },
-    CheckPokemonStats { target: SlotRef, weakness: SVec<WeaknessV, 4>, resistance: SVec<ResistanceV, 4> },
+    /// `buf`: its Weakness and Resistance being computed (`Game::fxp.stats`).
+    CheckPokemonStats { target: SlotRef, buf: u8 },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
     CheckRetreatCost { p: u8, cost: Cost, no_cost: bool, reduction: u8 },
     /// `set_cost` / `ignore_colorless`: an effect that sets or ignores the cost
@@ -130,11 +156,12 @@ pub enum Effect {
     /// `reduction`: "costs [C] less" effects add up and `any_reduction` (Sparkling Crystal, "1 Energy less") is applied once
     /// after all handlers, with the increases (Advanced Rulebook D-11, D-12).
     CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool, reduction: u8, any_reduction: bool },
-    CheckProvidedEnergy { p: u8, source: SlotRef, energy_map: EnergyMap },
+    /// `buf`: its Energy map being computed (`Game::fxp.energy`).
+    CheckProvidedEnergy { p: u8, source: SlotRef, buf: u8 },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },
-    /// `copied`: the attacks of other Pokémon that the Active Pokémon uses as its own (Mew ex Memory Helix),
-    /// pushed to `attacks` as well; the source is `AttackRef::card`.
-    CheckPokemonAttacks { p: u8, attacks: SVec<AttackRef, 32>, copied: SVec<AttackRef, 32> },
+    /// `buf`: the attack list being computed (`Game::fxp.attacks`: the attacks and the copied ones, the attacks of other
+    /// Pokémon that the Active Pokémon uses as its own, Mew ex Memory Helix, pushed to the attacks as well).
+    CheckPokemonAttacks { p: u8, buf: u8 },
 
     // ---- game ----
     Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
@@ -213,7 +240,8 @@ pub enum Effect {
     PlaceCounters { p: u8, target: SlotRef, amount: i32, cause: Cause },
     /// The MoveCounters event (events batch 6; `engine::damage::move_counters`): one action moving damage counters between
     /// Pokémon, its pairs as they happened. `p` is the player whose effect moves them.
-    MoveCounters { p: u8, moves: crate::list::SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }>, cause: Cause },
+    /// `buf`: its pairs (`Game::fxp.moves`).
+    MoveCounters { p: u8, buf: u8, cause: Cause },
     /// The ChangeActive event (events batch 5; `engine::change_active`): player `p`'s Active Pokémon changes: the
     /// Pokémon in the Active Spot `from` (none for a promotion) goes to the Bench and the Benched Pokémon in `to`
     /// becomes the Active Pokémon, as `change` says (retreat, switch, switch-in, switch-out, promotion).
@@ -316,7 +344,7 @@ impl Effect {
     }
 
     /// A read: a check effect or a probe, which writes nothing a derived fact reads (its handlers adjust the effect; the HP
-    /// read also leaves `Slot::hp_bonus`). `Game::reduce_effect` doesn't bump `State::version` for one; it also takes a
+    /// read's bonus is the effect's). `Game::reduce_effect` doesn't bump `State::version` for one; it also takes a
     /// `Power` effect for a power with no program as one (a lock's "a real use of its own power" probe runs nothing).
     pub fn is_read(&self) -> bool {
         use Effect::*;

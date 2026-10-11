@@ -239,7 +239,11 @@ pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cau
         moves.push(CounterMove { from, to, removed: removed as i16, placed: placed as i16 });
     }
     if !moves.is_empty() {
-        g.run_fx_unit(Effect::MoveCounters { p: cause.player, moves, cause })?;
+        g.fxp.moves.push(moves);
+        let buf = (g.fxp.moves.len() - 1) as u8;
+        let r = g.run_fx_unit(Effect::MoveCounters { p: cause.player, buf, cause });
+        g.fxp.moves.pop();
+        r?;
     }
     Ok(moves)
 }
@@ -289,7 +293,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
             }
         }
-        Effect::MoveCounters { moves, .. } => {
+        Effect::MoveCounters { buf, .. } => {
+            let moves = g.fxp.moves[buf as usize];
             for m in moves.iter() {
                 let s = &mut g.st.players[m.from.p as usize].slots[m.from.s as usize];
                 s.damage = (s.damage - m.removed as i32).max(0);

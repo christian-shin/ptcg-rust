@@ -990,12 +990,11 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
         Modifier::Reflip(_) => Ok(()),
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
         Modifier::WeaknessOverride(w) => {
-            let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
+            let Effect::CheckPokemonStats { target, buf } = *g.e(e) else { return Ok(()) };
             if let Some(t) = weakness_override(g, me, ps.origin, w, target)? {
-                if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(e) {
-                    weakness.clear();
-                    weakness.push(crate::effects::WeaknessV { card_type: t, value: None });
-                }
+                let weakness = &mut g.fxp.stats.as_mut_slice()[buf as usize].0;
+                weakness.clear();
+                weakness.push(crate::effects::WeaknessV { card_type: t, value: None });
             }
             Ok(())
         }
@@ -1233,14 +1232,10 @@ pub(crate) fn provides_energy_into<F: crate::derived::Facts>(g: &mut F, me: Card
 }
 
 fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) -> R {
-    let (p, source, mut map) = match *g.e(e) {
-        Effect::CheckProvidedEnergy { p, source, energy_map } => (p, source, energy_map),
-        _ => return Ok(()),
-    };
+    let Effect::CheckProvidedEnergy { p, source, buf } = *g.e(e) else { return Ok(()) };
+    let mut map = g.fxp.energy[buf as usize];
     provides_energy_into(g, me, pe, p, source, &mut map)?;
-    if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-        *energy_map = map;
-    }
+    g.fxp.energy.as_mut_slice()[buf as usize] = map;
     Ok(())
 }
 
@@ -1274,14 +1269,10 @@ pub(crate) fn provides_energy_boost_into<F: crate::derived::Facts>(g: &mut F, me
 }
 
 fn provides_energy_boost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &ProvidesEnergyBoostSpec) -> R {
-    let (p, source, mut map) = match *g.e(e) {
-        Effect::CheckProvidedEnergy { p, source, energy_map } => (p as usize, source, energy_map),
-        _ => return Ok(()),
-    };
-    provides_energy_boost_into(g, me, origin, b, p, source, &mut map)?;
-    if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-        *energy_map = map;
-    }
+    let Effect::CheckProvidedEnergy { p, source, buf } = *g.e(e) else { return Ok(()) };
+    let mut map = g.fxp.energy[buf as usize];
+    provides_energy_boost_into(g, me, origin, b, p as usize, source, &mut map)?;
+    g.fxp.energy.as_mut_slice()[buf as usize] = map;
     Ok(())
 }
 
@@ -1859,15 +1850,10 @@ pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSourc
 }
 
 fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let (p, mut acc) = match *g.e(e) {
-        Effect::CheckPokemonAttacks { p, attacks, copied } => (p as usize, (attacks, copied)),
-        _ => return Ok(()),
-    };
-    grant_attacks_into(g, me, origin, p, &mut acc)?;
-    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
-        *attacks = acc.0;
-        *copied = acc.1;
-    }
+    let Effect::CheckPokemonAttacks { p, buf } = *g.e(e) else { return Ok(()) };
+    let mut acc = g.fxp.attacks[buf as usize];
+    grant_attacks_into(g, me, origin, p as usize, &mut acc)?;
+    g.fxp.attacks.as_mut_slice()[buf as usize] = acc;
     Ok(())
 }
 
@@ -2506,13 +2492,10 @@ pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize) -
 }
 
 fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let Effect::CheckPokemonAttacks { p, attacks, copied } = *g.e(e) else { return Ok(()) };
-    let mut acc = (attacks, copied);
+    let Effect::CheckPokemonAttacks { p, buf } = *g.e(e) else { return Ok(()) };
+    let mut acc = g.fxp.attacks[buf as usize];
     bench_attacks_into(g, me, origin, p as usize, &mut acc)?;
-    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
-        *attacks = acc.0;
-        *copied = acc.1;
-    }
+    g.fxp.attacks.as_mut_slice()[buf as usize] = acc;
     Ok(())
 }
 

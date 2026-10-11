@@ -87,11 +87,9 @@ pub fn weakness_and_resistance(g: &mut Game, b: &AtkBase, damage: i32, ignore_we
 
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::CheckPokemonStats { target, .. } => {
+        Effect::CheckPokemonStats { target, buf } => {
             if crate::engine::lasting::no_weakness(&g.st, target.p as usize, target.s) {
-                if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(id) {
-                    weakness.clear();
-                }
+                g.fxp.stats.as_mut_slice()[buf as usize].0.clear();
             }
             // weaknessOverride / opponent weakness aura: not modeled.
             Ok(())
@@ -120,8 +118,8 @@ pub fn pokemon_types(g: &Game, s: SlotRef) -> SVec<CardType, 4> {
     v
 }
 
-/// A fresh `CheckPokemonStatsEffect` for a slot.
-pub fn stats_effect(g: &Game, s: SlotRef) -> Effect {
+/// The printed Weakness and Resistance of the Pokémon in a slot.
+pub fn printed_stats(g: &Game, s: SlotRef) -> (SVec<WeaknessV, 4>, SVec<ResistanceV, 4>) {
     let mut weakness = SVec::new();
     let mut resistance = SVec::new();
     if let Some(c) = g.st.slot_pokemon(s.p as usize, s.s) {
@@ -133,7 +131,7 @@ pub fn stats_effect(g: &Game, s: SlotRef) -> Effect {
             resistance.push(ResistanceV { card_type: r.card_type, value: r.value });
         }
     }
-    Effect::CheckPokemonStats { target: s, weakness, resistance }
+    (weakness, resistance)
 }
 
 /// Little Grudge: the chosen Energy of the Attacking Pokémon (`target`, the Prize taker's) leave play for its owner's

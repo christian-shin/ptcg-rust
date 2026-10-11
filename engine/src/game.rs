@@ -253,6 +253,9 @@ pub struct Game {
     pub fx: SVec<EffSlot, MAX_FX>,
     pub temps: [List<120>; MAX_TEMPS],
     pub temp_used: [bool; MAX_TEMPS],
+    /// One past the highest staging list ever allocated in this line of play: `copy_from` copies only those (the others
+    /// were never written, so nothing reads them).
+    pub temp_hw: u8,
     /// Callbacks referenced by pending `CoinFlipEffect`s.
     pub coin_callbacks: SVec<CoinCb, 16>,
     /// A legality trial (options.rs): work that can't change whether the
@@ -290,6 +293,8 @@ pub struct Game {
     pub decls: crate::decl::DeclIndex,
     /// The readers' card lists of the current layout generation (`decl::OrderCache`; not copied by `copy_from`).
     pub order_cache: crate::decl::OrderCache,
+    /// The large payloads of the effects in flight (`effects::EffectPayloads`).
+    pub fxp: crate::effects::EffectPayloads,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
@@ -390,11 +395,12 @@ impl Game {
         unsafe {
             use std::ptr::addr_of_mut as f;
             let Game {
-                st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, coin_callbacks,
+                st, rng, prompts, last_prompt_id, items, waits, fx, temps, temp_used, temp_hw, coin_callbacks,
                 trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
                 derived: _,
                 decls,
                 order_cache: _,
+                fxp,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -407,8 +413,11 @@ impl Game {
             items.copy_live_to(f!((*d).items));
             waits.copy_live_to(f!((*d).waits));
             fx.copy_live_to(f!((*d).fx));
-            f!((*d).temps).write(*temps);
+            // The staging lists ever allocated (batch 8 C8: not the 32 x 121 B of them).
+            let hw = *temp_hw as usize;
+            std::ptr::copy_nonoverlapping(temps.as_ptr(), f!((*d).temps) as *mut List<120>, hw);
             f!((*d).temp_used).write(*temp_used);
+            f!((*d).temp_hw).write(*temp_hw);
             coin_callbacks.copy_live_to(f!((*d).coin_callbacks));
             f!((*d).trial).write(*trial);
             f!((*d).kinds_present).write(*kinds_present);
@@ -423,6 +432,7 @@ impl Game {
             ten_hp_coin.copy_live_to(f!((*d).ten_hp_coin));
             spec_choices.copy_live_to(f!((*d).spec_choices));
             f!((*d).last_attack).write(*last_attack);
+            fxp.copy_live_to(f!((*d).fxp));
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
             // another (a fork restored into its own game has it already).
             if (*d).decls.id != decls.id {
@@ -448,6 +458,7 @@ impl Game {
             fx: SVec::new(),
             temps: [List::new(); MAX_TEMPS],
             temp_used: [false; MAX_TEMPS],
+            temp_hw: 0,
             coin_callbacks: SVec::new(),
             trial: false,
             kinds_present: crate::effects::KindMask::EMPTY,
@@ -465,6 +476,7 @@ impl Game {
             derived: crate::derived::Derived::new(),
             decls: crate::decl::DeclIndex::new(),
             order_cache: crate::decl::OrderCache::new(),
+            fxp: crate::effects::EffectPayloads::default(),
         }
     }
 
@@ -827,6 +839,7 @@ impl Game {
         for i in 0..self.temps.len() {
             if !self.temp_used[i] {
                 self.temp_used[i] = true;
+                self.temp_hw = self.temp_hw.max(i as u8 + 1);
                 self.temps[i].set_from(cards);
                 return ListRef::Temp(i as u8);
             }

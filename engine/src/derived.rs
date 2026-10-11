@@ -768,10 +768,7 @@ pub fn compute_types<F: Facts>(g: &mut F, target: SlotRef) -> R<SVec<CardType, 4
 /// lasting "no Weakness" on the Pokémon.
 pub fn compute_weakness_resistance<F: Facts>(g: &mut F, target: SlotRef) -> R<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>)> {
     use crate::spec::passive::Modifier;
-    let (mut weakness, resistance) = match crate::engine::game_effect::stats_effect(g.g(), target) {
-        Effect::CheckPokemonStats { weakness, resistance, .. } => (weakness, resistance),
-        _ => (SVec::new(), SVec::new()),
-    };
+    let (mut weakness, resistance) = crate::engine::game_effect::printed_stats(g.g(), target);
     g.undelegated(|g| -> R {
         let ds = declarers(g, crate::decl::fam::STATS);
         for me in ds.iter().copied() {
@@ -816,10 +813,7 @@ pub fn compute_retreat_cost<F: Facts>(g: &mut F, p: usize) -> R<Cost> {
 /// `BenchAttacks`.
 pub fn compute_attacks<F: Facts>(g: &mut F, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
     use crate::spec::passive::Modifier;
-    let mut acc: crate::engine::turn::CheckedAttacks = match crate::engine::turn::check_attacks_effect(g.g(), p) {
-        Effect::CheckPokemonAttacks { attacks, copied, .. } => (attacks, copied),
-        _ => (SVec::new(), SVec::new()),
-    };
+    let mut acc: crate::engine::turn::CheckedAttacks = crate::engine::turn::printed_attack_list(g.g(), p);
     g.undelegated(|g| -> R {
         let ds = declarers(g, crate::decl::fam::GRANT_ATTACKS);
         for me in ds.iter().copied() {
@@ -952,11 +946,13 @@ pub fn slow_types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
 
 /// `CheckPokemonStats`.
 pub fn slow_weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>)> {
-    let (e, _) = g.run_fx(crate::engine::game_effect::stats_effect(g, target))?;
-    Ok(match e {
-        Effect::CheckPokemonStats { weakness, resistance, .. } => (weakness, resistance),
-        _ => (SVec::new(), SVec::new()),
-    })
+    let seed = crate::engine::game_effect::printed_stats(g, target);
+    g.fxp.stats.push(seed);
+    let buf = (g.fxp.stats.len() - 1) as u8;
+    let r = g.run_fx(Effect::CheckPokemonStats { target, buf });
+    let out = g.fxp.stats.pop().unwrap_or_default();
+    r?;
+    Ok(out)
 }
 
 /// `CheckRetreatCost`.

@@ -98,11 +98,13 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
 pub type CheckedAttacks = (SVec<AttackRef, 32>, SVec<AttackRef, 32>);
 
 pub fn read_attack_list(g: &mut Game, p: usize) -> R<CheckedAttacks> {
-    let (e, _) = g.run_fx(check_attacks_effect(g, p))?;
-    Ok(match e {
-        Effect::CheckPokemonAttacks { attacks, copied, .. } => (attacks, copied),
-        _ => (SVec::new(), SVec::new()),
-    })
+    let seed = printed_attack_list(g, p);
+    g.fxp.attacks.push(seed);
+    let buf = (g.fxp.attacks.len() - 1) as u8;
+    let r = g.run_fx(Effect::CheckPokemonAttacks { p: p as u8, buf });
+    let acc = g.fxp.attacks.pop().unwrap_or_default();
+    r?;
+    Ok(acc)
 }
 
 /// Attacks available to the active player, as the AttackAction reducer builds them, from the read
@@ -159,7 +161,7 @@ pub fn find_attack(g: &Game, attacks: &[(AttackRef, bool)], name: &'static str, 
 }
 
 /// `new CheckPokemonAttacksEffect(player)`: seeded with the active tool's attacks.
-pub fn check_attacks_effect(g: &Game, p: usize) -> Effect {
+pub fn printed_attack_list(g: &Game, p: usize) -> CheckedAttacks {
     let mut attacks = SVec::new();
     let a = g.st.players[p].active;
     if let Some(t) = g.st.slot(p, a).tools.get(0) {
@@ -170,7 +172,7 @@ pub fn check_attacks_effect(g: &Game, p: usize) -> Effect {
             }
         }
     }
-    Effect::CheckPokemonAttacks { p: p as u8, attacks, copied: SVec::new() }
+    (attacks, SVec::new())
 }
 
 /// The Pokémon card whose Ability a `UseAbility` names (`None`: nothing to use).

@@ -216,12 +216,10 @@ pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
             }
             Ok(())
         }
-        Effect::CheckProvidedEnergy { source, energy_map, .. } => {
-            let mut map = energy_map;
+        Effect::CheckProvidedEnergy { source, buf, .. } => {
+            let mut map = g.fxp.energy[buf as usize];
             complete_energy_map(g, source, &mut map);
-            if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(id) {
-                *energy_map = map;
-            }
+            g.fxp.energy.as_mut_slice()[buf as usize] = map;
             Ok(())
         }
         _ => Ok(()),
