@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Flittle",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Any) })), Step::new(Op::Arm(ArmSpec { what: Lasting::PreventAttackEffects }))], ..CoinSpec::DEFAULT })),
+            Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(Op::Arm(ArmSpec { what: Lasting::PreventDamage(DamageSource::Any) })), Step::new(Op::Arm(ArmSpec { what: Lasting::PreventAttackEffects }))], ..CoinSpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE

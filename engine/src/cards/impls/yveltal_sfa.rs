@@ -2,9 +2,9 @@
 //! counters on it. Destructive Beam — 100; flip a coin, if heads, discard an Energy from your opponent's Active Pokémon.
 //!
 //! Corrosive Winds is a PlaceCounters event per damaged Pokémon by the attack (each Pokémon's protections asked: Hide 'n'
-//! Sneak, Mist Energy, Battle Cage on the Bench). Destructive Beam: the discard is a raw move until the Discard event
-//! (B7). Twinleaf quirk kept (reported, no ruling found): no coin is flipped when the Active Pokémon has no Energy card;
-//! the printed text always flips (changing it changes the RNG order).
+//! Sneak, Mist Energy, Battle Cage on the Bench). Destructive Beam: the coin is always flipped (a printed coin flip
+//! always happens, RULES.md); on heads the Energy leaves play (a LeavePlay to the discard pile caused by this attack, D1),
+//! nothing when the Active Pokémon has none.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -17,14 +17,11 @@ pub static SPEC: CardSpec = CardSpec {
         },
         AttackSpec {
             index: 1,
-            // Destructive Beam: flip a coin; if heads, discard an Energy from the opponent's Active Pokémon (no flip without one).
-            steps: &[Step::after_damage(Op::If(IfSpec {
-                cond: Cond::Slot(OPP_ACTIVE, SlotPred::HasEnergy),
-                yes: &[Step::new(Op::Coin(CoinSpec {
-                    heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: false }, ..DiscardEnergySpec::DEFAULT }))],
-                    ..CoinSpec::DEFAULT
-                }))],
-                no: &[],
+            // Destructive Beam: flip a coin; if heads, discard an Energy from the opponent's Active Pokémon. The coin is flipped
+            // even when that Pokémon has no Energy (heads then does nothing): a printed coin flip always happens (RULES.md).
+            steps: &[Step::after_damage(Op::Coin(CoinSpec {
+                heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(OPP_ACTIVE), selection: EnergySelection::Cards { min: Num::Lit(1), max: Num::Lit(1), kind: EnergyKind::Any, cancel: false, energies_only: false }, ..DiscardEnergySpec::DEFAULT }))],
+                ..CoinSpec::DEFAULT
             }))],
         },
     ],

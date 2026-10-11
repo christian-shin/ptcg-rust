@@ -28,14 +28,13 @@ pub struct IfSpec {
     pub yes: &'static [Step],
     pub no: &'static [Step],
 }
-/// "Flip a coin(s)": the flipper flips (when `before` holds, otherwise nothing is flipped), then the branch
-/// for the result runs. One flip runs `heads` or
+/// "Flip a coin(s)": the flipper flips, then the branch for the result runs. A printed coin flip is part of the effect's
+/// resolution and always happens, never gated on whether its consequence has a target (user rule 2026-10-10; RULES.md). One flip runs `heads` or
 /// `tails`. A sequence (`Count`, `UntilTails`) applies `per_heads` to the attack's damage, then runs
 /// `then` once; `Num::Heads` reads the number of heads (also after a single flip).
 pub struct CoinSpec {
     pub flipper: Who,
     pub flips: Flips,
-    pub before: Cond,
     pub per_heads: PerHeads,
     pub heads: &'static [Step],
     pub tails: &'static [Step],
@@ -43,7 +42,7 @@ pub struct CoinSpec {
     pub then: &'static [Step],
 }
 impl CoinSpec {
-    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, flips: Flips::One, before: Cond::True, per_heads: PerHeads::Nothing, heads: &[], tails: &[], then: &[] };
+    pub const DEFAULT: CoinSpec = CoinSpec { flipper: Who::Me, flips: Flips::One, per_heads: PerHeads::Nothing, heads: &[], tails: &[], then: &[] };
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Flips {
@@ -176,9 +175,6 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             }
         }
         Op::Coin(c) => {
-            if !cond_m(g, me, f, &c.before)? {
-                return Ok(Flow::Next);
-            }
             // A coin flip always happens (batch 4: it can't be refused).
             f.outcome = super::super::run::Outcome::Done;
             let p = f.who(c.flipper);

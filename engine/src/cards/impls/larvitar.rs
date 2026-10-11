@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Larvitar",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::after_damage(Op::Coin(CoinSpec { before: Cond::True, heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Opp)), selection: EnergySelection::Chosen { pred: Pred::Energy }, ..DiscardEnergySpec::DEFAULT }))], ..CoinSpec::DEFAULT })),
+            Step::after_damage(Op::Coin(CoinSpec { heads: &[Step::new(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Opp)), selection: EnergySelection::Chosen { pred: Pred::Energy }, ..DiscardEnergySpec::DEFAULT }))], ..CoinSpec::DEFAULT })),
         ] },
     ],
     ..CardSpec::NONE
