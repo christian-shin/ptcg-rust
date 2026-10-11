@@ -99,6 +99,8 @@ pub struct Ctx<'a> {
     abil: SVec<((u8, CardId, u8), bool), 48>,
     /// The reason of the last `None` from `legal_fast` (the fallback table).
     pub why: &'static str,
+    /// The readers' card lists of the decision (`decl::OrderCache`).
+    order: crate::decl::OrderCache,
 }
 
 impl<'a> Ctx<'a> {
@@ -115,6 +117,7 @@ impl<'a> Ctx<'a> {
             powers: SVec::new(),
             abil: SVec::new(),
             why: "",
+            order: crate::decl::OrderCache::new(),
         }
     }
 
@@ -248,6 +251,31 @@ impl crate::derived::Facts for Ctx<'_> {
     }
     fn tool_off(&mut self, p: usize, card: CardId) -> bool {
         crate::derived::compute_tool_off(self.g, p, card)
+    }
+    #[inline]
+    fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
+        let r = crate::decl::in_place_cached(&self.g.st, &self.g.decls, &mut self.order, f, class);
+        if crate::game::verify_cache() {
+            assert_eq!(r.as_slice(), crate::decl::in_place(self.g, f, class).as_slice(), "legality's order cache differs (family {f})");
+        }
+        r
+    }
+    #[inline]
+    fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
+        let r = crate::decl::ordered_cached(&self.g.st, &mut self.order, set, class);
+        if crate::game::verify_cache() {
+            assert_eq!(r.as_slice(), crate::decl::kind_order(self.g, set, class).as_slice(), "legality's order cache differs (class {class})");
+        }
+        r
+    }
+    #[inline]
+    fn decl_kind_listeners(&mut self, kind: u32) -> SVec<CardId, 120> {
+        let set = self.g.decls.kind(kind);
+        let r = self.decl_ordered(set, 0);
+        if crate::game::verify_cache() {
+            assert_eq!(r.as_slice(), crate::decl::kind_listeners(self.g, kind).as_slice(), "legality's order cache differs (kind {kind})");
+        }
+        r
     }
 }
 

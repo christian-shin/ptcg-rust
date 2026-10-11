@@ -1359,6 +1359,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             if let Res::Order(o) = first {
                 let p = f.who(s.zone.0);
                 crate::game::apply_order(&mut g.st.players[p].deck, o.as_slice());
+                g.st.bump_layout();
             }
             Ok(Flow::Next)
         }

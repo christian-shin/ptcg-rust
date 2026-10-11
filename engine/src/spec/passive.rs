@@ -839,10 +839,10 @@ pub(crate) struct Located {
     pub(crate) held: Option<SlotRef>,
 }
 
-fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> Option<SlotRef> {
+fn slot_where(st: &crate::state::State, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> Option<SlotRef> {
     // The Pokémon in play, Active first (`Player::in_play`), without building the list.
     for p in 0..2 {
-        let pl = &g.st.players[p];
+        let pl = &st.players[p];
         for &s in std::iter::once(&pl.active).chain(pl.bench.iter()) {
             let slot = &pl.slots[s as usize];
             if !slot.cards.is_empty() && f(slot, p, s) {
@@ -854,9 +854,14 @@ fn slot_where(g: &Game, f: impl Fn(&crate::state::Slot, usize, u8) -> bool) -> O
 }
 
 pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
-    let r = locate_at(g, me, origin);
+    locate_st(&g.st, me, origin)
+}
+
+/// [`locate`] over the state.
+pub(crate) fn locate_st(st: &crate::state::State, me: CardId, origin: RuleSource) -> Option<Located> {
+    let r = locate_at(st, me, origin);
     if crate::game::verify_cache() {
-        let slow = locate_slow(g, me, origin);
+        let slow = locate_slow(st, me, origin);
         assert_eq!(r.map(|l| (l.owner, l.held)), slow.map(|l| (l.owner, l.held)), "passive::locate differs from the scan for card {me} ({origin:?})");
     }
     r
@@ -864,50 +869,50 @@ pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located
 
 /// [`locate`] from the card's location (`State::locate`, `State::tool_spot`): no walk of the board.
 #[inline]
-fn locate_at(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+fn locate_at(st: &crate::state::State, me: CardId, origin: RuleSource) -> Option<Located> {
     match origin {
-        RuleSource::Tool => g.st.tool_spot(me).map(|(p, s)| Located { owner: p, held: Some(SlotRef::new(p, s)) }),
+        RuleSource::Tool => st.tool_spot(me).map(|(p, s)| Located { owner: p, held: Some(SlotRef::new(p, s)) }),
         RuleSource::Energy | RuleSource::Ability => {
             // A card in a Pokémon's spot that is in play (`State::locate` finds only those).
-            let Some(ListRef::Slot(p, s)) = g.st.locate(me) else { return None };
-            let (p, sl) = (p as usize, &g.st.players[p as usize].slots[s as usize]);
+            let Some(ListRef::Slot(p, s)) = st.locate(me) else { return None };
+            let (p, sl) = (p as usize, &st.players[p as usize].slots[s as usize]);
             let ok = match origin {
                 RuleSource::Energy => !sl.tools.contains(me),
-                _ => g.st.slot_pokemon(p, s) == Some(me),
+                _ => st.slot_pokemon(p, s) == Some(me),
             };
             ok.then(|| Located { owner: p, held: Some(SlotRef::new(p, s)) })
         }
         RuleSource::Stadium => {
-            if g.st.stadium_card() == Some(me) {
-                let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            if st.stadium_card() == Some(me) {
+                let owner = st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| st.owner(me));
                 Some(Located { owner, held: None })
             } else {
                 None
             }
         }
         RuleSource::TrainerEffect | RuleSource::CardRule => {
-            let owner = g.st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            let owner = st.locate(me).and_then(|l| l.owner()).unwrap_or_else(|| st.owner(me));
             Some(Located { owner, held: None })
         }
     }
 }
 
 /// [`locate`] the slow way (`PTCG_VERIFY_CACHE=1` checks every answer against it).
-fn locate_slow(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+fn locate_slow(st: &crate::state::State, me: CardId, origin: RuleSource) -> Option<Located> {
     match origin {
-        RuleSource::Tool => slot_where(g, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Energy => slot_where(g, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
-        RuleSource::Ability => slot_where(g, |sl, p, s| sl.cards.contains(me) && g.st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Tool => slot_where(st, |sl, _, _| sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Energy => slot_where(st, |sl, _, _| sl.cards.contains(me) && !sl.tools.contains(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
+        RuleSource::Ability => slot_where(st, |sl, p, s| sl.cards.contains(me) && st.slot_pokemon(p, s) == Some(me)).map(|s| Located { owner: s.p as usize, held: Some(s) }),
         RuleSource::Stadium => {
-            if g.st.stadium_card() == Some(me) {
-                let owner = g.st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            if st.stadium_card() == Some(me) {
+                let owner = st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| st.owner(me));
                 Some(Located { owner, held: None })
             } else {
                 None
             }
         }
         RuleSource::TrainerEffect | RuleSource::CardRule => {
-            let owner = g.st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| g.st.owner(me));
+            let owner = st.locate_scan(me).and_then(|l| l.owner()).unwrap_or_else(|| st.owner(me));
             Some(Located { owner, held: None })
         }
     }
@@ -1920,7 +1925,7 @@ pub fn event_locked<F: crate::derived::Facts>(g: &mut F, v: &super::event::Event
         if g.g().kinds_present.has(marker) {
             // The lock sources of the event's kind, in the propagation order (`decl::kind_listeners`: no dispatch index,
             // a plain read).
-            let order = crate::decl::kind_listeners(g.g(), kind);
+            let order = g.decl_kind_listeners(kind);
             for c in order.iter().copied() {
                 if let Some(code) = event_locked_by(g, c, v)? {
                     return Ok(Some(code));
@@ -2045,7 +2050,7 @@ pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<cra
     if !g.kinds_present.has(crate::effects::k::DECLARES_REFLIP) {
         return Ok(None);
     }
-    let order = crate::decl::kind_listeners(g, crate::effects::k::COIN_FLIP);
+    let order = g.decl_kind_listeners(crate::effects::k::COIN_FLIP);
     for c in order.iter().copied() {
         let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives);
         for ps in passives {
@@ -2068,7 +2073,7 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     if !g.kinds_present.has(marker) {
         return Ok(false);
     }
-    let order = crate::decl::kind_listeners(g, kind);
+    let order = g.decl_kind_listeners(kind);
     for c in order.iter().copied() {
         if prevented_by(g, c, v)? {
             return Ok(true);
@@ -2130,7 +2135,7 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     if !g.kinds_present.has(marker) {
         return Ok(false);
     }
-    let order = crate::decl::kind_listeners(g, kind);
+    let order = g.decl_kind_listeners(kind);
     let mut heads = false;
     for me in order.iter().copied() {
         let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[me as usize].def).map_or(&[], |s| s.passives);
@@ -2301,18 +2306,13 @@ pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: Ca
     for i in 0..g.g().st.cdef(card).powers.len() {
         powers.push(crate::effects::PowerRef { card, index: i as u8 });
     }
-    let mut cards: SVec<CardId, 120> = SVec::new();
-    for (w, bits) in g.g().lock_cards.iter().enumerate() {
-        let mut b = *bits;
-        while b != 0 {
-            cards.push((w * 64 + b.trailing_zeros() as usize) as CardId);
-            b &= b - 1;
-        }
-    }
-    if cards.is_empty() {
+    let lc = g.g().lock_cards;
+    let set = (lc[0] as u128) | (lc[1] as u128) << 64;
+    debug_assert!(lc[2] == 0 && lc[3] == 0);
+    if set == 0 {
         return Ok(powers);
     }
-    let order = crate::decl::ordered(g.g(), cards, crate::game::PROP_CHECK_POWERS);
+    let order = g.decl_ordered(set, crate::game::PROP_CHECK_POWERS);
     g.undelegated(|g| -> R<SVec<crate::effects::PowerRef, 8>> {
         for c in order.iter().copied() {
             for ps in lock_passives(g.g(), c) {

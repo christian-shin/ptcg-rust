@@ -9,7 +9,7 @@
 use crate::game::Game;
 use crate::list::*;
 use crate::spec::passive::{Modifier, Passive};
-use crate::state::ListRef;
+use crate::state::{ListRef, State};
 
 /// The effect kinds no card handles when the effect is made (batch 8 C5): their declarations (locks, preventions,
 /// permissions, re-flips, the triggers after the event) are read by their routines and by `run::after_event` through
@@ -219,7 +219,12 @@ impl Default for DeclIndex {
 /// The passives of card `c`.
 #[inline]
 pub fn passives(g: &Game, c: CardId) -> &'static [Passive] {
-    crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives)
+    passives_st(&g.st, c)
+}
+
+#[inline]
+fn passives_st(st: &State, c: CardId) -> &'static [Passive] {
+    crate::cards::spec_for(st.cards[c as usize].def).map_or(&[], |s| s.passives)
 }
 
 /// The cards of family `f`, in any zone, in the propagation order of rank class `class` (for the readers whose
@@ -245,16 +250,27 @@ pub fn all_of(g: &Game, set: u128, class: u16) -> SVec<CardId, 120> {
 /// The cards of family `f` with a declaration of the family in place for its origin, in the propagation order of rank
 /// class `class` (what the readers visit; a card not in place does nothing for any of them).
 pub fn in_place(g: &Game, f: usize, class: u16) -> SVec<CardId, 120> {
-    let mut set = g.decls.sets[f];
+    let cards = in_place_cards(&g.st, g.decls.sets[f], f);
+    ordered(g, cards, class)
+}
+
+/// The cards of `set` (family `f`'s declarers) with a declaration of the family in place for its origin.
+#[inline]
+fn in_place_cards(st: &State, mut set: u128, f: usize) -> SVec<CardId, 120> {
     let mut cards: SVec<CardId, 120> = SVec::new();
     while set != 0 {
         let c = set.trailing_zeros() as CardId;
         set &= set - 1;
-        if passives(g, c).iter().any(|ps| modifier_family(&ps.modifier) == Some(f) && crate::spec::passive::locate(g, c, ps.origin).is_some()) {
+        if passives_st(st, c).iter().any(|ps| modifier_family(&ps.modifier) == Some(f) && crate::spec::passive::locate_st(st, c, ps.origin).is_some()) {
             cards.push(c);
         }
     }
-    ordered(g, cards, class)
+    cards
+}
+
+#[inline]
+fn in_place_st(st: &State, set: u128, f: usize, class: u16) -> SVec<CardId, 120> {
+    ordered_st(st, in_place_cards(st, set, f), class)
 }
 
 /// The cards of the game whose spec reacts to effect kind `kind` (its handler mask: the lock sources of an event family
@@ -271,7 +287,17 @@ pub fn kind_listeners(g: &Game, kind: u32) -> SVec<CardId, 120> {
 
 /// The cards of `set` (a bit per card id) in the propagation order of rank class `class`.
 #[inline]
-pub fn kind_order(g: &Game, mut set: u128, class: u16) -> SVec<CardId, 120> {
+pub fn kind_order(g: &Game, set: u128, class: u16) -> SVec<CardId, 120> {
+    let out = kind_order_st(&g.st, set, class);
+    if crate::game::verify_cache() && set != 0 {
+        let slow = g.propagation_order_fresh(class, set);
+        assert_eq!(out.as_slice(), slow.as_slice(), "decl::kind_order differs from the propagation order (class {class})");
+    }
+    out
+}
+
+#[inline]
+fn kind_order_st(st: &State, mut set: u128, class: u16) -> SVec<CardId, 120> {
     let mut cards: SVec<CardId, 120> = SVec::new();
     while set != 0 {
         cards.push(set.trailing_zeros() as CardId);
@@ -280,33 +306,20 @@ pub fn kind_order(g: &Game, mut set: u128, class: u16) -> SVec<CardId, 120> {
     if cards.len() < 2 {
         // One card: in the order when it is visited at all (in a zone of the board).
         if let Some(&c) = cards.as_slice().first() {
-            if prop_key(g, c).is_none() {
+            if prop_key(st, c).is_none() {
                 return SVec::new();
             }
         }
-        if crate::game::verify_cache() && !cards.is_empty() {
-            return ordered(g, cards, class);
-        }
         return cards;
     }
-    ordered(g, cards, class)
+    ordered_st(st, cards, class)
 }
 
 /// The cards in the propagation order (`Game::propagation_order_fresh`): by player, zone (Stadium, Supporter, the Active
 /// Pokémon's cards then its Tools, each Benched Pokémon's cards then Tools, the Prizes in use, hand, deck, discard pile)
 /// and index in the zone, then a stable sort by the rank class. A card in the Lost Zone or a staging list isn't visited.
 pub fn ordered(g: &Game, cards: SVec<CardId, 120>, class: u16) -> SVec<CardId, 120> {
-    let mut keyed: SVec<(u32, CardId), 120> = SVec::new();
-    for &c in cards.iter() {
-        if let Some(k) = prop_key(g, c) {
-            keyed.push(((crate::game::prop_rank(g, class, c) as u32) << 24 | k, c));
-        }
-    }
-    keyed.as_mut_slice().sort_unstable_by_key(|x| x.0);
-    let mut out: SVec<CardId, 120> = SVec::new();
-    for &(_, c) in keyed.iter() {
-        out.push(c);
-    }
+    let out = ordered_st(&g.st, cards, class);
     if crate::game::verify_cache() {
         let mut set = 0u128;
         for &c in cards.iter() {
@@ -318,39 +331,55 @@ pub fn ordered(g: &Game, cards: SVec<CardId, 120>, class: u16) -> SVec<CardId, 1
     out
 }
 
+#[inline]
+fn ordered_st(st: &State, cards: SVec<CardId, 120>, class: u16) -> SVec<CardId, 120> {
+    let mut keyed: SVec<(u32, CardId), 120> = SVec::new();
+    for &c in cards.iter() {
+        if let Some(k) = prop_key(st, c) {
+            keyed.push(((crate::game::prop_rank_st(st, class, c) as u32) << 24 | k, c));
+        }
+    }
+    keyed.as_mut_slice().sort_unstable_by_key(|x| x.0);
+    let mut out: SVec<CardId, 120> = SVec::new();
+    for &(_, c) in keyed.iter() {
+        out.push(c);
+    }
+    out
+}
+
 /// Is the card in a zone of the board the propagation order visits (not the Lost Zone, not set aside in a staging list)?
 pub fn in_a_zone(g: &Game, c: CardId) -> bool {
-    prop_key(g, c).is_some()
+    prop_key(&g.st, c).is_some()
 }
 
 /// The card's place in the zone order: player (bit 20), zone (bits 8..19), index in the zone (bits 0..7).
-fn prop_key(g: &Game, c: CardId) -> Option<u32> {
+fn prop_key(st: &State, c: CardId) -> Option<u32> {
     let key = |p: u8, zone: u32, list: &[CardId]| -> Option<u32> {
         let i = list.iter().position(|x| *x == c)? as u32;
         Some((p as u32) << 20 | zone << 8 | i)
     };
     let tool_key = |p: usize, s: crate::state::SlotId| -> Option<u32> {
-        let pl = &g.st.players[p];
+        let pl = &st.players[p];
         let zone = if pl.active == s { 3 } else { 5 + 2 * pl.bench.position(&s)? as u32 };
         key(p as u8, zone, pl.slots[s as usize].tools.as_slice())
     };
     // The Tool hint first; a card in a zone list is in no Tool list, so the Tool lists are asked only when the card is
     // in no zone list (a stale hint).
-    let r = if g.st.at[c as usize].tool_slot().is_some() {
-        if let Some((p, s)) = g.st.tool_spot(c) {
+    let r = if st.at[c as usize].tool_slot().is_some() {
+        if let Some((p, s)) = st.tool_spot(c) {
             return tool_key(p, s);
         }
-        g.st.locate(c)?
+        st.locate(c)?
     } else {
-        match g.st.locate(c) {
+        match st.locate(c) {
             Some(r) => r,
             None => {
-                let (p, s) = g.st.tool_spot(c)?;
+                let (p, s) = st.tool_spot(c)?;
                 return tool_key(p, s);
             }
         }
     };
-    let pl = |p: u8| &g.st.players[p as usize];
+    let pl = |p: u8| &st.players[p as usize];
     match r {
         ListRef::Stadium(p) => key(p, 0, pl(p).stadium.as_slice()),
         ListRef::Supporter(p) => key(p, 1, pl(p).supporter.as_slice()),
@@ -364,6 +393,104 @@ fn prop_key(g: &Game, c: CardId) -> Option<u32> {
         ListRef::Discard(p) => key(p, 28, pl(p).discard.as_slice()),
         ListRef::LostZone(_) | ListRef::SlotEnergies(..) | ListRef::Temp(_) => None,
     }
+}
+
+// ---------------------------------------------------------------------------
+// The order cache (batch 8 C7c; review 8a should-fix 1): the readers' card lists depend only on where the cards are, so
+// they are kept per layout generation (`State::layout_gen`) and computed again only after a card moves. `Game` keeps one
+// (`Game::order_cache`, not copied by `copy_from`: another line of play may reach the same generation number), legality's
+// `Ctx` its own for the decision. `PTCG_VERIFY_CACHE=1` checks every list against the propagation order computed fresh
+// (`Game::decl_in_place`, `decl_ordered`, `decl_kind_listeners`).
+
+/// One cached list: the family read in place (`IN_PLACE`) or a set of cards (`SET`), the rank class, the cards in order.
+#[derive(Clone, Copy)]
+struct OrderEntry {
+    tag: u8,
+    class: u16,
+    key: u128,
+    cards: SVec<CardId, 120>,
+}
+
+const SET: u8 = 0;
+const IN_PLACE: u8 = 1;
+
+/// The card lists of one layout generation (at most 16; the oldest is replaced).
+#[derive(Clone, Copy)]
+pub struct OrderCache {
+    gen: u32,
+    valid: bool,
+    next: u8,
+    entries: SVec<OrderEntry, 16>,
+}
+
+impl Default for OrderCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl OrderCache {
+    pub fn new() -> OrderCache {
+        OrderCache { gen: 0, valid: false, next: 0, entries: SVec::new() }
+    }
+
+    /// Forget every list (`Game::copy_from`).
+    #[inline]
+    pub fn invalidate(&mut self) {
+        self.valid = false;
+    }
+
+    #[inline]
+    fn get(&mut self, layout_gen: u32, tag: u8, key: u128, class: u16) -> Option<SVec<CardId, 120>> {
+        if !self.valid || self.gen != layout_gen {
+            self.valid = true;
+            self.gen = layout_gen;
+            self.next = 0;
+            self.entries.clear();
+            return None;
+        }
+        self.entries.iter().find(|e| e.tag == tag && e.key == key && e.class == class).map(|e| e.cards)
+    }
+
+    #[inline]
+    fn put(&mut self, tag: u8, key: u128, class: u16, cards: SVec<CardId, 120>) {
+        let e = OrderEntry { tag, class, key, cards };
+        if self.entries.len() < 16 {
+            self.entries.push(e);
+        } else {
+            self.entries.as_mut_slice()[self.next as usize] = e;
+            self.next = (self.next + 1) % 16;
+        }
+    }
+}
+
+/// [`in_place`] through `cache`.
+#[inline]
+pub fn in_place_cached(st: &State, decls: &DeclIndex, cache: &mut OrderCache, f: usize, class: u16) -> SVec<CardId, 120> {
+    if decls.sets[f] == 0 {
+        return SVec::new();
+    }
+    if let Some(cards) = cache.get(st.layout_gen, IN_PLACE, f as u128, class) {
+        return cards;
+    }
+    let cards = in_place_st(st, decls.sets[f], f, class);
+    cache.put(IN_PLACE, f as u128, class, cards);
+    cards
+}
+
+/// [`kind_order`] through `cache`: the cards of `set` in the propagation order of rank class `class`.
+#[inline]
+pub fn ordered_cached(st: &State, cache: &mut OrderCache, set: u128, class: u16) -> SVec<CardId, 120> {
+    if set & set.wrapping_sub(1) == 0 {
+        // No card or one: nothing to sort.
+        return kind_order_st(st, set, class);
+    }
+    if let Some(cards) = cache.get(st.layout_gen, SET, set, class) {
+        return cards;
+    }
+    let cards = kind_order_st(st, set, class);
+    cache.put(SET, set, class, cards);
+    cards
 }
 
 #[cfg(test)]

@@ -288,6 +288,8 @@ pub struct Game {
     pub derived: crate::derived::Derived,
     /// The declaration index (`decl.rs`): per reader family, the cards of the game that declare one (set by `start`).
     pub decls: crate::decl::DeclIndex,
+    /// The readers' card lists of the current layout generation (`decl::OrderCache`; not copied by `copy_from`).
+    pub order_cache: crate::decl::OrderCache,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
@@ -297,7 +299,11 @@ pub(crate) const PROP_AFTER_ATTACK: u16 = 3;
 
 /// The rank of card `c` in the propagation order of rank class `class` (a stable sort by it follows the zone order).
 pub(crate) fn prop_rank(g: &Game, class: u16, c: CardId) -> u8 {
-    let d = g.st.cdef(c);
+    prop_rank_st(&g.st, class, c)
+}
+
+pub(crate) fn prop_rank_st(st: &State, class: u16, c: CardId) -> u8 {
+    let d = st.cdef(c);
     match class {
         PROP_POWER => match d.super_type {
             2 => 0,
@@ -388,6 +394,7 @@ impl Game {
                 trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices,
                 derived: _,
                 decls,
+                order_cache: _,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -423,6 +430,8 @@ impl Game {
             }
             // The derived facts are not copied: another line of play may reach the same version numbers.
             (*d).derived.clear();
+            // Nor the card lists: another line of play may reach the same layout generation.
+            (*d).order_cache.invalidate();
         }
     }
 }
@@ -455,7 +464,48 @@ impl Game {
             spec_choices: SVec::new(),
             derived: crate::derived::Derived::new(),
             decls: crate::decl::DeclIndex::new(),
+            order_cache: crate::decl::OrderCache::new(),
         }
+    }
+
+    /// The cards of declaration family `f` in place, in the propagation order of rank class `class`
+    /// ([`crate::decl::in_place`] through the order cache).
+    #[inline]
+    pub fn decl_in_place(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
+        let r = crate::decl::in_place_cached(&self.st, &self.decls, &mut self.order_cache, f, class);
+        if verify_cache() {
+            assert_eq!(r.as_slice(), crate::decl::in_place(self, f, class).as_slice(), "the order cache's in-place list differs (family {f})");
+        }
+        r
+    }
+
+    /// The cards of `set` in the propagation order of rank class `class` ([`crate::decl::kind_order`] through the order
+    /// cache).
+    #[inline]
+    pub fn decl_ordered(&mut self, set: u128, class: u16) -> SVec<CardId, 120> {
+        let r = crate::decl::ordered_cached(&self.st, &mut self.order_cache, set, class);
+        if verify_cache() {
+            assert_eq!(r.as_slice(), crate::decl::kind_order(self, set, class).as_slice(), "the order cache's list differs (class {class})");
+        }
+        r
+    }
+
+    /// The cards of family `f` in any zone, in the propagation order of rank class `class` ([`crate::decl::all`]).
+    #[inline]
+    pub fn decl_all(&mut self, f: usize, class: u16) -> SVec<CardId, 120> {
+        let set = self.decls.sets[f];
+        self.decl_ordered(set, class)
+    }
+
+    /// [`crate::decl::kind_listeners`] through the order cache.
+    #[inline]
+    pub fn decl_kind_listeners(&mut self, kind: u32) -> SVec<CardId, 120> {
+        let set = self.decls.kind(kind);
+        let r = self.decl_ordered(set, 0);
+        if verify_cache() {
+            assert_eq!(r.as_slice(), crate::decl::kind_listeners(self, kind).as_slice(), "the order cache's listeners differ (kind {kind})");
+        }
+        r
     }
 
     // -----------------------------------------------------------------------
@@ -954,12 +1004,14 @@ impl Game {
             Cont::ShuffleApplyNoWait { p } => {
                 if let Res::Order(o) = first {
                     apply_order(&mut self.st.players[p as usize].deck, o.as_slice());
+                    self.st.bump_layout();
                 }
                 Ok(())
             }
             Cont::ShuffleApply { p } => {
                 if let Res::Order(o) = first {
                     apply_order(&mut self.st.players[p as usize].deck, o.as_slice());
+                    self.st.bump_layout();
                 }
                 // SHUFFLE_DECK's silent wait prompt.
                 let id = self.st.players[p as usize].id;
@@ -1232,7 +1284,7 @@ impl Game {
     /// damage bonuses, the next-turn bonus and Shred on an `Attack`; the Ability locks on a `Power`; the end-of-turn,
     /// Checkup, first-turn and damaged-by-an-attack handlers; the check effects of the slow path). An event the routines
     /// and the triggers after it read reaches no card (its declarations are read through `decl::kind_listeners`).
-    fn handler_cards(&self, id: EffId, kind: u32, class: u16) -> SVec<CardId, 120> {
+    fn handler_cards(&mut self, id: EffId, kind: u32, class: u16) -> SVec<CardId, 120> {
         if !self.kinds_present.has(kind) {
             return SVec::new();
         }
@@ -1253,7 +1305,7 @@ impl Game {
             _ if crate::decl::UNHANDLED_KINDS.has(kind) => 0,
             _ => all,
         };
-        let out = crate::decl::kind_order(self, set, class);
+        let out = self.decl_ordered(set, class);
         if verify_cache() {
             // A subsequence of the broadcast (every card of the game whose handler mask has the kind), in its order.
             let slow = self.propagation_order_slow(class, kind);

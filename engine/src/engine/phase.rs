@@ -148,7 +148,7 @@ pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) 
 /// zone: each checks where its card is), on the Checkup event `id` of a player before it is made.
 fn checkup_damage(g: &mut Game, id: EffId) -> R {
     use crate::spec::passive::Modifier;
-    let order = crate::decl::all(g, crate::decl::fam::CHECKUP_DAMAGE, 0);
+    let order = g.decl_all(crate::decl::fam::CHECKUP_DAMAGE, 0);
     if order.is_empty() {
         return Ok(());
     }
