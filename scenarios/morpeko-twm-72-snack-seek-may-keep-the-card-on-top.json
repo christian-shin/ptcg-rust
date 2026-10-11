@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Morpeko TWM 72",
+   "4 Hop's Snorlax JTG 117",
+   "4 Ultra Ball 30C 128",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Morpeko TWM 72",
+   "4 Hop's Snorlax JTG 117",
+   "4 Ultra Ball 30C 128",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Morpeko TWM 72",
+  "prizes": [
+   "6 Lightning Energy MEE 4"
+  ],
+  "deck_top": [
+   "Ultra Ball 30C 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Snack Seek",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  false,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "deck",
+   "top": [
+    "Ultra Ball 30C 128"
+   ],
+   "cite": "Morpeko TWM 72 Snack Seek: \"You may look at the top card of your deck. You may discard that card.\": discarding is the player's choice; declined, the card stays on top of the deck"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "not_contains": [
+    "Ultra Ball 30C 128"
+   ],
+   "cite": "Morpeko TWM 72 Snack Seek: \"You may look at the top card of your deck. You may discard that card.\": discarding is the player's choice; declined, nothing is discarded"
+  }
+ ]
+}

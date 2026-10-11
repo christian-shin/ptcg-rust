@@ -1,9 +1,8 @@
 //! Chi-Yu (TWM): Allure — draw 2 cards. Ground Melter — 60+; if a Stadium is
 //! in play, 60 more damage, then discard that Stadium.
 //!
-//! Twinleaf (twilight-masquerade file): Allure is MOVE_CARDS deck → hand
-//! `{ count: 2 }`; Ground Melter adds the 60 in the attack handler and moves
-//! the whole stadium list to its owner's discard (MOVE_CARDS without cards).
+//! Allure is a Draw event by the attack (as many as the deck has, APR H). Ground Melter's Stadium leaves play to its
+//! owner's discard pile (a LeavePlay, user decision D1).
 //!
 //! Fixed (phase 4b, R2): the Stadium was discarded in the attack handler,
 //! before the damage step (Full Metal Lab's reduction was lost); the text says
@@ -21,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Allure: draw 2 cards.
         AttackSpec {
             index: 0,
-            steps: &[Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(2)), ..PutIntoHandSpec::DEFAULT }))],
+            steps: &[Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(2)) }))],
         },
         // Ground Melter: if a Stadium is in play, 60 more damage, then discard that Stadium.
         AttackSpec {

@@ -1,6 +1,9 @@
 //! Morpeko (TWM): Snack Seek — once during your turn, look at the top card of
 //! your deck; you may discard it. Pick and Stick — attach up to 2 Basic
 //! Energy cards from your discard pile to your Pokémon in any way you like.
+//!
+//! Snack Seek: a Look at the top card, then the player's choice (Discard, or PutIntoDeck on top). Twinleaf discarded the card
+//! always (its info prompt answered yes): the printed "You may discard that card" is a choice.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -23,11 +26,17 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::PerTurn("SNACK_SEARCH_MARKER"),
         needs: &[],
-        // Today's behavior kept: the top card is always discarded (Twinleaf answers the info prompt
-        // with a yes), there is no real "you may".
+        // "You may look at the top card of your deck. You may discard that card.": the card is looked at (set aside), then
+        // its owner chooses: discarded, or back on top of the deck.
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(1)), into: 0, ..LookSpec::DEFAULT })),
-            Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), ..DiscardSpec::DEFAULT })),
+            Step::new(Op::May(MaySpec {
+                asker: Who::Me,
+                when: Cond::True,
+                msg: "WANT_TO_DISCARD_CARD",
+                yes: &[Step::new(Op::Discard(DiscardSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), ..DiscardSpec::DEFAULT }))],
+                no: &[Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ZoneRef(Who::Me, Zone::Scratch(0)), cards: CardSel::All, position: DeckPosition::Top, ..PutIntoDeckSpec::DEFAULT }))],
+            })),
         ],
     }],
     ..CardSpec::NONE

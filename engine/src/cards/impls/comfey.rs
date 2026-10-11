@@ -1,7 +1,6 @@
-//! Comfey (SCR): Flower Shower — each player draws 3 cards (MOVE_CARDS
-//! count 3, so fewer cards simply move fewer; phase 4b: it threw
-//! CANNOT_USE_ATTACK when either deck was empty). Play Rough — 20+; flip a
-//! coin, if heads 20 more damage.
+//! Comfey (SCR): Flower Shower — each player draws 3 cards: a Draw event for each player, by the attack (as many as the
+//! deck has, APR H; an attack is usable with an empty deck, APR D-01). Play Rough — 20+; flip a coin, if heads 20 more
+//! damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -11,8 +10,8 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 0,
             steps: &[
-                Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(3)), ..PutIntoHandSpec::DEFAULT })),
-                Step::after_damage(Op::PutIntoHand(PutIntoHandSpec { from: ZoneRef(Who::Opp, Zone::Deck), cards: CardSel::Top(Num::Lit(3)), ..PutIntoHandSpec::DEFAULT })),
+                Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(3)) })),
+                Step::after_damage(Op::Draw(DrawSpec { who: Who::Opp, amount: DrawAmount::Count(Num::Lit(3)) })),
             ],
         },
         // Play Rough: flip a coin, if heads 20 more damage.
