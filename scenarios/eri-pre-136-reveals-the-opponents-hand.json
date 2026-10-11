@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eri PRE 136",
+   "4 Hop's Snorlax JTG 117",
+   "4 Ultra Ball 30C 128",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eri PRE 136",
+   "4 Hop's Snorlax JTG 117",
+   "4 Ultra Ball 30C 128",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Eri PRE 136"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Ultra Ball 30C 128",
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Eri PRE 136"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ShowCards"
+   ],
+   "cite": "Eri PRE 136: \"Your opponent reveals their hand, and you discard up to 2 Item cards you find there.\": the hand is revealed (a Reveal, user decision D2) before the choice"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Ultra Ball 30C 128"
+   ],
+   "cite": "Eri PRE 136: up to 2 Items found there are discarded (1..2 for a Trainer, APR D-02 / id2376)"
+  }
+ ]
+}

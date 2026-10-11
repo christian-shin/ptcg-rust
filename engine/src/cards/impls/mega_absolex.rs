@@ -3,9 +3,8 @@
 //!
 //! Terminal Period is a KnockOut event on the opponent's Active Pokémon when it has exactly 60 damage (the Knock Out waits for
 //! the state check, D1); Mist Energy prevents it (id2427). Claw of Darkness: after the damage the attacker chooses a card of the
-//! opponent's hand and it is discarded from it (a Discard event over the opponent's hand, this attack its cause). NOTE: the text
-//! says the opponent reveals their hand and this file has no Reveal op (the Pick shows the hand to the chooser only); reported
-//! by the events batch 7 fan-out (B73), not changed.
+//! opponent's hand and it is discarded from it (a Discard event over the opponent's hand, this attack its cause). The hand is
+//! revealed first (a Reveal routine, D2).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -21,6 +20,8 @@ pub static SPEC: CardSpec = CardSpec {
         AttackSpec {
             index: 1,
             steps: &[
+                // "Your opponent reveals their hand, and you discard a card you find there."
+                Step::after_damage(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: true })),
                 Step::after_damage(Op::Pick(PickSpec {
                     chooser: Who::Me,
                     from: ZoneRef(Who::Opp, Zone::Hand),

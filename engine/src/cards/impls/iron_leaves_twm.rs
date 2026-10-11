@@ -3,8 +3,8 @@
 //! last turn.
 //!
 //! Recovery Net: 0 to min(2, Pokémon in the discard pile) are chosen ("up to" in an attack's effect may take 0, id2219, id2301) and
-//! go from the discard pile into the hand (a PutIntoHand event, this attack its cause). NOTE: the text says "reveal them" and
-//! this file reveals nothing (`reveal: false`); reported by the events batch 7 fan-out (B73), not changed.
+//! go from the discard pile into the hand (a PutIntoHand event, this attack its cause). The official text (data/official_text.json,
+//! TWM 19: "Put up to 2 Pokémon from your discard pile into your hand.") has no "reveal them": nothing is revealed.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IronLeaves@TWM",

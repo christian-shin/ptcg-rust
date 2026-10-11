@@ -2,8 +2,8 @@
 //!
 //! The Items are chosen from the opponent's hand (at least 1 when there is one, unless the Supporter's effect is used by
 //! an attack: "up to" may take 0, id2376) and discarded from it (a Discard
-//! event over the opponent's hand, this Supporter or the attack using it its cause). NOTE: this file has no Reveal op
-//! for "reveals their hand" (the Pick shows the hand to the chooser only).
+//! event over the opponent's hand, this Supporter or the attack using it its cause). The hand is revealed first (a Reveal
+//! routine, D2); with no cards in it Eri can't be played (id1492).
 use crate::spec::prelude::*;
 
 const OPP_HAND: ZoneRef = ZoneRef(Who::Opp, Zone::Hand);
@@ -16,6 +16,8 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[Cond::Nonempty(OPP_HAND, Pred::Any)],
         steps: &[
+            // "Your opponent reveals their hand"
+            Step::new(Op::Reveal(RevealSpec { cards: RevealWhat::Zone(ZoneRef(Who::Opp, Zone::Hand)), by: Who::Opp, to: Who::Me, when_empty: true })),
             Step::new(Op::Pick(PickSpec {
                 from: OPP_HAND,
                 predicate: Pred::Item,
