@@ -324,10 +324,12 @@ pub fn prevent_consulted(kind: u32) -> bool {
 
 /// The event families a lock over events can forbid, each with the marker a lock over it sets (`block_kinds`) and the
 /// query tests (`lock_marker`).
-const LOCK_FAMILIES: [(KindMask, u32); 10] = [
+const LOCK_FAMILIES: [(KindMask, u32); 11] = [
     (super::event::USE_EVENT_KINDS, crate::effects::k::DECLARES_USE_LOCK),
     (super::event::PLAY_EVENT_KINDS, crate::effects::k::DECLARES_PLAY_LOCK),
     (super::event::CARD_EVENT_KINDS, crate::effects::k::DECLARES_CARD_LOCK),
+    // A card leaving play into a zone (Milotic TWM 50: "can't be put into your opponent's hand"): the card locks' marker.
+    (super::event::LEAVE_EVENT_KINDS, crate::effects::k::DECLARES_CARD_LOCK),
     (super::event::POKEMON_EVENT_KINDS, crate::effects::k::DECLARES_EVENT_LOCK),
     (super::event::ATTACH_EVENT_KINDS, crate::effects::k::DECLARES_ATTACH_LOCK),
     (super::event::CONDITION_EVENT_KINDS, crate::effects::k::DECLARES_CONDITION_LOCK),
@@ -1791,14 +1793,13 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::CoinFlip => Some(crate::effects::k::DECLARES_COIN_LOCK),
         E::ChangeActive => Some(crate::effects::k::DECLARES_ACTIVE_LOCK),
         E::PlaceCounters | E::MoveCounters => Some(crate::effects::k::DECLARES_COUNTER_LOCK),
-        E::Discard | E::Draw | E::PutIntoHand | E::PutIntoDeck => Some(crate::effects::k::DECLARES_CARD_LOCK),
+        E::Discard | E::Draw | E::PutIntoHand | E::PutIntoDeck | E::LeavePlay => Some(crate::effects::k::DECLARES_CARD_LOCK),
         E::PlayTrainer => Some(crate::effects::k::DECLARES_PLAY_LOCK),
         E::UseAttack | E::UseAbility | E::UseStadium => Some(crate::effects::k::DECLARES_USE_LOCK),
         E::Damage
         | E::ApplyEffect
         | E::KnockOut
         | E::TakePrizes
-        | E::LeavePlay
         | E::Shuffle
         | E::Look
         | E::Reveal
@@ -3520,9 +3521,9 @@ mod prevent_marker_tests {
         // declaration over the cause each, the batch 5 ChangeActive ones merged into it): Mist Energy, Rocky Fighting Energy,
         // Skeledirge, Team Rocket's Articuno, Empoleon ex, Milotic ex, Rabsca, Acerola's Mischief, Antique Cover Fossil, the
         // four Hide 'n' Sneak Pokémon, Battle Cage; over Damage: the Tera rule (21 cards), Sylveon, Crustle DRI, Shaymin,
-        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin); over
-        // LeavePlay: Milotic TWM 50 (closeout).
-        assert_eq!(n, 51);
+        // Neutralization Zone, Farigiraf ex, Cornerstone Mask Ogerpon ex, Shadowy Darkness Energy, Fezandipiti (coin).
+        // (Milotic TWM 50's "can't be put into your opponent's hand" is a lock since the batch 7 closeout, 7b.)
+        assert_eq!(n, 50);
     }
 
     /// "Prevent all effects of attacks" never prevents Damage; "damage from and effects of" does, by the same cause.
