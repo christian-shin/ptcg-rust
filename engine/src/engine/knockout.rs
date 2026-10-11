@@ -374,6 +374,9 @@ pub fn state_check(g: &mut Game, oc: OnComplete) -> R {
         return on_complete(g, oc);
     }
     let (kos, by_hp) = find_ko_pokemons(g)?;
+    if kos.is_empty() {
+        return state_check_quiet(g, oc);
+    }
     let mut announced = SVec::new();
     for k in kos.iter() {
         if let Some(c) = g.st.slot_pokemon(k.p as usize, k.s) {
@@ -394,6 +397,66 @@ pub fn state_check(g: &mut Game, oc: OnComplete) -> R {
         active_prompts: SVec::new(),
     };
     ko_loop(g, f)
+}
+
+/// The state check with no Pokémon to Knock Out (batch 8 C6, fast paths (b) and (c) of batch-6-plan section 6): the
+/// table-state step (its declarations in place only: `table_state`), then, when nothing else can happen (no Bench size
+/// change, no Prize to take, no empty Active Spot with a Benched Pokémon, no win condition, no prompt), the winner check's
+/// continuation at once (`quiet_finish`), without the Knock Out / Prize / promotion machinery; otherwise the machinery as
+/// it always ran. `PTCG_VERIFY_CACHE=1` runs both on copies (without the continuation) and asserts the same game.
+fn state_check_quiet(g: &mut Game, oc: OnComplete) -> R {
+    let sizes = table_state(g)?;
+    let quiet = g.st.phase != GamePhase::Finished
+        && !g.has_prompts()
+        && (0..2).all(|p| g.st.players[p].bench.len() == sizes[p] as usize)
+        && !win_condition_met(g)
+        && (0..2).all(|p| {
+            let pl = &g.st.players[p];
+            !pl.slots[pl.active as usize].cards.is_empty() || !pl.bench.iter().any(|b| !pl.slots[*b as usize].cards.is_empty())
+        });
+    if quiet && crate::game::verify_cache() {
+        // The full path and the fast one on copies, without the continuation: the same game.
+        let mut full = g.fork();
+        let mut fast = g.fork();
+        let a = after_table_state(&mut full, empty_frame(OnComplete::None), sizes);
+        let b = quiet_finish(&mut fast, OnComplete::None);
+        assert_eq!(a.is_ok(), b.is_ok(), "the state check's fast path differs from the full path (result)");
+        assert_eq!(crate::derived::state_digest(&full.st), crate::derived::state_digest(&fast.st), "the state check's fast path differs from the full path");
+        assert_eq!(full.prompts.len(), fast.prompts.len(), "the state check's fast path differs from the full path (prompts)");
+    }
+    if quiet {
+        quiet_finish(g, oc)
+    } else {
+        after_table_state(g, empty_frame(oc), sizes)
+    }
+}
+
+/// A state check's frame with no Knock Out.
+fn empty_frame(oc: OnComplete) -> CheckFrame {
+    CheckFrame {
+        stage: CheckStage::AfterKo,
+        oc,
+        kos: SVec::new(),
+        by_hp: SVec::new(),
+        announced: SVec::new(),
+        idx: 0,
+        ko_fx: 0,
+        ko_fxs: SVec::new(),
+        prizes: [0, 0],
+        prize_prompts: SVec::new(),
+        active_prompts: SVec::new(),
+    }
+}
+
+/// What the full path does when nothing happens: the Bench size change is handled (its flag), the winner check finds no
+/// winner and runs the continuation, the flag is cleared.
+fn quiet_finish(g: &mut Game, oc: OnComplete) -> R {
+    g.st.bench_size_change_handled = true;
+    g.st.bump();
+    check_winner(g, oc)?;
+    g.st.bench_size_change_handled = false;
+    g.st.bump();
+    Ok(())
 }
 
 pub fn on_complete(g: &mut Game, oc: OnComplete) -> R {
@@ -493,14 +556,14 @@ fn attribution(g: &Game, t: SlotRef, by_hp: bool) -> (KoBy, Cause) {
 }
 
 /// The table-state step of the state check (batch 8 C3c; it was the CheckTableState effect): in the propagation order of
-/// the declaring cards (`decl::fam::TABLE_STATE`, any zone: each checks where its card is), the Bench size each
+/// the declaring cards in place (`decl::fam::TABLE_STATE`; each handler checks its card's place first: C6), the Bench size each
 /// player's Stadium rule gives (`BenchSize`), the recoveries ("recovers from all Special Conditions": `Recover`; a
 /// Pokémon protected from a condition it has, id289: `recover_protected`), an Energy on a Pokémon it can't be on is
 /// discarded (`AttachGuard`); then the Ability-lock stamps are re-synced. Returns the Bench sizes.
 pub(crate) fn table_state(g: &mut Game) -> R<[u8; 2]> {
     use crate::spec::passive::{self, Modifier};
     let mut sizes = [5u8, 5];
-    let order = crate::decl::all(g, crate::decl::fam::TABLE_STATE, 0);
+    let order = if g.decls.sets[crate::decl::fam::TABLE_STATE] == 0 { SVec::new() } else { crate::decl::in_place(g, crate::decl::fam::TABLE_STATE, 0) };
     if !order.is_empty() {
         let saved = g.deleg.take();
         let r = (|| -> R {
@@ -612,8 +675,12 @@ fn finish_ko(g: &mut Game, f: &mut CheckFrame) {
     f.idx += 1;
 }
 
-fn after_kos(g: &mut Game, mut f: CheckFrame) -> R {
+fn after_kos(g: &mut Game, f: CheckFrame) -> R {
     let sizes = table_state(g)?;
+    after_table_state(g, f, sizes)
+}
+
+fn after_table_state(g: &mut Game, mut f: CheckFrame, sizes: [u8; 2]) -> R {
     handle_bench_size_change(g, sizes);
     if g.has_prompts() {
         f.stage = CheckStage::AfterBenchSize;
@@ -703,6 +770,7 @@ fn active_loop(g: &mut Game, mut f: CheckFrame) -> R {
     }
     check_winner(g, f.oc)?;
     g.st.bench_size_change_handled = false;
+    g.st.bump();
     Ok(())
 }
 
@@ -894,6 +962,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
         );
     }
     g.st.bench_size_change_handled = true;
+    g.st.bump();
 }
 
 /// The Bench shrank (a Stadium left play): the chosen Benched Pokémon leave play to the discard pile by the rule

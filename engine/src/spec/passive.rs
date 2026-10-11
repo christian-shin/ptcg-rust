@@ -2732,6 +2732,25 @@ pub(crate) fn lock_sync(g: &mut Game) {
     if !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
         return;
     }
+    // Batch 8 C6: a lock source holds by where the cards are (the layout), the turn (the turn player first when several
+    // take hold together; the lasting "Stadium and Tool cards have no effect") and the stamps: with none of them changed
+    // since the last sync, a sync changes nothing (`PTCG_VERIFY_CACHE=1` runs it and asserts so).
+    let key = (g.st.layout_gen, g.st.turn, g.st.active_player, crate::derived::stadium_off(g));
+    if g.st.lock_synced == Some(key) {
+        if crate::game::verify_cache() {
+            let before: Vec<u16> = (0..g.st.n_cards).map(|c| g.st.cards[c as usize].lock_stamp).collect();
+            let counter = g.st.ability_lock_order_counter;
+            lock_sync_now(g);
+            let after: Vec<u16> = (0..g.st.n_cards).map(|c| g.st.cards[c as usize].lock_stamp).collect();
+            assert!(before == after && counter == g.st.ability_lock_order_counter, "lock_sync with the layout and the turn unchanged changed the take-hold stamps");
+        }
+        return;
+    }
+    lock_sync_now(g);
+    g.st.lock_synced = Some(key);
+}
+
+fn lock_sync_now(g: &mut Game) {
     // Only a card that declares an Ability lock can hold one or carry a stamp (`Game::lock_cards`).
     let lockers = g.lock_cards;
     let is_locker = |c: CardId| lockers[(c >> 6) as usize] & (1u64 << (c & 63)) != 0;

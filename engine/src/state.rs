@@ -559,6 +559,9 @@ pub struct State {
     /// still be there) before trusting it, so a write that doesn't update it costs a scan, never a wrong answer
     /// (`PTCG_VERIFY_CACHE=1` checks every answer against the scan).
     pub at: [Loc; MAX_CARDS],
+    /// What the Ability-lock stamps were last synced at (`passive::lock_sync`): the layout generation, the turn, the turn
+    /// player and whether Stadium and Tool cards had no effect; the sync is skipped while they are the same.
+    pub lock_synced: Option<(u32, i32, u8, bool)>,
 }
 
 /// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`
@@ -656,6 +659,7 @@ impl State {
             version: 1,
             layout_gen: 0,
             at: [Loc::NONE; MAX_CARDS],
+            lock_synced: None,
         }
     }
 
