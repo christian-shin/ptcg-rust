@@ -26,8 +26,10 @@ pub fn apply_weakness_and_resistance(damage: i32, types: &[CardType], weakness: 
     damage * multiply + modifier
 }
 
-/// `resetEmptyPokemonSlot`.
-pub fn reset_empty_slot(slot: &mut Slot) {
+/// `resetEmptyPokemonSlot`: spot `s` of player `p` keeps its cards and whether it is public; everything else on it,
+/// its lasting effects included, ends.
+pub fn reset_empty_slot(st: &mut State, p: usize, s: SlotId) {
+    let slot = &mut st.players[p].slots[s as usize];
     let is_public = slot.is_public;
     let cards = slot.cards;
     let energies = slot.energies;
@@ -37,6 +39,7 @@ pub fn reset_empty_slot(slot: &mut Slot) {
     slot.is_public = is_public;
     // attacksThisTurn = undefined
     slot.attacks_this_turn = None;
+    crate::engine::lasting::clear_spot(st, p, s);
 }
 
 /// What evolving or devolving does to the effects on the Pokémon: every effect on it ends, a Trainer's included
@@ -45,59 +48,31 @@ pub fn reset_empty_slot(slot: &mut Slot) {
 /// 効果」であっても、ポケモンが進化・退化・レベルアップすることで、なくなります。」 = even an Ability's lasting effect ends
 /// when the Pokémon evolves, devolves or levels up). Moving to the Bench keeps a Trainer's or an Ability's effect
 /// ([`clear_effects`]; id2228, id1651).
-pub fn clear_effects_evolving(slot: &mut Slot) {
-    clear_effects(slot);
-    slot.marker.clear();
+pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
+    clear_effects(st, p, s);
+    st.players[p].slots[s as usize].marker.clear();
 }
 
 /// `PokemonCardList.clearEffects()` for the modeled fields, except the Special Conditions: a Pokémon that stays in
 /// play recovers from them through RemoveCondition events (`engine::condition::recover_by_rule`, called first by
-/// every caller), and one leaving play loses them with it (the LeavePlay reducer, `engine::knockout`).
-pub fn clear_effects(slot: &mut Slot) {
+/// every caller), and one leaving play loses them with it (the LeavePlay reducer, `engine::knockout`). The lasting
+/// effects on it end but the cost increases and the next-turn bonus (`lasting::clear_effects`).
+pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
+    let slot = &mut st.players[p].slots[s as usize];
     slot.marker.remove_all_except_trainer_effects();
     slot.poison_damage = 10;
     slot.burn_damage = 20;
     slot.confusion_damage = 30;
-    slot.damage_reduction_next_turn = 0;
     slot.healed_this_turn = false;
-    slot.lasting_locks.clear();
-    slot.attack_damage_reduction_next_turn = 0;
-    clear_prevent_next_turn(slot);
+    crate::engine::lasting::clear_effects(st, p, s);
 }
 
-fn clear_prevent_next_turn(slot: &mut Slot) {
-    slot.no_weakness_next_turn = false;
-    slot.no_weakness_next_turn_pending = false;
-    slot.discard_attacker_energy_if_ko_next_turn = false;
-    slot.discard_attacker_energy_if_ko_next_turn_pending = false;
-    slot.discard_attacker_energy_if_ko_attack = None;
-    slot.discard_attacker_energy_if_ko_source_card = None;
-    slot.discard_attacker_energy_if_ko_attacker = None;
-    slot.defending_extra_damage_next_turn = 0;
-    slot.defending_extra_damage_attacker = None;
-    slot.defending_extra_damage_pending = false;
-    slot.defending_extra_damage_rearm_after_attack = false;
-    slot.retaliate_on_damage_next_turn = None;
-    slot.retaliate_on_damage_next_turn_pending = None;
-    slot.lasting_prevents.clear();
-}
-
-/// `PokemonCardList.removeAttackEffects()` for the modeled fields.
-pub fn remove_attack_effects(slot: &mut Slot) {
+/// `PokemonCardList.removeAttackEffects()` for the modeled fields: every lasting effect on the Pokémon ends.
+pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
+    let slot = &mut st.players[p].slots[s as usize];
     slot.marker.remove_attack_effects();
-    slot.lasting_locks.clear();
-    slot.attack_damage_reduction_next_turn = 0;
-    slot.damage_reduction_next_turn = 0;
     slot.healed_this_turn = false;
-    slot.attack_cost_increase_next_turn = 0;
-    slot.attack_cost_increase_next_turn_pending = 0;
-    slot.attack_cost_increase_next_turn_attacker = None;
-    slot.retreat_cost_increase_next_turn = 0;
-    slot.retreat_cost_increase_next_turn_pending = 0;
-    slot.retreat_cost_increase_next_turn_attacker = None;
-    clear_prevent_next_turn(slot);
-    slot.next_turn_attack_damage_bonus = None;
-    slot.next_turn_attack_damage_bonus_pending = None;
+    crate::engine::lasting::remove_attack_effects(st, p, s);
 }
 
 /// Steps 3-4 of the damage calculation (APR B-06, B-07): the damage after the Weakness and Resistance of the Pokémon in
@@ -113,7 +88,7 @@ pub fn weakness_and_resistance(g: &mut Game, b: &AtkBase, damage: i32, ignore_we
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::CheckPokemonStats { target, .. } => {
-            if g.st.slot(target.p as usize, target.s).no_weakness_next_turn {
+            if crate::engine::lasting::no_weakness(&g.st, target.p as usize, target.s) {
                 if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(id) {
                     weakness.clear();
                 }

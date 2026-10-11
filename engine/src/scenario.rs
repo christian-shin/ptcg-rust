@@ -110,7 +110,7 @@ fn reset_player(g: &mut Game, p: usize) {
         for c in cards {
             g.move_card_to(ListRef::Slot(pu, s), c, deck);
         }
-        reset_empty_slot(&mut g.st.players[p].slots[s as usize]);
+        reset_empty_slot(&mut g.st, p, s);
     }
 }
 

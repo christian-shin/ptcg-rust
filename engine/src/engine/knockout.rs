@@ -926,7 +926,7 @@ fn handle_bench_size_change(g: &mut Game, sizes: [u8; 2]) {
     for p in 0..2 {
         let size = sizes[p] as usize;
         while g.st.players[p].bench.len() < size {
-            let s = g.st.players[p].alloc_slot();
+            let s = g.st.alloc_slot(p);
             g.st.players[p].slots[s as usize].is_public = true;
             g.st.players[p].bench.push(s);
             g.st.bump_layout();
@@ -1117,19 +1117,9 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
     let by_attack = ko_by == KoBy::AttackDamage;
     // "If this Pokémon is Knocked Out by damage from an attack during your opponent's next turn, discard an Energy from
     // the Attacking Pokémon": an effect of the Knocked Out Pokémon's earlier attack, its discard a LeavePlay of the Energy
-    // caused by that attack (`game_effect::little_grudge_discard`; B7-OLD -> B8: the stored slot fields become a lasting trigger).
-    let (armed, pending, g_attack, g_source, g_owner) = {
-        let ts = g.st.slot(target.p as usize, target.s);
-        (
-            ts.discard_attacker_energy_if_ko_next_turn,
-            ts.discard_attacker_energy_if_ko_next_turn_pending,
-            ts.discard_attacker_energy_if_ko_attack,
-            ts.discard_attacker_energy_if_ko_source_card,
-            ts.discard_attacker_energy_if_ko_attacker,
-        )
-    };
-    if armed && !pending && by_attack {
-        if let (Some(attack), Some(source_card), Some(owner)) = (g_attack, g_source, g_owner) {
+    // caused by that attack (`game_effect::little_grudge_discard`): a lasting trigger (`engine::lasting`).
+    if let (Some((attack, owner, source_card)), true) = (crate::engine::lasting::armed_discard_attacker_energy(&g.st, target.p as usize, target.s), by_attack) {
+        {
             let prize_taker = 1 - p;
             // "The Attacking Pokémon" is the Pokémon that used the attack, wherever it is by now (ruling 460);
             // nothing happens when it left play.
@@ -1224,7 +1214,7 @@ fn leave(g: &mut Game, id: EffId) -> R {
             for t in tools {
                 g.move_card_to(target.list(), t, dest);
             }
-            crate::engine::game_effect::clear_effects(&mut g.st.players[tp].slots[ts as usize]);
+            crate::engine::game_effect::clear_effects(&mut g.st, tp, ts);
             g.st.players[tp].slots[ts as usize].special_conditions.clear();
             crate::engine::cards_zone::relocate_spot(g, target, dest);
             crate::engine::cards_zone::settle(g);

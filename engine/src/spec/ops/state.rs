@@ -141,8 +141,9 @@ pub enum NamedAttack {
     Any,
     /// The attack being used ("this Pokémon can't use [this attack] during your next turn").
     This,
-    /// An attack the attacker chose ("choose 1 of the Defending Pokémon's attacks; it can't be used ...").
-    Chosen(&'static str),
+    /// An attack the attacker chose ("choose 1 of the Defending Pokémon's attacks; it can't be used ..."): its name is
+    /// the one forbidden.
+    Chosen(crate::state::AttackRef),
 }
 
 impl LastingLockSpec {

@@ -217,8 +217,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         let pl = &mut g.st.players[p];
         // The player's markers about the Active Pokémon go with it.
         pl.marker.items.retain(|m| !(m.target_scope == TargetScope::Pokemon || m.name == KNOCKOUT_MARKER || m.name == CLEAR_KNOCKOUT_MARKER));
-        crate::engine::game_effect::remove_attack_effects(&mut pl.slots[from as usize]);
-        crate::engine::game_effect::clear_effects(&mut pl.slots[from as usize]);
+        crate::engine::game_effect::remove_attack_effects(&mut g.st, p, from);
+        crate::engine::game_effect::clear_effects(&mut g.st, p, from);
     }
     let pl = &mut g.st.players[p];
     pl.active = to;
@@ -293,15 +293,14 @@ mod tests {
         let me = g.st.active_player as usize;
         let old = g.st.players[me].active;
         let b = bench(&g, me, 0);
-        let lock = crate::state::LastingLock { decl: &crate::spec::passive::CANT_ATTACK, turns_remaining: 2, source: 0, attack: None };
-        g.st.players[me].slots[old as usize].lasting_locks.push(lock);
+        crate::engine::lasting::add_pokemon_lock(&mut g.st, me, old, &crate::spec::passive::CANT_ATTACK, 2, 0, None);
         g.st.players[me].slots[b as usize].healed_this_turn = true;
-        g.st.players[me].slots[b as usize].lasting_locks.push(lock);
+        crate::engine::lasting::add_pokemon_lock(&mut g.st, me, b, &crate::spec::passive::CANT_ATTACK, 2, 0, None);
         assert!(change(&mut g, me, b, ActiveChange::Retreat, Cause::rule(RuleWhich::Retreat, me as u8)));
         assert_eq!(g.st.players[me].active, b);
         assert!(g.st.slot(me, old).special_conditions.is_empty());
-        assert!(g.st.slot(me, old).lasting_locks.is_empty());
-        assert!(g.st.slot(me, b).healed_this_turn && g.st.slot(me, b).lasting_locks.len() == 1, "the new Active keeps its effects");
+        assert!(crate::engine::lasting::pokemon_locks(&g.st, me, old).is_empty());
+        assert!(g.st.slot(me, b).healed_this_turn && crate::engine::lasting::pokemon_locks(&g.st, me, b).len() == 1, "the new Active keeps its effects");
         let new = g.st.slot_pokemon(me, b).unwrap();
         assert!(g.st.players[me].moved_to_active_this_turn.contains(&new));
     }
@@ -374,7 +373,7 @@ mod tests {
             }
         }
         assert!(n >= 13, "the ChangeActive preventions are read ({n})");
-        // The ones an attack leaves on a Pokémon too (legality doesn't read `Slot::lasting_prevents` for the retreat).
+        // The ones an attack leaves on a Pokémon too (legality doesn't read the lasting table's preventions for the retreat).
         use crate::spec::passive as ps;
         for p in ps::LASTING_PREVENTS {
             assert!(needs_non_rule(&p.from), "a lasting Prevent a rule's cause could match");

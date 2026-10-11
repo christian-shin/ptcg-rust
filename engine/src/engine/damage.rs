@@ -86,7 +86,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
         attacker_side(g, &mut acc)?;
         d = acc.damage;
     }
-    let src_red = g.st.slot(b.source.p as usize, b.source.s).attack_damage_reduction_next_turn;
+    let src_red = crate::engine::lasting::deals_less_damage(&g.st, b.source.p as usize, b.source.s);
     if src_red > 0 {
         d = (d - src_red).max(0);
     }
@@ -109,11 +109,8 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     // The lasting defender-side effects: "takes N less damage", "the Defending Pokémon takes N more damage" (summed,
     // floored once: APR B-05).
     if !shred {
-        let ts = g.st.slot(t.p as usize, t.s);
-        d -= ts.damage_reduction_next_turn;
-        if ts.defending_extra_damage_next_turn > 0 && !ts.defending_extra_damage_pending && ts.defending_extra_damage_attacker == Some(b.player) {
-            d += ts.defending_extra_damage_next_turn;
-        }
+        d -= crate::engine::lasting::takes_less_damage(&g.st, t.p as usize, t.s);
+        d += crate::engine::lasting::takes_more_damage(&g.st, t.p as usize, t.s, b.player);
     }
     d = d.max(0);
     // Step 6: "prevent all damage done to ..." (in play, and the lasting ones the Pokémon's own attack left), then the
@@ -285,11 +282,9 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
                 }
                 // A delayed trap on the damaged Pokémon ("if this Pokémon is damaged by an attack during your opponent's
                 // next turn, put N damage counters on the Attacking Pokémon"): recorded for step 6 of the attack.
-                let slot = g.st.slot(tp, ts);
-                let armed = if slot.retaliate_on_damage_next_turn_pending.is_some() { None } else { slot.retaliate_on_damage_next_turn };
-                if let Some(r) = armed {
-                    if r.damage > 0 {
-                        g.attack_trigger(b, amount, r.source_card, Some(r), false)?;
+                if let Some(r) = crate::engine::lasting::armed_retaliate(&g.st, tp, ts) {
+                    if matches!(r.what, crate::state::LastingWhat::Retaliate { amount, .. } if amount > 0) {
+                        g.attack_trigger(b, amount, r.source, Some(r), false)?;
                     }
                 }
             }
@@ -395,11 +390,11 @@ mod tests {
         let me = g.st.active_player as usize;
         let o = 1 - me;
         let t = SlotRef::new(o, g.st.players[o].active);
-        {
-            let s = &mut g.st.players[o].slots[t.s as usize];
-            s.defending_extra_damage_next_turn = 30;
-            s.defending_extra_damage_attacker = Some(me as u8);
-        }
+        g.st.lasting.push(crate::state::LastingEffect {
+            on: crate::state::LastingOn::pokemon(o, t.s),
+            source: 0,
+            what: crate::state::LastingWhat::TakesMoreDamage { amount: 30, attacker: Some(me as u8), pending: false, rearm: false },
+        });
         let b = attack_on(&mut g, me, t);
         deal(&mut g, b, 100, true).unwrap();
         assert_eq!(g.st.slot(o, t.s).damage, 0, "Sparkling Scales prevents the Tera Pokémon's damage, the 30 more included");
@@ -408,11 +403,11 @@ mod tests {
         let me = g.st.active_player as usize;
         let o = 1 - me;
         let t = SlotRef::new(o, g.st.players[o].active);
-        {
-            let s = &mut g.st.players[o].slots[t.s as usize];
-            s.defending_extra_damage_next_turn = 30;
-            s.defending_extra_damage_attacker = Some(me as u8);
-        }
+        g.st.lasting.push(crate::state::LastingEffect {
+            on: crate::state::LastingOn::pokemon(o, t.s),
+            source: 0,
+            what: crate::state::LastingWhat::TakesMoreDamage { amount: 30, attacker: Some(me as u8), pending: false, rearm: false },
+        });
         let b = attack_on(&mut g, me, t);
         deal(&mut g, b, 100, true).unwrap();
         assert_eq!(g.st.slot(o, t.s).damage, 130);

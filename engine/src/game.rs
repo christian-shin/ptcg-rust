@@ -150,7 +150,7 @@ pub struct AtkTrig {
     pub source: SlotRef,
     pub source_pokemon: Option<CardId>,
     /// Delayed trap of the damaged Pokémon.
-    pub retaliate: Option<crate::state::StoredRetaliate>,
+    pub retaliate: Option<crate::state::LastingEffect>,
     /// The trigger moves an Energy off the Attacking Pokémon (Handheld Fan).
     pub removes_attacker_energy: bool,
 }
@@ -549,7 +549,7 @@ impl Game {
     /// `ATTACK_TRIGGER(store, state, afterDamageEffect, card, retaliate)`: record the step 7 trigger of `card` on the
     /// damaged Pokémon `b.target` (the attacker is `b.source`); it resolves in `run_attack_triggers`, or at once when
     /// no window is open. Triggers resolve in the order they were recorded.
-    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::StoredRetaliate>, removes_attacker_energy: bool) -> R {
+    pub fn attack_trigger(&mut self, b: AtkBase, damage: i32, card: CardId, retaliate: Option<crate::state::LastingEffect>, removes_attacker_energy: bool) -> R {
         let t = AtkTrig {
             atk: b.attack_effect,
             card,

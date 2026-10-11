@@ -238,6 +238,18 @@ impl<T: Copy, const N: usize> SVec<T, N> {
     pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.as_slice().iter()
     }
+    /// `retain` with the kept items changed in place.
+    pub fn retain_mut(&mut self, mut f: impl FnMut(&mut T) -> bool) {
+        let mut w = 0;
+        for r in 0..self.len as usize {
+            let mut v = unsafe { self.items[r].assume_init() };
+            if f(&mut v) {
+                self.items[w] = std::mem::MaybeUninit::new(v);
+                w += 1;
+            }
+        }
+        self.len = w as u8;
+    }
     pub fn get(&self, i: usize) -> Option<&T> {
         self.as_slice().get(i)
     }

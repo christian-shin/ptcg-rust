@@ -2,7 +2,7 @@
 //! attacks from Pokémon that have an Ability.
 //!
 //! `Lasting::PreventDamage(HasAbility)`: one ApplyEffect event arms a `Prevent` over `Kind(Damage)` stored on this
-//! Pokémon (`Slot::lasting_prevents`); it is read at step 6 of the damage calculation (APR C-16) and never stops
+//! Pokémon (the lasting table, `engine::lasting`); it is read at step 6 of the damage calculation (APR C-16) and never stops
 //! effects.
 use crate::spec::prelude::*;
 

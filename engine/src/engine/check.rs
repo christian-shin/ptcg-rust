@@ -63,7 +63,7 @@ pub fn finish_attack_cost<F: crate::derived::Facts>(g: &mut F, mut acc: AttackCo
     // attackCostIncreaseWhileActive / ignoreAttackCostCardTypes: not modeled.
     // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
     let a = g.g().st.players[p as usize].active;
-    let n = g.g().st.slot(p as usize, a).attack_cost_increase_next_turn;
+    let n = crate::engine::lasting::attack_cost_increase(&g.g().st, p as usize, a);
     {
         let AttackCostAcc { cost, reduction, .. } = &mut acc;
         for _ in 0..n.max(0) {

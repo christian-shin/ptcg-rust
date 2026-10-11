@@ -112,95 +112,10 @@ pub struct Slot {
     /// `attacksThisTurn` (absent until first written).
     pub attacks_this_turn: Option<i32>,
     pub healed_this_turn: bool,
-    /// The locks an attack left on this Pokémon (APR C-15 "can't use attacks" / "can't use [Attack Name]", "can't
-    /// retreat"; events batch 7, user decision D14), each with its turns left. They go with the Pokémon's other
-    /// effects of attacks when it moves to the Bench, evolves, devolves or leaves play (APR C-15).
-    pub lasting_locks: SVec<LastingLock, 4>,
-    pub damage_reduction_next_turn: i32,
-    /// `attackDamageReductionNextTurn` (this Pokémon's attacks do N less).
-    pub attack_damage_reduction_next_turn: i32,
-    /// `discardAttackerEnergyIfKnockedOutNextTurn` (+ `Pending`, `Attack`,
-    /// `SourceCard`, `AttackerId` as a player index).
-    pub discard_attacker_energy_if_ko_next_turn: bool,
-    pub discard_attacker_energy_if_ko_next_turn_pending: bool,
-    pub discard_attacker_energy_if_ko_attack: Option<AttackRef>,
-    pub discard_attacker_energy_if_ko_source_card: Option<CardId>,
-    pub discard_attacker_energy_if_ko_attacker: Option<u8>,
-    /// `noWeaknessNextTurn` / `...Pending`.
-    pub no_weakness_next_turn: bool,
-    pub no_weakness_next_turn_pending: bool,
-    /// `nextTurnAttackDamageBonus` / `...Pending` (NEXT_TURN_ATTACK_BONUS).
-    pub next_turn_attack_damage_bonus: Option<NextTurnAttackDamageBonus>,
-    pub next_turn_attack_damage_bonus_pending: Option<NextTurnAttackDamageBonus>,
-    /// `defendingPokemonExtraDamageNextTurn` / `...AttackerId` (player index)
-    /// / `...Pending` / `...RearmAfterAttack`.
-    pub defending_extra_damage_next_turn: i32,
-    pub defending_extra_damage_attacker: Option<u8>,
-    pub defending_extra_damage_pending: bool,
-    pub defending_extra_damage_rearm_after_attack: bool,
-    /// `attackCostIncreaseNextTurn` / `...Pending` / `...AttackerId` (player
-    /// index) and the `retreatCostIncreaseNextTurn*` trio (Rillaboom TWM).
-    pub attack_cost_increase_next_turn: i32,
-    pub attack_cost_increase_next_turn_pending: i32,
-    pub attack_cost_increase_next_turn_attacker: Option<u8>,
-    pub retreat_cost_increase_next_turn: i32,
-    pub retreat_cost_increase_next_turn_pending: i32,
-    pub retreat_cost_increase_next_turn_attacker: Option<u8>,
-    /// `retaliateOnDamageNextTurn` / `...Pending` (`{ damage }` options only).
-    pub retaliate_on_damage_next_turn: Option<StoredRetaliate>,
-    pub retaliate_on_damage_next_turn_pending: Option<StoredRetaliate>,
-    /// "During your opponent's next turn, prevent all damage done to / effects of attacks done to this Pokémon" (events
-    /// batch 6): `Prevent` declarations an attack left on the Pokémon, read by the `Prevent` reader with the in-play ones
-    /// (`passive::lasting_prevented`). Effects on this Pokémon: they go when it leaves the Active Spot or play
-    /// (`clear_effects`) and at the end of the opponent's turn.
-    pub lasting_prevents: SVec<LastingPrevent, 4>,
     /// An effect Knocked this Pokémon Out ("is Knocked Out", "Knock Out ..."; `engine::knockout::by_effect`): it is
     /// Knocked Out at the next state check with every other Knock Out (user decision D1), by this cause.
     pub ko_pending: Option<crate::cause::Cause>,
     pub is_public: bool,
-}
-
-/// A `Prevent` an attack left on a Pokémon ("during your opponent's next turn, prevent ..."): the declaration, the card
-/// whose attack left it (the card its predicates are evaluated for: "your opponent" is that card's owner's opponent),
-/// and whether it is still pending (armed during its owner's turn, in force from the end of that turn until the end of
-/// the opponent's next turn).
-/// The declaration is an index into `passive::LASTING_PREVENTS` (3 bytes, not a 16-byte reference: `Slot` is copied
-/// on every fork).
-#[derive(Clone, Copy)]
-pub struct LastingPrevent {
-    pub spec: u8,
-    pub source: CardId,
-    pub pending: bool,
-}
-
-impl LastingPrevent {
-    /// The declaration.
-    pub fn spec(&self) -> &'static crate::spec::passive::PreventSpec {
-        crate::spec::passive::LASTING_PREVENTS[self.spec as usize]
-    }
-}
-
-impl std::fmt::Debug for LastingPrevent {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "LastingPrevent {{ source: {}, pending: {} }}", self.source, self.pending)
-    }
-}
-
-/// `StoredRetaliateOnDamage` with `{ damage }` options.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct StoredRetaliate {
-    pub damage: i32,
-    pub attack: AttackRef,
-    pub source_card: CardId,
-    pub attacker: u8,
-}
-
-/// `NextTurnAttackDamageBonus { attackName, bonusDamage, sourceCardName }`.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct NextTurnAttackDamageBonus {
-    pub attack_name: &'static str,
-    pub bonus_damage: i32,
-    pub source_card_name: &'static str,
 }
 
 impl Default for Slot {
@@ -222,31 +137,6 @@ impl Default for Slot {
             board_effect: SVec::new(),
             attacks_this_turn: None,
             healed_this_turn: false,
-            lasting_locks: SVec::new(),
-            damage_reduction_next_turn: 0,
-            attack_damage_reduction_next_turn: 0,
-            discard_attacker_energy_if_ko_next_turn: false,
-            discard_attacker_energy_if_ko_next_turn_pending: false,
-            discard_attacker_energy_if_ko_attack: None,
-            discard_attacker_energy_if_ko_source_card: None,
-            discard_attacker_energy_if_ko_attacker: None,
-            no_weakness_next_turn: false,
-            no_weakness_next_turn_pending: false,
-            next_turn_attack_damage_bonus: None,
-            next_turn_attack_damage_bonus_pending: None,
-            defending_extra_damage_next_turn: 0,
-            defending_extra_damage_attacker: None,
-            defending_extra_damage_pending: false,
-            defending_extra_damage_rearm_after_attack: false,
-            attack_cost_increase_next_turn: 0,
-            attack_cost_increase_next_turn_pending: 0,
-            attack_cost_increase_next_turn_attacker: None,
-            retreat_cost_increase_next_turn: 0,
-            retreat_cost_increase_next_turn_pending: 0,
-            retreat_cost_increase_next_turn_attacker: None,
-            retaliate_on_damage_next_turn: None,
-            retaliate_on_damage_next_turn_pending: None,
-            lasting_prevents: SVec::new(),
             ko_pending: None,
             is_public: false,
         }
@@ -299,23 +189,83 @@ impl Default for CardInst {
     }
 }
 
-/// A lock an attack left on a player or on a Pokémon (`Lasting::Lock`): the declared lock and the turns of the locked
-/// player it still lasts (dropped at the end of that player's turn in which it reaches 0; never when it is
-/// [`LastingLock::UNTIL_REMOVED`]: "until it leaves the Active Spot" ends with the Pokémon's other effects).
-#[derive(Clone, Copy, Debug)]
-pub struct LastingLock {
-    pub decl: &'static crate::spec::passive::LockDecl,
-    pub turns_remaining: i8,
-    /// The card whose attack left it: a player lock's `LockDecl::forbids` is evaluated for it, a Pokémon lock's for the
-    /// Pokémon it is on (`This` is that Pokémon).
-    pub source: crate::list::CardId,
-    /// "Can't use [Attack Name]" (APR C-15): the attack it names; `None`: what the declaration says.
-    pub attack: Option<&'static str>,
+/// Whom a lasting effect is on: a Pokémon (the spot it is in: the effects of attacks stay with the Pokémon in its spot,
+/// APR C-15) or a player (APR C-19).
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum LastingOn {
+    Pokemon(u8, SlotId),
+    Player(u8),
 }
 
-impl LastingLock {
+impl LastingOn {
+    pub fn pokemon(p: usize, s: SlotId) -> LastingOn {
+        LastingOn::Pokemon(p as u8, s)
+    }
+}
+
+/// A lasting effect an attack left ("during your opponent's next turn, ...", "this Pokémon can't attack during your next
+/// turn"; the ApplyEffect event's reducer puts it, `engine::apply`): what it is, on whom, and the card whose attack left
+/// it. The lasting table (`State::lasting`, events batch 8 C7) holds every one; `engine::lasting` reads it, rolls its
+/// timing over at the end of each turn and removes a Pokémon's with its other effects (APR C-13, C-15).
+#[derive(Clone, Copy, Debug)]
+pub struct LastingEffect {
+    pub on: LastingOn,
+    /// The card whose attack left it (a lock's and a prevention's predicates are evaluated for it; the retaliating
+    /// Pokémon; the Pokémon the next-turn bonus is for).
+    pub source: CardId,
+    pub what: LastingWhat,
+}
+
+/// What a lasting effect does, with the state of its timing ("pending": put during this turn, in force from the end of
+/// it; "armed": in force).
+#[derive(Clone, Copy, Debug)]
+pub enum LastingWhat {
+    /// "This Pokémon can't attack / retreat / use [Attack Name]" (APR C-15; events batch 7, D14): the declared lock, the
+    /// turns of the locked player it still lasts ([`LastingWhat::UNTIL_REMOVED`]: until the Pokémon's effects end), and
+    /// the attack it names (its name is the one forbidden).
+    Lock { decl: &'static crate::spec::passive::LockDecl, turns: i8, attack: Option<AttackRef> },
+    /// "Your opponent can't ..." (APR C-19; Walrein's "Pokémon that have 2 or less Energy attached can't attack"): the
+    /// declared lock, the turns it still lasts, and its place among the player's (the order they are read in).
+    PlayerLock { decl: &'static crate::spec::passive::LockDecl, turns: i8, pos: u8 },
+    /// "This Pokémon takes N less damage from attacks."
+    TakesLessDamage(i16),
+    /// "Attacks used by the Defending Pokémon do N less damage."
+    DealsLessDamage(i16),
+    /// "The Defending Pokémon takes N more damage from attacks" (by the attacking player's attacks).
+    TakesMoreDamage { amount: i16, attacker: Option<u8>, pending: bool, rearm: bool },
+    /// "Prevent all damage done to / effects of attacks done to this Pokémon": a `Prevent` (an index into
+    /// `passive::LASTING_PREVENTS`), evaluated for the source card.
+    Prevent { spec: u8, pending: bool },
+    /// A lasting trigger: "if this Pokémon is damaged by an attack, put N damage counters on the Attacking Pokémon"
+    /// (the source's attack `attack`, by player `attacker`).
+    Retaliate { amount: i16, attack: AttackRef, attacker: u8, pending: bool },
+    /// A lasting trigger: "if this Pokémon is Knocked Out by damage from an attack, discard an Energy from the Attacking
+    /// Pokémon" (Little Grudge; the source's attack `attack`, by player `attacker`).
+    DiscardAttackerEnergy { attack: AttackRef, attacker: u8, armed: bool, pending: bool },
+    /// "Attacks used by the Defending Pokémon cost [C] more" (`now` in force, `pending` put this turn).
+    AttackCostIncrease { now: i16, pending: i16, attacker: Option<u8> },
+    /// "The Defending Pokémon's Retreat Cost is [C] more".
+    RetreatCostIncrease { now: i16, pending: i16, attacker: Option<u8> },
+    /// "This Pokémon has no Weakness."
+    NoWeakness { armed: bool, pending: bool },
+    /// "During your next turn, [this attack] does N more damage" (a `NextTurnBonus` declaration of the source).
+    NextTurnBonus { spec: &'static crate::spec::passive::NextTurnBonusSpec, pending: bool },
+}
+
+impl LastingWhat {
     /// The turns of a lock that lasts until the Pokémon's effects end ("until it leaves the Active Spot").
     pub const UNTIL_REMOVED: i8 = i8::MAX;
+
+    /// Nothing in force nor pending: the entry is removed.
+    pub fn is_spent(&self) -> bool {
+        match *self {
+            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } => false,
+            LastingWhat::TakesLessDamage(n) | LastingWhat::DealsLessDamage(n) => n == 0,
+            LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => amount == 0 && attacker.is_none() && !pending && !rearm,
+            LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => now == 0 && pending == 0 && attacker.is_none(),
+            LastingWhat::NoWeakness { armed, pending } => !armed && !pending,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -362,9 +312,6 @@ pub struct Player {
     pub pokemon_knocked_out_last_turn_by_attack: SVec<bool, 8>,
     pub can_evolve: bool,
     pub ancient_pokemon_attacked_last_turn: bool,
-    /// The locks an attack left on this player (`Lasting::Lock` on the opponent: "your opponent can't play ...", APR
-    /// C-19; Walrein's "Pokémon that have 2 or less Energy attached can't attack"), each with its turns left.
-    pub lasting_locks: [Option<LastingLock>; 6],
     pub used_dragons_wish: bool,
     pub unlimited_energy_attach_turns_remaining: i32,
     pub stadium_and_tool_have_no_effect_turns_remaining: i32,
@@ -409,7 +356,6 @@ impl Player {
             pokemon_knocked_out_last_turn_by_attack: SVec::new(),
             can_evolve: false,
             ancient_pokemon_attacked_last_turn: false,
-            lasting_locks: [None; 6],
             used_dragons_wish: false,
             unlimited_energy_attach_turns_remaining: 0,
             stadium_and_tool_have_no_effect_turns_remaining: 0,
@@ -562,6 +508,9 @@ pub struct State {
     /// What the Ability-lock stamps were last synced at (`passive::lock_sync`): the layout generation, the turn, the turn
     /// player and whether Stadium and Tool cards had no effect; the sync is skipped while they are the same.
     pub lock_synced: Option<(u32, i32, u8, bool)>,
+    /// The lasting effects attacks left on Pokémon and players (events batch 8 C7; `engine::lasting`), in the order they
+    /// were put.
+    pub lasting: SVec<LastingEffect, 32>,
 }
 
 /// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`
@@ -660,6 +609,7 @@ impl State {
             layout_gen: 0,
             at: [Loc::NONE; MAX_CARDS],
             lock_synced: None,
+            lasting: SVec::new(),
         }
     }
 
@@ -750,6 +700,13 @@ impl State {
     #[inline]
     pub fn any_special_condition(&self) -> bool {
         self.players.iter().any(|pl| pl.slots.iter().any(|s| !s.special_conditions.is_empty()))
+    }
+
+    /// A fresh (empty) spot for player `p` (`Player::alloc_slot`), without the lasting effects a spot of that number had.
+    pub fn alloc_slot(&mut self, p: usize) -> SlotId {
+        let s = self.players[p].alloc_slot();
+        self.lasting.retain(|l| l.on != LastingOn::pokemon(p, s));
+        s
     }
 
     pub fn active_pokemon(&self, p: usize) -> Option<CardId> {

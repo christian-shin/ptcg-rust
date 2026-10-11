@@ -319,7 +319,7 @@ impl crate::engine::turn_action::ActionChecks for Ctx<'_> {
 /// no `Prevent` declaration over ChangeActive can match (each needs an attack or an Ability: unit test
 /// `change_active::tests::no_prevention_matches_a_rule_cause`), so the declared preventions are not read here (reading
 /// them would cost a scratch game per decision); nor are the lasting ones an attack leaves on a Pokémon
-/// (`Slot::lasting_prevents`), which all name the opponent's attacks.
+/// (the lasting table's preventions, `engine::lasting`), which all name the opponent's attacks.
 impl crate::engine::change_active::ActiveChecks for Ctx<'_> {
     fn game(&self) -> &Game {
         self.g

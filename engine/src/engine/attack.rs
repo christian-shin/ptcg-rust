@@ -417,9 +417,7 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
     }
 }
 
-/// The lock probe made before an Ability is used (`turn_action::ability_checks`): a stand-in `Power` effect every card
-/// sees; a lock refuses it (B7-OLD -> B8: `Effect::Power { probe }`, until has-no-Ability is a stored derived fact read
-/// through `derived::has_no_ability`).
+/// Has the Ability lost to a lock (`turn_action::ability_checks`): `derived::has_no_ability`.
 pub fn power_use_blocked(g: &mut Game, p: usize, power: PowerRef, card: CardId) -> bool {
     debug_assert_eq!(power.card, card);
     crate::derived::has_no_ability(g, p, card, Some(power.index))
@@ -454,11 +452,12 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             // Resolution of a revenge trap: an EffectOfAttack attributed to the retaliator so Mist Energy blocks it.
             // The Attacking Pokémon must still be in play (ruling 530) and takes the counters wherever it is (rulings
             // 482, 1839); the trap is an effect of the damaged Pokémon, gone when that Pokémon left play.
-            if card == r.source_card && r.damage > 0 && source_in_play && g.st.slot(target.p as usize, target.s).cards.contains(r.source_card) {
+            let crate::state::LastingWhat::Retaliate { amount, attack, .. } = r.what else { return Ok(()) };
+            if card == r.source && amount > 0 && source_in_play && g.st.slot(target.p as usize, target.s).cards.contains(r.source) {
                 // The retaliation is an effect of the retaliator's own earlier attack (id2408, id1958): its counters on the
                 // Attacking Pokémon are a PlaceCounters by that attack.
-                let cause = crate::cause::Cause::attack(opp, Some(r.source_card), r.attack);
-                crate::engine::damage::place(g, source, r.damage, cause)?;
+                let cause = crate::cause::Cause::attack(opp, Some(r.source), attack);
+                crate::engine::damage::place(g, source, amount as i32, cause)?;
             }
             Ok(())
         }

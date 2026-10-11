@@ -8,8 +8,8 @@
 //!   Pokémon or its player ("this Pokémon can't attack / can't use [Attack Name] during your next turn", APR C-15:
 //!   `passive::CANT_ATTACK` stored with its turns, user decision D14), then the cost against the Energy it provides.
 //! - [`ability_checks`]: the printed use-from flags (`turn::can_use_ability_core`), the Ability is there (a locked Ability
-//!   doesn't exist, RULES.md "Has no Abilities"; B7-OLD -> B8: read by the `Power` probe, `attack::power_use_blocked`,
-//!   until has-no-Ability is a stored derived fact), the locks over UseAbility (no pool card prints "can't use
+//!   doesn't exist, RULES.md "Has no Abilities": `derived::has_no_ability` through `attack::power_use_blocked`), the locks
+//!   over UseAbility (no pool card prints "can't use
 //!   Abilities"). The once-per-turn marker and the card's own `needs` are the program's checks (`spec::run::check_power`).
 //! - [`stadium_checks`]: once per turn, a Stadium that declares a use (`CardSpec::use_stadium`), the locks over
 //!   UseStadium.
@@ -63,8 +63,7 @@ pub trait ActionChecks {
     fn energy_count(&mut self, slot: SlotRef) -> R<i32>;
     /// Can the Pokémon in `slot` pay the cost of `attack` (the checked cost against the Energy it provides)?
     fn payable(&mut self, attack: AttackRef, slot: SlotRef) -> R<bool>;
-    /// Has `card` (player `p`'s) lost the Ability `power` to an Ability lock? (B7-OLD -> B8: the `Power` probe,
-    /// `attack::power_use_blocked`; `derived::has_no_ability` once the fact is stored.)
+    /// Has `card` (player `p`'s) lost the Ability `power` to an Ability lock (`derived::has_no_ability`)?
     fn ability_gone(&mut self, p: usize, power: PowerRef, card: CardId) -> bool;
 }
 

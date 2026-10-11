@@ -21,6 +21,82 @@ impl Game {
         Value::Array(v.into_iter().map(Value::String).collect())
     }
 
+    /// The lasting effects on `on`, in the order they were put: what each is, its timing and the card that left it.
+    fn lasting_json(&self, on: LastingOn) -> Vec<Value> {
+        let attack = |a: AttackRef| json!(self.st.cdef(a.card).attacks[a.idx()].name);
+        let player = |p: u8| json!(self.st.players[p as usize].id);
+        self.st
+            .lasting
+            .iter()
+            .filter(|l| l.on == on)
+            .map(|l| {
+                let mut o = Map::new();
+                o.insert("source".into(), json!(self.card_ref(l.source)));
+                match l.what {
+                    LastingWhat::Lock { decl, turns, attack: a } => {
+                        o.insert("lock".into(), json!(decl.error));
+                        o.insert("turns".into(), json!(turns));
+                        if let Some(a) = a {
+                            o.insert("attack".into(), attack(a));
+                        }
+                    }
+                    LastingWhat::PlayerLock { decl, turns, .. } => {
+                        o.insert("lock".into(), json!(decl.error));
+                        o.insert("turns".into(), json!(turns));
+                    }
+                    LastingWhat::TakesLessDamage(n) => {
+                        o.insert("takesLessDamage".into(), json!(n));
+                    }
+                    LastingWhat::DealsLessDamage(n) => {
+                        o.insert("dealsLessDamage".into(), json!(n));
+                    }
+                    LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => {
+                        o.insert("takesMoreDamage".into(), json!(amount));
+                        if let Some(p) = attacker {
+                            o.insert("attacker".into(), player(p));
+                        }
+                        o.insert("pending".into(), json!(pending));
+                        o.insert("rearm".into(), json!(rearm));
+                    }
+                    LastingWhat::Prevent { spec, pending } => {
+                        o.insert("prevent".into(), json!(spec));
+                        o.insert("pending".into(), json!(pending));
+                    }
+                    LastingWhat::Retaliate { amount, attack: a, attacker, pending } => {
+                        o.insert("retaliate".into(), json!(amount));
+                        o.insert("attack".into(), attack(a));
+                        o.insert("attacker".into(), player(attacker));
+                        o.insert("pending".into(), json!(pending));
+                    }
+                    LastingWhat::DiscardAttackerEnergy { attack: a, attacker, armed, pending } => {
+                        o.insert("discardAttackerEnergy".into(), json!(armed));
+                        o.insert("attack".into(), attack(a));
+                        o.insert("attacker".into(), player(attacker));
+                        o.insert("pending".into(), json!(pending));
+                    }
+                    LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => {
+                        let key = if matches!(l.what, LastingWhat::AttackCostIncrease { .. }) { "attackCostIncrease" } else { "retreatCostIncrease" };
+                        o.insert(key.into(), json!(now));
+                        o.insert("pendingIncrease".into(), json!(pending));
+                        if let Some(p) = attacker {
+                            o.insert("attacker".into(), player(p));
+                        }
+                    }
+                    LastingWhat::NoWeakness { armed, pending } => {
+                        o.insert("noWeakness".into(), json!(armed));
+                        o.insert("pending".into(), json!(pending));
+                    }
+                    LastingWhat::NextTurnBonus { spec, pending } => {
+                        o.insert("nextTurnBonus".into(), json!(spec.bonus));
+                        o.insert("attack".into(), json!(spec.attack));
+                        o.insert("pending".into(), json!(pending));
+                    }
+                }
+                Value::Object(o)
+            })
+            .collect()
+    }
+
     fn markers_json<const N: usize>(&self, m: &Marker<N>) -> Vec<Value> {
         let mut out: Vec<(String, Value)> = m
             .items
@@ -45,7 +121,8 @@ impl Game {
         out.into_iter().map(|x| x.1).collect()
     }
 
-    fn slot_json(&self, s: &Slot) -> Value {
+    fn slot_json(&self, p: usize, si: SlotId) -> Value {
+        let s = &self.st.players[p].slots[si as usize];
         let mut o = Map::new();
         o.insert("cards".into(), self.refs_of(s.cards.as_slice()));
         let d = Slot::default();
@@ -65,75 +142,10 @@ impl Game {
         nd!(entered_turn, "pokemonPlayedTurn");
         nd!(sleep_flips, "sleepFlips");
         nd!(healed_this_turn, "healedThisTurn");
-        nd!(damage_reduction_next_turn, "damageReductionNextTurn");
-        nd!(attack_damage_reduction_next_turn, "attackDamageReductionNextTurn");
-        // The preventions an attack left on the Pokémon (events batch 6), by the card that left them.
-        if !s.lasting_prevents.is_empty() {
-            let v: Vec<Value> = s.lasting_prevents.iter().map(|l| json!({"source": self.card_ref(l.source), "pending": l.pending})).collect();
-            o.insert("lastingPrevents".into(), Value::Array(v));
-        }
-        nd!(no_weakness_next_turn, "noWeaknessNextTurn");
-        nd!(no_weakness_next_turn_pending, "noWeaknessNextTurnPending");
-        nd!(attack_cost_increase_next_turn, "attackCostIncreaseNextTurn");
-        nd!(attack_cost_increase_next_turn_pending, "attackCostIncreaseNextTurnPending");
-        if let Some(p) = s.attack_cost_increase_next_turn_attacker {
-            o.insert("attackCostIncreaseNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
-        }
-        nd!(retreat_cost_increase_next_turn, "retreatCostIncreaseNextTurn");
-        nd!(retreat_cost_increase_next_turn_pending, "retreatCostIncreaseNextTurnPending");
-        if let Some(p) = s.retreat_cost_increase_next_turn_attacker {
-            o.insert("retreatCostIncreaseNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
-        }
-        nd!(discard_attacker_energy_if_ko_next_turn, "discardAttackerEnergyIfKnockedOutNextTurn");
-        nd!(discard_attacker_energy_if_ko_next_turn_pending, "discardAttackerEnergyIfKnockedOutNextTurnPending");
-        let attack_json = |a: AttackRef| -> Value {
-            let ad = &self.st.cdef(a.card).attacks[a.idx()];
-            let mut ao = Map::new();
-            ao.insert("name".into(), json!(ad.name));
-            ao.insert("cost".into(), json!(ad.cost));
-            ao.insert("damage".into(), json!(ad.damage));
-            ao.insert("text".into(), json!(ad.text));
-            if let Some(dc) = ad.damage_calculation {
-                ao.insert("damageCalculation".into(), json!(dc));
-            }
-            Value::Object(ao)
-        };
-        if let Some(a) = s.discard_attacker_energy_if_ko_attack {
-            o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttack".into(), attack_json(a));
-        }
-        for (key, r) in [("retaliateOnDamageNextTurn", s.retaliate_on_damage_next_turn), ("retaliateOnDamageNextTurnPending", s.retaliate_on_damage_next_turn_pending)] {
-            if let Some(r) = r {
-                let mut ro = Map::new();
-                ro.insert("damage".into(), json!(r.damage));
-                ro.insert("attack".into(), attack_json(r.attack));
-                ro.insert("sourceCard".into(), json!(self.card_ref(r.source_card)));
-                ro.insert("attackerPlayerId".into(), json!(self.st.players[r.attacker as usize].id));
-                o.insert(key.into(), Value::Object(ro));
-            }
-        }
-        if let Some(c) = s.discard_attacker_energy_if_ko_source_card {
-            o.insert("discardAttackerEnergyIfKnockedOutNextTurnSourceCard".into(), json!(self.card_ref(c)));
-        }
-        if let Some(p) = s.discard_attacker_energy_if_ko_attacker {
-            o.insert("discardAttackerEnergyIfKnockedOutNextTurnAttackerId".into(), json!(self.st.players[p as usize].id));
-        }
-        nd!(defending_extra_damage_next_turn, "defendingPokemonExtraDamageNextTurn");
-        if let Some(p) = s.defending_extra_damage_attacker {
-            o.insert("defendingPokemonExtraDamageAttackerId".into(), json!(self.st.players[p as usize].id));
-        }
-        nd!(defending_extra_damage_pending, "defendingPokemonExtraDamagePending");
-        nd!(defending_extra_damage_rearm_after_attack, "defendingPokemonExtraDamageRearmAfterAttack");
-        // The locks an attack left on the Pokémon: the turns left and the attack each names (outside the observable
-        // projection the golden comparator hashes).
-        if !s.lasting_locks.is_empty() {
-            let v: Vec<serde_json::Value> = s.lasting_locks.iter().map(|l| json!({"turns": l.turns_remaining, "attack": l.attack})).collect();
-            o.insert("lastingLocks".into(), json!(v));
-        }
-        if let Some(b) = s.next_turn_attack_damage_bonus {
-            o.insert("nextTurnAttackDamageBonus".into(), next_turn_bonus_json(&b));
-        }
-        if let Some(b) = s.next_turn_attack_damage_bonus_pending {
-            o.insert("nextTurnAttackDamageBonusPending".into(), next_turn_bonus_json(&b));
+        // The lasting effects attacks left on the Pokémon (the lasting table, outside the observable projection).
+        let lasting = self.lasting_json(LastingOn::pokemon(p, si));
+        if !lasting.is_empty() {
+            o.insert("lasting".into(), Value::Array(lasting));
         }
         if !s.board_effect.is_empty() {
             o.insert("boardEffect".into(), json!(s.board_effect.as_slice()));
@@ -177,8 +189,8 @@ impl Game {
         if pl.prize_face_up[..pl.prize_count as usize].iter().any(|v| *v) {
             o.insert("faceUpPrizes".into(), json!(pl.prize_face_up[..pl.prize_count as usize].to_vec()));
         }
-        o.insert("active".into(), self.slot_json(&pl.slots[pl.active as usize]));
-        o.insert("bench".into(), Value::Array(pl.bench.iter().map(|b| self.slot_json(&pl.slots[*b as usize])).collect()));
+        o.insert("active".into(), self.slot_json(p, pl.active));
+        o.insert("bench".into(), Value::Array(pl.bench.iter().map(|b| self.slot_json(p, *b)).collect()));
         let d = Player::new(pl.id);
         macro_rules! nd {
             ($field:ident, $key:expr) => {
@@ -211,10 +223,10 @@ impl Game {
         if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::ANCIENT)) > 0 {
             o.insert("ancientSupporter".into(), json!(true));
         }
-        // The locks an attack left: the turns left (what they stop is the declaration, `LockDecl::forbids`; outside the
-        // observable projection the golden comparator hashes).
-        if let Some(t) = pl.lasting_locks.iter().flatten().map(|l| l.turns_remaining).max() {
-            o.insert("playLocksTurnsRemaining".into(), json!(t));
+        // The locks an attack left on the player (the lasting table, outside the observable projection).
+        let lasting = self.lasting_json(LastingOn::Player(p as u8));
+        if !lasting.is_empty() {
+            o.insert("lasting".into(), Value::Array(lasting));
         }
         nd!(used_dragons_wish, "usedDragonsWish");
         nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
@@ -454,7 +466,3 @@ pub fn _phase_name(p: GamePhase) -> u8 {
     p as u8
 }
 
-/// `preventFilterFromOptions` output for the modeled keys.
-fn next_turn_bonus_json(b: &crate::state::NextTurnAttackDamageBonus) -> Value {
-    json!({ "attackName": b.attack_name, "bonusDamage": b.bonus_damage, "sourceCardName": b.source_card_name })
-}

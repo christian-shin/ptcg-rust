@@ -180,7 +180,7 @@ pub fn check_retreat_cost_base(g: &Game, p: usize) -> Cost {
         }
     }
     let a = g.st.players[p].active;
-    for _ in 0..g.st.slot(p, a).retreat_cost_increase_next_turn.max(0) {
+    for _ in 0..crate::engine::lasting::retreat_cost_increase(&g.st, p, a).max(0) {
         cost.push(ct::COLORLESS);
     }
     cost

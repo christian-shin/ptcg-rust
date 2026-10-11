@@ -378,8 +378,8 @@ pub enum CoinGate {
 /// A lock (events design section 5: `Lock { forbids }`), and the code the stopped action fails with: the events it
 /// forbids (`forbids`), evaluated for the lock's source card; the locked player is the event's actor
 /// (`EventView::actor`, the `Cause` player: id25, id230, id959). The in-play locks ([`BlockUseSpec`]) and the locks an
-/// attack leaves on the opponent (`Lasting::Lock` on the opponent, stored on the locked player as a
-/// [`crate::state::LastingLock`]) are this one declaration. Events batch 7: the play locks are over PlayTrainer ("your
+/// attack leaves on the opponent (`Lasting::Lock` on the opponent, stored in the lasting table as a
+/// [`crate::state::LastingWhat::PlayerLock`]) are this one declaration. Events batch 7: the play locks are over PlayTrainer ("your
 /// opponent can't play Item cards from their hand": `Kind(PlayTrainer) & Use(Played) & Source(Hand) & Card(Item)`).
 pub struct LockDecl {
     pub error: &'static str,
@@ -404,7 +404,7 @@ impl LockDecl {
 
 /// "This Pokémon can't attack" / "can't use attacks" / "can't use [Attack Name]" for a time (APR C-15; events batch 7, user
 /// decision D14): a lock over the UseAttack of the Pokémon it is on, left by an attack (`Lasting::Lock`; the attack it
-/// names is the stored lock's, `LastingLock::attack`). The player can't announce nor use the attack.
+/// names is the stored lock's, `LastingWhat::Lock::attack`). The player can't announce nor use the attack.
 pub static CANT_ATTACK: LockDecl = LockDecl::on(
     super::event::EventPred::All(&[super::event::EventPred::Kind(super::event::EventKind::UseAttack), super::event::EventPred::This(crate::spec::prelude::Role::Card)]),
     "BLOCKED_BY_EFFECT",
@@ -735,6 +735,7 @@ pub struct AttackFlagsSpec {
 /// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3):
 /// using the attack arms the bonus (it rolls over at the end of the turn), and every attack of
 /// the Pokémon applies an armed one.
+#[derive(Debug)]
 pub struct NextTurnBonusSpec {
     pub attack: &'static str,
     pub bonus: i32,
@@ -942,7 +943,7 @@ fn is_attack_phase(g: &Game) -> bool {
 // ---------------------------------------------------------------------------
 // Apply
 
-pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
+pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) -> R {
     match &ps.modifier {
         Modifier::HpBonus(n) => hp_mod(g, me, e, ps.origin, *n, &SlotPred::Holder, &Cond::True),
         Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
@@ -1688,7 +1689,7 @@ pub const DAMAGE_OR_EFFECTS: super::event::EventPred = super::event::EventPred::
 pub const HIDE_N_SNEAK: PreventSpec = PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EFFECTS_OF_OPP_ATTACKS_AND_ABILITIES);
 
 /// "During your opponent's next turn, prevent all effects of attacks done to this Pokémon" (an attack's lasting effect on
-/// its own Pokémon: `Lasting::PreventAttackEffects`), stored on the Pokémon (`Slot::lasting_prevents`).
+/// its own Pokémon: `Lasting::PreventAttackEffects`), stored on the Pokémon (the lasting table, `engine::lasting`).
 pub static LASTING_PREVENT_EFFECTS: PreventSpec = PreventSpec::on(SlotPred::Any, EFFECTS_OF_OPP_ATTACKS);
 
 /// "Is damaged by an attack" (no owner named: any attack's damage, its own player's included; Fezandipiti).
@@ -1712,7 +1713,7 @@ pub const TERA_RULE: PreventSpec = PreventSpec::on(
 );
 
 /// The lasting "during your opponent's next turn, prevent all damage done to this Pokémon by attacks (from <these>
-/// Pokémon)" an attack leaves on its Pokémon (`DamageSource::spec`), stored with it (`Slot::lasting_prevents`). The
+/// Pokémon)" an attack leaves on its Pokémon (`DamageSource::spec`), stored with it (the lasting table, `engine::lasting`). The
 /// attacking Pokémon is read where it is now (`CausePred::Pokemon`).
 pub static LASTING_PREVENT_DAMAGE: PreventSpec = PreventSpec::on(SlotPred::Any, DAMAGE_BY_OPP_ATTACKS);
 pub static LASTING_PREVENT_DAMAGE_FROM_BASIC: PreventSpec = PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::Basic))]));
@@ -1744,7 +1745,7 @@ pub static LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS: PreventSpec = Preven
     ]),
 );
 
-/// Every lasting `Prevent` an attack can leave on a Pokémon (`Slot::lasting_prevents` stores an index into it).
+/// Every lasting `Prevent` an attack can leave on a Pokémon (a `LastingWhat::Prevent` stores an index into it).
 pub static LASTING_PREVENTS: [&PreventSpec; 6] = [
     &LASTING_PREVENT_EFFECTS,
     &LASTING_PREVENT_DAMAGE,
@@ -1970,14 +1971,13 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
 #[inline]
 pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool {
     lock_marker(kind).map_or(false, |m| g.kinds_present.has(m))
-        || g.st.players[p].lasting_locks.iter().flatten().any(|l| !l.decl.forbids.is_never())
-        || g.st.players[p].slots.iter().any(|s| !s.lasting_locks.is_empty())
+        || crate::engine::lasting::any_lock_of(&g.st, p)
 }
 
 /// Does a lock an attack left on player `p` read the Energy the attacking Pokémon provides (`EventPred::EnergyAtMost`)?
 /// The UseAttack's checks make that checked read only then.
 pub fn lasting_reads_energy(g: &Game, p: usize) -> bool {
-    g.st.players[p].lasting_locks.iter().flatten().any(|l| l.decl.forbids.reads_energy())
+    crate::engine::lasting::player_locks(&g.st, p).iter().any(|l| matches!(l.what, crate::state::LastingWhat::PlayerLock { decl, .. } if decl.forbids.reads_energy()))
 }
 
 /// The marker a `Prevent` over events of `kind` sets in its card's mask (`prevent_kinds`) and that
@@ -2076,16 +2076,15 @@ pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
 }
 
 /// The `Prevent` declarations an attack left on the event's Pokémon ("during your opponent's next turn, prevent all
-/// damage done to / effects of attacks done to this Pokémon": `Slot::lasting_prevents`, in force once no longer
+/// damage done to / effects of attacks done to this Pokémon": the lasting table's preventions, in force once no longer
 /// pending): one matches the event. Each is evaluated for the card whose attack left it. A plain read of the slot when
 /// it holds none.
 pub fn lasting_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
     let Some(t) = v.slot else { return Ok(false) };
-    let n = g.st.slot(t.p as usize, t.s).lasting_prevents.len();
-    for i in 0..n {
-        let l = g.st.slot(t.p as usize, t.s).lasting_prevents.as_slice()[i];
-        let spec = l.spec();
-        if l.pending || spec.coin || !ranges(&spec.from, v.kind) {
+    for l in crate::engine::lasting::prevents(&g.st, t.p as usize, t.s).iter() {
+        let crate::state::LastingWhat::Prevent { spec, pending } = l.what else { continue };
+        let spec = LASTING_PREVENTS[spec as usize];
+        if pending || spec.coin || !ranges(&spec.from, v.kind) {
             continue;
         }
         if spec.from.eval(g, l.source, v)? && slot_pred_m(g, l.source, t, &spec.protects)? {
@@ -2175,28 +2174,29 @@ pub(crate) fn event_locked_by<F: crate::derived::Facts>(g: &mut F, me: CardId, v
 /// is about (its spot, a retreat's leaving Pokémon: "this Pokémon can't attack / retreat during your next turn", APR
 /// C-15), evaluated for that Pokémon; a lock naming an attack forbids only that attack.
 pub fn lasting_event_locked<F: crate::derived::Facts>(g: &mut F, v: &super::event::EventView) -> R<Option<&'static str>> {
+    use crate::state::LastingWhat;
     let p = v.actor() as usize;
-    for i in 0..g.g().st.players[p].lasting_locks.len() {
-        let Some(l) = g.g().st.players[p].lasting_locks[i] else { continue };
-        if l.decl.coin == CoinGate::No && !l.decl.forbids.is_never() && l.decl.forbids.eval(g, l.source, v)? {
-            return Ok(Some(l.decl.error));
+    for l in crate::engine::lasting::player_locks(&g.g().st, p).iter() {
+        let LastingWhat::PlayerLock { decl, .. } = l.what else { continue };
+        if decl.coin == CoinGate::No && !decl.forbids.is_never() && decl.forbids.eval(g, l.source, v)? {
+            return Ok(Some(decl.error));
         }
     }
     let spots = [v.slot, v.from.filter(|f| Some(*f) != v.slot)];
     for s in spots.into_iter().flatten() {
-        let n = g.g().st.slot(s.p as usize, s.s).lasting_locks.len();
-        if n == 0 {
+        let locks = crate::engine::lasting::pokemon_locks(&g.g().st, s.p as usize, s.s);
+        if locks.is_empty() {
             continue;
         }
         let Some(me) = g.g().st.slot_pokemon(s.p as usize, s.s) else { continue };
-        for i in 0..n {
-            let l = g.g().st.slot(s.p as usize, s.s).lasting_locks.as_slice()[i];
-            let named = match l.attack {
+        for l in locks.iter() {
+            let LastingWhat::Lock { decl, attack, .. } = l.what else { continue };
+            let named = match attack {
                 None => true,
-                Some(name) => v.attack.map_or(false, |a| crate::engine::attack::attack_def(g.g(), a).name == name),
+                Some(a) => v.attack.map_or(false, |x| crate::engine::attack::attack_def(g.g(), x).name == crate::engine::lasting::lock_attack_name(&g.g().st, a)),
             };
-            if named && l.decl.coin == CoinGate::No && l.decl.forbids.eval(g, me, v)? {
-                return Ok(Some(l.decl.error));
+            if named && decl.coin == CoinGate::No && decl.forbids.eval(g, me, v)? {
+                return Ok(Some(decl.error));
             }
         }
     }
@@ -2208,9 +2208,9 @@ pub fn lasting_event_locked<F: crate::derived::Facts>(g: &mut F, v: &super::even
 /// attack, by its owner), or `None` when no such lock applies.
 pub fn coin_gate(g: &mut Game, v: &super::event::EventView) -> R<Option<crate::cause::Cause>> {
     let p = v.actor() as usize;
-    for i in 0..g.st.players[p].lasting_locks.len() {
-        let Some(l) = g.st.players[p].lasting_locks[i] else { continue };
-        if l.decl.coin != CoinGate::No && l.decl.forbids.eval(g, l.source, v)? {
+    for l in crate::engine::lasting::player_locks(&g.st, p).iter() {
+        let crate::state::LastingWhat::PlayerLock { decl, .. } = l.what else { continue };
+        if decl.coin != CoinGate::No && decl.forbids.eval(g, l.source, v)? {
             return Ok(Some(crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8)));
         }
     }
@@ -2219,7 +2219,10 @@ pub fn coin_gate(g: &mut Game, v: &super::event::EventView) -> R<Option<crate::c
 
 /// The cause of the coin-gated lock on player `p` (its tails' discard), if one is there.
 pub fn coin_gate_cause(g: &Game, p: usize) -> Option<crate::cause::Cause> {
-    g.st.players[p].lasting_locks.iter().flatten().find(|l| l.decl.coin != CoinGate::No).map(|l| crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8))
+    crate::engine::lasting::player_locks(&g.st, p)
+        .iter()
+        .find(|l| matches!(l.what, crate::state::LastingWhat::PlayerLock { decl, .. } if decl.coin != CoinGate::No))
+        .map(|l| crate::cause::Cause::new(crate::cause::CauseKind::Attack, Some(l.source), g.st.owner(l.source) as u8))
 }
 
 /// Does the in-play lock `b` of `me` forbid the event (`LockDecl::forbids`)?
@@ -2430,7 +2433,7 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
 // ---------------------------------------------------------------------------
 // Next-turn attack bonus and first-turn attacks (S3 agent 3)
 
-fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) -> R {
+fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &'static NextTurnBonusSpec) -> R {
     let (attack, source) = match *g.e(e) {
         Effect::Attack { attack, source, .. } => (attack, source),
         _ => return Ok(()),
@@ -2440,9 +2443,8 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) ->
     }
     let full_name = g.st.cdef(me).full_name;
     let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].name;
-    let slot = &g.st.players[source.p as usize].slots[source.s as usize];
-    let armed = match slot.next_turn_attack_damage_bonus {
-        Some(a) if a.source_card_name == full_name && (a.attack_name == "*" || a.attack_name == attack_name) => a.bonus_damage,
+    let armed = match crate::engine::lasting::armed_bonus(&g.st, source.p as usize, source.s) {
+        Some((a, for_card)) if g.st.cdef(for_card).full_name == full_name && (a.attack == "*" || a.attack == attack_name) => a.bonus,
         _ => 0,
     };
     if armed != 0 {
@@ -2453,8 +2455,7 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) ->
     if attack_name != b.attack {
         return Ok(());
     }
-    g.st.players[source.p as usize].slots[source.s as usize].next_turn_attack_damage_bonus_pending =
-        Some(crate::state::NextTurnAttackDamageBonus { attack_name: b.attack, bonus_damage: b.bonus, source_card_name: full_name });
+    crate::engine::lasting::set_bonus_pending(&mut g.st, source.p as usize, source.s, b, me);
     g.st.bump();
     Ok(())
 }
@@ -3279,7 +3280,7 @@ mod play_lock_tests {
     /// The lock each attack leaves, applied to player `p` as the attack does, with what it stops.
     #[test]
     fn attack_locks_stop_what_their_text_says_and_expire() {
-        use crate::engine::phase::{apply_play_lock, tick_play_locks_at_end_of_turn};
+        use crate::engine::lasting::{add_player_lock, end_turn};
         // (the card's declaration, the card it stops, the cards it doesn't)
         static ITEM: LockDecl = LockDecl::on(PLAY_ITEM_FROM_HAND, "BLOCKED_BY_EFFECT");
         static SUPPORTER: LockDecl = LockDecl::on(PLAY_SUPPORTER_FROM_HAND, "BLOCKED_BY_EFFECT");
@@ -3296,20 +3297,20 @@ mod play_lock_tests {
             (&STADIUM, tower),       // Chi-Yu
         ];
         for (decl, stops) in cases {
-            apply_play_lock(&mut g.st.players[me], decl, 1, 0);
+            add_player_lock(&mut g.st, me, decl, 1, 0);
             for c in [potion, research, tower] {
                 let want = (c == stops).then_some("BLOCKED_BY_EFFECT");
                 assert_eq!(play_locked(&mut g, me, c), want, "{} under a lock on {}", g.st.cdef(c).name, g.st.cdef(stops).name);
             }
             // The opponent of the locked player isn't stopped.
             assert_eq!(play_locked(&mut g, 1 - me, stops), None);
-            tick_play_locks_at_end_of_turn(&mut g.st.players[1 - me]);
+            end_turn(&mut g.st, 1 - me);
             assert!(play_locked(&mut g, me, stops).is_some(), "the other player's turn doesn't end it");
-            tick_play_locks_at_end_of_turn(&mut g.st.players[me]);
+            end_turn(&mut g.st, me);
             assert_eq!(play_locked(&mut g, me, stops), None, "gone at the end of the locked player's turn");
         }
         // A used Supporter isn't played (id2226: "can't play Supporter cards" doesn't stop Look-Alike Show).
-        apply_play_lock(&mut g.st.players[me], &SUPPORTER, 1, 0);
+        add_player_lock(&mut g.st, me, &SUPPORTER, 1, 0);
         let attack = crate::cause::Cause::attack(me as u8, None, crate::state::AttackRef { card: 0, index: 0 });
         let used = crate::engine::play_trainer::play_view(&g, research, crate::spec::event::TrainerUse::Used, crate::spec::event::RulesZone::Hand, attack);
         assert_eq!(event_locked(&mut g, &used).unwrap(), None);
@@ -3318,7 +3319,7 @@ mod play_lock_tests {
         static QUAKING: LockDecl = LockDecl { error: "BLOCKED_BY_EFFECT", forbids: PLAY_TRAINER_FROM_HAND, coin: CoinGate::TailsDiscardsCard };
         let mut g2 = game(json!({"me": {"reset": true, "active": "Hoothoot PRE 77", "hand": ["Potion POR 83"]}, "opp": {"reset": true, "active": "Duraludon PRE 69"}}));
         let potion = hand(&g2, me, "Potion POR 83");
-        apply_play_lock(&mut g2.st.players[me], &QUAKING, 1, 0);
+        add_player_lock(&mut g2.st, me, &QUAKING, 1, 0);
         assert_eq!(play_locked(&mut g2, me, potion), None);
         let v = crate::engine::play_trainer::play_view(&g2, potion, crate::spec::event::TrainerUse::Played, crate::spec::event::RulesZone::Hand, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, me as u8));
         assert!(coin_gate(&mut g2, &v).unwrap().is_some());
@@ -3327,7 +3328,7 @@ mod play_lock_tests {
         static EVOLVE: LockDecl = LockDecl::on(EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::Source(RulesZone::Hand)]), "BLOCKED_BY_EFFECT");
         let noctowl = hand(&g, me, "Noctowl PRE 78");
         assert_eq!(event_lock(&mut g, me, noctowl, true), None);
-        apply_play_lock(&mut g.st.players[me], &EVOLVE, 1, 0);
+        add_player_lock(&mut g.st, me, &EVOLVE, 1, 0);
         assert_eq!(event_lock(&mut g, me, noctowl, true), Some("BLOCKED_BY_EFFECT"));
         assert_eq!(event_lock(&mut g, me, noctowl, false), None, "an EnterPlay isn't evolving");
         assert_eq!(event_lock(&mut g, 1 - me, noctowl, true), None, "the opponent of the locked player isn't stopped");

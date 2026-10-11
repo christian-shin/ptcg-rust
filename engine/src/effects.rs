@@ -236,7 +236,8 @@ pub enum Effect {
         damage: i32,
         source: SlotRef,
         source_in_play: bool,
-        retaliate: Option<crate::state::StoredRetaliate>,
+        /// The Retaliate lasting trigger it resolves (`engine::lasting`).
+        retaliate: Option<crate::state::LastingEffect>,
     },
 
     // ---- play card ----

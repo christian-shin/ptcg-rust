@@ -11,6 +11,7 @@ pub mod attack;
 pub mod check;
 pub mod enter;
 pub mod knockout;
+pub mod lasting;
 pub mod game_effect;
 pub mod ops;
 pub mod phase;

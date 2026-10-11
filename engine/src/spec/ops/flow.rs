@@ -460,10 +460,9 @@ fn pick_attack_ask(g: &mut Game, me: CardId, f: &Frame, a: &PickAttackSpec) -> b
 
 /// "It can't be used during their next turn."
 fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
-    let name = g.st.cdef(a.card).attacks[a.index as usize].name;
     let Some((p, opp, attack, source)) = attack_data(g, f.eff) else { return Ok(()) };
     use crate::spec::ops::state::{LastingLockSpec, NamedAttack};
-    let effect = crate::spec::ops::state::Lasting::Lock(LastingLockSpec::on_defending(&crate::spec::passive::CANT_ATTACK).naming(NamedAttack::Chosen(name)));
+    let effect = crate::spec::ops::state::Lasting::Lock(LastingLockSpec::on_defending(&crate::spec::passive::CANT_ATTACK).naming(NamedAttack::Chosen(a)));
     let target = crate::engine::apply::target_of(g, p as usize, source, effect);
     let _ = opp;
     let card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(attack.card);

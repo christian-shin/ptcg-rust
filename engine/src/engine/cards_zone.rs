@@ -128,7 +128,7 @@ fn clean_spot(g: &mut Game, p: u8, s: crate::state::SlotId) {
         g.move_card_to(ListRef::Slot(p, s), t, dst);
     }
     if g.st.slot_pokemons(pu, su).is_empty() {
-        crate::engine::game_effect::reset_empty_slot(&mut g.st.players[pu].slots[su as usize]);
+        crate::engine::game_effect::reset_empty_slot(&mut g.st, pu, su);
     }
 }
 

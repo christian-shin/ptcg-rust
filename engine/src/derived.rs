@@ -278,50 +278,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
             }
             sl.attacks_this_turn.hash(&mut h);
             h.write_u8(sl.healed_this_turn as u8);
-            for lk in sl.lasting_locks.iter() {
-                h.write_usize(lk.decl as *const _ as usize);
-                h.write_u8(lk.turns_remaining as u8);
-                h.write_u8(lk.source);
-                h.write_usize(lk.attack.map_or(0, |a| a.as_ptr() as usize));
-            }
-            for x in [sl.damage_reduction_next_turn, sl.attack_damage_reduction_next_turn, sl.defending_extra_damage_next_turn, sl.attack_cost_increase_next_turn, sl.attack_cost_increase_next_turn_pending, sl.retreat_cost_increase_next_turn, sl.retreat_cost_increase_next_turn_pending] {
-                h.write_i32(x);
-            }
-            for b in [sl.discard_attacker_energy_if_ko_next_turn, sl.discard_attacker_energy_if_ko_next_turn_pending, sl.no_weakness_next_turn, sl.no_weakness_next_turn_pending, sl.defending_extra_damage_pending, sl.defending_extra_damage_rearm_after_attack, sl.is_public] {
-                h.write_u8(b as u8);
-            }
-            ar(&mut h, sl.discard_attacker_energy_if_ko_attack);
-            sl.discard_attacker_energy_if_ko_source_card.hash(&mut h);
-            sl.discard_attacker_energy_if_ko_attacker.hash(&mut h);
-            for b in [sl.next_turn_attack_damage_bonus, sl.next_turn_attack_damage_bonus_pending] {
-                match b {
-                    Some(x) => {
-                        h.write_usize(x.attack_name.as_ptr() as usize);
-                        h.write_i32(x.bonus_damage);
-                        h.write_usize(x.source_card_name.as_ptr() as usize);
-                    }
-                    None => h.write_u8(0),
-                }
-            }
-            sl.defending_extra_damage_attacker.hash(&mut h);
-            sl.attack_cost_increase_next_turn_attacker.hash(&mut h);
-            sl.retreat_cost_increase_next_turn_attacker.hash(&mut h);
-            for r in [sl.retaliate_on_damage_next_turn, sl.retaliate_on_damage_next_turn_pending] {
-                match r {
-                    Some(x) => {
-                        h.write_i32(x.damage);
-                        ar(&mut h, Some(x.attack));
-                        h.write_u8(x.source_card);
-                        h.write_u8(x.attacker);
-                    }
-                    None => h.write_u8(0),
-                }
-            }
-            for lp in sl.lasting_prevents.iter() {
-                h.write_u8(lp.spec);
-                h.write_u8(lp.source);
-                h.write_u8(lp.pending as u8);
-            }
+            h.write_u8(sl.is_public as u8);
             match &sl.ko_pending {
                 Some(c) => cause(&mut h, c),
                 None => h.write_u8(0),
@@ -348,17 +305,11 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         for b in pl.pokemon_knocked_out_last_turn_by_attack.iter() {
             h.write_u8(*b as u8);
         }
-        for lk in pl.lasting_locks.iter() {
-            match lk {
-                Some(x) => {
-                    h.write_usize(x.decl as *const _ as usize);
-                    h.write_u8(x.turns_remaining as u8);
-                    h.write_u8(x.source);
-                    h.write_usize(x.attack.map_or(0, |a| a.as_ptr() as usize));
-                }
-                None => h.write_u8(0),
-            }
-        }
+    }
+    for l in st.lasting.iter() {
+        l.on.hash(&mut h);
+        h.write_u8(l.source);
+        format!("{:?}", l.what).hash(&mut h);
     }
     h.finish()
 }
@@ -824,7 +775,7 @@ pub fn compute_weakness_resistance<F: Facts>(g: &mut F, target: SlotRef) -> R<(S
         Ok(())
     })?;
     // "No Weakness during your opponent's next turn" (a lasting effect on the Pokémon), after the declarations.
-    if g.g().st.slot(target.p as usize, target.s).no_weakness_next_turn {
+    if crate::engine::lasting::no_weakness(&g.g().st, target.p as usize, target.s) {
         weakness.clear();
     }
     Ok((weakness, resistance))
