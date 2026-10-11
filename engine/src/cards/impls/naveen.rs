@@ -10,7 +10,8 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Naveen",
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
-        needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
+        // Printed: "(If you can't draw any cards in this way, you can't use this card.)"
+        needs: &[Cond::Printed(&Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any))],
         steps: &[
             Step::new(Op::Pick(PickSpec {
                 from: ZoneRef(Who::Me, Zone::Hand),

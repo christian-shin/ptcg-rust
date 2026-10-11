@@ -76,7 +76,7 @@ g0500001065  # end of the recording (an extra prompt); Look-Alike Show: at step 
 g0500001965  # step 116 prompt; Look-Alike Show: at step 116 Rosa's Encouragement now blocked up front by its printed condition
 g0500002445  # step 159 prompt; Look-Alike Show: at step 159 Gladion's Final Battle now blocked up front by its printed condition
 g0500003585  # step 53 prompt; Look-Alike Show: at step 53 Team Rocket's Archer now blocked up front by its printed condition
-g0500004065  # step 265 prompt; Look-Alike Show: at step 264 Cook now blocked up front by its printed condition
+g0500004065  # step 265 prompt; Look-Alike Show: at step 264 the recording chose Iris's Fighting Spirit, which threw, and was asked again; that choice is now used (printed conditions only): Rust's step 265 is Iris's own discard from the hand
 g0500004304  # step 15 obs; Look-Alike Show: at step 9 the recording chose Cassiopeia, Cassiopeia, Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500004311  # step 77 prompt; Look-Alike Show: at step 75 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500004329  # end of the recording (an extra prompt); Look-Alike Show: at step 219 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
@@ -97,7 +97,7 @@ g0500007845  # step 30 prompt; Look-Alike Show: at step 30 Cassiopeia now blocke
 g0500007910  # step 24 prompt; Look-Alike Show: at step 24 Briar now blocked up front by its printed condition
 g0500007911  # end of the recording (an extra prompt); Look-Alike Show: at step 88 the recording chose Team Rocket's Giovanni, Jacinthe, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500007912  # end of the recording (an extra prompt); Look-Alike Show: at step 25 the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
-g0500007931  # step 101 obs; Look-Alike Show: at step 99 the recording chose Kofu, which threw, and was asked again; that choice is now used (printed conditions only)
+g0500007931  # step 105 prompt; Look-Alike Show: Kofu SCR 138 (both copies) now blocked up front by its printed condition "(If you can't put 2 cards from your hand on the bottom of your deck, you can't use this card.)" (the attacker's hand is empty); at step 99 the recording's Kofu threw, as Rust now refuses it (closeout MUST 1)
 g0500007935  # step 65 prompt; Look-Alike Show: at step 65 Hassel now blocked up front by its printed condition
 g0500007943  # step 165 prompt; Look-Alike Show: at step 165 Cassiopeia now blocked up front by its printed condition
 g0500007947  # step 111 prompt; Look-Alike Show: at step 111 Gladion's Final Battle now blocked up front by its printed condition
@@ -139,7 +139,7 @@ g0500015153  # step 149 prompt; Look-Alike Show: at step 149 Cassiopeia now bloc
 g0500015155  # step 176 obs; Look-Alike Show: at its earlier use (step 169) the recording chose Grimsley's Move, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500015158  # step 57 prompt; Look-Alike Show: at step 57 Team Rocket's Archer now blocked up front by its printed condition
 g0500015525  # end of the recording (an extra prompt); Look-Alike Show: at its earlier use (step 132) the recording chose Team Rocket's Giovanni, which threw, and was asked again; that choice is now used (printed conditions only)
-g0500016305  # step 13 prompt; Look-Alike Show: at step 12 Iris's Fighting Spirit now blocked up front by its printed condition
+g0500016305  # step 13 prompt; Look-Alike Show: at step 12 the recording chose Salvatore, which threw, and was asked again; that choice is now used (printed conditions only): Rust's step 13 is Salvatore's deck choice
 g0500018045  # step 78 obs; Look-Alike Show: at step 76 the recording chose Pokémon Center Lady, which threw, and was asked again; that choice is now used (printed conditions only)
 g0500018105  # step 114 prompt; Look-Alike Show: at step 114 Hassel now blocked up front by its printed condition
 g0500018710  # step 85 prompt; Look-Alike Show: at step 85 Briar now blocked up front by its printed condition

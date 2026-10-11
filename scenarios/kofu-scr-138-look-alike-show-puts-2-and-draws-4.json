@@ -1,0 +1,55 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mr. Mime TEF 63",
+   "4 Kofu SCR 138",
+   "4 Naveen POR 79",
+   "4 Hop's Snorlax JTG 117",
+   "44 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Mr. Mime TEF 63",
+   "4 Kofu SCR 138",
+   "4 Naveen POR 79",
+   "4 Hop's Snorlax JTG 117",
+   "44 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mr. Mime TEF 63",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "hand": [
+   "Hop's Snorlax JTG 117",
+   "Hop's Snorlax JTG 117"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Kofu SCR 138"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Look-Alike Show"
+  },
+  [
+   0
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 4,
+   "cite": "Kofu SCR 138 prints \"(If you can't put 2 cards from your hand on the bottom of your deck, you can't use this card.)\": a printed condition, kept when the effect is used through Look-Alike Show (user decision D5; official JP FAQ, Fire Energy MEE 2 / Mela: the user of the effect must meet it); Kofu SCR 138: \"If you put 2 cards on the bottom of your deck in this way, draw 4 cards.\" (APR E-20; Cond::DidAll)"
+  }
+ ]
+}
