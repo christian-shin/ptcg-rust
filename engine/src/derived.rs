@@ -558,29 +558,200 @@ pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<boo
 }
 
 // ---------------------------------------------------------------------------
-// The computations. C2: today's check effects (`slow_*`).
+// The computations (batch 8 C3a): each fact by direct code over the declarations of its modifier kind that are in
+// place (`decl::in_place`: the family's cards, in the propagation order), with today's post-processing
+// (`check::finish_attack_cost`, `finish_retreat_cost`, `complete_energy_map`); the declarations run undelegated, as the
+// cards' handlers did (`Game::call_card`). `PTCG_VERIFY_CACHE=1` checks each against the check effect (`slow_*`).
+
+/// Run `f` with no copied attack's source code delegated (a declaration is the card's own, never a delegate).
+#[inline]
+fn undelegated<T>(g: &mut Game, f: impl FnOnce(&mut Game) -> T) -> T {
+    let saved = g.deleg.take();
+    let r = f(g);
+    g.deleg = saved;
+    r
+}
+
+/// The family's cards in place, in the propagation order of the check effects (rank class 0); none without a declarer.
+#[inline]
+fn declarers(g: &Game, f: usize) -> SVec<CardId, 120> {
+    if g.decls.sets[f] == 0 {
+        return SVec::new();
+    }
+    crate::decl::in_place(g, f, 0)
+}
+
+/// `PTCG_VERIFY_CACHE=1`: the direct computation against the check effect (when the slow path reads without an error).
+#[inline]
+fn against_slow<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, r: &T, slow: impl FnOnce(&mut Game) -> R<T>) {
+    if crate::game::verify_cache() {
+        if let Ok(s) = slow(g) {
+            assert_eq!(*r, s, "derived::{what}: the direct computation differs from the check effect");
+        }
+    }
+}
 
 fn compute_hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    slow_hp(g, p, s)
+    use crate::spec::passive::Modifier;
+    let r = match g.st.slot_pokemon(p, s) {
+        None => 0,
+        Some(card) => {
+            let target = SlotRef::new(p, s);
+            let bonus = undelegated(g, |g| -> R<i32> {
+                let mut bonus = 0;
+                for me in declarers(g, crate::decl::fam::HP).iter().copied() {
+                    for ps in crate::decl::passives(g, me) {
+                        bonus += match &ps.modifier {
+                            Modifier::HpBonus(n) => crate::spec::passive::hp_mod_delta(g, me, ps.origin, *n, &crate::spec::SlotPred::Holder, &crate::spec::Cond::True, target)?,
+                            Modifier::HpMod(h) => crate::spec::passive::hp_mod_delta(g, me, ps.origin, h.amount, &h.subject, &h.guard, target)?,
+                            _ => 0,
+                        };
+                    }
+                }
+                Ok(bonus)
+            })?;
+            // The last HP read's bonus stays on the spot (the observation and the canonical JSON read it; batch 8 C7
+            // removes the field).
+            g.st.players[p].slots[s as usize].hp_bonus = bonus;
+            g.st.cdef(card).hp + bonus
+        }
+    };
+    against_slow(g, "hp", &r, |g| slow_hp(g, p, s));
+    Ok(r)
 }
+
 fn compute_provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    slow_provided_energy(g, p, source)
+    use crate::spec::passive::Modifier;
+    let mut map: EnergyMap = SVec::new();
+    undelegated(g, |g| -> R {
+        for me in declarers(g, crate::decl::fam::PROVIDES).iter().copied() {
+            for ps in crate::decl::passives(g, me) {
+                match &ps.modifier {
+                    Modifier::ProvidesEnergy(pe) => crate::spec::passive::provides_energy_into(g, me, pe, p as u8, source, &mut map)?,
+                    Modifier::ProvidesEnergyBoost(b) => crate::spec::passive::provides_energy_boost_into(g, me, ps.origin, b, p, source, &mut map)?,
+                    _ => {}
+                }
+            }
+        }
+        Ok(())
+    })?;
+    crate::engine::check::complete_energy_map(g, source, &mut map);
+    against_slow(g, "provided_energy", &map, |g| slow_provided_energy(g, p, source));
+    Ok(map)
 }
+
 fn compute_types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
-    slow_types(g, target)
+    use crate::spec::passive::Modifier;
+    let mut types = crate::engine::game_effect::pokemon_types(g, target);
+    undelegated(g, |g| -> R {
+        for me in declarers(g, crate::decl::fam::TYPE).iter().copied() {
+            for ps in crate::decl::passives(g, me) {
+                if let Modifier::TypeOverride(t) = &ps.modifier {
+                    if let Some(set) = crate::spec::passive::type_override(g, me, ps.origin, t, target)? {
+                        types.clear();
+                        for ty in set.iter() {
+                            types.push(*ty);
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    })?;
+    against_slow(g, "types", &types, |g| slow_types(g, target));
+    Ok(types)
 }
+
 fn compute_weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>)> {
-    slow_weakness_resistance(g, target)
+    use crate::spec::passive::Modifier;
+    let (mut weakness, resistance) = match crate::engine::game_effect::stats_effect(g, target) {
+        Effect::CheckPokemonStats { weakness, resistance, .. } => (weakness, resistance),
+        _ => (SVec::new(), SVec::new()),
+    };
+    undelegated(g, |g| -> R {
+        for me in declarers(g, crate::decl::fam::STATS).iter().copied() {
+            for ps in crate::decl::passives(g, me) {
+                if let Modifier::WeaknessOverride(w) = &ps.modifier {
+                    if let Some(t) = crate::spec::passive::weakness_override(g, me, ps.origin, w, target)? {
+                        weakness.clear();
+                        weakness.push(WeaknessV { card_type: t, value: None });
+                    }
+                }
+            }
+        }
+        Ok(())
+    })?;
+    // "No Weakness during your opponent's next turn" (a lasting effect on the Pokémon), after the declarations.
+    if g.st.slot(target.p as usize, target.s).no_weakness_next_turn {
+        weakness.clear();
+    }
+    let r = (weakness, resistance);
+    against_slow(g, "weakness_resistance", &r, |g| slow_weakness_resistance(g, target));
+    Ok(r)
 }
+
 fn compute_retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
-    slow_retreat_cost(g, p)
+    use crate::spec::passive::Modifier;
+    let mut acc = crate::engine::check::RetreatCostAcc { p: p as u8, cost: crate::engine::retreat::check_retreat_cost_base(g, p), no_cost: false, reduction: 0 };
+    undelegated(g, |g| -> R {
+        for me in declarers(g, crate::decl::fam::RETREAT_COST).iter().copied() {
+            for ps in crate::decl::passives(g, me) {
+                if let Modifier::RetreatCost(c) = &ps.modifier {
+                    crate::spec::passive::retreat_cost_into(g, me, ps.origin, c, &mut acc)?;
+                }
+            }
+        }
+        Ok(())
+    })?;
+    let r = crate::engine::check::finish_retreat_cost(acc);
+    against_slow(g, "retreat_cost", &r, |g| slow_retreat_cost(g, p));
+    Ok(r)
 }
+
 fn compute_attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
-    slow_attacks(g, p)
+    use crate::spec::passive::Modifier;
+    let mut acc: crate::engine::turn::CheckedAttacks = match crate::engine::turn::check_attacks_effect(g, p) {
+        Effect::CheckPokemonAttacks { attacks, copied, .. } => (attacks, copied),
+        _ => (SVec::new(), SVec::new()),
+    };
+    undelegated(g, |g| -> R {
+        for me in declarers(g, crate::decl::fam::GRANT_ATTACKS).iter().copied() {
+            for ps in crate::decl::passives(g, me) {
+                match &ps.modifier {
+                    Modifier::GrantAttacks(_) => crate::spec::passive::grant_attacks_into(g, me, ps.origin, p, &mut acc)?,
+                    Modifier::BenchAttacks(_) => crate::spec::passive::bench_attacks_into(g, me, ps.origin, p, &mut acc)?,
+                    _ => {}
+                }
+            }
+        }
+        Ok(())
+    })?;
+    against_slow(g, "attacks", &acc, |g| slow_attacks(g, p));
+    Ok(acc)
 }
+
 fn compute_attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    slow_attack_cost(g, p, attack)
+    use crate::spec::passive::Modifier;
+    let mut cost: Cost = SVec::new();
+    for &c in crate::engine::attack::attack_def(g, attack).cost {
+        cost.push(c);
+    }
+    let mut acc = crate::engine::check::AttackCostAcc { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false };
+    undelegated(g, |g| -> R {
+        for me in declarers(g, crate::decl::fam::ATTACK_COST).iter().copied() {
+            for ps in crate::decl::passives(g, me) {
+                if let Modifier::AttackCost(c) = &ps.modifier {
+                    crate::spec::passive::attack_cost_into(g, me, ps.origin, c, &mut acc)?;
+                }
+            }
+        }
+        Ok(())
+    })?;
+    let r = crate::engine::check::finish_attack_cost(g, acc)?;
+    against_slow(g, "attack_cost", &r, |g| slow_attack_cost(g, p, attack));
+    Ok(r)
 }
+
 fn compute_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
     slow_powers(g, p, card)
 }

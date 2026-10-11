@@ -963,14 +963,12 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
         Modifier::TypeOverride(t) => {
             let Effect::CheckPokemonType { target, .. } = *g.e(e) else { return Ok(()) };
-            let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
-            if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, ps.origin, at, Some(target)) {
-                return Ok(());
-            }
-            if let Effect::CheckPokemonType { card_types, .. } = g.e_mut(e) {
-                card_types.clear();
-                for ty in t.set.iter() {
-                    card_types.push(*ty);
+            if let Some(set) = type_override(g, me, ps.origin, t, target)? {
+                if let Effect::CheckPokemonType { card_types, .. } = g.e_mut(e) {
+                    card_types.clear();
+                    for ty in set.iter() {
+                        card_types.push(*ty);
+                    }
                 }
             }
             Ok(())
@@ -982,20 +980,10 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
         Modifier::WeaknessOverride(w) => {
             let Effect::CheckPokemonStats { target, .. } = *g.e(e) else { return Ok(()) };
-            let player = target.p as usize;
-            // Today's behavior: the Ability's lock probe is made for the checked Pokémon's owner, first.
-            if crate::derived::has_no_ability(g, player, me, None) {
-                return Ok(());
-            }
-            let Some(at) = locate(g, me, ps.origin) else { return Ok(()) };
-            if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
-                return Ok(());
-            }
-            let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: at.owner as u8, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(target), cause: crate::cause::Cause::of_origin(ps.origin, me, at.owner as u8) })?;
-            if let Effect::EffectOfAbility { target: Some(_), .. } = fx {
+            if let Some(t) = weakness_override(g, me, ps.origin, w, target)? {
                 if let Effect::CheckPokemonStats { weakness, .. } = g.e_mut(e) {
                     weakness.clear();
-                    weakness.push(crate::effects::WeaknessV { card_type: w.weakness, value: None });
+                    weakness.push(crate::effects::WeaknessV { card_type: t, value: None });
                 }
             }
             Ok(())
@@ -1014,6 +1002,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
             prize_adjust(g, me, e, ps.origin, d)?;
             if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
                 g.st.players[p].legacy_energy_used = true;
+                g.st.bump();
             }
             Ok(())
         }
@@ -1024,18 +1013,54 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &Passive) -> R {
     }
 }
 
+/// The `TypeOverride` of `me` on the Pokémon in `target`: the types it gets, when the declaration applies there (the
+/// derived layer's `types`).
+pub(crate) fn type_override(g: &mut Game, me: CardId, origin: RuleSource, t: &TypeOverrideSpec, target: SlotRef) -> R<Option<&'static [CardType]>> {
+    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+    if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, origin, at, Some(target)) {
+        return Ok(None);
+    }
+    Ok(Some(t.set))
+}
+
+/// The `WeaknessOverride` of `me` on the Pokémon in `target` (the derived layer's Weakness): the type it sets, when it
+/// applies. The Ability's lock probe is made for the checked Pokémon's owner, first; then the EffectOfAbility probe
+/// (B6-OLD: the continuous-effect `Prevent` view, batch 8 C11).
+pub(crate) fn weakness_override(g: &mut Game, me: CardId, origin: RuleSource, w: &WeaknessOverrideSpec, target: SlotRef) -> R<Option<CardType>> {
+    let player = target.p as usize;
+    if crate::derived::has_no_ability(g, player, me, None) {
+        return Ok(None);
+    }
+    let Some(at) = locate(g, me, origin) else { return Ok(None) };
+    if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
+        return Ok(None);
+    }
+    let (fx, _) = g.run_fx(Effect::EffectOfAbility { p: at.owner as u8, power: crate::effects::PowerRef { card: me, index: 0 }, card: me, target: Some(target), cause: crate::cause::Cause::of_origin(origin, me, at.owner as u8) })?;
+    Ok(match fx {
+        Effect::EffectOfAbility { target: Some(_), .. } => Some(w.weakness),
+        _ => None,
+    })
+}
+
+/// The HP `HpBonus` / `HpMod` of `me` gives the Pokémon in `target` (0 when it doesn't apply): the derived layer's `hp`
+/// adds them up.
+pub(crate) fn hp_mod_delta(g: &mut Game, me: CardId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
+    let Some(at) = locate(g, me, origin) else { return Ok(0) };
+    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, origin, at.owner, guard)? {
+        return Ok(0);
+    }
+    Ok(n)
+}
+
 fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond) -> R {
     let (target, card) = match *g.e(e) {
         Effect::CheckHp { target, card, .. } => (target, card),
         _ => return Ok(()),
     };
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, origin, at.owner, guard)? {
-        return Ok(());
-    }
+    let d = hp_mod_delta(g, me, origin, n, subject, guard, target)?;
     // HP is only changed for a Pokémon actually being checked (`effect.hp += n` writes only then).
     if card.is_some() {
-        g.st.players[target.p as usize].slots[target.s as usize].hp_bonus += n;
+        g.st.players[target.p as usize].slots[target.s as usize].hp_bonus += d;
     }
     Ok(())
 }
@@ -1165,11 +1190,8 @@ fn damage_taken(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
 // ---------------------------------------------------------------------------
 // Energy
 
-fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) -> R {
-    let (p, source) = match *g.e(e) {
-        Effect::CheckProvidedEnergy { p, source, .. } => (p, source),
-        _ => return Ok(()),
-    };
+/// `ProvidesEnergy` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
+pub(crate) fn provides_energy_into(g: &mut Game, me: CardId, pe: &ProvidesEnergySpec, p: u8, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
     if !g.st.slot(source.p as usize, source.s).cards.contains(me) {
         return Ok(());
     }
@@ -1184,37 +1206,60 @@ fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) 
         for t in entry.provides {
             provides.push(*t);
         }
-        if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-            energy_map.push(EnergyEntry { card: me, provides });
+        map.push(EnergyEntry { card: me, provides });
+    }
+    Ok(())
+}
+
+fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) -> R {
+    let (p, source, mut map) = match *g.e(e) {
+        Effect::CheckProvidedEnergy { p, source, energy_map } => (p, source, energy_map),
+        _ => return Ok(()),
+    };
+    provides_energy_into(g, me, pe, p, source, &mut map)?;
+    if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
+        *energy_map = map;
+    }
+    Ok(())
+}
+
+/// `ProvidesEnergyBoost` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
+pub(crate) fn provides_energy_boost_into(g: &mut Game, me: CardId, origin: RuleSource, b: &ProvidesEnergyBoostSpec, p: usize, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    if at.owner != p || blocked(g, me, origin, at, Some(source)) {
+        return Ok(());
+    }
+    let cards: SVec<CardId, 60> = {
+        let mut v = SVec::new();
+        for c in g.st.slot(source.p as usize, source.s).cards.iter() {
+            v.push(c);
         }
+        v
+    };
+    for &c in cards.iter() {
+        if !pred(g, c, &b.energy) {
+            continue;
+        }
+        if map.iter().any(|m| m.card == c) {
+            continue;
+        }
+        let mut provides = SVec::new();
+        for t in b.provides {
+            provides.push(*t);
+        }
+        map.push(EnergyEntry { card: c, provides });
     }
     Ok(())
 }
 
 fn provides_energy_boost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &ProvidesEnergyBoostSpec) -> R {
-    let (p, source) = match *g.e(e) {
-        Effect::CheckProvidedEnergy { p, source, .. } => (p as usize, source),
+    let (p, source, mut map) = match *g.e(e) {
+        Effect::CheckProvidedEnergy { p, source, energy_map } => (p as usize, source, energy_map),
         _ => return Ok(()),
     };
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
-    if at.owner != p || blocked(g, me, origin, at, Some(source)) {
-        return Ok(());
-    }
-    let cards: Vec<CardId> = g.st.slot(source.p as usize, source.s).cards.iter().collect();
-    for c in cards {
-        if !pred(g, c, &b.energy) {
-            continue;
-        }
-        if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
-            if energy_map.iter().any(|m| m.card == c) {
-                continue;
-            }
-            let mut provides = SVec::new();
-            for t in b.provides {
-                provides.push(*t);
-            }
-            energy_map.push(EnergyEntry { card: c, provides });
-        }
+    provides_energy_boost_into(g, me, origin, b, p, source, &mut map)?;
+    if let Effect::CheckProvidedEnergy { energy_map, .. } = g.e_mut(e) {
+        *energy_map = map;
     }
     Ok(())
 }
@@ -1282,10 +1327,25 @@ fn attach_guard(g: &mut Game, me: CardId, e: EffId, a: &AttachGuardSpec) -> R {
 // Costs
 
 fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &AttackCostSpec) -> R {
-    let (p, attack) = match *g.e(e) {
-        Effect::CheckAttackCost { p, attack, .. } => (p as usize, attack),
+    let mut acc = match *g.e(e) {
+        Effect::CheckAttackCost { p, attack, cost, set_cost, ignore_colorless, reduction, any_reduction } => crate::engine::check::AttackCostAcc { p, attack, cost, set_cost, ignore_colorless, reduction, any_reduction },
         _ => return Ok(()),
     };
+    attack_cost_into(g, me, origin, c, &mut acc)?;
+    if let Effect::CheckAttackCost { cost, set_cost, ignore_colorless, reduction, any_reduction, .. } = g.e_mut(e) {
+        *cost = acc.cost;
+        *set_cost = acc.set_cost;
+        *ignore_colorless = acc.ignore_colorless;
+        *reduction = acc.reduction;
+        *any_reduction = acc.any_reduction;
+    }
+    Ok(())
+}
+
+/// `AttackCost` of `me`: its change to the cost being computed (`check::AttackCostAcc`; the derived layer's
+/// `attack_cost`).
+pub(crate) fn attack_cost_into(g: &mut Game, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::AttackCostAcc) -> R {
+    let (p, attack) = (acc.p as usize, acc.attack);
     if let Some(i) = c.attack {
         if attack != my_attack(g, me, i) {
             return Ok(());
@@ -1309,7 +1369,8 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
             _ => 0,
         }
     };
-    if let Effect::CheckAttackCost { cost, ignore_colorless, reduction, set_cost, any_reduction, .. } = g.e_mut(e) {
+    {
+        let crate::engine::check::AttackCostAcc { cost, ignore_colorless, reduction, set_cost, any_reduction, .. } = acc;
         match &c.change {
             CostChange::AnyOne => *any_reduction = true,
             // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
@@ -1339,10 +1400,23 @@ fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Attac
 }
 
 fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RetreatCostSpec) -> R {
-    let p = match *g.e(e) {
-        Effect::CheckRetreatCost { p, .. } => p as usize,
+    let mut acc = match *g.e(e) {
+        Effect::CheckRetreatCost { p, cost, no_cost, reduction } => crate::engine::check::RetreatCostAcc { p, cost, no_cost, reduction },
         _ => return Ok(()),
     };
+    retreat_cost_into(g, me, origin, c, &mut acc)?;
+    if let Effect::CheckRetreatCost { cost, no_cost, reduction, .. } = g.e_mut(e) {
+        *cost = acc.cost;
+        *no_cost = acc.no_cost;
+        *reduction = acc.reduction;
+    }
+    Ok(())
+}
+
+/// `RetreatCost` of `me`: its change to the Retreat Cost being computed (`check::RetreatCostAcc`; the derived layer's
+/// `retreat_cost`).
+pub(crate) fn retreat_cost_into(g: &mut Game, me: CardId, origin: RuleSource, c: &RetreatCostSpec, acc: &mut crate::engine::check::RetreatCostAcc) -> R {
+    let p = acc.p as usize;
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     if (c.side == Side::Owner && at.owner != p) || (c.side == Side::Opponent && at.owner == p) {
         return Ok(());
@@ -1370,7 +1444,8 @@ fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Retr
             _ => 0,
         }
     };
-    if let Effect::CheckRetreatCost { cost, no_cost, reduction, .. } = g.e_mut(e) {
+    {
+        let crate::engine::check::RetreatCostAcc { cost, no_cost, reduction, .. } = acc;
         match &c.change {
             CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
             CostChange::Add(k) => {
@@ -1742,6 +1817,8 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
             return Ok(());
         }
         g.st.players[target.p as usize].slots[target.s as usize].marker.add(id, me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
+        // A write inside the KnockOut's handlers (the derived facts are stale).
+        g.st.bump();
     }
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
         *prize_count += d.delta;
@@ -1750,10 +1827,20 @@ fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Priz
 }
 
 fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let p = match *g.e(e) {
-        Effect::CheckPokemonAttacks { p, .. } => p as usize,
+    let (p, mut acc) = match *g.e(e) {
+        Effect::CheckPokemonAttacks { p, attacks, copied } => (p as usize, (attacks, copied)),
         _ => return Ok(()),
     };
+    grant_attacks_into(g, me, origin, p, &mut acc)?;
+    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
+        *attacks = acc.0;
+        *copied = acc.1;
+    }
+    Ok(())
+}
+
+/// `GrantAttacks` of `me` (Relicanth's Memory Dive): the attacks it adds to player `p`'s attack list.
+pub(crate) fn grant_attacks_into(g: &mut Game, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
     let Some(at) = locate(g, me, origin) else { return Ok(()) };
     if at.owner != p || blocked(g, me, origin, at, None) {
         return Ok(());
@@ -1772,10 +1859,8 @@ fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
             }
         }
     }
-    if let Effect::CheckPokemonAttacks { attacks, .. } = g.e_mut(e) {
-        for a in add.iter() {
-            attacks.push(*a);
-        }
+    for a in add.iter() {
+        acc.0.push(*a);
     }
     Ok(())
 }
@@ -2368,6 +2453,7 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &NextTurnBonusSpec) ->
     }
     g.st.players[source.p as usize].slots[source.s as usize].next_turn_attack_damage_bonus_pending =
         Some(crate::state::NextTurnAttackDamageBonus { attack_name: b.attack, bonus_damage: b.bonus, source_card_name: full_name });
+    g.st.bump();
     Ok(())
 }
 
@@ -2383,6 +2469,7 @@ fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &Atta
     // A copy-attack clone carries its own flag (nothing reads it).
     if !attack.is_clone() {
         g.st.cards[attack.card as usize].attack_first_turn |= 1u8 << attack.idx();
+        g.st.bump();
     }
     Ok(())
 }
@@ -2422,8 +2509,19 @@ pub fn grants_first_turn_attack(g: &mut Game, p: usize) -> bool {
 }
 
 fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let Effect::CheckPokemonAttacks { p, .. } = *g.e(e) else { return Ok(()) };
-    let p = p as usize;
+    let Effect::CheckPokemonAttacks { p, attacks, copied } = *g.e(e) else { return Ok(()) };
+    let mut acc = (attacks, copied);
+    bench_attacks_into(g, me, origin, p as usize, &mut acc)?;
+    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
+        *attacks = acc.0;
+        *copied = acc.1;
+    }
+    Ok(())
+}
+
+/// `BenchAttacks` of `me` (Mew ex's Memory Helix): the Benched Pokémon's attacks it adds to player `p`'s attack list, as
+/// copied ones.
+pub(crate) fn bench_attacks_into(g: &mut Game, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
     if g.st.active_pokemon(p) != Some(me) || blocked(g, me, origin, Located { owner: p, held: None }, None) {
         return Ok(());
     }
@@ -2436,11 +2534,9 @@ fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
             }
         }
     }
-    if let Effect::CheckPokemonAttacks { attacks, copied, .. } = g.e_mut(e) {
-        for a in add.iter() {
-            attacks.push(*a);
-            copied.push(*a);
-        }
+    for a in add.iter() {
+        acc.0.push(*a);
+        acc.1.push(*a);
     }
     Ok(())
 }
@@ -2907,6 +3003,7 @@ fn shred_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, attacker:
     // `effect.attack.shredAttack = true` (a per-card attack object write; a copy-attack clone carries its own flag).
     if !attack.is_clone() && !g.st.cdef(attack.card).attacks[attack.idx()].shred_attack {
         g.st.cards[attack.card as usize].attack_shred |= 1u8 << attack.idx();
+        g.st.bump();
     }
     if let Effect::Attack { ignore_defender_effects, .. } = g.e_mut(e) {
         *ignore_defender_effects = true;

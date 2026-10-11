@@ -294,12 +294,39 @@ pub struct Game {
     pub dispatch: crate::dispatch::DispatchIndex,
     /// The derived layer (`derived.rs`).
     pub derived: crate::derived::Derived,
+    /// The declaration index (`decl.rs`): per reader family, the cards of the game that declare one (set by `start`).
+    pub decls: crate::decl::DeclIndex,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
 pub(crate) const PROP_POWER: u16 = 1;
 pub(crate) const PROP_CHECK_POWERS: u16 = 2;
 pub(crate) const PROP_AFTER_ATTACK: u16 = 3;
+
+/// The rank of card `c` in the propagation order of rank class `class` (a stable sort by it follows the zone order).
+pub(crate) fn prop_rank(g: &Game, class: u16, c: CardId) -> u8 {
+    let d = g.st.cdef(c);
+    match class {
+        PROP_POWER => match d.super_type {
+            2 => 0,
+            3 => 1,
+            _ => 2,
+        },
+        PROP_CHECK_POWERS => match d.super_type {
+            1 => 0,
+            3 => 1,
+            2 if d.trainer_type == TrainerType::Stadium as u8 => 3,
+            _ => 2,
+        },
+        // AfterAttackEffect: Pokémon, then Energy, then Trainers (R7F-10).
+        PROP_AFTER_ATTACK => match d.super_type {
+            1 => 0,
+            3 => 1,
+            _ => 2,
+        },
+        _ => d.super_type,
+    }
+}
 
 pub(crate) fn prop_class(e: &Effect) -> u16 {
     match e {
@@ -369,6 +396,7 @@ impl Game {
                 probing_stadium, trial, kinds_present, lock_cards, trace_effects, copy_sessions, copy_serial, deleg, after_dmg, triggers, ten_hp, ten_hp_coin, last_attack, spec_choices, lock_syncing,
                 dispatch,
                 derived: _,
+                decls,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -401,6 +429,7 @@ impl Game {
             f!((*d).lock_syncing).write(*lock_syncing);
             // The index comes along with the layout it describes (each entry carries its own generation).
             f!((*d).dispatch).write(*dispatch);
+            f!((*d).decls).write(*decls);
             // The derived facts are not copied: another line of play may reach the same version numbers.
             (*d).derived.clear();
         }
@@ -437,6 +466,7 @@ impl Game {
             lock_syncing: false,
             dispatch: crate::dispatch::DispatchIndex::new(),
             derived: crate::derived::Derived::new(),
+            decls: crate::decl::DeclIndex::new(),
         }
     }
 
@@ -1090,30 +1120,7 @@ impl Game {
         if cards.len() < 2 {
             return cards;
         }
-        let rank = |c: CardId| -> u8 {
-            let d = self.st.cdef(c);
-            match class {
-                PROP_POWER => match d.super_type {
-                    2 => 0,
-                    3 => 1,
-                    _ => 2,
-                },
-                PROP_CHECK_POWERS => match d.super_type {
-                    1 => 0,
-                    3 => 1,
-                    2 if d.trainer_type == TrainerType::Stadium as u8 => 3,
-                    _ => 2,
-                },
-                // AfterAttackEffect: Pokémon, then Energy, then Trainers (R7F-10).
-                PROP_AFTER_ATTACK => match d.super_type {
-                    1 => 0,
-                    3 => 1,
-                    _ => 2,
-                },
-                _ => d.super_type,
-            }
-        };
-        cards.as_mut_slice().sort_by_key(|c| rank(*c)); // stable
+        cards.as_mut_slice().sort_by_key(|c| prop_rank(self, class, *c)); // stable
         cards
     }
 
@@ -1159,6 +1166,10 @@ impl Game {
         let order = if self.kinds_present.has(kind) && !crate::spec::event::INDEX_ONLY_EVENT_KINDS.has(kind) { self.listeners(class, kind) } else { SVec::new() };
         for &c in order.iter() {
             self.call_card(c, id, kind)?;
+            if !read {
+                // A card's handler may write (markers, records): the next one reads fresh facts.
+                self.st.bump();
+            }
         }
         if !self.copy_sessions.is_empty() {
             crate::copy_attack::resolve_sessions(self, id)?;
@@ -1283,6 +1294,7 @@ impl Game {
             }
         }
         self.st.phase = GamePhase::Setup;
+        self.decls = crate::decl::DeclIndex::build(self);
         self.st.bump_layout();
         setup::start(self)?;
         self.after_dispatch()
