@@ -36,52 +36,82 @@ pub fn check_hp(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
 // The cost and Energy computations' accumulators and their last steps (the derived layer's `attack_cost`,
 // `retreat_cost`, `provided_energy`; the check effects' reducer runs the same last steps on the slow path)
 
-/// An attack's cost being computed: the printed cost, then each `AttackCost` declaration's change in the propagation
-/// order (`passive::attack_cost_into`), then [`finish_attack_cost`].
+/// An attack's cost or a Retreat Cost being computed (one computation for both, APR D-11 / D-12 / D-13; batch 8 C11b):
+/// the printed cost, then what each declaration of the modifier kind does in the propagation order
+/// (`passive::attack_cost_into`, `retreat_cost_into`), then [`finish_cost`].
 #[derive(Clone, Copy, Debug)]
-pub struct AttackCostAcc {
+pub struct CostAcc {
     pub p: u8,
-    pub attack: AttackRef,
+    /// The attack whose cost it is (`None`: the Active Pokémon's Retreat Cost).
+    pub attack: Option<AttackRef>,
+    /// The printed cost.
     pub cost: Cost,
-    /// An effect set the cost (Kyurem's Plasma Bane, ...): final (R7F-11).
-    pub set_cost: Option<Cost>,
-    /// Every [C] ignored, those added later included (R7F-11).
+    /// "Costs / is N more" (D-11): every one stacks.
+    pub more: u8,
+    /// "Costs / is N less" (D-12): every one stacks, calculated together with the "more" ones.
+    pub less: u8,
+    /// "Costs 1 Energy less" of any type (Sparkling Crystal): a "less" too, on any Energy of the cost.
+    pub any_less: bool,
+    /// "Has no Retreat Cost" (D-13).
+    pub has_no: bool,
+    /// "Ignore all [C] in the cost" (D-13).
     pub ignore_colorless: bool,
-    /// "Costs [C] less": the reductions add up and apply once, with the increases (Advanced Rulebook D-11, D-12).
-    pub reduction: u8,
-    /// "Costs 1 Energy less" of any type (Sparkling Crystal), applied once after all the declarations.
-    pub any_reduction: bool,
+    /// "Ignore all Energy in the cost" / "can use this attack for ..." (D-13; R7F-11: a set cost is final).
+    pub set_cost: Option<Cost>,
 }
 
-/// The last steps of an attack's cost: the lasting increase (Rillaboom's Drum Beating), the "[C] less" reductions, the
-/// "1 Energy less" of any type against the Energy the attacker provides, and a set or ignored cost.
-pub fn finish_attack_cost<F: crate::derived::Facts>(g: &mut F, mut acc: AttackCostAcc) -> R<Cost> {
-    let p = acc.p;
-    // attackCostIncreaseWhileActive / ignoreAttackCostCardTypes: not modeled.
-    // attackCostIncreaseNextTurn: one more [C] per point (Rillaboom's Drum Beating).
-    let a = g.g().st.players[p as usize].active;
-    let n = crate::engine::lasting::attack_cost_increase(&g.g().st, p as usize, a);
-    {
-        let AttackCostAcc { cost, reduction, .. } = &mut acc;
-        for _ in 0..n.max(0) {
-            cost.push(ct::COLORLESS);
+impl CostAcc {
+    pub fn new(p: usize, attack: Option<AttackRef>, cost: Cost) -> CostAcc {
+        CostAcc { p: p as u8, attack, cost, more: 0, less: 0, any_less: false, has_no: false, ignore_colorless: false, set_cost: None }
+    }
+}
+
+/// The cost after every change (APR D-11, D-12, D-13): an effect that ignores all of it, sets it or says it has none
+/// takes priority, and no "more" or "less" effect applies then (D-13); otherwise every "more" and "less" stacks and is
+/// calculated together, one net sum of [C] floored at none, with no order between them (D-11 / D-12: a cost of 1 with
+/// two "1 less" and one "1 more" is 0), then "1 Energy less" of any type (Sparkling Crystal: the Energy the attacker
+/// provides covers each cost slot, one slot may stay open). For an attack, the lasting increase (Rillaboom's Drum
+/// Beating) is one more "more".
+pub fn finish_cost<F: crate::derived::Facts>(g: &mut F, mut acc: CostAcc) -> R<Cost> {
+    let p = acc.p as usize;
+    let a = g.g().st.players[p].active;
+    if acc.has_no {
+        return Ok(SVec::new());
+    }
+    if let Some(c) = acc.set_cost {
+        return Ok(c);
+    }
+    if acc.ignore_colorless {
+        let mut v: Cost = SVec::new();
+        for t in acc.cost.iter() {
+            if *t != ct::COLORLESS {
+                v.push(*t);
+            }
         }
-        // "[C] less" effects (Counter Gain, Hop's Choice Band, Incineroar ex, Crabominable, Bloodmoon Ursaluna ex)
-        // are applied once, together with the increases, whatever the handler order (Advanced Rulebook D-11, D-12).
-        for _ in 0..*reduction {
-            match cost.iter().position(|c| *c == ct::COLORLESS) {
+        return Ok(v);
+    }
+    let lasting = match acc.attack {
+        Some(_) => crate::engine::lasting::attack_cost_increase(&g.g().st, p, a),
+        None => crate::engine::lasting::retreat_cost_increase(&g.g().st, p, a),
+    };
+    let net = acc.more as i32 + lasting.max(0) - acc.less as i32;
+    if net > 0 {
+        for _ in 0..net {
+            acc.cost.push(ct::COLORLESS);
+        }
+    } else {
+        for _ in 0..(-net) {
+            match acc.cost.iter().position(|c| *c == ct::COLORLESS) {
                 Some(i) => {
-                    cost.remove_at(i);
+                    acc.cost.remove_at(i);
                 }
                 None => break,
             }
         }
     }
-    // "Costs 1 Energy less" of any type (Sparkling Crystal): the Energy attached to the Pokemon covers each
-    // cost slot, one slot may stay open.
     let cost_now = acc.cost;
-    if acc.any_reduction && cost_now.len() > 0 {
-        let energy_map = g.provided_energy(p as usize, SlotRef::new(p as usize, a))?;
+    if acc.any_less && cost_now.len() > 0 {
+        let energy_map = g.provided_energy(p, SlotRef::new(p, a))?;
         let mut available: Vec<CardType> = Vec::new();
         for en in energy_map.iter() {
             for t in en.provides.iter() {
@@ -110,59 +140,7 @@ pub fn finish_attack_cost<F: crate::derived::Facts>(g: &mut F, mut acc: AttackCo
             acc.cost = out;
         }
     }
-    // A cost that an effect set or ignored is final (R7F-11; rulings 147,
-    // 252, 1552, 1581, 1842): CheckAttackCostEffect.setCost / ignoreColorless.
-    if let Some(c) = acc.set_cost {
-        acc.cost = c;
-    } else if acc.ignore_colorless {
-        let mut v: Cost = SVec::new();
-        for t in acc.cost.iter() {
-            if *t != ct::COLORLESS {
-                v.push(*t);
-            }
-        }
-        acc.cost = v;
-    }
     Ok(acc.cost)
-}
-
-/// A Retreat Cost being computed: the printed cost with the lasting increase (`retreat::check_retreat_cost_base`), then
-/// each `RetreatCost` declaration's change in the propagation order (`passive::retreat_cost_into`), then
-/// [`finish_retreat_cost`].
-#[derive(Clone, Copy, Debug)]
-pub struct RetreatCostAcc {
-    pub p: u8,
-    pub cost: Cost,
-    /// "No Retreat Cost".
-    pub no_cost: bool,
-    /// "[C] less": the reductions add up and apply once, with the increases (D-11, D-12).
-    pub reduction: u8,
-}
-
-/// The last steps of a Retreat Cost: "no Retreat Cost" takes priority over increases, whatever the handler order (phase
-/// 4b, R2); otherwise the "[C] less" reductions (Air Balloon, Rescue Board) add up and are applied once, together with
-/// the increases (Advanced Rulebook D-11, D-12). zeroRetreatCostNextTurn: not modeled.
-pub fn finish_retreat_cost(acc: RetreatCostAcc) -> Cost {
-    let mut cost = acc.cost;
-    if acc.no_cost {
-        cost.clear();
-    } else {
-        for _ in 0..acc.reduction {
-            match cost.iter().position(|c| *c == ct::COLORLESS) {
-                Some(i) => {
-                    let mut out: Cost = SVec::new();
-                    for (j, c) in cost.iter().enumerate() {
-                        if j != i {
-                            out.push(*c);
-                        }
-                    }
-                    cost = out;
-                }
-                None => break,
-            }
-        }
-    }
-    cost
 }
 
 /// The last step of the Energy map of the Pokémon in `source`, after the `ProvidesEnergy` declarations: each plain
@@ -202,17 +180,10 @@ pub fn complete_energy_map(g: &Game, source: SlotRef, energy_map: &mut EnergyMap
 
 pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::CheckAttackCost { p, attack, cost, set_cost, ignore_colorless, reduction, any_reduction } => {
-            let out = finish_attack_cost(g, AttackCostAcc { p, attack, cost, set_cost, ignore_colorless, reduction, any_reduction })?;
-            if let Effect::CheckAttackCost { cost, .. } = g.e_mut(id) {
-                *cost = out;
-            }
-            Ok(())
-        }
-        Effect::CheckRetreatCost { p, cost, no_cost, reduction } => {
-            let out = finish_retreat_cost(RetreatCostAcc { p, cost, no_cost, reduction });
-            if let Effect::CheckRetreatCost { cost, .. } = g.e_mut(id) {
-                *cost = out;
+        Effect::CheckAttackCost { acc } | Effect::CheckRetreatCost { acc } => {
+            let out = finish_cost(g, acc)?;
+            if let Effect::CheckAttackCost { acc } | Effect::CheckRetreatCost { acc } = g.e_mut(id) {
+                acc.cost = out;
             }
             Ok(())
         }

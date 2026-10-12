@@ -1,0 +1,17 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Bloodmoon Ursaluna ex TWM 141", "4 Antique Root Fossil SCR 130", "52 Grass Energy MEE 1"],
+  ["4 Bloodmoon Ursaluna ex TWM 141", "4 Antique Root Fossil SCR 130", "52 Grass Energy MEE 1"]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Bloodmoon Ursaluna ex TWM 141",
+  "active_energy": ["Grass Energy MEE 1"]
+ },
+ "opp": {"reset": true, "active": "Antique Root Fossil SCR 130", "prizes_left": 1},
+ "answers": [{"a": "attack", "name": "Blood Moon"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Blood Moon", "cite": "APR D-11, D-12: \"more\" and \"less\" effects all stack and are calculated together: Blood Moon [C][C][C][C][C], Seasoned Skill 5 less (the opponent took 5 Prize cards), Primal Root 1 more: one net sum, 1 Energy pays it"}
+ ]
+}

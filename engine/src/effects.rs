@@ -150,12 +150,10 @@ pub enum Effect {
     /// `buf`: its Weakness and Resistance being computed (`Game::fxp.stats`).
     CheckPokemonStats { target: SlotRef, buf: u8 },
     CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
-    CheckRetreatCost { p: u8, cost: Cost, no_cost: bool, reduction: u8 },
-    /// `set_cost` / `ignore_colorless`: an effect that sets or ignores the cost
-    /// (Kyurem's Plasma Bane, Conkeldurr, ...); applied after all handlers.
-    /// `reduction`: "costs [C] less" effects add up and `any_reduction` (Sparkling Crystal, "1 Energy less") is applied once
-    /// after all handlers, with the increases (Advanced Rulebook D-11, D-12).
-    CheckAttackCost { p: u8, attack: AttackRef, cost: Cost, set_cost: Option<Cost>, ignore_colorless: bool, reduction: u8, any_reduction: bool },
+    /// The slow path's Retreat Cost: `acc.cost` is the result after the reducer.
+    CheckRetreatCost { acc: crate::engine::check::CostAcc },
+    /// The slow path's attack cost: `acc.cost` is the result after the reducer.
+    CheckAttackCost { acc: crate::engine::check::CostAcc },
     /// `buf`: its Energy map being computed (`Game::fxp.energy`).
     CheckProvidedEnergy { p: u8, source: SlotRef, buf: u8 },
     CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },

@@ -687,7 +687,7 @@ fn game_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option
 // ---------------------------------------------------------------------------
 // The computations (batch 8 C3a-C3d): each fact by direct code over the declarations of its modifier kind that are in
 // place (`decl::in_place`: the family's cards, in the propagation order), with today's post-processing
-// (`check::finish_attack_cost`, `finish_retreat_cost`, `complete_energy_map`), over any facts provider.
+// (`check::finish_cost`, `complete_energy_map`), over any facts provider.
 
 /// The family's cards in place, in the propagation order of the check effects (rank class 0); none without a declarer.
 #[inline]
@@ -793,10 +793,10 @@ pub fn compute_weakness_resistance<F: Facts>(g: &mut F, target: SlotRef) -> R<(S
 }
 
 /// Player `p`'s Active Pokémon's Retreat Cost: the printed one with the lasting increase, each in-place `RetreatCost`,
-/// then the last steps (`check::finish_retreat_cost`).
+/// then the last steps (`check::finish_cost`).
 pub fn compute_retreat_cost<F: Facts>(g: &mut F, p: usize) -> R<Cost> {
     use crate::spec::passive::Modifier;
-    let mut acc = crate::engine::check::RetreatCostAcc { p: p as u8, cost: crate::engine::retreat::check_retreat_cost_base(g.g(), p), no_cost: false, reduction: 0 };
+    let mut acc = crate::engine::check::CostAcc::new(p, None, crate::engine::retreat::check_retreat_cost_base(g.g(), p));
     g.undelegated(|g| -> R {
         let ds = declarers(g, crate::decl::fam::RETREAT_COST);
         for me in ds.iter().copied() {
@@ -808,7 +808,7 @@ pub fn compute_retreat_cost<F: Facts>(g: &mut F, p: usize) -> R<Cost> {
         }
         Ok(())
     })?;
-    Ok(crate::engine::check::finish_retreat_cost(acc))
+    crate::engine::check::finish_cost(g, acc)
 }
 
 /// The attacks player `p`'s Active Pokémon may use: its Tool's attacks, then each in-place `GrantAttacks` /
@@ -833,14 +833,14 @@ pub fn compute_attacks<F: Facts>(g: &mut F, p: usize) -> R<crate::engine::turn::
 }
 
 /// The current cost of `attack` for player `p`: the printed cost, each in-place `AttackCost`, then the last steps
-/// (`check::finish_attack_cost`).
+/// (`check::finish_cost`).
 pub fn compute_attack_cost<F: Facts>(g: &mut F, p: usize, attack: AttackRef) -> R<Cost> {
     use crate::spec::passive::Modifier;
     let mut cost: Cost = SVec::new();
     for &c in crate::engine::attack::attack_def(g.g(), attack).cost {
         cost.push(c);
     }
-    let mut acc = crate::engine::check::AttackCostAcc { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false };
+    let mut acc = crate::engine::check::CostAcc::new(p, Some(attack), cost);
     g.undelegated(|g| -> R {
         let ds = declarers(g, crate::decl::fam::ATTACK_COST);
         for me in ds.iter().copied() {
@@ -852,7 +852,7 @@ pub fn compute_attack_cost<F: Facts>(g: &mut F, p: usize, attack: AttackRef) -> 
         }
         Ok(())
     })?;
-    crate::engine::check::finish_attack_cost(g, acc)
+    crate::engine::check::finish_cost(g, acc)
 }
 
 /// The powers the card has: the Ability locks' removals, by direct code (`passive::powers_now`).

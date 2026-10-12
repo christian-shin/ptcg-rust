@@ -72,9 +72,9 @@ pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions
 /// The checked read of the effective Retreat Cost (`CheckRetreatCost`).
 pub fn retreat_cost_read(g: &mut Game, p: usize) -> R<Cost> {
     let cost = check_retreat_cost_base(g, p);
-    let (e, _) = g.run_fx(Effect::CheckRetreatCost { p: p as u8, cost, no_cost: false, reduction: 0 })?;
+    let (e, _) = g.run_fx(Effect::CheckRetreatCost { acc: crate::engine::check::CostAcc::new(p, None, cost) })?;
     Ok(match e {
-        Effect::CheckRetreatCost { cost, .. } => cost,
+        Effect::CheckRetreatCost { acc } => acc.cost,
         _ => SVec::new(),
     })
 }
@@ -179,10 +179,6 @@ pub fn check_retreat_cost_base(g: &Game, p: usize) -> Cost {
         for &t in g.st.cdef(c).retreat {
             cost.push(t);
         }
-    }
-    let a = g.st.players[p].active;
-    for _ in 0..crate::engine::lasting::retreat_cost_increase(&g.st, p, a).max(0) {
-        cost.push(ct::COLORLESS);
     }
     cost
 }

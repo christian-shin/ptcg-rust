@@ -1335,25 +1335,18 @@ pub(crate) fn attach_guard_now(g: &mut Game, me: CardId, a: &AttachGuardSpec) ->
 // Costs
 
 fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &AttackCostSpec) -> R {
-    let mut acc = match *g.e(e) {
-        Effect::CheckAttackCost { p, attack, cost, set_cost, ignore_colorless, reduction, any_reduction } => crate::engine::check::AttackCostAcc { p, attack, cost, set_cost, ignore_colorless, reduction, any_reduction },
-        _ => return Ok(()),
-    };
+    let Effect::CheckAttackCost { mut acc } = *g.e(e) else { return Ok(()) };
     attack_cost_into(g, me, origin, c, &mut acc)?;
-    if let Effect::CheckAttackCost { cost, set_cost, ignore_colorless, reduction, any_reduction, .. } = g.e_mut(e) {
-        *cost = acc.cost;
-        *set_cost = acc.set_cost;
-        *ignore_colorless = acc.ignore_colorless;
-        *reduction = acc.reduction;
-        *any_reduction = acc.any_reduction;
+    if let Effect::CheckAttackCost { acc: a } = g.e_mut(e) {
+        *a = acc;
     }
     Ok(())
 }
 
 /// `AttackCost` of `me`: its change to the cost being computed (`check::AttackCostAcc`; the derived layer's
 /// `attack_cost`).
-pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::AttackCostAcc) -> R {
-    let (p, attack) = (acc.p as usize, acc.attack);
+pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::CostAcc) -> R {
+    let (p, attack) = (acc.p as usize, acc.attack.expect("an attack's cost"));
     if let Some(i) = c.attack {
         if attack != my_attack(g.g(), me, i) {
             return Ok(());
@@ -1377,53 +1370,38 @@ pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, 
             _ => 0,
         }
     };
-    {
-        let crate::engine::check::AttackCostAcc { cost, ignore_colorless, reduction, set_cost, any_reduction, .. } = acc;
-        match &c.change {
-            CostChange::AnyOne => *any_reduction = true,
-            // Applied once, with the other cost changes, after all handlers ran (D-11, D-12).
-            CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
-            CostChange::Add(k) => {
-                for _ in 0..*k {
-                    cost.push(ct::COLORLESS);
-                }
+    match &c.change {
+        CostChange::AnyOne => acc.any_less = true,
+        // D-11 / D-12: every "more" and "less" stacks and is calculated together, after all of them (`check::finish_cost`).
+        CostChange::Reduce(_) => acc.less = acc.less.saturating_add(n.max(0) as u8),
+        CostChange::Add(k) => acc.more = acc.more.saturating_add(*k as u8),
+        CostChange::Free => acc.has_no = true,
+        // D-13: "ignore all" takes priority over every "more" and "less".
+        CostChange::IgnoreColorless => acc.ignore_colorless = true,
+        // A cost that is set is not increased or decreased (R7F-11; D-13).
+        CostChange::SetCost(set) => {
+            let mut v: crate::effects::Cost = SVec::new();
+            for t in set.iter() {
+                v.push(*t);
             }
-            CostChange::Free => cost.clear(),
-            CostChange::IgnoreColorless => {
-                cost.retain(|t| *t != ct::COLORLESS);
-                // ...also the [C] that other effects add (R7F-11, rulings 252, 1552).
-                *ignore_colorless = true;
-            }
-            CostChange::SetCost(set) => {
-                let mut v: crate::effects::Cost = SVec::new();
-                for t in set.iter() {
-                    v.push(*t);
-                }
-                // A cost that is set is not increased or decreased (R7F-11).
-                *set_cost = Some(v);
-            }
+            acc.set_cost = Some(v);
         }
     }
     Ok(())
 }
 
 fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RetreatCostSpec) -> R {
-    let mut acc = match *g.e(e) {
-        Effect::CheckRetreatCost { p, cost, no_cost, reduction } => crate::engine::check::RetreatCostAcc { p, cost, no_cost, reduction },
-        _ => return Ok(()),
-    };
+    let Effect::CheckRetreatCost { mut acc } = *g.e(e) else { return Ok(()) };
     retreat_cost_into(g, me, origin, c, &mut acc)?;
-    if let Effect::CheckRetreatCost { cost, no_cost, reduction, .. } = g.e_mut(e) {
-        *cost = acc.cost;
-        *no_cost = acc.no_cost;
-        *reduction = acc.reduction;
+    if let Effect::CheckRetreatCost { acc: a } = g.e_mut(e) {
+        *a = acc;
     }
     Ok(())
 }
 
 /// `RetreatCost` of `me`: its change to the Retreat Cost being computed (`check::RetreatCostAcc`; the derived layer's
 /// `retreat_cost`).
-pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &RetreatCostSpec, acc: &mut crate::engine::check::RetreatCostAcc) -> R {
+pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &RetreatCostSpec, acc: &mut crate::engine::check::CostAcc) -> R {
     let p = acc.p as usize;
     let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
     if (c.side == Side::Owner && at.owner != p) || (c.side == Side::Opponent && at.owner == p) {
@@ -1452,22 +1430,14 @@ pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId,
             _ => 0,
         }
     };
-    {
-        let crate::engine::check::RetreatCostAcc { cost, no_cost, reduction, .. } = acc;
-        match &c.change {
-            CostChange::Reduce(_) => *reduction = reduction.saturating_add(n.max(0) as u8),
-            CostChange::Add(k) => {
-                for _ in 0..*k {
-                    cost.push(ct::COLORLESS);
-                }
-            }
-            CostChange::Free => {
-                cost.clear();
-                *no_cost = true;
-            }
-            CostChange::IgnoreColorless => cost.retain(|t| *t != ct::COLORLESS),
-            CostChange::SetCost(_) | CostChange::AnyOne => {}
-        }
+    match &c.change {
+        // D-11 / D-12: every "more" and "less" stacks and is calculated together (`check::finish_cost`).
+        CostChange::Reduce(_) => acc.less = acc.less.saturating_add(n.max(0) as u8),
+        CostChange::Add(k) => acc.more = acc.more.saturating_add(*k as u8),
+        // D-13: "has no Retreat Cost" / "ignore all" take priority over every "more" and "less".
+        CostChange::Free => acc.has_no = true,
+        CostChange::IgnoreColorless => acc.ignore_colorless = true,
+        CostChange::SetCost(_) | CostChange::AnyOne => {}
     }
     Ok(())
 }

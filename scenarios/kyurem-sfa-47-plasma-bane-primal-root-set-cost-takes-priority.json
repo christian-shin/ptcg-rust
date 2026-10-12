@@ -1,0 +1,17 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Kyurem SFA 47", "4 Antique Root Fossil SCR 130", "4 Colress's Tenacity SFA 57", "48 Water Energy MEE 3"],
+  ["4 Kyurem SFA 47", "4 Antique Root Fossil SCR 130", "4 Colress's Tenacity SFA 57", "48 Water Energy MEE 3"]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Kyurem SFA 47",
+  "active_energy": ["Water Energy MEE 3"]
+ },
+ "opp": {"reset": true, "active": "Antique Root Fossil SCR 130", "discard": ["Colress's Tenacity SFA 57"]},
+ "answers": [{"a": "attack", "name": "Trifrost"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Trifrost", "cite": "APR D-13: an effect that sets or ignores the cost takes priority and no \"more\" or \"less\" effect applies (id2032): Plasma Bane makes Trifrost cost [C], Primal Root's 1 more doesn't apply, 1 Energy pays it"}
+ ]
+}

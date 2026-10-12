@@ -102,9 +102,9 @@ pub fn attack_cost_read(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
     for &c in ad.cost {
         cost.push(c);
     }
-    let (ce, _) = g.run_fx(Effect::CheckAttackCost { p: p as u8, attack, cost, set_cost: None, ignore_colorless: false, reduction: 0, any_reduction: false })?;
+    let (ce, _) = g.run_fx(Effect::CheckAttackCost { acc: crate::engine::check::CostAcc::new(p, Some(attack), cost) })?;
     Ok(match ce {
-        Effect::CheckAttackCost { cost, .. } => cost,
+        Effect::CheckAttackCost { acc } => acc.cost,
         _ => SVec::new(),
     })
 }
