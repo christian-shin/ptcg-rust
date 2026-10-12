@@ -1,0 +1,12 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Shuppet PBL 33", "4 Litwick PBL 36", "4 Lampent PBL 37", "4 Mega Chandelure ex PBL 38", "44 Psychic Energy MEE 5"],
+  ["4 Shuppet PBL 33", "4 Litwick PBL 36", "4 Lampent PBL 37", "4 Mega Chandelure ex PBL 38", "44 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Shuppet PBL 33", "active_energy": ["Psychic Energy MEE 5"], "bench": [{"card": "Shuppet PBL 33"}]},
+ "opp": {"reset": true, "active": ["Litwick PBL 36", "Lampent PBL 37", "Mega Chandelure ex PBL 38"]},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "retreat", "cite": "Hide 'n' Sneak prevents every continuous effect of the opponent's Pokémon's Abilities on this Pokémon (user decision 1, batch 8 C11; id2426): Binding Flame's [C] more doesn't apply, 1 Energy pays the Retreat Cost [C]"}
+ ]
+}

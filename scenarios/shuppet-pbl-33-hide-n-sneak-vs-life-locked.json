@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Shuppet PBL 33", "4 Yveltal 30C 100", "4 Potion POR 83", "48 Psychic Energy MEE 5"],
+  ["4 Shuppet PBL 33", "4 Yveltal 30C 100", "4 Potion POR 83", "48 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Shuppet PBL 33", "active_damage": 30, "hand": ["Potion POR 83"]},
+ "opp": {"reset": true, "active": "Yveltal 30C 100"},
+ "answers": [{"a": "play", "card": "Potion POR 83"}],
+ "expect": [
+  {"at": "turn_end", "who": "me", "slot": "active", "card": "Shuppet PBL 33", "damage": 0, "cite": "Hide 'n' Sneak prevents every continuous effect of the opponent's Pokémon's Abilities on this Pokémon, \"can't be healed\" included (user decision 1, batch 8 C11): Life-Locked doesn't stop Potion healing an Active Shuppet"}
+ ]
+}
