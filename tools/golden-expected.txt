@@ -189,3 +189,13 @@ g0500009465  # step 184 prompt; Look-Alike Show with an empty hand: Kofu SCR 138
 g0500000745  # step 196 prompt; Look-Alike Show with an empty hand: Gladion's Final Battle PBL-77#19 no longer selectable
 g0500003465  # step 88 prompt; Look-Alike Show with an empty hand: Cassiopeia SFA-56#73 no longer selectable
 g0500007934  # step 92 prompt; Look-Alike Show with an empty hand: Gladion's Final Battle PBL-77#20, #21 no longer selectable
+# Events batch 8 C10b (RULES FIX, user decision 2; APR B-01, id925, id956): Munkidori ASC 99's Adrena-Brain can't be
+# used while Patrat CRI 70's Watchful Eye forbids moving damage counters (nothing would change). Each game has Patrat on
+# one side and Munkidori on the other; the first divergence is the turn options without Adrena-Brain (CI 38318826248).
+g0500001616  # step 129 options; Adrena-Brain no longer offered under Watchful Eye
+g0500006176  # step 63 options; Adrena-Brain no longer offered under Watchful Eye
+g0500009776  # step 68 options; Adrena-Brain no longer offered under Watchful Eye
+g0500012196  # step 45 options; Adrena-Brain no longer offered under Watchful Eye
+g0500013376  # step 12 options; Adrena-Brain no longer offered under Watchful Eye
+g0500016016  # step 29 options; Adrena-Brain no longer offered under Watchful Eye
+g0500019396  # step 12 options; Adrena-Brain no longer offered under Watchful Eye

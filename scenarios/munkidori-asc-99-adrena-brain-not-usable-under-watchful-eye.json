@@ -1,0 +1,17 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Munkidori ASC 99", "4 Hop's Snorlax JTG 117", "4 Patrat CRI 70", "8 Psychic Energy MEE 5", "40 Darkness Energy MEE 7"],
+  ["4 Munkidori ASC 99", "4 Hop's Snorlax JTG 117", "4 Patrat CRI 70", "8 Psychic Energy MEE 5", "40 Darkness Energy MEE 7"]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Munkidori ASC 99",
+  "active_energy": ["Psychic Energy MEE 5", "Darkness Energy MEE 7"],
+  "bench": [{"card": "Hop's Snorlax JTG 117", "damage": 60}]
+ },
+ "opp": {"reset": true, "active": "Hop's Snorlax JTG 117", "bench": [{"card": "Patrat CRI 70"}]},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "ability", "name": "Adrena-Brain", "is": false, "cite": "APR B-01, id925, id956 (an Ability that can't change the game can't be used; user decision 2, batch 8 C10): Patrat's Watchful Eye forbids moving damage counters, so Adrena-Brain can't move any"}
+ ]
+}

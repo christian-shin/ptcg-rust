@@ -787,8 +787,18 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
             SlotTarget::Pick(p) => slots_of(g, me, f, &p.among).iter().any(|s| healable(*s, h)),
             SlotTarget::Slot(e) => slot_of(g, me, f, *e).map_or(true, |s| healable(s, h)),
         },
+        // A lock on moving damage counters (Patrat's Watchful Eye) forbids the move: nothing would change (batch 8 C10).
+        Op::MoveCounters(_) => implied_ok(g, me, f, op) && !counters_locked(g, f),
         _ => implied_ok(g, me, f, op),
     })
+}
+
+/// Does a lock forbid the frame's player's effect moving damage counters (the MoveCounters event's lock, asked as its
+/// routine asks it: `engine::damage::move_counters`)?
+fn counters_locked(g: &Game, f: &Frame) -> bool {
+    let p = f.p as usize;
+    let v = crate::engine::damage::move_view(g, SlotRef::new(p, g.st.players[p].active), crate::spec::event::MoveEnd::From, 10, f.cause);
+    !matches!(crate::spec::passive::event_locked(&mut crate::legal::Ctx::new(g), &v), Ok(None))
 }
 
 pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
