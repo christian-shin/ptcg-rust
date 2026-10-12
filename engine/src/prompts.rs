@@ -219,6 +219,28 @@ impl SelectValues {
 /// Blocked targets of a ChoosePokemonPrompt (both sides, bench up to 8).
 pub type TargetList = SVec<CardTarget, 18>;
 
+/// A prompt's payload too large for the record (batch 8 C8c: a `MoveOpts` or an Energy map), kept in
+/// `Game::prompt_payloads` while a prompt refers to it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct PayloadRef(pub u16);
+
+#[derive(Clone, Copy, Debug)]
+pub enum PromptPayload {
+    Opts(MoveOpts),
+    Energy(EnergyMap),
+}
+
+impl PromptKind {
+    /// The payload the prompt refers to.
+    pub fn payload(&self) -> Option<PayloadRef> {
+        match *self {
+            PromptKind::ChooseEnergy { energy, .. } => Some(energy),
+            PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } | PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => Some(o),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum PromptKind {
     // chance
@@ -236,13 +258,14 @@ pub enum PromptKind {
     ChoosePokemon { player_type: PlayerType, slots: SVec<u8, 3>, min: u8, max: u8, allow_cancel: bool, blocked: TargetList },
     ChoosePrize { count: u8, blocked: SVec<u8, 6>, use_opponent_prizes: bool, allow_cancel: bool, is_secret: bool, destination: Option<ListRef>, face_down_only: bool },
     Select { values: SelectValues, allow_cancel: bool, default_value: i32 },
-    ChooseEnergy { energy: EnergyMap, cost: Cost, allow_cancel: bool },
+    /// `energy`: the offered Energy (`Game::prompt_payloads`).
+    ChooseEnergy { energy: PayloadRef, cost: Cost, allow_cancel: bool },
     AttachEnergy { cards: ListRef, player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: AttachOpts },
-    DiscardEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: MoveOpts },
-    MoveEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: MoveOpts },
+    DiscardEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: PayloadRef },
+    MoveEnergy { player_type: PlayerType, slots: SVec<u8, 3>, filter: Filter, o: PayloadRef },
     PutDamage { player_type: PlayerType, slots: SVec<u8, 3>, damage: i32, max_allowed: SVec<(CardTarget, i32), 16>, allow_cancel: bool, blocked: SVec<CardTarget, 16>, allow_partial: bool, damage_multiple: i32 },
-    MoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, single_source: bool, single_destination: bool, damage_multiple: i32 },
-    RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: MoveOpts, same_target: bool, single_source: bool },
+    MoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: PayloadRef, single_source: bool, single_destination: bool, damage_multiple: i32 },
+    RemoveDamage { player_type: PlayerType, slots: SVec<u8, 3>, max_allowed: SVec<(CardTarget, i32), 16>, o: PayloadRef, same_target: bool, single_source: bool },
     OrderCards { cards: ListRef, allow_cancel: bool },
     SelectOption { values: &'static [&'static str], allow_cancel: bool, default_value: i32, disabled: Option<u16> },
     ChooseAttack { cards: SVec<CardId, 64>, allow_cancel: bool, blocked_message: &'static str, blocked: SVec<(u8, u8), 16> },
@@ -319,6 +342,9 @@ pub struct PromptRec {
     pub kind: PromptKind,
     /// Answered (its answer waits in `Game::answers` for the other prompts of its group).
     pub answered: bool,
+    /// Decode an answer as the first picks of a longer one: the minimum count isn't required (legality's search for a
+    /// completable answer, `interface::extendable`; never set on a prompt of the game).
+    pub partial: bool,
 }
 
 /// Decoded prompt result (what Twinleaf stores in `prompt.result`).
@@ -644,6 +670,7 @@ impl Game {
                 base.insert("options".into(), json!({ "allowCancel": allow_cancel, "defaultValue": default_value }));
             }
             PromptKind::ChooseEnergy { energy, cost, allow_cancel } => {
+                let energy = *self.payload_energy(energy);
                 base.insert(
                     "energy".into(),
                     Value::Array(
@@ -676,8 +703,8 @@ impl Game {
                 PromptKind::ChoosePrize { allow_cancel, .. } => allow_cancel,
                 PromptKind::ChooseEnergy { allow_cancel, .. } => allow_cancel,
                 PromptKind::AttachEnergy { o, .. } => o.allow_cancel,
-                PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => o.allow_cancel,
-                PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => o.allow_cancel,
+                PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => self.payload_opts(o).allow_cancel,
+                PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => self.payload_opts(o).allow_cancel,
                 PromptKind::PutDamage { allow_cancel, .. } => allow_cancel,
                 PromptKind::OrderCards { allow_cancel, .. } => allow_cancel,
                 PromptKind::ChooseAttack { allow_cancel, .. } => allow_cancel,
@@ -692,7 +719,7 @@ impl Game {
             PromptKind::Select { .. } => Ok(Res::Int(raw.as_i64().ok_or(invalid)? as i32)),
             PromptKind::ChooseCards { cards, filter, opts } => {
                 let idx = raw.as_array().ok_or(invalid)?.iter().map(|v| v.as_u64().map(|i| i as usize));
-                self.decode_choose_cards(cards, &filter, &opts, idx)
+                self.decode_choose_cards(cards, &filter, &opts, pr.partial, idx)
             }
             PromptKind::ChoosePokemon { .. } => {
                 let ts = raw.as_array().ok_or(invalid)?.iter().map(target_from_json);
@@ -704,7 +731,7 @@ impl Game {
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
                 let idx = raw.as_array().ok_or(invalid)?.iter().map(|v| v.as_u64().map(|i| i as usize));
-                self.decode_choose_energy(&energy, &cost, idx)
+                self.decode_choose_energy(self.payload_energy(energy), &cost, idx)
             }
             PromptKind::ShuffleDeck => {
                 let mut l: List<120> = List::new();
@@ -741,8 +768,9 @@ impl Game {
     }
 
     /// `ChooseCardsPrompt` answer from the indices into the offered list (`None`: not an index).
-    pub(crate) fn decode_choose_cards(&self, cards: ListRef, filter: &Filter, o: &ChooseCardsOpts, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
+    pub(crate) fn decode_choose_cards(&self, cards: ListRef, filter: &Filter, o: &ChooseCardsOpts, partial: bool, idx: impl Iterator<Item = Option<usize>>) -> Result<Res, GameError> {
         let invalid = GameError("INVALID_PROMPT_RESULT");
+        let o = &ChooseCardsOpts { min: if partial { 0 } else { o.min }, ..*o };
         let list = self.prompt_list(cards);
         let mut out: List<120> = List::new();
         for i in idx {
@@ -772,7 +800,7 @@ impl Game {
             };
             out.push(SlotRef::new(q, s));
         }
-        if out.len() < min as usize || out.len() > max as usize {
+        if (out.len() < min as usize && !pr.partial) || out.len() > max as usize {
             return Err(invalid);
         }
         if out.iter().any(|s| self.st.slot(s.p as usize, s.s).cards.is_empty()) {
@@ -1027,6 +1055,7 @@ impl Game {
                 base.insert("targets".into(), targets_json(&targets));
             }
             PromptKind::DiscardEnergy { player_type, slots, filter, o } | PromptKind::MoveEnergy { player_type, slots, filter, o } => {
+                let o = *self.payload_opts(o);
                 let is_move = matches!(pr.kind, PromptKind::MoveEnergy { .. });
                 base.insert("playerType".into(), json!(player_type as u8));
                 base.insert("slots".into(), json!(slots.as_slice()));
@@ -1049,6 +1078,7 @@ impl Game {
                 );
             }
             PromptKind::MoveDamage { player_type, slots, max_allowed, o, single_source, single_destination, damage_multiple } => {
+                let o = *self.payload_opts(o);
                 base.insert("playerType".into(), json!(player_type as u8));
                 base.insert("slots".into(), json!(slots.as_slice()));
                 base.insert("maxAllowedDamage".into(), damage_map_json(max_allowed.as_slice()));
@@ -1059,6 +1089,7 @@ impl Game {
                 base.insert("options".into(), Value::Object(m));
             }
             PromptKind::RemoveDamage { player_type, slots, max_allowed, o, same_target, single_source } => {
+                let o = *self.payload_opts(o);
                 base.insert("playerType".into(), json!(player_type as u8));
                 base.insert("slots".into(), json!(slots.as_slice()));
                 base.insert("maxAllowedDamage".into(), damage_map_json(max_allowed.as_slice()));
@@ -1157,7 +1188,7 @@ impl Game {
             out.push((to, c));
         }
         let n = out.len();
-        if n < o.min as usize || n > o.max as usize {
+        if (n < o.min as usize && !pr.partial) || n > o.max as usize {
             return Err(invalid);
         }
         if out.iter().any(|(_, c)| list.iter().position(|x| x == c).map(|i| o.blocked.contains(&(i as u8))).unwrap_or(false)) {
@@ -1210,6 +1241,7 @@ impl Game {
         let invalid = GameError("INVALID_PROMPT_RESULT");
         let p = self.st.player_index_by_id(pr.perspective_id());
         let PromptKind::DiscardEnergy { o, filter, .. } = pr.kind else { return Err(invalid) };
+        let o = *self.payload_opts(o);
         let mut out: SVec<(CardTarget, CardId), 64> = SVec::new();
         let mut keys: SVec<(u8, u8, u8, usize), 64> = SVec::new();
         for it in items {
@@ -1228,7 +1260,7 @@ impl Game {
             }
             out.push((from, c));
         }
-        if out.len() < o.min as usize || o.max.map(|m| out.len() > m as usize).unwrap_or(false) {
+        if (out.len() < o.min as usize && !pr.partial) || o.max.map(|m| out.len() > m as usize).unwrap_or(false) {
             return Err(invalid);
         }
         Ok(Res::CardsFrom(out))
@@ -1240,7 +1272,7 @@ impl Game {
         let p = self.st.player_index_by_id(pr.perspective_id());
         // The destinations the continuation refuses (`MoveOpts::to_required`: Bubble Gathering's "to this Pokémon").
         let blocked_to = match pr.kind {
-            PromptKind::MoveEnergy { o, .. } if o.to_required => o.blocked_to,
+            PromptKind::MoveEnergy { o, .. } if self.payload_opts(o).to_required => self.payload_opts(o).blocked_to,
             _ => SVec::new(),
         };
         let mut out: SVec<(CardTarget, CardTarget, CardId), 64> = SVec::new();
@@ -1272,7 +1304,7 @@ impl Game {
             sum += d;
             out.push((t, d));
         }
-        if sum != damage && !allow_partial {
+        if sum != damage && !allow_partial && !pr.partial {
             return Err(invalid);
         }
         let bl = blocked_slots(&self.st, p, blocked.as_slice());
@@ -1302,6 +1334,7 @@ impl Game {
             PromptKind::RemoveDamage { player_type, slots, o, same_target, single_source, .. } => (player_type, slots, o, single_source, same_target),
             _ => return Err(invalid),
         };
+        let o = *self.payload_opts(o);
         // Run-length encoded (see `Res::DamageTransfers`); `n` counts the transfers.
         let mut out: SVec<(CardTarget, CardTarget, u8), MAX_DAMAGE_RUNS> = SVec::new();
         let mut n = 0usize;
@@ -1323,7 +1356,7 @@ impl Game {
         if single_destination && n > 1 && out.iter().any(|(_, t, _)| !same_t(*t, out.as_slice()[0].1)) {
             return Err(invalid);
         }
-        if n < o.min as usize || o.max.map(|m| n > m as usize).unwrap_or(false) {
+        if (n < o.min as usize && !pr.partial) || o.max.map(|m| n > m as usize).unwrap_or(false) {
             return Err(invalid);
         }
         let bf = blocked_slots(&self.st, p, o.blocked_from.as_slice());

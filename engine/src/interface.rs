@@ -475,6 +475,7 @@ impl Game {
                 mk(SelectType::Card, ctx, n, n, options, (0..left).map(Wire::Idx).collect(), AnswerShape::Array)
             }
             PromptKind::ChooseEnergy { energy, cost, .. } => {
+                let energy = *self.payload_energy(energy);
                 let options = energy
                     .iter()
                     .enumerate()
@@ -524,6 +525,7 @@ impl Game {
                 mk(SelectType::AttachedCard, SelectContext::AttachTo, o.min as usize, o.max as usize, options, vals, AnswerShape::Array)
             }
             PromptKind::DiscardEnergy { player_type, slots, filter, o } | PromptKind::MoveEnergy { player_type, slots, filter, o } => {
+                let o = *self.payload_opts(o);
                 let is_move = matches!(pr.kind, PromptKind::MoveEnergy { .. });
                 let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
@@ -579,6 +581,7 @@ impl Game {
                 mk(SelectType::Card, SelectContext::DamageCounter, if allow_partial { 0 } else { n }, n, options, vals, AnswerShape::Counters(damage_multiple))
             }
             PromptKind::MoveDamage { player_type, slots, o, .. } | PromptKind::RemoveDamage { player_type, slots, o, .. } => {
+                let o = *self.payload_opts(o);
                 let all = slot_targets(&self.st, persp, player_type, slots.as_slice());
                 let (mut options, mut vals) = (Vec::new(), Vec::new());
                 for f in &all {
@@ -746,19 +749,23 @@ impl Game {
             _ => return true,
         };
         let mut pr = self.prompts.as_slice()[i];
-        match &mut pr.kind {
-            PromptKind::ChooseCards { opts, .. } => opts.min = 0,
-            PromptKind::ChoosePokemon { min, .. } => *min = 0,
-            PromptKind::AttachEnergy { o, .. } => o.min = 0,
-            PromptKind::DiscardEnergy { o, .. } | PromptKind::MoveEnergy { o, .. } => o.min = 0,
-            PromptKind::MoveDamage { o, .. } | PromptKind::RemoveDamage { o, .. } => o.min = 0,
-            PromptKind::PutDamage { allow_partial, .. } => *allow_partial = true,
+        match pr.kind {
+            PromptKind::ChooseCards { .. }
+            | PromptKind::ChoosePokemon { .. }
+            | PromptKind::AttachEnergy { .. }
+            | PromptKind::DiscardEnergy { .. }
+            | PromptKind::MoveEnergy { .. }
+            | PromptKind::MoveDamage { .. }
+            | PromptKind::RemoveDamage { .. }
+            | PromptKind::PutDamage { .. } => {}
             PromptKind::ChooseEnergy { cost, .. } => {
                 // Payments never have more cards than the cost (ruling 1652): longer picks cannot be completed.
                 return sel.picks_ok(chosen) && chosen.len() <= cost.len();
             }
             _ => return true,
         }
+        // The decode of a partial answer (the declared way to drop the minimum count, `PromptRec::partial`).
+        pr.partial = true;
         self.decode_chosen(&pr, sel, chosen).is_ok()
     }
 
@@ -816,10 +823,10 @@ impl Game {
             _ => None,
         };
         match (&pr.kind, shape) {
-            (PromptKind::ChooseCards { cards, filter, opts }, AnswerShape::Array) => self.decode_choose_cards(*cards, filter, opts, chosen.iter().map(idx)),
+            (PromptKind::ChooseCards { cards, filter, opts }, AnswerShape::Array) => self.decode_choose_cards(*cards, filter, opts, pr.partial, chosen.iter().map(idx)),
             (PromptKind::ChoosePokemon { .. }, AnswerShape::Array) => self.decode_choose_pokemon(pr, chosen.iter().map(target)),
             (PromptKind::ChoosePrize { .. }, AnswerShape::Array) => self.decode_choose_prize(pr, chosen.iter().map(idx)),
-            (PromptKind::ChooseEnergy { energy, cost, .. }, AnswerShape::Array) => self.decode_choose_energy(energy, cost, chosen.iter().map(idx)),
+            (PromptKind::ChooseEnergy { energy, cost, .. }, AnswerShape::Array) => self.decode_choose_energy(self.payload_energy(*energy), cost, chosen.iter().map(idx)),
             (PromptKind::AttachEnergy { .. }, AnswerShape::Array) if chosen.len() <= Self::extra_cap(&pr.kind) => self.decode_attach(
                 pr,
                 chosen.iter().map(|k| match &vals[*k] {

@@ -1143,6 +1143,7 @@ fn knock_out(g: &mut Game, id: EffId) -> R {
                     None => slots.push(SlotType::Active as u8),
                 }
                 let pid = g.player_id(p);
+                let o = g.stash_opts(o);
                 g.prompt(
                     pid,
                     "CHOOSE_ENERGIES_TO_DISCARD",

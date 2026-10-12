@@ -1279,6 +1279,7 @@ fn move_energy_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnergySpe
     let player_type = if owner == chooser { PlayerType::BottomPlayer } else { PlayerType::TopPlayer };
     let opts = MoveOpts { allow_cancel: false, min: 1, max: Some(1), ..Default::default() };
     let id = g.player_id(chooser);
+    let opts = g.stash_opts(opts);
     g.prompt(
         id,
         "MOVE_ENERGY_CARDS",
@@ -1744,6 +1745,7 @@ fn discard_choose_prompt(g: &mut Game, me: CardId, f: &Frame, slot: SlotRef, cou
         cost.push(ty);
     }
     let id = g.player_id(f.p as usize);
+    let energy = g.stash_energy(energy);
     g.prompt(id, "CHOOSE_ENERGIES_TO_DISCARD", PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, 1));
     Ok(true)
 }
@@ -1800,6 +1802,7 @@ fn move_energy_mode_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEner
         MoveEnergyMode::Effect => return false,
     };
     let id = g.player_id(chooser);
+    let o = g.stash_opts(o);
     g.prompt(id, "MOVE_ENERGY_CARDS", PromptKind::MoveEnergy { player_type, slots, filter, o }, f.cont(me, 1));
     true
 }
@@ -1853,6 +1856,7 @@ fn among_exec(g: &mut Game, me: CardId, f: &mut Frame, slot: SlotRef, a: &AmongS
         Filter::super_type(SuperType::Energy)
     };
     let id = g.player_id(p);
+    let o = g.stash_opts(o);
     g.prompt(id, "CHOOSE_ENERGIES_TO_DISCARD", PromptKind::DiscardEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, f.cont(me, 1));
     Ok(Flow::Suspend)
 }
@@ -1930,6 +1934,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
                     o.blocked_map.push((CardTarget::new(PlayerType::BottomPlayer, SlotType::Active, 0), b));
                 }
             }
+            let o = g.stash_opts(o);
             g.prompt(
                 id,
                 "CHOOSE_ENERGIES_TO_DISCARD",
@@ -1965,6 +1970,7 @@ fn energy_prompt(g: &mut Game, me: CardId, f: &Frame, d: &DiscardEnergySpec, sub
             let mut slots = SVec::new();
             slots.push(SlotType::Bench as u8);
             let o = MoveOpts { allow_cancel: false, min: 0, max: Some(available.min(*max) as u8), ..Default::default() };
+            let o = g.stash_opts(o);
             g.prompt(
                 id,
                 "CHOOSE_ENERGIES_TO_DISCARD",
@@ -2035,6 +2041,7 @@ fn opp_tools_prompt(g: &mut Game, me: CardId, f: &Frame, max: u8) -> bool {
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
     let opts = MoveOpts { allow_cancel: false, min: 0, max: Some(tools.min(max as usize) as u8), ..Default::default() };
     let id = g.player_id(p);
+    let opts = g.stash_opts(opts);
     g.prompt(id, "CHOOSE_CARD_TO_DISCARD", PromptKind::DiscardEnergy { player_type: PlayerType::TopPlayer, slots, filter, o: opts }, f.cont(me, 1));
     true
 }
@@ -2164,6 +2171,7 @@ fn move_energy_own_prompt(g: &mut Game, me: CardId, f: &mut Frame, m: &MoveEnerg
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
     let id = g.player_id(p);
+    let o = g.stash_opts(o);
     g.prompt(id, "MOVE_ENERGY_CARDS", PromptKind::MoveEnergy { player_type: PlayerType::BottomPlayer, slots, filter, o }, f.cont(me, 1));
     true
 }
@@ -2508,6 +2516,7 @@ fn ec_stage2(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, src
                 cost.push(*ty);
             }
             let id = g.player_id(chooser);
+            let energy = g.stash_energy(energy);
             g.prompt(id, "CHOOSE_ENERGIES_TO_DISCARD", PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }, f.cont(me, sub));
             Ok(Flow::Suspend)
         }
@@ -2632,6 +2641,7 @@ fn ec_prompt(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, rec
     });
     let o = MoveOpts { allow_cancel: false, min: to_u8(min_n), max: Some(to_u8(max_n)), blocked_map, ..Default::default() };
     let id = g.player_id(chooser);
+    let o = g.stash_opts(o);
     g.prompt(
         id,
         "CHOOSE_ENERGIES_TO_DISCARD",
@@ -2840,6 +2850,7 @@ fn ec_tools(g: &mut Game, me: CardId, f: &mut Frame, e: &DiscardEnergySpec, reco
     let filter = Filter { super_type: Some(SuperType::Trainer as u8), trainer_type: Some(TrainerType::Tool as u8), ..Filter::none() };
     let o = MoveOpts { allow_cancel: false, min: to_u8(min_n), max: Some(to_u8(max_n)), ..Default::default() };
     let id = g.player_id(chooser);
+    let o = g.stash_opts(o);
     g.prompt(id, "CHOOSE_CARD_TO_DISCARD", PromptKind::DiscardEnergy { player_type: PlayerType::Any, slots, filter, o }, f.cont(me, 0xFF));
     Ok(Flow::Suspend)
 }

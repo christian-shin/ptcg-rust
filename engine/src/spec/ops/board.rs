@@ -1065,6 +1065,7 @@ fn move_any_exec(g: &mut Game, me: CardId, f: &mut Frame, who: Who) -> R<Flow> {
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
     let id = g.player_id(f.p as usize);
+    let o = g.stash_opts(o);
     g.prompt(
         id,
         "MOVE_DAMAGE",
@@ -1224,6 +1225,7 @@ fn mine_to_opp_exec(g: &mut Game, me: CardId, f: &mut Frame, max: u8) -> R<Flow>
     slots.push(SlotType::Active as u8);
     slots.push(SlotType::Bench as u8);
     let id = g.player_id(p);
+    let opts = g.stash_opts(opts);
     g.prompt(id, "MOVE_DAMAGE", PromptKind::RemoveDamage { player_type: PlayerType::Any, slots, max_allowed, o: opts, same_target: true, single_source: true }, f.cont(me, 1));
     Ok(Flow::Suspend)
 }

@@ -298,6 +298,9 @@ pub struct Game {
     /// The answers of the prompts answered while others of their group wait (by prompt id; batch 8 C8: out of
     /// `PromptRec`).
     pub answers: SVec<(u32, Res), 8>,
+    /// The prompts' large payloads (`prompts::PromptPayload`, by serial; batch 8 C8c), while a prompt refers to them.
+    pub prompt_payloads: SVec<(u16, crate::prompts::PromptPayload), 16>,
+    pub payload_serial: u16,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
@@ -353,10 +356,10 @@ pub(crate) fn verify_cache() -> bool {
 /// Prompt constructor work Twinleaf does in the prompt class itself:
 /// `ChooseEnergyPrompt` with `allowCancel: false` reduces its cost to what the
 /// offered Energy can pay (`getCostThatCanBePaid`; idempotent).
-fn construct_prompt(kind: PromptKind) -> PromptKind {
+fn construct_prompt(g: &Game, kind: PromptKind) -> PromptKind {
     match kind {
         PromptKind::ChooseEnergy { energy, cost, allow_cancel: false } => {
-            let cost = crate::energy::cost_that_can_be_paid(&energy, &cost);
+            let cost = crate::energy::cost_that_can_be_paid(g.payload_energy(energy), &cost);
             PromptKind::ChooseEnergy { energy, cost, allow_cancel: false }
         }
         k => k,
@@ -405,6 +408,8 @@ impl Game {
                 order_cache: _,
                 fxp,
                 answers,
+                prompt_payloads,
+                payload_serial,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -438,6 +443,8 @@ impl Game {
             f!((*d).last_attack).write(*last_attack);
             fxp.copy_live_to(f!((*d).fxp));
             answers.copy_live_to(f!((*d).answers));
+            prompt_payloads.copy_live_to(f!((*d).prompt_payloads));
+            f!((*d).payload_serial).write(*payload_serial);
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
             // another (a fork restored into its own game has it already).
             if (*d).decls.id != decls.id {
@@ -483,6 +490,47 @@ impl Game {
             order_cache: crate::decl::OrderCache::new(),
             fxp: crate::effects::EffectPayloads::default(),
             answers: SVec::new(),
+            prompt_payloads: SVec::new(),
+            payload_serial: 0,
+        }
+    }
+
+    /// Keep a prompt's `MoveOpts` in the payload table (the prompt refers to it).
+    pub fn stash_opts(&mut self, o: crate::prompts::MoveOpts) -> crate::prompts::PayloadRef {
+        self.stash(crate::prompts::PromptPayload::Opts(o))
+    }
+
+    /// Keep a prompt's offered Energy in the payload table.
+    pub fn stash_energy(&mut self, e: crate::effects::EnergyMap) -> crate::prompts::PayloadRef {
+        self.stash(crate::prompts::PromptPayload::Energy(e))
+    }
+
+    fn stash(&mut self, p: crate::prompts::PromptPayload) -> crate::prompts::PayloadRef {
+        self.sweep_payloads();
+        self.payload_serial = self.payload_serial.wrapping_add(1);
+        self.prompt_payloads.push((self.payload_serial, p));
+        crate::prompts::PayloadRef(self.payload_serial)
+    }
+
+    /// Drop the payloads no prompt refers to.
+    fn sweep_payloads(&mut self) {
+        let prompts = &self.prompts;
+        self.prompt_payloads.retain(|(s, _)| prompts.iter().any(|p| p.kind.payload() == Some(crate::prompts::PayloadRef(*s))));
+    }
+
+    /// A prompt's `MoveOpts`.
+    pub fn payload_opts(&self, r: crate::prompts::PayloadRef) -> &crate::prompts::MoveOpts {
+        match self.prompt_payloads.iter().find(|(s, _)| *s == r.0) {
+            Some((_, crate::prompts::PromptPayload::Opts(o))) => o,
+            _ => panic!("no MoveOpts payload {:?}", r),
+        }
+    }
+
+    /// A prompt's offered Energy.
+    pub fn payload_energy(&self, r: crate::prompts::PayloadRef) -> &crate::effects::EnergyMap {
+        match self.prompt_payloads.iter().find(|(s, _)| *s == r.0) {
+            Some((_, crate::prompts::PromptPayload::Energy(e))) => e,
+            _ => panic!("no Energy payload {:?}", r),
         }
     }
 
@@ -867,14 +915,14 @@ impl Game {
 
     /// `store.prompt(state, prompt, then)`.
     pub fn prompt(&mut self, player_id: u8, message: &'static str, kind: PromptKind, cont: Cont) {
-        let kind = construct_prompt(kind);
+        let kind = construct_prompt(self, kind);
         let cont = self.tag_cont(cont);
         let id = self.next_id();
         // Safety cap: a card duplicating itself in a loop would get here (the Dangle Tail aliasing that
         // used to is fixed, W1-E; there are no approved divergences for it any more).
         assert!(self.prompts.len() < self.prompts.capacity() && self.items.len() < self.items.capacity(), "prompt stack exhausted");
         crate::expect::on_prompt(self, &kind, matches!(cont, Cont::CoinFlipWait { .. }));
-        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false });
+        self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false, partial: false });
         let mut ids = SVec::new();
         ids.push(id);
         self.items.push(PromptItem { ids, cont });
@@ -886,8 +934,8 @@ impl Game {
         let mut ids = SVec::new();
         for &(player_id, message, kind) in prompts {
             let id = self.next_id();
-            let kind = construct_prompt(kind);
-            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false });
+            let kind = construct_prompt(self, kind);
+            self.prompts.push(PromptRec { id, player_id, perspective: None, message, kind, answered: false, partial: false });
             ids.push(id);
         }
         self.items.push(PromptItem { ids, cont });

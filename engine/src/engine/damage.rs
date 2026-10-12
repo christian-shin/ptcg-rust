@@ -484,7 +484,8 @@ mod tests {
         slots.push(SlotType::Active as u8);
         slots.push(SlotType::Bench as u8);
         let id = g.player_id(me);
-        g.prompt(id, "MOVE_DAMAGE", PromptKind::MoveDamage { player_type: PlayerType::TopPlayer, slots, max_allowed: SVec::new(), o: MoveOpts::default(), single_source: false, single_destination: false, damage_multiple: 10 }, crate::game::Cont::Noop);
+        let stashed_o = g.stash_opts(MoveOpts::default());
+        g.prompt(id, "MOVE_DAMAGE", PromptKind::MoveDamage { player_type: PlayerType::TopPlayer, slots, max_allowed: SVec::new(), o: stashed_o, single_source: false, single_destination: false, damage_multiple: 10 }, crate::game::Cont::Noop);
         let pr = *g.prompts.as_slice().last().unwrap();
         let act = json!({"player": 1, "slot": 1, "index": 0});
         let b0 = json!({"player": 1, "slot": 2, "index": 0});

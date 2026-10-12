@@ -133,6 +133,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         }
     }
     let pid = g.player_id(p);
+    let map = g.stash_energy(map);
     g.prompt(
         pid,
         "CHOOSE_ENERGY_TO_PAY_RETREAT_COST",
