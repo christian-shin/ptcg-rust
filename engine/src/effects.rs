@@ -495,6 +495,11 @@ pub mod k {
     pub const LEAVE_PLAY: u32 = 98;
     pub const TAKE_PRIZES: u32 = 97;
     pub const APPLY_EFFECT: u32 = 116;
+    /// The view of a continuous effect of an Ability done to a Pokémon (batch 8 C11): no effect is made, the derived
+    /// layer asks the `Prevent` reader with it.
+    pub const CONTINUOUS_EFFECT: u32 = 222;
+    /// A `Prevent` over continuous effects (a kind-free one: Hide 'n' Sneak).
+    pub const DECLARES_CONTINUOUS_PREVENT: u32 = 223;
     /// The card-movement events of events batch 7 (`engine::cards_zone`): Discard (cards from the hand or the deck),
     /// PutIntoHand, PutIntoDeck, Draw. Their dispatch-index entries (`kind % 32`) are ones no hot kind uses: Discard,
     /// PutIntoDeck and PutIntoHand 31 (MoveCards, which they replace; otherwise only the marker PERMIT_EVOLVES_FROM), Draw 2

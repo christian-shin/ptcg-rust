@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Poltchageist PBL 5", "4 Antique Root Fossil SCR 130", "52 Grass Energy MEE 1"],
+  ["4 Poltchageist PBL 5", "4 Antique Root Fossil SCR 130", "52 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Poltchageist PBL 5", "active_energy": ["Grass Energy MEE 1"]},
+ "opp": {"reset": true, "active": "Antique Root Fossil SCR 130"},
+ "answers": [{"a": "attack", "name": "Furtive Drop"}],
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Furtive Drop", "cite": "Hide 'n' Sneak prevents every continuous effect of the opponent's Pokémon's Abilities on this Pokémon (user decision 1, batch 8 C11; JP FAQ Banette vs Intimidating Fang, Sinistcha vs Excellent Pheromone; id2422, id2426): Primal Root's 1 more doesn't apply, Furtive Drop costs [C]"}
+ ]
+}

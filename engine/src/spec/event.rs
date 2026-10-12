@@ -54,6 +54,10 @@ pub enum EventKind {
     /// A lasting effect is put on a Pokémon or a player by an attack ("during your opponent's next turn, ..."; events
     /// batch 6, user decision D4): what "prevent all effects of attacks done to this Pokémon" stops (APR C-17).
     ApplyEffect,
+    /// A continuous effect of an Ability done to a Pokémon (its HP, types, Weakness / Resistance, provided Energy, costs,
+    /// damage, "has no Abilities", a "can't" of a lock or a prevention; events batch 8 C11, user decision 1): no effect is
+    /// made, the derived layer asks the `Prevent` reader with the view before applying the effect to the Pokémon.
+    ContinuousEffect,
     StateCheck,
     GameEnd,
     Mulligan,
@@ -91,6 +95,7 @@ impl EventKind {
             EventKind::LeavePlay => Some(k::LEAVE_PLAY),
             EventKind::TakePrizes => Some(k::TAKE_PRIZES),
             EventKind::ApplyEffect => Some(k::APPLY_EFFECT),
+            EventKind::ContinuousEffect => Some(k::CONTINUOUS_EFFECT),
             EventKind::Discard => Some(k::DISCARD),
             EventKind::PutIntoHand => Some(k::PUT_INTO_HAND),
             EventKind::PutIntoDeck => Some(k::PUT_INTO_DECK),
@@ -548,6 +553,7 @@ pub const EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::LEAVE_PLAY,
     crate::effects::k::TAKE_PRIZES,
     crate::effects::k::APPLY_EFFECT,
+    crate::effects::k::CONTINUOUS_EFFECT,
     crate::effects::k::DISCARD,
     crate::effects::k::PUT_INTO_HAND,
     crate::effects::k::PUT_INTO_DECK,
@@ -587,6 +593,7 @@ pub const EFFECT_EVENT_KINDS: KindMask = crate::effects::mask(&[
     crate::effects::k::LEAVE_PLAY,
     crate::effects::k::TAKE_PRIZES,
     crate::effects::k::APPLY_EFFECT,
+    crate::effects::k::CONTINUOUS_EFFECT,
 ]);
 /// The card-movement events of events batch 7 (Discard, PutIntoHand, PutIntoDeck, Draw): a lock over them sets
 /// `DECLARES_CARD_LOCK` (Poké Vital A, Neutralization Zone). No `Prevent` ranges over them (they aren't done to a Pokémon).
@@ -628,6 +635,8 @@ pub const LEAVE_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k
 pub const POKEMON_PREVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::EVOLVE, crate::effects::k::DEVOLVE, crate::effects::k::SWAP]);
 /// ApplyEffect (user decision D4): `DECLARES_APPLY_PREVENT`.
 pub const APPLY_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::APPLY_EFFECT]);
+/// ContinuousEffect (batch 8 C11): `DECLARES_CONTINUOUS_PREVENT`.
+pub const CONTINUOUS_EVENT_KINDS: KindMask = crate::effects::mask(&[crate::effects::k::CONTINUOUS_EFFECT]);
 
 impl EventPred {
     /// Matches no event (the `forbids` of an empty declaration).

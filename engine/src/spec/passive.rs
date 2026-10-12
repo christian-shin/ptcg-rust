@@ -301,7 +301,8 @@ const fn and(a: KindMask, b: KindMask) -> KindMask {
 
 /// The event families whose routine asks the `Prevent` reader (`event_prevented`), each with the marker a prevention over
 /// it sets (`prevent_kinds`) and the reader tests (`prevent_marker`).
-const PREVENT_FAMILIES: [(KindMask, u32); 11] = [
+const PREVENT_FAMILIES: [(KindMask, u32); 12] = [
+    (super::event::CONTINUOUS_EVENT_KINDS, crate::effects::k::DECLARES_CONTINUOUS_PREVENT),
     (super::event::ATTACH_EVENT_KINDS, crate::effects::k::DECLARES_ATTACH_PREVENT),
     (super::event::POKEMON_PREVENT_KINDS, crate::effects::k::DECLARES_POKEMON_PREVENT),
     (super::event::APPLY_EVENT_KINDS, crate::effects::k::DECLARES_APPLY_PREVENT),
@@ -1014,7 +1015,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
 /// derived layer's `types`).
 pub(crate) fn type_override<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, t: &TypeOverrideSpec, target: SlotRef) -> R<Option<&'static [CardType]>> {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
-    if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, origin, at, Some(target)) {
+    if !slot_pred_m(g, me, target, &t.subject)? || blocked(g, me, origin, at, Some(target)) || !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
         return Ok(None);
     }
     Ok(Some(t.set))
@@ -1032,7 +1033,9 @@ pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId,
     if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
         return Ok(None);
     }
-    let _ = origin;
+    if !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
+        return Ok(None);
+    }
     Ok(effect_of_ability_reaches(g.g(), me, crate::effects::PowerRef { card: me, index: 0 }, target).then_some(w.weakness))
 }
 
@@ -1041,6 +1044,9 @@ pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId,
 pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond, target: SlotRef) -> R<i32> {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(0) };
     if !slot_pred_m(g, me, target, subject)? || blocked(g, me, origin, at, Some(target)) || !guard_ok_m(g, me, origin, at.owner, guard)? {
+        return Ok(0);
+    }
+    if !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
         return Ok(0);
     }
     Ok(n)
@@ -1135,6 +1141,10 @@ fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDea
     if d.nonstacking && *flags & fx_flag::DAMAGE_INCREASED != 0 {
         return Ok(());
     }
+    // An opponent's Ability changing the damage the attacking Pokémon does: a continuous effect done to it.
+    if !ability_effect_reaches(g, me, origin, at.owner, source, false)? {
+        return Ok(());
+    }
     *damage_now += d.amount;
     if d.nonstacking {
         *flags |= fx_flag::DAMAGE_INCREASED;
@@ -1172,6 +1182,9 @@ fn damage_taken_prelude(
         return Ok(None);
     }
     if !guard_ok(g, me, origin, at.owner, guard) || !slot_pred_m(g, me, b.source, source)? {
+        return Ok(None);
+    }
+    if !ability_effect_reaches(g, me, origin, at.owner, t, false)? {
         return Ok(None);
     }
     Ok(Some((b, at)))
@@ -1357,7 +1370,7 @@ pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, 
         return Ok(());
     }
     let active = SlotRef::new(p, g.g().st.players[p].active);
-    if !slot_pred_m(g, me, active, &c.subject)? || blocked(g, me, origin, at, Some(active)) {
+    if !slot_pred_m(g, me, active, &c.subject)? || blocked(g, me, origin, at, Some(active)) || !ability_effect_reaches(g, me, origin, at.owner, active, false)? {
         return Ok(());
     }
     let n = {
@@ -1417,7 +1430,7 @@ pub(crate) fn retreat_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId,
         }
     }
     let Some(slot) = matched else { return Ok(()) };
-    if blocked(g, me, origin, at, Some(slot)) {
+    if blocked(g, me, origin, at, Some(slot)) || !ability_effect_reaches(g, me, origin, at.owner, slot, false)? {
         return Ok(());
     }
     let n = {
@@ -1494,6 +1507,11 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
         Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
         Some(_) => return Ok(false),
     };
+    // "Has no Abilities" from an opponent's Ability: a continuous effect done to the Pokémon (batch 8 C11).
+    let origin = lock_passives(g.g(), me).find(|ps| matches!(&ps.modifier, Modifier::AbilityLock(x) if std::ptr::eq(x, l))).map_or(RuleSource::Ability, |ps| ps.origin);
+    if !lock_reaches(g, me, origin, card) {
+        return Ok(false);
+    }
     if !pred(g.g(), card, &l.card) {
         return Ok(false);
     }
@@ -1912,6 +1930,7 @@ pub(crate) const fn lock_marker(kind: super::event::EventKind) -> Option<u32> {
         E::UseAttack | E::UseAbility | E::UseStadium => Some(crate::effects::k::DECLARES_USE_LOCK),
         E::Damage
         | E::ApplyEffect
+        | E::ContinuousEffect
         | E::KnockOut
         | E::TakePrizes
         | E::Shuffle
@@ -1960,6 +1979,7 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
         E::Attach | E::MoveEnergy | E::MoveTool => Some(crate::effects::k::DECLARES_ATTACH_PREVENT),
         E::Evolve | E::Devolve | E::Swap => Some(crate::effects::k::DECLARES_POKEMON_PREVENT),
         E::ApplyEffect => Some(crate::effects::k::DECLARES_APPLY_PREVENT),
+        E::ContinuousEffect => Some(crate::effects::k::DECLARES_CONTINUOUS_PREVENT),
         E::LeavePlay => Some(crate::effects::k::DECLARES_LEAVE_PREVENT),
         E::EnterPlay
         | E::PlayTrainer
@@ -2073,7 +2093,7 @@ fn prevented_by(g: &mut Game, me: CardId, v: &super::event::EventView) -> R<bool
         }
         let Some(at) = locate(g, me, ps.origin) else { continue };
         let protected = match v.slot {
-            Some(s) => slot_pred_m(g, me, s, &p.protects)?,
+            Some(s) => slot_pred_m(g, me, s, &p.protects)? && ability_effect_reaches(g, me, ps.origin, at.owner, s, false)?,
             None => matches!(p.protects, SlotPred::Any),
         };
         if protected && !blocked(g, me, ps.origin, at, v.slot) {
@@ -2105,7 +2125,7 @@ pub fn coin_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {
                 continue;
             }
             let protected = match v.slot {
-                Some(s) => slot_pred_m(g, me, s, &p.protects)?,
+                Some(s) => slot_pred_m(g, me, s, &p.protects)? && ability_effect_reaches(g, me, ps.origin, at.owner, s, false)?,
                 None => matches!(p.protects, SlotPred::Any),
             };
             if !protected || blocked(g, me, ps.origin, at, v.slot) {
@@ -2210,6 +2230,12 @@ pub(crate) fn event_lock_blocks<F: crate::derived::Facts>(g: &mut F, me: CardId,
     if b.ability && !source_ability_on(g, at.owner, me) {
         return Ok(None);
     }
+    // A lock of an opponent's Ability on an event done to a Pokémon: a continuous effect done to that Pokémon.
+    if let Some(s) = v.slot {
+        if !ability_effect_reaches(g, me, origin, at.owner, s, false)? {
+            return Ok(None);
+        }
+    }
     Ok(Some(b.lock.error))
 }
 
@@ -2243,7 +2269,7 @@ pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, p: usize, power
                     Modifier::ActiveLock(l) => active_lock_subject(g.g(), *l, power, probe) && !matches!(active_lock_applies(g, c, *l, p, card, true), Ok(false)),
                     Modifier::AbilityLock(l) => power_subject(g.g(), &l.powers, power) && !matches!(is_locked(g, c, card, l), Ok(false)),
                     _ => false,
-                };
+                } && lock_reaches(g, c, ps.origin, card);
                 if hit {
                     blocked = true;
                     break 'cards;
@@ -2274,7 +2300,7 @@ pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: Ca
             for ps in lock_passives(g.g(), c) {
                 match &ps.modifier {
                     Modifier::ActiveLock(l) => {
-                        if active_lock_applies(g, c, *l, p, card, false)? {
+                        if active_lock_applies(g, c, *l, p, card, false)? && lock_reaches(g, c, ps.origin, card) {
                             let mut out = SVec::new();
                             for pw in powers.iter() {
                                 if !active_lock_subject(g.g(), *l, *pw, false) {
@@ -2285,7 +2311,7 @@ pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: Ca
                         }
                     }
                     Modifier::AbilityLock(l) => {
-                        if is_locked(g, c, card, l)? {
+                        if is_locked(g, c, card, l)? && lock_reaches(g, c, ps.origin, card) {
                             let mut out = SVec::new();
                             for pw in powers.iter() {
                                 if !power_subject(g.g(), &l.powers, *pw) {
@@ -2301,6 +2327,45 @@ pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: Ca
         }
         Ok(powers)
     })
+}
+
+/// Does the continuous effect of `source`'s Ability (its owner `owner`) reach the Pokémon in `target` (events batch 8 C11,
+/// user decision 1; JP FAQ Banette vs Intimidating Fang, Sinistcha vs Excellent Pheromone; id2422, id2426)? An effect of a
+/// Stadium, a Tool or any other origin, and an effect on its owner's own Pokémon, always reach. Otherwise the view of the
+/// continuous effect done to the Pokémon (`EventKind::ContinuousEffect`, caused by the Ability) is asked of the `Prevent`
+/// declarations ranging over it (Hide 'n' Sneak: "prevent all effects of your opponent's Pokémon's Abilities done to this
+/// Pokémon"). `in_lock_pass`: asked by the lock pass, where a protecting declaration counts in place whatever locks its own
+/// Ability (a lock that turns it off turns the protected Pokémon's Ability off itself: the same answer, without the cycle;
+/// RULES.md precedence 1).
+pub(crate) fn ability_effect_reaches<F: crate::derived::Facts>(g: &mut F, source: CardId, origin: RuleSource, owner: usize, target: SlotRef, in_lock_pass: bool) -> R<bool> {
+    if origin != RuleSource::Ability || target.p as usize == owner || !g.g().kinds_present.has(crate::effects::k::DECLARES_CONTINUOUS_PREVENT) {
+        return Ok(true);
+    }
+    let Some(card) = g.g().st.slot_pokemon(target.p as usize, target.s) else { return Ok(true) };
+    let cause = crate::cause::Cause::new(crate::cause::CauseKind::Ability, Some(source), owner as u8);
+    let v = super::event::EventView { card: Some(card), slot: Some(target), ..super::event::EventView::new(super::event::EventKind::ContinuousEffect, cause, target.p, super::event::whose_turn(g.g())) };
+    let order = g.decl_kind_listeners(crate::effects::k::CONTINUOUS_EFFECT);
+    for c in order.iter().copied() {
+        let passives: &'static [Passive] = crate::cards::spec_for(g.g().st.cards[c as usize].def).map_or(&[], |s| s.passives);
+        for ps in passives {
+            let Modifier::Prevent(p) = &ps.modifier else { continue };
+            if p.from.is_never() || p.coin || !ranges(&p.from, v.kind) || !p.from.eval(g, c, &v)? {
+                continue;
+            }
+            let Some(at) = locate(g.g(), c, ps.origin) else { continue };
+            if slot_pred_m(g, c, target, &p.protects)? && (in_lock_pass || !blocked(g, c, ps.origin, at, Some(target))) {
+                return Ok(false);
+            }
+        }
+    }
+    Ok(true)
+}
+
+/// [`ability_effect_reaches`] for an Ability lock of `source` on `card` ("has no Abilities"), in the lock pass.
+fn lock_reaches<F: crate::derived::Facts>(g: &mut F, source: CardId, origin: RuleSource, card: CardId) -> bool {
+    let Some(ListRef::Slot(q, s)) = g.g().st.locate(card) else { return true };
+    let owner = g.g().st.locate(source).and_then(|l| l.owner()).unwrap_or_else(|| g.g().st.owner(source));
+    !matches!(ability_effect_reaches(g, source, origin, owner, SlotRef::new(q as usize, s), true), Ok(false))
 }
 
 /// Does the effect of `card`'s Ability `power` reach the Pokémon in `target` (what the `EffectOfAbility` probe's
@@ -2555,6 +2620,9 @@ fn first_ability(g: &Game, c: CardId) -> Option<crate::effects::PowerRef> {
 /// coverage only: the lock's own probes aren't run.
 fn lock_covers<F: crate::derived::Facts>(g: &mut F, a: CardId, pa: &Passive, s: CardId) -> R<bool> {
     let Some(owner) = lock_position(g.g(), a, pa) else { return Ok(false) };
+    if !lock_reaches(g, a, pa.origin, s) {
+        return Ok(false);
+    }
     let Some(power) = first_ability(g.g(), s) else { return Ok(false) };
     let slot = match g.g().st.locate(s) {
         Some(ListRef::Slot(q, sl)) => SlotRef::new(q as usize, sl),
@@ -2566,10 +2634,7 @@ fn lock_covers<F: crate::derived::Facts>(g: &mut F, a: CardId, pa: &Passive, s: 
                 return Ok(false);
             }
             Ok(match l {
-                ActiveLock::MidnightFluttering => {
-                    // Hide 'n' Sneak takes precedence over Midnight Fluttering.
-                    slot == SlotRef::new(1 - owner, g.g().st.players[1 - owner].active) && !g.g().st.cdef(s).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak")
-                }
+                ActiveLock::MidnightFluttering => slot == SlotRef::new(1 - owner, g.g().st.players[1 - owner].active),
                 ActiveLock::Initialization => {
                     let d = g.g().st.cdef(s);
                     !d.has_tag(tag::FUTURE) && d.has_rule_box()
@@ -2797,6 +2862,11 @@ fn active_lock_subject(g: &Game, l: ActiveLock, power: crate::effects::PowerRef,
 /// effect being checked, `power_effect` whether it is a use of an Ability.
 fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: ActiveLock, player: usize, card: CardId, power_effect: bool) -> R<bool> {
     let own = crate::effects::PowerRef { card: me, index: 0 };
+    // "Has no Abilities" from an opponent's Ability: a continuous effect done to the Pokémon (batch 8 C11; Hide 'n' Sneak
+    // over Midnight Fluttering, RULES.md precedence 1, id2426).
+    if !lock_reaches(g, me, RuleSource::Ability, card) {
+        return Ok(false);
+    }
     match l {
         ActiveLock::MidnightFluttering => {
             // Only a Flutter Mane in its owner's Active Spot locks, and only the opponent's Active Pokémon; a card
@@ -2807,10 +2877,6 @@ fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: Activ
             }
             let opponent = 1 - owner;
             if g.g().st.locate(card) != Some(ListRef::Slot(opponent as u8, g.g().st.players[opponent].active)) {
-                return Ok(false);
-            }
-            // Hide 'n' Sneak takes precedence over Midnight Fluttering.
-            if g.g().st.cdef(card).powers.iter().any(|pw| pw.name == "Hide 'n' Sneak") {
                 return Ok(false);
             }
             // LOCKER_ABILITY_APPLIES: a lock source is turned off only by a lock that wins over it.
