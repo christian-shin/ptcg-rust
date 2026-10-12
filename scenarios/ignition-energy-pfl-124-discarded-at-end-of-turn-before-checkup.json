@@ -1,0 +1,16 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Buneary PFL 83", "4 Ignition Energy PFL 124", "4 Pikachu ex ASC 57", "48 Fire Energy MEE 2"],
+  ["4 Buneary PFL 83", "4 Ignition Energy PFL 124", "4 Pikachu ex ASC 57", "48 Fire Energy MEE 2"]
+ ],
+ "me": {"reset": true, "active": "Buneary PFL 83", "hand": ["Ignition Energy PFL 124"]},
+ "opp": {"reset": true, "active": "Pikachu ex ASC 57"},
+ "answers": [
+  {"a": "play", "card": "Ignition Energy PFL 124", "target": {"player": 2, "slot": 1, "index": 0}},
+  {"a": "pass"}
+ ],
+ "expect": [
+  {"at": "turn_end", "who": "me", "zone": "discard", "contains": ["Ignition Energy PFL 124"], "cite": "APR E-21: \"End of the turn ... is not part of Pokémon Checkup, and takes place just before it\" (its example is Ignition Energy's \"discard it at the end of your turn\"): discarded when the turn ends, before Checkup"}
+ ]
+}

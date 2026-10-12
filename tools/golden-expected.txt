@@ -199,3 +199,23 @@ g0500012196  # step 45 options; Adrena-Brain no longer offered under Watchful Ey
 g0500013376  # step 12 options; Adrena-Brain no longer offered under Watchful Eye
 g0500016016  # step 29 options; Adrena-Brain no longer offered under Watchful Eye
 g0500019396  # step 12 options; Adrena-Brain no longer offered under Watchful Eye
+# Events batch 8 C11d (RULES FIX, APR E-21): Ignition Energy PFL 124 is discarded on its owner's EndTurn event, before
+# Pokémon Checkup (it was at Checkup). Each game has Ignition Energy; the only difference is the final state: the game
+# ended at that end of turn (no Checkup followed), with the Energy now in the discard pile (CI 38321337770).
+g0500001430  # step 152 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500001490  # step 167 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500002101  # step 61 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500003998  # step 19 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500004611  # step 212 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500007530  # step 19 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500007533  # step 153 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500008860  # step 127 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500009421  # step 189 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500013538  # step 27 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500014041  # step 160 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500014683  # step 22 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500015530  # step 145 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500016658  # step 146 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500017630  # step 90 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500018293  # step 17 obs, final state; Ignition Energy discarded at the end of the last turn
+g0500019070  # step 110 obs, final state; Ignition Energy discarded at the end of the last turn
