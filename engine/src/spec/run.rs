@@ -616,6 +616,14 @@ pub(crate) fn usable_by_rules(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -
     w.gates_ok && fx != Some(false)
 }
 
+/// Could the "yes" of a "you may" change the game (APR B-01; id925, id956: the rules' walk of `usable_by_rules` over the
+/// branch: an effect op that would do something, a coin flip through its results)? A branch with no effect op can (it is
+/// asked). Events batch 8 C10 (user decision 2a): a "you may" whose yes can't change the game isn't asked.
+pub(crate) fn branch_can_change(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
+    let mut w = RulesWalk { left_hand: 0, gates_ok: true, regs: [None; 4] };
+    w.walk(g, me, f, steps, false) != Some(false)
+}
+
 /// The walk of `usable_by_rules`: the cards the program takes from its player's hand so far (they leave it: "draw until
 /// you have 6 cards" counts after the discard), and whether every top-level cost and choice can be made.
 struct RulesWalk {

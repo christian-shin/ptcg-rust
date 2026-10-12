@@ -1,0 +1,19 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Chansey TWM 133", "4 Blissey ex TWM 134", "52 Metal Energy MEE 8"],
+  ["4 Chansey TWM 133", "4 Blissey ex TWM 134", "52 Metal Energy MEE 8"]
+ ],
+ "me": {
+  "reset": true,
+  "active": ["Chansey TWM 133", "Blissey ex TWM 134"],
+  "active_energy": ["Metal Energy MEE 8", "Metal Energy MEE 8", "Metal Energy MEE 8"],
+  "hand": ["6 Metal Energy MEE 8"]
+ },
+ "opp": {"reset": true, "active": ["Chansey TWM 133", "Blissey ex TWM 134"]},
+ "answers": [{"a": "attack", "name": "Return"}],
+ "expect": [
+  {"at": "turn_end", "absent": ["Confirm"], "cite": "APR B-01, id925, id956 (an option that can't change the game isn't offered; user decision 2a, batch 8 C10): with 6 cards in hand, Return's \"you may draw cards until you have 6 cards\" can't draw any, so it isn't asked"},
+  {"at": "turn_end", "who": "me", "zone": "hand", "count": 6, "cite": "card text: draw until you have 6 cards"}
+ ]
+}

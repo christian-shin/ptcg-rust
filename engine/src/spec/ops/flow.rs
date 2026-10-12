@@ -134,6 +134,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             if !cond_m(g, me, f, &m.when)? {
                 return Ok(Flow::Next);
             }
+            // A yes that can't change the game isn't asked: the answer is no (user decision 2a; APR B-01).
+            if !crate::spec::run::branch_can_change(g, me, f, m.yes) {
+                return Ok(if m.no.is_empty() { Flow::Next } else { Flow::Enter(1) });
+            }
             confirmation_prompt(g, f.who(m.asker), m.msg, f.cont(me, 1));
             Ok(Flow::Suspend)
         }
@@ -308,6 +312,11 @@ pub(crate) fn choice(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow
             if !cond_m(g, me, f, &m.when)? {
                 // Nothing to decide: the effect is not carried out.
                 f.record(g, me, CHOICE_NONE);
+                return Ok(Flow::Next);
+            }
+            // A yes that can't change the game isn't asked: the answer is no (user decision 2a; APR B-01).
+            if !crate::spec::run::branch_can_change(g, me, f, m.yes) {
+                f.record(g, me, CHOICE_NO);
                 return Ok(Flow::Next);
             }
             confirmation_prompt(g, f.who(m.asker), m.msg, f.cont(me, 1));

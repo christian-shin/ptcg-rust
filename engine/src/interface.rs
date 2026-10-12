@@ -913,6 +913,11 @@ impl Game {
             mask.resize(n, true);
             return false;
         }
+        if crate::options::verify_legal() {
+            for j in 0..n {
+                self.verify_does_something(sel, j);
+            }
+        }
         if sel.max_count <= 1 {
             // Single pick: the options the prompt accepts.
             mask.extend((0..n).map(|j| self.is_declared_answer(sel, &[j])));
@@ -992,5 +997,31 @@ impl Game {
             }
         }
         false
+    }
+}
+
+impl Game {
+    /// `PTCG_VERIFY_LEGAL=1` (events batch 8 C10, docs/rulings/RULES.md "Options that can't do anything"): an option
+    /// offered as an answer on its own (not a "no" nor a cancel) changes the game, or leads to a choice, a shuffle, a
+    /// flip or a reveal; only an option whose effect a prevention stops may do nothing (a protected Pokémon stays
+    /// choosable: id290; JP FAQ Hariyama MEG 73).
+    fn verify_does_something(&self, sel: &SelectData, j: usize) {
+        let Source::Prompt(i, vals, _) = &sel.source else { return };
+        if matches!(vals.get(j), Some(Wire::Bool(false))) || !self.is_valid_answer(sel, &[j]) {
+            return;
+        }
+        let mut trial = self.fork();
+        if trial.answer_with(sel, &[j], false).is_err() {
+            return;
+        }
+        let same = crate::derived::state_digest(&self.st) == crate::derived::state_digest(&trial.st);
+        let settled = matches!(trial.pending(), crate::game::Pending::Turn(_) | crate::game::Pending::Finished | crate::game::Pending::Stuck);
+        let prevented = trial.prevented_events != self.prevented_events;
+        assert!(
+            !(same && settled && !prevented),
+            "option {} of {:?} offered but it can't change the game",
+            j,
+            self.describe_prompt(&self.prompts.as_slice()[*i])
+        );
     }
 }

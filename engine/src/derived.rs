@@ -511,10 +511,12 @@ pub fn event_locked<F: crate::derived::Facts>(g: &mut F, v: &crate::spec::event:
 /// The event routines ask it after the locks.
 #[inline]
 pub fn event_prevented(g: &mut Game, v: &crate::spec::event::EventView) -> R<bool> {
-    if crate::spec::passive::lasting_prevented(g, v)? {
-        return Ok(true);
+    let r = crate::spec::passive::lasting_prevented(g, v)? || crate::spec::passive::event_prevented(g, v)?;
+    if r {
+        // A prevented event (VERIFY_LEGAL's "an option can do something" check exempts what only a prevention stops).
+        g.prevented_events = g.prevented_events.wrapping_add(1);
     }
-    crate::spec::passive::event_prevented(g, v)
+    Ok(r)
 }
 
 // ---------------------------------------------------------------------------
