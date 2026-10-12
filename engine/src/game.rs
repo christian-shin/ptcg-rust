@@ -301,6 +301,8 @@ pub struct Game {
     /// The prompts' large payloads (`prompts::PromptPayload`, by serial; batch 8 C8c), while a prompt refers to them.
     pub prompt_payloads: SVec<(u16, crate::prompts::PromptPayload), 16>,
     pub payload_serial: u16,
+    /// Events a prevention stopped so far (`derived::event_prevented`; read by `PTCG_VERIFY_LEGAL=1` only).
+    pub prevented_events: u32,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for these three effects.
@@ -410,6 +412,7 @@ impl Game {
                 answers,
                 prompt_payloads,
                 payload_serial,
+                prevented_events,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -445,6 +448,7 @@ impl Game {
             answers.copy_live_to(f!((*d).answers));
             prompt_payloads.copy_live_to(f!((*d).prompt_payloads));
             f!((*d).payload_serial).write(*payload_serial);
+            f!((*d).prevented_events).write(*prevented_events);
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
             // another (a fork restored into its own game has it already).
             if (*d).decls.id != decls.id {
@@ -492,6 +496,7 @@ impl Game {
             answers: SVec::new(),
             prompt_payloads: SVec::new(),
             payload_serial: 0,
+            prevented_events: 0,
         }
     }
 
