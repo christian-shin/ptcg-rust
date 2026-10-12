@@ -567,9 +567,94 @@ pub fn fire_card_on(g: &mut Game, e: EffId, c: CardId) -> R {
     Ok(())
 }
 
+/// A trigger about to fire at the end of a turn or at Pokémon Checkup: its card, its index, its player and spot, and the
+/// event it fires on.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Timed {
+    pub c: CardId,
+    pub i: u8,
+    pub p: u8,
+    pub slot: u8,
+    pub e: EffId,
+}
+
+/// The triggers of the turn-structure event `e` that fire now, in the propagation order, and whether each is an effect
+/// that applies (APR E-21, F step 2: "several such effects"): not only the "this turn" marker bookkeeping, and its program
+/// can change the game (`branch_can_change`).
+pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed, bool), 16>> {
+    let class = crate::game::prop_class(g.e(e));
+    let order = g.decl_ordered(g.decls.kind(kind), class);
+    let mut out: SVec<(Timed, bool), 16> = SVec::new();
+    let Some(v) = trigger::event_view(g, e) else { return Ok(out) };
+    for &c in order.iter() {
+        let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
+        for (i, t) in spec.triggers.iter().enumerate() {
+            if !matches!(t.event, trigger::Event::On(_)) {
+                continue;
+            }
+            if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
+                let bookkeeping = t.steps.iter().all(|s| matches!(s.op, Op::ClearMarker(_) | Op::SetMarker(_)));
+                let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
+                f.slot = slot;
+                let effect = !bookkeeping && branch_can_change(g, c, &f, t.steps);
+                if out.len() < out.capacity() {
+                    out.push((Timed { c, i: i as u8, p: p as u8, slot, e }, effect));
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Fire one turn-structure trigger (the order prompt's choice), if it still fires.
+pub(crate) fn fire_timed(g: &mut Game, t: Timed) -> R {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[t.c as usize].def) else { return Ok(()) };
+    let Some(tr) = spec.triggers.get(t.i as usize) else { return Ok(()) };
+    let Some(v) = trigger::event_view(g, t.e) else { return Ok(()) };
+    if let Some((p, slot)) = trigger::fires_on(g, t.c, &v, tr)? {
+        let mut f = Frame::start(g, t.c, Prog::Trigger(t.i), Phase::Use, t.e, p, false);
+        f.slot = slot;
+        run(g, t.c, f)?;
+    }
+    Ok(())
+}
+
 /// The `Event::On` triggers over one view of the event `e` (the view of `card` of an event carrying cards), in the
 /// propagation order of the declaring cards. The view is read for each trigger, as the board is when it is asked.
+/// The end of a turn with two or more effects that apply: the bookkeeping first, then the turn player orders the effects
+/// (APR E-21; batch 8 C11c, user decision 7). At Pokémon Checkup the routine orders them (`phase`); here only the
+/// triggers it doesn't hold back fire.
 fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
+    if card.is_none() && kind == crate::effects::k::END_TURN {
+        let timed = timed_triggers(g, e, kind)?;
+        if timed.iter().filter(|(_, x)| *x).count() >= 2 {
+            let Effect::EndTurn { p } = *g.e(e) else { return Ok(()) };
+            let mut effects: SVec<Timed, 8> = SVec::new();
+            for (t, x) in timed.iter().copied() {
+                if x {
+                    if effects.len() < effects.capacity() {
+                        effects.push(t);
+                    }
+                } else {
+                    fire_timed(g, t)?;
+                }
+            }
+            g.retain_fx(e);
+            crate::engine::phase::order_prompt(g, p as usize, effects, false, crate::game::OrderThen::EndTurn { p, e });
+            g.order_pending = true;
+            return Ok(());
+        }
+    }
+    if card.is_none() && kind == crate::effects::k::BETWEEN_TURNS && g.checkup_held {
+        // The Pokémon Checkup routine orders the effects (two or more of them apply): only the others fire here.
+        let timed = timed_triggers(g, e, kind)?;
+        for (t, x) in timed.iter().copied() {
+            if !x {
+                fire_timed(g, t)?;
+            }
+        }
+        return Ok(());
+    }
     let class = crate::game::prop_class(g.e(e));
     let order = g.decl_ordered(g.decls.kind(kind), class);
     for &c in order.iter() {

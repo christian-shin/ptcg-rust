@@ -65,10 +65,24 @@ pub enum Cont {
     /// Little Grudge DiscardEnergyPrompt (KnockOutEffect reducer).
     /// Order of the step 7 triggers: the defending player's choice of the one to resolve first.
     TriggerOrder { atk: EffId },
+    /// The order of several end-of-turn or Pokémon Checkup effects (APR E-21, F step 2; batch 8 C11c): the effects left,
+    /// whether the Special Conditions are still to be checked, and what follows.
+    OrderEffects { left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: OrderThen },
+    /// The ordered effect's prompts are answered: the next choice (`phase::order_next`).
+    OrderNext { left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: OrderThen },
     LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
 }
 
 /// `checkState(..., onComplete)` callbacks.
+/// What follows the ordered end-of-turn or Checkup effects.
+#[derive(Clone, Copy, Debug)]
+pub enum OrderThen {
+    /// The rest of player `p`'s end of turn (`phase::end_turn`), the EndTurn event `e` released.
+    EndTurn { p: u8, e: EffId },
+    /// The rest of Pokémon Checkup: the Special Conditions' amounts per player, the Checkup events, the continuation.
+    Checkup { oc: OnComplete, poison: [i32; 2], burn: [i32; 2], e: [EffId; 2] },
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OnComplete {
     None,
@@ -301,6 +315,10 @@ pub struct Game {
     /// The prompts' large payloads (`prompts::PromptPayload`, by serial; batch 8 C8c), while a prompt refers to them.
     pub prompt_payloads: SVec<(u16, crate::prompts::PromptPayload), 16>,
     pub payload_serial: u16,
+    /// The end-of-turn order prompt is open: the end of the turn continues after it (`phase::end_turn_event`).
+    pub order_pending: bool,
+    /// Pokémon Checkup holds its effects back to order them (two or more apply; `phase`).
+    pub checkup_held: bool,
     /// Events a prevention stopped so far (`derived::event_prevented`; read by `PTCG_VERIFY_LEGAL=1` only).
     pub prevented_events: u32,
 }
@@ -413,6 +431,8 @@ impl Game {
                 prompt_payloads,
                 payload_serial,
                 prevented_events,
+                order_pending,
+                checkup_held,
             } = src;
             f!((*d).st).write(*st);
             // The destination keeps its own recording flag (restoring the live game from a backup
@@ -449,6 +469,8 @@ impl Game {
             prompt_payloads.copy_live_to(f!((*d).prompt_payloads));
             f!((*d).payload_serial).write(*payload_serial);
             f!((*d).prevented_events).write(*prevented_events);
+            f!((*d).order_pending).write(*order_pending);
+            f!((*d).checkup_held).write(*checkup_held);
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
             // another (a fork restored into its own game has it already).
             if (*d).decls.id != decls.id {
@@ -497,6 +519,8 @@ impl Game {
             prompt_payloads: SVec::new(),
             payload_serial: 0,
             prevented_events: 0,
+            order_pending: false,
+            checkup_held: false,
         }
     }
 
@@ -1046,6 +1070,8 @@ impl Game {
             Cont::CheckState(f) => crate::engine::knockout::resume(self, f),
             Cont::TakePrizes { p, cause } => crate::engine::knockout::take_prizes_cont(self, p, cause, first),
             Cont::TriggerOrder { atk } => self.resolve_chosen_trigger(atk, first.as_int()),
+            Cont::OrderEffects { left, sc, then } => crate::engine::phase::ordered_effect(self, left, sc, then, first.as_int()),
+            Cont::OrderNext { left, sc, then } => crate::engine::phase::order_next(self, left, sc, then),
             Cont::LittleGrudge { owner, prize_taker, attack, source_card, target } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, target, first),
             Cont::ChooseActive { p } => crate::engine::knockout::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => crate::engine::knockout::bench_shrink_cont(self, p, empty, first),

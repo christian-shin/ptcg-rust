@@ -1,0 +1,17 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Buneary PFL 83", "4 Ignition Energy PFL 124", "4 Powerglass SFA 63", "48 Fire Energy MEE 2"],
+  ["4 Buneary PFL 83", "4 Ignition Energy PFL 124", "4 Powerglass SFA 63", "48 Fire Energy MEE 2"]
+ ],
+ "me": {"reset": true, "active": "Buneary PFL 83", "active_tool": "Powerglass SFA 63", "hand": ["Ignition Energy PFL 124"], "discard": ["Fire Energy MEE 2"]},
+ "opp": {"reset": true, "active": "Buneary PFL 83"},
+ "answers": [
+  {"a": "play", "card": "Ignition Energy PFL 124", "target": {"player": 2, "slot": 1, "index": 0}},
+  {"a": "pass"}
+ ],
+ "expect": [
+  {"at": "turn_end", "prompts": ["Select"], "cite": "APR E-21: \"If several such effects are active at the same time, the player whose turn is ending decides in which order to apply those effects\" (Powerglass's attach and Ignition Energy's discard; user decision 7, batch 8 C11c)"},
+  {"at": "turn_end", "who": "me", "zone": "discard", "contains": ["Ignition Energy PFL 124"], "cite": "Ignition Energy: discard it at the end of your turn"}
+ ]
+}
