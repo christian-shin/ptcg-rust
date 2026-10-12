@@ -80,6 +80,20 @@ pub fn between_turns(g: &mut Game, oc: OnComplete) -> R {
 }
 
 pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
+    // APR F step 2 (E-08, id2302): two or more Checkup effects that apply are ordered by the player whose turn would be
+    // next, each before or after the Special Conditions check (batch 8 C11c); otherwise the order of today.
+    let mut held = 0;
+    for p in 0..2 {
+        let a = g.st.players[p].active;
+        let slot = g.st.slot(p, a);
+        let id = g.new_fx(Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage });
+        let t = crate::spec::run::timed_triggers(g, id, crate::effects::k::BETWEEN_TURNS);
+        g.release_fx(id);
+        held += t?.iter().filter(|(_, x)| *x).count();
+    }
+    if held >= 2 {
+        return ordered_checkup(g, oc);
+    }
     for p in 0..2 {
         let a = g.st.players[p].active;
         let slot = g.st.slot(p, a);
@@ -100,6 +114,41 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
         return Ok(());
     }
     crate::engine::knockout::state_check(g, oc)
+}
+
+/// Pokémon Checkup with two or more effects to order: each player's Checkup event (its amounts, the triggers that aren't
+/// effects), then the order prompt over the effects and the Special Conditions check.
+fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
+    let mut poison = [10, 10];
+    let mut burn = [20, 20];
+    let mut ids = [0 as EffId; 2];
+    let mut left: SVec<crate::spec::run::Timed, 8> = SVec::new();
+    g.checkup_held = true;
+    let r = (|| -> R {
+        for p in 0..2 {
+            let a = g.st.players[p].active;
+            let slot = g.st.slot(p, a);
+            let id = g.new_fx(Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage });
+            ids[p] = id;
+            checkup_damage(g, id)?;
+            for (t, x) in crate::spec::run::timed_triggers(g, id, crate::effects::k::BETWEEN_TURNS)?.iter().copied() {
+                if x && left.len() < left.capacity() {
+                    left.push(t);
+                }
+            }
+            g.reduce_effect(id)?;
+            if let Effect::BetweenTurns { poison_damage, burn_damage, .. } = *g.e(id) {
+                poison[p] = poison_damage;
+                burn[p] = burn_damage;
+            }
+        }
+        Ok(())
+    })();
+    g.checkup_held = false;
+    r?;
+    let chooser = 1 - g.st.active_player as usize;
+    order_prompt(g, chooser, left, true, crate::game::OrderThen::Checkup { oc, poison, burn, e: ids });
+    Ok(())
 }
 
 /// `oc` for EndTurn's checkState, after KO resolution.
@@ -206,7 +255,94 @@ fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> 
 /// next turn). Every way a turn ends calls it.
 pub fn end_turn_event(g: &mut Game, p: usize) -> R {
     g.run_fx_unit(Effect::EndTurn { p: p as u8 })?;
+    if std::mem::take(&mut g.order_pending) {
+        // Two or more end-of-turn effects: the turn player orders them; the end of the turn continues after the last.
+        return Ok(());
+    }
     end_turn(g, p)
+}
+
+/// Ask `chooser` which of the effects left (and the Special Conditions check, `sc`) applies next (APR E-21: the player
+/// whose turn is ending; F step 2: the player whose turn would be next).
+pub fn order_prompt(g: &mut Game, chooser: usize, left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: crate::game::OrderThen) {
+    let mut names: SVec<&'static str, 8> = SVec::new();
+    for t in left.iter() {
+        names.push(g.st.cdef(t.c).full_name);
+    }
+    if sc && names.len() < names.capacity() {
+        names.push("Special Conditions");
+    }
+    let id = g.player_id(chooser);
+    g.prompt(
+        id,
+        "CHOOSE_EFFECT_ORDER",
+        PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 },
+        Cont::OrderEffects { left, sc, then },
+    );
+}
+
+/// The choice of the order prompt: that effect applies now (its own prompts are answered before the next choice).
+pub fn ordered_effect(g: &mut Game, mut left: SVec<crate::spec::run::Timed, 8>, mut sc: bool, then: crate::game::OrderThen, choice: i32) -> R {
+    let k = choice.max(0) as usize;
+    if k < left.len() {
+        let t = left.remove_at(k);
+        crate::spec::run::fire_timed(g, t)?;
+    } else if sc {
+        sc = false;
+        checkup_conditions(g, then)?;
+    }
+    order_next(g, left, sc, then)
+}
+
+/// After an ordered effect: once its prompts are answered, the next choice, or the last effect and what follows.
+pub fn order_next(g: &mut Game, left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: crate::game::OrderThen) -> R {
+    if g.has_prompts() {
+        g.wait_prompt(Cont::OrderNext { left, sc, then });
+        return Ok(());
+    }
+    let n = left.len() + sc as usize;
+    if n >= 2 {
+        let chooser = match then {
+            crate::game::OrderThen::EndTurn { p, .. } => p as usize,
+            crate::game::OrderThen::Checkup { .. } => 1 - g.st.active_player as usize,
+        };
+        order_prompt(g, chooser, left, sc, then);
+        return Ok(());
+    }
+    if n == 1 {
+        // The last one: no choice left.
+        return ordered_effect(g, left, sc, then, 0);
+    }
+    match then {
+        crate::game::OrderThen::EndTurn { p, e } => {
+            g.release_fx(e);
+            end_turn(g, p as usize)
+        }
+        crate::game::OrderThen::Checkup { oc, e, .. } => {
+            g.release_fx(e[0]);
+            g.release_fx(e[1]);
+            checkup_finish(g, oc)
+        }
+    }
+}
+
+/// The Special Conditions check of Pokémon Checkup for both players, with their amounts.
+fn checkup_conditions(g: &mut Game, then: crate::game::OrderThen) -> R {
+    if let crate::game::OrderThen::Checkup { poison, burn, .. } = then {
+        for p in 0..2 {
+            handle_special_conditions(g, p, poison[p], burn[p])?;
+        }
+    }
+    Ok(())
+}
+
+/// After Pokémon Checkup: the state check, once the prompts it opened are answered.
+fn checkup_finish(g: &mut Game, oc: OnComplete) -> R {
+    if g.has_prompts() {
+        g.wait_prompt(Cont::BetweenTurnsCheck { oc });
+        return Ok(());
+    }
+    crate::engine::knockout::state_check(g, oc)
 }
 
 /// The EndTurn event's consequence: the once-per-turn marks of player `p`'s Abilities (the cards with a once-per-turn
