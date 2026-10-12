@@ -557,17 +557,21 @@ pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListR
     Ok(true)
 }
 
-/// A card that enters play or evolves is a new Pokémon: its once-per-turn marks reset (id317; its player's marks named by
-/// its once-per-turn Abilities, `Once::PerTurn` and `PerTurnShared`). As the cards' handlers did (batch 8 C5b moved it here
-/// from them): for a card in a zone of the board when the event is made (a card set aside by a search isn't; its
-/// `PerTurn` marks reset with the move into the spot, `prefabs::reset_once_per_turn`).
+/// A card that enters play or evolves is a new Pokémon: its own once-per-turn uses reset (id317; the player's marks named
+/// by its `Once::PerTurn` Abilities). Not the player's "you can't use more than 1 X Ability each turn" (`PerTurnShared`).
+/// As the cards' handlers did (batch 8 C5b moved it here from them): for a card in a zone of the board when the event is
+/// made (a card set aside by a search isn't; its `PerTurn` marks reset with the move into the spot,
+/// `prefabs::reset_once_per_turn`).
 fn reset_entering_marks(g: &mut Game, p: usize, card: CardId) {
     if g.decls.once_per_turn & (1u128 << card) == 0 || !crate::decl::in_a_zone(g, card) {
         return;
     }
     let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return };
     for pw in spec.powers.iter() {
-        if let crate::spec::Once::PerTurn(name) | crate::spec::Once::PerTurnShared(name) = pw.once {
+        // A Pokémon's own once-per-turn use resets (id317); "you can't use more than 1 X Ability each turn"
+        // (`Once::PerTurnShared`: Fan Rotom's Fan Call, Fezandipiti ex's Flip the Script) is the player's limit for the
+        // turn, which a Pokémon entering play again doesn't reset (batch 8 rules fix).
+        if let crate::spec::Once::PerTurn(name) = pw.once {
             g.st.players[p].marker.remove_from(crate::markers::intern(name), card);
         }
     }
@@ -682,6 +686,25 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause)
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// "You can't use more than 1 Fan Call Ability during your turn" is the player's limit: a Fan Rotom that enters play
+    /// again this turn doesn't reset it (id317 resets a Pokémon's own once-per-turn use only).
+    #[test]
+    fn a_shared_limit_isnt_reset_by_entering_play() {
+        let mut names: Vec<&str> = vec!["Fan Rotom SCR 118"; 4];
+        names.extend(["Psychic Energy MEE 5"; 56]);
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "active": "Fan Rotom SCR 118", "bench": [{"card": "Fan Rotom SCR 118"}]}, "opp": {"reset": true, "active": "Fan Rotom SCR 118"}})).unwrap();
+        let me = g.st.active_player as usize;
+        let a = g.st.active_pokemon(me).unwrap();
+        let name = crate::markers::intern("FAN_CALL_MARKER");
+        g.st.players[me].marker.add(name, a, Default::default(), Default::default());
+        reset_entering_marks(&mut g, me, a);
+        assert!(g.st.players[me].marker.has_from(name, a), "the shared limit stays");
+    }
 
     /// A card staged in one list and copied into a card register with a lower index is taken from the staging
     /// list (Grimsley's Move: Scratch(0) holds the looked-at cards, the Pick's register a copy of the chosen one).
