@@ -913,6 +913,11 @@ impl Game {
             mask.resize(n, true);
             return false;
         }
+        for j in 0..n {
+            if self.is_valid_answer(sel, &[j]) {
+                self.probe_noop(sel, j);
+            }
+        }
         if sel.max_count <= 1 {
             // Single pick: the options the prompt accepts.
             mask.extend((0..n).map(|j| self.is_declared_answer(sel, &[j])));
@@ -992,5 +997,31 @@ impl Game {
             }
         }
         false
+    }
+}
+
+impl Game {
+    fn probe_noop(&self, sel: &SelectData, j: usize) {
+        let Source::Prompt(i, vals, _) = &sel.source else { return };
+        if matches!(vals.get(j), Some(Wire::Bool(false))) {
+            return;
+        }
+        let pr = self.prompts.as_slice()[*i];
+        let mut trial = self.fork();
+        if trial.answer_with(sel, &[j], false).is_err() {
+            return;
+        }
+        let same = crate::derived::state_digest(&self.st) == crate::derived::state_digest(&trial.st);
+        let quiet = matches!(trial.pending(), crate::game::Pending::Turn(_) | crate::game::Pending::Finished | crate::game::Pending::Stuck);
+        if same && quiet {
+            let cont = self.items.iter().find(|it| it.ids.contains(&pr.id)).map(|it| it.cont);
+            let cname = match cont {
+                Some(crate::game::Cont::Card { card, .. }) => format!("Card:{}", self.st.cdef(card).full_name),
+                Some(c) => format!("{:?}", c).chars().take_while(|c| c.is_alphanumeric()).collect(),
+                None => String::new(),
+            };
+            let kname: String = format!("{:?}", pr.kind).chars().take_while(|c| c.is_alphanumeric()).collect();
+            panic!("NOOP {} {} {} opt{}", kname, pr.message, cname, if j == 0 { "0" } else { "N" });
+        }
     }
 }
