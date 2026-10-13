@@ -1,0 +1,79 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Fan Rotom SCR 118",
+   "1 Scoop Up Cyclone PRE 128",
+   "51 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Fan Rotom SCR 118",
+   "1 Scoop Up Cyclone PRE 128",
+   "51 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eevee PRE 74",
+  "bench": [
+   {
+    "card": "Fan Rotom SCR 118"
+   }
+  ],
+  "hand": [
+   "Scoop Up Cyclone PRE 128"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee PRE 74"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Fan Call",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  },
+  [],
+  {
+   "a": "play",
+   "card": "Scoop Up Cyclone PRE 128"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 2,
+    "index": 0
+   }
+  ],
+  {
+   "a": "play",
+   "card": "Fan Rotom SCR 118"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "me",
+   "bench": 0,
+   "card": "Fan Rotom SCR 118",
+   "cite": "Scoop Up Cyclone PRE 128 text: the Fan Rotom that used Fan Call went back to the hand and was played onto the Bench again"
+  },
+  {
+   "at": "decision",
+   "n": 3,
+   "who": "me",
+   "legal": "ability",
+   "name": "Fan Call",
+   "is": false,
+   "cite": "Fan Rotom SCR 118 text: \"You can't use more than 1 Fan Call Ability during your turn\" is the player's limit for the turn; id317 (a Pokémon put into play again may use its own once-per-turn Ability again) is about the Pokémon's own use, not this one"
+  }
+ ]
+}
