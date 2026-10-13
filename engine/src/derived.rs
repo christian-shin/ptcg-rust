@@ -209,7 +209,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
     std::mem::discriminant(&st.end_reason).hash(&mut h);
     h.write_u8(st.n_cards);
     let r = &st.rules;
-    for b in [r.first_turn_draw_card, r.first_turn_use_supporter, r.attack_first_turn, r.supporter_cleanup_at_end_turn, r.unlimited_energy_attachments, st.skip_opponent_turn, st.is_sudden_death, st.bench_size_change_handled] {
+    for b in [r.first_turn_draw_card, r.first_turn_use_supporter, r.attack_first_turn, r.supporter_cleanup_at_end_turn, st.skip_opponent_turn, st.is_sudden_death, st.bench_size_change_handled] {
         h.write_u8(b as u8);
     }
     ar(&mut h, st.last_attack);
@@ -279,7 +279,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
             }
         }
         l(&mut h, pl.played_this_turn.as_slice());
-        for x in [pl.retreated_turn, pl.energy_played_turn, pl.stadium_used_turn, pl.prizes_taken, pl.prizes_taken_this_turn, pl.prizes_taken_last_turn, pl.unlimited_energy_attach_turns_remaining, pl.stadium_and_tool_have_no_effect_turns_remaining] {
+        for x in [pl.retreated_turn, pl.energy_played_turn, pl.stadium_used_turn, pl.prizes_taken, pl.prizes_taken_this_turn, pl.prizes_taken_last_turn] {
             h.write_i32(x);
         }
         for m in pl.marker.items.iter() {
@@ -288,8 +288,11 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
             h.write_u8(m.source_type as u8);
             h.write_u8(m.target_scope as u8);
         }
-        for b in [pl.used_vstar, pl.used_gx, pl.pokemon_knocked_out_during_opponents_last_turn, pl.pokemon_knocked_out_by_attack_during_opponents_last_turn, pl.can_evolve, pl.ancient_pokemon_attacked_last_turn, pl.used_dragons_wish, pl.legacy_energy_used] {
+        for b in [pl.used_vstar, pl.used_gx, pl.pokemon_knocked_out_during_opponents_last_turn, pl.pokemon_knocked_out_by_attack_during_opponents_last_turn] {
             h.write_u8(b as u8);
+        }
+        for d in pl.once_per_game_used.iter() {
+            h.write_u16(*d);
         }
         l(&mut h, pl.moved_to_active_this_turn.as_slice());
         l(&mut h, pl.moved_from_active_to_bench_this_turn.as_slice());
@@ -942,12 +945,13 @@ pub fn compute_tool_off(g: &Game, p: usize, card: CardId) -> bool {
     false
 }
 
-/// Is a Stadium's text off on the Pokémon it would affect: "Stadium and Pokémon Tool cards have no effect" for some turns
-/// (no declaration in the pool turns a Stadium's effect off on a Pokémon; batch 8 C3b, the Stadium probe had no
-/// handler).
+/// Is a Stadium's text off on the Pokémon it would affect? No declaration in the pool turns it off (batch 8 C3b: the
+/// Stadium probe had no handler; the counter "Stadium and Tool cards have no effect" that stood for one was never
+/// set, events batch 9 C1 deleted it): the hook the Stadium readers share, like [`special_energy_off`].
 #[inline]
 pub fn stadium_off(g: &Game) -> bool {
-    g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0)
+    let _ = g;
+    false
 }
 
 /// Is the text of the attached Special Energy `card` off? No declaration in the pool turns it off (batch 8 C3b: the

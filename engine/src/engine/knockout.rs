@@ -28,7 +28,6 @@ use crate::effects::*;
 use crate::engine::phase::end_game;
 use crate::game::{Cont, Game, OnComplete, R};
 use crate::list::*;
-use crate::markers::*;
 use crate::prompts::*;
 use crate::spec::event::{EventKind, EventView, KoBy, RulesZone};
 use crate::state::*;
@@ -644,7 +643,7 @@ fn table_state_over(g: &mut Game, order: SVec<CardId, 120>) -> R<[u8; 2]> {
 }
 
 /// The Prize adjustments of the KnockOut `id` ("takes N more / fewer Prize cards": `PrizeAdjust`, Legacy Energy's
-/// `PrizeAdjustOnce`; batch 8 C3c, they were the KnockOut's dispatch handlers), in the propagation order of the
+/// `PrizeAdjust` with `once`; batch 8 C3c, they were the KnockOut's dispatch handlers), in the propagation order of the
 /// declaring cards (any zone: each checks where its card is), before the event is produced.
 fn prize_adjustments(g: &mut Game, id: EffId) -> R {
     use crate::spec::passive::{self, Modifier};
@@ -658,7 +657,6 @@ fn prize_adjustments(g: &mut Game, id: EffId) -> R {
             for ps in crate::decl::passives(g, c) {
                 match &ps.modifier {
                     Modifier::PrizeAdjust(d) => passive::prize_adjust(g, c, id, ps.origin, d)?,
-                    Modifier::PrizeAdjustOnce(d) => passive::prize_adjust_once(g, c, id, ps.origin, d)?,
                     _ => {}
                 }
             }
@@ -1245,7 +1243,7 @@ fn leave(g: &mut Game, id: EffId) -> R {
     match how {
         LeaveHow::KnockOut => {
             let card = g.st.slot_pokemon(tp, ts);
-            let lost_city = g.st.slot(tp, ts).marker.has(LOST_CITY_MARKER) || card.map_or(false, |c| g.st.cdef(c).has_tag(tag::PRISM_STAR));
+            let lost_city = card.map_or(false, |c| g.st.cdef(c).has_tag(tag::PRISM_STAR));
             if lost_city {
                 crate::bail!("LOST_CITY_KO_NOT_PORTED");
             }

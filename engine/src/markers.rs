@@ -14,11 +14,7 @@ macro_rules! markers {
 }
 
 markers! {
-    DAMAGE_DEALT_MARKER = "DAMAGE_DEALT_MARKER",
-    CLEAR_KNOCKOUT_MARKER = "CLEAR_KNOCKOUT_MARKER",
-    KNOCKOUT_MARKER = "KNOCKOUT_MARKER",
     COIN_REFLIP_AGAIN_USED = "COIN_REFLIP_AGAIN_USED",
-    LOST_CITY_MARKER = "LOST_CITY_MARKER",
 }
 
 /// The interned names past `MARKER_NAMES`, in id order (append-only). Locked only to register a name or

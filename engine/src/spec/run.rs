@@ -498,6 +498,10 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
                 use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
                 ability_used(g, p, me);
             }
+            if pw.once == Once::PerGame {
+                let def = g.st.cards[me as usize].def;
+                g.st.players[p].once_per_game_used.push(def);
+            }
             run(g, me, f)?;
         }
     }
@@ -899,6 +903,11 @@ fn check_once(g: &Game, me: CardId, pw: &PowerSpec, p: usize) -> R {
         }
         Once::PerTurnShared(name) => {
             if g.st.players[p].marker.has(crate::markers::intern(name)) {
+                crate::bail!("POWER_ALREADY_USED");
+            }
+        }
+        Once::PerGame => {
+            if g.st.players[p].once_per_game_used.contains(&g.st.cards[me as usize].def) {
                 crate::bail!("POWER_ALREADY_USED");
             }
         }

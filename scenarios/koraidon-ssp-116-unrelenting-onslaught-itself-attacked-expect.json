@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scream Tail TEF 77",
+   "4 Koraidon SSP 116",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE 5",
+   "24 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Scream Tail TEF 77",
+   "4 Koraidon SSP 116",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE 5",
+   "24 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Koraidon SSP 116",
+  "active_energy": [
+   "3 Fighting Energy MEE 6"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Unrelenting Onslaught"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "attack",
+   "name": "Unrelenting Onslaught"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "turn": 2,
+   "who": "opp",
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "damage": 60,
+   "cite": "card text: the attack Koraidon itself used last turn is not another Ancient Pokémon's, so no 150 more (30 + 30 doesn't Knock Out the 130 HP Duraludon)"
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scream Tail TEF 77",
+   "4 Koraidon SSP 116",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE 5",
+   "24 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Scream Tail TEF 77",
+   "4 Koraidon SSP 116",
+   "4 Duraludon PRE 69",
+   "24 Psychic Energy MEE 5",
+   "24 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Scream Tail TEF 77",
+  "active_energy": [
+   "3 Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Koraidon SSP 116",
+    "energy": [
+     "2 Fighting Energy MEE 6"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Hyper Voice"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "retreat",
+   "bench": 0
+  },
+  {
+   "a": "attack",
+   "name": "Unrelenting Onslaught"
+  }
+ ],
+ "expect": [
+  {
+   "at": "game_end",
+   "winner": "me",
+   "cite": "card text: 40 (Hyper Voice) + 30 + 150 (another Ancient Pokémon attacked last turn) Knocks Out the 130 HP Duraludon"
+  }
+ ]
+}

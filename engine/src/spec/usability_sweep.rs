@@ -345,7 +345,13 @@ fn finish(r: &mut Rng, pl: &Pools, card: u16, d: &crate::carddb::CardDef, subjec
             g.st.players[q].pokemon_knocked_out_last_turn_entries.push(d);
             g.st.players[q].pokemon_knocked_out_last_turn_by_attack.push(r.below(2) == 0);
         }
-        g.st.players[q].ancient_pokemon_attacked_last_turn = r.below(4) == 0;
+        // The player's last attack (a Pokémon of theirs, during their previous turn): drawn where the retired flag was.
+        let attacked = r.below(4) == 0;
+        let mon = (0..g.st.n_cards).find(|&c| g.st.owner(c) == q && g.st.cdef(c).is_pokemon() && c != 255);
+        if let (true, Some(c)) = (attacked, mon) {
+            g.st.player_last_attack[q] = Some((crate::state::AttackRef { card: c, index: 0 }, c));
+            g.st.player_last_attack_turn[q] = g.st.turn - 2;
+        }
     }
     if r.below(4) == 0 {
         let sup: Vec<CardId> = (0..g.st.n_cards).filter(|&c| g.st.owner(c) == p && g.st.cdef(c).is_trainer() && g.st.cdef(c).trainer_type() == TrainerType::Supporter && c != 255).collect();

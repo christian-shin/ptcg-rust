@@ -74,7 +74,6 @@ pub enum Modifier {
     NextTurnBonus(NextTurnBonusSpec),
     BenchAttacks(BenchAttacksSpec),
     /// `PrizeAdjust`, once per game for the Knocked Out Pokémon's player (Legacy Energy).
-    PrizeAdjustOnce(PrizeAdjustSpec),
     /// The Pokémon matching `subject` has exactly these types (the game's type check).
     TypeOverride(TypeOverrideSpec),
     /// A permission (events design 4.2: "can evolve during ..."): while the card is in place for its origin
@@ -569,7 +568,6 @@ pub struct LockedPowers {
     pub generic_probe: bool,
     /// Only Abilities that require the Pokémon to Knock Out itself.
     pub only_knocks_out_self: bool,
-    pub exempt_name: Option<&'static str>,
 }
 
 /// "Pokémon ... have no Abilities" (vocabulary P7): strips matching Abilities and blocks their use.
@@ -699,6 +697,8 @@ pub struct PrizeAdjustSpec {
     pub nonstacking: Option<&'static str>,
     /// Only a Knock Out of the card owner's Pokémon.
     pub owner_only: bool,
+    /// "Can't be applied more than once per game" (`Once::PerGame`).
+    pub once: Once,
 }
 impl PrizeAdjustSpec {
     pub const DEFAULT: PrizeAdjustSpec = PrizeAdjustSpec {
@@ -710,6 +710,7 @@ impl PrizeAdjustSpec {
         attacker: SlotPred::Any,
         nonstacking: None,
         owner_only: false,
+        once: Once::No,
     };
 }
 /// "During Pokémon Checkup, put N more damage counters on each Poisoned Pokémon ..." (Perilous
@@ -816,7 +817,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             PreventWhat::None => KindMask::EMPTY,
             PreventWhat::ToolEffects => KindMask::EMPTY,
         }),
-        Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
+        Modifier::PrizeAdjust(_) => mask(&[k::KNOCK_OUT]),
         Modifier::TypeOverride(_) => KindMask::EMPTY,
         Modifier::WeaknessOverride(_) => KindMask::EMPTY,
         Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::DECLARES_ABILITY_LOCK, k::POWER]),
@@ -999,7 +1000,6 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
         // The KnockOut routine reads the game's Prize adjustments (`knockout::prize_adjustments`); a copied attack's source
         // card, run for the copycat (`copy_attack::resolve_sessions`), still reaches its own here.
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
-        Modifier::PrizeAdjustOnce(d) => prize_adjust_once(g, me, e, ps.origin, d),
         Modifier::GrantAttacks(_) | Modifier::RetreatCost(_) => Ok(()),
         // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
         Modifier::BenchSize(_) => Ok(()),
@@ -1442,7 +1442,6 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
     d.power_type == PowerType::Ability as u8
         && !d.exempt_from_ability_lock
         && (!lp.only_knocks_out_self || d.knocks_out_self)
-        && lp.exempt_name.map_or(true, |n| d.name != n)
         && !d.use_from_hand
         && !d.use_from_discard
 }
@@ -1522,7 +1521,7 @@ pub const DAMP: AbilityLockSpec = AbilityLockSpec {
     card: Pred::Any,
     slot: SlotPred::Any,
     missing: Pred::False,
-    powers: LockedPowers { generic_probe: false, only_knocks_out_self: true, exempt_name: Some("Damp") },
+    powers: LockedPowers { generic_probe: false, only_knocks_out_self: true },
     probe: LockerProbe::OwnPower(0),
 };
 
@@ -1682,27 +1681,29 @@ pub fn ranges(from: &super::event::EventPred, kind: super::event::EventKind) -> 
 // ---------------------------------------------------------------------------
 // Prizes, evolution, attacks
 
-/// `PrizeAdjustOnce` (Legacy Energy): the adjustment, once per game for the Knocked Out Pokémon's player.
-pub(crate) fn prize_adjust_once(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
-    let Effect::KnockOut { p, .. } = *g.e(e) else { return Ok(()) };
+/// `PrizeAdjust` of `me` over the KnockOut `e`, with the declaration's `once` ("can't be applied more than once per
+/// game", Legacy Energy): refused once the card's def is in the Knocked Out Pokémon's player's per-game record, and
+/// recorded when the adjustment changed the Prize count.
+pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
+    if d.once != Once::PerGame {
+        return prize_adjust_now(g, me, e, origin, d);
+    }
+    let Effect::KnockOut { p, prize_count: before, .. } = *g.e(e) else { return Ok(()) };
     let p = p as usize;
-    if g.st.players[p].legacy_energy_used {
+    let def = g.st.cards[me as usize].def;
+    if g.st.players[p].once_per_game_used.contains(&def) {
         return Ok(());
     }
-    let before = match *g.e(e) {
-        Effect::KnockOut { prize_count, .. } => prize_count,
-        _ => 0,
-    };
-    prize_adjust(g, me, e, origin, d)?;
+    prize_adjust_now(g, me, e, origin, d)?;
     if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
-        g.st.players[p].legacy_energy_used = true;
+        g.st.players[p].once_per_game_used.push(def);
         g.st.bump();
     }
     Ok(())
 }
 
 /// `PrizeAdjust` of `me` over the KnockOut `e`: its change to the Prize count.
-pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
+fn prize_adjust_now(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
     let (p, target, ko_by) = match *g.e(e) {
         Effect::KnockOut { p, target, ko_by, .. } => (p as usize, target, ko_by),
         _ => return Ok(()),

@@ -208,8 +208,10 @@ pub enum Cond {
     /// Every name among the Pokémon in play of `names_of` has all 4 copies in zones the owner knows
     /// (own hand, discard pile, Lost Zone and Pokémon in play), so a search for it can't find any.
     AllNamesKnown { names_of: Who },
-    /// During the player's last turn another Ancient Pokémon than this one used an attack.
-    OtherAncientAttackedLastTurn,
+    /// "If 1 of your other [Ancient] Pokémon used an attack during your last turn" (Koraidon SSP 116): the attack the
+    /// player used during their previous turn was used by a Pokémon card matching `by` other than this card (the
+    /// player's last-attack record: a turn without an attack, a failed attack and a Knock Out reset leave none).
+    OtherAttackedLastTurn { who: Who, by: Pred },
     /// "If 1 of your Pokémon used [name] during your last turn" (Sylveon ex's Angelite): the attack the player used during
     /// their previous turn has that name, whichever Pokémon used it (a copied attack too: the copycat used it, id2402).
     UsedAttackLastTurn(&'static str),
@@ -540,13 +542,13 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::AbilityBlocked => panic!("Cond::AbilityBlocked needs a checked read (cond_m)"),
         Cond::CanEvolveBasic(_) => panic!("Cond::CanEvolveBasic needs a checked read (cond_m)"),
         Cond::ToolBlocked => panic!("Cond::ToolBlocked needs a checked read (cond_m)"),
-        Cond::OtherAncientAttackedLastTurn => {
-            let p = f.who(Who::Me);
-            g.st.players[p].ancient_pokemon_attacked_last_turn
-                && match g.st.player_last_attack[p] {
-                    Some((_, src)) => src != me && g.st.cdef(src).has_tag(tag::ANCIENT),
-                    None => false,
-                }
+        Cond::OtherAttackedLastTurn { who, by } => {
+            // The player's previous turn is two turns ago (see `UsedAttackLastTurn`).
+            let p = f.who(*who);
+            match g.st.player_last_attack[p] {
+                Some((_, src)) => g.st.player_last_attack_turn[p] == g.st.turn - 2 && src != me && pred(g, src, by),
+                None => false,
+            }
         }
         Cond::UsedAttackLastTurn(name) => {
             // The player's previous turn is two turns ago (turns alternate: no card in the pool skips a turn); an attack
