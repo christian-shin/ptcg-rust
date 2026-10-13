@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
             from: ZoneRef(Who::Me, Zone::Hand),
             predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fire Energy")]),
             slots: AttachSlots::Bench,
-            target: Pred::Tag(crate::types::tag::ETHANS),
+            target: SlotPred::Tag(crate::types::tag::ETHANS),
             bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) },
             same_target: true,
             ..AttachSpec::DEFAULT

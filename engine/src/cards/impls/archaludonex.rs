@@ -23,10 +23,10 @@ pub static SPEC: CardSpec = CardSpec {
             when: Cond::Nonempty(ZoneRef(Who::Me, Zone::Discard), METAL_ENERGY),
             msg: "WANT_TO_USE_ABILITY",
             yes: &[Step::new(Op::Attach(AttachSpec {
+                target: SlotPred::TypeIs(ct::METAL),
                 from: ZoneRef(Who::Me, Zone::Discard),
                 predicate: METAL_ENERGY,
                 slots: AttachSlots::ActiveBench,
-                scan: TargetScan::EffectiveTypes(&[ct::METAL]),
                 bounds: Bounds { min: Num::Lit(1), max: Num::Lit(2) },
                 ..AttachSpec::DEFAULT
             }))],

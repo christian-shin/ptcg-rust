@@ -35,7 +35,7 @@ pub static SPEC: CardSpec = CardSpec {
                         from: ZoneRef(Who::Me, Zone::Deck),
                         predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]),
                         slots: AttachSlots::BenchActive,
-                        target: Pred::Tag(crate::types::tag::MARNIES),
+                        target: SlotPred::Tag(crate::types::tag::MARNIES),
                         bounds: Bounds { min: Num::Lit(0), max: Num::Lit(5) },
                         cancel: true,
                         ..AttachSpec::DEFAULT
