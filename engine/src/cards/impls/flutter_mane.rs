@@ -3,8 +3,9 @@
 //! except for Midnight Fluttering. Hex Hurl — 90; put 2 damage counters on your
 //! opponent's Benched Pokémon in any way you like.
 //!
-//! Rule: `ActiveLock::MidnightFluttering` is an Ability lock on the opponent's
-//! Active Pokémon while this Pokémon is its owner's Active (section 7; an
+//! Rule: Midnight Fluttering is an `ActiveLockSpec`: an Ability lock on the opponent's
+//! Active Pokémon (`locked`), except the Pokémon that has the Ability Midnight Fluttering
+//! (`except`), while this Pokémon is its owner's Active (`while_`; section 7; an
 //! Ability named "Hide 'n' Sneak" takes precedence, ruling 1877, whichever came
 //! into play first). Hex Hurl is a SpreadDamage of counters on the opponent's
 //! Bench: PlaceCounters events (cause: this attack, no Weakness or Resistance,
@@ -18,7 +19,16 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::ActiveLock(ActiveLock::MidnightFluttering) },
+        Passive {
+            origin: RuleSource::Ability,
+            modifier: Modifier::ActiveLock(ActiveLockSpec {
+                // "Your opponent's Active Pokémon has no Abilities, except for Midnight Fluttering."
+                locked: SlotPred::All(&[SlotPred::Not(&SlotPred::OnMySide), SlotPred::IsActive]),
+                except: Pred::HasAbilityNamed("Midnight Fluttering"),
+                // "As long as this Pokémon is in the Active Spot".
+                while_: &[LockWhile::Active],
+            }),
+        },
     ],
     ..CardSpec::NONE
 };

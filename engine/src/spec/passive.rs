@@ -83,20 +83,32 @@ pub enum Modifier {
     Permit(PermitSpec),
     /// The Weakness of the opponent's Pokémon matching `subject` is `weakness` (Fairy Zone).
     WeaknessOverride(WeaknessOverrideSpec),
-    /// An Ability lock that applies while this Pokémon is in the Active Spot, with the Ability lockers'
-    /// activation order (a lock that was in effect first suppresses a later one).
-    ActiveLock(ActiveLock),
+    /// An Ability lock that applies while the Pokémon that has it is in a place (the Active Spot), with the Ability
+    /// lockers' activation order (a lock that was in effect first suppresses a later one).
+    ActiveLock(ActiveLockSpec),
 }
 
-/// The Active-Spot Ability locks.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum ActiveLock {
-    /// Flutter Mane's Midnight Fluttering: your opponent's Active Pokémon has no Abilities, except for
-    /// Midnight Fluttering (a `Prevent` over continuous effects of Abilities, Hide 'n' Sneak, takes precedence: C11).
-    MidnightFluttering,
-    /// Iron Thorns ex's Initialization: while it is in either Active Spot, Pokémon with a Rule Box (yours and
-    /// your opponent's) have no Abilities, except Future Pokémon.
-    Initialization,
+/// "As long as this Pokémon is in the Active Spot, <locked> have no Abilities, except <except>": an Ability lock over
+/// Pokémon in play, read by the lock pass (`power_blocked`, `powers_now`; precedence between locks: RULES.md, a `Prevent`
+/// over the continuous effects of Abilities, Hide 'n' Sneak, takes precedence).
+/// * Flutter Mane's Midnight Fluttering: `locked` your opponent's Active Pokémon, `except` the Pokémon that has the Ability
+///   Midnight Fluttering.
+/// * Iron Thorns ex's Initialization: `locked` the Pokémon with a Rule Box (yours and your opponent's), `except` Future
+///   Pokémon.
+pub struct ActiveLockSpec {
+    /// The Pokémon that have no Abilities (a spot predicate read for the source: `SlotPred::OnMySide` is its owner's side).
+    pub locked: SlotPred,
+    /// "... except ...": the cards whose Abilities the lock leaves (a printed read of the Pokémon card).
+    pub except: Pred,
+    /// Where the source has to be for the lock to hold (`LockWhile::Active`: its owner's Active Pokémon).
+    pub while_: &'static [LockWhile],
+}
+
+impl ActiveLockSpec {
+    /// Can what the lock covers depend on the cards attached to a Pokémon (`lock_reads_attached`)?
+    pub const fn reads_attached(&self) -> bool {
+        self.locked.reads_attached()
+    }
 }
 
 pub struct WeaknessOverrideSpec {
@@ -811,8 +823,13 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
         Modifier::TypeOverride(_) => KindMask::EMPTY,
         Modifier::WeaknessOverride(_) => KindMask::EMPTY,
-        Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::DECLARES_ABILITY_LOCK, k::POWER]),
-        Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::DECLARES_ABILITY_LOCK, k::POWER]),
+        Modifier::ActiveLock(l) => {
+            if l.reads_attached() {
+                mask(&[k::DECLARES_ABILITY_LOCK, k::POWER, k::DECLARES_ATTACHED_LOCK])
+            } else {
+                mask(&[k::DECLARES_ABILITY_LOCK, k::POWER])
+            }
+        }
         Modifier::Permit(pm) => {
             let mut m = mask(&[k::DECLARES_PERMIT]);
             let mut i = 0;
@@ -986,7 +1003,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
         Modifier::Permit(_) => Ok(()),
         // Re-flips are read where a card's flips are made (`engine::condition::flip_coin`); nothing is dispatched to them.
         Modifier::Reflip(_) => Ok(()),
-        Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
+        Modifier::ActiveLock(l) => active_lock(g, me, e, l),
         Modifier::WeaknessOverride(_) => Ok(()),
         // The KnockOut routine reads the game's Prize adjustments (`knockout::prize_adjustments`); a copied attack's source
         // card, run for the copycat (`copy_attack::resolve_sessions`), still reaches its own here.
@@ -1012,7 +1029,7 @@ pub(crate) fn type_override<F: crate::derived::Facts>(g: &mut F, me: CardId, ori
 
 /// The `WeaknessOverride` of `me` on the Pokémon in `target` (the derived layer's Weakness): the type it sets, when it
 /// applies. The Ability's lock probe is made for its own Pokémon's owner, first; then whether the effect of the
-/// Ability reaches the Pokémon (`effect_of_ability_reaches`; the continuous-effect `Prevent` view replaces it in C11).
+/// Ability reaches the Pokémon (`ability_effect_reaches`, the continuous-effect `Prevent` view).
 pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, w: &WeaknessOverrideSpec, target: SlotRef) -> R<Option<CardType>> {
     let player = target.p as usize;
     let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
@@ -1026,7 +1043,7 @@ pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId,
     if !ability_effect_reaches(g, me, origin, at.owner, target, false)? {
         return Ok(None);
     }
-    Ok(effect_of_ability_reaches(g.g(), me, crate::effects::PowerRef { card: me, index: 0 }, target).then_some(w.weakness))
+    Ok(Some(w.weakness))
 }
 
 /// The HP `HpBonus` / `HpMod` of `me` gives the Pokémon in `target` (0 when it doesn't apply): the derived layer's `hp`
@@ -1434,6 +1451,17 @@ pub(crate) fn recover_now(g: &mut Game, me: CardId, origin: RuleSource, c: &Reco
 
 // ---------------------------------------------------------------------------
 // Ability locks
+
+/// What every Ability lock takes away: an Ability of a Pokémon in play. A power that isn't an Ability and an Ability used
+/// from the hand or the discard pile (not an Ability of a Pokémon in play) stay. The generic probe ("has no Abilities") is
+/// an Ability with no flags.
+fn lockable_power(g: &Game, power: crate::effects::PowerRef) -> bool {
+    if power.index == PROBE_GENERIC {
+        return true;
+    }
+    let d = &g.st.cdef(power.card).powers[power.index as usize];
+    d.power_type == PowerType::Ability as u8 && !d.use_from_hand && !d.use_from_discard
+}
 
 fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -> bool {
     if power.index == PROBE_GENERIC {
@@ -2170,7 +2198,7 @@ fn source_ability_on<F: crate::derived::Facts>(g: &mut F, owner: usize, me: Card
 /// use otherwise): is it blocked? A copied attack's source code, run for the copycat, can't use the copycat's own
 /// Abilities; otherwise each Ability lock of the game (`Game::lock_cards`, any zone: each checks where its source is) is
 /// asked, undelegated as the card handlers were. A blocked answer of one lock, or an error of its reads, blocks.
-pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, p: usize, power: crate::effects::PowerRef, card: CardId, probe: bool) -> bool {
+pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, _p: usize, power: crate::effects::PowerRef, card: CardId, probe: bool) -> bool {
     if matches!(g.g().deleg, Some(d) if d.attacks && d.copycat == card) {
         return true;
     }
@@ -2188,7 +2216,7 @@ pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, p: usize, power
             b &= b - 1;
             for ps in lock_passives(g.g(), c) {
                 let hit = match &ps.modifier {
-                    Modifier::ActiveLock(l) => active_lock_subject(g.g(), *l, power, probe) && !matches!(active_lock_applies(g, c, *l, p, card, true), Ok(false)),
+                    Modifier::ActiveLock(l) => lockable_power(g.g(), power) && !matches!(active_lock_applies(g, c, l, card), Ok(false)),
                     Modifier::AbilityLock(l) => power_subject(g.g(), &l.powers, power) && !matches!(is_locked(g, c, card, l), Ok(false)),
                     _ => false,
                 } && lock_reaches(g, c, ps.origin, card);
@@ -2205,7 +2233,7 @@ pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, p: usize, power
 
 /// The powers player `p`'s Pokémon card `card` has now: its printed ones, less those each Ability lock of the game takes
 /// away, in the propagation order of the powers a Pokémon has (`game::PROP_POWERS_NOW`).
-pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
+pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, _p: usize, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
     let mut powers: SVec<crate::effects::PowerRef, 8> = SVec::new();
     for i in 0..g.g().st.cdef(card).powers.len() {
         powers.push(crate::effects::PowerRef { card, index: i as u8 });
@@ -2222,10 +2250,10 @@ pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: Ca
             for ps in lock_passives(g.g(), c) {
                 match &ps.modifier {
                     Modifier::ActiveLock(l) => {
-                        if active_lock_applies(g, c, *l, p, card, false)? && lock_reaches(g, c, ps.origin, card) {
+                        if active_lock_applies(g, c, l, card)? && lock_reaches(g, c, ps.origin, card) {
                             let mut out = SVec::new();
                             for pw in powers.iter() {
-                                if !active_lock_subject(g.g(), *l, *pw, false) {
+                                if !lockable_power(g.g(), *pw) {
                                     out.push(*pw);
                                 }
                             }
@@ -2288,21 +2316,6 @@ fn lock_reaches<F: crate::derived::Facts>(g: &mut F, source: CardId, origin: Rul
     let Some(ListRef::Slot(q, s)) = g.g().st.locate(card) else { return true };
     let owner = g.g().st.locate(source).and_then(|l| l.owner()).unwrap_or_else(|| g.g().st.owner(source));
     !matches!(ability_effect_reaches(g, source, origin, owner, SlotRef::new(q as usize, s), true), Ok(false))
-}
-
-/// Does the effect of `card`'s Ability `power` reach the Pokémon in `target` (what the `EffectOfAbility` probe's
-/// handlers decided)? Iron Thorns ex's Initialization can't change the effect of its own Ability on a Future Pokémon;
-/// nothing else in the game changes one.
-pub(crate) fn effect_of_ability_reaches(g: &Game, card: CardId, power: crate::effects::PowerRef, target: SlotRef) -> bool {
-    let own_initialization = power == (crate::effects::PowerRef { card, index: 0 }) && lock_passives(g, card).any(|ps| matches!(ps.modifier, Modifier::ActiveLock(ActiveLock::Initialization)));
-    if own_initialization {
-        if let Some(c) = g.st.slot_pokemon(target.p as usize, target.s) {
-            if g.st.cdef(c).has_tag(tag::FUTURE) {
-                return false;
-            }
-        }
-    }
-    true
 }
 
 // ---------------------------------------------------------------------------
@@ -2516,7 +2529,7 @@ pub(crate) fn bench_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId
 }
 
 
-// Active-Spot Ability locks (Midnight Fluttering, Initialization)
+// Active-Spot Ability locks (`ActiveLockSpec`: Midnight Fluttering, Initialization)
 
 // ---------------------------------------------------------------------------
 // Precedence between locks (docs/rulings/RULES.md, 2026-10-08)
@@ -2538,7 +2551,7 @@ fn lock_passives(g: &Game, c: CardId) -> impl Iterator<Item = &'static Passive> 
 /// Where the lock's source must be for it to hold, and its owner when it is.
 fn lock_position(g: &Game, c: CardId, p: &Passive) -> Option<usize> {
     match &p.modifier {
-        Modifier::ActiveLock(_) => (0..2usize).find(|q| g.st.active_pokemon(*q) == Some(c)),
+        Modifier::ActiveLock(l) => active_lock_owner(g, c, l),
         Modifier::AbilityLock(l) => locker_owner(g, c, l.locker),
         _ => None,
     }
@@ -2578,7 +2591,9 @@ fn first_ability(g: &Game, c: CardId) -> Option<crate::effects::PowerRef> {
 /// Would lock `pa` of `a`, in place, turn off the Ability of lock source `s` where it is now? Position and
 /// coverage only: the lock's own probes aren't run.
 fn lock_covers<F: crate::derived::Facts>(g: &mut F, a: CardId, pa: &Passive, s: CardId) -> R<bool> {
-    let Some(owner) = lock_position(g.g(), a, pa) else { return Ok(false) };
+    if lock_position(g.g(), a, pa).is_none() {
+        return Ok(false);
+    }
     if !lock_reaches(g, a, pa.origin, s) {
         return Ok(false);
     }
@@ -2589,16 +2604,10 @@ fn lock_covers<F: crate::derived::Facts>(g: &mut F, a: CardId, pa: &Passive, s: 
     };
     match &pa.modifier {
         Modifier::ActiveLock(l) => {
-            if !active_lock_subject(g.g(), *l, power, false) {
+            if !lockable_power(g.g(), power) {
                 return Ok(false);
             }
-            Ok(match l {
-                ActiveLock::MidnightFluttering => slot == SlotRef::new(1 - owner, g.g().st.players[1 - owner].active),
-                ActiveLock::Initialization => {
-                    let d = g.g().st.cdef(s);
-                    !d.has_tag(tag::FUTURE) && d.has_rule_box()
-                }
-            })
+            active_lock_covers(g, a, l, s)
         }
         Modifier::AbilityLock(l) => {
             if !power_subject(g.g(), &l.powers, power) || !pred(g.g(), s, &l.card) {
@@ -2664,8 +2673,8 @@ fn lock_has_ability<F: crate::derived::Facts>(g: &mut F, c: CardId, p: &Passive,
 /// attachment changes nothing about where it is; what can change is the answer of the locks that cover it,
 /// read through the same declarations: the spot predicate ([`SlotPred::reads_attached`]: the type, the Energy,
 /// a Tool ...) and the Stadium-effect probe (effects on the spot can block the Stadium). The card predicate
-/// reads the printed card. The two `ActiveLock`s read the Active Spot, the printed card, its Rule Box and
-/// tags: never this.
+/// reads the printed card. The `ActiveLock`s read the Active Spot, the printed card, its Rule Box and
+/// tags: never this (`ActiveLockSpec::reads_attached`).
 pub const fn lock_reads_attached(l: &AbilityLockSpec) -> bool {
     l.slot.reads_attached() || matches!(l.probe, LockerProbe::StadiumOnSlot)
 }
@@ -2802,82 +2811,54 @@ fn lock_sync_now(g: &mut Game) {
     }
 }
 
-/// `IS_POWER_SUBJECT_TO_ABILITY_LOCK` with the lock's options.
-fn active_lock_subject(g: &Game, l: ActiveLock, power: crate::effects::PowerRef, probe: bool) -> bool {
-    if power.index == PROBE_GENERIC {
-        return true;
+/// The player whose Active-Spot lock `l` the card `c` is: where the lock's source stands (a Pokémon in a spot of a player,
+/// its place read by `l.while_`).
+fn active_lock_owner(g: &Game, c: CardId, l: &ActiveLockSpec) -> Option<usize> {
+    let Some(ListRef::Slot(q, s)) = g.st.locate(c) else { return None };
+    if g.st.slot_pokemon(q as usize, s) != Some(c) {
+        return None;
     }
-    let d = &g.st.cdef(power.card).powers[power.index as usize];
-    if d.power_type != PowerType::Ability as u8 || d.exempt_from_ability_lock {
-        return false;
-    }
-    match l {
-        ActiveLock::MidnightFluttering => probe || d.name != "Midnight Fluttering",
-        ActiveLock::Initialization => !d.exempt_from_initialize && !d.use_from_hand && !d.use_from_discard,
-    }
+    let at = Located { owner: q as usize, held: Some(SlotRef::new(q as usize, s)) };
+    crate::engine::enter::while_ok(g, c, at, l.while_, None).then_some(q as usize)
 }
 
-/// The `HANDLE_ABILITY_LOCK` callback: is `card`'s Ability locked by `me`? `player` is the player of the
-/// effect being checked, `power_effect` whether it is a use of an Ability.
-fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: ActiveLock, player: usize, card: CardId, power_effect: bool) -> R<bool> {
+/// Does lock `l` of `me` cover the Pokémon card `card` where it is: a Pokémon in play whose spot `l.locked` names (read for
+/// `me`'s side), that isn't `l.except`? A card in no spot (in a hand, a deck, a list of cards being looked at) is judged by its
+/// printed data and never locked (RULES.md "Locks on playing cards"). Position and coverage only: the lock's own probes aren't
+/// run.
+fn active_lock_covers<F: crate::derived::Facts>(g: &mut F, me: CardId, l: &ActiveLockSpec, card: CardId) -> R<bool> {
+    let slot = match g.g().st.locate(card) {
+        Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
+        _ => return Ok(false),
+    };
+    Ok(slot_pred_m(g, me, slot, &l.locked)? && !pred(g.g(), card, &l.except))
+}
+
+/// Is `card`'s Ability locked by `me` (the lock's source in place, the card covered, and the lock winning: the precedence
+/// between locks, RULES.md; the source's own Ability working)?
+fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: &ActiveLockSpec, card: CardId) -> R<bool> {
     let own = crate::effects::PowerRef { card: me, index: 0 };
     // "Has no Abilities" from an opponent's Ability: a continuous effect done to the Pokémon (batch 8 C11; Hide 'n' Sneak
     // over Midnight Fluttering, RULES.md precedence 1, id2426).
     if !lock_reaches(g, me, RuleSource::Ability, card) {
         return Ok(false);
     }
-    match l {
-        ActiveLock::MidnightFluttering => {
-            // Only a Flutter Mane in its owner's Active Spot locks, and only the opponent's Active Pokémon; a card
-            // anywhere else (a deck, a list of cards being looked at) is neither.
-            let Some(owner) = g.g().st.locate(me).and_then(|l| l.owner()) else { return Ok(false) };
-            if g.g().st.active_pokemon(owner) != Some(me) {
-                return Ok(false);
-            }
-            let opponent = 1 - owner;
-            if g.g().st.locate(card) != Some(ListRef::Slot(opponent as u8, g.g().st.players[opponent].active)) {
-                return Ok(false);
-            }
-            // LOCKER_ABILITY_APPLIES: a lock source is turned off only by a lock that wins over it.
-            if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
-                return Ok(false);
-            }
-            Ok(!power_blocked(g, owner, own, me, false))
-        }
-        ActiveLock::Initialization => {
-            if g.g().st.active_pokemon(player) != Some(me) && g.g().st.active_pokemon(1 - player) != Some(me) {
-                return Ok(false);
-            }
-            // A card in the hand is judged by its printed data (docs/rulings/RULES.md): only Pokémon in play are locked.
-            let slot = match g.g().st.locate(card) {
-                Some(ListRef::Slot(q, s)) => SlotRef::new(q as usize, s),
-                _ => return Ok(false),
-            };
-            let d = g.g().st.cdef(card);
-            if d.has_tag(tag::FUTURE) || !d.has_rule_box() {
-                return Ok(false);
-            }
-            let locker_owner = if g.g().st.active_pokemon(player) == Some(me) { player } else { 1 - player };
-            // LOCKER_ABILITY_APPLIES
-            if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
-                return Ok(false);
-            }
-            if power_blocked(g, locker_owner, own, me, false) {
-                return Ok(false);
-            }
-            if power_effect {
-                // CAN_APPLY_LOCK_TO_TARGET
-                return Ok(effect_of_ability_reaches(g.g(), me, own, slot));
-            }
-            Ok(true)
-        }
+    // Only a source in its place locks (a card anywhere else, a deck or a list of cards being looked at, is none).
+    let Some(owner) = active_lock_owner(g.g(), me, l) else { return Ok(false) };
+    if !active_lock_covers(g, me, l, card)? {
+        return Ok(false);
     }
+    // A lock source is turned off only by a lock that wins over it.
+    if lock_passives(g.g(), card).next().is_some() && !lock_beats(g, me, card)? {
+        return Ok(false);
+    }
+    Ok(!power_blocked(g, owner, own, me, false))
 }
 
-fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
+fn active_lock(g: &mut Game, me: CardId, e: EffId, l: &ActiveLockSpec) -> R {
     match *g.e(e) {
-        Effect::Power { p, power, card, .. } => {
-            if active_lock_subject(g, l, power, false) && active_lock_applies(g, me, l, p as usize, card, true)? {
+        Effect::Power { power, card, .. } => {
+            if lockable_power(g, power) && active_lock_applies(g, me, l, card)? {
                 crate::bail!("BLOCKED_BY_ABILITY");
             }
         }
@@ -3693,7 +3674,7 @@ mod attached_lock_tests {
             P::All(qs) | P::OneOf(qs) => qs.iter().all(layout_pred),
             P::Any | P::False | P::Pokemon | P::Basic | P::Energy | P::BasicEnergy | P::Trainer | P::Item | P::Supporter
             | P::Tool | P::Stadium | P::Name(_) | P::Tag(_) | P::Stage(_) | P::NameContains(_) | P::StageIs(_)
-            | P::PrintedType(_) | P::PokemonType(_) | P::RuleBox | P::SpecialEnergy | P::PrintsAbility => true,
+            | P::PrintedType(_) | P::PokemonType(_) | P::RuleBox | P::SpecialEnergy | P::PrintsAbility | P::HasAbilityNamed(_) => true,
             _ => false,
         }
     }
@@ -3729,7 +3710,12 @@ mod attached_lock_tests {
                         locks.push(s.class);
                     }
                     // The Active Spot, the printed card, its Rule Box and tags.
-                    Modifier::ActiveLock(ActiveLock::MidnightFluttering | ActiveLock::Initialization) => locks.push(s.class),
+                    Modifier::ActiveLock(l) => {
+                        assert!(layout_pred(&l.except), "{}: an Active-Spot lock's exception outside the gate's key", s.class);
+                        assert!(layout_slot_pred(&l.locked), "{}: an Active-Spot lock's spot predicate outside the gate's key", s.class);
+                        assert!(!l.reads_attached(), "{}: an Active-Spot lock that reads attached cards", s.class);
+                        locks.push(s.class);
+                    }
                     _ => {}
                 }
             }
@@ -3795,5 +3781,238 @@ mod non_stacking_tests {
             }
         }
         assert_eq!(declarers, vec!["Bouffalant SCR 119"], "the cards that declared NonStack::CurlyWall");
+    }
+}
+
+#[cfg(test)]
+mod active_lock_equality_tests {
+    //! Events batch 9 C2: `ActiveLockSpec` replaced `ActiveLock::{MidnightFluttering, Initialization}` and the card-data flags
+    //! `exempt_from_ability_lock` / `exempt_from_initialize`. The pre-batch-9 reading is kept here, frozen, and compared with the
+    //! declarations on every pool card (the power and the card), and on a board for the positions.
+    use super::*;
+    use crate::effects::PowerRef;
+    use serde_json::json;
+
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    enum Old {
+        MidnightFluttering,
+        Initialization,
+    }
+    const OLD: [Old; 2] = [Old::MidnightFluttering, Old::Initialization];
+
+    /// `active_lock_subject` as it was: which powers the lock takes away, read from the card-data flags.
+    fn old_subject(g: &Game, l: Old, power: PowerRef, probe: bool) -> bool {
+        if power.index == PROBE_GENERIC {
+            return true;
+        }
+        let d = &g.st.cdef(power.card).powers[power.index as usize];
+        if d.power_type != PowerType::Ability as u8 || d.exempt_from_ability_lock {
+            return false;
+        }
+        match l {
+            Old::MidnightFluttering => probe || d.name != "Midnight Fluttering",
+            Old::Initialization => !d.exempt_from_initialize && !d.use_from_hand && !d.use_from_discard,
+        }
+    }
+
+    /// The card part of `active_lock_applies` as it was, for a card in a spot where the lock's position holds: the
+    /// Midnight Fluttering lock covered the opponent's Active Pokémon whatever the card; Initialization the cards with a Rule
+    /// Box that are not Future Pokémon.
+    fn old_card(g: &Game, l: Old, card: CardId) -> bool {
+        match l {
+            Old::MidnightFluttering => true,
+            Old::Initialization => {
+                let d = g.st.cdef(card);
+                !d.has_tag(tag::FUTURE) && d.has_rule_box()
+            }
+        }
+    }
+
+    fn spec_of(key: &str) -> &'static ActiveLockSpec {
+        let spec = crate::cards::spec_for(crate::carddb::def_by_full_name(key).unwrap()).unwrap();
+        spec.passives.iter().find_map(|ps| if let Modifier::ActiveLock(l) = &ps.modifier { Some(l) } else { None }).unwrap()
+    }
+
+    fn lock_spec(l: Old) -> &'static ActiveLockSpec {
+        match l {
+            Old::MidnightFluttering => spec_of("Flutter Mane PRE 43"),
+            Old::Initialization => spec_of("Iron Thorns ex PRE 32"),
+        }
+    }
+
+    /// The Pokémon-or-Fossil card of a def, alone in a game (a card out of play: only its printed data is read).
+    fn alone(def: crate::carddb::DefId) -> (Game, CardId) {
+        let mut g = Game::new(7);
+        g.start([&[def], &[def]]).unwrap();
+        let card = (0..g.st.n_cards).find(|c| g.st.cards[*c as usize].def == def).unwrap();
+        (g, card)
+    }
+
+    /// The `locked` predicate for a card that stands where the lock's position holds, read as the pre-batch-9 code did: the
+    /// opponent's Active Pokémon (Midnight Fluttering) is every card; Initialization names the Rule Box.
+    fn locked_printed(g: &Game, spec: &ActiveLockSpec, card: CardId) -> bool {
+        match &spec.locked {
+            SlotPred::Top(p) => pred(g, card, p),
+            SlotPred::All(_) => true,
+            _ => panic!("a locked predicate this test doesn't know"),
+        }
+    }
+
+    /// For every card of the pool and every power it prints: what the old subject and card checks said together equals what
+    /// the declaration says (the generic rule of the lock pass for the power, the lock's `locked` and `except` for the card).
+    /// The flags marked exactly the cards this proves redundant.
+    #[test]
+    fn the_declarations_equal_the_old_subject_and_flags_on_every_pool_card() {
+        let mut flagged: Vec<&str> = Vec::new();
+        for (id, d) in crate::carddb::cards().iter().enumerate() {
+            let (g, card) = alone(id as crate::carddb::DefId);
+            if d.powers.iter().any(|p| p.exempt_from_ability_lock || p.exempt_from_initialize) {
+                flagged.push(d.full_name);
+            }
+            for i in 0..d.powers.len() {
+                let power = PowerRef { card, index: i as u8 };
+                for l in OLD {
+                    let spec = lock_spec(l);
+                    let old = old_subject(&g, l, power, false) && old_card(&g, l, card);
+                    let new = lockable_power(&g, power) && locked_printed(&g, spec, card) && !pred(&g, card, &spec.except);
+                    assert_eq!(old, new, "{}: power {} ({}) under {:?}", d.full_name, i, d.powers[i].name, l);
+                }
+            }
+            // The generic probe ("has no Abilities"): the card part alone. Midnight Fluttering's exception is the one
+            // difference (see `the_probe_differs...`): the old probe covered the card that has the excepted Ability.
+            let probe = PowerRef { card, index: PROBE_GENERIC };
+            for l in OLD {
+                let spec = lock_spec(l);
+                let old = old_subject(&g, l, probe, false) && old_card(&g, l, card);
+                let new = lockable_power(&g, probe) && locked_printed(&g, spec, card) && !pred(&g, card, &spec.except);
+                if old != new {
+                    assert!(l == Old::MidnightFluttering && pred(&g, card, &spec.except) && d.name == "Flutter Mane", "{}: the generic probe under {:?}", d.full_name, l);
+                }
+            }
+        }
+        // The flags marked: both Antique Fossils (their rule text is no Ability: a power type that isn't one) and the Future
+        // Iron ex Pokémon (excepted by the Future tag).
+        let want = [
+            "Antique Cover Fossil SCR 129", "Antique Root Fossil SCR 130", "Iron Crown ex PRE 158", "Iron Crown ex TEF 81", "Iron Leaves ex PRE 176",
+            "Iron Leaves ex TEF 25", "Iron Thorns ex PRE 32", "Iron Thorns ex TWM 77",
+        ];
+        flagged.sort();
+        assert_eq!(flagged, want);
+        for key in want {
+            let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
+            if d.powers.iter().any(|p| p.exempt_from_initialize) {
+                assert!(d.has_tag(tag::FUTURE), "{key}: excepted from Initialization without being a Future Pokémon");
+            }
+            if d.powers.iter().any(|p| p.exempt_from_ability_lock) {
+                assert!(d.powers.iter().any(|p| p.exempt_from_ability_lock && p.power_type != PowerType::Ability as u8), "{key}: exempt from every lock but a plain Ability");
+            }
+        }
+    }
+
+    /// The old probe answer ignored the exception ("probe || name != Midnight Fluttering"): the generic "has no Abilities"
+    /// and a probe of a power read the lock as covering Midnight Fluttering itself. The declaration says "except for Midnight
+    /// Fluttering" in both reads. Only a card that has the Ability can tell: Flutter Mane (no other declaration of the pool
+    /// reads its own Ability's probe while it is the opponent's Active Pokémon: it is a lock, read as `real`).
+    #[test]
+    fn the_probe_differs_from_the_old_one_only_for_the_card_that_has_the_excepted_ability() {
+        let mut differs: Vec<&str> = Vec::new();
+        for (id, d) in crate::carddb::cards().iter().enumerate() {
+            let (g, card) = alone(id as crate::carddb::DefId);
+            let spec = lock_spec(Old::MidnightFluttering);
+            for i in 0..d.powers.len() {
+                let power = PowerRef { card, index: i as u8 };
+                let old = old_subject(&g, Old::MidnightFluttering, power, true);
+                let new = lockable_power(&g, power) && !pred(&g, card, &spec.except);
+                if old != new {
+                    differs.push(d.full_name);
+                }
+            }
+        }
+        differs.sort();
+        differs.dedup();
+        assert_eq!(differs, vec!["Flutter Mane PRE 43", "Flutter Mane TEF 78"]);
+        // Each prints no other Ability and declares nothing but the lock (the probe of its own Ability matters to nothing else).
+        for key in ["Flutter Mane PRE 43", "Flutter Mane TEF 78"] {
+            let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
+            assert_eq!(d.powers.len(), 1, "{key}");
+            let spec = crate::cards::spec_for(crate::carddb::def_by_full_name(key).unwrap()).unwrap();
+            assert!(spec.passives.len() == 1 && matches!(spec.passives[0].modifier, Modifier::ActiveLock(_)), "{key}");
+        }
+    }
+
+    const NAMES: [&str; 14] = [
+        "Flutter Mane PRE 43",
+        "Flutter Mane TEF 78",
+        "Iron Thorns ex PRE 32",
+        "Iron Thorns ex TWM 77",
+        "Iron Crown ex TEF 81",
+        "Iron Treads TEF 118",
+        "Duraludon PRE 69",
+        "Frillish WHT 44",
+        "Jellicent ex WHT 45",
+        "Finizen TWM 59",
+        "Palafin ex PRE 151",
+        "Antique Root Fossil SCR 130",
+        "Hoothoot PRE 77",
+        "Noctowl PRE 78",
+    ];
+
+    fn game(sc: serde_json::Value) -> Game {
+        let mut deck: Vec<u16> = NAMES.iter().flat_map(|n| (0..2).map(move |_| *n)).map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        while deck.len() < 60 {
+            deck.push(crate::carddb::def_by_full_name("Water Energy MEE 3").unwrap());
+        }
+        // Two copies of each (the same-name limit is 4: the two Flutter Manes, the two Iron Thorns ex), and a seed whose opening deals leave every card the board needs in the decks or the hands.
+        for seed in 1..200 {
+            let mut g = Game::new(seed);
+            g.start([&deck, &deck]).unwrap();
+            g.settle().ok();
+            if crate::scenario::apply(&mut g, &sc).is_ok() {
+                return g;
+            }
+        }
+        panic!("no seed deals the board {sc}");
+    }
+
+    /// On boards with the sources Active, Benched and on either side, for every card in play: where the lock holds
+    /// (`active_lock_owner`) and what it covers (`active_lock_covers`) equal the old positions (the source is a player's
+    /// Active Pokémon; the opponent's Active Pokémon, or any Pokémon with a Rule Box that isn't Future). The Pokémon are
+    /// the tops of their spots (a Pokémon in play is its top card).
+    #[test]
+    fn the_positions_equal_the_old_ones_on_boards() {
+        let boards = [
+            json!({"me": {"reset": true, "active": "Flutter Mane PRE 43", "bench": [{"card": "Iron Thorns ex PRE 32"}, {"card": ["Frillish WHT 44", "Jellicent ex WHT 45"]}]},
+                "opp": {"reset": true, "active": ["Frillish WHT 44", "Jellicent ex WHT 45"], "bench": [{"card": "Duraludon PRE 69"}, {"card": "Flutter Mane TEF 78"}]}}),
+            json!({"me": {"reset": true, "active": "Iron Thorns ex PRE 32", "bench": [{"card": "Flutter Mane PRE 43"}, {"card": "Iron Treads TEF 118"}]},
+                "opp": {"reset": true, "active": ["Finizen TWM 59", "Palafin ex PRE 151"], "bench": [{"card": "Antique Root Fossil SCR 130"}, {"card": "Iron Crown ex TEF 81"}]}}),
+            json!({"me": {"reset": true, "active": "Duraludon PRE 69", "bench": [{"card": "Flutter Mane PRE 43"}, {"card": "Iron Thorns ex TWM 77"}]},
+                "opp": {"reset": true, "active": "Flutter Mane TEF 78", "bench": [{"card": "Iron Thorns ex PRE 32"}, {"card": "Hoothoot PRE 77"}]}}),
+            json!({"me": {"reset": true, "active": "Flutter Mane PRE 43"}, "opp": {"reset": true, "active": "Iron Thorns ex TWM 77", "bench": [{"card": ["Frillish WHT 44", "Jellicent ex WHT 45"]}]}}),
+        ];
+        let mut asked = 0;
+        for sc in boards {
+            let g = game(sc);
+            let sources: Vec<CardId> = (0..g.st.n_cards).filter(|c| lock_passives(&g, *c).next().is_some()).collect();
+            let tops: Vec<(usize, crate::state::SlotId, CardId)> = (0..2usize).flat_map(|q| g.st.players[q].in_play().iter().map(move |s| (q, *s)).collect::<Vec<_>>()).filter_map(|(q, s)| g.st.slot_pokemon(q, s).map(|c| (q, s, c))).collect();
+            for src in sources {
+                let ps = lock_passives(&g, src).next().unwrap();
+                let Modifier::ActiveLock(spec) = &ps.modifier else { continue };
+                let l = if g.st.cdef(src).name == "Flutter Mane" { Old::MidnightFluttering } else { Old::Initialization };
+                let old_owner = (0..2usize).find(|q| g.st.active_pokemon(*q) == Some(src));
+                assert_eq!(active_lock_owner(&g, src, spec), old_owner, "{}: where the lock holds", g.st.cdef(src).full_name);
+                let Some(owner) = old_owner else { continue };
+                for (q, s, card) in tops.iter().copied() {
+                    let old = match l {
+                        Old::MidnightFluttering => q == 1 - owner && s == g.st.players[q].active,
+                        Old::Initialization => old_card(&g, l, card),
+                    };
+                    let mut c = Box::new(g.clone());
+                    let new = active_lock_covers(&mut *c, src, spec, card).unwrap();
+                    assert_eq!(old, new, "{} locking {} at ({q}, {s})", g.st.cdef(src).full_name, g.st.cdef(card).full_name);
+                    asked += 1;
+                }
+            }
+        }
+        assert!(asked > 20, "only {asked} pairs");
     }
 }
