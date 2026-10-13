@@ -147,20 +147,11 @@ pub enum Side {
 /// The effects that do not stack: only the first reduction per effect applies.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum NonStack {
-    /// Bouffalant's Curly Wall: one per damage effect.
-    CurlyWall,
+    /// "The effect of <Ability> doesn't stack" (Bouffalant SCR 119's Curly Wall: "only 1 Curly Wall applies"): one
+    /// application per damage per Ability name, whichever card declares it. The accumulator records the declaring
+    /// Ability's name (`DamageAcc::applied`).
+    SameAbility,
 }
-
-impl NonStack {
-    const fn flag(self) -> u8 {
-        match self {
-            NonStack::CurlyWall => CURLY_WALL,
-        }
-    }
-}
-
-/// `DamageAcc::flags`: Bouffalant's Curly Wall already reduced this damage.
-const CURLY_WALL: u8 = 1 << 1;
 
 /// "This attack does N more damage" (vocabulary P1).
 pub struct DamageDealtSpec {
@@ -1061,8 +1052,16 @@ pub struct DamageAcc {
     pub weakness_applied: bool,
     /// A survive-on-10 replacement of a full-HP Pokémon is armed.
     pub survive: bool,
-    /// The non-stacking modifiers already applied (`fx_flag::DAMAGE_INCREASED`, `CURLY_WALL`).
+    /// The non-stacking bonus already applied (`fx_flag::DAMAGE_INCREASED`).
     pub flags: u8,
+    /// The names of the Abilities whose non-stacking reduction already applied to this damage (`NonStack::SameAbility`).
+    pub applied: SVec<&'static str, 4>,
+}
+
+/// The name of the Ability the passive of the card `me` is (a `NonStack::SameAbility` declaration keys on it).
+fn declaring_ability(g: &Game, me: CardId) -> &'static str {
+    let d = g.st.cdef(me);
+    d.powers.iter().find(|p| p.power_type == PowerType::Ability as u8).map_or(d.name, |p| p.name)
 }
 
 /// `DamageDealt` at the Attack stage, over the `Attack` effect ("this attack does N more damage" before it is dealt).
@@ -1177,8 +1176,9 @@ fn damage_taken_prelude(
 /// `DamageTaken` of `me`: the defender-side modifier on the damage being calculated (step 5).
 pub(crate) fn damage_taken_into(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageTakenSpec, acc: &mut DamageAcc) -> R {
     let Some((b, _)) = damage_taken_prelude(g, me, acc.b, origin, d.side, &d.subject, &d.source, &d.guard, d.from_any_attack)? else { return Ok(()) };
-    if let Some(ns) = d.nonstacking {
-        if acc.flags & ns.flag() != 0 {
+    let ability = d.nonstacking.map(|NonStack::SameAbility| declaring_ability(g, me));
+    if let Some(name) = ability {
+        if acc.applied.iter().any(|n| *n == name) {
             return Ok(());
         }
     }
@@ -1190,8 +1190,8 @@ pub(crate) fn damage_taken_into(g: &mut Game, me: CardId, origin: RuleSource, d:
         }
     }
     acc.damage -= d.amount;
-    if let Some(ns) = d.nonstacking {
-        acc.flags |= ns.flag();
+    if let Some(name) = ability {
+        acc.applied.push(name);
     }
     if d.then_discard {
         // "Then, discard this card": the Tool leaves play by its own text (a LeavePlay of the attached card, user decision
@@ -3759,5 +3759,31 @@ mod next_turn_bonus_tests {
             }
         }
         assert_eq!(found, printed.len(), "every card of the table declares its bonus");
+    }
+}
+
+#[cfg(test)]
+mod non_stacking_tests {
+    //! Events batch 9 C2: `NonStack::SameAbility` replaced the per-card bit `CURLY_WALL`. The bit was one for the whole game, set
+    //! by every card declaring `NonStack::CurlyWall`: equal to a key on the declaring Ability's name exactly when every
+    //! declarer prints the same Ability name, and no other card declares a non-stacking reduction.
+    use super::*;
+
+    #[test]
+    fn every_declarer_of_a_non_stacking_reduction_is_curly_wall() {
+        let mut declarers = Vec::new();
+        for (id, d) in crate::carddb::cards().iter().enumerate() {
+            let Some(spec) = crate::cards::spec_for(id as crate::carddb::DefId) else { continue };
+            for ps in spec.passives {
+                let Modifier::DamageTaken(t) = &ps.modifier else { continue };
+                if t.nonstacking.is_some() {
+                    assert_eq!(ps.origin, RuleSource::Ability, "{}: a non-stacking reduction that isn't an Ability's", d.full_name);
+                    let abilities: Vec<&str> = d.powers.iter().filter(|p| p.power_type == PowerType::Ability as u8).map(|p| p.name).collect();
+                    assert_eq!(abilities, vec!["Curly Wall"], "{}: the Ability a non-stacking reduction is keyed by", d.full_name);
+                    declarers.push(d.full_name);
+                }
+            }
+        }
+        assert_eq!(declarers, vec!["Bouffalant SCR 119"], "the cards that declared NonStack::CurlyWall");
     }
 }
