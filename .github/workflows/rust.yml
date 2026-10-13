@@ -6,6 +6,8 @@
 # Runs on pushes to main and to ci/** branches (`tools/ci.py` pushes the
 # current commit to ci/<branch> and waits for the result), and on demand.
 # Failing games' traces are uploaded as artifacts; `diff` replays them.
+# Caches (cargo, the golden corpus) are saved from main only: ci/** branches read main's and would
+# otherwise each keep a copy of their own.
 name: rust
 run-name: rust ${{ github.ref_name }} ${{ inputs.games || '' }}
 
@@ -39,15 +41,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/cache@v4
+        id: rust
+      - uses: actions/cache/restore@v4
+        id: cargo
         with:
-          path: |
+          path: &cargo-paths |
             ~/.cargo/registry
             engine/target
-          key: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-${{ github.sha }}
-          restore-keys: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-
+          key: &cargo-key cargo-build-${{ runner.os }}-${{ steps.rust.outputs.cachekey }}-${{ hashFiles('engine/Cargo.lock') }}
       - name: Build
         run: cargo build --release --manifest-path engine/Cargo.toml --bins
+      - if: github.ref == 'refs/heads/main' && steps.cargo.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: *cargo-paths
+          key: *cargo-key
       - id: m
         run: |
           SEED="${{ inputs.seed }}"
@@ -63,22 +71,28 @@ jobs:
             engine/target/release/scen
           retention-days: 1
 
+  # Alongside build, not after it: the engine crate recompiles on every commit either way.
   test:
-    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/cache@v4
+        id: rust
+      - uses: actions/cache/restore@v4
+        id: cargo
         with:
-          path: |
+          path: &test-paths |
             ~/.cargo/registry
             engine/target
-          key: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-${{ github.sha }}
-          restore-keys: cargo-${{ runner.os }}-${{ hashFiles('engine/Cargo.lock') }}-
+          key: &test-key cargo-test-${{ runner.os }}-${{ steps.rust.outputs.cachekey }}-${{ hashFiles('engine/Cargo.lock') }}
       - name: Unit and integration tests
         run: cargo test --release --manifest-path engine/Cargo.toml
+      - if: github.ref == 'refs/heads/main' && steps.cargo.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: *test-paths
+          key: *test-key
 
   # Golden-corpus replay: 20,001 recorded games through `diff`; the set of diverged games must equal
   # tools/golden-expected.txt (each a rules fix). The corpus is a release asset (tools/golden-corpus.txt
@@ -96,7 +110,7 @@ jobs:
       - run: chmod +x engine/target/release/*
       - id: c
         run: echo "name=$(tr -d '[:space:]' < tools/golden-corpus.txt)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
         id: cache
         with:
           path: golden-dl
@@ -109,6 +123,11 @@ jobs:
           N="${{ steps.c.outputs.name }}"
           mkdir golden-dl
           gh release download "golden-$N" --repo "$GITHUB_REPOSITORY" --dir golden-dl --pattern "$N.tar.*" --pattern SHA256SUMS
+      - if: github.ref == 'refs/heads/main' && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: golden-dl
+          key: golden-${{ steps.c.outputs.name }}
       - name: Extract
         run: |
           N="${{ steps.c.outputs.name }}"
