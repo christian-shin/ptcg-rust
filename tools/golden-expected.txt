@@ -268,3 +268,24 @@ g0500017113  # step 234 obs, final state: the attack ended the game, Powerglass'
 g0500017174  # step 95 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
 g0500019033  # step 76 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
 g0500019579  # step 195 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+# Events batch 8 C12c-b (RULES FIX, user decision 2026-10-12; id2237, id2347; JP FAQ Jumbo Ice Cream): "3 or more Energy
+# attached" counts the Energy provided: Jumbo Ice Cream CRI 109 is playable on an Active Evolution Pokémon with Ignition
+# Energy (3 Energy from 1 card), which the recording didn't offer (CI 38346257991).
+g0500000184  # step 166 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500001084  # step 157 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500001867  # step 236 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500001879  # step 125 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500001890  # step 134 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500002044  # step 69 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500002104  # step 102 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500004564  # step 73 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500005466  # step 206 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500005478  # step 102 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500010204  # step 191 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500012641  # step 181 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500012692  # step 126 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500013024  # step 207 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500013324  # step 242 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500014164  # step 67 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500016258  # step 141 options; Jumbo Ice Cream (CRI 109) now among the turn options
+g0500016272  # step 199 options; Jumbo Ice Cream (CRI 109) now among the turn options
