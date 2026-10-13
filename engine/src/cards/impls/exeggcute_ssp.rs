@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[
                 Step::new(Op::Pick(PickSpec {
                     from: DECK,
-                    predicate: Pred::All(&[Pred::Pokemon, Pred::EvolvesFrom("Exeggcute")]),
+                    predicate: Pred::All(&[Pred::Pokemon, Pred::EvolvesFromActive]),
                     bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
                     into: 0,
                     msg: "CHOOSE_CARD_TO_EVOLVE",

@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "19 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Dwebble DRI 11",
+   "4 Crustle DRI 12",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "19 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Clefable ASC 75",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Dwebble DRI 11",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Ascension"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Clefable ASC 75",
+   "cite": "JP FAQ Clefable (Cocoon's Dangerous Evolution: no card evolves from Clefable, the copied attack ends): the copycat stays Clefable"
+  }
+ ]
+}

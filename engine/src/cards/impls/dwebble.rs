@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             yes: &[
                 Step::new(Op::Pick(PickSpec {
                     from: DECK,
-                    predicate: Pred::All(&[Pred::Pokemon, Pred::StageIs(crate::types::Stage::Stage1), Pred::EvolvesFrom("Dwebble")]),
+                    predicate: Pred::All(&[Pred::Pokemon, Pred::StageIs(crate::types::Stage::Stage1), Pred::EvolvesFromActive]),
                     bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
                     into: 0,
                     cancel: true,
