@@ -20,17 +20,29 @@ pub static SPEC: CardSpec = CardSpec {
             // You may shuffle 3 Energy from this Pokémon into your deck; if you do, also 120 damage to 1 of the opponent's Benched Pokémon.
             steps: &[Step::after_damage(Op::May(MaySpec {
                 asker: Who::Me,
-                when: Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any),
+                // 3 Energy must be attached to this Pokémon to shuffle (a copycat's own Energy, JP FAQ Clefable), and a
+                // Benched Pokémon must be there to damage.
+                when: Cond::All(&[
+                    Cond::AnySlot(SlotSel::Bench(Who::Opp), SlotPred::Any),
+                    Cond::Cmp(Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::ProvidedUnits), CmpOp::Ge, Num::Lit(3)),
+                ]),
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[
                     Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(3), ty: ct::COLORLESS }, to: EnergyDest::Deck, ..DiscardEnergySpec::DEFAULT })),
-                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
-                    Step::new(Op::DamageSlot(DamageSlotSpec {
-                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
-                        hp: Num::Lit(120),
-                        target_damage_mul: 0,
-                        calc: DamageCalc::Put,
-                        when: Cond::True,
+                    // "If you do": the 3 Energy went into the deck.
+                    Step::new(Op::If(IfSpec {
+                        cond: Cond::Done,
+                        yes: &[
+                            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                            Step::new(Op::DamageSlot(DamageSlotSpec {
+                                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+                                hp: Num::Lit(120),
+                                target_damage_mul: 0,
+                                calc: DamageCalc::Put,
+                                when: Cond::True,
+                            })),
+                        ],
+                        no: &[],
                     })),
                 ],
                 no: &[],

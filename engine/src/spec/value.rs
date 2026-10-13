@@ -272,6 +272,10 @@ pub enum Pred {
     SpecialEnergy,
     /// The Pokémon evolves from a Pokémon its owner has in play.
     EvolvesFromOwnInPlay,
+    /// The Pokémon evolves from its owner's Active Pokémon, by the name the Active Pokémon has now: "a card that evolves
+    /// from this Pokémon" in an attack names the Pokémon using the attack, which is a copycat's own name when it uses a
+    /// copied attack (JP FAQ Clefable ASC 75: no card evolves from Clefable).
+    EvolvesFromActive,
     /// The card prints an Ability (a Pokémon, or a Fossil that is played as one).
     PrintsAbility,
 }
@@ -644,6 +648,13 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
             mon && {
                 let owner = g.st.owner(c);
                 for_each_pokemon(g, owner, PlayerType::BottomPlayer).iter().any(|(_, top, _)| g.st.cdef(*top).name == d.evolves_from)
+            }
+        }
+        Pred::EvolvesFromActive => {
+            mon && {
+                let owner = g.st.owner(c);
+                let active = g.st.players[owner].active;
+                g.st.slot_pokemon(owner, active).is_some_and(|top| g.st.cdef(top).name == d.evolves_from)
             }
         }
         Pred::PrintsAbility => d.powers.iter().any(|pw| pw.power_type == PowerType::Ability as u8),

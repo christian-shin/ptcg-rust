@@ -10,7 +10,7 @@
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);
-const EVOLUTION: Pred = Pred::All(&[Pred::Pokemon, Pred::EvolvesFrom("Eevee")]);
+const EVOLUTION: Pred = Pred::All(&[Pred::Pokemon, Pred::EvolvesFromActive]);
 
 pub static SPEC: CardSpec = CardSpec {
     class: "EeveeTWMPool",

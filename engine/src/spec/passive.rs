@@ -2425,6 +2425,11 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &'static NextTurnBonus
     if g.st.slot_pokemon(source.p as usize, source.s) != Some(me) {
         return Ok(());
     }
+    // "This Pokémon's [attack] attack" is the Pokémon's own attack: a copied attack is used as the copycat's attack
+    // (JP FAQ Clefable: Metronome copying Comet Punch, then again next turn: not +50), so a copy neither arms nor takes it.
+    if g.deleg.is_some() {
+        return Ok(());
+    }
     let full_name = g.st.cdef(me).full_name;
     let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].name;
     let armed = match crate::engine::lasting::armed_bonus(&g.st, source.p as usize, source.s) {
