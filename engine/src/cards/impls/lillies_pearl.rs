@@ -4,7 +4,7 @@
 //!
 //! Rule: a `PrizeAdjust` over the KnockOut view: it applies to a Knock Out whose
 //! `ko_by` is AttackDamage (the damage of an opponent's attack; Poison, an effect
-//! that Knocks Out, never), on a Pokémon with a Lillie's card in its stack.
+//! that Knocks Out, never), on a Pokémon whose top card is a Lillie's Pokémon (a Pokémon in play is its top card).
 use crate::spec::prelude::*;
 use crate::types::tag;
 
@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         // The Lillie's Pokémon Knocked Out by damage from an attack: the opponent takes 1 fewer Prize card.
         modifier: Modifier::PrizeAdjust(PrizeAdjustSpec {
             delta: -1,
-            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::AnyCardTag(tag::LILLIES)]),
+            subject: SlotPred::All(&[SlotPred::Holder, SlotPred::Tag(tag::LILLIES)]),
             by_attack_damage: true,
             by_own_attack: None,
             guard: Cond::True,

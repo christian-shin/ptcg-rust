@@ -6,7 +6,6 @@
 //! is no damage and no prompt. Otherwise one Damage event on the chosen Benched ex (no Weakness or Resistance), this attack its
 //! cause.
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Zeraora@DRI",
@@ -15,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
             index: 1,
             steps: &[
                 Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(MY_ACTIVE), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),
-                Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Top(Pred::Tag(tag::POKEMON_EX_LOWER))), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), hp: Num::Lit(210), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::True })),
+                Step::after_damage(Op::DamageSlot(DamageSlotSpec { target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Bench(Who::Opp), SlotPred::Top(Pred::PokemonEx)), msg: "CHOOSE_POKEMON_TO_DAMAGE" }), hp: Num::Lit(210), target_damage_mul: 0, calc: DamageCalc::Put, when: Cond::True })),
             ],
         },
     ],

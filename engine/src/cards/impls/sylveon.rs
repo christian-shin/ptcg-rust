@@ -6,13 +6,12 @@
 //! against an attack that ignores the effects on the Defending Pokémon (id2095, Demolish). Effects of those attacks
 //! still happen.
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Sylveon",
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Card(Pred::Tag(tag::POKEMON_EX_LOWER)))]))),
+        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Card(Pred::PokemonEx))]))),
     }],
     ..CardSpec::NONE
 };

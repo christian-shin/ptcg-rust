@@ -5,13 +5,12 @@
 //! Energy's +20 counts), then arms the Item lock (one ApplyEffect event on the opponent). The Tera rule is `TERA_RULE`:
 //! a `Prevent` over `Kind(Damage)` on this Pokémon while it is on the Bench.
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Galvantulaex",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::before_damage(more_damage_if(110, Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::OneOf(&[SlotPred::Tag(tag::POKEMON_V), SlotPred::Tag(tag::POKEMON_VSTAR), SlotPred::Tag(tag::POKEMON_VMAX), SlotPred::Tag(tag::POKEMON_EX_LOWER)])))),
+            Step::before_damage(more_damage_if(110, Cond::Slot(SlotExpr::Active(Who::Opp), SlotPred::Top(Pred::OneOf(&[Pred::PokemonEx, Pred::PokemonV]))))),
         ] },
         AttackSpec { index: 1, steps: &[
             Step::after_damage(Op::DiscardEnergy(DiscardEnergySpec { target: SlotTarget::Slot(SlotExpr::Active(Who::Me)), selection: EnergySelection::AllProvided, ..DiscardEnergySpec::DEFAULT })),

@@ -7,7 +7,6 @@
 //! `Prevent` (`TERA_RULE`, a card rule) and still protects the Benched Pokémon then. Dirty Beam's 30 is a Damage event
 //! on the chosen Benched Pokémon (no Weakness or Resistance, APR B-08; a protected Pokémon can still be chosen).
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Farigirafex",
@@ -17,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Pokemon(SlotPred::All(&[SlotPred::Basic, SlotPred::Tag(tag::POKEMON_EX_LOWER)])))]))) },
+        Passive { origin: RuleSource::Ability, modifier: Modifier::Prevent(PreventSpec::on(SlotPred::Holder, EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Pokemon(SlotPred::All(&[SlotPred::Basic, SlotPred::Top(Pred::PokemonEx)])))]))) },
         Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) },
     ],
     ..CardSpec::NONE

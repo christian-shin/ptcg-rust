@@ -31,7 +31,7 @@ pub static SPEC: CardSpec = CardSpec {
             origin: RuleSource::TrainerEffect,
             modifier: Modifier::Prevent(PreventSpec::on(
                 SlotPred::MarkerFromThis(MISCHIEF),
-                EventPred::All(&[DAMAGE_OR_EFFECTS, EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Card(Pred::Tag(crate::types::tag::POKEMON_EX_LOWER))]))]),
+                EventPred::All(&[DAMAGE_OR_EFFECTS, EventPred::Cause(CausePred::All(&[CausePred::By(Who::Opp), CausePred::Kind(crate::cause::CauseKind::Attack), CausePred::Card(Pred::PokemonEx)]))]),
             )),
         },
     ],

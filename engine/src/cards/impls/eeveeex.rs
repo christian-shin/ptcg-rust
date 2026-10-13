@@ -9,7 +9,6 @@
 //! aren't covered, per the printed "if you play it from your hand"
 //! (docs/rulings/RULES.md). Other cards evolving from Eevee can't evolve it.
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Eeveeex",
@@ -23,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
                     EventPred::Source(RulesZone::Hand),
                     EventPred::Path(EvolvePath::Rule),
                     EventPred::This(Role::Base),
-                    EventPred::Card(Pred::All(&[Pred::Tag(tag::POKEMON_EX_LOWER), Pred::EvolvesFrom("Eevee")])),
+                    EventPred::Card(Pred::All(&[Pred::PokemonEx, Pred::EvolvesFrom("Eevee")])),
                 ]),
                 lifts: &[Limit::EvolvesFrom],
                 while_: &[],

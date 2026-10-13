@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Tenacious Tail: 60 damage for each of your opponent's Pokémon ex in play.
         AttackSpec {
             index: 0,
-            steps: &[Step::before_damage(damage_is(Num::Mul(&Num::InPlayCount(Who::Opp, PlayScope::All, Pred::Tag(crate::types::tag::POKEMON_EX_LOWER)), &Num::Lit(60))))],
+            steps: &[Step::before_damage(damage_is(Num::Mul(&Num::InPlayCount(Who::Opp, PlayScope::All, Pred::PokemonEx), &Num::Lit(60))))],
         },
         // Destructive Drill: not affected by any effects on your opponent's Active Pokémon.
         AttackSpec { index: 1, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] },

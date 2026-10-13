@@ -3693,7 +3693,7 @@ mod attached_lock_tests {
             P::All(qs) | P::OneOf(qs) => qs.iter().all(layout_pred),
             P::Any | P::False | P::Pokemon | P::Basic | P::Energy | P::BasicEnergy | P::Trainer | P::Item | P::Supporter
             | P::Tool | P::Stadium | P::Name(_) | P::Tag(_) | P::Stage(_) | P::NameContains(_) | P::StageIs(_)
-            | P::PrintedType(_) | P::PokemonType(_) | P::RuleBox | P::SpecialEnergy | P::PrintsAbility => true,
+            | P::PrintedType(_) | P::PokemonType(_) | P::RuleBox | P::PokemonEx | P::PokemonV | P::SpecialEnergy | P::PrintsAbility => true,
             _ => false,
         }
     }
@@ -3706,7 +3706,7 @@ mod attached_lock_tests {
             S::Not(q) => layout_slot_pred(q),
             S::All(qs) | S::OneOf(qs) => qs.iter().all(layout_slot_pred),
             S::Top(q) => layout_pred(q),
-            S::Any | S::IsActive | S::IsBench | S::PrintedTypeIs(_) | S::TypeIs(_) | S::Tag(_) | S::RuleBox | S::Basic
+            S::Any | S::IsActive | S::IsBench | S::TypeIs(_) | S::Tag(_) | S::RuleBox | S::Basic
             | S::StageIs(_) | S::Named(_) | S::IsThisPokemon | S::OnMySide | S::Evolution | S::Evolved | S::CardBelowThis(_) => true,
             _ => false,
         }

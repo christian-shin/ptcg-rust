@@ -135,13 +135,19 @@ impl CardDef {
     pub fn has_tag(&self, t: u32) -> bool {
         self.tags & tag_bit(t) != 0
     }
-    /// `Card.hasRuleBox()`.
+    /// "Pokémon ex": the lower-case ex rule (Mega Evolution Pokémon ex and Tera Pokémon ex included).
+    pub fn is_pokemon_ex(&self) -> bool {
+        self.has_tag(tag::POKEMON_EX_LOWER)
+    }
+    /// "Pokémon V": Pokémon V, V-STAR, VMAX and V-UNION (id1667), not Radiant Pokémon.
+    pub fn is_pokemon_v(&self) -> bool {
+        self.has_tag(tag::POKEMON_V) || self.has_tag(tag::POKEMON_VSTAR) || self.has_tag(tag::POKEMON_VMAX) || self.has_tag(tag::POKEMON_VUNION)
+    }
+    /// The card has a Rule Box: Pokémon ex and Pokémon V ("Pokémon ex, Pokémon V, etc. have Rule Boxes") and the older
+    /// Rule Box Pokémon (-GX, -EX, BREAK, Prism Star, Radiant).
     pub fn has_rule_box(&self) -> bool {
-        (self.has_tag(tag::POKEMON_EX_LOWER) && !self.regulation_mark.is_empty())
-            || self.has_tag(tag::POKEMON_V)
-            || self.has_tag(tag::POKEMON_VMAX)
-            || self.has_tag(tag::POKEMON_VSTAR)
-            || self.has_tag(tag::POKEMON_VUNION)
+        self.is_pokemon_ex()
+            || self.is_pokemon_v()
             || self.has_tag(tag::POKEMON_GX)
             || self.has_tag(tag::POKEMON_EX)
             || self.has_tag(tag::BREAK)
@@ -238,5 +244,80 @@ mod key_tests {
             assert!(seen.insert(c.full_name, i).is_none(), "duplicate full_name {}", c.full_name);
             assert_eq!(def_by_full_name(c.full_name), Some(i as DefId), "{}", c.full_name);
         }
+    }
+}
+
+#[cfg(test)]
+mod phrase_tests {
+    use super::*;
+    use crate::types::{tag, tag_bit};
+
+    /// A Pokémon card record carrying only `tags` (a card the pool and the data don't have, e.g. a Pokémon V).
+    fn with_tags(tags: &[u32]) -> CardDef {
+        CardDef {
+            full_name: "Test",
+            name: "Test",
+            set: "TST",
+            set_number: "1",
+            class: "",
+            behavior: "",
+            super_type: 1,
+            regulation_mark: "",
+            tags: tags.iter().fold(0, |a, t| a | tag_bit(*t)),
+            tag_names: &[],
+            retreat: &[],
+            attacks: &[],
+            powers: &[],
+            card_type: &[],
+            stage: 0,
+            hp: 60,
+            weakness: &[],
+            resistance: &[],
+            evolves_from: "",
+            evolves_to: &[],
+            evolves_to_stage: &[],
+            evolves_from_base: &[],
+            max_tools: 1,
+            trainer_type: 0,
+            first_turn: false,
+            attaches_to_opponents_pokemon: false,
+            energy_type: 0,
+            provides: &[],
+            methods: &[],
+            fossil_doll: false,
+        }
+    }
+
+    /// "Pokémon V" is V, VSTAR, VMAX and V-UNION (id1667), "Pokémon ex" the lower-case ex only; a Radiant Pokémon and the
+    /// older Rule Box Pokémon have a Rule Box without being either; a plain Pokémon is none of them.
+    #[test]
+    fn ex_v_and_rule_box_phrases() {
+        for t in [tag::POKEMON_V, tag::POKEMON_VSTAR, tag::POKEMON_VMAX, tag::POKEMON_VUNION] {
+            let d = with_tags(&[t]);
+            assert!(d.is_pokemon_v() && !d.is_pokemon_ex() && d.has_rule_box(), "tag {t}");
+        }
+        let ex = with_tags(&[tag::POKEMON_EX_LOWER]);
+        assert!(ex.is_pokemon_ex() && !ex.is_pokemon_v() && ex.has_rule_box());
+        for t in [tag::RADIANT, tag::POKEMON_GX, tag::POKEMON_EX, tag::BREAK, tag::PRISM_STAR] {
+            let d = with_tags(&[t]);
+            assert!(!d.is_pokemon_ex() && !d.is_pokemon_v() && d.has_rule_box(), "tag {t}");
+        }
+        let plain = with_tags(&[]);
+        assert!(!plain.is_pokemon_ex() && !plain.is_pokemon_v() && !plain.has_rule_box());
+    }
+
+    /// The data: every Pokémon ex has a Rule Box (no regulation-mark exception: Black Kyurem ex SSP 48's data has no mark).
+    #[test]
+    fn every_pokemon_ex_has_a_rule_box() {
+        let mut ex = 0;
+        for d in cards() {
+            if d.is_pokemon_ex() {
+                ex += 1;
+                assert!(d.has_rule_box(), "{}", d.full_name);
+            }
+        }
+        assert!(ex > 100);
+        let bk = def(def_by_full_name("Black Kyurem ex SSP 48").unwrap());
+        assert!(bk.regulation_mark.is_empty() && bk.has_rule_box());
     }
 }
