@@ -121,6 +121,7 @@ for key, c in cards.items():
         'provides: %s' % u8s(c['provides']),
         'methods: &[%s]' % ', '.join(lit(m) for m in c['methods']),
         'fossil_doll: %s' % b(c['fossilDoll']),
+        'same_name_group: &[%s]' % ', '.join(lit(n) for n in c.get('sameNameGroup', [])),
         'sort_rank: %d' % SORT_RANK[sort_key(c)],
     ]
     out.append('    CardDef { %s },\n' % ', '.join(fields))
