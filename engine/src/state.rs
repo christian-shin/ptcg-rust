@@ -224,8 +224,9 @@ pub enum LastingWhat {
     RetreatCostIncrease { now: i16, pending: i16, attacker: Option<u8> },
     /// "This Pokémon has no Weakness."
     NoWeakness { armed: bool, pending: bool },
-    /// "During your next turn, [this attack] does N more damage" (a `NextTurnBonus` declaration of the source).
-    NextTurnBonus { spec: &'static crate::spec::passive::NextTurnBonusSpec, pending: bool },
+    /// "During your next turn, [this attack] does N more damage" (a `NextTurnBonus` declaration of the source): the
+    /// bonus is for the source card's use of `attack`.
+    NextTurnBonus { spec: &'static crate::spec::passive::NextTurnBonusSpec, attack: AttackRef, pending: bool },
     /// "(This includes new Pokémon that come into play.)": on a player, the effect `spec` puts on each new Pokémon of
     /// theirs that comes into play while it lasts (`Op::ArmEach`), with the cause and attack that put it; it ends at the end
     /// of player `ends_with`'s turn.

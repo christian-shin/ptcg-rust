@@ -737,12 +737,13 @@ pub struct AttackFlagsSpec {
     pub first_turn: bool,
     pub shred: Option<SlotPred>,
 }
-/// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3):
-/// using the attack arms the bonus (it rolls over at the end of the turn), and every attack of
-/// the Pokémon applies an armed one.
+/// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3): using the attack arms the
+/// bonus on the Pokémon (a lasting entry that names the card and the attack; it rolls over at the end of the turn and ends
+/// when the Pokémon's effects end, APR C-15), and the next use of that attack by that card applies it.
 #[derive(Debug)]
 pub struct NextTurnBonusSpec {
-    pub attack: &'static str,
+    /// The printed attack (its index in the card's attacks) whose use arms the bonus and which the bonus is for.
+    pub attack: u8,
     pub bonus: i32,
 }
 pub struct StatOverrideSpec {}
@@ -2431,10 +2432,9 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &'static NextTurnBonus
     if g.deleg.is_some() {
         return Ok(());
     }
-    let full_name = g.st.cdef(me).full_name;
-    let attack_name = g.st.cdef(attack.card).attacks[attack.idx()].name;
+    // The armed bonus is for this card's use of that attack: the lasting entry names both.
     let armed = match crate::engine::lasting::armed_bonus(&g.st, source.p as usize, source.s) {
-        Some((a, for_card)) if g.st.cdef(for_card).full_name == full_name && (a.attack == "*" || a.attack == attack_name) => a.bonus,
+        Some((a, for_card, armed_attack)) if for_card == me && armed_attack == attack => a.bonus,
         _ => 0,
     };
     if armed != 0 {
@@ -2442,10 +2442,10 @@ fn next_turn_bonus(g: &mut Game, me: CardId, e: EffId, b: &'static NextTurnBonus
             *damage += armed;
         }
     }
-    if attack_name != b.attack {
+    if attack != (AttackRef { card: me, index: b.attack }) {
         return Ok(());
     }
-    crate::engine::lasting::set_bonus_pending(&mut g.st, source.p as usize, source.s, b, me);
+    crate::engine::lasting::set_bonus_pending(&mut g.st, source.p as usize, source.s, b, me, attack);
     g.st.bump();
     Ok(())
 }
@@ -3744,5 +3744,30 @@ mod attached_lock_tests {
         // Team Rocket's Watchtower: "Colorless Pokémon" is the type as the game checks it (attached cards can
         // change it), and its probe is the Stadium's effect on the spot.
         assert_eq!(marked, vec!["TeamRocketsWatchtower"]);
+    }
+}
+
+#[cfg(test)]
+mod next_turn_bonus_tests {
+    //! Events batch 9 C2: the next-turn bonus names its attack by index (it compared the attack's name string, and `"*"`
+    //! for any attack). Every declaration's index is the attack its text names.
+    use super::*;
+
+    #[test]
+    fn the_attack_index_is_the_printed_attack_the_text_names() {
+        // (the card's key, the printed attack the bonus is for, its bonus)
+        let printed = [("Metagross TEF 115", "Meteor Mash", 60), ("Meloetta ex BLK 44", "Echoed Voice", 80)];
+        let mut found = 0;
+        for (id, d) in crate::carddb::cards().iter().enumerate() {
+            let Some(spec) = crate::cards::spec_for(id as crate::carddb::DefId) else { continue };
+            for ps in spec.passives {
+                let Modifier::NextTurnBonus(b) = &ps.modifier else { continue };
+                let (_, name, bonus) = printed.iter().find(|(k, _, _)| *k == d.full_name).unwrap_or_else(|| panic!("{}: a next-turn bonus not in the table", d.full_name));
+                assert_eq!(d.attacks[b.attack as usize].name, *name, "{}", d.full_name);
+                assert_eq!(b.bonus, *bonus, "{}", d.full_name);
+                found += 1;
+            }
+        }
+        assert_eq!(found, printed.len(), "every card of the table declares its bonus");
     }
 }
