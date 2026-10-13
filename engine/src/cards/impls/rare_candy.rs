@@ -14,8 +14,8 @@ pub static SPEC: CardSpec = CardSpec {
     class: "RareCandy",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::RareCandyUsable],
-        steps: &[Step::new(Op::Evolve(EvolveSpec { how: EvolveHow::RareCandy }))],
+        needs: &[Cond::CanEvolveSkippingStage1],
+        steps: &[Step::new(Op::Evolve(EvolveSpec { how: EvolveHow::SkipStage1 }))],
     }),
     // You can't use this card during your first turn or on a Basic Pokémon that was put into play this turn.
     restricts: &[Restrict { on: EventPred::All(&[EventPred::Kind(EventKind::Evolve), EventPred::This(Role::CauseCard)]), limits: &[Limit::FirstTurn, Limit::BaseEnteredThisTurn] }],

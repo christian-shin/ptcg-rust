@@ -191,8 +191,8 @@ pub enum Cond {
     DidAll,
     /// The Stadium in play matches the predicate.
     StadiumInPlay(Pred),
-    /// Rare Candy can be used by the player (a checked read).
-    RareCandyUsable,
+    /// Some Basic Pokémon of the player can evolve into a Stage 2 card in the hand, skipping the Stage 1 (a checked read).
+    CanEvolveSkippingStage1,
     /// A Pokémon of the player is being Knocked Out by an attack of the other player's Pokémon
     /// and that attacking Pokémon card matches.
     AttackerOfKnockOut { who: Who, pred: Pred },
@@ -527,7 +527,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
         Cond::DidAll => f.outcome == super::run::Outcome::Done,
         Cond::Printed(c) => cond(g, me, f, c),
         Cond::StadiumInPlay(p) => g.st.stadium_card().map(|c| pred(g, c, p)).unwrap_or(false),
-        Cond::RareCandyUsable => panic!("Cond::RareCandyUsable needs a checked read (cond_m)"),
+        Cond::CanEvolveSkippingStage1 => panic!("Cond::CanEvolveSkippingStage1 needs a checked read (cond_m)"),
         Cond::TrainerViaAttack => f.via_attack,
         Cond::Attached => f.attached_to != super::run::NONE,
         Cond::KnockedOutLastTurn { who, by_attack_damage, tag } => {
@@ -1122,7 +1122,7 @@ pub fn cond_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, c: &Co
                 CmpOp::Gt => a > b,
             }
         }
-        Cond::RareCandyUsable => super::ops::board::rare_candy_usable(g, me, f.p as usize)?,
+        Cond::CanEvolveSkippingStage1 => super::ops::board::can_evolve_skipping_stage1(g, me, f.p as usize)?,
         Cond::AbilityBlocked => g.has_no_ability(f.p as usize, me, None),
         Cond::CanEvolveBasic(w) => super::ops::board::evolve_targets(g, f.who(*w), f.cause)?.0,
         Cond::ToolBlocked => g.tool_off(f.p as usize, me),

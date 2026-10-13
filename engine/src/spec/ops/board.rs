@@ -162,10 +162,10 @@ pub struct EvolveSpec {
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EvolveHow {
-    /// Rare Candy: a Basic Pokémon (in play before this turn) is evolved into the Stage 2 card of
-    /// its line in the hand, skipping the Stage 1; the player chooses the Pokémon, then the card
-    /// (`Cond::RareCandyUsable` says whether it can be done).
-    RareCandy,
+    /// Evolve skipping Stage 1: a Basic Pokémon (in play before this turn) is evolved into the Stage 2 card of
+    /// its line in the hand, skipping the Stage 1 (the rules path, `Reach::SkipStage1`); the player chooses the
+    /// Pokémon, then the card (`Cond::CanEvolveSkippingStage1` says whether it can be done).
+    SkipStage1,
     /// Put the card of register `card` onto the Pokémon as an evolution by an effect (no Evolve
     /// effect: the slot loses its effects and counts as played this turn).
     PutOnto { slot: SlotExpr, card: u8 },
@@ -465,12 +465,12 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
             Ok(Flow::Next)
         }
         Op::Switch(s) => switch_exec(g, me, f, s),
-        Op::Evolve(EvolveSpec { how: EvolveHow::RareCandy }) => {
+        Op::Evolve(EvolveSpec { how: EvolveHow::SkipStage1 }) => {
             let p = f.p as usize;
             let stage2 = stage2_in_hand(g, p);
             let mut blocked: TargetList = SVec::new();
             for (s, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if g.st.cdef(c).stage == Stage::Basic as u8 && candy_can_evolve(g, f.cause, SlotRef::new(p, s), &stage2)? {
+                if g.st.cdef(c).stage == Stage::Basic as u8 && can_skip_stage1_onto(g, f.cause, SlotRef::new(p, s), &stage2)? {
                     continue;
                 }
                 blocked.push(t);
@@ -607,7 +607,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
             f.slot = first.slots().first().map(|s| encode(*s)).unwrap_or(NONE);
             Ok(Flow::Next)
         }
-        Op::Evolve(EvolveSpec { how: EvolveHow::RareCandy }) => {
+        Op::Evolve(EvolveSpec { how: EvolveHow::SkipStage1 }) => {
             let p = f.p as usize;
             if f.sub == 1 {
                 let Some(target) = first.slots().first().copied() else { return Ok(Flow::Next) };
@@ -620,7 +620,7 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                 for (i, c) in hand.iter().enumerate() {
                     let d = g.st.cdef(*c);
                     let stage2 = d.is_pokemon() && d.stage == Stage::Stage2 as u8;
-                    if stage2 && !candy_can_evolve(g, f.cause, target, &[*c])? {
+                    if stage2 && !can_skip_stage1_onto(g, f.cause, target, &[*c])? {
                         opts.blocked.push(i as u8);
                     }
                 }
@@ -1368,7 +1368,7 @@ fn spread_damage_carry_out(g: &mut Game, f: &Frame, s: &SpreadDamageSpec, items:
 }
 
 // ---------------------------------------------------------------------------
-// Rare Candy (S3 agent 3; its checks are the Evolve event's: `candy_can_evolve`)
+// Evolving skipping Stage 1 (its checks are the Evolve event's: `can_skip_stage1_onto`)
 
 pub fn stage2_in_hand(g: &Game, p: usize) -> Vec<CardId> {
     g.st.players[p].hand.iter().filter(|c| {
@@ -1500,10 +1500,10 @@ fn evolve_resume(g: &mut Game, me: CardId, f: &mut Frame, chooser: Who, stage: S
     }
 }
 
-/// Can Rare Candy (`cause`) evolve the Basic Pokémon in `t` with one of `stage2` (cards in the hand)? The Evolve
-/// event's checks on the rule path, skipping the Stage 1: the locks on evolving from the hand (id1133, id285,
-/// id1998), the rule's limits and Rare Candy's own restriction (no permission lifts it: id1144, id1815).
-pub(crate) fn candy_can_evolve<F: crate::derived::Facts>(g: &mut F, cause: crate::cause::Cause, t: SlotRef, stage2: &[CardId]) -> R<bool> {
+/// Can the effect `cause` evolve the Basic Pokémon in `t` with one of `stage2` (cards in the hand), skipping the
+/// Stage 1? The Evolve event's checks on the rule path: the locks on evolving from the hand (id1133, id285, id1998),
+/// the rule's limits and the cause card's own restriction (no permission lifts it: id1144, id1815).
+pub(crate) fn can_skip_stage1_onto<F: crate::derived::Facts>(g: &mut F, cause: crate::cause::Cause, t: SlotRef, stage2: &[CardId]) -> R<bool> {
     use crate::engine::enter::{check_evolve, evolve_view, evolves_into, Reach};
     let Some(base) = g.g().st.slot_pokemon(t.p as usize, t.s) else { return Ok(false) };
     for &c in stage2 {
@@ -1518,16 +1518,16 @@ pub(crate) fn candy_can_evolve<F: crate::derived::Facts>(g: &mut F, cause: crate
     Ok(false)
 }
 
-/// `canUseRareCandy`: some Basic Pokémon of `p` can evolve with a Stage 2 card in the hand
-/// ([`candy_can_evolve`]); `me` is the Rare Candy card.
-pub fn rare_candy_usable<F: crate::derived::Facts>(g: &mut F, me: CardId, p: usize) -> R<bool> {
+/// Some Basic Pokémon of `p` can evolve with a Stage 2 card in the hand, skipping the Stage 1
+/// ([`can_skip_stage1_onto`]); `me` is the card whose effect would do it.
+pub fn can_evolve_skipping_stage1<F: crate::derived::Facts>(g: &mut F, me: CardId, p: usize) -> R<bool> {
     let stage2 = stage2_in_hand(g.g(), p);
     if stage2.is_empty() {
         return Ok(false);
     }
     let cause = crate::cause::Cause::of_trainer(g.g(), me, p as u8);
     for (s, c, _) in for_each_pokemon(g.g(), p, PlayerType::BottomPlayer).iter().copied() {
-        if g.g().st.cdef(c).stage == Stage::Basic as u8 && candy_can_evolve(g, cause, SlotRef::new(p, s), &stage2)? {
+        if g.g().st.cdef(c).stage == Stage::Basic as u8 && can_skip_stage1_onto(g, cause, SlotRef::new(p, s), &stage2)? {
             return Ok(true);
         }
     }
