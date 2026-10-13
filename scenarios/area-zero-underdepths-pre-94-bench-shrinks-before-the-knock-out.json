@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "decks": [
+  ["1 Gravity Mountain SSP 177", "1 Teal Mask Ogerpon ex PRE 12", "1 Area Zero Underdepths PRE 94", "2 Walrein SSP 45", "4 Noibat PRE 90", "4 Hop's Wooloo JTG 135", "4 Rowlet POR 10", "4 Dwebble DRI 11", "39 Water Energy MEE 3"],
+  ["1 Gravity Mountain SSP 177", "1 Teal Mask Ogerpon ex PRE 12", "1 Area Zero Underdepths PRE 94", "2 Walrein SSP 45", "4 Noibat PRE 90", "4 Hop's Wooloo JTG 135", "4 Rowlet POR 10", "4 Dwebble DRI 11", "39 Water Energy MEE 3"]
+ ],
+ "me": {"reset": true, "active": "Dwebble DRI 11", "hand": ["Gravity Mountain SSP 177"]},
+ "opp": {"reset": true, "active": "Teal Mask Ogerpon ex PRE 12", "stadium": "Area Zero Underdepths PRE 94",
+         "bench": [{"card": "Walrein SSP 45", "damage": 150}, {"card": "Hop's Wooloo JTG 135"}, {"card": "Rowlet POR 10"}, {"card": "Dwebble DRI 11"}, {"card": "Noibat PRE 90"}, {"card": "Hop's Wooloo JTG 135"}, {"card": "Rowlet POR 10"}, {"card": "Dwebble DRI 11"}]},
+ "answers": [{"a": "play", "card": "Gravity Mountain SSP 177"}, [{"player": 2, "slot": 2, "index": 0}, {"player": 2, "slot": 2, "index": 1}, {"player": 2, "slot": 2, "index": 2}]],
+ "expect": [
+  {"at": "decision", "n": 1, "who": "me", "prizes_taken": 0, "cite": "id2305 (Gravity Mountain replacing Area Zero Underdepths: \"You complete the effects of the stadium change first, so you have to discard Pokemon, if needed. Therefore, you may discard Charizard ex first and then check for KO's afterward\"); JP FAQ Area Zero Underdepths (ゼロの大空洞): the Bench discard comes first, a Pokémon discarded by it is not Knocked Out: the Walrein at 140 HP with 150 damage is discarded, no Prize"},
+  {"at": "decision", "n": 1, "who": "opp", "bench_count": 5, "cite": "Area Zero Underdepths left play: the Bench shrinks to 5"}
+ ]
+}

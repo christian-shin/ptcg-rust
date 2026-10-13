@@ -181,6 +181,13 @@ fn apply_side(g: &mut Game, p: usize, side: &Value) -> Result<(), String> {
         }
     }
     for b in side["bench"].as_array().into_iter().flatten() {
+        // More than 5 Benched Pokémon (Area Zero Underdepths with a Tera Pokémon in play): the arrangement's spots.
+        if empty_bench(g, p).is_err() && g.st.players[p].bench.len() < crate::state::MAX_BENCH {
+            let s = g.st.alloc_slot(p);
+            g.st.players[p].slots[s as usize].is_public = true;
+            g.st.players[p].bench.push(s);
+            g.st.bump_layout();
+        }
         let s = empty_bench(g, p)?;
         for n in stack(&b["card"]) {
             mv(g, p, n, ListRef::Slot(pu, s))?;

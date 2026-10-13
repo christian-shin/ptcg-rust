@@ -346,6 +346,8 @@ pub enum CheckStage {
     AfterBenchSize,
     AfterPrize,
     AfterActive,
+    /// Resume after the Bench shrink made before the Knock Out scan: the state check starts again.
+    AfterShrinkFirst,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -377,6 +379,28 @@ pub fn state_check(g: &mut Game, oc: OnComplete) -> R {
     let (kos, by_hp) = find_ko_pokemons(g)?;
     if kos.is_empty() {
         return state_check_quiet(g, oc);
+    }
+    // A Bench that must shrink because of what happened before this check (a Stadium or Tool left play, a Pokémon
+    // devolved) shrinks before the Knock Outs: a Pokémon discarded by it is never Knocked Out (id2305: "You complete the
+    // effects of the stadium change first ... discard Charizard ex first and then check for KO's afterward"; JP FAQ Area
+    // Zero Underdepths x2: 「ベンチポケモンのトラッシュを先におこないます」). A shrink a Knock Out causes (the Tera Pokémon
+    // Knocked Out: id2026, id2131) is the second pass's, after the Knock Outs. Batch 8 C12c.
+    if !g.st.bench_size_change_handled {
+        let sizes = bench_sizes(g);
+        let over = (0..2).any(|p| {
+            let pl = &g.st.players[p];
+            pl.bench.iter().filter(|b| !pl.slots[**b as usize].cards.is_empty()).count() > sizes[p] as usize
+        });
+        if over {
+            handle_bench_size_change(g, sizes);
+            if g.has_prompts() {
+                let mut f = empty_frame(oc);
+                f.stage = CheckStage::AfterShrinkFirst;
+                g.wait_prompt(Cont::CheckState(f));
+                return Ok(());
+            }
+            return state_check(g, oc);
+        }
     }
     let mut announced = SVec::new();
     for k in kos.iter() {
@@ -571,6 +595,21 @@ pub(crate) fn table_state(g: &mut Game) -> R<[u8; 2]> {
         assert!(ra.as_ref().ok() == rb.as_ref().ok() && crate::derived::state_digest(&a.st) == crate::derived::state_digest(&b.st), "the table-state step over the declarations in place differs from all of them");
     }
     table_state_over(g, order)
+}
+
+/// The Bench size each player's Stadium rule gives now (the `BenchSize` declarations in place; no other table-state
+/// effect: the first pass of the state check, before the Knock Out scan).
+fn bench_sizes(g: &mut Game) -> [u8; 2] {
+    use crate::spec::passive::{self, Modifier};
+    let mut sizes = [5u8, 5];
+    for c in g.decl_in_place(crate::decl::fam::TABLE_STATE, 0).iter().copied() {
+        for ps in crate::decl::passives(g, c) {
+            if let Modifier::BenchSize(d) = &ps.modifier {
+                passive::bench_size_into(g, c, ps.origin, d, &mut sizes);
+            }
+        }
+    }
+    sizes
 }
 
 fn table_state_over(g: &mut Game, order: SVec<CardId, 120>) -> R<[u8; 2]> {
@@ -800,6 +839,7 @@ pub fn resume(g: &mut Game, mut f: CheckFrame) -> R {
         CheckStage::AfterBenchSize => after_bench_size(g, f),
         CheckStage::AfterPrize => prize_loop(g, f),
         CheckStage::AfterActive => active_loop(g, f),
+        CheckStage::AfterShrinkFirst => state_check(g, f.oc),
     }
 }
 
