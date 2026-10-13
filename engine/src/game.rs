@@ -141,6 +141,8 @@ pub mod fx_flag {
     pub const AFTER_DMG_OPEN: u8 = 1 << 2;
     /// `AttackEffect.attackTriggers` is defined (the attack's step 7 trigger window is open).
     pub const TRIGGERS_OPEN: u8 = 1 << 3;
+    /// The player took the attack's optional effect (`AttackFlagKind::OptionChosen`).
+    pub const OPTION_CHOSEN: u8 = 1 << 4;
 }
 
 /// A step queued in an attack's after-damage window (`prefabs/after-damage.ts`).
@@ -1338,6 +1340,10 @@ impl Game {
                 self.st.bump();
             }
         }
+        // The effects cards put for a time ("this turn, attacks used by this Pokémon do N more damage"), after the cards' handlers.
+        if !self.st.lasting.is_empty() && kind == k::ATTACK {
+            crate::spec::passive::declared_attack_stage(self, id)?;
+        }
         // A copied attack being used: its text, the source card's code run as the copycat, after the game's cards.
         if !self.copy_sessions.is_empty() {
             crate::copy_attack::resolve_sessions(self, id)?;
@@ -1353,7 +1359,7 @@ impl Game {
         }
         // The effect's consequences: one reducer per kind.
         match kind {
-            k::END_TURN | k::AFTER_ATTACK => phase::reducer(self, id)?,
+            k::END_TURN | k::AFTER_ATTACK | k::BETWEEN_TURNS => phase::reducer(self, id)?,
             k::GAIN_CONDITION | k::REMOVE_CONDITION | k::HEAL | k::COIN_FLIP => crate::engine::condition::reducer(self, id)?,
             k::ATTACH | k::MOVE_ENERGY | k::MOVE_TOOL => crate::engine::attach::reducer(self, id)?,
             k::CHANGE_ACTIVE => crate::engine::change_active::reducer(self, id)?,

@@ -403,6 +403,12 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             // The turn's usage records end before the end-of-turn effects the player orders: an expiry is not an effect (APR
             // E-21).
             crate::engine::usage::expire_this_turn(&mut g.st, p as usize);
+            crate::engine::lasting::expire_this_turn(&mut g.st, p as usize);
+            Ok(())
+        }
+        Effect::BetweenTurns { p, .. } => {
+            // A player's effect that lasts until their Checkup ends with it (Briar).
+            crate::engine::lasting::expire_checkup(&mut g.st, p as usize);
             Ok(())
         }
         Effect::AfterAttack { opp, .. } => {

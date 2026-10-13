@@ -25,6 +25,9 @@ pub enum AttackFlagKind {
     IgnoreDefenderEffects,
     PreventDamage,
     FirstTurnAllowed,
+    /// The player took the attack's optional effect ("you may ...": Dialga's Chrono Burst): read by the attack's text after
+    /// the damage (`Cond::AttackFlag`).
+    OptionChosen,
 }
 
 /// Write a flag of the attack being used (text that runs before the damage).
@@ -176,6 +179,36 @@ pub struct ArmEachSpec {
     pub side: Who,
     pub subject: SlotPred,
     pub what: Lasting,
+}
+
+// ---------------------------------------------------------------------------
+// Declared effects
+
+/// Whom a declared effect is on.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum DeclareOn {
+    /// A player ("during this turn, attacks used by your Pokémon ...": a Trainer's effect is on its player, APR C-19).
+    Player(Who),
+    /// This Pokémon ("this turn, attacks used by this Pokémon ...": an Ability's effect on its own Pokémon, APR C-15): it ends
+    /// with the Pokémon's effects (evolving, devolving, leaving play).
+    ThisPokemon,
+}
+
+/// Until when a declared effect lasts.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum DeclareUntil {
+    /// "During this turn": it ends when the turn ends, before the end-of-turn effects (APR E-21).
+    EndOfTurn,
+    /// Until the player's next Pokémon Checkup (Briar: "this turn, if ... Knocked Out ..." is read by the state check after the
+    /// attack's turn ends).
+    Checkup,
+}
+
+/// `effect` of `CardSpec::effects` is put on `on` until `until`.
+pub struct DeclareSpec {
+    pub effect: u8,
+    pub on: DeclareOn,
+    pub until: DeclareUntil,
 }
 
 // ---------------------------------------------------------------------------
@@ -348,6 +381,16 @@ fn arm_each(g: &mut Game, me: CardId, f: &Frame, a: &'static ArmEachSpec) -> R {
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> R<Flow> {
     match op {
+        Op::AttackFlag(a) if a.flag == AttackFlagKind::OptionChosen => {
+            if (f.eff as usize) < g.fx.len() {
+                if a.value {
+                    g.set_fx_flag(f.eff, crate::game::fx_flag::OPTION_CHOSEN);
+                } else {
+                    g.fx.as_mut_slice()[f.eff as usize].flags &= !crate::game::fx_flag::OPTION_CHOSEN;
+                }
+            }
+            Ok(Flow::Next)
+        }
         Op::AttackFlag(a) => {
             if let Effect::Attack { ignore_weakness, ignore_resistance, ignore_defender_effects, .. } = g.e_mut(f.eff) {
                 match a.flag {
@@ -365,6 +408,21 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> 
         }
         Op::ArmEach(a) => {
             arm_each(g, me, f, a)?;
+            Ok(Flow::Next)
+        }
+        Op::Declare(d) => {
+            let (on, p) = match d.on {
+                DeclareOn::Player(w) => (crate::state::LastingOn::Player(f.who(w) as u8), f.who(w)),
+                DeclareOn::ThisPokemon => match slot_of(g, me, f, SlotExpr::This) {
+                    Some(s) => (crate::state::LastingOn::pokemon(s.p as usize, s.s), s.p as usize),
+                    None => return Ok(Flow::Next),
+                },
+            };
+            let until = match d.until {
+                DeclareUntil::EndOfTurn => crate::state::Until::ThisTurn(p as u8),
+                DeclareUntil::Checkup => crate::state::Until::Checkup(p as u8),
+            };
+            crate::engine::lasting::add_declared(&mut g.st, on, me, d.effect, until);
             Ok(Flow::Next)
         }
         Op::Used(u) => {

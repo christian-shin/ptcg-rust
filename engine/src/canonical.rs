@@ -44,6 +44,15 @@ impl Game {
                         o.insert("lock".into(), json!(decl.error));
                         o.insert("turns".into(), json!(turns));
                     }
+                    LastingWhat::Declared { index, until } => {
+                        o.insert("declared".into(), json!(index));
+                        match until {
+                            crate::state::Until::ThisTurn(p) => o.insert("thisTurnOf".into(), player(p)),
+                            crate::state::Until::AfterTurn(p) => o.insert("afterTurnOf".into(), player(p)),
+                            crate::state::Until::Checkup(p) => o.insert("checkupOf".into(), player(p)),
+                            crate::state::Until::Removed => o.insert("untilRemoved".into(), json!(true)),
+                        };
+                    }
                     LastingWhat::Spawn { ends_with, .. } => {
                         o.insert("newPokemon".into(), json!(true));
                         o.insert("endsWith".into(), player(ends_with));

@@ -42,7 +42,7 @@ fn kind_of(w: &LastingWhat) -> Option<Kind> {
         LastingWhat::NoWeakness { .. } => Kind::NoWeakness,
         LastingWhat::NextTurnBonus { pending: true, .. } => Kind::BonusPending,
         LastingWhat::NextTurnBonus { pending: false, .. } => Kind::BonusArmed,
-        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } => return None,
+        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } => return None,
     })
 }
 
@@ -399,7 +399,7 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
         .iter()
         .map(|l| {
             l.on != on
-                || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. })
+                || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Declared { .. })
                 // A Trainer's effect on the Pokémon (Iron Defender) isn't an effect of an attack: it stays (APR A-05, C-15).
                 || by_trainer(st, l.source)
         })
@@ -414,12 +414,38 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
 /// The effects of attacks on the Pokémon end (`removeAttackEffects`): every lasting effect of an attack on it.
 pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
-    let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer()).collect();
+    let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer() || matches!(l.what, LastingWhat::Declared { .. })).collect();
     let mut i = 0;
     st.lasting.retain(|_| {
         i += 1;
         keep[i - 1]
     });
+}
+
+/// The effects cards declared and put on the Pokémon in spot `s` of player `p` end with the Pokémon's other effects when it
+/// evolves or is devolved (APR C-13: every effect on it ends, a Trainer's and an Ability's included).
+pub fn clear_declared(st: &mut State, p: usize, s: SlotId) {
+    let on = LastingOn::pokemon(p, s);
+    st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::Declared { .. })));
+}
+
+/// Put the declared effect `index` of card `source` on `on`, until `until` (one of a card and a declaration on the same
+/// holder: it is the same effect).
+pub fn add_declared(st: &mut State, on: LastingOn, source: CardId, index: u8, until: crate::state::Until) {
+    if !st.lasting.iter().any(|l| l.on == on && l.source == source && matches!(l.what, LastingWhat::Declared { index: i, .. } if i == index)) {
+        st.lasting.push(LastingEffect { on, source, what: LastingWhat::Declared { index, until } });
+    }
+}
+
+/// The declared effects that end with player `p`'s turn, before the end-of-turn effects they might be read by (APR E-21: the
+/// end of a "this turn" effect is not an effect).
+pub fn expire_this_turn(st: &mut State, p: usize) {
+    st.lasting.retain(|l| !matches!(l.what, LastingWhat::Declared { until: crate::state::Until::ThisTurn(q), .. } if q as usize == p));
+}
+
+/// The declared effects that end with player `p`'s Pokémon Checkup.
+pub fn expire_checkup(st: &mut State, p: usize) {
+    st.lasting.retain(|l| !matches!(l.what, LastingWhat::Declared { until: crate::state::Until::Checkup(q), .. } if q as usize == p));
 }
 
 /// Every lasting effect on spot `s` of player `p` (the spot is emptied).
@@ -595,5 +621,52 @@ pub fn after_end_turn(st: &mut State, p: usize) {
             continue;
         }
         set(st, LastingOn::pokemon(o, s), Kind::DiscardEnergy, None);
+    }
+}
+
+#[cfg(test)]
+mod declared_tests {
+    //! The effects cards declare and put for a time (`LastingWhat::Declared`): who they are on, when they end.
+    use super::*;
+    use crate::state::{LastingOn, Until};
+
+    fn put(st: &mut State, on: LastingOn, source: CardId, index: u8, until: Until) {
+        add_declared(st, on, source, index, until);
+    }
+
+    /// "During this turn" ends with the turn of the player it is on, not with the other player's; a Checkup effect ends at the
+    /// player's own Checkup; the same card and declaration on the same holder is one effect.
+    #[test]
+    fn expiry() {
+        let mut st = State::new();
+        put(&mut st, LastingOn::Player(0), 1, 0, Until::ThisTurn(0));
+        put(&mut st, LastingOn::Player(0), 1, 0, Until::ThisTurn(0));
+        put(&mut st, LastingOn::Player(1), 2, 0, Until::ThisTurn(1));
+        put(&mut st, LastingOn::Player(0), 3, 0, Until::Checkup(0));
+        assert_eq!(st.lasting.len(), 3, "one effect per card, declaration and holder");
+        expire_this_turn(&mut st, 0);
+        assert_eq!(st.lasting.len(), 2, "player 0's turn ended");
+        expire_checkup(&mut st, 1);
+        assert_eq!(st.lasting.len(), 2, "player 1's Checkup doesn't end player 0's effect");
+        expire_checkup(&mut st, 0);
+        assert_eq!(st.lasting.len(), 1);
+        expire_this_turn(&mut st, 1);
+        assert!(st.lasting.is_empty());
+    }
+
+    /// An effect on a Pokémon stays when the Pokémon moves to the Bench (an Ability's effect, id1651; a Trainer's, id2228) but
+    /// ends when it evolves or is devolved (APR C-13) and with its spot.
+    #[test]
+    fn on_a_pokemon() {
+        let mut st = State::new();
+        put(&mut st, LastingOn::pokemon(0, 1), 1, 0, Until::ThisTurn(0));
+        put(&mut st, LastingOn::pokemon(0, 2), 2, 0, Until::ThisTurn(0));
+        remove_attack_effects(&mut st, 0, 1);
+        clear_effects(&mut st, 0, 1);
+        assert_eq!(st.lasting.len(), 2, "moving to the Bench keeps it");
+        clear_declared(&mut st, 0, 1);
+        assert_eq!(st.lasting.len(), 1, "evolving ends it");
+        clear_spot(&mut st, 0, 2);
+        assert!(st.lasting.is_empty(), "leaving play ends it");
     }
 }

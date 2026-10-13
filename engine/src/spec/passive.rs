@@ -1085,8 +1085,16 @@ fn damage_dealt(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &Dama
         (DamageStage::Attack, Effect::Attack { p, source, damage, attack, .. }) => (p as usize, source, damage, attack),
         _ => return Ok(()),
     };
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    damage_dealt_attack_stage(g, me, origin, d, at, None, e, player, source, damage, attack)
+}
+
+/// `DamageDealt` at the Attack stage of the effect `e` (`at`: where the declaring card is in place; `only`: the Pokémon an
+/// effect on a Pokémon is for).
+#[allow(clippy::too_many_arguments)]
+fn damage_dealt_attack_stage(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDealtSpec, at: Located, only: Option<SlotRef>, e: EffId, player: usize, source: SlotRef, damage: i32, attack: AttackRef) -> R {
     let (mut dmg, mut flags) = (damage, g.fx_flags(e));
-    damage_dealt_core(g, me, origin, d, player, source, None, attack, &mut dmg, &mut flags)?;
+    damage_dealt_core(g, me, origin, d, at, only, player, source, None, attack, &mut dmg, &mut flags)?;
     if let Effect::Attack { damage, .. } = g.e_mut(e) {
         *damage = dmg;
     }
@@ -1102,14 +1110,92 @@ pub(crate) fn damage_dealt_deal(g: &mut Game, me: CardId, origin: RuleSource, d:
         return Ok(());
     }
     let b = acc.b;
-    damage_dealt_core(g, me, origin, d, b.player as usize, b.source, Some(b.target), b.attack, &mut acc.damage, &mut acc.flags)
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    damage_dealt_core(g, me, origin, d, at, None, b.player as usize, b.source, Some(b.target), b.attack, &mut acc.damage, &mut acc.flags)
+}
+
+/// The effects cards declared and put (`Op::Declare`, the lasting table's `Declared`), in the order they were put: the source
+/// card, the declaration, and whom it is on.
+pub(crate) fn declared_effects(g: &Game) -> SVec<(CardId, &'static Passive, crate::state::LastingOn), 8> {
+    let mut out = SVec::new();
+    for l in g.st.lasting.iter() {
+        if let crate::state::LastingWhat::Declared { index, .. } = l.what {
+            let ps = crate::cards::spec_for(g.st.cards[l.source as usize].def).and_then(|s| s.effects.get(index as usize));
+            if let (Some(ps), true) = (ps, out.len() < out.capacity()) {
+                out.push((l.source, ps, l.on));
+            }
+        }
+    }
+    out
+}
+
+/// Where a declared effect is in place: its holder's player (the one whose side it is), and the Pokémon an effect on a Pokémon is
+/// for (it applies to that Pokémon's attacks only).
+fn declared_place(on: crate::state::LastingOn) -> (Located, Option<SlotRef>) {
+    match on {
+        crate::state::LastingOn::Player(p) => (Located { owner: p as usize, held: None }, None),
+        crate::state::LastingOn::Pokemon(p, s) => (Located { owner: p as usize, held: None }, Some(SlotRef::new(p as usize, s))),
+    }
+}
+
+/// The declared `DamageDealt` effects at the Deal stage, after the cards' own declarations (step 2).
+pub(crate) fn declared_damage_dealt(g: &mut Game, acc: &mut DamageAcc) -> R {
+    if g.st.lasting.is_empty() {
+        return Ok(());
+    }
+    for (me, ps, on) in declared_effects(g).iter().copied() {
+        let Modifier::DamageDealt(d) = &ps.modifier else { continue };
+        if d.stage != DamageStage::Deal {
+            continue;
+        }
+        let (at, only) = declared_place(on);
+        let b = acc.b;
+        damage_dealt_core(g, me, ps.origin, d, at, only, b.player as usize, b.source, Some(b.target), b.attack, &mut acc.damage, &mut acc.flags)?;
+    }
+    Ok(())
+}
+
+/// The declared `DamageDealt` effects at the Attack stage of the `Attack` effect `e`, after the cards' own declarations.
+pub(crate) fn declared_attack_stage(g: &mut Game, e: EffId) -> R {
+    let (player, source, damage, attack) = match *g.e(e) {
+        Effect::Attack { p, source, damage, attack, .. } => (p as usize, source, damage, attack),
+        _ => return Ok(()),
+    };
+    let mut damage = damage;
+    for (me, ps, on) in declared_effects(g).iter().copied() {
+        let Modifier::DamageDealt(d) = &ps.modifier else { continue };
+        if d.stage != DamageStage::Attack {
+            continue;
+        }
+        let (at, only) = declared_place(on);
+        damage_dealt_attack_stage(g, me, ps.origin, d, at, only, e, player, source, damage, attack)?;
+        if let Effect::Attack { damage: d, .. } = *g.e(e) {
+            damage = d;
+        }
+    }
+    Ok(())
+}
+
+/// The declared `PrizeAdjust` effects over the KnockOut `e`, after the cards' own declarations.
+pub(crate) fn declared_prize_adjust(g: &mut Game, e: EffId) -> R {
+    if g.st.lasting.is_empty() {
+        return Ok(());
+    }
+    for (me, ps, on) in declared_effects(g).iter().copied() {
+        let Modifier::PrizeAdjust(d) = &ps.modifier else { continue };
+        let (at, _) = declared_place(on);
+        prize_adjust_with(g, me, at, e, ps.origin, d)?;
+    }
+    Ok(())
 }
 
 #[allow(clippy::too_many_arguments)]
-fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDealtSpec, player: usize, source: SlotRef, target: Option<SlotRef>, attack: AttackRef, damage_now: &mut i32, flags: &mut u8) -> R {
+fn damage_dealt_core(g: &mut Game, me: CardId, origin: RuleSource, d: &DamageDealtSpec, at: Located, only: Option<SlotRef>, player: usize, source: SlotRef, target: Option<SlotRef>, attack: AttackRef, damage_now: &mut i32, flags: &mut u8) -> R {
     let damage = *damage_now;
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
     if d.side == Side::Owner && at.owner != player {
+        return Ok(());
+    }
+    if only.is_some_and(|o| o != source) {
         return Ok(());
     }
     let opp = 1 - player;
@@ -1731,6 +1817,12 @@ fn prize_key(g: &Game, me: CardId, origin: RuleSource, d: &PrizeAdjustSpec) -> c
 
 /// `PrizeAdjust` of `me` over the KnockOut `e`: its change to the Prize count.
 fn prize_adjust_now(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
+    let Some(at) = locate(g, me, origin) else { return Ok(()) };
+    prize_adjust_with(g, me, at, e, origin, d)
+}
+
+/// `PrizeAdjust` of `me` (in place at `at`) over the KnockOut `e`.
+fn prize_adjust_with(g: &mut Game, me: CardId, at: Located, e: EffId, origin: RuleSource, d: &PrizeAdjustSpec) -> R {
     let (p, target, ko_by) = match *g.e(e) {
         Effect::KnockOut { p, target, ko_by, .. } => (p as usize, target, ko_by),
         _ => return Ok(()),
@@ -1752,7 +1844,6 @@ fn prize_adjust_now(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &
             _ => return Ok(()),
         }
     }
-    let Some(at) = locate(g, me, origin) else { return Ok(()) };
     if d.owner_only && at.owner != p {
         return Ok(());
     }

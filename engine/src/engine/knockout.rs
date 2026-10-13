@@ -648,7 +648,7 @@ fn table_state_over(g: &mut Game, order: SVec<CardId, 120>) -> R<[u8; 2]> {
 fn prize_adjustments(g: &mut Game, id: EffId) -> R {
     use crate::spec::passive::{self, Modifier};
     let order = g.decl_all(crate::decl::fam::PRIZE, 0);
-    if order.is_empty() {
+    if order.is_empty() && g.st.lasting.is_empty() {
         return Ok(());
     }
     let saved = g.deleg.take();
@@ -661,7 +661,8 @@ fn prize_adjustments(g: &mut Game, id: EffId) -> R {
                 }
             }
         }
-        Ok(())
+        // The effects cards put for a time (Briar), after the cards' own declarations.
+        passive::declared_prize_adjust(g, id)
     })();
     g.deleg = saved;
     r

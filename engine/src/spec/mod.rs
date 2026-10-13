@@ -56,6 +56,10 @@ pub struct CardSpec {
     /// (played with the board's use-Stadium action).
     pub use_stadium: Option<PlaySpec>,
     pub passives: &'static [Passive],
+    /// The effects the card's text puts on its player or a Pokémon for a time ("during this turn, attacks used by your Pokémon
+    /// do 30 more damage"): declarations, not always in force (`passives`). `Op::Declare` puts one; the lasting table holds it
+    /// until it ends (`LastingWhat::Declared`), and it is read like a passive of a card in place.
+    pub effects: &'static [Passive],
     pub triggers: &'static [Trigger],
     /// "You can't use this card during your first turn or on a Basic Pokémon that was put into play this
     /// turn" (Rare Candy), "(Players can't evolve a Basic Pokémon during their first turn or a Basic Pokémon
@@ -77,7 +81,7 @@ pub struct Restrict {
 }
 
 impl CardSpec {
-    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], triggers: &[], restricts: &[], together: None };
+    pub const NONE: CardSpec = CardSpec { class: "", attacks: &[], powers: &[], play: None, use_stadium: None, passives: &[], effects: &[], triggers: &[], restricts: &[], together: None };
 
     /// The registry entry: the shared interpreter, subscribed to exactly the
     /// effect kinds this spec reacts to.
@@ -336,6 +340,8 @@ pub enum Op {
     // ops/state.rs
     /// A usage record is made: "this Ability counts as used from here" (`UsedSpec`).
     Used(UsedSpec),
+    /// An effect the card declares is put on a player or a Pokémon for a time (`DeclareSpec`).
+    Declare(DeclareSpec),
     /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
     /// `count` and the Pokémon to pick from).
     /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.
