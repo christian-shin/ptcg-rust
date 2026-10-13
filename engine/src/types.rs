@@ -109,17 +109,6 @@ impl SpecialCondition {
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(u8)]
-pub enum BoardEffect {
-    AbilityUsed = 0,
-    PowerGlow = 1,
-    PowerNegatedGlow = 2,
-    PowerReturn = 3,
-    Evolve = 4,
-    RevealOpponentHand = 5,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-#[repr(u8)]
 pub enum PowerType {
     PokeBody = 0,
     PokePower = 1,

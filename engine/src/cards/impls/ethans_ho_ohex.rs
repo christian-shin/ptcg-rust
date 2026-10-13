@@ -2,7 +2,7 @@
 //! your hand to 1 of your Benched Ethan's Pokémon. Shining Feathers — 160; heal 50 damage from each of your Pokémon.
 //!
 //! An Ability (once per turn): one Attach from the hand, 1 to 2 Basic Fire Energy cards onto one Benched Pokémon with the
-//! Ethan's tag; at least 1 (JP FAQ audit: Golden Flame may attach just 1, min 1 max 2, so the usage marker is never set with
+//! Ethan's tag; at least 1 (JP FAQ audit: Golden Flame may attach just 1, min 1 max 2, so the usage record is never set with
 //! nothing attached). Shining Feathers heals each of your Pokémon by its own Heal event after the damage (the heal is its
 //! own step even when the damage was prevented).
 use crate::spec::prelude::*;
@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     // 1 of your Benched Ethan's Pokémon.
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("SHINING_FEATHER_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[Step::new(Op::Attach(AttachSpec {
             from: ZoneRef(Who::Me, Zone::Hand),

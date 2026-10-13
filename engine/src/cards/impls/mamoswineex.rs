@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("MAMMOTH_RIDE_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[
             Step::new(Op::Search(SearchSpec {

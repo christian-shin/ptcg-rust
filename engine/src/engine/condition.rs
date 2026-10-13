@@ -85,15 +85,15 @@ pub fn flip_sequence(g: &mut Game, p: usize, mode: u8, cb: crate::game::CoinCb, 
 }
 
 /// The re-flip declaration in play covering player `p`'s flips for an effect caused by `cause` (`Modifier::Reflip`,
-/// `passive::reflip_offered`): the once-per-turn marker it sets on its player when used, or `None`.
-pub fn reflip_offered(g: &mut Game, p: usize, cause: Cause) -> R<Option<crate::markers::MarkerName>> {
+/// `passive::reflip_offered`): the usage record it makes when used, or `None`.
+pub fn reflip_offered(g: &mut Game, p: usize, cause: Cause) -> R<Option<crate::state::UsageKey>> {
     let v = EventView { purpose: Some(CoinPurpose::Effect), ..EventView::new(EventKind::CoinFlip, cause, p as u8, crate::spec::event::whose_turn(g)) };
-    crate::spec::passive::reflip_offered(g, &v)
+    Ok(crate::spec::passive::reflip_offered(g, &v)?.map(|(key, _, _)| key))
 }
 
 /// The re-flip offer's answer (asked of player `p` after the flips of `callback`'s request: one flip's `result`, or a
 /// sequence's `results` / `n` with `mode` = `Some(mode)`): declined, the results go to the request's callback; taken,
-/// the player's once-per-turn marker is set and the coins are flipped again from the first, with no offer.
+/// the player's usage record is made (once during their turn) and the coins are flipped again from the first, with no offer.
 pub fn reflip_answer(g: &mut Game, a: ReflipAsk, yes: bool) -> R {
     let p = a.p as usize;
     if !yes {
@@ -105,7 +105,7 @@ pub fn reflip_answer(g: &mut Game, a: ReflipAsk, yes: bool) -> R {
             Some(_) => g.finish_coin_sequence(a.callback, a.results, a.n, a.result),
         };
     }
-    g.st.players[p].marker.add_to_state(a.once);
+    crate::engine::usage::record(&mut g.st, a.once, crate::state::UsageBy::Player(a.p), crate::state::Until::ThisTurn(a.p));
     match a.mode {
         None => {
             let cb = g.coin_callbacks.as_slice()[a.callback as usize];
@@ -126,7 +126,7 @@ pub struct ReflipAsk {
     pub p: u8,
     pub callback: u8,
     pub cause: Cause,
-    pub once: crate::markers::MarkerName,
+    pub once: crate::state::UsageKey,
     pub result: bool,
     pub results: u32,
     pub n: u8,
@@ -441,7 +441,8 @@ mod tests {
         let snorlax = g.st.slot_pokemon(me, g.st.players[me].active).unwrap();
         let slowpoke = g.st.slot_pokemon(me, g.st.players[me].bench.as_slice()[0]).unwrap();
         let atk = |c: crate::list::CardId| Cause::attack(me as u8, Some(c), crate::state::AttackRef { card: c, index: 0 });
-        let once = crate::markers::COIN_REFLIP_AGAIN_USED;
+        let badge = g.st.slot(me, g.st.players[me].active).tools.iter().next().unwrap();
+        let once = crate::engine::usage::declared_key(&g.st, badge, 0);
         assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), Some(once), "an attack of the [C] Pokémon holding it");
         assert_eq!(reflip_offered(&mut g, me, atk(slowpoke)).unwrap(), None, "the attacking Pokémon isn't [C]");
         // A copied attack (JP FAQ Backtrack Badge, Slowking's Seek Inspiration using Stoutland's attack): the attacking
@@ -456,7 +457,7 @@ mod tests {
         assert_eq!(reflip_offered(&mut g, 1 - me, atk(snorlax)).unwrap(), None, "only its owner's flips");
         let v = EventView { purpose: Some(CoinPurpose::Confusion), ..EventView::new(EventKind::CoinFlip, atk(snorlax), me as u8, crate::spec::event::whose_turn(&g)) };
         assert_eq!(crate::spec::passive::reflip_offered(&mut g, &v).unwrap(), None, "a Confusion flip");
-        g.st.players[me].marker.add_to_state(once);
+        crate::engine::usage::record(&mut g.st, once, crate::state::UsageBy::Player(me as u8), crate::state::Until::ThisTurn(me as u8));
         assert_eq!(reflip_offered(&mut g, me, atk(snorlax)).unwrap(), None, "once during your turn");
     }
 }

@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     // them into your hand; the other goes on the bottom of your deck.
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("TELLING_SPIRIT_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(2)), into: 1, ..LookSpec::DEFAULT })),

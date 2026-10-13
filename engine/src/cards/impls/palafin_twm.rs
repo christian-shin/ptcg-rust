@@ -13,14 +13,14 @@ pub static SPEC: CardSpec = CardSpec {
             // not a Knock Out, which isn't a move to the Bench).
             event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::ChangeActive), EventPred::From(SlotPred::IsThisPokemon), EventPred::Turn(TurnOf::Me)])),
             steps: &[Step::new(Op::If(IfSpec {
-                cond: Cond::Not(&Cond::HasMarker { who: Who::Me, name: "ABILITY_USED_MARKER", from: MarkerFrom::This }),
+                cond: Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy))),
                 yes: &[Step::new(Op::May(MaySpec {
                     asker: Who::Me,
                     when: Cond::True,
                     msg: "WANT_TO_USE_ABILITY",
                     // The use is recorded whatever the answer.
                     yes: &[
-                        Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "ABILITY_USED_MARKER", source: RuleSource::Ability })),
+                        Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))),
                         Step::new(Op::If(IfSpec {
                             cond: Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any),
                             yes: &[
@@ -32,15 +32,10 @@ pub static SPEC: CardSpec = CardSpec {
                             no: &[],
                         })),
                     ],
-                    no: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "ABILITY_USED_MARKER", source: RuleSource::Ability }))],
+                    no: &[Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy)))],
                 }))],
                 no: &[],
             }))],
-        },
-        Trigger {
-            origin: RuleSource::CardRule,
-            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
-            steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "ABILITY_USED_MARKER", from: MarkerFrom::This }))],
         },
     ],
     ..CardSpec::NONE

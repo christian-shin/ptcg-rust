@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "StevensMetagrossex",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("X_BOOT_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // Search your deck for a Basic [P] Energy, a Basic [M] Energy, or 1 of each and attach them to your [P] and [M]
         // Pokémon in any way, then shuffle.

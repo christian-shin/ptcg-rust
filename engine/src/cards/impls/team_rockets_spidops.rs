@@ -2,7 +2,7 @@
 //! this Pokémon. Rocket Rush - 30x; 30 damage for each of your Team Rocket's Pokémon in play.
 //!
 //! The attach is one Attach event of the card chosen from the discard pile onto this Pokémon (a pick of 1, public zone); the Ability
-//! is once per turn by its marker.
+//! is once per turn by its usage record.
 use crate::spec::prelude::*;
 use crate::types::tag;
 
@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsSpidops",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("CHARGE_UP_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // Attach a Basic Energy from your discard pile to this Pokémon.
         steps: &[

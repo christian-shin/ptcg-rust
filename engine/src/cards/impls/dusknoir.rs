@@ -1,7 +1,7 @@
 //! Dusknoir (SFA): Cursed Blast — put 13 damage counters on 1 of your opponent's Pokémon, then this Pokémon is
 //! Knocked Out. Shadow Bind — 150, the Defending Pokémon can't retreat during your opponent's next turn.
 //!
-//! Cursed Blast (an Ability, any number of times, no marker): a PlaceCounters event caused by the Ability, then
+//! Cursed Blast (an Ability, any number of times, no usage record): a PlaceCounters event caused by the Ability, then
 //! `Op::KnockOut` on this Pokémon. A refused placement (Hide 'n' Sneak, Battle Cage) places nothing and the Ability
 //! still Knocks Dusknoir Out (id2264, id2425, JP FAQ Dusclops PRE 36 / Battle Cage). The Knock Out waits for the next
 //! state check, after every effect (id2089: Togekiss's Wonder Kiss still flips; id2239: Prize and promotion order).

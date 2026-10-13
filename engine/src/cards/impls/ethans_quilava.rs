@@ -2,11 +2,10 @@
 //! card, reveal it, put it into your hand. Then, shuffle your deck. Combustion — 40.
 //!
 //! The search can be declined (a search for a kind) and then only the shuffle happens (APR E-19); the Ability counts as used,
-//! and the once-a-turn marker is set, when a card is taken. The card goes into the hand as a PutIntoHand of the Ability's
+//! and the once-a-turn usage record is made, when a card is taken. The card goes into the hand as a PutIntoHand of the Ability's
 //! effect, revealed.
 use crate::spec::prelude::*;
 
-const BOUND: &str = "ADVENTURE_BOUND";
 
 pub static SPEC: CardSpec = CardSpec {
     class: "EthansQuilava",
@@ -15,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     powers: &[PowerSpec {
         index: 0,
         once: Once::No,
-        needs: &[Cond::Not(&Cond::HasMarker { who: Who::Me, name: BOUND, from: MarkerFrom::This })],
+        needs: &[Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy)))],
         steps: &[
             Step::new(Op::Search(SearchSpec {
                 pick: PickSpec { predicate: Pred::Name("Ethan's Adventure"), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
@@ -26,18 +25,12 @@ pub static SPEC: CardSpec = CardSpec {
             Step::new(Op::If(IfSpec {
                 cond: Cond::Chosen(0),
                 yes: &[
-                    Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BOUND, source: RuleSource::Ability })),
-                    Step::new(Op::AbilityUsed(AbilityUsedSpec { marker: None })),
+                    Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))),
                 ],
                 no: &[],
             })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
         ],
-    }],
-    triggers: &[Trigger {
-        origin: RuleSource::CardRule,
-        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
-        steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: BOUND, from: MarkerFrom::This }))],
     }],
     ..CardSpec::NONE
 };

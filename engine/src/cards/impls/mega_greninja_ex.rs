@@ -27,7 +27,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[
             Cond::IsActive(SlotExpr::This),
-            Cond::Not(&Cond::HasMarker { who: Who::Me, name: "MORTAL_SHURIKEN_MARKER", from: MarkerFrom::This }),
+            Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy))),
             Cond::Nonempty(ZoneRef(Who::Me, Zone::Hand), Pred::All(&[Pred::BasicEnergy, Pred::Provides(crate::types::ct::WATER)])),
             Cond::AnySlot(SlotSel::Pokemon(Who::Opp), SlotPred::Any),
         ],
@@ -41,16 +41,11 @@ pub static SPEC: CardSpec = CardSpec {
                         target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Pokemon(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
                         counters: Num::Lit(6)
                     })),
-                    Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "MORTAL_SHURIKEN_MARKER", source: RuleSource::Ability })),
+                    Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))),
                 ],
                 no: &[],
             })),
         ],
-    }],
-    triggers: &[Trigger {
-        origin: RuleSource::CardRule,
-        event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
-        steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "MORTAL_SHURIKEN_MARKER", from: MarkerFrom::This }))],
     }],
     ..CardSpec::NONE
 };

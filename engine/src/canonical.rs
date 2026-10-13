@@ -101,6 +101,38 @@ impl Game {
             .collect()
     }
 
+    /// The usage records (`State::usage`) as text, by the Ability's printed name or the declaring card's key and
+    /// declaration index (no process-local numbers), sorted so the text is deterministic.
+    fn usage_json(&self) -> Vec<Value> {
+        use crate::state::{Until, UsageBy, UsageKey};
+        let mut out: Vec<(String, Value)> = self
+            .st
+            .usage
+            .iter()
+            .map(|u| {
+                let mut o = Map::new();
+                match u.key {
+                    UsageKey::Ability(n) => o.insert("ability".into(), json!(crate::gen::cards::ABILITY_NAMES[n as usize])),
+                    UsageKey::Declared { def: d, index } => o.insert("declared".into(), json!(format!("{}#{}", def(d).full_name, index))),
+                };
+                match u.by {
+                    UsageBy::Player(p) => o.insert("player".into(), json!(self.st.players[p as usize].id)),
+                    UsageBy::Card(c) => o.insert("card".into(), json!(self.card_ref(c))),
+                };
+                match u.until {
+                    Until::ThisTurn(p) => o.insert("thisTurnOf".into(), json!(self.st.players[p as usize].id)),
+                    Until::AfterTurn(p) => o.insert("afterTurnOf".into(), json!(self.st.players[p as usize].id)),
+                    Until::Checkup(p) => o.insert("checkupOf".into(), json!(self.st.players[p as usize].id)),
+                    Until::Removed => o.insert("untilRemoved".into(), json!(true)),
+                };
+                let v = Value::Object(o);
+                (serde_json::to_string(&v).unwrap(), v)
+            })
+            .collect();
+        out.sort_by(|a, b| a.0.cmp(&b.0));
+        out.into_iter().map(|(_, v)| v).collect()
+    }
+
     fn markers_json<const N: usize>(&self, m: &Marker<N>) -> Vec<Value> {
         let mut out: Vec<(String, Value)> = m
             .items
@@ -148,9 +180,6 @@ impl Game {
         let lasting = self.lasting_json(LastingOn::pokemon(p, si));
         if !lasting.is_empty() {
             o.insert("lasting".into(), Value::Array(lasting));
-        }
-        if !s.board_effect.is_empty() {
-            o.insert("boardEffect".into(), json!(s.board_effect.as_slice()));
         }
         if let Some(a) = s.attacks_this_turn {
             if a != 0 {
@@ -230,9 +259,6 @@ impl Game {
         }
         if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::TEAM_ROCKET)) > 0 {
             o.insert("rocketSupporter".into(), json!(true));
-        }
-        if !pl.once_per_game_used.is_empty() {
-            o.insert("oncePerGameUsed".into(), json!(pl.once_per_game_used.iter().map(|d| *d as u64).collect::<Vec<_>>()));
         }
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
@@ -345,6 +371,10 @@ impl Game {
             o.insert("benchSizeChangeHandled".into(), json!(true));
         }
         o.insert("players".into(), Value::Array((0..st.players_added as usize).map(|p| self.player_json(p)).collect()));
+        let usage = self.usage_json();
+        if !usage.is_empty() {
+            o.insert("usage".into(), Value::Array(usage));
+        }
         let cards = self.card_mutations();
         if !cards.is_empty() {
             o.insert("cards".into(), Value::Object(cards));

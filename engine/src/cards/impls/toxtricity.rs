@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Toxtricity",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("BAD_BOOST_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // Attach a Basic [D] Energy from your deck to 1 of your Benched [D] Pokémon, then shuffle; put 2 damage counters on that Pokémon.
         steps: &[

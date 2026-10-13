@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "MandibuzzWHTPool",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("WHT_MANDIBUZZ_LOOK_FOR_PREY"),
+        once: Once::PerTurn,
         // Their open Bench is public knowledge: with it full the Ability can't be used.
         needs: &[Cond::BenchSpace(Who::Opp)],
         // "Your opponent reveals their hand, and you put a Basic Pokémon ... that you find there onto your opponent's Bench."

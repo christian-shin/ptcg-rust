@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Shuckle@MEG",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("FERMENTED_JUICE_MARKER"),
+        once: Once::PerTurn,
         needs: &[Cond::Slot(SlotExpr::This, SlotPred::Provides(ct::GRASS))],
         steps: &[Step::new(Op::Heal(HealSpec {
             target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Filtered(&SlotSel::Pokemon(Who::Me), SlotPred::Damaged), msg: "CHOOSE_POKEMON_TO_HEAL" }),

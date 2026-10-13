@@ -184,15 +184,17 @@ pub struct PowerSpec {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Once {
     No,
-    /// Once during your turn, per copy: the named player marker, set by this
-    /// card when the Ability is used and cleared at the end of the turn.
-    PerTurn(&'static str),
-    /// Once during your turn for all copies together ("1 X per turn"): refused while any copy's
-    /// marker named so is set; set by this card, cleared at the end of the turn.
-    PerTurnShared(&'static str),
-    /// "Can't be applied / used more than once per game": the player's record of the declaring card's def
-    /// (`Player::once_per_game_used`), never reset.
+    /// Once during your turn, per copy: the usage record of this card for the Ability's printed name
+    /// (`engine::usage`), made when the Ability is used, ending with the turn (and with the Pokémon: id317).
+    PerTurn,
+    /// Once during your turn for all copies together ("1 X Ability each turn"): the player's usage record for the
+    /// Ability's printed name, made when the Ability is used, ending with the turn.
+    PerTurnShared,
+    /// "Can't be applied / used more than once per game": the player's usage record of the declaration, never ended.
     PerGame,
+    /// "The effect doesn't stack" (id2083: Wonder Kiss; Shadowy Concealment): once for each Pokémon it is about
+    /// (`PrizeAdjustSpec`: the Knocked Out one), a usage record of that Pokémon for as long as it is in play.
+    PerSubject,
 }
 
 pub struct Step {
@@ -332,7 +334,8 @@ pub enum Op {
     // ops/board.rs
     SpreadDamage(SpreadDamageSpec),
     // ops/state.rs
-    AbilityUsed(AbilityUsedSpec),
+    /// A usage record is made: "this Ability counts as used from here" (`UsedSpec`).
+    Used(UsedSpec),
     /// Damage to several of the opponent's Pokémon the attacker picks (min = max = the lesser of
     /// `count` and the Pokémon to pick from).
     /// This Pokémon (the slot `target`) switches with the Active Pokémon when it is on the Bench.

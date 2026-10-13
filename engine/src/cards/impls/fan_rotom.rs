@@ -2,7 +2,7 @@
 //! less, reveal them, and put them into your hand. Then, shuffle your deck. You can't use more than 1 Fan Call Ability during
 //! your turn. Assault Landing - 70; if there is no Stadium in play, this attack does nothing.
 //!
-//! "Your first turn" is game turn 1 or 2; the shared once-per-turn marker is what stops a second Fan Call. One Search op
+//! "Your first turn" is game turn 1 or 2; the shared once-per-turn usage record is what stops a second Fan Call. One Search op
 //! revealing what it finds, one shuffle after it (APR E-19). Assault Landing's damage is exactly 0 or 70.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     ],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurnShared("FAN_CALL_MARKER"),
+        once: Once::PerTurnShared,
         needs: &[Cond::Cmp(Num::Turn, CmpOp::Le, Num::Lit(2))],
         steps: &[
             Step::new(Op::Search(SearchSpec {

@@ -106,7 +106,6 @@ pub struct Slot {
     /// `setup::finish`).
     pub entered_turn: i32,
     pub sleep_flips: i32,
-    pub board_effect: SVec<u8, 6>,
     /// `attacksThisTurn` (absent until first written).
     pub attacks_this_turn: Option<i32>,
     pub healed_this_turn: bool,
@@ -130,7 +129,6 @@ impl Default for Slot {
             marker: Marker::default(),
             entered_turn: 0,
             sleep_flips: 1,
-            board_effect: SVec::new(),
             attacks_this_turn: None,
             healed_this_turn: false,
             ko_pending: None,
@@ -177,6 +175,52 @@ impl LastingOn {
     pub fn pokemon(p: usize, s: SlotId) -> LastingOn {
         LastingOn::Pokemon(p as u8, s)
     }
+}
+
+/// When a record (a usage record, a lasting declared effect or a slot record) ends.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum Until {
+    /// "This turn", player `p`'s: it ends when their turn ends, in the EndTurn event, before the end-of-turn effects the
+    /// player orders (an expiry is not an effect: APR E-21).
+    ThisTurn(u8),
+    /// Player `p`'s turn, once its end-of-turn effects are done (a record those effects read: Ignition Energy's
+    /// "attached this turn"): at the end of `phase::end_turn`.
+    AfterTurn(u8),
+    /// Player `p`'s next Pokémon Checkup (Briar: the Knock Out by an attack's damage is found by the state check after the
+    /// attack's turn ends, before the Checkup).
+    Checkup(u8),
+    /// Until something else removes it (a card's text, the Pokémon's effects ending, the card leaving play, the game's end).
+    Removed,
+}
+
+/// What a usage record is about: "you can't use more than 1 X Ability each turn" is per printed Ability name; a card's
+/// own declaration (a Tool's "once during your turn", a Special Energy's "once per game") is per card definition and
+/// declaration.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum UsageKey {
+    /// The printed Ability name (`PowerDef::name_id`, generated into `gen::cards::ABILITY_NAMES`).
+    Ability(u16),
+    /// The `index`th declaration of the card `def` (a passive: its position in `CardSpec::passives`; a power:
+    /// `0x80 | its index`; `0xFF`: the card's own record).
+    Declared { def: crate::carddb::DefId, index: u8 },
+}
+
+/// Whose record it is: a player's (the limits that are the player's: the same Ability of every copy, "once per game", a Tool's
+/// once) or a card's (a Pokémon's own use, id317: it ends with the card's entering or leaving play, or being replaced; a
+/// Pokémon Knocked Out: "doesn't stack").
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum UsageBy {
+    Player(u8),
+    Card(CardId),
+}
+
+/// A usage record: the rules concept behind "once during your turn", "you can't use more than 1 X Ability each turn",
+/// "once per game" and "the effect doesn't stack" (events batch 9 C6; `engine::usage`). `State::usage` holds them all.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub struct Usage {
+    pub key: UsageKey,
+    pub by: UsageBy,
+    pub until: Until,
 }
 
 /// A lasting effect an attack left ("during your opponent's next turn, ...", "this Pokémon can't attack during your next
@@ -291,9 +335,6 @@ pub struct Player {
     pub pokemon_knocked_out_last_turn_entries: SVec<DefId, 8>,
     /// Parallel to the entries: whether that Pokémon was Knocked Out by damage from an attack.
     pub pokemon_knocked_out_last_turn_by_attack: SVec<bool, 8>,
-    /// The cards whose declaration says "once per game" (`Once::PerGame`) and has been applied for this player: by the
-    /// declaring card's def, never reset. Task C6 of events batch 9 generalizes the usage records into one table.
-    pub once_per_game_used: SVec<DefId, 4>,
 }
 
 impl Player {
@@ -331,7 +372,6 @@ impl Player {
             pokemon_knocked_out_by_attack_during_opponents_last_turn: false,
             pokemon_knocked_out_last_turn_entries: SVec::new(),
             pokemon_knocked_out_last_turn_by_attack: SVec::new(),
-            once_per_game_used: SVec::new(),
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;
@@ -481,6 +521,8 @@ pub struct State {
     /// The lasting effects attacks left on Pokémon and players (events batch 8 C7; `engine::lasting`), in the order they
     /// were put.
     pub lasting: SVec<LastingEffect, 32>,
+    /// The usage records (events batch 9 C6; `engine::usage`), in the order they were made.
+    pub usage: SVec<Usage, 20>,
 }
 
 /// Where a card is (a [`State::at`] entry): a zone list of a player, a Pokémon spot's cards, or a Pokémon's Tools; `NONE`
@@ -580,6 +622,7 @@ impl State {
             at: [Loc::NONE; MAX_CARDS],
             lock_synced: None,
             lasting: SVec::new(),
+            usage: SVec::new(),
         }
     }
 

@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     // [F] Pokémon.
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("STONE_ARMS_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[Step::new(Op::Attach(AttachSpec {
             target: SlotPred::TypeIs(ct::FIGHTING),

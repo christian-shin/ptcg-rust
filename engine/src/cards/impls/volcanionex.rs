@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Volcanionex",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("SCORCHING_STEAM"),
+        once: Once::PerTurn,
         // If this Pokémon is in the Active Spot, your opponent's Active Pokémon is now Burned (not when it already is).
         needs: &[Cond::IsActive(SlotExpr::This), Cond::WouldChangeConditions(OPP_ACTIVE, &[SpecialCondition::Burned])],
         steps: &[Step::new(inflict(&[SpecialCondition::Burned]))],

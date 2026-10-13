@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
     attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(inflict(&[SpecialCondition::Confused]))] }],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("ADRENA_BRAIN_MARKER"),
+        once: Once::PerTurn,
         needs: &[Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::Damaged), Cond::Slot(SlotExpr::This, SlotPred::Provides(crate::types::ct::DARK))],
         steps: &[Step::new(Op::MoveCounters(MoveCountersSpec { kind: MoveCountersKind::MineToOpp { max: 3 } }))],
     }],

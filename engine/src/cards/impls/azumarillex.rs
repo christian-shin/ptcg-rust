@@ -2,7 +2,7 @@
 //! to this Pokémon. Energy Balloon — 60+; 40 more for each [P] Energy attached to this Pokémon.
 //!
 //! Bubble Gathering is `Op::MoveEnergyOwn` with this Pokémon as the only destination (a MoveEnergy between your own
-//! Pokémon, APR C-10; cancellable, with no once-per-turn marker). Energy Balloon counts the [P] Energy attached to this
+//! Pokémon, APR C-10; cancellable, with no once-per-turn usage record). Energy Balloon counts the [P] Energy attached to this
 //! Pokémon, which is the Energy provided (`EnergyUnit::Provided`): the text says "Energy", not "Energy cards" (id2237).
 use crate::spec::prelude::*;
 
@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::No,
         needs: &[],
-        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: Some(SlotExpr::This), energy: Pred::Energy, cancel: true, used_always: true }))],
+        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: Some(SlotExpr::This), energy: Pred::Energy, cancel: true }))],
     }],
     // Energy Balloon: 40 more damage for each [P] Energy card attached to this Pokémon.
     attacks: &[AttackSpec {

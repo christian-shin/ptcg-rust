@@ -1,0 +1,9 @@
+{
+ "turn": 2,
+ "decks": [["4 Togekiss ASC 82","4 Tynamo ASC 59","52 Fighting Energy MEE 6"],["4 Togekiss ASC 82","4 Tynamo ASC 59","52 Fighting Energy MEE 6"]],
+ "me": {"reset": true, "active": "Togekiss ASC 82", "active_energy": ["3 Fighting Energy MEE 6"], "bench": [{"card": "Togekiss ASC 82"}]},
+ "opp": {"reset": true, "active": "Tynamo ASC 59", "bench": [{"card": "Tynamo ASC 59"}]},
+ "coins": [false, true],
+ "answers": [{"a": "attack", "name": "Speed Wing"}],
+ "expect": [{"at": "turn_end", "who": "me", "prizes_taken": 1, "cite": "id2083: with two Togekiss in play only one coin is flipped for the Knock Out (the flip is part of using the Ability, it can't stack); the first flip is tails, so the second copy's flip (heads) never happens"}]
+}

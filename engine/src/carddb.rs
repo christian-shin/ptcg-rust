@@ -38,6 +38,8 @@ pub struct AttackDef {
 pub struct PowerDef {
     /// Official English name.
     pub name: &'static str,
+    /// The printed name's number (one per distinct name, `gen::cards::ABILITY_NAMES`): the key of the usage records.
+    pub name_id: u16,
     pub power_type: u8,
     pub text: &'static str,
     pub has_effect_fn: bool,
