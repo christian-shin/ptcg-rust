@@ -1,0 +1,12 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Litwick PBL 36", "4 Lampent PBL 37", "4 Mega Chandelure ex PBL 38", "4 Latias ex SSP 76", "44 Psychic Energy MEE 5"],
+  ["4 Litwick PBL 36", "4 Lampent PBL 37", "4 Mega Chandelure ex PBL 38", "4 Latias ex SSP 76", "44 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Latias ex SSP 76", "bench": [{"card": "Litwick PBL 36"}]},
+ "opp": {"reset": true, "active": ["Litwick PBL 36", "Lampent PBL 37", "Mega Chandelure ex PBL 38"]},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "retreat", "cite": "APR D-13: \"has no Retreat Cost\" (Latias ex's Skyliner) takes priority over the opponent's Binding Flame (\"is [C] more\"): Latias ex retreats with no Energy attached"}
+ ]
+}

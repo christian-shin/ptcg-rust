@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Litwick PBL 36", "4 Lampent PBL 37", "4 Mega Chandelure ex PBL 38", "4 Latias ex SSP 76", "44 Psychic Energy MEE 5"],
+  ["4 Litwick PBL 36", "4 Lampent PBL 37", "4 Mega Chandelure ex PBL 38", "4 Latias ex SSP 76", "44 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": ["Litwick PBL 36", "Lampent PBL 37", "Mega Chandelure ex PBL 38"], "active_energy": ["2 Psychic Energy MEE 5"]},
+ "opp": {"reset": true, "active": "Latias ex SSP 76", "bench": [{"card": "Litwick PBL 36"}]},
+ "answers": [{"a": "attack", "name": "Phantom Maze"}],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Latias ex SSP 76", "damage": 130, "cite": "APR D-13: \"has no Retreat Cost\" (Latias ex's Skyliner on its Basic Pokémon) takes priority over \"is [C] more\" (Mega Chandelure ex's Binding Flame), whatever their order: the Retreat Cost has no [C], Phantom Maze does 130"}
+ ]
+}
