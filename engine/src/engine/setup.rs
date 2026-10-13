@@ -55,14 +55,11 @@ pub fn deck_is_valid(_st: &State, deck: &[DefId]) -> bool {
     if deck.len() != 60 {
         return false;
     }
-    let names: Vec<&str> = deck.iter().map(|d| def(*d).name).collect();
-    let has = |n: &str| names.contains(&n);
-    if (has("Professor Sycamore") && has("Professor Juniper"))
-        || (has("Professor Juniper") && has("Professor's Research"))
-        || (has("Professor Sycamore") && has("Professor's Research"))
-        || (has("Lysandre") && has("Boss's Orders"))
-    {
-        return false;
+    // Cards that count as the same name (data: `same_name_group`) can't share a deck under different names.
+    for d in deck.iter().map(|d| def(*d)) {
+        if !d.same_name_group.is_empty() && deck.iter().any(|o| def(*o).name != d.name && d.same_name_group.contains(&def(*o).name)) {
+            return false;
+        }
     }
     let mut counts: std::collections::HashMap<&str, u32> = std::collections::HashMap::new();
     let (mut ace, mut radiant, mut has_basic) = (false, false, false);
@@ -498,4 +495,124 @@ fn finish(g: &mut Game) -> R {
     // Both Active Pokémon take hold together: the player who goes first is stamped first.
     crate::spec::passive::lock_sync(g);
     crate::engine::phase::init_next_turn(g)
+}
+
+#[cfg(test)]
+mod same_name_tests {
+    use super::*;
+    use crate::carddb::def_by_full_name;
+
+    /// The replaced hard-coded rule (frozen copy): the old same-name check, then the unchanged rest of the rule.
+    fn old_deck_is_valid(st: &State, deck: &[DefId]) -> bool {
+        if deck.len() == 60 {
+            let names: Vec<&str> = deck.iter().map(|d| def(*d).name).collect();
+            let has = |n: &str| names.contains(&n);
+            if (has("Professor Sycamore") && has("Professor Juniper"))
+                || (has("Professor Juniper") && has("Professor's Research"))
+                || (has("Professor Sycamore") && has("Professor's Research"))
+                || (has("Lysandre") && has("Boss's Orders"))
+            {
+                return false;
+            }
+        }
+        rest_of_the_rule(st, deck)
+    }
+
+    /// `deck_is_valid` as it was after the same-name check.
+    fn rest_of_the_rule(_st: &State, deck: &[DefId]) -> bool {
+        if deck.len() != 60 {
+            return false;
+        }
+        let mut counts: std::collections::HashMap<&str, u32> = std::collections::HashMap::new();
+        let (mut ace, mut radiant, mut has_basic) = (false, false, false);
+        for d in deck.iter().map(|d| def(*d)) {
+            if d.is_pokemon() && d.stage == Stage2Basic::BASIC {
+                has_basic = true;
+            }
+            if let Some(limit) = copy_limit(d) {
+                let n = counts.entry(d.name).or_insert(0);
+                *n += 1;
+                if *n > limit.max(4) {
+                    return false;
+                }
+            }
+            if d.has_tag(tag::ACE_SPEC) {
+                if ace {
+                    return false;
+                }
+                ace = true;
+            }
+            if d.has_tag(tag::RADIANT) {
+                if radiant {
+                    return false;
+                }
+                radiant = true;
+            }
+        }
+        has_basic
+    }
+
+    /// None when the deck names a card outside the card data (some meta decks do).
+    fn load(path: &std::path::Path) -> Option<Vec<DefId>> {
+        let mut deck = Vec::new();
+        for line in std::fs::read_to_string(path).unwrap().lines() {
+            let line = line.trim();
+            if line.is_empty() || line.starts_with('#') {
+                continue;
+            }
+            let (n, key) = line.split_once(' ').unwrap();
+            let id = def_by_full_name(key)?;
+            for _ in 0..n.parse::<usize>().unwrap() {
+                deck.push(id);
+            }
+        }
+        Some(deck)
+    }
+
+    #[test]
+    fn same_name_groups_agree_with_the_old_rule() {
+        let st = State::new();
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../decks");
+        let mut files = Vec::new();
+        for dir in [root.clone(), root.join("meta")] {
+            for e in std::fs::read_dir(&dir).unwrap() {
+                let p = e.unwrap().path();
+                if p.extension().map_or(false, |x| x == "txt") {
+                    files.push(p);
+                }
+            }
+        }
+        assert!(files.len() >= 16);
+        let boss: Vec<DefId> = ["Boss's Orders ASC 183", "Boss's Orders PAL 172"].iter().map(|k| def_by_full_name(k).unwrap()).collect();
+        let mut compared = 0;
+        for f in &files {
+            let Some(deck) = load(f) else { continue };
+            assert_eq!(old_deck_is_valid(&st, &deck), deck_is_valid(&st, &deck), "{}", f.display());
+            compared += 1;
+            // Constructed decks mixing the two printings of Boss's Orders (same name) in place of other cards.
+            for k in 0..=5 {
+                for i in 0..2usize {
+                    let mut d = deck.clone();
+                    for j in 0..k.min(d.len()) {
+                        d[j] = boss[(i + j) % 2];
+                    }
+                    assert_eq!(old_deck_is_valid(&st, &d), deck_is_valid(&st, &d), "{} k={}", f.display(), k);
+                    compared += 1;
+                }
+            }
+        }
+        assert!(compared >= 16 * 11, "{}", compared);
+    }
+
+    /// Every group is complete on the cards that exist: all defs of a listed name carry the same group.
+    #[test]
+    fn groups_are_symmetric() {
+        let all = crate::gen::cards::CARDS;
+        for d in all.iter().filter(|d| !d.same_name_group.is_empty()) {
+            assert!(d.same_name_group.contains(&d.name), "{}", d.full_name);
+            for o in all.iter().filter(|o| d.same_name_group.contains(&o.name)) {
+                assert_eq!(o.same_name_group, d.same_name_group, "{} vs {}", d.full_name, o.full_name);
+            }
+        }
+    }
 }

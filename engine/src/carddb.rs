@@ -93,6 +93,11 @@ pub struct CardDef {
     pub methods: &'static [&'static str],
     /// Treated as a Pokémon by `getPokemons()` (fossils, dolls).
     pub fossil_doll: bool,
+    /// Names that count as the same name for the deck-building rule (empty:
+    /// none): a deck holds cards of at most one name of the group (ruling
+    /// 1073: Lysandre and Boss's Orders; 746 / 747: Professor Sycamore,
+    /// Professor Juniper, Professor's Research).
+    pub same_name_group: &'static [&'static str],
     /// Position in the deck / discard listing order (super type, Trainer or
     /// Energy subtype, name in UTF-16 order); equal for equal keys.
     pub sort_rank: u16,
