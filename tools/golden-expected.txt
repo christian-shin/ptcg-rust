@@ -199,26 +199,6 @@ g0500012196  # step 45 options; Adrena-Brain no longer offered under Watchful Ey
 g0500013376  # step 12 options; Adrena-Brain no longer offered under Watchful Eye
 g0500016016  # step 29 options; Adrena-Brain no longer offered under Watchful Eye
 g0500019396  # step 12 options; Adrena-Brain no longer offered under Watchful Eye
-# Events batch 8 C11d (RULES FIX, APR E-21): Ignition Energy PFL 124 is discarded on its owner's EndTurn event, before
-# Pokémon Checkup (it was at Checkup). Each game has Ignition Energy; the only difference is the final state: the game
-# ended at that end of turn (no Checkup followed), with the Energy now in the discard pile (CI 38321337770).
-g0500001430  # step 152 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500001490  # step 167 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500002101  # step 61 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500003998  # step 19 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500004611  # step 212 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500007530  # step 19 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500007533  # step 153 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500008860  # step 127 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500009421  # step 189 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500013538  # step 27 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500014041  # step 160 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500014683  # step 22 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500015530  # step 145 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500016658  # step 146 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500017630  # step 90 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500018293  # step 17 obs, final state; Ignition Energy discarded at the end of the last turn
-g0500019070  # step 110 obs, final state; Ignition Energy discarded at the end of the last turn
 # Events batch 8 C11c (RULES FIX, user decision 7; APR F Pokémon Checkup step 2, E-08, id2302): two or more Checkup
 # effects (Froslass TWM 53's Freezing Shroud, one or more on each side) are ordered by the player whose turn would be
 # next, with the Special Conditions check; the recording never asked. Each game has Froslass; its divergence is the
@@ -610,3 +590,51 @@ g0500019577  # step -1 extra-prompt; the Checkup order prompt (Froslass)
 g0500019816  # step -1 extra-prompt; the Checkup order prompt (Froslass)
 g0500019876  # step -1 extra-prompt; the Checkup order prompt (Froslass)
 g0500019936  # step -1 extra-prompt; the Checkup order prompt (Froslass)
+# Events batch 8 C12b-ko (RULES FIX, APR attack step 7 / D "at the end of an attack" / E "as soon as" / E-21): the
+# attack's Knock Outs are checked at the end of the attack, before the end of the turn (the recording ended the turn
+# first). Every game has Powerglass SFA 63, an end-of-turn effect (CI 38342914510). The 17 C11d Ignition Energy games match
+# again (no end of the turn after a game-winning attack).
+g0500000433  # step 254 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500000493  # step 225 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500001153  # step 153 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500002407  # step 208 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500002417  # step 339 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500002430  # step 161 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500002765  # step 177 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500005299  # step -1 extra-prompt: Powerglass's end-of-turn attach is asked after the attack's Knock Out and promotion (the Pokémon holding it is now Active; the recording ended the turn before the Knock Out)
+g0500006028  # step 249 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500006139  # step 247 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500006363  # step 414 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500006379  # step -1 extra-prompt: Powerglass's end-of-turn attach is asked after the attack's Knock Out and promotion (the Pokémon holding it is now Active; the recording ended the turn before the Knock Out)
+g0500006398  # step 201 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500007393  # step 255 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500007939  # step 148 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500008893  # step 308 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500009439  # step 71 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500009601  # step -1 extra-prompt: Powerglass's end-of-turn attach is asked after the attack's Knock Out and promotion (the Pokémon holding it is now Active; the recording ended the turn before the Knock Out)
+g0500009610  # step 99 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500009613  # step 161 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500009973  # step 274 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500009978  # step 219 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500009981  # step 241 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500010033  # step 190 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500010939  # step 258 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500012013  # step 71 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500013211  # step 30 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500013218  # step 346 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500013219  # step 78 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500013232  # step 50 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500013595  # step 222 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500013633  # step 230 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500014539  # step 223 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500015139  # step 242 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500015193  # step 224 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500016459  # step -1 extra-prompt: Powerglass's end-of-turn attach is asked after the attack's Knock Out and promotion (the Pokémon holding it is now Active; the recording ended the turn before the Knock Out)
+g0500016793  # step 197 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500016811  # step 34 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500016818  # step 363 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500016837  # step 224 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500017113  # step 234 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500017174  # step 95 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500019033  # step 76 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it
+g0500019579  # step 195 obs, final state: the attack ended the game, Powerglass's end-of-turn attach no longer follows it

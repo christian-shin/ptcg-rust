@@ -90,6 +90,9 @@ pub enum OnComplete {
     AfterEndTurn { p: u8 },
     /// betweenTurns completion: `initNextTurn` unless finished.
     InitNextTurn,
+    /// The end of player `p`'s attack (attack step 7, Knock Outs checked; `attack::attack_over`): the copied attack ends,
+    /// then the end of the turn unless the game is over.
+    AfterAttack { p: u8 },
 }
 
 /// Coin flip callbacks (`CoinFlipEffect.callback`).
