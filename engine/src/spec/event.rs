@@ -259,6 +259,10 @@ pub enum Limit {
     /// The Evolution card must evolve from the Pokémon ("Evolves from" names it). Only a `Permit` lifts it
     /// (Rainbow DNA); a `Restrict` doesn't impose it.
     EvolvesFrom,
+    /// Not during the first turn of the game, the turn of the player who goes first ("The player who goes first can't
+    /// play a Supporter card on their first turn": APR E-26 area; Carmine and Team Rocket's Proton: "If you go first, you
+    /// can use this card during your first turn"). Only a `Permit` of the card played lifts it.
+    GoingFirst,
 }
 
 /// The role the declaring card plays in an event ("this Pokémon", "this card").
@@ -422,6 +426,8 @@ pub struct EventView {
     pub base_entered_this_turn: bool,
     /// Evolve: it is the owner's first turn (the game's turns 1 and 2 are each player's first turn).
     pub owner_first_turn: bool,
+    /// PlayTrainer: it is the first turn of the game, the turn of the player who goes first ([`Limit::GoingFirst`]).
+    pub first_turn_of_game: bool,
     /// ChangeActive: how it changes, the Active Spot (`from`, empty for a promotion) and the Benched Pokémon coming
     /// in (`to`; `None` before it is chosen). `card` / `slot` are the Pokémon the change is done to
     /// (`ActiveChange::done_to_leaving`).
@@ -452,7 +458,7 @@ pub struct EventView {
 impl EventView {
     /// An event of `kind` about `owner`'s card, with nothing else set.
     pub const fn new(kind: EventKind, cause: Cause, owner: u8, turn: u8) -> EventView {
-        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false, trainer_use: None, position: None, attack: None, energy: None }
+        EventView { kind, source: None, mode: None, manual: false, path: None, cause, card: None, base: None, slot: None, condition: None, amount: 0, purpose: None, heads: None, owner, turn, base_entered_this_turn: false, owner_first_turn: false, first_turn_of_game: false, change: None, from: None, to: None, end: None, ko_by: None, dest: None, ignores_defender: false, damaged_active: false, trainer_use: None, position: None, attack: None, energy: None }
     }
 
     /// The player doing the action: the `Cause` player (who plays the card, uses the Ability, attack or

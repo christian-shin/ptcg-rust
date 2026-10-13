@@ -1,0 +1,13 @@
+{
+  "turn": 1,
+  "decks": [
+    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "4 Minccino JTG 125", "48 Grass Energy MEE 1"],
+    ["4 Volbeat TWM 9", "4 Illumise TWM 10", "4 Minccino JTG 125", "48 Grass Energy MEE 1"]
+  ],
+  "me": {"reset": true, "active": "Volbeat TWM 9", "active_energy": ["2 Grass Energy MEE 1"]},
+  "opp": {"reset": true, "active": "Minccino JTG 125"},
+  "expect": [
+    {"at": "start", "who": "me", "legal": "attack", "name": "Quick Sign", "cite": "Volbeat TWM 9 text: if you go first, you can use this attack during your first turn (Advanced Rulebook E-28)"},
+    {"at": "start", "who": "me", "legal": "attack", "name": "Coordinated Strike", "is": false, "cite": "Advanced Rulebook E-28: the player who goes first can't attack on their first turn; only Quick Sign says it can"}
+  ]
+}

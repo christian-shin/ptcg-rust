@@ -168,6 +168,7 @@ fn limit_applies(v: &EventView, l: Limit) -> bool {
         Limit::FirstTurn => v.owner_first_turn,
         Limit::BaseEnteredThisTurn => v.base_entered_this_turn,
         Limit::EvolvesFrom => false,
+        Limit::GoingFirst => v.first_turn_of_game,
     }
 }
 
@@ -176,6 +177,7 @@ fn limit_error(l: Limit) -> &'static str {
         Limit::FirstTurn => "CANNOT_EVOLVE_ON_YOUR_FIRST_TURN",
         Limit::BaseEnteredThisTurn => "POKEMON_CANT_EVOLVE_THIS_TURN",
         Limit::EvolvesFrom => "INVALID_TARGET",
+        Limit::GoingFirst => "CANNOT_PLAY_THIS_CARD",
     }
 }
 
@@ -220,6 +222,7 @@ pub const fn limit_kind(l: Limit) -> u32 {
         Limit::FirstTurn => k::PERMIT_FIRST_TURN,
         Limit::BaseEnteredThisTurn => k::PERMIT_BASE_ENTERED,
         Limit::EvolvesFrom => k::PERMIT_EVOLVES_FROM,
+        Limit::GoingFirst => k::PERMIT_GOING_FIRST,
     }
 }
 
@@ -230,7 +233,8 @@ pub fn may_permit(g: &Game, limit: Limit) -> bool {
 }
 
 /// Is `limit` lifted for the event by a permission in force (a card in play: a Pokémon's Ability, a Tool,
-/// an Energy, the Stadium)?
+/// an Energy, the Stadium; or the card of the event itself, whose own `CardRule` permission holds wherever it is: a
+/// Supporter played from the hand that says "If you go first, you can use this card during your first turn")?
 pub fn permitted<F: crate::derived::Facts>(g: &mut F, v: &EventView, limit: Limit) -> R<bool> {
     if !may_permit(g.g(), limit) {
         return Ok(false);
@@ -245,6 +249,11 @@ pub fn permitted<F: crate::derived::Facts>(g: &mut F, v: &EventView, limit: Limi
             for c in slot.cards.iter().chain(slot.tools.iter()) {
                 cands.push(c);
             }
+        }
+    }
+    for c in event_cards(v).iter().copied() {
+        if !cands.contains(&c) {
+            cands.push(c);
         }
     }
     for c in cands.iter().copied() {

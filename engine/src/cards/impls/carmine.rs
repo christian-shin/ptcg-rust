@@ -1,5 +1,8 @@
 //! Carmine (TWM / PRE): if you go first, you can use this card on your first turn. Discard your hand and draw 5 cards.
 //!
+//! "If you go first, you can use this card on your first turn" is a `Permit` over this card's PlayTrainer lifting
+//! `Limit::GoingFirst` (the Supporter limit of the first player's first turn).
+//!
 //! Discarding the hand is a cost, not the effect (id1124, APR E-30): `Step::cost`. With an empty deck nothing could be drawn,
 //! so the card can't be played (id925, id2231); with an empty hand and cards in the deck it can (id1125; JP FAQ Carmine
 //! with only Carmine in the hand). The Draw is one Draw event of the Supporter's effect.
@@ -7,6 +10,16 @@ use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Carmine",
+    // "If you go first, you can use this card during your first turn": a permission of the card played, lifting the limit on
+    // the first player's first turn.
+    passives: &[Passive {
+        origin: RuleSource::CardRule,
+        modifier: Modifier::Permit(PermitSpec {
+            for_: EventPred::All(&[EventPred::Kind(EventKind::PlayTrainer), EventPred::This(Role::Card)]),
+            lifts: &[Limit::GoingFirst],
+            while_: &[],
+        }),
+    }],
     // Discard your hand and draw 5 cards (discarding the hand is a cost: nothing can be drawn from
     // an empty deck, id1124).
     play: Some(PlaySpec {

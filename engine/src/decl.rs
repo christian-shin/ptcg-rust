@@ -103,7 +103,7 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::DamageDealt(d) if matches!(d.stage, crate::spec::passive::DamageStage::Deal) => fam::DAMAGE_DEALT,
         Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => fam::DAMAGE_TAKEN,
         Modifier::CheckupDamage(_) => fam::CHECKUP_DAMAGE,
-        Modifier::AttackFlags(a) if a.first_turn => fam::FIRST_TURN,
+        Modifier::AttackFlags(a) if matches!(a.first_turn, Some(crate::spec::passive::FirstTurnAttack::ThisPokemon)) => fam::FIRST_TURN,
         _ => return None,
     })
 }

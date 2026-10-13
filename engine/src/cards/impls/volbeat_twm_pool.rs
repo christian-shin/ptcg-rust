@@ -2,12 +2,16 @@
 //! to 2 Basic Pokémon and put them onto your Bench. Then, shuffle your deck. Coordinated Strike - 20+; if Illumise is on
 //! your Bench, 60 more damage.
 //!
+//! "If you go first, you can use this attack during your first turn" is `AttackFlags { first_turn: Attack(0) }` on Quick Sign,
+//! read by the UseAttack's first-turn check.
+//!
 //! Each Pokémon goes onto the Bench through the EnterPlay event (source the deck, mode effect); an attack's "up to 2" may
 //! be 0 (id2301); the deck is shuffled once (APR E-19). With an empty deck or a full Bench the attack does nothing.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "VolbeatTWMPool",
+    passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: Some(FirstTurnAttack::Attack(0)), shred: None }) }],
     attacks: &[
         AttackSpec {
             index: 0,

@@ -70,8 +70,8 @@ pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
 /// `passive::grants_first_turn_attack`, which execution and legality both read).
 pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool, granted_first_turn: bool) -> R<SlotRef> {
     let ad = attack_def(g, attack);
-    // Printed "can be used on the first turn", or the permission.
-    if g.st.turn == 1 && !ad.can_use_on_first_turn && !granted_first_turn && !g.st.rules.attack_first_turn {
+    // The first-turn limit, unless a permission lifts it ("if you go first, you can use this attack during your first turn").
+    if g.st.turn == 1 && !granted_first_turn && !g.st.rules.attack_first_turn {
         crate::bail!("CANNOT_ATTACK_ON_FIRST_TURN");
     }
     let active = g.st.players[p].active;
@@ -111,7 +111,7 @@ pub fn start_use_attack(g: &mut Game, id: EffId) -> R {
     let active = g.st.players[p].active;
     let sp = g.st.slot(p, active).special_conditions;
     // The UseAttack event's checks (`engine::turn_action::attack_checks`, the function legality calls).
-    let granted = crate::spec::passive::grants_first_turn_attack(g, p);
+    let granted = crate::spec::passive::grants_first_turn_attack(g, p, attack);
     let attacking = match crate::engine::turn_action::attack_checks(g, p, attack, ignore_status, granted)? {
         Ok(s) => s,
         Err(code) => crate::bail!(code),

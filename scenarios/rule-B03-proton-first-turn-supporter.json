@@ -1,0 +1,13 @@
+{
+  "turn": 1,
+  "decks": [
+    ["4 Minccino JTG 125", "4 Team Rocket's Proton ASC 208", "4 Cheren ASC 258", "48 Darkness Energy MEE 7"],
+    ["4 Minccino JTG 125", "4 Team Rocket's Proton ASC 208", "4 Cheren ASC 258", "48 Darkness Energy MEE 7"]
+  ],
+  "me": {"reset": true, "active": "Minccino JTG 125", "hand": ["Cheren ASC 258", "Team Rocket's Proton ASC 208"]},
+  "opp": {"reset": true, "active": "Minccino JTG 125"},
+  "expect": [
+    {"at": "start", "who": "me", "legal": "play", "name": "Cheren ASC 258", "is": false, "cite": "Basic Rulebook: the player who goes first can not play a Supporter during their first turn"},
+    {"at": "start", "who": "me", "legal": "play", "name": "Team Rocket's Proton ASC 208", "cite": "Team Rocket's Proton text: if you go first, you may use this card during your first turn"}
+  ]
+}

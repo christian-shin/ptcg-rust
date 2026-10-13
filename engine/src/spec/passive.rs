@@ -732,12 +732,23 @@ pub struct CheckupDamageSpec {
 /// The attacks of the earlier Evolutions in the slot are also this evolved Active Pokémon's
 /// (Relicanth's Memory Dive).
 pub struct GrantAttacksSpec {}
-/// Flags the card writes on attacks: "if you go first, this Pokémon can attack on your first turn"
-/// (`first_turn`), and Shred: the attacks of Pokémon matching `shred` ignore the effects on the Defending
-/// Pokémon, while the card's Ability works.
+/// Flags the card writes on attacks: "if you go first, this Pokémon can attack on your first turn" or "if you go first,
+/// you can use this attack during your first turn" (`first_turn`), and Shred: the attacks of Pokémon matching `shred`
+/// ignore the effects on the Defending Pokémon, while the card's Ability works.
 pub struct AttackFlagsSpec {
-    pub first_turn: bool,
+    pub first_turn: Option<FirstTurnAttack>,
     pub shred: Option<SlotPred>,
+}
+
+/// Which attacks "If you go first" lets the player use during their first turn (APR E-28: the player who goes first can't
+/// attack on their first turn).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum FirstTurnAttack {
+    /// Every attack of the player's Active Pokémon, while the declaring Ability works (Meloetta ex's Debut Performance).
+    ThisPokemon,
+    /// This printed attack (its index on the card), wherever the card is when it is used: the attack's own text says so
+    /// (Delibird's Quick Gift, Volbeat's Quick Sign, Exeggcute's Precocious Evolution).
+    Attack(u8),
 }
 /// "During your next turn, this Pokémon's `attack` attack does `bonus` more damage" (S3 agent 3): using the attack arms the
 /// bonus on the Pokémon (a lasting entry that names the card and the attack; it rolls over at the end of the turn and ends
@@ -796,7 +807,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::BenchAttacks(_) => KindMask::EMPTY,
         // The first-turn permission is read by the UseAttack's checks (`grants_first_turn_attack`).
         Modifier::AttackFlags(a) => {
-            if a.first_turn {
+            if a.first_turn.is_some() {
                 KindMask::EMPTY
             } else {
                 mask(&[k::ATTACK])
@@ -2594,18 +2605,33 @@ fn attack_flags(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, a: &Atta
 /// Does `me` (an Ability on the attacking player's Active Pokémon) let `p`'s attacks be used on the first turn?
 fn first_turn_grants<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, a: &AttackFlagsSpec, p: usize) -> bool {
     let active = g.g().st.players[p].active;
-    if !a.first_turn || !g.g().st.slot(p, active).cards.contains(me) || g.g().st.turn != 1 {
+    if a.first_turn != Some(FirstTurnAttack::ThisPokemon) || !g.g().st.slot(p, active).cards.contains(me) || g.g().st.turn != 1 {
         return false;
     }
     let at = Located { owner: p, held: None };
     !blocked(g, me, origin, at, None)
 }
 
-/// The first-turn attack permission ("if you go first, this Pokémon can attack during your first turn": Meloetta ex's Live
-/// Debut, `AttackFlags { first_turn }`): does an Ability on player `p`'s Active Pokémon let its attacks be used on the
-/// first turn now? The UseAttack's checks read it (execution and legality alike).
-pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize) -> bool {
-    if g.g().st.turn != 1 || g.g().decls.sets[crate::decl::fam::FIRST_TURN] == 0 {
+/// Does the printed attack declare "if you go first, you can use this attack during your first turn"
+/// (`AttackFlags { first_turn: Attack(index) }` on its card)?
+fn attack_declares_first_turn(g: &Game, attack: AttackRef) -> bool {
+    let Some(spec) = crate::cards::spec_for(g.st.cards[attack.card as usize].def) else { return false };
+    spec.passives.iter().any(|ps| matches!(&ps.modifier, Modifier::AttackFlags(a) if a.first_turn == Some(FirstTurnAttack::Attack(attack.idx() as u8))))
+}
+
+/// The first-turn attack permission ("if you go first, you can use this attack during your first turn": the attack's own
+/// declaration; "if you go first, this Pokémon can attack during your first turn": Meloetta ex's Debut Performance,
+/// `AttackFlags { first_turn }`): may `attack` be used on the first turn now? The attack's own declaration holds wherever
+/// its card is (a Benched Pokémon's attack used through Memory Helix is the same attack); an Ability on player `p`'s Active
+/// Pokémon lets all its attacks be used. The UseAttack's checks read it (execution and legality alike).
+pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize, attack: AttackRef) -> bool {
+    if g.g().st.turn != 1 {
+        return false;
+    }
+    if attack_declares_first_turn(g.g(), attack) {
+        return true;
+    }
+    if g.g().decls.sets[crate::decl::fam::FIRST_TURN] == 0 {
         return false;
     }
     let active = g.g().st.players[p].active;
