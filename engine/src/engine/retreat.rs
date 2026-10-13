@@ -111,16 +111,13 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         pay(g, p, active, &cards, move_to)?;
         return retreat_pokemon(g, p, bench_index);
     }
-    if energy::all_provides_identical(map.as_slice()) {
-        if let Some(sel) = energy::select_minimal_energy_for_cost(map.as_slice(), cost.as_slice()) {
-            // A cost paid by Energy providing several units has a choice (ruling 1652: 1 or 2 Double Turbo Energy for cost 2).
-            let has_choice = sel.len() < cost.len() && map.len() >= cost.len();
-            if !sel.is_empty() && !has_choice {
-                let cards: Vec<CardId> = sel.iter().map(|e| e.card).collect();
-                pay(g, p, active, &cards, move_to)?;
-                return retreat_pokemon(g, p, bench_index);
-            }
-        }
+    // Interchangeable Energy cards (each provides the same) paid in one way only: which of them is discarded can't change
+    // the game, nothing is asked. Paid in two ways, as many cards as the cost or until the units are met (id2127, n1652:
+    // "you could discard either 1 or 2 Double Turbo Energy"; never more cards than the cost), the retreat asks (user
+    // decision 2026-10-13, batch 8 C12d: Twinleaf's all-provides-identical shortcut counted map entries, not cards).
+    if let Some(cards) = energy::only_payment(map.as_slice(), cost.as_slice()) {
+        pay(g, p, active, &cards, move_to)?;
+        return retreat_pokemon(g, p, bench_index);
     }
     let pid = g.player_id(p);
     let map = g.stash_energy(map);

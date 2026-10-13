@@ -100,7 +100,10 @@ pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
             }
         }
     }
-    if crate::spec::run::item_heads(g, held.as_slice()).len() >= 2 {
+    // Any Checkup effect that applies goes through the ordered path: with one effect (or identical ones and no Special
+    // Condition) nothing is asked and the rulebook's order holds, the Special Conditions first (APR F step 1), then the
+    // effects (step 2; user decision 2026-10-13, batch 8 C12d).
+    if !held.is_empty() {
         return ordered_checkup(g, oc);
     }
     for p in 0..2 {
@@ -155,7 +158,8 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
     })();
     g.checkup_held = false;
     r?;
-    order_next(g, left, true, crate::game::OrderThen::Checkup { oc, poison, burn, e: ids })
+    let several = crate::spec::run::item_heads(g, left.as_slice()).len() >= 2;
+    order_next(g, left, true, crate::game::OrderThen::Checkup { oc, poison, burn, e: ids, several })
 }
 
 /// Is the Special Conditions check an item of the Checkup order (an Active Pokémon has a Special Condition)?
@@ -340,7 +344,12 @@ pub fn order_next(g: &mut Game, left: crate::spec::run::TimedList, sc: bool, the
     }
     let heads = crate::spec::run::item_heads(g, left.as_slice()).len();
     let n = heads + (sc && special_conditions_item(g)) as usize;
-    if n >= 2 {
+    // At Checkup the before / after choice exists only when several effects applied (APR F step 2).
+    let several = match then {
+        crate::game::OrderThen::Checkup { several, .. } => several,
+        crate::game::OrderThen::EndTurn { .. } => true,
+    };
+    if n >= 2 && several {
         let chooser = match then {
             crate::game::OrderThen::EndTurn { p, .. } => p as usize,
             crate::game::OrderThen::Checkup { .. } => 1 - g.st.active_player as usize,
@@ -348,8 +357,12 @@ pub fn order_next(g: &mut Game, left: crate::spec::run::TimedList, sc: bool, the
         order_prompt(g, chooser, left, sc, then);
         return Ok(());
     }
-    if heads > 0 || sc {
-        // No choice left: the effects (identical ones), then the Special Conditions check.
+    if sc {
+        // No choice: the rulebook's order, the Special Conditions check first (APR F step 1), then the effects (step 2).
+        return ordered_effect(g, left, sc, then, heads as i32);
+    }
+    if heads > 0 {
+        // The effects left (identical ones), one after the other.
         return ordered_effect(g, left, sc, then, 0);
     }
     match then {

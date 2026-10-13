@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Cyndaquil DRI 32",
+   "4 Ethan's Quilava DRI 33",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ethan's Cyndaquil DRI 32",
+   "4 Ethan's Quilava DRI 33",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ethan's Cyndaquil DRI 32",
+   "Ethan's Quilava DRI 33"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Ethan's Cyndaquil DRI 32"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Bonded by the Journey",
+   "cite": "User decision 2026-10-13: the deck list is private knowledge and never blocks a search (id841: \"if you know that card is not in your deck ... yes you may\"; id2263): no Ethan's Adventure in the deck list, none known: the search is usable"
+  }
+ ]
+}

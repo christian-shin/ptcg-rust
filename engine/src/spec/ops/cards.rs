@@ -118,6 +118,11 @@ pub struct PickSpec {
     pub soft: bool,
     /// Only cards named like one of the Pokémon in play of this player (Love Ball).
     pub same_name_as: Option<Who>,
+    /// "(You can't choose a card you discarded with the effect of this card.)": the cards this card's own cost put in this
+    /// register (its discard) can't be chosen (user decision 2026-10-13, model (b): the cost cards are discarded at the cost
+    /// step; only the Trainer itself is held out of the discard pile until its program ends, APR B-01 / B-03 step 4, id916;
+    /// the printed clause is the restriction, Superior Energy Retrieval's errata, id2174, id1179). No pool card prints it.
+    pub not_discarded_by_cost: Option<u8>,
 }
 impl PickSpec {
     pub const DEFAULT: PickSpec = PickSpec {
@@ -132,6 +137,7 @@ impl PickSpec {
         msg: "",
         soft: false,
         same_name_as: None,
+        not_discarded_by_cost: None,
     };
 }
 pub struct Cap {
@@ -515,6 +521,7 @@ fn num_uses_reg(n: &Num) -> bool {
 /// Does the card satisfy the pick's predicate (and name restriction)?
 fn pick_ok(g: &Game, f: &Frame, pick: &PickSpec, c: CardId) -> bool {
     pred(g, c, &pick.predicate)
+        && pick.not_discarded_by_cost.map_or(true, |r| !crate::spec::value::reg_list(g, f, r).contains(&c))
         && match pick.same_name_as {
             None => true,
             Some(w) => {
@@ -719,6 +726,32 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
 /// before modifiers (ruling 336).
 pub(crate) fn prize_bonus_applies(prize_base: i32) -> bool {
     prize_base > 0
+}
+
+#[cfg(test)]
+mod cost_card_tests {
+    use super::*;
+
+    /// "(You can't choose a card you discarded with the effect of this card.)": the cards this card's cost put in the
+    /// register can't be chosen by its pick (no pool card prints the clause; batch 8 C12d).
+    #[test]
+    fn a_card_discarded_by_the_cost_cant_be_chosen() {
+        let names = ["Fan Rotom SCR 118"; 4].iter().copied().chain(["Psychic Energy MEE 5"; 56].iter().copied()).collect::<Vec<_>>();
+        let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let hand = g.st.players[0].deck.as_slice().to_vec();
+        let (paid, other) = (hand[0], hand[1]);
+        let ListRef::Temp(t) = g.alloc_temp(&[paid]) else { panic!("a staging list") };
+        let mut f = crate::spec::run::Frame::for_check(crate::spec::run::Prog::Power(0), crate::spec::run::Phase::Use, 0, crate::cause::Cause::new(crate::cause::CauseKind::Ability, None, 0), [NO_CARD; 2]);
+        f.cards[0] = t;
+        let pick = PickSpec { from: ZoneRef(Who::Me, Zone::Deck), not_discarded_by_cost: Some(0), ..PickSpec::DEFAULT };
+        assert!(!pick_ok(&g, &f, &pick, paid), "the cost's card can't be chosen");
+        assert!(pick_ok(&g, &f, &pick, other), "another card can");
+        let plain = PickSpec { from: ZoneRef(Who::Me, Zone::Deck), ..PickSpec::DEFAULT };
+        assert!(pick_ok(&g, &f, &plain, paid), "without the clause it can");
+    }
 }
 
 #[cfg(test)]
@@ -1707,27 +1740,31 @@ fn searched_name(p: &Pred) -> Option<&'static str> {
     }
 }
 
-/// Could a copy of the named card a deck search is for still be in player `p`'s deck, counting the copies in public
-/// zones only (the discard pile, in play, the Lost Zone; never the hidden hand or face-down Prize cards)? A search for a
-/// named card with every copy of the deck list known to be elsewhere can't be used (user decision 2026-10-12; JP FAQ
-/// Ethan's Quilava: with all 4 Ethan's Adventure in the discard pile, Bonded by the Journey can't be used); a search for a
-/// kind of card stays usable with none known to remain (Rillaboom, Dialga, Budew; id2301).
+/// Could a copy of the named card a deck search is for still be in player `p`'s deck, by public knowledge only? A search
+/// for a named card is unusable only when every copy the deck-building limit allows (`setup::copy_limit`: 4; 1 for an
+/// ACE SPEC; a Basic Energy has none, so never) is in a known area: in play (attached cards included), the discard pile,
+/// the Lost Zone or a face-up Prize card (id361, id967, id1677, id1699: "all four copies of the card are in known areas";
+/// JP FAQ Ethan's Quilava with all 4 Ethan's Adventure in the discard pile). Private knowledge never blocks it: the deck
+/// list, the player's hand, face-down Prize cards (id841, id990, id2263). A search for a kind of card is unchanged (id840:
+/// only an empty deck). User decision 2026-10-13 (batch 8 C12d; C12c-c counted the deck list).
 fn named_copy_may_be_in_deck(g: &Game, p: usize, pred: &Pred) -> bool {
     let Some(name) = searched_name(pred) else { return true };
-    // A Basic Energy's name is its type ("Basic [R] Energy cards", Firebreather): a kind of card, not a named card.
-    if crate::carddb::cards().iter().any(|d| d.name == name && d.is_energy() && d.energy_type == crate::types::EnergyType::Basic as u8) {
-        return true;
-    }
+    let Some(def) = crate::carddb::cards().iter().find(|d| d.name == name) else { return true };
+    let Some(limit) = crate::engine::setup::copy_limit(def) else { return true };
     let named = |c: CardId| g.st.cdef(c).name == name && g.st.owner(c) == p;
-    let owned = (0..g.st.n_cards).filter(|c| named(*c)).count();
     let pl = &g.st.players[p];
-    let mut public = pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
-    for q in 0..2 {
-        for s in g.st.players[q].in_play().iter() {
-            public += g.st.players[q].slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+    let mut known = pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
+    for i in 0..pl.prize_count as usize {
+        if pl.prize_public[i] || pl.prize_face_up[i] {
+            known += pl.prizes[i].iter().filter(|c| named(*c)).count();
         }
     }
-    public < owned
+    for q in 0..2 {
+        for s in g.st.players[q].in_play().iter() {
+            known += g.st.players[q].slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+        }
+    }
+    (known as u32) < limit
 }
 
 /// A Trainer or Ability that only chooses cards needs something to choose: a deck

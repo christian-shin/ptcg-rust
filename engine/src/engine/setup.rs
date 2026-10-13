@@ -70,10 +70,10 @@ pub fn deck_is_valid(_st: &State, deck: &[DefId]) -> bool {
         if d.is_pokemon() && d.stage == Stage2Basic::BASIC {
             has_basic = true;
         }
-        if !(d.is_energy() && d.energy_type == 0) {
+        if let Some(limit) = copy_limit(d) {
             let n = counts.entry(d.name).or_insert(0);
             *n += 1;
-            if *n > 4 {
+            if *n > limit.max(4) {
                 return false;
             }
         }
@@ -91,6 +91,20 @@ pub fn deck_is_valid(_st: &State, deck: &[DefId]) -> bool {
         }
     }
     has_basic
+}
+
+/// The deck-building limit of copies of a card's name: 4; 1 for an ACE SPEC or a Radiant Pokémon (one such card per
+/// deck); none for a Basic Energy (`None`: any number). The deck check counts names against 4 and checks the one ACE SPEC /
+/// Radiant per deck on its own; the rules that reason about how many copies can exist (a named search, user decision
+/// 2026-10-13) read the limit here.
+pub fn copy_limit(d: &crate::carddb::CardDef) -> Option<u32> {
+    if d.is_energy() && d.energy_type == 0 {
+        return None;
+    }
+    if d.has_tag(tag::ACE_SPEC) || d.has_tag(tag::RADIANT) {
+        return Some(1);
+    }
+    Some(4)
 }
 
 struct Stage2Basic;
