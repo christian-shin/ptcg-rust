@@ -293,6 +293,8 @@ mod phrase_tests {
             provides: &[],
             methods: &[],
             fossil_doll: false,
+            same_name_group: &[],
+            sort_rank: 0,
         }
     }
 
