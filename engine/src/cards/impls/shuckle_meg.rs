@@ -1,11 +1,8 @@
-//! Shuckle (MEG): Fermented Juice — once during your turn, if this Pokémon
-//! has any [G] Energy attached, heal 30 damage from 1 of your Pokémon.
-//! Rollout — 30.
+//! Shuckle (MEG 11): Fermented Juice - once during your turn, if this Pokémon has any [G] Energy attached, you may use this
+//! Ability. Heal 30 damage from 1 of your Pokémon. Rollout - 30.
 //!
-//! Twinleaf: throws CANNOT_USE_POWER without [G] provided or without a
-//! damaged Pokémon, then USE_ABILITY_ONCE_PER_TURN (POWER_ALREADY_USED) and
-//! ABILITY_USED before a non-cancellable ChoosePokemonPrompt (undamaged
-//! Pokémon blocked) and a HealEffect of 30.
+//! An Ability use (once per turn) that needs this Pokémon to provide [G] (the Energy provided: a Prism Energy on a Basic Pokémon
+//! counts) and a damaged Pokémon of yours; one Heal of 30 on the Pokémon the player chooses.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

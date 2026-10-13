@@ -6,7 +6,7 @@
 //! Rule: a `PrizeAdjust` over the KnockOut view with `ko_by` AttackDamage (Poison
 //! or an effect that Knocks it Out doesn't count) and the guard "Pecharunt ex in
 //! play" (a scan of your Pokémon when the Prizes are taken). Dirty Headbutt arms
-//! `CannotUseThisAttackNextTurn` (one ApplyEffect event on this Pokémon).
+//! a lasting lock on this Pokémon that names the attack (`CANT_ATTACK` naming `NamedAttack::This`) until your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

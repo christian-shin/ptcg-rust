@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Oricorio ex PFL 18",
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex PFL 13",
+   "44 Fire Energy MEE 2"
+  ],
+  [
+   "4 Oricorio ex PFL 18",
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex PFL 13",
+   "44 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Oricorio ex PFL 18",
+  "bench": [
+   {
+    "card": [
+     "Charmander PFL 11",
+     "Charmeleon PFL 12",
+     "Mega Charizard X ex PFL 13"
+    ]
+   },
+   {
+    "card": "Charmander PFL 11"
+   }
+  ],
+  "hand": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Oricorio ex PFL 18",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Excited Turbo",
+   "is": true,
+   "cite": "Oricorio ex PFL 18 text: if you have any [R] Mega Evolution Pokemon ex in play (Mega Charizard X ex), attach a Basic [R] Energy card from your hand to 1 of your Benched [R] Pokemon"
+  }
+ ]
+}

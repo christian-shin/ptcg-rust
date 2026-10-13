@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Okidogi PRE 57",
+   "4 Miraidon ex TEF 122",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Okidogi PRE 57",
+   "4 Miraidon ex TEF 122",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Okidogi PRE 57",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Good Punch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "cite": "Okidogi PRE 57 text: the +100 needs a [D] Energy attached"
+  }
+ ]
+}

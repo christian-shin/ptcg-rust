@@ -1,10 +1,9 @@
-//! N's Zekrom (M2a / ASC): Shred - 70, not affected by effects on the
-//! Defending Pokémon; Rampaging Thunder - 250, can't attack next turn.
+//! N's Zekrom (ASC 155): Shred - 70, this attack's damage isn't affected by any effects on your opponent's Active Pokémon;
+//! Rampaging Thunder - 250, during your next turn this Pokémon can't use attacks.
 //!
-//! Twinleaf (phase 4b R7B): Shred sets `ignoreDefenderEffects`; the damage goes
-//! through the normal path (Weakness, Resistance and the effects on the
-//! attacker apply, the effects on the Defending Pokémon don't). It used to ignore
-//! Resistance on the AttackEffect and add the damage straight to the Active.
+//! Shred sets the `IgnoreDefenderEffects` attack flag: the damage goes through the normal calculation (Weakness, Resistance and the
+//! effects on the attacker apply; the effects on the Defending Pokémon don't: RULES.md "Shred", APR C-16). Rampaging Thunder
+//! arms a `CANT_ATTACK` lasting lock on this Pokémon until your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

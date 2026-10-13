@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dhelmise JTG 70",
+   "4 Miraidon ex TEF 122",
+   "4 Payapa Berry SCR 141",
+   "6 Psychic Energy MEE 5",
+   "42 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Dhelmise JTG 70",
+   "4 Miraidon ex TEF 122",
+   "4 Payapa Berry SCR 141",
+   "6 Psychic Energy MEE 5",
+   "42 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Dhelmise JTG 70",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "active_tool": "Payapa Berry SCR 141",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Anchor Smash"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 70,
+   "tool": null,
+   "cite": "Payapa Berry SCR 141 text: damaged by an attack from the opponent's [P] Pokemon, it takes 60 less damage (after Weakness and Resistance), and discard this card (Anchor Smash 130 - 60)"
+  }
+ ]
+}

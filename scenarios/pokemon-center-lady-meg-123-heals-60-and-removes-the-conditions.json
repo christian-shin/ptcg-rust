@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pokémon Center Lady MEG 123",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Pokémon Center Lady MEG 123",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_damage": 100,
+  "active_conditions": [
+   "POISONED"
+  ],
+  "hand": [
+   "Pokémon Center Lady MEG 123"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Pokémon Center Lady MEG 123"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "damage": 40,
+   "conditions": [],
+   "cite": "Pokemon Center Lady MEG 123 text: heal 60 damage and remove all Special Conditions from 1 of your Pokemon"
+  }
+ ]
+}

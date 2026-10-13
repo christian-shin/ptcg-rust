@@ -1,7 +1,7 @@
-//! Riolu (M1L / MEG 76): Accelerating Stab — 30. During your next turn, this
-//! Pokémon can't use Accelerating Stab.
+//! Riolu (ASC 112, M1L / MEG 76): Accelerating Stab - 30. During your next turn, this Pokémon can't use Accelerating Stab.
 //!
-//! Twinleaf has several `Riolu` classes; this port is bound to M1L.
+//! The attack arms a lasting lock on this Pokémon that names the attack (`CANT_ATTACK` naming `NamedAttack::This`) until your
+//! next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

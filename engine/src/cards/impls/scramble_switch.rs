@@ -1,9 +1,8 @@
-//! Scramble Switch (PLS, ACE SPEC): switch your Active Pokémon with 1 of your
-//! Benched Pokémon. Then, you may move as many Energy attached to the old
-//! Active Pokémon to the new Active Pokémon as you like.
+//! Scramble Switch (SSP 186, ACE SPEC): switch your Active Pokémon with 1 of your Benched Pokémon. Then, you may move as many
+//! Energy attached to the old Active Pokémon to the new Active Pokémon as you like.
 //!
-//! Not playable without a Benched Pokémon; the choice can't be cancelled (phase 4b, R3). The Energy chosen moves
-//! to the chosen Benched Pokémon first (MoveEnergy), then the switch (a ChangeActive, APR C-03).
+//! Not playable without a Benched Pokémon; the choice can't be cancelled. The Energy chosen moves to the chosen Benched Pokémon
+//! first (MoveEnergy), then the switch (a ChangeActive, APR C-03).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

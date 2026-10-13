@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Reboot Pod TEF 158",
+   "4 Hop's Snorlax JTG 117",
+   "55 Fire Energy MEE 2"
+  ],
+  [
+   "1 Reboot Pod TEF 158",
+   "4 Hop's Snorlax JTG 117",
+   "55 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Reboot Pod TEF 158"
+  ],
+  "discard": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Reboot Pod TEF 158",
+   "is": false,
+   "cite": "id925 (a Trainer card that can't do anything can't be played): Reboot Pod attaches to each of your Future Pokemon, and none is in play"
+  }
+ ]
+}

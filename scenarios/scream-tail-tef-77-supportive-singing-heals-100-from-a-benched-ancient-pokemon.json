@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Scream Tail TEF 77",
+   "4 Roaring Moon PRE 65",
+   "6 Psychic Energy MEE 5",
+   "46 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Scream Tail TEF 77",
+   "4 Roaring Moon PRE 65",
+   "6 Psychic Energy MEE 5",
+   "46 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Scream Tail TEF 77",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Roaring Moon PRE 65",
+    "damage": 120
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Roaring Moon PRE 65",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Supportive Singing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "damage": 20,
+   "cite": "Scream Tail TEF 77 text: heal 100 damage from 1 of your Benched Ancient Pokemon (Roaring Moon, 120 - 100)"
+  }
+ ]
+}

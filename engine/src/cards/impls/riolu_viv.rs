@@ -1,5 +1,4 @@
-//! Riolu (VIV): Best Punch — 30; flip a coin, if tails this attack does
-//! nothing (`effect.damage = 0` in the coin callback).
+//! Riolu (VIV): Best Punch - 30; flip a coin, if tails this attack does nothing (the damage is set to 0 on tails).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

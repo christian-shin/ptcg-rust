@@ -1,9 +1,11 @@
-//! Mew ex (30C / M6a): Memory Helix — a passive Ability: this Pokémon can use
-//! the attacks of any of your Benched Pokémon. They are added to its attack
-//! options (CheckPokemonAttacksEffect.copiedAttacks) while it is Active and
-//! the Ability isn't blocked; the AttackAction then runs the chosen one with
-//! `delegateFrom` (see `copy_attack.rs`). Teleportation Burst — 30, you may
-//! switch this Pokémon with 1 of your Benched Pokémon.
+//! Mew ex (30C 66): Memory Helix - this Pokémon can use the attacks of any of your Benched Pokémon. (You still need the
+//! necessary Energy to use each attack.) Teleportation Burst - 30; you may switch this Pokémon with 1 of your Benched Pokémon.
+//!
+//! Memory Helix is a `BenchAttacks` declaration read in the derived attack list while this Pokémon is Active and the Ability
+//! works: each Benched Pokémon's attack is offered as a copied one, run by the copy session of `copy_attack.rs` (the copied
+//! attack's own text, with the Energy cost paid by Mew ex). Another Pokémon's cost change binds its own holder (Seasoned Skill,
+//! Plasma Bane: JP FAQ Bloodmoon Ursaluna ex; scenario mew-ex-30c-66-memory-helix-blood-moon-pays-its-full-cost).
+//! Teleportation Burst is a `May` after the damage (a ChangeActive, Switch, APR C-03).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

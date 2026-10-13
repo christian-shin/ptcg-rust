@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Paldean Tauros SSP 18",
+   "4 Feebas SSP 41",
+   "4 Milotic ex SSP 42",
+   "6 Fire Energy MEE 2",
+   "42 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Paldean Tauros SSP 18",
+   "4 Feebas SSP 41",
+   "4 Milotic ex SSP 42",
+   "6 Fire Energy MEE 2",
+   "42 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Paldean Tauros SSP 18",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": [
+   "Feebas SSP 41",
+   "Milotic ex SSP 42"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spirited Tackle"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 180,
+   "hp_left": 90,
+   "cite": "Paldean Tauros SSP 18 text: if the opponent's Active Pokemon is a Stage 1 Pokemon, 90 more damage (90 + 90; Fire against Water has no Weakness)"
+  }
+ ]
+}

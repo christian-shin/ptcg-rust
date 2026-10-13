@@ -1,12 +1,8 @@
-//! Seviper (M2 / PFL 62): Excite Power — if you have a [D] Mega Evolution
-//! Pokémon ex in play, this Pokémon's attacks do 120 more damage. Jet Black
-//! Fang — 120.
+//! Seviper (PFL 62): Excited Power - if you have any [D] Mega Evolution Pokémon ex in play, attacks used by this Pokémon do 120
+//! more damage to your opponent's Active Pokémon (before applying Weakness and Resistance). Pitch-Black Fangs - 120.
 //!
-//! Fixed (phase 4b, W4): Twinleaf accepted any [D] Pokémon ex; the Mega ex tag
-//! is now required.
-//!
-//! Twinleaf: any AttackEffect whose source slot holds this card gets +120
-//! when its damage is above 0 (checked after the ability-lock probe).
+//! A `DamageDealt` declaration at the Attack stage for attacks used by this Pokémon (`Holder`), added to damage above 0, while
+//! any of your Pokémon in play is a Mega Evolution Pokémon ex whose current type is [D] (`SlotPred::TypeIs`).
 use crate::spec::prelude::*;
 use crate::types::{ct, tag};
 
@@ -21,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             side: Side::Any,
             needs_damage: true,
             // A [D] Mega Evolution Pokémon ex in play.
-            guard: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::PrintedTypeIs(ct::DARK), SlotPred::Tag(tag::POKEMON_EX_LOWER), SlotPred::Tag(tag::POKEMON_SV_MEGA)])),
+            guard: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::TypeIs(ct::DARK), SlotPred::Tag(tag::POKEMON_EX_LOWER), SlotPred::Tag(tag::POKEMON_SV_MEGA)])),
             ..DamageDealtSpec::DEFAULT
         }),
     }],

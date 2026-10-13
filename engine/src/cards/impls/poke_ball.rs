@@ -1,9 +1,9 @@
-//! Poké Ball (JU 64): flip a coin. If heads, you may search your deck for any Basic Pokémon or Evolution card. Show that
-//! card to your opponent, then put it into your hand. Shuffle your deck afterward.
+//! Poké Ball (POR 80; the JU 64 print has the same behavior): flip a coin. If heads, search your deck for a Pokémon, reveal it, and put it into your hand. Shuffle your
+//! deck afterward.
 //!
-//! Usable with a card in the deck (id840). On heads the chosen Pokémon is shown and put into the hand (PutIntoHand, this
-//! Item its cause); the deck is shuffled afterward on heads and on tails, as printed ("Shuffle your deck afterward" isn't
-//! part of the heads branch).
+//! Usable with a card in the deck (id840). On heads the chosen Pokémon is shown and put into the hand (PutIntoHand, this Item its
+//! cause); the deck is shuffled afterward on heads and on tails, as printed ("Shuffle your deck afterward" isn't part of the
+//! heads branch).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

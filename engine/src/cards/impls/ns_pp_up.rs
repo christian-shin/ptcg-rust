@@ -1,9 +1,6 @@
-//! N's PP Up (JTG): attach 1 Basic Energy from your discard pile to 1 of
-//! your Benched N's Pokémon.
+//! N's PP Up (ASC 195, Item): attach a Basic Energy card from your discard pile to 1 of your Benched N's Pokémon.
 //!
-//! Twinleaf: a Bench slot counts as "N's" if any card in its stack has the
-//! tag; `blockedTo` lists every in-play Pokémon (Active included) whose top
-//! card lacks the tag. The card is discarded by the prompt callback.
+//! An Attach event (this Item its cause) onto a Benched Pokémon whose top card is an N's Pokémon (the `NS` tag).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Okidogi PRE 57",
+   "4 Miraidon ex TEF 122",
+   "6 Darkness Energy MEE 7",
+   "46 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Okidogi PRE 57",
+   "4 Miraidon ex TEF 122",
+   "6 Darkness Energy MEE 7",
+   "46 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Okidogi PRE 57",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Good Punch"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 170,
+   "cite": "Okidogi PRE 57 text: with any [D] Energy attached its attacks do 100 more damage to the opponent's Active Pokemon (Good Punch 70 + 100)"
+  }
+ ]
+}

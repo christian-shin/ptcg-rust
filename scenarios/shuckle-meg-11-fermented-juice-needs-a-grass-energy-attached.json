@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Shuckle MEG 11",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Shuckle MEG 11",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Shuckle MEG 11",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "active_damage": 20,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Fermented Juice",
+   "is": false,
+   "cite": "Shuckle MEG 11 text: if this Pokemon has any [G] Energy attached (a Fire Energy provides [R])"
+  }
+ ]
+}

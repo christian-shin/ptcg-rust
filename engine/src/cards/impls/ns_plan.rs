@@ -1,5 +1,7 @@
-//! N's Plot (SV11B, Twinleaf class NsPlan): move up to 2 Energy from your
-//! Benched Pokémon to your Active Pokémon.
+//! N's Plan (BLK 83): move up to 2 Energy from your Benched Pokémon to your Active Pokémon.
+//!
+//! `Op::MoveEnergy` (BenchToActive, up to 2): the player chooses the Energy to move, each a MoveEnergy of the Supporter. It
+//! can't be played when no Benched Pokémon has Energy (a Trainer that can't have any effect, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

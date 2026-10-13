@@ -12,11 +12,14 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[
             Cond::Not(&Cond::HasMarker { who: Who::Me, name: "CHAINS_OF_CONTROL_USED_MARKER", from: MarkerFrom::Any }),
+            // A Benched [D] Pokémon that isn't a Pecharunt ex to switch in (the current type is a checked read, which the
+            // usability walk of the pick below only assumes possible).
+            Cond::AnySlot(SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::TypeIs(crate::types::ct::DARK), SlotPred::Not(&SlotPred::Named("Pecharunt ex"))])),
         ],
         steps: &[
             Step::new(Op::PickSlot(PickSlotSpec {
                 chooser: Who::Me,
-                among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::PrintedTypeIs(crate::types::ct::DARK), SlotPred::Not(&SlotPred::Named("Pecharunt ex"))])),
+                among: SlotSel::Filtered(&SlotSel::Bench(Who::Me), SlotPred::All(&[SlotPred::TypeIs(crate::types::ct::DARK), SlotPred::Not(&SlotPred::Named("Pecharunt ex"))])),
                 msg: "CHOOSE_POKEMON_TO_SWITCH",
             })),
             Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Picked, msg: "", required: false })),

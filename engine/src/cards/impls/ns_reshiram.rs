@@ -1,8 +1,7 @@
-//! N's Reshiram (JTG / ASC): Powerful Rage - 20 damage for each damage
-//! counter on this Pokémon. Virtuous Flame - 170.
+//! N's Reshiram (ASC 154): Powerful Rage - 20 damage for each damage counter on this Pokémon. Virtuous Flame - 170.
 //!
-//! Twinleaf: `effect.damage = player.active.damage * 2` (the Active of the
-//! attacking player).
+//! Powerful Rage sets the main damage to 20 per damage counter on this Pokémon (twice the damage in tens of HP, read before the
+//! attack's damage).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

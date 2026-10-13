@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mystery Garden ASC 194",
+   "4 Munkidori ASC 99",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Mystery Garden ASC 194",
+   "4 Munkidori ASC 99",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Munkidori ASC 99",
+  "hand": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "stadium": "Mystery Garden ASC 194",
+  "reset": true
+ },
+ "opp": {
+  "active": "Munkidori ASC 99",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": false,
+   "cite": "id925 (an effect that can do nothing can't be used): with 1 [P] Pokemon in play and 3 cards in hand, discarding 1 Energy leaves 2 cards, so Mystery Garden would draw nothing"
+  }
+ ]
+}

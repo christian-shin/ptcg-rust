@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's Darmanitan ASC 33",
+   "4 Miraidon ex TEF 122",
+   "6 Fire Energy MEE 2",
+   "42 Fighting Energy MEE 6"
+  ],
+  [
+   "4 N's Darumaka ASC 32",
+   "4 N's Darmanitan ASC 33",
+   "4 Miraidon ex TEF 122",
+   "6 Fire Energy MEE 2",
+   "42 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": [
+   "N's Darumaka ASC 32",
+   "N's Darmanitan ASC 33"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "discard": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Back Draft"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 90,
+   "cite": "N's Darmanitan ASC 33 text: Back Draft does 30 damage for each Basic Energy card in the opponent's discard pile (3 Fire Energy)"
+  }
+ ]
+}

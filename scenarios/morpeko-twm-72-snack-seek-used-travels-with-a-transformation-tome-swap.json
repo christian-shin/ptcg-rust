@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Morpeko TWM 72",
+   "4 Transformation Tome CRI 83",
+   "4 Hop's Snorlax JTG 117",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Morpeko TWM 72",
+   "4 Transformation Tome CRI 83",
+   "4 Hop's Snorlax JTG 117",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Morpeko TWM 72",
+  "hand": [
+   "Transformation Tome CRI 83",
+   "Transformation Tome CRI 83"
+  ],
+  "discard": [
+   "Morpeko TWM 72"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Snack Seek",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  {
+   "a": "play",
+   "card": "Transformation Tome CRI 83"
+  },
+  [
+   {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  ],
+  [
+   0
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "ability",
+   "name": "Snack Seek",
+   "is": false,
+   "cite": "JP FAQ Morpeko TWM 72 (ネジキ / Transformation Tome swap): after Snack Seek, the Morpeko swapped in from the discard pile can't use Snack Seek again this turn (いいえ、できません); APR D-19: information on which Abilities have already been used remains on the new Pokemon"
+  }
+ ]
+}

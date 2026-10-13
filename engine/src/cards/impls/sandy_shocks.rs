@@ -1,9 +1,8 @@
-//! Sandy Shocks (TEF): Magnetic Burst — 20+; 70 more if you have 3 or more
-//! Energy in play; this attack's damage isn't affected by Weakness.
-//! Power Gem — 60.
+//! Sandy Shocks (TEF 98): Magnetic Burst - 20+; if you have 3 or more Energy in play, this attack does 70 more damage, and this
+//! attack's damage isn't affected by Weakness. Power Gem - 60.
 //!
-//! Twinleaf sets `ignoreWeakness` first, then counts `provides` entries of
-//! a CheckProvidedEnergyEffect per in-play Pokémon.
+//! The attack sets the `NoWeakness` flag and adds 70 when the Energy provided by your Pokémon in play is 3 or more (units, not
+//! cards: id2237, id2347; JP FAQ Sandy Shocks).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

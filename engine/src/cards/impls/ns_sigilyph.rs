@@ -1,7 +1,7 @@
-//! N's Sigilyph (JTG): Psychic Sphere — 20. Victory Symbol — if you use this
-//! attack when you have exactly 1 Prize card remaining, you win this game.
+//! N's Sigilyph (JTG 64): Psychic Sphere - 20. Victory Symbol - if you use this attack when you have exactly 1 Prize card
+//! remaining, you win this game.
 //!
-//! Twinleaf: `endGame` with the winner chosen by `state.activePlayer`.
+//! Victory Symbol is an `EndGame` with the attacking player the winner, reached only with exactly 1 Prize card left.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

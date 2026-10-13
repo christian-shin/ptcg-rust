@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pecharunt ex PRE 163",
+   "4 Munkidori ASC 99",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Pecharunt ex PRE 163",
+   "4 Munkidori ASC 99",
+   "4 Hop's Snorlax JTG 117",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Pecharunt ex PRE 163",
+  "bench": [
+   {
+    "card": "Munkidori ASC 99"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Subjugating Chains",
+   "is": false,
+   "cite": "Pecharunt ex PRE 163 text: switch 1 of your Benched [D] Pokemon with your Active Pokemon (Munkidori is [P]); id925 (an Ability that can't do anything isn't offered)"
+  }
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 N's Reshiram ASC 154",
+   "4 Miraidon ex TEF 122",
+   "6 Fire Energy MEE 2",
+   "6 Lightning Energy MEE 4",
+   "40 Fighting Energy MEE 6"
+  ],
+  [
+   "4 N's Reshiram ASC 154",
+   "4 Miraidon ex TEF 122",
+   "6 Fire Energy MEE 2",
+   "6 Lightning Energy MEE 4",
+   "40 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "N's Reshiram ASC 154",
+  "active_energy": [
+   "Fire Energy MEE 2",
+   "Lightning Energy MEE 4"
+  ],
+  "active_damage": 40,
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Powerful Rage"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "N's Reshiram ASC 154 text: Powerful Rage does 20 damage for each damage counter on this Pokemon (4 counters)"
+  }
+ ]
+}
