@@ -27,7 +27,8 @@ pub fn apply_view(g: &Game, target: ApplyTarget, cause: Cause) -> EventView {
 
 /// ApplyEffect: player `p`'s attack `attack` (used by `card`) puts `effect` on `target`. It doesn't happen (`Ok(false)`)
 /// when the target Pokémon isn't there or the event is refused.
-pub fn apply_effect(g: &mut Game, p: usize, target: ApplyTarget, effect: Lasting, card: CardId, attack: AttackRef, cause: Cause) -> R<bool> {
+/// (`attack`: the attack that puts it; `None` for a Trainer's effect, Iron Defender.)
+pub fn apply_effect(g: &mut Game, p: usize, target: ApplyTarget, effect: Lasting, card: CardId, attack: Option<AttackRef>, cause: Cause) -> R<bool> {
     if let ApplyTarget::Slot(s) = target {
         if g.st.slot_pokemon(s.p as usize, s.s).is_none() {
             return Ok(false);
@@ -39,6 +40,22 @@ pub fn apply_effect(g: &mut Game, p: usize, target: ApplyTarget, effect: Lasting
     }
     g.run_fx_unit(Effect::ApplyEffect { p: p as u8, target, effect, card, attack, cause })?;
     Ok(true)
+}
+
+/// A new Pokémon of the player in `target` came into play: each "(This includes new Pokémon that come into play.)" effect
+/// on that player (`Op::ArmEach`) is put on it when it matches, one ApplyEffect event each, by the cause that put the
+/// effect (batch 8 C12c).
+pub fn spawn_on_entering(g: &mut Game, target: SlotRef) -> R {
+    let q = target.p as usize;
+    for l in crate::engine::lasting::spawns(&g.st, q).iter() {
+        let LastingWhat::Spawn { spec, cause, .. } = l.what else { continue };
+        let cause = Cause::unpack(cause);
+        if !crate::spec::value::slot_pred_m(g, l.source, target, &spec.subject)? {
+            continue;
+        }
+        apply_effect(g, cause.player as usize, ApplyTarget::Slot(target), spec.what, l.source, cause.attack, cause)?;
+    }
+    Ok(())
 }
 
 /// The effect is kept where it lasts: what each `Lasting` writes.
@@ -57,7 +74,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     if let Lasting::Lock(spec) = effect {
         let attack_named = match spec.attack {
             NamedAttack::Any => None,
-            NamedAttack::This => Some(attack),
+            NamedAttack::This => attack,
             NamedAttack::Chosen(a) => Some(a),
         };
         // The turns of the locked player it lasts: through the attacker's next turn (its own Pokémon: this turn ends
@@ -67,7 +84,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             LockUntil::OpponentsNextTurn => 1,
             LockUntil::LeavesActive => LastingWhat::UNTIL_REMOVED,
         };
-        let source = cause.card.unwrap_or(attack.card);
+        let source = cause.card.or(attack.map(|a| a.card)).unwrap_or(card);
         match slot_of(target) {
             Some(t) => crate::engine::lasting::add_pokemon_lock(&mut g.st, t.p as usize, t.s, spec.lock, turns, source, attack_named),
             None => crate::engine::lasting::add_player_lock(&mut g.st, q, spec.lock, turns, source),
@@ -82,11 +99,20 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             Lasting::TakesLessDamage(n) => l::set_takes_less(st, tp, ts, n, card),
             Lasting::DealsLessDamage(n) => l::set_deals_less(st, tp, ts, n, card),
             Lasting::TakesMoreDamage(n) => l::set_takes_more(st, tp, ts, n, p as u8, card),
-            Lasting::PreventDamage(src) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(src.spec()), cause.card.unwrap_or(attack.card)),
-            Lasting::PreventAttackEffects => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_EFFECTS), cause.card.unwrap_or(attack.card)),
-            // The two lasting triggers (they fire in the Damage routine's step-7 window and in the KnockOut routine).
-            Lasting::Retaliate(n) => l::set_retaliate(st, tp, ts, n, attack, p as u8, card),
-            Lasting::DiscardAttackerEnergyIfKnockedOut => l::set_discard_attacker_energy(st, tp, ts, attack, p as u8, card),
+            Lasting::PreventDamage(src) => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(src.spec()), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
+            Lasting::PreventAttackEffects => l::add_prevent(st, tp, ts, crate::spec::passive::lasting_index(&crate::spec::passive::LASTING_PREVENT_EFFECTS), cause.card.or(attack.map(|a| a.card)).unwrap_or(card)),
+            // The two lasting triggers (they fire in the Damage routine's step-7 window and in the KnockOut routine): an
+            // attack's only.
+            Lasting::Retaliate(n) => {
+                if let Some(attack) = attack {
+                    l::set_retaliate(st, tp, ts, n, attack, p as u8, card)
+                }
+            }
+            Lasting::DiscardAttackerEnergyIfKnockedOut => {
+                if let Some(attack) = attack {
+                    l::set_discard_attacker_energy(st, tp, ts, attack, p as u8, card)
+                }
+            }
             Lasting::IncreaseAttackCost => l::set_cost_increase(st, tp, ts, false, p as u8, card),
             Lasting::IncreaseRetreatCost => l::set_cost_increase(st, tp, ts, true, p as u8, card),
             Lasting::NoWeakness => l::set_no_weakness(st, tp, ts, card),

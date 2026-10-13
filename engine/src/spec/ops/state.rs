@@ -7,9 +7,9 @@
 
 use super::super::run::{Flow, Frame};
 use super::super::*;
-use crate::effects::Effect;
+use crate::effects::{ApplyTarget, Effect, SlotRef};
 use crate::game::{Game, R};
-use crate::list::CardId;
+use crate::list::{CardId, SVec};
 use crate::markers::{MarkerName, SourceType, TargetScope};
 use crate::prefabs::*;
 use crate::prompts::Res;
@@ -170,6 +170,20 @@ pub struct ArmSpec {
     pub what: Lasting,
 }
 
+/// "During your opponent's next turn, [each of a player's Pokémon matching `subject`] ... (This includes new Pokémon that
+/// come into play.)" (Walrein's Frigid Fangs, Iron Defender; user decision 2026-10-12, batch 8 C12c): the effect `what`
+/// is put on each of those Pokémon in play when it resolves, one ApplyEffect event each (a Pokémon that prevents the
+/// effects of attacks keeps it off: JP FAQ Walrein / Mist Energy), and on each new Pokémon that comes into play while
+/// it lasts (the parenthetical; `engine::lasting::spawn_on_entering`). Each one is an effect on that Pokémon (APR B-05:
+/// Iron Defender is "an effect on the Pokémon taking the damage"): an attack's ends when the Pokémon moves to the Bench,
+/// evolves or devolves (APR C-15); it lasts through the opponent's next turn.
+pub struct ArmEachSpec {
+    /// Whose Pokémon: the user's (`Who::Me`) or the opponent's.
+    pub side: Who,
+    pub subject: SlotPred,
+    pub what: Lasting,
+}
+
 // ---------------------------------------------------------------------------
 // Markers
 
@@ -227,11 +241,38 @@ fn arm(g: &mut Game, me: CardId, f: &Frame, what: Lasting) -> R {
         _ => return Ok(()),
     };
     let target = crate::engine::apply::target_of(g, p, source, what);
-    crate::engine::apply::apply_effect(g, p, target, what, me, attack, f.cause)?;
+    crate::engine::apply::apply_effect(g, p, target, what, me, Some(attack), f.cause)?;
     Ok(())
 }
 
-pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
+impl std::fmt::Debug for ArmEachSpec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ArmEach({:?}, {:?})", self.side, self.what)
+    }
+}
+
+/// `Op::ArmEach`: the effect on each matching Pokémon of the side now, and the entry that puts it on the new ones.
+fn arm_each(g: &mut Game, me: CardId, f: &Frame, a: &'static ArmEachSpec) -> R {
+    let (p, attack) = match *g.e(f.eff) {
+        Effect::Attack { p, attack, .. } => (p as usize, Some(attack)),
+        _ => (f.p as usize, None),
+    };
+    let q = f.who(a.side);
+    let slots: SVec<crate::state::SlotId, { crate::state::MAX_SLOTS }> = g.st.players[q].in_play();
+    for s in slots.iter().copied() {
+        let t = SlotRef::new(q, s);
+        if g.st.slot_pokemon(q, s).is_none() || !crate::spec::value::slot_pred_m(g, me, t, &a.subject)? {
+            continue;
+        }
+        crate::engine::apply::apply_effect(g, p, ApplyTarget::Slot(t), a.what, me, attack, f.cause)?;
+    }
+    // It lasts through the opponent's next turn: it ends at the end of the turn of the user's opponent.
+    crate::engine::lasting::add_spawn(&mut g.st, q, a, me, f.cause, attack, (1 - p) as u8);
+    g.st.bump();
+    Ok(())
+}
+
+pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> R<Flow> {
     match op {
         Op::AttackFlag(a) if a.flag == AttackFlagKind::Barrage => {
             // Festival Lead: the attack may be used twice (read by the core's attack use).
@@ -261,6 +302,10 @@ pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> 
         }
         Op::Arm(a) => {
             arm(g, me, f, a.what)?;
+            Ok(Flow::Next)
+        }
+        Op::ArmEach(a) => {
+            arm_each(g, me, f, a)?;
             Ok(Flow::Next)
         }
         Op::AbilityUsed(a) => {

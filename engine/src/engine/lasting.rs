@@ -42,7 +42,7 @@ fn kind_of(w: &LastingWhat) -> Option<Kind> {
         LastingWhat::NoWeakness { .. } => Kind::NoWeakness,
         LastingWhat::NextTurnBonus { pending: true, .. } => Kind::BonusPending,
         LastingWhat::NextTurnBonus { pending: false, .. } => Kind::BonusArmed,
-        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } => return None,
+        LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Spawn { .. } => return None,
     })
 }
 
@@ -92,12 +92,12 @@ fn in_play(st: &State, p: usize) -> SVec<SlotId, { crate::state::MAX_SLOTS }> {
 // ---------------------------------------------------------------------------
 // The readers
 
-/// "Takes N less damage from attacks" on the Pokémon in spot `s` of player `p`.
+/// "Takes N less damage from attacks" on the Pokémon in spot `s` of player `p`: every one on it, added up (APR B-05: "If
+/// several instances of 5. Effects on the Pokémon taking the damage apply at the same time, they must all be included";
+/// JP FAQ Iron Defender: two copies, 60 less).
 pub fn takes_less_damage(st: &State, p: usize, s: SlotId) -> i32 {
-    match find(st, LastingOn::pokemon(p, s), Kind::TakesLess) {
-        Some(LastingEffect { what: LastingWhat::TakesLessDamage(n), .. }) => *n as i32,
-        _ => 0,
-    }
+    let on = LastingOn::pokemon(p, s);
+    st.lasting.iter().filter(|l| l.on == on).map(|l| if let LastingWhat::TakesLessDamage(n) = l.what { n as i32 } else { 0 }).sum()
 }
 
 /// "Attacks used by the Defending Pokémon do N less damage" on the Pokémon in spot `s` of player `p`.
@@ -279,10 +279,29 @@ pub fn add_prevent(st: &mut State, p: usize, s: SlotId, spec: u8, source: CardId
     st.lasting.push(LastingEffect { on, source, what: LastingWhat::Prevent { spec, pending: true } });
 }
 
-/// "Takes N less damage".
+/// "Takes N less damage": one entry per source card (the same card's again replaces it; different ones add up).
 pub fn set_takes_less(st: &mut State, p: usize, s: SlotId, n: i32, source: CardId) {
     let on = LastingOn::pokemon(p, s);
-    set(st, on, Kind::TakesLess, Some(LastingEffect { on, source, what: LastingWhat::TakesLessDamage(n as i16) }));
+    st.lasting.retain(|l| !(l.on == on && l.source == source && matches!(l.what, LastingWhat::TakesLessDamage(_))));
+    st.lasting.push(LastingEffect { on, source, what: LastingWhat::TakesLessDamage(n as i16) });
+}
+
+/// `Op::ArmEach`'s entry on player `q`: the effect for the Pokémon of theirs that come into play while it lasts.
+pub fn add_spawn(st: &mut State, q: usize, spec: &'static crate::spec::ops::state::ArmEachSpec, source: CardId, cause: crate::cause::Cause, attack: Option<AttackRef>, ends_with: u8) {
+    let _ = attack;
+    st.lasting.push(LastingEffect { on: LastingOn::Player(q as u8), source, what: LastingWhat::Spawn { spec, cause: cause.pack(), ends_with } });
+}
+
+/// The `Op::ArmEach` entries on player `q` (the effects a new Pokémon of theirs gets).
+pub fn spawns(st: &State, q: usize) -> SVec<LastingEffect, 4> {
+    let on = LastingOn::Player(q as u8);
+    let mut out = SVec::new();
+    for l in st.lasting.iter() {
+        if l.on == on && matches!(l.what, LastingWhat::Spawn { .. }) && out.len() < out.capacity() {
+            out.push(*l);
+        }
+    }
+    out
 }
 
 /// "Attacks used by the Defending Pokémon do N less damage".
@@ -374,15 +393,33 @@ pub fn set_bonus_pending(st: &mut State, p: usize, s: SlotId, spec: &'static cra
 /// cost increases nor the next-turn bonus (the attacking side's).
 pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
     let on = LastingOn::pokemon(p, s);
-    st.lasting.retain(|l| {
-        l.on != on
-            || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. })
+    let by_trainer = |st: &State, c: CardId| st.cdef(c).is_trainer();
+    let keep: Vec<bool> = st
+        .lasting
+        .iter()
+        .map(|l| {
+            l.on != on
+                || matches!(l.what, LastingWhat::AttackCostIncrease { .. } | LastingWhat::RetreatCostIncrease { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::PlayerLock { .. })
+                // A Trainer's effect on the Pokémon (Iron Defender) isn't an effect of an attack: it stays (APR A-05, C-15).
+                || by_trainer(st, l.source)
+        })
+        .collect();
+    let mut i = 0;
+    st.lasting.retain(|_| {
+        i += 1;
+        keep[i - 1]
     });
 }
 
-/// The effects of attacks on the Pokémon end (`removeAttackEffects`): every lasting effect on it.
+/// The effects of attacks on the Pokémon end (`removeAttackEffects`): every lasting effect of an attack on it.
 pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
-    clear_spot(st, p, s);
+    let on = LastingOn::pokemon(p, s);
+    let keep: Vec<bool> = st.lasting.iter().map(|l| l.on != on || st.cdef(l.source).is_trainer()).collect();
+    let mut i = 0;
+    st.lasting.retain(|_| {
+        i += 1;
+        keep[i - 1]
+    });
 }
 
 /// Every lasting effect on spot `s` of player `p` (the spot is emptied).
@@ -398,9 +435,11 @@ pub fn clear_spot(st: &mut State, p: usize, s: SlotId) {
 /// TakesMore damage and the cost increases roll over (both players', `p`'s side first); `p`'s player locks count a turn.
 pub fn end_turn(st: &mut State, p: usize) {
     let o = 1 - p;
+    // The "(This includes new Pokémon)" entries that last through player `p`'s turn end.
+    st.lasting.retain(|l| !matches!(l.what, LastingWhat::Spawn { ends_with, .. } if ends_with as usize == p));
     for s in in_play(st, o).iter().copied() {
         let on = LastingOn::pokemon(o, s);
-        set(st, on, Kind::TakesLess, None);
+        st.lasting.retain(|l| !(l.on == on && matches!(l.what, LastingWhat::TakesLessDamage(_))));
         if let Some(LastingEffect { what: LastingWhat::NoWeakness { .. }, .. }) = find(st, on, Kind::NoWeakness) {
             modify(st, on, Kind::NoWeakness, |e| {
                 if let LastingWhat::NoWeakness { armed, .. } = &mut e.what {

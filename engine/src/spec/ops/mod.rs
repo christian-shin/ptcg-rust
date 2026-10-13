@@ -37,11 +37,11 @@ fn family(op: &Op) -> Family {
         | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) | SpreadDamage(_) | SwitchWithActive(_) | EachSlot(_) | ChoiceDamage(_) => Family::Board,
         Coin(_) | May(_) | If(_) | Choose(_) | ForEach(_) | Repeat(_) | Parallel(_) | Fail(_) | PickAttack(_) | CopyAttack(_) | EndTurn(_)
         | EndGame(_) => Family::Flow,
-        AttackFlag(_) | SetMarker(_) | ClearMarker(_) | Arm(_) | AbilityUsed(_) => Family::State,
+        AttackFlag(_) | SetMarker(_) | ClearMarker(_) | Arm(_) | ArmEach(_) | AbilityUsed(_) => Family::State,
     }
 }
 
-pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &Op) -> R<Flow> {
+pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> R<Flow> {
     match family(op) {
         Family::Cards => cards::exec(g, me, f, op),
         Family::Board => board::exec(g, me, f, op),

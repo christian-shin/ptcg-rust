@@ -228,6 +228,11 @@ pub enum LastingWhat {
     NoWeakness { armed: bool, pending: bool },
     /// "During your next turn, [this attack] does N more damage" (a `NextTurnBonus` declaration of the source).
     NextTurnBonus { spec: &'static crate::spec::passive::NextTurnBonusSpec, pending: bool },
+    /// "(This includes new Pokémon that come into play.)": on a player, the effect `spec` puts on each new Pokémon of
+    /// theirs that comes into play while it lasts (`Op::ArmEach`), with the cause and attack that put it; it ends at the end
+    /// of player `ends_with`'s turn.
+    /// (`cause` packed, `Cause::pack`: the entry stays within the table's 24 B.)
+    Spawn { spec: &'static crate::spec::ops::state::ArmEachSpec, cause: [u8; 4], ends_with: u8 },
 }
 
 impl LastingWhat {
@@ -237,7 +242,7 @@ impl LastingWhat {
     /// Nothing in force nor pending: the entry is removed.
     pub fn is_spent(&self) -> bool {
         match *self {
-            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } => false,
+            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } => false,
             LastingWhat::TakesLessDamage(n) | LastingWhat::DealsLessDamage(n) => n == 0,
             LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => amount == 0 && attacker.is_none() && !pending && !rearm,
             LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => now == 0 && pending == 0 && attacker.is_none(),

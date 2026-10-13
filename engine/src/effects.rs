@@ -198,7 +198,7 @@ pub enum Effect {
     Swap { p: u8, target: SlotRef, old: CardId, new: CardId, source: crate::spec::event::RulesZone, cause: Cause, from: ListRef, into: ListRef, place: crate::engine::enter::SwapPlace, by: CardId },
     /// The ApplyEffect event (events batch 6, user decision D4; `engine::apply`): player `p`'s attack `attack` (used by
     /// `card`) puts the lasting `effect` on `target`.
-    ApplyEffect { p: u8, target: ApplyTarget, effect: crate::spec::ops::state::Lasting, card: CardId, attack: AttackRef, cause: Cause },
+    ApplyEffect { p: u8, target: ApplyTarget, effect: crate::spec::ops::state::Lasting, card: CardId, attack: Option<AttackRef>, cause: Cause },
     /// The Discard event (events batch 7; `engine::cards_zone::discard`): player `p`'s `cards` go from `from` (their hand,
     /// their deck, or the cards looked at, `source` the rules zone) to their discard pile (a Prism Star card to the Lost
     /// Zone), in the order of the action. One per action and owner.

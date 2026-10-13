@@ -628,7 +628,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let turn = g.st.turn;
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             slot.entered_turn = turn;
-            Ok(())
+            // "(This includes new Pokémon that come into play.)": the effects that last on the player's Pokémon.
+            crate::engine::apply::spawn_on_entering(g, target)
         }
         Effect::Evolve { card, target, from, cause, .. } => {
             if g.st.slot_pokemon(target.p as usize, target.s).is_none() {

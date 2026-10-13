@@ -476,6 +476,6 @@ fn pick_attack_apply(g: &mut Game, f: &Frame, a: crate::state::AttackRef) -> R {
     let target = crate::engine::apply::target_of(g, p as usize, source, effect);
     let _ = opp;
     let card = g.st.slot_pokemon(source.p as usize, source.s).unwrap_or(attack.card);
-    crate::engine::apply::apply_effect(g, p as usize, target, effect, card, attack, f.cause)?;
+    crate::engine::apply::apply_effect(g, p as usize, target, effect, card, Some(attack), f.cause)?;
     Ok(())
 }

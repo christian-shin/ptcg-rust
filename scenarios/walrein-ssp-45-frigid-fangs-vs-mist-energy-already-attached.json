@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Walrein SSP 45", "4 Hop's Phantump ASC 95", "4 Mist Energy TEF 161", "48 Water Energy MEE 3"],
+  ["4 Walrein SSP 45", "4 Hop's Phantump ASC 95", "4 Mist Energy TEF 161", "48 Water Energy MEE 3"]
+ ],
+ "me": {"reset": true, "active": "Walrein SSP 45", "active_energy": ["Water Energy MEE 3"]},
+ "opp": {"reset": true, "active": "Hop's Phantump ASC 95", "active_energy": ["Mist Energy TEF 161"], "bench": [{"card": "Hop's Phantump ASC 95", "energy": ["Water Energy MEE 3"]}]},
+ "answers": [{"a": "attack", "name": "Frigid Fangs"}],
+ "expect": [
+  {"at": "next_turn", "who": "opp", "legal": "attack", "name": "Splashing Dodge", "is": true, "cite": "User decision 2026-10-12 (RULES.md, reversing the player lock): Frigid Fangs is an effect on each of the opponent's Pokémon; JP FAQ Walrein / Mist Energy (トドゼルガ / ミストエネルギー): a Pokémon with Mist Energy already attached when Frigid Fangs is used can attack (はい、できます)"}
+ ]
+}

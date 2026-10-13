@@ -44,6 +44,10 @@ impl Game {
                         o.insert("lock".into(), json!(decl.error));
                         o.insert("turns".into(), json!(turns));
                     }
+                    LastingWhat::Spawn { ends_with, .. } => {
+                        o.insert("newPokemon".into(), json!(true));
+                        o.insert("endsWith".into(), player(ends_with));
+                    }
                     LastingWhat::TakesLessDamage(n) => {
                         o.insert("takesLessDamage".into(), json!(n));
                     }

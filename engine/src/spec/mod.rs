@@ -321,6 +321,7 @@ pub enum Op {
     SetMarker(SetMarkerSpec),
     ClearMarker(ClearMarkerSpec),
     Arm(ArmSpec),
+    ArmEach(ArmEachSpec),
     // S3 appends
     // ops/cards.rs
     PlayAsPokemon(PlayAsPokemonSpec),

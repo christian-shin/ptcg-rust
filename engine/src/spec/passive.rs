@@ -1859,10 +1859,15 @@ pub fn may_lock_event(g: &Game, p: usize, kind: super::event::EventKind) -> bool
         || crate::engine::lasting::any_lock_of(&g.st, p)
 }
 
-/// Does a lock an attack left on player `p` read the Energy the attacking Pokémon provides (`EventPred::EnergyAtMost`)?
-/// The UseAttack's checks make that checked read only then.
+/// Does a lock an attack left on player `p` or on one of their Pokémon read the Energy the attacking Pokémon provides
+/// (`EventPred::EnergyAtMost`: Walrein's Frigid Fangs, on each Pokémon since batch 8 C12c)? The UseAttack's checks make
+/// that checked read only then.
 pub fn lasting_reads_energy(g: &Game, p: usize) -> bool {
-    crate::engine::lasting::player_locks(&g.st, p).iter().any(|l| matches!(l.what, crate::state::LastingWhat::PlayerLock { decl, .. } if decl.forbids.reads_energy()))
+    g.st.lasting.iter().any(|l| match (l.on, l.what) {
+        (crate::state::LastingOn::Player(q), crate::state::LastingWhat::PlayerLock { decl, .. }) => q as usize == p && decl.forbids.reads_energy(),
+        (crate::state::LastingOn::Pokemon(q, _), crate::state::LastingWhat::Lock { decl, .. }) => q as usize == p && decl.forbids.reads_energy(),
+        _ => false,
+    })
 }
 
 /// The marker a `Prevent` over events of `kind` sets in its card's mask (`prevent_kinds`) and that
