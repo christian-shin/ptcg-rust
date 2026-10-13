@@ -72,7 +72,7 @@ pub mod fam {
     /// What the state check's table-state step reads: `BenchSize`, `Recover`, `AttachGuard`, and a cause-free `Prevent`
     /// over a Special Condition (the affected Pokémon recovers when it comes into force, id289).
     pub const TABLE_STATE: usize = 8;
-    /// `PrizeAdjust`, `PrizeAdjustOnce` (read by the KnockOut routine).
+    /// `PrizeAdjust` (read by the KnockOut routine).
     pub const PRIZE: usize = 9;
     /// `DamageDealt` at the Deal stage (the Damage routine's step 2).
     pub const DAMAGE_DEALT: usize = 10;
@@ -99,7 +99,7 @@ pub const fn modifier_family(m: &Modifier) -> Option<usize> {
         Modifier::Prevent(p) if matches!(p.what, crate::spec::passive::PreventWhat::ToolEffects) => fam::TOOLS_OFF,
         Modifier::Prevent(p) if crate::spec::passive::prevention_recovers(p) => fam::TABLE_STATE,
         Modifier::BenchSize(_) | Modifier::Recover(_) | Modifier::AttachGuard(_) => fam::TABLE_STATE,
-        Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => fam::PRIZE,
+        Modifier::PrizeAdjust(_) => fam::PRIZE,
         Modifier::DamageDealt(d) if matches!(d.stage, crate::spec::passive::DamageStage::Deal) => fam::DAMAGE_DEALT,
         Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => fam::DAMAGE_TAKEN,
         Modifier::CheckupDamage(_) => fam::CHECKUP_DAMAGE,
@@ -513,7 +513,7 @@ mod tests {
                     assert!(
                         // (The Prize adjustments are read by the KnockOut routine, `knockout::prize_adjustments`; the "more damage
                         // counters" at Checkup by the Checkup routine, `phase::checkup_damage`.)
-                        matches!(ps.modifier, Modifier::BlockUse(_) | Modifier::Prevent(_) | Modifier::Permit(_) | Modifier::Reflip(_) | Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) | Modifier::CheckupDamage(_)),
+                        matches!(ps.modifier, Modifier::BlockUse(_) | Modifier::Prevent(_) | Modifier::Permit(_) | Modifier::Reflip(_) | Modifier::PrizeAdjust(_) | Modifier::CheckupDamage(_)),
                         "{}: a passive handling an unhandled kind",
                         s.class
                     );

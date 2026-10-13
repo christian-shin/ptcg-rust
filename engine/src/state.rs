@@ -291,13 +291,9 @@ pub struct Player {
     pub pokemon_knocked_out_last_turn_entries: SVec<DefId, 8>,
     /// Parallel to the entries: whether that Pokémon was Knocked Out by damage from an attack.
     pub pokemon_knocked_out_last_turn_by_attack: SVec<bool, 8>,
-    pub can_evolve: bool,
-    pub ancient_pokemon_attacked_last_turn: bool,
-    pub used_dragons_wish: bool,
-    pub unlimited_energy_attach_turns_remaining: i32,
-    pub stadium_and_tool_have_no_effect_turns_remaining: i32,
-    /// `legacyEnergyUsed` (Legacy Energy TWM; once per game, never reset).
-    pub legacy_energy_used: bool,
+    /// The cards whose declaration says "once per game" (`Once::PerGame`) and has been applied for this player: by the
+    /// declaring card's def, never reset. Task C6 of events batch 9 generalizes the usage records into one table.
+    pub once_per_game_used: SVec<DefId, 4>,
 }
 
 impl Player {
@@ -335,12 +331,7 @@ impl Player {
             pokemon_knocked_out_by_attack_during_opponents_last_turn: false,
             pokemon_knocked_out_last_turn_entries: SVec::new(),
             pokemon_knocked_out_last_turn_by_attack: SVec::new(),
-            can_evolve: false,
-            ancient_pokemon_attacked_last_turn: false,
-            used_dragons_wish: false,
-            unlimited_energy_attach_turns_remaining: 0,
-            stadium_and_tool_have_no_effect_turns_remaining: 0,
-            legacy_energy_used: false,
+            once_per_game_used: SVec::new(),
         };
         p.slot_used[0] = true;
         p.slots[0].is_public = true;
@@ -435,7 +426,6 @@ pub struct Rules {
     pub first_turn_use_supporter: bool,
     pub attack_first_turn: bool,
     pub supporter_cleanup_at_end_turn: bool,
-    pub unlimited_energy_attachments: bool,
 }
 
 impl Default for Rules {
@@ -445,7 +435,6 @@ impl Default for Rules {
             first_turn_use_supporter: true,
             attack_first_turn: false,
             supporter_cleanup_at_end_turn: false,
-            unlimited_energy_attachments: false,
         }
     }
 }

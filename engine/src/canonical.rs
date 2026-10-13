@@ -220,8 +220,6 @@ impl Game {
         nd!(prizes_taken_last_turn, "prizesTakenLastTurn");
         nd!(pokemon_knocked_out_during_opponents_last_turn, "pokemonKnockedOutDuringOpponentsLastTurn");
         nd!(pokemon_knocked_out_by_attack_during_opponents_last_turn, "pokemonKnockedOutByAttackDuringOpponentsLastTurn");
-        nd!(can_evolve, "canEvolve");
-        nd!(ancient_pokemon_attacked_last_turn, "ancientPokemonAttackedLastTurn");
         if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::ANCIENT)) > 0 {
             o.insert("ancientSupporter".into(), json!(true));
         }
@@ -230,13 +228,12 @@ impl Game {
         if !lasting.is_empty() {
             o.insert("lasting".into(), Value::Array(lasting));
         }
-        nd!(used_dragons_wish, "usedDragonsWish");
-        nd!(unlimited_energy_attach_turns_remaining, "unlimitedEnergyAttachTurnsRemaining");
-        nd!(stadium_and_tool_have_no_effect_turns_remaining, "stadiumAndToolHaveNoEffectTurnsRemaining");
         if played(&|d| d.trainer_type == crate::types::TrainerType::Supporter as u8 && d.has_tag(crate::types::tag::TEAM_ROCKET)) > 0 {
             o.insert("rocketSupporter".into(), json!(true));
         }
-        nd!(legacy_energy_used, "legacyEnergyUsed");
+        if !pl.once_per_game_used.is_empty() {
+            o.insert("oncePerGameUsed".into(), json!(pl.once_per_game_used.iter().map(|d| *d as u64).collect::<Vec<_>>()));
+        }
         if !pl.moved_to_active_this_turn.is_empty() {
             o.insert("movedToActiveThisTurn".into(), json!(pl.moved_to_active_this_turn.as_slice()));
         }

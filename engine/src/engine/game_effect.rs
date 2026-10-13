@@ -90,9 +90,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         Effect::UseAttack { .. } => attack::start_use_attack(g, id),
         Effect::UsePower { .. } => attack::start_use_power(g, id),
         Effect::UseStadium { p, .. } => {
-            if g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0) {
-                crate::bail!("BLOCKED_BY_EFFECT");
-            }
             g.st.players[p as usize].stadium_used_turn = g.st.turn;
             Ok(())
         }

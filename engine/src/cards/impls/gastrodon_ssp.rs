@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             card: Pred::StageIs(Stage::Stage2),
             slot: SlotPred::IsBench,
             missing: Pred::False,
-            powers: LockedPowers { generic_probe: true, only_knocks_out_self: false, exempt_name: None },
+            powers: LockedPowers { generic_probe: true, only_knocks_out_self: false },
             probe: LockerProbe::Generic,
         }),
     }],

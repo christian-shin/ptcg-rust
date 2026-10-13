@@ -451,15 +451,7 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     // The turn's records are written below outside any event (no longer the EndTurn reducer since batch 8 C5b): a new
     // version before them and before the state check reads the facts.
     g.st.bump();
-    // Only an attack used during this turn counts (phase 4b: a turn that ended
-    // without an attack kept the previous attack's flag).
-    let ancient = match g.st.player_last_attack[p] {
-        Some((_, src)) => g.st.player_last_attack_turn[p] == g.st.turn && g.st.cdef(src).has_tag(tag::ANCIENT),
-        None => false,
-    };
-    g.st.players[p].ancient_pokemon_attacked_last_turn = ancient;
     // usedTurnSkip / pendingEndOfTurnEffects: not modeled.
-    g.st.players[p].can_evolve = false;
     for s in g.st.players[p].in_play().iter() {
         let slot = &mut g.st.players[p].slots[*s as usize];
         slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
@@ -475,7 +467,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
 
     // The lasting effects' timing (`engine::lasting::end_turn`).
     crate::engine::lasting::end_turn(&mut g.st, p);
-    tick_play_locks_at_end_of_turn(&mut g.st.players[p]);
     let pl = &mut g.st.players[p];
     // The turn's record of the Trainer cards played from the hand ends with it.
     pl.played_this_turn.clear();
@@ -485,17 +476,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     pl.prizes_taken_this_turn = 0;
     g.st.bump();
     crate::engine::knockout::state_check(g, OnComplete::AfterEndTurn { p: p as u8 })
-}
-
-/// The player's turn counters ("Stadium and Tool cards have no effect", unlimited Energy attachments) count this turn.
-pub(crate) fn tick_play_locks_at_end_of_turn(pl: &mut Player) {
-    if pl.stadium_and_tool_have_no_effect_turns_remaining > 0 {
-        pl.stadium_and_tool_have_no_effect_turns_remaining -= 1;
-    }
-    if pl.unlimited_energy_attach_turns_remaining > 0 {
-        pl.unlimited_energy_attach_turns_remaining -= 1;
-    }
-    pl.used_dragons_wish = pl.unlimited_energy_attach_turns_remaining == 1;
 }
 
 pub fn _unused(_: SVec<u8, 1>) {}

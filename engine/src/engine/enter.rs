@@ -687,11 +687,8 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
 /// new Pokémon for once-per-turn Abilities (id317) and has none of the old card's card-bound facts (id2265).
 /// Rare Candy counts as evolving (id1045).
 fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause) -> R {
-    use crate::markers::*;
     let preserved = crate::derived::preserved_conditions(g, p, target)?;
     // player.removePokemonEffects(target)
-    g.st.players[p].marker.remove(KNOCKOUT_MARKER);
-    g.st.players[p].marker.remove(CLEAR_KNOCKOUT_MARKER);
     // The Pokémon recovers from its Special Conditions, except the preserved ones (RemoveCondition events, by the
     // Evolve's cause).
     crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())?;

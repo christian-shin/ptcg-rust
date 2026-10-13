@@ -190,6 +190,9 @@ pub enum Once {
     /// Once during your turn for all copies together ("1 X per turn"): refused while any copy's
     /// marker named so is set; set by this card, cleared at the end of the turn.
     PerTurnShared(&'static str),
+    /// "Can't be applied / used more than once per game": the player's record of the declaring card's def
+    /// (`Player::once_per_game_used`), never reset.
+    PerGame,
 }
 
 pub struct Step {

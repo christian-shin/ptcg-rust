@@ -13,17 +13,13 @@ fn find_pokemon_target(g: &Game, p: usize, t: CardTarget) -> Option<SlotRef> {
 }
 
 /// Check only: may this Energy be attached from the hand to `target` now?
-/// Returns the slot and whether the attachment uses the turn's one attachment
-/// (not with Dragon's Wish or unlimited attachments).
+/// Returns the slot and whether the attachment uses the turn's one attachment.
 pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<(SlotRef, bool)> {
     let t = match find_pokemon_target(g, p, target) {
         Some(t) if !g.st.slot(t.p as usize, t.s).cards.is_empty() => t,
         _ => crate::bail!("INVALID_TARGET"),
     };
     let pl = &g.st.players[p];
-    if pl.used_dragons_wish || g.st.rules.unlimited_energy_attachments {
-        return Ok((t, false));
-    }
     if pl.energy_played_turn == g.st.turn {
         crate::bail!("ENERGY_ALREADY_ATTACHED");
     }
