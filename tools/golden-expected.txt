@@ -289,3 +289,543 @@ g0500013324  # step 242 options; Jumbo Ice Cream (CRI 109) now among the turn op
 g0500014164  # step 67 options; Jumbo Ice Cream (CRI 109) now among the turn options
 g0500016258  # step 141 options; Jumbo Ice Cream (CRI 109) now among the turn options
 g0500016272  # step 199 options; Jumbo Ice Cream (CRI 109) now among the turn options
+# Events batch 8 C12c-c / C12c-d (CI 38347801707). C12c-c (RULES FIX, user decision 2026-10-12; JP FAQ Ethan's Quilava):
+# a search for a named card needs a copy that could still be in the deck (counting public zones only): Ethan's Quilava
+# DRI 33's Bonded by the Journey is no longer offered in decks with no Ethan's Adventure (none could be in the deck), and
+# Palafin TWM 60's Zero to Hero ("you may search your deck for a Palafin ex") is no longer asked in decks with no Palafin
+# ex (its search and shuffle don't happen: the replay's draws differ from then on, "obs" / "prompt"). C12c-d (JP FAQ
+# Thwackey / Flutter Mane): Boom Boom Groove is no longer offered when the Active Pokémon's Festival Lead is turned off.
+g0500000073  # step 190 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000133  # step 69 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000168  # step 35 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500000193  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000313  # step 106 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000373  # step 63 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000427  # step 195 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500000487  # step 188 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500000553  # step 75 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000607  # step 170 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500000613  # step 155 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000907  # step 99 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500000913  # step 170 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500000967  # step 53 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500001033  # step 30 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001147  # step 69 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500001207  # step 188 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500001213  # step 43 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001273  # step 45 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001387  # step 174 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500001513  # step 38 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001573  # step 81 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001633  # step 172 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001753  # step 88 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001813  # step 30 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001873  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001933  # step 37 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500001987  # step 73 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002027  # step 109 prompt; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002029  # step 116 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002032  # step 182 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002033  # step 148 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002040  # step 134 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002046  # step 53 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002047  # step 115 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002053  # step 39 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002057  # step 36 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002058  # step 166 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002060  # step 22 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002063  # step 141 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002069  # step 142 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002076  # step 118 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002293  # step 26 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002380  # step 211 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002381  # step 174 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002382  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002383  # step 129 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002384  # step 57 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002385  # step 123 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002386  # step 33 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002387  # step 57 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002388  # step 26 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002389  # step 60 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002391  # step 13 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002392  # step 131 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002393  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002394  # step 27 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002397  # step 68 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002399  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002401  # step 42 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002402  # step 28 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002404  # step 89 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002405  # step 88 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002409  # step 126 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002411  # step 90 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002412  # step 202 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002414  # step 15 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002419  # step 35 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002420  # step 106 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002422  # step 78 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002423  # step 173 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002424  # step 47 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002425  # step 57 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002426  # step 136 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002427  # step 77 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002428  # step 71 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002431  # step 52 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002432  # step 83 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002434  # step 28 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002435  # step 115 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002436  # step 150 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002437  # step 81 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002587  # step 45 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002593  # step 59 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002653  # step 19 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002713  # step 125 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002767  # step 125 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500002833  # step 124 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002893  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500002953  # step 27 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003067  # step 127 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500003073  # step 15 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003133  # step 31 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003187  # step 114 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500003253  # step 47 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003313  # step 12 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003373  # step 83 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003433  # step 32 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003547  # step 52 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500003553  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003613  # step 108 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003733  # step 90 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500003768  # step 85 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500003913  # step 98 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004033  # step 9 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004207  # step 33 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500004213  # step 64 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004333  # step 129 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004387  # step 176 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500004393  # step 206 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004513  # step 56 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004536  # step 109 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500004573  # step 36 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004693  # step 53 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004747  # step 104 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500004753  # step 58 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004813  # step 62 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004873  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004933  # step 95 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500004987  # step 138 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005053  # step 42 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005107  # step 54 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005287  # step 218 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005293  # step 104 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005407  # step 65 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005413  # step 123 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005473  # step 167 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005533  # step 64 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005624  # step 150 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005632  # step 109 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005634  # step 139 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005635  # step 75 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005638  # step 135 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005641  # step 154 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005644  # step 207 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005647  # step 159 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005651  # step 198 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005653  # step 170 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005659  # step 57 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005660  # step 133 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005662  # step 128 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005674  # step 137 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005675  # step 50 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005676  # step 147 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005678  # step 102 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005767  # step 69 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005827  # step 169 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005887  # step 179 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500005893  # step 31 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005982  # step 117 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005983  # step 143 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005984  # step 207 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005986  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005987  # step 142 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005988  # step 169 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005990  # step 155 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005991  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005992  # step 59 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005995  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005997  # step 130 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005998  # step 30 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500005999  # step 87 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006001  # step 79 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006003  # step 140 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006004  # step 81 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006006  # step 58 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006007  # step 14 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006008  # step 143 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006009  # step 72 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006010  # step 108 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006013  # step 41 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006015  # step 27 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006016  # step 109 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006017  # step 50 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006020  # step 171 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006023  # step 46 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006026  # step 15 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006027  # step 77 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006029  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006030  # step 94 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006031  # step 14 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006032  # step 96 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006033  # step 180 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006034  # step 51 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006035  # step 172 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006036  # step 160 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006037  # step 19 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006038  # step 10 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006039  # step 114 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006133  # step 56 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006193  # step 42 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006253  # step 78 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006433  # step 31 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006553  # step 108 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006607  # step 144 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500006667  # step 147 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500006673  # step 66 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006733  # step 69 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006853  # step 71 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500006907  # step 106 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500006913  # step 96 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007033  # step 146 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007087  # step 112 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500007093  # step 77 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007207  # step 85 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500007213  # step 100 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007273  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007333  # step 115 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007368  # step 21 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500007447  # step 94 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500007513  # step 117 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007573  # step 26 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007627  # step 65 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500007633  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007813  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007867  # step 175 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500007873  # step 94 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500007933  # step 104 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008173  # step 19 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008287  # step 55 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500008353  # step 80 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008413  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008473  # step 14 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008527  # step -1 extra-prompt; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500008593  # step 93 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008713  # step 143 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008767  # step 92 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500008833  # step 42 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500008953  # step 53 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009007  # step 293 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009013  # step 146 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009073  # step 58 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009133  # step 29 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009193  # step 162 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009224  # step 40 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009225  # step 75 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009232  # step 230 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009233  # step 88 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009247  # step 118 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009252  # step 125 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009253  # step 91 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009255  # step 130 prompt; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009256  # step 72 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009257  # step 177 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009259  # step 188 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009262  # step 174 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009264  # step 273 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009265  # step 176 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009271  # step 172 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009276  # step 128 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009313  # step 53 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009373  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009433  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009547  # step 108 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009553  # step 145 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009580  # step 23 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009583  # step 121 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009585  # step 56 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009586  # step 30 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009587  # step 124 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009588  # step 40 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009589  # step 47 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009591  # step 128 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009592  # step 114 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009594  # step 65 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009595  # step 19 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009596  # step 94 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009602  # step 20 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009604  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009607  # step 85 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009608  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009609  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009615  # step 101 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009616  # step 152 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009617  # step 8 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009618  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009621  # step 31 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009622  # step 87 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009623  # step 13 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009624  # step 24 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009625  # step 52 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009626  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009628  # step 130 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009635  # step 49 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009637  # step 12 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009638  # step 179 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009639  # step 97 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009673  # step 91 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009727  # step 158 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500009733  # step 57 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009853  # step 55 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009913  # step 104 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500009967  # step 220 prompt; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500010093  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010153  # step 36 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010213  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010267  # step 179 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500010273  # step 43 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010333  # step 42 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010513  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010747  # step 155 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500010753  # step 63 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010813  # step 34 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500010933  # step 146 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011113  # step 111 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011173  # step 148 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011233  # step 11 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011407  # step 166 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500011413  # step 28 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011473  # step 73 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011533  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011593  # step 101 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011653  # step 106 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011713  # step 47 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011736  # step 120 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500011767  # step 32 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500011773  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500011953  # step 30 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012073  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012127  # step 184 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012247  # step 177 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012253  # step 201 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012313  # step 122 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012373  # step 201 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012607  # step 112 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012613  # step 232 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012733  # step 65 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012793  # step 37 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012820  # step 204 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012822  # step 108 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012824  # step 120 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012826  # step 118 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012827  # step 49 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012832  # step 104 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012838  # step 68 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012840  # step 85 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012843  # step 33 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012846  # step 182 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012852  # step 272 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012853  # step 63 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500012855  # step 41 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012860  # step 173 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012864  # step 126 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012872  # step 178 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012878  # step 105 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500012973  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013087  # step 83 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500013093  # step 212 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013153  # step 30 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013180  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013183  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013184  # step 33 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013185  # step 121 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013186  # step 113 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013187  # step 151 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013189  # step 81 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013190  # step 33 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013191  # step 103 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013192  # step 136 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013193  # step 23 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013195  # step 67 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013196  # step 101 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013197  # step 90 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013198  # step 129 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013200  # step 76 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013201  # step 128 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013204  # step 40 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013205  # step 113 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013206  # step 79 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013208  # step 183 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013209  # step 69 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013210  # step 84 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013215  # step 46 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013216  # step 54 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013217  # step 40 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013220  # step 44 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013222  # step 88 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013224  # step 87 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013225  # step 54 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013226  # step 121 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013227  # step 44 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013228  # step 49 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013229  # step 14 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013231  # step 56 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013233  # step 57 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013234  # step 87 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013235  # step 65 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013236  # step 26 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013237  # step 185 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013238  # step 25 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013273  # step 52 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013333  # step 37 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013393  # step 34 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013453  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013513  # step 47 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013687  # step 53 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500013693  # step 39 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013753  # step 105 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013813  # step 195 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500013987  # step 46 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500014053  # step 67 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014113  # step 35 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014293  # step 161 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014353  # step 119 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014593  # step 32 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014653  # step 124 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014713  # step 165 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014833  # step 27 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014893  # step 129 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500014947  # step 135 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500014953  # step 105 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500015127  # step 84 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500015133  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500015336  # step 41 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500015367  # step 55 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500015553  # step 74 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500015613  # step 65 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500015853  # step 107 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500015907  # step 105 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500015967  # step 72 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500015973  # step 12 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016033  # step 82 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016087  # step 127 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016093  # step 16 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016207  # step 246 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016213  # step 157 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016333  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016387  # step 179 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016393  # step 73 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016421  # step 173 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016422  # step 156 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016425  # step 50 prompt; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016429  # step 116 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016432  # step 104 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016434  # step 95 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016441  # step 74 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016445  # step 45 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016447  # step 56 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016448  # step 34 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016451  # step 171 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016452  # step 161 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016453  # step 88 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016454  # step 152 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016464  # step 74 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016465  # step 18 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016466  # step 132 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016507  # step 75 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016513  # step 89 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016567  # step 148 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016627  # step 164 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016633  # step 38 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016687  # step 145 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500016693  # step 19 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016753  # step 80 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016781  # step 159 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016783  # step 24 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016784  # step 123 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016785  # step 185 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016787  # step 36 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016789  # step 47 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016791  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016792  # step 72 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016794  # step 184 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016797  # step 32 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016799  # step 52 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016800  # step 154 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016801  # step 23 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016804  # step 64 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016806  # step 133 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016808  # step 80 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016809  # step 13 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016812  # step 180 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016813  # step 13 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016814  # step 185 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016817  # step 66 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016820  # step 84 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016821  # step 41 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016824  # step 208 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016825  # step 181 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016826  # step 17 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016828  # step 144 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016829  # step 40 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016832  # step 57 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016834  # step 21 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016839  # step 135 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016873  # step 23 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500016993  # step 172 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017047  # step 41 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500017053  # step 116 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017173  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017227  # step 129 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500017233  # step 62 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017413  # step 119 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017473  # step 128 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017508  # step 96 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500017533  # step 32 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017653  # step 148 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017713  # step 121 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017773  # step 204 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017827  # step 138 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500017833  # step 132 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017887  # step 94 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500017893  # step 34 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500017953  # step 146 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018013  # step 9 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018067  # step 58 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500018073  # step 15 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018133  # step 62 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018168  # step 50 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500018193  # step 147 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018247  # step 207 prompt; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500018253  # step 20 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018313  # step 131 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018487  # step 40 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500018547  # step 170 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500018553  # step 18 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018673  # step 150 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018733  # step 66 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018787  # step 39 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500018853  # step 24 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018913  # step 45 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500018936  # step 88 options; Boom Boom Groove no longer offered (Festival Lead turned off)
+g0500018973  # step 213 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019093  # step 138 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019153  # step 12 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019207  # step 89 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500019273  # step 50 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019333  # step 72 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019393  # step 97 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019633  # step 31 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019687  # step 159 obs; Zero to Hero not asked (no Palafin ex in the deck list), the replay differs from then on
+g0500019693  # step 126 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019933  # step 19 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
+g0500019993  # step 148 options; Bonded by the Journey no longer offered (no Ethan's Adventure in the deck list)
