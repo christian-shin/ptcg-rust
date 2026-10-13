@@ -548,25 +548,6 @@ pub fn after_event(g: &mut Game, e: EffId) -> R {
     Ok(())
 }
 
-/// The `Event::On` triggers of card `c` over the event `e` (a turn-structure event: one view), run for `c`: a copy-attack
-/// session's source card run for the copycat (`copy_attack::delegate`, which sets the delegation) fires its own the way
-/// the game's cards fire theirs after the event.
-pub fn fire_card_on(g: &mut Game, e: EffId, c: CardId) -> R {
-    let spec = spec_of(g, c);
-    for (i, t) in spec.triggers.iter().enumerate() {
-        if !matches!(t.event, trigger::Event::On(_)) {
-            continue;
-        }
-        let Some(v) = trigger::event_view(g, e) else { continue };
-        if let Some((p, slot)) = trigger::fires_on(g, c, &v, t)? {
-            let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
-            f.slot = slot;
-            run(g, c, f)?;
-        }
-    }
-    Ok(())
-}
-
 /// A trigger about to fire at the end of a turn or at Pokémon Checkup: its card, its index, its player and spot, and the
 /// event it fires on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

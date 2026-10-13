@@ -254,6 +254,9 @@ fn handle_special_conditions(g: &mut Game, p: usize, poison: i32, burn: i32) -> 
 /// then the end-of-turn processing (`end_turn`: the turn's records, the lasting effects' timing, the state check, the
 /// next turn). Every way a turn ends calls it.
 pub fn end_turn_event(g: &mut Game, p: usize) -> R {
+    // A copied attack's text was the copycat's while it was used (id2402, id453, id890, id2094): the copy ends with the
+    // turn, nothing of the source card applies after it (batch 8 rules fix; Twinleaf's sessions lasted 4 end of turns).
+    g.copy_sessions.clear();
     g.run_fx_unit(Effect::EndTurn { p: p as u8 })?;
     if std::mem::take(&mut g.order_pending) {
         // Two or more end-of-turn effects: the turn player orders them; the end of the turn continues after the last.

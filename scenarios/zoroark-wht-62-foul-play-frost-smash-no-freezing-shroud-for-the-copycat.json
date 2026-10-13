@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Zoroark WHT 62", "4 Froslass TWM 53", "4 Fan Rotom SCR 118", "48 Darkness Energy MEE 7"],
+  ["4 Zoroark WHT 62", "4 Froslass TWM 53", "4 Fan Rotom SCR 118", "48 Darkness Energy MEE 7"]
+ ],
+ "me": {"reset": true, "active": "Zoroark WHT 62", "active_energy": ["3 Darkness Energy MEE 7"]},
+ "opp": {"reset": true, "active": "Froslass TWM 53", "bench": [{"card": "Fan Rotom SCR 118"}]},
+ "answers": [{"a": "attack", "name": "Foul Play"}, {"index": 0, "attack": "Frost Smash"}],
+ "expect": [
+  {"at": "next_turn", "who": "opp", "bench": 0, "card": "Fan Rotom SCR 118", "damage": 10, "cite": "id2402, id453, id890, id2094: a copied attack is done by the copycat and only the printed attack is copied; nothing else of the source card applies (batch 8 rules fix): the copycat doesn't apply Froslass's Freezing Shroud at Checkup, the opponent's Froslass puts 1 counter"}
+ ]
+}

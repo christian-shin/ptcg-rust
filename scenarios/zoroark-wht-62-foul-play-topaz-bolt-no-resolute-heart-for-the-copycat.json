@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Zoroark WHT 62", "4 Pikachu ex SSP 57", "16 Grass Energy MEE 1", "16 Lightning Energy MEE 4", "20 Metal Energy MEE 8"],
+  ["4 Zoroark WHT 62", "4 Pikachu ex SSP 57", "16 Grass Energy MEE 1", "16 Lightning Energy MEE 4", "20 Metal Energy MEE 8"]
+ ],
+ "me": {"reset": true, "active": "Zoroark WHT 62", "active_energy": ["3 Metal Energy MEE 8"], "bench": [{"card": "Pikachu ex SSP 57"}]},
+ "opp": {"reset": true, "active": "Pikachu ex SSP 57", "active_energy": ["Grass Energy MEE 1", "Lightning Energy MEE 4", "Metal Energy MEE 8"], "bench": [{"card": "Zoroark WHT 62"}]},
+ "answers": [{"a": "attack", "name": "Foul Play"}, {"index": 0, "attack": "Topaz Bolt"}, {"a": "attack", "name": "Topaz Bolt"}],
+ "expect": [
+  {"at": "next_turn_end", "who": "opp", "prizes_taken": 1, "cite": "id2402, id453, id890, id2094: the copycat uses the copied attack; only the printed attack is copied, nothing else of the source card (Pikachu ex's Resolute Heart) applies to it after (batch 8 rules fix): Topaz Bolt's 300 damage Knocks Out the full-HP Zoroark during the opponent's next turn"}
+ ]
+}

@@ -210,6 +210,9 @@ pub enum Cond {
     AllNamesKnown { names_of: Who },
     /// During the player's last turn another Ancient Pokémon than this one used an attack.
     OtherAncientAttackedLastTurn,
+    /// "If 1 of your Pokémon used [name] during your last turn" (Sylveon ex's Angelite): the attack the player used during
+    /// their previous turn has that name, whichever Pokémon used it (a copied attack too: the copycat used it, id2402).
+    UsedAttackLastTurn(&'static str),
     /// The Ability of this card is blocked for the player the program runs for (a checked read).
     AbilityBlocked,
     /// Some Basic Pokémon the player has in play can evolve now into a card in the game (a checked read).
@@ -556,6 +559,15 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
                     Some((_, src)) => src != me && g.st.cdef(src).has_tag(tag::ANCIENT),
                     None => false,
                 }
+        }
+        Cond::UsedAttackLastTurn(name) => {
+            // The player's previous turn is two turns ago (turns alternate: no card in the pool skips a turn); an attack
+            // that failed (Confusion) isn't used (its stamp is voided).
+            let p = f.who(Who::Me);
+            match g.st.player_last_attack[p] {
+                Some((a, _)) => g.st.player_last_attack_turn[p] == g.st.turn - 2 && crate::engine::attack::attack_def(g, a).name == *name,
+                None => false,
+            }
         }
         Cond::AllNamesKnown { names_of } => {
             let p = f.who(Who::Me);
