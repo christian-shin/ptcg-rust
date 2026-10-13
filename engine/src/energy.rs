@@ -135,19 +135,51 @@ pub fn check_energy_payment(energy: &[EnergyEntry], cost: &[CardType]) -> bool {
     })
 }
 
-pub fn all_provides_identical(map: &[EnergyEntry]) -> bool {
-    if map.is_empty() {
-        return false;
+/// The payment of `cost` from the Energy in `map` when there is only one up to which identical card is chosen: every
+/// card provides the same, and the cards needed (the fewest that cover the cost) can't be more (a card count up to the
+/// cost's, id2127). `None` when a choice exists.
+pub fn only_payment(map: &[EnergyEntry], cost: &[CardType]) -> Option<Vec<crate::list::CardId>> {
+    let mut cards: Vec<crate::list::CardId> = Vec::new();
+    for e in map {
+        if !cards.contains(&e.card) {
+            cards.push(e.card);
+        }
     }
-    let key = |e: &EnergyEntry| {
-        let mut v: Vec<CardType> = e.provides.as_slice().to_vec();
-        // JS default sort compares string forms; single-digit types sort the same.
-        v.sort_by_key(|x| x.to_string());
+    let provides_of = |c: crate::list::CardId| -> Vec<Vec<CardType>> {
+        let mut v: Vec<Vec<CardType>> = map.iter().filter(|e| e.card == c).map(|e| {
+            let mut p: Vec<CardType> = e.provides.as_slice().to_vec();
+            p.sort();
+            p
+        }).collect();
+        v.sort();
         v
     };
-    let first = key(&map[0]);
-    map.iter().all(|e| key(e) == first)
+    let first = provides_of(*cards.first()?);
+    if !cards.iter().all(|c| provides_of(*c) == first) {
+        return None;
+    }
+    // The fewest cards that cover the cost.
+    let per: Vec<EnergyEntry> = map.iter().filter(|e| e.card == cards[0]).copied().collect();
+    let mut m = 0usize;
+    let mut acc: Vec<EnergyEntry> = Vec::new();
+    while m < cards.len() && !check_enough_energy(&acc, cost) {
+        for e in per.iter() {
+            let mut e = *e;
+            e.card = cards[m];
+            acc.push(e);
+        }
+        m += 1;
+    }
+    if !check_enough_energy(&acc, cost) || m == 0 {
+        return None;
+    }
+    // A second way: more cards, up to the cost's count, can be discarded.
+    if m < cost.len() && cards.len() > m {
+        return None;
+    }
+    Some(cards[..m].to_vec())
 }
+
 
 fn apply_provides_to_typed_costs(provides: &[CardType], costs: &mut SVec<CardType, 16>) {
     if is_choosable(provides) {

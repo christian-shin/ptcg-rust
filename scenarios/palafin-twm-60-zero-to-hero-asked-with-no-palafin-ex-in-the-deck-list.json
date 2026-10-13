@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Finizen TWM 59",
+   "4 Palafin TWM 60",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Finizen TWM 59",
+   "4 Palafin TWM 60",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Finizen TWM 59",
+   "Palafin TWM 60"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Finizen TWM 59"
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Finizen TWM 59"
+ },
+ "answers": [
+  {
+   "a": "retreat",
+   "bench": 0
+  }
+ ],
+ "expect": [
+  {
+   "at": "decision",
+   "n": 1,
+   "prompts": [
+    "Confirm"
+   ],
+   "cite": "User decision 2026-10-13: a named search is blocked by public knowledge only (id841, id2263): with no Palafin ex in the deck list and none known, Zero to Hero is asked"
+  }
+ ]
+}

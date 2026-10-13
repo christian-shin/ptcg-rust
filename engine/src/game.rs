@@ -82,7 +82,8 @@ pub enum OrderThen {
     /// The rest of player `p`'s end of turn (`phase::end_turn`), the EndTurn event `e` released.
     EndTurn { p: u8, e: EffId },
     /// The rest of Pokémon Checkup: the Special Conditions' amounts per player, the Checkup events, the continuation.
-    Checkup { oc: OnComplete, poison: [i32; 2], burn: [i32; 2], e: [EffId; 2] },
+    /// `several`: two or more distinct effects applied at the start (the before / after choice exists only then).
+    Checkup { oc: OnComplete, poison: [i32; 2], burn: [i32; 2], e: [EffId; 2], several: bool },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
