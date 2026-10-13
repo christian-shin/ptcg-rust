@@ -264,7 +264,7 @@ impl Game {
             let mut diff = Map::new();
             // Fossils (Antique Root Fossil) declare `movedToActiveThisTurn`
             // but not `damageTakenLastTurn`.
-            if d.fossil_doll && !d.is_pokemon() && inst.moved_to_active_this_turn {
+            if crate::carddb::pokemon_flags(inst.def) & crate::carddb::PF_FOSSIL != 0 && !d.is_pokemon() && inst.moved_to_active_this_turn {
                 diff.insert("movedToActiveThisTurn".into(), json!(true));
             }
             if d.is_pokemon() {

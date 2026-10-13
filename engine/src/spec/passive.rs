@@ -1478,8 +1478,7 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
     if power.index == PROBE_GENERIC {
         return lp.generic_probe;
     }
-    let d = &g.st.cdef(power.card).powers[power.index as usize];
-    lockable_power(g, power) && (!lp.only_knocks_out_self || d.knocks_out_self)
+    lockable_power(g, power) && (!lp.only_knocks_out_self || run::power_knocks_out_self(g, power))
 }
 
 /// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?

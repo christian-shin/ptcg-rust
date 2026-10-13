@@ -368,6 +368,21 @@ pub enum Flow {
 /// The spec being run for `me`: its own, or, while a copied attack runs the
 /// source card's text as the copycat's (`copy_attack.rs` delegation), the
 /// source's.
+/// Does the power's program have a consequence Knocking this Pokémon Out ("If you use this Ability, this Pokémon is
+/// Knocked Out": Cursed Blast, Overvolt Discharge)? Psyduck's Damp removes the Abilities that require it.
+pub fn power_knocks_out_self(g: &Game, power: crate::effects::PowerRef) -> bool {
+    if power.card as usize >= crate::state::MAX_CARDS {
+        return false;
+    }
+    let Some(spec) = crate::cards::spec_for(g.st.cards[power.card as usize].def) else { return false };
+    spec.powers.iter().filter(|pw| pw.index == power.index).any(program_knocks_out_self)
+}
+
+/// Does the program have a consequence Knock Out of this Pokémon?
+pub fn program_knocks_out_self(pw: &PowerSpec) -> bool {
+    pw.steps.iter().any(|s| s.at == RuleStep::Consequence && matches!(&s.op, Op::KnockOut(k) if k.target == SlotExpr::This))
+}
+
 /// Does the power have a program (a `PowerSpec`): would a `Power` effect for it run anything?
 pub fn power_has_program(g: &Game, power: crate::effects::PowerRef) -> bool {
     if power.card as usize >= crate::state::MAX_CARDS {
@@ -1291,16 +1306,25 @@ mod consequence_tests {
     }
 
     /// Psyduck ASC 39's Damp removes "any Ability that requires the Pokémon using it to Knock Out itself": exactly the
-    /// Abilities whose program has a consequence Knocking this Pokémon Out (the card data's `knocks_out_self`).
+    /// Abilities whose program has a consequence Knocking this Pokémon Out (the card data's `knocks_out_self`): the reader
+    /// `power_knocks_out_self` equals the flag on every power of every spec, and the pool's are Cursed Blast and Overvolt
+    /// Discharge.
     #[test]
     fn damp_names_the_consequence_knock_outs() {
+        let mut users: Vec<&str> = Vec::new();
         for (i, d) in crate::carddb::cards().iter().enumerate() {
             let Some(spec) = crate::cards::spec_for(i as u16) else { continue };
             for pw in spec.powers {
-                let ko = pw.steps.iter().any(|s| s.at == RuleStep::Consequence && matches!(&s.op, Op::KnockOut(k) if k.target == SlotExpr::This));
+                let ko = program_knocks_out_self(pw);
                 let flagged = d.powers.get(pw.index as usize).map_or(false, |x| x.knocks_out_self);
                 assert_eq!(ko, flagged, "{}: consequence Knock Out {} vs knocks_out_self {}", d.full_name, ko, flagged);
+                if ko {
+                    users.push(d.full_name);
+                }
             }
+        }
+        for n in ["Dusclops PRE 36", "Dusknoir PRE 37", "Magneton SSP 59"] {
+            assert!(users.contains(&n), "{n}");
         }
     }
 }
