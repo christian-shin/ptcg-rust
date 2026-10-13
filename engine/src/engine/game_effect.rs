@@ -50,6 +50,7 @@ pub fn reset_empty_slot(st: &mut State, p: usize, s: SlotId) {
 /// ([`clear_effects`]; id2228, id1651).
 pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
     clear_effects(st, p, s);
+    crate::engine::lasting::clear_declared(st, p, s);
     st.players[p].slots[s as usize].marker.clear();
 }
 

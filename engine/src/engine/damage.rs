@@ -137,7 +137,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
 fn attacker_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
     use crate::spec::passive::Modifier;
     let order = g.decl_all(crate::decl::fam::DAMAGE_DEALT, 0);
-    if !order.is_empty() {
+    if !order.is_empty() || !g.st.lasting.is_empty() {
         crate::derived::Facts::undelegated(g, |g| -> R {
             for c in order.iter().copied() {
                 for ps in crate::decl::passives(g, c) {
@@ -146,7 +146,8 @@ fn attacker_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
                     }
                 }
             }
-            Ok(())
+            // The effects cards put for a time ("during this turn, ..."), after the cards' own declarations.
+            crate::spec::passive::declared_damage_dealt(g, acc)
         })?;
     }
     crate::copy_attack::delegate_damage(g, acc, false)

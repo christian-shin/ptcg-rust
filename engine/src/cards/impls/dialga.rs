@@ -2,12 +2,11 @@
 //! and have this attack do 80 more damage.
 //!
 //! The choice is always asked: the 80 more damage doesn't depend on having Energy, and with none attached nothing moves
-//! and the deck isn't shuffled (id2352: do as much as you can). Yes adds 80 before the damage; the Energy goes back into
+//! and the deck isn't shuffled (id2352: do as much as you can). Yes adds 80 before the damage and flags the attack (`AttackFlagKind::OptionChosen`); the Energy goes back into
 //! the deck after the damage (id2031, id2385: the Energy is still attached when the damage is done): a LeavePlay per
 //! card (D1), then the deck is shuffled.
 use crate::spec::prelude::*;
 
-const CHRONO: &str = "DIALGA_CHRONO_BURST_MARKER";
 const ATTACHED: ZoneRef = ZoneRef(Who::Me, Zone::Attached(MY_ACTIVE));
 
 pub static SPEC: CardSpec = CardSpec {
@@ -22,15 +21,14 @@ pub static SPEC: CardSpec = CardSpec {
                 when: Cond::True,
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[
-                    Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: CHRONO, source: RuleSource::CardRule })),
+                    Step::new(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::OptionChosen, value: true })),
                     Step::new(more_damage_if(80, Cond::True)),
                 ],
                 no: &[],
             })),
             Step::after_damage(Op::If(IfSpec {
-                cond: Cond::HasMarker { who: Who::Me, name: CHRONO, from: MarkerFrom::This },
+                cond: Cond::AttackFlag(AttackFlagKind::OptionChosen),
                 yes: &[
-                    Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: CHRONO, from: MarkerFrom::This })),
                     Step::new(Op::Snapshot(SnapshotSpec { zone: ATTACHED, predicate: Pred::Energy, into: 0 })),
                     Step::new(Op::PutIntoDeck(PutIntoDeckSpec { from: ATTACHED, cards: CardSel::Chosen(0), position: DeckPosition::Bottom, ..PutIntoDeckSpec::DEFAULT })),
                     Step::new(Op::If(IfSpec {

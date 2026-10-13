@@ -275,6 +275,11 @@ pub enum LastingWhat {
     /// of player `ends_with`'s turn.
     /// (`cause` packed, `Cause::pack`: the entry stays within the table's 24 B.)
     Spawn { spec: &'static crate::spec::ops::state::ArmEachSpec, cause: [u8; 4], ends_with: u8 },
+    /// An effect the source card's text declares and puts for a time (`CardSpec::effects`, `Op::Declare`): "during this turn,
+    /// attacks used by your Pokémon do 30 more damage" (a Trainer's effect on its player, APR C-19; an Ability's on its Pokémon,
+    /// C-15). The declaration number `index` of the source card, until `until`. Read where its modifier is read for a card in
+    /// place (`passive::declared_effects`); the card that put it needn't be in play any more.
+    Declared { index: u8, until: Until },
 }
 
 impl LastingWhat {
@@ -284,7 +289,7 @@ impl LastingWhat {
     /// Nothing in force nor pending: the entry is removed.
     pub fn is_spent(&self) -> bool {
         match *self {
-            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } => false,
+            LastingWhat::Lock { .. } | LastingWhat::PlayerLock { .. } | LastingWhat::Prevent { .. } | LastingWhat::Retaliate { .. } | LastingWhat::NextTurnBonus { .. } | LastingWhat::DiscardAttackerEnergy { .. } | LastingWhat::Spawn { .. } | LastingWhat::Declared { .. } => false,
             LastingWhat::TakesLessDamage(n) | LastingWhat::DealsLessDamage(n) => n == 0,
             LastingWhat::TakesMoreDamage { amount, attacker, pending, rearm } => amount == 0 && attacker.is_none() && !pending && !rearm,
             LastingWhat::AttackCostIncrease { now, pending, attacker } | LastingWhat::RetreatCostIncrease { now, pending, attacker } => now == 0 && pending == 0 && attacker.is_none(),
