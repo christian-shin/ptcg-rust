@@ -280,8 +280,27 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
     }
     g.release_fx(f.atk);
     g.release_fx(f.origin);
-    crate::engine::phase::end_turn_event(g, f.p as usize)?;
-    Ok(())
+    attack_over(g, f.p as usize)
+}
+
+/// The end of player `p`'s attack: attack step 7, "Checking for Knock Outs" (APR D: a Knock Out is checked "at the end
+/// of an attack"; APR E: the game ends "as soon as" a player wins), then the end of the turn (E-21: "after an attack has
+/// been completed"), which never comes when the attack ended the game. Twinleaf ended the turn first and checked the
+/// attack's Knock Outs in the end-of-turn state check (removed in batch 8 C12b: an end-of-turn effect, Ignition Energy's
+/// discard, happened after a game-winning attack).
+pub fn attack_over(g: &mut Game, p: usize) -> R {
+    crate::engine::knockout::state_check(g, crate::game::OnComplete::AfterAttack { p: p as u8 })
+}
+
+/// After the attack's Knock Outs: a copied attack is over (its text was the copycat's while it was used: id2402, id453,
+/// id890, id2094; its "take 1 more Prize card" applied to the Knock Outs above), then the end of the turn unless the game
+/// is over.
+pub fn after_attack_check(g: &mut Game, p: usize) -> R {
+    g.copy_sessions.clear();
+    if g.st.phase == GamePhase::Finished {
+        return Ok(());
+    }
+    crate::engine::phase::end_turn_event(g, p)
 }
 
 /// `state = checkState(store, state); if (store.hasPrompts()) yield waitPrompt`
@@ -311,8 +330,8 @@ fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     if attack_barrage(g, f.attack) && !barrage_can_attack_again(g, &f)? {
         g.release_fx(f.atk);
         g.release_fx(f.origin);
-        crate::engine::phase::end_turn_event(g, f.p as usize)?;
-        return Ok(());
+        // The Knock Outs were checked (`barrage_check`).
+        return after_attack_check(g, f.p as usize);
     }
     f.stage = AtkStage::AfterBarrageConfirm;
     let pid = g.player_id(f.p as usize);
@@ -349,8 +368,8 @@ fn barrage_confirm(g: &mut Game, f: AttackFrame, want: bool) -> R {
     g.release_fx(f.atk);
     g.release_fx(f.origin);
     if !want {
-        crate::engine::phase::end_turn_event(g, f.p as usize)?;
-        return Ok(());
+        // The Knock Outs were checked (`barrage_check`).
+        return after_attack_check(g, f.p as usize);
     }
     let p = f.p as usize;
     let source = SlotRef::new(p, g.st.players[p].active);
@@ -376,8 +395,8 @@ pub fn resume_use_attack(g: &mut Game, f: AttackFrame, res: Res) -> R {
                 // (phase 4b, ruling n=1621): the playerLastAttack stamp is voided.
                 g.st.player_last_attack_turn[p] = -1;
                 g.release_fx(f.origin);
-                crate::engine::phase::end_turn_event(g, f.p as usize)?;
-                return Ok(());
+                // The attack ends: its Knock Out check (the Confusion counters), then the end of the turn.
+                return attack_over(g, f.p as usize);
             }
             begin_attack(g, f)
         }

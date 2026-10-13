@@ -155,10 +155,6 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
 pub fn after_end_turn(g: &mut Game, p: usize) -> R {
     // Scenario `expect` assertions at "turn_end": Knock Outs are done, Pokémon Checkup is next.
     crate::expect::on_turn_end(g);
-    // A copied attack's text was the copycat's while it was used (id2402, id453, id890, id2094): the copy ends with the
-    // turn, once the Knock Outs after it are done (its "take 1 more Prize card" is the attack's); nothing of the source
-    // card applies after it (batch 8 rules fix; Twinleaf's sessions lasted 4 end of turns).
-    g.copy_sessions.clear();
     // Expire KO-time effects on the opponent (denyPrizes: not modeled): Little Grudge.
     crate::engine::lasting::after_end_turn(&mut g.st, p);
     g.st.bump();

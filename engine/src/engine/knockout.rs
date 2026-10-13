@@ -464,6 +464,7 @@ pub fn on_complete(g: &mut Game, oc: OnComplete) -> R {
     match oc {
         OnComplete::None => Ok(()),
         OnComplete::AfterEndTurn { p } => crate::engine::phase::after_end_turn(g, p as usize),
+        OnComplete::AfterAttack { p } => crate::engine::attack::after_attack_check(g, p as usize),
         OnComplete::InitNextTurn => {
             if g.st.phase != GamePhase::Finished {
                 crate::engine::phase::init_next_turn(g)

@@ -1,0 +1,63 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Buneary PFL 83",
+   "4 Ignition Energy PFL 124",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Buneary PFL 83",
+   "4 Ignition Energy PFL 124",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Buneary PFL 83",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "hand": [
+   "Ignition Energy PFL 124"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Buneary PFL 83",
+  "active_damage": 50,
+  "prizes_left": 1
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Ignition Energy PFL 124",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "attack",
+   "name": "Kick"
+  }
+ ],
+ "expect": [
+  {
+   "at": "game_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 0,
+   "cite": "APR attack step 7 \"Checking for Knock Outs\", APR D (a Knock Out is checked at the end of an attack) and APR E (the game ends as soon as a player wins): the last Prize is taken before the end of the turn (E-21: after an attack has been completed), which never comes; Ignition Energy is never discarded (batch 8 C12b; Twinleaf ended the turn first)"
+  },
+  {
+   "at": "game_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Buneary PFL 83",
+   "energy": 2,
+   "cite": "same: both Energy still attached at the end of the game"
+  }
+ ]
+}
