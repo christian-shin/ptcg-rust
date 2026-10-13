@@ -3746,9 +3746,9 @@ mod next_turn_bonus_tests {
 
 #[cfg(test)]
 mod non_stacking_tests {
-    //! Events batch 9 C2: `NonStack::SameAbility` replaced the per-card bit `CURLY_WALL`. The bit was one for the whole game, set
-    //! by every card declaring `NonStack::CurlyWall`: equal to a key on the declaring Ability's name exactly when every
-    //! declarer prints the same Ability name, and no other card declares a non-stacking reduction.
+    //! Events batch 9 C2: `NonStack::SameAbility` replaced a per-card bit (one for the whole game, set by every card that
+    //! declared the old card-named variant): equal to a key on the declaring Ability's name exactly when every declarer prints
+    //! the same Ability name, and no other card declares a non-stacking reduction.
     use super::*;
 
     #[test]
@@ -3766,15 +3766,15 @@ mod non_stacking_tests {
                 }
             }
         }
-        assert_eq!(declarers, vec!["Bouffalant SCR 119"], "the cards that declared NonStack::CurlyWall");
+        assert_eq!(declarers, vec!["Bouffalant SCR 119"], "the cards that declared a non-stacking reduction");
     }
 }
 
 #[cfg(test)]
 mod active_lock_equality_tests {
-    //! Events batch 9 C2: `ActiveLockSpec` replaced `ActiveLock::{MidnightFluttering, Initialization}` and the card-data flags
-    //! `exempt_from_ability_lock` / `exempt_from_initialize`. The pre-batch-9 reading is kept here, frozen, and compared with the
-    //! declarations on every pool card (the power and the card), and on a board for the positions.
+    //! Events batch 9 C2: `ActiveLockSpec` replaced the two card-named Active-Spot lock variants and the two card-data flags
+    //! that exempted a power from them. The pre-batch-9 reading is kept here, frozen, and compared with the declarations on
+    //! every pool card (the power and the card), and on boards for the positions.
     use super::*;
     use crate::effects::PowerRef;
     use serde_json::json;
@@ -3786,10 +3786,10 @@ mod active_lock_equality_tests {
     }
     const OLD: [Old; 2] = [Old::MidnightFluttering, Old::Initialization];
 
-    /// The powers the card-data flags `exempt_from_ability_lock` marked, frozen from data/cards.json as the flags stood
-    /// (the commit before their deletion asserted that the flags marked exactly these): (card, power).
+    /// The powers the card-data flag that exempted a power from every Ability lock marked, frozen from data/cards.json as the
+    /// flag stood (the commit before its deletion asserted that it marked exactly these): (card, power).
     const EXEMPT_FROM_ABILITY_LOCK: [(&str, &str); 2] = [("Antique Cover Fossil SCR 129", "Antique Cover Fossil"), ("Antique Root Fossil SCR 130", "Antique Root Fossil")];
-    /// The powers `exempt_from_initialize` marked, frozen likewise.
+    /// The powers the card-data flag that exempted a power from Initialization marked, frozen likewise.
     const EXEMPT_FROM_INITIALIZE: [(&str, &str); 6] = [
         ("Iron Thorns ex PRE 32", "Initialization"),
         ("Iron Thorns ex TWM 77", "Initialization"),
