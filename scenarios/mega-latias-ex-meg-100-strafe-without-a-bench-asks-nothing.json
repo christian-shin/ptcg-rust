@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Mega Latias ex MEG 100",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Mega Latias ex MEG 100",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Strafe"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "absent": [
+    "Confirm"
+   ],
+   "cite": "APR B-01, id925 (events batch 8 C10): with no Benched Pok\u00e9mon the \"you may switch\" can't change the game, so it isn't asked"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "cite": "card text: nothing to switch with"
+  }
+ ]
+}
