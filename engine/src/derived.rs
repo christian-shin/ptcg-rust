@@ -6,17 +6,16 @@
 //! ([`retreat_cost`]), the attack list ([`attacks`]), an attack's cost ([`attack_cost`]), the powers a Pokémon has
 //! ([`powers`]), "has no Ability" ([`has_no_ability`]), the Special Conditions kept by evolving
 //! ([`preserved_conditions`]), and the lock / prevention queries ([`event_locked`], [`event_prevented`]). The facts are
-//! computed by `compute_*` (C2: today's check-effect runs, kept as `slow_*` until the closeout) and memoized against
-//! `State::version`.
+//! computed by `compute_*` (direct code over the declarations in place; the check effects they replaced went in the
+//! batch 8 closeout) and memoized against `State::version`.
 //!
 //! **Invalidation.** A fact is fresh while its stamp equals `State::version`, which every write bumps (the event routines
 //! at their start and end and before their reducers, the physical moves, every interpreter op step and continuation, every
 //! action and answer, the lock stamps' changes; `state.rs`). The memo lives in the `Game` next to the state, so a copy
 //! made by assignment carries consistent pairs; `Game::copy_from` (forks, the rollback) clears it, since another line of
-//! play may reach the same version numbers. `PTCG_VERIFY_CACHE=1` recomputes every memo hit through the slow path and
-//! compares, and checks a digest of the state taken at the first store of each version against a missed bump.
+//! play may reach the same version numbers. `PTCG_VERIFY_CACHE=1` recomputes every memo hit and compares, and checks a digest of the state taken at the first store of each version against a missed bump.
 
-use crate::effects::{Cost, Effect, EnergyMap, PowerRef, ResistanceV, SlotRef, WeaknessV};
+use crate::effects::{Cost, EnergyMap, PowerRef, ResistanceV, SlotRef, WeaknessV};
 use crate::game::{Game, R};
 use crate::list::*;
 use crate::state::{AttackRef, MAX_CARDS, MAX_SLOTS};
@@ -32,7 +31,7 @@ pub struct Derived {
     hp: [[i32; MAX_SLOTS]; 2],
     types_v: [[u32; MAX_SLOTS]; 2],
     types: [[SVec<CardType, 4>; MAX_SLOTS]; 2],
-    /// Provided Energy per source slot, with the player who asked (`CheckProvidedEnergy::p`).
+    /// Provided Energy per source slot, with the player who asked.
     pe_v: [[u32; MAX_SLOTS]; 2],
     pe_p: [[u8; MAX_SLOTS]; 2],
     pe: [[EnergyMap; MAX_SLOTS]; 2],
@@ -44,7 +43,7 @@ pub struct Derived {
     cost_key: [(u8, AttackRef); COST_MEMO],
     cost: [Cost; COST_MEMO],
     cost_next: u8,
-    /// The powers a Pokémon card has now (`CheckPokemonPowers`), with the player who asked.
+    /// The powers a Pokémon card has now, with the player who asked.
     powers_v: [u32; MAX_CARDS],
     powers_p: [u8; MAX_CARDS],
     powers: [SVec<PowerRef, 8>; MAX_CARDS],
@@ -530,7 +529,7 @@ pub trait Facts {
     /// The game (plain reads).
     fn g(&self) -> &Game;
     /// Run `f` with no copied attack's source code delegated (a declaration is the card's own, never a delegate: the
-    /// card handlers ran so, `Game::call_card`).
+    /// card's own program runs undelegated, `Game::reduce_effect`).
     fn undelegated<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T
     where
         Self: Sized;
@@ -616,72 +615,42 @@ impl Facts for Game {
 
 // ---------------------------------------------------------------------------
 // The game's computations: the generic ones below, with what only the game does (the HP read leaves its bonus on the
-// spot; `PTCG_VERIFY_CACHE=1` checks each against its check effect, `slow_*`).
-
-/// `PTCG_VERIFY_CACHE=1`: the direct computation against the check effect (when the slow path reads without an error).
-#[inline]
-fn against_slow<T: PartialEq + std::fmt::Debug>(g: &mut Game, what: &str, r: &T, slow: impl FnOnce(&mut Game) -> R<T>) {
-    if crate::game::verify_cache() {
-        if let Ok(s) = slow(g) {
-            assert_eq!(*r, s, "derived::{what}: the direct computation differs from the check effect");
-        }
-    }
-}
+// spot).
 
 fn game_hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    let r = compute_hp(g, p, s)?;
-    against_slow(g, "hp", &r, |g| slow_hp(g, p, s));
-    Ok(r)
+    compute_hp(g, p, s)
 }
 
 fn game_provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    let r = compute_provided_energy(g, p, source)?;
-    against_slow(g, "provided_energy", &r, |g| slow_provided_energy(g, p, source));
-    Ok(r)
+    compute_provided_energy(g, p, source)
 }
 
 fn game_types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
-    let r = compute_types(g, target)?;
-    against_slow(g, "types", &r, |g| slow_types(g, target));
-    Ok(r)
+    compute_types(g, target)
 }
 
 fn game_weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>)> {
-    let r = compute_weakness_resistance(g, target)?;
-    against_slow(g, "weakness_resistance", &r, |g| slow_weakness_resistance(g, target));
-    Ok(r)
+    compute_weakness_resistance(g, target)
 }
 
 fn game_retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
-    let r = compute_retreat_cost(g, p)?;
-    against_slow(g, "retreat_cost", &r, |g| slow_retreat_cost(g, p));
-    Ok(r)
+    compute_retreat_cost(g, p)
 }
 
 fn game_attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
-    let r = compute_attacks(g, p)?;
-    against_slow(g, "attacks", &r, |g| slow_attacks(g, p));
-    Ok(r)
+    compute_attacks(g, p)
 }
 
 fn game_attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    let r = compute_attack_cost(g, p, attack)?;
-    against_slow(g, "attack_cost", &r, |g| slow_attack_cost(g, p, attack));
-    Ok(r)
+    compute_attack_cost(g, p, attack)
 }
 
 fn game_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-    let r = compute_powers(g, p, card)?;
-    against_slow(g, "powers", &r, |g| slow_powers(g, p, card));
-    Ok(r)
+    compute_powers(g, p, card)
 }
 
 fn game_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    let r = compute_has_no_ability(g, p, card, power_index);
-    if crate::game::verify_cache() {
-        assert_eq!(r, slow_has_no_ability(g, p, card, power_index), "derived::has_no_ability: the lock pass differs from the Power probe (card {card}, power {power_index:?})");
-    }
-    r
+    compute_has_no_ability(g, p, card, power_index)
 }
 
 // ---------------------------------------------------------------------------
@@ -870,11 +839,7 @@ pub fn compute_has_no_ability<F: Facts>(g: &mut F, p: usize, card: CardId, power
 /// effect), or a declaration that turns Tools off in place (Jamming Tower: `PreventWhat::ToolEffects`, unless its own
 /// Stadium effect is off on the Pokémon holding the Tool)? (Batch 8 C3b; the Tool probe was `prefabs::is_tool_blocked`.)
 pub fn tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
-    let r = compute_tool_off(g, p, card);
-    if crate::game::verify_cache() {
-        assert_eq!(r, slow_tool_off(g, p, card), "derived::tool_off differs from the Tool probe (card {card})");
-    }
-    r
+    compute_tool_off(g, p, card)
 }
 
 /// [`tool_off`] by direct code (plain reads).
@@ -922,76 +887,3 @@ pub fn special_energy_off(g: &Game, card: CardId) -> bool {
     }
     false
 }
-
-// ---------------------------------------------------------------------------
-// The slow path: the check effects dispatched to the cards (kept until the batch 8 closeout as the reference).
-
-/// `CheckHp` (`check::check_hp`).
-pub fn slow_hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    crate::engine::check::check_hp(g, p, s)
-}
-
-/// `CheckProvidedEnergy`.
-pub fn slow_provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    crate::engine::attack::provided_energy_read(g, p, source)
-}
-
-/// `CheckPokemonType`, from the printed types.
-pub fn slow_types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
-    let seed = crate::engine::game_effect::pokemon_types(g, target);
-    let (e, _) = g.run_fx(Effect::CheckPokemonType { target, card_types: seed })?;
-    Ok(match e {
-        Effect::CheckPokemonType { card_types, .. } => card_types,
-        _ => SVec::new(),
-    })
-}
-
-/// `CheckPokemonStats`.
-pub fn slow_weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>)> {
-    let seed = crate::engine::game_effect::printed_stats(g, target);
-    g.fxp.stats.push(seed);
-    let buf = (g.fxp.stats.len() - 1) as u8;
-    let r = g.run_fx(Effect::CheckPokemonStats { target, buf });
-    let out = g.fxp.stats.pop().unwrap_or_default();
-    r?;
-    Ok(out)
-}
-
-/// `CheckRetreatCost`.
-pub fn slow_retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
-    crate::engine::retreat::retreat_cost_read(g, p)
-}
-
-/// `CheckPokemonAttacks`.
-pub fn slow_attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
-    crate::engine::turn::read_attack_list(g, p)
-}
-
-/// `CheckAttackCost`.
-pub fn slow_attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    crate::engine::attack::attack_cost_read(g, p, attack)
-}
-
-/// `CheckPokemonPowers`, from the printed powers.
-pub fn slow_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-    let mut powers = SVec::new();
-    for i in 0..g.st.cdef(card).powers.len() {
-        powers.push(PowerRef { card, index: i as u8 });
-    }
-    let (e, _) = g.run_fx(Effect::CheckPokemonPowers { p: p as u8, target: card, powers })?;
-    Ok(match e {
-        Effect::CheckPokemonPowers { powers, .. } => powers,
-        _ => SVec::new(),
-    })
-}
-
-/// The `Power` probe (`prefabs::is_ability_blocked`).
-pub fn slow_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    crate::prefabs::is_ability_blocked(g, p, card, power_index)
-}
-
-/// The Tool probe (`prefabs::tool_probe_blocked`).
-pub fn slow_tool_off(g: &mut Game, p: usize, card: CardId) -> bool {
-    crate::prefabs::tool_probe_blocked(g, p, card)
-}
-

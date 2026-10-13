@@ -215,7 +215,7 @@ fn answers(g: &mut Game, me: CardId, p: usize, subject: Subject) -> Option<(bool
         }
         Subject::Power(i) => {
             let pw = &spec.powers[i as usize];
-            let e = g.new_fx(Effect::Power { p: p as u8, power: PowerRef { card: me, index: pw.index }, card: me, target: None, probe: false });
+            let e = g.new_fx(Effect::Power { p: p as u8, power: PowerRef { card: me, index: pw.index }, card: me, target: None });
             (Prog::Power(i), pw.needs, pw.steps, e)
         }
         Subject::UseStadium => {

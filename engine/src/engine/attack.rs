@@ -90,36 +90,12 @@ pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool
     Ok(attacking)
 }
 
-/// The Energy count the attacker provides, from the `CheckProvidedEnergy` read.
+/// The Energy count the attacker provides, from its Energy map (`derived::provided_energy`).
 pub fn max_energy_count(map: &EnergyMap) -> i32 {
     map.iter().map(|m| m.provides.len() as i32).sum()
 }
 
-/// The checked read of an attack's current cost (`CheckAttackCost`).
-pub fn attack_cost_read(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    let ad = attack_def(g, attack);
-    let mut cost: Cost = SVec::new();
-    for &c in ad.cost {
-        cost.push(c);
-    }
-    let (ce, _) = g.run_fx(Effect::CheckAttackCost { acc: crate::engine::check::CostAcc::new(p, Some(attack), cost) })?;
-    Ok(match ce {
-        Effect::CheckAttackCost { acc } => acc.cost,
-        _ => SVec::new(),
-    })
-}
-
-/// The checked read of the Energy a Pokémon provides (`CheckProvidedEnergy`): an attack's and a retreat's payment.
-pub fn provided_energy_read(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    g.fxp.energy.push(SVec::new());
-    let buf = (g.fxp.energy.len() - 1) as u8;
-    let r = g.run_fx(Effect::CheckProvidedEnergy { p: p as u8, source, buf });
-    let map = g.fxp.energy.pop().unwrap_or_default();
-    r?;
-    Ok(map)
-}
-
-/// The cost reads of an attack (`CheckAttackCost`, then `CheckProvidedEnergy`
+/// The cost reads of an attack (`derived::attack_cost`, then `derived::provided_energy`
 /// for the attacker) and whether the Energy covers the cost.
 pub fn attack_payable(g: &mut Game, p: usize, attack: AttackRef, attacking: SlotRef) -> R<bool> {
     let cost = crate::derived::attack_cost(g, p, attack)?;
@@ -440,7 +416,7 @@ pub fn start_use_power(g: &mut Game, id: EffId) -> R {
 }
 
 pub fn resume_use_power(g: &mut Game, f: PowerFrame) -> R {
-    g.run_fx_unit(Effect::Power { p: f.p, power: f.power, card: f.card, target: f.bench_target, probe: false })?;
+    g.run_fx_unit(Effect::Power { p: f.p, power: f.power, card: f.card, target: f.bench_target })?;
     Ok(())
 }
 

@@ -69,16 +69,6 @@ pub fn can_retreat(g: &Game, p: usize, bench_index: u8, ignore_status_conditions
     Ok(())
 }
 
-/// The checked read of the effective Retreat Cost (`CheckRetreatCost`).
-pub fn retreat_cost_read(g: &mut Game, p: usize) -> R<Cost> {
-    let cost = check_retreat_cost_base(g, p);
-    let (e, _) = g.run_fx(Effect::CheckRetreatCost { acc: crate::engine::check::CostAcc::new(p, None, cost) })?;
-    Ok(match e {
-        Effect::CheckRetreatCost { acc } => acc.cost,
-        _ => SVec::new(),
-    })
-}
-
 /// The checked reads of a retreat: the effective cost (`CheckRetreatCost`)
 /// and, when the cost isn't empty, the Energy the Active Pokémon provides
 /// (`CheckProvidedEnergy`; the map is empty otherwise, as no read is run).

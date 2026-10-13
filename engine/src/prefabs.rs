@@ -157,9 +157,9 @@ pub fn attack_data(g: &Game, e: EffId) -> Option<(u8, u8, AttackRef, SlotRef)> {
     }
 }
 
-/// `WAS_POWER_USED(effect, index, this)` (the lock probe never matches).
+/// `WAS_POWER_USED(effect, index, this)`.
 pub fn was_power_used(g: &Game, e: EffId, index: u8, me: CardId) -> bool {
-    matches!(*g.e(e), Effect::Power { power, probe: false, .. } if power == PowerRef { card: me, index })
+    matches!(*g.e(e), Effect::Power { power, .. } if power == PowerRef { card: me, index })
 }
 
 /// `TRANSFER_POKEMON_CARD_STATE(player, oldCard, newCard)`: a Pokémon switched with another card
@@ -319,16 +319,6 @@ pub fn choose_cards(g: &mut Game, p: usize, message: &'static str, list: ListRef
 /// `index == PROBE_GENERIC` means a plain Ability with no flags.
 pub const PROBE_GENERIC: u8 = 255;
 
-/// `IS_ABILITY_BLOCKED(store, state, player, card[, power])`.
-pub fn is_ability_blocked(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    // A copied attack's source code, run for the copycat, must not use the source's Abilities.
-    if g.deleg.map_or(false, |d| d.attacks && d.copycat == card) {
-        return true;
-    }
-    let power = PowerRef { card, index: power_index.unwrap_or(PROBE_GENERIC) };
-    g.run_fx(Effect::Power { p: p as u8, power, card, target: None, probe: true }).is_err()
-}
-
 /// The power type of a (possibly probe) `PowerEffect`.
 pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
     if power.index == PROBE_GENERIC {
@@ -336,15 +326,6 @@ pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
     } else {
         g.st.cdef(power.card).powers[power.index as usize].power_type
     }
-}
-
-/// `IS_TOOL_BLOCKED` the slow way: the Tool probe dispatched to the cards (`derived::slow_tool_off`, the reference of
-/// `derived::tool_off` until the batch 8 closeout).
-pub fn tool_probe_blocked(g: &mut Game, p: usize, card: CardId) -> bool {
-    if g.st.players.iter().any(|pl| pl.stadium_and_tool_have_no_effect_turns_remaining > 0) {
-        return true;
-    }
-    g.run_fx(Effect::Tool { p: p as u8, card }).is_err()
 }
 
 #[cfg(test)]

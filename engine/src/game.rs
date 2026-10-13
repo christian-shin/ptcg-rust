@@ -7,7 +7,7 @@
 
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
-use crate::engine::{attack, check, phase, retreat, setup, turn};
+use crate::engine::{attack, phase, retreat, setup, turn};
 use crate::list::*;
 use crate::prompts::*;
 use crate::rng::Rng;
@@ -323,9 +323,10 @@ pub struct Game {
     pub prevented_events: u32,
 }
 
-/// How the propagation order ranks the cards: by super type, or specially for these three effects.
+/// How the propagation order ranks the cards: by super type, or specially for the use of a power, the powers a Pokémon has
+/// now (`passive::powers_now`, the order of the Ability locks; it was the CheckPokemonPowers effect's) and AfterAttack.
 pub(crate) const PROP_POWER: u16 = 1;
-pub(crate) const PROP_CHECK_POWERS: u16 = 2;
+pub(crate) const PROP_POWERS_NOW: u16 = 2;
 pub(crate) const PROP_AFTER_ATTACK: u16 = 3;
 
 /// The rank of card `c` in the propagation order of rank class `class` (a stable sort by it follows the zone order).
@@ -341,7 +342,7 @@ pub(crate) fn prop_rank_st(st: &State, class: u16, c: CardId) -> u8 {
             3 => 1,
             _ => 2,
         },
-        PROP_CHECK_POWERS => match d.super_type {
+        PROP_POWERS_NOW => match d.super_type {
             1 => 0,
             3 => 1,
             2 if d.trainer_type == TrainerType::Stadium as u8 => 3,
@@ -360,14 +361,13 @@ pub(crate) fn prop_rank_st(st: &State, class: u16, c: CardId) -> u8 {
 pub(crate) fn prop_class(e: &Effect) -> u16 {
     match e {
         Effect::Power { .. } => PROP_POWER,
-        Effect::CheckPokemonPowers { .. } => PROP_CHECK_POWERS,
         Effect::AfterAttack { .. } => PROP_AFTER_ATTACK,
         _ => 0,
     }
 }
 
-/// `PTCG_VERIFY_CACHE=1` (or `PTCG_VERIFY_LEGAL=1`): every cached answer (the dispatch index, the quiet
-/// CheckHp) is checked against a fresh computation.
+/// `PTCG_VERIFY_CACHE=1` (or `PTCG_VERIFY_LEGAL=1`): every cached answer (the derived facts, the state check's fast
+/// paths) is checked against a fresh computation.
 pub(crate) fn verify_cache() -> bool {
     static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *V.get_or_init(|| ["PTCG_VERIFY_CACHE", "PTCG_VERIFY_LEGAL"].iter().any(|k| std::env::var(k).map_or(false, |v| v == "1")))
@@ -1270,10 +1270,10 @@ impl Game {
 
     /// `Store.reduceEffect`.
     pub fn reduce_effect(&mut self, id: EffId) -> R {
-        // A read (a check effect, a probe) writes nothing a fact reads: the derived facts stay fresh through it.
+        // The use of a power with no program writes nothing a fact reads: the derived facts stay fresh through it.
         let read = match *self.e(id) {
-            Effect::Power { probe: false, power, .. } => !crate::spec::run::power_has_program(self, power),
-            ref e => e.is_read(),
+            Effect::Power { power, .. } => !crate::spec::run::power_has_program(self, power),
+            _ => false,
         };
         if !read {
             self.st.bump();
@@ -1345,9 +1345,8 @@ impl Game {
             k::DEVOLVE | k::SWAP | k::ENTER_PLAY | k::EVOLVE => crate::engine::enter::reducer(self, id)?,
             k::PLAY_TRAINER => crate::engine::play_trainer::reducer(self, id)?,
             k::RETREAT => retreat::reducer(self, id)?,
-            k::USE_ATTACK | k::USE_POWER | k::USE_STADIUM | k::CHECK_POKEMON_STATS => crate::engine::game_effect::reducer(self, id)?,
+            k::USE_ATTACK | k::USE_POWER | k::USE_STADIUM => crate::engine::game_effect::reducer(self, id)?,
             k::ATTACK_TRIGGER => attack::reducer(self, id)?,
-            k::CHECK_ATTACK_COST | k::CHECK_RETREAT_COST | k::CHECK_PROVIDED_ENERGY => check::check_state_reducer(self, id)?,
             _ => {}
         }
         if matches!(

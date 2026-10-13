@@ -7,31 +7,6 @@ use crate::list::*;
 use crate::state::*;
 use crate::types::*;
 
-/// The HP the `CheckHp` effect gives (the derived layer's slow path): the printed HP and the bonus its handlers add.
-pub fn check_hp(g: &mut Game, p: usize, s: SlotId) -> R<i32> {
-    let card = g.st.slot_pokemon(p, s);
-    let printed = card.map_or(0, |c| g.st.cdef(c).hp);
-    // With no card that reacts to CheckHp in the game, no session or trace to feed, the dispatch changes
-    // nothing: the HP is the printed one (`PTCG_VERIFY_CACHE=1` dispatches anyway and compares).
-    let quiet = !g.kinds_present.has(k::CHECK_HP) && g.copy_sessions.is_empty() && !g.trace_effects;
-    if quiet && !crate::game::verify_cache() {
-        return Ok(printed);
-    }
-    let id = g.new_fx(Effect::CheckHp { p: p as u8, target: SlotRef::new(p, s), card, bonus: 0 });
-    let r = g.reduce_effect(id);
-    let bonus = match *g.e(id) {
-        Effect::CheckHp { bonus, .. } => bonus,
-        _ => 0,
-    };
-    g.release_fx(id);
-    r?;
-    let hp = if card.is_some() { printed + bonus } else { 0 };
-    if quiet {
-        assert_eq!(hp, printed, "CheckHp changed the HP although no card reacts to it");
-    }
-    Ok(hp)
-}
-
 // ---------------------------------------------------------------------------
 // The cost and Energy computations' accumulators and their last steps (the derived layer's `attack_cost`,
 // `retreat_cost`, `provided_energy`; the check effects' reducer runs the same last steps on the slow path)
@@ -175,24 +150,3 @@ pub fn complete_energy_map(g: &Game, source: SlotRef, energy_map: &mut EnergyMap
     }
 }
 
-// ---------------------------------------------------------------------------
-// checkStateReducer: the check effects' last steps (the slow path, `derived::slow_*`)
-
-pub fn check_state_reducer(g: &mut Game, id: EffId) -> R {
-    match *g.e(id) {
-        Effect::CheckAttackCost { acc } | Effect::CheckRetreatCost { acc } => {
-            let out = finish_cost(g, acc)?;
-            if let Effect::CheckAttackCost { acc } | Effect::CheckRetreatCost { acc } = g.e_mut(id) {
-                acc.cost = out;
-            }
-            Ok(())
-        }
-        Effect::CheckProvidedEnergy { source, buf, .. } => {
-            let mut map = g.fxp.energy[buf as usize];
-            complete_energy_map(g, source, &mut map);
-            g.fxp.energy.as_mut_slice()[buf as usize] = map;
-            Ok(())
-        }
-        _ => Ok(()),
-    }
-}

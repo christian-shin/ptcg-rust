@@ -106,14 +106,12 @@ pub struct AtkBase {
     pub cause: Cause,
 }
 
-/// The payloads too large for an [`Effect`] (batch 8 C8: an effect is copied on every read of the arena): per kind a
-/// stack of the effects in flight (nested reads push above), indexed by the effect's `buf`. Pushed when the effect is
-/// made, popped when its maker has read it back.
+/// The payloads too large for an [`Effect`] (batch 8 C8: an effect is copied on every read of the arena): a stack of
+/// the effects in flight (nested events push above), indexed by the effect's `buf`. Pushed when the effect is made,
+/// popped when its maker has read it back. (The check effects' Energy map, attack list and Weakness / Resistance went
+/// with them in the batch 8 closeout.)
 #[derive(Clone, Copy, Default)]
 pub struct EffectPayloads {
-    pub energy: SVec<EnergyMap, 4>,
-    pub attacks: SVec<crate::engine::turn::CheckedAttacks, 4>,
-    pub stats: SVec<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>), 4>,
     pub moves: SVec<SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }>, 4>,
 }
 
@@ -124,9 +122,6 @@ impl EffectPayloads {
     /// `dst` must be valid for writes and properly aligned.
     pub unsafe fn copy_live_to(&self, dst: *mut Self) {
         use std::ptr::addr_of_mut as f;
-        self.energy.copy_live_to(f!((*dst).energy));
-        self.attacks.copy_live_to(f!((*dst).attacks));
-        self.stats.copy_live_to(f!((*dst).stats));
         self.moves.copy_live_to(f!((*dst).moves));
     }
 }
@@ -144,23 +139,6 @@ pub enum Effect {
     AfterAttackTriggers { p: u8, opp: u8, attack: AttackRef },
     BeforeDoingDamage { attack_effect: EffId, p: u8, opp: u8, attack: AttackRef },
 
-    // ---- checks ----
-    /// The derived layer's slow path for the HP (`derived::slow_hp`): the HP modifiers add to `bonus`.
-    CheckHp { p: u8, target: SlotRef, card: Option<CardId>, bonus: i32 },
-    /// `buf`: its Weakness and Resistance being computed (`Game::fxp.stats`).
-    CheckPokemonStats { target: SlotRef, buf: u8 },
-    CheckPokemonType { target: SlotRef, card_types: SVec<CardType, 4> },
-    /// The slow path's Retreat Cost: `acc.cost` is the result after the reducer.
-    CheckRetreatCost { acc: crate::engine::check::CostAcc },
-    /// The slow path's attack cost: `acc.cost` is the result after the reducer.
-    CheckAttackCost { acc: crate::engine::check::CostAcc },
-    /// `buf`: its Energy map being computed (`Game::fxp.energy`).
-    CheckProvidedEnergy { p: u8, source: SlotRef, buf: u8 },
-    CheckPokemonPowers { p: u8, target: CardId, powers: SVec<PowerRef, 8> },
-    /// `buf`: the attack list being computed (`Game::fxp.attacks`: the attacks and the copied ones, the attacks of other
-    /// Pokémon that the Active Pokémon uses as its own, Mew ex Memory Helix, pushed to the attacks as well).
-    CheckPokemonAttacks { p: u8, buf: u8 },
-
     // ---- game ----
     Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
     RetreatStart { p: u8 },
@@ -168,8 +146,7 @@ pub enum Effect {
     UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, barrage_used: bool, delegate_from: Option<CardId> },
     UseStadium { p: u8, stadium: CardId },
     UsePower { p: u8, power: PowerRef, card: CardId, target: CardTarget, bench_target: Option<SlotRef> },
-    /// `probe`: the lock-check stand-in power ('test') carrying the real power's flags.
-    Power { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef>, probe: bool },
+    Power { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
     /// `ignore_defender_effects`: `AttackEffect.ignoreDefenderEffects` (Shred: effects on the damaged
     /// Pokémon don't change this attack's damage; see `prefabs::ignores_defender_effects`).
     Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, barrage_used: bool },
@@ -283,7 +260,6 @@ pub enum Effect {
     /// Look-Alike Show; id2225, id2226, id2376). The card's own program is its handler (`spec::run::reduce`).
     /// `with`: the companion played together with it ("you must play 2 X cards at once", `CardSpec::together`).
     PlayTrainer { p: u8, card: CardId, target: Option<SlotRef>, use_: crate::spec::event::TrainerUse, cause: Cause, with: Option<CardId> },
-    Tool { p: u8, card: CardId },
 }
 
 impl Effect {
@@ -297,14 +273,6 @@ impl Effect {
             AfterAttack { .. } => "AFTER_ATTACK_EFFECT",
             AfterAttackTriggers { .. } => "AFTER_ATTACK_TRIGGERS_EFFECT",
             BeforeDoingDamage { .. } => "BEFORE_DOING_DAMAGE_EFFECT",
-            CheckHp { .. } => "CHECK_HP_EFFECT",
-            CheckPokemonStats { .. } => "CHECK_POKEMON_STATS_EFFECT",
-            CheckPokemonType { .. } => "CHECK_POKEMON_TYPE_EFFECT",
-            CheckRetreatCost { .. } => "CHECK_RETREAT_COST_EFFECT",
-            CheckAttackCost { .. } => "CHECK_ATTACK_COST_EFFECT",
-            CheckProvidedEnergy { .. } => "CHECK_ENOUGH_ENERGY_EFFECT",
-            CheckPokemonPowers { .. } => "CHECK_POKEMON_POWERS_EFFECT",
-            CheckPokemonAttacks { .. } => "CHECK_POKEMON_ATTACKS_EFFECT",
             Retreat { .. } => "RETREAT_EFFECT",
             RetreatStart { .. } => "RETREAT_START_EFFECT",
             UseAttack { .. } => "USE_ATTACK_EFFECT",
@@ -337,27 +305,6 @@ impl Effect {
             MoveTool { .. } => "MOVE_TOOL_EVENT",
             EnterPlay { .. } => "ENTER_PLAY_EVENT",
             PlayTrainer { .. } => "PLAY_TRAINER_EVENT",
-            Tool { .. } => "TOOL_EFFECT",
-        }
-    }
-
-    /// A read: a check effect or a probe, which writes nothing a derived fact reads (its handlers adjust the effect; the HP
-    /// read's bonus is the effect's). `Game::reduce_effect` doesn't bump `State::version` for one; it also takes a
-    /// `Power` effect for a power with no program as one (a lock's "a real use of its own power" probe runs nothing).
-    pub fn is_read(&self) -> bool {
-        use Effect::*;
-        match self {
-            CheckHp { .. }
-            | CheckPokemonStats { .. }
-            | CheckPokemonType { .. }
-            | CheckRetreatCost { .. }
-            | CheckAttackCost { .. }
-            | CheckProvidedEnergy { .. }
-            | CheckPokemonPowers { .. }
-            | CheckPokemonAttacks { .. }
-            | Tool { .. } => true,
-            Power { probe: true, .. } => true,
-            _ => false,
         }
     }
 
@@ -387,14 +334,6 @@ impl Effect {
             AfterAttack { .. } => 6,
             AfterAttackTriggers { .. } => 245,
             BeforeDoingDamage { .. } => 7,
-            CheckHp { .. } => 8,
-            CheckPokemonStats { .. } => 9,
-            CheckPokemonType { .. } => 10,
-            CheckRetreatCost { .. } => 11,
-            CheckAttackCost { .. } => 12,
-            CheckProvidedEnergy { .. } => 13,
-            CheckPokemonPowers { .. } => 14,
-            CheckPokemonAttacks { .. } => 15,
             Retreat { .. } => 20,
             RetreatStart { .. } => 21,
             UseAttack { .. } => 22,
@@ -423,7 +362,6 @@ impl Effect {
             MoveTool { .. } => 65,
             EnterPlay { .. } => 51,
             PlayTrainer { .. } => 56,
-            Tool { .. } => 58,
             MoveCounters { .. } => 129,
             Devolve { .. } => 248,
             Swap { .. } => 249,
@@ -442,14 +380,6 @@ pub mod k {
     pub const AFTER_ATTACK_TRIGGERS: u32 = 245;
     pub const ATTACK_TRIGGER: u32 = 246;
     pub const BEFORE_DOING_DAMAGE: u32 = 7;
-    pub const CHECK_HP: u32 = 8;
-    pub const CHECK_POKEMON_STATS: u32 = 9;
-    pub const CHECK_POKEMON_TYPE: u32 = 10;
-    pub const CHECK_RETREAT_COST: u32 = 11;
-    pub const CHECK_ATTACK_COST: u32 = 12;
-    pub const CHECK_PROVIDED_ENERGY: u32 = 13;
-    pub const CHECK_POKEMON_POWERS: u32 = 14;
-    pub const CHECK_POKEMON_ATTACKS: u32 = 15;
     pub const RETREAT: u32 = 20;
     pub const RETREAT_START: u32 = 21;
     pub const USE_ATTACK: u32 = 22;
@@ -476,7 +406,6 @@ pub mod k {
     pub const ENTER_PLAY: u32 = 51;
     /// The PlayTrainer event (events batch 7): the number the Trainer effect had (the Trainer's program is its handler).
     pub const PLAY_TRAINER: u32 = 56;
-    pub const TOOL: u32 = 58;
     /// The Devolve and Swap events (events batch 2).
     pub const DEVOLVE: u32 = 248;
     pub const SWAP: u32 = 249;
@@ -553,6 +482,9 @@ pub mod k {
     pub const DECLARES_CONDITION_PREVENT: u32 = 80;
     pub const DECLARES_HEAL_PREVENT: u32 = 81;
     pub const DECLARES_COIN_PREVENT: u32 = 82;
+    /// An Ability lock (`AbilityLock`, Midnight Fluttering, Initialization): the take-hold stamps are kept and legality reads
+    /// the powers a Pokémon has now only in a game with one (batch 8 closeout: the CheckPokemonPowers kind it replaces).
+    pub const DECLARES_ABILITY_LOCK: u32 = 14;
     /// A lock / a `Prevent` declaration over ChangeActive (events batch 5).
     pub const DECLARES_ACTIVE_LOCK: u32 = 36;
     pub const DECLARES_ACTIVE_PREVENT: u32 = 45;
@@ -674,8 +606,8 @@ mod marker_tests {
     #[test]
     fn no_marker_is_an_effect_kind() {
         let (kinds, markers) = numbers();
-        // (Batch 8 removed the probes and the table-state checks: 50 kinds left.)
-        assert!(kinds.len() >= 45, "every Effect variant's kind is read ({})", kinds.len());
+        // (Batch 8 removed the probes, the table-state checks and, in the closeout, the check effects: 38 kinds left.)
+        assert!(kinds.len() >= 36, "every Effect variant's kind is read ({})", kinds.len());
         assert!(markers.len() >= 16, "the markers are read ({})", markers.len());
         for (name, v) in &markers {
             assert!(!kinds.contains(v), "k::{name} = {v} is also an effect kind");
