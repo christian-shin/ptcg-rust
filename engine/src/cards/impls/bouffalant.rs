@@ -4,7 +4,7 @@
 //!
 //! Curly Wall is an Ability `DamageTaken` over the owner's Basic Pokémon that are [C] as the game checks their type (`TypeIs`),
 //! guarded by 2 or more Pokémon named Bouffalant in play (a Bouffalant in play only: an Ability lock turns it off); it is
-//! non-stacking (`NonStack::CurlyWall`) and never reduces the owner's own attacks' damage. Boundless Power arms a lasting
+//! non-stacking (`NonStack::SameAbility`: only 1 Curly Wall applies) and never reduces the owner's own attacks' damage. Boundless Power arms a lasting
 //! `CANT_ATTACK` lock on this Pokémon until the end of your next turn.
 use crate::spec::prelude::*;
 use crate::types::ct;
@@ -21,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
             subject: SlotPred::All(&[SlotPred::Basic, SlotPred::TypeIs(ct::COLORLESS)]),
             side: Side::Owner,
             guard: Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Named("Bouffalant")), CmpOp::Ge, Num::Lit(2)),
-            nonstacking: Some(NonStack::CurlyWall),
+            nonstacking: Some(NonStack::SameAbility),
             ..DamageTakenSpec::DEFAULT
         }),
     }],

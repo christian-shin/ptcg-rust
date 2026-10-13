@@ -82,7 +82,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     // Step 2: the effects on the Pokémon doing the damage: the attacker-side modifiers (DamageDealt at the Deal stage), then
     // "the Defending Pokémon's attacks do N less damage".
     if deal {
-        let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: true, survive: false, flags: 0 };
+        let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: true, survive: false, flags: 0, applied: crate::list::SVec::new() };
         attacker_side(g, &mut acc)?;
         d = acc.damage;
     }
@@ -98,7 +98,7 @@ pub fn deal(g: &mut Game, b: AtkBase, amount: i32, deal: bool) -> R {
     }
     // Step 5: the effects on the damaged Pokémon: the defender-side modifiers (DamageTaken), the survive-on-10
     // replacements of a full-HP Pokémon (SurviveOnTen), then the lasting "takes N less / more damage".
-    let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: deal, survive: false, flags: 0 };
+    let mut acc = crate::spec::passive::DamageAcc { b, damage: d, weakness_applied: deal, survive: false, flags: 0, applied: crate::list::SVec::new() };
     defender_side(g, &mut acc)?;
     d = acc.damage;
     let survive = acc.survive;
