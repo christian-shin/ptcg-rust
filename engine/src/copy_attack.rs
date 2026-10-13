@@ -1,19 +1,17 @@
-//! Copy-attack delegation: ports of `prefabs/copy-attack-delegation.ts` and
-//! `prefabs/copy-attack-prefabs.ts`.
+//! Copy-attack delegation: "choose 1 of the attacks of ... and use it as this attack" (Metronome, Foul Play, Seek Inspiration,
+//! Gemstone Mimicry, Memory Helix).
 //!
-//! Twinleaf runs a copied attack as a fresh `AttackEffect` carrying a clone
-//! of the source card's attack (`cloneAttacks`). After the normal fan-out of
-//! every effect, `resolveCopyAttackSessions` runs the source card's
-//! `reduceEffect` with `this` = the copycat (and the copycat's `attacks`
-//! temporarily replaced by the clones) for the effects of the copied attack's
-//! lifecycle. Events batch 8 (rules fix): a session lasts while the copied
-//! attack is used, until the end of that turn; nothing of the source card
-//! applies after (id2402: the Pokémon using the attack is the copycat; id453,
-//! id890, id2094: only the printed attack is copied). The copied attack's
-//! lasting effects are lasting-table entries on the copycat (`engine::lasting`).
-//! Twinleaf's sessions outlived the attack for 4 end of turns, running the
-//! source card's end-of-turn, Checkup and beginning-of-turn code for the
-//! copycat; that is gone with `run::fire_card_on` and `END_TURN_BUDGET`.
+//! The Pokémon using the attack is the copycat and the copied attack is its own attack while it is used: the damage, the
+//! effects and the Knock Outs after it are the copycat's (id2402, id453, id890, id2094), nothing of the source card applies
+//! after the attack, and the copier needs none of the copied attack's Energy (ids 455, 2409). A copied attack that is
+//! itself a copy attack (Seek Inspiration choosing Clefable's Metronome) is chosen and run like any other: it asks its own
+//! choice (JP FAQ Slowking SCR 58, "Yes, you can"). The copied attack's lasting effects are lasting-table entries on the
+//! copycat (`engine::lasting`).
+//!
+//! A copied attack runs as a fresh attack on the copycat carrying the source card's attack; after the normal fan-out of
+//! every effect, `resolve_sessions` runs the source card's code with `me` = the copycat for the effects of the copied
+//! attack's lifecycle. A session lasts while the copied attack is used, until the Knock Outs of the attack are done
+//! (`attack::attack_over`).
 //!
 //! Rust model:
 //! * A clone is an [`AttackRef`] on the *source* card with
@@ -21,22 +19,13 @@
 //!   distinct from the source's own attack and from the copycat's printed
 //!   attacks, and `attack_def` still resolves it.
 //! * Sessions live in [`Game::copy_sessions`] (so trial dispatch discards
-//!   them, unlike Twinleaf's module array).
+//!   them).
 //! * Delegation calls the source port's `reduce` with `me` = copycat while
 //!   [`Game::deleg`] is set: `was_attack_used`/`my_attack` then compare with
 //!   the clones, and card continuations the source code creates are tagged
 //!   (`Cont::DelegCard`, `CoinCb::DelegCard`) so they resume in the source's
-//!   port. Card handlers reached through nested effects run undelegated.
-//!
-//! Oracle caveat: trial dispatch (`legalTurnOptions`) snapshots the session
-//! array, as Rust trials on game copies do. It also resolves info prompts,
-//! including Twinleaf's "Coin flip animation" wait, whose coin was drawn from
-//! the oracle's throwaway simulation stream; Rust stops at its coin chance
-//! prompt. A delegated coin callback that throws on one outcome would
-//! therefore make the oracle's legality depend on that stream (Annihilape's
-//! Durable Body did for a power-less copycat until phase 4b: source code run
-//! for the copycat now sees the copycat's Ability as blocked, see
-//! [`Game::deleg`] and `prefabs::is_ability_blocked`).
+//!   port. Card handlers reached through nested effects run undelegated. The source's Abilities are
+//!   blocked for the copycat while its code runs ([`Game::deleg`], `prefabs::is_ability_blocked`).
 use crate::cards::{self, CardFrame};
 use crate::effects::*;
 use crate::engine::attack::{self, AttackFrame};
@@ -51,7 +40,7 @@ pub struct CopySession {
     pub copycat: CardId,
     pub source: CardId,
     pub serial: u8,
-    /// Player index (Twinleaf stores the id).
+    /// Player index.
     pub player: u8,
 }
 
@@ -185,8 +174,7 @@ fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: 
     let serial = g.copy_serial;
     g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8 });
     // The attack the copycat used is the copying one (id2094: "the 'attack' it did was Genome Hacking"); the player's
-    // record of it is the turn action's (`turn.rs`), never the clone (Twinleaf wrote the clone here: which one was
-    // recorded depended on whether the copy asked a prompt first; batch 8 C12b).
+    // record of it is the turn action's (`turn.rs`), never the clone.
     clone_ref(source, serial, index)
 }
 
@@ -504,9 +492,6 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                 Res::Attack(a) => a,
                 _ => return Ok(()),
             };
-            if attack::attack_def(g, a).copycat_attack {
-                return Ok(());
-            }
             let source = match find_pokemon_for_attack(g, f.cards.as_slice(), a) {
                 Some(c) => c,
                 None => return Ok(()),
