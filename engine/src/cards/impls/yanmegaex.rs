@@ -1,19 +1,12 @@
-//! Yanmega ex (DRI): Buzz Boost — once during your turn, when this Pokémon
-//! moves from your Bench to the Active Spot, you may search your deck for up
-//! to 3 Basic [G] Energy and attach them to this Pokémon, then shuffle.
-//! Jet Cyclone — 210; move 3 Energy from this Pokémon to 1 of your Benched
-//! Pokémon.
+//! Yanmega ex (DRI 3): Buzzing Boost — once during your turn, when this Pokémon moves from your Bench to the Active Spot, you may search
+//! your deck for up to 3 Basic [G] Energy cards and attach them to this Pokémon. Then, shuffle your deck. Jet Cyclone — 210; move 3
+//! Energy from this Pokémon to 1 of your Benched Pokémon.
 //!
-//! Buzz Boost is a trigger over the ChangeActive event that brings this Pokémon
-//! to the Active Spot during its owner's turn (a retreat, a switch, a
-//! promotion: APR E-25, whatever moved it), unless the player marker is set:
-//! a question; no → marker; yes → marker, then up to 3 Basic [G] Energy from
-//! the deck onto it, then one shuffle (the printed "Then, shuffle your deck"; APR E-19; user decision D8: Twinleaf
-//! shuffled once per card attached, and once more when none was). Jet Cyclone: AttachEnergyPrompt (Active →
-//! Bench, any Energy, sameTarget, no cancel), MOVE_CARDS each. Phase 4b fix:
-//! with no Benched Pokémon the attack does nothing more (the prompt, min 3,
-//! was unanswerable), and min = max = min(3, Energy attached) so a Pokémon
-//! with fewer than 3 Energy cards can't get stuck either.
+//! Buzzing Boost is a trigger over the ChangeActive event that brings this Pokémon to the Active Spot during its owner's turn (a
+//! retreat, a switch, a promotion: APR E-25, whatever moved it), unless the player marker is set: a question; no → marker; yes →
+//! marker, then up to 3 Basic [G] Energy from the deck onto it, then one shuffle (the printed "Then, shuffle your deck", APR E-19;
+//! user decision D8). A blocked Ability asks nothing and sets nothing. Jet Cyclone moves min(3, Energy attached) Energy to one
+//! Benched Pokémon (none to move with no Benched Pokémon: nothing more happens).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

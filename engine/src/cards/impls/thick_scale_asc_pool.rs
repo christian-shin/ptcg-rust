@@ -1,12 +1,8 @@
-//! Thick Scale (ASC 211, Pokémon Tool): the [N] Pokémon this card is attached
-//! to takes 50 less damage from attacks from your opponent's [G], [R], [W],
-//! or [L] Pokémon (after applying Weakness and Resistance).
+//! Thick Scale (ASC 211, Pokémon Tool): the [N] Pokémon this card is attached to takes 50 less damage from attacks from your
+//! opponent's [G], [R], [W], or [L] Pokémon (after applying Weakness and Resistance).
 //!
-//! Twinleaf: on a PutDamageEffect whose target holds this tool, during the
-//! attack phase, unless the tool is blocked for the owner or the source
-//! belongs to the same player: a CheckPokemonType on the holder must contain
-//! [N], then one on the source must contain [G], [R], [W] or [L]; the damage is
-//! reduced by 50 (floored at 0). The card stays attached.
+//! A `DamageTaken` modifier of 50, subject the Holder while it is [N], source an attacking Pokémon of one of the four types (read
+//! after effects; one reduction even for a two-type attacker). It applies after Weakness and Resistance and the Tool stays attached.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

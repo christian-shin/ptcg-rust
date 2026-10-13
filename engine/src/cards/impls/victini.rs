@@ -1,12 +1,8 @@
-//! Victini (SSP): Victory Cheer — attacks used by your Evolution [R] Pokémon
-//! do 10 more damage to your opponent's Active Pokémon. Flare — 30.
+//! Victini (SSP 21): Victory Cheer — attacks used by your Evolution [R] Pokémon do 10 more damage to your opponent's Active Pokémon
+//! (before applying Weakness and Resistance). Flare — 30.
 //!
-//! Twinleaf: on every DealDamageEffect (either player's): bail out if the
-//! ability is blocked for the effect's player; count Victini copies among
-//! that player's Pokémon; a CheckPokemonTypeEffect on THAT player's Active
-//! must contain [R] (not the attacker's slot); the target must be the
-//! opponent's Active; the attacking Pokémon's `evolvesFrom !== ''` (an
-//! empty source slot counts as an Evolution); then damage += 10 * count.
+//! A `DamageDealt` modifier of 10 over the attacks of your Evolution Pokémon that are [R] (read after effects), added before
+//! Weakness and Resistance; one per Victini (two stack, +20), and only while its Ability works.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

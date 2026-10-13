@@ -1,9 +1,8 @@
-//! Zarude (SSP 11): Leaf Drain — 20; heal 20 damage from this Pokémon. Jungle Whip — 80+; you may put all Energy
-//! attached to this Pokémon into your hand to have this attack do 80 more damage.
+//! Zarude (SSP 11): Leaf Drain — 20; heal 20 damage from this Pokémon. Jungle Whip — 80+; you may put all Energy attached to this
+//! Pokémon into your hand to have this attack do 80 more damage.
 //!
-//! Leaf Drain is a RemoveCounters (heal) event by the attack on Zarude. Jungle Whip: a yes / no choice; on yes the
-//! Energy goes into the hand after the damage (id2385) and the damage is 80 more. The move to the hand is a raw move
-//! until the PutIntoHand event (B7).
+//! Leaf Drain is a RemoveCounters (heal) event by the attack on Zarude. Jungle Whip: a yes / no choice; on yes the Energy goes into the
+//! hand after the damage (a LeavePlay of each attached card, to the hand; id2385) and the damage is 80 more.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

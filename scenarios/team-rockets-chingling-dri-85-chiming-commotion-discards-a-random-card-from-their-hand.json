@@ -1,0 +1,53 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Chingling DRI 85",
+   "4 Poké Ball POR 80",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Team Rocket's Chingling DRI 85",
+   "4 Poké Ball POR 80",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Team Rocket's Chingling DRI 85",
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "3 Poké Ball POR 80"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chiming Commotion"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "hand",
+   "count": 2,
+   "cite": "card text: discard a random card from your opponent's hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Poké Ball POR 80"
+   ],
+   "cite": "card text: the card is discarded to its owner's discard pile"
+  }
+ ]
+}

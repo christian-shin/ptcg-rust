@@ -2,7 +2,7 @@
 //! Spot, your opponent can't play Item cards from their hand. Crackling
 //! Stomp — 150; discard the top 2 cards of your opponent's deck.
 //!
-//! Events batch 7: a lock over the opponent's PlayTrainer of an Item from the hand (`PLAY_ITEM_FROM_HAND`), while this
+//! A lock over the opponent's PlayTrainer of an Item from the hand (`PLAY_ITEM_FROM_HAND`), while this
 //! Pokémon is Active and has its Ability.
 use crate::spec::prelude::*;
 

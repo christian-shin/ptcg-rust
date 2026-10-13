@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zeraora SCR 55",
+   "4 Hop's Zacian ex JTG 111",
+   "4 Hop's Snorlax JTG 117",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Zeraora SCR 55",
+   "4 Hop's Zacian ex JTG 111",
+   "4 Hop's Snorlax JTG 117",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Zeraora SCR 55",
+  "active_energy": [
+   "2 Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Combat Thunder"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: Combat Thunder is 20+, 20 more damage for each of your opponent's Benched Pokémon (3 Benched: 20 + 60), added to the printed damage"
+  }
+ ]
+}

@@ -1,5 +1,6 @@
-//! Tirtouga (SV11B): Ancient Debris — 30x for each Item card in your
-//! opponent's discard pile (`effect.damage = items * 30`). Surf — 80.
+//! Tirtouga (BLK 22): Ancient Seaweed — 30× for each Item card in your opponent's discard pile. Surf — 80.
+//!
+//! The damage is 30 times the Item cards in the opponent's discard pile, set before the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

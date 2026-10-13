@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tool Scrapper CRI 115",
+   "1 Maximum Belt PRE 117",
+   "4 Hop's Snorlax JTG 117",
+   "51 Water Energy MEE 3"
+  ],
+  [
+   "4 Tool Scrapper CRI 115",
+   "1 Maximum Belt PRE 117",
+   "4 Hop's Snorlax JTG 117",
+   "51 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Tool Scrapper CRI 115"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_tool": "Maximum Belt PRE 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Tool Scrapper CRI 115"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "tool": null,
+   "cite": "card text: discard up to 2 Pokémon Tool cards attached to Pokémon in play (yours or your opponent's): the only Tool"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "contains": [
+    "Maximum Belt PRE 117"
+   ],
+   "cite": "card text: the Tool goes to its owner's discard pile"
+  }
+ ]
+}

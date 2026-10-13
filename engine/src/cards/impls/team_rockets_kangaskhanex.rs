@@ -1,6 +1,8 @@
-//! Team Rocket's Kangaskhan ex (ASC): Comet Punch — flip 4 coins, 30 damage
-//! for each heads. Wicked Impact — 120+, 100 more if you played a Team
-//! Rocket Supporter from your hand this turn (`player.rocketSupporter`).
+//! Team Rocket's Kangaskhan ex (ASC 162): Comet Punch — flip 4 coins, 30 damage for each heads. Wicked Impact — 120+; if you played a
+//! Supporter card that has "Team Rocket" in its name from your hand during this turn, 100 more damage.
+//!
+//! Wicked Impact reads the turn's play record (`Cond::PlayedThisTurn`): a Supporter used through Look-Alike Show isn't played from the
+//! hand (id2225).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

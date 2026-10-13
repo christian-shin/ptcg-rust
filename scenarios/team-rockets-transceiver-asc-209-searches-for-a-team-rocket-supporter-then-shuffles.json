@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Transceiver ASC 209",
+   "4 Team Rocket's Petrel ASC 207",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Team Rocket's Transceiver ASC 209",
+   "4 Team Rocket's Petrel ASC 207",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Team Rocket's Transceiver ASC 209"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Team Rocket's Transceiver ASC 209"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Team Rocket's Transceiver ASC 209"
+   ],
+   "cite": "card text: the Item is discarded after its effect"
+  },
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text: search your deck for a Supporter card that has \"Team Rocket\" in its name, reveal it, and put it into your hand; then shuffle your deck (APR E-19)"
+  }
+ ]
+}

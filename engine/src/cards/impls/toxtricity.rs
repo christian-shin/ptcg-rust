@@ -1,11 +1,9 @@
-//! Toxtricity (PFL 68): Sinister Surge — once during your turn, search your deck for a Basic [D] Energy card and
-//! attach it to 1 of your Benched [D] Pokémon, then shuffle; if you attached Energy in this way, place 2 damage counters
-//! on that Pokémon. Gentle Slap — 100.
+//! Toxtricity (PFL 68): Sinister Surge — once during your turn, search your deck for a Basic [D] Energy card and attach it to 1 of your
+//! Benched [D] Pokémon, then shuffle; if you attached Energy in this way, place 2 damage counters on that Pokémon. Gentle Slap — 100.
 //!
-//! The attach is an Attach event from the deck (Benched [D] Pokémon only); the 2 damage counters are one PlaceCounters
-//! event by the Ability on the player's own Pokémon (Battle Cage doesn't stop it: JP FAQ ストリンダー / バトルコロシアム
-//! 「はい、のせます。」; a Pokémon with 20 HP or less left is Knocked Out at the state check). The type reads stay printed
-//! types for now (batch 9: one rule for "[X] Pokémon").
+//! The attach is an Attach event from the deck onto a Benched [D] Pokémon (the type is read after effects, as for Wonder Patch); the
+//! 2 damage counters are one PlaceCounters event by the Ability on the player's own Pokémon (Battle Cage doesn't stop it: JP FAQ
+//! ストリンダー / バトルコロシアム 「はい、のせます。」; a Pokémon with 20 HP or less left is Knocked Out at the state check).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -22,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
                 predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]),
                 slots: AttachSlots::Bench,
                 target: Pred::PokemonType(ct::DARK),
-                scan: TargetScan::InPlay,
+                scan: TargetScan::BenchEffectiveType,
                 bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
                 same_target: false,
                 different_targets: false,

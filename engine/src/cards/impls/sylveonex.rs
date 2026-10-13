@@ -1,16 +1,14 @@
-//! Sylveon ex (SSP, Tera): Magical Charm - 160; during your opponent's next
-//! turn, the Defending Pokémon's attacks do 100 less damage. Angelite - choose
-//! 2 of your opponent's Benched Pokémon; they shuffle those Pokémon and all
-//! attached cards into their deck; can't be used if 1 of your Pokémon used
-//! Angelite during your last turn. Tera: no attack damage while on the Bench.
+//! Sylveon ex (SSP, Tera): Magical Charm - 160; during your opponent's next turn, the Defending Pokémon's attacks do 100 less damage.
+//! Angelite - choose 2 of your opponent's Benched Pokémon; they shuffle those Pokémon and all attached cards into their deck; can't be
+//! used if 1 of your Pokémon used Angelite during your last turn. Tera: no attack damage while on the Bench.
 //!
-//! Angelite does nothing with an empty opposing Bench; each chosen Pokémon is moved to the opponent's deck and followed
-//! by its own shuffle for the opponent (no trailing wait).
-//! Events batch 8 (rules fix): "if 1 of your Pokémon used Angelite during your last turn" reads the attack the player
-//! used during their previous turn (`Cond::UsedAttackLastTurn`), whichever Pokémon used it, a copycat too (id2402).
-//! Twinleaf's ANGELITE / CLEAR_ANGELITE marker pair, cleared by this card's end-of-turn code, is gone: it stayed for
-//! good when no Sylveon ex was in play at the end of the turn (a copied Angelite, or Sylveon ex Knocked Out). "Choose 2"
-//! is exactly 2 (min 1 for a single Benched Pokémon only); using the attack counts even when it does nothing.
+//! Angelite does nothing with an empty opposing Bench; each chosen Pokémon is moved to the opponent's deck and followed by its own
+//! shuffle for the opponent (no trailing wait). "Choose 2" is exactly 2 (1 for a single Benched Pokémon only); using the attack counts
+//! even when it does nothing.
+//!
+//! "If 1 of your Pokémon used Angelite during your last turn" reads the attack the player used during their previous turn
+//! (`Cond::UsedAttackLastTurn`), whichever Pokémon used it, a copycat too (id2402); no marker is kept, so a copied Angelite or a
+//! Knocked Out Sylveon ex doesn't leave one behind.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

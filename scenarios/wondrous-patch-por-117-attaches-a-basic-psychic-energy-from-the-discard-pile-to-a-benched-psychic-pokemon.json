@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Wondrous Patch POR 117",
+   "4 Ralts ASC 87",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Wondrous Patch POR 117",
+   "4 Ralts ASC 87",
+   "4 Hop's Snorlax JTG 117",
+   "48 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": "Ralts ASC 87"
+   }
+  ],
+  "hand": [
+   "Wondrous Patch POR 117"
+  ],
+  "discard": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Wondrous Patch POR 117"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 1,
+   "cite": "card text: attach a Basic [P] Energy card from your discard pile to 1 of your Benched [P] Pokémon"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "cite": "card text: one Energy left the discard pile; the Item itself is discarded (2 - 1 + 1)"
+  }
+ ]
+}

@@ -1,5 +1,6 @@
-//! Timburr (TWM 103): Best Punch — 40; flip a coin, if tails this attack
-//! does nothing (`effect.damage = 0`).
+//! Timburr (TWM 103): Best Punch — 40; flip a coin. If tails, this attack does nothing.
+//!
+//! The coin is flipped before the damage; tails sets the damage to 0.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

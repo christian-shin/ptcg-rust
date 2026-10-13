@@ -1,11 +1,8 @@
-//! Voltaic [L] Energy ("Bolty [L] Energy M5", PBL): provides [L]. Attacks used
-//! by the [L] Pokémon this card is attached to do 20 more damage to your
-//! opponent's Active Pokémon (before applying Weakness and Resistance).
+//! Voltaic Lightning Energy (PBL 84, Special Energy): provides [L]. Attacks used by the [L] Pokémon this card is attached to do 20 more
+//! damage to your opponent's Active Pokémon (before applying Weakness and Resistance).
 //!
-//! Twinleaf: the [L] entry is pushed unless an EnergyEffect probe throws. On a
-//! DealDamageEffect whose source slot holds this card (unless the special
-//! energy is blocked): a CheckPokemonType on the source must contain [L];
-//! then `damage > 0 && target === opponent.active` → damage += 20.
+//! The [L] is provided while the Special Energy's text is on (`derived::special_energy_off`). A `DamageDealt` modifier of 20 for the
+//! attacks of the Holder while it is [L] (read after effects), only when the attack does damage.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

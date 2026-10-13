@@ -1,11 +1,8 @@
-//! Telepathic Psychic Energy (Telepath [P] Energy M3 / POR): provides [P].
-//! When attached from your hand to a [P] Pokémon, search your deck for up to
-//! 2 Basic [P] Pokémon and put them onto your Bench, then shuffle.
+//! Telepathic Psychic Energy (POR 88, Special Energy): provides [P]. When you attach this card from your hand to a [P] Pokémon,
+//! search your deck for up to 2 Basic [P] Pokémon and put them onto your Bench. Then, shuffle your deck.
 //!
-//! Only an attach from the hand triggers it; the type check runs before the
-//! card is attached. Phase 4b: the search
-//! always happens when the deck is not empty (it used to be skipped, without a
-//! shuffle, when the deck held no Basic [P] Pokémon).
+//! Only an Attach from the hand triggers it, and the [P] type is read on the Pokémon it is attached to. The search is for a kind
+//! (up to 2, may find none; Bench space limits it) and the deck is shuffled after it whenever the deck isn't empty (APR E-19).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

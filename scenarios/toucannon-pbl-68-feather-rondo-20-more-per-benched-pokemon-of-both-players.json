@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pikipek PBL 66",
+   "4 Trumbeak PBL 67",
+   "4 Toucannon PBL 68",
+   "4 Hop's Snorlax JTG 117",
+   "4 Hop's Zacian ex JTG 111",
+   "40 Water Energy MEE 3"
+  ],
+  [
+   "4 Pikipek PBL 66",
+   "4 Trumbeak PBL 67",
+   "4 Toucannon PBL 68",
+   "4 Hop's Snorlax JTG 117",
+   "4 Hop's Zacian ex JTG 111",
+   "40 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Pikipek PBL 66",
+   "Trumbeak PBL 67",
+   "Toucannon PBL 68"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Feather Rondo"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 120,
+   "cite": "card text: Feather Rondo is 60+, 20 more damage for each Benched Pokémon, both yours and your opponent's (1 + 2 Benched)"
+  }
+ ]
+}
