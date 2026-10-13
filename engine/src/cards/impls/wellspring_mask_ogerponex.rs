@@ -29,20 +29,15 @@ pub static SPEC: CardSpec = CardSpec {
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[
                     Step::new(Op::DiscardEnergy(DiscardEnergySpec { selection: EnergySelection::Cost { n: Num::Lit(3), ty: ct::COLORLESS }, to: EnergyDest::Deck, ..DiscardEnergySpec::DEFAULT })),
-                    // "If you do": the 3 Energy went into the deck.
-                    Step::new(Op::If(IfSpec {
-                        cond: Cond::Done,
-                        yes: &[
-                            Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
-                            Step::new(Op::DamageSlot(DamageSlotSpec {
-                                target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
-                                hp: Num::Lit(120),
-                                target_damage_mul: 0,
-                                calc: DamageCalc::Put,
-                                when: Cond::True,
-                            })),
-                        ],
-                        no: &[],
+                    // "If you do": the 3 Energy are there (the `when` above), so they go into the deck (the removal waits for the
+                    // damage and reports Done when queued, so nothing reads Done after it).
+                    Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
+                    Step::new(Op::DamageSlot(DamageSlotSpec {
+                        target: SlotTarget::Pick(PickSlotSpec { chooser: Who::Me, among: SlotSel::Bench(Who::Opp), msg: "CHOOSE_POKEMON_TO_DAMAGE" }),
+                        hp: Num::Lit(120),
+                        target_damage_mul: 0,
+                        calc: DamageCalc::Put,
+                        when: Cond::True,
                     })),
                 ],
                 no: &[],

@@ -7,8 +7,8 @@
 //! opponent's as its cause: the attack's damage is zeroed at step 6 (APR C-16) and every event with an effect is
 //! refused (Special Conditions, counters, switches, devolving, lasting effects: APR C-04 / C-05 / C-17, id2025, id2155).
 //! The marker is a Trainer effect (id2228): it stays when the Pokémon moves to the Bench or switches (the JP FAQ's
-//! Ogerpon swap keeps it too), and the opponent's end of turn clears it. Known gap: the JP FAQ ends it when the
-//! chosen Pokémon is devolved (Mega Gardevoir ex under Strange Timepiece); the marker stays here.
+//! Ogerpon swap keeps it too), and the opponent's end of turn clears it. It also ends when the chosen Pokémon evolves or is
+//! devolved (JP FAQ Acerola's Mischief ASC 180; scenarios acerolas-mischief-asc-180-ends-when-the-pokemon-{evolves,devolves}).
 use crate::spec::prelude::*;
 
 const MISCHIEF: &str = "ACEROLAS_MISCHIEF_MARKER";
