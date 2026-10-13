@@ -1,13 +1,8 @@
-//! Cresselia (SFA): Healing Pirouette — heal 20 damage from each of your
-//! Pokémon. Crescent Purge — 80+; you may turn 1 of your face-down Prize
-//! cards face up for 80 more damage.
+//! Cresselia (SFA): Healing Pirouette — heal 20 damage from each of your Pokémon. Crescent Purge — 80+; you may turn 1 of your
+//! face-down Prize cards face up for 80 more damage.
 //!
-//! Fixed (phase 4b): the face-down test counts only non-empty Prize lists that
-//! are still face down, and the ChoosePrizePrompt (count 1) is `faceDownOnly`
-//! and no longer cancellable (declining is the ConfirmPrompt's job), so a
-//! face-up Prize can't be picked (it used to throw CANNOT_USE_POWER) and
-//! cancelling can't crash (`chosenPrize[0]` on null). The chosen list gets
-//! isSecret = false, faceUpPrize = true.
+//! Crescent Purge asks (a "you may") only while a Prize card is face down; the chosen face-down Prize is turned face up for
+//! good (JP FAQ Cresselia SFA 21) and the bonus is added before the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

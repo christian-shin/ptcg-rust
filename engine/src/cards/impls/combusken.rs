@@ -1,5 +1,6 @@
-//! Combusken (DRI): Combustion — 20. Double Kick — 40x; flip 2 coins
-//! (`effect.damage = 40 * heads`).
+//! Combusken (DRI): Combustion — 20. Double Kick — 40×; flip 2 coins.
+//!
+//! Double Kick flips 2 coins and sets the damage to 40 for each heads.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

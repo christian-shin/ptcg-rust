@@ -1,12 +1,9 @@
-//! Conkeldurr (TWM 105): Tantrum — 80; this Pokémon is now Confused. Gutsy
-//! Swing — 250; if this Pokémon is affected by a Special Condition, ignore
-//! all Energy in this attack's cost.
+//! Conkeldurr (TWM 105): Tantrum — 80; this Pokémon is now Confused. Gutsy Swing — 250; if this Pokémon is affected by a Special
+//! Condition, ignore all Energy in this attack's cost.
 //!
-//! Tantrum's Confusion is a GainCondition(Confused) on this Pokémon with the
-//! attack's cause; Gutsy Swing empties the CheckAttackCostEffect cost when
-//! this card is the player's Active and it has any Special Condition. R7F-11
-//! (rulings 252, 1552): the cost is also marked as set, so an increase (Rillaboom's
-//! Drum Beating, ...) no longer adds a [C] back.
+//! Tantrum's Confusion is a GainCondition(Confused) on this Pokémon with the attack as its cause. Gutsy Swing's cost is a
+//! set cost (`SetCost(&[])`, "ignore all" is applied before "more" changes, APR D-13), for this Pokémon's own attack only
+//! (Holder), while it has a Special Condition.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

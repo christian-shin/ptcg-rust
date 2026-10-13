@@ -1,11 +1,8 @@
-//! Community Center (TWM, stadium): once during each player's turn, if that
-//! player has already played a Supporter from their hand, they may heal 10
-//! damage from each of their Pokémon.
+//! Community Center (TWM, stadium): once during each player's turn, if that player has already played a Supporter from their
+//! hand, they may heal 10 damage from each of their Pokémon.
 //!
-//! Twinleaf: throws when `supporterTurn === 0`; otherwise a HealEffect(10)
-//! on each of the player's Pokémon whose stadium effect isn't blocked
-//! (undamaged Pokémon included). Fixed in phase 4b (R4, Rulings Compendium 851/1830):
-//! it also throws when no Pokémon has damage (no effect, so it can't be used).
+//! Using the Stadium needs a Supporter played this turn and a damaged Pokémon (a Stadium use that can change nothing isn't
+//! allowed, id925); it heals each of the player's Pokémon on which Stadium effects are active, one Heal event each.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

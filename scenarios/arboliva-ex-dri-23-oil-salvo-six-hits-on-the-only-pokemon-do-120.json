@@ -1,0 +1,56 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Arboliva ex DRI 23",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "30 Psychic Energy MEE 5"
+  ],
+  [
+   "1 Arboliva ex DRI 23",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "30 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Arboliva ex DRI 23",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Oil Salvo"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 120,
+   "cite": "Arboliva ex DRI 23 text (choose 1 of your opponent's Pokémon 6 times; 20 damage each time) and JP FAQ Arboliva ex DRI 23 (the six hits are one 120 damage)"
+  }
+ ]
+}

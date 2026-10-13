@@ -1,11 +1,7 @@
 //! Dark Bell (M5 / PBL 75): both Active non-[D] Pokémon are now Confused.
 //!
-//! Rule: the player's own Active first, then the opponent's Active unless a
-//! TrainerTargetEffect on it is blocked; each non-[D] Active gets a
-//! GainCondition(Confused) caused by the Trainer (not an attack or Ability
-//! effect). `canPlay` is UI only.
-//! Phase 4b (R6): throws CANNOT_PLAY_THIS_CARD when neither Active Pokémon is a
-//! non-[D] Pokémon (it used to be playable with no effect).
+//! One Special Condition event per non-[D] Active Pokémon (type as the game checks it), yours first, caused by this Item. It
+//! can be played when at least one of them would change (`WouldChangeConditions`, id290, id925).
 use crate::spec::prelude::*;
 
 const MY_NON_DARK: Cond = Cond::Not(&Cond::Slot(MY_ACTIVE, SlotPred::TypeIs(ct::DARK)));

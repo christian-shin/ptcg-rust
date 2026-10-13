@@ -1,12 +1,9 @@
-//! Bloodmoon Ursaluna (SFA 25): Battle-Hardened — when you play this Pokémon
-//! from your hand onto your Bench, you may attach up to 2 Basic [F] Energy
-//! from your hand to it. Mad Bite — 100+, 30 more per damage counter on the
-//! opponent's Active.
+//! Bloodmoon Ursaluna (SFA 25): Battle-Hardened — when you play this Pokémon from your hand onto your Bench, you may attach up
+//! to 2 Basic [F] Energy from your hand to it. Mad Bite — 100+, 30 more per damage counter on the opponent's Active.
 //!
-//! Fixed (phase 4b): with no Basic [F] Energy in hand the Ability does nothing
-//! (no prompt); it used to ask, then throw CANNOT_USE_POWER in the callback.
-//! Otherwise a ConfirmPrompt, then a cancel-free ChooseCardsPrompt (1-2: phase 4b
-//! R7E, "up to 2" in an Ability takes at least 1, rulings 1853/1778; it was 0-2).
+//! Battle-Hardened is an `On(EnterPlay & This(Card) & Source(Hand) & Mode(Rule) & Slot(IsBench))` trigger with an Ability
+//! origin. It asks only when a Basic [F] Energy card is in the hand (a "you may" whose yes can't change the game isn't asked);
+//! "up to 2" in an Ability is 1 to 2 cards (id2301, RULES.md), then one Attach event per card.
 use crate::spec::prelude::*;
 
 const FIGHTING_ENERGY: Pred = Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]);

@@ -1,16 +1,9 @@
-//! Azumarill ex (MC): Bubble Gathering — as often as you like during your
-//! turn, move an Energy from 1 of your other Pokémon to this Pokémon.
-//! Energy Balloon — 60+; 40 more for each [P] Energy card attached to this
-//! Pokémon.
+//! Azumarill ex (MC): Bubble Gathering — as often as you like during your turn, move an Energy from 1 of your other Pokémon
+//! to this Pokémon. Energy Balloon — 60+; 40 more for each [P] Energy attached to this Pokémon.
 //!
-//! Twinleaf: the MoveEnergyPrompt (cancellable, 0..1) callback throws
-//! INVALID_TARGET unless every transfer targets the slot holding this card;
-//! ABILITY_USED runs even for an empty answer. Fixed in phase 4b: the prompt
-//! now has `blockedFrom` = this Pokémon's slot and `blockedTo` = every other
-//! slot (random answers used to reach the INVALID_TARGET throw). Energy
-//! Balloon (also fixed: it compared numeric `CardType` enums to 'P', so it
-//! never counted anything) runs CheckProvidedEnergyEffect on the Active and
-//! adds 40 for every energy map entry that provides [P].
+//! Bubble Gathering is `Op::MoveEnergyOwn` with this Pokémon as the only destination (a MoveEnergy between your own
+//! Pokémon, APR C-10; cancellable, with no once-per-turn marker). Energy Balloon counts the [P] Energy attached to this
+//! Pokémon, which is the Energy provided (`EnergyUnit::Provided`): the text says "Energy", not "Energy cards" (id2237).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -28,7 +21,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         steps: &[Step::before_damage(Op::Damage(DamageSpec {
             op: DamageOp::Add,
-            hp: Num::Mul(&Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::MatchingEntries(ct::PSYCHIC)), &Num::Lit(40)),
+            hp: Num::Mul(&Num::EnergyOn(SlotSel::One(MY_ACTIVE), EnergyUnit::Provided(ct::PSYCHIC)), &Num::Lit(40)),
             when: Cond::True,
         }))],
     }],

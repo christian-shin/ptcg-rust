@@ -1,10 +1,8 @@
-//! Alolan Exeggutor (30C 2): Scale Up — if this Pokémon has 6 or more [G]
-//! Energy attached, it gets +250 HP. Mega Drain — 150; heal 50 damage from
-//! this Pokémon.
+//! Alolan Exeggutor (30C 2): Scale Up — if this Pokémon has 6 or more [G] Energy attached, it gets +250 HP. Mega Drain —
+//! 150; heal 50 damage from this Pokémon.
 //!
-//! Twinleaf: on CheckHpEffect for the slot whose top Pokémon is this card,
-//! unless the Ability is blocked, counts GRASS / ANY `provides` entries of a
-//! CheckProvidedEnergyEffect on that slot.
+//! Scale Up is an Ability `HpMod` over the Holder, guarded by the [G] Energy this Pokémon provides (Energy attached counts
+//! the Energy provided, id2237); an Ability lock turns it off. Mega Drain heals after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,17 +1,11 @@
-//! Bouffalant (SCR): Curly Wall — if you have any other Bouffalant in play,
-//! each of your Basic [C] Pokémon takes 60 less damage from your opponent's
-//! attacks (after Weakness and Resistance); only 1 Curly Wall applies.
-//! Boundless Power — 130; during your next turn this Pokémon can't attack
-//! (THIS_POKEMON_CANNOT_ATTACK_NEXT_TURN: `cannotAttackNextTurnPending` on
-//! the Active).
+//! Bouffalant (SCR): Curly Wall — if you have any other Bouffalant in play, each of your Basic [C] Pokémon takes 60 less damage
+//! from your opponent's attacks (after Weakness and Resistance); only 1 Curly Wall applies. Boundless Power — 130; during your
+//! next turn this Pokémon can't attack.
 //!
-//! Only a Bouffalant in play applies: it needs 2+ Pokémon named Bouffalant in
-//! its owner's play, then an ability-lock probe; any PutDamageEffect from
-//! the opponent's attack on the owner's Basic [C] Pokémon is reduced, once
-//! per effect via the `nonstackingDamageReducers` source 'Curly Wall'.
-//!
-//! Fixed (phase 4b, W4): Boundless Power's lock was missing, and Curly Wall
-//! also reduced the owner's own attacks (self-damage).
+//! Curly Wall is an Ability `DamageTaken` over the owner's Basic Pokémon that are [C] as the game checks their type (`TypeIs`),
+//! guarded by 2 or more Pokémon named Bouffalant in play (a Bouffalant in play only: an Ability lock turns it off); it is
+//! non-stacking (`NonStack::CurlyWall`) and never reduces the owner's own attacks' damage. Boundless Power arms a lasting
+//! `CANT_ATTACK` lock on this Pokémon until the end of your next turn.
 use crate::spec::prelude::*;
 use crate::types::ct;
 
@@ -24,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         // only 1 Curly Wall applies. Only a Bouffalant in play has the Ability.
         modifier: Modifier::DamageTaken(DamageTakenSpec {
             amount: 60,
-            subject: SlotPred::All(&[SlotPred::Basic, SlotPred::PrintedTypeIs(ct::COLORLESS)]),
+            subject: SlotPred::All(&[SlotPred::Basic, SlotPred::TypeIs(ct::COLORLESS)]),
             side: Side::Owner,
             guard: Cond::Cmp(Num::SlotCount(SlotSel::Pokemon(Who::Me), SlotPred::Named("Bouffalant")), CmpOp::Ge, Num::Lit(2)),
             nonstacking: Some(NonStack::CurlyWall),

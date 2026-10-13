@@ -1,11 +1,9 @@
-//! Crabominable (SCR): Food Prep — attacks used by this Pokémon cost [C] less
-//! for each Kofu card in your discard pile. Haymaker — 250; during your next
-//! turn, this Pokémon can't use Haymaker.
+//! Crabominable (SCR): Food Prep — attacks used by this Pokémon cost [C] less for each Kofu card in your discard pile. Haymaker —
+//! 250; during your next turn, this Pokémon can't use Haymaker.
 //!
-//! Twinleaf: on CheckAttackCostEffect (any attack of that player's Active),
-//! when this is the player's Active and a PowerEffect for Food Prep passes,
-//! `cost.splice(cost.indexOf(C), kofuCount)` — with no [C] left the index is
-//! -1, so the last entry is removed (at most one).
+//! Food Prep is an Ability `AttackCost` reduction over this Pokémon's attacks, one [C] for each Kofu card in the discard pile
+//! (summed with other changes and floored at zero, APR D-11, D-12). Haymaker arms a lasting lock on this Pokémon naming
+//! Haymaker (`NamedAttack::This`) until the end of your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

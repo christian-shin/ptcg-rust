@@ -1,9 +1,9 @@
-//! Brave Bangle (SV11W, tool): if the holder doesn't have a Rule Box, its
-//! attacks do 30 more damage to the opponent's Active Pokémon ex (before W/R).
+//! Brave Bangle (SV11W, tool): if the holder doesn't have a Rule Box, its attacks do 30 more damage to the opponent's Active
+//! Pokémon ex (before Weakness and Resistance).
 //!
-//! Twinleaf: the tool block probe is a bare ToolEffect; the Rule Box check
-//! is on the attacking slot's cards; the attack's printed damage must be
-//! above 0.
+//! A `DamageDealt` bonus at the Deal stage: the attacker is the Holder without a Rule Box, the damaged Pokémon is the
+//! opponent's Active Pokémon ex, and the attack's printed damage is above 0 (so it never applies to counters, JP FAQ Brave
+//! Bangle).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

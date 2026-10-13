@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Conkeldurr TWM 105",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "27 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Conkeldurr TWM 105",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "27 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Conkeldurr TWM 105",
+  "active_conditions": [
+   "BURNED"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Gutsy Swing",
+   "is": true,
+   "cite": "Conkeldurr TWM 105 text (if this Pokémon is affected by a Special Condition, ignore all Energy in this attack's cost)"
+  }
+ ]
+}

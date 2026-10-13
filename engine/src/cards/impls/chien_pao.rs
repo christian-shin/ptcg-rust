@@ -1,10 +1,10 @@
-//! Chien-Pao (SSP 56): Snow Sink — when you play this Pokémon from your hand onto your Bench during your turn, you may
-//! discard a Stadium in play. Icicle Loop — 120; put an Energy attached to this Pokémon into your hand.
+//! Chien-Pao (SSP 56): Snow Sink — when you play this Pokémon from your hand onto your Bench during your turn, you may discard
+//! a Stadium in play. Icicle Loop — 120; put an Energy attached to this Pokémon into your hand.
 //!
-//! Snow Sink is an `On(EnterPlay & This(Card) & Source(Hand) & Mode(Rule) & Slot(IsBench))` trigger with an Ability
-//! origin (playing it from the hand is the player's own action during their turn). Icicle Loop runs after the damage and
-//! puts exactly 1 attached Energy card into the hand. The Stadium's discard and the Energy's move are raw card moves
-//! until the Discard / PutIntoHand events (B7).
+//! Snow Sink is an `On(EnterPlay & This(Card) & Source(Hand) & Mode(Rule) & Slot(IsBench))` trigger with an Ability origin
+//! (playing it from the hand is the player's own action during their turn); the Stadium leaves play by a Discard event caused
+//! by the Ability. Icicle Loop runs after the damage and puts exactly 1 attached Energy card into the hand (a PutIntoHand event
+//! caused by the attack).
 use crate::spec::prelude::*;
 
 const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);

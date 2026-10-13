@@ -1,12 +1,8 @@
-//! Archaludon (SCR 107 / PRE 70): Metal Bridge — all of your Pokémon that have
-//! [M] Energy attached have no Retreat Cost. Iron Blaster — 160; during your
-//! next turn this Pokémon can't attack.
+//! Archaludon (SCR 107 / PRE 70): Metal Bridge — all of your Pokémon that have [M] Energy attached have no Retreat Cost.
+//! Iron Blaster — 160; during your next turn this Pokémon can't attack.
 //!
-//! Twinleaf (set-stellar-crown/archaludon.ts): on any CheckRetreatCostEffect of
-//! the owner (findCardList throws if the card is nowhere), unless blocked, a
-//! CheckProvidedEnergy on the Active always runs; if this card is in play and
-//! the Active provides [M], `cost = []`. Iron Blaster sets
-//! `cannotAttackNextTurnPending` on the Active.
+//! Metal Bridge is an Ability `RetreatCost` (`Free`) over the owner's Pokémon that provide [M]; it is set before the
+//! "more" changes (APR D-13). Iron Blaster arms a lasting `CANT_ATTACK` lock on this Pokémon until the end of your next turn.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

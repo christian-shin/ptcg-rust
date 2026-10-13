@@ -1,9 +1,7 @@
 //! Cook (FST): heal 70 damage from your Active Pokémon.
 //!
-//! Twinleaf reduces a HealEffect on `player.active` and lets the Trainer
-//! play continue normally.
-//! Fixed (phase 4b, R3): can't be played while the Active has no damage (a
-//! Trainer with no possible effect is unplayable; Rulings Compendium 851).
+//! One Heal event on your Active Pokémon. It can't be played while the Active Pokémon has no damage (a Trainer that can't have
+//! any effect can't be played, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

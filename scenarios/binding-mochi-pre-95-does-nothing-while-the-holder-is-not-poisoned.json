@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cinccino TEF 137",
+   "4 Binding Mochi PRE 95",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Cinccino TEF 137",
+   "4 Binding Mochi PRE 95",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Cinccino TEF 137",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "active_tool": "Binding Mochi PRE 95",
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Gentle Slap"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 30,
+   "cite": "Binding Mochi PRE 95 text (only the Poisoned Pokémon's attacks)"
+  }
+ ]
+}

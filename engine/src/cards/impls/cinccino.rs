@@ -1,7 +1,7 @@
-//! Cinccino (TEF): Gentle Slap — 30. Special Roll — 70× the number of
-//! Special Energy cards attached to this Pokémon.
+//! Cinccino (TEF): Gentle Slap — 30. Special Roll — 70× the number of Special Energy cards attached to this Pokémon.
 //!
-//! Twinleaf counts the Special Energy cards in the attacker's `player.active`.
+//! Special Roll counts the Special Energy cards attached to this Pokémon (`EnergyUnit::SpecialEnergyCards`: the text says
+//! "Special Energy cards", so cards, not Energy provided).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

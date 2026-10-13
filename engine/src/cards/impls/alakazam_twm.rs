@@ -1,17 +1,14 @@
-//! Alakazam (TWM): Strange Hacking — your opponent's Active Pokémon is now
-//! Confused; you may move any number of damage counters from your opponent's
-//! Pokémon to their other Pokémon in any way you like. Psychic — 10+, 50 more
-//! for each Energy attached to your opponent's Active Pokémon.
+//! Alakazam (TWM): Strange Hacking — your opponent's Active Pokémon is now Confused; you may move any number of damage
+//! counters from your opponent's Pokémon to their other Pokémon in any way you like. Psychic — 10+, 50 more for each Energy
+//! attached to your opponent's Active Pokémon.
 //!
 //! Strange Hacking's Confusion is a Special Condition event with the attack as its cause. The move is one MoveCounters
 //! event (one action, both ends asked, APR C-08): Patrat's Watchful Eye stops it and the counters stay (id2350); per
 //! pair a protected source keeps its counters and a protected destination makes them vanish (Mist Energy, Repelling Veil:
 //! id390, id2150, id2192, id2257; Battle Cage on a Benched destination, JP FAQ Battle Cage). The prompt opens over
-//! the opponent's Active and Bench (cancellable). Psychic counts the Energy the opponent's Active Pokémon provides.
-//!
-//! The prompt answers one transfer per damage counter, 20-30 of them for the
-//! bot (any number is valid): `Res::DamageTransfers` is run-length encoded and
-//! `damage_transfers` expands it (Y2-3; it held 16 transfers before).
+//! the opponent's Active and Bench (cancellable). The answer is one transfer per damage counter, run-length encoded in
+//! `Res::DamageTransfers` (`damage_transfers` expands it). Psychic counts the Energy the opponent's Active Pokémon provides
+//! (id2237).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

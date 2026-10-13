@@ -1,10 +1,9 @@
-//! Blaziken ex (JTG): Seething Spirit — once during your turn, attach a Basic
-//! Energy card from your discard pile to 1 of your Pokémon. Burning Assault
-//! — 200; during your next turn, this Pokémon can't attack.
+//! Blaziken ex (JTG): Seething Spirit — once during your turn, attach a Basic Energy card from your discard pile to 1 of your
+//! Pokémon. Burning Assault — 200; during your next turn, this Pokémon can't attack.
 //!
-//! Twinleaf: the marker (OVERFLOWING_SPIRIT_MARKER) and the ABILITY_USED
-//! board effect are set in the prompt callback; the marker is removed on any
-//! EndTurnEffect for the ending player.
+//! Seething Spirit is an Ability used once per turn (the marker OVERFLOWING_SPIRIT_MARKER is the usage record, cleared with the
+//! turn's end): exactly 1 Basic Energy card from the discard pile, attached by an Attach event with the Ability as its cause.
+//! Burning Assault arms a lasting `CANT_ATTACK` lock on this Pokémon until the end of your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

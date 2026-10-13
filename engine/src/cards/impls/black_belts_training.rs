@@ -1,12 +1,9 @@
-//! Black Belt's Training (PRE / JTG): during this turn, attacks used by your
-//! Pokémon do 40 more damage to your opponent's Active Pokémon ex (before
-//! Weakness and Resistance).
+//! Black Belt's Training (PRE / JTG): during this turn, attacks used by your Pokémon do 40 more damage to your opponent's
+//! Active Pokémon ex (before Weakness and Resistance).
 //!
-//! Twinleaf: the card moves itself to the supporter pile and marks the
-//! player; each copy only honors its own marker. The bonus applies to any
-//! DealDamageEffect of a marked player whose target is the opponent's Active
-//! Pokémon ex (phase 4b: it also applied to the player's own Active Pokémon ex,
-//! e.g. recoil damage to itself).
+//! The Supporter marks the player (a Trainer effect); a `DamageDealt` bonus at the Deal stage reads the marker and applies to
+//! damage dealt to the opponent's Active Pokémon ex only (never to your own, e.g. recoil), and only when the damage is above 0.
+//! The marker ends with the turn (the player's EndTurn trigger).
 use crate::spec::prelude::*;
 
 const TRAINING: &str = "BLACK_BELTS_TRAINING_MARKER";

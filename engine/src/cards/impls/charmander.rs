@@ -1,9 +1,7 @@
-//! Charmander (M2 / PFL): Nimble — if this Pokémon has no Energy attached to
-//! it, it has no Retreat Cost. Live Coal — 20.
+//! Charmander (M2 / PFL): Nimble — if this Pokémon has no Energy attached to it, it has no Retreat Cost. Live Coal — 20.
 //!
-//! Twinleaf: on any CheckRetreatCostEffect while this card is in the player's
-//! Active slot (and is its top Pokémon) and the ability isn't blocked, a
-//! CheckProvidedEnergyEffect on the Active with an empty map clears the cost.
+//! Nimble is an Ability `RetreatCost` (`Free`) over this Pokémon while it provides no Energy (Energy attached counts the Energy
+//! provided, id2237).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
