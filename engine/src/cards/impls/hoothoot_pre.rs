@@ -1,12 +1,9 @@
-//! Hoothoot (PRE): Insomnia — this Pokémon can't be Asleep. Tackle — 20.
+//! Hoothoot (PRE 77): Insomnia - this Pokémon can't be Asleep. Tackle - 20.
 //!
-//! Twinleaf has several `Hoothoot` classes; this port is bound to PRE.
-//! Fixed in phase 4b (R4): on an AddSpecialConditionsEffect or
-//! AddSpecialConditionsPowerEffect that includes Asleep and whose target's top
-//! Pokémon is this card, Asleep is removed from the effect (the effect is
-//! prevented when it was the only condition) unless the Ability is blocked
-//! for the owner. It used to prevent every such effect, whatever its target,
-//! from any zone and without an Ability-lock check.
+//! Insomnia is a `Prevent` over the GainCondition event naming Asleep, on this Pokémon only (`Holder` and `IsThisPokemon`),
+//! whatever causes the condition (an attack, a Trainer, an Ability, a rule). While its Ability is locked it prevents nothing, and
+//! a Hoothoot already Asleep when it is locked stays Asleep (scenarios hoothoot-pre-77-insomnia-*). This port is the PRE
+//! card: the other Hoothoot printings (SCR, TEF) have no Ability.
 use crate::spec::prelude::*;
 use crate::types::SpecialCondition;
 

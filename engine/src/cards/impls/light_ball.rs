@@ -1,11 +1,8 @@
-//! Light Ball (ASC, tool): attacks used by the Pikachu ex this card is
-//! attached to do 50 more damage to your opponent's Active Pokémon ex
-//! (before applying Weakness and Resistance).
+//! Light Ball (ASC 191, Tool): attacks used by the Pikachu ex this card is attached to do 50 more damage to your opponent's
+//! Active Pokémon ex (before applying Weakness and Resistance).
 //!
-//! Twinleaf: on DealDamageEffect from the holder's slot: the holder must be
-//! named 'Pikachu ex', then the tool probe, then the target must be the
-//! opponent's Active; +50 when that is an ex and the current damage is
-//! above 0.
+//! `DamageDealt` +50 with the attacker bound to the holder named Pikachu ex (`Holder` and `Named`: Pikachu EX is another name,
+//! JP FAQ Light Ball) and the target an ex, only when the attack does damage (id675); it works while the Tool does.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

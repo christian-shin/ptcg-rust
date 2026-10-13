@@ -1,11 +1,7 @@
-//! Jacinthe (POR, supporter): heal 150 damage from 1 of your [P] Pokémon.
+//! Jacinthe (POR, Supporter): heal 150 damage from 1 of your [P] Pokémon.
 //!
-//! Twinleaf: the supporter and "[P] Pokémon with damage" checks use a
-//! CheckPokemonTypeEffect per Pokémon (no `canPlay` quirks matter). The card
-//! moves to the supporter pile and the trainer effect is prevented before the
-//! (uncancellable) prompt, which blocks every Pokémon that isn't [P] (fixed
-//! in R1-10: any of your Pokémon could be chosen); the heal still checks
-//! that the chosen one is [P] at resolution.
+//! Playable only with a damaged [P] Pokémon (the type as the game checks it, `SlotPred::TypeIs`); the prompt offers only [P]
+//! Pokémon, and the heal is one Heal event on the chosen one (cause: this Supporter).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Jacinthe",

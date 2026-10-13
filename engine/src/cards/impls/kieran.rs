@@ -1,12 +1,12 @@
-//! Kieran (TWM, supporter): choose 1 — switch your Active with 1 of your
-//! Benched Pokémon; or your attacks do 30 more damage to the opponent's
-//! Active Pokémon ex / V this turn.
+//! Kieran (TWM 154 / PRE 113, Supporter): choose 1 - switch your Active Pokémon with 1 of your Benched Pokémon; or during this
+//! turn attacks used by your Pokémon do 30 more damage to your opponent's Active Pokémon ex and Active Pokémon V (before
+//! applying Weakness and Resistance).
 //!
-//! Without a Benched Pokémon the switch option is removed from the
-//! SelectPrompt. Fixed in phase 4b (R4): the +30 only applies to damage dealt
-//! to the opponent's Active Pokémon (Twinleaf added it to bench hits and to
-//! self-damage whenever the opponent's Active was ex/V). The switch is a ChangeActive (Switch, APR C-03), which
-//! "when this Pokémon moves" Abilities see (Yanmega ex, Palafin).
+//! The switch option is offered only with a Benched Pokémon; it is a ChangeActive (Switch, APR C-03), which "when this Pokémon
+//! moves" Abilities see (Yanmega ex, Palafin). The damage option sets a player marker read by a `DamageDealt` passive (+30 to
+//! damage to the opponent's Active ex / V only, never to a Benched Pokémon or to the attacker itself, only when the attack does
+//! damage; JP FAQ Kieran: it applies to both of Dipplin's attacks; id2428: once for each attack with Festival Lead), cleared at
+//! the end of the turn.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

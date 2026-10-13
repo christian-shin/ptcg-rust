@@ -1,8 +1,9 @@
-//! Mega Froslass ex (M2a): Resentful Refrain — 50x per card in your
-//! opponent's hand (`effect.damage = 50 * handCount`). Absolute Snow — 150;
-//! your opponent's Active Pokémon is now Asleep, via
-//! Absolute Snow's Sleep is an effect of the attack: a GainCondition(Asleep) on
-//! the opponent's Active with the attack's cause (Mist Energy etc. prevent it).
+//! Mega Froslass ex (M2a / ASC 47): Resentful Refrain - 50x for each card in your opponent's hand. Absolute Snow - 150; your
+//! opponent's Active Pokémon is now Asleep.
+//!
+//! Resentful Refrain sets the damage to 50 times the cards in the opponent's hand, before the damage. Asleep is
+//! an effect of the attack: a GainCondition event on the opponent's Active Pokémon with the attack as its cause (Mist Energy and
+//! the like prevent it).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,11 +1,9 @@
-//! Leafeon ex (PRE 6, Tera): Verdant Storm — 60× damage for each Energy
-//! attached to all of your opponent's Pokémon. Moss Agate — 230; heal 100 damage
-//! from each of your Benched Pokémon. Tera: as long as this Pokémon is on your
-//! Bench, prevent all damage done to it by attacks.
+//! Leafeon ex (PRE 6, Tera): Verdant Storm - 60x for each Energy attached to all of your opponent's Pokémon. Moss Agate - 230; heal
+//! 100 damage from each of your Benched Pokémon. Tera: as long as this Pokémon is on your Bench, prevent all damage done to it by
+//! attacks.
 //!
-//! Rule: Verdant Storm counts the Energy attached, the Energy provided (user decision 2026-10-12: "for each Energy
-//! attached" counts Energy provided unless the text says "Energy cards"; id2237, id2347, id466, id482; the file's
-//! earlier card count is overruled); Moss Agate is a Heal (RemoveCounters event, cause: this attack) on each
+//! Verdant Storm counts the Energy provided (user decision 2026-10-12: "for each Energy attached" counts Energy provided unless the
+//! text says "Energy cards"; id2237, id2347, id466, id482). Moss Agate is a Heal (RemoveCounters event, cause: this attack) on each
 //! of your Benched Pokémon after the damage. The Tera rule is `TERA_RULE`.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {

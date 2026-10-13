@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hisuian Growlithe TWM 99",
+   "4 Hisuian Arcanine TWM 100",
+   "4 Hop's Wooloo JTG 135",
+   "4 Mega Absol ex MEG 86",
+   "44 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Hisuian Growlithe TWM 99",
+   "4 Hisuian Arcanine TWM 100",
+   "4 Hop's Wooloo JTG 135",
+   "4 Mega Absol ex MEG 86",
+   "44 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Hisuian Growlithe TWM 99",
+   "Hisuian Arcanine TWM 100"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Wooloo JTG 135",
+    "damage": 10
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Absol ex MEG 86"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Proud Fangs"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Absol ex MEG 86",
+   "damage": 120,
+   "cite": "Hisuian Arcanine TWM 100 text: if your Benched Pok\u00e9mon have any damage counters, 90 more damage (30 + 90)"
+  }
+ ]
+}

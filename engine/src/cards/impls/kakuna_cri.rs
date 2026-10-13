@@ -1,11 +1,7 @@
-//! Kakuna (CRI / M4): Exoskeleton — this Pokémon takes 20 less damage from
-//! attacks. Hang Down — 20.
+//! Kakuna (CRI / M4): Exoskeleton - this Pokémon takes 20 less damage from attacks. Hang Down - 20.
 //!
-//! Twinleaf: applied on PutDamageEffect (after Weakness/Resistance, as the
-//! text says; phase 4b R6: it used to be DealDamageEffect, before them, and
-//! missed damage to a Benched Kakuna) during the ATTACK phase whenever this
-//! card is in the target's list; the lock probe runs before the top-Pokémon
-//! check.
+//! `DamageTaken` 20 on this Pokémon (`Holder` and `IsThisPokemon`), from any attack, applied after Weakness and Resistance (step
+//! 5 of the damage calculation, as the text says), also when Kakuna is on the Bench; it works while its Ability does.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

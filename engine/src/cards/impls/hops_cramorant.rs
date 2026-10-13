@@ -1,5 +1,8 @@
 //! Hop's Cramorant (JTG): Fickle Spitting — 120; if your opponent doesn't
 //! have exactly 3 or 4 Prize cards remaining, this attack does nothing.
+//!
+//! Fickle Spitting sets the damage to 0 (`DamageOp::Set`) before the damage unless the opponent has exactly 3 or 4 Prize cards
+//! left; the attack still counts as used, and when an attack does nothing no damage can be added to it (APR, id675).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

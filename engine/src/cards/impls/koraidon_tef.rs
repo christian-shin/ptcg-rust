@@ -1,11 +1,9 @@
-//! Koraidon (TEF): Primordial Beatdown — 30× for each of your Ancient Pokémon
-//! in play. Shred — 130; this attack's damage isn't affected by any effects
-//! on your opponent's Active Pokémon.
+//! Koraidon (TEF): Primordial Beatdown - 30x for each of your Ancient Pokémon in play. Shred - 130; this attack's damage isn't
+//! affected by any effects on your opponent's Active Pokémon.
 //!
-//! Twinleaf (temporal-forces file): Primordial Beatdown sets
-//! `damage = 30 × Ancient Pokémon` (Active + Bench). Shred sets
-//! `ignoreDefenderEffects` (phase 4b R7B: it used to add the damage straight to
-//! the Active, skipping the attacker's effects).
+//! Primordial Beatdown sets the damage to 30 times the Ancient Pokémon you have in play (Active and Bench). Shred sets the attack
+//! flag `IgnoreDefenderEffects` before the damage: the damage skips the defending side's modifiers and preventions and keeps the
+//! attacker's own (APR C-16, RULES.md "Shred").
 use crate::spec::prelude::*;
 use crate::types::tag;
 

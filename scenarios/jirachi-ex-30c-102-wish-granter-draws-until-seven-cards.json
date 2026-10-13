@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Jirachi ex 30C 102",
+   "56 Metal Energy MEE 8"
+  ],
+  [
+   "4 Jirachi ex 30C 102",
+   "56 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Jirachi ex 30C 102",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "hand": [
+   "2 Metal Energy MEE 8"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Jirachi ex 30C 102"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Wish Granter"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 7,
+   "cite": "Jirachi ex 30C 102 text: draw cards until you have 7 cards in your hand"
+  }
+ ]
+}

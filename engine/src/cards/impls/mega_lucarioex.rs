@@ -1,6 +1,10 @@
 //! Mega Lucario ex (M1L): Aura Jab — 130. Attach up to 3 Basic [F] Energy
 //! cards from your discard pile to your Benched Pokémon in any way you like.
 //! Mega Brave — 270. During your next turn, this Pokémon can't use Mega Brave.
+//!
+//! Aura Jab attaches 0 to 3 Basic [F] Energy cards from the discard pile to your Benched Pokémon after the damage (one Attach event
+//! per card). Mega Brave arms a lasting `CANT_ATTACK` lock on this Pokémon naming this attack (`NamedAttack::This`) until your next
+//! turn, only when the attack succeeded (JP FAQ Mega Lucario ex).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

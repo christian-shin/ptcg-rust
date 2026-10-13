@@ -1,11 +1,9 @@
-//! Magnetic Metal Energy ("Magnet Metal Energy M4", CRI): provides [M]. As
-//! long as this card is attached to a [M] Pokémon, that Pokémon has no
-//! Retreat Cost.
+//! Magnetic Metal Energy ("Magnet Metal Energy M4", CRI): provides [M]. As long as this card is attached to a [M] Pokémon, that
+//! Pokémon has no Retreat Cost.
 //!
-//! Twinleaf: the [M] entry is pushed unless an EnergyEffect probe throws.
-//! On every CheckRetreatCostEffect, if the player's Active holds this card
-//! and the special energy isn't blocked, a CheckPokemonTypeEffect on the
-//! Active decides: [M] → `cost = []`.
+//! A Special Energy: both passives work only while its effect isn't off (`special_energy_off`, `probe: true` on the provided
+//! type). The Retreat Cost is a set "no Retreat Cost" on the Pokémon holding it when that Pokémon is [M] as the game checks its
+//! type now (`SlotPred::TypeIs`, APR D-07), read by the derived Retreat Cost.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

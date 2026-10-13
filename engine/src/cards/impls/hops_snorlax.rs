@@ -6,6 +6,10 @@
 //! Damage event's amount when the attacking player's Active Pokémon is a Hop's Pokémon and the target is the opponent's
 //! Active Pokémon, once however many Snorlax are in play. The recoil of Dynamic Press is one Damage event on the
 //! attacker, never to the opponent's Active, so it gets none.
+//!
+//! An attack that does nothing or no damage gets no bonus (APR "does nothing", id675; scenarios hops-snorlax-jtg-117-*). JP FAQ Hop's
+//! Snorlax: it adds up with Hop's Choice Band, and works against an opposing Active Pokémon with Hide 'n' Sneak (a modifier on the
+//! attacker's side, not an effect on the target).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

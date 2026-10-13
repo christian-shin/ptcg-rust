@@ -1,14 +1,9 @@
-//! Meganium (M1S): Wild Growth — each Basic [G] Energy attached to your
-//! Pokémon provides [G][G] Energy (only 1 Wild Growth at a time). Solar Beam — 140.
+//! Meganium (M1S / MEG 10): Wild Growth - each Basic [G] Energy attached to your Pokémon provides [G][G] Energy (only 1 Wild Growth
+//! at a time). Solar Beam - 140.
 //!
-//! Twinleaf: on every CheckProvidedEnergyEffect whose player has this card
-//! as the top card of an in-play Pokémon (and the ability isn't blocked),
-//! every Basic Energy card in the source's `cards` providing [G] not yet in
-//! the map gets a [G][G] entry. Extra copies find their entries already
-//! mapped.
-//!
-//! Fixed (phase 4b, W4): Twinleaf also doubled Special Energy providing [G]
-//! (e.g. Growing Grass Energy); the card says Basic [G] Energy only.
+//! `ProvidesEnergyBoost` over the Basic Energy cards that provide [G] (a Special Energy that provides [G], like Growing Grass
+//! Energy, isn't boosted), on your Pokémon while the Ability works; it doesn't stack (APR: effects of the same Ability, JP FAQ
+//! Meganium) and the doubled Energy counts in units for every "Energy attached" read.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

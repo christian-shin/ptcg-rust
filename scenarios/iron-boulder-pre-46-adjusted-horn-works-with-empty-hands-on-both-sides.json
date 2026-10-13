@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Iron Boulder PRE 46",
+   "4 Mega Absol ex MEG 86",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Iron Boulder PRE 46",
+   "4 Mega Absol ex MEG 86",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Boulder PRE 46",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Absol ex MEG 86"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Adjusted Horn"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Absol ex MEG 86",
+   "damage": 170,
+   "cite": "Iron Boulder PRE 46 text: the same number of cards in each hand (0 and 0) so the attack does its 170; JP FAQ Iron Boulder"
+  }
+ ]
+}

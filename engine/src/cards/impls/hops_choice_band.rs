@@ -1,13 +1,11 @@
-//! Hop's Choice Band (JTG, tool): attacks used by the Hop's Pokémon this card
-//! is attached to cost [C] less and do 30 more damage to your opponent's
-//! Active Pokémon (before applying Weakness and Resistance).
+//! Hop's Choice Band (JTG 148, Tool): attacks used by the Hop's Pokémon this card is attached to cost [C] less and do 30 more
+//! damage to your opponent's Active Pokémon (before applying Weakness and Resistance).
 //!
-//! Twinleaf: on CheckAttackCostEffect (holder is the player's Active) the
-//! tool probe runs first, then the first [C] is removed if the Active is a
-//! Hop's Pokémon (the handler always returns, so a cost check never reaches
-//! the damage branch). On DealDamageEffect from the holder's slot, after the
-//! probe, damage to the opponent's Active gets +30 for a Hop's holder when the
-//! damage is above 0 (phase 4b: the guard was missing).
+//! Two Tool passives, each bound to the Pokémon holding this card and a Hop's Pokémon (`Holder` and the Hop's tag):
+//! `AttackCost` ([C] less, summed with the other changes and floored at zero, D-11 / D-12) and `DamageDealt` (+30 in the
+//! attacker-side pass of the damage calculation, before Weakness: only when the attack does damage and the target is the
+//! opponent's Active Pokémon, id675, APR "does nothing"). Both work while the Tool does (`tool_off`: Jamming Tower). They add up
+//! with Hop's Snorlax's Extra Helpings (JP FAQ Hop's Choice Band: +30 and +30).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

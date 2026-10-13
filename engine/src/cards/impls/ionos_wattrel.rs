@@ -1,8 +1,6 @@
-//! Iono's Wattrel (JTG / ASC): Quick Attack - 10+; flip a coin, if heads this
-//! attack does 20 more damage.
+//! Iono's Wattrel (JTG / ASC): Quick Attack - 10+; flip a coin, if heads this attack does 20 more damage.
 //!
-//! Twinleaf: COIN_FLIP_PROMPT with `effect.damage += 20` in the callback (the
-//! attack effect is retained across the flip).
+//! One coin before the damage; heads adds 20 to the attack's damage.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IonosWattrel",

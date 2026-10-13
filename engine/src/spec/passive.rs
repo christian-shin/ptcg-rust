@@ -1019,14 +1019,15 @@ pub(crate) fn type_override<F: crate::derived::Facts>(g: &mut F, me: CardId, ori
 }
 
 /// The `WeaknessOverride` of `me` on the Pokémon in `target` (the derived layer's Weakness): the type it sets, when it
-/// applies. The Ability's lock probe is made for the checked Pokémon's owner, first; then whether the effect of the
+/// applies. The Ability's lock probe is made for its own Pokémon's owner, first; then whether the effect of the
 /// Ability reaches the Pokémon (`effect_of_ability_reaches`; the continuous-effect `Prevent` view replaces it in C11).
 pub(crate) fn weakness_override<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, w: &WeaknessOverrideSpec, target: SlotRef) -> R<Option<CardType>> {
     let player = target.p as usize;
-    if g.has_no_ability(player, me, None) {
+    let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
+    // Whether the Ability works is a fact about its own Pokémon, whoever owns the Pokémon whose Weakness is read.
+    if g.has_no_ability(at.owner, me, None) {
         return Ok(None);
     }
-    let Some(at) = locate(g.g(), me, origin) else { return Ok(None) };
     if at.owner == player || !slot_pred_m(g, me, target, &w.subject)? {
         return Ok(None);
     }

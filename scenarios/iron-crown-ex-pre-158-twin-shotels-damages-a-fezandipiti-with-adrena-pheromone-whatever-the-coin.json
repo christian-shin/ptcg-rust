@@ -1,0 +1,74 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Koraidon TEF 119",
+   "4 Fezandipiti PRE 45",
+   "4 Iron Crown ex PRE 158",
+   "16 Fire Energy MEE 2",
+   "16 Fighting Energy MEE 6",
+   "8 Psychic Energy MEE 5",
+   "8 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Koraidon TEF 119",
+   "4 Fezandipiti PRE 45",
+   "4 Iron Crown ex PRE 158",
+   "16 Fire Energy MEE 2",
+   "16 Fighting Energy MEE 6",
+   "8 Psychic Energy MEE 5",
+   "8 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Iron Crown ex PRE 158",
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "2 Fire Energy MEE 2"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fezandipiti PRE 45",
+  "active_energy": [
+   "Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Koraidon TEF 119"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Twin Shotels"
+  },
+  [
+   {
+    "player": 1,
+    "slot": 1,
+    "index": 0
+   },
+   {
+    "player": 1,
+    "slot": 2,
+    "index": 0
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Fezandipiti PRE 45",
+   "damage": 50,
+   "cite": "Iron Crown ex TEF 81 text: the damage isn't affected by any effects on those Pok\u00e9mon; same rule as Shred (official JP FAQ Koraidon / Fezandipiti (\u300c\u7279\u6027\u300c\u30a2\u30c9\u30ec\u30ca\u30d5\u30a7\u30ed\u30e2\u30f3\u300d\u304c\u306f\u305f\u3089\u3044\u3066\u3044\u308b\u76f8\u624b\u306e\u30ad\u30c1\u30ad\u30ae\u30b9\u306b\u3001\u81ea\u5206\u306e\u30b3\u30e9\u30a4\u30c9\u30f3\u304c\u30ef\u30b6\u300c\u3072\u304d\u3055\u304f\u300d\u3092\u4f7f\u3063\u305f\u3068\u304d\u3001...\u76f8\u624b\u304c\u6295\u3052\u305f\u30b3\u30a4\u30f3\u304c\u30aa\u30e2\u30c6\u3060\u3063\u305f\u5834\u5408\u3001\u76f8\u624b\u306e\u30ad\u30c1\u30ad\u30ae\u30b9\u306b\u30c0\u30e1\u30fc\u30b8\u3092\u4e0e\u3048\u308b\u3053\u3068\u306f\u3067\u304d\u307e\u3059\u304b\uff1f\u300d\u300c\u306f\u3044\u3001\u3067\u304d\u307e\u3059\u3002\u300d = Koraidon's Shred against a Fezandipiti with Adrena-Pheromone: if the opponent's coin is heads, can it still damage it? Yes))"
+  }
+ ],
+ "coins": [
+  true
+ ]
+}

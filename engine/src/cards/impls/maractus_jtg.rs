@@ -2,6 +2,11 @@
 //! and is Knocked Out by damage from an attack from your opponent's Pokémon,
 //! put 6 damage counters on the Attacking Pokémon. Corner — 20; the
 //! Defending Pokémon can't retreat during your opponent's next turn.
+//!
+//! Explosive Needle is a trigger on this card's own KnockOut event while it was in the Active Spot when the damage was done (id1992),
+//! by damage from an attack of the opponent's Pokémon: 6 damage counters are placed by the Ability (a PlaceCounters event, not damage)
+//! on the Attacking Pokémon wherever it is now, nothing when it left play; Hide 'n' Sneak and the like prevent them. Corner arms a
+//! lasting `CANT_RETREAT` lock on the Defending Pokémon through the opponent's next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

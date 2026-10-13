@@ -1,8 +1,8 @@
-//! Mega Mawile ex (M1L / MEG 94): Gobble Down — 80x for each Prize card you
-//! have taken. Huge Bite — 260; if the opponent's Active already has damage
-//! counters, the base damage is 30.
+//! Mega Mawile ex (M1L / MEG 94): Gobble Down - 80x for each Prize card you have taken. Huge Bite - 260; if the opponent's Active
+//! Pokémon already has damage counters on it, this attack does 30 damage instead.
 //!
-//! Twinleaf: both attacks overwrite `effect.damage`.
+//! Gobble Down sets the damage to 80 times the Prize cards taken (6 minus the Prize cards left). Huge Bite sets the base damage
+//! to 30 when the Defending Pokémon already has damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

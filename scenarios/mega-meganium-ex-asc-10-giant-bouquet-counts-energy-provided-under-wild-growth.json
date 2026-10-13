@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "2 Chikorita ASC 8",
+   "2 Bayleef ASC 9",
+   "4 Mega Meganium ex ASC 10",
+   "2 Chikorita MEG 8",
+   "2 Bayleef MEG 9",
+   "4 Meganium MEG 10",
+   "4 Mega Latias ex MEG 100",
+   "20 Grass Energy MEE 1",
+   "20 Metal Energy MEE 8"
+  ],
+  [
+   "2 Chikorita ASC 8",
+   "2 Bayleef ASC 9",
+   "4 Mega Meganium ex ASC 10",
+   "2 Chikorita MEG 8",
+   "2 Bayleef MEG 9",
+   "4 Meganium MEG 10",
+   "4 Mega Latias ex MEG 100",
+   "20 Grass Energy MEE 1",
+   "20 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Chikorita ASC 8",
+   "Bayleef ASC 9",
+   "Mega Meganium ex ASC 10"
+  ],
+  "active_energy": [
+   "2 Grass Energy MEE 1",
+   "Metal Energy MEE 8"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Chikorita MEG 8",
+     "Bayleef MEG 9",
+     "Meganium MEG 10"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Giant Bouquet"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 270,
+   "cite": "Mega Meganium ex ASC 10 text: 50 more for each [G] Energy attached; Energy provided, JP FAQ Mega Meganium ex: 2 Basic [G] Energy under Wild Growth = 4 x [G] (70 + 200)"
+  }
+ ]
+}

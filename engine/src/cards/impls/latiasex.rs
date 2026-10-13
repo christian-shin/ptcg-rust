@@ -1,9 +1,9 @@
-//! Latias ex (SSP): Skyliner - your Basic Pokémon in play have no Retreat
-//! Cost. Eon Blade - 200; during your next turn this Pokémon can't attack.
+//! Latias ex (SSP 76): Skyliner - your Basic Pokémon in play have no Retreat Cost. Eon Blade - 200; during your next turn this
+//! Pokémon can't attack.
 //!
-//! Twinleaf checks only whether the retreating (Active) Pokémon is Basic,
-//! and only while this Latias ex is the top Pokémon of one of the owner's
-//! in-play slots.
+//! Skyliner is a `RetreatCost` `Free` for your Basic Pokémon (`SlotPred::Basic`, the owner's side) while its Ability works,
+//! read by the derived Retreat Cost of the Active Pokémon; "has no Retreat Cost" is a set cost, so it wins over "[C] more" effects
+//! (D-13; JP FAQ Latias ex vs Mega Chandelure ex). Eon Blade arms a lasting `CANT_ATTACK` lock on this Pokémon until your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

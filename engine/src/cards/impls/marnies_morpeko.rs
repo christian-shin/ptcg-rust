@@ -1,6 +1,7 @@
-//! Marnie's Morpeko (DRI): Spiky Wheel — 20+, 40 more for each [D] Energy
-//! attached to this Pokémon (Twinleaf counts [D] and ANY in the provided
-//! energy of `player.active`).
+//! Marnie's Morpeko (DRI 137): Spiky Wheel - 20+, 40 more for each [D] Energy attached to this Pokémon.
+//!
+//! The count is the [D] Energy provided by this Pokémon (`EnergyUnit::Provided`: an Energy that provides every type, like Legacy
+//! Energy, counts; JP FAQ Marnie's Morpeko).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,33 @@
+{
+ "turn": 1,
+ "decks": [
+  [
+   "4 Meloetta ex BLK 44",
+   "56 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Meloetta ex BLK 44",
+   "56 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Meloetta ex BLK 44",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Meloetta ex BLK 44"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "attack",
+   "name": "Echoed Voice",
+   "cite": "Meloetta ex BLK 44 text: if you go first, this Pok\u00e9mon can attack on your first turn"
+  }
+ ]
+}

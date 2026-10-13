@@ -2,6 +2,10 @@
 //! turn, prevent all damage done to this Pokémon by attacks from Basic
 //! Pokémon. Riotous Blasting — 200+; you may discard all Energy from this
 //! Pokémon for 130 more damage.
+//!
+//! Flash Ray arms `Lasting::PreventDamage` for attacks from Basic Pokémon (a `Prevent` over damage, step 6, APR C-16) through the
+//! opponent's next turn. Riotous Blasting is a `May` before the damage: yes adds 130 and discards all Energy from this Pokémon; the
+//! 130 more is done even when there was no Energy to discard (JP FAQ Mega Manectric ex).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

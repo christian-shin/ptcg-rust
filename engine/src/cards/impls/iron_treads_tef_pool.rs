@@ -1,14 +1,10 @@
-//! Iron Treads (TEF 118): Dual Core — as long as this Pokémon has a Future
-//! Booster Energy Capsule attached, it is [F] and [M] type. Wheel Pass — 60;
-//! move an Energy from this Pokémon to 1 of your Benched Pokémon.
+//! Iron Treads (TEF 118): Dual Core - as long as this Pokémon has a Future Booster Energy Capsule attached, it is [F] and [M]
+//! type. Wheel Pass - 60; move an Energy from this Pokémon to 1 of your Benched Pokémon.
 //!
-//! Twinleaf: Dual Core replaces `cardTypes` with [F, M] on a
-//! CheckPokemonTypeEffect whose target's Pokémon is this card, when a tool
-//! named "Future Booster Energy Capsule" is attached and the ability isn't
-//! blocked. Wheel Pass (after the attack): nothing unless a Benched Pokémon
-//! exists, this slot holds an Energy card and is the Active; then a
-//! non-cancellable AttachEnergyPrompt (Active's cards → Bench, min 1 max 1)
-//! whose callback MOVE_CARDS each transfer from the Active.
+//! Dual Core is a `TypeOverride` on this Pokémon (`IsThisPokemon`) with a Tool of that name attached, while its Ability works
+//! (and the Tool isn't off); the derived type read (`derived::types`) sees it, so every "[F] Pokémon" / "[M] Pokémon" read of the
+//! game does. Wheel Pass moves one Energy from this Pokémon (the Active) to a Benched Pokémon after the damage (a MoveEnergy event,
+//! id1653): nothing without a Benched Pokémon or an Energy on it, no cancel.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "IronTreadsTEFPool",

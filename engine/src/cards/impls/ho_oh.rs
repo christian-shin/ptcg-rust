@@ -1,7 +1,7 @@
-//! Ho-Oh (SSP): Flap — 50. Shining Blaze — 100+; 100 more if you have any Tera
-//! Pokémon on your Bench.
+//! Ho-Oh (SSP): Flap - 50. Shining Blaze - 100+; 100 more if you have any Tera Pokémon on your Bench.
 //!
-//! Fixed (phase 4b, W4): Twinleaf counted the Active Pokémon too.
+//! Shining Blaze adds 100 to the damage when any Pokémon on your Bench has the Tera tag (`Cond::AnySlot` over the Bench); the
+//! Active Pokémon, this one, doesn't count.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

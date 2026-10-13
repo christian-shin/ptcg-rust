@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Marnie's Morpeko DRI 137",
+   "1 Legacy Energy TWM 167",
+   "4 Hop's Snorlax JTG 117",
+   "51 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Marnie's Morpeko DRI 137",
+   "1 Legacy Energy TWM 167",
+   "4 Hop's Snorlax JTG 117",
+   "51 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Marnie's Morpeko DRI 137",
+  "active_energy": [
+   "2 Darkness Energy MEE 7",
+   "Legacy Energy TWM 167"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Snorlax JTG 117"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Spiky Wheel"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 140,
+   "cite": "Marnie's Morpeko DRI 137 text: 40 more for each [D] Energy attached (Energy provided: Legacy Energy provides [D], JP FAQ Marnie's Morpeko): 20 + 3 x 40"
+  }
+ ]
+}

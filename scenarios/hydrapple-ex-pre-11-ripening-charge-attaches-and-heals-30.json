@@ -1,0 +1,67 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Hydrapple ex PRE 11",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Hydrapple ex PRE 11",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Applin PRE 9",
+   "Dipplin PRE 10",
+   "Hydrapple ex PRE 11"
+  ],
+  "active_damage": 30,
+  "hand": [
+   "2 Grass Energy MEE 1"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Applin PRE 9"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Ripening Charge",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 1,
+   "damage": 0,
+   "cite": "Hydrapple ex PRE 11 text: if you attached Energy in this way, heal 30 damage from that Pok\u00e9mon (APR E-20)"
+  }
+ ]
+}

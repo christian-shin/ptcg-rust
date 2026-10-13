@@ -1,10 +1,9 @@
-//! Hop's Trevenant (ASC 96): Horrifying Revenge — 30+; 100 more if any of
-//! your Hop's Pokémon were Knocked Out by damage from an attack during your
-//! opponent's last turn. Corner — 90; during your opponent's next turn the
-//! Defending Pokémon can't retreat.
+//! Hop's Trevenant (ASC 96): Horrifying Revenge - 30+; 100 more if any of your Hop's Pokémon were Knocked Out by damage from an
+//! attack during your opponent's last turn. Corner - 90; during your opponent's next turn the Defending Pokémon can't retreat.
 //!
-//! Twinleaf: WAS_POKEMON_KNOCKED_OUT_DURING_OPPONENTS_LAST_TURN with
-//! `{ byAttackDamage: true, tags: [HOPS] }`, then BLOCK_RETREAT.
+//! Horrifying Revenge reads `Cond::KnockedOutLastTurn` with the Hop's tag and "by attack damage" (a Knock Out by Poison or by an
+//! effect doesn't count). Corner arms a lasting `CANT_RETREAT` lock on the Defending Pokémon (an ApplyEffect event) until the end
+//! of the opponent's next turn.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

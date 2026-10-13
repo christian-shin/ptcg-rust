@@ -1,6 +1,10 @@
 //! Marill (MC): Hide — flip a coin; if heads, during your opponent's next
 //! turn, prevent all damage from and effects of attacks done to this Pokémon.
 //! Flop — 20.
+//!
+//! Hide flips one coin after the damage; on heads it arms two lasting effects on this Pokémon through the opponent's next turn:
+//! `Lasting::PreventDamage(Any)` (a `Prevent` over damage, step 6, APR C-16) and `Lasting::PreventAttackEffects`, each one
+//! ApplyEffect event. Tails does nothing.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,9 +1,9 @@
-//! Koraidon ex (ASC, Tera): Orichalcum Fang - 50+, 120 more if any of your
-//! Pokémon were Knocked Out by attack damage during your opponent's last
-//! turn. Impact Blow - 200; can't use Impact Blow during your next turn.
+//! Koraidon ex (ASC, Tera): Orichalcum Fang - 50+, 120 more if any of your Pokémon were Knocked Out by attack damage during
+//! your opponent's last turn. Impact Blow - 200; can't use Impact Blow during your next turn.
 //!
-//! Twinleaf has two unrelated `Koraidonex` classes (ASC and TEF); this port
-//! is registered for the ASC one only.
+//! Orichalcum Fang reads `Cond::KnockedOutLastTurn` by attack damage. Impact Blow arms a lasting `CANT_ATTACK` lock on this
+//! Pokémon naming this attack (`NamedAttack::This`, until your next turn): its other attack stays usable. The Tera rule is
+//! `TERA_RULE` (a `Prevent` over damage while on the Bench). This port is the ASC card (the TEF Koraidon ex is a different card).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Koraidonex@ASC",

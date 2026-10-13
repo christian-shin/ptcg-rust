@@ -2,6 +2,9 @@
 //! your deck for up to 2 Basic Energy cards and attach them to your Pokémon
 //! in any way you like, then shuffle. Ear Force — 20+, 80 more for each
 //! Energy attached to your opponent's Active Pokémon.
+//!
+//! Kaleidowaltz flips 3 coins after the damage, then for the heads one Attach event per card from the deck, 0 to 2 per heads (a search
+//! for a kind: it may find fewer), then one shuffle (APR E-19). Ear Force counts the Energy provided by the opponent's Active Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

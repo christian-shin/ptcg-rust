@@ -1,11 +1,9 @@
-//! Incineroar ex (TEF): Hustle Play — attacks used by this Pokémon cost [C]
-//! less for each of your opponent's Benched Pokémon. Blaze Blast — 240; the
-//! opponent's Active Pokémon is now Burned.
+//! Incineroar ex (TEF): Hustle Play - attacks used by this Pokémon cost [C] less for each of your opponent's Benched Pokémon.
+//! Blaze Blast - 240; the opponent's Active Pokémon is now Burned.
 //!
-//! Twinleaf: the CheckAttackCostEffect handler has no attack check (any
-//! attack cost check while this is the Active) and does
-//! `cost.splice(cost.indexOf(C), benched)`; with no [C] in the cost,
-//! `indexOf` is -1 and `splice(-1, n)` removes the last element.
+//! Hustle Play is an `AttackCost` `Reduce` of the number of the opponent's Benched Pokémon, bound to this Pokémon (`Holder`: a
+//! copied attack isn't "used by this Pokémon", JP FAQ audit item 1), summed with the other changes and floored at zero (D-11 /
+//! D-12). Only [C] is taken off: Blaze Blast's [R] stays (scenarios fix-attack-cost-incineroar-ex-hustle-play-*).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Incineroarex",

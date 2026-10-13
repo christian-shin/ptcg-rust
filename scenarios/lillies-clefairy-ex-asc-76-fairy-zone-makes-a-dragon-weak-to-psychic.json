@@ -1,0 +1,42 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Lillie's Clefairy ex ASC 76",
+   "4 Mega Latias ex MEG 100",
+   "52 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Lillie's Clefairy ex ASC 76",
+   "4 Mega Latias ex MEG 100",
+   "52 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Lillie's Clefairy ex ASC 76",
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Mega Latias ex MEG 100"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Full Moon Rondo"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Mega Latias ex MEG 100",
+   "damage": 40,
+   "cite": "Lillie's Clefairy ex text: the Weakness of each of your opponent's [N] Pok\u00e9mon is now [P] (20 x 2; Mega Latias ex has no printed Weakness)"
+  }
+ ]
+}

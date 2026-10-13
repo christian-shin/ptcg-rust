@@ -1,5 +1,6 @@
-//! Mankey (SSP): Dual Chop — flip 2 coins, 10 damage for each heads
-//! (MULTIPLE_COIN_FLIPS_PROMPT; the callback sets `effect.damage`).
+//! Mankey (SSP): Dual Chop - flip 2 coins, 10 damage for each heads.
+//!
+//! Two flips before the damage; the damage is 10 per heads (`PerHeads::DamageIs`).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

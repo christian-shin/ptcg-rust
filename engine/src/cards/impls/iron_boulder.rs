@@ -1,5 +1,8 @@
 //! Iron Boulder (SCR): Adjusted Horn — 170; if you don't have the same number
 //! of cards in your hand as your opponent, this attack does nothing.
+//!
+//! Adjusted Horn sets the damage to 0 before the damage when the two hands differ in size (`Num::ZoneSize` of each hand); two empty
+//! hands are the same size, so it works (JP FAQ Iron Boulder).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

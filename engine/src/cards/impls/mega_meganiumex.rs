@@ -1,9 +1,7 @@
-//! Mega Meganium ex (MC / ASC 10): Giant Bouquet — 70+; 50 more for each
-//! [G] Energy attached to this Pokémon.
+//! Mega Meganium ex (MC / ASC 10): Giant Bouquet - 70+; 50 more for each [G] Energy attached to this Pokémon.
 //!
-//! Twinleaf: `CheckProvidedEnergyEffect(player)` (source defaults to
-//! `player.active`); counts GRASS or ANY `provides` entries and sets
-//! `effect.damage = 70 + 50 * count`.
+//! The count is the [G] Energy provided by this Pokémon (`EnergyUnit::Provided`: Energy provided, not Energy cards; under Wild Growth
+//! a Basic [G] Energy counts twice, JP FAQ Mega Meganium ex).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

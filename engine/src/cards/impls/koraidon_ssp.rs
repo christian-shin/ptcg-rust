@@ -1,12 +1,10 @@
-//! Koraidon (SSP): Unrelenting Onslaught — 30+; 150 more if 1 of your other
-//! Ancient Pokémon used an attack during your last turn. Hammer In — 110.
+//! Koraidon (SSP): Unrelenting Onslaught - 30+; 150 more if 1 of your other Ancient Pokémon used an attack during your last turn.
+//! Hammer In - 110.
 //!
-//! BOOST_IF_OTHER_ANCIENT_ATTACKED_LAST_TURN: `ancientPokemonAttackedLastTurn`
-//! and `playerLastAttack[player].sourceCard` is another (Ancient) card.
-//! Phase 4b: the flag is set at the end of a turn only when the last attack was
-//! used during that turn (`playerLastAttack.turn`); a turn that ended without
-//! an attack used to keep the previous Ancient attack's flag alive, and a
-//! failed attack attempt while Confused (tails) voids the stamp (ruling n=1621).
+//! `Cond::OtherAncientAttackedLastTurn`: the attack the player used during their previous turn was used by an Ancient Pokémon
+//! other than this one (a record of the player's last attack and its turn; the flag it reads is set when the turn ends). A turn
+//! that ended without an attack leaves no bonus, and a failed attack attempt while Confused (tails) is not an attack used
+//! (id2087, JP FAQ Koraidon SSP / TEF).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Koraidon@SSP",

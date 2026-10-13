@@ -1,13 +1,7 @@
-//! Lumiose Galette (POR): heal 20 damage and remove a Special Condition from
-//! your Active Pokémon.
+//! Lumiose Galette (POR 78, Item): heal 20 damage and remove a Special Condition from your Active Pokémon.
 //!
-//! Twinleaf: playable only if the Active has damage or a Special Condition;
-//! a HealEffect for 20, then a Special Condition is removed directly.
-//! Fixed (phase 4b, R3): the player chooses which one: the only condition is
-//! removed without a prompt; with several, a SelectOptionPrompt lists all five
-//! (Paralyzed, Confused, Asleep, Poisoned, Burned; absent ones disabled, not
-//! cancellable) and the chosen one is removed (it used to remove the first
-//! one listed).
+//! Playable when the Active Pokémon has damage or a Special Condition (JP FAQ Lumiose Galette). One Heal event of 20, then
+//! `ConditionChange::RemoveChosen`: the only condition is removed without a prompt, with several the player chooses which one.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
