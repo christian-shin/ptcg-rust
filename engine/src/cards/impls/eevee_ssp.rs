@@ -2,7 +2,7 @@
 //! Active Spot, it can evolve during your first turn or the turn you play it.
 //! Reckless Charge — 30; this Pokémon also does 10 damage to itself.
 //!
-//! Events batch 2: a `Permit` on its own evolving (`This(Role::Base)`) on any
+//! A `Permit` on its own evolving (`This(Role::Base)`) on any
 //! path (the text doesn't say "from your hand"), lifting the first-turn and
 //! came-into-play-this-turn limits while it is the Active Pokémon: from the
 //! hand, and after Strange Timepiece devolved it (its parenthetical is

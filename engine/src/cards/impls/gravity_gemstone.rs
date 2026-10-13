@@ -1,12 +1,9 @@
-//! Gravity Gemstone (SCR, tool): as long as the Pokémon this card is
-//! attached to is in the Active Spot, the Retreat Cost of both Active
-//! Pokémon is [C] more.
+//! Gravity Gemstone (SCR 137, Pokémon Tool): as long as the Pokémon this card is attached to is in the Active Spot, the Retreat
+//! Cost of both Active Pokémon is [C] more.
 //!
-//! Twinleaf: on a CheckRetreatCostEffect, unless the tool is blocked for the
-//! effect's player, a [C] is pushed when either Active holds this tool. A cost that
-//! an effect set to none (Skyliner, Metal Bridge; ruling 1617) is emptied by the core
-//! afterwards (`no_cost`); a cost reduced to 0 by "less" effects is calculated
-//! together with the increase (Advanced Rulebook D-11, D-12; ruling 836).
+//! One `Modifier::RetreatCost` (`Add(1)`, either Active Pokémon, the Holder Active). The cost is one computation (APR D-11 /
+//! D-12 / D-13): the "more" and "less" are summed and floored at zero, and a "has no Retreat Cost" (Skyliner, Metal Bridge)
+//! wins; a Tool lock turns it off.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -3,7 +3,7 @@
 //! Coruscating Quartz — 200. Tera: prevent attack damage to this Pokémon
 //! while it is on the Bench.
 //!
-//! Events batch 2: a `Permit` on its own evolving (`This(Role::Base)`) with a
+//! A `Permit` on its own evolving (`This(Role::Base)`) with a
 //! Pokémon ex that evolves from Eevee, played from the hand by the rule,
 //! lifting the "evolves from" limit. Grand Tree and Salvatore (from the deck)
 //! aren't covered, per the printed "if you play it from your hand"

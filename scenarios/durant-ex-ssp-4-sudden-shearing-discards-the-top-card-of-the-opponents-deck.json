@@ -1,0 +1,45 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Durant ex SSP 4",
+   "4 Duraludon PRE 69",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Durant ex SSP 4",
+   "4 Duraludon PRE 69",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Durant ex SSP 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Durant ex SSP 4"
+  },
+  true,
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "cite": "card text: when you play this Pokémon from your hand onto your Bench during your turn, you may discard the top card of your opponent's deck"
+  }
+ ]
+}

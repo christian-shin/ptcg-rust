@@ -1,13 +1,10 @@
-//! Eelektrik (SV11B): Dynamotor — once during your turn, you may attach a
-//! [L] Energy card from your discard pile to 1 of your Benched Pokémon.
-//! Electric Ball — 50.
+//! Eelektrik (ASC 60 / SV11B): Dynamotor — once during your turn (before your attack), you may attach a [L] Energy card from your
+//! discard pile to 1 of your Benched Pokémon. Electric Ball — 50.
 //!
-//! Twinleaf: throws CANNOT_USE_POWER without a Benched Pokémon or a basic
-//! Energy providing [L] in the discard, POWER_ALREADY_USED with the marker;
-//! then a cancellable AttachEnergyPrompt (discard → Bench, basic 'Lightning
-//! Energy', min 1 max 1). The marker is set only when a transfer is made
-//! (no ABILITY_USED board effect). PlayPokemonEffect of this card and every
-//! EndTurnEffect clear the marker.
+//! An Ability: one Attach from the discard pile to a Benched Pokémon, a Basic Lightning Energy card, a real choice (it can be
+//! cancelled), exactly one card. It counts as used only when a card was attached (`Cond::Attached`): then a player marker
+//! "from This" is set, so each Eelektrik uses its own Dynamotor (JP FAQ audit: two Eelektrik each use Dynamotor), and an
+//! EndTurn trigger clears it.
 use crate::spec::prelude::*;
 
 const DYNAMOTOR: &str = "DYNAMOTOR_MAREKER";

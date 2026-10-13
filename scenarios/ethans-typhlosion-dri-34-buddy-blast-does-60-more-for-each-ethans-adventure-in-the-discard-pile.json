@@ -1,0 +1,48 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Typhlosion DRI 34",
+   "4 Ethan's Adventure DRI 165",
+   "4 Eevee ex PRE 75",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ethan's Typhlosion DRI 34",
+   "4 Ethan's Adventure DRI 165",
+   "4 Eevee ex PRE 75",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Ethan's Typhlosion DRI 34",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "Ethan's Adventure DRI 165",
+   "Ethan's Adventure DRI 165"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Eevee ex PRE 75"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Buddy Blast"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Eevee ex PRE 75",
+   "damage": 160,
+   "cite": "card text: 40+, 60 more for each Ethan's Adventure card in your discard pile (2 here)"
+  }
+ ]
+}

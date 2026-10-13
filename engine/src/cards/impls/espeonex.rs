@@ -4,8 +4,8 @@
 //! Amazez is one Devolve event per evolved Pokémon by the attack's effect (APR C-13): the preventions are asked ("prevent
 //! all effects of attacks" keeps the Pokémon evolved, scenario rule-C13-amethyst-mist-energy-prevents-devolve-aud-c);
 //! the devolved Pokémon keeps its counters and is Knocked Out at the state check if they reach its HP; its effects end
-//! (`clear_effects_evolving`). The opponent's deck is shuffled after. Psych Out's random discard is a raw move until the
-//! Discard event (B7). Tera: `TERA_RULE`.
+//! (`clear_effects_evolving`). The opponent's deck is shuffled after. Psych Out's random card is a Discard event from the
+//! opponent's hand (cause: the attack). Tera: `TERA_RULE`.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

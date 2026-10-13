@@ -1,6 +1,7 @@
-//! Golduck (ASC 40 / MEP 8): Damp (see Psyduck). Hydro Pump — 60+; 20 more
-//! damage for each [W] provided by the Energy attached to this Pokémon
-//! (CheckProvidedEnergy on the attacking player's Active).
+//! Golduck (ASC 40 / MEP 8): Damp (see Psyduck). Hydro Pump — 60+; 20 more damage for each [W] Energy attached to this Pokémon.
+//!
+//! Hydro Pump adds 20 per [W] Energy provided on the attacking Pokémon (`EnergyUnit::Provided`, so a Prism Energy counts
+//! as [W]) before the damage. Damp is `DAMP`, the Ability lock on Abilities that Knock Out their user.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Golduck@ASC|MEP",

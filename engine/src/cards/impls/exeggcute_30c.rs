@@ -1,6 +1,7 @@
-//! Exeggcute (30C): Hypnosis — your opponent's Active Pokémon is now Asleep.
+//! Exeggcute (30C 1): Hypnosis — your opponent's Active Pokémon is now Asleep.
 //!
-//! Twinleaf has two `Exeggcute` classes; this port is bound to 30C.
+//! An attack effect after the damage: `inflict(Asleep)`, a GainCondition caused by the attack (Mist Energy and the like
+//! prevent it). The class is pinned to 30C: another Exeggcute card has other text.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

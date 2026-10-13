@@ -1,8 +1,6 @@
-//! Galarian Zigzagoon (FST 159, support card): Lick — 10; flip a coin, if
-//! heads your opponent's Active Pokémon is now Paralyzed.
+//! Galarian Zigzagoon (FST 159): Lick — 10; flip a coin, if heads your opponent's Active Pokémon is now Paralyzed.
 //!
-//! Rule: after the damage a CoinFlip; on heads GainCondition(Paralyzed) on the
-//! opponent's Active with the attack's cause (an attack effect, so Mist Energy
+//! After the damage a coin flip; on heads a GainCondition(Paralyzed) caused by the attack (an attack effect, so Mist Energy
 //! and the like prevent it).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {

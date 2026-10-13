@@ -12,7 +12,7 @@
 //! and the card evolving from the Pokémon (`enter::evolves_into`). The deck is
 //! shuffled at every exit after the Pokémon prompt.
 //!
-//! Events batch 2: each evolving is the Evolve event's effect path from the
+//! Each evolving is the Evolve event's effect path from the
 //! deck (not played from the hand: id1133, id2037). The printed parenthetical
 //! is the card's own restriction on its first evolving (a Basic Pokémon),
 //! declared as a `Restrict` as Rare Candy's is: no permission lifts it, on

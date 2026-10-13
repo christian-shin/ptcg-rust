@@ -1,15 +1,9 @@
-//! Full Metal Lab (TEF, stadium): [M] Pokémon (both yours and your
-//! opponent's) take 30 less damage from attacks from the opponent's Pokémon
-//! (after applying Weakness and Resistance).
+//! Full Metal Lab (TEF 148, Stadium): [M] Pokémon (both yours and your opponent's) take 30 less damage from attacks from your
+//! opponent's Pokémon (after applying Weakness and Resistance).
 //!
-//! Twinleaf: every PutDamageEffect from an attack of the opponent's Pokémon
-//! on a [M] Pokémon (CheckPokemonTypeEffect) is reduced by 30 (floored at 0)
-//! unless the stadium effect is blocked for the target's owner. The stadium
+//! One `Modifier::DamageTaken` (30) over `SlotPred::TypeIs([M])`, the type after effects, applied only to damage from the
+//! opponent's Pokémon's attacks, so a player's own recoil or Bench damage on their own [M] Pokémon isn't reduced. The Stadium
 //! can't be used.
-//!
-//! Fixed (phase 4b, R2): the reduction also applied to damage a player's own
-//! attack put on its own [M] Pokémon (recoil, own Bench damage); the text only
-//! reduces damage from attacks of the opponent's Pokémon.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

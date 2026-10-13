@@ -1,12 +1,9 @@
-//! Eevee (TWM 135): Ascension — search your deck for a card that evolves from
-//! this Pokémon and put it onto this Pokémon to evolve it, then shuffle.
-//! Quick Attack — 20+; flip a coin, if heads 20 more damage.
+//! Eevee (TWM 135): Ascension — search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to evolve
+//! it. Then, shuffle your deck. Quick Attack — 20+; flip a coin, if heads 20 more damage.
 //!
-//! Twinleaf: an empty deck skips everything; with no evolution in the deck only
-//! SHUFFLE_DECK runs; else a non-cancellable ChooseCardsPrompt ({ superType:
-//! POKEMON }, min 0, max 1) with every non-evolution index blocked. The
-//! evolution is a plain MOVE_CARDS onto the slot holding this card, then
-//! `clearEffects()`, `pokemonPlayedTurn = turn`, SHUFFLE_DECK.
+//! An empty deck can't be searched (id840): nothing happens, no shuffle. Otherwise one pick (min 0: a search for a kind may
+//! find nothing) of a Pokémon that evolves from Eevee, an Evolve event from the deck onto this Pokémon (not played from the
+//! hand: id1133), then one shuffle after the search (APR E-19); with no such card in the deck only the shuffle happens.
 use crate::spec::prelude::*;
 
 const DECK: ZoneRef = ZoneRef(Who::Me, Zone::Deck);

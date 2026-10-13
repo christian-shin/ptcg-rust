@@ -1,6 +1,7 @@
-//! Dunsparce (JTG): Trading Places — switch this Pokémon with 1 of your
-//! Benched Pokémon. Pinned to the JTG card: Dunsparce TEF is a different
-//! Twinleaf class with the same name.
+//! Dunsparce (JTG): Trading Places — switch this Pokémon with 1 of your Benched Pokémon.
+//!
+//! An attack effect after the damage: `switch_self` (one ChangeActive by the attack). The class is pinned to the JTG card:
+//! Dunsparce TEF is another card with the same name.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

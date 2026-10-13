@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Growing Grass Energy POR 86",
+   "4 Dwebble DRI 11",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE 1"
+  ],
+  [
+   "4 Growing Grass Energy POR 86",
+   "4 Dwebble DRI 11",
+   "4 Duraludon PRE 69",
+   "48 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dwebble DRI 11",
+  "active_energy": [
+   "Growing Grass Energy POR 86"
+  ],
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "energy": [
+     "Growing Grass Energy POR 86"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "slot": "active",
+   "card": "Dwebble DRI 11",
+   "hp_left": 90,
+   "cite": "card text: the [G] Pokémon this card is attached to gets +20 HP (70 + 20)"
+  },
+  {
+   "at": "start",
+   "who": "me",
+   "bench": 0,
+   "card": "Duraludon PRE 69",
+   "hp_left": 130,
+   "cite": "card text: a non-[G] Pokémon gets nothing"
+  }
+ ]
+}

@@ -1,9 +1,8 @@
-//! Gouging Fire ex (TEF): Heat Blast — 60. Blaze Blitz — 260; this Pokémon
-//! can't use Blaze Blitz again until it leaves the Active Spot
-//! (PREVENT_THIS_ATTACK_UNTIL_LEAVES_ACTIVE: a PreventAttackUntilLeavesActive
-//! EffectOfAttack that sets `source.blockedAttackNameUntilLeavesActive`; its
-//! target is the attacker since phase 4b, so Empoleon ex / Mist Energy on the
-//! Defending Pokémon no longer prevent it).
+//! Gouging Fire ex (TEF 38): Heat Blast — 60. Blaze Blitz — 260; this Pokémon can't use Blaze Blitz again until it leaves the
+//! Active Spot.
+//!
+//! Blaze Blitz arms a lasting lock on this Pokémon (`CANT_USE_ATTACK_AGAIN`, naming this attack, until it leaves the Active
+//! Spot); it is armed on the attacker, so effects on the Defending Pokémon (Empoleon ex, Mist Energy) don't stop it.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

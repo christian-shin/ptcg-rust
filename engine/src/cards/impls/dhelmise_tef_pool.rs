@@ -1,8 +1,7 @@
-//! Dhelmise (TEF 19): Spinning Attack — 30. Steel Anchor — 80+; 80 more
-//! damage if you have any [M] Pokémon on your Bench.
+//! Dhelmise (TEF 19): Spinning Attack — 30. Steel Anchor — 80+; 80 more damage if you have any [M] Pokémon on your Bench.
 //!
-//! Twinleaf: each non-empty Bench slot with a Pokémon card gets a
-//! CheckPokemonTypeEffect (`some` stops at the first [M]).
+//! Steel Anchor adds 80 before the damage when any Benched Pokémon of yours has [M] among its types after effects
+//! (`Cond::AnySlot` over the Bench with `SlotPred::TypeIs`, the checked type read, never the printed type).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

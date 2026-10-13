@@ -1,14 +1,8 @@
-//! Gastrodon (SSP): Sticky Bind — as long as this Pokémon is on your Bench,
-//! Benched Stage 2 Pokémon (both yours and your opponent's) have no
-//! Abilities. Mud Shot — 80.
+//! Gastrodon (SSP 107): Sticky Bind — as long as this Pokémon is on your Bench, Benched Stage 2 Pokémon (both yours and your
+//! opponent's) have no Abilities. Mud Shot — 80.
 //!
-//! Twinleaf HANDLE_ABILITY_LOCK ('remove' mode, allowUseFromHand,
-//! allowUseFromDiscard, error BLOCKED_BY_ABILITY): strips Abilities from
-//! CheckPokemonPowersEffect and throws on PowerEffect when this card is the
-//! top card of a Bench slot of either player, the checked card is Stage 2,
-//! its list (findCardList, which throws INVALID_GAME_STATE when the card is
-//! in no list) is a Pokémon slot other than either Active, and this card's
-//! ability isn't blocked for the player whose Bench holds it.
+//! `Modifier::AbilityLock` (locker: the Bench of either side): every Stage 2 Pokémon on a Bench has no Abilities while this
+//! Ability works. It is an Ability, so another lock on Gastrodon turns it off; the Active Pokémon is never covered.
 use crate::spec::prelude::*;
 use crate::types::Stage;
 

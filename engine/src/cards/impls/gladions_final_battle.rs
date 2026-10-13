@@ -1,10 +1,10 @@
-//! Gladion's Decisive Battle (M5, supporter): usable only as the last card
-//! in your hand. During this turn, attacks used by your Pokémon without a
-//! Rule Box do 80 more damage to the opponent's Active (before W/R).
+//! Gladion's Final Battle (PBL 77, Supporter): you can use this card only when it is the last card in your hand. During this turn,
+//! attacks used by your Pokémon that don't have a Rule Box do 80 more damage to your opponent's Active Pokémon (before
+//! applying Weakness and Resistance).
 //!
-//! Twinleaf: the bonus applies to every DealDamageEffect of a marked player
-//! targeting the opponent's Active whose source slot holds no Rule Box card;
-//! each copy only honors its own marker.
+//! The last-card condition is the printed `Cond::Printed(LastCardInHand)` and only binds the play (JP FAQ Gladion's Final
+//! Battle: drawing afterwards keeps the +80). Playing it sets a player marker; while the marker is on, a
+//! `Modifier::DamageDealt` (+80, attacker without a Rule Box) applies, and an EndTurn trigger clears it.
 use crate::spec::prelude::*;
 
 const MARKER: &str = "M5_GLADIONS_DECISIVE_BATTLE";

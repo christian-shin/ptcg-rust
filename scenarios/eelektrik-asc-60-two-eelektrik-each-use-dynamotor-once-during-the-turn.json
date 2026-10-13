@@ -1,0 +1,97 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eelektrik ASC 60",
+   "4 Duraludon PRE 69",
+   "52 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Eelektrik ASC 60",
+   "4 Duraludon PRE 69",
+   "52 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Eelektrik ASC 60",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69"
+   },
+   {
+    "card": "Eelektrik ASC 60"
+   }
+  ],
+  "discard": [
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4",
+   "Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Dynamotor",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 0
+   }
+  ],
+  {
+   "a": "ability",
+   "name": "Dynamotor",
+   "source": {
+    "player": 2,
+    "slot": 2,
+    "index": 1
+   }
+  },
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 2,
+     "index": 0
+    },
+    "index": 0
+   }
+  ],
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "bench": 0,
+   "energy": 2,
+   "cite": "Eelektrik ASC 60 text: once during your turn, attach a [L] Energy card from your discard pile to 1 of your Benched Pokémon; each Eelektrik's own Ability (JP FAQ audit: two Eelektrik each use Dynamotor)"
+  },
+  {
+   "at": "decision",
+   "n": 2,
+   "who": "me",
+   "legal": "ability",
+   "name": "Dynamotor",
+   "is": false,
+   "cite": "Eelektrik ASC 60 text: once during your turn; both Eelektrik have used their own Dynamotor, so it is no longer offered"
+  }
+ ]
+}

@@ -1,6 +1,7 @@
-//! Feebas (SSP): Leap Out — switch this Pokémon with 1 of your Benched
-//! Pokémon (AFTER_ATTACK). Pinned: Feebas TWM is a different Twinleaf class
-//! with the same name.
+//! Feebas (SSP): Leap Out — switch this Pokémon with 1 of your Benched Pokémon.
+//!
+//! An attack effect after the damage: `switch_self`. The class is pinned to SSP: Feebas TWM is another card with the same
+//! name.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

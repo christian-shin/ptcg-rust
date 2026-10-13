@@ -1,5 +1,7 @@
-//! Feebas (TWM): Flail — 10x; `effect.damage = player.active.damage` (the
-//! damage on the Active in HP, i.e. 10 per damage counter).
+//! Feebas (TWM): Flail — 10×; 10 damage for each damage counter on this Pokémon.
+//!
+//! The damage is set before the damage step to the damage on the attacking (Active) Pokémon (`Num::DamageOn`, in HP: 10 per
+//! counter).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
