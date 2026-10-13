@@ -2,7 +2,7 @@
 //! Active Spot, shuffle it and all attached cards into your deck. Beam — 10.
 //!
 //! The shuffle is `Op::RemoveFromPlay` of this Pokémon (the whole stack): one LeavePlay event with the Ability as its
-//! cause, then the deck is shuffled. There is no once-per-turn marker: the card leaves play.
+//! cause, then the deck is shuffled. There is no once-per-turn usage record: the card leaves play.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

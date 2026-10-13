@@ -4,7 +4,7 @@
 //!
 //! A search of the hidden deck may find fewer cards than "up to 2", or none (APR D-05, id2301: the choice among cards you
 //! can see is 1 to N; a deck you can't see may fail to hold them). The cards are revealed and put into the hand (a
-//! PutIntoHand event, cause: this Ability), then the deck is shuffled once (APR E-19); once per turn is the usage marker. "Evolution" is a
+//! PutIntoHand event, cause: this Ability), then the deck is shuffled once (APR E-19); once per turn is the usage record. "Evolution" is a
 //! non-Basic Pokémon that isn't a LV.X. Protect Charge is a lasting damage reduction on this Pokémon until the end of the
 //! opponent's next turn.
 use crate::spec::prelude::*;
@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
     ],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("METAL_SIGNAL_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[
             Step::new(Op::Search(SearchSpec {

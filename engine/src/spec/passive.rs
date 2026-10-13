@@ -696,11 +696,10 @@ pub struct PrizeAdjustSpec {
     // --- S3 agent 3 appends ---
     /// The Pokémon that used the attack (by Knock Out by attack damage), where it is now.
     pub attacker: SlotPred,
-    /// Applies once per Knocked Out Pokémon: this marker (a slot marker, by name) is set on it.
-    pub nonstacking: Option<&'static str>,
     /// Only a Knock Out of the card owner's Pokémon.
     pub owner_only: bool,
-    /// "Can't be applied more than once per game" (`Once::PerGame`).
+    /// "Can't be applied more than once per game" (`Once::PerGame`), or "the effect doesn't stack": once for each Knocked Out
+    /// Pokémon (`Once::PerSubject`, whatever the copies).
     pub once: Once,
 }
 impl PrizeAdjustSpec {
@@ -711,7 +710,6 @@ impl PrizeAdjustSpec {
         by_own_attack: None,
         guard: Cond::True,
         attacker: SlotPred::Any,
-        nonstacking: None,
         owner_only: false,
         once: Once::No,
     };
@@ -1704,16 +1702,31 @@ pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSourc
     }
     let Effect::KnockOut { p, prize_count: before, .. } = *g.e(e) else { return Ok(()) };
     let p = p as usize;
-    let def = g.st.cards[me as usize].def;
-    if g.st.players[p].once_per_game_used.contains(&def) {
+    let key = prize_key(g, me, origin, d);
+    let by = crate::state::UsageBy::Player(p as u8);
+    if crate::engine::usage::has(&g.st, key, by) {
         return Ok(());
     }
     prize_adjust_now(g, me, e, origin, d)?;
     if matches!(*g.e(e), Effect::KnockOut { prize_count, .. } if prize_count != before) {
-        g.st.players[p].once_per_game_used.push(def);
+        crate::engine::usage::record(&mut g.st, key, by, crate::state::Until::Removed);
         g.st.bump();
     }
     Ok(())
+}
+
+/// The usage key of the `PrizeAdjust` declaration `d` of `me`: the printed name of its Ability when it is one ("the effect of X
+/// doesn't stack": every copy, every printing), else the declaration itself.
+fn prize_key(g: &Game, me: CardId, origin: RuleSource, d: &PrizeAdjustSpec) -> crate::state::UsageKey {
+    if origin == RuleSource::Ability {
+        if let Some(pw) = first_ability(g, me) {
+            return crate::engine::usage::ability_key(&g.st, me, pw.index);
+        }
+    }
+    let index = crate::cards::spec_for(g.st.cards[me as usize].def)
+        .and_then(|s| s.passives.iter().position(|ps| matches!(&ps.modifier, Modifier::PrizeAdjust(x) if std::ptr::eq(x, d))))
+        .unwrap_or(0);
+    crate::engine::usage::declared_key(&g.st, me, index as u8)
 }
 
 /// `PrizeAdjust` of `me` over the KnockOut `e`: its change to the Prize count.
@@ -1761,12 +1774,13 @@ fn prize_adjust_now(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, d: &
     if !guard_ok(g, me, origin, at.owner, &d.guard) {
         return Ok(());
     }
-    if let Some(name) = d.nonstacking {
-        let id = crate::markers::intern(name);
-        if g.st.slot(target.p as usize, target.s).marker.has(id) {
+    if d.once == Once::PerSubject {
+        // "The effect doesn't stack": once for each Knocked Out Pokémon, whatever the copies.
+        let Some(top) = g.st.slot_pokemon(target.p as usize, target.s) else { return Ok(()) };
+        let (key, by) = (prize_key(g, me, origin, d), crate::state::UsageBy::Card(top));
+        if !crate::engine::usage::use_once(&mut g.st, key, by, crate::state::Until::Removed) {
             return Ok(());
         }
-        g.st.players[target.p as usize].slots[target.s as usize].marker.add(id, me, crate::markers::SourceType::None, crate::markers::TargetScope::None);
         // A write inside the KnockOut's handlers (the derived facts are stale).
         g.st.bump();
     }
@@ -1946,38 +1960,54 @@ pub(crate) const fn prevent_marker(kind: super::event::EventKind) -> Option<u32>
 /// in a game where a card declares a prevention over the event's family (`prevent_marker`), so a game without one
 /// pays a mask test. The sources are walked in the propagation order of the event's kind.
 /// A re-flip declaration (`Modifier::Reflip`): the group of flips it covers (`on`, over the CoinFlip event of the group:
-/// its purpose and cause) and the marker that makes it once per turn (set on its player when used, cleared at the end
-/// of their turn by the card's own trigger). The player asked is the declaring card's owner, who must be the one
-/// flipping.
+/// its purpose and cause) and how often it may be used (`Once::PerTurnShared`: the player's usage record of the
+/// declaration, ending with the turn). The player asked is the declaring card's owner, who must be the one flipping.
 pub struct ReflipSpec {
     pub on: super::event::EventPred,
-    pub once: crate::markers::MarkerName,
+    pub once: Once,
 }
 
 /// The re-flip declaration in play that covers the group of flips `v` (a CoinFlip view: purpose, cause, the player
-/// flipping): its card is in place for its origin and not blocked there, its owner is the one flipping, its marker isn't
-/// set, and `on` matches (the view's owner is the player flipping). Returns the marker. A game without one answers `None`
-/// with a mask test.
-pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<crate::markers::MarkerName>> {
+/// flipping): its card is in place for its origin and not blocked there, its owner is the one flipping, its usage record
+/// isn't there, and `on` matches (the view's owner is the player flipping). Returns the record to make when it is used. A
+/// game without one answers `None` with a mask test.
+pub fn reflip_offered(g: &mut Game, v: &super::event::EventView) -> R<Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)>> {
     if !g.kinds_present.has(crate::effects::k::DECLARES_REFLIP) {
         return Ok(None);
     }
     let order = g.decl_kind_listeners(crate::effects::k::COIN_FLIP);
     for c in order.iter().copied() {
         let passives: &'static [Passive] = crate::cards::spec_for(g.st.cards[c as usize].def).map_or(&[], |s| s.passives);
-        for ps in passives {
+        for (i, ps) in passives.iter().enumerate() {
             let Modifier::Reflip(r) = &ps.modifier else { continue };
             let Some(at) = locate(g, c, ps.origin) else { continue };
-            if at.owner != v.owner as usize || g.st.players[at.owner].marker.has(r.once) {
+            if at.owner != v.owner as usize {
+                continue;
+            }
+            let used = declared_once(g, c, i as u8, r.once, at.owner);
+            if used.map_or(false, |(key, by, _)| crate::engine::usage::has(&g.st, key, by)) {
                 continue;
             }
             if blocked(g, c, ps.origin, at, at.held) || !r.on.eval(g, c, v)? {
                 continue;
             }
-            return Ok(Some(r.once));
+            return Ok(used);
         }
     }
     Ok(None)
+}
+
+/// The usage record the use of the `index`th passive of `card` (owner `owner`) makes, by its `once` (`None`: not limited): once
+/// during your turn (the card's, ending with the turn), the player's, once per game. `Once::PerSubject` is made by its reader.
+fn declared_once(g: &Game, card: CardId, index: u8, once: Once, owner: usize) -> Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)> {
+    use crate::state::{Until, UsageBy};
+    let key = crate::engine::usage::declared_key(&g.st, card, index);
+    Some(match once {
+        Once::PerTurn => (key, UsageBy::Card(card), Until::ThisTurn(owner as u8)),
+        Once::PerTurnShared => (key, UsageBy::Player(owner as u8), Until::ThisTurn(owner as u8)),
+        Once::PerGame => (key, UsageBy::Player(owner as u8), Until::Removed),
+        Once::No | Once::PerSubject => return None,
+    })
 }
 
 pub fn event_prevented(g: &mut Game, v: &super::event::EventView) -> R<bool> {

@@ -494,13 +494,10 @@ pub fn reduce(g: &mut Game, me: CardId, e: EffId) -> R {
             };
             let f = Frame::start(g, me, Prog::Power(i as u8), Phase::Use, e, p, false);
             check_power(g, me, pw, &f)?;
-            if let Once::PerTurn(name) | Once::PerTurnShared(name) = pw.once {
-                use_ability_once_per_turn(g, p, crate::markers::intern(name), me)?;
-                ability_used(g, p, me);
-            }
-            if pw.once == Once::PerGame {
-                let def = g.st.cards[me as usize].def;
-                g.st.players[p].once_per_game_used.push(def);
+            if let Some((key, by, until)) = power_once(g, me, pw, p) {
+                if !crate::engine::usage::use_once(&mut g.st, key, by, until) {
+                    crate::bail!("POWER_ALREADY_USED");
+                }
             }
             run(g, me, f)?;
         }
@@ -724,7 +721,7 @@ pub(crate) fn branch_can_change(g: &Game, me: CardId, f: &Frame, steps: &[Step])
 /// conditions that hold now ("if ..., discard it": only when the condition holds)?
 fn applies(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
     steps.iter().any(|s| match &s.op {
-        Op::SetMarker(_) | Op::ClearMarker(_) => false,
+        Op::SetMarker(_) | Op::ClearMarker(_) | Op::Used(_) => false,
         Op::If(i) => applies(g, me, f, if crate::spec::value::cond(g, me, f, &i.cond) { i.yes } else { i.no }),
         _ => true,
     })
@@ -893,25 +890,24 @@ pub(crate) fn check_power<F: crate::derived::Facts>(g: &mut F, me: CardId, pw: &
     Ok(())
 }
 
-/// Once per turn: refused while the marker is set.
+/// The usage record the use of the power `pw` of `me` (player `p`'s) makes, by its `once` (`None`: it isn't limited):
+/// once during your turn (the card's, ending with the turn), the player's limit for every copy, once per game.
+fn power_once(g: &Game, me: CardId, pw: &PowerSpec, p: usize) -> Option<(crate::state::UsageKey, crate::state::UsageBy, crate::state::Until)> {
+    use crate::state::{Until, UsageBy};
+    Some(match pw.once {
+        Once::PerTurn => (crate::engine::usage::ability_key(&g.st, me, pw.index), UsageBy::Card(me), Until::ThisTurn(p as u8)),
+        Once::PerTurnShared => (crate::engine::usage::ability_key(&g.st, me, pw.index), UsageBy::Player(p as u8), Until::ThisTurn(p as u8)),
+        Once::PerGame => (crate::engine::usage::declared_key(&g.st, me, 0x80 | pw.index), UsageBy::Player(p as u8), Until::Removed),
+        Once::No | Once::PerSubject => return None,
+    })
+}
+
+/// Once per turn: refused while the record is there.
 fn check_once(g: &Game, me: CardId, pw: &PowerSpec, p: usize) -> R {
-    match pw.once {
-        Once::PerTurn(name) => {
-            if g.st.players[p].marker.has_from(crate::markers::intern(name), me) {
-                crate::bail!("POWER_ALREADY_USED");
-            }
+    if let Some((key, by, _)) = power_once(g, me, pw, p) {
+        if crate::engine::usage::has(&g.st, key, by) {
+            crate::bail!("POWER_ALREADY_USED");
         }
-        Once::PerTurnShared(name) => {
-            if g.st.players[p].marker.has(crate::markers::intern(name)) {
-                crate::bail!("POWER_ALREADY_USED");
-            }
-        }
-        Once::PerGame => {
-            if g.st.players[p].once_per_game_used.contains(&g.st.cards[me as usize].def) {
-                crate::bail!("POWER_ALREADY_USED");
-            }
-        }
-        Once::No => {}
     }
     Ok(())
 }

@@ -160,6 +160,8 @@ pub enum Cond {
     // --- F-passive appends ---
     /// The player's marker `name` is set (by this card for `MarkerFrom::This`).
     HasMarker { who: Who, name: &'static str, from: super::ops::state::MarkerFrom },
+    /// There is a usage record (`Op::Used`): the Ability was used ("once during your turn"), the effect was applied.
+    Used(super::ops::state::UsedSpec),
     /// Exactly `n` cards are in the zone.
     ZoneIs(ZoneRef, i32),
     /// This card is in the player's hand and is the last card there ("You can use this card only if it is the last card in
@@ -503,6 +505,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             None => false,
         },
         Cond::HasMarker { who, name, from } => super::ops::state::has_marker(g, me, f.who(*who), name, *from),
+        Cond::Used(u) => super::ops::state::is_used(g, me, f, u),
         Cond::ZoneIs(z, n) => zone_cards_of(g, me, f, *z).len() as i32 == *n,
         Cond::LastCardInHand(w) => {
             let hand = &g.st.players[f.who(*w)].hand;

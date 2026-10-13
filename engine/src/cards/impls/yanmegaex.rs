@@ -3,8 +3,8 @@
 //! Energy from this Pokémon to 1 of your Benched Pokémon.
 //!
 //! Buzzing Boost is a trigger over the ChangeActive event that brings this Pokémon to the Active Spot during its owner's turn (a
-//! retreat, a switch, a promotion: APR E-25, whatever moved it), unless the player marker is set: a question; no → marker; yes →
-//! marker, then up to 3 Basic [G] Energy from the deck onto it, then one shuffle (the printed "Then, shuffle your deck", APR E-19;
+//! retreat, a switch, a promotion: APR E-25, whatever moved it), unless the Ability's usage record is there: a question; no → record; yes →
+//! record, then up to 3 Basic [G] Energy from the deck onto it, then one shuffle (the printed "Then, shuffle your deck", APR E-19;
 //! user decision D8). A blocked Ability asks nothing and sets nothing. Jet Cyclone moves min(3, Energy attached) Energy to one
 //! Benched Pokémon (none to move with no Benched Pokémon: nothing more happens).
 use crate::spec::prelude::*;
@@ -19,14 +19,14 @@ pub static SPEC: CardSpec = CardSpec {
             event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::ChangeActive), EventPred::To(SlotPred::IsThisPokemon), EventPred::Turn(TurnOf::Me)])),
             steps: &[Step::new(Op::May(MaySpec {
                 asker: Who::Me,
-                // Not asked again once the marker is set, and not offered while the Ability is blocked
+                // Not asked again once the record is made, and not offered while the Ability is blocked
                 // (B-PC-17: a blocked Ability can't be used, so nothing is asked or marked).
-                when: Cond::All(&[Cond::Not(&Cond::HasMarker { who: Who::Me, name: "BUZZ_BOOST_MARKER", from: MarkerFrom::This }), Cond::Not(&Cond::AbilityBlocked)]),
+                when: Cond::All(&[Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Copy))), Cond::Not(&Cond::AbilityBlocked)]),
                 msg: "WANT_TO_USE_ABILITY",
                 yes: &[Step::new(Op::If(IfSpec {
                     cond: Cond::Not(&Cond::AbilityBlocked),
                     yes: &[
-                        Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "BUZZ_BOOST_MARKER", source: RuleSource::Ability })),
+                        Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy))),
                         Step::new(Op::Attach(AttachSpec {
                             chooser: Who::Me,
                             from: ZoneRef(Who::Me, Zone::Deck),
@@ -46,13 +46,8 @@ pub static SPEC: CardSpec = CardSpec {
                     ],
                     no: &[],
                 }))],
-                no: &[Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "BUZZ_BOOST_MARKER", source: RuleSource::Ability }))],
+                no: &[Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Copy)))],
             }))],
-        },
-        Trigger {
-            origin: RuleSource::CardRule,
-            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
-            steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "BUZZ_BOOST_MARKER", from: MarkerFrom::This }))],
         },
     ],
     attacks: &[AttackSpec {

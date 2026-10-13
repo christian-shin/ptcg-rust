@@ -49,7 +49,7 @@ pub struct Fact {
 pub const IDENTITY: &[Fact] = &[
     Fact { name: "moved to the Active Spot this turn", bound: Bound::Card, stored: "CardInst::moved_to_active_this_turn, Player::moved_to_active_this_turn / moved_from_active_to_bench_this_turn" },
     Fact { name: "damage taken last turn", bound: Bound::Card, stored: "CardInst::damage_taken_last_turn" },
-    Fact { name: "Ability used this turn", bound: Bound::Card, stored: "player markers from the card (Once::PerTurn): carried to the new card by name (APR D-19; `prefabs::carry_per_turn_uses`)" },
+    Fact { name: "Ability used this turn", bound: Bound::Card, stored: "the usage records of the card (`State::usage`, `UsageBy::Card`): carried to the new card by the Ability's printed name (APR D-19; `engine::usage::carry`)" },
     Fact { name: "entered play this turn", bound: Bound::Slot, stored: "Slot::entered_turn" },
     Fact { name: "damage counters", bound: Bound::Slot, stored: "Slot::damage" },
     Fact { name: "attached Energy and Tools", bound: Bound::Slot, stored: "Slot::cards / energies / tools" },
@@ -571,34 +571,14 @@ pub fn swap(g: &mut Game, target: SlotRef, old: CardId, new: CardId, into: ListR
     Ok(true)
 }
 
-/// A card that enters play or evolves is a new Pokémon: its own once-per-turn uses reset (id317; the player's marks named
-/// by its `Once::PerTurn` Abilities). Not the player's "you can't use more than 1 X Ability each turn" (`PerTurnShared`).
-/// As the cards' handlers did (batch 8 C5b moved it here from them): for a card in a zone of the board when the event is
-/// made (a card set aside by a search isn't; its `PerTurn` marks reset with the move into the spot,
-/// `prefabs::reset_once_per_turn`).
-fn reset_entering_marks(g: &mut Game, p: usize, card: CardId) {
-    if g.decls.once_per_turn & (1u128 << card) == 0 || !crate::decl::in_a_zone(g, card) {
-        return;
-    }
-    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return };
-    for pw in spec.powers.iter() {
-        // A Pokémon's own once-per-turn use resets (id317); "you can't use more than 1 X Ability each turn"
-        // (`Once::PerTurnShared`: Fan Rotom's Fan Call, Fezandipiti ex's Flip the Script) is the player's limit for the
-        // turn, which a Pokémon entering play again doesn't reset (batch 8 rules fix).
-        if let crate::spec::Once::PerTurn(name) = pw.once {
-            g.st.players[p].marker.remove_from(crate::markers::intern(name), card);
-        }
-    }
-}
-
 /// The Swap's consequences: the physical moves and the card-bound facts.
 fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: ListRef, into: ListRef, place: SwapPlace, me: CardId) -> R {
     let (p, s) = (target.p as usize, target.s);
     let list = target.list();
     let old_index = g.st.slot(p, s).cards.index_of(old);
     let _ = me;
-    // The old card's once-per-turn uses, before its move resets them (`ops::move_card_to`).
-    let used = crate::prefabs::per_turn_uses(g, p, old);
+    // The old card's Ability uses, before its move resets them (`Game::move_card_to`).
+    let used = crate::engine::usage::abilities_of(&g.st, old);
     crate::engine::cards_zone::move_physical(g, src, &[new], list);
     crate::engine::cards_zone::move_physical(g, list, &[old], into);
     g.st.bump_layout();
@@ -621,7 +601,7 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
         }
     }
     swap_card_facts(g, p, old, new);
-    crate::prefabs::carry_per_turn_uses(g, p, new, used.as_slice());
+    crate::engine::usage::carry(&mut g.st, new, used.as_slice());
     Ok(())
 }
 
@@ -630,8 +610,10 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
 
 /// The reducer of the Pokémon events: what each does to the game.
 pub fn reducer(g: &mut Game, id: EffId) -> R {
-    if let Effect::EnterPlay { p, card, .. } | Effect::Evolve { p, card, .. } = *g.e(id) {
-        reset_entering_marks(g, p as usize, card);
+    // A card that enters play or evolves is a new Pokémon: its own Ability uses end (id317; the player's limits, "you can't use
+    // more than 1 X Ability each turn", stay: batch 8 rules fix).
+    if let Effect::EnterPlay { card, .. } | Effect::Evolve { card, .. } = *g.e(id) {
+        crate::engine::usage::reset_card(&mut g.st, card);
     }
     match *g.e(id) {
         Effect::EnterPlay { card, target, from, .. } => {
@@ -693,7 +675,6 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause)
     // Evolve's cause).
     crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())?;
     crate::engine::game_effect::clear_effects_evolving(&mut g.st, target.p as usize, target.s);
-    g.st.players[target.p as usize].slots[target.s as usize].board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
     crate::prefabs::reset_once_per_turn_slot(g, target);
     Ok(())
 }
@@ -703,9 +684,10 @@ mod tests {
     use super::*;
 
     /// "You can't use more than 1 Fan Call Ability during your turn" is the player's limit: a Fan Rotom that enters play
-    /// again this turn doesn't reset it (id317 resets a Pokémon's own once-per-turn use only).
+    /// again this turn doesn't reset it (id317 resets a Pokémon's own use only).
     #[test]
     fn a_shared_limit_isnt_reset_by_entering_play() {
+        use crate::state::{Until, UsageBy, UsageKey};
         let mut names: Vec<&str> = vec!["Fan Rotom SCR 118"; 4];
         names.extend(["Psychic Energy MEE 5"; 56]);
         let deck: Vec<u16> = names.iter().map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
@@ -715,10 +697,13 @@ mod tests {
         crate::scenario::apply(&mut g, &serde_json::json!({"me": {"reset": true, "active": "Fan Rotom SCR 118", "bench": [{"card": "Fan Rotom SCR 118"}]}, "opp": {"reset": true, "active": "Fan Rotom SCR 118"}})).unwrap();
         let me = g.st.active_player as usize;
         let a = g.st.active_pokemon(me).unwrap();
-        let name = crate::markers::intern("FAN_CALL_MARKER");
-        g.st.players[me].marker.add(name, a, Default::default(), Default::default());
-        reset_entering_marks(&mut g, me, a);
-        assert!(g.st.players[me].marker.has_from(name, a), "the shared limit stays");
+        let key = crate::engine::usage::ability_key(&g.st, a, 0);
+        assert!(matches!(key, UsageKey::Ability(_)));
+        crate::engine::usage::record(&mut g.st, key, UsageBy::Player(me as u8), Until::ThisTurn(me as u8));
+        crate::engine::usage::record(&mut g.st, key, UsageBy::Card(a), Until::ThisTurn(me as u8));
+        crate::engine::usage::reset_card(&mut g.st, a);
+        assert!(crate::engine::usage::has(&g.st, key, UsageBy::Player(me as u8)), "the shared limit stays");
+        assert!(!crate::engine::usage::has(&g.st, key, UsageBy::Card(a)), "the Pokémon's own use ends");
     }
 
     /// A card staged in one list and copied into a card register with a lower index is taken from the staging

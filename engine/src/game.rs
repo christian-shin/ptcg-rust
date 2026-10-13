@@ -108,7 +108,7 @@ pub enum CoinCb {
     /// sequence ends (`engine::condition::flip_sequence`).
     Sequence { p: u8, mode: u8, results: u32, n: u8, callback: u8, cause: crate::cause::Cause, offer: bool },
     /// One flip whose re-flip is offered after its wait; then the request's callback `callback` (`engine::condition::flip_coin`).
-    Reflip { p: u8, callback: u8, cause: crate::cause::Cause, once: crate::markers::MarkerName },
+    Reflip { p: u8, callback: u8, cause: crate::cause::Cause, once: crate::state::UsageKey },
     /// Final callback of a sequence: card receives (bitmask, count) via `frame.a[2..]`.
     SequenceCard { card: CardId, frame: CardFrame },
     /// `Card` / `SequenceCard` created by delegated source code (see `Cont::DelegCard`).

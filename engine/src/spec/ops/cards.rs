@@ -1427,9 +1427,6 @@ pub(crate) fn resume(g: &mut Game, me: CardId, f: &mut Frame, op: &Op, results: 
                     crate::engine::attach::move_attached(g, *card, src, dst, f.cause)?;
                 }
             }
-            if m.used_always {
-                ability_used(g, p, me);
-            }
             Ok(Flow::Next)
         }
         Op::MoveEnergy(m) if m.mode != MoveEnergyMode::Effect => {
@@ -2183,8 +2180,6 @@ pub struct MoveEnergyOwnSpec {
     pub energy: Pred,
     /// "May": the prompt can be answered with nothing.
     pub cancel: bool,
-    /// The Ability counts as used even when nothing moved.
-    pub used_always: bool,
 }
 
 fn move_energy_own_possible(g: &Game, me: CardId, f: &Frame, m: &MoveEnergyOwnSpec) -> bool {

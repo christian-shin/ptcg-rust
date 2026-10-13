@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         once: Once::No,
         needs: &[],
-        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: None, energy: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), cancel: false, used_always: false }))],
+        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: None, energy: Pred::All(&[Pred::BasicEnergy, Pred::Name("Grass Energy")]), cancel: false }))],
     }],
     ..CardSpec::NONE
 };

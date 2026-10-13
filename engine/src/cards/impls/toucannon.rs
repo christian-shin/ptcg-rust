@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Toucannon",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("M5_TOUCANNON_SKYDRAW"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(1)) }))],
     }],

@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     // your deck for an Evolution Pokémon, reveal it, put it into your hand and shuffle.
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("EVOLUTION_GUIDANCE_MARKER"),
+        once: Once::PerTurn,
         needs: &[Cond::Slot(SlotExpr::This, SlotPred::HasEnergy)],
         steps: &[
             Step::new(Op::Search(SearchSpec {

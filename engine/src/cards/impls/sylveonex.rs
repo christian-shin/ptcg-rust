@@ -7,7 +7,7 @@
 //! even when it does nothing.
 //!
 //! "If 1 of your Pokémon used Angelite during your last turn" reads the attack the player used during their previous turn
-//! (`Cond::UsedAttackLastTurn`), whichever Pokémon used it, a copycat too (id2402); no marker is kept, so a copied Angelite or a
+//! (`Cond::UsedAttackLastTurn`), whichever Pokémon used it, a copycat too (id2402); no record is kept, so a copied Angelite or a
 //! Knocked Out Sylveon ex doesn't leave one behind.
 use crate::spec::prelude::*;
 

@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("TRADE_MARKER"),
+        once: Once::PerTurn,
         // Discarding is a cost, drawing the effect (id2115).
         needs: &[],
         steps: &[
