@@ -6,9 +6,14 @@
 //! every effect, `resolveCopyAttackSessions` runs the source card's
 //! `reduceEffect` with `this` = the copycat (and the copycat's `attacks`
 //! temporarily replaced by the clones) for the effects of the copied attack's
-//! lifecycle. The sessions are module state; they outlive the attack
-//! (EndTurn / BetweenTurns / BeginTurn / damage to the copycat keep being
-//! delegated) until 4 EndTurns passed or the copycat left play.
+//! lifecycle. Events batch 8 (rules fix): a session lasts while the copied
+//! attack is used, until the end of that turn; nothing of the source card
+//! applies after (id2402: the Pokémon using the attack is the copycat; id453,
+//! id890, id2094: only the printed attack is copied). The copied attack's
+//! lasting effects are lasting-table entries on the copycat (`engine::lasting`).
+//! Twinleaf's sessions outlived the attack for 4 end of turns, running the
+//! source card's end-of-turn, Checkup and beginning-of-turn code for the
+//! copycat; that is gone with `run::fire_card_on` and `END_TURN_BUDGET`.
 //!
 //! Rust model:
 //! * A clone is an [`AttackRef`] on the *source* card with
@@ -41,9 +46,6 @@ use crate::prompts::*;
 use crate::state::*;
 use crate::types::*;
 
-/// `DEFAULT_END_TURN_BUDGET`.
-pub const END_TURN_BUDGET: i8 = 4;
-
 #[derive(Clone, Copy, Debug)]
 pub struct CopySession {
     pub copycat: CardId,
@@ -51,7 +53,6 @@ pub struct CopySession {
     pub serial: u8,
     /// Player index (Twinleaf stores the id).
     pub player: u8,
-    pub end_turns: i8,
     /// Runtime `barrage` flags of the cloned attacks (bit per index): the
     /// clones copy the source's flags at `cloneAttacks`; delegated
     /// `this.attacks[i].barrage = ...` writes land here, not on the copycat.
@@ -88,7 +89,6 @@ fn target_includes(g: &Game, t: SlotRef, c: CardId) -> bool {
 /// `shouldDelegateCopyAttackSession`.
 fn should_delegate(g: &Game, s: &CopySession, id: EffId) -> bool {
     match *g.e(id) {
-        Effect::EndTurn { .. } | Effect::BetweenTurns { .. } | Effect::BeginTurn { .. } => true,
         Effect::KnockOut { .. } => g.st.phase == GamePhase::Attack && g.st.active_player == s.player,
         Effect::PlaceCounters { target, cause, .. } => target_includes(g, target, s.copycat) || cause.attack.map_or(false, |a| is_session_clone(s, a)),
         Effect::Damage { b, .. } => is_session_clone(s, b.attack),
@@ -108,11 +108,7 @@ fn delegate(g: &mut Game, s: CopySession, id: EffId) -> R {
     }
     let saved = g.deleg;
     g.deleg = Some(Deleg { copycat: s.copycat, source: s.source, serial: s.serial, attacks: true });
-    let mut r = (imp.reduce)(g, s.copycat, id);
-    // The turn-structure events: the source's triggers over them, run for the copycat (they were its dispatch triggers).
-    if r.is_ok() && matches!(*g.e(id), Effect::EndTurn { .. } | Effect::BetweenTurns { .. } | Effect::BeginTurn { .. }) {
-        r = crate::spec::run::fire_card_on(g, id, s.copycat);
-    }
+    let r = (imp.reduce)(g, s.copycat, id);
     g.deleg = saved;
     r
 }
@@ -182,18 +178,6 @@ pub fn resolve_sessions(g: &mut Game, id: EffId) -> R {
             continue;
         }
         delegate(g, s, id)?;
-        if let Effect::EndTurn { .. } = *g.e(id) {
-            // `session.endTurnsRemaining -= 1` on the captured object, then
-            // `copyAttackSessions.splice(i, 1)` by index (a no-op past the end).
-            let mut left = s.end_turns - 1;
-            if let Some(x) = g.copy_sessions.as_mut_slice().iter_mut().find(|x| x.copycat == s.copycat && x.serial == s.serial) {
-                x.end_turns -= 1;
-                left = x.end_turns;
-            }
-            if left <= 0 && i < g.copy_sessions.len() {
-                g.copy_sessions.remove_at(i);
-            }
-        }
     }
     Ok(())
 }
@@ -203,7 +187,7 @@ fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: 
     g.copy_sessions.retain(|s| s.copycat != copycat);
     g.copy_serial = g.copy_serial.wrapping_add(1);
     let serial = g.copy_serial;
-    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, end_turns: END_TURN_BUDGET, barrage: g.st.cards[source as usize].attack_barrage });
+    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, barrage: g.st.cards[source as usize].attack_barrage });
     let clone = clone_ref(source, serial, index);
     g.st.player_last_attack[p] = Some((clone, copycat));
     g.st.player_last_attack_turn[p] = g.st.turn;

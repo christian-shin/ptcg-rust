@@ -1319,10 +1319,8 @@ impl Game {
                 self.st.bump();
             }
         }
-        // A copy-attack session's source code runs for the copycat after the game's cards (the turn-structure events: after
-        // their triggers, below).
-        let late_sessions = matches!(kind, k::BEGIN_TURN | k::END_TURN | k::BETWEEN_TURNS);
-        if !late_sessions && !self.copy_sessions.is_empty() {
+        // A copied attack being used: its text, the source card's code run as the copycat, after the game's cards.
+        if !self.copy_sessions.is_empty() {
             crate::copy_attack::resolve_sessions(self, id)?;
         }
 
@@ -1375,9 +1373,6 @@ impl Game {
         }
         if crate::spec::event::TRIGGER_EVENT_KINDS.has(kind) {
             crate::spec::run::after_event(self, id)?;
-        }
-        if late_sessions && !self.copy_sessions.is_empty() {
-            crate::copy_attack::resolve_sessions(self, id)?;
         }
         Ok(())
     }

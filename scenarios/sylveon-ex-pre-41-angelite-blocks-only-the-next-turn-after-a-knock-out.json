@@ -1,0 +1,95 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "4 Pikachu ex SSP 57",
+   "10 Water Energy MEE 3",
+   "10 Psychic Energy MEE 5",
+   "10 Grass Energy MEE 1",
+   "10 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ],
+  [
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "4 Pikachu ex SSP 57",
+   "10 Water Energy MEE 3",
+   "10 Psychic Energy MEE 5",
+   "10 Grass Energy MEE 1",
+   "10 Lightning Energy MEE 4",
+   "8 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Eevee PRE 74",
+   "Sylveon ex PRE 41"
+  ],
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Eevee PRE 74",
+     "Sylveon ex PRE 41"
+    ],
+    "energy": [
+     "Water Energy MEE 3",
+     "Lightning Energy MEE 4",
+     "Psychic Energy MEE 5"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Pikachu ex SSP 57",
+  "active_energy": [
+   "Grass Energy MEE 1",
+   "Lightning Energy MEE 4",
+   "Metal Energy MEE 8"
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Angelite"
+  },
+  {
+   "a": "attack",
+   "name": "Topaz Bolt"
+  },
+  {
+   "a": "pass"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Angelite",
+   "is": false,
+   "cite": "Sylveon ex PRE 41 text: can't be used if 1 of your Pokémon used Angelite during your last turn"
+  },
+  {
+   "at": "next_turn",
+   "turn": 4,
+   "who": "me",
+   "legal": "attack",
+   "name": "Angelite",
+   "is": true,
+   "cite": "Sylveon ex PRE 41 text: only an Angelite used during your last turn blocks it; the Sylveon ex that used it being Knocked Out doesn't make it last (batch 8 rules fix: no marker left behind)"
+  }
+ ]
+}
