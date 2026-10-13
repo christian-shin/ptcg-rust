@@ -1,0 +1,14 @@
+{
+ "turn": 4,
+ "decks": [
+  ["4 Abra MEG 54", "4 Alakazam MEG 56", "4 Kadabra MEG 55", "4 Milotic TWM 50", "4 Strange Timepiece MEG 128", "40 Water Energy MEE 3"],
+  ["4 Abra MEG 54", "4 Alakazam MEG 56", "4 Kadabra MEG 55", "4 Milotic TWM 50", "4 Strange Timepiece MEG 128", "40 Water Energy MEE 3"]
+ ],
+ "me": {"reset": true, "active": ["Abra MEG 54", "Kadabra MEG 55", "Alakazam MEG 56"], "hand": ["Strange Timepiece MEG 128"]},
+ "opp": {"reset": true, "active": "Milotic TWM 50"},
+ "answers": [{"a": "play", "card": "Strange Timepiece MEG 128"}, [{"player": 2, "slot": 1, "index": 0}], [2]],
+ "expect": [
+  {"at": "decision", "n": 1, "who": "me", "slot": "active", "card": "Alakazam MEG 56", "cite": "JP FAQ Milotic (ミロカロス) x Mystic Eye / TM Devolution: with Mentally Calm, the opponent's Evolution Pokémon can't be devolved into the hand (いいえ、できません); a devolve into the hand is a LeavePlay to the hand of each Evolution card (events batch 7 D1; batch 8 C12c)"},
+  {"at": "decision", "n": 1, "who": "me", "zone": "hand", "count": 0, "cite": "the same: no Evolution card went into the hand"}
+ ]
+}

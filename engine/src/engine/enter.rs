@@ -483,6 +483,20 @@ pub fn devolve(g: &mut Game, target: SlotRef, count: usize, dest: ListRef, cause
     if crate::engine::condition::refused(g, &v)?.is_some() {
         return Ok(false);
     }
+    // Devolving into the hand puts each Evolution card into its owner's hand: each one leaving play is a LeavePlay to the
+    // hand (events batch 7, user decision D1: any card in play ceasing to be in play), checked as one (Milotic TWM 50's
+    // Mentally Calm refuses it: JP FAQ ミロカロス x Mystic Eye / TM Devolution, the Pokémon can't be devolved: いいえ、できません).
+    // A refused card means the devolve doesn't happen. Batch 8 C12c.
+    if crate::engine::knockout::zone_of(dest) == RulesZone::Hand {
+        let mons = g.st.slot_pokemons(target.p as usize, target.s);
+        let k = count.min(mons.len().saturating_sub(1));
+        for &c in mons.as_slice()[mons.len() - k..].iter() {
+            let lv = crate::engine::knockout::card_leave_view(g, Some(target), c, crate::effects::LeaveHow::Effect, dest, cause);
+            if crate::engine::condition::refused(g, &lv)?.is_some() {
+                return Ok(false);
+            }
+        }
+    }
     g.run_fx_unit(Effect::Devolve { p: target.p, target, count: count.min(3) as u8, removed: SVec::new(), dest, cause })?;
     Ok(true)
 }
