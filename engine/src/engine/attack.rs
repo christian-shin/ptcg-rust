@@ -493,3 +493,54 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
         _ => Ok(()),
     }
 }
+
+#[cfg(test)]
+mod attack_twice_tests {
+    //! Festival Lead's second attack is offered only while Festival Grounds is in play when it would be offered (Dipplin PRE
+    //! 10: "If Festival Grounds is in play, this Pokémon may use an attack it has twice"). No pool card discards the Stadium
+    //! during Dipplin's own attack, so the position is made by hand: the Stadium leaves between the first attack and the
+    //! moment the second would be offered.
+    use super::*;
+
+    #[test]
+    fn the_second_attack_needs_festival_grounds_in_play_when_offered() {
+        let names = ["Applin PRE 9", "Dipplin PRE 10", "Festival Grounds PRE 108", "Hop's Snorlax JTG 117"];
+        let mut deck: Vec<u16> = Vec::new();
+        for n in names {
+            deck.extend(std::iter::repeat(crate::carddb::def_by_full_name(n).unwrap()).take(4));
+        }
+        while deck.len() < 60 {
+            deck.push(crate::carddb::def_by_full_name("Grass Energy MEE 1").unwrap());
+        }
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g.settle().ok();
+        let sc = serde_json::json!({
+            "me": {"reset": true, "active": ["Applin PRE 9", "Dipplin PRE 10"], "active_energy": ["Grass Energy MEE 1"], "stadium": "Festival Grounds PRE 108"},
+            "opp": {"reset": true, "active": "Hop's Snorlax JTG 117"}
+        });
+        crate::scenario::apply(&mut g, &sc).unwrap();
+        let p = g.st.active_player as usize;
+        let active = g.st.players[p].active;
+        let dipplin = g.st.active_pokemon(p).unwrap();
+        assert_eq!(g.st.cdef(dipplin).full_name, "Dipplin PRE 10");
+        let frame = AttackFrame {
+            stage: AtkStage::AfterConfusion,
+            p: p as u8,
+            attack: AttackRef { card: dipplin, index: 0 },
+            attacking: SlotRef::new(p, active),
+            atk: 0,
+            origin: 0,
+            delegate_from: None,
+        };
+        assert!(attack_twice(&mut g, &frame, false), "Dipplin declares the second attack");
+        assert!(attack_twice(&mut g, &frame, true), "Festival Grounds is in play");
+        let stadium = g.st.stadium_card().expect("Festival Grounds in play");
+        let owner = g.st.owner(stadium) as u8;
+        g.move_card_to(ListRef::Stadium(owner), stadium, ListRef::Discard(owner));
+        g.st.bump();
+        assert!(g.st.stadium_card().is_none());
+        assert!(attack_twice(&mut g, &frame, false), "the declaration is the Pokémon's");
+        assert!(!attack_twice(&mut g, &frame, true), "Festival Grounds was discarded during the first attack: no second attack");
+    }
+}
