@@ -157,10 +157,10 @@ pub fn armed_discard_attacker_energy(st: &State, p: usize, s: SlotId) -> Option<
     }
 }
 
-/// The armed next-turn bonus on the Pokémon in spot `s` of player `p`: its declaration and the card it is for.
-pub fn armed_bonus(st: &State, p: usize, s: SlotId) -> Option<(&'static crate::spec::passive::NextTurnBonusSpec, CardId)> {
+/// The armed next-turn bonus on the Pokémon in spot `s` of player `p`: its declaration, the card it is for and the attack.
+pub fn armed_bonus(st: &State, p: usize, s: SlotId) -> Option<(&'static crate::spec::passive::NextTurnBonusSpec, CardId, AttackRef)> {
     match find(st, LastingOn::pokemon(p, s), Kind::BonusArmed) {
-        Some(LastingEffect { source, what: LastingWhat::NextTurnBonus { spec, .. }, .. }) => Some((*spec, *source)),
+        Some(LastingEffect { source, what: LastingWhat::NextTurnBonus { spec, attack, .. }, .. }) => Some((*spec, *source, *attack)),
         _ => None,
     }
 }
@@ -380,9 +380,9 @@ pub fn set_no_weakness(st: &mut State, p: usize, s: SlotId, source: CardId) {
 }
 
 /// The next-turn bonus armed this turn (pending) for `source`.
-pub fn set_bonus_pending(st: &mut State, p: usize, s: SlotId, spec: &'static crate::spec::passive::NextTurnBonusSpec, source: CardId) {
+pub fn set_bonus_pending(st: &mut State, p: usize, s: SlotId, spec: &'static crate::spec::passive::NextTurnBonusSpec, source: CardId, attack: AttackRef) {
     let on = LastingOn::pokemon(p, s);
-    set(st, on, Kind::BonusPending, Some(LastingEffect { on, source, what: LastingWhat::NextTurnBonus { spec, pending: true } }));
+    set(st, on, Kind::BonusPending, Some(LastingEffect { on, source, what: LastingWhat::NextTurnBonus { spec, attack, pending: true } }));
 }
 
 // ---------------------------------------------------------------------------

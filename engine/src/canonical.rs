@@ -90,9 +90,9 @@ impl Game {
                         o.insert("noWeakness".into(), json!(armed));
                         o.insert("pending".into(), json!(pending));
                     }
-                    LastingWhat::NextTurnBonus { spec, pending } => {
+                    LastingWhat::NextTurnBonus { spec, attack: a, pending } => {
                         o.insert("nextTurnBonus".into(), json!(spec.bonus));
-                        o.insert("attack".into(), json!(spec.attack));
+                        o.insert("attack".into(), attack(a));
                         o.insert("pending".into(), json!(pending));
                     }
                 }
