@@ -41,7 +41,7 @@ pub static SPEC: CardSpec = CardSpec {
             subject: SlotPred::TypeIs(crate::types::ct::DARK),
             by_attack_damage: true,
             attacker: SlotPred::Top(Pred::PokemonEx),
-            nonstacking: Some("MEGA_GENGAR_SHADOW_HIDING_APPLIED"),
+            once: Once::PerSubject,
             owner_only: true,
             ..PrizeAdjustSpec::DEFAULT
         }),

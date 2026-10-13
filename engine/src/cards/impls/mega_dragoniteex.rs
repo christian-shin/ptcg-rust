@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("SKY_CARRY_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[Step::new(Op::Switch(SwitchSpec { change: ActiveChange::Switch, among: SwitchAmong::Bench, msg: "CHOOSE_NEW_ACTIVE_POKEMON", required: true }))],
     }],

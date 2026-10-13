@@ -9,7 +9,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Vivillon@POR",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("BIG_WINGS_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // Your opponent shuffles their hand and puts it on the bottom of their deck; if they did, they draw 4 cards.
         steps: &[

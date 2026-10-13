@@ -8,7 +8,7 @@ pub static SPEC: CardSpec = CardSpec {
     play: Some(PlaySpec {
         kind: PlayKind::Item,
         needs: &[],
-        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: None, energy: Pred::BasicEnergy, cancel: false, used_always: false }))],
+        steps: &[Step::new(Op::MoveEnergyOwn(MoveEnergyOwnSpec { to: None, energy: Pred::BasicEnergy, cancel: false }))],
     }),
     ..CardSpec::NONE
 };

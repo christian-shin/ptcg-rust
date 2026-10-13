@@ -263,7 +263,6 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
                 h.write_i32(x);
             }
             l(&mut h, sl.special_conditions.as_slice());
-            l(&mut h, sl.board_effect.as_slice());
             for m in sl.marker.items.iter() {
                 h.write_u16(m.name);
                 h.write_u8(m.source);
@@ -291,9 +290,6 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         for b in [pl.used_vstar, pl.used_gx, pl.pokemon_knocked_out_during_opponents_last_turn, pl.pokemon_knocked_out_by_attack_during_opponents_last_turn] {
             h.write_u8(b as u8);
         }
-        for d in pl.once_per_game_used.iter() {
-            h.write_u16(*d);
-        }
         l(&mut h, pl.moved_to_active_this_turn.as_slice());
         l(&mut h, pl.moved_from_active_to_bench_this_turn.as_slice());
         for d in pl.pokemon_knocked_out_last_turn_entries.iter() {
@@ -302,6 +298,9 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         for b in pl.pokemon_knocked_out_last_turn_by_attack.iter() {
             h.write_u8(*b as u8);
         }
+    }
+    for u in st.usage.iter() {
+        u.hash(&mut h);
     }
     for l in st.lasting.iter() {
         l.on.hash(&mut h);

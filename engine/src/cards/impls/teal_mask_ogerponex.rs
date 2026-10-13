@@ -12,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[Passive { origin: RuleSource::CardRule, modifier: Modifier::Prevent(TERA_RULE) }],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("TEAL_DANCE_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // Attach a Basic [G] Energy card from your hand to this Pokémon; if you did, draw a card.
         steps: &[

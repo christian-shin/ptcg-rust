@@ -11,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Tatsugiri",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("CROWD_PULLER_MARKER"),
+        once: Once::PerTurn,
         needs: &[Cond::IsActive(SlotExpr::This)],
         // Look at the top 6 cards of your deck, reveal a Supporter there and put it into your hand; shuffle the rest back.
         steps: &[

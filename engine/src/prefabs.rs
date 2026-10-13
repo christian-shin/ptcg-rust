@@ -179,33 +179,6 @@ pub fn transfer_pokemon_card_state(g: &mut Game, p: usize, old: CardId, new: Car
     }
 }
 
-/// The once-per-turn uses of `card` (player `p`'s `Once::PerTurn` marks keyed by the card), by Ability marker name.
-pub fn per_turn_uses(g: &Game, p: usize, card: CardId) -> SVec<crate::markers::MarkerName, 4> {
-    let mut out = SVec::new();
-    if let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) {
-        for pw in spec.powers.iter() {
-            if let crate::spec::Once::PerTurn(name) = pw.once {
-                let id = crate::markers::intern(name);
-                if g.st.players[p].marker.has_from(id, card) && out.len() < out.capacity() {
-                    out.push(id);
-                }
-            }
-        }
-    }
-    out
-}
-
-/// "Information on which Abilities have already been used also remains on the new Pokémon" (APR D-19; JP FAQ Morpeko /
-/// Ogre's Mask x Teal Dance / Transformation Tome x Erika's Tangela): the swapped-out card's once-per-turn uses (read
-/// before the cards move, `per_turn_uses`) are the new card's, by Ability marker name, so a different Ability of the new
-/// card not used yet stays usable. The shared limits ("you can't use more than 1 X Ability each turn") are the player's
-/// already. Batch 8 C12c.
-pub fn carry_per_turn_uses(g: &mut Game, p: usize, new: CardId, used: &[crate::markers::MarkerName]) {
-    for id in used {
-        g.st.players[p].marker.add(*id, new, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    }
-}
-
 /// The PlayTrainer event uses the Supporter's effect as the effect of an attack (`TrainerUse::Used`: Mr. Mime's Look-Alike
 /// Show), so "up to" prompts may choose zero (APR D-05).
 pub fn trainer_via_attack(g: &Game, e: EffId) -> bool {
@@ -363,43 +336,12 @@ thread_local! {
 }
 
 // ---------------------------------------------------------------------------
-// Markers and ability bookkeeping
+// Ability bookkeeping
 
-/// `ABILITY_USED(player, card)`: board effect on the slot holding `card`.
-pub fn ability_used(g: &mut Game, p: usize, card: CardId) {
-    for s in g.st.players[p].in_play().iter() {
-        if g.st.slot_pokemon(p, *s) == Some(card) {
-            let be = &mut g.st.players[p].slots[*s as usize].board_effect;
-            let v = BoardEffect::AbilityUsed as u8;
-            if !be.contains(&v) {
-                be.retain(|b| !matches!(*b, 0..=3));
-                be.push(v);
-            }
-        }
-    }
-}
-
-/// `USE_ABILITY_ONCE_PER_TURN(player, marker, source)` on the player marker.
-pub fn use_ability_once_per_turn(g: &mut Game, p: usize, marker: crate::markers::MarkerName, source: CardId) -> R {
-    if g.st.players[p].marker.has_from(marker, source) {
-        crate::bail!("POWER_ALREADY_USED");
-    }
-    g.st.players[p].marker.add(marker, source, crate::markers::SourceType::None, crate::markers::TargetScope::None);
-    Ok(())
-}
-
-/// A card's own once-per-turn use marks reset when its Pokémon changes (ruling 317: evolving,
-/// devolving, leaving play, and coming into play again); benching does not.
+/// A card's own Ability usage records end when its Pokémon changes (ruling 317: evolving, devolving, leaving play, and
+/// coming into play again); benching does not (`engine::usage::reset_card`).
 pub fn reset_once_per_turn(g: &mut Game, card: CardId) {
-    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return };
-    for pw in spec.powers.iter() {
-        if let crate::spec::Once::PerTurn(name) = pw.once {
-            let m = crate::markers::intern(name);
-            for pl in g.st.players.iter_mut() {
-                pl.marker.remove_from(m, card);
-            }
-        }
-    }
+    crate::engine::usage::reset_card(&mut g.st, card);
 }
 
 /// `reset_once_per_turn` for every card of a slot.

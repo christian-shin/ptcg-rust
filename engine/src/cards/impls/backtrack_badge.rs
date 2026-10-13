@@ -7,9 +7,8 @@
 //! Slowking's Seek Inspiration choosing Stoutland's attack). All the attack's flips are flipped again from the first (id2416; JP FAQ
 //! Mega Kangaskhan ex / Mega Audino ex); a Confusion flip isn't an attack's flip for an effect (id2417), nor an Ability's
 //! flips (JP FAQ Cinccino ex). The re-flip's flips are new CoinFlip events with the attack's cause, not the Tool's. Once
-//! during your turn: the marker COIN_REFLIP_AGAIN_USED on its player, cleared at the end of their turn.
+//! during your turn (`Once::PerTurnShared`: the player's usage record of this declaration, ending with their turn).
 use crate::cause::CauseKind;
-use crate::markers::COIN_REFLIP_AGAIN_USED;
 use crate::spec::event::CoinPurpose;
 use crate::spec::prelude::*;
 use crate::types::ct;
@@ -24,17 +23,9 @@ pub static SPEC: CardSpec = CardSpec {
                 EventPred::Purpose(CoinPurpose::Effect),
                 EventPred::Cause(CausePred::All(&[CausePred::Kind(CauseKind::Attack), CausePred::Holder, CausePred::Pokemon(SlotPred::TypeIs(ct::COLORLESS))])),
             ]),
-            once: COIN_REFLIP_AGAIN_USED,
+            once: Once::PerTurnShared,
         }),
     }],
-    triggers: &[
-        // The once-per-turn use ends with the turn.
-        Trigger {
-            origin: RuleSource::Tool,
-            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
-            steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "COIN_REFLIP_AGAIN_USED", from: MarkerFrom::Any }))],
-        },
-    ],
     ..CardSpec::NONE
 };
 

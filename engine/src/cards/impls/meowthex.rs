@@ -5,7 +5,7 @@
 //! Tuck Tail is one LeavePlay event (destination the hand) by the attack's effect, after the damage: Milotic TWM 50's
 //! Mentally Calm on the opponent's side refuses it and Meowth ex stays with its cards (scenario
 //! meowth-ex-por-62-tuck-tail-vs-milotic-twm-mentally-calm). Last-Ditch Catch is an `On(EnterPlay ..)` trigger with an
-//! Ability origin; the "Last-Ditch" limit is a player marker cleared at the end of the turn.
+//! Ability origin; the "Last-Ditch" limit is the player's usage record of the Ability, ending with the turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -16,14 +16,14 @@ pub static SPEC: CardSpec = CardSpec {
             origin: RuleSource::Ability,
             event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EnterPlay), EventPred::This(Role::Card), EventPred::Source(RulesZone::Hand), EventPred::Mode(EnterMode::Rule), EventPred::Slot(SlotPred::IsBench)])),
             steps: &[Step::new(Op::If(IfSpec {
-                // Only one "Last-Ditch" Ability per turn (the state marker); it needs a card in the deck.
-                cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Not(&Cond::HasMarker { who: Who::Me, name: "TRUMP_CARD_MARKER", from: MarkerFrom::Any })]),
+                // Only one "Last-Ditch" Ability per turn (the player's usage record); it needs a card in the deck.
+                cond: Cond::All(&[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any), Cond::Not(&Cond::Used(UsedSpec::ability(0, UsedBy::Player)))]),
                 yes: &[Step::new(Op::May(MaySpec {
                     asker: Who::Me,
                     when: Cond::True,
                     msg: "WANT_TO_USE_ABILITY",
                     yes: &[
-                        Step::new(Op::SetMarker(SetMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "TRUMP_CARD_MARKER", source: RuleSource::CardRule })),
+                        Step::new(Op::Used(UsedSpec::ability(0, UsedBy::Player))),
                         Step::new(Op::Search(SearchSpec {
                             pick: PickSpec { from: ZoneRef(Who::Me, Zone::Deck), predicate: Pred::Supporter, bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) }, ..PickSpec::DEFAULT },
                             destination: SearchDestination::Hand { reveal: true },
@@ -36,11 +36,6 @@ pub static SPEC: CardSpec = CardSpec {
                 }))],
                 no: &[],
             }))],
-        },
-        Trigger {
-            origin: RuleSource::CardRule,
-            event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])),
-            steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "TRUMP_CARD_MARKER", from: MarkerFrom::Any }))],
         },
     ],
     ..CardSpec::NONE

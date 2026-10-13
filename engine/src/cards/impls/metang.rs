@@ -7,7 +7,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "Metang",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("METAL_MAKER_MARKER"),
+        once: Once::PerTurn,
         needs: &[Cond::Nonempty(ZoneRef(Who::Me, Zone::Deck), Pred::Any)],
         steps: &[
             Step::new(Op::Look(LookSpec { from: ZoneRef(Who::Me, Zone::Deck), cards: CardSel::Top(Num::Lit(4)), into: 0, ..LookSpec::DEFAULT })),

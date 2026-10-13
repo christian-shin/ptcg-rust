@@ -4,7 +4,7 @@
 //! during your next turn.
 //!
 //! Torrential Heart puts the 5 counters with one PlaceCounters event (the Ability is its cause; the counters aren't damage
-//! and can't be prevented by an attack's protection) and sets the once-per-turn marker; while the marker is on this
+//! and can't be prevented by an attack's protection) and makes the once-per-turn usage record; while it is there for this
 //! Pokémon, the main damage of any of its attacks gets +120 at the attack stage (before Weakness and Resistance). Giant
 //! Wave's "can't use" is an ApplyEffect event on this Pokémon (`Lasting::Lock(LastingLockSpec::on_this_pokemon(&CANT_ATTACK, LockUntil::YourNextTurn).naming(NamedAttack::This))`).
 use crate::spec::prelude::*;
@@ -17,14 +17,14 @@ pub static SPEC: CardSpec = CardSpec {
     ],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("TORRENTIAL_HEART_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[
             Step::new(Op::PlaceCounters(PlaceCountersSpec { target: SlotTarget::Slot(SlotExpr::This), counters: Num::Lit(5) })),
         ],
     }],
     passives: &[
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::DamageDealt(DamageDealtSpec { stage: DamageStage::Attack, amount: 120, attacker: SlotPred::Holder, guard: Cond::HasMarker { who: Who::Me, name: "TORRENTIAL_HEART_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::DamageDealt(DamageDealtSpec { stage: DamageStage::Attack, amount: 120, attacker: SlotPred::Holder, guard: Cond::Used(UsedSpec::ability(0, UsedBy::Copy)), ..DamageDealtSpec::DEFAULT }) },
     ],
     ..CardSpec::NONE
 };

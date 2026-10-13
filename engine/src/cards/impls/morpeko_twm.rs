@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
     }],
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("SNACK_SEARCH_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // "You may look at the top card of your deck. You may discard that card.": the card is looked at (set aside), then
         // its owner chooses: discarded, or back on top of the deck.

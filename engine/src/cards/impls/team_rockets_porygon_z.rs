@@ -10,7 +10,7 @@ pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsPorygonZ",
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("RECONSTITUTE_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         // Discard 2 cards from your hand; draw a card.
         steps: &[

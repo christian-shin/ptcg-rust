@@ -397,33 +397,12 @@ fn checkup_finish(g: &mut Game, oc: OnComplete) -> R {
     crate::engine::knockout::state_check(g, oc)
 }
 
-/// The EndTurn event's consequence: the once-per-turn marks of player `p`'s Abilities (the cards with a once-per-turn
-/// Ability in a zone of the board, `DeclIndex::once_per_turn`) are cleared, in no particular order.
-fn end_turn_marks(g: &mut Game, p: usize) {
-    let mut set = g.decls.once_per_turn;
-    while set != 0 {
-        let c = set.trailing_zeros() as CardId;
-        set &= set - 1;
-        if !crate::decl::in_a_zone(g, c) {
-            continue;
-        }
-        let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
-        for pw in spec.powers.iter() {
-            if let crate::spec::Once::PerTurn(name) | crate::spec::Once::PerTurnShared(name) = pw.once {
-                let m = &mut g.st.players[p].marker;
-                let id = crate::markers::intern(name);
-                if m.has_from(id, c) {
-                    m.remove_from(id, c);
-                }
-            }
-        }
-    }
-}
-
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
         Effect::EndTurn { p } => {
-            end_turn_marks(g, p as usize);
+            // The turn's usage records end before the end-of-turn effects the player orders: an expiry is not an effect (APR
+            // E-21).
+            crate::engine::usage::expire_this_turn(&mut g.st, p as usize);
             Ok(())
         }
         Effect::AfterAttack { opp, .. } => {
@@ -454,7 +433,6 @@ fn end_turn(g: &mut Game, p: usize) -> R {
     // usedTurnSkip / pendingEndOfTurnEffects: not modeled.
     for s in g.st.players[p].in_play().iter() {
         let slot = &mut g.st.players[p].slots[*s as usize];
-        slot.board_effect.retain(|b| *b != BoardEffect::AbilityUsed as u8);
         slot.healed_this_turn = false;
         if let Some(c) = g.st.slot_pokemon(p, *s) {
             g.st.cards[c as usize].damage_taken_last_turn = 0;
@@ -467,6 +445,8 @@ fn end_turn(g: &mut Game, p: usize) -> R {
 
     // The lasting effects' timing (`engine::lasting::end_turn`).
     crate::engine::lasting::end_turn(&mut g.st, p);
+    // What the end-of-turn effects read has done its work.
+    crate::engine::usage::expire_after_turn(&mut g.st, p);
     let pl = &mut g.st.players[p];
     // The turn's record of the Trainer cards played from the hand ends with it.
     pl.played_this_turn.clear();

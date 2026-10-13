@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
     // put it into your hand, then shuffle.
     powers: &[PowerSpec {
         index: 0,
-        once: Once::PerTurn("CHAMPIONS_CALL_MARKER"),
+        once: Once::PerTurn,
         needs: &[],
         steps: &[
             Step::new(Op::Search(SearchSpec {
