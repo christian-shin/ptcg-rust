@@ -62,16 +62,13 @@ pub fn attack_def(g: &Game, a: AttackRef) -> &'static crate::carddb::AttackDef {
     &g.st.cdef(a.card).attacks[a.idx()]
 }
 
-/// Check only, first half: first turn, Special Conditions, which Pokémon
-/// attacks (a Benched one for a use-on-Bench attack) and the flags that block
-/// it. Returns the attacking slot. Same order as `start_use_attack` always had.
+/// Check only, first half: first turn and Special Conditions. Returns the attacking slot (the Active Pokémon).
 ///
-/// `granted_first_turn`: an Ability lets the attack be used on the first turn (Meloetta ex's permission,
-/// `passive::grants_first_turn_attack`, which execution and legality both read).
-pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool, granted_first_turn: bool) -> R<SlotRef> {
-    let ad = attack_def(g, attack);
+/// `granted_first_turn`: the attack may be used on the first turn (its own text, or an Ability: Meloetta ex's
+/// permission; `passive::grants_first_turn_attack`, which execution and legality both read).
+pub fn can_attack_pre(g: &Game, p: usize, ignore_status: bool, granted_first_turn: bool) -> R<SlotRef> {
     // The first-turn limit, unless a permission lifts it ("if you go first, you can use this attack during your first turn").
-    if g.st.turn == 1 && !granted_first_turn && !g.st.rules.attack_first_turn {
+    if g.st.turn == 1 && !granted_first_turn {
         crate::bail!("CANNOT_ATTACK_ON_FIRST_TURN");
     }
     let active = g.st.players[p].active;
@@ -79,15 +76,7 @@ pub fn can_attack_pre(g: &Game, p: usize, attack: AttackRef, ignore_status: bool
     if (sp.contains(&(SpecialCondition::Paralyzed as u8)) || sp.contains(&(SpecialCondition::Asleep as u8))) && !ignore_status {
         crate::bail!("BLOCKED_BY_SPECIAL_CONDITION");
     }
-    let mut attacking = SlotRef::new(p, active);
-    for &b in g.st.players[p].bench.iter() {
-        if let Some(c) = g.st.slot_pokemon(p, b) {
-            if g.st.cdef(c).attacks.iter().any(|a| a.name == ad.name && a.use_on_bench) {
-                attacking = SlotRef::new(p, b);
-            }
-        }
-    }
-    Ok(attacking)
+    Ok(SlotRef::new(p, active))
 }
 
 /// The Energy count the attacker provides, from its Energy map (`derived::provided_energy`).
@@ -269,11 +258,6 @@ fn attack_triggers_loop(g: &mut Game, mut f: AttackFrame) -> R {
     finish_attack(g, f)
 }
 
-/// The printed Barrage flag of the attack.
-pub fn attack_barrage(g: &Game, a: AttackRef) -> bool {
-    attack_def(g, a).barrage
-}
-
 /// Does the Pokémon that used the attack declare "this Pokémon may use an attack it has twice" (`Modifier::AttackTwice`,
 /// Festival Lead), for this attack, one printed on it (not a copied one, not one another card lets it use: Mew ex's
 /// Memory Helix, Relicanth's Memory Dive, a Technical Machine; JP FAQ Dipplin / Mew ex: never through a copy)? With
@@ -307,8 +291,7 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
         Effect::UseAttack { barrage_used, .. } | Effect::Attack { barrage_used, .. } => barrage_used,
         _ => false,
     };
-    // hasBarragePower (power.barrage): no pool card sets it.
-    if (attack_barrage(g, f.attack) || attack_twice(g, &f, false)) && !barrage_used {
+    if attack_twice(g, &f, false) && !barrage_used {
         return barrage_check(g, f, AtkStage::AfterBarrageCheck1);
     }
     g.release_fx(f.atk);
@@ -360,7 +343,7 @@ fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     // The second use runs through `useAttack` again: it isn't offered when it
     // would throw (the attacker lost its Energy, e.g. to Handheld Fan, or is now
     // Asleep / Paralyzed); the turn just ends.
-    if !(attack_barrage(g, f.attack) || attack_twice(g, &f, true)) || !barrage_can_attack_again(g, &f)? {
+    if !attack_twice(g, &f, true) || !barrage_can_attack_again(g, &f)? {
         g.release_fx(f.atk);
         g.release_fx(f.origin);
         // The Knock Outs were checked (`barrage_check`).
@@ -380,15 +363,7 @@ fn barrage_can_attack_again(g: &mut Game, f: &AttackFrame) -> R<bool> {
     if sp.contains(&(SpecialCondition::Paralyzed as u8)) || sp.contains(&(SpecialCondition::Asleep as u8)) {
         return Ok(false);
     }
-    let ad = attack_def(g, f.attack);
-    let mut attacking = SlotRef::new(p, active);
-    for &b in g.st.players[p].bench.iter() {
-        if let Some(c) = g.st.slot_pokemon(p, b) {
-            if g.st.cdef(c).attacks.iter().any(|a| a.name == ad.name && a.use_on_bench) {
-                attacking = SlotRef::new(p, b);
-            }
-        }
-    }
+    let attacking = SlotRef::new(p, active);
     let cost = crate::derived::attack_cost(g, f.p as usize, f.attack)?;
     let emap = crate::derived::provided_energy(g, f.p as usize, attacking)?;
     Ok(energy::check_enough_energy(emap.as_slice(), cost.as_slice()))

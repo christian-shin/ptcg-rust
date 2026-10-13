@@ -68,7 +68,6 @@ fn card_db_matches_card_data() {
         for (p, j) in d.powers.iter().zip(pw) {
             assert_eq!(p.name, j["name"].as_str().unwrap());
             assert_eq!(p.power_type as u64, j["powerType"].as_u64().unwrap());
-            assert_eq!(p.use_when_in_play, j["useWhenInPlay"] == true);
         }
         if d.is_pokemon() {
             assert_eq!(d.hp as i64, c["hp"].as_i64().unwrap(), "{} hp", name);

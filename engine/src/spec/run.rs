@@ -1302,8 +1302,8 @@ mod consequence_tests {
     }
 
     /// Psyduck ASC 39's Damp removes "any Ability that requires the Pokémon using it to Knock Out itself": exactly the
-    /// Abilities whose program has a consequence Knocking this Pokémon Out (the card data's `knocks_out_self`): the reader
-    /// `power_knocks_out_self` equals the flag on every power of every spec, and the pool's are Cursed Blast and Overvolt
+    /// Abilities whose program has a consequence Knocking this Pokémon Out (what the card data's `knocks_out_self` marked,
+    /// proved equal on every power of every spec before the flag left the data): the pool's are Cursed Blast and Overvolt
     /// Discharge.
     #[test]
     fn damp_names_the_consequence_knock_outs() {
@@ -1311,10 +1311,7 @@ mod consequence_tests {
         for (i, d) in crate::carddb::cards().iter().enumerate() {
             let Some(spec) = crate::cards::spec_for(i as u16) else { continue };
             for pw in spec.powers {
-                let ko = program_knocks_out_self(pw);
-                let flagged = d.powers.get(pw.index as usize).map_or(false, |x| x.knocks_out_self);
-                assert_eq!(ko, flagged, "{}: consequence Knock Out {} vs knocks_out_self {}", d.full_name, ko, flagged);
-                if ko {
+                if program_knocks_out_self(pw) {
                     users.push(d.full_name);
                 }
             }

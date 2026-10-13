@@ -75,7 +75,6 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
             Some(t) => t,
             None => crate::bail!("INVALID_TARGET"),
         };
-        // useFromHandToBench / Dual Legend: no pool card uses them.
         return crate::engine::enter::play_from_hand(g, p, card, t);
     }
     if d.is_trainer() {
@@ -92,8 +91,7 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
 pub type CheckedAttacks = (SVec<AttackRef, 32>, SVec<AttackRef, 32>);
 
 /// Attacks available to the active player, as the AttackAction reducer builds them, from the read
-/// [`read_attack_list`] made: the Active Pokémon's printed attacks, the use-on-Bench attacks of the Benched
-/// ones, then the checked list. The bool marks an attack copied from a Benched Pokémon.
+/// [`read_attack_list`] made: the Active Pokémon's printed attacks, then the checked list. The bool marks an attack copied from a Benched Pokémon.
 pub fn assemble_available_attacks(g: &Game, p: usize, checked: &CheckedAttacks) -> SVec<(AttackRef, bool), 64> {
     let mut out: SVec<(AttackRef, bool), 64> = SVec::new();
     if let Some(c) = g.st.active_pokemon(p) {
@@ -102,21 +100,6 @@ pub fn assemble_available_attacks(g: &Game, p: usize, checked: &CheckedAttacks) 
         }
     }
     let (attacks, copied) = checked;
-    for &b in g.st.players[p].bench.iter() {
-        if let Some(c) = g.st.slot_pokemon(p, b) {
-            let d = g.st.cdef(c);
-            if d.attacks.iter().any(|a| a.use_on_bench) {
-                for (i, a) in d.attacks.iter().enumerate() {
-                    if a.use_on_bench {
-                        out.push((AttackRef { card: c, index: i as u8 }, false));
-                    }
-                }
-                for a in attacks.iter() {
-                    out.push((*a, copied.iter().any(|c| c == a)));
-                }
-            }
-        }
-    }
     for a in attacks.iter() {
         out.push((*a, copied.iter().any(|c| c == a)));
     }
