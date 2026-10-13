@@ -1,0 +1,39 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Judge POR 76",
+   "4 Harlequin WHT 83",
+   "4 Hop's Wooloo JTG 135",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Judge POR 76",
+   "4 Harlequin WHT 83",
+   "4 Hop's Wooloo JTG 135",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135",
+  "hand": [
+   "Judge POR 76"
+  ],
+  "deck_left": 0
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Judge",
+   "is": true,
+   "cite": "JP FAQ Judge (ジャッジマン): with your deck at 0 it can be played: 「自分または相手の手札か山札が1枚以上あれば、サポート「ジャッジマン」を使うことができます」 (the opponent has a hand and a deck)"
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Applin DRI 16", "4 Dipplin PRE 10", "4 Thwackey TWM 15", "4 Flutter Mane PRE 43", "44 Grass Energy MEE 1"],
+  ["4 Applin DRI 16", "4 Dipplin PRE 10", "4 Thwackey TWM 15", "4 Flutter Mane PRE 43", "44 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Dipplin PRE 10", "bench": [{"card": "Thwackey TWM 15"}]},
+ "opp": {"reset": true, "active": "Applin DRI 16"},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "ability", "name": "Boom Boom Groove", "cite": "Thwackey TWM 15 text: the Active Dipplin has the Festival Lead Ability (the control of thwackey-twm-15-boom-boom-groove-not-with-festival-lead-turned-off)"}
+ ]
+}

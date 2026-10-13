@@ -708,6 +708,10 @@ pub enum SlotPred {
     Evolution,
     /// The Pokémon has an Ability after effects: a checked read.
     HasAbility,
+    /// The Pokémon has the Ability of this name after effects ("if your Active Pokémon has the Festival Lead Ability": a
+    /// locked Ability isn't had, JP FAQ Thwackey / Flutter Mane; RULES.md "Pokémon that have an Ability"): a checked read.
+    /// `Pred::HasAbilityNamed` stays the printed read for cards out of play.
+    HasAbilityNamed(&'static str),
     /// The top Pokémon is this card.
     IsThisPokemon,
     /// The top Pokémon has this name.
@@ -889,7 +893,7 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::AnyTool(q) => slot.tools.iter().any(|c| pred(g, c, q)),
         SlotPred::HasSpecialEnergy => slot.energies.iter().any(|c| g.st.cdef(c).energy_type == EnergyType::Special as u8),
         SlotPred::MarkerFromThis(n) => crate::markers::marker_id(n).map_or(false, |id| slot.marker.has_from(id, me)),
-        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,
+        SlotPred::Provides(_) | SlotPred::HasAbility | SlotPred::HasAbilityNamed(_) | SlotPred::NoEnergyProvided | SlotPred::RemainingHpAtMost(_) | SlotPred::StadiumEffectActive => return None,
         SlotPred::HasEnergyNamed(n) => slot.cards.iter().any(|c| {
             let d = g.st.cdef(c);
             d.is_energy() && d.name == *n
@@ -949,6 +953,13 @@ pub fn slot_pred_m<F: crate::derived::Facts>(g: &mut F, me: CardId, s: SlotRef, 
         SlotPred::HasAbility => {
             let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
             g.powers(s.p as usize, src)?.iter().any(|r| g.g().st.cdef(r.card).powers[r.index as usize].power_type == PowerType::Ability as u8)
+        }
+        SlotPred::HasAbilityNamed(n) => {
+            let Some(src) = g.g().st.slot_pokemon(s.p as usize, s.s) else { return Ok(false) };
+            g.powers(s.p as usize, src)?.iter().any(|r| {
+                let pw = &g.g().st.cdef(r.card).powers[r.index as usize];
+                pw.power_type == PowerType::Ability as u8 && pw.name == *n
+            })
         }
         _ => slot_pred(g.g(), me, s, sp).expect("pure slot predicate"),
     })

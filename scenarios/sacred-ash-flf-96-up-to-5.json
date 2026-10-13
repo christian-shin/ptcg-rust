@@ -1,0 +1,13 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Sacred Ash FLF 96", "4 Dreepy ASC 158", "52 Psychic Energy MEE 5"],
+  ["4 Sacred Ash FLF 96", "4 Dreepy ASC 158", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Dreepy ASC 158", "hand": ["Sacred Ash FLF 96"], "discard": ["Dreepy ASC 158", "Dreepy ASC 158", "Dreepy ASC 158"]},
+ "opp": {"reset": true, "active": "Dreepy ASC 158"},
+ "answers": [{"a": "play", "card": "Sacred Ash FLF 96"}, [0]],
+ "expect": [
+  {"at": "decision", "n": 1, "who": "me", "zone": "discard", "count": 3, "contains": "Dreepy ASC 158", "cite": "Sacred Ash erratum \"up to 5\" (id2176); JP FAQ Sacred Ash (せいなるはい): with 5 Pokémon in the discard pile, choosing just 1 is allowed (はい、できます): one Dreepy shuffled in, two Dreepy and Sacred Ash in the discard pile"}
+ ]
+}

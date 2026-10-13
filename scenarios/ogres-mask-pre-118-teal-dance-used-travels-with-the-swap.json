@@ -1,0 +1,19 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Teal Mask Ogerpon ex PRE 12", "4 Ogre's Mask PRE 118", "4 Dreepy ASC 158", "48 Grass Energy MEE 1"],
+  ["4 Teal Mask Ogerpon ex PRE 12", "4 Ogre's Mask PRE 118", "4 Dreepy ASC 158", "48 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Teal Mask Ogerpon ex PRE 12", "hand": ["Grass Energy MEE 1", "Ogre's Mask PRE 118", "Grass Energy MEE 1"], "discard": ["Teal Mask Ogerpon ex PRE 12"]},
+ "opp": {"reset": true, "active": "Dreepy ASC 158"},
+ "answers": [
+  {"a": "ability", "name": "Teal Dance", "source": {"player": 2, "slot": 1, "index": 0}},
+  [0],
+  {"a": "play", "card": "Ogre's Mask PRE 118"},
+  [0],
+  [{"player": 2, "slot": 1, "index": 0}]
+ ],
+ "expect": [
+  {"at": "decision", "n": 2, "who": "me", "legal": "ability", "name": "Teal Dance", "is": false, "cite": "JP FAQ Ogre's Mask (鬼の仮面) / Teal Mask Ogerpon ex: after Teal Dance, the Ogerpon ex swapped in from the discard pile can't use Teal Dance (いいえ、できません); APR D-19: \"Information on which Abilities have already been used also remains on the new Pokémon\" (batch 8 C12c)"}
+ ]
+}

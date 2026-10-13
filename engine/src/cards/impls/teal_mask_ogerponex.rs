@@ -28,7 +28,9 @@ pub static SPEC: CardSpec = CardSpec {
                 ..PickSpec::DEFAULT
             })),
             Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Hand), cards: CardSel::Chosen(0), onto: Some(SlotExpr::This), ..AttachSpec::DEFAULT })),
-            Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(1)) })),
+            // "If you attached Energy in this way, draw a card" (JP FAQ Teal Mask Ogerpon ex: an attach that didn't happen
+            // draws nothing; batch 8 C12c).
+            Step::new(Op::If(IfSpec { cond: Cond::Done, yes: &[Step::new(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(1)) }))], no: &[] })),
         ],
     }],
     attacks: &[AttackSpec {

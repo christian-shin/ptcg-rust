@@ -1,0 +1,12 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Applin DRI 16", "4 Dipplin PRE 10", "4 Thwackey TWM 15", "4 Flutter Mane PRE 43", "44 Grass Energy MEE 1"],
+  ["4 Applin DRI 16", "4 Dipplin PRE 10", "4 Thwackey TWM 15", "4 Flutter Mane PRE 43", "44 Grass Energy MEE 1"]
+ ],
+ "me": {"reset": true, "active": "Dipplin PRE 10", "bench": [{"card": "Thwackey TWM 15"}]},
+ "opp": {"reset": true, "active": "Flutter Mane PRE 43"},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "ability", "name": "Boom Boom Groove", "is": false, "cite": "JP FAQ Thwackey (バチンキー) / Flutter Mane: with the opponent's Active Flutter Mane's Midnight Fluttering turning Dipplin's Festival Lead off, Boom Boom Groove can't be used (いいえ、できません): \"has the Festival Lead Ability\" is the Ability after effects (RULES.md \"Pokémon that have an Ability\", id141, id2260)"}
+ ]
+}

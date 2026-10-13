@@ -49,7 +49,7 @@ pub struct Fact {
 pub const IDENTITY: &[Fact] = &[
     Fact { name: "moved to the Active Spot this turn", bound: Bound::Card, stored: "CardInst::moved_to_active_this_turn, Player::moved_to_active_this_turn / moved_from_active_to_bench_this_turn" },
     Fact { name: "damage taken last turn", bound: Bound::Card, stored: "CardInst::damage_taken_last_turn" },
-    Fact { name: "Ability used this turn", bound: Bound::Card, stored: "player markers from the card (Once::PerTurn): the card's own Abilities, so a new card has none used" },
+    Fact { name: "Ability used this turn", bound: Bound::Card, stored: "player markers from the card (Once::PerTurn): carried to the new card by name (APR D-19; `prefabs::carry_per_turn_uses`)" },
     Fact { name: "entered play this turn", bound: Bound::Slot, stored: "Slot::entered_turn" },
     Fact { name: "damage counters", bound: Bound::Slot, stored: "Slot::damage" },
     Fact { name: "attached Energy and Tools", bound: Bound::Slot, stored: "Slot::cards / energies / tools" },
@@ -583,6 +583,8 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
     let list = target.list();
     let old_index = g.st.slot(p, s).cards.index_of(old);
     let _ = me;
+    // The old card's once-per-turn uses, before its move resets them (`ops::move_card_to`).
+    let used = crate::prefabs::per_turn_uses(g, p, old);
     crate::engine::cards_zone::move_physical(g, src, &[new], list);
     crate::engine::cards_zone::move_physical(g, list, &[old], into);
     g.st.bump_layout();
@@ -605,6 +607,7 @@ fn swap_moves(g: &mut Game, target: SlotRef, old: CardId, new: CardId, src: List
         }
     }
     swap_card_facts(g, p, old, new);
+    crate::prefabs::carry_per_turn_uses(g, p, new, used.as_slice());
     Ok(())
 }
 
