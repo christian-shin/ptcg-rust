@@ -44,8 +44,8 @@ pub fn can_use_stadium(g: &Game, p: usize) -> R<CardId> {
 }
 
 /// Check only: the core rule for using this Ability from this zone (the
-/// printed use-from flags). The caller found the power with the
-/// `CheckPokemonPowers` read.
+/// printed use-from flags). The caller found the power among the ones the
+/// card has now (`derived::powers`).
 pub fn can_use_ability_core(g: &Game, power: PowerRef, zone: SlotType) -> R {
     let pd = &g.st.cdef(power.card).powers[power.index as usize];
     match zone {
@@ -93,19 +93,9 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
     Ok(())
 }
 
-/// The checked read of the attacks the active player may use (`CheckPokemonAttacks`): the attack list and the
-/// ones copied from a Benched Pokémon (`copiedAttacks`).
+/// The attacks the active player may use (`derived::attacks`): the attack list and the ones copied from a Benched
+/// Pokémon (`copiedAttacks`).
 pub type CheckedAttacks = (SVec<AttackRef, 32>, SVec<AttackRef, 32>);
-
-pub fn read_attack_list(g: &mut Game, p: usize) -> R<CheckedAttacks> {
-    let seed = printed_attack_list(g, p);
-    g.fxp.attacks.push(seed);
-    let buf = (g.fxp.attacks.len() - 1) as u8;
-    let r = g.run_fx(Effect::CheckPokemonAttacks { p: p as u8, buf });
-    let acc = g.fxp.attacks.pop().unwrap_or_default();
-    r?;
-    Ok(acc)
-}
 
 /// Attacks available to the active player, as the AttackAction reducer builds them, from the read
 /// [`read_attack_list`] made: the Active Pokémon's printed attacks, the use-on-Bench attacks of the Benched
@@ -160,7 +150,7 @@ pub fn find_attack(g: &Game, attacks: &[(AttackRef, bool)], name: &'static str, 
         .copied()
 }
 
-/// `new CheckPokemonAttacksEffect(player)`: seeded with the active tool's attacks.
+/// The printed attack list the derived attack list starts from: seeded with the active tool's attacks.
 pub fn printed_attack_list(g: &Game, p: usize) -> CheckedAttacks {
     let mut attacks = SVec::new();
     let a = g.st.players[p].active;

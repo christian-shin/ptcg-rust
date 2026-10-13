@@ -87,13 +87,6 @@ pub fn weakness_and_resistance(g: &mut Game, b: &AtkBase, damage: i32, ignore_we
 
 pub fn reducer(g: &mut Game, id: EffId) -> R {
     match *g.e(id) {
-        Effect::CheckPokemonStats { target, buf } => {
-            if crate::engine::lasting::no_weakness(&g.st, target.p as usize, target.s) {
-                g.fxp.stats.as_mut_slice()[buf as usize].0.clear();
-            }
-            // weaknessOverride / opponent weakness aura: not modeled.
-            Ok(())
-        }
         Effect::UseAttack { .. } => attack::start_use_attack(g, id),
         Effect::UsePower { .. } => attack::start_use_power(g, id),
         Effect::UseStadium { p, .. } => {
@@ -107,7 +100,7 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     }
 }
 
-/// Initial `CheckPokemonTypeEffect.cardTypes` for a slot.
+/// The printed types the derived types start from, for a slot.
 pub fn pokemon_types(g: &Game, s: SlotRef) -> SVec<CardType, 4> {
     let mut v = SVec::new();
     if let Some(c) = g.st.slot_pokemon(s.p as usize, s.s) {

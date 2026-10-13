@@ -88,7 +88,7 @@ pub enum Modifier {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ActiveLock {
     /// Flutter Mane's Midnight Fluttering: your opponent's Active Pokémon has no Abilities, except for
-    /// Midnight Fluttering ("Hide 'n' Sneak" takes precedence).
+    /// Midnight Fluttering (a `Prevent` over continuous effects of Abilities, Hide 'n' Sneak, takes precedence: C11).
     MidnightFluttering,
     /// Iron Thorns ex's Initialization: while it is in either Active Spot, Pokémon with a Rule Box (yours and
     /// your opponent's) have no Abilities, except Future Pokémon.
@@ -770,7 +770,8 @@ pub struct HpModSpec {
 pub const fn modifier_kinds(m: &Modifier) -> KindMask {
     use crate::effects::k;
     match m {
-        Modifier::HpBonus(_) | Modifier::HpMod(_) => mask(&[k::CHECK_HP]),
+        // The derived layer's modifiers are read through the declaration index (`decl::fam`); nothing is dispatched to them.
+        Modifier::HpBonus(_) | Modifier::HpMod(_) => KindMask::EMPTY,
         // The Deal stage, the defender-side modifiers and the survive-on-10 replacements are read by the Damage routine's
         // calculation through the declaration index (`decl::fam::DAMAGE_DEALT`, `DAMAGE_TAKEN`).
         Modifier::DamageDealt(d) => match d.stage {
@@ -780,7 +781,7 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::DamageTaken(_) | Modifier::SurviveOnTen(_) => KindMask::EMPTY,
         Modifier::CheckupDamage(_) => mask(&[k::BETWEEN_TURNS]),
         Modifier::NextTurnBonus(_) => mask(&[k::ATTACK]),
-        Modifier::BenchAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
+        Modifier::BenchAttacks(_) => KindMask::EMPTY,
         // The first-turn permission is read by the UseAttack's checks (`grants_first_turn_attack`).
         Modifier::AttackFlags(a) => {
             if a.first_turn {
@@ -791,26 +792,26 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         }
         Modifier::BlockUse(b) => block_kinds(&b.lock),
         Modifier::Reflip(_) => mask(&[k::COIN_FLIP, k::DECLARES_REFLIP]),
-        Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => mask(&[k::CHECK_PROVIDED_ENERGY]),
+        Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => KindMask::EMPTY,
         // The attach refusal is a check of the Attach routine (`engine::attach::check_attach_with`); the discard and the
         // recovery are the state check's (`knockout::table_state`, through the declaration index).
         Modifier::AttachGuard(_) | Modifier::Recover(_) => KindMask::EMPTY,
         Modifier::AbilityLock(l) => {
             if lock_reads_attached(l) {
-                mask(&[k::CHECK_POKEMON_POWERS, k::POWER, k::DECLARES_ATTACHED_LOCK])
+                mask(&[k::DECLARES_ABILITY_LOCK, k::POWER, k::DECLARES_ATTACHED_LOCK])
             } else {
-                mask(&[k::CHECK_POKEMON_POWERS, k::POWER])
+                mask(&[k::DECLARES_ABILITY_LOCK, k::POWER])
             }
         }
         Modifier::Prevent(p) => prevent_kinds(p).or(match p.what {
             PreventWhat::None => KindMask::EMPTY,
-            PreventWhat::ToolEffects => mask(&[k::TOOL]),
+            PreventWhat::ToolEffects => KindMask::EMPTY,
         }),
         Modifier::PrizeAdjust(_) | Modifier::PrizeAdjustOnce(_) => mask(&[k::KNOCK_OUT]),
-        Modifier::TypeOverride(_) => mask(&[k::CHECK_POKEMON_TYPE]),
-        Modifier::WeaknessOverride(_) => mask(&[k::CHECK_POKEMON_STATS]),
-        Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
-        Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::CHECK_POKEMON_POWERS, k::POWER]),
+        Modifier::TypeOverride(_) => KindMask::EMPTY,
+        Modifier::WeaknessOverride(_) => KindMask::EMPTY,
+        Modifier::ActiveLock(ActiveLock::MidnightFluttering) => mask(&[k::DECLARES_ABILITY_LOCK, k::POWER]),
+        Modifier::ActiveLock(ActiveLock::Initialization) => mask(&[k::DECLARES_ABILITY_LOCK, k::POWER]),
         Modifier::Permit(pm) => {
             let mut m = mask(&[k::DECLARES_PERMIT]);
             let mut i = 0;
@@ -820,9 +821,9 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
             }
             m
         }
-        Modifier::GrantAttacks(_) => mask(&[k::CHECK_POKEMON_ATTACKS]),
-        Modifier::AttackCost(_) => mask(&[k::CHECK_ATTACK_COST]),
-        Modifier::RetreatCost(_) => mask(&[k::CHECK_RETREAT_COST]),
+        Modifier::GrantAttacks(_) => KindMask::EMPTY,
+        Modifier::AttackCost(_) => KindMask::EMPTY,
+        Modifier::RetreatCost(_) => KindMask::EMPTY,
         Modifier::BenchSize(_) => KindMask::EMPTY,
         _ => KindMask::EMPTY,
     }
@@ -951,60 +952,40 @@ fn is_attack_phase(g: &Game) -> bool {
 
 pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) -> R {
     match &ps.modifier {
-        Modifier::HpBonus(n) => hp_mod(g, me, e, ps.origin, *n, &SlotPred::Holder, &Cond::True),
-        Modifier::HpMod(h) => hp_mod(g, me, e, ps.origin, h.amount, &h.subject, &h.guard),
+        // The derived layer's modifiers (HP, types, Weakness, provided Energy, costs, the attack list) are read through the
+        // declaration index (`derived::compute_*`); nothing is dispatched to them.
+        Modifier::HpBonus(_) | Modifier::HpMod(_) => Ok(()),
         // Read by the Damage routine's calculation (`engine::damage::deal`); nothing is dispatched to it.
         Modifier::SurviveOnTen(_) => Ok(()),
         Modifier::CheckupDamage(c) => checkup_damage(g, me, e, ps.origin, c),
         Modifier::NextTurnBonus(b) => next_turn_bonus(g, me, e, b),
-        Modifier::BenchAttacks(_) => bench_attacks(g, me, e, ps.origin),
+        Modifier::BenchAttacks(_) => Ok(()),
         Modifier::AttackFlags(a) => attack_flags(g, me, e, ps.origin, a),
         Modifier::DamageDealt(d) => damage_dealt(g, me, e, ps.origin, d),
         // Read by the Damage routine's calculation (`engine::damage::deal`); nothing is dispatched to it.
         Modifier::DamageTaken(_) => Ok(()),
         // Locks are read by the event's routine and legality (`event_locked`); nothing is dispatched to them.
         Modifier::BlockUse(_) => Ok(()),
-        Modifier::ProvidesEnergy(pe) => provides_energy(g, me, e, pe),
-        Modifier::ProvidesEnergyBoost(b) => provides_energy_boost(g, me, e, ps.origin, b),
+        Modifier::ProvidesEnergy(_) | Modifier::ProvidesEnergyBoost(_) => Ok(()),
         // Read by the state check (`knockout::table_state`) and the Attach routine; nothing is dispatched to it.
         Modifier::AttachGuard(_) => Ok(()),
-        Modifier::AttackCost(c) => attack_cost(g, me, e, ps.origin, c),
+        Modifier::AttackCost(_) => Ok(()),
         // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
         Modifier::Recover(_) => Ok(()),
         Modifier::AbilityLock(l) => ability_lock(g, me, e, l),
         Modifier::Prevent(p) => prevent(g, me, e, ps.origin, p),
-        Modifier::TypeOverride(t) => {
-            let Effect::CheckPokemonType { target, .. } = *g.e(e) else { return Ok(()) };
-            if let Some(set) = type_override(g, me, ps.origin, t, target)? {
-                if let Effect::CheckPokemonType { card_types, .. } = g.e_mut(e) {
-                    card_types.clear();
-                    for ty in set.iter() {
-                        card_types.push(*ty);
-                    }
-                }
-            }
-            Ok(())
-        }
+        Modifier::TypeOverride(_) => Ok(()),
         // Permissions are read where a limit is checked (`engine::enter::permitted`); nothing is dispatched to them.
         Modifier::Permit(_) => Ok(()),
         // Re-flips are read where a card's flips are made (`engine::condition::flip_coin`); nothing is dispatched to them.
         Modifier::Reflip(_) => Ok(()),
         Modifier::ActiveLock(l) => active_lock(g, me, e, *l),
-        Modifier::WeaknessOverride(w) => {
-            let Effect::CheckPokemonStats { target, buf } = *g.e(e) else { return Ok(()) };
-            if let Some(t) = weakness_override(g, me, ps.origin, w, target)? {
-                let weakness = &mut g.fxp.stats.as_mut_slice()[buf as usize].0;
-                weakness.clear();
-                weakness.push(crate::effects::WeaknessV { card_type: t, value: None });
-            }
-            Ok(())
-        }
+        Modifier::WeaknessOverride(_) => Ok(()),
         // The KnockOut routine reads the game's Prize adjustments (`knockout::prize_adjustments`); a copied attack's source
         // card, run for the copycat (`copy_attack::resolve_sessions`), still reaches its own here.
         Modifier::PrizeAdjust(d) => prize_adjust(g, me, e, ps.origin, d),
         Modifier::PrizeAdjustOnce(d) => prize_adjust_once(g, me, e, ps.origin, d),
-        Modifier::GrantAttacks(_) => grant_attacks(g, me, e, ps.origin),
-        Modifier::RetreatCost(c) => retreat_cost(g, me, e, ps.origin, c),
+        Modifier::GrantAttacks(_) | Modifier::RetreatCost(_) => Ok(()),
         // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
         Modifier::BenchSize(_) => Ok(()),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
@@ -1050,21 +1031,6 @@ pub(crate) fn hp_mod_delta<F: crate::derived::Facts>(g: &mut F, me: CardId, orig
         return Ok(0);
     }
     Ok(n)
-}
-
-fn hp_mod(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, n: i32, subject: &SlotPred, guard: &Cond) -> R {
-    let (target, card) = match *g.e(e) {
-        Effect::CheckHp { target, card, .. } => (target, card),
-        _ => return Ok(()),
-    };
-    let d = hp_mod_delta(g, me, origin, n, subject, guard, target)?;
-    // HP is only changed for a Pokémon actually being checked.
-    if card.is_some() {
-        if let Effect::CheckHp { bonus, .. } = g.e_mut(e) {
-            *bonus += d;
-        }
-    }
-    Ok(())
 }
 
 /// An attack's damage to one Pokémon being calculated (the Damage routine's steps 2 and 5, `engine::damage::deal`): what
@@ -1244,14 +1210,6 @@ pub(crate) fn provides_energy_into<F: crate::derived::Facts>(g: &mut F, me: Card
     Ok(())
 }
 
-fn provides_energy(g: &mut Game, me: CardId, e: EffId, pe: &ProvidesEnergySpec) -> R {
-    let Effect::CheckProvidedEnergy { p, source, buf } = *g.e(e) else { return Ok(()) };
-    let mut map = g.fxp.energy[buf as usize];
-    provides_energy_into(g, me, pe, p, source, &mut map)?;
-    g.fxp.energy.as_mut_slice()[buf as usize] = map;
-    Ok(())
-}
-
 /// `ProvidesEnergyBoost` of `me`: the entries it adds to the Energy map of the Pokémon in `source` (asked by `p`).
 pub(crate) fn provides_energy_boost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, b: &ProvidesEnergyBoostSpec, p: usize, source: SlotRef, map: &mut crate::effects::EnergyMap) -> R {
     let Some(at) = locate(g.g(), me, origin) else { return Ok(()) };
@@ -1278,14 +1236,6 @@ pub(crate) fn provides_energy_boost_into<F: crate::derived::Facts>(g: &mut F, me
         }
         map.push(EnergyEntry { card: c, provides });
     }
-    Ok(())
-}
-
-fn provides_energy_boost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, b: &ProvidesEnergyBoostSpec) -> R {
-    let Effect::CheckProvidedEnergy { p, source, buf } = *g.e(e) else { return Ok(()) };
-    let mut map = g.fxp.energy[buf as usize];
-    provides_energy_boost_into(g, me, origin, b, p as usize, source, &mut map)?;
-    g.fxp.energy.as_mut_slice()[buf as usize] = map;
     Ok(())
 }
 
@@ -1347,15 +1297,6 @@ pub(crate) fn attach_guard_now(g: &mut Game, me: CardId, a: &AttachGuardSpec) ->
 // ---------------------------------------------------------------------------
 // Costs
 
-fn attack_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &AttackCostSpec) -> R {
-    let Effect::CheckAttackCost { mut acc } = *g.e(e) else { return Ok(()) };
-    attack_cost_into(g, me, origin, c, &mut acc)?;
-    if let Effect::CheckAttackCost { acc: a } = g.e_mut(e) {
-        *a = acc;
-    }
-    Ok(())
-}
-
 /// `AttackCost` of `me`: its change to the cost being computed (`check::AttackCostAcc`; the derived layer's
 /// `attack_cost`).
 pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, c: &AttackCostSpec, acc: &mut crate::engine::check::CostAcc) -> R {
@@ -1399,15 +1340,6 @@ pub(crate) fn attack_cost_into<F: crate::derived::Facts>(g: &mut F, me: CardId, 
             }
             acc.set_cost = Some(v);
         }
-    }
-    Ok(())
-}
-
-fn retreat_cost(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &RetreatCostSpec) -> R {
-    let Effect::CheckRetreatCost { mut acc } = *g.e(e) else { return Ok(()) };
-    retreat_cost_into(g, me, origin, c, &mut acc)?;
-    if let Effect::CheckRetreatCost { acc: a } = g.e_mut(e) {
-        *a = acc;
     }
     Ok(())
 }
@@ -1555,19 +1487,6 @@ fn is_locked<F: crate::derived::Facts>(g: &mut F, me: CardId, card: CardId, l: &
 
 fn ability_lock(g: &mut Game, me: CardId, e: EffId, l: &AbilityLockSpec) -> R {
     match *g.e(e) {
-        Effect::CheckPokemonPowers { target, powers, .. } => {
-            if is_locked(g, me, target, l)? {
-                let mut out = SVec::new();
-                for pw in powers.iter() {
-                    if !power_subject(g, &l.powers, *pw) {
-                        out.push(*pw);
-                    }
-                }
-                if let Effect::CheckPokemonPowers { powers, .. } = g.e_mut(e) {
-                    *powers = out;
-                }
-            }
-        }
         Effect::Power { power, card, .. } => {
             if power_subject(g, &l.powers, power) && is_locked(g, me, card, l)? {
                 return Err(crate::game::GameError(l.error));
@@ -1634,19 +1553,6 @@ fn prevent(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, p: &PreventSp
         return Ok(());
     }
     match (p.what, *g.e(e)) {
-        (PreventWhat::ToolEffects, Effect::Tool { p, card }) => {
-            let p = p as usize;
-            let mut target: Option<SlotRef> = None;
-            for (s, _, _) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if g.st.slot(p, s).tools.contains(card) {
-                    target = Some(SlotRef::new(p, s));
-                }
-            }
-            if target.is_some() && crate::derived::stadium_off(g) {
-                return Ok(());
-            }
-            crate::bail!("CANNOT_USE_POWER")
-        }
         _ => {}
     }
     Ok(())
@@ -1834,14 +1740,6 @@ pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSourc
     if let Effect::KnockOut { prize_count, .. } = g.e_mut(e) {
         *prize_count += d.delta;
     }
-    Ok(())
-}
-
-fn grant_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let Effect::CheckPokemonAttacks { p, buf } = *g.e(e) else { return Ok(()) };
-    let mut acc = g.fxp.attacks[buf as usize];
-    grant_attacks_into(g, me, origin, p as usize, &mut acc)?;
-    g.fxp.attacks.as_mut_slice()[buf as usize] = acc;
     Ok(())
 }
 
@@ -2282,7 +2180,7 @@ pub(crate) fn power_blocked<F: crate::derived::Facts>(g: &mut F, p: usize, power
 }
 
 /// The powers player `p`'s Pokémon card `card` has now: its printed ones, less those each Ability lock of the game takes
-/// away (`CheckPokemonPowers`' handlers), in the propagation order of that check.
+/// away, in the propagation order of the powers a Pokémon has (`game::PROP_POWERS_NOW`).
 pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: CardId) -> R<SVec<crate::effects::PowerRef, 8>> {
     let mut powers: SVec<crate::effects::PowerRef, 8> = SVec::new();
     for i in 0..g.g().st.cdef(card).powers.len() {
@@ -2294,7 +2192,7 @@ pub(crate) fn powers_now<F: crate::derived::Facts>(g: &mut F, p: usize, card: Ca
     if set == 0 {
         return Ok(powers);
     }
-    let order = g.decl_ordered(set, crate::game::PROP_CHECK_POWERS);
+    let order = g.decl_ordered(set, crate::game::PROP_POWERS_NOW);
     g.undelegated(|g| -> R<SVec<crate::effects::PowerRef, 8>> {
         for c in order.iter().copied() {
             for ps in lock_passives(g.g(), c) {
@@ -2526,14 +2424,6 @@ pub fn grants_first_turn_attack<F: crate::derived::Facts>(g: &mut F, p: usize) -
     false
 }
 
-fn bench_attacks(g: &mut Game, me: CardId, e: EffId, origin: RuleSource) -> R {
-    let Effect::CheckPokemonAttacks { p, buf } = *g.e(e) else { return Ok(()) };
-    let mut acc = g.fxp.attacks[buf as usize];
-    bench_attacks_into(g, me, origin, p as usize, &mut acc)?;
-    g.fxp.attacks.as_mut_slice()[buf as usize] = acc;
-    Ok(())
-}
-
 /// `BenchAttacks` of `me` (Mew ex's Memory Helix): the Benched Pokémon's attacks it adds to player `p`'s attack list, as
 /// copied ones.
 pub(crate) fn bench_attacks_into<F: crate::derived::Facts>(g: &mut F, me: CardId, origin: RuleSource, p: usize, acc: &mut crate::engine::turn::CheckedAttacks) -> R {
@@ -2732,7 +2622,7 @@ pub(crate) fn lock_sync_attached(g: &mut Game) {
         lock_sync(g);
         return;
     }
-    if !crate::game::verify_cache() || !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
+    if !crate::game::verify_cache() || !g.kinds_present.has(crate::effects::k::DECLARES_ABILITY_LOCK) {
         return;
     }
     let before: Vec<u32> = (0..g.st.n_cards).map(|c| g.st.cards[c as usize].lock_stamp as u32).collect();
@@ -2750,7 +2640,7 @@ pub(crate) fn lock_sync_attached(g: &mut Game) {
 /// stamp. Releasing a lock that was turned off can let the other take hold, so it repeats until nothing
 /// changes.
 pub(crate) fn lock_sync(g: &mut Game) {
-    if !g.kinds_present.has(crate::effects::k::CHECK_POKEMON_POWERS) {
+    if !g.kinds_present.has(crate::effects::k::DECLARES_ABILITY_LOCK) {
         return;
     }
     // Batch 8 C6: a lock source holds by where the cards are (the layout), the turn (the turn player first when several
@@ -2917,21 +2807,8 @@ fn active_lock_applies<F: crate::derived::Facts>(g: &mut F, me: CardId, l: Activ
 
 fn active_lock(g: &mut Game, me: CardId, e: EffId, l: ActiveLock) -> R {
     match *g.e(e) {
-        Effect::CheckPokemonPowers { p, target, powers } => {
-            if active_lock_applies(g, me, l, p as usize, target, false)? {
-                let mut out = SVec::new();
-                for pw in powers.iter() {
-                    if !active_lock_subject(g, l, *pw, false) {
-                        out.push(*pw);
-                    }
-                }
-                if let Effect::CheckPokemonPowers { powers, .. } = g.e_mut(e) {
-                    *powers = out;
-                }
-            }
-        }
-        Effect::Power { p, power, card, probe, .. } => {
-            if active_lock_subject(g, l, power, probe) && active_lock_applies(g, me, l, p as usize, card, true)? {
+        Effect::Power { p, power, card, .. } => {
+            if active_lock_subject(g, l, power, false) && active_lock_applies(g, me, l, p as usize, card, true)? {
                 crate::bail!("BLOCKED_BY_ABILITY");
             }
         }
@@ -3638,8 +3515,7 @@ mod prevent_marker_tests {
     }
 
     /// Every `Prevent` a card declares is consulted somewhere, and the kinds it names explicitly (beyond "every effect",
-    /// which a cause-only declaration ranges over by design) are kinds whose routine asks the reader or a B6-OLD probe
-    /// stands for.
+    /// which a cause-only declaration ranges over by design) are kinds whose routine asks the reader.
     #[test]
     fn declared_preventions_are_consulted() {
         let mut consulted = KindMask::EMPTY;

@@ -476,12 +476,12 @@ pub fn on_complete(g: &mut Game, oc: OnComplete) -> R {
 
 /// Every Pokémon in play to Knock Out now, player 0's then player 1's, Active first: its damage reaches its HP (`by_hp`)
 /// or an effect Knocks it Out (`Slot::ko_pending`). An undamaged Pokémon is at 0 HP only when an effect lowers HP: with
-/// no card reacting to CheckHp in the game its HP isn't read (`PTCG_VERIFY_CACHE=1` reads it and asserts).
+/// no HP modifier declared in the game (`decl::fam::HP`) its HP isn't read.
 #[allow(clippy::type_complexity)]
 fn find_ko_pokemons(g: &mut Game) -> R<(SVec<SlotRef, { crate::state::MAX_SLOT_REFS }>, SVec<bool, { crate::state::MAX_SLOT_REFS }>)> {
     let mut out = SVec::new();
     let mut by_hp = SVec::new();
-    let hp_fixed = !g.kinds_present.has(k::CHECK_HP) && g.copy_sessions.is_empty() && !g.trace_effects;
+    let hp_fixed = g.decls.sets[crate::decl::fam::HP] == 0;
     for p in 0..2 {
         for s in g.st.players[p].in_play().iter() {
             // forEachPokemon skips slots without a Pokémon card (e.g. a Bench

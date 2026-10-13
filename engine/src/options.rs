@@ -134,7 +134,7 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
             }
         }
     }
-    if g.kinds_present.has(crate::effects::k::CHECK_POKEMON_ATTACKS) || g.st.slot(p, pl.active).tools.len() > 0 {
+    if g.decls.sets[crate::decl::fam::GRANT_ATTACKS] != 0 || g.st.slot(p, pl.active).tools.len() > 0 {
         if let Ok(((attacks, copied), _)) = ctx.attack_list() {
             for a in attacks.iter() {
                 let n = g.st.cdef(a.card).attacks[a.idx()].name;

@@ -7,7 +7,7 @@
 //! cause per card.
 //!
 //! Since events batch 6 the readers use the Cause only (the `Prevent` reader, `derived::event_prevented`; events batch 7
-//! removed the B6-OLD probes for an attack's Discard / PutIntoHand). `PTCG_VERIFY_CACHE=1` still compares it with the
+//! removed the probes for an attack's Discard / PutIntoHand). `PTCG_VERIFY_CACHE=1` still compares it with the
 //! old `AtkBase` inference where that remains and counts the disagreements per class (`mismatch`, `report`).
 
 use crate::list::CardId;
@@ -298,7 +298,7 @@ fn unseen_now(g: &crate::game::Game, site: &str, c: &Cause) {
 /// - the `AtkBase` makes an effect "an effect of the attack by `b.player`" (Hide 'n' Sneak, Mist Energy,
 ///   "prevent all effects of attacks", the attack reducer's own check);
 /// - an opponent's attack or Ability effect on a Pokémon whose kind no `Prevent` reader consults (an event family's
-///   routine or a B6-OLD probe: `passive::prevent_consulted`) escapes Hide 'n' Sneak and Mist Energy.
+///   routine: `passive::prevent_consulted`) escapes Hide 'n' Sneak and Mist Energy.
 #[inline]
 pub fn verify_effect(g: &crate::game::Game, e: &crate::effects::Effect) {
     if on(g) {

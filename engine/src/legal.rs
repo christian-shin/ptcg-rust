@@ -546,8 +546,8 @@ fn fast_ability(ctx: &mut Ctx, name: &'static str, target: CardTarget) -> Option
     if crate::spec::run::power_once_check(g, card, power.index, p).is_err() {
         return Some(false);
     }
-    // The powers the card has now (CheckPokemonPowers).
-    if g.kinds_present.has(k::CHECK_POKEMON_POWERS) {
+    // The powers the card has now (in a game with an Ability lock).
+    if g.kinds_present.has(k::DECLARES_ABILITY_LOCK) {
         match crate::derived::Facts::powers(ctx, p, card) {
             Ok(after) => match after.iter().find(|r| g.st.cdef(r.card).powers[r.index as usize].name == name) {
                 Some(r) => power = *r,
