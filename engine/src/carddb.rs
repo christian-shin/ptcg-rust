@@ -93,6 +93,9 @@ pub struct CardDef {
     pub methods: &'static [&'static str],
     /// Treated as a Pokémon by `getPokemons()` (fossils, dolls).
     pub fossil_doll: bool,
+    /// Position in the deck / discard listing order (super type, Trainer or
+    /// Energy subtype, name in UTF-16 order); equal for equal keys.
+    pub sort_rank: u16,
 }
 
 impl CardDef {
