@@ -141,7 +141,7 @@ pub fn evolve_view(g: &Game, card: Option<CardId>, target: SlotRef, source: Rule
 pub enum Reach {
     /// The next Stage: the card's "Evolves from" names the Pokémon.
     Next,
-    /// Rare Candy: a Stage 2 card whose Stage 1 evolves from the Basic Pokémon, skipping the Stage 1.
+    /// Skipping the Stage 1: a Stage 2 card whose Stage 1 evolves from the Basic Pokémon.
     SkipStage1,
 }
 
