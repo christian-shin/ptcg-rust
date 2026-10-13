@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Adventure DRI 165",
+   "4 Ethan's Cyndaquil DRI 32",
+   "4 Ethan's Quilava DRI 33",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ethan's Adventure DRI 165",
+   "4 Ethan's Cyndaquil DRI 32",
+   "4 Ethan's Quilava DRI 33",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ethan's Cyndaquil DRI 32",
+   "Ethan's Quilava DRI 33"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "3 Ethan's Adventure DRI 165"
+  ],
+  "hand": [
+   "Ethan's Adventure DRI 165"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Ethan's Cyndaquil DRI 32"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Bonded by the Journey",
+   "cite": "User decision 2026-10-12: 3 Ethan's Adventure in the discard pile and 1 in the hand (a hidden zone, not counted): a copy could still be in the deck, the search is usable"
+  }
+ ]
+}

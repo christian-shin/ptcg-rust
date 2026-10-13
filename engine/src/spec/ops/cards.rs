@@ -1698,6 +1698,34 @@ pub(crate) fn pick_finds(g: &Game, me: CardId, f: &Frame, pick: &PickSpec) -> bo
     cards.iter().any(|c| pick_ok(g, f, pick, *c))
 }
 
+/// The card name a deck search is for ("search your deck for an Ethan's Adventure card"), if its predicate names one.
+fn searched_name(p: &Pred) -> Option<&'static str> {
+    match p {
+        Pred::Name(n) => Some(n),
+        Pred::All(ps) => ps.iter().find_map(searched_name),
+        _ => None,
+    }
+}
+
+/// Could a copy of the named card a deck search is for still be in player `p`'s deck, counting the copies in public
+/// zones only (the discard pile, in play, the Lost Zone; never the hidden hand or face-down Prize cards)? A search for a
+/// named card with every copy of the deck list known to be elsewhere can't be used (user decision 2026-10-12; JP FAQ
+/// Ethan's Quilava: with all 4 Ethan's Adventure in the discard pile, Bonded by the Journey can't be used); a search for a
+/// kind of card stays usable with none known to remain (Rillaboom, Dialga, Budew; id2301).
+fn named_copy_may_be_in_deck(g: &Game, p: usize, pred: &Pred) -> bool {
+    let Some(name) = searched_name(pred) else { return true };
+    let named = |c: CardId| g.st.cdef(c).name == name && g.st.owner(c) == p;
+    let owned = (0..g.st.n_cards).filter(|c| named(*c)).count();
+    let pl = &g.st.players[p];
+    let mut public = pl.discard.iter().filter(|c| named(*c)).count() + pl.lostzone.iter().filter(|c| named(*c)).count();
+    for q in 0..2 {
+        for s in g.st.players[q].in_play().iter() {
+            public += g.st.players[q].slots[*s as usize].cards.iter().filter(|c| named(*c)).count();
+        }
+    }
+    public < owned
+}
+
 /// A Trainer or Ability that only chooses cards needs something to choose: a deck
 /// that holds a card, or enough eligible cards of a known zone (a Pokémon needs room).
 fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) -> bool {
@@ -1709,7 +1737,7 @@ fn pick_possible(g: &Game, me: CardId, f: &Frame, pick: &PickSpec, room: i32) ->
         return false;
     }
     if pick.from.1 == Zone::Deck {
-        return !cards.is_empty();
+        return !cards.is_empty() && named_copy_may_be_in_deck(g, f.who(pick.from.0), &pick.predicate);
     }
     let eligible = cards.iter().filter(|c| pick_ok(g, f, pick, **c)).count() as i32;
     let min = num(g, me, f, &pick.bounds.min).max(1).min(room);

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Ethan's Adventure DRI 165",
+   "4 Ethan's Cyndaquil DRI 32",
+   "4 Ethan's Quilava DRI 33",
+   "48 Fire Energy MEE 2"
+  ],
+  [
+   "4 Ethan's Adventure DRI 165",
+   "4 Ethan's Cyndaquil DRI 32",
+   "4 Ethan's Quilava DRI 33",
+   "48 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Ethan's Cyndaquil DRI 32",
+   "Ethan's Quilava DRI 33"
+  ],
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "discard": [
+   "4 Ethan's Adventure DRI 165"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Ethan's Cyndaquil DRI 32"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Bonded by the Journey",
+   "is": false,
+   "cite": "User decision 2026-10-12 (RULES.md, JP FAQ audit); JP FAQ Ethan's Quilava (ヒビキのマグマラシ): with 4 Ethan's Adventure in the discard pile, Bonded by the Journey can't be used (いいえ、できません): a search for a named card needs a copy that could still be in the deck, counting public zones only"
+  }
+ ]
+}
