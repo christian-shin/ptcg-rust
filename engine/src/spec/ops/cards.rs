@@ -1714,6 +1714,10 @@ fn searched_name(p: &Pred) -> Option<&'static str> {
 /// kind of card stays usable with none known to remain (Rillaboom, Dialga, Budew; id2301).
 fn named_copy_may_be_in_deck(g: &Game, p: usize, pred: &Pred) -> bool {
     let Some(name) = searched_name(pred) else { return true };
+    // A Basic Energy's name is its type ("Basic [R] Energy cards", Firebreather): a kind of card, not a named card.
+    if crate::carddb::cards().iter().any(|d| d.name == name && d.is_energy() && d.energy_type == crate::types::EnergyType::Basic as u8) {
+        return true;
+    }
     let named = |c: CardId| g.st.cdef(c).name == name && g.st.owner(c) == p;
     let owned = (0..g.st.n_cards).filter(|c| named(*c)).count();
     let pl = &g.st.players[p];
