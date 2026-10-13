@@ -53,8 +53,8 @@ TAG_NAMES = re.findall(r'"([^"]*)"', block)
 ATTACK_FLAGS = (('canUseOnFirstTurn', 'can_use_on_first_turn'), ('useOnBench', 'use_on_bench'), ('gxAttack', 'gx_attack'),
                 ('shredAttack', 'shred_attack'), ('barrage', 'barrage'), ('copycatAttack', 'copycat_attack'))
 POWER_FLAGS = (('useWhenInPlay', 'use_when_in_play'), ('useFromHand', 'use_from_hand'), ('useFromHandToBench', 'use_from_hand_to_bench'),
-               ('useFromDiscard', 'use_from_discard'), ('exemptFromAbilityLock', 'exempt_from_ability_lock'),
-               ('exemptFromInitialize', 'exempt_from_initialize'), ('abilityLock', 'ability_lock'), ('barrage', 'barrage'),
+               ('useFromDiscard', 'use_from_discard'),
+               ('abilityLock', 'ability_lock'), ('barrage', 'barrage'),
                ('knocksOutSelf', 'knocks_out_self'), ('isFossil', 'is_fossil'))
 
 def sort_key(c):
