@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Roaring Moon PRE 65",
+   "4 Miraidon ex TEF 122",
+   "6 Darkness Energy MEE 7",
+   "46 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Roaring Moon PRE 65",
+   "4 Miraidon ex TEF 122",
+   "6 Darkness Energy MEE 7",
+   "46 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Roaring Moon PRE 65",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "discard": [
+   "Roaring Moon PRE 65",
+   "Roaring Moon PRE 65",
+   "Roaring Moon PRE 65"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Vengeance Fletching"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 100,
+   "cite": "Roaring Moon PRE 65 text: 70 + 10 more damage for each Ancient card in your discard pile (3 Roaring Moon)"
+  }
+ ]
+}

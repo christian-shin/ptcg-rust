@@ -1,9 +1,8 @@
-//! Postwick (JTG): the attacks of Hop's Pokémon (both players') do 30 more
-//! damage to the opponent's Active Pokémon (before W/R).
+//! Postwick (JTG 154, Stadium): attacks used by Hop's Pokémon (both yours and your opponent's) do 30 more damage to the
+//! opponent's Active Pokémon (before applying Weakness and Resistance).
 //!
-//! Twinleaf: DealDamageEffect only; block probe on the target's owner; the
-//! target must be the attacker-opponent's Active; the source slot's Pokémon
-//! needs the HOPS tag. Not limited to attacks with printed damage.
+//! A `DamageDealt` declaration over Hop's attackers (the `HOPS` tag, either player), added only to damage that is above 0: an
+//! attack that does nothing or no damage gets no bonus (APR B-01, C-16; as Hop's Choice Band, same wording).
 use crate::spec::prelude::*;
 use crate::types::tag;
 
@@ -12,7 +11,7 @@ pub static SPEC: CardSpec = CardSpec {
     passives: &[
         Passive {
             origin: RuleSource::Stadium,
-            modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 30, attacker: SlotPred::Tag(tag::HOPS), side: Side::Any, ..DamageDealtSpec::DEFAULT }),
+            modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 30, attacker: SlotPred::Tag(tag::HOPS), side: Side::Any, needs_damage: true, ..DamageDealtSpec::DEFAULT }),
         },
     ],
     ..CardSpec::NONE

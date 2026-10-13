@@ -2,7 +2,7 @@
 //! into your hand. Then, shuffle your deck.
 //!
 //! The card is revealed and put into the hand (a PutIntoHand event, cause: this Item), then the deck is shuffled once (APR
-//! E-19); a Pokémon may fail to be found (a named kind: "Search your deck for a ... card" may find none).
+//! E-19); the search may find none.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

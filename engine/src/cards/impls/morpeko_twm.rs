@@ -1,9 +1,9 @@
-//! Morpeko (TWM): Snack Seek — once during your turn, look at the top card of
-//! your deck; you may discard it. Pick and Stick — attach up to 2 Basic
-//! Energy cards from your discard pile to your Pokémon in any way you like.
+//! Morpeko (TWM 72): Snack Seek - once during your turn, look at the top card of your deck; you may discard it. Pick and Stick -
+//! attach up to 2 Basic Energy cards from your discard pile to your Pokémon in any way you like.
 //!
-//! Snack Seek: a Look at the top card, then the player's choice (Discard, or PutIntoDeck on top). Twinleaf discarded the card
-//! always (its info prompt answered yes): the printed "You may discard that card" is a choice.
+//! Snack Seek: a Look at the top card, then the player's choice (Discard, or PutIntoDeck on top): the printed "You may discard
+//! that card" is a choice (scenarios morpeko-twm-72-snack-seek-may-discard-the-card / -may-keep-the-card-on-top). The
+//! once-per-turn use travels with a swap of the Pokémon card (Transformation Tome, Ogre's Mask: JP FAQ Morpeko, batch 8 C12c-d).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

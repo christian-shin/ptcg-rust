@@ -1,7 +1,6 @@
-//! Potion (SVI, as Potion POR): heal 30 damage from 1 of your Pokémon.
+//! Potion (POR 83, from SVI): heal 30 damage from 1 of your Pokémon.
 //!
-//! Twinleaf (scarlet-and-violet file): same flow as the BS port (undamaged
-//! Pokémon are blocked; no cancel), HealEffect 30.
+//! One Heal of 30 on a damaged Pokémon of yours; it can't be played with no damaged Pokémon (id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

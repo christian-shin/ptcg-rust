@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Moltres PFL 14",
+   "4 Miraidon ex TEF 122",
+   "6 Fire Energy MEE 2",
+   "46 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Moltres PFL 14",
+   "4 Miraidon ex TEF 122",
+   "6 Fire Energy MEE 2",
+   "46 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Moltres PFL 14",
+  "active_energy": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Fighting Wings"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 110,
+   "cite": "Moltres PFL 14 text: if the opponent's Active Pokemon is a Pokemon ex, 90 more damage (20 + 90)"
+  }
+ ]
+}

@@ -2,8 +2,7 @@
 //! attack Knocks Out your opponent's Active Pokémon, you may attack again after your opponent chooses a new Active Pokémon.
 //! Rapid Draw — 60; draw 2 cards.
 //!
-//! Festival Lead is a declaration the core reads when the second attack would be offered (`Modifier::AttackTwice`; batch 8
-//! C12c: it was a flag set before the damage). Rapid Draw is one Draw event of the attack's effect, after the damage.
+//! Festival Lead is a declaration the core reads when the second attack would be offered (`Modifier::AttackTwice`). Rapid Draw is one Draw event of the attack's effect, after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

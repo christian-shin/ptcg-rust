@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Passimian SSP 111",
+   "4 Hop's Snorlax JTG 117",
+   "4 Miraidon ex TEF 122",
+   "48 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Passimian SSP 111",
+   "4 Hop's Snorlax JTG 117",
+   "4 Miraidon ex TEF 122",
+   "48 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Passimian SSP 111",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   },
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Miraidon ex TEF 122",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Coordinated Throwing"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 60,
+   "cite": "Passimian SSP 111 text: 20 damage for each of your Basic Pokemon in play (Passimian and 2 Hop's Snorlax)"
+  }
+ ]
+}

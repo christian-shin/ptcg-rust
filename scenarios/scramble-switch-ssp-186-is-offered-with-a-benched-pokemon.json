@@ -1,0 +1,54 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "1 Scramble Switch SSP 186",
+   "4 Hop's Snorlax JTG 117",
+   "55 Fighting Energy MEE 6"
+  ],
+  [
+   "1 Scramble Switch SSP 186",
+   "4 Hop's Snorlax JTG 117",
+   "55 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_energy": [
+   "Fighting Energy MEE 6",
+   "Fighting Energy MEE 6"
+  ],
+  "bench": [
+   {
+    "card": "Hop's Snorlax JTG 117"
+   }
+  ],
+  "hand": [
+   "Scramble Switch SSP 186"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Scramble Switch SSP 186"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Scramble Switch SSP 186",
+   "is": true,
+   "cite": "Scramble Switch SSP 186 text: switch your Active Pokemon with 1 of your Benched Pokemon (one is there)"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Seviper PFL 62",
+   "4 Mega Absol ex MEG 86",
+   "4 Mega Kangaskhan ex MEG 104",
+   "48 Darkness Energy MEE 7"
+  ],
+  [
+   "4 Seviper PFL 62",
+   "4 Mega Absol ex MEG 86",
+   "4 Mega Kangaskhan ex MEG 104",
+   "48 Darkness Energy MEE 7"
+  ]
+ ],
+ "me": {
+  "active": "Seviper PFL 62",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7"
+  ],
+  "bench": [
+   {
+    "card": "Mega Absol ex MEG 86"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Pitch-Black Fangs"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 240,
+   "hp_left": 60,
+   "cite": "Seviper PFL 62 text: if you have any [D] Mega Evolution Pokemon ex in play, attacks used by this Pokemon do 120 more damage (Pitch-Black Fangs 120 + 120; Mega Kangaskhan ex is only weak to Fighting)"
+  }
+ ]
+}

@@ -1,12 +1,8 @@
-//! Reboot Pod (TEF, ACE SPEC): attach a Basic Energy card from your discard
-//! pile to each of your Future Pokémon in play.
+//! Reboot Pod (TEF 158, ACE SPEC): attach a Basic Energy card from your discard pile to each of your Future Pokémon.
 //!
-//! Twinleaf: one AttachEnergyPrompt from the discard (phase 4b: exactly
-//! min(Future Pokémon in play, Basic Energy in the discard pile) cards, one
-//! per Pokémon; it used to be 0..energy count; no cancel, different targets,
-//! non-Future Pokémon blocked); unplayable with no Future Pokémon in play
-//! (phase 4b). Each transfer is a plain MOVE_CARDS discard→slot (no
-//! AttachEnergyEffect) followed by a MOVE_CARDS of the card supporter→discard.
+//! One Attach prompt from the discard pile: exactly as many Energy cards as there are Future Pokémon in play (or Basic Energy
+//! cards in the discard pile if fewer), one per Future Pokémon, no cancel; the other Pokémon are blocked. With no Future Pokémon
+//! in play, or no Basic Energy in the discard pile, it has no effect and can't be played (id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,41 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Pokémon Center Lady MEG 123",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Pokémon Center Lady MEG 123",
+   "4 Hop's Snorlax JTG 117",
+   "52 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "hand": [
+   "Pokémon Center Lady MEG 123"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Pokémon Center Lady MEG 123",
+   "is": false,
+   "cite": "id925 (a Trainer card that can't do anything can't be played): none of your Pokemon has damage or a Special Condition"
+  }
+ ]
+}

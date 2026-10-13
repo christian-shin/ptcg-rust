@@ -1,8 +1,6 @@
-//! Pyroar (PRE): Fire Mane - 50. Flame Tackle - 160; during your next turn
-//! this Pokémon can't attack.
+//! Pyroar (PRE 16): Fire Mane - 50. Flame Tackle - 160; during your next turn this Pokémon can't attack.
 //!
-//! Twinleaf: THIS_POKEMON_CANNOT_ATTACK_NEXT_TURN sets
-//! `cannotAttackNextTurnPending` on the player's Active.
+//! Flame Tackle arms a `CANT_ATTACK` lasting lock on this Pokémon until your next turn (any attack).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

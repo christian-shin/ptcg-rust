@@ -1,15 +1,9 @@
-//! Palafin ex (TWM): Hero's Spirit — can only be put into play with Palafin's
-//! Zero to Hero. Giga Impact — 250; during your next turn, this Pokémon
-//! can't attack.
+//! Palafin ex (PRE 151 / TWM 61): Hero's Spirit - put this Pokémon into play only with the effect of Palafin's Zero to Hero
+//! Ability. Giga Impact - 250; during your next turn, this Pokémon can't attack.
 //!
-//! Rules (RULES.md "Evolution timing", decided 2026-10-09): the lock covers every EnterPlay and Evolve of
-//! this card from any zone by any effect (Grand Tree included); Zero to Hero is a Swap and isn't covered.
-//!
-//! Twinleaf (retired; the old lock was from the hand only): any EvolveEffect for this card throws CANNOT_EVOLVE (Zero to Hero
-//! moves it into play without one). It used to be lifted when the generic
-//! ability-lock probe said blocked, which the Iron Thorns ex hand lock (phase
-//! 4b) would have turned into a way to evolve it from the hand.
-//! The TWM support print and Palafin exSAR PRE share the same Palafinex logic.
+//! Rules (RULES.md "Evolution timing", decided 2026-10-09): the lock covers every EnterPlay, Evolve and Swap of this card by
+//! any effect but Palafin's Zero to Hero (Grand Tree included; JP FAQ Palafin ex: Ditto's Surprising Transformation can't swap it
+//! in); Zero to Hero's own swap passes. Giga Impact arms a `CANT_ATTACK` lasting lock on this Pokémon until your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

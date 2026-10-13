@@ -1,0 +1,62 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Rosa's Encouragement POR 84",
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex PFL 13",
+   "4 Hop's Snorlax JTG 117",
+   "40 Fire Energy MEE 2"
+  ],
+  [
+   "4 Rosa's Encouragement POR 84",
+   "4 Charmander PFL 11",
+   "4 Charmeleon PFL 12",
+   "4 Mega Charizard X ex PFL 13",
+   "4 Hop's Snorlax JTG 117",
+   "40 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "bench": [
+   {
+    "card": [
+     "Charmander PFL 11",
+     "Charmeleon PFL 12",
+     "Mega Charizard X ex PFL 13"
+    ]
+   }
+  ],
+  "hand": [
+   "Rosa's Encouragement POR 84"
+  ],
+  "discard": [
+   "Fire Energy MEE 2",
+   "Fire Energy MEE 2"
+  ],
+  "prizes_left": 6,
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "prizes_left": 3,
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Rosa's Encouragement POR 84",
+   "is": true,
+   "cite": "Rosa's Encouragement POR 84 text: more Prize cards remaining than the opponent (6 against 3), a Stage 2 Pokemon (Mega Charizard X ex) to attach to, Basic Energy in the discard pile"
+  }
+ ]
+}

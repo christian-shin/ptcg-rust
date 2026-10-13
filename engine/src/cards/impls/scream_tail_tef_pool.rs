@@ -1,9 +1,7 @@
-//! Scream Tail (TEF 77): Supportive Singing — heal 100 damage from 1 of your
-//! Benched Ancient Pokémon. Hyper Voice — 40.
+//! Scream Tail (TEF 77): Supportive Singing - heal 100 damage from 1 of your Benched Ancient Pokémon. Hyper Voice - 40.
 //!
-//! Twinleaf: nothing without a Benched Ancient Pokémon; else a mandatory
-//! ChoosePokemonPrompt on the Bench with every non-Ancient (or empty) Bench
-//! index blocked, and a HealEffect per chosen target.
+//! A Heal of 100 on a Benched Pokémon whose top card is an Ancient Pokémon (the `ANCIENT` tag), chosen by the player; nothing
+//! happens with none.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

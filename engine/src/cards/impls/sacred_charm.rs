@@ -1,13 +1,9 @@
-//! Sacred Charm (PFL; Twinleaf "Sacred Charm M2", tool): the Pokémon this card
-//! is attached to takes 30 less damage from attacks from your opponent's
+//! Sacred Charm (PFL 93, Tool): the Pokémon this card is attached to takes 30 less damage from attacks from your opponent's
 //! Pokémon that have an Ability (after applying Weakness and Resistance).
 //!
-//! Twinleaf (fixed in phase 4b): on a PutDamageEffect whose target holds this
-//! tool, during the attack phase, unless the tool is blocked for the owner or
-//! the source belongs to the same player: a CheckPokemonPowersEffect on the
-//! source's Pokémon (the old handler tested `effect.source instanceof
-//! PokemonCard`, but the source is a PokemonCardList, so it never applied);
-//! if any power is an Ability, the damage is reduced by 30 (floored at 0).
+//! A `DamageTaken` declaration on the holder at step 5 of the damage calculation (APR C-16): the attacker "has an Ability" is a
+//! checked read (`SlotPred::HasAbility`): a Pokémon whose Ability is off (Watchtower, Flutter Mane) doesn't count (JP FAQ Sacred
+//! Charm), and the damage is floored at 0.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

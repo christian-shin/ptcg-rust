@@ -1,11 +1,9 @@
-//! Power Protein (M1L, item; Twinleaf name "Premium Power Pro"): during this
-//! turn, your [F] Pokémon's attacks do 30 more damage to your opponent's
-//! Active Pokémon (before applying Weakness and Resistance).
+//! Premium Power Pro (ASC 199, M1L Power Protein; Item): during this turn, attacks used by your [F] Pokémon do 30 more damage to
+//! your opponent's Active Pokémon (before applying Weakness and Resistance).
 //!
-//! Twinleaf: a per-instance player marker; every DealDamageEffect whose
-//! player's Active is a (printed) [F] Pokémon, with damage > 0 and the
-//! opponent's Active as target, gets +30 per marked copy (the discarded
-//! card keeps reacting). Markers are removed at any EndTurn of their holder.
+//! Playing it sets a player marker; a `DamageDealt` of +30 for the attacker's current type [F] (`SlotPred::TypeIs`, the derived
+//! type: APR D-07), added to damage above 0 while a marker of this card is set (one per copy
+//! played), cleared at the end of your turn.
 use crate::spec::prelude::*;
 use crate::types::ct;
 
@@ -22,7 +20,7 @@ pub static SPEC: CardSpec = CardSpec {
         origin: RuleSource::TrainerEffect,
         modifier: Modifier::DamageDealt(DamageDealtSpec {
             amount: 30,
-            attacker: SlotPred::PrintedTypeIs(ct::FIGHTING),
+            attacker: SlotPred::TypeIs(ct::FIGHTING),
             needs_damage: true,
             guard: Cond::HasMarker { who: Who::Me, name: MARKER, from: MarkerFrom::This },
             ..DamageDealtSpec::DEFAULT

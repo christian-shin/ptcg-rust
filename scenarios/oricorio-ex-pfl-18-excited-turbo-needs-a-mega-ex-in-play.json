@@ -1,0 +1,46 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Oricorio ex PFL 18",
+   "4 Charmander PFL 11",
+   "52 Fire Energy MEE 2"
+  ],
+  [
+   "4 Oricorio ex PFL 18",
+   "4 Charmander PFL 11",
+   "52 Fire Energy MEE 2"
+  ]
+ ],
+ "me": {
+  "active": "Oricorio ex PFL 18",
+  "bench": [
+   {
+    "card": "Charmander PFL 11"
+   }
+  ],
+  "hand": [
+   "Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Oricorio ex PFL 18",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "ability",
+   "name": "Excited Turbo",
+   "is": false,
+   "cite": "Oricorio ex PFL 18 text: the Ability needs a [R] Mega Evolution Pokemon ex in play (a Basic Charmander isn't one)"
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Okidogi ex SFA 36",
+   "4 Mega Kangaskhan ex MEG 104",
+   "6 Darkness Energy MEE 7",
+   "46 Fighting Energy MEE 6"
+  ],
+  [
+   "4 Okidogi ex SFA 36",
+   "4 Mega Kangaskhan ex MEG 104",
+   "6 Darkness Energy MEE 7",
+   "46 Fighting Energy MEE 6"
+  ]
+ ],
+ "me": {
+  "active": "Okidogi ex SFA 36",
+  "active_energy": [
+   "Darkness Energy MEE 7",
+   "Darkness Energy MEE 7",
+   "Fighting Energy MEE 6"
+  ],
+  "active_conditions": [
+   "POISONED"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Chain-Crazed"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 260,
+   "hp_left": 40,
+   "cite": "Okidogi ex SFA 36 text: if this Pokemon is Poisoned, Chain-Crazed does 130 more damage (130 + 130; Mega Kangaskhan ex is weak to Fighting only)"
+  }
+ ]
+}

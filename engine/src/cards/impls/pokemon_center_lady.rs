@@ -1,10 +1,7 @@
-//! Pokémon Center Lady (FLF): heal 60 damage and remove all Special
-//! Conditions from 1 of your Pokémon.
+//! Pokémon Center Lady (MEG 123): heal 60 damage and remove all Special Conditions from 1 of your Pokémon.
 //!
-//! Twinleaf: no supporter-turn check in the card; the conditions are wiped
-//! directly (`specialConditions = []`) after the HealEffect. Fixed in phase 4b
-//! (R4, Rulings Compendium 851): throws CANNOT_PLAY_THIS_CARD when no Pokémon
-//! has damage or a Special Condition (a card can't be played for no effect).
+//! One Heal of 60 with `clear_conditions` on a Pokémon that has damage or a Special Condition; it can't be played when no
+//! Pokémon has either (a Trainer that can't have any effect can't be played, id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
