@@ -1,9 +1,8 @@
-//! Haban Berry (PRE, tool): if the Pokémon this card is attached to is
-//! damaged by an attack from your opponent's [N] Pokémon, it takes 60 less
-//! damage (after applying Weakness and Resistance), and discard this card.
+//! Haban Berry (PRE 111, Pokémon Tool): if the Pokémon this card is attached to is damaged by an attack from your opponent's [N]
+//! Pokémon, it takes 60 less damage (after applying Weakness and Resistance), and discard this card.
 //!
-//! Twinleaf: same shape as Payapa Berry (see `payapa_berry_scr_pool`), keyed
-//! on the attacker's type being Dragon (the printed [N]).
+//! One `Modifier::DamageTaken` (60, subject the Holder, attacker `TypeIs([N])`: the attacker's type after effects) with
+//! `then_discard`; the Tool is discarded only when the reduction applied.
 use crate::spec::prelude::*;
 use crate::types::ct;
 

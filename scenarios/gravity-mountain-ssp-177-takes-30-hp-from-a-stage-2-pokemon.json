@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Feraligatr TEF 41",
+   "4 Duraludon PRE 69",
+   "4 Gravity Mountain SSP 177",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Feraligatr TEF 41",
+   "4 Duraludon PRE 69",
+   "4 Gravity Mountain SSP 177",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Feraligatr TEF 41",
+  "stadium": "Gravity Mountain SSP 177"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "slot": "active",
+   "card": "Feraligatr TEF 41",
+   "hp_left": 150,
+   "cite": "card text: each Stage 2 Pokémon in play gets -30 HP (180 - 30)"
+  },
+  {
+   "at": "start",
+   "who": "opp",
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "hp_left": 130,
+   "cite": "card text: only Stage 2 Pokémon"
+  }
+ ]
+}

@@ -1,0 +1,64 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Enhanced Hammer TWM 148",
+   "4 Duraludon PRE 69",
+   "4 Boomerang Energy TWM 166",
+   "48 Metal Energy MEE 8"
+  ],
+  [
+   "4 Enhanced Hammer TWM 148",
+   "4 Duraludon PRE 69",
+   "4 Boomerang Energy TWM 166",
+   "48 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "hand": [
+   "Enhanced Hammer TWM 148"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69",
+  "bench": [
+   {
+    "card": "Duraludon PRE 69",
+    "energy": [
+     "Boomerang Energy TWM 166"
+    ]
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Enhanced Hammer TWM 148"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "bench": 0,
+   "energy": 0,
+   "cite": "card text: discard a Special Energy attached to 1 of your opponent's Pokémon (a Benched Pokémon counts; JP FAQ audit)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "zone": "discard",
+   "count": 1,
+   "contains": [
+    "Boomerang Energy TWM 166"
+   ],
+   "cite": "card text"
+  }
+ ]
+}

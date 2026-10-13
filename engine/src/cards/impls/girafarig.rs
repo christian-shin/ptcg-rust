@@ -1,6 +1,7 @@
-//! Girafarig (TEF): Psychic Assault — 20+, 10 more for each damage counter
-//! on your opponent's Active Pokémon (Twinleaf adds `opponent.active.damage`).
-//! Ported so Farigiraf ex (TEF) can evolve in check decks.
+//! Girafarig (TEF 66): Psychic Assault — 20+; 10 more damage for each damage counter on your opponent's Active Pokémon.
+//!
+//! Psychic Assault adds the damage on the opponent's Active Pokémon (`Num::DamageOn`, in HP: 10 per counter) before the
+//! damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

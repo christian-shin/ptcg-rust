@@ -1,9 +1,7 @@
-//! Fennel (SV11B): heal 40 damage from each of your Pokémon.
+//! Fennel (BLK 82 / SV11B): Supporter. Heal 40 damage from each of your Pokémon.
 //!
-//! Twinleaf: moves to the supporter pile with preventDefault, then one
-//! HealEffect per Pokémon (Active first, then the Bench in order). Fixed in
-//! phase 4b (R4, Rulings Compendium 851): throws CANNOT_PLAY_THIS_CARD (before
-//! the move) when no Pokémon has damage.
+//! One Heal event per Pokémon, Active first, then the Bench. It can't be played when no Pokémon of yours has damage (a card
+//! with no effect can't be played: id925).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Fennel",

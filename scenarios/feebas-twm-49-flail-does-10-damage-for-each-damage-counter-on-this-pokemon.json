@@ -1,0 +1,43 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Feebas TWM 49",
+   "4 Duraludon PRE 69",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Feebas TWM 49",
+   "4 Duraludon PRE 69",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Feebas TWM 49",
+  "active_energy": [
+   "Water Energy MEE 3"
+  ],
+  "active_damage": 20
+ },
+ "opp": {
+  "reset": true,
+  "active": "Duraludon PRE 69"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Flail"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Duraludon PRE 69",
+   "damage": 20,
+   "cite": "card text: 10 damage for each damage counter on this Pokémon (2 counters)"
+  }
+ ]
+}

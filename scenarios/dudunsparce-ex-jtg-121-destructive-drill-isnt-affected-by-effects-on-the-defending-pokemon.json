@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dudunsparce ex JTG 121",
+   "4 Empoleon ex PFL 70",
+   "4 Duraludon PRE 69",
+   "4 Full Metal Lab TEF 148",
+   "44 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Dudunsparce ex JTG 121",
+   "4 Empoleon ex PFL 70",
+   "4 Duraludon PRE 69",
+   "4 Full Metal Lab TEF 148",
+   "44 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Dudunsparce ex JTG 121",
+  "active_energy": [
+   "3 Lightning Energy MEE 4"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Empoleon ex PFL 70",
+  "stadium": "Full Metal Lab TEF 148"
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Destructive Drill"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Empoleon ex PFL 70",
+   "damage": 150,
+   "cite": "id1877: 'isn't affected by any effects on your opponent's Active Pokémon' skips Full Metal Lab's 30 less"
+  }
+ ]
+}

@@ -1,18 +1,11 @@
-//! Heatran (TWM 123): Incandescent Body — if this Pokémon is in the Active
-//! Spot and is damaged by an attack from your opponent's Pokémon (even if it
-//! is Knocked Out), the Attacking Pokémon is now Burned. Steel Burst — 50x;
-//! discard all [M] Energy from this Pokémon, 50 damage for each card
-//! discarded.
+//! Heatran (TWM 123): Incandescent Body — if this Pokémon is in the Active Spot and is damaged by an attack from your opponent's
+//! Pokémon (even if this Pokémon is Knocked Out), the Attacking Pokémon is now Burned. Steel Burst — 50×; discard all [M]
+//! Energy from this Pokémon. This attack does 50 damage for each card you discarded in this way.
 //!
-//! Twinleaf: Steel Burst discards the cards of the Active's
-//! CheckProvidedEnergy map whose entry provides [M] in one DiscardCardsEffect
-//! and adds `(listed - 1) * 50` (counted before the discard resolves).
-//! Fixed (phase 4b, R3): it used to discard and count every attached Energy
-//! card, whatever its type. Incandescent Body reacts to the attack's damage
-//! to this Pokémon: a GainCondition(Burned) on the Attacking Pokémon caused by
-//! this Ability (events batch 4: an effect of the opponent's Pokémon's Ability,
-//! so Hide 'n' Sneak and the other Ability immunities prevent it; it was a
-//! direct Burn before).
+//! Incandescent Body is an `OnDamagedByAttack` trigger (the damaged Pokémon is Active; it fires even for a Knock Out, and the
+//! Attacking Pokémon is read where it is then): a GainCondition(Burned) on the Attacker caused by this Ability, so Hide 'n'
+//! Sneak and the other Ability immunities stop it. Steel Burst counts the [M] Energy cards on this Pokémon,
+//! adds 50 per card before the damage and discards those cards after it.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Heatran",

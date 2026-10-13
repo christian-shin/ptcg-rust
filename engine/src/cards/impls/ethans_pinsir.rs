@@ -1,10 +1,8 @@
-//! Ethan's Pinsir (DRI 1): Vice Grip — 20. One-Point Return — 70+; 100 more
-//! if any of your Ethan's Pokémon were Knocked Out by damage from an attack
-//! during your opponent's last turn.
+//! Ethan's Pinsir (DRI 1): Vise Grip — 20. Rallying Horn — 70+; if any of your Ethan's Pokémon were Knocked Out by damage from an
+//! attack during your opponent's last turn, 100 more damage.
 //!
-//! Twinleaf: WAS_POKEMON_KNOCKED_OUT_DURING_OPPONENTS_LAST_TURN with
-//! `{ byAttackDamage: true, tags: [ETHANS] }`: the by-attack flag, then any
-//! KO entry (all KOs of that turn, not only attack KOs) carrying the tag.
+//! `Cond::KnockedOutLastTurn` with `by_attack_damage` and the Ethan's tag, read from the opponent's last turn's Knock Out
+//! record (a Knock Out by an attack's damage of a Pokémon with the tag).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

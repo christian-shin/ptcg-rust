@@ -1,17 +1,13 @@
-//! Dipplin (TWM 18): Festival Lead — if Festival Grounds is in play, this
-//! Pokémon may use an attack twice. Do the Wave — 20 damage for each of your
-//! Benched Pokémon.
+//! Dipplin (TWM 18): Festival Lead — if Festival Grounds is in play, this Pokémon may use an attack twice. Do the Wave — 20
+//! damage for each of your Benched Pokémon.
 //!
 //! Festival Lead is a declaration (`Modifier::AttackTwice`) the core reads when the second attack would be offered, from
 //! this Pokémon, for an attack printed on it (batch 8 C12c; JP FAQ Dipplin / Flutter Mane x3, Mew ex: never through a
-//! copy). Twinleaf wrote the attack's `barrage` flag before its damage (removed).
+//! copy). Do the Wave sets the damage to 20 per Benched Pokémon before the damage.
 use crate::spec::prelude::*;
-
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Dipplin@TWM|PRE",
-    // Festival Lead: if Festival Grounds is in play, this Pokémon may use an attack twice. Do the
-    // Wave: 20 damage for each of your Benched Pokémon.
     // Festival Lead: if Festival Grounds is in play, this Pokémon may use an attack it has twice (read by the core when
     // the second attack would be offered: `attack::attack_twice`).
     passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AttackTwice(AttackTwiceSpec { guard: Cond::StadiumInPlay(Pred::Name("Festival Grounds")) }) }],

@@ -1,9 +1,9 @@
-//! Genesect (M2 / PFL 8): Bug's Cannon — choose 1 of your opponent's Pokémon; 20 damage to it for each [G] Energy attached
-//! to this Pokémon. Speed Attack — 110.
+//! Genesect (M2 / PFL 8): Bug's Cannon — choose 1 of your opponent's Pokémon; 20 damage to it for each [G] Energy attached to this
+//! Pokémon. Speed Attack — 110.
 //!
-//! Bug's Cannon: the chosen Pokémon (no cancel) takes a Damage event caused by the attack, even for 0 damage; Weakness
-//! and Resistance apply only if it is the Active Pokémon (APR B-08). Two `Genesect` classes exist; this port is bound
-//! to PFL.
+//! Bug's Cannon: the chosen Pokémon (no cancel) takes a Damage event caused by the attack, even for 0 damage, of 20 times the
+//! [G] Energy provided on this Pokémon (`EnergyUnit::Provided`); Weakness and Resistance apply only if it is the Active
+//! Pokémon (APR B-08). The class is pinned to PFL: Genesect SFA 40 is another card.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Genesect@PFL",

@@ -1,12 +1,9 @@
-//! Ethan's Sudowoodo (DRI 93): Impound — 20; during your opponent's next turn
-//! the Defending Pokémon can't retreat. Try to Imitate — flip a coin; if
-//! heads, choose 1 of your opponent's Active Pokémon's attacks and use it as
-//! this attack.
+//! Ethan's Sudowoodo (DRI 93): Impound — 20; during your opponent's next turn the Defending Pokémon can't retreat. Try to Imitate —
+//! flip a coin; if heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
 //!
-//! Twinleaf: BLOCK_RETREAT; COIN_FLIP_PROMPT then
-//! COPY_OPPONENT_ACTIVE_ATTACK_WITH_RETRY (COPY_ATTACK_FROM_POKEMON_LIST with
-//! maxRetries 3, see `copy_attack.rs`). The attack effect is retained across
-//! the coin flip.
+//! Impound arms a lasting `CANT_RETREAT` lock on the Defending Pokémon. Try to Imitate flips the coin before the damage; on
+//! heads `Op::CopyAttack` over the opponent's Active Pokémon's attacks, chosen by the player; the copied attack is this
+//! Pokémon's only while it is used (RULES.md, batch 8 C11f).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

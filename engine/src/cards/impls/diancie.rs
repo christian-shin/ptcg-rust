@@ -1,8 +1,9 @@
-//! Diancie (SCR): Diffuse Reflection — 40 damage for each Special Energy
-//! attached to all of your opponent's Pokémon. Power Gem — 60.
+//! Diancie (SCR 86): Diffuse Reflection — 40 damage for each Special Energy attached to all of your opponent's Pokémon.
+//! Power Gem — 60.
 //!
-//! Twinleaf counts Special Energy cards in `cards` of every opponent slot
-//! (bench, then Active) and sets `effect.damage = 40 * count`.
+//! Diffuse Reflection sets the damage to 40 times the Special Energy cards attached to the opponent's Pokémon, Active and
+//! Bench (`EnergyUnit::SpecialEnergyCards`: a Special Energy card is one Special Energy, however much Energy it provides;
+//! the "Energy provided" rule of RULES.md keeps these counts as cards).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

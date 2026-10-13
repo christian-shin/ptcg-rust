@@ -1,12 +1,10 @@
-//! Festival Grounds (TWM, stadium): each Pokémon with any Energy attached
-//! recovers from all Special Conditions and can't be affected by any.
+//! Festival Grounds (TWM 149 / PRE 108, Stadium): each Pokémon with any Energy attached recovers from all Special Conditions
+//! and can't be affected by any.
 //!
-//! Events batch 4: a `Prevent` over GainCondition (any cause) on those
-//! Pokémon, and `Recover`: the table check makes them recover from the ones
-//! they have. A condition-adding Ability or card is
-//! still usable: its effect is just blocked (ruling 290). The stadium
-//! can't be "used". Festival Lead's double attack lives on the Festival Lead
-//! cards (runtime `barrage`, see Dipplin TWM) and the core useAttack.
+//! Two declarations over `SlotPred::HasEnergy`: `Modifier::Recover` (the table check removes the conditions they have) and a
+//! `Modifier::Prevent` over GainCondition (any cause). A card that adds a condition (Dangerous Laser, an Ability) is still
+//! playable or usable: its effect is just blocked (id290, JP FAQ Dangerous Laser). The Stadium can't be used. Festival Lead's
+//! second attack lives on the Festival Lead Pokémon (`Modifier::AttackTwice`), which reads this Stadium.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

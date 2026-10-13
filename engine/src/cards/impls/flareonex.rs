@@ -1,17 +1,10 @@
-//! Flareon ex (PRE, Tera): Burning Charge — 130; search your deck for up to 2
-//! Basic Energy and attach them to 1 of your Pokémon, then shuffle. Carnelian
-//! — 280; during your next turn, this Pokémon can't attack. Tera: no damage
-//! from attacks while on the Bench.
+//! Flareon ex (PRE 14, Tera): Burning Charge — 130; search your deck for up to 2 Basic Energy cards and attach them to 1 of your
+//! Pokémon. Then, shuffle your deck. Carnelian — 280; during your next turn, this Pokémon can't attack. Tera: prevent all
+//! damage done to this Pokémon by attacks while it is on the Bench.
 //!
-//! Twinleaf: Burning Charge does nothing with an empty deck. A 0-2 energy
-//! choice (no cancel) is followed (only if any were chosen) by a
-//! ChoosePokemonPrompt; the cards move deck -> that Pokémon (no reveal). The
-//! deck is shuffled afterwards (not reached if the target prompt returned no
-//! target).
-//!
-//! Fixed (phase 4b, R2): Burning Charge also did nothing with no Benched
-//! Pokémon, but the text attaches the Energy to 1 of your Pokémon (the Active
-//! Flareon ex counts).
+//! Burning Charge: with a card in the deck, one search of 0 to 2 Basic Energy cards (a search for a kind: it may take none, JP
+//! FAQ audit), the cards attached to one Pokémon of yours (the Active counts), then the shuffle after the search (APR E-19).
+//! Carnelian arms the `CANT_ATTACK` lock on this Pokémon until your next turn. Tera is `TERA_RULE`.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Flareonex",

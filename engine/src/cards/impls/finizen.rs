@@ -1,5 +1,6 @@
-//! Finizen (TWM): Aqua Slash — 30; during your next turn, this Pokémon can't
-//! attack (`player.active.cannotAttackNextTurnPending = true`).
+//! Finizen (TWM 59): Aqua Slash — 30; during your next turn, this Pokémon can't attack.
+//!
+//! A lasting lock (`CANT_ATTACK`, until your next turn) on this Pokémon, armed after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

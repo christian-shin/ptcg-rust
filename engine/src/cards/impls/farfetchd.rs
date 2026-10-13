@@ -1,19 +1,11 @@
-//! Farfetch'd (TWM): Impromptu Carrier — when you put this card from your
-//! hand onto your Bench, you may search your deck for a Pokémon Tool and
-//! attach it to this Pokémon, then shuffle. Mach Cut — 30; discard a Special
-//! Energy from your opponent's Active Pokémon (fixed in R1-8: Twinleaf had no
-//! handler for it; now the attacker picks one Special Energy attached to the
-//! opponent's Active with a ChooseCardsPrompt (min 1, max 1, no cancel,
-//! nothing when there is none) and a DiscardCardsEffect follows, like
-//! Hawlucha FST's Flying Stomp).
+//! Farfetch'd (TWM 132): Impromptu Carrier — when you play this Pokémon from your hand onto your Bench during your turn, you may
+//! search your deck for a Pokémon Tool card and attach it to this Pokémon. Then, shuffle your deck. Mach Cut — 30; discard a
+//! Special Energy from your opponent's Active Pokémon.
 //!
-//! Twinleaf: the prompt is created during PlayPokemonEffect propagation
-//! (before the card is benched); the callback finds this card's bench index
-//! (0 if not found), MOVE_CARDS the Tool there and pushes it onto `tools`
-//! directly (no AttachPokemonToolEffect, no max-tools check), then shuffles
-//! with no trailing wait. Fixed (W1-C): MOVE_CARDS also left the Tool in the
-//! slot's `cards`, so it was in two places; it is now taken out of `cards`
-//! (a Tool lives in `tools` only).
+//! Impromptu Carrier is a trigger on this card's EnterPlay from the hand to the Bench by the rules; with the Ability
+//! working and a card in the deck, one search (0 or 1 Tool, a search for a kind) attaches the Tool to this Pokémon, then the
+//! deck is shuffled (APR E-19). Mach Cut: the attacker chooses 1 Special Energy attached to the Defending Pokémon and it is
+//! discarded after the damage (a LeavePlay caused by the attack); with none nothing happens.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Farfetchd",

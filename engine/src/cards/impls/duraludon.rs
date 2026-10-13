@@ -1,8 +1,6 @@
-//! Duraludon (SCR): Hammer In — 30. Raging Hammer — 80+; 10 more damage for
-//! each damage counter on this Pokémon.
+//! Duraludon (SCR 106 / PRE 69): Hammer In — 30. Raging Hammer — 80+; 10 more damage for each damage counter on this Pokémon.
 //!
-//! Twinleaf adds `player.active.damage` (the Active slot, not this card's own
-//! slot) to the damage.
+//! Raging Hammer adds 10 per damage counter on the attacking (Active) Pokémon before the damage (`Num::DamageOn`).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

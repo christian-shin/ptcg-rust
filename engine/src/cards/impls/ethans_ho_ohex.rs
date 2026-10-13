@@ -1,17 +1,10 @@
-//! Ethan's Ho-Oh ex (DRI / ASC): Golden Flame — once during your turn, you
-//! may attach up to 2 Basic [R] Energy from your hand to 1 of your Benched
-//! Ethan's Pokémon. Shining Feather — 160; heal 50 damage from each of your
-//! Pokémon.
+//! Ethan's Ho-Oh ex (ASC 26 / DRI 39): Golden Flame — once during your turn, you may attach up to 2 Basic [R] Energy cards from
+//! your hand to 1 of your Benched Ethan's Pokémon. Shining Feathers — 160; heal 50 damage from each of your Pokémon.
 //!
-//! Twinleaf quirks kept: the marker check throws BLOCKED_BY_EFFECT; the
-//! prompt filter is `name: 'Fire Energy'`, blockedTo lists every non-Ethan's
-//! Pokémon; the marker and the ability animation happen when the prompt
-//! resolves; each Energy is its own MOVE_CARDS (no AttachEnergyEffect).
-//! Fixed (phase 4b #42): the power also throws CANNOT_USE_POWER without a
-//! Benched Ethan's Pokémon, and the prompt is min 1 (it was min 0, so the
-//! once-per-turn marker could be set with nothing attached, and with no
-//! Benched Ethan's Pokémon the prompt had no valid target). The attack heals each of
-//! your Pokémon with a HealEffect.
+//! An Ability (once per turn): one Attach from the hand, 1 to 2 Basic Fire Energy cards onto one Benched Pokémon with the
+//! Ethan's tag; at least 1 (JP FAQ audit: Golden Flame may attach just 1, min 1 max 2, so the usage marker is never set with
+//! nothing attached). Shining Feathers heals each of your Pokémon by its own Heal event after the damage (the heal is its
+//! own step even when the damage was prevented).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

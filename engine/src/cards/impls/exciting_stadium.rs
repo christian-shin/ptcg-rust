@@ -1,8 +1,7 @@
-//! Lively Stadium ("Exciting Stadium SSP", stadium): each Basic Pokémon in
-//! play (both yours and your opponent's) gets +30 HP.
+//! Lively Stadium (SSP 180, Stadium): each Basic Pokémon in play (both yours and your opponent's) gets +30 HP.
 //!
-//! Twinleaf: CheckHpEffect while this is the stadium in play, unless the
-//! stadium effect is blocked for the target's owner; the stadium can't be used.
+//! One `Modifier::HpMod` (+30, `SlotPred::Basic`) while this is the Stadium in play and Stadium effects aren't turned off
+//! for the Pokémon. The Stadium can't be used (it has no `use_stadium`).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

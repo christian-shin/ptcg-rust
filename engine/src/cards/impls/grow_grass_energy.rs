@@ -1,10 +1,7 @@
-//! Growing [G] Energy ("Grow [G] Energy M3", POR): provides [G]. The [G]
-//! Pokémon this card is attached to gets +20 HP.
+//! Growing [G] Energy (POR 86, Special Energy): provides [G]. The [G] Pokémon this card is attached to gets +20 HP.
 //!
-//! Twinleaf: the [G] entry is pushed unconditionally (no EnergyEffect probe).
-//! On CheckHp, if the target holds this card and the special energy isn't
-//! blocked, a CheckPokemonType on the target decides: [G] → hp += 20 (the
-//! setter writes hpBonus only when a Pokémon was captured).
+//! `Modifier::ProvidesEnergy` ([G], always) and `Modifier::HpMod` (+20) over the Holder when it is [G] after effects
+//! (`SlotPred::TypeIs`).
 use crate::spec::prelude::*;
 use crate::types::ct;
 
