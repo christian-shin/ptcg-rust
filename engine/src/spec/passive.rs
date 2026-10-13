@@ -1468,12 +1468,7 @@ fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -
         return lp.generic_probe;
     }
     let d = &g.st.cdef(power.card).powers[power.index as usize];
-    d.power_type == PowerType::Ability as u8
-        && !d.exempt_from_ability_lock
-        && (!lp.only_knocks_out_self || d.knocks_out_self)
-        && lp.exempt_name.map_or(true, |n| d.name != n)
-        && !d.use_from_hand
-        && !d.use_from_discard
+    lockable_power(g, power) && (!lp.only_knocks_out_self || d.knocks_out_self) && lp.exempt_name.map_or(true, |n| d.name != n)
 }
 
 /// Is `card`'s Ability locked by this card (the `HANDLE_ABILITY_LOCK` callback)?
@@ -3800,18 +3795,36 @@ mod active_lock_equality_tests {
     }
     const OLD: [Old; 2] = [Old::MidnightFluttering, Old::Initialization];
 
-    /// `active_lock_subject` as it was: which powers the lock takes away, read from the card-data flags.
+    /// The powers the card-data flags `exempt_from_ability_lock` marked, frozen from data/cards.json as the flags stood
+    /// (the commit before their deletion asserted that the flags marked exactly these): (card, power).
+    const EXEMPT_FROM_ABILITY_LOCK: [(&str, &str); 2] = [("Antique Cover Fossil SCR 129", "Antique Cover Fossil"), ("Antique Root Fossil SCR 130", "Antique Root Fossil")];
+    /// The powers `exempt_from_initialize` marked, frozen likewise.
+    const EXEMPT_FROM_INITIALIZE: [(&str, &str); 6] = [
+        ("Iron Thorns ex PRE 32", "Initialization"),
+        ("Iron Thorns ex TWM 77", "Initialization"),
+        ("Iron Crown ex PRE 158", "Cobalt Command"),
+        ("Iron Crown ex TEF 81", "Cobalt Command"),
+        ("Iron Leaves ex PRE 176", "Rapid Vernier"),
+        ("Iron Leaves ex TEF 25", "Rapid Vernier"),
+    ];
+
+    fn marked(table: &[(&str, &str)], g: &Game, power: PowerRef) -> bool {
+        let d = g.st.cdef(power.card);
+        table.iter().any(|(key, name)| *key == d.full_name && d.powers[power.index as usize].name == *name)
+    }
+
+    /// `active_lock_subject` as it was: which powers the lock takes away, read from the (frozen) card-data flags.
     fn old_subject(g: &Game, l: Old, power: PowerRef, probe: bool) -> bool {
         if power.index == PROBE_GENERIC {
             return true;
         }
         let d = &g.st.cdef(power.card).powers[power.index as usize];
-        if d.power_type != PowerType::Ability as u8 || d.exempt_from_ability_lock {
+        if d.power_type != PowerType::Ability as u8 || marked(&EXEMPT_FROM_ABILITY_LOCK, g, power) {
             return false;
         }
         match l {
             Old::MidnightFluttering => probe || d.name != "Midnight Fluttering",
-            Old::Initialization => !d.exempt_from_initialize && !d.use_from_hand && !d.use_from_discard,
+            Old::Initialization => !marked(&EXEMPT_FROM_INITIALIZE, g, power) && !d.use_from_hand && !d.use_from_discard,
         }
     }
 
@@ -3863,12 +3876,8 @@ mod active_lock_equality_tests {
     /// The flags marked exactly the cards this proves redundant.
     #[test]
     fn the_declarations_equal_the_old_subject_and_flags_on_every_pool_card() {
-        let mut flagged: Vec<&str> = Vec::new();
         for (id, d) in crate::carddb::cards().iter().enumerate() {
             let (g, card) = alone(id as crate::carddb::DefId);
-            if d.powers.iter().any(|p| p.exempt_from_ability_lock || p.exempt_from_initialize) {
-                flagged.push(d.full_name);
-            }
             for i in 0..d.powers.len() {
                 let power = PowerRef { card, index: i as u8 };
                 for l in OLD {
@@ -3890,22 +3899,17 @@ mod active_lock_equality_tests {
                 }
             }
         }
-        // The flags marked: both Antique Fossils (their rule text is no Ability: a power type that isn't one) and the Future
-        // Iron ex Pokémon (excepted by the Future tag).
-        let want = [
-            "Antique Cover Fossil SCR 129", "Antique Root Fossil SCR 130", "Iron Crown ex PRE 158", "Iron Crown ex TEF 81", "Iron Leaves ex PRE 176",
-            "Iron Leaves ex TEF 25", "Iron Thorns ex PRE 32", "Iron Thorns ex TWM 77",
-        ];
-        flagged.sort();
-        assert_eq!(flagged, want);
-        for key in want {
+        // The flags marked: both Antique Fossils' rule text (a power type that isn't an Ability: no lock takes it) and the Future
+        // Iron ex Pokémon's Abilities (excepted from Initialization by the Future tag).
+        for (key, name) in EXEMPT_FROM_ABILITY_LOCK {
             let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
-            if d.powers.iter().any(|p| p.exempt_from_initialize) {
-                assert!(d.has_tag(tag::FUTURE), "{key}: excepted from Initialization without being a Future Pokémon");
-            }
-            if d.powers.iter().any(|p| p.exempt_from_ability_lock) {
-                assert!(d.powers.iter().any(|p| p.exempt_from_ability_lock && p.power_type != PowerType::Ability as u8), "{key}: exempt from every lock but a plain Ability");
-            }
+            let p = d.powers.iter().find(|p| p.name == name).unwrap();
+            assert_ne!(p.power_type, PowerType::Ability as u8, "{key}: exempt from every lock but a plain Ability");
+        }
+        for (key, name) in EXEMPT_FROM_INITIALIZE {
+            let d = crate::carddb::def(crate::carddb::def_by_full_name(key).unwrap());
+            assert!(d.powers.iter().any(|p| p.name == name), "{key}");
+            assert!(d.has_tag(tag::FUTURE), "{key}: excepted from Initialization without being a Future Pokémon");
         }
     }
 

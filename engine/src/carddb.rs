@@ -45,8 +45,6 @@ pub struct PowerDef {
     pub use_from_hand: bool,
     pub use_from_hand_to_bench: bool,
     pub use_from_discard: bool,
-    pub exempt_from_ability_lock: bool,
-    pub exempt_from_initialize: bool,
     pub ability_lock: bool,
     pub barrage: bool,
     pub knocks_out_self: bool,
