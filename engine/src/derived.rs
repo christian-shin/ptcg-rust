@@ -208,8 +208,7 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
     h.write_u8(st.winner as u8);
     std::mem::discriminant(&st.end_reason).hash(&mut h);
     h.write_u8(st.n_cards);
-    let r = &st.rules;
-    for b in [r.first_turn_draw_card, r.first_turn_use_supporter, r.attack_first_turn, r.supporter_cleanup_at_end_turn, st.skip_opponent_turn, st.is_sudden_death, st.bench_size_change_handled] {
+    for b in [st.skip_opponent_turn, st.is_sudden_death, st.bench_size_change_handled] {
         h.write_u8(b as u8);
     }
     ar(&mut h, st.last_attack);

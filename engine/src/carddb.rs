@@ -25,13 +25,6 @@ pub struct AttackDef {
     pub damage: i32,
     pub damage_calculation: Option<&'static str>,
     pub text: &'static str,
-    pub has_effect_fn: bool,
-    pub can_use_on_first_turn: bool,
-    pub use_on_bench: bool,
-    pub gx_attack: bool,
-    pub shred_attack: bool,
-    pub barrage: bool,
-    pub copycat_attack: bool,
 }
 
 #[derive(Debug)]
@@ -40,15 +33,6 @@ pub struct PowerDef {
     pub name: &'static str,
     pub power_type: u8,
     pub text: &'static str,
-    pub has_effect_fn: bool,
-    pub use_when_in_play: bool,
-    pub use_from_hand: bool,
-    pub use_from_hand_to_bench: bool,
-    pub use_from_discard: bool,
-    pub ability_lock: bool,
-    pub barrage: bool,
-    pub knocks_out_self: bool,
-    pub is_fossil: bool,
 }
 
 #[derive(Debug)]
@@ -84,13 +68,8 @@ pub struct CardDef {
     pub evolves_from_base: &'static [&'static str],
     pub max_tools: u8,
     pub trainer_type: u8,
-    pub first_turn: bool,
-    pub attaches_to_opponents_pokemon: bool,
     pub energy_type: u8,
     pub provides: &'static [CardType],
-    pub methods: &'static [&'static str],
-    /// Treated as a Pokémon by `getPokemons()` (fossils, dolls).
-    pub fossil_doll: bool,
     /// Names that count as the same name for the deck-building rule (empty:
     /// none): a deck holds cards of at most one name of the group (ruling
     /// 1073: Lysandre and Boss's Orders; 746 / 747: Professor Sycamore,
@@ -159,9 +138,6 @@ impl CardDef {
             || self.has_tag(tag::BREAK)
             || self.has_tag(tag::PRISM_STAR)
             || self.has_tag(tag::RADIANT)
-    }
-    pub fn has_method(&self, m: &str) -> bool {
-        self.methods.iter().any(|x| *x == m)
     }
 }
 
@@ -295,12 +271,8 @@ mod phrase_tests {
             evolves_from_base: &[],
             max_tools: 1,
             trainer_type: 0,
-            first_turn: false,
-            attaches_to_opponents_pokemon: false,
             energy_type: 0,
             provides: &[],
-            methods: &[],
-            fossil_doll: false,
             same_name_group: &[],
             sort_rank: 0,
         }
@@ -341,47 +313,12 @@ mod phrase_tests {
 }
 
 #[cfg(test)]
-mod first_turn_tests {
-    //! Events batch 9 C4: the card-data flags `can_use_on_first_turn` and `first_turn` are declarations of the card's spec.
+mod declaration_tests {
+    //! Events batch 9 C4: what the card-data flags `can_use_on_first_turn`, `first_turn`, `fossil_doll` and `use_when_in_play`
+    //! marked is declared by the card's spec (each was proved equal to its flag, on every def, before the flag left the data).
     use super::*;
     use crate::spec::event::Limit;
     use crate::spec::passive::{FirstTurnAttack, Modifier};
-
-    /// "If you go first, you can use this attack during your first turn" is `AttackFlags { first_turn: Attack(i) }`: the
-    /// declaration is on exactly the attacks the flag marks, on every card of the database.
-    #[test]
-    fn the_attack_declaration_equals_can_use_on_first_turn() {
-        let mut marked = 0;
-        for (i, d) in cards().iter().enumerate() {
-            let spec = crate::cards::spec_for(i as DefId);
-            for (k, a) in d.attacks.iter().enumerate() {
-                let declared = spec.map_or(false, |s| s.passives.iter().any(|p| matches!(&p.modifier, Modifier::AttackFlags(f) if f.first_turn == Some(FirstTurnAttack::Attack(k as u8)))));
-                assert_eq!(a.can_use_on_first_turn, declared, "{} attack {} ({})", d.full_name, k, a.name);
-                marked += declared as usize;
-            }
-        }
-        assert_eq!(marked, 3, "Delibird MEG 105, Volbeat TWM 9, Exeggcute SSP 1");
-    }
-
-    /// "If you go first, you can use this card during your first turn" is a `Permit` lifting `Limit::GoingFirst` on the card:
-    /// every def the flag marks declares it, and no other does.
-    #[test]
-    fn the_permit_equals_the_card_first_turn_flag() {
-        let mut marked = 0;
-        for (i, d) in cards().iter().enumerate() {
-            let declared = crate::cards::spec_for(i as DefId)
-                .map_or(false, |s| s.passives.iter().any(|p| matches!(&p.modifier, Modifier::Permit(pm) if pm.lifts.contains(&Limit::GoingFirst))));
-            assert_eq!(d.first_turn, declared, "{}", d.full_name);
-            marked += declared as usize;
-        }
-        assert_eq!(marked, 4, "Carmine TWM 145 / PRE 103, Team Rocket's Proton DRI 177 / ASC 208");
-    }
-}
-
-#[cfg(test)]
-mod power_flag_tests {
-    //! Events batch 9 C4: the card-data flags of powers and Pokémon-like Trainers are facts of the card's spec.
-    use super::*;
 
     /// The keys of `data/pool.json`: the cards a deck can hold.
     fn pool() -> std::collections::HashSet<String> {
@@ -389,40 +326,61 @@ mod power_flag_tests {
         v.as_array().unwrap().iter().map(|e| e["key"].as_str().unwrap().to_string()).collect()
     }
 
-    /// `use_when_in_play` ("an Ability usable from a Pokémon in play") is "the power has a program" (a `PowerSpec`): a
-    /// passive Ability has none and is never used. On every pool card (the one def outside the pool where they differ is
-    /// Crustle BCR 85: its passive Sturdy carries the flag, which no deck can bring into a game).
+    /// "If you go first, you can use this attack during your first turn" is `AttackFlags { first_turn: Attack(i) }`: on
+    /// Quick Gift, Quick Sign and Precocious Evolution, and on no other attack.
     #[test]
-    fn use_when_in_play_equals_the_power_having_a_program() {
-        let pool = pool();
-        let mut bad: Vec<String> = Vec::new();
-        let mut usable = 0;
+    fn the_first_turn_attacks_are_declared() {
+        let mut marked: Vec<String> = Vec::new();
         for (i, d) in cards().iter().enumerate() {
-            if !pool.contains(d.full_name) {
-                continue;
-            }
             let spec = crate::cards::spec_for(i as DefId);
-            for (k, pw) in d.powers.iter().enumerate() {
-                let program = spec.map_or(false, |s| s.powers.iter().any(|x| x.index as usize == k));
-                usable += program as usize;
-                if pw.use_when_in_play != program {
-                    bad.push(format!("{} power {} ({}): flag {} program {}", d.full_name, k, pw.name, pw.use_when_in_play, program));
+            for (k, a) in d.attacks.iter().enumerate() {
+                if spec.map_or(false, |s| s.passives.iter().any(|p| matches!(&p.modifier, Modifier::AttackFlags(f) if f.first_turn == Some(FirstTurnAttack::Attack(k as u8))))) {
+                    marked.push(format!("{} {}", d.full_name, a.name));
                 }
             }
         }
-        assert!(bad.is_empty(), "{} differ of {} with a program: {:#?}", bad.len(), usable, bad);
+        marked.sort();
+        assert_eq!(marked, ["Delibird MEG 105 Quick Gift", "Exeggcute SSP 1 Precocious Evolution", "Volbeat TWM 9 Quick Sign"]);
     }
 
-    /// "Play this card as if it were a Basic Pokémon" (the Fossils) is the card's play program `Op::PlayAsPokemon`: the
-    /// card data's `fossil_doll` is exactly the defs whose spec has it.
+    /// "If you go first, you can use this card during your first turn" is a `Permit` lifting `Limit::GoingFirst` on the card:
+    /// Carmine and Team Rocket's Proton, every printing.
     #[test]
-    fn fossil_doll_equals_the_play_as_pokemon_program() {
-        let mut marked = 0;
+    fn the_first_turn_supporters_are_declared() {
+        let mut marked: Vec<&str> = Vec::new();
         for (i, d) in cards().iter().enumerate() {
-            let plays = crate::cards::spec_for(i as DefId).map_or(false, crate::spec::run::plays_as_pokemon);
-            assert_eq!(d.fossil_doll, plays, "{}", d.full_name);
-            marked += plays as usize;
+            if crate::cards::spec_for(i as DefId).map_or(false, |s| s.passives.iter().any(|p| matches!(&p.modifier, Modifier::Permit(pm) if pm.lifts.contains(&Limit::GoingFirst)))) {
+                marked.push(d.full_name);
+            }
         }
-        assert_eq!(marked, 2, "Antique Root Fossil SCR 130, Antique Cover Fossil SCR 129");
+        marked.sort();
+        assert_eq!(marked, ["Carmine PRE 103", "Carmine TWM 145", "Team Rocket's Proton ASC 208", "Team Rocket's Proton DRI 177"]);
+    }
+
+    /// "Play this card as if it were a Basic Pokémon" (the Fossils) is the card's play program `Op::PlayAsPokemon`.
+    #[test]
+    fn the_fossils_are_the_play_as_pokemon_programs() {
+        let mut marked: Vec<&str> = cards().iter().enumerate().filter(|(i, _)| crate::cards::spec_for(*i as DefId).map_or(false, crate::spec::run::plays_as_pokemon)).map(|(_, d)| d.full_name).collect();
+        marked.sort();
+        assert_eq!(marked, ["Antique Cover Fossil SCR 129", "Antique Root Fossil SCR 130"]);
+    }
+
+    /// Every power of a pool card with a program is one that can be used (an Ability with a program, or the Fossils' discard
+    /// action); the powers without one are passive.
+    #[test]
+    fn every_program_is_a_power_of_its_card() {
+        let pool = pool();
+        let mut programs = 0;
+        for (i, d) in cards().iter().enumerate() {
+            let Some(spec) = crate::cards::spec_for(i as DefId) else { continue };
+            if !pool.contains(d.full_name) {
+                continue;
+            }
+            for pw in spec.powers {
+                assert!((pw.index as usize) < d.powers.len(), "{} power {}", d.full_name, pw.index);
+                programs += 1;
+            }
+        }
+        assert_eq!(programs, 48, "the pool's powers with a program");
     }
 }

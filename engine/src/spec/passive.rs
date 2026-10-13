@@ -1470,8 +1470,7 @@ fn lockable_power(g: &Game, power: crate::effects::PowerRef) -> bool {
     if power.index == PROBE_GENERIC {
         return true;
     }
-    let d = &g.st.cdef(power.card).powers[power.index as usize];
-    d.power_type == PowerType::Ability as u8 && !d.use_from_hand && !d.use_from_discard
+    g.st.cdef(power.card).powers[power.index as usize].power_type == PowerType::Ability as u8
 }
 
 fn power_subject(g: &Game, lp: &LockedPowers, power: crate::effects::PowerRef) -> bool {
@@ -3840,7 +3839,7 @@ mod active_lock_equality_tests {
         }
         match l {
             Old::MidnightFluttering => probe || d.name != "Midnight Fluttering",
-            Old::Initialization => !marked(&EXEMPT_FROM_INITIALIZE, g, power) && !d.use_from_hand && !d.use_from_discard,
+            Old::Initialization => !marked(&EXEMPT_FROM_INITIALIZE, g, power),
         }
     }
 

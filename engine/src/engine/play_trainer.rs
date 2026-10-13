@@ -208,8 +208,7 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
         TrainerType::Supporter => {
             g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with: None })?;
             restore_played_trainer(g, p, card);
-            let keep = g.st.rules.supporter_cleanup_at_end_turn;
-            finalize_trainer_cleanup(g, p, card, keep);
+            finalize_trainer_cleanup(g, p, card, false);
             record(g, p, card);
             Ok(())
         }

@@ -105,21 +105,17 @@ fn move_prevented(g: &mut Game, kind: EventKind, card: CardId, from: SlotRef, to
 // ---------------------------------------------------------------------------
 // The checks (execution and legality call the same functions)
 
-/// The spot can receive the card (a plain read): a Pokémon is there; a Tool: it is the owner's Pokémon unless the
-/// Tool attaches to the opponent's, and the Pokémon has room for it (one Tool per Pokémon unless its card says
-/// otherwise: `max_tools`); an Energy: the owner's Pokémon (APR C-09: players only attach Energy to their own).
+/// The spot can receive the card (a plain read): a Pokémon is there and it is the owner's (APR C-09: players only attach
+/// Energy to their own; no Tool says it attaches to the opponent's Pokémon); a Tool: the Pokémon has room for it (one Tool
+/// per Pokémon unless its card says otherwise: `max_tools`).
 pub fn attach_target_ok(g: &Game, v: &EventView) -> R {
     let (Some(card), Some(t)) = (v.card, v.slot) else { crate::bail!("INVALID_TARGET") };
     let Some(pc) = g.st.slot_pokemon(t.p as usize, t.s) else { crate::bail!("INVALID_TARGET") };
-    if is_tool(g, card) {
-        if t.p != v.owner && !g.st.cdef(card).attaches_to_opponents_pokemon {
-            crate::bail!("INVALID_TARGET");
-        }
-        if g.st.slot(t.p as usize, t.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
-            crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
-        }
-    } else if t.p != v.owner {
+    if t.p != v.owner {
         crate::bail!("INVALID_TARGET");
+    }
+    if is_tool(g, card) && g.st.slot(t.p as usize, t.s).tools.len() >= g.st.cdef(pc).max_tools as usize {
+        crate::bail!("POKEMON_TOOL_ALREADY_ATTACHED");
     }
     Ok(())
 }

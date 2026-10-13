@@ -36,11 +36,6 @@ pub fn init_next_turn(g: &mut Game) -> R {
     g.st.players[p].moved_from_active_to_bench_this_turn.clear();
     g.st.bump();
 
-    if g.st.turn == 1 && !g.st.rules.first_turn_draw_card {
-        g.st.phase = GamePhase::PlayerTurn;
-        g.st.bump();
-        return Ok(());
-    }
     g.st.phase = GamePhase::Draw;
     g.st.bump();
     if g.st.players[p].deck.is_empty() {

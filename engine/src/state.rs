@@ -420,26 +420,6 @@ impl AttackRef {
     }
 }
 
-/// Rules toggles (Twinleaf `Rules` defaults).
-#[derive(Clone, Copy, Debug)]
-pub struct Rules {
-    pub first_turn_draw_card: bool,
-    pub first_turn_use_supporter: bool,
-    pub attack_first_turn: bool,
-    pub supporter_cleanup_at_end_turn: bool,
-}
-
-impl Default for Rules {
-    fn default() -> Self {
-        Rules {
-            first_turn_draw_card: true,
-            first_turn_use_supporter: true,
-            attack_first_turn: false,
-            supporter_cleanup_at_end_turn: false,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug)]
 pub struct State {
     pub phase: GamePhase,
@@ -451,7 +431,6 @@ pub struct State {
     pub players: [Player; 2],
     pub cards: [CardInst; MAX_CARDS],
     pub n_cards: u8,
-    pub rules: Rules,
     pub skip_opponent_turn: bool,
     pub last_attack: Option<AttackRef>,
     /// Indexed by player index (Twinleaf keys by player id).
@@ -567,7 +546,6 @@ impl State {
             players: [Player::new(1), Player::new(2)],
             cards: [CardInst::default(); MAX_CARDS],
             n_cards: 0,
-            rules: Rules::default(),
             skip_opponent_turn: false,
             last_attack: None,
             player_last_attack: [None, None],

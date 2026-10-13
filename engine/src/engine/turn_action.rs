@@ -91,7 +91,7 @@ impl ActionChecks for Game {
 /// written by then). Returns the attacking spot, or the code of the refusal (the action is illegal). An error of a read
 /// is propagated.
 pub fn attack_checks<C: ActionChecks + ?Sized>(c: &mut C, p: usize, attack: AttackRef, ignore_status: bool, granted_first_turn: bool) -> R<Result<SlotRef, &'static str>> {
-    let attacking = match crate::engine::attack::can_attack_pre(c.game(), p, attack, ignore_status, granted_first_turn) {
+    let attacking = match crate::engine::attack::can_attack_pre(c.game(), p, ignore_status, granted_first_turn) {
         Ok(s) => s,
         Err(e) => return Ok(Err(e.0)),
     };

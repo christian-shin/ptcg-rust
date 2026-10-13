@@ -127,13 +127,6 @@ fn candidates(ctx: &mut Ctx, out: &mut Vec<Action>) {
             add(a.name, &mut names);
         }
     }
-    for &b in pl.bench.iter() {
-        if let Some(c) = g.st.slot_pokemon(p, b) {
-            for a in g.st.cdef(c).attacks.iter().filter(|a| a.use_on_bench) {
-                add(a.name, &mut names);
-            }
-        }
-    }
     if g.decls.sets[crate::decl::fam::GRANT_ATTACKS] != 0 || g.st.slot(p, pl.active).tools.len() > 0 {
         if let Ok(((attacks, copied), _)) = ctx.attack_list() {
             for a in attacks.iter() {
