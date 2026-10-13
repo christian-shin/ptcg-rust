@@ -1,8 +1,7 @@
-//! Torracat (TEF, support card): Bite — 30. Flare Strike — 80; during your
-//! next turn, this Pokémon can't use Flare Strike.
+//! Torracat (TEF): Bite — 30. Flare Strike — 80; during your next turn, this Pokémon can't use Flare Strike.
 //!
-//! THIS_POKEMON_CANNOT_USE_THIS_ATTACK_NEXT_TURN: push the name onto the
-//! player's Active `cannotUseAttacksNextTurnPending` if missing.
+//! A lasting lock on this Pokémon naming this attack (`NamedAttack::This`) until the end of your next turn; its other attack stays
+//! usable, and the lock goes when the Pokémon moves to the Bench or evolves (APR C-15).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

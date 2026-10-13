@@ -1,10 +1,8 @@
-//! Team Rocket's Mimikyu (DRI 87 / ASC): Gemstone Hunt — choose an attack on
-//! your opponent's Active Tera Pokémon and use it as the effect of this
+//! Team Rocket's Mimikyu (ASC 97): Gemstone Mimicry — choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this
 //! attack.
 //!
-//! Twinleaf: nothing unless the opponent's Active has a Pokémon card with
-//! attacks and the Tera tag; then COPY_ATTACK_FROM_POKEMON_LIST with that
-//! card (allowCancel false, maxRetries 1, see `copy_attack.rs`).
+//! `Op::CopyAttack` over the opponent's Active Pokémon, offered only while it is a Tera Pokémon (retries 1, no cancel; see
+//! `copy_attack.rs`): otherwise nothing happens. The copied attack is this Pokémon's own attack while it is used (id2402, id2094).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,12 +1,9 @@
-//! Strange Timepiece (MEG): devolve 1 of your evolved [P] Pokémon by putting
-//! any number of Evolution cards on it into your hand.
+//! Strange Timepiece (MEG 128, Item): devolve 1 of your evolved [P] Pokémon by putting any number of Evolution cards on it into your
+//! hand. (That Pokémon can't evolve this turn.)
 //!
-//! Twinleaf: the second prompt is a ChooseCardsPrompt over the whole slot
-//! (Pokémon filter) with the Basic's index blocked (phase 4b fix: the Basic
-//! used to be selectable and threw INVALID_PROMPT_RESULT; the throw stays as
-//! a defensive check); choosing a card devolves `pokemons.length - index` times via
-//! DEVOLVE_POKEMON (which sets `pokemonPlayedTurn` but not
-//! `cannotEvolveNextTurn`).
+//! The Item needs an evolved [P] Pokémon. One is chosen, then the Evolution cards to put into the hand (never the Basic Pokémon at the
+//! bottom): a devolve into the hand is a LeavePlay of each Evolution card (Milotic's Mentally Calm stops it). The parenthetical is
+//! reminder text for the normal turn rules, so a permission such as Boosted Evolution lifts it (id2327, RULES.md).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,50 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zarude SSP 11",
+   "4 Mega Kangaskhan ex MEG 104",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Zarude SSP 11",
+   "4 Mega Kangaskhan ex MEG 104",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Zarude SSP 11",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "hand": [],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jungle Whip"
+  },
+  false
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: \"you may\": declined, the printed 80 and the Energy stays"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 3,
+   "cite": "card text: declined, the Energy stays attached"
+  }
+ ]
+}

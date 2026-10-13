@@ -1,11 +1,9 @@
-//! Surfing Beach (M1S / CRI, stadium): once during each player's turn, that
-//! player may switch their Active [W] Pokémon with 1 of their Benched [W]
-//! Pokémon.
+//! Surfing Beach (CRI 114, Stadium): once during each player's turn, that player may switch their Active [W] Pokémon with 1 of
+//! their Benched [W] Pokémon.
 //!
-//! Twinleaf quirks kept: the `blocked` list gets the Active and every Bench
-//! slot that is not [W] (the `else` binds to the second `if`); the card
-//! throws CANNOT_USE_STADIUM without an Active and a Benched [W] Pokémon or
-//! when stadium effects on the Active are blocked. The switch is a ChangeActive (Switch, APR C-03).
+//! A Stadium use (once per player turn by the Stadium's use rule). It needs an Active [W] Pokémon, a Benched [W] Pokémon and the
+//! Stadium's effect not blocked on the Active Pokémon; the Benched [W] Pokémon is chosen, then the switch is a ChangeActive (Switch,
+//! APR C-03).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

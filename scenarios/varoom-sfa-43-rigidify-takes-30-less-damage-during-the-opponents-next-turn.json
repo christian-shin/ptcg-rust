@@ -1,0 +1,49 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Varoom SFA 43",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ],
+  [
+   "4 Varoom SFA 43",
+   "4 Duraludon PRE 69",
+   "52 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": "Varoom SFA 43",
+  "active_energy": [
+   "2 Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "3 Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rigidify"
+  },
+  {
+   "a": "attack",
+   "name": "Raging Hammer"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "who": "me",
+   "slot": "active",
+   "damage": 50,
+   "cite": "card text: during your opponent's next turn this Pokémon takes 30 less damage from attacks: Duraludon's 80 is 50",
+   "turn": 2
+  }
+ ]
+}

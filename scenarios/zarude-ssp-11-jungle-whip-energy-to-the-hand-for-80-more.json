@@ -1,0 +1,57 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Zarude SSP 11",
+   "4 Mega Kangaskhan ex MEG 104",
+   "52 Grass Energy MEE 1"
+  ],
+  [
+   "4 Zarude SSP 11",
+   "4 Mega Kangaskhan ex MEG 104",
+   "52 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "active": "Zarude SSP 11",
+  "active_energy": [
+   "3 Grass Energy MEE 1"
+  ],
+  "hand": [],
+  "reset": true
+ },
+ "opp": {
+  "active": "Mega Kangaskhan ex MEG 104",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Jungle Whip"
+  },
+  true
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 160,
+   "cite": "card text: you may put all Energy attached to this Pokémon into your hand to have this attack do 80 more damage"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "energy": 0,
+   "cite": "card text: all Energy attached to this Pokémon goes into your hand"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "hand",
+   "count": 3,
+   "cite": "card text: the 3 Energy are in your hand (after the damage, id2385)"
+  }
+ ]
+}

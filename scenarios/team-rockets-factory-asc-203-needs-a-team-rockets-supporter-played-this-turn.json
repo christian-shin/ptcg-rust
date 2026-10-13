@@ -1,0 +1,38 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Team Rocket's Factory ASC 203",
+   "4 Hop's Snorlax JTG 117",
+   "52 Water Energy MEE 3"
+  ],
+  [
+   "4 Team Rocket's Factory ASC 203",
+   "4 Hop's Snorlax JTG 117",
+   "52 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "stadium": "Team Rocket's Factory ASC 203",
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": false,
+   "cite": "card text: only if they played a Supporter card that has \"Team Rocket\" in its name from their hand this turn"
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Tapu Koko ex JTG 51",
+   "4 Voltaic Lightning Energy PBL 84",
+   "4 Hop's Zacian ex JTG 111",
+   "48 Lightning Energy MEE 4"
+  ],
+  [
+   "4 Tapu Koko ex JTG 51",
+   "4 Voltaic Lightning Energy PBL 84",
+   "4 Hop's Zacian ex JTG 111",
+   "48 Lightning Energy MEE 4"
+  ]
+ ],
+ "me": {
+  "active": "Tapu Koko ex JTG 51",
+  "active_energy": [
+   "Voltaic Lightning Energy PBL 84",
+   "Lightning Energy MEE 4"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Zacian ex JTG 111",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Linked Lightning"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 80,
+   "cite": "card text: attacks used by the [L] Pokémon this card is attached to do 20 more damage to your opponent's Active Pokémon (Linked Lightning's 60)"
+  }
+ ]
+}

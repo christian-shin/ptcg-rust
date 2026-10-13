@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Surfing Beach CRI 114",
+   "4 Finizen TWM 59",
+   "4 Froakie CRI 20",
+   "4 Hop's Snorlax JTG 117",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Surfing Beach CRI 114",
+   "4 Finizen TWM 59",
+   "4 Froakie CRI 20",
+   "4 Hop's Snorlax JTG 117",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Finizen TWM 59",
+  "bench": [
+   {
+    "card": "Froakie CRI 20"
+   }
+  ],
+  "stadium": "Surfing Beach CRI 114",
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "stadium",
+   "is": true,
+   "cite": "card text: that player may switch their Active [W] Pokémon with 1 of their Benched [W] Pokémon"
+  }
+ ]
+}

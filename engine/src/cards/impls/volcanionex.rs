@@ -1,14 +1,9 @@
-//! Volcanion ex (JTG): Scorching Steam — once during your turn, if this
-//! Pokémon is Active, your opponent's Active Pokémon is now Burned. Heat
-//! Cyclone — 160; move an Energy from this Pokémon to 1 of your Benched
-//! Pokémon.
+//! Volcanion ex (JTG 31): Scalding Steam — once during your turn, if this Pokémon is in the Active Spot, you may make your opponent's
+//! Active Pokémon Burned. Scorching Cyclone — 160; move an Energy from this Pokémon to 1 of your Benched Pokémon.
 //!
-//! Rule: Scorching Steam's Burn is an Ability effect: GainCondition(Burned) on
-//! the opponent's Active with the Ability's cause (Ability locks and Prevent
-//! apply). Heat Cyclone's
-//! AttachEnergyPrompt targets your own Benched Pokémon (phase 4b fix: it
-//! used `PlayerType.TOP_PLAYER`, so it offered the opponent's Bench, moved
-//! the Energy there, and got stuck when that Bench was empty).
+//! Scalding Steam's Burn is an Ability effect: GainCondition(Burned) on the opponent's Active Pokémon with the Ability as cause (Ability
+//! locks and Prevent apply); it can't be used when the Pokémon is already Burned (it would change nothing). Scorching Cyclone moves an
+//! Energy onto one of your own Benched Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

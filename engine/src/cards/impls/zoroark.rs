@@ -1,7 +1,8 @@
-//! Zoroark (SV11W / WHT 62): Mind Jack — 30 damage for each of your
-//! opponent's Benched Pokémon. Foul Play — choose 1 of your opponent's Active
-//! Pokémon's attacks and use it as this attack (COPY_OPPONENT_ACTIVE_ATTACK,
-//! see `copy_attack.rs`).
+//! Zoroark (WHT 62): Mind Jack — 30× for each of your opponent's Benched Pokémon. Foul Play — choose 1 of your opponent's Active Pokémon's
+//! attacks and use it as this attack.
+//!
+//! Foul Play is `Op::CopyAttack` over the opponent's Active Pokémon (see `copy_attack.rs`): the copied attack is Zoroark's own while it is
+//! used, so only the printed attack is copied, nothing of the source card's Abilities, and no Energy is needed for it (JP FAQ; id2402).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,12 +1,8 @@
-//! Team Rocket's Watchtower (DRI, stadium): [C] Pokémon in play (both
-//! yours and your opponent's) have no Abilities.
+//! Team Rocket's Watchtower (ASC 210, Stadium): [C] Pokémon in play (both yours and your opponent's) have no Abilities.
 //!
-//! Twinleaf HANDLE_ABILITY_LOCK ('remove' mode, allowUseFromHand and
-//! allowUseFromDiscard, error BLOCKED_BY_EFFECT): strips Abilities from
-//! CheckPokemonPowersEffect and throws on PowerEffect. The lock applies to a
-//! card on a Pokémon slot whose CheckPokemonTypeEffect includes [C] (unless
-//! stadium effects on that slot are blocked); a card not found in any list
-//! falls back to its printed types.
+//! An Ability lock (`Modifier::AbilityLock`, the Stadium in play as the locker): it strips and blocks the Abilities of every Pokémon in
+//! play whose type, read after effects, is [C]; the Stadium's own effect must not be blocked on that Pokémon's spot
+//! (`LockerProbe::StadiumOnSlot`).
 use crate::spec::prelude::*;
 use crate::types::ct;
 

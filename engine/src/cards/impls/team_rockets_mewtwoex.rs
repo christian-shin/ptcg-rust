@@ -11,7 +11,7 @@ use crate::types::tag;
 pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsMewtwoex",
     // Power Saver: this Pokémon can't attack unless you have 4 or more Team Rocket's Pokémon in play.
-    // A lock over its own UseAttack while the condition doesn't hold (events batch 7).
+    // A lock over its own UseAttack while the condition doesn't hold.
     passives: &[Passive {
         origin: RuleSource::Ability,
         modifier: Modifier::BlockUse(BlockUseSpec {

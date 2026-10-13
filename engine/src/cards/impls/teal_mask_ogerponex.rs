@@ -1,13 +1,10 @@
-//! Teal Mask Ogerpon ex (TWM, Tera): Teal Dance - once during your turn,
-//! attach a Basic [G] Energy card from your hand to this Pokémon; if you
-//! did, draw a card. Myriad Leaf Shower - 30 + 30 for each Energy attached
-//! to both Active Pokémon. Tera: no attack damage while on the Bench.
+//! Teal Mask Ogerpon ex (PRE 12 / TWM 25, Tera): Teal Dance - once during your turn, you may attach a Basic [G] Energy card from your
+//! hand to this Pokémon. If you attached Energy to a Pokémon in this way, draw a card. Myriad Leaf Shower - 30 + 30 for each Energy
+//! attached to both Active Pokémon. Tera: no attack damage while on the Bench.
 //!
-//! Fixed (phase 4b, F1): the prompt took 0 cards; a "you may" Ability is declined by not
-//! using it, so the attach is exactly 1 Energy (ruling 1778).
-//!
-//! Twinleaf counts the energy of each player's Active via
-//! `CheckProvidedEnergyEffect(player)` (the Active by default).
+//! Teal Dance attaches exactly 1 Basic [G] Energy card (the Ability is declined by not using it; JP FAQ: Luminous Energy can't be chosen,
+//! usable with an empty deck, the draw can't be declined), and "if you attached" is `Cond::Done` on the Attach (JP FAQ: an attach that
+//! didn't happen draws nothing). Myriad Leaf Shower counts the Energy provided (units) on each player's Active Pokémon.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

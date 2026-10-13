@@ -1,12 +1,8 @@
-//! Sparkling Crystal (SCR, ACE SPEC Pokémon Tool): when the Tera Pokémon this
-//! card is attached to uses an attack, that attack costs 1 Energy less.
+//! Sparkling Crystal (PRE 129 / SCR 142, ACE SPEC Pokémon Tool): when the Tera Pokémon this card is attached to uses an attack,
+//! that attack costs 1 Energy less. (The Energy can be of any type.)
 //!
-//! Twinleaf: on a CheckAttackCostEffect while the tool is on the player's
-//! Active: a ToolEffect stub (not IS_TOOL_BLOCKED) must not throw, the Active
-//! must be Tera; the provided Energy units (CheckProvidedEnergyEffect on the
-//! Active) pay each printed cost slot in order ([C] with any unit, a typed
-//! slot with a matching unit, else with a rainbow unit); if the covered slots
-//! number at least cost length - 1 the cost becomes the covered units.
+//! An `AttackCost` modifier (`CostChange::AnyOne`) whose subject is the Holder while it is a Tera Pokémon: one symbol of the cost,
+//! of any type, is removed and summed with the other cost changes (D-11 / D-12), so it works down to a cost of 0.
 use crate::spec::prelude::*;
 use crate::types::tag;
 

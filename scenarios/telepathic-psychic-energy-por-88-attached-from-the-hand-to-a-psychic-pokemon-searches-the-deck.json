@@ -1,0 +1,52 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Telepathic Psychic Energy POR 88",
+   "4 Ralts ASC 87",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Telepathic Psychic Energy POR 88",
+   "4 Ralts ASC 87",
+   "4 Hop's Snorlax JTG 117",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "active": "Ralts ASC 87",
+  "hand": [
+   "Telepathic Psychic Energy POR 88"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Hop's Snorlax JTG 117",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Telepathic Psychic Energy POR 88",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "prompts": [
+    "ChooseCards",
+    "ShuffleDeck"
+   ],
+   "cite": "card text: when you attach this card from your hand to a [P] Pokémon, search your deck for up to 2 Basic [P] Pokémon and put them onto your Bench, then shuffle your deck"
+  }
+ ]
+}

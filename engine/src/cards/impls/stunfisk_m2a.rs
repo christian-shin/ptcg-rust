@@ -1,10 +1,9 @@
-//! Stunfisk (M2a): Pouncing Trap — 30; during your opponent's next turn the
-//! Defending Pokémon can't retreat. During your next turn, the Defending
-//! Pokémon takes 100 more damage from attacks (after Weakness/Resistance).
+//! Stunfisk (ASC 62): Pouncing Trap — 30; during your opponent's next turn the Defending Pokémon can't retreat. During your next
+//! turn, the Defending Pokémon takes 100 more damage from attacks (after applying Weakness and Resistance).
 //!
-//! Twinleaf: DEFENDING_POKEMON_TAKES_MORE_DAMAGE_DURING_YOUR_NEXT_TURN(100)
-//! (a DefendingPokemonTakesMoreDamageDuringAttackerNextTurnEffect on the
-//! opponent's Active), then BLOCK_RETREAT (PreventRetreatEffect).
+//! Two lasting effects on the Defending Pokémon: a retreat lock until the end of the opponent's next turn and
+//! `Lasting::TakesMoreDamage(100)` for your next turn, applied after Weakness and Resistance to every attack of that turn. Mist
+//! Energy attached afterwards doesn't remove them (the Pokémon was already affected); both end when it moves to the Bench (APR C-15).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
