@@ -269,6 +269,10 @@ pub enum Pred {
     // --- S3 agent 3 appends ---
     /// The card has a Rule Box.
     RuleBox,
+    /// "Pokémon ex": the lower-case ex rule (Mega Evolution Pokémon ex and Tera Pokémon ex included; not the old "-EX", "-GX").
+    PokemonEx,
+    /// "Pokémon V": Pokémon V, V-STAR, VMAX and V-UNION (id1667), not Radiant Pokémon.
+    PokemonV,
     /// A Pokémon that evolves from the named Pokémon.
     EvolvesFrom(&'static str),
     SpecialEnergy,
@@ -628,6 +632,8 @@ pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
         Pred::PokemonType(t) => mon && d.card_type.contains(t),
         Pred::Provides(t) => d.is_energy() && d.provides.contains(t),
         Pred::RuleBox => d.has_rule_box(),
+        Pred::PokemonEx => d.is_pokemon_ex(),
+        Pred::PokemonV => d.is_pokemon_v(),
         Pred::EvolvesFrom(n) => mon && d.evolves_from == *n,
         Pred::SpecialEnergy => d.is_energy() && d.energy_type == EnergyType::Special as u8,
         Pred::EvolvesFromOwnInPlay => {
@@ -682,8 +688,6 @@ pub enum SlotPred {
     /// The type of the Pokémon as the game checks it (Energy and Stadiums can
     /// change it): a checked read.
     TypeIs(CardType),
-    /// The printed type of the top Pokémon card.
-    PrintedTypeIs(CardType),
     /// The Pokémon card directly under this card in the stack has this name.
     CardBelowThis(&'static str),
     /// The Pokémon came into play this turn: put into play, evolved or devolved (`Slot::entered_turn`).
@@ -693,7 +697,8 @@ pub enum SlotPred {
     Holder,
     /// The top Pokémon carries the tag.
     Tag(u32),
-    /// Some card of the slot has a Rule Box.
+    /// The top Pokémon has a Rule Box (a Pokémon in play is its top card: a Rule Box of a card under it isn't the
+    /// Pokémon's).
     RuleBox,
     /// The Pokémon's Energy provides the type (any-type Energy counts): a checked read.
     Provides(CardType),
@@ -715,8 +720,6 @@ pub enum SlotPred {
     Named(&'static str),
     /// The Pokémon's Energy provides nothing: a checked read.
     NoEnergyProvided,
-    /// Some card of the slot carries the tag.
-    AnyCardTag(u32),
     /// The slot has an Energy card attached.
     HasEnergy,
     /// The Pokémon's remaining HP (with effects) is at most this much: a checked read.
@@ -765,7 +768,6 @@ impl SlotPred {
             | SlotPred::IsBench
             | SlotPred::Top(_)
             | SlotPred::HasCondition
-            | SlotPred::PrintedTypeIs(_)
             | SlotPred::CardBelowThis(_)
             | SlotPred::PlayedThisTurn
             | SlotPred::Tag(_)
@@ -869,7 +871,6 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::Top(q) => g.st.slot_pokemon(p, id).map(|c| pred(g, c, q)).unwrap_or(false),
         SlotPred::HasCondition => !slot.special_conditions.is_empty(),
         SlotPred::TypeIs(_) => return None,
-        SlotPred::PrintedTypeIs(t) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).card_type.contains(t)).unwrap_or(false),
         SlotPred::CardBelowThis(name) => {
             let stack = g.st.slot_pokemons(p, id);
             stack.iter().position(|c| *c == me).and_then(|i| i.checked_sub(1)).map_or(false, |i| g.st.cdef(stack.as_slice()[i]).name == *name)
@@ -877,13 +878,12 @@ pub fn slot_pred(g: &Game, me: CardId, s: SlotRef, sp: &SlotPred) -> Option<bool
         SlotPred::PlayedThisTurn => slot.entered_turn == g.st.turn as i32,
         SlotPred::Holder => slot.cards.contains(me) || slot.tools.contains(me),
         SlotPred::Tag(t) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_tag(*t)).unwrap_or(false),
-        SlotPred::RuleBox => slot.cards.iter().any(|c| g.st.cdef(c).has_rule_box()),
+        SlotPred::RuleBox => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).has_rule_box()).unwrap_or(false),
         SlotPred::Basic => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).stage == Stage::Basic as u8).unwrap_or(false),
         SlotPred::StageIs(st) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).stage == *st as u8).unwrap_or(false),
         SlotPred::Evolution => g.st.slot_pokemon(p, id).map(|c| !g.st.cdef(c).evolves_from.is_empty()).unwrap_or(true),
         SlotPred::IsThisPokemon => g.st.slot_pokemon(p, id) == Some(me),
         SlotPred::Named(n) => g.st.slot_pokemon(p, id).map(|c| g.st.cdef(c).name == *n).unwrap_or(false),
-        SlotPred::AnyCardTag(t) => slot.cards.iter().any(|c| g.st.cdef(c).has_tag(*t)),
         SlotPred::HasEnergy => !slot.energies.is_empty(),
         SlotPred::HasCard(q) => slot.cards.iter().any(|c| pred(g, c, q)),
         SlotPred::Condition(c) => slot.special_conditions.contains(&(*c as u8)),
@@ -1183,5 +1183,59 @@ pub fn num_is_checked(n: &Num) -> bool {
         Num::Add(a, b) | Num::Sub(a, b) | Num::Mul(a, b) | Num::Min(a, b) | Num::Max(a, b) => num_is_checked(a) || num_is_checked(b),
         Num::If(_, a, b) => num_is_checked(a) || num_is_checked(b),
         _ => false,
+    }
+}
+
+#[cfg(test)]
+mod phrase_tests {
+    //! "Pokémon ex", "Pokémon V", the Rule Box of the top card (APR D-07; id1667; Neutralization Zone: "(Pokémon ex, Pokémon V,
+    //! etc. have Rule Boxes.)").
+    use super::*;
+
+    const NAMES: [&str; 3] = ["Duskull PRE 35", "Meowth ex POR 62", "Slowpoke MEP 86"];
+
+    fn game() -> Game {
+        let deck: Vec<u16> = NAMES.iter().flat_map(|n| std::iter::repeat(*n).take(4)).chain(std::iter::repeat("Psychic Energy MEE 5").take(48)).map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        g
+    }
+
+    fn card(g: &Game, name: &str, p: usize) -> CardId {
+        let def = crate::carddb::def_by_full_name(name).unwrap();
+        g.st.cards.iter().position(|c| c.def == def && c.owner as usize == p).unwrap() as CardId
+    }
+
+    /// A Pokémon is its top card: a Rule Box on a card under it isn't the Pokémon's (no pool line evolves from an ex into a
+    /// non-ex, so this is a constructed stack).
+    #[test]
+    fn rule_box_is_the_top_cards() {
+        let mut g = game();
+        let (ex, plain) = (card(&g, "Meowth ex POR 62", 0), card(&g, "Duskull PRE 35", 0));
+        let active = g.st.players[0].active;
+        let s = SlotRef::new(0, active);
+        g.st.slot_mut(0, active).cards.clear();
+        g.st.slot_mut(0, active).cards.push(ex);
+        g.st.slot_mut(0, active).cards.push(plain);
+        assert_eq!(slot_pred(&g, plain, s, &SlotPred::RuleBox), Some(false));
+        assert_eq!(slot_pred(&g, plain, s, &SlotPred::Top(Pred::PokemonEx)), Some(false));
+        g.st.slot_mut(0, active).cards.clear();
+        g.st.slot_mut(0, active).cards.push(plain);
+        g.st.slot_mut(0, active).cards.push(ex);
+        assert_eq!(slot_pred(&g, ex, s, &SlotPred::RuleBox), Some(true));
+        assert_eq!(slot_pred(&g, ex, s, &SlotPred::Top(Pred::PokemonEx)), Some(true));
+        assert_eq!(slot_pred(&g, ex, s, &SlotPred::Top(Pred::PokemonV)), Some(false));
+    }
+
+    /// The card predicates over cards: an ex is "Pokémon ex" and has a Rule Box, a plain Pokémon is neither, no pool card is a
+    /// "Pokémon V".
+    #[test]
+    fn phrase_predicates_over_cards() {
+        let g = game();
+        let (ex, plain) = (card(&g, "Meowth ex POR 62", 0), card(&g, "Duskull PRE 35", 0));
+        assert!(pred(&g, ex, &Pred::PokemonEx) && pred(&g, ex, &Pred::RuleBox) && !pred(&g, ex, &Pred::PokemonV));
+        assert!(!pred(&g, plain, &Pred::PokemonEx) && !pred(&g, plain, &Pred::RuleBox) && !pred(&g, plain, &Pred::PokemonV));
+        assert!(pred(&g, ex, &Pred::OneOf(&[Pred::PokemonEx, Pred::PokemonV])));
+        assert!(!crate::carddb::cards().iter().any(|d| d.is_pokemon_v()));
     }
 }

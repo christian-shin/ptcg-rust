@@ -18,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             // The switch was done and the Pokémon it moved to the Bench (the switch leaves it in the slot
             // register) is a Pokémon ex: heal 80 from it.
             Step::new(Op::If(IfSpec {
-                cond: Cond::All(&[Cond::Done, Cond::Slot(SlotExpr::Picked, SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER))]),
+                cond: Cond::All(&[Cond::Done, Cond::Slot(SlotExpr::Picked, SlotPred::Top(Pred::PokemonEx))]),
                 yes: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(80), clear_conditions: false }))],
                 no: &[],
             })),

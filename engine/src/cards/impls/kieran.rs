@@ -8,7 +8,6 @@
 //! damage; JP FAQ Kieran: it applies to both of Dipplin's attacks; id2428: once for each attack with Festival Lead), cleared at
 //! the end of the turn.
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Kieran",
@@ -20,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
         ],
     }),
     passives: &[
-        Passive { origin: RuleSource::TrainerEffect, modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 30, target: SlotPred::OneOf(&[SlotPred::Tag(tag::POKEMON_V), SlotPred::Tag(tag::POKEMON_VSTAR), SlotPred::Tag(tag::POKEMON_VMAX), SlotPred::Tag(tag::POKEMON_EX_LOWER)]), needs_damage: true, guard: Cond::HasMarker { who: Who::Me, name: "KIERAN_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
+        Passive { origin: RuleSource::TrainerEffect, modifier: Modifier::DamageDealt(DamageDealtSpec { amount: 30, target: SlotPred::Top(Pred::OneOf(&[Pred::PokemonEx, Pred::PokemonV])), needs_damage: true, guard: Cond::HasMarker { who: Who::Me, name: "KIERAN_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
     ],
     triggers: &[
         Trigger { origin: RuleSource::CardRule, event: Event::On(EventPred::All(&[EventPred::Kind(EventKind::EndTurn), EventPred::Owner(Who::Me)])), steps: &[Step::new(Op::ClearMarker(ClearMarkerSpec { scope: MarkerScope::Player(Who::Me), name: "KIERAN_MARKER", from: MarkerFrom::This }))] },

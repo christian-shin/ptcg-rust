@@ -22,7 +22,7 @@ pub static SPEC: CardSpec = CardSpec {
         modifier: Modifier::DamageDealt(DamageDealtSpec {
             stage: DamageStage::Deal,
             amount: 40,
-            target: SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER),
+            target: SlotPred::Top(Pred::PokemonEx),
             needs_damage: true,
             guard: Cond::HasMarker { who: Who::Me, name: TRAINING, from: MarkerFrom::This },
             ..DamageDealtSpec::DEFAULT

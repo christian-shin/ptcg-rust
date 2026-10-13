@@ -16,7 +16,7 @@ pub static SPEC: CardSpec = CardSpec {
         // Dynablast: 80 more damage if your opponent's Active Pokémon is a Pokémon ex.
         AttackSpec {
             index: 0,
-            steps: &[Step::before_damage(more_damage_if(80, Cond::Slot(OPP_ACTIVE, SlotPred::Tag(crate::types::tag::POKEMON_EX_LOWER))))],
+            steps: &[Step::before_damage(more_damage_if(80, Cond::Slot(OPP_ACTIVE, SlotPred::Top(Pred::PokemonEx))))],
         },
         // World's End: discard a Stadium in play (to its owner's discard pile); with no Stadium the
         // damage is 0.

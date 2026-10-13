@@ -10,14 +10,13 @@
 //! attack flag IgnoreDefenderEffects (Shred: it ignores a Prevent on the Defending
 //! Pokémon, APR C-16).
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Crustle@DRI",
     attacks: &[AttackSpec { index: 0, steps: &[Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::IgnoreDefenderEffects, value: true }))] }],
     passives: &[Passive {
         origin: RuleSource::Ability,
-        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Card(Pred::Tag(tag::POKEMON_EX_LOWER)))]))),
+        modifier: Modifier::Prevent(PreventSpec::on(SlotPred::All(&[SlotPred::Holder, SlotPred::IsThisPokemon]), EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, EventPred::Cause(CausePred::Card(Pred::PokemonEx))]))),
     }],
     ..CardSpec::NONE
 };

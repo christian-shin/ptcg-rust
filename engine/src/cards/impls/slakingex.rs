@@ -5,7 +5,6 @@
 //! V / VMAX / VSTAR / V-UNION in play (`LockWhile::Unless`, an Ability lock stops it). Great Swing's discard is an effect after
 //! the damage: a LeavePlay of 1 Energy (priced as [C]) caused by this attack.
 use crate::spec::prelude::*;
-use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Slakingex",
@@ -19,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
             while_: &[LockWhile::Unless(&Cond::InPlay(
                 Who::Opp,
                 PlayScope::All,
-                Pred::OneOf(&[Pred::Tag(tag::POKEMON_EX_LOWER), Pred::Tag(tag::POKEMON_V), Pred::Tag(tag::POKEMON_VMAX), Pred::Tag(tag::POKEMON_VSTAR), Pred::Tag(tag::POKEMON_VUNION)]),
+                Pred::OneOf(&[Pred::PokemonEx, Pred::PokemonV]),
             ))],
             ability: true,
         }),

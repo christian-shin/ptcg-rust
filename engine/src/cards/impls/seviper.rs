@@ -17,7 +17,7 @@ pub static SPEC: CardSpec = CardSpec {
             side: Side::Any,
             needs_damage: true,
             // A [D] Mega Evolution Pokémon ex in play.
-            guard: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::TypeIs(ct::DARK), SlotPred::Tag(tag::POKEMON_EX_LOWER), SlotPred::Tag(tag::POKEMON_SV_MEGA)])),
+            guard: Cond::AnySlot(SlotSel::Pokemon(Who::Me), SlotPred::All(&[SlotPred::TypeIs(ct::DARK), SlotPred::Top(Pred::PokemonEx), SlotPred::Tag(tag::POKEMON_SV_MEGA)])),
             ..DamageDealtSpec::DEFAULT
         }),
     }],

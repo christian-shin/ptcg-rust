@@ -14,7 +14,7 @@ pub static SPEC: CardSpec = CardSpec {
         // A [R] Mega Evolution Pokémon ex in play: the type is the Pokémon's current one.
         needs: &[Cond::AnySlot(
             SlotSel::Pokemon(Who::Me),
-            SlotPred::All(&[SlotPred::Top(Pred::All(&[Pred::Tag(crate::types::tag::POKEMON_EX_LOWER), Pred::Tag(crate::types::tag::POKEMON_SV_MEGA)])), SlotPred::TypeIs(crate::types::ct::FIRE)]),
+            SlotPred::All(&[SlotPred::Top(Pred::All(&[Pred::PokemonEx, Pred::Tag(crate::types::tag::POKEMON_SV_MEGA)])), SlotPred::TypeIs(crate::types::ct::FIRE)]),
         )],
         steps: &[Step::new(Op::Attach(AttachSpec {
                 chooser: Who::Me,
