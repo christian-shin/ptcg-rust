@@ -1631,25 +1631,14 @@ pub static LASTING_PREVENT_DAMAGE_FROM_EVOLUTION: PreventSpec =
 /// "Pokémon that have an Ability": a Pokémon whose Abilities are locked has none.
 pub static LASTING_PREVENT_DAMAGE_FROM_ABILITY: PreventSpec =
     PreventSpec::on(SlotPred::Any, super::event::EventPred::All(&[DAMAGE_BY_OPP_ATTACKS, super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::HasAbility))]));
-/// "Basic Pokémon that aren't [C]" (printed types, as the Pokémon's card says).
+/// "Basic Pokémon that aren't [C]": the type the attacking Pokémon has now (APR D-07), a checked read.
 pub static LASTING_PREVENT_DAMAGE_FROM_BASIC_NON_COLORLESS: PreventSpec = PreventSpec::on(
     SlotPred::Any,
     super::event::EventPred::All(&[
         DAMAGE_BY_OPP_ATTACKS,
         super::event::EventPred::Cause(super::event::CausePred::Pokemon(SlotPred::All(&[
             SlotPred::Basic,
-            SlotPred::Top(Pred::OneOf(&[
-                Pred::PokemonType(crate::types::ct::GRASS),
-                Pred::PokemonType(crate::types::ct::FIRE),
-                Pred::PokemonType(crate::types::ct::WATER),
-                Pred::PokemonType(crate::types::ct::LIGHTNING),
-                Pred::PokemonType(crate::types::ct::PSYCHIC),
-                Pred::PokemonType(crate::types::ct::FIGHTING),
-                Pred::PokemonType(crate::types::ct::DARK),
-                Pred::PokemonType(crate::types::ct::METAL),
-                Pred::PokemonType(crate::types::ct::FAIRY),
-                Pred::PokemonType(crate::types::ct::DRAGON),
-            ])),
+            SlotPred::Not(&SlotPred::TypeIs(crate::types::ct::COLORLESS)),
         ]))),
     ]),
 );
