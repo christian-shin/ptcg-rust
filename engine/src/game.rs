@@ -71,6 +71,8 @@ pub enum Cont {
     /// The ordered effect's prompts are answered: the next choice (`phase::order_next`).
     OrderNext { left: crate::spec::run::TimedList, sc: bool, then: OrderThen },
     LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
+    /// The owner chose which survive-on-10 replacement of a group applies first (`damage::survive_order_chosen`).
+    SurviveOrder { grp: crate::engine::damage::SurviveGroup },
 }
 
 /// `checkState(..., onComplete)` callbacks.
@@ -327,6 +329,8 @@ pub struct Game {
     /// `PTCG_VERIFY_LEGAL=1` only: the cards whose Ability-origin declarations `passive::locate` treats as not in place,
     /// in the copy the continuous-effect assertion recomputes a fact on (`derived::verify_reach`); 0 otherwise.
     pub reach_skip: u128,
+    /// The survive-on-10 groups of the attack in progress waiting for the owner's order (`damage::resolve_survive_groups`).
+    pub survive_groups: SVec<crate::engine::damage::SurviveGroup, 2>,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for the use of a power, the powers a Pokémon has
@@ -438,6 +442,7 @@ impl Game {
                 payload_serial,
                 prevented_events,
                 reach_skip,
+                survive_groups,
                 order_pending,
                 checkup_held,
             } = src;
@@ -477,6 +482,7 @@ impl Game {
             f!((*d).payload_serial).write(*payload_serial);
             f!((*d).prevented_events).write(*prevented_events);
             f!((*d).reach_skip).write(*reach_skip);
+            f!((*d).survive_groups).write(*survive_groups);
             f!((*d).order_pending).write(*order_pending);
             f!((*d).checkup_held).write(*checkup_held);
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
@@ -528,6 +534,7 @@ impl Game {
             payload_serial: 0,
             prevented_events: 0,
             reach_skip: 0,
+            survive_groups: SVec::new(),
             order_pending: false,
             checkup_held: false,
         }
@@ -1082,6 +1089,7 @@ impl Game {
             Cont::TriggerOrder { atk } => self.resolve_chosen_trigger(atk, first.as_int()),
             Cont::OrderEffects { left, sc, then } => crate::engine::phase::ordered_effect(self, left, sc, then, first.as_int()),
             Cont::OrderNext { left, sc, then } => crate::engine::phase::order_next(self, left, sc, then),
+            Cont::SurviveOrder { grp } => crate::engine::damage::survive_order_chosen(self, grp, first.as_int()),
             Cont::LittleGrudge { owner, prize_taker, attack, source_card, target } => crate::engine::game_effect::little_grudge_cont(self, owner, prize_taker, attack, source_card, target, first),
             Cont::ChooseActive { p } => crate::engine::knockout::choose_active_cont(self, p, first),
             Cont::BenchShrink { p, empty } => crate::engine::knockout::bench_shrink_cont(self, p, empty, first),

@@ -2307,6 +2307,41 @@ pub(crate) fn effect_of_ability_reaches(g: &Game, card: CardId, power: crate::ef
 // Survive on 10 (S3 agent 3)
 
 /// `SurviveOnTen` of `me`: a survive-on-10 replacement armed for the damage being calculated (step 5).
+/// Would the survive-on-10 replacement `spec` of `me` apply to the hit `acc` (the Pokémon would be Knocked Out by this
+/// damage and the replacement's own conditions hold), its effect aside (no coin flipped, no Tool discarded)?
+pub(crate) fn survive_applies(g: &mut Game, me: CardId, origin: RuleSource, spec: &SurviveOnTenSpec, acc: &DamageAcc) -> R<bool> {
+    let (t, damage) = (acc.b.target, acc.damage);
+    let owner = t.p as usize;
+    let lethal = |g: &mut Game| -> R<bool> {
+        let hp = crate::derived::hp(g, owner, t.s)?;
+        Ok(g.st.slot(owner, t.s).damage + damage >= hp)
+    };
+    match spec.kind {
+        SurviveKind::ToolIfFullHp => {
+            if !g.st.slot(owner, t.s).tools.contains(me) || acc.b.player as usize == owner || !is_attack_phase(g) {
+                return Ok(false);
+            }
+            let Some(at) = locate(g, me, origin) else { return Ok(false) };
+            if blocked(g, me, origin, at, Some(t)) || g.st.slot(owner, t.s).damage != 0 {
+                return Ok(false);
+            }
+            lethal(g)
+        }
+        SurviveKind::OnCoin | SurviveKind::IfFullHp => {
+            if !g.st.slot(owner, t.s).cards.contains(me) || g.st.slot_pokemon(owner, t.s) != Some(me) {
+                return Ok(false);
+            }
+            if blocked(g, me, origin, Located { owner, held: Some(t) }, Some(t)) {
+                return Ok(false);
+            }
+            if spec.kind == SurviveKind::IfFullHp && g.st.slot(owner, t.s).damage != 0 {
+                return Ok(false);
+            }
+            lethal(g)
+        }
+    }
+}
+
 pub(crate) fn survive_on_ten_into(g: &mut Game, me: CardId, origin: RuleSource, spec: &SurviveOnTenSpec, acc: &mut DamageAcc) -> R {
     let (t, damage) = (acc.b.target, acc.damage);
     if spec.kind == SurviveKind::ToolIfFullHp {

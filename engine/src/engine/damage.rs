@@ -162,17 +162,132 @@ fn defender_side(g: &mut Game, acc: &mut crate::spec::passive::DamageAcc) -> R {
         crate::derived::Facts::undelegated(g, |g| -> R {
             for c in order.iter().copied() {
                 for ps in crate::decl::passives(g, c) {
-                    match &ps.modifier {
-                        Modifier::DamageTaken(d) => crate::spec::passive::damage_taken_into(g, c, ps.origin, d, acc)?,
-                        Modifier::SurviveOnTen(s) => crate::spec::passive::survive_on_ten_into(g, c, ps.origin, s, acc)?,
-                        _ => {}
+                    if let Modifier::DamageTaken(d) = &ps.modifier {
+                        crate::spec::passive::damage_taken_into(g, c, ps.origin, d, acc)?;
                     }
                 }
+            }
+            // The survive-on-10 replacements ("would be Knocked Out ... is not Knocked Out and its remaining HP becomes
+            // 10") are one group, against the damage the step's other effects left (batch 8 C12c): two or more that
+            // apply are ordered by the Pokémon's owner and a later one doesn't apply once the Pokémon is saved (JP FAQ
+            // Annihilape + Survival Brace, Crustle + Focus Sash; id1014): the group waits until the attack's damage is
+            // all done (`resolve_survive_groups`); one alone applies as it always did.
+            let mut cands: SVec<SurviveCand, 4> = SVec::new();
+            for c in order.iter().copied() {
+                for ps in crate::decl::passives(g, c) {
+                    if let Modifier::SurviveOnTen(s) = &ps.modifier {
+                        if crate::spec::passive::survive_applies(g, c, ps.origin, s, acc)? && cands.len() < cands.capacity() {
+                            cands.push(SurviveCand { card: c, origin: ps.origin, kind: s.kind });
+                        }
+                    }
+                }
+            }
+            if cands.len() >= 2 {
+                g.survive_groups.push(SurviveGroup { target: acc.b.target, cands });
+            } else if let Some(sc) = cands.as_slice().first().copied() {
+                let spec = crate::spec::passive::SurviveOnTenSpec { kind: sc.kind };
+                crate::spec::passive::survive_on_ten_into(g, sc.card, sc.origin, &spec, acc)?;
             }
             Ok(())
         })?;
     }
     crate::copy_attack::delegate_damage(g, acc, true)
+}
+
+/// A survive-on-10 replacement that applies to a hit.
+#[derive(Clone, Copy, Debug)]
+pub struct SurviveCand {
+    pub card: crate::list::CardId,
+    pub origin: crate::spec::passive::RuleSource,
+    pub kind: crate::spec::passive::SurviveKind,
+}
+
+/// Two or more survive-on-10 replacements of one hit, waiting for the owner's order.
+#[derive(Clone, Copy, Debug)]
+pub struct SurviveGroup {
+    pub target: SlotRef,
+    pub cands: SVec<SurviveCand, 4>,
+}
+
+/// The survive-on-10 groups of the attack (`defender_side`), once its damage is all done: the owner chooses which applies
+/// first (a Select prompt over the cards), then the next, until one saves the Pokémon (a Tool is discarded, a coin is
+/// flipped, only when it applies). Returns with a prompt open when a choice is asked (the attack resumes after it).
+pub fn resolve_survive_groups(g: &mut Game) -> R {
+    while let Some(grp) = g.survive_groups.pop() {
+        survive_group_next(g, grp)?;
+        if g.has_prompts() {
+            return Ok(());
+        }
+    }
+    Ok(())
+}
+
+fn survive_group_next(g: &mut Game, mut grp: SurviveGroup) -> R {
+    let t = grp.target;
+    let (tp, ts) = (t.p as usize, t.s);
+    if g.st.slot_pokemon(tp, ts).is_none() || grp.cands.is_empty() {
+        return Ok(());
+    }
+    let hp = crate::derived::hp(g, tp, ts)?;
+    if g.st.slot(tp, ts).damage < hp {
+        return Ok(());
+    }
+    if grp.cands.len() >= 2 {
+        let mut names: SVec<&'static str, 8> = SVec::new();
+        for c in grp.cands.iter() {
+            names.push(g.st.cdef(c.card).full_name);
+        }
+        let id = g.player_id(tp);
+        g.prompt(id, "CHOOSE_EFFECT_ORDER", crate::prompts::PromptKind::Select { values: crate::prompts::SelectValues::Dyn(names), allow_cancel: false, default_value: 0 }, crate::game::Cont::SurviveOrder { grp });
+        return Ok(());
+    }
+    let c = grp.cands.remove_at(0);
+    survive_apply(g, t, c, hp)
+}
+
+/// The owner's choice: that replacement applies now; the next ones only if the Pokémon still would be Knocked Out.
+pub fn survive_order_chosen(g: &mut Game, mut grp: SurviveGroup, choice: i32) -> R {
+    let k = (choice.max(0) as usize).min(grp.cands.len().saturating_sub(1));
+    if grp.cands.is_empty() {
+        return resolve_survive_groups(g);
+    }
+    let c = grp.cands.remove_at(k);
+    let t = grp.target;
+    if g.st.slot_pokemon(t.p as usize, t.s).is_some() {
+        let hp = crate::derived::hp(g, t.p as usize, t.s)?;
+        if g.st.slot(t.p as usize, t.s).damage >= hp {
+            survive_apply(g, t, c, hp)?;
+        }
+    }
+    if g.has_prompts() {
+        return Ok(());
+    }
+    survive_group_next(g, grp)?;
+    if g.has_prompts() {
+        return Ok(());
+    }
+    resolve_survive_groups(g)
+}
+
+/// One replacement of a group applies: a Tool's is discarded, a coin flipped (heads saves), a full-HP Ability saves.
+fn survive_apply(g: &mut Game, t: SlotRef, c: SurviveCand, hp: i32) -> R {
+    use crate::spec::passive::SurviveKind;
+    let owner = t.p as usize;
+    match c.kind {
+        SurviveKind::IfFullHp => survive_on_10(g, t, hp),
+        SurviveKind::ToolIfFullHp => {
+            survive_on_10(g, t, hp);
+            let cause = crate::cause::Cause::of_origin(c.origin, c.card, owner as u8);
+            crate::engine::knockout::leave_play_cards(g, t, &[c.card], crate::spec::event::RulesZone::Discard, cause, None)?;
+        }
+        SurviveKind::OnCoin => {
+            let cause = crate::cause::Cause::of_origin(c.origin, c.card, owner as u8);
+            if crate::engine::condition::flip_coin(g, owner, crate::game::CoinCb::None, cause)? {
+                survive_on_10(g, t, hp);
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Would the attack's damage `amount` to `b.target` be prevented now (the step 6 preventions without the coin flips)? A

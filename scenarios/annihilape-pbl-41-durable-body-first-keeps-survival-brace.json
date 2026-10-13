@@ -1,0 +1,15 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mankey SSP 98", "4 Primeape PBL 43", "4 Annihilape PBL 41", "4 Pikachu ex SSP 57", "1 Survival Brace TWM 164", "12 Grass Energy MEE 1", "16 Lightning Energy MEE 4", "15 Metal Energy MEE 8"],
+  ["4 Mankey SSP 98", "4 Primeape PBL 43", "4 Annihilape PBL 41", "4 Pikachu ex SSP 57", "1 Survival Brace TWM 164", "12 Grass Energy MEE 1", "16 Lightning Energy MEE 4", "15 Metal Energy MEE 8"]
+ ],
+ "me": {"reset": true, "active": "Pikachu ex SSP 57", "active_energy": ["Grass Energy MEE 1", "Lightning Energy MEE 4", "Metal Energy MEE 8"]},
+ "opp": {"reset": true, "active": ["Mankey SSP 98", "Primeape PBL 43", "Annihilape PBL 41"], "active_tool": "Survival Brace TWM 164", "bench": [{"card": "Mankey SSP 98"}]},
+ "answers": [{"a": "attack", "name": "Topaz Bolt"}, [0, 1, 2], 0],
+ "coins": [true],
+ "expect": [
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Annihilape PBL 41", "damage": 140, "cite": "JP FAQ Annihilape (コノヨザル) + Survival Brace (サバイブギプス): the owner chooses the order; Durable Body first, heads: not Knocked Out, remaining HP 10, and the Brace is not discarded (サバイブギプスはトラッシュしません); id1014 (two such effects: the owner chooses the order; batch 8 C12c)"},
+  {"at": "turn_end", "who": "opp", "slot": "active", "card": "Annihilape PBL 41", "tool": "Survival Brace TWM 164", "cite": "the same: the Survival Brace stays attached"}
+ ]
+}

@@ -213,7 +213,14 @@ fn after_attack(g: &mut Game, mut f: AttackFrame) -> R {
 
 fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
-    // Tenacious Body / Durable Body: the coin is flipped after all the damage is done (ruling 1770).
+    // Tenacious Body / Durable Body: the coin is flipped after all the damage is done (ruling 1770); a group of survive
+    // replacements is ordered by its owner then (the attack resumes here after the choice).
+    crate::engine::damage::resolve_survive_groups(g)?;
+    if g.has_prompts() {
+        f.stage = AtkStage::AfterDamageEffects;
+        g.wait_prompt(Cont::UseAttack(f));
+        return Ok(());
+    }
     crate::prefabs::resolve_survive_coin_flips(g)?;
     g.run_fx_unit(Effect::AfterAttack { p: f.p, opp: (1 - p) as u8, attack: f.attack, atk: f.atk })?;
     if g.has_prompts() {
@@ -226,8 +233,14 @@ fn after_attack_effect(g: &mut Game, mut f: AttackFrame) -> R {
 
 /// Effects that trigger on the Defending Pokémon (Handheld Fan) resolve once everything the attack
 /// did, prompts included, is over (rulings 1625, 1650, 1651).
-fn attack_triggers(g: &mut Game, f: AttackFrame) -> R {
+fn attack_triggers(g: &mut Game, mut f: AttackFrame) -> R {
     let p = f.p as usize;
+    crate::engine::damage::resolve_survive_groups(g)?;
+    if g.has_prompts() {
+        f.stage = AtkStage::AfterAfterAttack;
+        g.wait_prompt(Cont::UseAttack(f));
+        return Ok(());
+    }
     // Damage done by the attack's after-damage effects (spec cards: Bench
     // damage after the damage step) gets its Tenacious Body coin here, once
     // all of the attack's damage is done (ruling 1770).
