@@ -15,10 +15,10 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::PerTurn("STONE_ARMS_MARKER"),
         needs: &[],
         steps: &[Step::new(Op::Attach(AttachSpec {
+            target: SlotPred::TypeIs(ct::FIGHTING),
             from: ZoneRef(Who::Me, Zone::Hand),
             predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Fighting Energy")]),
             slots: AttachSlots::BenchActive,
-            scan: TargetScan::EffectiveTypes(&[ct::FIGHTING]),
             bounds: Bounds { min: Num::Lit(1), max: Num::Lit(1) },
             ..AttachSpec::DEFAULT
         }))],

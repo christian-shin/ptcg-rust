@@ -15,7 +15,7 @@ pub static SPEC: CardSpec = CardSpec {
         once: Once::No,
         needs: &[],
         steps: &[
-            Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::BasicEnergy, slots: AttachSlots::BenchActive, target: Pred::PokemonType(ct::LIGHTNING), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(3) }, ..AttachSpec::DEFAULT })),
+            Step::new(Op::Attach(AttachSpec { from: ZoneRef(Who::Me, Zone::Discard), predicate: Pred::BasicEnergy, slots: AttachSlots::BenchActive, target: SlotPred::TypeIs(ct::LIGHTNING), bounds: Bounds { min: Num::Lit(1), max: Num::Lit(3) }, ..AttachSpec::DEFAULT })),
             // "If you use this Ability, this Pokémon is Knocked Out.": a consequence of using it (`Step::consequence`).
             Step::consequence(Op::KnockOut(KnockOutSpec { target: SlotExpr::This, when: Cond::True })),
         ],

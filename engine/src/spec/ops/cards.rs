@@ -235,8 +235,10 @@ pub struct AttachSpec {
     /// The cards that can be attached (include the Energy kind).
     pub predicate: Pred,
     pub slots: AttachSlots,
-    /// The top card of a Pokémon that can receive the cards.
-    pub target: Pred,
+    /// The Pokémon that can receive the cards, read as the game checks them: "a [D] Pokémon" is the type the Pokémon has now
+    /// (APR D-07: a type an effect changed counts by the changed type; `SlotPred::TypeIs`, never the printed type), a
+    /// tag or a Stage the top card's.
+    pub target: SlotPred,
     pub scan: TargetScan,
     pub bounds: Bounds,
     pub same_target: bool,
@@ -259,7 +261,7 @@ impl AttachSpec {
         from: ZoneRef(Who::Me, Zone::Deck),
         predicate: Pred::BasicEnergy,
         slots: AttachSlots::Bench,
-        target: Pred::Any,
+        target: SlotPred::Any,
         scan: TargetScan::InPlay,
         bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
         same_target: false,
@@ -283,14 +285,10 @@ pub enum AttachSlots {
 }
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TargetScan {
-    /// Every Pokémon in play (Active first) whose top card fails `target` is blocked.
+    /// Every Pokémon in play (Active first) that fails `target` is blocked (`blockedTo`).
     InPlay,
-    /// Benched Pokémon whose current type (Special-condition-proof `CheckPokemonType`)
-    /// is not the `Pred::PokemonType` of `target` are blocked.
-    BenchEffectiveType,
-    // --- S3-4 appends ---
-    /// Every Pokémon in play (Active first) whose current type is none of these is blocked.
-    EffectiveTypes(&'static [CardType]),
+    /// Only the Benched Pokémon that fail `target` are listed as blocked (the prompt lists the Bench alone).
+    Bench,
 }
 /// Move an Energy from one Pokémon to another (a MoveEnergy prompt); an attack
 /// effect that effect-prevention can stop.
@@ -1162,39 +1160,23 @@ fn attach_slots(a: &AttachSpec) -> SVec<u8, 3> {
 }
 
 /// The Pokémon that can't receive the cards (`blockedTo`).
-fn blocked_to(g: &mut Game, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> {
+fn blocked_to(g: &mut Game, me: CardId, p: usize, a: &AttachSpec) -> R<SVec<CardTarget, 9>> {
     let mut out: SVec<CardTarget, 9> = SVec::new();
     match a.scan {
         TargetScan::InPlay => {
-            for (_, c, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                if !pred(g, c, &a.target) {
-                    out.push(t);
-                }
-            }
-        }
-        TargetScan::EffectiveTypes(types) => {
             for (slot, _, t) in for_each_pokemon(g, p, PlayerType::BottomPlayer).iter().copied() {
-                let target = SlotRef::new(p, slot);
-                let card_types = crate::derived::types(g, target)?;
-                let ok = types.iter().any(|x| card_types.contains(x));
-                if !ok {
+                if !slot_pred_m(g, me, SlotRef::new(p, slot), &a.target)? {
                     out.push(t);
                 }
             }
         }
-        TargetScan::BenchEffectiveType => {
-            let want = match a.target {
-                Pred::PokemonType(t) => t,
-                _ => unreachable!("BenchEffectiveType needs a PokemonType target"),
-            };
+        TargetScan::Bench => {
             let bench: Vec<SlotId> = g.st.players[p].bench.iter().copied().collect();
             for (index, s) in bench.into_iter().enumerate() {
                 if g.st.slot(p, s).cards.is_empty() {
                     continue;
                 }
-                let target = SlotRef::new(p, s);
-                let ok = crate::derived::types(g, target)?.contains(&want);
-                if !ok {
+                if !slot_pred_m(g, me, SlotRef::new(p, s), &a.target)? {
                     out.push(CardTarget::new(PlayerType::BottomPlayer, SlotType::Bench, index as u8));
                 }
             }
@@ -1219,7 +1201,7 @@ fn attach_prompt(g: &mut Game, me: CardId, f: &Frame, a: &AttachSpec) -> R<bool>
             o.blocked.push(i as u8);
         }
     }
-    o.blocked_to = blocked_to(g, p, a)?;
+    o.blocked_to = blocked_to(g, me, p, a)?;
     o.same_target = a.same_target;
     o.different_targets = a.different_targets;
     if !a.valid_types.is_empty() {
@@ -1289,10 +1271,19 @@ fn attach_apply(g: &mut Game, me: CardId, f: &mut Frame, a: &AttachSpec, ts: &[(
     Ok(Flow::Next)
 }
 
-fn attach_targets_exist(g: &Game, f: &Frame, a: &AttachSpec) -> bool {
+fn attach_targets_exist(g: &Game, me: CardId, f: &Frame, a: &AttachSpec) -> bool {
     let p = f.who(a.chooser);
     let scope = if a.slots == AttachSlots::Bench { PlayScope::Bench } else { PlayScope::All };
-    in_play(g, p, scope).iter().any(|(_, top, _)| pred(g, *top, &a.target))
+    // A checked read (the type the Pokémon has now) is made over the decision's facts, once for the whole scan; a pure
+    // target reads the board.
+    let mut facts: Option<crate::legal::Ctx> = None;
+    in_play(g, p, scope).iter().any(|(slot, _, _)| {
+        let s = SlotRef::new(p, *slot);
+        match slot_pred(g, me, s, &a.target) {
+            Some(ok) => ok,
+            None => slot_pred_m(facts.get_or_insert_with(|| crate::legal::Ctx::new(g)), me, s, &a.target).unwrap_or(true),
+        }
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -1636,7 +1627,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
             let min = num(g, me, f, &a.bounds.min).max(1);
             let hidden = a.from.1 == Zone::Deck;
             // A register filled by an earlier step can't be judged yet.
-            (zone_is_unset(f, a.from) || if hidden { !cards.is_empty() } else { eligible >= min }) && attach_targets_exist(g, f, a)
+            (zone_is_unset(f, a.from) || if hidden { !cards.is_empty() } else { eligible >= min }) && attach_targets_exist(g, me, f, a)
         }
         Op::PlayFromZone(pz) => !empty_bench_slots(g, f.who(pz.who)).is_empty(),
         Op::PlayAsPokemon(_) => !empty_bench_slots(g, f.p as usize).is_empty(),
@@ -3042,4 +3033,61 @@ pub struct UseTrainerSpec {
     pub from: ZoneRef,
     pub kind: PlayKind,
     pub msg: &'static str,
+}
+
+#[cfg(test)]
+mod attach_target_tests {
+    //! The attach target is read as the Pokémon is now (APR D-07). The pool has no type changer (Iron Treads' Dual Core needs a
+    //! Future Booster Energy Capsule, which is in neither data/cards.json nor the pool; no Scovillain ex), so the checked read
+    //! can only be shown to give the printed type of an ordinary Pokémon, through both scans, and to be asked as a checked read.
+    use super::*;
+    use crate::types::ct;
+
+    fn board() -> (Game, CardId) {
+        let names = ["Duskull PRE 35", "Team Rocket's Murkrow DRI 127", "Slowpoke MEP 86"];
+        let deck: Vec<u16> = names.iter().flat_map(|n| std::iter::repeat(*n).take(4)).chain(std::iter::repeat("Psychic Energy MEE 5").take(48)).map(|n| crate::carddb::def_by_full_name(n).unwrap()).collect();
+        let mut g = Game::new(7);
+        g.start([&deck, &deck]).unwrap();
+        let find = |g: &Game, n: &str| {
+            let d = crate::carddb::def_by_full_name(n).unwrap();
+            g.st.cards.iter().position(|c| c.def == d && c.owner == 0).unwrap() as CardId
+        };
+        let (duskull, murkrow) = (find(&g, "Duskull PRE 35"), find(&g, "Team Rocket's Murkrow DRI 127"));
+        let active = g.st.players[0].active;
+        g.st.slot_mut(0, active).cards.clear();
+        g.st.slot_mut(0, active).cards.push(duskull);
+        g.st.players[0].bench.clear();
+        let b = (0..g.st.players[0].slots.len() as u8).find(|s| *s != active).unwrap();
+        g.st.slot_mut(0, b).cards.clear();
+        g.st.slot_mut(0, b).cards.push(murkrow);
+        g.st.players[0].bench.push(b);
+        (g, duskull)
+    }
+
+    fn frame(g: &Game, me: CardId) -> crate::spec::run::Frame {
+        crate::spec::run::Frame::passive(g, me, 0, crate::spec::passive::RuleSource::Ability)
+    }
+
+    fn spec(slots: AttachSlots, target: SlotPred, scan: TargetScan) -> AttachSpec {
+        AttachSpec { slots, target, scan, ..AttachSpec::DEFAULT }
+    }
+
+    #[test]
+    fn a_checked_target_is_read_for_the_usability_and_the_blocked_list() {
+        let (mut g, me) = board();
+        let f = frame(&g, me);
+
+        // Duskull [P] is Active, Murkrow [D] on the Bench.
+        assert!(attach_targets_exist(&g, me, &f, &spec(AttachSlots::BenchActive, SlotPred::TypeIs(ct::DARK), TargetScan::InPlay)));
+        assert!(attach_targets_exist(&g, me, &f, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::DARK), TargetScan::Bench)));
+        assert!(!attach_targets_exist(&g, me, &f, &spec(AttachSlots::BenchActive, SlotPred::TypeIs(ct::FIRE), TargetScan::InPlay)));
+        // The prompt lists the Pokémon that fail the target: the Active one for [D] (InPlay), none for the Bench scan.
+        let blocked = blocked_to(&mut g, me, 0, &spec(AttachSlots::BenchActive, SlotPred::TypeIs(ct::DARK), TargetScan::InPlay)).unwrap();
+        assert_eq!(blocked.len(), 1);
+        assert_eq!(blocked[0].slot, SlotType::Active);
+        assert!(blocked_to(&mut g, me, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::DARK), TargetScan::Bench)).unwrap().is_empty());
+        let blocked = blocked_to(&mut g, me, 0, &spec(AttachSlots::Bench, SlotPred::TypeIs(ct::FIRE), TargetScan::Bench)).unwrap();
+        assert_eq!(blocked.len(), 1);
+        assert_eq!(blocked[0].slot, SlotType::Bench);
+    }
 }

@@ -13,7 +13,7 @@ pub static SPEC: CardSpec = CardSpec {
         kind: PlayKind::Supporter,
         needs: &[],
         steps: &[
-            Step::new(Op::Attach(AttachSpec { predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]), slots: AttachSlots::BenchActive, target: Pred::PokemonType(ct::DARK), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, different_targets: true, ..AttachSpec::DEFAULT })),
+            Step::new(Op::Attach(AttachSpec { predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]), slots: AttachSlots::BenchActive, target: SlotPred::TypeIs(ct::DARK), bounds: Bounds { min: Num::Lit(0), max: Num::Lit(2) }, different_targets: true, ..AttachSpec::DEFAULT })),
             Step::new(Op::Shuffle(ShuffleSpec { zone: ZoneRef(Who::Me, Zone::Deck), wait: true })),
             // "If you attached Energy to your Active Pokémon in this way, it is now Poisoned."
             Step::new(Op::If(IfSpec {
