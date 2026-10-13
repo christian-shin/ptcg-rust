@@ -3,3 +3,26 @@
 # baseline 7a7d1be recorded 2026-10-13 after events batch 8 C12d (the named-card search rule corrected to public
 # knowledge, one Checkup effect after the Special Conditions, the retreat payment choice of id2127, cost cards); the
 # previous baselines 02ff9d8 (same day, 8 attributed) and 1e9b0c8 (787 attributed) are banked in git history.
+# Events batch 8 sweep B85 (against baseline 7a7d1be): a copy attack can choose a copy attack. JP FAQ Slowking SCR 58 (ヤドキング /
+# ピクシー): the discarded Clefable's Metronome can be chosen and then "choose 1 of the opponent's Active Pokemon's attacks and use it
+# as this attack"; the recording (its `copycat_attack` guard) ended the attack with nothing done when the chosen attack was
+# itself a copy attack (Slowking's Seek Inspiration discarding a Slowking, Zoroark's Foul Play choosing a Zoroark's Foul Play).
+g0500001803  # step 270 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 269 (the recording dropped it: nothing happened)
+g0500001839  # step 339 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 338 (the recording dropped it: nothing happened)
+g0500001863  # step 52 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 51 (the recording dropped it: nothing happened)
+g0500003003  # step 152 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 151 (the recording dropped it: nothing happened)
+g0500004210  # step 52 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 51 (the recording dropped it: nothing happened)
+g0500004503  # step 56 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 55 (the recording dropped it: nothing happened)
+g0500005403  # step 84 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 83 (the recording dropped it: nothing happened)
+g0500005432  # step 91 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 90 (the recording dropped it: nothing happened)
+g0500007383  # step 107 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 106 (the recording dropped it: nothing happened)
+g0500009014  # step 279 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 278 (the recording dropped it: nothing happened)
+g0500009430  # step -1 extra-prompt; Zoroark's Foul Play chose the opponent's copy attack Foul Play at step 236 (the recording dropped it: nothing happened)
+g0500010863  # step 181 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 180 (the recording dropped it: nothing happened)
+g0500010983  # step 67 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 66 (the recording dropped it: nothing happened)
+g0500012599  # step 331 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 330 (the recording dropped it: nothing happened)
+g0500012626  # step -1 extra-prompt; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 265 (the recording dropped it: nothing happened)
+g0500012963  # step 199 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 198 (the recording dropped it: nothing happened)
+g0500016209  # step 154 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 153 (the recording dropped it: nothing happened)
+g0500016563  # step 23 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 22 (the recording dropped it: nothing happened)
+g0500019983  # step 205 obs; Slowking's Seek Inspiration chose the discarded copy attack Seek Inspiration at step 204 (the recording dropped it: nothing happened)
