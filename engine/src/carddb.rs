@@ -178,7 +178,17 @@ pub const PF_FOSSIL: u8 = 2;
 #[inline]
 pub fn pokemon_flags(id: DefId) -> u8 {
     static T: OnceLock<Vec<u8>> = OnceLock::new();
-    T.get_or_init(|| cards().iter().map(|d| (d.is_pokemon() as u8) * PF_POKEMON | (d.fossil_doll as u8) * PF_FOSSIL).collect())[id as usize]
+    T.get_or_init(|| {
+        cards()
+            .iter()
+            .enumerate()
+            .map(|(i, d)| {
+                // "Play this card as if it were a Basic Pokémon" (the Fossils): the card's play is `Op::PlayAsPokemon`.
+                let fossil = crate::cards::spec_for(i as DefId).map_or(false, crate::spec::run::plays_as_pokemon);
+                (d.is_pokemon() as u8) * PF_POKEMON | (fossil as u8) * PF_FOSSIL
+            })
+            .collect()
+    })[id as usize]
 }
 
 pub fn cards() -> &'static [CardDef] {
@@ -367,5 +377,54 @@ mod first_turn_tests {
             marked += declared as usize;
         }
         assert_eq!(marked, 4, "Carmine TWM 145 / PRE 103, Team Rocket's Proton DRI 177 / ASC 208");
+    }
+}
+
+#[cfg(test)]
+mod power_flag_tests {
+    //! Events batch 9 C4: the card-data flags of powers and Pokémon-like Trainers are facts of the card's spec.
+    use super::*;
+
+    /// The keys of `data/pool.json`: the cards a deck can hold.
+    fn pool() -> std::collections::HashSet<String> {
+        let v: serde_json::Value = serde_json::from_str(include_str!("../../data/pool.json")).unwrap();
+        v.as_array().unwrap().iter().map(|e| e["key"].as_str().unwrap().to_string()).collect()
+    }
+
+    /// `use_when_in_play` ("an Ability usable from a Pokémon in play") is "the power has a program" (a `PowerSpec`): a
+    /// passive Ability has none and is never used. On every pool card (the one def outside the pool where they differ is
+    /// Crustle BCR 85: its passive Sturdy carries the flag, which no deck can bring into a game).
+    #[test]
+    fn use_when_in_play_equals_the_power_having_a_program() {
+        let pool = pool();
+        let mut bad: Vec<String> = Vec::new();
+        let mut usable = 0;
+        for (i, d) in cards().iter().enumerate() {
+            if !pool.contains(d.full_name) {
+                continue;
+            }
+            let spec = crate::cards::spec_for(i as DefId);
+            for (k, pw) in d.powers.iter().enumerate() {
+                let program = spec.map_or(false, |s| s.powers.iter().any(|x| x.index as usize == k));
+                usable += program as usize;
+                if pw.use_when_in_play != program {
+                    bad.push(format!("{} power {} ({}): flag {} program {}", d.full_name, k, pw.name, pw.use_when_in_play, program));
+                }
+            }
+        }
+        assert!(bad.is_empty(), "{} differ of {} with a program: {:#?}", bad.len(), usable, bad);
+    }
+
+    /// "Play this card as if it were a Basic Pokémon" (the Fossils) is the card's play program `Op::PlayAsPokemon`: the
+    /// card data's `fossil_doll` is exactly the defs whose spec has it.
+    #[test]
+    fn fossil_doll_equals_the_play_as_pokemon_program() {
+        let mut marked = 0;
+        for (i, d) in cards().iter().enumerate() {
+            let plays = crate::cards::spec_for(i as DefId).map_or(false, crate::spec::run::plays_as_pokemon);
+            assert_eq!(d.fossil_doll, plays, "{}", d.full_name);
+            marked += plays as usize;
+        }
+        assert_eq!(marked, 2, "Antique Root Fossil SCR 130, Antique Cover Fossil SCR 129");
     }
 }

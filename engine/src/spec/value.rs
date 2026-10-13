@@ -593,7 +593,7 @@ fn fossil_in_play(g: &Game, c: CardId) -> bool {
 pub fn pred(g: &Game, c: CardId, p: &Pred) -> bool {
     let d = g.st.cdef(c);
     // A Fossil in play is a Basic Pokémon (its card data carries the stage, type and HP).
-    let mon = d.is_pokemon() || (d.fossil_doll && fossil_in_play(g, c));
+    let mon = d.is_pokemon() || (crate::carddb::pokemon_flags(g.st.cards[c as usize].def) & crate::carddb::PF_FOSSIL != 0 && fossil_in_play(g, c));
     match p {
         Pred::Any => true,
         Pred::False => false,

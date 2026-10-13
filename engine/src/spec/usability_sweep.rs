@@ -397,9 +397,7 @@ pub(crate) fn sweep(boards: usize) -> (BTreeMap<(String, String, usize), (usize,
         }
         for (k, pw) in spec.powers.iter().enumerate() {
             let pd = d.powers.get(pw.index as usize);
-            if pd.map_or(false, |x| x.use_when_in_play) {
-                subjects.push((Subject::Power(k as u8), format!("Ability {}", pd.map_or("", |x| x.name))));
-            }
+            subjects.push((Subject::Power(k as u8), format!("Ability {}", pd.map_or("", |x| x.name))));
         }
         if spec.use_stadium.is_some() {
             subjects.push((Subject::UseStadium, "use".to_string()));

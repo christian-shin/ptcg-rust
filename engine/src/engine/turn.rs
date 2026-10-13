@@ -39,15 +39,13 @@ pub fn can_use_stadium(g: &Game, p: usize) -> R<CardId> {
     }
 }
 
-/// Check only: the core rule for using this Ability from this zone (the
-/// printed use-from flags). The caller found the power among the ones the
-/// card has now (`derived::powers`).
+/// Check only: the core rule for using this Ability from this zone: an Ability of a Pokémon in play is used when it has a
+/// program (a passive Ability is never used), and no Ability is used from the hand or the discard pile. The caller found the
+/// power among the ones the card has now (`derived::powers`).
 pub fn can_use_ability_core(g: &Game, power: PowerRef, zone: SlotType) -> R {
-    let pd = &g.st.cdef(power.card).powers[power.index as usize];
     match zone {
-        SlotType::Active | SlotType::Bench if !pd.use_when_in_play => crate::bail!("CANNOT_USE_POWER"),
-        SlotType::Hand if !pd.use_from_hand => crate::bail!("CANNOT_USE_POWER"),
-        SlotType::Discard if !pd.use_from_discard => crate::bail!("CANNOT_USE_POWER"),
+        SlotType::Active | SlotType::Bench if !crate::spec::run::power_has_program(g, power) => crate::bail!("CANNOT_USE_POWER"),
+        SlotType::Hand | SlotType::Discard => crate::bail!("CANNOT_USE_POWER"),
         _ => {}
     }
     Ok(())
