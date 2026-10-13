@@ -1,18 +1,5 @@
 # Games of the golden corpus (tools/golden-corpus.txt) that the engine is expected to diverge on,
 # each a rules fix against the recording. Update in the same commit as a rules fix.
-# baseline 02ff9d8 recorded 2026-10-13 after events batch 8 (C1-C12c: the derived layer, index-only dispatch, declared
-# prompt validity, the 8b rules fixes and the JP FAQ audit's rules fixes); the previous baseline 1e9b0c8's 787 attributed
-# divergences (batch 7 D5 / D8, batch 7 closeout, batch 8 C10b / C11c / C11d / C12b-ko / C12c) are banked in git history.
-# Events batch 8 C12d, id2127 (n1652: "you can discard a number of Energy cards equal to the total Retreat Cost, or you
-# can discard until you've fulfilled the Energy requirement"; user decision 2026-10-13): a retreat with 2 Team Rocket's
-# Energy ASC 217 (2 Energy each) on a Retreat Cost of 2 asks which to discard (1 card or both); the recording discarded
-# one without asking (Twinleaf's all-provides-identical shortcut). The named-search corrections of C12d (Ethan's Quilava,
-# Palafin) aren't listed: the baseline is re-recorded.
-g0500007502  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500008924  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500008925  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500010922  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500012544  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500015782  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500016129  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
-g0500019728  # extra-prompt; retreat with 2 Team Rocket's Energy on a Retreat Cost of 2 asks (discard 1 or 2)
+# baseline 7a7d1be recorded 2026-10-13 after events batch 8 C12d (the named-card search rule corrected to public
+# knowledge, one Checkup effect after the Special Conditions, the retreat payment choice of id2127, cost cards); the
+# previous baselines 02ff9d8 (same day, 8 attributed) and 1e9b0c8 (787 attributed) are banked in git history.
