@@ -1,0 +1,69 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Clefable ASC 75",
+   "4 Duraludon PRE 69",
+   "6 Fighting Energy MEE 6",
+   "19 Psychic Energy MEE 5",
+   "19 Metal Energy MEE 8"
+  ],
+  [
+   "4 Slowpoke SCR 57",
+   "4 Slowking SCR 58",
+   "4 Clefable ASC 75",
+   "4 Duraludon PRE 69",
+   "6 Fighting Energy MEE 6",
+   "19 Psychic Energy MEE 5",
+   "19 Metal Energy MEE 8"
+  ]
+ ],
+ "me": {
+  "active": [
+   "Slowpoke SCR 57",
+   "Slowking SCR 58"
+  ],
+  "active_energy": [
+   "2 Psychic Energy MEE 5"
+  ],
+  "deck_top": [
+   "Clefable ASC 75"
+  ],
+  "prizes": [
+   "6 Fighting Energy MEE 6"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Duraludon PRE 69",
+  "active_energy": [
+   "Metal Energy MEE 8"
+  ],
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Seek Inspiration"
+  },
+  {
+   "index": 0,
+   "attack": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Hammer In"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "damage": 30,
+   "cite": "JP FAQ Slowking SCR 58 (ヤドキング / ピクシー): the discarded Clefable's Metronome can be chosen, and then it chooses 1 of the opponent's Active Pokemon's attacks and uses it as this attack (translation: \"Yes, you can. In that case, choose 1 of the attacks the opponent's Active Pokemon has and use it as this attack.\"): Hammer In's 30"
+  }
+ ]
+}
