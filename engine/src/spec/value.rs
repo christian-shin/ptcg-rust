@@ -498,23 +498,7 @@ pub fn cond(g: &Game, me: CardId, f: &Frame, c: &Cond) -> bool {
             let hand = &g.st.players[f.who(*w)].hand;
             !f.out_of_hand(me) && hand.contains(me) && hand.iter().filter(|c| !f.out_of_hand(*c)).all(|c| c == me)
         }
-        Cond::TypesShared(a, b) => {
-            let printed = |sel: &SlotSel| -> Vec<CardType> {
-                let mut out: Vec<CardType> = Vec::new();
-                for s in slots_of(g, me, f, sel).iter() {
-                    if let Some(c) = g.st.slot_pokemon(s.p as usize, s.s) {
-                        for t in g.st.cdef(c).card_type {
-                            if !out.contains(t) {
-                                out.push(*t);
-                            }
-                        }
-                    }
-                }
-                out
-            };
-            let (x, y) = (printed(a), printed(b));
-            x.iter().any(|t| y.contains(t))
-        }
+        Cond::TypesShared(..) => panic!("checked read: evaluate with cond_m"),
         Cond::NonemptyOther(z, p) => zone_cards_of(g, me, f, *z).iter().any(|c| *c != me && pred(g, *c, p)),
         Cond::Chosen(r) => !reg_list(g, f, *r).is_empty(),
         Cond::PlayedThisTurn(w, pr) => g.st.players[f.who(*w)].played_this_turn.iter().any(|c| pred(g, *c, pr)),
@@ -1137,6 +1121,23 @@ pub fn cond_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, c: &Co
             Some(_) => crate::derived::stadium_off(g.g()),
             None => false,
         },
+        Cond::TypesShared(a, b) => {
+            // The types of the Pokémon in play after effects (`derived::types`), never the printed types.
+            let mut mine: SVec<CardType, 16> = SVec::new();
+            for s in slots_m(g, me, f, a)?.iter() {
+                for t in g.types(*s)?.iter() {
+                    if !mine.contains(t) {
+                        mine.push(*t);
+                    }
+                }
+            }
+            for s in slots_m(g, me, f, b)?.iter() {
+                if g.types(*s)?.iter().any(|t| mine.contains(t)) {
+                    return Ok(true);
+                }
+            }
+            false
+        }
         Cond::AnySlot(sel, sp) => {
             for s in slots_m(g, me, f, sel)?.iter() {
                 if slot_pred_m(g, me, *s, sp)? {
