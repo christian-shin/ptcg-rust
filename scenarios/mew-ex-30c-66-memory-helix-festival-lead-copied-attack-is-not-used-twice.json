@@ -1,0 +1,28 @@
+{
+  "turn": 2,
+  "decks": [
+    ["4 Mew ex 30C 66", "4 Applin PRE 9", "4 Dipplin PRE 10", "4 Festival Grounds PRE 108", "4 Beldum TEF 113", "40 Grass Energy MEE 1"],
+    ["4 Mew ex 30C 66", "4 Applin PRE 9", "4 Dipplin PRE 10", "4 Festival Grounds PRE 108", "4 Beldum TEF 113", "40 Grass Energy MEE 1"]
+  ],
+  "me": {
+    "reset": true,
+    "active": "Mew ex 30C 66",
+    "active_energy": ["Grass Energy MEE 1"],
+    "bench": [{"card": ["Applin PRE 9", "Dipplin PRE 10"]}, {"card": "Applin PRE 9"}, {"card": "Applin PRE 9"}],
+    "stadium": "Festival Grounds PRE 108"
+  },
+  "opp": {
+    "reset": true,
+    "active": "Beldum TEF 113",
+    "active_damage": 50,
+    "bench": [{"card": "Beldum TEF 113"}, {"card": "Beldum TEF 113"}]
+  },
+  "answers": [
+    {"a": "attack", "name": "Do the Wave", "from": "Dipplin PRE 10"}
+  ],
+  "expect": [
+    {"at": "start", "who": "me", "legal": "attack", "name": "Do the Wave", "cite": "Memory Helix card text: the Benched Dipplin's attack is offered; Mew ex has the Energy"},
+    {"at": "turn_end", "who": "me", "zone": "prizes", "count": 5, "cite": "the copied Do the Wave (20 for each of 3 Benched Pokemon) Knocked Out the damaged Beldum: 1 Prize"},
+    {"at": "turn_end", "absent": ["Confirm"], "cite": "JP FAQ Dipplin PRE 10 (related Festival Grounds / Dipplin / Mew ex): with Festival Grounds in play Mew ex using Dipplin's Do the Wave through Memory Helix cannot use a second attack (いいえ、できません); Festival Lead is Dipplin's own, an attack it has"}
+  ]
+}
