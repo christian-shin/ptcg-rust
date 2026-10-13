@@ -24,7 +24,7 @@ pub static SPEC: CardSpec = CardSpec {
         ],
     }],
     passives: &[
-        Passive { origin: RuleSource::CardRule, modifier: Modifier::DamageDealt(DamageDealtSpec { stage: DamageStage::Attack, amount: 120, attacker: SlotPred::Holder, opp_active_only: false, guard: Cond::HasMarker { who: Who::Me, name: "TORRENTIAL_HEART_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
+        Passive { origin: RuleSource::CardRule, modifier: Modifier::DamageDealt(DamageDealtSpec { stage: DamageStage::Attack, amount: 120, attacker: SlotPred::Holder, guard: Cond::HasMarker { who: Who::Me, name: "TORRENTIAL_HEART_MARKER", from: MarkerFrom::This }, ..DamageDealtSpec::DEFAULT }) },
     ],
     ..CardSpec::NONE
 };
