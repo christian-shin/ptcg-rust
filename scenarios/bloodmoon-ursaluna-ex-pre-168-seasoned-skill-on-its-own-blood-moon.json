@@ -1,0 +1,12 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mew ex 30C 66", "4 Bloodmoon Ursaluna ex PRE 168", "52 Psychic Energy MEE 5"],
+  ["4 Mew ex 30C 66", "4 Bloodmoon Ursaluna ex PRE 168", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Bloodmoon Ursaluna ex PRE 168", "bench": [{"card": "Mew ex 30C 66"}]},
+ "opp": {"reset": true, "active": "Mew ex 30C 66", "prizes_left": 1},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Blood Moon", "cite": "Bloodmoon Ursaluna ex PRE 168 text (Seasoned Skill: Blood Moon used by this Pokémon costs [C] less for each Prize card your opponent has taken): 5 taken, the cost of 5 [C] is none (the control of mew-ex-30c-66-memory-helix-blood-moon-pays-its-full-cost)"}
+ ]
+}

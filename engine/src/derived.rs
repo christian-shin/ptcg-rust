@@ -618,23 +618,34 @@ impl Facts for Game {
 // spot).
 
 fn game_hp(g: &mut Game, p: usize, s: crate::state::SlotId) -> R<i32> {
-    compute_hp(g, p, s)
+    let r = compute_hp(g, p, s)?;
+    verify_reach(g, SlotRef::new(p, s), "hp", &r, |h| compute_hp(h, p, s));
+    Ok(r)
 }
 
 fn game_provided_energy(g: &mut Game, p: usize, source: SlotRef) -> R<EnergyMap> {
-    compute_provided_energy(g, p, source)
+    let r = compute_provided_energy(g, p, source)?;
+    verify_reach(g, source, "provided_energy", &r, |h| compute_provided_energy(h, p, source));
+    Ok(r)
 }
 
 fn game_types(g: &mut Game, target: SlotRef) -> R<SVec<CardType, 4>> {
-    compute_types(g, target)
+    let r = compute_types(g, target)?;
+    verify_reach(g, target, "types", &r, |h| compute_types(h, target));
+    Ok(r)
 }
 
 fn game_weakness_resistance(g: &mut Game, target: SlotRef) -> R<(SVec<WeaknessV, 4>, SVec<ResistanceV, 4>)> {
-    compute_weakness_resistance(g, target)
+    let r = compute_weakness_resistance(g, target)?;
+    verify_reach(g, target, "weakness_resistance", &r, |h| compute_weakness_resistance(h, target));
+    Ok(r)
 }
 
 fn game_retreat_cost(g: &mut Game, p: usize) -> R<Cost> {
-    compute_retreat_cost(g, p)
+    let r = compute_retreat_cost(g, p)?;
+    let target = SlotRef::new(p, g.st.players[p].active);
+    verify_reach(g, target, "retreat_cost", &r, |h| compute_retreat_cost(h, p));
+    Ok(r)
 }
 
 fn game_attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks> {
@@ -642,15 +653,81 @@ fn game_attacks(g: &mut Game, p: usize) -> R<crate::engine::turn::CheckedAttacks
 }
 
 fn game_attack_cost(g: &mut Game, p: usize, attack: AttackRef) -> R<Cost> {
-    compute_attack_cost(g, p, attack)
+    let r = compute_attack_cost(g, p, attack)?;
+    let target = SlotRef::new(p, g.st.players[p].active);
+    verify_reach(g, target, "attack_cost", &r, |h| compute_attack_cost(h, p, attack));
+    Ok(r)
 }
 
 fn game_powers(g: &mut Game, p: usize, card: CardId) -> R<SVec<PowerRef, 8>> {
-    compute_powers(g, p, card)
+    let r = compute_powers(g, p, card)?;
+    if let Some(t) = card_slot(g, card) {
+        verify_reach(g, t, "powers", &r, |h| compute_powers(h, p, card));
+    }
+    Ok(r)
 }
 
 fn game_has_no_ability(g: &mut Game, p: usize, card: CardId, power_index: Option<u8>) -> bool {
-    compute_has_no_ability(g, p, card, power_index)
+    let r = compute_has_no_ability(g, p, card, power_index);
+    if let Some(t) = card_slot(g, card) {
+        verify_reach(g, t, "has_no_ability", &r, |h| Ok(compute_has_no_ability(h, p, card, power_index)));
+    }
+    r
+}
+
+/// The spot of the Pokémon card `card` in play, if it is the top card of one.
+fn card_slot(g: &Game, card: CardId) -> Option<SlotRef> {
+    match g.st.locate(card) {
+        Some(crate::state::ListRef::Slot(p, s)) if g.st.slot_pokemon(p as usize, s) == Some(card) => Some(SlotRef::new(p as usize, s)),
+        _ => None,
+    }
+}
+
+/// `PTCG_VERIFY_LEGAL=1` (plan 2.5, the continuous-effect assertion): every continuous effect of an opponent's Ability
+/// that a kind-free `Prevent` keeps off the Pokémon in `target` (Hide 'n' Sneak) is kept off by every read path. The fact
+/// is recomputed on a copy where those Abilities' declarations are not in place at all (`Game::reach_skip`, read by
+/// `passive::locate`) and must be the same: a read path that applies such a modifier without asking the `Prevent`
+/// reader (`passive::ability_effect_reaches`) differs.
+pub(crate) fn verify_reach<T: PartialEq + std::fmt::Debug>(g: &mut Game, target: SlotRef, what: &str, r: &T, again: impl FnOnce(&mut Game) -> R<T>) {
+    let skip = reach_skip_for(g, target);
+    if skip == 0 {
+        return;
+    }
+    let mut h = g.fork();
+    h.reach_skip = skip;
+    if let Ok(v) = again(&mut h) {
+        assert_eq!(*r, v, "derived::{what}: a continuous effect of an opponent's Ability that a Prevent keeps off {target:?} was applied (skipped cards {skip:#x})");
+    }
+}
+
+/// The opponent's cards with an Ability declaration in place that doesn't reach the Pokémon in `target` (0: none, or not
+/// under VERIFY_LEGAL, or already in the recomputing copy).
+pub(crate) fn reach_skip_for(g: &mut Game, target: SlotRef) -> u128 {
+    if g.reach_skip != 0 || !crate::options::verify_legal() || !g.kinds_present.has(crate::effects::k::DECLARES_CONTINUOUS_PREVENT) {
+        return 0;
+    }
+    if g.st.slot_pokemon(target.p as usize, target.s).is_none() {
+        return 0;
+    }
+    let owner = 1 - target.p as usize;
+    let mut skip = 0u128;
+    // The reads below ask facts again: no nested assertion meanwhile (bit 127 is no card id).
+    g.reach_skip = 1u128 << 127;
+    for c in 0..g.st.n_cards {
+        let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
+        if !spec.passives.iter().any(|ps| ps.origin == crate::spec::RuleSource::Ability) {
+            continue;
+        }
+        match crate::spec::passive::locate(g, c, crate::spec::RuleSource::Ability) {
+            Some(at) if at.owner == owner => {}
+            _ => continue,
+        }
+        if !crate::spec::passive::ability_effect_reaches(g, c, crate::spec::RuleSource::Ability, owner, target, false).unwrap_or(true) {
+            skip |= 1u128 << c;
+        }
+    }
+    g.reach_skip = 0;
+    skip
 }
 
 // ---------------------------------------------------------------------------

@@ -6,6 +6,8 @@
 //! Trifrost chooses exactly min(3, the opponent's Pokémon in play) targets; each is a Damage event (no Weakness or
 //! Resistance for the Benched ones, APR B-08). Plasma Bane sets the cost to [C] (id2032): a set cost is not
 //! increased or decreased by Pokémon League Headquarters, Rillaboom's Drum Beating, Antique Root Fossil, Counter Gain...
+//! "This Pokémon can use the Trifrost attack for [C]": Kyurem's own use only (subject `Holder`; batch 8 C12b, as Seasoned
+//! Skill per the JP FAQ).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Kyurem",
@@ -16,7 +18,7 @@ pub static SPEC: CardSpec = CardSpec {
         ] },
     ],
     passives: &[
-        Passive { origin: RuleSource::Ability, modifier: Modifier::AttackCost(AttackCostSpec { change: CostChange::SetCost(&[ct::COLORLESS]), attack: Some(0), subject: SlotPred::Any, guard: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Discard), Pred::All(&[Pred::Trainer, Pred::NameContains("Colress")])), ..AttackCostSpec::DEFAULT }) }
+        Passive { origin: RuleSource::Ability, modifier: Modifier::AttackCost(AttackCostSpec { change: CostChange::SetCost(&[ct::COLORLESS]), attack: Some(0), subject: SlotPred::Holder, guard: Cond::Nonempty(ZoneRef(Who::Opp, Zone::Discard), Pred::All(&[Pred::Trainer, Pred::NameContains("Colress")])), ..AttackCostSpec::DEFAULT }) }
     ],
     ..CardSpec::NONE
 };

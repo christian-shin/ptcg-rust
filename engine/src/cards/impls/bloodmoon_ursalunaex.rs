@@ -2,10 +2,10 @@
 //! for each Prize card your opponent has taken. Blood Moon — 240; during
 //! your next turn, this Pokémon can't attack.
 //!
-//! Twinleaf: the reduction runs on CheckAttackCostEffect for this card's
-//! attack (after the ability-lock probe, before the [C] check), removing
-//! 6 - prizesLeft [C] (none when the opponent has 6 or 0 prizes left).
-//! Blood Moon sets `cannotAttackNextTurnPending` on the player's Active.
+//! Seasoned Skill is an `AttackCost` "less" on Blood Moon used by this Pokémon only (subject `Holder`; JP FAQ
+//! Bloodmoon Ursaluna ex x Mew ex: a Mew ex using the Benched Ursaluna's Blood Moon through Memory Helix pays its full
+//! cost; batch 8 C12b): 6 - prizesLeft [C] (none when the opponent has 6 or 0 prizes left). Blood Moon leaves "this
+//! Pokémon can't attack during your next turn".
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -21,7 +21,7 @@ attacks: &[AttackSpec { index: 0, steps: &[Step::after_damage(Op::Arm(ArmSpec { 
                 &Num::Lit(0),
             )),
             attack: Some(0),
-            subject: SlotPred::Any,
+            subject: SlotPred::Holder,
             side: Side::Owner,
             ..AttackCostSpec::DEFAULT
         }),

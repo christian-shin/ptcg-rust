@@ -1,0 +1,12 @@
+{
+ "turn": 2,
+ "decks": [
+  ["4 Mew ex 30C 66", "4 Bloodmoon Ursaluna ex PRE 168", "52 Psychic Energy MEE 5"],
+  ["4 Mew ex 30C 66", "4 Bloodmoon Ursaluna ex PRE 168", "52 Psychic Energy MEE 5"]
+ ],
+ "me": {"reset": true, "active": "Mew ex 30C 66", "bench": [{"card": "Bloodmoon Ursaluna ex PRE 168"}]},
+ "opp": {"reset": true, "active": "Mew ex 30C 66", "prizes_left": 1},
+ "expect": [
+  {"at": "start", "who": "me", "legal": "attack", "name": "Blood Moon", "from": "Bloodmoon Ursaluna ex PRE 168", "is": false, "cite": "JP FAQ (Bloodmoon Ursaluna ex PRE 168 / Mew ex): an Energy-less Mew ex can't use the Benched Ursaluna's Blood Moon through Memory Helix with 5 Prize cards taken: \"Seasoned Skill works only for Blood Moon used by Bloodmoon Ursaluna ex\" (batch 8 C12b: the cost change binds the Pokémon with the Ability)"}
+ ]
+}

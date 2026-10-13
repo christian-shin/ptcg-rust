@@ -793,12 +793,23 @@ pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Optio
     })
 }
 
-/// Does a lock forbid the frame's player's effect moving damage counters (the MoveCounters event's lock, asked as its
-/// routine asks it: `engine::damage::move_counters`)?
+/// Does a lock forbid the frame's player's effect moving damage counters from every Pokémon in play (the MoveCounters
+/// event's lock, asked per source as its routine asks it: `engine::damage::move_counters`; since C11 a lock can spare a
+/// Pokémon, Hide 'n' Sneak against an opponent's Patrat)?
 fn counters_locked(g: &Game, f: &Frame) -> bool {
-    let p = f.p as usize;
-    let v = crate::engine::damage::move_view(g, SlotRef::new(p, g.st.players[p].active), crate::spec::event::MoveEnd::From, 10, f.cause);
-    !matches!(crate::spec::passive::event_locked(&mut crate::legal::Ctx::new(g), &v), Ok(None))
+    let mut ctx = crate::legal::Ctx::new(g);
+    for p in 0..2 {
+        for s in g.st.players[p].in_play().iter() {
+            if g.st.slot_pokemon(p, *s).is_none() {
+                continue;
+            }
+            let v = crate::engine::damage::move_view(g, SlotRef::new(p, *s), crate::spec::event::MoveEnd::From, 10, f.cause);
+            if matches!(crate::spec::passive::event_locked(&mut ctx, &v), Ok(None)) {
+                return false;
+            }
+        }
+    }
+    true
 }
 
 pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {

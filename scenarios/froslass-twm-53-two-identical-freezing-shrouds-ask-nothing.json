@@ -1,0 +1,58 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Snorunt TWM 51",
+   "4 Froslass TWM 53",
+   "4 Fan Rotom SCR 118",
+   "48 Water Energy MEE 3"
+  ],
+  [
+   "4 Snorunt TWM 51",
+   "4 Froslass TWM 53",
+   "4 Fan Rotom SCR 118",
+   "48 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Snorunt TWM 51",
+   "Froslass TWM 53"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Snorunt TWM 51",
+     "Froslass TWM 53"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Fan Rotom SCR 118"
+ },
+ "answers": [
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "absent": [
+    "Select"
+   ],
+   "cite": "C10's rule (APR B-01; id925, id956: a choice that can't change the game isn't asked) on APR F step 2 / id2302: two identical Freezing Shrouds of one player and no Special Condition in play: every order gives the same game, nothing is asked (batch 8 C12b, review 8b Must 4)"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "slot": "active",
+   "card": "Fan Rotom SCR 118",
+   "damage": 20,
+   "cite": "id2302: two Froslass put 2 counters"
+  }
+ ]
+}

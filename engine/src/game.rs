@@ -67,9 +67,9 @@ pub enum Cont {
     TriggerOrder { atk: EffId },
     /// The order of several end-of-turn or Pokémon Checkup effects (APR E-21, F step 2; batch 8 C11c): the effects left,
     /// whether the Special Conditions are still to be checked, and what follows.
-    OrderEffects { left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: OrderThen },
+    OrderEffects { left: crate::spec::run::TimedList, sc: bool, then: OrderThen },
     /// The ordered effect's prompts are answered: the next choice (`phase::order_next`).
-    OrderNext { left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: OrderThen },
+    OrderNext { left: crate::spec::run::TimedList, sc: bool, then: OrderThen },
     LittleGrudge { owner: u8, prize_taker: u8, attack: crate::state::AttackRef, source_card: CardId, target: SlotRef },
 }
 
@@ -324,6 +324,9 @@ pub struct Game {
     pub checkup_held: bool,
     /// Events a prevention stopped so far (`derived::event_prevented`; read by `PTCG_VERIFY_LEGAL=1` only).
     pub prevented_events: u32,
+    /// `PTCG_VERIFY_LEGAL=1` only: the cards whose Ability-origin declarations `passive::locate` treats as not in place,
+    /// in the copy the continuous-effect assertion recomputes a fact on (`derived::verify_reach`); 0 otherwise.
+    pub reach_skip: u128,
 }
 
 /// How the propagation order ranks the cards: by super type, or specially for the use of a power, the powers a Pokémon has
@@ -434,6 +437,7 @@ impl Game {
                 prompt_payloads,
                 payload_serial,
                 prevented_events,
+                reach_skip,
                 order_pending,
                 checkup_held,
             } = src;
@@ -472,6 +476,7 @@ impl Game {
             prompt_payloads.copy_live_to(f!((*d).prompt_payloads));
             f!((*d).payload_serial).write(*payload_serial);
             f!((*d).prevented_events).write(*prevented_events);
+            f!((*d).reach_skip).write(*reach_skip);
             f!((*d).order_pending).write(*order_pending);
             f!((*d).checkup_held).write(*checkup_held);
             // The declaration index is fixed per game (built at `start` from the decks): copied only into a game holding
@@ -522,6 +527,7 @@ impl Game {
             prompt_payloads: SVec::new(),
             payload_serial: 0,
             prevented_events: 0,
+            reach_skip: 0,
             order_pending: false,
             checkup_held: false,
         }
@@ -806,7 +812,8 @@ impl Game {
     fn resolve_chosen_trigger(&mut self, atk: EffId, choice: i32) -> R {
         let idx = self.trigger_indices(atk);
         if choice < 0 || choice as usize >= idx.len() {
-            crate::bail!("TypeError: trigger is undefined");
+            // An answer outside the offered triggers (Twinleaf's JavaScript TypeError string removed, batch 8 C12b).
+            crate::bail!("INVALID_PROMPT_RESULT");
         }
         let t = self.triggers.remove_at(idx.as_slice()[choice as usize]);
         self.resolve_attack_trigger(t)
