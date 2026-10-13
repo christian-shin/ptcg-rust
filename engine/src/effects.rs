@@ -492,6 +492,8 @@ pub mod k {
     pub const PERMIT_FIRST_TURN: u32 = 253;
     pub const PERMIT_BASE_ENTERED: u32 = 254;
     pub const PERMIT_EVOLVES_FROM: u32 = 255;
+    /// A permission that lifts `Limit::GoingFirst` (Carmine, Team Rocket's Proton; with `DECLARES_PERMIT`).
+    pub const PERMIT_GOING_FIRST: u32 = 224;
 }
 
 /// Build a subscription mask: `mask(&[k::ATTACK, k::TRAINER])`.

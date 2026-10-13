@@ -10,7 +10,7 @@ use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "WalkingWakeex",
     // Azure Wave: damage from this Pokémon's attacks isn't affected by any effects on your opponent's Active Pokémon.
-    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: false, shred: Some(SlotPred::Holder) }) }],
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AttackFlags(AttackFlagsSpec { first_turn: None, shred: Some(SlotPred::Holder) }) }],
     attacks: &[AttackSpec {
         index: 0,
         // Catharsis Roar: 120 more damage if your opponent's Active Pokémon is affected by a Special Condition. It is

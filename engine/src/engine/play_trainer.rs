@@ -21,13 +21,20 @@ use crate::cause::{Cause, RuleWhich};
 use crate::effects::{Effect, SlotRef};
 use crate::game::{Cont, Game, R};
 use crate::list::*;
-use crate::spec::event::{EventKind, EventView, RulesZone, TrainerUse};
+use crate::spec::event::{EventKind, EventView, Limit, RulesZone, TrainerUse};
 use crate::state::ListRef;
 use crate::types::*;
 
 /// The PlayTrainer event of `card` (`use_`, from `source`), as predicates read it. The event's owner is the card's owner.
 pub fn play_view(g: &Game, card: CardId, use_: TrainerUse, source: RulesZone, cause: Cause) -> EventView {
-    EventView { card: Some(card), source: Some(source), trainer_use: Some(use_), ..EventView::new(EventKind::PlayTrainer, cause, g.st.owner(card) as u8, crate::spec::event::whose_turn(g)) }
+    EventView {
+        card: Some(card),
+        source: Some(source),
+        trainer_use: Some(use_),
+        // The first turn of the game: the turn of the player who goes first.
+        first_turn_of_game: g.st.turn == 1,
+        ..EventView::new(EventKind::PlayTrainer, cause, g.st.owner(card) as u8, crate::spec::event::whose_turn(g))
+    }
 }
 
 /// Has player `p` played a card matching `pred` from their hand this turn (the played-this-turn record; APR E-26)?
@@ -54,6 +61,8 @@ pub trait PlayChecks {
     fn event_locked(&mut self, v: &EventView) -> R<Option<&'static str>>;
     /// The checks of the Attach a Tool play produces (`engine::attach::check_attach_with`).
     fn tool_attach(&mut self, card: CardId, target: SlotRef) -> R<Option<&'static str>>;
+    /// Is the rule's `limit` lifted for the play by a permission (`enter::permitted`)?
+    fn permitted(&mut self, v: &EventView, limit: Limit) -> R<bool>;
 }
 
 impl PlayChecks for Game {
@@ -67,18 +76,18 @@ impl PlayChecks for Game {
         let v = crate::engine::attach::attach_view(self, card, target, RulesZone::Hand, false, Cause::rule(RuleWhich::Action, self.st.owner(card) as u8));
         crate::engine::attach::check_attach_with(self, &v)
     }
+    fn permitted(&mut self, v: &EventView, limit: Limit) -> R<bool> {
+        crate::engine::enter::permitted(self, v, limit)
+    }
 }
 
-/// The turn's rules for playing `card` from the hand (a plain read): a Supporter not on the first player's first turn
-/// (unless the card says so, `CardDef::first_turn`) and one per turn; a Stadium one per turn and not with the name of the
+/// The turn's rules for playing `card` from the hand (a plain read): a Supporter one per turn (the first player's first
+/// turn is [`Limit::GoingFirst`], asked in [`check_with`]); a Stadium one per turn and not with the name of the
 /// Stadium in play (APR B-03, B-04).
 pub fn turn_rules(g: &Game, p: usize, card: CardId) -> Option<&'static str> {
     let d = g.st.cdef(card);
     match d.trainer_type() {
         TrainerType::Supporter => {
-            if g.st.turn == 1 && !d.first_turn {
-                return Some("CANNOT_PLAY_THIS_CARD");
-            }
             if played_this_turn(g, p, |c| c.trainer_type == TrainerType::Supporter as u8) {
                 return Some("SUPPORTER_ALREADY_PLAYED");
             }
@@ -117,6 +126,10 @@ fn needs_companion(g: &Game, card: CardId) -> bool {
 pub fn check_with<C: PlayChecks + ?Sized>(c: &mut C, v: &EventView, target: Option<SlotRef>) -> R<Option<&'static str>> {
     let (Some(card), Some(TrainerUse::Played)) = (v.card, v.trainer_use) else { return Ok(None) };
     let p = v.actor() as usize;
+    // A Supporter can't be played on the first turn of the player who goes first, unless the card says it can (a `Permit`).
+    if c.game().st.cdef(card).trainer_type() == TrainerType::Supporter && v.first_turn_of_game && !c.permitted(v, Limit::GoingFirst)? {
+        return Ok(Some("CANNOT_PLAY_THIS_CARD"));
+    }
     if let Some(code) = turn_rules(c.game(), p, card) {
         return Ok(Some(code));
     }

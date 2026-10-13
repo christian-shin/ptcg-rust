@@ -312,6 +312,9 @@ impl crate::engine::play_trainer::PlayChecks for Ctx<'_> {
         let v = crate::engine::attach::attach_view(self.g, card, target, crate::spec::event::RulesZone::Hand, false, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, self.p as u8));
         crate::engine::attach::check_attach_with(self, &v)
     }
+    fn permitted(&mut self, v: &crate::spec::event::EventView, limit: crate::spec::event::Limit) -> crate::game::R<bool> {
+        crate::engine::enter::permitted(self, v, limit)
+    }
 }
 
 /// The checks of a turn action (`engine::turn_action`: UseAttack, UseAbility, UseStadium), the functions execution calls:
@@ -503,8 +506,8 @@ fn fast_attack(ctx: &mut Ctx, name: &'static str, from: Option<&'static str>) ->
     if attack.is_clone() {
         return ctx.none("attack: a copy-attack clone");
     }
-    // The first-turn flag an Ability writes as the attack is used (Meloetta ex).
-    let granted = passive::grants_first_turn_attack(ctx, p);
+    // The first-turn permission: the attack's own text, or an Ability (Meloetta ex).
+    let granted = passive::grants_first_turn_attack(ctx, p, attack);
     // The UseAttack's checks (`engine::turn_action::attack_checks`, the function execution calls).
     let attacking = match crate::engine::turn_action::attack_checks(ctx, p, attack, false, granted) {
         Ok(Ok(s)) => s,

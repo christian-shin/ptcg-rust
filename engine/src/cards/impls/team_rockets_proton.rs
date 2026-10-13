@@ -1,7 +1,8 @@
 //! Team Rocket's Proton (DRI): if you go first, you may use this card during your first turn. Search your deck for up to 3
 //! Basic Team Rocket's Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
 //!
-//! The first-turn permission is the card's `first_turn` flag (read by the play rule). One Search op revealing what it finds, then one
+//! The first-turn permission is a `Permit` over this card's PlayTrainer lifting `Limit::GoingFirst` (the Supporter limit of
+//! the first player's first turn). One Search op revealing what it finds, then one
 //! shuffle after it (APR E-19). A Team Rocket's Supporter played from the hand is read from the turn's play record
 //! (`Cond::PlayedThisTurn`); used through Look-Alike Show it isn't played (D5).
 use crate::spec::prelude::*;
@@ -9,6 +10,16 @@ use crate::types::tag;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "TeamRocketsProton",
+    // "If you go first, you can use this card during your first turn": a permission of the card played, lifting the limit on
+    // the first player's first turn.
+    passives: &[Passive {
+        origin: RuleSource::CardRule,
+        modifier: Modifier::Permit(PermitSpec {
+            for_: EventPred::All(&[EventPred::Kind(EventKind::PlayTrainer), EventPred::This(Role::Card)]),
+            lifts: &[Limit::GoingFirst],
+            while_: &[],
+        }),
+    }],
     play: Some(PlaySpec {
         kind: PlayKind::Supporter,
         needs: &[],

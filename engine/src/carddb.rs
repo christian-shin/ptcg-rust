@@ -329,3 +329,41 @@ mod phrase_tests {
         assert!(bk.regulation_mark.is_empty() && bk.has_rule_box());
     }
 }
+
+#[cfg(test)]
+mod first_turn_tests {
+    //! Events batch 9 C4: the card-data flags `can_use_on_first_turn` and `first_turn` are declarations of the card's spec.
+    use super::*;
+    use crate::spec::event::Limit;
+    use crate::spec::passive::{FirstTurnAttack, Modifier};
+
+    /// "If you go first, you can use this attack during your first turn" is `AttackFlags { first_turn: Attack(i) }`: the
+    /// declaration is on exactly the attacks the flag marks, on every card of the database.
+    #[test]
+    fn the_attack_declaration_equals_can_use_on_first_turn() {
+        let mut marked = 0;
+        for (i, d) in cards().iter().enumerate() {
+            let spec = crate::cards::spec_for(i as DefId);
+            for (k, a) in d.attacks.iter().enumerate() {
+                let declared = spec.map_or(false, |s| s.passives.iter().any(|p| matches!(&p.modifier, Modifier::AttackFlags(f) if f.first_turn == Some(FirstTurnAttack::Attack(k as u8)))));
+                assert_eq!(a.can_use_on_first_turn, declared, "{} attack {} ({})", d.full_name, k, a.name);
+                marked += declared as usize;
+            }
+        }
+        assert_eq!(marked, 3, "Delibird MEG 105, Volbeat TWM 9, Exeggcute SSP 1");
+    }
+
+    /// "If you go first, you can use this card during your first turn" is a `Permit` lifting `Limit::GoingFirst` on the card:
+    /// every def the flag marks declares it, and no other does.
+    #[test]
+    fn the_permit_equals_the_card_first_turn_flag() {
+        let mut marked = 0;
+        for (i, d) in cards().iter().enumerate() {
+            let declared = crate::cards::spec_for(i as DefId)
+                .map_or(false, |s| s.passives.iter().any(|p| matches!(&p.modifier, Modifier::Permit(pm) if pm.lifts.contains(&Limit::GoingFirst))));
+            assert_eq!(d.first_turn, declared, "{}", d.full_name);
+            marked += declared as usize;
+        }
+        assert_eq!(marked, 4, "Carmine TWM 145 / PRE 103, Team Rocket's Proton DRI 177 / ASC 208");
+    }
+}
