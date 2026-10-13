@@ -19,7 +19,7 @@ pub static SPEC: CardSpec = CardSpec {
                 from: ZoneRef(Who::Me, Zone::Deck),
                 predicate: Pred::All(&[Pred::BasicEnergy, Pred::Name("Darkness Energy")]),
                 slots: AttachSlots::Bench,
-                target: Pred::Any,
+                target: Pred::PokemonType(ct::DARK),
                 scan: TargetScan::EffectiveTypes(&[ct::DARK]),
                 bounds: Bounds { min: Num::Lit(0), max: Num::Lit(1) },
                 same_target: false,
