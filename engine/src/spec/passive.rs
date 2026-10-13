@@ -856,6 +856,10 @@ fn slot_where(st: &crate::state::State, f: impl Fn(&crate::state::Slot, usize, u
 }
 
 pub(crate) fn locate(g: &Game, me: CardId, origin: RuleSource) -> Option<Located> {
+    if g.reach_skip != 0 && origin == RuleSource::Ability && g.reach_skip & (1u128 << me) != 0 {
+        // VERIFY_LEGAL's copy without the Abilities that don't reach the checked Pokémon (`derived::verify_reach`).
+        return None;
+    }
     locate_st(&g.st, me, origin)
 }
 
@@ -1701,8 +1705,9 @@ pub(crate) fn prize_adjust(g: &mut Game, me: CardId, e: EffId, origin: RuleSourc
         if !defending || g.st.phase != GamePhase::Attack || g.st.active_player as usize != attacker {
             return Ok(());
         }
-        match g.st.player_last_attack[attacker] {
-            Some((a, src)) if src == me && crate::engine::attack::attack_def(g, a).name == name => {}
+        // The attack being done (a copied one too: its effect applies, id2094), by this Pokémon (the copycat for a copy).
+        match g.last_attack {
+            Some(la) if la.p as usize == attacker && la.pokemon == Some(me) && crate::engine::attack::attack_def(g, la.attack).name == name => {}
             _ => return Ok(()),
         }
     }
@@ -2339,6 +2344,12 @@ fn checkup_damage(g: &mut Game, me: CardId, e: EffId, origin: RuleSource, c: &Ch
     }
     let victim = SlotRef::new(p, g.st.players[p].active);
     if blocked(g, me, origin, at, Some(victim)) || !slot_pred_m(g, me, victim, &c.victim)? {
+        return Ok(());
+    }
+    // "Put N more damage counters on your opponent's Burned / Poisoned Pokémon" is a continuous effect of the Ability
+    // done to that Pokémon (id2112): a `Prevent` over the Ability's effects keeps it off (Hide 'n' Sneak vs Magmortar's
+    // Magma Surge; batch 8 C12b, review 8b Must 3).
+    if !ability_effect_reaches(g, me, origin, at.owner, victim, false)? {
         return Ok(());
     }
     if c.burn {

@@ -52,7 +52,8 @@ pub fn resume(g: &mut Game, c: PrefabCont, results: &[Res]) -> R {
             };
             let t = match sel.get(0) {
                 Some(t) => *t,
-                None => crate::bail!("TypeError: Cannot read properties of undefined"),
+                // A required choice answered with nothing (Twinleaf's JavaScript TypeError string removed, batch 8 C12b).
+                None => crate::bail!("INVALID_PROMPT_RESULT"),
             };
             let r = deal_or_put_damage(g, atk, damage, t);
             g.release_fx(atk);

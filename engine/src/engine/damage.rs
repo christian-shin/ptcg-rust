@@ -202,13 +202,12 @@ pub fn place(g: &mut Game, target: SlotRef, hp: i32, cause: Cause) -> R<bool> {
 
 /// MoveCounters: one action moving counters, `pairs` of (from, to, HP) in the order the text or the player gives them.
 /// Each pair moves as much as it can (the counters its source has then, id63). Returns what happened to each pair
-/// (removed from the source, placed on the destination); nothing moves when a lock forbids the action.
+/// (removed from the source, placed on the destination); a pair moves nothing when a lock forbids moving counters from
+/// its source or onto its destination (Patrat's Watchful Eye binds both players; asked per pair, batch 8 C12b: a lock can
+/// spare a Pokémon, Hide 'n' Sneak against an opponent's Patrat).
 pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cause) -> R<SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }>> {
     let mut moves: SVec<CounterMove, { crate::prompts::MAX_DAMAGE_RUNS }> = SVec::new();
-    let Some(&(first, _, _)) = pairs.first() else { return Ok(moves) };
-    // The locks forbid the action (Patrat's Watchful Eye binds both players), asked once.
-    let v = move_view(g, first, MoveEnd::From, pairs.iter().map(|x| x.2).sum(), cause);
-    if crate::derived::event_locked(g, &v)?.is_some() {
+    if pairs.is_empty() {
         return Ok(moves);
     }
     // The damage each spot has as the pairs are carried out in order.
@@ -224,6 +223,11 @@ pub fn move_counters(g: &mut Game, pairs: &[(SlotRef, SlotRef, i32)], cause: Cau
         }
         let removed = hp.min(damage_of(g, &left, from));
         if removed <= 0 {
+            continue;
+        }
+        let lf = move_view(g, from, MoveEnd::From, removed, cause);
+        let lt = move_view(g, to, MoveEnd::To, removed, cause);
+        if crate::derived::event_locked(g, &lf)?.is_some() || crate::derived::event_locked(g, &lt)?.is_some() {
             continue;
         }
         let vf = move_view(g, from, MoveEnd::From, removed, cause);

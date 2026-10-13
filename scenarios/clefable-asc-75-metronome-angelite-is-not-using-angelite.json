@@ -1,0 +1,99 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Clefable ASC 75",
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "16 Water Energy MEE 3",
+   "16 Lightning Energy MEE 4",
+   "16 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Clefable ASC 75",
+   "4 Eevee PRE 74",
+   "4 Sylveon ex PRE 41",
+   "16 Water Energy MEE 3",
+   "16 Lightning Energy MEE 4",
+   "16 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": "Clefable ASC 75",
+  "active_damage": 110,
+  "active_energy": [
+   "Water Energy MEE 3",
+   "Lightning Energy MEE 4",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": [
+     "Eevee PRE 74",
+     "Sylveon ex PRE 41"
+    ],
+    "energy": [
+     "Water Energy MEE 3",
+     "Lightning Energy MEE 4",
+     "Psychic Energy MEE 5"
+    ]
+   }
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Eevee PRE 74",
+   "Sylveon ex PRE 41"
+  ],
+  "active_energy": [
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5",
+   "Psychic Energy MEE 5"
+  ],
+  "bench": [
+   {
+    "card": "Eevee PRE 74"
+   },
+   {
+    "card": "Eevee PRE 74"
+   },
+   {
+    "card": "Eevee PRE 74"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Metronome"
+  },
+  {
+   "index": 0,
+   "attack": "Angelite"
+  },
+  {
+   "a": "attack",
+   "name": "Magical Charm"
+  }
+ ],
+ "expect": [
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "active": "Sylveon ex PRE 41",
+   "cite": "setup: Magical Charm Knocked Out Clefable, Sylveon ex promoted"
+  },
+  {
+   "at": "next_turn",
+   "turn": 2,
+   "who": "me",
+   "legal": "attack",
+   "name": "Angelite",
+   "is": true,
+   "cite": "id2094: \"Mew ex used the effect of Angelite last turn, but the attack it did was Genome Hacking, so the restriction of Angelite does not apply\": the attack Clefable ASC 75 did was Metronome"
+  }
+ ]
+}

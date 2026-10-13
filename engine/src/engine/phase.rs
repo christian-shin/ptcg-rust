@@ -82,16 +82,25 @@ pub fn between_turns(g: &mut Game, oc: OnComplete) -> R {
 pub fn run_between_turns_effects(g: &mut Game, oc: OnComplete) -> R {
     // APR F step 2 (E-08, id2302): two or more Checkup effects that apply are ordered by the player whose turn would be
     // next, each before or after the Special Conditions check (batch 8 C11c); otherwise the order of today.
-    let mut held = 0;
+    // Asked only when several effects apply (APR F step 2: "If there are several such effects to apply, the player whose
+    // turn would be next can decide in which order to apply them, as well as decide for each of them whether they should
+    // be applied before or after checking all Special Conditions"; user decision 7): two or more distinct effects
+    // (identical ones are one: the order between them can't change the game; batch 8 C12b, review 8b Must 4). The
+    // Special Conditions check is then an item only when an Active Pokémon has one (`order_prompt`).
+    let mut held: crate::spec::run::TimedList = SVec::new();
     for p in 0..2 {
         let a = g.st.players[p].active;
         let slot = g.st.slot(p, a);
         let id = g.new_fx(Effect::BetweenTurns { p: p as u8, poison_damage: slot.poison_damage, burn_damage: slot.burn_damage });
         let t = crate::spec::run::timed_triggers(g, id, crate::effects::k::BETWEEN_TURNS);
         g.release_fx(id);
-        held += t?.iter().filter(|(_, x)| *x).count();
+        for (x, y) in t?.iter() {
+            if *y {
+                crate::spec::run::push_timed(&mut held, *x);
+            }
+        }
     }
-    if held >= 2 {
+    if crate::spec::run::item_heads(g, held.as_slice()).len() >= 2 {
         return ordered_checkup(g, oc);
     }
     for p in 0..2 {
@@ -122,7 +131,7 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
     let mut poison = [10, 10];
     let mut burn = [20, 20];
     let mut ids = [0 as EffId; 2];
-    let mut left: SVec<crate::spec::run::Timed, 8> = SVec::new();
+    let mut left: crate::spec::run::TimedList = SVec::new();
     g.checkup_held = true;
     let r = (|| -> R {
         for p in 0..2 {
@@ -132,8 +141,8 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
             ids[p] = id;
             checkup_damage(g, id)?;
             for (t, x) in crate::spec::run::timed_triggers(g, id, crate::effects::k::BETWEEN_TURNS)?.iter().copied() {
-                if x && left.len() < left.capacity() {
-                    left.push(t);
+                if x {
+                    crate::spec::run::push_timed(&mut left, t);
                 }
             }
             g.reduce_effect(id)?;
@@ -146,9 +155,12 @@ fn ordered_checkup(g: &mut Game, oc: OnComplete) -> R {
     })();
     g.checkup_held = false;
     r?;
-    let chooser = 1 - g.st.active_player as usize;
-    order_prompt(g, chooser, left, true, crate::game::OrderThen::Checkup { oc, poison, burn, e: ids });
-    Ok(())
+    order_next(g, left, true, crate::game::OrderThen::Checkup { oc, poison, burn, e: ids })
+}
+
+/// Is the Special Conditions check an item of the Checkup order (an Active Pokémon has a Special Condition)?
+fn special_conditions_item(g: &Game) -> bool {
+    (0..2).any(|p| !g.st.slot(p, g.st.players[p].active).special_conditions.is_empty())
 }
 
 /// `oc` for EndTurn's checkState, after KO resolution.
@@ -196,11 +208,32 @@ pub fn would_change_special_conditions(slot: &Slot, conds: &[SpecialCondition]) 
 /// (`Modifier::CheckupDamage`: Perilous Jungle, Pecharunt, Magmortar), in the propagation order of the declaring cards (any
 /// zone: each checks where its card is), on the Checkup event `id` of a player before it is made.
 fn checkup_damage(g: &mut Game, id: EffId) -> R {
-    use crate::spec::passive::Modifier;
     let order = g.decl_all(crate::decl::fam::CHECKUP_DAMAGE, 0);
     if order.is_empty() {
         return Ok(());
     }
+    let before = *g.e(id);
+    checkup_damage_from(g, id, &order)?;
+    // VERIFY_LEGAL (plan 2.5): the amounts don't count an opponent's Ability a `Prevent` keeps off the Active Pokémon.
+    if let Effect::BetweenTurns { p, poison_damage, burn_damage } = *g.e(id) {
+        let target = SlotRef::new(p as usize, g.st.players[p as usize].active);
+        let skip = crate::derived::reach_skip_for(g, target);
+        if skip != 0 {
+            let mut h = g.fork();
+            h.reach_skip = skip;
+            *h.e_mut(id) = before;
+            if checkup_damage_from(&mut h, id, &order).is_ok() {
+                if let Effect::BetweenTurns { poison_damage: q, burn_damage: b, .. } = *h.e(id) {
+                    assert_eq!((poison_damage, burn_damage), (q, b), "Checkup damage: an opponent's Ability a Prevent keeps off {target:?} added counters");
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn checkup_damage_from(g: &mut Game, id: EffId, order: &SVec<CardId, 120>) -> R {
+    use crate::spec::passive::Modifier;
     crate::derived::Facts::undelegated(g, |g| -> R {
         for c in order.iter().copied() {
             for ps in crate::decl::passives(g, c) {
@@ -264,12 +297,15 @@ pub fn end_turn_event(g: &mut Game, p: usize) -> R {
 
 /// Ask `chooser` which of the effects left (and the Special Conditions check, `sc`) applies next (APR E-21: the player
 /// whose turn is ending; F step 2: the player whose turn would be next).
-pub fn order_prompt(g: &mut Game, chooser: usize, left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: crate::game::OrderThen) {
+pub fn order_prompt(g: &mut Game, chooser: usize, left: crate::spec::run::TimedList, sc: bool, then: crate::game::OrderThen) {
     let mut names: SVec<&'static str, 8> = SVec::new();
-    for t in left.iter() {
-        names.push(g.st.cdef(t.c).full_name);
+    for k in crate::spec::run::item_heads(g, left.as_slice()).iter() {
+        assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
+        names.push(g.st.cdef(left[*k as usize].c).full_name);
     }
-    if sc && names.len() < names.capacity() {
+    // The Special Conditions check is an item only when an Active Pokémon has one (otherwise it comes last, a no-op).
+    if sc && special_conditions_item(g) {
+        assert!(names.len() < names.capacity(), "more than 8 distinct effects to order");
         names.push("Special Conditions");
     }
     let id = g.player_id(chooser);
@@ -282,10 +318,12 @@ pub fn order_prompt(g: &mut Game, chooser: usize, left: SVec<crate::spec::run::T
 }
 
 /// The choice of the order prompt: that effect applies now (its own prompts are answered before the next choice).
-pub fn ordered_effect(g: &mut Game, mut left: SVec<crate::spec::run::Timed, 8>, mut sc: bool, then: crate::game::OrderThen, choice: i32) -> R {
+pub fn ordered_effect(g: &mut Game, mut left: crate::spec::run::TimedList, mut sc: bool, then: crate::game::OrderThen, choice: i32) -> R {
+    let heads = crate::spec::run::item_heads(g, left.as_slice());
     let k = choice.max(0) as usize;
-    if k < left.len() {
-        let t = left.remove_at(k);
+    if k < heads.len() {
+        // The item's first effect (identical ones follow as the same item).
+        let t = left.remove_at(heads[k] as usize);
         crate::spec::run::fire_timed(g, t)?;
     } else if sc {
         sc = false;
@@ -295,12 +333,13 @@ pub fn ordered_effect(g: &mut Game, mut left: SVec<crate::spec::run::Timed, 8>, 
 }
 
 /// After an ordered effect: once its prompts are answered, the next choice, or the last effect and what follows.
-pub fn order_next(g: &mut Game, left: SVec<crate::spec::run::Timed, 8>, sc: bool, then: crate::game::OrderThen) -> R {
+pub fn order_next(g: &mut Game, left: crate::spec::run::TimedList, sc: bool, then: crate::game::OrderThen) -> R {
     if g.has_prompts() {
         g.wait_prompt(Cont::OrderNext { left, sc, then });
         return Ok(());
     }
-    let n = left.len() + sc as usize;
+    let heads = crate::spec::run::item_heads(g, left.as_slice()).len();
+    let n = heads + (sc && special_conditions_item(g)) as usize;
     if n >= 2 {
         let chooser = match then {
             crate::game::OrderThen::EndTurn { p, .. } => p as usize,
@@ -309,8 +348,8 @@ pub fn order_next(g: &mut Game, left: SVec<crate::spec::run::Timed, 8>, sc: bool
         order_prompt(g, chooser, left, sc, then);
         return Ok(());
     }
-    if n == 1 {
-        // The last one: no choice left.
+    if heads > 0 || sc {
+        // No choice left: the effects (identical ones), then the Special Conditions check.
         return ordered_effect(g, left, sc, then, 0);
     }
     match then {

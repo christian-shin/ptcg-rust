@@ -559,12 +559,39 @@ pub struct Timed {
     pub e: EffId,
 }
 
+/// The effects waiting for the order prompt (batch 8 C12b: 16, every applying trigger of a turn-structure event; a
+/// list never drops one: `push_timed` asserts).
+pub type TimedList = SVec<Timed, 16>;
+
+/// Push a timed trigger, never dropping one past the capacity.
+pub(crate) fn push_timed<const N: usize>(l: &mut SVec<Timed, N>, t: Timed) {
+    assert!(l.len() < l.capacity(), "more than {} end-of-turn / Checkup triggers at once", l.capacity());
+    l.push(t);
+}
+
+/// Two effects are the same item of the order prompt when they are the same effect of the same kind of card for the same
+/// player (two Froslass of one player: the order between them can't change the game; batch 8 C12b, review 8b Must 4).
+pub(crate) fn same_item(g: &Game, a: &Timed, b: &Timed) -> bool {
+    a.i == b.i && a.p == b.p && g.st.cards[a.c as usize].def == g.st.cards[b.c as usize].def
+}
+
+/// The distinct items among the effects: the first effect of each (in the list's order).
+pub(crate) fn item_heads(g: &Game, l: &[Timed]) -> SVec<u8, 16> {
+    let mut out: SVec<u8, 16> = SVec::new();
+    for (k, t) in l.iter().enumerate() {
+        if !l[..k].iter().any(|u| same_item(g, u, t)) {
+            out.push(k as u8);
+        }
+    }
+    out
+}
+
 /// The triggers of the turn-structure event `e` that fire now, in the propagation order, and whether each is an effect
 /// that applies (APR E-21, F step 2: "several such effects"; `applies`).
-pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed, bool), 16>> {
+pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed, bool), 32>> {
     let class = crate::game::prop_class(g.e(e));
     let order = g.decl_ordered(g.decls.kind(kind), class);
-    let mut out: SVec<(Timed, bool), 16> = SVec::new();
+    let mut out: SVec<(Timed, bool), 32> = SVec::new();
     let Some(v) = trigger::event_view(g, e) else { return Ok(out) };
     for &c in order.iter() {
         let Some(spec) = crate::cards::spec_for(g.st.cards[c as usize].def) else { continue };
@@ -576,9 +603,8 @@ pub(crate) fn timed_triggers(g: &mut Game, e: EffId, kind: u32) -> R<SVec<(Timed
                 let mut f = Frame::start(g, c, Prog::Trigger(i as u8), Phase::Use, e, p, false);
                 f.slot = slot;
                 let effect = applies(g, c, &f, t.steps);
-                if out.len() < out.capacity() {
-                    out.push((Timed { c, i: i as u8, p: p as u8, slot, e }, effect));
-                }
+                assert!(out.len() < out.capacity(), "more than {} triggers of one turn-structure event", out.capacity());
+                out.push((Timed { c, i: i as u8, p: p as u8, slot, e }, effect));
             }
         }
     }
@@ -606,15 +632,17 @@ pub(crate) fn fire_timed(g: &mut Game, t: Timed) -> R {
 fn fire_on(g: &mut Game, e: EffId, kind: u32, card: Option<CardId>) -> R {
     if card.is_none() && kind == crate::effects::k::END_TURN {
         let timed = timed_triggers(g, e, kind)?;
-        if timed.iter().filter(|(_, x)| *x).count() >= 2 {
+        let mut effects: TimedList = SVec::new();
+        for (t, x) in timed.iter() {
+            if *x {
+                push_timed(&mut effects, *t);
+            }
+        }
+        // Asked only with two or more distinct effects (the order of identical ones can't change the game).
+        if item_heads(g, effects.as_slice()).len() >= 2 {
             let Effect::EndTurn { p } = *g.e(e) else { return Ok(()) };
-            let mut effects: SVec<Timed, 8> = SVec::new();
             for (t, x) in timed.iter().copied() {
-                if x {
-                    if effects.len() < effects.capacity() {
-                        effects.push(t);
-                    }
-                } else {
+                if !x {
                     fire_timed(g, t)?;
                 }
             }

@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Magmar BRS 19",
+   "4 Magmortar JTG 21",
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "43 Psychic Energy MEE 5",
+   "1 Dangerous Laser SFA 58"
+  ],
+  [
+   "4 Magmar BRS 19",
+   "4 Magmortar JTG 21",
+   "4 Shuppet PBL 33",
+   "4 Banette PBL 34",
+   "43 Psychic Energy MEE 5",
+   "1 Dangerous Laser SFA 58"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Magmar BRS 19",
+   "Magmortar JTG 21"
+  ],
+  "hand": [
+   "Dangerous Laser SFA 58"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": [
+   "Shuppet PBL 33",
+   "Banette PBL 34"
+  ]
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Dangerous Laser SFA 58"
+  },
+  {
+   "a": "pass"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Banette PBL 34",
+   "conditions": [
+    "BURNED",
+    "CONFUSED"
+   ],
+   "cite": "Dangerous Laser SFA 58 text (an Item: Hide n Sneak does not stop it)"
+  },
+  {
+   "at": "next_turn",
+   "who": "opp",
+   "slot": "active",
+   "card": "Banette PBL 34",
+   "damage": 20,
+   "cite": "Hide 'n' Sneak (Shuppet PBL 33 / Banette PBL 34: prevent all effects of the opponent's Pokémon's Abilities done to this Pokémon) keeps off Magmortar JTG 21's Magma Surge, an effect of the Ability done to the Burned Pokémon (id2112; RULES.md \"Hide 'n' Sneak and continuous effects of Abilities\"): Burn alone puts 2 counters"
+  }
+ ]
+}

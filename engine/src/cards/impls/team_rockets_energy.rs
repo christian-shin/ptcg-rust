@@ -2,11 +2,10 @@
 //! Rocket's Pokémon (discarded from anything else); provides 2 in any
 //! combination of [P] and [D].
 //!
-//! Twinleaf: attaching to a slot whose top card is not a Team Rocket's
-//! Pokémon throws. The table-state discard skips copies whose
-//! SpecialEnergyEffect probe (for the slot's owner) is blocked. The two
-//! [P]/[D] entries are only added if the EnergyEffect probe (for the checked
-//! player) passes; otherwise the core adds the printed [C].
+//! Attaching it to a Pokémon that isn't a Team Rocket's Pokémon is refused (its `AttachGuard`); the state check's
+//! table-state step discards a copy that is off one (unless its text is off, `derived::special_energy_off`). The two
+//! [P]/[D] entries are added while its text is on (`ProvidesEnergySpec::probe`, read through
+//! `derived::special_energy_off`); otherwise the core adds the printed [C].
 use crate::spec::prelude::*;
 use crate::types::{ct, tag};
 

@@ -188,10 +188,10 @@ fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: 
     g.copy_serial = g.copy_serial.wrapping_add(1);
     let serial = g.copy_serial;
     g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, barrage: g.st.cards[source as usize].attack_barrage });
-    let clone = clone_ref(source, serial, index);
-    g.st.player_last_attack[p] = Some((clone, copycat));
-    g.st.player_last_attack_turn[p] = g.st.turn;
-    clone
+    // The attack the copycat used is the copying one (id2094: "the 'attack' it did was Genome Hacking"); the player's
+    // record of it is the turn action's (`turn.rs`), never the clone (Twinleaf wrote the clone here: which one was
+    // recorded depended on whether the copy asked a prompt first; batch 8 C12b).
+    clone_ref(source, serial, index)
 }
 
 /// Resume a continuation created by delegated source code.
@@ -535,9 +535,9 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
             let phase = g.st.phase;
             match g.run_fx(Effect::UseAttack { p: f.p, attack: a, source: active, ignore_status_conditions: false, barrage_used: false, delegate_from: Some(source) }) {
                 Ok(_) => Ok(()),
-                // `catch (error)`: a GameError (not a TypeError) means the chosen attack
-                // cannot be used after all (its own conditions): choose another.
-                Err(e) if !e.0.starts_with("TypeError") => {
+                // The chosen attack can't be used after all (its own conditions): choose another. An invalid answer
+                // is no such case.
+                Err(e) if e.0 != "INVALID_PROMPT_RESULT" => {
                     g.st.phase = phase;
                     g.st.bump();
                     let index = f.cards.iter().position(|c| *c == a.card).unwrap_or(0) as u8;
