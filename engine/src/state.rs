@@ -147,8 +147,6 @@ pub struct CardInst {
     pub owner: u8,
     pub moved_to_active_this_turn: bool,
     pub damage_taken_last_turn: i32,
-    /// "This attack can be used twice" written at runtime (Festival Lead: `Op::AttackFlag(Barrage)`); bit i = attack i.
-    pub attack_barrage: u8,
     /// Take-hold stamp of an Ability lock (docs/rulings/RULES.md, precedence between locks): the order in which
     /// the lock's source took hold, 0 while it doesn't hold. Kept up to date by `lock_sync`.
     pub lock_stamp: u16,
@@ -163,7 +161,7 @@ pub struct CardInst {
 
 impl Default for CardInst {
     fn default() -> Self {
-        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, attack_barrage: 0, lock_stamp: 0, staged_from: None, staged_in: None }
+        CardInst { def: 0, owner: 0, moved_to_active_this_turn: false, damage_taken_last_turn: 0, lock_stamp: 0, staged_from: None, staged_in: None }
     }
 }
 

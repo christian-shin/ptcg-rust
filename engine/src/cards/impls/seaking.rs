@@ -2,21 +2,18 @@
 //! attack Knocks Out your opponent's Active Pokémon, you may attack again after your opponent chooses a new Active Pokémon.
 //! Rapid Draw — 60; draw 2 cards.
 //!
-//! Festival Lead is the attack's repeat flag, set before the damage while Festival Grounds is in play and the Ability works
-//! (cleared otherwise: a blocked Seaking attacks once). Rapid Draw is one Draw event of the attack's effect, after the damage.
+//! Festival Lead is a declaration the core reads when the second attack would be offered (`Modifier::AttackTwice`; batch 8
+//! C12c: it was a flag set before the damage). Rapid Draw is one Draw event of the attack's effect, after the damage.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
     class: "Seaking",
+    // Festival Lead: if Festival Grounds is in play, this Pokémon may use an attack it has twice (read by the core when
+    // the second attack would be offered: `attack::attack_twice`).
+    passives: &[Passive { origin: RuleSource::Ability, modifier: Modifier::AttackTwice(AttackTwiceSpec { guard: Cond::StadiumInPlay(Pred::Name("Festival Grounds")) }) }],
     attacks: &[AttackSpec {
         index: 0,
         steps: &[
-            // Festival Lead: with Festival Grounds in play (and the Ability working) this attack may be used twice.
-            Step::before_damage(Op::If(IfSpec {
-                cond: Cond::All(&[Cond::StadiumInPlay(Pred::Name("Festival Grounds")), Cond::Not(&Cond::AbilityBlocked)]),
-                yes: &[Step::new(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::Barrage, value: true }))],
-                no: &[Step::new(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::Barrage, value: false }))],
-            })),
             Step::after_damage(Op::Draw(DrawSpec { who: Who::Me, amount: DrawAmount::Count(Num::Lit(2)) })),
         ],
     }],

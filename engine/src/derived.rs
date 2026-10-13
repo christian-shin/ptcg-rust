@@ -231,9 +231,6 @@ pub fn state_digest(st: &crate::state::State) -> u64 {
         h.write_u8(ci.owner);
         h.write_u8(ci.moved_to_active_this_turn as u8);
         h.write_i32(ci.damage_taken_last_turn);
-        for b in [ci.attack_barrage] {
-            h.write_u8(b);
-        }
         h.write_u16(ci.lock_stamp);
         std::mem::discriminant(&ci.staged_from).hash(&mut h);
         if let Some(z) = ci.staged_from {

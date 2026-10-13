@@ -62,6 +62,10 @@ pub enum Modifier {
     Recover(RecoverSpec),
     AttachGuard(AttachGuardSpec),
     BenchSize(BenchSizeSpec),
+    /// "This Pokémon may use an attack it has twice" while `guard` holds (Festival Lead: "If Festival Grounds is in play";
+    /// batch 8 C12c): read by the core when the second use would be offered (`attack::attack_twice`), from the Pokémon
+    /// that used the attack, for an attack printed on it.
+    AttackTwice(AttackTwiceSpec),
     // Appended by F-passive.
     /// +/- HP to the Pokémon matching a predicate (`HpBonus` with a subject and a guard).
     HpMod(HpModSpec),
@@ -759,6 +763,11 @@ pub struct BenchSizeSpec {
     pub guard: Cond,
 }
 
+/// `Modifier::AttackTwice`.
+pub struct AttackTwiceSpec {
+    pub guard: Cond,
+}
+
 /// +/- HP to the Pokémon matching `subject` while the card is in place.
 pub struct HpModSpec {
     pub amount: i32,
@@ -825,6 +834,8 @@ pub const fn modifier_kinds(m: &Modifier) -> KindMask {
         Modifier::AttackCost(_) => KindMask::EMPTY,
         Modifier::RetreatCost(_) => KindMask::EMPTY,
         Modifier::BenchSize(_) => KindMask::EMPTY,
+        // Read by the core when a second attack would be offered (`attack::attack_twice`).
+        Modifier::AttackTwice(_) => KindMask::EMPTY,
         _ => KindMask::EMPTY,
     }
 }
@@ -992,6 +1003,7 @@ pub(crate) fn apply(g: &mut Game, me: CardId, e: EffId, ps: &'static Passive) ->
         Modifier::GrantAttacks(_) | Modifier::RetreatCost(_) => Ok(()),
         // Read by the state check (`knockout::table_state`); nothing is dispatched to it.
         Modifier::BenchSize(_) => Ok(()),
+        Modifier::AttackTwice(_) => Ok(()),
         _ => unimplemented!("spec passive not implemented yet (passive.rs)"),
     }
 }

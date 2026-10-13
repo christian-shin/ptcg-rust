@@ -1,0 +1,72 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Festival Grounds PRE 108",
+   "4 Flutter Mane PRE 43",
+   "4 Beldum TEF 113",
+   "40 Grass Energy MEE 1"
+  ],
+  [
+   "4 Applin PRE 9",
+   "4 Dipplin PRE 10",
+   "4 Festival Grounds PRE 108",
+   "4 Flutter Mane PRE 43",
+   "4 Beldum TEF 113",
+   "40 Grass Energy MEE 1"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Applin PRE 9",
+   "Dipplin PRE 10"
+  ],
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Applin PRE 9"
+   },
+   {
+    "card": "Applin PRE 9"
+   }
+  ],
+  "stadium": "Festival Grounds PRE 108"
+ },
+ "opp": {
+  "reset": true,
+  "active": "Beldum TEF 113",
+  "active_damage": 60,
+  "bench": [
+   {
+    "card": "Flutter Mane PRE 43"
+   }
+  ]
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Do the Wave"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "absent": [
+    "Confirm"
+   ],
+   "cite": "JP FAQ Flutter Mane / Dipplin: the opponent promotes a Flutter Mane after the first attack's Knock Out: Midnight Fluttering turns Festival Lead off, no second attack (いいえ、できません)"
+  },
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Flutter Mane PRE 43",
+   "cite": "setup: Do the Wave Knocked Out Beldum (60 + 10 after Resistance), Flutter Mane was promoted"
+  }
+ ]
+}

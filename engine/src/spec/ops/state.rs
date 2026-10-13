@@ -25,12 +25,7 @@ pub enum AttackFlagKind {
     /// Shred: effects on the Defending Pokémon don't change this attack's damage.
     IgnoreDefenderEffects,
     PreventDamage,
-    Barrage,
     FirstTurnAllowed,
-    /// Festival Lead: this attack's Barrage flag is "Festival Grounds is in play", and is switched
-    /// off while the Ability is blocked. `value`: the printed attack has a `barrage: false` key
-    /// (Dipplin), so the flag only shows in the card while it is on; otherwise any write shows.
-    FestivalLead,
 }
 
 /// Write a flag of the attack being used (text that runs before the damage).
@@ -274,29 +269,14 @@ fn arm_each(g: &mut Game, me: CardId, f: &Frame, a: &'static ArmEachSpec) -> R {
 
 pub(crate) fn exec(g: &mut Game, me: CardId, f: &mut Frame, op: &'static Op) -> R<Flow> {
     match op {
-        Op::AttackFlag(a) if a.flag == AttackFlagKind::Barrage => {
-            // Festival Lead: the attack may be used twice (read by the core's attack use).
-            crate::copy_attack::write_barrage(g, me, |b| {
-                if a.value {
-                    *b |= 1;
-                } else {
-                    *b &= !1;
-                }
-            });
-            Ok(Flow::Next)
-        }
         Op::AttackFlag(a) => {
             if let Effect::Attack { ignore_weakness, ignore_resistance, ignore_defender_effects, .. } = g.e_mut(f.eff) {
                 match a.flag {
                     AttackFlagKind::NoWeakness => *ignore_weakness = a.value,
                     AttackFlagKind::NoResistance => *ignore_resistance = a.value,
                     AttackFlagKind::IgnoreDefenderEffects => *ignore_defender_effects = a.value,
-                    AttackFlagKind::FestivalLead => {}
                     _ => unimplemented!("spec attack flag not implemented yet (ops/state.rs)"),
                 }
-            }
-            if a.flag == AttackFlagKind::FestivalLead {
-                festival_lead_flag(g, f, me);
             }
             Ok(Flow::Next)
         }
@@ -400,19 +380,3 @@ pub struct AbilityUsedSpec {
 }
 
 
-/// The Barrage flag of the attack being used (Festival Lead): on while Festival Grounds is in play
-/// and the Ability isn't blocked.
-fn festival_lead_flag(g: &mut Game, f: &Frame, me: CardId) {
-    let idx = match *g.e(f.eff) {
-        Effect::Attack { attack, .. } => attack.idx(),
-        _ => return,
-    };
-    let on = !crate::derived::has_no_ability(g, f.p as usize, me, None) && g.st.stadium_card().map(|s| g.st.cdef(s).name == "Festival Grounds").unwrap_or(false);
-    crate::copy_attack::write_barrage(g, me, |b| {
-        if on {
-            *b |= 1 << idx;
-        } else {
-            *b &= !(1 << idx);
-        }
-    });
-}

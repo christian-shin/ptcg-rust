@@ -256,17 +256,37 @@ fn attack_triggers_loop(g: &mut Game, mut f: AttackFrame) -> R {
     finish_attack(g, f)
 }
 
-/// `attack.barrage`: the printed flag or a runtime write by the card
-/// (`this.attacks[i].barrage = ...`, e.g. Festival Lead).
+/// The printed Barrage flag of the attack.
 pub fn attack_barrage(g: &Game, a: AttackRef) -> bool {
-    if a.is_clone() {
-        // The clone's own flag (`cloneAttacks` copy, plus delegated writes).
-        let bit = 1u8 << a.idx();
-        let serial = (a.index >> 4) & 7;
-        return attack_def(g, a).barrage
-            || g.copy_sessions.as_slice().iter().any(|s| s.source == a.card && s.serial & 7 == serial && s.barrage & bit != 0);
+    attack_def(g, a).barrage
+}
+
+/// Does the Pokémon that used the attack declare "this Pokémon may use an attack it has twice" (`Modifier::AttackTwice`,
+/// Festival Lead), for this attack, one printed on it (not a copied one, not one another card lets it use: Mew ex's
+/// Memory Helix, Relicanth's Memory Dive, a Technical Machine; JP FAQ Dipplin / Mew ex: never through a copy)? With
+/// `now`, also whether it holds now: its Ability working and its condition (Festival Grounds in play), read when the
+/// second attack would be offered (JP FAQ Dipplin / Flutter Mane x3: the first attack Knocks Out the Active Flutter Mane
+/// whose Midnight Fluttering turned Festival Lead off: it may; a Flutter Mane promoted after the Knock Out turns it off:
+/// it may not). Batch 8 C12c: Twinleaf stamped a flag on the attack before its damage.
+pub fn attack_twice(g: &mut Game, f: &AttackFrame, now: bool) -> bool {
+    let p = f.p as usize;
+    let Some(card) = g.st.slot_pokemon(f.attacking.p as usize, f.attacking.s) else { return false };
+    if f.attack.is_clone() || f.attack.card != card || f.delegate_from.is_some() {
+        return false;
     }
-    attack_def(g, a).barrage || g.st.cards[a.card as usize].attack_barrage & (1u8 << a.idx()) != 0
+    let Some(spec) = crate::cards::spec_for(g.st.cards[card as usize].def) else { return false };
+    for ps in spec.passives {
+        let crate::spec::passive::Modifier::AttackTwice(a) = &ps.modifier else { continue };
+        if !now {
+            return true;
+        }
+        if ps.origin == crate::spec::passive::RuleSource::Ability && crate::derived::has_no_ability(g, p, card, None) {
+            return false;
+        }
+        let fr = crate::spec::run::Frame::passive(g, card, p, ps.origin);
+        return crate::spec::value::cond(g, card, &fr, &a.guard);
+    }
+    false
 }
 
 fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
@@ -275,7 +295,7 @@ fn finish_attack(g: &mut Game, f: AttackFrame) -> R {
         _ => false,
     };
     // hasBarragePower (power.barrage): no pool card sets it.
-    if attack_barrage(g, f.attack) && !barrage_used {
+    if (attack_barrage(g, f.attack) || attack_twice(g, &f, false)) && !barrage_used {
         return barrage_check(g, f, AtkStage::AfterBarrageCheck1);
     }
     g.release_fx(f.atk);
@@ -327,7 +347,7 @@ fn barrage_after_check(g: &mut Game, mut f: AttackFrame, stage: AtkStage) -> R {
     // The second use runs through `useAttack` again: it isn't offered when it
     // would throw (the attacker lost its Energy, e.g. to Handheld Fan, or is now
     // Asleep / Paralyzed); the turn just ends.
-    if attack_barrage(g, f.attack) && !barrage_can_attack_again(g, &f)? {
+    if !(attack_barrage(g, f.attack) || attack_twice(g, &f, true)) || !barrage_can_attack_again(g, &f)? {
         g.release_fx(f.atk);
         g.release_fx(f.origin);
         // The Knock Outs were checked (`barrage_check`).

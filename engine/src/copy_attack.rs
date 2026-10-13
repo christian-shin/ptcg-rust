@@ -53,10 +53,6 @@ pub struct CopySession {
     pub serial: u8,
     /// Player index (Twinleaf stores the id).
     pub player: u8,
-    /// Runtime `barrage` flags of the cloned attacks (bit per index): the
-    /// clones copy the source's flags at `cloneAttacks`; delegated
-    /// `this.attacks[i].barrage = ...` writes land here, not on the copycat.
-    pub barrage: u8,
 }
 
 /// Source code currently running as `.call(copycat)`.
@@ -187,7 +183,7 @@ fn open_session(g: &mut Game, p: usize, copycat: CardId, source: CardId, index: 
     g.copy_sessions.retain(|s| s.copycat != copycat);
     g.copy_serial = g.copy_serial.wrapping_add(1);
     let serial = g.copy_serial;
-    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8, barrage: g.st.cards[source as usize].attack_barrage });
+    g.copy_sessions.push(CopySession { copycat, source, serial, player: p as u8 });
     // The attack the copycat used is the copying one (id2094: "the 'attack' it did was Genome Hacking"); the player's
     // record of it is the turn action's (`turn.rs`), never the clone (Twinleaf wrote the clone here: which one was
     // recorded depended on whether the copy asked a prompt first; batch 8 C12b).
@@ -553,17 +549,3 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
     }
 }
 
-/// "This attack can be used twice" written by card code running as `me` (Festival Lead). While delegated source code
-/// runs with the clones installed as the copycat's attacks, the write lands on the clone (the session's flags);
-/// otherwise on `me`'s own attack (`CardInst::attack_barrage`). `f` edits the target's flag bits.
-pub fn write_barrage(g: &mut Game, me: CardId, f: impl FnOnce(&mut u8)) {
-    if let Some(d) = g.deleg {
-        if d.copycat == me && d.attacks {
-            if let Some(s) = g.copy_sessions.as_mut_slice().iter_mut().find(|x| x.copycat == d.copycat && x.serial == d.serial) {
-                f(&mut s.barrage);
-            }
-            return;
-        }
-    }
-    f(&mut g.st.cards[me as usize].attack_barrage);
-}
