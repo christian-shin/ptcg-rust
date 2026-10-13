@@ -1,16 +1,15 @@
 //! Jumbo Ice Cream (PFL / M2): heal 80 damage from your Active Pokémon that
 //! has 3 or more Energy attached.
 //!
-//! Twinleaf: phase 4b (R6): throws CANNOT_PLAY_THIS_CARD when the Active has
-//! no damage or fewer than 3 Energy attached (it used to just discard the card
-//! with no effect); the Energy count is the number of provided-energy
-//! entries; the card moves itself from the supporter pile to the discard.
+//! "3 or more Energy attached" counts the Energy provided (user decision 2026-10-12; JP FAQ Jumbo Ice Cream: one Ignition
+//! Energy on an Evolution Pokémon, or 2 Basic [G] Energy on Meganium under Wild Growth, is enough; id2237, id2347).
+//! Not playable when the Active Pokémon has no damage or less Energy (it would do nothing; D10).
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "JumboIce",
     play: Some(PlaySpec {
         kind: PlayKind::Item,
-        needs: &[Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::ProvidedCards), CmpOp::Ge, Num::Lit(3))],
+        needs: &[Cond::Cmp(Num::EnergyOn(SlotSel::One(SlotExpr::Active(Who::Me)), EnergyUnit::ProvidedUnits), CmpOp::Ge, Num::Lit(3))],
         steps: &[
             Step::new(heal_active(80)),
         ],

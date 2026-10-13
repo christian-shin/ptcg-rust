@@ -791,10 +791,9 @@ pub enum EnergyUnit {
     Provided(CardType),
     /// Every `provides` entry of every Energy card (CheckProvidedEnergy).
     ProvidedUnits,
-    /// Energy cards (map entries) that provide the type, or every type (CheckProvidedEnergy).
+    /// Energy cards (map entries) that provide the type, or every type: a text that says "Energy cards" (a count of
+    /// Energy attached is the Energy provided otherwise: user decision 2026-10-12, id2237).
     MatchingEntries(CardType),
-    /// The Energy cards providing Energy (the entries of the Energy map).
-    ProvidedCards,
 }
 
 /// Printed cost length of the attack being used.
@@ -1011,14 +1010,13 @@ pub fn num_m<F: crate::derived::Facts>(g: &mut F, me: CardId, f: &Frame, n: &Num
                             d.is_energy() && d.energy_type == EnergyType::Special as u8
                         })
                         .count() as i32,
-                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::MatchingEntries(_) | EnergyUnit::ProvidedCards => {
+                    EnergyUnit::Provided(_) | EnergyUnit::ProvidedUnits | EnergyUnit::MatchingEntries(_) => {
                         let energy_map = g.provided_energy(s.p as usize, *s)?;
                         let mut k = 0;
                         for em in energy_map.iter() {
                             k += match unit {
                                 EnergyUnit::Provided(t) => em.provides.iter().filter(|x| **x == *t || **x == ct::ANY).count() as i32,
                                 EnergyUnit::MatchingEntries(t) => em.provides.iter().any(|x| *x == *t || *x == ct::ANY) as i32,
-                                EnergyUnit::ProvidedCards => 1,
                                 _ => em.provides.len() as i32,
                             };
                         }

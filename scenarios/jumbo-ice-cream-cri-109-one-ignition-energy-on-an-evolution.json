@@ -1,0 +1,47 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Hop's Wooloo JTG 135",
+   "4 Hop's Dubwool JTG 136",
+   "4 Ignition Energy PFL 124",
+   "4 Jumbo Ice Cream CRI 109",
+   "44 Water Energy MEE 3"
+  ],
+  [
+   "4 Hop's Wooloo JTG 135",
+   "4 Hop's Dubwool JTG 136",
+   "4 Ignition Energy PFL 124",
+   "4 Jumbo Ice Cream CRI 109",
+   "44 Water Energy MEE 3"
+  ]
+ ],
+ "me": {
+  "reset": true,
+  "active": [
+   "Hop's Wooloo JTG 135",
+   "Hop's Dubwool JTG 136"
+  ],
+  "active_energy": [
+   "Ignition Energy PFL 124"
+  ],
+  "active_damage": 50,
+  "hand": [
+   "Jumbo Ice Cream CRI 109"
+  ]
+ },
+ "opp": {
+  "reset": true,
+  "active": "Hop's Wooloo JTG 135"
+ },
+ "expect": [
+  {
+   "at": "start",
+   "who": "me",
+   "legal": "play",
+   "name": "Jumbo Ice Cream",
+   "is": true,
+   "cite": "User decision 2026-10-12 (RULES.md, JP FAQ audit): \"3 or more Energy attached\" counts the Energy provided; JP FAQ Jumbo Ice Cream (グッズ「ジャンボアイス」: one Ignition Energy on an Evolution Pokémon: はい、できます)"
+  }
+ ]
+}

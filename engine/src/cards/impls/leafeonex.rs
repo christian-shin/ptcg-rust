@@ -3,15 +3,16 @@
 //! from each of your Benched Pokémon. Tera: as long as this Pokémon is on your
 //! Bench, prevent all damage done to it by attacks.
 //!
-//! Rule: Verdant Storm counts the Energy cards attached (not the types they
-//! provide); Moss Agate is a Heal (RemoveCounters event, cause: this attack) on each
+//! Rule: Verdant Storm counts the Energy attached, the Energy provided (user decision 2026-10-12: "for each Energy
+//! attached" counts Energy provided unless the text says "Energy cards"; id2237, id2347, id466, id482; the file's
+//! earlier card count is overruled); Moss Agate is a Heal (RemoveCounters event, cause: this attack) on each
 //! of your Benched Pokémon after the damage. The Tera rule is `TERA_RULE`.
 use crate::spec::prelude::*;
 pub static SPEC: CardSpec = CardSpec {
     class: "Leafeonex",
     attacks: &[
         AttackSpec { index: 0, steps: &[
-            Step::before_damage(damage_is(Num::Mul(&Num::EnergyOn(SlotSel::Pokemon(Who::Opp), EnergyUnit::ProvidedCards), &Num::Lit(60)))),
+            Step::before_damage(damage_is(Num::Mul(&Num::EnergyOn(SlotSel::Pokemon(Who::Opp), EnergyUnit::ProvidedUnits), &Num::Lit(60)))),
         ] },
         AttackSpec { index: 1, steps: &[
             Step::after_damage(Op::ForEach(ForEachSpec { over: SlotSel::Bench(Who::Me), body: &[Step::new(Op::Heal(HealSpec { target: SlotTarget::Slot(SlotExpr::Picked), hp: Num::Lit(100), clear_conditions: false }))] })),
