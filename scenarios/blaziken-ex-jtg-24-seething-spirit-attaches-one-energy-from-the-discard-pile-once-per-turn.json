@@ -1,0 +1,68 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Blaziken ex JTG 24",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "27 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Blaziken ex JTG 24",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "27 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Blaziken ex JTG 24",
+  "discard": [
+   "3 Fire Energy MEE 2"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "ability",
+   "name": "Seething Spirit",
+   "source": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Blaziken ex JTG 24",
+   "energy": 1,
+   "cite": "Blaziken ex JTG 24 text (attach a Basic Energy card from your discard pile to 1 of your Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "cite": "Blaziken ex JTG 24 text (once during your turn)"
+  }
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Beedrill ex CRI 3",
+   "4 Kakuna CRI 2",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Beedrill ex CRI 3",
+   "4 Kakuna CRI 2",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Beedrill ex CRI 3",
+  "active_energy": [
+   "Grass Energy MEE 1"
+  ],
+  "bench": [
+   {
+    "card": "Beedrill ex CRI 3"
+   },
+   {
+    "card": "Kakuna CRI 2"
+   }
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Rumbling Bees"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 220,
+   "cite": "Beedrill ex CRI 3 text (110 damage for each of your Beedrill and Beedrill ex in play; Kakuna is neither), JP FAQ Beedrill ex CRI 3"
+  }
+ ]
+}

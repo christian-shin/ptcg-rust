@@ -1,8 +1,8 @@
-//! Chikorita (MC / ASC 8): Growl — during your opponent's next turn, attacks
-//! used by the Defending Pokémon do 20 less damage (before W/R). Seed Bomb — 30.
+//! Chikorita (MC / ASC 8): Growl — during your opponent's next turn, attacks used by the Defending Pokémon do 20 less damage
+//! (before Weakness and Resistance). Seed Bomb — 30.
 //!
-//! DEFENDING_POKEMON_DOES_LESS_DAMAGE: a ReduceDamageEffect setting the
-//! opponent Active's `attackDamageReductionNextTurn`.
+//! Growl arms the lasting `DealsLessDamage(20)` on the Defending Pokémon (shared with Buneary MEG); it ends with the
+//! opponent's next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

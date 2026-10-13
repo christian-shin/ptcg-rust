@@ -1,9 +1,9 @@
-//! Chansey (TWM): Lucky Attachment — attach a Basic Energy card from your
-//! hand to 1 of your Pokémon. Boundless Power — 80; during your next turn,
-//! this Pokémon can't attack.
+//! Chansey (TWM): Lucky Attachment — attach a Basic Energy card from your hand to 1 of your Pokémon. Boundless Power — 80;
+//! during your next turn, this Pokémon can't attack.
 //!
-//! Lucky Attachment does nothing with no Basic Energy in hand (fixed in
-//! R1-13: it used to throw CANNOT_USE_ATTACK, so the attack was not offered).
+//! Lucky Attachment attaches exactly 1 Basic Energy card (an Attach event with the attack as its cause) and does nothing with
+//! none in the hand (an attack stays usable when its effect can't happen, APR D-01). Boundless Power arms a lasting
+//! `CANT_ATTACK` lock on this Pokémon until the end of your next turn.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

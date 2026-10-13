@@ -1,0 +1,93 @@
+{
+ "turn": 3,
+ "decks": [
+  [
+   "4 Duraludon SSP 129",
+   "4 Archaludon ex SSP 130",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Duraludon SSP 129",
+   "4 Archaludon ex SSP 130",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Duraludon SSP 129",
+  "hand": [
+   "Archaludon ex SSP 130"
+  ],
+  "discard": [
+   "4 Metal Energy MEE 8"
+  ],
+  "energy_attached": true,
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "name": "Archaludon ex SSP 130",
+   "target": {
+    "player": 2,
+    "slot": 1,
+    "index": 0
+   }
+  },
+  true,
+  [
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 0
+   },
+   {
+    "to": {
+     "player": 2,
+     "slot": 1,
+     "index": 0
+    },
+    "index": 1
+   }
+  ]
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Archaludon ex SSP 130",
+   "energy": 2,
+   "cite": "Archaludon ex SSP 130 text (attach up to 2 Basic [M] Energy cards from your discard pile to your [M] Pokémon)"
+  },
+  {
+   "at": "turn_end",
+   "who": "me",
+   "zone": "discard",
+   "count": 2,
+   "cite": "Archaludon ex SSP 130 text"
+  }
+ ]
+}

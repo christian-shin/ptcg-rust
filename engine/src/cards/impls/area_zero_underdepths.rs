@@ -1,6 +1,9 @@
-//! Area Zero Underdepths (SCR, stadium): each player with any Tera Pokémon in
-//! play can have up to 8 Benched Pokémon; otherwise the Bench shrinks back to
-//! 5 (handled by the check-state bench size change).
+//! Area Zero Underdepths (SCR, stadium): each player with any Tera Pokémon in play can have up to 8 Benched Pokémon;
+//! otherwise the Bench shrinks back to 5.
+//!
+//! A `BenchSize` Stadium declaration read wherever the Bench size matters; a Bench over its size is discarded down at the
+//! state check, before the Knock Outs are scanned (id2305, JP FAQ Area Zero Underdepths) and before a new Active Pokémon is
+//! chosen (id2131). Using the Stadium is not allowed (APR B-04).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

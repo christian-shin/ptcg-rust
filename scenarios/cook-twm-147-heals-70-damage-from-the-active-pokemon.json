@@ -1,0 +1,59 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Cook TWM 147",
+   "4 Hop's Snorlax JTG 117",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Cook TWM 147",
+   "4 Hop's Snorlax JTG 117",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Hop's Snorlax JTG 117",
+  "active_damage": 100,
+  "hand": [
+   "Cook TWM 147"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "play",
+   "card": "Cook TWM 147"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "me",
+   "slot": "active",
+   "card": "Hop's Snorlax JTG 117",
+   "damage": 30,
+   "cite": "Cook TWM 147 text (heal 70 damage from your Active Pokémon)"
+  }
+ ]
+}

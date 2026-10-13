@@ -1,14 +1,10 @@
-//! Risky Ruins (MEG, class DangerousRuins): whenever any player puts a Basic
-//! non-[D] Pokémon onto their Bench during their turn, place 2 damage counters
-//! on that Pokémon.
+//! Risky Ruins (MEG, class key DangerousRuins): whenever any player puts a Basic non-[D] Pokémon onto their Bench during their
+//! turn, place 2 damage counters on that Pokémon.
 //!
-//! Events batch 2: a trigger over the EnterPlay event: any Basic non-[D]
-//! Pokémon entering a Bench spot of its owner during the owner's turn,
-//! whatever the source (hand, deck, discard pile: id2233; a Fossil: id2429),
-//! after it is on the Bench (docs/rulings/RULES.md). Retreating or switching
-//! isn't putting onto the Bench (id2329), nor is devolving (id2328): neither
-//! is EnterPlay. It used to miss the Pokémon put onto the Bench from the
-//! discard pile (Duskull's Come and Get You).
+//! A Stadium trigger over the EnterPlay event: a Basic non-[D] Pokémon entering a Bench spot of its owner during the owner's
+//! turn, whatever the source (hand, deck, discard pile: id2233; a Fossil: id2429), after it is on the Bench
+//! (docs/rulings/RULES.md). Retreating or switching isn't putting onto the Bench (id2329), nor is devolving (id2328): neither is
+//! EnterPlay.
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,0 +1,61 @@
+{
+ "turn": 2,
+ "decks": [
+  [
+   "4 Dhelmise PBL 39",
+   "4 Shuppet PBL 33",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ],
+  [
+   "4 Dhelmise PBL 39",
+   "4 Shuppet PBL 33",
+   "1 Raging Bolt ex PRE 166",
+   "4 Grass Energy MEE 1",
+   "4 Fire Energy MEE 2",
+   "4 Water Energy MEE 3",
+   "4 Lightning Energy MEE 4",
+   "4 Fighting Energy MEE 6",
+   "4 Darkness Energy MEE 7",
+   "4 Metal Energy MEE 8",
+   "23 Psychic Energy MEE 5"
+  ]
+ ],
+ "me": {
+  "active": "Dhelmise PBL 39",
+  "active_energy": [
+   "Psychic Energy MEE 5"
+  ],
+  "discard": [
+   "4 Shuppet PBL 33"
+  ],
+  "reset": true
+ },
+ "opp": {
+  "active": "Raging Bolt ex PRE 166",
+  "reset": true
+ },
+ "answers": [
+  {
+   "a": "attack",
+   "name": "Vengeful Anchor"
+  }
+ ],
+ "expect": [
+  {
+   "at": "turn_end",
+   "who": "opp",
+   "slot": "active",
+   "card": "Raging Bolt ex PRE 166",
+   "damage": 170,
+   "cite": "Dhelmise PBL 39 text (140 more damage if you have 4 or more Pokémon with the Hide 'n' Sneak Ability in your discard pile)"
+  }
+ ]
+}

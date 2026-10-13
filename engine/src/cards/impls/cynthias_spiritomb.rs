@@ -1,8 +1,7 @@
-//! Cynthia's Spiritomb (DRI): Raging Curse - 10x the damage counters on all
-//! your Benched Cynthia's Pokémon; no Weakness.
+//! Cynthia's Spiritomb (DRI): Raging Curse — 10× the damage counters on all your Benched Cynthia's Pokémon; no Weakness.
 //!
-//! Twinleaf: a bench slot counts when any card in its `cards` list has the
-//! Cynthia's tag; `effect.damage` is set to the summed slot damage.
+//! The attack sets the flag NoWeakness and its damage to the damage on your Benched Cynthia's Pokémon (the Pokémon card's tag:
+//! a Pokémon whose attached card carries the tag isn't one).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {
@@ -13,7 +12,7 @@ pub static SPEC: CardSpec = CardSpec {
         index: 0,
         steps: &[
             Step::before_damage(Op::AttackFlag(AttackFlagSpec { flag: AttackFlagKind::NoWeakness, value: true })),
-            Step::before_damage(damage_is(Num::DamageSum(SlotSel::Bench(Who::Me), SlotPred::AnyCardTag(crate::types::tag::CYNTHIAS)))),
+            Step::before_damage(damage_is(Num::DamageSum(SlotSel::Bench(Who::Me), SlotPred::Tag(crate::types::tag::CYNTHIAS)))),
         ],
     }],
     ..CardSpec::NONE

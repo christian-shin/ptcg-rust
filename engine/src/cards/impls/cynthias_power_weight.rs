@@ -1,8 +1,7 @@
-//! Cynthia's Power Weight (DRI, tool): the Cynthia's Pokémon this card is
-//! attached to gets +70 HP.
+//! Cynthia's Power Weight (DRI, tool): the Cynthia's Pokémon this card is attached to gets +70 HP.
 //!
-//! Twinleaf: the tool block probe is a bare ToolEffect (no
-//! stadium-and-tool-no-effect check).
+//! An `HpMod` over the Holder when its Pokémon is a Cynthia's Pokémon (the Pokémon card's tag); a Tool-effects lock turns it
+//! off (JP FAQ Cynthia's Power Weight: the +70 HP is only for a Cynthia's Pokémon).
 use crate::spec::prelude::*;
 use crate::types::tag;
 

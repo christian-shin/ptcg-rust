@@ -1,7 +1,7 @@
 //! Cheren (ASC 258): Supporter. Draw 3 cards.
 //!
-//! One Draw event of 3 cards (cause: this Supporter). It can't be played with an empty deck: a Trainer that can't have
-//! any effect can't be played (id925; this `needs` entry restates that and goes at the D10 switch).
+//! One Draw event of 3 cards (cause: this Supporter). It can't be played with an empty deck: a Trainer that can't have any
+//! effect can't be played (id925).
 use crate::spec::prelude::*;
 
 pub static SPEC: CardSpec = CardSpec {

@@ -1,12 +1,9 @@
-//! Chi-Yu (TWM): Allure — draw 2 cards. Ground Melter — 60+; if a Stadium is
-//! in play, 60 more damage, then discard that Stadium.
+//! Chi-Yu (TWM): Allure — draw 2 cards. Ground Melter — 60+; if a Stadium is in play, 60 more damage, then discard that
+//! Stadium.
 //!
-//! Allure is a Draw event by the attack (as many as the deck has, APR H). Ground Melter's Stadium leaves play to its
-//! owner's discard pile (a LeavePlay, user decision D1).
-//!
-//! Fixed (phase 4b, R2): the Stadium was discarded in the attack handler,
-//! before the damage step (Full Metal Lab's reduction was lost); the text says
-//! "Then, discard that Stadium", so the discard now runs in AfterAttackEffect.
+//! Allure is a Draw event by the attack (as many as the deck has, APR H). Ground Melter's bonus is read before the damage and
+//! the Stadium leaves play afterwards, to its owner's discard pile (a LeavePlay, user decision D1; JP FAQ Chi-Yu: Full Metal
+//! Lab's reduction still applies).
 use crate::spec::prelude::*;
 
 const MY_STADIUM: ZoneRef = ZoneRef(Who::Me, Zone::Stadium);

@@ -1,12 +1,9 @@
-//! Cynthia's Roserade (DRI): Glorious Cheer - attacks from your Cynthia's
-//! Pokémon deal 30 more damage to your opponent's Active Pokémon.
+//! Cynthia's Roserade (DRI): Glorious Cheer — attacks from your Cynthia's Pokémon deal 30 more damage to your opponent's
+//! Active Pokémon.
 //!
-//! Twinleaf: every DealDamageEffect of the player with this card in play gets
-//! +30 when the source slot's Pokémon has the Cynthia's tag.
-//!
-//! Fixed (phase 4b, W4): the IS_ABILITY_BLOCKED probe ran but its result was
-//! ignored, and the bonus applied to any target; it now stops when the
-//! Ability is blocked and only applies to the opponent's Active Pokémon.
+//! An Ability `DamageDealt` bonus at the Deal stage over the owner's Cynthia's Pokémon (this Pokémon included, and two
+//! Roserade stack: JP FAQ Cynthia's Roserade), on damage dealt to the opponent's Active Pokémon only; an Ability lock turns it
+//! off.
 use crate::spec::prelude::*;
 use crate::types::tag;
 
