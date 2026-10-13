@@ -180,160 +180,221 @@ impl Game {
         }
     }
 
-    /// `CardList.sort()` with V8's TimSort (binary insertion for < 64 items)
-    /// and Twinleaf's comparator (which never returns 0).
+    /// The deck / discard listing order of a non-secret ChooseCards: a stable
+    /// sort by `CardDef::sort_rank` (super type, Trainer / Energy subtype,
+    /// name in UTF-16 order). Equal ranks keep their list order.
     pub fn sort_list(&mut self, r: ListRef) {
         let mut v: SVec<CardId, 120> = SVec::new();
         for &c in self.lst(r) {
             v.push(c);
         }
         let st = &self.st;
-        let cmp = |a: CardId, b: CardId| -> i32 {
-            let da = st.cdef(a);
-            let db = st.cdef(b);
-            let sup = |t: u8| match t {
-                1 => 1,
-                2 => 2,
-                3 => 3,
-                _ => 100,
-            };
-            let r = sup(da.super_type) - sup(db.super_type);
-            if r != 0 {
-                return r;
-            }
-            if da.is_trainer() && db.is_trainer() {
-                let tt = |t: u8| match t {
-                    1 => 1, // supporter
-                    0 => 2, // item
-                    3 => 3, // tool
-                    2 => 4, // stadium
-                    _ => 100,
-                };
-                let s = tt(da.trainer_type) - tt(db.trainer_type);
-                if s != 0 {
-                    return s;
-                }
-            } else if da.is_energy() && db.is_energy() {
-                let et = |t: u8| if t == 0 { 1 } else { 2 };
-                let s = et(da.energy_type) - et(db.energy_type);
-                if s != 0 {
-                    return s;
-                }
-            }
-            if js_str_lt(da.name, db.name) {
-                -1
-            } else {
-                1
-            }
-        };
-        v8_sort(v.as_mut_slice(), &cmp);
+        v.as_mut_slice().sort_by_key(|&c| st.cdef(c).sort_rank);
         self.lst_mut(r).set_from(v.as_slice());
     }
 }
 
-/// JavaScript string `<` (UTF-16 code unit order).
-pub fn js_str_lt(a: &str, b: &str) -> bool {
-    let mut ai = a.encode_utf16();
-    let mut bi = b.encode_utf16();
-    loop {
-        match (ai.next(), bi.next()) {
-            (Some(x), Some(y)) => {
-                if x != y {
-                    return x < y;
-                }
+
+#[cfg(test)]
+mod sort_rank_tests {
+    use crate::carddb::CardDef;
+    use crate::gen::cards::CARDS;
+
+    /// Twinleaf's `CardList.sort` comparator (frozen copy of the replaced code;
+    /// it never returns 0: equal names give 1 both ways).
+    fn twinleaf_cmp(da: &CardDef, db: &CardDef) -> i32 {
+        let sup = |t: u8| match t {
+            1 => 1,
+            2 => 2,
+            3 => 3,
+            _ => 100,
+        };
+        let r = sup(da.super_type) - sup(db.super_type);
+        if r != 0 {
+            return r;
+        }
+        if da.is_trainer() && db.is_trainer() {
+            let tt = |t: u8| match t {
+                1 => 1, // supporter
+                0 => 2, // item
+                3 => 3, // tool
+                2 => 4, // stadium
+                _ => 100,
+            };
+            let s = tt(da.trainer_type) - tt(db.trainer_type);
+            if s != 0 {
+                return s;
             }
-            (None, Some(_)) => return true,
-            _ => return false,
+        } else if da.is_energy() && db.is_energy() {
+            let et = |t: u8| if t == 0 { 1 } else { 2 };
+            let s = et(da.energy_type) - et(db.energy_type);
+            if s != 0 {
+                return s;
+            }
+        }
+        if js_str_lt(da.name, db.name) {
+            -1
+        } else {
+            1
         }
     }
-}
 
-/// V8 `Array.prototype.sort` for arrays shorter than 64 elements:
-/// CountAndMakeRun then BinaryInsertionSort, with the comparator as given.
-pub fn v8_sort<T: Copy>(a: &mut [T], cmp: &dyn Fn(T, T) -> i32) {
-    let n = a.len();
-    if n < 2 {
-        return;
+    /// JavaScript string `<` (UTF-16 code unit order).
+    pub fn js_str_lt(a: &str, b: &str) -> bool {
+        let mut ai = a.encode_utf16();
+        let mut bi = b.encode_utf16();
+        loop {
+            match (ai.next(), bi.next()) {
+                (Some(x), Some(y)) => {
+                    if x != y {
+                        return x < y;
+                    }
+                }
+                (None, Some(_)) => return true,
+                _ => return false,
+            }
+        }
     }
-    if n >= 64 {
-        // V8's merge phase (with galloping) is not reproduced; only reachable
-        // when Twinleaf's card duplication grows a deck past 63 cards.
-        let mut v: Vec<T> = a.to_vec();
-        merge_sort(&mut v, cmp);
-        a.copy_from_slice(&v);
-        return;
-    }
-    // CountAndMakeRun(0, n)
-    let run = {
-        let low = 1;
-        if low == n {
-            1
-        } else {
-            let mut run_length = 2;
-            let mut prev = a[low];
-            let order = cmp(a[low], a[low - 1]);
-            let descending = order < 0;
-            for idx in low + 1..n {
-                let cur = a[idx];
-                let o = cmp(cur, prev);
-                if descending {
-                    if o >= 0 {
+
+    /// V8 `Array.prototype.sort` for arrays shorter than 64 elements:
+    /// CountAndMakeRun then BinaryInsertionSort, with the comparator as given.
+    pub fn v8_sort<T: Copy>(a: &mut [T], cmp: &dyn Fn(T, T) -> i32) {
+        let n = a.len();
+        if n < 2 {
+            return;
+        }
+        if n >= 64 {
+            // V8's merge phase (with galloping) is not reproduced; only reachable
+            // when Twinleaf's card duplication grows a deck past 63 cards.
+            let mut v: Vec<T> = a.to_vec();
+            merge_sort(&mut v, cmp);
+            a.copy_from_slice(&v);
+            return;
+        }
+        // CountAndMakeRun(0, n)
+        let run = {
+            let low = 1;
+            if low == n {
+                1
+            } else {
+                let mut run_length = 2;
+                let mut prev = a[low];
+                let order = cmp(a[low], a[low - 1]);
+                let descending = order < 0;
+                for idx in low + 1..n {
+                    let cur = a[idx];
+                    let o = cmp(cur, prev);
+                    if descending {
+                        if o >= 0 {
+                            break;
+                        }
+                    } else if o < 0 {
                         break;
                     }
-                } else if o < 0 {
-                    break;
+                    prev = cur;
+                    run_length += 1;
                 }
-                prev = cur;
-                run_length += 1;
+                if descending {
+                    a[..run_length].reverse();
+                }
+                run_length
             }
-            if descending {
-                a[..run_length].reverse();
+        };
+        // BinaryInsertionSort(0, run, n)
+        let mut start = if run == 0 { 1 } else { run };
+        while start < n {
+            let pivot = a[start];
+            let mut left = 0;
+            let mut right = start;
+            while left < right {
+                let mid = left + ((right - left) >> 1);
+                if cmp(pivot, a[mid]) < 0 {
+                    right = mid;
+                } else {
+                    left = mid + 1;
+                }
             }
-            run_length
-        }
-    };
-    // BinaryInsertionSort(0, run, n)
-    let mut start = if run == 0 { 1 } else { run };
-    while start < n {
-        let pivot = a[start];
-        let mut left = 0;
-        let mut right = start;
-        while left < right {
-            let mid = left + ((right - left) >> 1);
-            if cmp(pivot, a[mid]) < 0 {
-                right = mid;
-            } else {
-                left = mid + 1;
+            let mut p = start;
+            while p > left {
+                a[p] = a[p - 1];
+                p -= 1;
             }
+            a[left] = pivot;
+            start += 1;
         }
-        let mut p = start;
-        while p > left {
-            a[p] = a[p - 1];
-            p -= 1;
-        }
-        a[left] = pivot;
-        start += 1;
     }
-}
 
-fn merge_sort<T: Copy>(v: &mut Vec<T>, cmp: &dyn Fn(T, T) -> i32) {
-    if v.len() < 2 {
-        return;
+    fn merge_sort<T: Copy>(v: &mut Vec<T>, cmp: &dyn Fn(T, T) -> i32) {
+        if v.len() < 2 {
+            return;
+        }
+        let mut right = v.split_off(v.len() / 2);
+        merge_sort(v, cmp);
+        merge_sort(&mut right, cmp);
+        let left = std::mem::take(v);
+        let (mut i, mut j) = (0, 0);
+        while i < left.len() && j < right.len() {
+            if cmp(right[j], left[i]) < 0 {
+                v.push(right[j]);
+                j += 1;
+            } else {
+                v.push(left[i]);
+                i += 1;
+            }
+        }
+        v.extend_from_slice(&left[i..]);
+        v.extend_from_slice(&right[j..]);
     }
-    let mut right = v.split_off(v.len() / 2);
-    merge_sort(v, cmp);
-    merge_sort(&mut right, cmp);
-    let left = std::mem::take(v);
-    let (mut i, mut j) = (0, 0);
-    while i < left.len() && j < right.len() {
-        if cmp(right[j], left[i]) < 0 {
-            v.push(right[j]);
-            j += 1;
-        } else {
-            v.push(left[i]);
-            i += 1;
+
+    fn old_sort(ids: &mut [usize]) {
+        v8_sort(ids, &|a, b| twinleaf_cmp(&CARDS[a], &CARDS[b]));
+    }
+
+    fn new_sort(ids: &mut [usize]) {
+        ids.sort_by_key(|&i| CARDS[i].sort_rank);
+    }
+
+    #[test]
+    fn rank_agrees_with_the_comparator_on_every_pair() {
+        for (i, a) in CARDS.iter().enumerate() {
+            for (j, b) in CARDS.iter().enumerate() {
+                let old_lt = twinleaf_cmp(a, b) < 0;
+                assert_eq!(old_lt, a.sort_rank < b.sort_rank, "{} vs {}", a.full_name, b.full_name);
+                if i != j && !old_lt && twinleaf_cmp(b, a) >= 0 {
+                    assert_eq!(a.sort_rank, b.sort_rank, "{} vs {}", a.full_name, b.full_name);
+                }
+            }
         }
     }
-    v.extend_from_slice(&left[i..]);
-    v.extend_from_slice(&right[j..]);
+
+    #[test]
+    fn stable_sort_by_rank_equals_the_v8_sort() {
+        let mut seed: u64 = 0x9E3779B97F4A7C15;
+        let mut next = move || {
+            seed ^= seed << 13;
+            seed ^= seed >> 7;
+            seed ^= seed << 17;
+            seed
+        };
+        for _ in 0..10_000 {
+            let len = (next() % 61) as usize;
+            // A narrow slice of the pool makes duplicates and same-name printings likely.
+            let span = if next() % 2 == 0 { CARDS.len() } else { 40 };
+            let base = (next() as usize) % CARDS.len();
+            let mut a: Vec<usize> = (0..len).map(|_| (base + (next() as usize) % span) % CARDS.len()).collect();
+            let mut b = a.clone();
+            old_sort(&mut a);
+            new_sort(&mut b);
+            assert_eq!(a, b);
+        }
+        // Lists of 64 and more (the merge path).
+        for _ in 0..500 {
+            let len = 64 + (next() % 57) as usize;
+            let mut a: Vec<usize> = (0..len).map(|_| (next() as usize) % CARDS.len()).collect();
+            let mut b = a.clone();
+            old_sort(&mut a);
+            new_sort(&mut b);
+            assert_eq!(a, b);
+        }
+    }
 }
