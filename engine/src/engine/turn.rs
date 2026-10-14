@@ -186,7 +186,7 @@ pub fn player_turn_reducer(g: &mut Game, a: Action) -> R {
             let source = SlotRef::new(p, g.st.players[p].active);
             // An attack copied from a Benched Pokémon (Mew ex Memory Helix) runs as the Active Pokémon's.
             let delegate_from = if copied { Some(attack.card) } else { None };
-            g.run_fx_unit(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, barrage_used: false, delegate_from })?;
+            g.run_fx_unit(Effect::UseAttack { p: p as u8, attack, source, ignore_status_conditions: false, second_attack: false, delegate_from })?;
             g.st.last_attack = Some(attack);
             if let Some(pc) = pokemon {
                 g.st.player_last_attack[p] = Some((attack, pc));

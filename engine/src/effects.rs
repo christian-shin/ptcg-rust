@@ -143,13 +143,14 @@ pub enum Effect {
     Retreat { p: u8, bench_index: u8, ignore_status_conditions: bool, move_retreat_cost_to: ListRef },
     RetreatStart { p: u8 },
     /// `delegate_from`: `UseAttackEffect.delegateFrom` (copy-attack source card).
-    UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, barrage_used: bool, delegate_from: Option<CardId> },
+    /// `second_attack`: the second attack of the turn of a Pokémon that may attack again (Festival Lead); no third is offered.
+    UseAttack { p: u8, attack: AttackRef, source: SlotRef, ignore_status_conditions: bool, second_attack: bool, delegate_from: Option<CardId> },
     UseStadium { p: u8, stadium: CardId },
     UsePower { p: u8, power: PowerRef, card: CardId, target: CardTarget, bench_target: Option<SlotRef> },
     Power { p: u8, power: PowerRef, card: CardId, target: Option<SlotRef> },
     /// `ignore_defender_effects`: `AttackEffect.ignoreDefenderEffects` (Shred: effects on the damaged
     /// Pokémon don't change this attack's damage; see `prefabs::ignores_defender_effects`).
-    Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, barrage_used: bool },
+    Attack { p: u8, opp: u8, attack: AttackRef, damage: i32, ignore_weakness: bool, ignore_resistance: bool, ignore_defender_effects: bool, source: SlotRef, second_attack: bool },
     /// The KnockOut event (events batch 6; `engine::knockout`): the Pokémon in `target` of player `p` is Knocked Out
     /// (`ko_by`: by damage from an attack, by an effect, otherwise; `cause` the attack, the effect, or the rule), worth
     /// `prize_count` Prize cards to the opponent (`prize_base` before the adjustments that reduce it). Produced by the

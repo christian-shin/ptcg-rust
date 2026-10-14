@@ -386,7 +386,7 @@ fn start_delegated(g: &mut Game, mut f: CopyFrame, source: CardId, index: u8) ->
         ignore_resistance: false,
         ignore_defender_effects: false,
         source: f.src_slot,
-        barrage_used: false,
+        second_attack: false,
     });
     f.atk = atk;
     f.stage = CopyStage::AfterAttackFx;
@@ -514,7 +514,7 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
             let p = f.p as usize;
             let active = SlotRef::new(p, g.st.players[p].active);
             let phase = g.st.phase;
-            match g.run_fx(Effect::UseAttack { p: f.p, attack: a, source: active, ignore_status_conditions: false, barrage_used: false, delegate_from: Some(source) }) {
+            match g.run_fx(Effect::UseAttack { p: f.p, attack: a, source: active, ignore_status_conditions: false, second_attack: false, delegate_from: Some(source) }) {
                 Ok(_) => Ok(()),
                 // The chosen attack can't be used after all (its own conditions): choose another. An invalid answer
                 // is no such case.
