@@ -205,10 +205,8 @@ pub fn resume_deleg(g: &mut Game, card: CardId, source: CardId, serial: u8, fram
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CopyStage {
-    /// COPY_ATTACK_FROM_POKEMON_LIST: ChooseAttackPrompt answered.
+    /// The choice of the attack to copy is answered.
     ListChosen,
-    /// COPY_ATTACK_VIA_ABILITY: ChooseAttackPrompt answered.
-    AbilityChosen,
     AfterAttackFx,
     AfterBefore,
     AfterDeal,
@@ -230,19 +228,12 @@ pub struct CopyFrame {
     /// The clone's `AttackEffect` (retained while the generator runs).
     pub atk: EffId,
     pub src_slot: SlotRef,
-    /// COPY_ATTACK_FROM_POKEMON_LIST's try/catch: errors end the copy silently.
-    pub catch: bool,
-    /// useAttack continuation (delegateFrom path): the animation follows.
+    /// The attack used another Pokémon's attack as its own (Memory Helix): the animation follows.
     pub then: Option<AttackFrame>,
-    /// ChooseAttackPrompt cards.
+    /// The Pokémon cards whose attacks the choice is among.
     pub cards: SVec<CardId, 64>,
-    /// `maxRetries` of COPY_ATTACK_FROM_POKEMON_LIST and the current attempt.
-    pub max_retries: u8,
-    pub retry: u8,
-    /// `allowCancel` of the (re-issued) ChooseAttackPrompt.
+    /// The choice can be cancelled.
     pub allow_cancel: bool,
-    /// COPY_ATTACK_VIA_ABILITY: the prompt's blocked (card index, attack index) pairs.
-    pub blocked: SVec<(u8, u8), 16>,
 }
 
 impl CopyFrame {
@@ -255,13 +246,9 @@ impl CopyFrame {
             attack: AttackRef { card: NO_CARD, index: 0 },
             atk: 0,
             src_slot,
-            catch: false,
             then: None,
             cards: SVec::new(),
-            max_retries: 1,
-            retry: 0,
             allow_cancel: false,
-            blocked: SVec::new(),
         }
     }
 }
@@ -277,7 +264,7 @@ fn no_attack_left_to_copy(g: &Game, cards: &[CardId], blocked: &[(u8, u8)]) -> b
     })
 }
 
-/// The ChooseAttackPrompt of one COPY_ATTACK_FROM_POKEMON_LIST attempt.
+/// The choice of the attack to copy.
 fn prompt_list(g: &mut Game, f: CopyFrame) -> R {
     let p = f.p as usize;
     let pc = f.cards;
@@ -312,9 +299,10 @@ fn find_attack_index(g: &Game, source: CardId, a: AttackRef) -> Option<u8> {
     g.st.cdef(source).attacks.iter().position(|x| x.name == name).map(|i| i as u8)
 }
 
-/// `COPY_ATTACK_FROM_POKEMON_LIST` with `maxRetries`: a locked attack or an
-/// error in the delegated attack re-issues the prompt until the attempts run out.
-pub fn copy_attack_from_pokemon_list_retries(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool, max_retries: u8) -> R {
+/// "Choose 1 of the attacks of these Pokémon and use it as this attack": the player chooses once. A copied attack that can't
+/// be fully done is still used and ends (RULES.md "A copied attack is the copycat's only while it is used"); an error from its
+/// program is an engine defect, as from any attack.
+pub fn copy_attack_from_pokemon_list(g: &mut Game, atk: EffId, cards: &[CardId], allow_cancel: bool) -> R {
     let (p, source) = match *g.e(atk) {
         Effect::Attack { p, source, .. } => (p as usize, source),
         _ => return Ok(()),
@@ -327,36 +315,11 @@ pub fn copy_attack_from_pokemon_list_retries(g: &mut Game, atk: EffId, cards: &[
         None => return Ok(()),
     };
     let mut f = CopyFrame::new(CopyStage::ListChosen, p, copycat, source);
-    f.catch = true;
-    f.max_retries = max_retries;
     f.allow_cancel = allow_cancel;
     for &c in cards {
         f.cards.push(c);
     }
-    if max_retries == 0 {
-        return Ok(());
-    }
     prompt_list(g, f)
-}
-
-/// Push onto a blocked list of at most 16 entries (a full list can only miss a
-/// blocked attack, which is then caught like any attack that throws).
-fn push_blocked(v: &mut SVec<(u8, u8), 16>, e: (u8, u8)) {
-    if v.len() < 16 {
-        v.push(e);
-    }
-}
-
-/// The ChooseAttackPrompt of COPY_ATTACK_VIA_ABILITY (`promptAttackToCopyViaAbility`).
-fn prompt_ability(g: &mut Game, f: CopyFrame) -> R {
-    let id = g.player_id(f.p as usize);
-    g.prompt(
-        id,
-        "CHOOSE_ATTACK_TO_COPY",
-        PromptKind::ChooseAttack { cards: f.cards, allow_cancel: true, blocked_message: "NOT_ENOUGH_ENERGY", blocked: f.blocked },
-        Cont::CopyAttack(f),
-    );
-    Ok(())
 }
 
 /// useAttack's `delegateFrom` branch: `runDelegatedCopiedAttackGenerator`
@@ -395,26 +358,25 @@ fn start_delegated(g: &mut Game, mut f: CopyFrame, source: CardId, index: u8) ->
     finish_step(g, f, r, wait_if_prompts)
 }
 
-/// Apply the generator's error policy to a stage result, then either
-/// suspend (`wait` returned true) or continue with the next stage.
+/// The stop of a copied attack that can't be done (a `Fail` of its program: "you can't use this attack during your first
+/// turn", an unmet condition of its use): the copied attack is still used, does nothing more and ends.
+pub const COPIED_ATTACK_ENDS: &str = "COPIED_ATTACK_ENDS";
+
+/// Either suspend (`wait` returned true) or continue with the next stage; the end of a copied attack that can't be done
+/// ([`COPIED_ATTACK_ENDS`]) is released and the copy ends; any other error from the copied attack's program is released and
+/// propagates, like one from any attack.
 fn finish_step(g: &mut Game, mut f: CopyFrame, r: R, wait: impl FnOnce(&mut Game, &mut CopyFrame) -> R<bool>) -> R {
     let r = r.and_then(|_| wait(g, &mut f));
     match r {
         Ok(true) => Ok(()),
         Ok(false) => next_stage(g, f),
+        Err(e) if e.0 == COPIED_ATTACK_ENDS && f.then.is_none() => {
+            g.release_fx(f.atk);
+            Ok(())
+        }
         Err(e) => {
             g.release_fx(f.atk);
-            if f.catch {
-                if f.retry + 1 >= f.max_retries {
-                    Ok(())
-                } else {
-                    f.retry += 1;
-                    f.stage = CopyStage::ListChosen;
-                    prompt_list(g, f)
-                }
-            } else {
-                Err(e)
-            }
+            Err(e)
         }
     }
 }
@@ -473,7 +435,7 @@ fn next_stage(g: &mut Game, mut f: CopyFrame) -> R {
                 None => Ok(()),
             }
         }
-        CopyStage::ListChosen | CopyStage::AbilityChosen => Ok(()),
+        CopyStage::ListChosen => Ok(()),
     }
 }
 
@@ -501,33 +463,6 @@ pub fn resume(g: &mut Game, f: CopyFrame, res: Res) -> R {
                 None => return Ok(()),
             };
             start_delegated(g, f, source, index)
-        }
-        CopyStage::AbilityChosen => {
-            let a = match res {
-                Res::Attack(a) => a,
-                _ => return Ok(()),
-            };
-            let source = match find_pokemon_for_attack(g, f.cards.as_slice(), a) {
-                Some(c) => c,
-                None => return Ok(()),
-            };
-            let p = f.p as usize;
-            let active = SlotRef::new(p, g.st.players[p].active);
-            let phase = g.st.phase;
-            match g.run_fx(Effect::UseAttack { p: f.p, attack: a, source: active, ignore_status_conditions: false, second_attack: false, delegate_from: Some(source) }) {
-                Ok(_) => Ok(()),
-                // The chosen attack can't be used after all (its own conditions): choose another. An invalid answer
-                // is no such case.
-                Err(e) if e.0 != "INVALID_PROMPT_RESULT" => {
-                    g.st.phase = phase;
-                    g.st.bump();
-                    let index = f.cards.iter().position(|c| *c == a.card).unwrap_or(0) as u8;
-                    let mut nf = f;
-                    push_blocked(&mut nf.blocked, (index, a.idx() as u8));
-                    prompt_ability(g, nf)
-                }
-                Err(e) => Err(e),
-            }
         }
         // A wait item fired: continue after the stage that suspended.
         _ => next_stage(g, f),
