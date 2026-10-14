@@ -64,6 +64,14 @@ pub fn reset_card(st: &mut State, card: CardId) {
     }
 }
 
+/// [`reset_card`] for every card of the spot `t` (an evolved stack is a new Pokémon: id317).
+pub fn reset_slot(st: &mut State, t: crate::effects::SlotRef) {
+    if !st.usage.is_empty() {
+        let cards = &st.players[t.p as usize].slots[t.s as usize].cards;
+        st.usage.retain(|u| !(matches!(u.key, UsageKey::Ability(_)) && matches!(u.by, UsageBy::Card(c) if cards.iter().any(|x| x == c))));
+    }
+}
+
 /// The Abilities `card` has used (its own records), read before the card is moved (`carry`).
 pub fn abilities_of(st: &State, card: CardId) -> crate::list::SVec<(UsageKey, Until), 4> {
     let mut out = crate::list::SVec::new();

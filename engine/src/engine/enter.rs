@@ -549,7 +549,7 @@ fn devolve_one(g: &mut Game, t: SlotRef, dest: ListRef, cause: Cause) -> R<SVec<
         let turn = g.st.turn;
         crate::engine::game_effect::clear_effects_evolving(&mut g.st, tp, ts);
         g.st.players[tp].slots[ts as usize].entered_turn = turn;
-        crate::prefabs::reset_once_per_turn_slot(g, t); // id317
+        crate::engine::usage::reset_slot(&mut g.st, t); // id317
     }
     Ok(out)
 }
@@ -683,7 +683,7 @@ fn evolution_consequences(g: &mut Game, p: usize, target: SlotRef, cause: Cause)
     // Evolve's cause).
     crate::engine::condition::recover_by_rule(g, target, cause, preserved.as_slice())?;
     crate::engine::game_effect::clear_effects_evolving(&mut g.st, target.p as usize, target.s);
-    crate::prefabs::reset_once_per_turn_slot(g, target);
+    crate::engine::usage::reset_slot(&mut g.st, target);
     Ok(())
 }
 

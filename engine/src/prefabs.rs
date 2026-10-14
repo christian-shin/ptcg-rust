@@ -321,23 +321,6 @@ pub fn power_type_of(g: &Game, power: PowerRef) -> u8 {
 }
 
 // ---------------------------------------------------------------------------
-// Ability bookkeeping
-
-/// A card's own Ability usage records end when its Pokémon changes (ruling 317: evolving, devolving, leaving play, and
-/// coming into play again); benching does not (`engine::usage::reset_card`).
-pub fn reset_once_per_turn(g: &mut Game, card: CardId) {
-    crate::engine::usage::reset_card(&mut g.st, card);
-}
-
-/// `reset_once_per_turn` for every card of a slot.
-pub fn reset_once_per_turn_slot(g: &mut Game, t: SlotRef) {
-    let cards: Vec<CardId> = g.st.slot(t.p as usize, t.s).cards.iter().collect();
-    for c in cards {
-        reset_once_per_turn(g, c);
-    }
-}
-
-// ---------------------------------------------------------------------------
 // Attack helpers
 
 fn atk_base_for(g: &Game, atk: EffId, target: SlotRef) -> AtkBase {

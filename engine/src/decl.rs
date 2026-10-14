@@ -345,11 +345,6 @@ fn ordered_st(st: &State, cards: SVec<CardId, 120>, class: u16) -> SVec<CardId, 
     out
 }
 
-/// Is the card in a zone of the board the propagation order visits (not the Lost Zone, not set aside in a staging list)?
-pub fn in_a_zone(g: &Game, c: CardId) -> bool {
-    prop_key(&g.st, c).is_some()
-}
-
 /// The card's place in the zone order: player (bit 20), zone (bits 8..19), index in the zone (bits 0..7).
 fn prop_key(st: &State, c: CardId) -> Option<u32> {
     let key = |p: u8, zone: u32, list: &[CardId]| -> Option<u32> {
