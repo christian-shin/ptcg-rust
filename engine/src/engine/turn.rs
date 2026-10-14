@@ -13,8 +13,8 @@ fn find_pokemon_target(g: &Game, p: usize, t: CardTarget) -> Option<SlotRef> {
 }
 
 /// Check only: may this Energy be attached from the hand to `target` now?
-/// Returns the slot and whether the attachment uses the turn's one attachment.
-pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<(SlotRef, bool)> {
+/// Returns the slot.
+pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<SlotRef> {
     let t = match find_pokemon_target(g, p, target) {
         Some(t) if !g.st.slot(t.p as usize, t.s).cards.is_empty() => t,
         _ => crate::bail!("INVALID_TARGET"),
@@ -23,7 +23,7 @@ pub fn can_attach_energy(g: &Game, p: usize, target: CardTarget) -> R<(SlotRef, 
     if pl.energy_played_turn == g.st.turn {
         crate::bail!("ENERGY_ALREADY_ATTACHED");
     }
-    Ok((t, true))
+    Ok(t)
 }
 
 /// Check only: using the Stadium in play (APR B-04: once during each player's turn, a Stadium whose card says it can be
@@ -66,9 +66,9 @@ pub fn play_card_reducer(g: &mut Game, a: Action) -> R {
     };
     let d = g.st.cdef(card);
     if d.is_energy() {
-        let (t, uses_turn_attach) = can_attach_energy(g, p, target)?;
+        let t = can_attach_energy(g, p, target)?;
         // The Attach event from the hand by the rule (`manual`), with its checks.
-        return crate::engine::attach::play_energy(g, p, card, t, uses_turn_attach);
+        return crate::engine::attach::play_energy(g, p, card, t);
     }
     if d.is_pokemon() {
         let t = match find_pokemon_target(g, p, target) {

@@ -396,7 +396,7 @@ pub fn legal_fast(ctx: &mut Ctx, a: Action) -> Option<bool> {
 fn fast_energy(ctx: &mut Ctx, card: CardId, target: CardTarget) -> Option<bool> {
     let g = ctx.g;
     let p = ctx.p;
-    let Ok((t, _)) = turn::can_attach_energy(g, p, target) else { return Some(false) };
+    let Ok(t) = turn::can_attach_energy(g, p, target) else { return Some(false) };
     // The Attach the play produces and the checks its routine makes (`engine::attach::check_attach_with`): the
     // spot, the locks, the Energy's own guard.
     let v = crate::engine::attach::attach_view(g, card, t, crate::spec::event::RulesZone::Hand, true, crate::cause::Cause::rule(crate::cause::RuleWhich::Action, p as u8));

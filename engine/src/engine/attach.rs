@@ -175,15 +175,12 @@ pub fn check_attach(g: &mut Game, v: &EventView) -> R {
 // The routines
 
 /// The player's Energy attachment from the hand by the game rule (the turn action; `manual`): checked, then
-/// attached. `uses_turn`: it is the turn's one attachment (not with an effect allowing more: Dragon's Wish). A
-/// refused attachment is an error (the action is illegal).
-pub fn play_energy(g: &mut Game, p: usize, card: CardId, target: SlotRef, uses_turn: bool) -> R {
+/// attached; it is the turn's one attachment. A refused attachment is an error (the action is illegal).
+pub fn play_energy(g: &mut Game, p: usize, card: CardId, target: SlotRef) -> R {
     let cause = Cause::rule(crate::cause::RuleWhich::Action, p as u8);
     let v = attach_view(g, card, target, RulesZone::Hand, true, cause);
     check_attach(g, &v)?;
-    if uses_turn {
-        g.st.players[p].energy_played_turn = g.st.turn;
-    }
+    g.st.players[p].energy_played_turn = g.st.turn;
     run_attach(g, card, target, true, cause)
 }
 

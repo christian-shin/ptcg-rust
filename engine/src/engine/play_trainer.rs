@@ -208,7 +208,7 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
         TrainerType::Supporter => {
             g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with: None })?;
             restore_played_trainer(g, p, card);
-            finalize_trainer_cleanup(g, p, card, false);
+            finalize_trainer_cleanup(g, p, card);
             record(g, p, card);
             Ok(())
         }
@@ -242,11 +242,11 @@ fn resolve(g: &mut Game, p: usize, card: CardId, target: Option<SlotRef>) -> R {
             }
             g.run_fx_unit(Effect::PlayTrainer { p: pu, card, target, use_: TrainerUse::Played, cause, with })?;
             restore_played_trainer(g, p, card);
-            finalize_trainer_cleanup(g, p, card, false);
+            finalize_trainer_cleanup(g, p, card);
             record(g, p, card);
             if let Some(w) = with {
                 restore_played_trainer(g, p, w);
-                finalize_trainer_cleanup(g, p, w, false);
+                finalize_trainer_cleanup(g, p, w);
                 record(g, p, w);
             }
             Ok(())
@@ -294,10 +294,7 @@ fn restore_played_trainer(g: &mut Game, p: usize, card: CardId) {
     }
 }
 
-fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId, keep: bool) {
-    if keep {
-        return;
-    }
+fn finalize_trainer_cleanup(g: &mut Game, p: usize, card: CardId) {
     if g.has_prompts() {
         g.wait_prompt(Cont::TrainerCleanup { p: p as u8, card });
         return;
