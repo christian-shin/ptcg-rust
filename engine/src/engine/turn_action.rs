@@ -10,7 +10,7 @@
 //! - [`ability_checks`]: the printed use-from flags (`turn::can_use_ability_core`), the Ability is there (a locked Ability
 //!   doesn't exist, RULES.md "Has no Abilities": `derived::has_no_ability` through `attack::power_use_blocked`), the locks
 //!   over UseAbility (no pool card prints "can't use
-//!   Abilities"). The once-per-turn marker and the card's own `needs` are the program's checks (`spec::run::check_power`).
+//!   Abilities"). The once-per-turn usage record and the card's own `needs` are the program's checks (`spec::run::check_power`).
 //! - [`stadium_checks`]: once per turn, a Stadium that declares a use (`CardSpec::use_stadium`), the locks over
 //!   UseStadium.
 //!

@@ -114,9 +114,9 @@ fn sig(g: &Game, skip: Option<u8>, markers: bool) -> String {
         slots.extend(pl.bench.iter().copied());
         for (k, s) in slots.iter().enumerate() {
             let sl = &pl.slots[*s as usize];
-            o += &format!("S{}[{:?}|{}|{}|d{}|{:?}|m{}] ", k, sl.cards.as_slice(), names_of(g, sl.energies.as_slice(), None), names_of(g, sl.tools.as_slice(), None), sl.damage, sl.special_conditions.as_slice(), if markers { sl.marker.items.len() } else { 0 });
+            o += &format!("S{}[{:?}|{}|{}|d{}|{:?}|m{}] ", k, sl.cards.as_slice(), names_of(g, sl.energies.as_slice(), None), names_of(g, sl.tools.as_slice(), None), sl.damage, sl.special_conditions.as_slice(), if markers { g.st.lasting.iter().filter(|l| l.on == ptcg::state::LastingOn::pokemon(p, *s)).count() } else { 0 });
         }
-        o += &format!("pm{} ", if markers { pl.marker.items.len() } else { 0 });
+        o += &format!("pm{} ", if markers { g.st.usage.len() } else { 0 });
     }
     o
 }

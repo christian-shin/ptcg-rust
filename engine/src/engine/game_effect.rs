@@ -51,7 +51,6 @@ pub fn reset_empty_slot(st: &mut State, p: usize, s: SlotId) {
 pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
     clear_effects(st, p, s);
     crate::engine::lasting::clear_declared(st, p, s);
-    st.players[p].slots[s as usize].marker.clear();
 }
 
 /// `PokemonCardList.clearEffects()` for the modeled fields, except the Special Conditions: a Pokémon that stays in
@@ -60,7 +59,6 @@ pub fn clear_effects_evolving(st: &mut State, p: usize, s: SlotId) {
 /// effects on it end but the cost increases and the next-turn bonus (`lasting::clear_effects`).
 pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
     let slot = &mut st.players[p].slots[s as usize];
-    slot.marker.remove_all_except_trainer_effects();
     slot.poison_damage = 10;
     slot.burn_damage = 20;
     slot.confusion_damage = 30;
@@ -71,7 +69,6 @@ pub fn clear_effects(st: &mut State, p: usize, s: SlotId) {
 /// `PokemonCardList.removeAttackEffects()` for the modeled fields: every lasting effect on the Pokémon ends.
 pub fn remove_attack_effects(st: &mut State, p: usize, s: SlotId) {
     let slot = &mut st.players[p].slots[s as usize];
-    slot.marker.remove_attack_effects();
     slot.healed_this_turn = false;
     crate::engine::lasting::remove_attack_effects(st, p, s);
 }

@@ -635,7 +635,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
             let turn = g.st.turn;
             let slot = &mut g.st.players[target.p as usize].slots[target.s as usize];
             slot.entered_turn = turn;
-            slot.marker.remove_all_except_trainer_effects();
             evolution_consequences(g, target.p as usize, target, cause)
         }
         Effect::Devolve { target, count, dest, cause, .. } => {

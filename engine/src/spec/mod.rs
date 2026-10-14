@@ -13,7 +13,7 @@
 //! | `ops/cards.rs` | moving cards between zones, Energy, Prizes |
 //! | `ops/board.rs` | damage, counters, healing, switching, conditions, Knock Outs, evolution |
 //! | `ops/flow.rs` | May, If, Coin, Choose, loops, Fail, attack copying, ending the turn or game |
-//! | `ops/state.rs` | lasting effects and markers |
+//! | `ops/state.rs` | lasting effects, declared effects, usage and slot records |
 //! | `value.rs` | conditions, numbers, card and slot predicates, selectors |
 //! | `passive.rs` | passive modifiers |
 //! | `trigger.rs` | triggers |
@@ -327,8 +327,6 @@ pub enum Op {
     EndGame(EndGameSpec),
     // ops/state.rs
     AttackFlag(AttackFlagSpec),
-    SetMarker(SetMarkerSpec),
-    ClearMarker(ClearMarkerSpec),
     Arm(ArmSpec),
     ArmEach(ArmEachSpec),
     // S3 appends

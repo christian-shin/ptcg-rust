@@ -25,7 +25,6 @@
 use crate::cause::Cause;
 use crate::effects::{EffId, Effect, SlotRef};
 use crate::game::{Game, R};
-use crate::markers::*;
 use crate::spec::event::*;
 use crate::state::*;
 
@@ -214,9 +213,6 @@ pub fn reducer(g: &mut Game, id: EffId) -> R {
     let leaving = g.st.slot_pokemon(p, from);
     if leaving.is_some() {
         crate::engine::condition::recover_by_rule(g, SlotRef::new(p, from), cause, &[])?;
-        let pl = &mut g.st.players[p];
-        // The player's markers about the Active Pokémon go with it.
-        pl.marker.items.retain(|m| m.target_scope != TargetScope::Pokemon);
         crate::engine::game_effect::remove_attack_effects(&mut g.st, p, from);
         crate::engine::game_effect::clear_effects(&mut g.st, p, from);
     }

@@ -1336,7 +1336,7 @@ impl Game {
             self.deleg = saved;
             r?;
             if !read {
-                // A card's handler may write (markers, records): the next one reads fresh facts.
+                // A card's handler may write (records, flags): the next one reads fresh facts.
                 self.st.bump();
             }
         }

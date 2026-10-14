@@ -717,11 +717,11 @@ pub(crate) fn branch_can_change(g: &Game, me: CardId, f: &Frame, steps: &[Step])
     w.walk(g, me, f, steps, false) != Some(false)
 }
 
-/// Does a timed trigger's program apply now (batch 8 C11c): an op that isn't marker bookkeeping, reached through the
+/// Does a timed trigger's program apply now (batch 8 C11c): an op that isn't record bookkeeping, reached through the
 /// conditions that hold now ("if ..., discard it": only when the condition holds)?
 fn applies(g: &Game, me: CardId, f: &Frame, steps: &[Step]) -> bool {
     steps.iter().any(|s| match &s.op {
-        Op::SetMarker(_) | Op::ClearMarker(_) | Op::Used(_) => false,
+        Op::Used(_) | Op::Record(_) | Op::Forget(_) => false,
         Op::If(i) => applies(g, me, f, if crate::spec::value::cond(g, me, f, &i.cond) { i.yes } else { i.no }),
         _ => true,
     })
@@ -933,7 +933,7 @@ pub fn trainer_play_check<F: crate::derived::Facts>(g: &mut F, me: CardId, p: us
     check_play(g, me, play, &f)
 }
 
-/// Legality, the cheap half of the power checks (read from the game as it is): is the once-per-turn marker free?
+/// Legality, the cheap half of the power checks (read from the game as it is): is the once-per-turn usage record free?
 pub fn power_once_check(g: &Game, me: CardId, index: u8, p: usize) -> R {
     let Some(spec) = crate::cards::spec_for(g.st.cards[me as usize].def) else { return Ok(()) };
     match spec.powers.iter().find(|pw| pw.index == index) {
@@ -1089,7 +1089,7 @@ fn run(g: &mut Game, me: CardId, mut f: Frame) -> R {
             f.advance();
             continue;
         }
-        // Every op step may write (markers, flags, the slot fields of lasting effects): the derived facts are stale.
+        // Every op step may write (records, flags, the lasting table): the derived facts are stale.
         g.st.bump();
         let flow = if f.phase == Phase::Choices { ops::choice(g, me, &mut f, &step.op)? } else { ops::exec(g, me, &mut f, &step.op)? };
         g.st.bump();

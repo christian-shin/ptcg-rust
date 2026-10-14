@@ -37,7 +37,7 @@ fn family(op: &Op) -> Family {
         | Devolve(_) | SwapPokemonCard(_) | RemoveFromPlay(_) | Conditions(_) | KnockOut(_) | SpreadDamage(_) | SwitchWithActive(_) | EachSlot(_) | ChoiceDamage(_) => Family::Board,
         Coin(_) | May(_) | If(_) | Choose(_) | ForEach(_) | Repeat(_) | Parallel(_) | Fail(_) | PickAttack(_) | CopyAttack(_) | EndTurn(_)
         | EndGame(_) => Family::Flow,
-        AttackFlag(_) | SetMarker(_) | ClearMarker(_) | Arm(_) | ArmEach(_) | Used(_) | Declare(_) | Record(_) | Forget(_) => Family::State,
+        AttackFlag(_) | Arm(_) | ArmEach(_) | Used(_) | Declare(_) | Record(_) | Forget(_) => Family::State,
     }
 }
 
@@ -87,7 +87,7 @@ pub(crate) fn implied_ok(g: &Game, me: CardId, f: &Frame, op: &Op) -> bool {
 }
 
 /// Would the op change the game now (`Some`), or is it not an effect by itself (`None`: a choice the following ops act
-/// on, a marker, a flag)? The rules' usability (`run::usable_by_rules`) needs one effect that would change the game.
+/// on, a record, a flag)? The rules' usability (`run::usable_by_rules`) needs one effect that would change the game.
 pub(crate) fn effect_possible(g: &Game, me: CardId, f: &Frame, op: &Op) -> Option<bool> {
     match family(op) {
         Family::Cards => cards::effect_possible(g, me, f, op),
