@@ -23,6 +23,18 @@
   "hand": [
    "Poké Ball JU 64"
   ],
+  "hand_to_deck": true,
+  "deck_top": [
+   "Rowlet POR 10"
+  ],
+  "prizes": [
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3",
+   "Water Energy MEE 3"
+  ],
   "reset": true
  },
  "opp": {
@@ -36,7 +48,8 @@
   {
    "a": "play",
    "card": "Poké Ball JU 64"
-  }
+  },
+  [0]
  ],
  "expect": [
   {
